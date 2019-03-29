@@ -1,0 +1,85 @@
+#plot Slater type function and Gaussian type function
+#!/usr/bin/gnuplot
+
+set terminal png enhanced truecolor font Arial 30 size 800,800
+set encoding utf8
+
+# Color definitions
+set border linewidth 4
+set style line  1 lc rgb '#72B830' lt 1 lw 2 pt  6 ps 2.0 #
+set style line  2 lc rgb '#DB7093' lt 1 lw 2 pt  8 ps 1.5 #
+set style line  3 lc rgb '#000000' lt 1 lw 2 pt 10 ps 1.5 #
+set style line  4 lc rgb '#12129B' lt 1 lw 2 pt 12 ps 1.5 #
+
+# Axes
+set style line 15 lc rgb '#000000' lt 2 lw 2
+set tics nomirror out scale 1.5
+
+set size 1, 1
+
+set rmargin at screen 0.95
+set lmargin at screen 0.2
+set tmargin at screen 0.9
+set bmargin at screen 0.15
+
+set grid xtics ytics mxtics mytics
+
+set xlabel "sin {/Symbol q} / {/Symbol l} Å^{-1}" offset 0,0.5
+
+set xrange [0:*]
+
+set xtics 0.4
+
+set ytics 0.5
+set yrange [0:*]
+set ylabel "root of {/Symbol c}^{2} per point" offset 2,0
+set output "statanalchi.png"
+set title " " offset 0,-0.8
+plot 'statanal.par' index 1 u 1:2 w lp title 'orb.' ls 1,\
+     'statanalSpher.par'  index 1 u 1:2 w lp title 'spher.' ls 2
+
+
+set yrange [0:*]
+set ytics auto
+set ylabel "number of points" offset 2,0
+set output "statanalno.png"
+set title " " offset 0,-0.8
+plot 'statanal.par'  index 1 u 1:5 w boxes notitle ls 1 fs solid 0.25
+     
+set ytics 2
+set yrange [0:*]
+set ylabel "Crystallographic R_{F} factor, %" offset 2,0
+set output "statanalRF.png"
+set title " " offset 0,-0.8
+plot 'statanal.par'  index 1 u 1:3 w lp title 'orb.' ls 1,\
+     'statanalSpher.par'  index 1 u 1:3 w lp title 'spher.' ls 2
+     
+     
+set xrange [0:*]
+set xtics auto
+set xlabel "F_{exp}" offset 0,0.5
+set yrange [0:*]
+set ytics auto
+set ylabel "root of {/Symbol c}^{2} per point" offset 2,0
+set output "statanalchiFexp.png"
+set title " " offset 0,-0.8
+plot 'statanal.par' index 2 u 1:2 w lp title 'orb.' ls 1,\
+     'statanalSpher.par'  index 2 u 1:2 w lp title 'spher.' ls 2
+
+
+set yrange [0:*]
+set ytics auto
+set ylabel "number of points" offset 2,0
+set output "statanalnoFexp.png"
+set title " " offset 0,-0.8
+plot 'statanal.par'  index 2 u 1:5 w boxes notitle ls 1 fs solid 0.25
+     
+
+set yrange [0:*]
+set ytics auto
+set ylabel "Crystallographic R_{F} factor, %" offset 2,0
+set output "statanalRFFexp.png"
+set title " " offset 0,-0.8
+plot 'statanal.par'  index 2 u 1:3 w lp title 'orb.' ls 1,\
+     'statanalSpher.par'  index 2 u 1:3 w lp title 'spher.' ls 2
+exit

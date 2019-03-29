@@ -1,0 +1,16 @@
+set xlabel "2{/Symbol q}, degree"
+set ylabel "intensity"
+
+set border linewidth 3
+
+set style line  1 lc rgb '#72B830' lt 1 lw 1 pt  6 ps 0.5 #72B830
+set style line  2 lc rgb '#DB7093' lt 1 lw 1 pt  8 ps 0.5 #
+set style line  3 lc rgb '#000000' lt 1 lw 1 pt 10 ps 0.5 #DB7093
+
+set grid xtics ytics mxtics mytics
+
+plot 'int2Kp5u.dat'    u 1:2 w lp title 'up 2K' ls 1,\
+     'back2K.dat'     u 1:2 w lp title 'back 2K' ls 3,\
+     'int10Kp5u.dat'    u 1:2 w lp title 'up 10K' ls 1,\
+     'back10K.dat'     u 1:2 w lp title 'back 10K' ls 3
+     

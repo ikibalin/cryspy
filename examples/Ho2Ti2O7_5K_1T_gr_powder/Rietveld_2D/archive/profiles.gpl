@@ -1,0 +1,18 @@
+set xlabel "2{/Symbol q}, degree"
+set ylabel "intensity"
+
+set border linewidth 3
+
+set style line  1 lc rgb '#72B830' lt 1 lw 2 pt  6 ps 0.5 #
+set style line  2 lc rgb '#000000' lt 1 lw 2 pt  8 ps 0.5 #
+set style line  3 lc rgb '#DB7093' lt 1 lw 1 pt 10 ps 0.5 #
+set style line  4 lc rgb '#1100AA' lt 1 lw 1 pt 10 ps 0.5 #
+set style line  5 lc rgb '#11AAAA' lt 1 lw 1 pt 10 ps 0.5 #
+
+
+
+set grid xtics ytics mxtics mytics
+fname1 ="p_int_ed.out"
+plot fname1 u 1:2:3   w yerrorbars  title "up"    ls 1,\
+     fname1 u 1:4:5   w yerrorbars  title "down"    ls 2,\
+	 fname1 u 1:6:7   w yerrorbars  title "diff"    ls 3,\

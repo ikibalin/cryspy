@@ -1,0 +1,57 @@
+#!/usr/bin/gnuplot
+
+set terminal png enhanced truecolor font Arial 30 size 800,800
+set encoding utf8
+
+set style line  1 lc rgb '#0905de' lt  1  lw 1.0 pt  7 ps 2.0
+set style line  2 lc rgb '#e30405' lt  2  lw 1.0 pt  5 ps 2.5
+set style line  3 lc rgb '#2fe72f' lt  0  lw 1.0 pt  5 ps 2.5
+
+set style arrow 1 nohead lw 2
+set arrow arrowstyle 1
+
+set pm3d interpolate 1,1 map
+
+set rmargin at screen 0.95
+set lmargin at screen 0.2
+set tmargin at screen 0.9
+set bmargin at screen 0.15
+
+set xlabel "2{/Symbol q}, degrees" offset 0,0.5
+set ylabel "{/Symbol g}, degrees" offset 0.5,0
+
+set xrange [ 0:80]
+set yrange [ 0:80]
+
+set xtics 20
+set ytics 20
+
+
+unset colorbox
+
+set palette rgb 30,31,32
+set palette rgb 33,13,10
+set palette model HSV
+
+fname1 = "2d_exp.dat"
+
+fnameb=fname1[1:strlen(fname1)-4]
+set output fnameb."_u.png"
+
+set cbrange [ 0:7500]
+
+splot  fname1 index 0 nonuniform matrix  notitle
+
+set output fnameb."_d.png"
+splot  fname1 index 2 nonuniform matrix  notitle
+
+set cbrange [ -5000:5000]
+
+set output fnameb."_diff.png"
+splot  fname1 index 4 nonuniform matrix  notitle
+
+
+
+
+
+quit

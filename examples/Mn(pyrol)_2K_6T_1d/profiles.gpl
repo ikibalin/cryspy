@@ -1,0 +1,17 @@
+set xlabel "2{/Symbol q}, degree"
+set ylabel "intensity"
+
+set border linewidth 3
+
+set style line  1 lc rgb '#72B830' lt 1 lw 2 pt  6 ps 0.5 #
+set style line  2 lc rgb '#000000' lt 1 lw 2 pt  8 ps 0.5 #
+set style line  3 lc rgb '#DB7093' lt 1 lw 1 pt 10 ps 0.5 #
+set style line  4 lc rgb '#1100AA' lt 1 lw 1 pt 10 ps 0.5 #
+set style line  5 lc rgb '#11AAAA' lt 1 lw 1 pt 10 ps 0.5 #
+
+
+
+set grid xtics ytics mxtics mytics
+fname1 ="full.out"
+plot fname1 u 1:2:3   w yerrorbars  title "up"    ls 1,\
+     fname1 u 1:4     w l  notitle     ls 2

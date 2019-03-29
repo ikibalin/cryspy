@@ -1,0 +1,194 @@
+
+
+        **********************************************************
+        ** PROGRAM FullProf.2k (Version 6.30 - Sep2018-ILL JRC) **
+        **********************************************************
+                       M U L T I -- P A T T E R N                 
+            Rietveld, Profile Matching & Integrated Intensity     
+                 Refinement of X-ray and/or Neutron Data
+
+
+    Date: 07/03/2019  Time: 14:44:20.111                              
+
+ => PCR file code: Mnpyrol_266995_30K_BS
+ => DAT file code: 1p7.dat              -> Relative contribution: 1.0000                                                            
+ => Title: Mn(III)pyrol-30K
+
+ ==> CONDITIONS OF THIS RUN FOR PATTERN No.:  1
+
+ => Global Refinement of neutron powder data                                                                                        
+ => The    7th default profile function was selected
+
+ => Data in GENERAL FORMAT for TWO AXIS instrument for pattern:  1
+ => Wavelengths:  2.42260 2.42260
+ => Cos(Monochromator angle)=   0.9100
+ => Absorption correction (AC), muR-eff =   0.0000  0.0000
+ => Base of peaks: 2.0*HW*    4.50
+ ==> Angular range, step and number of points:
+     2Thmin:      13.000000  2Thmax:      92.900002  Step:       0.100000  No. of points:    800
+ =>-------> Pattern#  1
+ => Crystal Structure Refinement for phase: 1
+ => The density (volumic mass) of phase 1 is:    1.435 g/cm3
+ => Scor: 1.7290
+
+ ==> RESULTS OF REFINEMENT:
+
+
+ => No. of fitted parameters:    2
+
+
+------------------------------------------------------------------------------
+ => Phase No.  1 ########################################I -4 3 D            
+------------------------------------------------------------------------------
+
+ =>  No. of reflections for pattern#:   1:   101  
+
+
+ ==> ATOM PARAMETERS:
+
+  Name      x     sx       y     sy       z      sz      B   sB   occ. socc.  Mult
+ Mn1     0.08606(   0)  0.41394(   0)  0.58606(   0)  0.000(  0)  0.333(  0)   16
+ N1      0.09119(   0)  0.51277(   0)  0.58707(   0)  0.000(  0)  1.000(  0)   48
+ N2      0.08464(   0)  0.31308(   0)  0.57432(   0)  0.000(  0)  1.000(  0)   48
+ C1      0.08676(   0)  0.62611(   0)  0.58864(   0)  0.000(  0)  1.000(  0)   48
+ H1A     0.06960(   0)  0.66940(   0)  0.59020(   0)  1.184(  0)  1.000(  0)   48
+ C3      0.15605(   0)  0.53763(   0)  0.58319(   0)  0.000(  0)  1.000(  0)   48
+ C2      0.04972(   0)  0.56616(   0)  0.59047(   0)  0.000(  0)  1.000(  0)   48
+ H2A     0.00330(   0)  0.56360(   0)  0.59360(   0)  1.026(  0)  1.000(  0)   48
+ C4      0.15460(   0)  0.60793(   0)  0.58394(   0)  0.000(  0)  1.000(  0)   48
+ H4A     0.19120(   0)  0.63670(   0)  0.58180(   0)  1.105(  0)  1.000(  0)   48
+ C5      0.08131(   0)  0.29305(   0)  0.51246(   0)  0.000(  0)  1.000(  0)   48
+ H5A     0.07790(   0)  0.24790(   0)  0.50140(   0)  1.026(  0)  1.000(  0)   48
+ C6      0.08375(   0)  0.26365(   0)  0.62885(   0)  0.000(  0)  1.000(  0)   48
+ H6A     0.06850(   0)  0.22080(   0)  0.61170(   0)  1.026(  0)  1.000(  0)   48
+ H6B     0.05270(   0)  0.27810(   0)  0.66340(   0)  1.026(  0)  1.000(  0)   48
+ C7      0.15374(   0)  0.25578(   0)  0.65884(   0)  0.000(  0)  1.000(  0)   48
+ H7A     0.15160(   0)  0.22520(   0)  0.69650(   0)  0.947(  0)  1.000(  0)   48
+ H7B     0.18330(   0)  0.23640(   0)  0.62550(   0)  0.947(  0)  1.000(  0)   48
+ N3      0.18106(   0)  0.31894(   0)  0.68106(   0)  0.000(  0)  0.333(  0)   16
+
+ =>   Anisotropic Betas*1E04
+
+ Name        B11     B22     B33     B12     B13     B23  
+            sB11    sB22    sB33    sB12    sB13    sB23  
+
+ Mn1         3.9     3.9     3.9     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ N1          5.0     6.0     4.3    -0.2     0.5     0.3
+             0.0     0.0     0.0     0.0     0.0     0.0
+ N2          3.3     6.0     4.6     0.3    -0.4     0.5
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C1          7.8     5.6     5.3     0.2    -0.1     1.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H1A         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C3          5.7     7.0     3.4    -0.6     0.4    -0.1
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C2          5.3     6.6     4.7     0.3    -1.1     0.9
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H2A         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C4          5.9     6.4     4.4    -1.1    -0.9     0.6
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H4A         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C5          3.3     5.2     7.1    -0.2    -0.8    -1.4
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H5A         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C6          5.8     4.8     5.3    -0.3     0.4     0.3
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H6A         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H6B         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ C7          5.6     4.2     5.0     0.4     0.2     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H7A         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ H7B         0.0     0.0     0.0     0.0     0.0     0.0
+             0.0     0.0     0.0     0.0     0.0     0.0
+ N3          5.5     5.5     5.5    -0.9     0.9    -0.9
+             0.0     0.0     0.0     0.0     0.0     0.0
+
+ ==> PROFILE PARAMETERS FOR PATTERN#  1
+
+ => Cell parameters      :
+                             19.87086   0.00036
+                             19.87086   0.00036
+                             19.87086   0.00036
+                             90.00000   0.00000
+                             90.00000   0.00000
+                             90.00000   0.00000
+ 
+ => overall scale factor :      0.005382406     0.000038160
+ => Eta(p-v) or m(p-vii) :    0.00000   0.00000
+ => Overall tem. factor  :    0.00000   0.00000
+ => Halfwidth parameters :    0.82100   0.00000
+                             -0.23700   0.00000
+                              0.07800   0.00000
+ => Preferred orientation:    0.00000   0.00000
+                              0.00000   0.00000
+ => Asymmetry parameters :    0.00000   0.00000
+                              0.00000   0.00000
+                              0.00000   0.00000
+                              0.00000   0.00000
+ => X and y parameters   :    0.00000   0.00000
+                              0.00000   0.00000
+ => Strain parameters    :    0.00000   0.00000
+                              0.00000   0.00000
+                              0.00000   0.00000
+ => Size parameters (G,L):    0.00000   0.00000
+                              0.00000   0.00000
+
+ => Add. shape parameters: 
+                              0.00000   0.00000
+                              0.00000   0.00000
+
+
+
+ ==> GLOBAL PARAMETERS FOR PATTERN#  1
+
+
+ => Zero-point:     0.0000    0.0000
+ => Cos(2theta)-shift parameter :   0.0000  0.0000
+ => Sin(2theta)-shift parameter :   0.0000  0.0000
+
+ ==> RELIABILITY FACTORS WITH ALL NON-EXCLUDED POINTS FOR PATTERN:  1
+
+  => Cycle:  9 => MaxCycle: 50
+ => N-P+C:   798
+ =>  R-factors (not corrected for background) for Pattern:  1
+ => Rp:  1.18     Rwp:  2.20     Rexp:    0.60 Chi2:  13.4      L.S. refinement
+ => Conventional Rietveld R-factors for Pattern:  1
+ => Rp:  24.4     Rwp:  18.9     Rexp:    5.17 Chi2:  13.4    
+ => Deviance:  0.279E+04     Dev*  :   3.490    
+ => DW-Stat.:    0.7217     DW-exp:     1.7843
+ => N-sigma of the GoF:      247.555
+
+ ==> RELIABILITY FACTORS FOR POINTS WITH BRAGG CONTRIBUTIONS FOR PATTERN:  1
+
+ => N-P+C:   738
+ =>  R-factors (not corrected for background) for Pattern:  1
+ => Rp:  1.23     Rwp:  2.27     Rexp:    0.60 Chi2:  14.4      L.S. refinement
+ => Conventional Rietveld R-factors for Pattern:  1
+ => Rp:  23.7     Rwp:  18.9     Rexp:    4.97 Chi2:  14.4    
+ => Deviance:  0.277E+04     Dev*  :   3.753    
+ => DW-Stat.:    0.7259     DW-exp:     1.7758
+ => N-sigma of the GoF:      257.340
+
+ => Global user-weigthed Chi2 (Bragg contrib.):   14.5    
+
+     -----------------------------------------------------
+     BRAGG R-Factors and weight fractions for Pattern #  1
+     -----------------------------------------------------
+
+ => Phase:  1     #######################################################################
+ => Bragg R-factor:   12.4       Vol: 7846.031( 0.245)  Fract(%):  100.00( 1.00)
+ => Rf-factor=  11.5             ATZ:        6870.433   Brindley:  1.0000
+
+ 
+              CPU Time:     1.594 seconds
+                            0.027 minutes
+
+ => Run finished at:     Date: 07/03/2019  Time: 14:44:21.721                              

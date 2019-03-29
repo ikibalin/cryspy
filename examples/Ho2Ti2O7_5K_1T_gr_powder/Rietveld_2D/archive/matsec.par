@@ -1,0 +1,15 @@
+!averaging
+!            finp  mode   min  max          fout  way
+       c_mat_ed.out   axX    -1    1     p_int_ed.out  sum
+#       c_mat_ed.out   axX     9   11  p_int_ed_10.out  sum
+#       c_mat_ed.out   axX    19   21  p_int_ed_20.out  sum
+#       c_mat_ed.out   axX    29   31  p_int_ed_30.out  sum
+#       c_mat_ed.out   axX    39   41  p_int_ed_40.out  sum
+#       c_mat_ed.out   axX    49   51  p_int_ed_50.out  sum
+#       c_mat_ed.out   axX    59   61  p_int_ed_60.out  sum
+#       c_mat_ed.out   axX    69   71  p_int_ed_70.out  sum
+#       c_mat_ed.out   axX    79   81  p_int_ed_80.out  sum
+#       c_mat_ed.out   axX    89   91  p_int_ed_90.out  sum
+#       c_mat_ed.out   axX   -11   -9  p_int_ed_m10.out  sum
+#       c_mat_ed.out   axX   -21  -19  p_int_ed_m20.out  sum
+#       c_mat_ed.out   axX   -31  -29  p_int_ed_m30.out  sum

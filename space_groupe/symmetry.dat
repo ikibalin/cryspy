@@ -1,0 +1,5870 @@
+Crystallographic Space Group Symmetry Tables
+Triclinic
+1 P1
+2 P-1
+Monoclinic
+3 P2
+4 P2(1)
+5 C2
+6 Pm
+7 Pc
+8 Cm
+9 Cc
+10 P2/m
+11 P2(1)/m
+12 C2/m
+13 P2/c
+14 P2(1)/c
+15 C2/c
+Orthorhombic
+16 P222
+17 P222(1)
+18 P2(1)2(1)2
+19 P2(1)2(1)2(1)
+20 C222(1)
+21 C222
+22 F222
+23 I222
+24 I2(1)2(1)2(1)
+25 Pmm2
+26 Pmc2(1)
+27 Pcc2
+28 Pma2
+29 Pca2(1)
+30 Pnc2
+31 Pmn2(1)
+32 Pba2
+33 Pna2(1)
+34 Pnn2
+35 Cmm2
+36 Cmc2(1)
+37 Ccc2
+38 Amm2
+39 Abm2
+40 Ama2
+41 Aba2
+42 Fmm2
+43 Fdd2
+44 Imm2
+45 Iba2
+46 Ima2
+47 Pmmm
+48 Pnnn
+49 Pccm
+50 Pban
+51 Pmma
+52 Pnna
+53 Pmna
+54 Pcca
+55 Pbam
+56 Pccn
+57 Pbcm
+58 Pnnm
+59 Pmmn
+60 Pbcn
+61 Pbca
+62 Pnma
+63 Cmcm
+64 Cmca
+65 Cmmm
+66 Cccm
+67 Cmma
+68 Ccca
+69 Fmmm
+70 Fddd
+71 Immm
+72 Ibam
+73 Ibca
+74 Imma
+Tetragonal
+75 P4
+76 P4(1)
+77 P4(2)
+78 P4(3)
+79 I4
+80 I4(1)
+81 P-4
+82 I-4
+83 P4/m
+84 P4(2)/m
+85 P4/n
+86 P4(2)/n
+87 I4/m
+88 I4(1)/a
+89 P422
+90 P42(1)2
+91 P4(1)22
+92 P4(1)2(1)2
+93 P4(2)22
+94 P4(2)2(1)2
+95 P4(3)22
+96 P4(3)2(1)2
+97 I422
+98 I4(1)22
+99 P4mm
+100 P4bm
+101 P4(2)cm
+102 P4(2)nm
+103 P4cc
+104 P4nc
+105 P4(2)mc
+106 P4(2)bc
+107 I4mm
+108 I4cm
+109 I4(1)md
+110 I4(1)cd
+111 P-42m
+112 P-42c
+113 P-42(1)m
+114 P-42(1)c
+115 P-4m2
+116 P-4c2
+117 P-4b2
+118 P-4n2
+119 I-4m2
+120 I-4c2
+121 I-42m
+122 I-42d
+123 P4/mmm
+124 P4/mcc
+125 P4/nbm
+126 P4/nnc
+127 P4/mbm
+128 P4/mnc
+129 P4/nmm
+130 P4/ncc
+131 P4(2)/mmc
+132 P4(2)/mcm
+133 P4(2)/nbc
+134 P4(2)/nnm
+135 P4(2)/mbc
+136 P4(2)/mnm
+137 P4(2)/nmc
+138 P4(2)/ncm
+139 I4/mmm
+140 I4/mcm
+141 I4(1)/amd
+142 I4(1)/acd
+Trigonal
+143 P3
+144 P3(1)
+145 P3(2)
+146 R3
+147 P-3
+148 R-3
+149 P312
+150 P321
+151 P3(1)12
+152 P3(1)21
+153 P3(2)12
+154 P3(2)21
+155 R32
+156 P3m1
+157 P31m
+158 P3c1
+159 P31c
+160 R3m
+161 R3c
+162 P-31m
+163 P-31c
+164 P-3m1
+165 P-3c1
+166 R-3m
+167 R-3c
+Hexagonal
+168 P6
+169 P6(1)
+170 P6(5)
+171 P6(2)
+172 P6(4)
+173 P6(3)
+174 P-6
+175 P6/m
+176 P6(3)/m
+177 P622
+178 P6(1)22
+179 P6(5)22
+180 P6(2)22
+181 P6(4)22
+182 P6(3)22
+183 P6mm
+184 P6cc
+185 P6(3)cm
+186 P6(3)mc
+187 P-6m2
+188 P-6c2
+189 P-62m
+190 P-62c
+191 P6/mmm
+192 P6/mcc
+193 P6(3)/mcm
+194 P6(3)/mmc
+Cubic
+195 P23
+196 F23
+197 I23
+198 P2(1)3
+199 I2(1)3
+200 Pm-3
+201 Pn-3
+202 Fm-3
+203 Fd-3
+204 Im-3
+205 Pa-3
+206 Ia-3
+207 P432
+208 P4(2)32
+209 F432
+210 F4(1)32
+211 I432
+212 P4(3)32
+213 P4(1)32
+214 I4(1)32
+215 P-43m
+216 F4-3m
+217 I-43m
+218 P-43n
+219 F-43c
+220 I-43d
+221 Pm-3m
+222 Pn-3n
+223 Pm-3n
+224 Pn-3m
+225 Fm-3m
+226 Fm-3c
+227 Fd-3m
+228 Fd-3c
+229 Im-3m
+230 Ia-3d
+1 P1
+Number of Symmetry Operators = 1
+Space Group Name = P1
+Crystal System = TRICLINIC
+Laue Class = -1
+Point Group = 1
+Patterson Space Group # = 2
+Lattice Type = P
+symmetry= X,Y,Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1
+2 P-1
+Number of Symmetry Operators = 2
+Space Group Name = P-1
+Crystal System = TRICLINIC
+Laue Class = -1
+Point Group = -1
+Patterson Space Group # = 2
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1
+3 P2
+Number of Symmetry Operators = 2
+Space Group Name = P2
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,Y,-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/2
+4 P2(1)
+Number of Symmetry Operators = 2
+Space Group Name = P2(1)
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,Y+1/2,-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/2
+5 C2
+Number of Symmetry Operators = 4
+Space Group Name = C2
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2
+Patterson Space Group # = 12
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,Y,-Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+6 Pm
+Number of Symmetry Operators = 2
+Space Group Name = Pm
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = m
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= X,-Y,Z
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1
+7 Pc
+Number of Symmetry Operators = 2
+Space Group Name = Pc
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = m
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= X,-Y,1/2+Z
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1
+8 Cm
+Number of Symmetry Operators = 4
+Space Group Name = Cm
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = m
+Patterson Space Group # = 12
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= X,-Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+asymm= 0<=x<=1 and 0<=y<=1/4 and 0<=z<=1
+9 Cc
+Number of Symmetry Operators = 4
+Space Group Name = Cc
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = m
+Patterson Space Group # = 12
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= X,-Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+asymm= 0<=x<=1 and 0<=y<=1/4 and 0<=z<=1
+10 P2/m
+Number of Symmetry Operators = 4
+Space Group Name = P2/m
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2/m
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= -X,-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+11 P2(1)/m
+Number of Symmetry Operators = 4
+Space Group Name = P2(1)/m
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2/m
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,1/2+Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,1/2-Y,Z
+asymm= 0<=x<=1 and 0<=y<=1/4 and 0<=z<=1
+12 C2/m
+Number of Symmetry Operators = 8
+Space Group Name = C2/m
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2/m
+Patterson Space Group # = 12
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and 0<=z<=1
+13 P2/c
+Number of Symmetry Operators = 4
+Space Group Name = P2/c
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2/m
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,-Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/2
+14 P2(1)/c
+Number of Symmetry Operators = 4
+Space Group Name = P2(1)/c
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2/m
+Patterson Space Group # = 10
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,-Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+asymm= 0<=x<=1 and 0<=y<=1/4 and 0<=z<=1
+15 C2/c
+Number of Symmetry Operators = 8
+Space Group Name = C2/c
+Crystal System = MONOCLINIC
+Laue Class = 2/m
+Point Group = 2/m
+Patterson Space Group # = 12
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+16 P222
+Number of Symmetry Operators = 4
+Space Group Name = P222
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+17 P222(1)
+Number of Symmetry Operators = 4
+Space Group Name = P222(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+1017 P2(1)22
+non-standard-origin)
+Number of Symmetry Operators = 4
+Space Group Name = P2(1)22
+Crystal System =
+non-standard-origin)
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2+X,-Y,-Z
+symmetry= 1/2-X,-Y,Z
+symmetry= X,Y,-Z
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1/2
+18 P2(1)2(1)2
+Number of Symmetry Operators = 4
+Space Group Name = P2(1)2(1)2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+1018 P2(1)2(1)2
+non-standard-origin)
+Number of Symmetry Operators = 4
+Space Group Name = P2(1)2(1)2
+Crystal System =
+non-standard-origin)
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,1/2+Y,-Z
+symmetry= 1/2+X,-Y,-Z
+symmetry= 1/2-X,1/2-Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+19 P2(1)2(1)2(1)
+Number of Symmetry Operators = 4
+Space Group Name = P2(1)2(1)2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+20 C222(1)
+Number of Symmetry Operators = 8
+Space Group Name = C222(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+21 C222
+Number of Symmetry Operators = 8
+Space Group Name = C222
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1
+22 F222
+Number of Symmetry Operators = 16
+Space Group Name = F222
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 69
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+asymm= 0<=x<=1/4 and 0<=y<=1/4 and 0<=z<=1
+23 I222
+Number of Symmetry Operators = 8
+Space Group Name = I222
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,-Z
+symmetry= -X,Y,-Z
+symmetry= X+1/2,Y+1/2,Z+1/2
+symmetry= -X+1/2,-Y+1/2,Z+1/2
+symmetry= X+1/2,-Y+1/2,-Z+1/2
+symmetry= -X+1/2,Y+1/2,-Z+1/2
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+24 I2(1)2(1)2(1)
+Number of Symmetry Operators = 8
+Space Group Name = I2(1)2(1)2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = 222
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,Z
+symmetry= 1/2-X,Y,-Z
+symmetry= X,-Y,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+25 Pmm2
+Number of Symmetry Operators = 4
+Space Group Name = Pmm2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+26 Pmc2(1)
+Number of Symmetry Operators = 4
+Space Group Name = Pmc2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+27 Pcc2
+Number of Symmetry Operators = 4
+Space Group Name = Pcc2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+28 Pma2
+Number of Symmetry Operators = 4
+Space Group Name = Pma2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,-Y,Z
+symmetry= 1/2-X,Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1 and 0<=z<=1
+29 Pca2(1)
+Number of Symmetry Operators = 4
+Space Group Name = Pca2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= 1/2+X,-Y,Z
+symmetry= 1/2-X,Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1 and 0<=z<=1
+30 Pnc2
+Number of Symmetry Operators = 4
+Space Group Name = Pnc2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/2
+31 Pmn2(1)
+Number of Symmetry Operators = 4
+Space Group Name = Pmn2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= -X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+32 Pba2
+Number of Symmetry Operators = 4
+Space Group Name = Pba2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+33 Pna2(1)
+Number of Symmetry Operators = 4
+Space Group Name = Pna2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+34 Pnn2
+Number of Symmetry Operators = 4
+Space Group Name = Pnn2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+35 Cmm2
+Number of Symmetry Operators = 8
+Space Group Name = Cmm2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1
+36 Cmc2(1)
+Number of Symmetry Operators = 8
+Space Group Name = Cmc2(1)
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+37 Ccc2
+Number of Symmetry Operators = 8
+Space Group Name = Ccc2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1
+38 Amm2
+Number of Symmetry Operators = 8
+Space Group Name = Amm2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = A
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+39 Abm2
+Number of Symmetry Operators = 8
+Space Group Name = Abm2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = A
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,1/2-Y,Z
+symmetry= -X,1/2+Y,Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and 0<=z<=1
+40 Ama2
+Number of Symmetry Operators = 8
+Space Group Name = Ama2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = A
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,-Y,Z
+symmetry= 1/2-X,Y,Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1
+41 Aba2
+Number of Symmetry Operators = 8
+Space Group Name = Aba2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 65
+Lattice Type = A
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+42 Fmm2
+Number of Symmetry Operators = 16
+Space Group Name = Fmm2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 69
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/4 and 0<=z<=1
+43 Fdd2
+Number of Symmetry Operators = 16
+Space Group Name = Fdd2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 69
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/4+X,1/4-Y,1/4+Z
+symmetry= 1/4-X,1/4+Y,1/4+Z
+{*!!*}
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= 1/4+X,3/4-Y,3/4+Z
+symmetry= 1/4-X,3/4+Y,3/4+Z
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 3/4+X,1/4-Y,3/4+Z
+symmetry= 3/4-X,1/4+Y,3/4+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 3/4+X,3/4-Y,1/4+Z
+symmetry= 3/4-X,3/4+Y,1/4+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/4 and 0<=z<=1
+44 Imm2
+Number of Symmetry Operators = 8
+Space Group Name = Imm2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+45 Iba2
+Number of Symmetry Operators = 8
+Space Group Name = Iba2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+46 Ima2
+Number of Symmetry Operators = 8
+Space Group Name = Ima2
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mm2
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2+X,-Y,Z
+symmetry= 1/2-X,Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1 and 0<=z<=1/2
+47 Pmmm
+Number of Symmetry Operators = 8
+Space Group Name = Pmmm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+48 Pnnn
+Number of Symmetry Operators = 8
+Space Group Name = Pnnn
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1
+49 Pccm
+Number of Symmetry Operators = 8
+Space Group Name = Pccm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+50 Pban
+Number of Symmetry Operators = 8
+Space Group Name = Pban
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+51 Pmma
+Number of Symmetry Operators = 8
+Space Group Name = Pmma
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= 1/2+X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= 1/2-X,Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1
+52 Pnna
+Number of Symmetry Operators = 8
+Space Group Name = Pnna
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+asymm= 0<=x<=1 and 0<=y<=1/4 and 0<=z<=1/2
+53 Pmna
+Number of Symmetry Operators = 8
+Space Group Name = Pmna
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= -X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+54 Pcca
+Number of Symmetry Operators = 8
+Space Group Name = Pcca
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,Z
+symmetry= -X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+55 Pbam
+Number of Symmetry Operators = 8
+Space Group Name = Pbam
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+56 Pccn
+Number of Symmetry Operators = 8
+Space Group Name = Pccn
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1 and 0<=z<=1/2
+57 Pbcm
+Number of Symmetry Operators = 8
+Space Group Name = Pbcm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+58 Pnnm
+Number of Symmetry Operators = 8
+Space Group Name = Pnnm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+59 Pmmn
+Number of Symmetry Operators = 8
+Space Group Name = Pmmn
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,Y+1/2,-Z
+symmetry= X+1/2,1/2-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= X+1/2,Y+1/2,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+1059 Pmmn
+non-standard-origin)
+Number of Symmetry Operators = 8
+Space Group Name = Pmmn
+Crystal System =
+non-standard-origin)
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= -X,1/2+Y,-Z
+symmetry= 1/2+X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X+1/2,Y+1/2,-Z
+symmetry= X,1/2-Y,Z
+symmetry= 1/2-X,Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+60 Pbcn
+Number of Symmetry Operators = 8
+Space Group Name = Pbcn
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= X,-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+61 Pbca
+Number of Symmetry Operators = 8
+Space Group Name = Pbca
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+62 Pnma
+Number of Symmetry Operators = 8
+Space Group Name = Pnma
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 47
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X+1/2,-Y,Z+1/2
+symmetry= -X,Y+1/2,-Z
+symmetry= X+1/2,-Y+1/2,-Z+1/2
+symmetry= -X,-Y,-Z
+symmetry= X+1/2,Y,-Z+1/2
+symmetry= X,-Y+1/2,Z
+symmetry= -X+1/2,Y+1/2,Z+1/2
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and 0<=z<=1
+63 Cmcm
+Number of Symmetry Operators = 16
+Space Group Name = Cmcm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,1/2-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+64 Cmca
+Number of Symmetry Operators = 16
+Space Group Name = Cmca
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+65 Cmmm
+Number of Symmetry Operators = 16
+Space Group Name = Cmmm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+66 Cccm
+Number of Symmetry Operators = 16
+Space Group Name = Cccm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+67 Cmma
+Number of Symmetry Operators = 16
+Space Group Name = Cmma
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= -X,1/2-Y,Z
+symmetry= -X,1/2+Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,1/2+Y,-Z
+symmetry= X,1/2-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,-Y,Z
+symmetry= 1/2-X,Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,Y,-Z
+symmetry= 1/2+X,-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and 0<=z<=1/2
+68 Ccca
+Number of Symmetry Operators = 16
+Space Group Name = Ccca
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 65
+Lattice Type = C
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= -X,Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= -X,1/2-Y,1/2-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2-X,-Y,1/2-Z
+symmetry= X,1/2+Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+69 Fmmm
+Number of Symmetry Operators = 32
+Space Group Name = Fmmm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 69
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= -X,1/2-Y,1/2-Z
+symmetry= X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2-X,-Y,1/2-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/4 and 0<=z<=1/2
+70 Fddd
+Number of Symmetry Operators = 32
+Space Group Name = Fddd
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 69
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= 1/4-X,1/4-Y,1/4-Z
+symmetry= 1/4+X,1/4+Y,1/4-Z
+symmetry= 1/4+X,1/4-Y,1/4+Z
+symmetry= 1/4-X,1/4+Y,1/4+Z
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= 1/4-X,3/4-Y,3/4-Z
+symmetry= 1/4+X,3/4+Y,3/4-Z
+symmetry= 1/4+X,3/4-Y,3/4+Z
+symmetry= 1/4-X,3/4+Y,3/4+Z
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 3/4-X,1/4-Y,3/4-Z
+symmetry= 3/4+X,1/4+Y,3/4-Z
+symmetry= 3/4+X,1/4-Y,3/4+Z
+symmetry= 3/4-X,1/4+Y,3/4+Z
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 3/4-X,3/4-Y,1/4-Z
+symmetry= 3/4+X,3/4+Y,1/4-Z
+symmetry= 3/4+X,3/4-Y,1/4+Z
+symmetry= 3/4-X,3/4+Y,1/4+Z
+asymm= 0<=x<=1/8 and 0<=y<=1/4 and 0<=z<=1
+71 Immm
+Number of Symmetry Operators = 16
+Space Group Name = Immm
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+72 Ibam
+Number of Symmetry Operators = 16
+Space Group Name = Ibam
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+73 Ibca
+Number of Symmetry Operators = 16
+Space Group Name = Ibca
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,Z
+symmetry= 1/2-X,Y,-Z
+symmetry= X,-Y,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= X,1/2+Y,-Z
+symmetry= 1/2+X,-Y,Z
+symmetry= -X,Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1/2
+74 Imma
+Number of Symmetry Operators = 16
+Space Group Name = Imma
+Crystal System = ORTHORHOMBIC
+Laue Class = mmm
+Point Group = mmm
+Patterson Space Group # = 71
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,1/2-Y,Z
+symmetry= -X,1/2+Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,1/2+Y,-Z
+symmetry= X,1/2-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+asymm= 0<=x<=1/4 and 0<=y<=1/4 and 0<=z<=1
+75 P4
+Number of Symmetry Operators = 4
+Space Group Name = P4
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+76 P4(1)
+Number of Symmetry Operators = 4
+Space Group Name = P4(1)
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -Y,X,1/4+Z
+symmetry= Y,-X,3/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+77 P4(2)
+Number of Symmetry Operators = 4
+Space Group Name = P4(2)
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+78 P4(3)
+Number of Symmetry Operators = 4
+Space Group Name = P4(3)
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -Y,X,3/4+Z
+symmetry= Y,-X,1/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+79 I4
+Number of Symmetry Operators = 8
+Space Group Name = I4
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4
+Patterson Space Group # = 87
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+80 I4(1)
+Number of Symmetry Operators = 8
+Space Group Name = I4(1)
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4
+Patterson Space Group # = 87
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+81 P-4
+Number of Symmetry Operators = 4
+Space Group Name = P-4
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = -4
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1
+82 I-4
+Number of Symmetry Operators = 8
+Space Group Name = I-4
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = -4
+Patterson Space Group # = 87
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+83 P4/m
+Number of Symmetry Operators = 8
+Space Group Name = P4/m
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4/m
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+84 P4(2)/m
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)/m
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4/m
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,1/2-Z
+symmetry= -Y,X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+85 P4/n
+Number of Symmetry Operators = 8
+Space Group Name = P4/n
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4/m
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,Z
+symmetry= 1/2+Y,1/2-X,Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+86 P4(2)/n
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)/n
+Crystal System = TETRAGOANL
+Laue Class = 4/m
+Point Group = 4/m
+Patterson Space Group # = 83
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+87 I4/m
+Number of Symmetry Operators = 16
+Space Group Name = I4/m
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4/m
+Patterson Space Group # = 87
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+88 I4(1)/a
+Number of Symmetry Operators = 16
+Space Group Name = I4(1)/a
+Crystal System = TETRAGONAL
+Laue Class = 4/m
+Point Group = 4/m
+Patterson Space Group # = 87
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= -X,1/2-Y,1/4-Z
+symmetry= 1/2+X,Y,3/4-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+symmetry= 1/2-X,-Y,3/4-Z
+symmetry= X,1/2+Y,1/4-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= -Y,X,-Z
+asymm= 0<=x<=1/4 and 0<=y<=1/4 and 0<=z<=1
+89 P422
+Number of Symmetry Operators = 8
+Space Group Name = P422
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+90 P42(1)2
+Number of Symmetry Operators = 8
+Space Group Name = P42(1)2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,Z
+symmetry= 1/2+Y,1/2-X,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+91 P4(1)22
+Number of Symmetry Operators = 8
+Space Group Name = P4(1)22
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -Y,X,1/4+Z
+symmetry= Y,-X,3/4+Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,1/2-Z
+symmetry= Y,X,3/4-Z
+symmetry= -Y,-X,1/4-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/8
+92 P4(1)2(1)2
+Number of Symmetry Operators = 8
+Space Group Name = P4(1)2(1)2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,1/2-X,3/4+Z
+symmetry= 1/2-X,1/2+Y,1/4-Z
+symmetry= 1/2+X,1/2-Y,3/4-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,1/2-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/8
+93 P4(2)22
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)22
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+94 P4(2)2(1)2
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)2(1)2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+95 P4(3)22
+Number of Symmetry Operators = 8
+Space Group Name = P4(3)22
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= -Y,X,3/4+Z
+symmetry= Y,-X,1/4+Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,1/2-Z
+symmetry= Y,X,1/4-Z
+symmetry= -Y,-X,3/4-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/8
+96 P4(3)2(1)2
+Number of Symmetry Operators = 8
+Space Group Name = P4(3)2(1)2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,3/4+Z
+symmetry= 1/2+Y,1/2-X,1/4+Z
+symmetry= 1/2-X,1/2+Y,3/4-Z
+symmetry= 1/2+X,1/2-Y,1/4-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,1/2-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/8
+97 I422
+Number of Symmetry Operators = 16
+Space Group Name = I422
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+98 I4(1)22
+Number of Symmetry Operators = 16
+Space Group Name = I4(1)22
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 422
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= 1/2-X,Y,3/4-Z
+symmetry= X,1/2-Y,1/4-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+symmetry= -X,1/2+Y,1/4-Z
+symmetry= 1/2+X,-Y,3/4-Z
+symmetry= Y,X,-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/8
+99 P4mm
+Number of Symmetry Operators = 8
+Space Group Name = P4mm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1 and x<=y
+100 P4bm
+Number of Symmetry Operators = 8
+Space Group Name = P4bm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1 and y<=1/2-x
+101 P4(2)cm
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)cm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1 and x<=y
+102 P4(2)nm
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)nm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1 and x<=y
+103 P4cc
+Number of Symmetry Operators = 8
+Space Group Name = P4cc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+104 P4nc
+Number of Symmetry Operators = 8
+Space Group Name = P4nc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+105 P4(2)mc
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)mc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+106 P4(2)bc
+Number of Symmetry Operators = 8
+Space Group Name = P4(2)bc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+107 I4mm
+Number of Symmetry Operators = 16
+Space Group Name = I4mm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and x<=y
+108 I4cm
+Number of Symmetry Operators = 16
+Space Group Name = I4cm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=1/2-x
+109 I4(1)md
+Number of Symmetry Operators = 16
+Space Group Name = I4(1)md
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= X,-Y,Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= -Y,1/2-X,1/4+Z
+symmetry= 1/2+Y,X,3/4+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= -X,Y,Z
+symmetry= 1/2-Y,-X,3/4+Z
+symmetry= Y,1/2+X,1/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+110 I4(1)cd
+Number of Symmetry Operators = 16
+Space Group Name = I4(1)cd
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4mm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= X,-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= -Y,1/2-X,3/4+Z
+symmetry= 1/2+Y,X,1/4+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2-Y,-X,1/4+Z
+symmetry= Y,1/2+X,3/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+111 P-42m
+Number of Symmetry Operators = 8
+Space Group Name = P-42m
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1 and x<=y
+112 P-42c
+Number of Symmetry Operators = 8
+Space Group Name = P-42c
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+113 P-42(1)m
+Number of Symmetry Operators = 8
+Space Group Name = P-42(1)m
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1 and y<=1/2-x
+114 P-42(1)c
+Number of Symmetry Operators = 8
+Space Group Name = P-42(1)c
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+115 P-4m2
+Number of Symmetry Operators = 8
+Space Group Name = P-4m2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= Y,-X,-Z
+{**}
+symmetry= -Y,X,-Z
+{**}
+symmetry= X,-Y,Z
+{**}
+symmetry= -X,Y,Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+116 P-4c2
+Number of Symmetry Operators = 8
+Space Group Name = P-4c2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+117 P-4b2
+Number of Symmetry Operators = 8
+Space Group Name = P-4b2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2+Y,1/2+X,-Z
+symmetry= 1/2-Y,1/2-X,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2
+118 P-4n2
+Number of Symmetry Operators = 8
+Space Group Name = P-4n2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4
+119 I-4m2
+Number of Symmetry Operators = 16
+Space Group Name = I-4m2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+120 I-4c2
+Number of Symmetry Operators = 16
+Space Group Name = I-4c2
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= Y,X,1/2-Z
+{***}
+symmetry= -Y,-X,1/2-Z
+symmetry= X+1/2,Y+1/2,Z+1/2
+symmetry= -X+1/2,-Y+1/2,Z+1/2
+symmetry= Y+1/2,-X+1/2,-Z+1/2
+symmetry= -Y+1/2,X+1/2,-Z+1/2
+symmetry= X+1/2,-Y+1/2,Z
+symmetry= -X+1/2,Y+1/2,Z
+symmetry= Y+1/2,X+1/2,-Z
+{***}
+symmetry= -Y+1/2,-X+1/2,-Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+121 I-42m
+Number of Symmetry Operators = 16
+Space Group Name = I-42m
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and x<=y
+122 I-42d
+Number of Symmetry Operators = 16
+Space Group Name = I-42d
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = -42m
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2-X,Y,3/4-Z
+symmetry= 1/2+X,-Y,3/4-Z
+symmetry= 1/2-Y,-X,3/4+Z
+symmetry= 1/2+Y,X,3/4+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= -X,1/2+Y,1/4-Z
+symmetry= X,1/2-Y,1/4-Z
+symmetry= -Y,1/2-X,1/4+Z
+symmetry= Y,1/2+X,1/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/8
+123 P4/mmm
+Number of Symmetry Operators = 16
+Space Group Name = P4/mmm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and x<=y
+124 P4/mcc
+Number of Symmetry Operators = 16
+Space Group Name = P4/mcc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+125 P4/nbm
+Number of Symmetry Operators = 16
+Space Group Name = P4/nbm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= 1/2+Y,1/2-X,-Z
+symmetry= 1/2-Y,1/2+X,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=1/2-x
+126 P4/nnc
+Number of Symmetry Operators = 16
+Space Group Name = P4/nnc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+127 P4/mbm
+Number of Symmetry Operators = 16
+Space Group Name = P4/mbm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Y,1/2+X,-Z
+symmetry= 1/2-Y,1/2-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=1/2-x
+128 P4/mnc
+Number of Symmetry Operators = 16
+Space Group Name = P4/mnc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+129 P4/nmm
+Number of Symmetry Operators = 16
+Space Group Name = P4/nmm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,Z
+symmetry= 1/2+Y,1/2-X,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=1/2-x
+130 P4/ncc
+Number of Symmetry Operators = 16
+Space Group Name = P4/ncc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,Z
+symmetry= 1/2+Y,1/2-X,Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+131 P4(2)/mmc
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/mmc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,1/2-Z
+symmetry= -Y,X,1/2-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+132 P4(2)/mcm
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/mcm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,1/2-Z
+symmetry= -Y,X,1/2-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and x<=y
+133 P4(2)/nbc
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/nbc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= 1/2+Y,1/2+X,-Z
+symmetry= 1/2-Y,1/2-X,-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+134 P4(2)/nnm
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/nnm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1 and 0<=z<=1/4 and x<=y and y<=1-x
+135 P4(2)/mbc
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/mbc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,1/2+Z
+symmetry= Y,-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,1/2-Z
+symmetry= -Y,X,1/2-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+136 P4(2)/mnm
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/mnm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X+1/2,Z+1/2
+symmetry= Y+1/2,1/2-X,Z+1/2
+symmetry= 1/2-X,Y+1/2,1/2-Z
+symmetry= X+1/2,1/2-Y,1/2-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y+1/2,1/2-X,1/2-Z
+symmetry= 1/2-Y,X+1/2,1/2-Z
+symmetry= X+1/2,1/2-Y,Z+1/2
+symmetry= 1/2-X,Y+1/2,Z+1/2
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and x<=y
+137 P4(2)/nmc
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/nmc
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4
+138 P4(2)/ncm
+Number of Symmetry Operators = 16
+Space Group Name = P4(2)/ncm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 123
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/4 and 0<=y<=1/2 and 0<=z<=1 and x<=y and y<=1/2-x
+139 I4/mmm
+Number of Symmetry Operators = 32
+Space Group Name = I4/mmm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4 and x<=y
+140 I4/mcm
+Number of Symmetry Operators = 32
+Space Group Name = I4/mcm
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -Y,X,Z
+symmetry= Y,-X,Z
+symmetry= -X,Y,1/2-Z
+symmetry= X,-Y,1/2-Z
+symmetry= Y,X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= -X,Y,1/2+Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,X,1/2+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Y,1/2+X,-Z
+symmetry= 1/2-Y,1/2-X,-Z
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2+X,Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4 and y<=1/2-x
+141 I4(1)/amd
+Number of Symmetry Operators = 32
+Space Group Name = I4(1)/amd
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= 1/2-X,Y,3/4-Z
+symmetry= X,1/2-Y,1/4-Z
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= -Y,-X,-Z
+symmetry= -X,1/2-Y,1/4-Z
+symmetry= 1/2+X,Y,3/4-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= -X,Y,Z
+symmetry= 1/2-Y,-X,3/4+Z
+symmetry= Y,1/2+X,1/4+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+symmetry= -X,1/2+Y,1/4-Z
+symmetry= 1/2+X,-Y,3/4-Z
+symmetry= Y,X,-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2-X,-Y,3/4-Z
+symmetry= X,1/2+Y,1/4-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= -Y,1/2-X,1/4+Z
+symmetry= 1/2+Y,X,3/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/8
+142 I4(1)/acd
+Number of Symmetry Operators = 32
+Space Group Name = I4(1)/acd
+Crystal System = TETRAGONAL
+Laue Class = 4/mmm
+Point Group = 4/mmm
+Patterson Space Group # = 139
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= -Y,1/2+X,1/4+Z
+symmetry= 1/2+Y,-X,3/4+Z
+symmetry= 1/2-X,Y,1/4-Z
+symmetry= X,1/2-Y,3/4-Z
+symmetry= 1/2+Y,1/2+X,-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= -X,1/2-Y,1/4-Z
+symmetry= 1/2+X,Y,3/4-Z
+symmetry= Y,-X,-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2-Y,-X,1/4+Z
+symmetry= Y,1/2+X,3/4+Z
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-Y,X,3/4+Z
+symmetry= Y,1/2-X,1/4+Z
+symmetry= -X,1/2+Y,3/4-Z
+symmetry= 1/2+X,-Y,1/4-Z
+symmetry= Y,X,1/2-Z
+symmetry= 1/2-Y,1/2-X,-Z
+symmetry= 1/2-X,-Y,3/4-Z
+symmetry= X,1/2+Y,1/4-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= -Y,X,-Z
+symmetry= X,-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= -Y,1/2-X,3/4+Z
+symmetry= 1/2+Y,X,1/4+Z
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/8
+143 P3
+Number of Symmetry Operators = 3
+Space Group Name = P3
+Crystal System = TRIGONAL
+Laue Class = -3
+Point Group = 3
+Patterson Space Group # = 147
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+144 P3(1)
+Number of Symmetry Operators = 3
+Space Group Name = P3(1)
+Crystal System = TRIGONAL
+Laue Class = -3
+Point Group = 3
+Patterson Space Group # = 147
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z+1/3
+symmetry= Y-X,-X,Z+2/3
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/3
+145 P3(2)
+Number of Symmetry Operators = 3
+Space Group Name = P3(2)
+Crystal System = TRIGONAL
+Laue Class = -3
+Point Group = 3
+Patterson Space Group # = 147
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z+2/3
+symmetry= Y-X,-X,Z+1/3
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/3
+146 R3
+Number of Symmetry Operators = 9
+Space Group Name = R3
+Crystal System = TRIGONAL
+Laue Class = -3
+Point Group = 3
+Patterson Space Group # = 148
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= X+2/3,Y+1/3,Z+1/3
+symmetry= -Y+2/3,X-Y+1/3,Z+1/3
+symmetry= Y-X+2/3,-X+1/3,Z+1/3
+symmetry= X+1/3,Y+2/3,Z+2/3
+symmetry= -Y+1/3,X-Y+2/3,Z+2/3
+symmetry= Y-X+1/3,-X+2/3,Z+2/3
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/3 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+147 P-3
+Number of Symmetry Operators = 6
+Space Group Name = P-3
+Crystal System = TRIGONAL
+Laue Class = -3
+Point Group = -3
+Patterson Space Group # = 147
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+148 R-3
+Number of Symmetry Operators = 18
+Space Group Name = R-3
+Crystal System = TRIGONAL
+Laue Class = -3
+Point Group = -3
+Patterson Space Group # = 148
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= 2/3+X,1/3+Y,1/3+Z
+symmetry= 2/3-Y,1/3+X-Y,1/3+Z
+symmetry= 2/3+Y-X,1/3-X,1/3+Z
+symmetry= 2/3-X,1/3-Y,1/3-Z
+symmetry= 2/3+Y,1/3+Y-X,1/3-Z
+symmetry= 2/3+X-Y,1/3+X,1/3-Z
+symmetry= 1/3+X,2/3+Y,2/3+Z
+symmetry= 1/3-Y,2/3+X-Y,2/3+Z
+symmetry= 1/3+Y-X,2/3-X,2/3+Z
+symmetry= 1/3-X,2/3-Y,2/3-Z
+symmetry= 1/3+Y,2/3+Y-X,2/3-Z
+symmetry= 1/3+X-Y,2/3+X,2/3-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/6 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+149 P312
+Number of Symmetry Operators = 6
+Space Group Name = P312
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+150 P321
+Number of Symmetry Operators = 6
+Space Group Name = P321
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+151 P3(1)12
+Number of Symmetry Operators = 6
+Space Group Name = P3(1)12
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,1/3+Z
+symmetry= Y-X,-X,2/3+Z
+symmetry= -Y,-X,2/3-Z
+symmetry= Y-X,Y,1/3-Z
+symmetry= X,X-Y,-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6
+152 P3(1)21
+Number of Symmetry Operators = 6
+Space Group Name = P3(1)21
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z+1/3
+symmetry= Y-X,-X,Z+2/3
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,2/3-Z
+symmetry= -X,Y-X,1/3-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6
+153 P3(2)12
+Number of Symmetry Operators = 6
+Space Group Name = P3(2)12
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,2/3+Z
+symmetry= Y-X,-X,1/3+Z
+symmetry= -Y,-X,1/3-Z
+symmetry= Y-X,Y,2/3-Z
+symmetry= X,X-Y,-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6
+154 P3(2)21
+Number of Symmetry Operators = 6
+Space Group Name = P3(2)21
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z+2/3
+symmetry= Y-X,-X,Z+1/3
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,1/3-Z
+symmetry= -X,Y-X,2/3-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6
+155 R32
+Number of Symmetry Operators = 18
+Space Group Name = R32
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 32
+Patterson Space Group # = 166
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= 2/3+X,1/3+Y,1/3+Z
+symmetry= 2/3-Y,1/3+X-Y,1/3+Z
+symmetry= 2/3+Y-X,1/3-X,1/3+Z
+symmetry= 2/3+Y,1/3+X,1/3-Z
+symmetry= 2/3+X-Y,1/3-Y,1/3-Z
+symmetry= 2/3-X,1/3+Y-X,1/3-Z
+symmetry= 1/3+X,2/3+Y,2/3+Z
+symmetry= 1/3-Y,2/3+X-Y,2/3+Z
+symmetry= 1/3+Y-X,2/3-X,2/3+Z
+symmetry= 1/3+Y,2/3+X,2/3-Z
+symmetry= 1/3+X-Y,2/3-Y,2/3-Z
+symmetry= 1/3-X,2/3+Y-X,2/3-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/6 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+156 P3m1
+Number of Symmetry Operators = 6
+Space Group Name = P3m1
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 3m
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1 and x<=2 y and y<=min(1-x,2 x)
+157 P31m
+Number of Symmetry Operators = 6
+Space Group Name = P31m
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 3m
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1 and x<=(y+1)/2 and y<=min(1-x,x)
+158 P3c1
+Number of Symmetry Operators = 6
+Space Group Name = P3c1
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 3m
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+159 P31c
+Number of Symmetry Operators = 6
+Space Group Name = P31c
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 3m
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+160 R3m
+Number of Symmetry Operators = 18
+Space Group Name = R3m
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 3m
+Patterson Space Group # = 166
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= 2/3+X,1/3+Y,1/3+Z
+symmetry= 2/3-Y,1/3+X-Y,1/3+Z
+symmetry= 2/3+Y-X,1/3-X,1/3+Z
+symmetry= 2/3-Y,1/3-X,1/3+Z
+symmetry= 2/3+Y-X,1/3+Y,1/3+Z
+symmetry= 2/3+X,1/3+X-Y,1/3+Z
+symmetry= 1/3+X,2/3+Y,2/3+Z
+symmetry= 1/3-Y,2/3+X-Y,2/3+Z
+{***}
+symmetry= 1/3+Y-X,2/3-X,2/3+Z
+symmetry= 1/3-Y,2/3-X,2/3+Z
+symmetry= 1/3+Y-X,2/3+Y,2/3+Z
+symmetry= 1/3+X,2/3+X-Y,2/3+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/3 and x<=2 y and y<=min(1-x,2 x)
+161 R3c
+Number of Symmetry Operators = 18
+Space Group Name = R3c
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = 3m
+Patterson Space Group # = 166
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= 2/3+X,1/3+Y,1/3+Z
+symmetry= 2/3-Y,1/3+X-Y,1/3+Z
+symmetry= 2/3+Y-X,1/3-X,1/3+Z
+symmetry= 2/3-Y,1/3-X,5/6+Z
+symmetry= 2/3+Y-X,1/3+Y,5/6+Z
+symmetry= 2/3+X,1/3+X-Y,5/6+Z
+symmetry= 1/3+X,2/3+Y,2/3+Z
+symmetry= 1/3-Y,2/3+X-Y,2/3+Z
+symmetry= 1/3+Y-X,2/3-X,2/3+Z
+symmetry= 1/3-Y,2/3-X,1/6+Z
+symmetry= 1/3+Y-X,2/3+Y,1/6+Z
+symmetry= 1/3+X,2/3+X-Y,1/6+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/6 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+162 P-31m
+Number of Symmetry Operators = 12
+Space Group Name = P-31m
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = -3m
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,x)
+163 P-31c
+Number of Symmetry Operators = 12
+Space Group Name = P-31c
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = -3m
+Patterson Space Group # = 162
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -Y,-X,1/2-Z
+symmetry= Y-X,Y,1/2-Z
+symmetry= X,X-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+164 P-3m1
+Number of Symmetry Operators = 12
+Space Group Name = P-3m1
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = -3m
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/3 and 0<=z<=1 and x<=(1+y)/2 and y<=x/2
+165 P-3c1
+Number of Symmetry Operators = 12
+Space Group Name = P-3c1
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = -3m
+Patterson Space Group # = 164
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,1/2-Z
+symmetry= X-Y,-Y,1/2-Z
+symmetry= -X,Y-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+166 R-3m
+Number of Symmetry Operators = 36
+Space Group Name = R-3m
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = -3m
+Patterson Space Group # = 166
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= 2/3+X,1/3+Y,1/3+Z
+symmetry= 2/3-Y,1/3+X-Y,1/3+Z
+symmetry= 2/3+Y-X,1/3-X,1/3+Z
+symmetry= 2/3+Y,1/3+X,1/3-Z
+symmetry= 2/3+X-Y,1/3-Y,1/3-Z
+symmetry= 2/3-X,1/3+Y-X,1/3-Z
+symmetry= 2/3-X,1/3-Y,1/3-Z
+symmetry= 2/3+Y,1/3+Y-X,1/3-Z
+symmetry= 2/3+X-Y,1/3+X,1/3-Z
+symmetry= 2/3-Y,1/3-X,1/3+Z
+symmetry= 2/3+Y-X,1/3+Y,1/3+Z
+symmetry= 2/3+X,1/3+X-Y,1/3+Z
+symmetry= 1/3+X,2/3+Y,2/3+Z
+symmetry= 1/3-Y,2/3+X-Y,2/3+Z
+symmetry= 1/3+Y-X,2/3-X,2/3+Z
+{***}
+symmetry= 1/3+Y,2/3+X,2/3-Z
+symmetry= 1/3+X-Y,2/3-Y,2/3-Z
+symmetry= 1/3-X,2/3+Y-X,2/3-Z
+symmetry= 1/3-X,2/3-Y,2/3-Z
+symmetry= 1/3+Y,2/3+Y-X,2/3-Z
+symmetry= 1/3X-Y,2/3+X,2/3-Z
+symmetry= 1/3-Y,2/3-X,2/3+Z
+symmetry= 1/3+Y-X,2/3+Y,2/3+Z
+symmetry= 1/3+X,2/3+X-Y,2/3+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/6 and x<=2 y and y<=min(1-x,2 x)
+167 R-3c
+Number of Symmetry Operators = 36
+Space Group Name = R-3c
+Crystal System = TRIGONAL
+Laue Class = -3m
+Point Group = -3m
+Patterson Space Group # = 166
+Lattice Type = R
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= Y,X,1/2-Z
+symmetry= X-Y,-Y,1/2-Z
+symmetry= -X,Y-X,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= 2/3+X,1/3+Y,1/3+Z
+symmetry= 2/3-Y,1/3+X-Y,1/3+Z
+symmetry= 2/3+Y-X,1/3-X,1/3+Z
+symmetry= 2/3+Y,1/3+X,5/6-Z
+symmetry= 2/3+X-Y,1/3-Y,5/6-Z
+symmetry= 2/3-X,1/3+Y-X,5/6-Z
+symmetry= 2/3-X,1/3-Y,1/3-Z
+symmetry= 2/3+Y,1/3+Y-X,1/3-Z
+symmetry= 2/3+X-Y,1/3+X,1/3-Z
+symmetry= 2/3-Y,1/3-X,5/6+Z
+symmetry= 2/3+Y-X,1/3+Y,5/6+Z
+symmetry= 2/3+X,1/3+X-Y,5/6+Z
+symmetry= 1/3+X,2/3+Y,2/3+Z
+symmetry= 1/3-Y,2/3+X-Y,2/3+Z
+symmetry= 1/3+Y-X,2/3-X,2/3+Z
+symmetry= 1/3+Y,2/3+X,1/6-Z
+symmetry= 1/3+X-Y,2/3-Y,1/6-Z
+symmetry= 1/3-X,2/3+Y-X,1/6-Z
+symmetry= 1/3-X,2/3-Y,2/3-Z
+symmetry= 1/3+Y,2/3+Y-X,2/3-Z
+symmetry= 1/3+X-Y,2/3+X,2/3-Z
+symmetry= 1/3-Y,2/3-X,1/6+Z
+symmetry= 1/3+Y-X,2/3+Y,1/6+Z
+symmetry= 1/3+X,2/3+X-Y,1/6+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/12 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+168 P6
+Number of Symmetry Operators = 6
+Space Group Name = P6
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1 and x<=(1+y)/2 and y<=min(1-x,x)
+169 P6(1)
+Number of Symmetry Operators = 6
+Space Group Name = P6(1)
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z+1/3
+symmetry= Y-X,-X,Z+2/3
+symmetry= -X,-Y,Z+1/2
+symmetry= Y,Y-X,Z+5/6
+symmetry= X-Y,X,Z+1/6
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6
+170 P6(5)
+Number of Symmetry Operators = 6
+Space Group Name = P6(5)
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z+2/3
+symmetry= Y-X,-X,Z+1/3
+symmetry= -X,-Y,Z+1/2
+symmetry= Y,Y-X,Z+1/6
+symmetry= X-Y,X,Z+5/6
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6
+171 P6(2)
+Number of Symmetry Operators = 6
+Space Group Name = P6(2)
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,2/3+Z
+symmetry= Y-X,-X,1/3+Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,2/3+Z
+symmetry= X-Y,X,1/3+Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/3 and y<=x
+172 P6(4)
+Number of Symmetry Operators = 6
+Space Group Name = P6(4)
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,1/3+Z
+symmetry= Y-X,-X,2/3+Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,1/3+Z
+symmetry= X-Y,X,2/3+Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/3 and y<=x
+173 P6(3)
+Number of Symmetry Operators = 6
+Space Group Name = P6(3)
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+174 P-6
+Number of Symmetry Operators = 6
+Space Group Name = P-6
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = -6
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= X,Y,-Z
+symmetry= -Y,X-Y,-Z
+symmetry= Y-X,-X,-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+175 P6/m
+Number of Symmetry Operators = 12
+Space Group Name = P6/m
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6/m
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= X,Y,-Z
+symmetry= -Y,X-Y,-Z
+symmetry= Y-X,-X,-Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,x)
+176 P6(3)/m
+Number of Symmetry Operators = 12
+Space Group Name = P6(3)/m
+Crystal System = HEXAGONAL
+Laue Class = 6/m
+Point Group = 6/m
+Patterson Space Group # = 175
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= X,Y,1/2-Z
+symmetry= -Y,X-Y,1/2-Z
+symmetry= Y-X,-X,1/2-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+177 P622
+Number of Symmetry Operators = 12
+Space Group Name = P622
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 622
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,x)
+178 P6(1)22
+Number of Symmetry Operators = 12
+Space Group Name = P6(1)22
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 622
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,1/3+Z
+symmetry= Y-X,-X,2/3+Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,5/6+Z
+symmetry= X-Y,X,1/6+Z
+symmetry= Y,X,1/3-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,2/3-Z
+symmetry= -Y,-X,5/6-Z
+symmetry= Y-X,Y,1/2-Z
+symmetry= X,X-Y,1/6-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/12
+179 P6(5)22
+Number of Symmetry Operators = 12
+Space Group Name = P6(5)22
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 622
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,2/3+Z
+symmetry= Y-X,-X,1/3+Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/6+Z
+symmetry= X-Y,X,5/6+Z
+symmetry= Y,X,2/3-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,1/3-Z
+symmetry= -Y,-X,1/6-Z
+symmetry= Y-X,Y,1/2-Z
+symmetry= X,X-Y,5/6-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/12
+180 P6(2)22
+Number of Symmetry Operators = 12
+Space Group Name = P6(2)22
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 622
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,2/3+Z
+symmetry= Y-X,-X,1/3+Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,2/3+Z
+symmetry= X-Y,X,1/3+Z
+symmetry= Y,X,2/3-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,1/3-Z
+symmetry= -Y,-X,2/3-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,1/3-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6 and y<=x
+181 P6(4)22
+Number of Symmetry Operators = 12
+Space Group Name = P6(4)22
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 622
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,1/3+Z
+symmetry= Y-X,-X,2/3+Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,1/3+Z
+symmetry= X-Y,X,2/3+Z
+symmetry= Y,X,1/3-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,2/3-Z
+symmetry= -Y,-X,1/3-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,2/3-Z
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/6 and y<=x
+182 P6(3)22
+Number of Symmetry Operators = 12
+Space Group Name = P6(3)22
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 622
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= Y-X,Y,1/2-Z
+symmetry= X,X-Y,1/2-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+183 P6mm
+Number of Symmetry Operators = 12
+Space Group Name = P6mm
+Crystal System = HEXAGOANL
+Laue Class = 6/mmm
+Point Group = 6mm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/3 and 0<=z<=1 and x<=(1+y)/2 and y<=x/2
+184 P6cc
+Number of Symmetry Operators = 12
+Space Group Name = P6cc
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6mm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,x)
+185 P6(3)cm
+Number of Symmetry Operators = 12
+Space Group Name = P6(3)cm
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6mm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,x)
+186 P6(3)mc
+Number of Symmetry Operators = 12
+Space Group Name = P6(3)mc
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6mm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=1/3 and 0<=z<=1 and x<=(1+y)/2 and y<=x/2
+187 P-6m2
+Number of Symmetry Operators = 12
+Space Group Name = P-6m2
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = -62m
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= X,Y,-Z
+symmetry= -Y,X-Y,-Z
+symmetry= Y-X,-X,-Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/2 and x<=2 y and y<=min(1-x,2 x)
+188 P-6c2
+Number of Symmetry Operators = 12
+Space Group Name = P-6c2
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = -62m
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= X,Y,1/2-Z
+symmetry= -Y,X-Y,1/2-Z
+symmetry= Y-X,-X,1/2-Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+189 P-62m
+Number of Symmetry Operators = 12
+Space Group Name = P-62m
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = -62m
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= X,Y,-Z
+symmetry= -Y,X-Y,-Z
+symmetry= Y-X,-X,-Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/2 and x<=(1+y)/2 and y<=min(1-x,x)
+190 P-62c
+Number of Symmetry Operators = 12
+Space Group Name = P-62c
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = -62m
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= X,Y,1/2-Z
+symmetry= -Y,X-Y,1/2-Z
+symmetry= Y-X,-X,1/2-Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,(1+x)/2)
+191 P6/mmm
+Number of Symmetry Operators = 24
+Space Group Name = P6/mmm
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6/mmm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= X,Y,-Z
+symmetry= Y-X,-X,-Z
+symmetry= -Y,X-Y,-Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/3 and 0<=z<=1/2 and x<=(1+y)/2 and y<=x/2
+192 P6/mcc
+Number of Symmetry Operators = 24
+Space Group Name = P6/mcc
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6/mmm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,Z
+symmetry= Y,Y-X,Z
+symmetry= X-Y,X,Z
+symmetry= Y,X,1/2-Z
+symmetry= X-Y,-Y,1/2-Z
+symmetry= -X,Y-X,1/2-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= Y-X,Y,1/2-Z
+symmetry= X,X-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= X,Y,-Z
+symmetry= Y-X,-X,-Z
+symmetry= -Y,X-Y,-Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,x)
+193 P6(3)/mcm
+Number of Symmetry Operators = 24
+Space Group Name = P6(3)/mcm
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6/mmm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+symmetry= Y,X,1/2-Z
+symmetry= X-Y,-Y,1/2-Z
+symmetry= -X,Y-X,1/2-Z
+symmetry= -Y,-X,-Z
+symmetry= Y-X,Y,-Z
+symmetry= X,X-Y,-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= X,Y,1/2-Z
+symmetry= Y-X,-X,1/2-Z
+symmetry= -Y,X-Y,1/2-Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y-X,Y,1/2+Z
+symmetry= X,X-Y,1/2+Z
+symmetry= Y,X,Z
+symmetry= X-Y,-Y,Z
+symmetry= -X,Y-X,Z
+asymm= 0<=x<=2/3 and 0<=y<=1/2 and 0<=z<=1/4 and x<=(1+y)/2 and y<=min(1-x,x)
+194 P6(3)/mmc
+Number of Symmetry Operators = 24
+Space Group Name = P6(3)/mmc
+Crystal System = HEXAGONAL
+Laue Class = 6/mmm
+Point Group = 6/mmm
+Patterson Space Group # = 191
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -Y,X-Y,Z
+symmetry= Y-X,-X,Z
+symmetry= -X,-Y,1/2+Z
+symmetry= Y,Y-X,1/2+Z
+symmetry= X-Y,X,1/2+Z
+symmetry= Y,X,-Z
+symmetry= X-Y,-Y,-Z
+symmetry= -X,Y-X,-Z
+symmetry= -Y,-X,1/2-Z
+symmetry= Y-X,Y,1/2-Z
+symmetry= X,X-Y,1/2-Z
+symmetry= -X,-Y,-Z
+symmetry= Y,Y-X,-Z
+symmetry= X-Y,X,-Z
+symmetry= X,Y,1/2-Z
+symmetry= Y-X,-X,1/2-Z
+symmetry= -Y,X-Y,1/2-Z
+symmetry= -Y,-X,Z
+symmetry= Y-X,Y,Z
+symmetry= X,X-Y,Z
+symmetry= Y,X,1/2+Z
+symmetry= X-Y,-Y,1/2+Z
+symmetry= -X,Y-X,1/2+Z
+asymm= 0<=x<=2/3 and 0<=y<=2/3 and 0<=z<=1/4 and x<=2 y and y<=min(1-x,2 x)
+195 P23
+Number of Symmetry Operators = 12
+Space Group Name = P23
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = 23
+Patterson Space Group # = 200
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+asymm= 0<=x<=1 and 0<=y<=1 and 0<=z<=1/2 and y<=1-x and z<=min(x,y)
+196 F23
+Number of Symmetry Operators = 48
+Space Group Name = F23
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = 23
+Patterson Space Group # = 202
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2+Z,X,1/2+Y
+symmetry= 1/2+Z,-X,1/2-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= 1/2-Z,X,1/2-Y
+symmetry= 1/2+Y,Z,1/2+X
+symmetry= 1/2-Y,Z,1/2-X
+symmetry= 1/2+Y,-Z,1/2-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Z,1/2+X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,1/2-X,Y
+symmetry= 1/2-Z,1/2+X,-Y
+symmetry= 1/2+Y,1/2+Z,X
+symmetry= 1/2-Y,1/2+Z,-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,1/2-Z,X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and -1/4<=z<=1/4 and y<=x and max(x-1/2,-y)<=z<=min(1/2-x,y)
+197 I23
+Number of Symmetry Operators = 24
+Space Group Name = I23
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = 23
+Patterson Space Group # = 204
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2-X,1/2+Y
+symmetry= 1/2-Z,1/2+X,1/2-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2-X
+symmetry= 1/2-Y,1/2-Z,1/2+X
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1/2 and y<=min(x,1-x) and z<=y
+198 P2(1)3
+Number of Symmetry Operators = 12
+Space Group Name = P2(1)3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = 23
+Patterson Space Group # = 200
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and -1/2<=z<=1/2 and max(x-1/2,-y)<=z<=min(x,y)
+199 I2(1)3
+Number of Symmetry Operators = 24
+Space Group Name = I2(1)3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = 23
+Patterson Space Group # = 204
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,Z
+symmetry= 1/2-X,Y,-Z
+symmetry= X,-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= Z,-X,1/2-Y
+symmetry= -Z,1/2-X,Y
+symmetry= 1/2-Z,X,-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,Z,-X
+symmetry= Y,-Z,1/2-X
+symmetry= -Y,1/2-Z,X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and z<=min(x,y)
+200 Pm-3
+Number of Symmetry Operators = 24
+Space Group Name = Pm-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 200
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and z<=min(x,y)
+201 Pn-3
+Number of Symmetry Operators = 24
+Space Group Name = Pn-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 200
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2+X,1/2-Y
+symmetry= 1/2+Z,1/2-X,1/2+Y
+symmetry= 1/2-Y,1/2-Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2+X
+symmetry= 1/2+Y,1/2+Z,1/2-X
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1/2 and y<=min(x,1-x) and z<=y
+202 Fm-3
+Number of Symmetry Operators = 96
+Space Group Name = Fm-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 202
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= -X,1/2-Y,1/2-Z
+symmetry= X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2+Z
+symmetry= -Z,1/2-X,1/2-Y
+symmetry= -Z,1/2+X,1/2+Y
+symmetry= Z,1/2+X,1/2-Y
+symmetry= Z,1/2-X,1/2+Y
+symmetry= -Y,1/2-Z,1/2-X
+symmetry= Y,1/2-Z,1/2+X
+symmetry= -Y,1/2+Z,1/2+X
+symmetry= Y,1/2+Z,1/2-X
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2+Z,X,1/2+Y
+symmetry= 1/2+Z,-X,1/2-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= 1/2-Z,X,1/2-Y
+symmetry= 1/2+Y,Z,1/2+X
+symmetry= 1/2-Y,Z,1/2-X
+symmetry= 1/2+Y,-Z,1/2-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/2-X,-Y,1/2-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2+Z
+symmetry= 1/2-Z,-X,1/2-Y
+symmetry= 1/2-Z,X,1/2+Y
+symmetry= 1/2+Z,X,1/2-Y
+symmetry= 1/2+Z,-X,1/2+Y
+symmetry= 1/2-Y,-Z,1/2-X
+symmetry= 1/2+Y,-Z,1/2+X
+symmetry= 1/2-Y,Z,1/2+X
+symmetry= 1/2+Y,Z,1/2-X
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Z,1/2+X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,1/2-X,Y
+symmetry= 1/2-Z,1/2+X,-Y
+symmetry= 1/2+Y,1/2+Z,X
+symmetry= 1/2-Y,1/2+Z,-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,1/2-Z,X
+symmetry= 1/2-X,1/2-Y,-Z
+symmetry= 1/2+X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= 1/2-Z,1/2-X,-Y
+symmetry= 1/2-Z,1/2+X,Y
+symmetry= 1/2+Z,1/2+X,-Y
+symmetry= 1/2+Z,1/2-X,Y
+symmetry= 1/2-Y,1/2-Z,-X
+symmetry= 1/2+Y,1/2-Z,X
+symmetry= 1/2-Y,1/2+Z,X
+symmetry= 1/2+Y,1/2+Z,-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4 and y<=x and z<=min(1/2-x,y)
+203 Fd-3
+Number of Symmetry Operators = 96
+Space Group Name = Fd-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 202
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/4-X,1/4-Y,1/4-Z
+symmetry= 1/4+X,1/4+Y,1/4-Z
+symmetry= 1/4+X,1/4-Y,1/4+Z
+symmetry= 1/4-X,1/4+Y,1/4+Z
+symmetry= 1/4-Z,1/4-X,1/4-Y
+symmetry= 1/4-Z,1/4+X,1/4+Y
+symmetry= 1/4+Z,1/4+X,1/4-Y
+symmetry= 1/4+Z,1/4-X,1/4+Y
+symmetry= 1/4-Y,1/4-Z,1/4-X
+symmetry= 1/4+Y,1/4-Z,1/4+X
+symmetry= 1/4-Y,1/4+Z,1/4+X
+symmetry= 1/4+Y,1/4+Z,1/4-X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= 1/4-X,3/4-Y,3/4-Z
+symmetry= 1/4+X,3/4+Y,3/4-Z
+symmetry= 1/4+X,3/4-Y,3/4+Z
+symmetry= 1/4-X,3/4+Y,3/4+Z
+symmetry= 1/4-Z,3/4-X,3/4-Y
+symmetry= 1/4-Z,3/4+X,3/4+Y
+symmetry= 1/4+Z,3/4+X,3/4-Y
+symmetry= 1/4+Z,3/4-X,3/4+Y
+symmetry= 1/4-Y,3/4-Z,3/4-X
+symmetry= 1/4+Y,3/4-Z,3/4+X
+symmetry= 1/4-Y,3/4+Z,3/4+X
+symmetry= 1/4+Y,3/4+Z,3/4-X
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2+Z,X,1/2+Y
+symmetry= 1/2+Z,-X,1/2-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= 1/2-Z,X,1/2-Y
+symmetry= 1/2+Y,Z,1/2+X
+symmetry= 1/2-Y,Z,1/2-X
+symmetry= 1/2+Y,-Z,1/2-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 3/4-X,1/4-Y,3/4-Z
+symmetry= 3/4+X,1/4+Y,3/4-Z
+symmetry= 3/4+X,1/4-Y,3/4+Z
+symmetry= 3/4-X,1/4+Y,3/4+Z
+symmetry= 3/4-Z,1/4-X,3/4-Y
+symmetry= 3/4-Z,1/4+X,3/4+Y
+symmetry= 3/4+Z,1/4+X,3/4-Y
+symmetry= 3/4+Z,1/4-X,3/4+Y
+symmetry= 3/4-Y,1/4-Z,3/4-X
+symmetry= 3/4+Y,1/4-Z,3/4+X
+symmetry= 3/4-Y,1/4+Z,3/4+X
+symmetry= 3/4+Y,1/4+Z,3/4-X
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Z,1/2+X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,1/2-X,Y
+symmetry= 1/2-Z,1/2+X,-Y
+symmetry= 1/2+Y,1/2+Z,X
+symmetry= 1/2-Y,1/2+Z,-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,1/2-Z,X
+symmetry= 3/4-X,3/4-Y,1/4-Z
+symmetry= 3/4+X,3/4+Y,1/4-Z
+symmetry= 3/4+X,3/4-Y,Z+1/4
+symmetry= 3/4-X,3/4+Y,Z+1/4
+symmetry= 3/4-Z,3/4-X,1/4-Y
+symmetry= 3/4-Z,3/4+X,1/4+Y
+symmetry= 3/4+Z,3/4+X,1/4-Y
+symmetry= 3/4+Z,3/4-X,1/4+Y
+symmetry= 3/4-Y,3/4-Z,1/4-X
+symmetry= 3/4+Y,3/4-Z,1/4+X
+symmetry= 3/4-Y,3/4+Z,1/4+X
+symmetry= 3/4+Y,3/4+Z,1/4-X
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and -1/4<=z<=1/4 and y<=min(x,1/2-x) and -y<=z<=y
+204 Im-3
+Number of Symmetry Operators = 48
+Space Group Name = Im-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 204
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2-X,1/2+Y
+symmetry= 1/2-Z,1/2+X,1/2-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2-X
+symmetry= 1/2-Y,1/2-Z,1/2+X
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2+X,1/2-Y
+symmetry= 1/2+Z,1/2-X,1/2+Y
+symmetry= 1/2-Y,1/2-Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2+X
+symmetry= 1/2+Y,1/2+Z,1/2-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=x and z<=y
+205 Pa-3
+Number of Symmetry Operators = 24
+Space Group Name = Pa-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 200
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= -Z,-X,-Y
+symmetry= 1/2-Z,1/2+X,Y
+symmetry= 1/2+Z,X,1/2-Y
+symmetry= Z,1/2-X,1/2+Y
+symmetry= -Y,-Z,-X
+symmetry= Y,1/2-Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,X
+symmetry= 1/2+Y,Z,1/2-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and z<=min(x,y)
+206 Ia-3
+Number of Symmetry Operators = 48
+Space Group Name = Ia-3
+Crystal System = CUBIC
+Laue Class = m-3
+Point Group = m-3
+Patterson Space Group # = 204
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= -X,-Y,-Z
+symmetry= 1/2+X,Y,1/2-Z
+symmetry= X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,Z
+symmetry= -Z,-X,-Y
+symmetry= 1/2-Z,1/2+X,Y
+symmetry= 1/2+Z,X,1/2-Y
+symmetry= Z,1/2-X,1/2+Y
+symmetry= -Y,-Z,-X
+symmetry= Y,1/2-Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,X
+symmetry= 1/2+Y,Z,1/2-X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,Z
+symmetry= 1/2-X,+Y,-Z
+symmetry= X,-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= Z,-X,1/2-Y
+symmetry= -Z,1/2-X,Y
+symmetry= 1/2-Z,X,-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,Z,-X
+symmetry= Y,-Z,1/2-X
+symmetry= -Y,1/2-Z,X
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= X,1/2+Y,-Z
+symmetry= 1/2+X,-Y,Z
+symmetry= -X,Y,1/2+Z
+symmetry= 1/2-Z,1/2-X,1/2-Y
+symmetry= -Z,X,1/2+Y
+symmetry= Z,1/2+X,-Y
+symmetry= 1/2+Z,-X,Y
+symmetry= 1/2-Y,1/2-Z,1/2-X
+symmetry= 1/2+Y,-Z,X
+symmetry= -Y,Z,1/2+X
+symmetry= Y,1/2+Z,-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4 and z<=min(x,1/2-x,1/2-y)
+207 P432
+Number of Symmetry Operators = 24
+Space Group Name = P432
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y,-X,Z
+symmetry= -Y,X,Z
+symmetry= X,Z,-Y
+symmetry= -X,Z,Y
+symmetry= -X,-Z,-Y
+symmetry= X,-Z,Y
+symmetry= Z,Y,-X
+symmetry= Z,-Y,X
+symmetry= -Z,Y,X
+symmetry= -Z,-Y,-X
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1/2 and y<=min(x,1-x) and z<=y
+208 P4(2)32
+Number of Symmetry Operators = 24
+Space Group Name = P4(2)32
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2-Z,1/2-Y
+symmetry= 1/2+X,1/2-Z,1/2+Y
+symmetry= 1/2+Z,1/2+Y,1/2-X
+symmetry= 1/2+Z,1/2-Y,1/2+X
+symmetry= 1/2-Z,1/2+Y,1/2+X
+symmetry= 1/2-Z,1/2-Y,1/2-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and -1/4<=z<=1/4 and max(-x,x-1/2,-y,y-1/2)<=z<=min(x,1/2-x,y,1/2-y)
+209 F432
+Number of Symmetry Operators = 96
+Space Group Name = F432
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 225
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y,-X,Z
+symmetry= -Y,X,Z
+symmetry= X,Z,-Y
+symmetry= -X,Z,Y
+symmetry= -X,-Z,-Y
+symmetry= X,-Z,Y
+symmetry= Z,Y,-X
+symmetry= Z,-Y,X
+symmetry= -Z,Y,X
+symmetry= -Z,-Y,-X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= Y,1/2+X,1/2-Z
+symmetry= -Y,1/2-X,1/2-Z
+symmetry= Y,1/2-X,1/2+Z
+symmetry= -Y,1/2+X,1/2+Z
+symmetry= X,1/2+Z,1/2-Y
+symmetry= -X,1/2+Z,1/2+Y
+symmetry= -X,1/2-Z,1/2-Y
+symmetry= X,1/2-Z,1/2+Y
+symmetry= Z,1/2+Y,1/2-X
+symmetry= Z,1/2-Y,1/2+X
+symmetry= -Z,1/2+Y,1/2+X
+symmetry= -Z,1/2-Y,1/2-X
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2+Z,X,1/2+Y
+symmetry= 1/2+Z,-X,1/2-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= 1/2-Z,X,1/2-Y
+symmetry= 1/2+Y,Z,1/2+X
+symmetry= 1/2-Y,Z,1/2-X
+symmetry= 1/2+Y,-Z,1/2-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/2+Y,X,1/2-Z
+symmetry= 1/2-Y,-X,1/2-Z
+symmetry= 1/2+Y,-X,1/2+Z
+symmetry= 1/2-Y,X,1/2+Z
+symmetry= 1/2+X,Z,1/2-Y
+symmetry= 1/2-X,Z,1/2+Y
+symmetry= 1/2-X,-Z,1/2-Y
+symmetry= 1/2+X,-Z,1/2+Y
+symmetry= 1/2+Z,Y,1/2-X
+symmetry= 1/2+Z,-Y,1/2+X
+symmetry= 1/2-Z,Y,1/2+X
+symmetry= 1/2-Z,-Y,1/2-X
+{****}
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Z,1/2+X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,1/2-X,Y
+symmetry= 1/2-Z,1/2+X,-Y
+symmetry= 1/2+Y,1/2+Z,X
+symmetry= 1/2-Y,1/2+Z,-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,1/2-Z,X
+symmetry= 1/2+Y,1/2+X,-Z
+symmetry= 1/2-Y,1/2-X,-Z
+symmetry= 1/2+Y,1/2-X,Z
+symmetry= 1/2-Y,1/2+X,Z
+symmetry= 1/2+X,1/2+Z,-Y
+symmetry= 1/2-X,1/2+Z,Y
+symmetry= 1/2-X,1/2-Z,-Y
+symmetry= 1/2+X,1/2-Z,Y
+symmetry= 1/2+Z,1/2+Y,-X
+symmetry= 1/2+Z,1/2-Y,X
+symmetry= 1/2-Z,1/2+Y,X
+symmetry= 1/2-Z,1/2-Y,-X
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and -1/4<=z<=1/4 and y<=min(x,1/2-x) and -y<=z<=y
+210 F4(1)32
+Number of Symmetry Operators = 96
+Space Group Name = F4(1)32
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 225
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= 1/2-Z,1/2+X,-Y
+symmetry= Y,Z,X
+symmetry= 1/2-Y,1/2+Z,-X
+symmetry= 1/2+Y,-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= 3/4+Y,1/4+X,3/4-Z
+symmetry= 1/4-Y,1/4-X,1/4-Z
+symmetry= 1/4+Y,3/4-X,3/4+Z
+symmetry= 3/4-Y,3/4+X,1/4+Z
+{* << *}
+symmetry= 3/4+X,1/4+Z,3/4-Y
+symmetry= 3/4-X,3/4+Z,1/4+Y
+symmetry= 1/4-X,1/4-Z,1/4-Y
+symmetry= 1/4+X,3/4-Z,3/4+Y
+symmetry= 3/4+Z,1/4+Y,3/4-X
+symmetry= 1/4+Z,3/4-Y,3/4+X
+symmetry= 3/4-Z,3/4+Y,1/4+X
+symmetry= 1/4-Z,1/4-Y,1/4-X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,-Y,Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= -Z,-X,Y
+symmetry= 1/2-Z,X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 3/4+Y,3/4+X,1/4-Z
+symmetry= 1/4-Y,3/4-X,3/4-Z
+symmetry= 1/4+Y,1/4-X,1/4+Z
+symmetry= 3/4-Y,1/4+X,3/4+Z
+{* << *}
+symmetry= 3/4+X,3/4+Z,1/4-Y
+symmetry= 3/4-X,1/4+Z,3/4+Y
+symmetry= 1/4-X,3/4-Z,3/4-Y
+symmetry= 1/4+X,1/4-Z,1/4+Y
+symmetry= 3/4+Z,3/4+Y,1/4-X
+symmetry= 1/4+Z,1/4-Y,1/4+X
+symmetry= 3/4-Z,1/4+Y,3/4+X
+symmetry= 1/4-Z,3/4-Y,3/4-X
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,-Y,-Z
+symmetry= 1/2+Z,X,1/2+Y
+symmetry= Z,-X,-Y
+symmetry= 1/2-Z,1/2-X,Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= 1/2+Y,Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,-Z,-X
+symmetry= 1/2-Y,1/2-Z,X
+symmetry= 1/4+Y,1/4+X,1/4-Z
+symmetry= 3/4-Y,1/4-X,3/4-Z
+symmetry= 3/4+Y,3/4-X,1/4+Z
+symmetry= 1/4-Y,3/4+X,3/4+Z
+{* << *}
+symmetry= 1/4+X,1/4+Z,1/4-Y
+symmetry= 1/4-X,3/4+Z,3/4+Y
+symmetry= 3/4-X,1/4-Z,3/4-Y
+symmetry= 3/4+X,3/4-Z,1/4+Y
+symmetry= 1/4+Z,1/4+Y,1/4-X
+symmetry= 3/4+Z,3/4-Y,1/4+X
+symmetry= 1/4-Z,3/4+Y,3/4+X
+symmetry= 3/4-Z,1/4-Y,3/4-X
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,Y,-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,X,-Y
+symmetry= 1/2+Y,1/2+Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/4+Y,3/4+X,3/4-Z
+symmetry= 3/4-Y,3/4-X,1/4-Z
+symmetry= 3/4+Y,1/4-X,3/4+Z
+symmetry= 1/4-Y,1/4+X,1/4+Z
+{* << *}
+symmetry= 1/4+X,3/4+Z,3/4-Y
+symmetry= 1/4-X,1/4+Z,1/4+Y
+symmetry= 3/4-X,3/4-Z,1/4-Y
+symmetry= 3/4+X,1/4-Z,3/4+Y
+symmetry= 1/4+Z,3/4+Y,3/4-X
+symmetry= 3/4+Z,1/4-Y,3/4+X
+symmetry= 1/4-Z,1/4+Y,1/4+X
+symmetry= 3/4-Z,3/4-Y,1/4-X
+asymm= 0<=x<=1/2 and -1/8<=y<=1/8 and -1/8<=z<=1/8 and y<=min(x,1/2-x) and -y<=z<=min(x,1/2-x)
+211 I432
+Number of Symmetry Operators = 48
+Space Group Name = I432
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 229
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y,-X,Z
+symmetry= -Y,X,Z
+symmetry= X,Z,-Y
+symmetry= -X,Z,Y
+symmetry= -X,-Z,-Y
+symmetry= X,-Z,Y
+symmetry= Z,Y,-X
+symmetry= Z,-Y,X
+symmetry= -Z,Y,X
+symmetry= -Z,-Y,-X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2-X,1/2+Y
+symmetry= 1/2-Z,1/2+X,1/2-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2-X
+symmetry= 1/2-Y,1/2-Z,1/2+X
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2-Z,1/2-Y
+symmetry= 1/2+X,1/2-Z,1/2+Y
+symmetry= 1/2+Z,1/2+Y,1/2-X
+symmetry= 1/2+Z,1/2-Y,1/2+X
+symmetry= 1/2-Z,1/2+Y,1/2+X
+symmetry= 1/2-Z,1/2-Y,1/2-X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4 and z<=min(x,1/2-x,y,1/2-y)
+212 P4(3)32
+Number of Symmetry Operators = 24
+Space Group Name = P4(3)32
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/4+Y,3/4+X,3/4-Z
+symmetry= 1/4-Y,1/4-X,1/4-Z
+symmetry= 3/4+Y,3/4-X,1/4+Z
+symmetry= 3/4-Y,1/4+X,3/4+Z
+symmetry= 1/4+X,3/4+Z,3/4-Y
+symmetry= 3/4-X,1/4+Z,3/4+Y
+symmetry= 1/4-X,1/4-Z,1/4-Y
+symmetry= 3/4+X,3/4-Z,1/4+Y
+symmetry= 1/4+Z,3/4+Y,3/4-X
+symmetry= 3/4+Z,3/4-Y,1/4+X
+symmetry= 3/4-Z,1/4+Y,3/4+X
+symmetry= 1/4-Z,1/4-Y,1/4-X
+asymm= 0<=x<=1/2 and 0<=y<=3/4 and -1/2<=z<=1/4 and max(-y,x-1/2)<=z<=min(1/2-y,2 x-y,2 y-x,y-2 x+1/2)
+213 P4(1)32
+Number of Symmetry Operators = 24
+Space Group Name = P4(1)32
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 3/4+Y,1/4+X,1/4-Z
+symmetry= 3/4-Y,3/4-X,3/4-Z
+symmetry= 1/4+Y,1/4-X,3/4+Z
+symmetry= 1/4-Y,3/4+X,1/4+Z
+symmetry= 3/4+X,1/4+Z,1/4-Y
+symmetry= 1/4-X,3/4+Z,1/4+Y
+symmetry= 3/4-X,3/4-Z,3/4-Y
+symmetry= 1/4+X,1/4-Z,3/4+Y
+symmetry= 3/4+Z,1/4+Y,1/4-X
+symmetry= 1/4+Z,1/4-Y,3/4+X
+symmetry= 1/4-Z,3/4+Y,1/4+X
+symmetry= 3/4-Z,3/4-Y,3/4-X
+asymm= -1/4<=x<=1/2 and 0<=y<=3/4 and 0<=z<=1/2 and x<=y<=x+1/2 and
+y-x)/2<=z<=min(y,(-4 x-2 y+3)/2,(3-2 x-2 y)/4)
+214 I4(1)32
+Number of Symmetry Operators = 48
+Space Group Name = I4(1)32
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = 432
+Patterson Space Group # = 229
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 3/4+Y,1/4+X,1/4-Z
+symmetry= 3/4-Y,3/4-X,3/4-Z
+symmetry= 1/4+Y,1/4-X,3/4+Z
+symmetry= 1/4-Y,3/4+X,1/4+Z
+symmetry= 3/4+X,1/4+Z,1/4-Y
+symmetry= 1/4-X,3/4+Z,1/4+Y
+symmetry= 3/4-X,3/4-Z,3/4-Y
+symmetry= 1/4+X,1/4-Z,3/4+Y
+symmetry= 3/4+Z,1/4+Y,1/4-X
+symmetry= 1/4+Z,1/4-Y,3/4+X
+symmetry= 1/4-Z,3/4+Y,1/4+X
+symmetry= 3/4-Z,3/4-Y,3/4-X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,Z
+symmetry= 1/2-X,Y,-Z
+symmetry= X,-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= Z,-X,1/2-Y
+symmetry= -Z,1/2-X,Y
+symmetry= 1/2-Z,X,-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,Z,-X
+symmetry= Y,-Z,1/2-X
+symmetry= -Y,1/2-Z,X
+symmetry= 1/4+Y,3/4+X,3/4-Z
+symmetry= 1/4-Y,1/4-X,1/4-Z
+symmetry= 3/4+Y,3/4-X,1/4+Z
+symmetry= 3/4-Y,1/4+X,3/4+Z
+symmetry= 1/4+X,3/4+Z,3/4-Y
+symmetry= 3/4-X,1/4+Z,3/4+Y
+symmetry= 1/4-X,1/4-Z,1/4-Y
+symmetry= 3/4+X,3/4-Z,1/4+Y
+symmetry= 1/4+Z,3/4+Y,3/4-X
+symmetry= 3/4+Z,3/4-Y,1/4+X
+symmetry= 3/4-Z,1/4+Y,3/4+X
+symmetry= 1/4-Z,1/4-Y,1/4-X
+asymm= -3/8<=x<=1/8 and -1/8<=y<=1/8 and -1/8<=z<=3/8 and max(x,y,y-x-1/8)<=z<=y+1/4
+215 P-43m
+Number of Symmetry Operators = 24
+Space Group Name = P-43m
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = -43m
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,Z
+symmetry= -Y,-X,Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= Z,Y,X
+symmetry= Z,-Y,-X
+symmetry= -Z,Y,-X
+symmetry= -Z,-Y,X
+asymm= 0<=x<=1 and 0<=y<=1/2 and 0<=z<=1/2 and y<=min(x,1-x) and z<=y
+216 F4-3m
+Number of Symmetry Operators = 96
+Space Group Name = F4-3m
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = -43m
+Patterson Space Group # = 225
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,Z
+symmetry= -Y,-X,Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= Z,Y,X
+symmetry= Z,-Y,-X
+symmetry= -Z,Y,-X
+symmetry= -Z,-Y,X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= Y,1/2+X,1/2+Z
+symmetry= -Y,1/2-X,1/2+Z
+symmetry= Y,1/2-X,1/2-Z
+symmetry= -Y,1/2+X,1/2-Z
+symmetry= X,1/2+Z,1/2+Y
+symmetry= -X,1/2+Z,1/2-Y
+symmetry= -X,1/2-Z,1/2+Y
+symmetry= X,1/2-Z,1/2-Y
+symmetry= Z,1/2+Y,1/2+X
+symmetry= Z,1/2-Y,1/2-X
+symmetry= -Z,1/2+Y,1/2-X
+symmetry= -Z,1/2-Y,1/2+X
+symmetry= 1/2+X,Y,1/2+Z
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= 1/2-X,Y,1/2-Z
+symmetry= 1/2+X,-Y,1/2-Z
+symmetry= 1/2+Z,X,1/2+Y
+symmetry= 1/2+Z,-X,1/2-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= 1/2-Z,X,1/2-Y
+symmetry= 1/2+Y,Z,1/2+X
+symmetry= 1/2-Y,Z,1/2-X
+symmetry= 1/2+Y,-Z,1/2-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/2+Y,X,1/2+Z
+symmetry= 1/2-Y,-X,1/2+Z
+symmetry= 1/2+Y,-X,1/2-Z
+symmetry= 1/2-Y,X,1/2-Z
+symmetry= 1/2+X,Z,1/2+Y
+symmetry= 1/2-X,Z,1/2-Y
+symmetry= 1/2-X,-Z,1/2+Y
+symmetry= 1/2+X,-Z,1/2-Y
+symmetry= 1/2+Z,Y,1/2+X
+symmetry= 1/2+Z,-Y,1/2-X
+symmetry= 1/2-Z,Y,1/2-X
+symmetry= 1/2-Z,-Y,1/2+X
+symmetry= 1/2+X,1/2+Y,Z
+symmetry= 1/2-X,1/2-Y,Z
+symmetry= 1/2-X,1/2+Y,-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= 1/2+Z,1/2+X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,1/2-X,Y
+symmetry= 1/2-Z,1/2+X,-Y
+symmetry= 1/2+Y,1/2+Z,X
+symmetry= 1/2-Y,1/2+Z,-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,1/2-Z,X
+symmetry= 1/2+Y,1/2+X,Z
+symmetry= 1/2-Y,1/2-X,Z
+symmetry= 1/2+Y,1/2-X,-Z
+symmetry= 1/2-Y,1/2+X,-Z
+symmetry= 1/2+X,1/2+Z,Y
+symmetry= 1/2-X,1/2+Z,-Y
+symmetry= 1/2-X,1/2-Z,Y
+symmetry= 1/2+X,1/2-Z,-Y
+symmetry= 1/2+Z,1/2+Y,X
+symmetry= 1/2+Z,1/2-Y,-X
+symmetry= 1/2-Z,1/2+Y,-X
+symmetry= 1/2-Z,1/2-Y,X
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and -1/4<=z<=1/4 and y<=min(x,1/2-x) and -y<=z<=y
+217 I-43m
+Number of Symmetry Operators = 48
+Space Group Name = I-43m
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = -43m
+Patterson Space Group # = 229
+Lattice Type = I
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,Z
+symmetry= -Y,-X,Z
+symmetry= Y,-X,-Z
+symmetry= -Y,X,-Z
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= Z,Y,X
+symmetry= Z,-Y,-X
+symmetry= -Z,Y,-X
+symmetry= -Z,-Y,X
+symmetry= 1/2+X,1/2+Y,1/2+Z
+symmetry= 1/2-X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2-Z
+symmetry= 1/2+Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2-X,1/2+Y
+symmetry= 1/2-Z,1/2+X,1/2-Y
+symmetry= 1/2+Y,1/2+Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2-X
+symmetry= 1/2-Y,1/2-Z,1/2+X
+symmetry= 1/2+Y,1/2+X,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2-Z,1/2+Y
+symmetry= 1/2+X,1/2-Z,1/2-Y
+symmetry= 1/2+Z,1/2+Y,1/2+X
+symmetry= 1/2+Z,1/2-Y,1/2-X
+symmetry= 1/2-Z,1/2+Y,1/2-X
+symmetry= 1/2-Z,1/2-Y,1/2+X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=x and z<=y
+218 P-43n
+Number of Symmetry Operators = 24
+Space Group Name = P-43n
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = -43m
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2+Y,1/2+X,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2-Z,1/2+Y
+symmetry= 1/2+X,1/2-Z,1/2-Y
+symmetry= 1/2+Z,1/2+Y,1/2+X
+symmetry= 1/2+Z,1/2-Y,1/2-X
+symmetry= 1/2-Z,1/2+Y,1/2-X
+symmetry= 1/2-Z,1/2-Y,1/2+X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and z<=min(x,y)
+219 F-43c
+Number of Symmetry Operators = 96
+Space Group Name = F-43c
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = -43m
+Patterson Space Group # = 225
+Lattice Type = F
+symmetry= X,Y,Z
+{***}
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2+Y,1/2+X,1/2+Z
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2-Z,1/2+Y
+symmetry= 1/2+X,1/2-Z,1/2-Y
+symmetry= 1/2+Z,1/2+Y,1/2+X
+symmetry= 1/2+Z,1/2-Y,1/2-X
+symmetry= 1/2-Z,1/2+Y,1/2-X
+symmetry= 1/2-Z,1/2-Y,1/2+X
+symmetry= X,Y+1/2,Z+1/2
+{***}
+symmetry= -X,-Y+1/2,Z+1/2
+symmetry= -X,Y+1/2,-Z+1/2
+symmetry= X,-Y+1/2,-Z+1/2
+symmetry= Z,X+1/2,Y+1/2
+symmetry= Z,-X+1/2,-Y+1/2
+symmetry= -Z,-X+1/2,Y+1/2
+symmetry= -Z,X+1/2,-Y+1/2
+symmetry= Y,Z+1/2,X+1/2
+symmetry= -Y,Z+1/2,-X+1/2
+symmetry= Y,-Z+1/2,-X+1/2)
+symmetry= -Y,-Z+1/2,X+1/2
+symmetry= 1/2+Y,X,Z
+symmetry= 1/2-Y,-X,Z
+symmetry= 1/2+Y,-X,-Z
+symmetry= 1/2-Y,+X,-Z
+symmetry= 1/2+X,+Z,Y
+symmetry= 1/2-X,+Z,-Y
+symmetry= 1/2-X,-Z,Y
+symmetry= 1/2+X,-Z,-Y
+symmetry= 1/2+Z,+Y,X
+symmetry= 1/2+Z,-Y,-X
+symmetry= 1/2-Z,+Y,-X
+symmetry= 1/2-Z,-Y,X
+symmetry= X+1/2,Y,Z+1/2
+{***}
+symmetry= -X+1/2,-Y,Z+1/2
+symmetry= -X+1/2,Y,-Z+1/2
+symmetry= X+1/2,-Y,-Z+1/2
+symmetry= Z+1/2,X,Y+1/2
+symmetry= Z+1/2,-X,-Y+1/2
+symmetry= -Z+1/2,-X,Y+1/2
+symmetry= -Z+1/2,X,-Y+1/2
+symmetry= Y+1/2,Z,X+1/2
+symmetry= -Y+1/2,Z,-X+1/2
+symmetry= Y+1/2,-Z,-X+1/2
+symmetry= -Y+1/2,-Z,X+1/2
+symmetry= Y,1/2+X,Z
+symmetry= -Y,1/2-X,Z
+symmetry= Y,1/2-X,-Z
+symmetry= -Y,1/2+X,-Z
+symmetry= X,1/2+Z,Y
+symmetry=(-X,1/2+Z,-Y
+symmetry= -X,1/2-Z,Y
+symmetry= X,1/2-Z,-Y
+symmetry= Z,1/2+Y,X
+symmetry= Z,1/2-Y,-X
+symmetry= -Z,1/2+Y,-X
+symmetry= -Z,1/2-Y,X
+symmetry= X+1/2,Y+1/2,Z
+{***}
+symmetry= -X+1/2,-Y+1/2,Z
+symmetry= -X+1/2,Y+1/2,-Z
+symmetry= X+1/2,-Y+1/2,-Z
+symmetry= Z+1/2,X+1/2,Y
+symmetry= Z+1/2,-X+1/2,-Y
+symmetry= -Z+1/2,-X+1/2,Y
+symmetry= -Z+1/2,X+1/2,-Y
+symmetry= Y+1/2,Z+1/2,X
+symmetry= -Y+1/2,Z+1/2,-X
+symmetry= Y+1/2,-Z+1/2,-X
+symmetry= -Y+1/2,-Z+1/2,X
+symmetry= Y,X,1/2+Z
+symmetry= -Y,-X,1/2+Z
+symmetry= Y,-X,1/2-Z
+symmetry= -Y,X,1/2-Z
+symmetry= X,Z,1/2+Y
+symmetry= -X,Z,1/2-Y
+symmetry= -X,-Z,1/2+Y
+symmetry= X,-Z,1/2-Y
+symmetry= Z,Y,1/2+X
+symmetry= Z,-Y,1/2-X
+symmetry= -Z,Y,1/2-X
+symmetry= -Z,-Y,1/2+X
+asymm= 0<=x<=1/2 and 0<=y<=1/4 and -1/4<=z<=1/4 and y<=min(x,1/2-x) and -y<=z<=y
+220 I-43d
+Number of Symmetry Operators = 48
+Space Group Name = I-43d
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = -43m
+Patterson Space Group # = 229
+Lattice Type = I
+symmetry= X,Y,Z
+{***}
+symmetry= 1/2-X,-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,-Z
+symmetry= Z,X,Y
+symmetry= 1/2+Z,1/2-X,-Y
+symmetry= 1/2-Z,-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,Z,X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,-X
+symmetry= 1/2-Y,-Z,1/2+X
+symmetry= 1/4+Y,1/4+X,1/4+Z
+symmetry= 1/4-Y,3/4-X,3/4+Z
+symmetry= 3/4+Y,1/4-X,3/4-Z
+symmetry= 3/4-Y,3/4+X,1/4-Z
+symmetry= 1/4+X,1/4+Z,1/4+Y
+symmetry= 3/4-X,3/4+Z,1/4-Y
+symmetry= 1/4-X,3/4-Z,3/4+Y
+symmetry= 3/4+X,1/4-Z,3/4-Y
+symmetry= 1/4+Z,1/4+Y,1/4+X
+symmetry= 3/4+Z,1/4-Y,3/4-X
+symmetry= 3/4-Z,3/4+Y,1/4-X
+symmetry= 1/4-Z,3/4-Y,3/4+X
+symmetry= X+1/2,Y+1/2,Z+1/2
+{***}
+symmetry= -X,-Y+1/2,Z
+symmetry= -X+1/2,Y,-Z
+symmetry= X,-Y,-Z+1/2
+symmetry= Z+1/2,X+1/2,Y+1/2
+symmetry= Z,-X,-Y+1/2
+symmetry= -Z,-X+1/2,Y
+symmetry= -Z+1/2,X,-Y
+symmetry= Y+1/2,Z+1/2,X+1/2
+symmetry= -Y+1/2,Z,-X
+symmetry= Y,-Z,-X+1/2
+symmetry= -Y,-Z+1/2,X
+symmetry= 3/4+Y,3/4+X,3/4+Z
+symmetry= 3/4-Y,1/4-X,1/4+Z
+symmetry= 1/4+Y,3/4-X,1/4-Z
+symmetry= 1/4-Y,1/4+X,3/4-Z
+symmetry= 3/4+X,3/4+Z,3/4+Y
+symmetry= 1/4-X,1/4+Z,3/4-Y
+symmetry= 3/4-X,1/4-Z,1/4+Y
+symmetry= 1/4+X,3/4-Z,1/4-Y
+symmetry= 3/4+Z,3/4+Y,3/4+X
+symmetry= 1/4+Z,3/4-Y,1/4-X
+symmetry= 1/4-Z,1/4+Y,3/4-X
+symmetry= 3/4-Z,1/4-Y,1/4+X
+asymm= 1/4<=x<=1/2 and 1/4<=y<=1/2 and 0<=z<=1/2 and z<=min(x,y)
+221 Pm-3m
+Number of Symmetry Operators = 48
+Space Group Name = Pm-3m
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = m-3m
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y,-X,Z
+symmetry= -Y,X,Z
+symmetry= X,Z,-Y
+symmetry= -X,Z,Y
+symmetry= -X,-Z,-Y
+symmetry= X,-Z,Y
+symmetry= Z,Y,-X
+symmetry= Z,-Y,X
+symmetry= -Z,Y,X
+symmetry= -Z,-Y,-X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -Z,-Y,X
+symmetry= -Z,Y,-X
+symmetry= Z,-Y,-X
+symmetry= Z,Y,X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=x and z<=y
+222 Pn-3n
+Number of Symmetry Operators = 48
+Space Group Name = Pn-3n
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = m-3m
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y,-X,Z
+symmetry= -Y,X,Z
+symmetry= X,Z,-Y
+symmetry= -X,Z,Y
+symmetry= -X,-Z,-Y
+symmetry= X,-Z,Y
+symmetry= Z,Y,-X
+symmetry= Z,-Y,X
+symmetry= -Z,Y,X
+symmetry= -Z,-Y,-X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -Z,-Y,X
+symmetry= -Z,Y,-X
+symmetry= Z,-Y,-X
+symmetry= Z,Y,X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/2 and y<=x and z<=y
+223 Pm-3n
+Number of Symmetry Operators = 48
+Space Group Name = Pm-3n
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = m-3m
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2-Z,1/2-Y
+symmetry= 1/2+X,1/2-Z,1/2+Y
+symmetry= 1/2+Z,1/2+Y,1/2-X
+symmetry= 1/2+Z,1/2-Y,1/2+X
+symmetry= 1/2-Z,1/2+Y,1/2+X
+symmetry= 1/2-Z,1/2-Y,1/2-X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+symmetry= 1/2-Y,1/2-X,1/2+Z
+symmetry= 1/2+Y,1/2+X,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2-Z
+symmetry= 1/2-X,1/2-Z,1/2+Y
+symmetry= 1/2+X,1/2-Z,1/2-Y
+symmetry= 1/2+X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2+Z,1/2-Y
+symmetry= 1/2-Z,1/2-Y,1/2+X
+symmetry= 1/2-Z,1/2+Y,1/2-X
+symmetry= 1/2+Z,1/2-Y,1/2-X
+symmetry= 1/2+Z,1/2+Y,1/2+X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and 0<=z<=1/4 and z<=min(x,1/2-x,y,1/2-y)
+224 Pn-3m
+Number of Symmetry Operators = 48
+Space Group Name = Pn-3m
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = m-3m
+Patterson Space Group # = 221
+Lattice Type = P
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= 1/2+Y,1/2+X,1/2-Z
+symmetry= 1/2-Y,1/2-X,1/2-Z
+symmetry= 1/2+Y,1/2-X,1/2+Z
+symmetry= 1/2-Y,1/2+X,1/2+Z
+symmetry= 1/2+X,1/2+Z,1/2-Y
+symmetry= 1/2-X,1/2+Z,1/2+Y
+symmetry= 1/2-X,1/2-Z,1/2-Y
+symmetry= 1/2+X,1/2-Z,1/2+Y
+symmetry= 1/2+Z,1/2+Y,1/2-X
+symmetry= 1/2+Z,1/2-Y,1/2+X
+symmetry= 1/2-Z,1/2+Y,1/2+X
+symmetry= 1/2-Z,1/2-Y,1/2-X
+symmetry= 1/2-X,1/2-Y,1/2-Z
+symmetry= 1/2+X,1/2+Y,1/2-Z
+symmetry= 1/2+X,1/2-Y,1/2+Z
+symmetry= 1/2-X,1/2+Y,1/2+Z
+symmetry= 1/2-Z,1/2-X,1/2-Y
+symmetry= 1/2-Z,1/2+X,1/2+Y
+symmetry= 1/2+Z,1/2+X,1/2-Y
+symmetry= 1/2+Z,1/2-X,1/2+Y
+symmetry= 1/2-Y,1/2-Z,1/2-X
+symmetry= 1/2+Y,1/2-Z,1/2+X
+symmetry= 1/2-Y,1/2+Z,1/2+X
+symmetry= 1/2+Y,1/2+Z,1/2-X
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -Z,-Y,X
+symmetry= -Z,Y,-X
+symmetry= Z,-Y,-X
+symmetry= Z,Y,X
+asymm= 0<=x<=1/2 and 0<=y<=1/2 and -1/4<=z<=1/4 and y<=x and max(x-1/2,-y)<=z<=min(1/2-x,y)
+225 Fm-3m
+Number of Symmetry Operators = 192
+Space Group Name = Fm-3m
+Crystal System = CUBIC
+Laue Class = m-3m
+Point Group = m-3m
+Patterson Space Group # = 225
+Lattice Type = F
+symmetry= X,Y,Z
+symmetry= -X,-Y,Z
+symmetry= -X,Y,-Z
+symmetry= X,-Y,-Z
+symmetry= Z,X,Y
+symmetry= Z,-X,-Y
+symmetry= -Z,-X,Y
+symmetry= -Z,X,-Y
+symmetry= Y,Z,X
+symmetry= -Y,Z,-X
+symmetry= Y,-Z,-X
+symmetry= -Y,-Z,X
+symmetry= Y,X,-Z
+symmetry= -Y,-X,-Z
+symmetry= Y,-X,Z
+symmetry= -Y,X,Z
+symmetry= X,Z,-Y
+symmetry= -X,Z,Y
+symmetry= -X,-Z,-Y
+symmetry= X,-Z,Y
+symmetry= Z,Y,-X
+symmetry= Z,-Y,X
+symmetry= -Z,Y,X
+symmetry= -Z,-Y,-X
+symmetry= -X,-Y,-Z
+symmetry= X,Y,-Z
+symmetry= X,-Y,Z
+symmetry= -X,Y,Z
+symmetry= -Z,-X,-Y
+symmetry= -Z,X,Y
+symmetry= Z,X,-Y
+symmetry= Z,-X,Y
+symmetry= -Y,-Z,-X
+symmetry= Y,-Z,X
+symmetry= -Y,Z,X
+symmetry= Y,Z,-X
+symmetry= -Y,-X,Z
+symmetry= Y,X,Z
+symmetry= -Y,X,-Z
+symmetry= Y,-X,-Z
+symmetry= -X,-Z,Y
+symmetry= X,-Z,-Y
+symmetry= X,Z,Y
+symmetry= -X,Z,-Y
+symmetry= -Z,-Y,X
+symmetry= -Z,Y,-X
+symmetry= Z,-Y,-X
+symmetry= Z,Y,X
+symmetry= X,1/2+Y,1/2+Z
+symmetry= -X,1/2-Y,1/2+Z
+symmetry= -X,1/2+Y,1/2-Z
+symmetry= X,1/2-Y,1/2-Z
+symmetry= Z,1/2+X,1/2+Y
+symmetry= Z,1/2-X,1/2-Y
+symmetry= -Z,1/2-X,1/2+Y
+symmetry= -Z,1/2+X,1/2-Y
+symmetry= Y,1/2+Z,1/2+X
+symmetry= -Y,1/2+Z,1/2-X
+symmetry= Y,1/2-Z,1/2-X
+symmetry= -Y,1/2-Z,1/2+X
+symmetry= Y,1/2+X,1/2-Z
+symmetry= -Y,1/2-X,1/2-Z
+symmetry= Y,1/2-X,1/2+Z
+symmetry= -Y,1/2+X,1/2+Z
+symmetry= X,1/2+Z,1/2-Y
+symmetry= -X,1/2+Z,1/2+Y
+symmetry= -X,1/2-Z,1/2-Y
+symmetry= X,1/2-Z,1/2+Y
+symmetry= Z,1/2+Y,1/2-X
+symmetry= Z,1/2-Y,1/2+X
+symmetry= -Z,1/2+Y,1/2+X
+symmetry= -Z,1/2-Y,1/2-X
+symmetry= -X,1/2-Y,1/2-Z
+symme
