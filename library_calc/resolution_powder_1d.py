@@ -213,14 +213,14 @@ class Resolution(dict):
  U {:}\n V {:}\n W {:}""".format(self["U"],  self["V"],  self["W"])
         return lsout
     
-    def _calc_tancos(self, tth):
-        self._p_t_tth = numpy.tan(tth)
+    def _calc_tancos(self, tth_hkl):
+        self._p_t_tth = numpy.tan(tth_hkl)
         self._p_t_tth_sq = self._p_tan_tth**2
-        res = numpy.cos(tth)
+        res = numpy.cos(tth_hkl)
         self._p_c_tth = res
         self._p_ic_tth = 1./res
         
-    def _calc_hg(self, tth):
+    def _calc_hg(self):
         """
         ttheta in radians, could be array
         gauss size
@@ -229,7 +229,7 @@ class Resolution(dict):
                   self["W"]*self._p_c_tth + self["Ig"]*self._p_ic_tth**2)
         self._p_hg = numpy.sqrt(res_sq)
         
-    def _calc_hl(self, tth):
+    def _calc_hl(self):
         """
         ttheta in radians, could be array
         lorentz site
@@ -265,7 +265,7 @@ class Resolution(dict):
         self._p_al = 2./(math.pi*hpv )
         self._p_bl = 4./(hpv**2)
     
-    def calc_param(self, tth, U = None, V = None, W = None, Ig = None, 
+    def calc_param(self, tth_hkl, U = None, V = None, W = None, Ig = None, 
                     X = None, Y = None):
         """
         Calculate parameters for tth
@@ -283,9 +283,9 @@ class Resolution(dict):
         if Y != None:
             self["Y"] = Y
             
-        self._calc_tancos(tth)
-        self._calc_hg(tth)
-        self._calc_hl(tth)
+        self._calc_tancos(tth_hkl)
+        self._calc_hg(tth_hkl)
+        self._calc_hl(tth_hkl)
         self._calc_hpveta()
         self._calc_agbg()
         self._calc_albl()
@@ -300,29 +300,64 @@ class PeakProfile(dict):
     """
     Peak Profile
     """
-    def __init__(self, ag = 0, bg = 0, al = 0, bl = 0):
+    def __init__(self, resolution = Resolution(), assymetry = Assymetry()):
         super(PeakProfile, self).__init__()
-        dd= {"ag":ag, "bg":bg, "al":al, "bl":bl}
+        dd= {"resolution":resolution, "assymetry":assymetry}
+        self._p_ag = None
+        self._p_bg = None
+        self._p_al = None
+        self._p_bl = None
+        self._eta = None
+        self._p_gauss_pd = None
+        self._p_lor_pd = None
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Profile: \n ag {:}\n bg {:}\n al {:}
- bl {:}""".format(self["ag"],  self["bg"],  self["al"],  self["bl"])
+        lsout = """Profile: \n {:}\n {:}""".format(self["resolution"],  
+                                                   self["assymetry"])
         return lsout
         
     def gauss_pd(self, tth):
         """
         one dimensional gauss powder diffraction
         """
-        ag, bg = self["ag"], self["bg"]
-        return ag*numpy.exp(-bg*tth**2)
+        ag, bg = self._p_ag, self._p_bg
+        self._p_gauss_pd = ag*numpy.exp(-bg*tth**2)
         
     def lor_pd(self, tth):
         """
         one dimensional lorentz powder diffraction
         """
-        al, bl = self["al"], self["bl"]
-        return al*1./(1.+bl*tth**2)
+        al, bl = self._p_al, self._p_bl
+        self._p_lor_pd = al*1./(1.+bl*tth**2)
+
+
+    def pvoight_pd(self, tth, tth_hkl, resolution = None, assymetry = None):
+        """
+        pseudo voight function
+        """
+        if resolution != None :
+            d_param = resolution.calc_param(tth_hkl)
+        else:
+            d_param = self["resolution"].calc_param(tth_hkl)
+        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
+        self._p_ag = d_param["ag"]
+        self._p_bg = d_param["bg"]
+        self._p_al = d_param["al"]
+        self._p_bl = d_param["bl"]
+        eta_2d = d_param["eta"]
+        self._p_eta = eta_2d 
+        if assymetry != None :
+            assym_2d = assymetry.calc_assym(tth, tth_hkl)
+        else:
+            assym_2d = self["assymetry"].calc_assym(tth, tth_hkl)
+        
+        g_pd_2d = self.gauss_pd(tth_2d-tth_hkl_2d)
+        l_pd_2d = self.lor_pd(tth_2d-tth_hkl_2d)
+        res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
+        return res_2d*assym_2d
+            
+
 
 
 
@@ -353,10 +388,48 @@ class Assymetry(dict):
         return 2.*(2.*tth**2-3.)* self._func_fa(tth)
         
     def calc_assym(self, tth, tth_hkl):
-        fa = self._func_fa(tth)
-        fb = self._func_fb(tth)
-        res = 1.+(p1*fa+p2*fb)*1./numpy.tanh(0.5*tth_hkl)+(p3*fa+p4*fb)*1./numpy.tanh(tth_hkl)
-        return res
+        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
+        np_zero = numpy.zeros(tth_2d.shape, dtype = float)
+        np_one = numpy.ones(tth_2d.shape, dtype = float)
+        val_1, val_2 = np_zero, np_zero
+
+        p1, p2, p3, p4 = self["p1"], self["p2"], self["p3"], self["p4"]
+        flag_1, flag_2 = False, False
+        if ((p1!= 0.)|(p3!= 0.)):
+            flag_1 = True
+            fa = self._func_fa(tth)
+        if ((p2!= 0.)|(p4!= 0.)):
+            flag_2 = True
+            fb = self._func_fb(tth)
+            
+
+        flag_3, flag_4 = False, False
+        if ((p1!= 0.)|(p2!= 0.)):
+            if flag_1:
+                val_1 += p1*fa
+                flag_3 = True
+            if flag_2:
+                val_1 += p2*fb
+                flag_3 = True
+            if flag_3:
+                c1 = 1./numpy.tanh(0.5*tth_hkl)
+                c1_2d = numpy.meshgrid(tth, c1)[1]
+                val_1 *= c1_2d
+
+        if ((p3!= 0.)|(p4!= 0.)):
+            if flag_1:
+                val_2 += p3*fa
+                flag_4 = True
+            if flag_2:
+                val_2 += p4*fb
+                flag_4 = True
+            if flag_4:
+                c2 = 1./numpy.tanh(tth_hkl)
+                c2_2d = numpy.meshgrid(tth, c2)[1]
+                val_2 *= c2_2d
+
+        res_2d = np_one+val_1+val_2
+        return res_2d
 
     
 
