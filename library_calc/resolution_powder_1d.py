@@ -187,20 +187,14 @@ class Variable():
         
     
 
-class Resolution():
+class Resolution(dict):
     """
     Resoulution of the diffractometer
     """
-    U = 0.
-    V = 0.
-    W = 0.
-    Ig = 0.
-    X = 0.
-    Y = 0.
     def __init__(self, U = 0, V = 0, W = 0, Ig = 0, X = 0, Y = 0):
         super(Resolution, self).__init__()
         dd= {"U":U, "V":V, "W":W, "Ig":Ig, "X":X, "Y":Y}
-        self.__dict__() = dd
+        self.update(dd)
     
     def calc_hg(self, ttheta):
         """
@@ -215,19 +209,16 @@ class Resolution():
         cos_ttheta = numpy.cos(ttheta)
         res_sq = U*tan_ttheta_sq+V*tan_ttheta+W+Ig/cos_ttheta
         return numpy.sqrt(res_sq)
+    def __repr__(self):
+        lsout = """Resolution: 
+ U {:}\n V {:}\n W {:}""".format(self["U"],  self["V"],  self["W"])
+        return lsout
     
-bb = Variable("sf","qsf","")
-cc = Variable(12,True,"sqdf sfd")
-cc[0]=86
-print(cc)
-cc&True
 
-bb-cc
-cc-6
-6-cc
-
-bb.print()
-bb = Resolution()    
+cc = Variable(2,True,"sqdf sfd")
+bb = Resolution(W=2,U=cc,V=3)    
+cc[0]=74
+bb["U"]
 bb["U"]
 print (bb.calc_hg(41))
     
