@@ -107,6 +107,16 @@ class Variable():
         output is float
         """
         return var2//self.value
+    def __ne__(self, var2):
+        """
+        output is bool
+        """
+        return  self.value != var2    
+    def __rne__(self, var2):
+        """
+        output is bool
+        """
+        return  var2 != self.value  
     def __gt__(self, var2):
         """
         output is bool
@@ -337,9 +347,11 @@ class PeakProfile(dict):
         pseudo voight function
         """
         if resolution != None :
-            d_param = resolution.calc_param(tth_hkl)
-        else:
-            d_param = self["resolution"].calc_param(tth_hkl)
+            self["resolution"] = resolution
+        if assymetry != None :
+            self["assymetry"] = assymetry
+            
+        d_param = self["resolution"].calc_param(tth_hkl)
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
         self._p_ag = d_param["ag"]
         self._p_bg = d_param["bg"]
@@ -347,10 +359,9 @@ class PeakProfile(dict):
         self._p_bl = d_param["bl"]
         eta_2d = d_param["eta"]
         self._p_eta = eta_2d 
-        if assymetry != None :
-            assym_2d = assymetry.calc_assym(tth, tth_hkl)
-        else:
-            assym_2d = self["assymetry"].calc_assym(tth, tth_hkl)
+
+
+        assym_2d = self["assymetry"].calc_assym(tth, tth_hkl)
         
         g_pd_2d = self.gauss_pd(tth_2d-tth_hkl_2d)
         l_pd_2d = self.lor_pd(tth_2d-tth_hkl_2d)
