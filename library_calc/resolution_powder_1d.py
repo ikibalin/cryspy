@@ -306,71 +306,6 @@ class Resolution(dict):
         return d_out
 
 
-class PeakProfile(dict):
-    """
-    Peak Profile
-    """
-    def __init__(self, resolution = Resolution(), assymetry = Assymetry()):
-        super(PeakProfile, self).__init__()
-        dd= {"resolution":resolution, "assymetry":assymetry}
-        self._p_ag = None
-        self._p_bg = None
-        self._p_al = None
-        self._p_bl = None
-        self._eta = None
-        self._p_gauss_pd = None
-        self._p_lor_pd = None
-        self.update(dd)
-        
-    def __repr__(self):
-        lsout = """Profile: \n {:}\n {:}""".format(self["resolution"],  
-                                                   self["assymetry"])
-        return lsout
-        
-    def gauss_pd(self, tth):
-        """
-        one dimensional gauss powder diffraction
-        """
-        ag, bg = self._p_ag, self._p_bg
-        self._p_gauss_pd = ag*numpy.exp(-bg*tth**2)
-        
-    def lor_pd(self, tth):
-        """
-        one dimensional lorentz powder diffraction
-        """
-        al, bl = self._p_al, self._p_bl
-        self._p_lor_pd = al*1./(1.+bl*tth**2)
-
-
-    def pvoight_pd(self, tth, tth_hkl, resolution = None, assymetry = None):
-        """
-        pseudo voight function
-        """
-        if resolution != None :
-            self["resolution"] = resolution
-        if assymetry != None :
-            self["assymetry"] = assymetry
-            
-        d_param = self["resolution"].calc_param(tth_hkl)
-        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
-        self._p_ag = d_param["ag"]
-        self._p_bg = d_param["bg"]
-        self._p_al = d_param["al"]
-        self._p_bl = d_param["bl"]
-        eta_2d = d_param["eta"]
-        self._p_eta = eta_2d 
-
-
-        assym_2d = self["assymetry"].calc_assym(tth, tth_hkl)
-        
-        g_pd_2d = self.gauss_pd(tth_2d-tth_hkl_2d)
-        l_pd_2d = self.lor_pd(tth_2d-tth_hkl_2d)
-        res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
-        return res_2d*assym_2d
-            
-
-
-
 
 class Assymetry(dict):
     """
@@ -441,6 +376,72 @@ class Assymetry(dict):
 
         res_2d = np_one+val_1+val_2
         return res_2d
+
+
+class PeakProfile(dict):
+    """
+    Peak Profile
+    """
+    def __init__(self, resolution = Resolution(), assymetry = Assymetry()):
+        super(PeakProfile, self).__init__()
+        dd= {"resolution":resolution, "assymetry":assymetry}
+        self._p_ag = None
+        self._p_bg = None
+        self._p_al = None
+        self._p_bl = None
+        self._eta = None
+        self._p_gauss_pd = None
+        self._p_lor_pd = None
+        self.update(dd)
+        
+    def __repr__(self):
+        lsout = """Profile: \n {:}\n {:}""".format(self["resolution"],  
+                                                   self["assymetry"])
+        return lsout
+        
+    def gauss_pd(self, tth):
+        """
+        one dimensional gauss powder diffraction
+        """
+        ag, bg = self._p_ag, self._p_bg
+        self._p_gauss_pd = ag*numpy.exp(-bg*tth**2)
+        
+    def lor_pd(self, tth):
+        """
+        one dimensional lorentz powder diffraction
+        """
+        al, bl = self._p_al, self._p_bl
+        self._p_lor_pd = al*1./(1.+bl*tth**2)
+
+
+    def pvoight_pd(self, tth, tth_hkl, resolution = None, assymetry = None):
+        """
+        pseudo voight function
+        """
+        if resolution != None :
+            self["resolution"] = resolution
+        if assymetry != None :
+            self["assymetry"] = assymetry
+            
+        d_param = self["resolution"].calc_param(tth_hkl)
+        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
+        self._p_ag = d_param["ag"]
+        self._p_bg = d_param["bg"]
+        self._p_al = d_param["al"]
+        self._p_bl = d_param["bl"]
+        eta_2d = d_param["eta"]
+        self._p_eta = eta_2d 
+
+
+        assym_2d = self["assymetry"].calc_assym(tth, tth_hkl)
+        
+        g_pd_2d = self.gauss_pd(tth_2d-tth_hkl_2d)
+        l_pd_2d = self.lor_pd(tth_2d-tth_hkl_2d)
+        res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
+        return res_2d*assym_2d
+            
+
+
 
     
 
