@@ -2,207 +2,16 @@
 define resolution for the powder diffractometer along ttheta
 """
 __author__ = 'ikibalin'
-__version__ = "2019_03_29$"
+__version__ = "2019_03_29"
 import numpy
 
-class Variable():
-    """
-    general class for Variable
-    """
-    value = 0.
-    refinement = False
-    constraint = ""
-    def __init__(self, val = 0., ref = False, constr = ""):
-        super(Variable, self).__init__()
-        self[0] = val 
-        self[1] = ref
-        self[2] = constr
-    def __pos__(self):
-        """
-        output is float
-        """
-        return self.value
-    def __neg__(self):
-        """
-        output is float
-        """
-        return -1*self.value
-    def __abs__(self):
-        """
-        output is float
-        """
-        return abs(self.value)
-    def __round__(self, n):
-        """
-        output is float
-        """
-        return round(self.value, n)
-    def __add__(self, var2):
-        """
-        output is float
-        """
-        return self.value+var2
-    def __radd__(self, var2):
-        """
-        output is float
-        """
-        return self.value+var2
-    def __sub__(self, var2):
-        """
-        output is float
-        """
-        return self.value-var2
-    def __rsub__(self, var2):
-        """
-        output is float
-        """
-        return var2-self.value
-    def __mul__(self, var2):
-        """
-        output is float
-        """
-        return self.value*var2
-    def __rmul__(self, var2):
-        """
-        output is float
-        """
-        return self.value*var2
-    def __div__(self, var2):
-        """
-        output is float
-        """
-        return self.value*1./var2
-    def __rdiv__(self, var2):
-        """
-        output is float
-        """
-        return var2*1./self.value
-    def __pow__(self, var2):
-        """
-        output is float
-        """
-        return self.value**var2
-    def __rpow__(self, var2):
-        """
-        output is float
-        """
-        return var2**self.value
-    def __mod__(self, var2):
-        """
-        output is float
-        """
-        return self.value%var2
-    def __rmod__(self, var2):
-        """
-        output is float
-        """
-        return var2%self.value
-    def __floordiv__(self, var2):
-        """
-        output is float
-        """
-        return self.value//var2
-    def __rfloordiv__(self, var2):
-        """
-        output is float
-        """
-        return var2//self.value
-    def __ne__(self, var2):
-        """
-        output is bool
-        """
-        return  self.value != var2    
-    def __rne__(self, var2):
-        """
-        output is bool
-        """
-        return  var2 != self.value  
-    def __gt__(self, var2):
-        """
-        output is bool
-        """
-        return self.value > var2
-    def __ge__(self, var2):
-        """
-        output is bool
-        """
-        return self.value >= var2
-    def __lt__(self, var2):
-        """
-        output is bool
-        """
-        return  self.value  < var2
-    def __le__(self, var2):
-        """
-        output is bool
-        """
-        return  self.value  <= var2
-    def __and__(self, var2):
-        """
-        output is bool
-        """
-        return  (self.refinement & var2)
-    def __rand__(self, var2):
-        """
-        output is bool
-        """
-        return  (var2 & self.refinement)
-    def __or__(self, var2):
-        """
-        output is bool
-        """
-        return  (self.refinement | var2)
-    def __ror__(self, var2):
-        """
-        output is bool
-        """
-        return  (var2 | self.refinement)
-    def __getitem__(self, i):
-        if i==2:
-            return self.constraint
-        elif i == 1:
-            return self.refinement
-        else:
-            return self.value
-    def __setitem__(self, i, v):
-        #self.check(v)
-        if i==2:
-            cond = isinstance(v, str)            
-            if cond:
-                self.constraint = v 
-            else:
-                print ("Constraints should be given as a string")
-        elif i == 1:
-            cond = isinstance(v, bool)
-            if cond:
-                self.refinement = v 
-            else:
-                print ("Refinement should have a bool type variable")
-        else:
-            cond1 = isinstance(v, float)
-            cond2 = isinstance(v, int)
-            if (cond1 | cond2):
-                self.value = v 
-            else:
-                print ("Variable should be integer of float type")
-        return
-    def __repr__(self):
-        lsout = """For variable with id {:}:\n    value: {:}
-    refinement: {:}\n""".format(id(self), self.value, self.refinement)
-        if self.constraint != "":
-            lsout_add = "    constraint:{:}".format(self.constraint)
-        else:
-            lsout_add = "    constraint: None"
-        return "".join([lsout, lsout_add])
-        
-    
 
-class Resolution(dict):
+class ResolutionPD(dict):
     """
     Resoulution of the diffractometer
     """
-    def __init__(self, U = 0, V = 0, W = 0, Ig = 0, X = 0, Y = 0):
-        super(Resolution, self).__init__()
+    def __init__(self, u = 0, v = 0, w = 0.01, i_g = 0, x = 0, y = 0):
+        super(ResolutionPD, self).__init__()
         self._p_tan_tth = None
         self._p_tan_tth_sq = None
         self._p_cos_tth = None
@@ -215,17 +24,18 @@ class Resolution(dict):
         self._p_al = None
         self._p_bl = None
 
-        dd= {"U":U, "V":V, "W":W, "Ig":Ig, "X":X, "Y":Y}
+        dd= {"u":u, "v":v, "w":w, "i_g":i_g, "x":x, "y":y}
         self.update(dd)
         
     def __repr__(self):
         lsout = """Resolution: 
- U {:}\n V {:}\n W {:}""".format(self["U"],  self["V"],  self["W"])
+ U {:}\n V {:}\n W {:}\n Ig {:}\n X {:}\n Y {:}""".format(self["u"],  
+ self["v"], self["w"], self["i_g"], self["x"], self["y"])
         return lsout
     
     def _calc_tancos(self, tth_hkl):
         self._p_t_tth = numpy.tan(tth_hkl)
-        self._p_t_tth_sq = self._p_tan_tth**2
+        self._p_t_tth_sq = self._p_t_tth**2
         res = numpy.cos(tth_hkl)
         self._p_c_tth = res
         self._p_ic_tth = 1./res
@@ -235,8 +45,8 @@ class Resolution(dict):
         ttheta in radians, could be array
         gauss size
         """
-        res_sq = (self["U"]*self._p_t_tth_sq + self["V"]*self._p_t_tth + 
-                  self["W"]*self._p_c_tth + self["Ig"]*self._p_ic_tth**2)
+        res_sq = (self["u"]*self._p_t_tth_sq + self["v"]*self._p_t_tth + 
+                  self["w"]*self._p_c_tth + self["i_g"]*self._p_ic_tth**2)
         self._p_hg = numpy.sqrt(res_sq)
         
     def _calc_hl(self):
@@ -244,7 +54,7 @@ class Resolution(dict):
         ttheta in radians, could be array
         lorentz site
         """
-        self._p_hl = self["X"]*self._p_t_tth + self["Y"]*self._p_ic_tth
+        self._p_hl = self["x"]*self._p_t_tth + self["y"]*self._p_ic_tth
 
 
     def _calc_hpveta(self):
@@ -267,58 +77,60 @@ class Resolution(dict):
 
     def _calc_agbg(self):
         hpv = self._p_hpv
-        self._p_ag = (2./hpv)*(math.log(2.)/math.pi)**0.5
-        self._p_bg = 4*math.log(2)/(hpv**2)
+        self._p_ag = (2./hpv)*(numpy.log(2.)/numpy.pi)**0.5
+        self._p_bg = 4*numpy.log(2)/(hpv**2)
         
     def _calc_albl(self):
         hpv = self._p_hpv
-        self._p_al = 2./(math.pi*hpv )
+        self._p_al = 2./(numpy.pi*hpv )
         self._p_bl = 4./(hpv**2)
     
-    def calc_param(self, tth_hkl, U = None, V = None, W = None, Ig = None, 
-                    X = None, Y = None):
+    def calc_model(self, tth_hkl, u = None, v = None, w = None, i_g = None, 
+                    x = None, y = None):
         """
         Calculate parameters for tth
         """
-        if U != None:
-            self["U"] = U
-        if V != None:
-            self["V"] = V
-        if W != None:
-            self["W"] = W
-        if Ig != None:
-            self["Ig"] = Ig
-        if X != None:
-            self["X"] = X
-        if Y != None:
-            self["Y"] = Y
+        if u != None:
+            self["u"] = u
+        if v != None:
+            self["v"] = v
+        if w != None:
+            self["w"] = w
+        if i_g != None:
+            self["i_g"] = i_g
+        if x != None:
+            self["x"] = x
+        if y != None:
+            self["y"] = y
             
         self._calc_tancos(tth_hkl)
-        self._calc_hg(tth_hkl)
-        self._calc_hl(tth_hkl)
+        self._calc_hg()
+        self._calc_hl()
         self._calc_hpveta()
         self._calc_agbg()
         self._calc_albl()
-        d_out = dict(ag = self._p_ag, bg = self._p_bg, 
-                     al = self._p_al, bl = self._p_bl,
-                     hg = self._p_hg, hl = self._p_hl,
-                     hpv = self._p_hpv, eta = self._p_eta)
-        return d_out
+        
+        d_out = dict(a_g = self._p_ag, b_g = self._p_bg, 
+                     a_l = self._p_al, b_l = self._p_bl,
+                     h_g = self._p_hg, h_l = self._p_hl,
+                     h_pv = self._p_hpv, eta = self._p_eta,
+                     tth_hkl = tth_hkl)
+        self.update(d_out)
+        return 
 
 
-
-class Assymetry(dict):
+class AsymmetryPD(dict):
     """
-    Assymetry of the diffractometer
+    Asymmetry of the diffractometer
     """
     def __init__(self, p1 = 0, p2 = 0, p3 = 0, p4 = 0):
-        super(Assymetry, self).__init__()
+        super(AsymmetryPD, self).__init__()
         dd= {"p1":p1, "p2":p2, "p3":p3, "p4":p4}
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Assymetry: \n p1 {:}\n p2 {:}\n p3 {:}
- p4 {:}""".format(self["p1"],  self["p2"],  self["p3"],  self["p4"])
+        lsout = """Asymmetry: \n p1: {:}\n p2: {:}\n p3: {:}
+ p4: {:}""".format(self["p1"],  self["p2"],  self["p3"],  self["p4"])
         return lsout
         
     def _func_fa(self, tth):
@@ -333,7 +145,16 @@ class Assymetry(dict):
         """ 
         return 2.*(2.*tth**2-3.)* self._func_fa(tth)
         
-    def calc_assym(self, tth, tth_hkl):
+    def calc_model(self, tth, tth_hkl, p1 = None, p2 = None, p3 = None, p4 = None):
+        if p1 != None:
+            self["p1"] = p1
+        if p2 != None:
+            self["p2"] = p2
+        if p3 != None:
+            self["p3"] = p3
+        if p4 != None:
+            self["p4"] = p4
+
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
         np_zero = numpy.zeros(tth_2d.shape, dtype = float)
         np_one = numpy.ones(tth_2d.shape, dtype = float)
@@ -375,16 +196,20 @@ class Assymetry(dict):
                 val_2 *= c2_2d
 
         res_2d = np_one+val_1+val_2
-        return res_2d
+        d_out = dict(asymmetry = res_2d, tth = tth, tth_hkl = tth_hkl)
+        self.update(d_out)
+        return
 
 
-class PeakProfile(dict):
+
+
+class PeakShapePD(dict):
     """
-    Peak Profile
+    Shape of the peaks for powder diffraction measurements
     """
-    def __init__(self, resolution = Resolution(), assymetry = Assymetry()):
-        super(PeakProfile, self).__init__()
-        dd= {"resolution":resolution, "assymetry":assymetry}
+    def __init__(self, resolution = ResolutionPD()):
+        super(PeakShapePD, self).__init__()
+        dd= {"resolution":resolution}
         self._p_ag = None
         self._p_bg = None
         self._p_al = None
@@ -395,25 +220,110 @@ class PeakProfile(dict):
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Profile: \n {:}\n {:}""".format(self["resolution"],  
-                                                   self["assymetry"])
+        lsout = """Shape of the profile: \n {:}""".format(self["resolution"])
         return lsout
         
-    def gauss_pd(self, tth):
+    def _gauss_pd(self, tth):
         """
         one dimensional gauss powder diffraction
         """
         ag, bg = self._p_ag, self._p_bg
         self._p_gauss_pd = ag*numpy.exp(-bg*tth**2)
         
-    def lor_pd(self, tth):
+    def _lor_pd(self, tth):
         """
         one dimensional lorentz powder diffraction
         """
         al, bl = self._p_al, self._p_bl
         self._p_lor_pd = al*1./(1.+bl*tth**2)
+    
+    def calc_model(self, tth, tth_hkl, resolution = None):
+        """
+        pseudo voight function
+        """
+        if resolution != None :
+            self["resolution"] = resolution
+            
+        resolution = self["resolution"]            
+        resolution.calc_model(tth_hkl)
+        
+        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
+        
+        self._p_ag = resolution["a_g"]
+        self._p_bg = resolution["b_g"]
+        self._p_al = resolution["a_l"]
+        self._p_bl = resolution["b_l"]
+        eta_2d = resolution["eta"]
+        self._p_eta = eta_2d 
+
+        g_pd_2d = self._gauss_pd(tth_2d-tth_hkl_2d)
+        l_pd_2d = self._lor_pd(tth_2d-tth_hkl_2d)
+        
+        res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
+        
+        d_out = dict(profile = res_2d, 
+                     tth = tth, tth_hkl = tth_hkl)
+        self.update(d_out)
 
 
+class FactorLorentzPD(dict):
+    """
+    Lorentz Factor for one dimensional powder diffraction
+    """
+    def __init__(self):
+        super(FactorLorentzPD, self).__init__()
+        dd= {}
+        self.update(dd)
+        
+    def __repr__(self):
+        lsout = """Lorentz factor for one dimensional powder diffraction. """
+        return lsout
+        
+    
+    def calc_model(self, tth):
+        """
+        Lorentz factor
+        tth should be in radians
+        """
+        factor_lorentz = 1./(numpy.sin(tth)*numpy.sin(0.5*tth))
+        d_out = dict(tth = tth, factor_lorentz = factor_lorentz)
+        self.update(d_out)
+
+
+
+
+
+class PeakProfilePD(dict):
+    """
+    Peak Profile
+    """
+    def __init__(self, peak_shape = PeakShapePD(), asymmetry = AsymmetryPD(),
+                 factor_lorentz = FactorLorentzPD(), i_g = 0.):
+        super(PeakProfilePD, self).__init__()
+        dd= {"peak_shape": peak_shape, "asymmetry": asymmetry, 
+             "factor_lorentz": factor_lorentz, "i_g": i_g}
+        self.update(dd)
+        
+    def __repr__(self):
+        lsout = """Peak profile: \n {:}\n {:}""".format(self["peak_shape"],  
+                                                   self["asymmetry"])
+        return lsout
+    
+    def calc_model(self, tth, tth_hkl, peak_shape = None, asymmetry = None, 
+                   factor_lorentz = None):
+        if peak_shape != None:
+            self["peak_shape"] = peak_shape 
+        if asymmetry != None:
+            self["asymmetry"] = asymmetry
+        if factor_lorentz != None:
+            self["factor_lorentz"] = factor_lorentz
+            
+        peak_shape, asymmetry = self["peak_shape"], self["asymmetry"]
+        factor_lorentz = self["factor_lorentz"]
+        peak_shape["resolution"].calc_model(i_g = )
+        factor_lorentz.calc_model()
+
+        
     def pvoight_pd(self, tth, tth_hkl, resolution = None, assymetry = None):
         """
         pseudo voight function
@@ -440,8 +350,6 @@ class PeakProfile(dict):
         res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
         return res_2d*assym_2d
             
-
-
 
     
 
