@@ -535,9 +535,9 @@ class PeakProfilePD(dict):
 #v_i_g_2.value = 0.333
 
 #rr_1 = ResolutionPD(u = v_u, w = v_i_g_1)
+
 #rr_2 = rr_1.soft_copy()
-#rr_2.set_vals({"w": v_i_g_2})
-#id(pp)
+
         
 if (__name__ == "__main__"):
   pass
