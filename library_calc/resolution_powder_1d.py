@@ -6,11 +6,12 @@ __version__ = "2019_03_29"
 import numpy
 
 
+
 class ResolutionPD(dict):
     """
     Resoulution of the diffractometer
     """
-    def __init__(self, u = 0, v = 0, w = 0.01, i_g = 0, x = 0, y = 0):
+    def __init__(self, u = 0, v = 0, w = 0.01, x = 0, y = 0):
         super(ResolutionPD, self).__init__()
         self._p_tan_tth = None
         self._p_tan_tth_sq = None
@@ -24,13 +25,13 @@ class ResolutionPD(dict):
         self._p_al = None
         self._p_bl = None
 
-        dd= {"u":u, "v":v, "w":w, "i_g":i_g, "x":x, "y":y}
+        dd= {"u":u, "v":v, "w":w, "x":x, "y":y}
         self.update(dd)
         
     def __repr__(self):
         lsout = """Resolution: 
- U {:}\n V {:}\n W {:}\n Ig {:}\n X {:}\n Y {:}""".format(self["u"],  
- self["v"], self["w"], self["i_g"], self["x"], self["y"])
+ U {:}\n V {:}\n W {:}\n X {:}\n Y {:}""".format(self["u"],  
+ self["v"], self["w"], self["x"], self["y"])
         return lsout
     
     def _calc_tancos(self, tth_hkl):
@@ -40,13 +41,13 @@ class ResolutionPD(dict):
         self._p_c_tth = res
         self._p_ic_tth = 1./res
         
-    def _calc_hg(self):
+    def _calc_hg(self, i_g = 0.):
         """
         ttheta in radians, could be array
         gauss size
         """
         res_sq = (self["u"]*self._p_t_tth_sq + self["v"]*self._p_t_tth + 
-                  self["w"]*self._p_c_tth + self["i_g"]*self._p_ic_tth**2)
+                  self["w"]*self._p_c_tth + i_g*self._p_ic_tth**2)
         self._p_hg = numpy.sqrt(res_sq)
         
     def _calc_hl(self):
@@ -85,7 +86,7 @@ class ResolutionPD(dict):
         self._p_al = 2./(numpy.pi*hpv )
         self._p_bl = 4./(hpv**2)
     
-    def calc_model(self, tth_hkl, u = None, v = None, w = None, i_g = None, 
+    def calc_model(self, tth_hkl, i_g = 0., u = None, v = None, w = None, 
                     x = None, y = None):
         """
         Calculate parameters for tth
@@ -96,15 +97,13 @@ class ResolutionPD(dict):
             self["v"] = v
         if w != None:
             self["w"] = w
-        if i_g != None:
-            self["i_g"] = i_g
         if x != None:
             self["x"] = x
         if y != None:
             self["y"] = y
             
         self._calc_tancos(tth_hkl)
-        self._calc_hg()
+        self._calc_hg(i_g = i_g)
         self._calc_hl()
         self._calc_hpveta()
         self._calc_agbg()
@@ -113,10 +112,96 @@ class ResolutionPD(dict):
         d_out = dict(a_g = self._p_ag, b_g = self._p_bg, 
                      a_l = self._p_al, b_l = self._p_bl,
                      h_g = self._p_hg, h_l = self._p_hl,
-                     h_pv = self._p_hpv, eta = self._p_eta,
-                     tth_hkl = tth_hkl)
+                     h_pv = self._p_hpv, eta = self._p_eta)
         self.update(d_out)
         return 
+
+    def set_vals(self, d_vals, refresh = False):
+        """
+        Set values 
+        """
+        keys = d_vals.keys()
+        llab = ["u", "v", "w", "x", "y"]
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                self[lab] = d_vals[lab]
+
+        if refresh:
+            tth = self["tth"]
+            tth_hkl = self["tth_hkl"]
+            i_g = self["i_g"]
+            self.calc_model(tth, tth_hkl, i_g=i_g)
+
+            
+    def soft_copy(self):
+        """
+        Soft copy of the object with saving the links on the internal parameter of the object
+        """
+        obj_new = ResolutionPD(u = self["u"], v = self["v"], w = self["w"], 
+                               x = self["x"], y = self["y"])
+        llab = ["tth_hkl", "i_g"]
+        keys = self.keys()
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                obj_new[lab] = self[lab]
+        return obj_new
+        
+
+
+
+class FactorLorentzPD(dict):
+    """
+    Lorentz Factor for one dimensional powder diffraction
+    """
+    def __init__(self):
+        super(FactorLorentzPD, self).__init__()
+        dd= {}
+        self.update(dd)
+        
+    def __repr__(self):
+        lsout = """Lorentz factor for one dimensional powder diffraction. """
+        return lsout
+        
+    
+    def calc_model(self, tth):
+        """
+        Lorentz factor
+        tth should be in radians
+        """
+        factor_lorentz = 1./(numpy.sin(tth)*numpy.sin(0.5*tth))
+        d_out = dict(tth = tth, factor_lorentz = factor_lorentz)
+        self.update(d_out)
+
+    def set_vals(self, d_vals, refresh = False):
+        """
+        Set values 
+        """
+        #keys = d_vals.keys()
+        #llab = []
+        #llab_in = [(hh in keys) for hh in llab]
+        #for lab, cond_h in zip(llab, llab_in):
+        #    if cond_h:
+        #        self[lab] = d_vals[lab]
+
+        if refresh:
+            tth = self["tth"]
+            self.calc_model(tth)
+
+            
+    def soft_copy(self):
+        """
+        Soft copy of the object with saving the links on the internal parameter of the object
+        """
+        obj_new = FactorLorentzPD()
+        llab = ["tth"]
+        keys = self.keys()
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                obj_new[lab] = self[lab]
+        return obj_new
 
 
 class AsymmetryPD(dict):
@@ -199,7 +284,38 @@ class AsymmetryPD(dict):
         d_out = dict(asymmetry = res_2d, tth = tth, tth_hkl = tth_hkl)
         self.update(d_out)
         return
+    
+    def set_vals(self, d_vals, refresh = False):
+        """
+        Set values 
+        """
+        keys = d_vals.keys()
+        llab = ["p1", "p2", "p3", "p4"]
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                self[lab] = d_vals[lab]
 
+
+        if refresh:
+            tth = self["tth"]
+            tth_hkl = self["tth_hkl"]
+            self.calc_model(tth, tth_hkl)
+
+            
+    def soft_copy(self):
+        """
+        Soft copy of the object with saving the links on the internal parameter of the object
+        """
+        obj_new = AsymmetryPD(p1 = self["p1"], p2 = self["p2"], 
+                              p3 = self["p3"], p4 = self["p4"])
+        llab = ["tth", "tth_hkl"]
+        keys = self.keys()
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                obj_new[lab] = self[lab]
+        return obj_new
 
 
 
@@ -214,7 +330,7 @@ class PeakShapePD(dict):
         self._p_bg = None
         self._p_al = None
         self._p_bl = None
-        self._eta = None
+        self._p_eta = None
         self._p_gauss_pd = None
         self._p_lor_pd = None
         self.update(dd)
@@ -223,21 +339,21 @@ class PeakShapePD(dict):
         lsout = """Shape of the profile: \n {:}""".format(self["resolution"])
         return lsout
         
-    def _gauss_pd(self, tth):
+    def _gauss_pd(self, tth_2d):
         """
         one dimensional gauss powder diffraction
         """
         ag, bg = self._p_ag, self._p_bg
-        self._p_gauss_pd = ag*numpy.exp(-bg*tth**2)
+        self._p_gauss_pd = ag*numpy.exp(-bg*tth_2d**2)
         
-    def _lor_pd(self, tth):
+    def _lor_pd(self, tth_2d):
         """
         one dimensional lorentz powder diffraction
         """
         al, bl = self._p_al, self._p_bl
-        self._p_lor_pd = al*1./(1.+bl*tth**2)
+        self._p_lor_pd = al*1./(1.+bl*tth_2d**2)
     
-    def calc_model(self, tth, tth_hkl, resolution = None):
+    def calc_model(self, tth, tth_hkl, i_g = 0., resolution = None):
         """
         pseudo voight function
         """
@@ -245,72 +361,94 @@ class PeakShapePD(dict):
             self["resolution"] = resolution
             
         resolution = self["resolution"]            
-        resolution.calc_model(tth_hkl)
+        resolution.calc_model(tth_hkl, i_g = i_g)
         
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
-        
-        self._p_ag = resolution["a_g"]
-        self._p_bg = resolution["b_g"]
-        self._p_al = resolution["a_l"]
-        self._p_bl = resolution["b_l"]
-        eta_2d = resolution["eta"]
+        self._p_ag = numpy.meshgrid(tth, resolution["a_g"])[1]
+        self._p_bg = numpy.meshgrid(tth, resolution["b_g"])[1]
+        self._p_al = numpy.meshgrid(tth, resolution["a_l"])[1]
+        self._p_bl = numpy.meshgrid(tth, resolution["b_l"])[1]
+        eta_2d = numpy.meshgrid(tth, resolution["eta"])[1]
         self._p_eta = eta_2d 
 
-        g_pd_2d = self._gauss_pd(tth_2d-tth_hkl_2d)
-        l_pd_2d = self._lor_pd(tth_2d-tth_hkl_2d)
-        
+        self._gauss_pd(tth_2d-tth_hkl_2d)
+        self._lor_pd(tth_2d-tth_hkl_2d)
+        g_pd_2d = self._p_gauss_pd 
+        l_pd_2d = self._p_lor_pd
         res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
         
-        d_out = dict(profile = res_2d, 
-                     tth = tth, tth_hkl = tth_hkl)
-        self.update(d_out)
-
-
-class FactorLorentzPD(dict):
-    """
-    Lorentz Factor for one dimensional powder diffraction
-    """
-    def __init__(self):
-        super(FactorLorentzPD, self).__init__()
-        dd= {}
-        self.update(dd)
         
-    def __repr__(self):
-        lsout = """Lorentz factor for one dimensional powder diffraction. """
-        return lsout
-        
-    
-    def calc_model(self, tth):
-        """
-        Lorentz factor
-        tth should be in radians
-        """
-        factor_lorentz = 1./(numpy.sin(tth)*numpy.sin(0.5*tth))
-        d_out = dict(tth = tth, factor_lorentz = factor_lorentz)
+        d_out = dict(profile = res_2d)
         self.update(d_out)
+        
+
+    def set_vals(self, d_vals, refresh = False):
+        """
+        Set values 
+        """
+        keys = d_vals.keys()
+        llab = ["resolution", "asymmetry", "factor_lorentz"]
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                self[lab] = d_vals[lab]
 
 
+        llab = ["u", "v", "w", "x", "y"]
+        llab_in = [(hh in keys) for hh in llab]
+        cond = any(llab_in)
+        if cond:
+            d_val_as = {}
+            for lab, cond_h in zip(llab, llab_in):
+                if cond_h:
+                    d_val_as[lab] = d_vals[lab]
+            self["resolution"].set_vals(d_val_as, refresh)
 
+        if refresh:
+            tth = self["tth"]
+            tth_hkl = self["tth_hkl"]
+            i_g = self["i_g"]
+            self.calc_model(tth, tth_hkl, i_g=i_g)
 
+            
+    def soft_copy(self):
+        """
+        Soft copy of the object with saving the links on the internal parameter of the object
+        """
+        obj_new = PeakShapePD(resolution = self["resolution"])
+        llab = ["tth", "tth_hkl", "i_g", "profile"]
+        keys = self.keys()
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                obj_new[lab] = self[lab]
+        return obj_new
+        
 
 class PeakProfilePD(dict):
     """
     Peak Profile
     """
-    def __init__(self, peak_shape = PeakShapePD(), asymmetry = AsymmetryPD(),
-                 factor_lorentz = FactorLorentzPD(), i_g = 0.):
+    def __init__(self, tth_hkl = 0.0, i_g = 0, peak_shape = PeakShapePD(), 
+                asymmetry = AsymmetryPD(), factor_lorentz = FactorLorentzPD()):
         super(PeakProfilePD, self).__init__()
-        dd= {"peak_shape": peak_shape, "asymmetry": asymmetry, 
-             "factor_lorentz": factor_lorentz, "i_g": i_g}
+        dd= {"tth_hkl": tth_hkl, "i_g": i_g, "peak_shape": peak_shape, 
+             "asymmetry": asymmetry, "factor_lorentz": factor_lorentz}
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Peak profile: \n {:}\n {:}""".format(self["peak_shape"],  
-                                                   self["asymmetry"])
+        lsout = """Peak profile: \n tth_hkl: {:}\n i_g {:}\n {:}\n {:}""".format(
+                self["tth_hkl"],self["i_g"],self["peak_shape"], self["asymmetry"])
         return lsout
     
-    def calc_model(self, tth, tth_hkl, peak_shape = None, asymmetry = None, 
-                   factor_lorentz = None):
+    def calc_model(self, tth, tth_hkl = None, i_g = None, peak_shape = None, 
+                   asymmetry = None, factor_lorentz = None):
+        if tth_hkl != None:
+            self["tth_hkl"] = tth_hkl
+        if i_g != None:
+            self["i_g"] = i_g
+        if peak_shape != None:
+            self["peak_shape"] = peak_shape 
         if peak_shape != None:
             self["peak_shape"] = peak_shape 
         if asymmetry != None:
@@ -318,47 +456,88 @@ class PeakProfilePD(dict):
         if factor_lorentz != None:
             self["factor_lorentz"] = factor_lorentz
             
+        i_g, tth_hkl = self["i_g"], self["tth_hkl"]
         peak_shape, asymmetry = self["peak_shape"], self["asymmetry"]
         factor_lorentz = self["factor_lorentz"]
-        peak_shape["resolution"].calc_model(i_g = )
-        factor_lorentz.calc_model()
-
+        peak_shape.calc_model(tth, tth_hkl, i_g = i_g)
+        asymmetry.calc_model(tth, tth_hkl)
+        factor_lorentz.calc_model(tth)
         
-    def pvoight_pd(self, tth, tth_hkl, resolution = None, assymetry = None):
-        """
-        pseudo voight function
-        """
-        if resolution != None :
-            self["resolution"] = resolution
-        if assymetry != None :
-            self["assymetry"] = assymetry
-            
-        d_param = self["resolution"].calc_param(tth_hkl)
-        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
-        self._p_ag = d_param["ag"]
-        self._p_bg = d_param["bg"]
-        self._p_al = d_param["al"]
-        self._p_bl = d_param["bl"]
-        eta_2d = d_param["eta"]
-        self._p_eta = eta_2d 
-
-
-        assym_2d = self["assymetry"].calc_assym(tth, tth_hkl)
+        np_shape_2d = peak_shape["profile"]
+        np_ass_2d = asymmetry["asymmetry"]
+        np_lor_1d = factor_lorentz["factor_lorentz"]
+        np_lor_2d = numpy.meshgrid(np_lor_1d, tth_hkl)[0]
         
-        g_pd_2d = self.gauss_pd(tth_2d-tth_hkl_2d)
-        l_pd_2d = self.lor_pd(tth_2d-tth_hkl_2d)
-        res_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
-        return res_2d*assym_2d
+        np_res_2d = np_shape_2d*np_ass_2d*np_lor_2d
+        
+        d_out = dict(profile = np_res_2d, tth = tth)
+        self.update(d_out)
+        
+        
+    def set_vals(self, d_vals, refresh = False):
+        """
+        Set values 
+        """
+        keys = d_vals.keys()
+        llab = ["tth_hkl", "i_g", "peak_shape", "asymmetry", "factor_lorentz"]
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                self[lab] = d_vals[lab]
+
+        llab = ["resolution", "u", "v", "w", "x", "y"]
+        llab_in = [(hh in keys) for hh in llab]
+        cond = any(llab_in)
+        if cond:
+            d_val_as = {}
+            for lab, cond_h in zip(llab, llab_in):
+                if cond_h:
+                    d_val_as[lab] = d_vals[lab]
+            self["peak_shape"].set_vals(d_val_as, refresh)
+
+        llab = ["p1", "p2", "p3", "p4"]
+        llab_in = [(hh in keys) for hh in llab]
+        cond = any(llab_in)
+        if cond:
+            d_val_as = {}
+            for lab, cond_h in zip(llab, llab_in):
+                if cond_h:
+                    d_val_as[lab] = d_vals[lab]
+            self["asymmetry"].set_vals(d_val_as, refresh)
             
+        if refresh:
+            tth = self["tth"]
+            self.calc_model(tth)
 
-    
+            
+    def soft_copy(self):
+        """
+        Soft copy of the object with saving the links on the internal parameter of the object
+        """
+        obj_new = PeakProfilePD(tth_hkl = self["tth_hkl"], i_g = self["i_g"], 
+                                peak_shape = self["peak_shape"], 
+                                asymmetry= self["asymmetry"], 
+                                factor_lorentz= self["factor_lorentz"])
+        llab = ["profile", "tth"]
+        keys = self.keys()
+        llab_in = [(hh in keys) for hh in llab]
+        for lab, cond_h in zip(llab, llab_in):
+            if cond_h:
+                obj_new[lab] = self[lab]
+        return obj_new
+             
+#import Variable
+#v_u = Variable.Variable(0.2)
+#v_i_g_1=Variable.Variable(0.1)
+#v_i_g_2=Variable.Variable(0.2)
+#v_u.value = 0.777
+#v_i_g_1.value = 0.222
+#v_i_g_2.value = 0.333
 
-cc = Variable(2,True,"sqdf sfd")
-bb = Resolution(W=2,U=cc,V=3)    
-cc[0]=74
-bb["U"]
-bb["U"]
-print (bb.calc_hg(41))
-    
+#rr_1 = ResolutionPD(u = v_u, w = v_i_g_1)
+#rr_2 = rr_1.soft_copy()
+#rr_2.set_vals({"w": v_i_g_2})
+#id(pp)
+        
 if (__name__ == "__main__"):
   pass
