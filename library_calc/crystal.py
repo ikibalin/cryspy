@@ -554,16 +554,16 @@ class Position(dict):
         return lsout
 
 
-    def _calc_phase(self, h, k, l):
+    def _calc_phase(self, h, k, l, r_11, r_22, r_33, r_12, r_13, r_23):
         """
         calculate phase: exp(-2 pi i * (h*x+k*y+l*z))
         """
         x, y, z = self["x"], self["y"], self["z"]
         
         #redo: there should be also element of symmetry, and output is 3D instead of 2D
-        np_x, np_h = numpy.meshgrid(x, h)
-        np_y, np_k = numpy.meshgrid(y, k)
-        np_z, np_l = numpy.meshgrid(z, l)
+        np_x, np_h = numpy.meshgrid(x, h, indexing="ij")
+        np_y, np_k = numpy.meshgrid(y, k, indexing="ij")
+        np_z, np_l = numpy.meshgrid(z, l, indexing="ij")
         
         phase = numpy.exp(2*numpy.pi*1j*(np_x*np_h + np_y*np_k + np_z*np_l))
         
@@ -645,7 +645,7 @@ class DebyeWaller(dict):
         """
         b_iso = self["b_iso"]
         sthovl_sq = sthovl**2
-        np_biso, np_sthovl_sq = numpy.meshgrid(b_iso, sthovl_sq)
+        np_biso, np_sthovl_sq = numpy.meshgrid(b_iso, sthovl_sq, indexing="ij")
         dwf_iso = numpy.exp(-np_biso*np_sthovl_sq)
         d_out = dict(dwf_iso = dwf_iso)
         self.update(d_out)

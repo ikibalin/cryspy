@@ -240,7 +240,7 @@ class AsymmetryPD(dict):
         if p4 != None:
             self["p4"] = p4
 
-        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
+        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl, indexing="ij")
         np_zero = numpy.zeros(tth_2d.shape, dtype = float)
         np_one = numpy.ones(tth_2d.shape, dtype = float)
         val_1, val_2 = np_zero, np_zero
@@ -265,7 +265,7 @@ class AsymmetryPD(dict):
                 flag_3 = True
             if flag_3:
                 c1 = 1./numpy.tanh(0.5*tth_hkl)
-                c1_2d = numpy.meshgrid(tth, c1)[1]
+                c1_2d = numpy.meshgrid(tth, c1, indexing="ij")[1]
                 val_1 *= c1_2d
 
         if ((p3!= 0.)|(p4!= 0.)):
@@ -277,7 +277,7 @@ class AsymmetryPD(dict):
                 flag_4 = True
             if flag_4:
                 c2 = 1./numpy.tanh(tth_hkl)
-                c2_2d = numpy.meshgrid(tth, c2)[1]
+                c2_2d = numpy.meshgrid(tth, c2, indexing="ij")[1]
                 val_2 *= c2_2d
 
         res_2d = np_one+val_1+val_2
@@ -363,12 +363,12 @@ class PeakShapePD(dict):
         resolution = self["resolution"]            
         resolution.calc_model(tth_hkl, i_g = i_g)
         
-        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl)
-        self._p_ag = numpy.meshgrid(tth, resolution["a_g"])[1]
-        self._p_bg = numpy.meshgrid(tth, resolution["b_g"])[1]
-        self._p_al = numpy.meshgrid(tth, resolution["a_l"])[1]
-        self._p_bl = numpy.meshgrid(tth, resolution["b_l"])[1]
-        eta_2d = numpy.meshgrid(tth, resolution["eta"])[1]
+        tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl, indexing="ij")
+        self._p_ag = numpy.meshgrid(tth, resolution["a_g"], indexing="ij")[1]
+        self._p_bg = numpy.meshgrid(tth, resolution["b_g"], indexing="ij")[1]
+        self._p_al = numpy.meshgrid(tth, resolution["a_l"], indexing="ij")[1]
+        self._p_bl = numpy.meshgrid(tth, resolution["b_l"], indexing="ij")[1]
+        eta_2d = numpy.meshgrid(tth, resolution["eta"], indexing="ij")[1]
         self._p_eta = eta_2d 
 
         self._gauss_pd(tth_2d-tth_hkl_2d)
@@ -466,7 +466,7 @@ class PeakProfilePD(dict):
         np_shape_2d = peak_shape["profile"]
         np_ass_2d = asymmetry["asymmetry"]
         np_lor_1d = factor_lorentz["factor_lorentz"]
-        np_lor_2d = numpy.meshgrid(np_lor_1d, tth_hkl)[0]
+        np_lor_2d = numpy.meshgrid(np_lor_1d, tth_hkl, indexing="ij")[0]
         
         np_res_2d = np_shape_2d*np_ass_2d*np_lor_2d
         
