@@ -349,7 +349,7 @@ class CrystSymmetry(dict):
         
     def __repr__(self):
         lsout = """Space group: \n name: {:}\n choiсe: {:}
- directory: '{:}'""".format(self["spgr_given_name"], self["spgr_choiсe"], 
+ directory: '{:}'""".format(self["spgr_given_name"], self["spgr_choice"], 
                             self["f_dir_prog"])
         return lsout
 
@@ -581,8 +581,8 @@ class Position(dict):
         return lsout
 
 
-    def _calc_phase(self, h, k, l, r_11, r_12, r_13, r_21, r_22, r_23, r_31, 
-                    r_32, r_33, x = None, y = None, z = None):
+    def _calc_phase(self, h, k, l, cryst_symmetry, x = None, y = None, 
+                    z = None):
         """
         calculate phase: exp(-2 pi i * (h*x+k*y+l*z))
         r_11, r_22, r_33, r_12, r_13, r_23 are element of symmetry 
@@ -594,6 +594,12 @@ class Position(dict):
         if z != None:
             self["z"] = z
         x, y, z = self["x"], self["y"], self["z"]
+
+        r_11, r_12 = cryst_symmetry["r_11"], cryst_symmetry["r_12"]
+        r_13, r_21 = cryst_symmetry["r_13"], cryst_symmetry["r_21"]
+        r_22, r_23 = cryst_symmetry["r_22"], cryst_symmetry["r_23"]
+        r_31, r_32 = cryst_symmetry["r_31"], cryst_symmetry["r_32"]
+        r_33 = cryst_symmetry["r_33"]
         
         np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
         np_k, np_y, np_r_22 = numpy.meshgrid(k, y, r_22, indexing="ij")
@@ -626,6 +632,20 @@ class Position(dict):
         if z != None:
             self["z"] = z
         x, y, z = self["x"], self["y"], self["z"]
+        b_1, b_2, b_3 = cryst_symmetry["b_1"], cryst_symmetry["b_2"], cryst_symmetry["b_3"]
+
+        r_11, r_12 = cryst_symmetry["r_11"], cryst_symmetry["r_12"]
+        r_13, r_21 = cryst_symmetry["r_13"], cryst_symmetry["r_21"]
+        r_22, r_23 = cryst_symmetry["r_22"], cryst_symmetry["r_23"]
+        r_31, r_32 = cryst_symmetry["r_31"], cryst_symmetry["r_32"]
+        r_33 = cryst_symmetry["r_33"]
+
+        lorig = cryst_symmetry["orig"]
+        centr = cryst_symmetry["centr"]
+        pcentr = cryst_symmetry["pcentr"]
+        
+        
+
         
     def els4pos(self, cryst_symmetry):
         """
@@ -666,8 +686,7 @@ class Position(dict):
         return lelsat,lelsuniqat
     
     
-    def calc_model(self, h, k, l, r_11, r_12, r_13, r_21, r_22, r_23, r_31, 
-                    r_32, r_33, x = None, y = None, z = None):
+    def calc_model(self, h, k, l, cryst_symmetry, x = None, y = None, z = None):
         
         if x != None:
             self["x"] = x
@@ -676,12 +695,12 @@ class Position(dict):
         if z != None:
             self["z"] = z
         x, y, z = self["x"], self["y"], self["z"]
+
         
-        self._calc_phase(self, h, k, l, r_11, r_12, r_13, r_21, r_22, r_23, 
-                         r_31, r_32, r_33)
+        self._calc_phase(self, h, k, l, cryst_symmetry)
+        self._calc_multiplicity(self, h, k, l, cryst_symmetry)
         
-        d_out = dict(h=h, k=k, l=l, r_11=r_11, r_22=r_22, r_33=r_33, r_12=r_12, 
-                     r_13=r_13, r_23=r_23, r_21=r_21, r_31=r_31, r_32=r_32)
+        d_out = dict(h=h, k=k, l=l, cryst_symmetry=cryst_symmetry)
         self.update(d_out)
         
         
@@ -1029,7 +1048,7 @@ class Atom(dict):
                  magnetism=Magnetism()):
         super(Atom, self).__init__()
         dd= {"atom_name": atom_name, "atom_nucl_type": atom_nucl_type, 
-             "b_scat": b_scat, "position": position, 
+             "b_scat": b_scat, "occupation": occupation, "position": position, 
              "debye_waller": debye_waller, "magnetism": magnetism,  }
         self.update(dd)
         
@@ -1040,10 +1059,6 @@ class Atom(dict):
  self["atom_nucl_type"],  self["b_scat"],  self["occupation"], self["position"], 
  self["debye_waller"], self["magnetism"])
         return lsout
-    
-    def _calc_multiplicity(r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, 
-                           r_33, b_1, b_2, b_3, position = None):
-        pass
     
     
     
@@ -1247,7 +1262,7 @@ unit_cell["sthovl"]
 cryst_symmetry = CrystSymmetry(spgr_given_name = "Fd-3m")
 cryst_symmetry.calc_model()
 cryst_symmetry.keys()
-cryst_symmetry["spgr_number"]
+cryst_symmetry["spgr_choice"]
 unit_cell.calc_model()
 crystal = Crystal()             
 #import Variable
