@@ -11,7 +11,7 @@ class UnitCell(dict):
     Unit Cell parameters
     """
     def __init__(self, a = 1.0, b = 1.0, c = 1.0, alpha = 1.0, beta = 90.0, 
-                 gamma= 90., singony = "Monoclinic"):
+                 gamma= 90., singony = "Triclinic"):
         super(UnitCell, self).__init__()
         self._p_cos_a = None
         self._p_cos_b = None
