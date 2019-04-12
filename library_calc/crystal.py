@@ -6,13 +6,22 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
-class UnitCell(dict):
+
+class Cell(dict):
     """
-    Unit Cell parameters
+    Cell parameters
     """
-    def __init__(self, a = 1.0, b = 1.0, c = 1.0, alpha = 1.0, beta = 90.0, 
+    def __init__(self, a = 1.0, b = 1.0, c = 1.0, alpha = 90.0, beta = 90.0, 
                  gamma= 90., singony = "Triclinic"):
-        super(UnitCell, self).__init__()
+        super(Cell, self).__init__()
+        self._p_a = None
+        self._p_b = None
+        self._p_c = None
+        self._p_alpha = None
+        self._p_beta = None
+        self._p_gamma = None
+        self._p_singony = None
+        
         self._p_cos_a = None
         self._p_cos_b = None
         self._p_cos_g = None
@@ -51,54 +60,124 @@ class UnitCell(dict):
         self._p_m_b = None
         self._p_m_ib = None
 
-        dd= {"a": a, "b": b, "c": c, "alpha": alpha, "beta": beta, "gamma": gamma,
-             "singony": singony}
-        self.update(dd)
+        self._refresh(a, b, c, alpha, beta, gamma, singony)
+        self.set_val()
         
     def __repr__(self):
         lsout = """Unit cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
- beta: {:}\n gamma: {:}\n singony: {:}""".format(self["a"], self["b"], 
-                 self["c"], self["alpha"], self["beta"], self["gamma"], self["singony"])
+ beta: {:}\n gamma: {:}\n singony: {:}""".format(self._p_a, self._p_b, 
+                 self._p_c, self._p_alpha, self._p_beta, self._p_gamma, 
+                 self._p_singony)
         return lsout
     
+    def _refresh(self, a, b, c, alpha, beta, gamma, singony):
+        """
+        refresh variables
+        """
+        if a != None:
+            self._p_a = a
+        if b != None:
+            self._p_b = b
+        if c != None:
+            self._p_c = c
+        if alpha != None:
+            self._p_alpha = alpha
+        if beta != None:
+            self._p_beta = beta
+        if gamma != None:
+            self._p_gamma = gamma
+        if singony != None:
+            self._p_singony = singony
+
+        cond = any([hh != None for hh in [a, b, c, alpha, beta, gamma, 
+                                          singony]])
+        if cond:
+            self._constr_singony()
+    
     def _constr_singony(self):
-        singony = self["singony"]
+        singony = self._p_singony
         if singony == "Cubic":
-            self["b"] = self["a"]
-            self["c"] = self["a"]
-            self["alpha"] = 90.
-            self["beta"] = 90.
-            self["gamma"] = 90.
+            self._p_b = self._p_a
+            self._p_c = self._p_a
+            self._p_alpha = 90.
+            self._p_beta = 90.
+            self._p_gamma = 90.
         elif singony == "Hexagonal":
-            self["b"] = self["a"]
-            self["alpha"] = 90.
-            self["beta"] = 90.
-            self["gamma"] = 120.        
+            self._p_b = self._p_a
+            self._p_alpha = 90.
+            self._p_beta = 90.
+            self._p_gamma = 120.        
         elif singony == "Trigonal":
-            self["b"] = self["a"]
-            self["c"] = self["a"]
+            self._p_b = self._p_a
+            self._p_c = self._p_a
         elif singony == "Tetragonal":
-            self["b"] = self["a"]
-            self["alpha"] = 90.
-            self["beta"] = 90.
-            self["gamma"] = 90.
+            self._p_b = self._p_a
+            self._p_alpha = 90.
+            self._p_beta = 90.
+            self._p_gamma = 90.
         elif singony == "Orthorhombic":
-            self["alpha"] = 90.
-            self["beta"] = 90.
-            self["gamma"] = 90.
+            self._p_alpha = 90.
+            self._p_beta = 90.
+            self._p_gamma = 90.
         elif singony == "Monoclinic":
-            self["alpha"] = 90.
-            self["gamma"] = 90.
+            self._p_alpha = 90.
+            self._p_gamma = 90.
+
+    def set_val(self, a = None, b = None, c = None, alpha = None, 
+                   beta = None, gamma= None, singony = None):
+        self._refresh(a, b, c, alpha, beta, gamma, singony)
+        self._calc_cos_abc()
+        self._calc_volume()
+        self._calc_iucp()
+        self._calc_cos_iabc()
+        self._calc_m_b()
+        self._calc_m_ib()
+
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+    
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+a, b, c - unit cell parameters in Angstrems
+alpha, beta, gamma - angles in degrees
+
+singony - singony: "Triclinic", "Monoclinic", "Orthorhombic", "Tetragonal", 
+                   "Trigonal", "Hexagonal" or "Cubic"
+
+ia, ib, ic - inverse unit cell parameters in Angstrems**-1
+ialpha, ibeta, igamma - angles of inverse cell in degrees
+
+vol - volume of unit cell in Angstrems**3
+ivol - volume of inverse cell in Angstrems**3
+
+m_b - matrix B (x is along ia, y is in (ia,ib) plane, z is vector product x, y)
+m_ib - inverse B matrix 
+        """
+        print(lsout)
             
     def _calc_cos_abc(self):
         rad=numpy.pi/180.
-        self._p_cos_a = numpy.cos(self["alpha"]*rad)
-        self._p_cos_b = numpy.cos(self["beta"]*rad)
-        self._p_cos_g = numpy.cos(self["gamma"]*rad)
+        self._p_cos_a = numpy.cos(self._p_alpha*rad)
+        self._p_cos_b = numpy.cos(self._p_beta*rad)
+        self._p_cos_g = numpy.cos(self._p_gamma*rad)
         
-        self._p_sin_a = numpy.sin(self["alpha"]*rad)
-        self._p_sin_b = numpy.sin(self["beta"]*rad)
-        self._p_sin_g = numpy.sin(self["gamma"]*rad)
+        self._p_sin_a = numpy.sin(self._p_alpha*rad)
+        self._p_sin_b = numpy.sin(self._p_beta*rad)
+        self._p_sin_g = numpy.sin(self._p_gamma*rad)
         
         self._p_cos_a_sq = self._p_cos_a**2
         self._p_cos_b_sq = self._p_cos_b**2
@@ -127,9 +206,9 @@ class UnitCell(dict):
         self._p_sin_g_sq = 1.-self._p_cos_g_sq
 
     def _calc_volume(self):
-        a = self["a"]
-        b = self["b"]
-        c = self["c"]
+        a = self._p_a
+        b = self._p_b
+        c = self._p_c
         c_a = self._p_cos_a
         c_b = self._p_cos_b
         c_g = self._p_cos_g
@@ -146,9 +225,9 @@ class UnitCell(dict):
         """
         irad = 180./numpy.pi
 
-        a = self["a"]
-        b = self["b"]
-        c = self["c"]
+        a = self._p_a
+        b = self._p_b
+        c = self._p_c
         c_a = self._p_cos_a
         c_b = self._p_cos_b
         c_g = self._p_cos_g
@@ -170,7 +249,7 @@ class UnitCell(dict):
         """
         calculate matrix B 
         """
-        c = self["c"] 
+        c = self._p_c
 
         ia = self._p_ia 
         ib = self._p_ib 
@@ -216,37 +295,21 @@ class UnitCell(dict):
             
                 
         
-    def _refresh(self, a, b, c, alpha, beta, gamma, singony):
-        """
-        refresh variables
-        """
-        if a != None:
-            self["a"] = a
-        if b != None:
-            self["b"] = b
-        if c != None:
-            self["c"] = c
-        if alpha != None:
-            self["alpha"] = alpha
-        if beta != None:
-            self["beta"] = beta
-        if gamma != None:
-            self["gamma"] = gamma
-        if singony != None:
-            self["singony"] = singony
-        self._constr_singony()
     
     def calc_sthovl(self, h, k, l, a = None, b = None, c = None, alpha = None, 
                    beta = None, gamma= None, singony = None):
         """
         calculate sin(theta)/lambda for list of hkl reflections
         """
-        cond = any([hh != None for hh in [a, b, c, alpha, beta, gamma, singony]])
+        cond = any([hh != None for hh in [a, b, c, alpha, beta, gamma, 
+                                          singony]])
         if cond:
-            self.calc_model(a, b, c, alpha, beta, gamma, singony)
-        a = self["a"]
-        b = self["b"]
-        c = self["c"]
+            self.set_val(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma, 
+                         singony=singony)
+            
+        a = self._p_a
+        b = self._p_b
+        c = self._p_c
         c_a = self._p_cos_a
         c_b = self._p_cos_b
         c_g = self._p_cos_g
@@ -263,97 +326,132 @@ class UnitCell(dict):
         #it should be checked, I am not sure
         B = B1-B2
         inv_d = (B*1./A)**0.5
-        d_out = dict(sthovl = 0.5*inv_d)
-        self.update(d_out)
-        
-        
-    def calc_model(self, a = None, b = None, c = None, alpha = None, 
+        return 0.5*inv_d
+
+
+    def calc_q_hkl(self, h, k, l, a = None, b = None, c = None, alpha = None, 
                    beta = None, gamma= None, singony = None):
-        self._refresh(a, b, c, alpha, beta, gamma, singony)
-        self._calc_cos_abc()
-        self._calc_volume()
-        self._calc_iucp()
-        self._calc_cos_iabc()
-        self._calc_m_b()
-        self._calc_m_ib()
-        volume = self._p_vol
-        ia = self._p_ia 
-        ib = self._p_ib 
-        ic = self._p_ic 
-        ialpha = self._p_ialpha 
-        ibeta = self._p_ibeta
-        igamma = self._p_igamma 
-        matrix_B = self._p_m_b
-        matrix_iB = self._p_m_ib
-        d_out = dict(volume=volume, matrix_B=matrix_B, matrix_iB=matrix_iB,
-                     ia=ia, ib=ib, ic=ic,
-                     ialpha=ialpha, ibeta=ibeta, igamma=igamma)
-        self.update(d_out)
+        """
+        calculate sin(theta)/lambda for list of hkl reflections
+        """
+        cond_1 = any([hh != None for hh in [a, b, c, alpha, beta, gamma, singony]])
+        
+        cond = cond_1
+        if cond:
+            self.set_val(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma, singony=singony)
+
+        matrix_ib = self.get_val("m_b")
+        v_ia = matrix_ib[:,0]
+        v_ib = matrix_ib[:,1]
+        v_ic = matrix_ib[:,2]
+        #mesh grid
+        q_hkl = h*v_ia+k*v_ib+l*v_ic
+        return q_hkl 
         
         
-    def set_vals(self, d_vals, refresh = False):
-        """
-        Set values 
-        """
-        keys = d_vals.keys()
-        llab = ["a", "b", "c", "alpha", "beta", "gamma", "singony"]
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
-        self._constr_singony()
-                
-            
-        if refresh:
-            #tth = self["tth"]
-            self.calc_model()
 
-            
-    def soft_copy(self):
-        """
-        Soft copy of the object with saving the links on the internal parameter of the object
-        """
-        obj_new = UnitCell(a=self["a"], b= self["b"], c = self["c"], 
-                           alpha = self["alpha"], beta=self["beta"], 
-                           gamma=self["gamma"], singony=self["singony"])
-        
-        llab = ["volume", "matrix_B", "ia", "ib", "ic", "ialpha", "ibeta", 
-                "igamma"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
-
-
-class CrystSymmetry(dict):
+class SpaceGroupe(dict):
     """
-    Crystall symmetry
+    Space Groupe
     """
     def __init__(self, spgr_given_name = "P1", spgr_choice = "1",
                  f_dir_prog = os.getcwd()):
-        super(CrystSymmetry, self).__init__()
+        super(SpaceGroupe, self).__init__()
         
         if isinstance(spgr_choice, float):
             spgr_choice = "{:}".format(int(spgr_choice))
+        
+        self._p_spgr_given_name = None
+        self._p_spgr_choice = None
+        self._p_f_dir_prog = None
+        self._p_spgr_table = None
 
+        self._p_centr = None
+        self._p_el_symm = None
+        self._p_orig = None
+        self._p_p_centr = None
+        self._p_spgr_name = None
+        self._p_spgr_number = None
 
+        self._p_r_11 = None
+        self._p_r_12 = None
+        self._p_r_13 = None
+        self._p_r_21 = None
+        self._p_r_22 = None
+        self._p_r_23 = None
+        self._p_r_31 = None
+        self._p_r_32 = None
+        self._p_r_33 = None
+
+        self._p_b_1 = None
+        self._p_b_2 = None
+        self._p_b_3 = None
 
         f_itables=os.path.join(f_dir_prog,"itables.txt")
-        self._read_el_cards(f_itables)
-        
-        dd= {"spgr_given_name": spgr_given_name, "spgr_choice": spgr_choice, 
-             "f_dir_prog": f_dir_prog}
-        self.update(dd)
+        self._read_el_cards(f_itables)        
+        self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
+        self.set_val()
         
     def __repr__(self):
         lsout = """Space group: \n name: {:}\n choiсe: {:}
- directory: '{:}'""".format(self["spgr_given_name"], self["spgr_choice"], 
-                            self["f_dir_prog"])
+ directory: '{:}'""".format(self._p_spgr_given_name, self._p_spgr_choice, 
+                            self._p_f_dir_prog)
         return lsout
 
+    def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
+        if spgr_given_name != None:
+            self._p_spgr_given_name = spgr_given_name
+        if spgr_choice != None:
+            self._p_spgr_choice = spgr_choice
+        if f_dir_prog != None:
+            self._p_f_dir_prog = f_dir_prog
+            
 
+    def set_val(self, spgr_given_name = None, spgr_choice = None,
+                   f_dir_prog = None):
+        self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
+        
+        self._get_symm()
+        self._calc_rotation_matrix_anb_b()
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+spgr_given_name is number or name of the space groupe
+spgr_choice is choise of origin, 1, 2, "abc", "bac"
+f_dir_prog is directory where the file "itables.txt" it is 
+
+centr is inversion center
+p_centr is position of inversin center
+el_symm is element of symmetry
+orig is packing
+spgr_name is name of space groupe
+spgr_number is number of space groupe
+
+r_11, r_12, r_13  
+r_21, r_22, r_23    element of symmetry in form of element of rotation matrix
+r_31, r_32, r_33 
+
+b_1, b_2,  b_3 is translation vecto for symmetry elements
+        """
+        print(lsout)
+        
     def _read_el_cards(self, f_itables):
         """
         reading information about space grooupe from file fitables to list of cards ldcard
@@ -387,17 +485,17 @@ class CrystSymmetry(dict):
                     dcard[lhelp[0].strip()].append(lhelp[1].strip())
                 else:
                     dcard[lhelp[0].strip()] = [lhelp[1].strip()]
-        d_out = dict(spgr_table = ldcard)
-        self.update(d_out)
+        self._p_spgr_table = ldcard
+        
 
     def _get_symm(self):
         """
         get symmetry from space group
         """
         
-        spgr_choice = self["spgr_choice"]
+        spgr_choice = self._p_spgr_choice
         
-        spgr_given_name = self["spgr_given_name"]
+        spgr_given_name = self._p_spgr_given_name
         
 
         if spgr_given_name.isdigit():
@@ -407,8 +505,8 @@ class CrystSymmetry(dict):
             spgr_n = ""
             spgr_name = spgr_given_name
         
-        spgr_table = self["spgr_table"]
-        
+        spgr_table = self._p_spgr_table
+
         for dcard in spgr_table:
             if (((dcard["number"] == spgr_n)|(dcard["name"] == spgr_name))&(dcard["choice"][0] == spgr_choice)):
                 flag = True
@@ -444,16 +542,18 @@ class CrystSymmetry(dict):
             print("Undefined syngony")
 
             
-        d_symm = {"centr":centr, "el_symm":lelsymm, "orig":lorig, 
-                  "p_centr":pcentr, "spgr_name":spgr, "spgr_number":number}
-
-        self.update(d_symm)
+        self._p_centr = centr
+        self._p_el_symm = lelsymm
+        self._p_orig = lorig
+        self._p_p_centr = pcentr
+        self._p_spgr_name = spgr
+        self._p_spgr_number = number
         
     def _calc_rotation_matrix_anb_b(self):
         """
         give representation for rotation matrix: r_11, r_22, r_33, r_12, r_13, r_23 and vector b_1, b_2, b_3
         """
-        lel_symm = self["el_symm"]
+        lel_symm = self._p_el_symm
         b_1 = numpy.array([hh[0] for hh in lel_symm], dtype = float)
         r_11 = numpy.array([hh[1] for hh in lel_symm], dtype = int)
         r_12 = numpy.array([hh[2] for hh in lel_symm], dtype = int)
@@ -469,62 +569,107 @@ class CrystSymmetry(dict):
         r_32 = numpy.array([hh[10] for hh in lel_symm], dtype = int)
         r_33 = numpy.array([hh[11] for hh in lel_symm], dtype = int)
         
-        d_out = {"r_11":r_11, "r_12":r_12, "r_13":r_13, 
-                 "r_21":r_21, "r_22":r_22, "r_23":r_23,
-                 "r_31":r_31, "r_32":r_32, "r_33":r_33,
-                 "b_1":b_1, "b_2":b_2, "b_3":b_3}
+        self._p_r_11 = r_11
+        self._p_r_12 = r_12
+        self._p_r_13 = r_13
 
-        self.update(d_out)
+        self._p_r_21 = r_21
+        self._p_r_22 = r_22
+        self._p_r_23 = r_23
 
-    def calc_model(self, spgr_given_name = None, spgr_choiсe = None,
-                   f_dir_prog = None):
-        
-        if spgr_given_name != None:
-            self["spgr_given_name"] = spgr_given_name 
-        if spgr_choiсe != None:
-            self["spgr_choiсe"] = spgr_choiсe
-        if f_dir_prog != None:
-            self["f_dir_prog"] = f_dir_prog
-            f_itables=os.path.join(f_dir_prog,"itables.txt")
-            self._read_el_cards(f_itables)            
+        self._p_r_31 = r_31
+        self._p_r_32 = r_32
+        self._p_r_33 = r_33
 
-        self._get_symm()
-        self._calc_rotation_matrix_anb_b()
-        d_out = dict()
-        self.update(d_out)
+        self._p_b_1 = b_1
+        self._p_b_2 = b_2
+        self._p_b_3 = b_3
+
         
         
-    def set_vals(self, d_vals, refresh = False):
-        """
-        Set values 
-        """
-        keys = d_vals.keys()
-        llab = ["spgr_given_name", "spgr_choiсe", "f_dir_prog"]
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
-                
-            
-        if refresh:
-            #tth = self["tth"]
-            self.calc_model()
 
-            
-    def soft_copy(self):
+    def calc_hkl_equiv(self, h, k, l):
         """
-        Soft copy of the object with saving the links on the internal parameter of the object
+        give equivalent reflections of hkl and its multiplicity
         """
-        obj_new = CrystSymmetry(spgr_given_name=self["spgr_given_name"], 
-                                spgr_choiсe= self["spgr_choiсe"], 
-                                f_dir_prog = self["f_dir_prog"])
-        llab = ["fn", "sft"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
+        r_11 = self._p_r_11
+        r_12 = self._p_r_12
+        r_13 = self._p_r_13
+        r_21 = self._p_r_21
+        r_22 = self._p_r_22
+        r_23 = self._p_r_23
+        r_31 = self._p_r_31
+        r_32 = self._p_r_32
+        r_33 = self._p_r_33
+
+        h_s = r_11*h + r_21*k + r_31*l 
+        k_s = r_12*h + r_22*k + r_32*l 
+        l_s = r_13*h + r_23*k + r_33*l 
+        
+        hkl_s = numpy.vstack([h_s, k_s, l_s])
+        hkl_s = numpy.hstack([hkl_s,-1*hkl_s])
+        hkl_s_un = numpy.unique(hkl_s, axis=1)
+        multiplicity = int(round(hkl_s.shape[1]*1./hkl_s_un.shape[1]))
+        h_s, k_s, l_s = hkl_s_un[0, :], hkl_s_un[1, :], hkl_s_un[2, :]
+        return h_s, k_s, l_s, multiplicity
+
+    def calc_xyz_mult(self, x, y, z):
+        """
+        give unique x,y,z elements and calculate multiplicit for given x,y,z fract
+        """
+        r_11 = self._p_r_11
+        r_12 = self._p_r_12
+        r_13 = self._p_r_13
+        r_21 = self._p_r_21
+        r_22 = self._p_r_22
+        r_23 = self._p_r_23
+        r_31 = self._p_r_31
+        r_32 = self._p_r_32
+        r_33 = self._p_r_33
+        b_1 = self._p_b_1
+        b_2 = self._p_b_2
+        b_3 = self._p_b_3
+        
+        lorig = self._p_orig
+        centr = self._p_centr
+        p_centr = self._p_p_centr
+
+        x,y,z=0.125,0.125,0.125
+
+        x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 5)
+        y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 5)
+        z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 5)
+
+        x_o = [orig[0] for orig in lorig]
+        y_o = [orig[1] for orig in lorig]
+        z_o = [orig[2] for orig in lorig]
+        
+        x_s_2d, x_o_2d = numpy.meshgrid(x_s, x_o)
+        y_s_2d, y_o_2d = numpy.meshgrid(y_s, y_o)
+        z_s_2d, z_o_2d = numpy.meshgrid(z_s, z_o)
+        
+        x_s_2d = numpy.round(numpy.mod(x_s_2d+x_o_2d, 1), 5)
+        y_s_2d = numpy.round(numpy.mod(y_s_2d+y_o_2d, 1), 5)
+        z_s_2d = numpy.round(numpy.mod(z_s_2d+z_o_2d, 1), 5)
+
+        x_s = x_s_2d.flatten()
+        y_s = y_s_2d.flatten()
+        z_s = z_s_2d.flatten()
+
+        if centr:
+            x_s_h = numpy.round(numpy.mod(2.*p_centr[0]-1.*x_s, 1), 5)
+            y_s_h = numpy.round(numpy.mod(2.*p_centr[1]-1.*y_s, 1), 5)
+            z_s_h = numpy.round(numpy.mod(2.*p_centr[2]-1.*z_s, 1), 5)
+            x_s =numpy.hstack([x_s, x_s_h])
+            y_s =numpy.hstack([y_s, y_s_h])
+            z_s =numpy.hstack([z_s, z_s_h])
+                        
+        xyz_s = numpy.vstack([x_s, y_s, z_s])
+        
+        xyz_s_un = numpy.unique(xyz_s, axis=1)
+        multiplicity = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
+        x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
+        return x_s, y_s, z_s, multiplicity
 
     
     def _trans_str_to_el_symm(self, str1):
@@ -564,24 +709,26 @@ class CrystSymmetry(dict):
         [elsymm.extend(hh) for hh in lelsymm]
         return elsymm
     
-  
-class Position(dict):
+
+
+
+class Fract(dict):
     """
-    Position of atom(s) in unit cell.
+    Fract of atom_site(s) in unit cell.
     """
     def __init__(self, x = 0., y = 0., z = 0.):
-        super(Position, self).__init__()
+        super(Fract, self).__init__()
         dd= {"x": x, "y": y, "z": z}
         self.update(dd)
 
 
     def __repr__(self):
-        lsout = """Position: \n xyz: {:} {:} {:}""".format(
+        lsout = """Fract: \n xyz: {:} {:} {:}""".format(
                 self["x"], self["y"], self["z"])
         return lsout
 
 
-    def _calc_phase(self, h, k, l, cryst_symmetry, x = None, y = None, 
+    def _calc_phase(self, h, k, l, space_groupe, x = None, y = None, 
                     z = None):
         """
         calculate phase: exp(-2 pi i * (h*x+k*y+l*z))
@@ -595,11 +742,11 @@ class Position(dict):
             self["z"] = z
         x, y, z = self["x"], self["y"], self["z"]
 
-        r_11, r_12 = cryst_symmetry["r_11"], cryst_symmetry["r_12"]
-        r_13, r_21 = cryst_symmetry["r_13"], cryst_symmetry["r_21"]
-        r_22, r_23 = cryst_symmetry["r_22"], cryst_symmetry["r_23"]
-        r_31, r_32 = cryst_symmetry["r_31"], cryst_symmetry["r_32"]
-        r_33 = cryst_symmetry["r_33"]
+        r_11, r_12 = space_groupe["r_11"], space_groupe["r_12"]
+        r_13, r_21 = space_groupe["r_13"], space_groupe["r_21"]
+        r_22, r_23 = space_groupe["r_22"], space_groupe["r_23"]
+        r_31, r_32 = space_groupe["r_31"], space_groupe["r_32"]
+        r_33 = space_groupe["r_33"]
         
         np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
         np_k, np_y, np_r_22 = numpy.meshgrid(k, y, r_22, indexing="ij")
@@ -632,30 +779,30 @@ class Position(dict):
         if z != None:
             self["z"] = z
         x, y, z = self["x"], self["y"], self["z"]
-        b_1, b_2, b_3 = cryst_symmetry["b_1"], cryst_symmetry["b_2"], cryst_symmetry["b_3"]
+        b_1, b_2, b_3 = space_groupe["b_1"], space_groupe["b_2"], space_groupe["b_3"]
 
-        r_11, r_12 = cryst_symmetry["r_11"], cryst_symmetry["r_12"]
-        r_13, r_21 = cryst_symmetry["r_13"], cryst_symmetry["r_21"]
-        r_22, r_23 = cryst_symmetry["r_22"], cryst_symmetry["r_23"]
-        r_31, r_32 = cryst_symmetry["r_31"], cryst_symmetry["r_32"]
-        r_33 = cryst_symmetry["r_33"]
+        r_11, r_12 = space_groupe["r_11"], space_groupe["r_12"]
+        r_13, r_21 = space_groupe["r_13"], space_groupe["r_21"]
+        r_22, r_23 = space_groupe["r_22"], space_groupe["r_23"]
+        r_31, r_32 = space_groupe["r_31"], space_groupe["r_32"]
+        r_33 = space_groupe["r_33"]
 
-        lorig = cryst_symmetry["orig"]
-        centr = cryst_symmetry["centr"]
-        pcentr = cryst_symmetry["pcentr"]
+        lorig = space_groupe["orig"]
+        centr = space_groupe["centr"]
+        pcentr = space_groupe["pcentr"]
         
         
 
         
-    def els4pos(self, cryst_symmetry):
+    def els4pos(self, space_groupe):
         """
         give the lelements of symmetry which transfer atom to the same atom
         """
         
-        lelsymm = cryst_symmetry["elsymm"]
-        lorig = cryst_symmetry["orig"]
-        centr = cryst_symmetry["centr"]
-        pcentr = cryst_symmetry["pcentr"]
+        lelsymm = space_groupe["elsymm"]
+        lorig = space_groupe["orig"]
+        centr = space_groupe["centr"]
+        pcentr = space_groupe["pcentr"]
     
         lelsat = []
         lelsuniqat, lcoorduniqat = [], []
@@ -686,7 +833,7 @@ class Position(dict):
         return lelsat,lelsuniqat
     
     
-    def calc_model(self, h, k, l, cryst_symmetry, x = None, y = None, z = None):
+    def calc_model(self, h, k, l, space_groupe, x = None, y = None, z = None):
         
         if x != None:
             self["x"] = x
@@ -697,10 +844,10 @@ class Position(dict):
         x, y, z = self["x"], self["y"], self["z"]
 
         
-        self._calc_phase(self, h, k, l, cryst_symmetry)
-        self._calc_multiplicity(self, h, k, l, cryst_symmetry)
+        self._calc_phase(self, h, k, l, space_groupe)
+        self._calc_multiplicity(self, h, k, l, space_groupe)
         
-        d_out = dict(h=h, k=k, l=l, cryst_symmetry=cryst_symmetry)
+        d_out = dict(h=h, k=k, l=l, space_groupe=space_groupe)
         self.update(d_out)
         
         
@@ -738,7 +885,7 @@ class Position(dict):
         """
         Soft copy of the object with saving the links on the internal parameter of the object
         """
-        obj_new = Position(x=self["x"], y=self["y"], z=self["z"])
+        obj_new = Fract(x=self["x"], y=self["y"], z=self["z"])
         llab = ["h", "k", "l", "r_11", "r_22", "r_33", "r_12", "r_13", "r_23", 
                 "phase"]
         keys = self.keys()
@@ -750,13 +897,13 @@ class Position(dict):
 
 
     
-class DebyeWaller(dict):
+class ADP(dict):
     """
-    DebyeWaller
+    ADP
     """
     def __init__(self, beta_11 = 0., beta_22 = 0., beta_33 = 0., 
                  beta_12 = 0., beta_13 = 0., beta_23 = 0., b_iso = 0.):
-        super(DebyeWaller, self).__init__()
+        super(ADP, self).__init__()
         dd= {"beta_11": beta_11, "beta_22": beta_22, "beta_33": beta_33,
              "beta_12": beta_12, "beta_13": beta_13, "beta_23": beta_23,
              "b_iso": b_iso}
@@ -783,36 +930,29 @@ class DebyeWaller(dict):
         self.update(d_out)
 
 
-    def _calc_dwf_aniso(self, h, k, l, r_11, r_12, r_13, r_21, r_22, r_23, 
-                        r_31, r_32, r_33):
+    def calc_dwf_aniso(self, h, k, l, space_groupe = None):
         """
         anisotropic harmonic Debye-Waller factor
+        
+        h,k,l is 1D (temporary solution)
         """
         beta_11, beta_22 = self["beta_11"], self["beta_22"] 
         beta_33, beta_12 = self["beta_33"], self["beta_12"]
         beta_13, beta_23 = self["beta_13"], self["beta_23"]
+        
 
-        np_h, np_beta_11, np_r_11 = numpy.meshgrid(h, beta_11, r_11, indexing="ij")
-        np_k, np_beta_22, np_r_22 = numpy.meshgrid(k, beta_22, r_22, indexing="ij")
-        np_l, np_beta_33, np_r_33 = numpy.meshgrid(l, beta_33, r_33, indexing="ij")
-        np_h, np_beta_12, np_r_12 = numpy.meshgrid(h, beta_12, r_12, indexing="ij")
-        np_h, np_beta_13, np_r_13 = numpy.meshgrid(h, beta_13, r_13, indexing="ij")
-        np_h, np_beta_23, np_r_23 = numpy.meshgrid(h, beta_23, r_23, indexing="ij")
-        np_r_21 = numpy.meshgrid(h, beta_12, r_21, indexing="ij")[2]
-        np_r_31 = numpy.meshgrid(h, beta_13, r_31, indexing="ij")[2]
-        np_r_32 = numpy.meshgrid(h, beta_23, r_32, indexing="ij")[2]
+        np_h, np_beta_11 = numpy.meshgrid(h, beta_11, indexing="ij")
+        np_k, np_beta_22 = numpy.meshgrid(k, beta_22, indexing="ij")
+        np_l, np_beta_33 = numpy.meshgrid(l, beta_33, indexing="ij")
+        np_h, np_beta_12 = numpy.meshgrid(h, beta_12, indexing="ij")
+        np_h, np_beta_13 = numpy.meshgrid(h, beta_13, indexing="ij")
+        np_h, np_beta_23 = numpy.meshgrid(h, beta_23, indexing="ij")
         
-        np_h_s = np_h*np_r_11 + np_k*np_r_12 + np_l*np_r_13
-        np_k_s = np_h*np_r_21 + np_k*np_r_22 + np_l*np_r_23
-        np_l_s = np_h*np_r_31 + np_k*np_r_32 + np_l*np_r_33
+        dwf_aniso = numpy.exp(-1*(np_beta_11*np_h**2 + np_beta_22*np_k**2 + 
+                           np_beta_33*np_l**2 + 2.*np_beta_12*np_h*np_k + 
+                    2.*np_beta_13*np_h*np_l + 2.*np_beta_23*np_k*np_l))
         
-        
-        dwf_aniso = numpy.exp(-1*(np_beta_11*np_h_s**2 + np_beta_22*np_k_s**2 + 
-                           np_beta_33*np_l_s**2 + 2.*np_beta_12*np_h_s*np_k_s + 
-                    2.*np_beta_13*np_h_s*np_l_s + 2.*np_beta_23*np_k_s*np_l_s))
-        
-        d_out = dict(dwf_aniso = dwf_aniso)#3 dimensional
-        self.update(d_out)
+        return dwf_aniso 
 
         
     def calc_model(self, h, k, l, sthovl, r_11, r_12, r_13, r_21, r_22, r_23, 
@@ -877,7 +1017,7 @@ class DebyeWaller(dict):
         """
         Soft copy of the object with saving the links on the internal parameter of the object
         """
-        obj_new = DebyeWaller(beta_11 = self["beta_11"], 
+        obj_new = ADP(beta_11 = self["beta_11"], 
                               beta_22 = self["beta_22"], 
                    beta_33 = self["beta_33"], beta_12 = self["beta_12"], 
                    beta_13 = self["beta_13"], beta_23 = self["beta_23"], 
@@ -1038,27 +1178,77 @@ class Magnetism(dict):
 
     
     
-class Atom(dict):
+class AtomSite(dict):
     """
-    Atom
+    AtomSite
     """
     def __init__(self, atom_name="", atom_nucl_type="", b_scat=0., 
                  occupation =1.,
-                 position=Position(), debye_waller=DebyeWaller(),
+                 fract=Fract(), adp=ADP(),
                  magnetism=Magnetism()):
-        super(Atom, self).__init__()
+        super(AtomSite, self).__init__()
         dd= {"atom_name": atom_name, "atom_nucl_type": atom_nucl_type, 
-             "b_scat": b_scat, "occupation": occupation, "position": position, 
-             "debye_waller": debye_waller, "magnetism": magnetism,  }
+             "b_scat": b_scat, "occupation": occupation, "fract": fract, 
+             "adp": adp, "magnetism": magnetism,  }
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Atom: \n name: {:}\n nucl_type: {:}, b_scat: {} 
- occupation {:}\n position {:}
- debye_waller: {}\n magnetism: {}""".format(self["atom_name"], 
- self["atom_nucl_type"],  self["b_scat"],  self["occupation"], self["position"], 
- self["debye_waller"], self["magnetism"])
+        lsout = """AtomSite: \n name: {:}\n nucl_type: {:}, b_scat: {} 
+ occupation {:}\n fract {:}
+ adp: {}\n magnetism: {}""".format(self["atom_name"], 
+ self["atom_nucl_type"],  self["b_scat"],  self["occupation"], self["fract"], 
+ self["adp"], self["magnetism"])
         return lsout
+    
+    def calc_fn(self, h, k, l, space_groupe, cell, fract=None, adp=None):
+        """
+        calculate nuclear structure factor
+        """
+        if adp != None:
+            self["adp"] = adp
+        if fract != None:
+            self["fract"] = fract
+
+        fract.calc_mult
+        space_groupe.calc_xyz_mult()
+
+        multiplicity = atom_site["multiplicity"] 
+        occupation = atom_site["occupation"]
+        b_scat = atom_site["b_scat"]
+        
+        atom_site["fract"].calc_model(h, k, l, r_11, r_12, r_13, r_21, r_22, 
+            r_23, r_31, r_32, r_33)
+        atom_site["adp"].calc_model(h, k, l, sthovl, r_11, r_12, r_13, 
+            r_21, r_22, r_23, r_31, r_32, r_33)
+        
+        phase = atom_site["fract"]["phase"]
+        
+        dwf_aniso = atom_site["adp"]["dwf_aniso"]
+        
+        hh_1 = phase*dwf_aniso
+        hh_2 = hh_1.sum(axes = 2)
+        
+        h_1 = multiplicity*occupation*b_scat
+        
+        hh_1 = numpy.meshgrid(h, h_1, indexing = "ij")[1]
+        
+        # b_scat * occ * mult * sum_el.symm.(phase)
+        hh_3 = hh_1*hh_2
+        f_hkl_as = hh_3.sum(axes=1)*1./len(lelsymm)#1 dimensional array
+        
+        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
+        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
+        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
+        
+        
+        np_f_hkl_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
+        f_hkl_as = np_f_hkl_as.sum(axes=1)*1./len(lorig)
+
+        if (centr):
+            orig = crystal_symmetry["p_centr"]
+            f_nucl = (f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))*0.5
+        else:
+            f_nucl = Fhklas
     
     
     
@@ -1066,37 +1256,36 @@ class Crystal(dict):
     """
     Crystal
     """
-    def __init__(self, crystal_symmetry = CrystSymmetry(), 
-                 unit_cell = UnitCell(), atom = Atom()):
+    def __init__(self, crystal_symmetry = SpaceGroupe(), 
+                 cell = Cell(), atom_site = AtomSite()):
         super(Crystal, self).__init__()
-        dd= {"crystal_symmetry": crystal_symmetry, "unit_cell": unit_cell, 
-             "atom": atom}
+        dd= {"crystal_symmetry": crystal_symmetry, "cell": cell, 
+             "atom_site": AtomSite}
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Phase: \n crystal symmetry: {:}\n unit cell {:}
- atom {:}""".format(self["crystal_symmetry"], self["unit_cell"], self["atom"])
+        lsout = """Phase: \n crystal symmetry: {:}\n cell {:}
+ atom_site {:}""".format(self["crystal_symmetry"], self["cell"], self["atom_site"])
         return lsout
 
     
-    def calc_fn(self, h, k, l, crystal_symmetry = None, unit_cell = None, 
-                atom = None):
+    def calc_fn(self, h, k, l, crystal_symmetry = None, cell = None, 
+                atom_site = None):
         """
         calculate nuclear structure factor
         """
         if crystal_symmetry != None:
             self["crystal_symmetry"] = crystal_symmetry
-        if unit_cell != None:
-            self["unit_cell"] = unit_cell 
-        if atom != None:
-            self["atom"] = atom 
+        if cell != None:
+            self["cell"] = cell 
+        if atom_site != None:
+            self["atom_site"] = atom_site 
 
         crystal_symmetry = self["crystal_symmetry"]
-        unit_cell = self["unit_cell"]
-        atom = self["atom"] 
+        cell = self["cell"]
+        atom_site = self["atom_site"] 
         
-        unit_cell.calc_sthovl(h, k, l)
-        sthovl = unit_cell["sthovl"]
+        sthovl = cell.calc_sthovl(h, k, l)
         
         crystal_symmetry.calc_model()
 
@@ -1116,18 +1305,18 @@ class Crystal(dict):
         r_32 = crystal_symmetry["r_32"]
         r_33 = crystal_symmetry["r_33"]
         
-        multiplicity = atom["multiplicity"] 
-        occupation = atom["occupation"]
-        b_scat = atom["b_scat"]
+        multiplicity = atom_site["multiplicity"] 
+        occupation = atom_site["occupation"]
+        b_scat = atom_site["b_scat"]
         
-        atom["position"].calc_model(h, k, l, r_11, r_12, r_13, r_21, r_22, 
+        atom_site["fract"].calc_model(h, k, l, r_11, r_12, r_13, r_21, r_22, 
             r_23, r_31, r_32, r_33)
-        atom["debye_waller"].calc_model(h, k, l, sthovl, r_11, r_12, r_13, 
+        atom_site["adp"].calc_model(h, k, l, sthovl, r_11, r_12, r_13, 
             r_21, r_22, r_23, r_31, r_32, r_33)
         
-        phase = atom["position"]["phase"]
+        phase = atom_site["fract"]["phase"]
         
-        dwf_aniso = atom["debye_waller"]["dwf_aniso"]
+        dwf_aniso = atom_site["adp"]["dwf_aniso"]
         
         hh_1 = phase*dwf_aniso
         hh_2 = hh_1.sum(axes = 2)
@@ -1162,14 +1351,14 @@ class Crystal(dict):
         """
         pass
     
-    def calc_model(self, reflection, crystal_symmetry = None, unit_cell = None,
-                   atom = None):
+    def calc_model(self, reflection, crystal_symmetry = None, cell = None,
+                   atom_site = None):
         if crystal_symmetry != None:
             self["crystal_symmetry"] = crystal_symmetry 
-        if unit_cell != None:
-            self["unit_cell"] = unit_cell 
-        if atom != None:
-            self["atom"] = atom 
+        if cell != None:
+            self["cell"] = cell 
+        if atom_site != None:
+            self["atom_site"] = atom_site 
             
         np_fn_1d = self.calc_fn(h, k, l)#complex 1D numpy array of nuclear structure factors over list of hkl
         np_sft_2d = None #complex 2D numpy array of tensor structure factors /11, 22, 33, 12, 13, 23/... over list of hkl 
@@ -1182,7 +1371,7 @@ class Crystal(dict):
         Set values 
         """
         keys = d_vals.keys()
-        llab = ["crystal_symmetry", "unit_cell", "atom"]
+        llab = ["crystal_symmetry", "cell", "atom_site"]
         llab_in = [(hh in keys) for hh in llab]
         for lab, cond_h in zip(llab, llab_in):
             if cond_h:
@@ -1208,7 +1397,7 @@ class Crystal(dict):
             for lab, cond_h in zip(llab, llab_in):
                 if cond_h:
                     d_val_as[lab] = d_vals[lab]
-            self["unit_cell"].set_vals(d_val_as, refresh)
+            self["cell"].set_vals(d_val_as, refresh)
 
         #redo it
         llab = ["p1", "p2", "p3", "p4"]
@@ -1219,7 +1408,7 @@ class Crystal(dict):
             for lab, cond_h in zip(llab, llab_in):
                 if cond_h:
                     d_val_as[lab] = d_vals[lab]
-            self["atom"].set_vals(d_val_as, refresh)
+            self["atom_site"].set_vals(d_val_as, refresh)
             
         if refresh:
             tth = self["tth"]
@@ -1231,7 +1420,7 @@ class Crystal(dict):
         Soft copy of the object with saving the links on the internal parameter of the object
         """
         obj_new = Crystal(crystal_symmetry = self["crystal_symmetry"], 
-                          unit_cell = self["unit_cell"], atom = self["atom"])
+                          cell = self["cell"], atom_site = self["atom_site"])
         llab = ["fn", "sft"]
         keys = self.keys()
         llab_in = [(hh in keys) for hh in llab]
@@ -1241,10 +1430,10 @@ class Crystal(dict):
         return obj_new
 
 
-unit_cell = UnitCell()
-unit_cell.keys()
-unit_cell.calc_model()
-unit_cell.keys()
+cell = Cell()
+cell.keys()
+cell.calc_model()
+cell.keys()
 
 h = numpy.array([1, 0, 0, 1], dtype=int)
 k = numpy.array([0, 1, 0, 1], dtype=int)
@@ -1256,14 +1445,14 @@ z = numpy.array([0, 0, 0], dtype=int)
 
 
 
-unit_cell.calc_sthovl(h, k, l)
-unit_cell["sthovl"]
+cell.calc_sthovl(h, k, l)
+cell["sthovl"]
 
-cryst_symmetry = CrystSymmetry(spgr_given_name = "Fd-3m")
-cryst_symmetry.calc_model()
-cryst_symmetry.keys()
-cryst_symmetry["spgr_choice"]
-unit_cell.calc_model()
+space_groupe = SpaceGroupe(spgr_given_name = "Fd-3m")
+space_groupe.calc_model()
+space_groupe.keys()
+space_groupe["spgr_choice"]
+cell.calc_model()
 crystal = Crystal()             
 #import Variable
 #v_u = Variable.Variable(0.2)
