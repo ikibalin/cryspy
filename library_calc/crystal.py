@@ -387,8 +387,6 @@ class SpaceGroupe(dict):
         self._p_b_2 = None
         self._p_b_3 = None
 
-        f_itables=os.path.join(f_dir_prog,"itables.txt")
-        self._read_el_cards(f_itables)        
         self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
         self.set_val()
         
@@ -399,12 +397,15 @@ class SpaceGroupe(dict):
         return lsout
 
     def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
-        if spgr_given_name != None:
-            self._p_spgr_given_name = spgr_given_name
-        if spgr_choice != None:
-            self._p_spgr_choice = spgr_choice
-        if f_dir_prog != None:
+        
+        if not(isinstance(f_dir_prog, type(None))):
+            f_itables = os.path.join(f_dir_prog,"itables.txt")
+            self._read_el_cards(f_itables)        
             self._p_f_dir_prog = f_dir_prog
+        if not(isinstance(spgr_given_name, type(None))):
+            self._p_spgr_given_name = spgr_given_name
+        if not(isinstance(spgr_choice, type(None))):
+            self._p_spgr_choice = spgr_choice
             
 
     def set_val(self, spgr_given_name = None, spgr_choice = None,
@@ -708,9 +709,348 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         elsymm=[]
         [elsymm.extend(hh) for hh in lelsymm]
         return elsymm
+
+
+
+class Atom(dict):
+    """
+    Description of atom
+    """    
+    def __init__(self, type_n="H", type_m="Fe3", flag_m=False, x=0., y=0., z=0., 
+                 b_iso=0., beta_11=0., beta_22=0., beta_33=0., beta_12=0., 
+                 beta_13=0., beta_23=0., chi_11=0., chi_22=0., chi_33=0., 
+                 chi_12=0., chi_13=0., chi_23=0., kappa=1., factor_lande=2.,
+                 f_dir_prog = os.getcwd()):
+        super(Atom, self).__init__()
+        
+        self._p_type_n = None
+        self._p_type_m = None
+        self._p_flag_m = None
+        self._p_x = None
+        self._p_y = None
+        self._p_z = None
+
+        self._p_b_scat = None
+
+        self._p_b_iso = None
+        self._p_beta_11 = None 
+        self._p_beta_22 = None 
+        self._p_beta_33 = None 
+        self._p_beta_12 = None 
+        self._p_beta_13 = None 
+        self._p_beta_23 = None 
+        self._p_chi_11 = None 
+        self._p_chi_22 = None 
+        self._p_chi_33 = None 
+        self._p_chi_12 = None 
+        self._p_chi_13 = None 
+        self._p_chi_23 = None 
+        self._p_kappa = None 
+        self._p_factor_lande = None 
+
+        self._p_j0_A = None 
+        self._p_j0_a = None 
+        self._p_j0_B = None 
+        self._p_j0_b = None 
+        self._p_j0_C = None 
+        self._p_j0_c = None 
+        self._p_j0_D = None 
+
+        self._p_j2_A = None 
+        self._p_j2_a = None 
+        self._p_j2_B = None 
+        self._p_j2_b = None 
+        self._p_j2_C = None 
+        self._p_j2_c = None 
+        self._p_j2_D = None 
+        self._p_f_dir_prog = None
+        self._handbook_nucl = []
+        self._handbook_mag = []
+        
+        self._refresh(type_n, type_m, flag_m, x, y, z, b_iso, beta_11, beta_22, 
+                      beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
+                      chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
+                      f_dir_prog)
+
+    def __repr__(self):
+        lsout = """Type nuclear: {:} and magentic {:}({:})
+b_scat: {:}
+Fract  x: {:}  y: {:}  z: {:}\n b_iso: {:}, kappa: {:}, lande factor: {:}
+beta_11: {:}, beta_22: {:}, beta_33: {:}, 
+beta_12: {:}, beta_13: {:}, beta_23: {:}, 
+
+chi_11: {:}, chi_22: {:}, chi_33: {:}, 
+chi_12: {:}, chi_13: {:}, chi_23: {:}, 
+
+j0 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
+j2 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
+
+f_dir_prog: {:}
+""".format(self._p_type_n, self._p_type_m, self._p_flag_m, self._p_b_scat, 
+self._p_x, 
+self._p_y, self._p_z, self._p_b_iso, self._p_kappa, self._p_factor_lande,
+self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
+self._p_beta_13, self._p_beta_23, self._p_chi_11, self._p_chi_22, 
+self._p_chi_33, self._p_chi_12, self._p_chi_13, self._p_chi_23, self._p_j0_A,
+self._p_j0_a, self._p_j0_B, self._p_j0_b, self._p_j0_C, self._p_j0_c, 
+self._p_j0_D, self._p_j2_A, self._p_j2_a, self._p_j2_B, self._p_j2_b, 
+self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
+        return lsout
     
+    def _refresh(self, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
+                 beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
+                 chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
+                 f_dir_prog):
+        
+        if not(isinstance(f_dir_prog, type(None))):
+            self._p_f_dir_prog = f_dir_prog
+            self._load_handbook_n()
+            self._load_handbook_m()
+
+        if not(isinstance(type_n, type(None))):
+            self._p_type_n = type_n
+            self._get_b_scat(type_n)
+        if not(isinstance(type_m, type(None))):
+            self._p_type_m = type_m
+            self._get_j0j2(type_m)
+        if not(isinstance(flag_m, type(None))):
+            self._p_flag_m = flag_m
+
+        if not(isinstance(x, type(None))):
+            self._p_x = numpy.mod(x, 1.)
+        if not(isinstance(y, type(None))):
+            self._p_y = numpy.mod(y, 1.)
+        if not(isinstance(z, type(None))):
+            self._p_z = numpy.mod(z, 1.)
+    
+        if not(isinstance(b_iso, type(None))):
+            self._p_b_iso = b_iso
+            
+        if not(isinstance(beta_11, type(None))):
+            self._p_beta_11 = beta_11 
+        if not(isinstance(beta_22, type(None))):
+            self._p_beta_22 = beta_22 
+        if not(isinstance(beta_33, type(None))):
+            self._p_beta_33 = beta_33 
+        if not(isinstance(beta_12, type(None))):
+            self._p_beta_12 = beta_12 
+        if not(isinstance(beta_13, type(None))):
+            self._p_beta_13 = beta_13 
+        if not(isinstance(beta_23, type(None))):
+            self._p_beta_23 = beta_23 
+    
+            
+        if not(isinstance(chi_11, type(None))):
+            self._p_chi_11 = chi_11 
+        if not(isinstance(chi_22, type(None))):
+            self._p_chi_22 = chi_22 
+        if not(isinstance(chi_33, type(None))):
+            self._p_chi_33 = chi_33 
+        if not(isinstance(chi_12, type(None))):
+            self._p_chi_12 = chi_12 
+        if not(isinstance(chi_13, type(None))):
+            self._p_chi_13 = chi_13 
+        if not(isinstance(chi_23, type(None))):
+            self._p_chi_23 = chi_23 
+            
+        if not(isinstance(kappa, type(None))):
+            self._p_kappa = kappa 
+        if not(isinstance(factor_lande, type(None))):
+            self._p_factor_lande = factor_lande 
+
+            
+    def set_val(self, type_n=None, type_m=None, flag_m=None, x=None, y=None, 
+                z=None, b_iso=None, beta_11=None, beta_22=None, beta_33=None, 
+                beta_12=None, beta_13=None, beta_23=None, chi_11=None, 
+                chi_22=None, chi_33=None, chi_12=None, chi_13=None, 
+                chi_23=None, kappa=None, factor_lande=None, f_dir_prog=None):
+        self._refresh(type_n, type_m, flag_m, x, y, z, b_iso, beta_11, beta_22, 
+                      beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
+                      chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
+                      f_dir_prog)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+            
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+type_n is nuclear type of atom to defince b_scat
+type_m is magnetic type of atom to define magetic atom
+flag_m is True if atom magnetic and False if not.
+
+x, y, z is fraction of atom in the crystal
+b_iso is isotropical atomic vibrations
+
+beta_11, beta_22, beta_33 
+beta_12, beta_13, beta_23       is anisotropical atomic vibrations
+
+chi_11, chi_22, chi_33
+chi_12, chi_13, chi_23          is susceptibility
+
+kappa is expansion/contraction coefficient (by default 1.)
+factor_lande is factor landé (by default 2.)
+
+j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D is coefficient to calculate <j0>
+
+j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D is coefficient to calculate <j2>
+
+f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
+        """
+        print(lsout)
+        
+    def _load_handbook_n(self):
+        f_name = os.path.join(self._p_f_dir_prog, "bscat.tab")
+        fid = open(f_name, 'r')
+        lcont = fid.readlines()
+        fid.close()
+        lcont = [line for line in lcont if not(line.startswith("#"))]
+        ldcard = []
+        for line in lcont:
+            lhelp = line.strip().split()
+            
+            sline = lhelp[2].replace("i","j")
+            sline = sline.split("(")[0]
+            try:
+                if sline.rfind("j") != -1:
+                    b_scat = complex(sline)
+                else:
+                    b_scat = float(sline)
+            except:
+                b_scat = 0.
+            dcard = {"type_n": lhelp[0], "b_scat": b_scat}
+            ldcard.append(dcard)
+        self._handbook_nucl = ldcard
+    
+    def _load_handbook_m(self):
+        f_name = os.path.join(self._p_f_dir_prog, "formmag.tab")
+        fid = open(f_name, 'r')
+        lcont = fid.readlines()
+        fid.close()
+        lcont = [line for line in lcont if line.startswith("F")]
+        ldcard = []
+        for line in lcont:
+            lhelp = line.strip().split()
+            dcard = {"type_m": lhelp[1], "order": int(lhelp[2]),
+                     "A": float(lhelp[3]),"a": float(lhelp[4]),
+                     "B": float(lhelp[5]),"b": float(lhelp[6]),
+                     "C": float(lhelp[7]),"c": float(lhelp[8]),
+                     "D": float(lhelp[9])}
+            ldcard.append(dcard)
+        self._handbook_mag = ldcard
+
+    def _get_b_scat(self, type_n):
+        """
+        Take b_scat
+        """
+
+        ldcard = self._handbook_nucl 
+        flag = False
+        for dcard in ldcard:
+            if (dcard["type_n"] == type_n):
+                self._p_b_scat = dcard["b_scat"]
+                flag = True
+            elif flag:
+                break
+        if not(flag):
+            print("Can not find b_scat for '{:}'".format(type_n))
+            
+    def _get_j0j2(self, type_m):
+        """
+        Take coefficients for <j0> and <j2>
+        """
+        ldcard = self._handbook_mag 
+        flag_0, flag_2 = False, False
+        for dcard in ldcard:
+            if ((dcard["type_m"] == type_m)&(dcard["order"] == 0)):
+                self._p_j0_A = dcard["A"]
+                self._p_j0_a = dcard["a"]
+                self._p_j0_B = dcard["B"]
+                self._p_j0_b = dcard["b"]
+                self._p_j0_C = dcard["C"]
+                self._p_j0_c = dcard["c"]
+                self._p_j0_D = dcard["D"]
+                flag_0 = True
+            elif ((dcard["type_m"] == type_m)&(dcard["order"] == 2)):
+                self._p_j2_A = dcard["A"]
+                self._p_j2_a = dcard["a"]
+                self._p_j2_B = dcard["B"]
+                self._p_j2_b = dcard["b"]
+                self._p_j2_C = dcard["C"]
+                self._p_j2_c = dcard["c"]
+                self._p_j2_D = dcard["D"]
+                flag_2 = True
+            elif (flag_0 & flag_2):
+                break
+        if not(flag_0):
+            print("Can not find coefficients <j0> for '{:}'".format(type_m))
+        if not(flag_2):
+            print("Can not find coefficients <j2> for '{:}'".format(type_m))
 
 
+
+class AtomSite(dict):
+    """
+    AtomSite
+    """
+    def __init__(self):
+        super(AtomSite, self).__init__()
+        self._list_atoms = []
+    
+    def __repr__(self):
+        lsout = """AtomSite: """.format()
+        return lsout
+    
+    
+    def _refresh(self):
+        pass
+    
+    
+    def set_val(self):
+        pass
+    
+    
+    def get_val(self, label):
+        pass
+    
+    
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+
+empty
+        """
+        print(lsout)
+        
+    def add_atom(self, atom):
+        self._list_atoms.append(atom)
+    
+    def del_atom(self, ind):
+        self._list_atoms.pop(ind)        
+
+    def replace_atom(self, ind, atom):
+        self._list_atoms.pop(ind)
+        self._list_atoms.insert(ind, atom)
+
+    def form_arrays(self):
+        pass
 
 class Fract(dict):
     """
@@ -718,39 +1058,88 @@ class Fract(dict):
     """
     def __init__(self, x = 0., y = 0., z = 0.):
         super(Fract, self).__init__()
-        dd= {"x": x, "y": y, "z": z}
-        self.update(dd)
+        self._p_x = None
+        self._p_y = None
+        self._p_z = None
+        
+        self._refresh(x, y, z)
+        self.set_val()
 
 
     def __repr__(self):
-        lsout = """Fract: \n xyz: {:} {:} {:}""".format(
-                self["x"], self["y"], self["z"])
+        lsout = """Fract: \n xyz: {:} {:} {:}""".format(self._p_x, self._p_y, 
+                                  self._p_z)
         return lsout
 
 
-    def _calc_phase(self, h, k, l, space_groupe, x = None, y = None, 
-                    z = None):
+    def _refresh(self, x, y, z):
+        if isinstance(x, type(None)):
+            self._p_x = numpy.mod(x, 1.)
+        if isinstance(y, type(None)):
+            self._p_y = numpy.mod(y, 1.)
+        if isinstance(z, type(None)):
+            self._p_z = numpy.mod(z, 1.)
+
+            
+    def set_val(self, x = None, y = None, z = None):
+        self._refresh(x, y, z)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+spgr_given_name is number or name of the space groupe
+spgr_choice is choise of origin, 1, 2, "abc", "bac"
+f_dir_prog is directory where the file "itables.txt" it is 
+
+centr is inversion center
+p_centr is position of inversin center
+el_symm is element of symmetry
+orig is packing
+spgr_name is name of space groupe
+spgr_number is number of space groupe
+
+r_11, r_12, r_13  
+r_21, r_22, r_23    element of symmetry in form of element of rotation matrix
+r_31, r_32, r_33 
+
+b_1, b_2,  b_3 is translation vecto for symmetry elements
+        """
+        print(lsout)
+    
+    def calc_phase(self, h, k, l, space_groupe):
         """
         calculate phase: exp(-2 pi i * (h*x+k*y+l*z))
         r_11, r_22, r_33, r_12, r_13, r_23 are element of symmetry 
         """
-        if x != None:
-            self["x"] = x
-        if y != None:
-            self["y"] = y
-        if z != None:
-            self["z"] = z
-        x, y, z = self["x"], self["y"], self["z"]
+        
+        x, y, z = self._p_x, self._p_y, self._p_z
 
-        r_11, r_12 = space_groupe["r_11"], space_groupe["r_12"]
-        r_13, r_21 = space_groupe["r_13"], space_groupe["r_21"]
-        r_22, r_23 = space_groupe["r_22"], space_groupe["r_23"]
-        r_31, r_32 = space_groupe["r_31"], space_groupe["r_32"]
-        r_33 = space_groupe["r_33"]
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
         
         np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
         np_k, np_y, np_r_22 = numpy.meshgrid(k, y, r_22, indexing="ij")
         np_l, np_z, np_r_33 = numpy.meshgrid(l, z, r_33, indexing="ij")
+        
         np_r_12 = numpy.meshgrid(h, x, r_12, indexing="ij")[2]
         np_r_13 = numpy.meshgrid(k, y, r_13, indexing="ij")[2]
         np_r_23 = numpy.meshgrid(l, z, r_23, indexing="ij")[2]
@@ -764,32 +1153,26 @@ class Fract(dict):
         
         phase = numpy.exp(2*numpy.pi*1j*(np_x*np_h_s + np_y*np_k_s+ np_z*np_l_s))
         
-        d_out = dict(phase = phase)
-        self.update(d_out)
+        return phase
         
-    def _calc_multiplicity(self, r_11, r_12, r_13, r_21, r_22, r_23, r_31, 
-                    r_32, r_33, b_1, b_2, b_3, x = None, y = None, z = None):
+    def calc_multiplicity(self, space_groupe):
         """
         calculate atom multiplicity
         """
-        if x != None:
-            self["x"] = x
-        if y != None:
-            self["y"] = y
-        if z != None:
-            self["z"] = z
-        x, y, z = self["x"], self["y"], self["z"]
-        b_1, b_2, b_3 = space_groupe["b_1"], space_groupe["b_2"], space_groupe["b_3"]
+        x, y, z = self._p_x, self._p_y, self._p_z
 
-        r_11, r_12 = space_groupe["r_11"], space_groupe["r_12"]
-        r_13, r_21 = space_groupe["r_13"], space_groupe["r_21"]
-        r_22, r_23 = space_groupe["r_22"], space_groupe["r_23"]
-        r_31, r_32 = space_groupe["r_31"], space_groupe["r_32"]
-        r_33 = space_groupe["r_33"]
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
 
-        lorig = space_groupe["orig"]
-        centr = space_groupe["centr"]
-        pcentr = space_groupe["pcentr"]
+        b_1, b_2 = space_groupe.get_val("b_1"), space_groupe.get_val("b_2")
+        b_3  = space_groupe.get_val("b_3")
+
+        lorig = space_groupe.get_val("orig")
+        centr = space_groupe.get_val("centr")
+        pcentr = space_groupe.get_val("pcentr")
         
         
 
@@ -799,10 +1182,10 @@ class Fract(dict):
         give the lelements of symmetry which transfer atom to the same atom
         """
         
-        lelsymm = space_groupe["elsymm"]
-        lorig = space_groupe["orig"]
-        centr = space_groupe["centr"]
-        pcentr = space_groupe["pcentr"]
+        lelsymm = space_groupe.get_val("el_symm")
+        lorig = space_groupe.get_val("orig")
+        centr = space_groupe.get_val("centr")
+        pcentr = space_groupe.get_val("pcentr")
     
         lelsat = []
         lelsuniqat, lcoorduniqat = [], []
@@ -831,72 +1214,8 @@ class Fract(dict):
                         lcoorduniqat.append(xyzatu)
                         lelsuniqat.append(elsn)
         return lelsat,lelsuniqat
-    
-    
-    def calc_model(self, h, k, l, space_groupe, x = None, y = None, z = None):
-        
-        if x != None:
-            self["x"] = x
-        if y != None:
-            self["y"] = y
-        if z != None:
-            self["z"] = z
-        x, y, z = self["x"], self["y"], self["z"]
-
-        
-        self._calc_phase(self, h, k, l, space_groupe)
-        self._calc_multiplicity(self, h, k, l, space_groupe)
-        
-        d_out = dict(h=h, k=k, l=l, space_groupe=space_groupe)
-        self.update(d_out)
-        
-        
-    def set_vals(self, d_vals, refresh = False):
-        """
-        Set values 
-        """
-        keys = d_vals.keys()
-        llab = ["x", "y", "z"]
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
-            
-        if refresh:
-            h = self["h"] 
-            k = self["k"] 
-            l = self["l"] 
-            
-            r_11 = self["r_11"] 
-            r_12 = self["r_12"] 
-            r_13 = self["r_13"] 
-            r_21 = self["r_21"] 
-            r_22 = self["r_22"] 
-            r_23 = self["r_23"] 
-            r_31 = self["r_31"] 
-            r_32 = self["r_32"] 
-            r_33 = self["r_33"]
-            
-            self.calc_model(h, k, l, r_11, r_12, r_13, r_21, r_22, r_23, r_31, 
-                    r_32, r_33)
-
-            
-    def soft_copy(self):
-        """
-        Soft copy of the object with saving the links on the internal parameter of the object
-        """
-        obj_new = Fract(x=self["x"], y=self["y"], z=self["z"])
-        llab = ["h", "k", "l", "r_11", "r_22", "r_33", "r_12", "r_13", "r_23", 
-                "phase"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
 
 
-    
 class ADP(dict):
     """
     ADP
