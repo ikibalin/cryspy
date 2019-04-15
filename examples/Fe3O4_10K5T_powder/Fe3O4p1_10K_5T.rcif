@@ -2,9 +2,9 @@
 global_filerhochi
 
 data_ref
-_refinement_file_name_output Fe3O4.out
-_refinement_flag_errorbars 1.0
-_refinement_flag_refinement 1.0
+_refinement_file_name_output 'Fe3O4.out'
+_refinement_flag_errorbars 0.0
+_refinement_flag_refinement 0.0
 
 loop_
 _refinement_param1
@@ -17,8 +17,6 @@ _constraint_param1
 _constraint_param2
 _constraint_coeff
  $pnd_pd_beam_polarization_down  $pnd_pd_beam_polarization_up  1.0
- $Fe3O4_cell_length_b  $Fe3O4_cell_length_a  1.0
- $Fe3O4_cell_length_c  $Fe3O4_cell_length_a  1.0
  $Fe3O4_$Fe3A_atom_site_aniso_beta_22  $Fe3O4_$Fe3A_atom_site_aniso_beta_11  1.0
  $alum_cell_length_b  $alum_cell_length_a  1.0
  $alum_cell_length_c  $alum_cell_length_a  1.0
@@ -43,16 +41,15 @@ _atom_site_fract_x
 _atom_site_fract_y
 _atom_site_fract_z
 _atom_site_occupancy
-_atom_site_b_iso_or_equiv
- Fe3A  Fe  0.125  0.125  0.125  1.0  0.0
- Fe3B  Fe  0.5  0.5  0.5  1.0  0.0
- O1  O  0.25223  0.25223  0.25223  1.0  0.0
+ Fe3A  Fe  0.125  0.125  0.125  1.0
+ Fe3B  Fe  0.5  0.5  0.5  1.0
+ O1  O  0.25223  0.25223  0.25223  1.0
 
 
 loop_
 _atom_site_type_symbol
 _atom_site_bscat
- Fe  0.990610934544
+ Fe  0.945
  O  0.5803
 
 
@@ -103,8 +100,7 @@ _atom_site_fract_x
 _atom_site_fract_y
 _atom_site_fract_z
 _atom_site_occupancy
-_atom_site_b_iso_or_equiv
- Al  Al  0.0  0.0  0.0  1.0  0.0
+ Al  Al  0.0  0.0  0.0  1.0
 
 
 loop_
@@ -129,15 +125,15 @@ _atom_site_aniso_beta_23
 
 
 data_pnd
-_pd_file_name_bkgr Fe3O4p1_10K_5T.bkg
-_pd_file_name_input Fe3O4p1_10K_5T.dat
-_pd_file_name_output Fe3O4p1_10K_5T.out
+_pd_file_name_bkgr 'Fe3O4p1_10K_5T.bkg'
+_pd_file_name_input 'Fe3O4p1_10K_5T.dat'
+_pd_file_name_output 'Fe3O4p1_10K_5T.out'
 _pd_chi2_up True
 _pd_chi2_down True
 _pd_chi2_diff True
-_pd_exl2theta (0.,1.)
-_pd_beam_polarization_up 0.72375496281
-_pd_beam_polarization_down 0.72375496281
+_pd_exl2theta '(0.,1.)'
+_pd_beam_polarization_up 1.0
+_pd_beam_polarization_down 1.0
 _pd_resolution_u 4.496
 _pd_resolution_v 10.30823
 _pd_resolution_w -1.01972

@@ -1,5 +1,5 @@
 """
-define resolution for the powder diffractometer along ttheta
+define classes to describe crystal 
 """
 __author__ = 'ikibalin'
 __version__ = "2019_04_06"
@@ -712,7 +712,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
 
 
 
-class Atom(dict):
+class AtomType(dict):
     """
     Description of atom
     """    
@@ -720,8 +720,8 @@ class Atom(dict):
                  b_iso=0., beta_11=0., beta_22=0., beta_33=0., beta_12=0., 
                  beta_13=0., beta_23=0., chi_11=0., chi_22=0., chi_33=0., 
                  chi_12=0., chi_13=0., chi_23=0., kappa=1., factor_lande=2.,
-                 f_dir_prog = os.getcwd()):
-        super(Atom, self).__init__()
+                 occupation = 1., f_dir_prog = os.getcwd()):
+        super(AtomType, self).__init__()
         
         self._p_type_n = None
         self._p_type_m = None
@@ -731,6 +731,7 @@ class Atom(dict):
         self._p_z = None
 
         self._p_b_scat = None
+        self._p_b_occupation = None
 
         self._p_b_iso = None
         self._p_beta_11 = None 
@@ -770,11 +771,14 @@ class Atom(dict):
         self._refresh(type_n, type_m, flag_m, x, y, z, b_iso, beta_11, beta_22, 
                       beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
                       chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
-                      f_dir_prog)
+                      occupation, f_dir_prog)
 
     def __repr__(self):
-        lsout = """Type nuclear: {:} and magentic {:}({:})
+        lsout = """AtomType:
+            
+Type nuclear: {:} and magentic {:}({:})
 b_scat: {:}
+occupation: {:}
 Fract  x: {:}  y: {:}  z: {:}\n b_iso: {:}, kappa: {:}, lande factor: {:}
 beta_11: {:}, beta_22: {:}, beta_33: {:}, 
 beta_12: {:}, beta_13: {:}, beta_23: {:}, 
@@ -787,7 +791,7 @@ j2 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
 
 f_dir_prog: {:}
 """.format(self._p_type_n, self._p_type_m, self._p_flag_m, self._p_b_scat, 
-self._p_x, 
+self._p_occupation, self._p_x, 
 self._p_y, self._p_z, self._p_b_iso, self._p_kappa, self._p_factor_lande,
 self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
 self._p_beta_13, self._p_beta_23, self._p_chi_11, self._p_chi_22, 
@@ -800,7 +804,7 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
     def _refresh(self, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
                  beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
                  chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
-                 f_dir_prog):
+                 occupation, f_dir_prog):
         
         if not(isinstance(f_dir_prog, type(None))):
             self._p_f_dir_prog = f_dir_prog
@@ -825,6 +829,8 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
     
         if not(isinstance(b_iso, type(None))):
             self._p_b_iso = b_iso
+        if not(isinstance(occupation, type(None))):
+            self._p_occupation = occupation
             
         if not(isinstance(beta_11, type(None))):
             self._p_beta_11 = beta_11 
@@ -863,11 +869,12 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
                 z=None, b_iso=None, beta_11=None, beta_22=None, beta_33=None, 
                 beta_12=None, beta_13=None, beta_23=None, chi_11=None, 
                 chi_22=None, chi_33=None, chi_12=None, chi_13=None, 
-                chi_23=None, kappa=None, factor_lande=None, f_dir_prog=None):
+                chi_23=None, kappa=None, factor_lande=None, occupation=None,
+                f_dir_prog=None):
         self._refresh(type_n, type_m, flag_m, x, y, z, b_iso, beta_11, beta_22, 
                       beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
                       chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
-                      f_dir_prog)
+                      occupation, f_dir_prog)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -888,12 +895,14 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
         give a list of parameters with small descripition
         """
         lsout = """
-Parameters:
+Parameters of AtomType:
 type_n is nuclear type of atom to defince b_scat
 type_m is magnetic type of atom to define magetic atom
 flag_m is True if atom magnetic and False if not.
 
 x, y, z is fraction of atom in the crystal
+b_scat is scattering amplitude
+occupation is occupation factor
 b_iso is isotropical atomic vibrations
 
 beta_11, beta_22, beta_33 
@@ -1053,7 +1062,7 @@ class Fract(dict):
         """
         lsout = """
 Parameters:
-x,  y, z is atoms coordinate
+x, y, z is atoms coordinate
         """
         print(lsout)
     
@@ -1070,6 +1079,8 @@ x,  y, z is atoms coordinate
         r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
         r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
         r_33 = space_groupe.get_val("r_33")
+        b_1, b_2 = space_groupe.get_val("b_1"), space_groupe.get_val("b_2")
+        b_3 = space_groupe.get_val("b_3")
         
         np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
         np_k, np_y, np_r_22 = numpy.meshgrid(k, y, r_22, indexing="ij")
@@ -1081,34 +1092,19 @@ x,  y, z is atoms coordinate
         np_r_21 = numpy.meshgrid(h, x, r_21, indexing="ij")[2]
         np_r_31 = numpy.meshgrid(k, y, r_31, indexing="ij")[2]
         np_r_32 = numpy.meshgrid(l, z, r_32, indexing="ij")[2]
+
+        np_b_1 = numpy.meshgrid(l, z, b_1, indexing="ij")[2]
+        np_b_2 = numpy.meshgrid(l, z, b_2, indexing="ij")[2]
+        np_b_3 = numpy.meshgrid(l, z, b_3, indexing="ij")[2]
         
-        np_h_s = np_h*np_r_11 + np_k*np_r_21 + np_l*np_r_31
-        np_k_s = np_h*np_r_12 + np_k*np_r_22 + np_l*np_r_32
-        np_l_s = np_h*np_r_13 + np_k*np_r_23 + np_l*np_r_33
         
-        phase = numpy.exp(2*numpy.pi*1j*(np_x*np_h_s + np_y*np_k_s+ np_z*np_l_s))
+        np_x_s = np_x*np_r_11 + np_y*np_r_12 + np_z*np_r_13 + np_b_1
+        np_y_s = np_x*np_r_21 + np_y*np_r_22 + np_z*np_r_23 + np_b_2
+        np_z_s = np_x*np_r_31 + np_y*np_r_32 + np_z*np_r_33 + np_b_3
+        
+        phase = numpy.exp(2*numpy.pi*1j*(np_h*np_x_s + np_k*np_y_s+ np_l*np_z_s))
         
         return phase
-        
-    def calc_multiplicity(self, space_groupe):
-        """
-        calculate atom multiplicity
-        """
-        x, y, z = self._p_x, self._p_y, self._p_z
-
-        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
-        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
-        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
-        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
-        r_33 = space_groupe.get_val("r_33")
-
-        b_1, b_2 = space_groupe.get_val("b_1"), space_groupe.get_val("b_2")
-        b_3  = space_groupe.get_val("b_3")
-
-        lorig = space_groupe.get_val("orig")
-        centr = space_groupe.get_val("centr")
-        pcentr = space_groupe.get_val("pcentr")
-        
         
         
     def els4pos(self, space_groupe):
@@ -1159,6 +1155,7 @@ class AtomSite(dict):
         super(AtomSite, self).__init__()
         self._p_fract = None
         self._p_b_scat = None
+        self._p_occupation = None
         self._list_atoms = []
     
     def __repr__(self):
@@ -1197,7 +1194,8 @@ class AtomSite(dict):
         lsout = """
 Parameters:
 
-b_scat is amplitude scattering    
+b_scat is amplitude scattering  
+occupation is occupation factor  
 fract  is fraction of atoms
 
         """
@@ -1217,19 +1215,22 @@ fract  is fraction of atoms
         self._form_arrays()
 
     def _form_arrays(self):
-        lb_scat = []
+        lb_scat, locc = [], []
         lx, ly, lz = [], [], []
         for atom in self._list_atoms:
             lb_scat.append(atom.get_val("b_scat"))
+            locc.append(atom.get_val("occupation"))
             lx.append(atom.get_val("x"))
             ly.append(atom.get_val("y"))
             lz.append(atom.get_val("z"))
         np_b_scat = numpy.array(lb_scat, dtype=float)
+        np_occ = numpy.array(locc, dtype=float)
         np_x = numpy.array(lx, dtype=float)
         np_y = numpy.array(ly, dtype=float)
         np_z = numpy.array(lz, dtype=float)
         fract = Fract(x=np_x, y=np_y, z=np_z)
         self._p_b_scat = np_b_scat
+        self._p_occupation = np_occ
         self._p_fract = fract
     
     def calc_fn(self, cell, space_groupe, h, k, l):
@@ -1240,14 +1241,17 @@ fract  is fraction of atoms
         
         fract = self._p_fract
         b_scat = self._p_b_scat
+        occupation = self._p_occupation
         
         phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
         
         phase_2d = phase_3d.sum(axis=2)
         
         b_scat_2d = numpy.meshgrid(h, b_scat, indexing="ij")[1]
+        occupation_2d = numpy.meshgrid(h, occupation, indexing="ij")[1]
         
-        hh = phase_2d*b_scat_2d
+        
+        hh = phase_2d * b_scat_2d * occupation_2d
         
 
         lel_symm = space_groupe.get_val("el_symm")
@@ -1562,94 +1566,59 @@ class Crystal(dict):
     """
     Crystal
     """
-    def __init__(self, crystal_symmetry = SpaceGroupe(), 
-                 cell = Cell(), atom_site = AtomSite()):
+    def __init__(self, space_groupe = SpaceGroupe(), cell = Cell(), 
+                 atom_site = AtomSite(), i_g = 0.):
         super(Crystal, self).__init__()
-        dd= {"crystal_symmetry": crystal_symmetry, "cell": cell, 
-             "atom_site": AtomSite}
-        self.update(dd)
+        
+        self._p_space_groupe = None
+        self._p_cell = None
+        self._p_atom_site = None
+        self._p_i_g = None
+        self._refresh(space_groupe, cell, atom_site, i_g)
         
     def __repr__(self):
-        lsout = """Phase: \n crystal symmetry: {:}\n cell {:}
- atom_site {:}""".format(self["crystal_symmetry"], self["cell"], self["atom_site"])
+        lsout = """Phase: \n i_g: {:}\n space groupe: {:}\n cell {:}
+ atom_site {:}""".format(self._p_i_g, self._p_space_groupe, self._p_cell, 
+                         self._p_atom_site)
         return lsout
 
-    
-    def calc_fn(self, h, k, l, crystal_symmetry = None, cell = None, 
-                atom_site = None):
+    def _refresh(self, space_groupe, cell, atom_site, i_g):
+        if not(isinstance(space_groupe, type(None))):
+            self._p_space_groupe = space_groupe
+        if not(isinstance(cell, type(None))):
+            self._p_cell = cell
+        if not(isinstance(atom_site, type(None))):
+            self._p_atom_site = atom_site
+        if not(isinstance(i_g, type(None))):
+            self._p_i_g = i_g
+
+    def set_val(self, space_groupe = None, cell = None, atom_site = None, 
+                i_g = None):
+        self._refresh(space_groupe, cell, atom_site, i_g)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+        
+    def calc_fn(self, h, k, l):
         """
         calculate nuclear structure factor
         """
-        if crystal_symmetry != None:
-            self["crystal_symmetry"] = crystal_symmetry
-        if cell != None:
-            self["cell"] = cell 
-        if atom_site != None:
-            self["atom_site"] = atom_site 
-
-        crystal_symmetry = self["crystal_symmetry"]
-        cell = self["cell"]
-        atom_site = self["atom_site"] 
-        
-        sthovl = cell.calc_sthovl(h, k, l)
-        
-        crystal_symmetry.calc_model()
-
-        lelsymm = crystal_symmetry["elsymm"]
-        lorig = crystal_symmetry["orig"]
-        centr = crystal_symmetry["centr"]
-        
-        r_11 = crystal_symmetry["r_11"]
-        r_12 = crystal_symmetry["r_12"]
-        r_13 = crystal_symmetry["r_13"]
-
-        r_21 = crystal_symmetry["r_21"]
-        r_22 = crystal_symmetry["r_22"]
-        r_23 = crystal_symmetry["r_23"]
-
-        r_31 = crystal_symmetry["r_31"]
-        r_32 = crystal_symmetry["r_32"]
-        r_33 = crystal_symmetry["r_33"]
-        
-        multiplicity = atom_site["multiplicity"] 
-        occupation = atom_site["occupation"]
-        b_scat = atom_site["b_scat"]
-        
-        atom_site["fract"].calc_model(h, k, l, r_11, r_12, r_13, r_21, r_22, 
-            r_23, r_31, r_32, r_33)
-        atom_site["adp"].calc_model(h, k, l, sthovl, r_11, r_12, r_13, 
-            r_21, r_22, r_23, r_31, r_32, r_33)
-        
-        phase = atom_site["fract"]["phase"]
-        
-        dwf_aniso = atom_site["adp"]["dwf_aniso"]
-        
-        hh_1 = phase*dwf_aniso
-        hh_2 = hh_1.sum(axes = 2)
-        
-        h_1 = multiplicity*occupation*b_scat
-        
-        hh_1 = numpy.meshgrid(h, h_1, indexing = "ij")[1]
-        
-        # b_scat * occ * mult * sum_el.symm.(phase)
-        hh_3 = hh_1*hh_2
-        f_hkl_as = hh_3.sum(axes=1)*1./len(lelsymm)#1 dimensional array
-        
-        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
-        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
-        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
-        
-        
-        np_f_hkl_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
-        f_hkl_as = np_f_hkl_as.sum(axes=1)*1./len(lorig)
-
-        if (centr):
-            orig = crystal_symmetry["p_centr"]
-            f_nucl = (f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))*0.5
-        else:
-            f_nucl = Fhklas
+        cell = self._p_cell
+        space_groupe = self._p_space_groupe
+        atom_site = self._p_atom_site
+        f_nucl = atom_site.calc_fn(cell, space_groupe, h, k, l)
         return f_nucl
-
 
     def calc_sft(self):
         """
@@ -1657,106 +1626,9 @@ class Crystal(dict):
         """
         pass
     
-    def calc_model(self, reflection, crystal_symmetry = None, cell = None,
-                   atom_site = None):
-        if crystal_symmetry != None:
-            self["crystal_symmetry"] = crystal_symmetry 
-        if cell != None:
-            self["cell"] = cell 
-        if atom_site != None:
-            self["atom_site"] = atom_site 
-            
-        np_fn_1d = self.calc_fn(h, k, l)#complex 1D numpy array of nuclear structure factors over list of hkl
-        np_sft_2d = None #complex 2D numpy array of tensor structure factors /11, 22, 33, 12, 13, 23/... over list of hkl 
-        d_out = dict(fn = np_fn_1d, sft = np_sft_2d)
-        self.update(d_out)
-        
-        
-    def set_vals(self, d_vals, refresh = False):
-        """
-        Set values 
-        """
-        keys = d_vals.keys()
-        llab = ["crystal_symmetry", "cell", "atom_site"]
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
-                
-        #redo it
-        llab = ["resolution", "u", "v", "w", "x", "y"]
-        llab_in = [(hh in keys) for hh in llab]
-        cond = any(llab_in)
-        if cond:
-            d_val_as = {}
-            for lab, cond_h in zip(llab, llab_in):
-                if cond_h:
-                    d_val_as[lab] = d_vals[lab]
-            self["crystal_symmetry"].set_vals(d_val_as, refresh)
-
-        #redo it
-        llab = ["p1", "p2", "p3", "p4"]
-        llab_in = [(hh in keys) for hh in llab]
-        cond = any(llab_in)
-        if cond:
-            d_val_as = {}
-            for lab, cond_h in zip(llab, llab_in):
-                if cond_h:
-                    d_val_as[lab] = d_vals[lab]
-            self["cell"].set_vals(d_val_as, refresh)
-
-        #redo it
-        llab = ["p1", "p2", "p3", "p4"]
-        llab_in = [(hh in keys) for hh in llab]
-        cond = any(llab_in)
-        if cond:
-            d_val_as = {}
-            for lab, cond_h in zip(llab, llab_in):
-                if cond_h:
-                    d_val_as[lab] = d_vals[lab]
-            self["atom_site"].set_vals(d_val_as, refresh)
-            
-        if refresh:
-            tth = self["tth"]
-            self.calc_model(tth)
-
-            
-    def soft_copy(self):
-        """
-        Soft copy of the object with saving the links on the internal parameter of the object
-        """
-        obj_new = Crystal(crystal_symmetry = self["crystal_symmetry"], 
-                          cell = self["cell"], atom_site = self["atom_site"])
-        llab = ["fn", "sft"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
-
-
-cell = Cell(a=8.53047, singony="Cubic")
-
-fe_a = Atom(type_n="Fe", type_m="Fe3", x=0.125, y=0.125, z=0.125)
-fe_b = Atom(type_n="Fe", type_m="Fe3", x=0.500, y=0.500, z=0.500)
-o = Atom(type_n="O", x=0.25521, y=0.25521, z=0.25521)
-
-atom_site = AtomSite()
-atom_site.add_atom(fe_a)
-atom_site.add_atom(fe_b)
-atom_site.add_atom(o)
-
-space_groupe = SpaceGroupe(spgr_given_name = "Fd-3m", spgr_choice="2")
-h = numpy.array([1, 2, 2], dtype = int) 
-k = numpy.array([1, 0, 2], dtype = int)
-l = numpy.array([1, 0, 0], dtype = int)
-fn = atom_site.calc_fn(cell, space_groupe, h, k, l)
-
-
-
 
 
         
 if (__name__ == "__main__"):
   pass
+
