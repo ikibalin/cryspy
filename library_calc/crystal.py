@@ -635,8 +635,6 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         centr = self._p_centr
         p_centr = self._p_p_centr
 
-        x,y,z=0.125,0.125,0.125
-
         x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 5)
         y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 5)
         z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 5)
@@ -668,10 +666,22 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         xyz_s = numpy.vstack([x_s, y_s, z_s])
         
         xyz_s_un = numpy.unique(xyz_s, axis=1)
-        multiplicity = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
+        n_atom = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
         x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
-        return x_s, y_s, z_s, multiplicity
-
+        return x_s, y_s, z_s, n_atom
+    
+    
+    def calc_atom_mult(self, np_x, np_y, np_z):
+        """
+        calculate atom multiplicity
+        """
+        lmult=[]
+        for x, y, z in zip(np_x, np_y, np_z):
+            np_x_s = self.calc_xyz_mult(x, y, z)[0]
+            lmult.append(np_x_s.shape[0])
+        np_multiplicity = numpy.array(lmult, dtype=int)
+        
+        return np_multiplicity
     
     def _trans_str_to_el_symm(self, str1):
         """
@@ -1242,16 +1252,19 @@ fract  is fraction of atoms
         fract = self._p_fract
         b_scat = self._p_b_scat
         occupation = self._p_occupation
+        x, y, z = fract.get_val("x"), fract.get_val("y"), fract.get_val("z")
+        atom_multiplicity = space_groupe.calc_atom_mult(x, y, z)
+        occ_mult = occupation*atom_multiplicity 
         
         phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
         
         phase_2d = phase_3d.sum(axis=2)
         
         b_scat_2d = numpy.meshgrid(h, b_scat, indexing="ij")[1]
-        occupation_2d = numpy.meshgrid(h, occupation, indexing="ij")[1]
+        occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
         
         
-        hh = phase_2d * b_scat_2d * occupation_2d
+        hh = phase_2d * b_scat_2d * occ_mult_2d
         
 
         lel_symm = space_groupe.get_val("el_symm")
