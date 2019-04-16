@@ -1638,10 +1638,9 @@ class Crystal(dict):
         calculate structure factor tensor
         """
         pass
+
+
     
-
-
-        
 if (__name__ == "__main__"):
   pass
 
