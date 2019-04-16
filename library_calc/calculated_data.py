@@ -9,12 +9,12 @@ import numpy
 
 
 
-class CalculatedData(dict):
+class CalculatedData1DPD(dict):
     """
     Calculate the model data for 1D powder diffraction experiment
     """
     def __init__(self, scale, crystal):
-        super(CalculatedData, self).__init__()
+        super(CalculatedData1DPD, self).__init__()
         self._p_scale = None
         self._p_crystal = None
         self._refresh(scale, crystal)
@@ -69,15 +69,15 @@ crystal is the definition of crystal
         return profile
     
 
-class Setup(dict):
+class Setup1DPD(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
     def __init__(self, label="exp", wavelength=1.4, zero_shift=0., 
-                 resolution=Resolution(), factor_lorentz=FactorLorentz(), 
-                 asymmetry=Asymmetry(), beam_polarization=BeamPolarization(),
-                 background=Background()):
-        super(Setup, self).__init__()
+                 resolution=Resolution1DPD(), factor_lorentz=FactorLorentz1DPD(), 
+                 asymmetry=Asymmetry1DPD(), beam_polarization=BeamPolarization(),
+                 background=Background1DPD()):
+        super(Setup1DPD, self).__init__()
         self._p_label = None
         self._p_wavelength = None
         self._p_zero_shift = None
@@ -153,18 +153,17 @@ background  is Background class
 
 
 
-class ResolutionPD(dict):
+class Resolution1DPD(dict):
     """
     Resoulution of the diffractometer
     """
     def __init__(self, u = 0, v = 0, w = 0.01, x = 0, y = 0):
-        super(ResolutionPD, self).__init__()
+        super(Resolution1DPD, self).__init__()
         self._p_u = None
         self._p_v = None
         self._p_w = None
         self._p_x = None
         self._p_y = None
-
 
         self._p_tan_tth = None
         self._p_tan_tth_sq = None
@@ -177,9 +176,8 @@ class ResolutionPD(dict):
         self._p_bg = None
         self._p_al = None
         self._p_bl = None
-
-        dd= {"u":u, "v":v, "w":w, "x":x, "y":y}
-        self.update(dd)
+        
+        self._refresh(u, v, w, x, y)
         
     def __repr__(self):
         lsout = """Resolution: 
@@ -305,12 +303,12 @@ x, y are coefficients to describe the Lorentz part of peak shape
 
 
 
-class FactorLorentzPD(dict):
+class FactorLorentz1DPD(dict):
     """
     Lorentz Factor for one dimensional powder diffraction
     """
     def __init__(self):
-        super(FactorLorentzPD, self).__init__()
+        super(FactorLorentz1DPD, self).__init__()
         dd= {}
         self.update(dd)
         
@@ -358,19 +356,61 @@ no parameters
 
 
 
-class AsymmetryPD(dict):
+class Asymmetry1DPD(dict):
     """
     Asymmetry of the diffractometer
     """
     def __init__(self, p1 = 0, p2 = 0, p3 = 0, p4 = 0):
-        super(AsymmetryPD, self).__init__()
-        dd= {"p1":p1, "p2":p2, "p3":p3, "p4":p4}
-        self.update(dd)
+        super(Asymmetry1DPD, self).__init__()
+        self._p_p1 = None
+        self._p_p2 = None
+        self._p_p3 = None
+        self._p_p4 = None
+
         
     def __repr__(self):
         lsout = """Asymmetry: \n p1: {:}\n p2: {:}\n p3: {:}
- p4: {:}""".format(self["p1"],  self["p2"],  self["p3"],  self["p4"])
+ p4: {:}""".format(self.get_val("p1"),  self.get_val("p2"),  
+ self.get_val("p3"),  self.get_val("p4"))
         return lsout
+
+    def _refresh(self, p1, p2, p3, p4):
+        if not(isinstance(p1, type(None))):
+            self._p_p1 = p1
+        if not(isinstance(p2, type(None))):
+            self._p_p2 = p2
+        if not(isinstance(p3, type(None))):
+            self._p_p3 = p3
+        if not(isinstance(p4, type(None))):
+            self._p_p4 = p4
+            
+    def set_val(self, p1=None, p2=None, p3=None, p4=None):
+        self._refresh(p1, p2, p3, p4)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+p1, p2, p3, p4 are coefficients to describe the assymetry shape for all 
+               reflections like in FullProf
+        """
+        print(lsout)
+
         
     def _func_fa(self, tth):
         """
@@ -384,22 +424,18 @@ class AsymmetryPD(dict):
         """ 
         return 2.*(2.*tth**2-3.)* self._func_fa(tth)
         
-    def calc_model(self, tth, tth_hkl, p1 = None, p2 = None, p3 = None, p4 = None):
-        if p1 != None:
-            self["p1"] = p1
-        if p2 != None:
-            self["p2"] = p2
-        if p3 != None:
-            self["p3"] = p3
-        if p4 != None:
-            self["p4"] = p4
-
+    def calc_asymmetry(self, tth, tth_hkl):
+        """
+        Calculate asymmetry coefficients for  on the given list ttheta for 
+        bragg reflections flaced on the position ttheta_hkl
+        """
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl, indexing="ij")
         np_zero = numpy.zeros(tth_2d.shape, dtype = float)
         np_one = numpy.ones(tth_2d.shape, dtype = float)
         val_1, val_2 = np_zero, np_zero
 
-        p1, p2, p3, p4 = self["p1"], self["p2"], self["p3"], self["p4"]
+        p1, p2 = self.get_val("p1"), self.get_val("p2")
+        p3, p4 = self.get_val("p3"), self.get_val("p4")
         flag_1, flag_2 = False, False
         if ((p1!= 0.)|(p3!= 0.)):
             flag_1 = True
@@ -434,52 +470,18 @@ class AsymmetryPD(dict):
                 c2_2d = numpy.meshgrid(tth, c2, indexing="ij")[1]
                 val_2 *= c2_2d
 
-        res_2d = np_one+val_1+val_2
-        d_out = dict(asymmetry = res_2d, tth = tth, tth_hkl = tth_hkl)
-        self.update(d_out)
-        return
+        asymmetry_2d = np_one+val_1+val_2
+        return asymmetry_2d
     
-    def set_vals(self, d_vals, refresh = False):
-        """
-        Set values 
-        """
-        keys = d_vals.keys()
-        llab = ["p1", "p2", "p3", "p4"]
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
 
-
-        if refresh:
-            tth = self["tth"]
-            tth_hkl = self["tth_hkl"]
-            self.calc_model(tth, tth_hkl)
-
-            
-    def soft_copy(self):
-        """
-        Soft copy of the object with saving the links on the internal parameter of the object
-        """
-        obj_new = AsymmetryPD(p1 = self["p1"], p2 = self["p2"], 
-                              p3 = self["p3"], p4 = self["p4"])
-        llab = ["tth", "tth_hkl"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
-
-
-
-class PeakShapePD(dict):
+class PeakShape1DPD(dict):
     """
     Shape of the peaks for powder diffraction measurements
     """
-    def __init__(self, resolution = ResolutionPD()):
-        super(PeakShapePD, self).__init__()
-        dd= {"resolution":resolution}
+    def __init__(self, resolution = Resolution1DPD()):
+        super(PeakShape1DPD, self).__init__()
+        self._p_resolution = None
+
         self._p_ag = None
         self._p_bg = None
         self._p_al = None
@@ -487,11 +489,50 @@ class PeakShapePD(dict):
         self._p_eta = None
         self._p_gauss_pd = None
         self._p_lor_pd = None
-        self.update(dd)
+        
+        
         
     def __repr__(self):
         lsout = """Shape of the profile: \n {:}""".format(self["resolution"])
         return lsout
+
+    def _refresh(self, p1, p2, p3, p4):
+        if not(isinstance(p1, type(None))):
+            self._p_p1 = p1
+        if not(isinstance(p2, type(None))):
+            self._p_p2 = p2
+        if not(isinstance(p3, type(None))):
+            self._p_p3 = p3
+        if not(isinstance(p4, type(None))):
+            self._p_p4 = p4
+            
+    def set_val(self, p1=None, p2=None, p3=None, p4=None):
+        self._refresh(p1, p2, p3, p4)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+p1, p2, p3, p4 are coefficients to describe the assymetry shape for all 
+               reflections like in FullProf
+        """
+        print(lsout)
+
         
     def _gauss_pd(self, tth_2d):
         """
