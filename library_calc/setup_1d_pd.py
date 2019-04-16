@@ -380,6 +380,94 @@ p_u, p_d is describe the polarization of the beam at the flipper position up
 
 
         
+class Background1DPD(dict):
+    """
+    Class to describe characteristics of powder diffractometer
+    """
+    def __init__(self, tth_bkgd, int_bkdg):
+        super(Background1DPD, self).__init__()
+        self._p_tth_bkgd = None
+        self._p_int_bkdg = None
+        
+        self._refresh(tth_bkgd, int_bkdg)
+
+    def __repr__(self):
+        lsout = """Bakcgrounnd:\n """.format(None)
+        return lsout
+
+    def _refresh(self, tth_bkgd, int_bkdg):
+        if not(isinstance(tth_bkgd, type(None))):
+            self._p_tth_bkgd = tth_bkgd
+        if not(isinstance(int_bkdg, type(None))):
+            self._p_int_bkdg = int_bkdg
+            
+    def set_val(self, tth_bkgd=None, int_bkdg=None):
+        
+        self._refresh(tth_bkgd, int_bkdg)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+tth_bkgd is ttheta in degrees to describe background
+int_bkdg is intensity to describe background
+        """
+        print(lsout)
+        
+        
+    def read_data(finp):
+        """
+        read file from file
+        """
+        ddata={}
+        fid=open(finp,'r')
+        lcontentH=fid.readlines()
+        fid.close()
+        lparam=[line[1:].strip() for line in lcontentH if line.startswith('#')]
+        if (len(lparam)>1):
+            for line in lparam:
+                lhelp=splitlinewminuses(line)
+                if (len(lhelp)>2):
+                    ddata[lhelp[0]]=lhelp[1:]
+                elif (len(lhelp)==2):
+                    ddata[lhelp[0]]=lhelp[1]
+                else:
+                    print "Mistake in experimental file '{}' in line:\n{}".format(finp,line)
+                    print "The program is stopped."
+                    quit()
+        lnames=lparam[-1].split()
+        for name in lnames:
+            ddata[name]=[]
+        lcontent=[line for line in lcontentH if not(line.startswith('#'))]
+        for line in lcontent:
+            for name,val in zip(lnames,splitlinewminuses(line)):
+                ddata[name].append(val)
+                
+        tth_b = numpy.array(ddata["tth"], dtype=float)
+        int_b = numpy.array(ddata["int"], dtype=float)
+        self.set_val(tth_bkgd=tth_b, int_bkdg=int_b)
+        
+
+
+
+
+
+
 
 class Setup1DPD(dict):
     """
