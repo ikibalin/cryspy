@@ -78,42 +78,42 @@ wavelength is the neutron wavelength
         """
         print(lsout)
     
-    def read_data(finp):
+    def read_data(self, finp):
         """
         read file from file
         """
-        ddata={}
-        fid=open(finp,'r')
-        lcontentH=fid.readlines()
+        ddata = {}
+        fid = open(finp,'r')
+        lcontentH = fid.readlines()
         fid.close()
-        lparam=[line[1:].strip() for line in lcontentH if line.startswith('#')]
-        if (len(lparam)>1):
-            for line in lparam:
-                lhelp=splitlinewminuses(line)
-                if (len(lhelp)>2):
-                    ddata[lhelp[0]]=lhelp[1:]
-                elif (len(lhelp)==2):
-                    ddata[lhelp[0]]=lhelp[1]
+        lparam = [line[1:].strip() for line in lcontentH if line.startswith('#')]
+        if (len(lparam) > 1):
+            for line in lparam[:-1]:
+                lhelp = line.strip().split()
+                if (len(lhelp) > 2):
+                    ddata[lhelp[0]] = [float(hh) for hh in lhelp[1:]]
+                elif (len(lhelp) == 2):
+                    ddata[lhelp[0]] = float(lhelp[1])
                 else:
                     print("Mistake in experimental file '{:}' in line:\n {:}".format(finp, line))
                     print("The program is stopped.")
                     quit()
-        lnames=lparam[-1].split()
+        lnames = lparam[-1].split()
         for name in lnames:
-            ddata[name]=[]
-        lcontent=[line for line in lcontentH if line[0]!='#']
+            ddata[name] = []
+        lcontent = [line for line in lcontentH if line[0]!='#']
         for line in lcontent:
-            for name,val in zip(lnames, splitlinewminuses(line)):
+            for name, val in zip(lnames, line.strip().split()):
                 ddata[name].append(val)
         field = ddata["field"]
         wavelength = ddata["wavelength"]
-        tth = numpy.array(ddata["tth"], dtype=float)
-        int_u = numpy.array(ddata["int_u"], dtype=float)
-        sint_u = numpy.array(ddata["sint_u"], dtype=float)
-        int_d = numpy.array(ddata["int_d"], dtype=float)
-        sint_d = numpy.array(ddata["sint_d"], dtype=float)
+        tth = numpy.array(ddata["ttheta"], dtype=float)
+        int_u = numpy.array(ddata["IntUP"], dtype=float)
+        sint_u = numpy.array(ddata["sIntUP"], dtype=float)
+        int_d = numpy.array(ddata["IntDOWN"], dtype=float)
+        sint_d = numpy.array(ddata["sIntDOWN"], dtype=float)
         self.set_val(tth=tth, int_u=int_u, sint_u=sint_u, int_d=int_d, 
-                 sint_d=sint_d, field=field, wavelength=wavelength)
+                     sint_d=sint_d, field=field, wavelength=wavelength)
 
         
 if (__name__ == "__main__"):

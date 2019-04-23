@@ -62,12 +62,17 @@ crystal is the definition of crystal
         calculate the integral intensity for h, k, l reflections
         """
         crystal = self._p_crystal
+
         f_nucl = crystal.calc_fn(h, k, l)
-        iint = self._p_scale * abs(f_nucl*f_nucl.conjugate())
+        sft = crystal.calc_sft(h, k, l)
+        
+        iint_u = self._p_scale * abs(f_nucl*f_nucl.conjugate())
+        iint_d = self._p_scale * abs(f_nucl*f_nucl.conjugate())
         print("   h   k   l       Iint")
-        for h1, k1, l1, iint1 in zip(h, k, l, iint):
-            print(" {:3} {:3} {:3} {:10.3f}".format(h1, k1, l1, iint1))
-        return iint
+        for h1, k1, l1, iint1, iint2 in zip(h, k, l, iint_u, iint_d):
+            print(" {:3} {:3} {:3} {:10.3f} {:10.3f}".format(
+                    h1, k1, l1, iint1, iint2))
+        return iint_u, iint_d
     
 
         

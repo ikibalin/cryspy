@@ -64,7 +64,7 @@ class Cell(dict):
         self.set_val()
         
     def __repr__(self):
-        lsout = """Unit cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
+        lsout = """Cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
  beta: {:}\n gamma: {:}\n singony: {:}""".format(self._p_a, self._p_b, 
                  self._p_c, self._p_alpha, self._p_beta, self._p_gamma, 
                  self._p_singony)
@@ -1157,32 +1157,54 @@ x, y, z is atoms coordinate
 
 
 
-class AtomSite(dict):
+class ADP(dict):
     """
-    AtomSite
+    ADP
     """
-    def __init__(self):
-        super(AtomSite, self).__init__()
-        self._p_fract = None
-        self._p_b_scat = None
-        self._p_occupation = None
-        self._list_atoms = []
-    
+    def __init__(self, beta_11 = 0., beta_22 = 0., beta_33 = 0., 
+                 beta_12 = 0., beta_13 = 0., beta_23 = 0., b_iso = 0.):
+        super(ADP, self).__init__()
+        self._p_beta_11 = None
+        self._p_beta_22 = None
+        self._p_beta_33 = None
+        self._p_beta_12 = None
+        self._p_beta_13 = None
+        self._p_beta_23 = None
+        self._p_b_iso = None
+        self._refresh(beta_11, beta_22, beta_33, beta_12, beta_13, beta_23, 
+                      b_iso)
+
     def __repr__(self):
-        lsout = """AtomSite: """.format()
+        lsout = """Debye Waller: \n beta_11: {:}, beta_22: {:}, beta_33: {:}
+ beta_12: {:}, beta_13: {:}, beta_23: {:}\n b_iso: {:}""".format(
+ self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
+ self._p_beta_13, self._p_beta_23, self._p_b_iso)
         return lsout
-    
-    
-    def _refresh(self):
-        print("The option '_refresh' is not valiable")
-        pass
-    
-    
-    def set_val(self):
-        print("The option 'set_val' is not valiable")
-        pass
-    
-    
+
+
+    def _refresh(self, beta_11, beta_22, beta_33, beta_12, beta_13, beta_23, 
+                 b_iso):
+        
+        if not(isinstance(beta_11, type(None))):
+            self._p_beta_11 = beta_11
+        if not(isinstance(beta_22, type(None))):
+            self._p_beta_22 = beta_22
+        if not(isinstance(beta_33, type(None))):
+            self._p_beta_33 = beta_33
+        if not(isinstance(beta_12, type(None))):
+            self._p_beta_12 = beta_12
+        if not(isinstance(beta_13, type(None))):
+            self._p_beta_13 = beta_13
+        if not(isinstance(beta_23, type(None))):
+            self._p_beta_23 = beta_23
+        if not(isinstance(b_iso, type(None))):
+            self._p_b_iso = b_iso
+
+    def set_val(self, beta_11=None, beta_22=None, beta_33=None, beta_12=None, 
+                beta_13=None, beta_23=None, b_iso=None):
+        self._refresh(beta_11, beta_22, beta_33, beta_12, beta_13, beta_23, 
+                      b_iso)
+        
     def get_val(self, label):
         lab = "_p_"+label
         
@@ -1195,238 +1217,77 @@ class AtomSite(dict):
             print("The value '{:}' is not found".format(lab))
             val = None
         return val
-    
-    
+
     def list_vals(self):
         """
         give a list of parameters with small descripition
         """
         lsout = """
 Parameters:
-
-b_scat is amplitude scattering  
-occupation is occupation factor  
-fract  is fraction of atoms
-
+beta_ij are Debye-Waller factor
+b_iso is the isotropical Debye-Waller factor
         """
         print(lsout)
         
-    def add_atom(self, atom):
-        self._list_atoms.append(atom)
-        self._form_arrays()
-    
-    def del_atom(self, ind):
-        self._list_atoms.pop(ind)        
-        self._form_arrays()
-
-    def replace_atom(self, ind, atom):
-        self._list_atoms.pop(ind)
-        self._list_atoms.insert(ind, atom)
-        self._form_arrays()
-
-    def _form_arrays(self):
-        lb_scat, locc = [], []
-        lx, ly, lz = [], [], []
-        for atom in self._list_atoms:
-            lb_scat.append(atom.get_val("b_scat"))
-            locc.append(atom.get_val("occupation"))
-            lx.append(atom.get_val("x"))
-            ly.append(atom.get_val("y"))
-            lz.append(atom.get_val("z"))
-        np_b_scat = numpy.array(lb_scat, dtype=float)
-        np_occ = numpy.array(locc, dtype=float)
-        np_x = numpy.array(lx, dtype=float)
-        np_y = numpy.array(ly, dtype=float)
-        np_z = numpy.array(lz, dtype=float)
-        fract = Fract(x=np_x, y=np_y, z=np_z)
-        self._p_b_scat = np_b_scat
-        self._p_occupation = np_occ
-        self._p_fract = fract
-    
-    def calc_fn(self, cell, space_groupe, h, k, l):
-        """
-        calculate nuclear structure factor
-        """
-        #sthovl = cell.calc_sthovl(h, k, l)
-        
-        fract = self._p_fract
-        b_scat = self._p_b_scat
-        occupation = self._p_occupation
-        x, y, z = fract.get_val("x"), fract.get_val("y"), fract.get_val("z")
-        atom_multiplicity = space_groupe.calc_atom_mult(x, y, z)
-        occ_mult = occupation*atom_multiplicity 
-        
-        phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
-        
-        phase_2d = phase_3d.sum(axis=2)
-        
-        b_scat_2d = numpy.meshgrid(h, b_scat, indexing="ij")[1]
-        occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
-        
-        
-        hh = phase_2d * b_scat_2d * occ_mult_2d
-        
-
-        lel_symm = space_groupe.get_val("el_symm")
-        f_hkl_as = hh.sum(axis=1)*1./len(lel_symm)
-        
-        lorig = space_groupe.get_val("orig")
-        centr = space_groupe.get_val("centr")
-        
-        orig_x = [hh[0] for hh in lorig]
-        orig_y = [hh[1] for hh in lorig]
-        orig_z = [hh[2] for hh in lorig]
-        
-        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
-        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
-        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
-        
-        np_f_hkl_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
-        f_hkl_as = f_hkl_as*np_f_hkl_as.sum(axis=1)*1./len(lorig)
-
-        if (centr):
-            orig = space_groupe.get_val("p_centr")
-            f_nucl = (f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))*0.5
-        else:
-            f_nucl = f_hkl_as
-        return f_nucl
-
-
-
-
-class ADP(dict):
-    """
-    ADP
-    """
-    def __init__(self, beta_11 = 0., beta_22 = 0., beta_33 = 0., 
-                 beta_12 = 0., beta_13 = 0., beta_23 = 0., b_iso = 0.):
-        super(ADP, self).__init__()
-        dd= {"beta_11": beta_11, "beta_22": beta_22, "beta_33": beta_33,
-             "beta_12": beta_12, "beta_13": beta_13, "beta_23": beta_23,
-             "b_iso": b_iso}
-        self.update(dd)
-
-    def __repr__(self):
-        lsout = """Debye Waller: \n beta_11: {:}\n beta_22: {:}\n beta_33: {:}
- beta_12: {:}\n beta_13: {:}\n beta_23: {:}""".format(
- self["beta_11"], self["beta_22"], self["beta_33"], self["beta_12"], 
- self["beta_13"], self["beta_23"])
-        return lsout
-
-
     def _calc_dwf_iso(self, sthovl):
         """
         isotropic harmonic Debye-Waller factor
         """
-        b_iso = self["b_iso"]
+        b_iso = self._p_b_iso
         sthovl_sq = sthovl**2
         np_biso, np_sthovl_sq = numpy.meshgrid(sthovl_sq, b_iso, indexing="ij")
         
         dwf_iso = numpy.exp(-np_biso*np_sthovl_sq)
-        d_out = dict(dwf_iso = dwf_iso)#2 dimensional
-        self.update(d_out)
+        return dwf_iso
 
-
-    def calc_dwf_aniso(self, h, k, l, space_groupe = None):
+    def calc_dwf_aniso(self, space_groupe, h, k, l):
         """
         anisotropic harmonic Debye-Waller factor
         
         h,k,l is 1D (temporary solution)
         """
-        beta_11, beta_22 = self["beta_11"], self["beta_22"] 
-        beta_33, beta_12 = self["beta_33"], self["beta_12"]
-        beta_13, beta_23 = self["beta_13"], self["beta_23"]
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
+        
+        np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
+
+
+        b_11, b_22 = self._p_beta_11, self._p_beta_22 
+        b_33, b_12 = self._p_beta_33, self._p_beta_12
+        b_13, b_23 = self._p_beta_13, self._p_beta_23
         
 
-        np_h, np_beta_11 = numpy.meshgrid(h, beta_11, indexing="ij")
-        np_k, np_beta_22 = numpy.meshgrid(k, beta_22, indexing="ij")
-        np_l, np_beta_33 = numpy.meshgrid(l, beta_33, indexing="ij")
-        np_h, np_beta_12 = numpy.meshgrid(h, beta_12, indexing="ij")
-        np_h, np_beta_13 = numpy.meshgrid(h, beta_13, indexing="ij")
-        np_h, np_beta_23 = numpy.meshgrid(h, beta_23, indexing="ij")
+        np_h, np_b_11, np_r_11 = numpy.meshgrid(h, b_11, r_11, indexing="ij")
+        np_k, np_b_22, np_r_22 = numpy.meshgrid(k, b_22, r_22, indexing="ij")
+        np_l, np_b_33, np_r_33 = numpy.meshgrid(l, b_33, r_33, indexing="ij")
+        np_h, np_b_12, np_r_12 = numpy.meshgrid(h, b_12, r_12, indexing="ij")
+        np_h, np_b_13, np_r_13 = numpy.meshgrid(h, b_13, r_13, indexing="ij")
+        np_h, np_b_23, np_r_23 = numpy.meshgrid(h, b_23, r_23, indexing="ij")
+        np_r_21 = numpy.meshgrid(h, b_23, r_21, indexing="ij")[2]
+        np_r_31 = numpy.meshgrid(h, b_23, r_31, indexing="ij")[2]
+        np_r_32 = numpy.meshgrid(h, b_23, r_32, indexing="ij")[2]
         
-        dwf_aniso = numpy.exp(-1*(np_beta_11*np_h**2 + np_beta_22*np_k**2 + 
-                           np_beta_33*np_l**2 + 2.*np_beta_12*np_h*np_k + 
-                    2.*np_beta_13*np_h*np_l + 2.*np_beta_23*np_k*np_l))
+        np_h_s = np_h*np_r_11 + np_k*np_r_21 + np_l*np_r_31
+        np_k_s = np_h*np_r_12 + np_k*np_r_22 + np_l*np_r_32
+        np_l_s = np_h*np_r_13 + np_k*np_r_23 + np_l*np_r_33
+        
+        dwf_aniso = numpy.exp(-1.*(np_b_11*np_h_s**2 + np_beta_22*np_k_s**2 + 
+                           np_beta_33*np_l_s**2 + 2.*np_beta_12*np_h_s*np_k_s + 
+                    2.*np_beta_13*np_h_s*np_l_s + 2.*np_beta_23*np_k_s*np_l_s))
         
         return dwf_aniso 
-
         
-    def calc_model(self, h, k, l, sthovl, r_11, r_12, r_13, r_21, r_22, r_23, 
-                        r_31, r_32, r_33,
-                   beta_11 = None, beta_22 = None, beta_33 = None, 
-                   beta_12 = None, beta_13 = None, beta_23 = None, b_iso = None):
-        
-        if beta_11 != None:
-            self["beta_11"] = beta_11 
-        if beta_22 != None:
-            self["beta_22"] = beta_22 
-        if beta_33 != None:
-            self["beta_33"] = beta_33
-        if beta_12 != None:
-            self["beta_12"] = beta_12 
-        if beta_13 != None:
-            self["beta_13"] = beta_13 
-        if beta_23 != None:
-            self["beta_23"] = beta_23 
-        
-        self._calc_dwf_iso(self, sthovl)
-        self._calc_dwf_aniso(self, h, k, l)
-        
-        d_out = dict(h=h, k=k, l=l, r_11=r_11, r_22=r_22, r_33=r_33, r_12=r_12, 
-                     r_13=r_13, r_23=r_23, r_21=r_21, r_31=r_31, r_32=r_32, 
-                     sthovl=sthovl)
-        self.update(d_out)
-        
-        
-    def set_vals(self, d_vals, refresh = False):
+    def calc_dwf(self, space_groupe, h, k, l):
         """
-        Set values 
+        calculate Debye-Waller factor
         """
-        keys = d_vals.keys()
-        llab = ["beta_11", "beta_22", "beta_33", "beta_12", "beta_13", 
-                "beta_23"]
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
-            
-        if refresh:
-            h = self["h"] 
-            k = self["k"] 
-            l = self["l"] 
-            sthovl = self["sthovl"]
-            r_11 = self["r_11"]
-            r_22 = self["r_22"]
-            r_33 = self["r_33"]
-            r_12 = self["r_12"]
-            r_13 = self["r_13"]
-            r_23 = self["r_23"]
-            r_21 = self["r_21"]
-            r_31 = self["r_31"]
-            r_32 = self["r_32"]
-            
-            self.calc_model(h, k, l, sthovl, r_11, r_12, r_13, r_21, r_22, 
-                            r_23, r_31, r_32, r_33)
-
-            
-    def soft_copy(self):
-        """
-        Soft copy of the object with saving the links on the internal parameter of the object
-        """
-        obj_new = ADP(beta_11 = self["beta_11"], 
-                              beta_22 = self["beta_22"], 
-                   beta_33 = self["beta_33"], beta_12 = self["beta_12"], 
-                   beta_13 = self["beta_13"], beta_23 = self["beta_23"], 
-                   b_iso = self["b_iso"])
-        llab = ["dwf_iso", "dwf_aniso", "h", "k", "l", "sthovl", "r_11", 
-                "r_22", "r_33", "r_12", "r_13", "r_23", "r_21", "r_31", "r_32"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
+        #self._calc_dwf_iso(sthovl)
+        dwf_3d = self._calc_dwf_aniso(space_groupe, h, k, l)
+        return dwf_3d
+        
 
 
 
@@ -1438,6 +1299,15 @@ class Magnetism(dict):
                  chi_11 = 0., chi_22 = 0., chi_33 = 0., 
                  chi_12 = 0., chi_13 = 0., chi_23 = 0.):
         super(Magnetism, self).__init__()
+        self._p_chi_11 = None
+        self._p_chi_22 = None
+        self._p_chi_33 = None
+        self._p_chi_12 = None
+        self._p_chi_13 = None
+        self._p_chi_23 = None
+        self._p_kappa = None
+        self._p_factor_lande = None
+        
         dd= {"kappa": kappa, "factor_lande": factor_lande , 
              "chi_11": chi_11, "chi_22": chi_22, "chi_33": chi_33,
              "chi_12": chi_12, "chi_13": chi_13, "chi_23": chi_23}
@@ -1447,9 +1317,55 @@ class Magnetism(dict):
         lsout = """Magnetism: \n chi_11: {:}\n chi_22: {:}\n chi_33: {:}
  chi_12: {:}\n chi_13: {:}\n chi_23: {:}\n kappa: {:}
  factor_lande: {:}""".format(
- self["chi_11"], self["chi_22"], self["chi_33"], self["chi_12"], 
- self["chi_13"], self["chi_23"], self["kappa"], self["factor_lande"])
+ self._p_chi_11, self._p_chi_22, self._p_chi_33, self._p_chi_12, 
+ self._p_chi_13, self._p_chi_23, self._p_kappa, self._p_factor_lande)
         return lsout
+
+
+    def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
+        
+        if not(isinstance(f_dir_prog, type(None))):
+            f_itables = os.path.join(f_dir_prog,"itables.txt")
+            self._read_el_cards(f_itables)        
+            self._p_f_dir_prog = f_dir_prog
+        if not(isinstance(spgr_given_name, type(None))):
+            self._p_spgr_given_name = spgr_given_name
+        if not(isinstance(spgr_choice, type(None))):
+            self._p_spgr_choice = spgr_choice
+            
+
+    def set_val(self, spgr_given_name = None, spgr_choice = None,
+                   f_dir_prog = None):
+        self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
+        
+        self._get_symm()
+        self._calc_rotation_matrix_anb_b()
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+
+chi_ij are the susceptibility vector
+kappa define the size of the radial function (equals 1. by default)
+factor_lande is the factor Lande (equals 2. by default)
+        """
+        print(lsout)
     
     def _calc_chi_loc(ia, ib, ic, matrix_ib):
         """
@@ -1534,43 +1450,150 @@ class Magnetism(dict):
         matrix_chi_rot = numpy.matmul(r_chi, matrix_rt)
         return matrix_chi_rot 
 
+
+
+class AtomSite(dict):
+    """
+    AtomSite
+    """
+    def __init__(self):
+        super(AtomSite, self).__init__()
+        self._p_fract = None
+        self._p_b_scat = None
+        self._p_occupation = None
+        self._list_atoms = []
     
-    def set_vals(self, d_vals, refresh = False):
+    def __repr__(self):
+        lsout = """AtomSite:\n number of atoms: {:}.\n""".format(len(self._list_atoms))
+        for iatom, atom_type in enumerate(self._list_atoms):
+            lsout += "\n"+70*"*"+"\n {:}. ".format(iatom+1)+atom_type.__repr__()
+        return lsout
+    
+    
+    def _refresh(self):
+        print("The option '_refresh' is not valiable")
+        pass
+    
+    
+    def set_val(self):
+        print("The option 'set_val' is not valiable")
+        pass
+    
+    
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+    
+    
+    def list_vals(self):
         """
-        Set values 
+        give a list of parameters with small descripition
         """
-        keys = d_vals.keys()
-        llab = ["chi_11", "chi_22", "chi_33", "chi_12", "chi_13", "chi_23"]
-                
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                self[lab] = d_vals[lab]
-        self._constr_singony()
-            
-        if refresh:
-            ia = self["ia"] 
-            ib = self["ib"] 
-            ic = self["ic"] 
-            matrix_ib = self["matrix_ib"]
-            self.calc_model(ia, ib, ic, matrix_ib)
+        lsout = """
+Parameters:
 
-            
-    def soft_copy(self):
-        """
-        Soft copy of the object with saving the links on the internal parameter of the object
-        """
-        obj_new = Magnetism(chi_11=self["chi_11"], chi_22=self["chi_22"], 
-                            chi_33=self["chi_33"], chi_12=self["chi_12"], 
-                            chi_13=self["chi_13"], chi_23=self["chi_23"])
-        llab = ["matrix_chi_loc", "ia", "ib", "ic", "matrix_ib"]
-        keys = self.keys()
-        llab_in = [(hh in keys) for hh in llab]
-        for lab, cond_h in zip(llab, llab_in):
-            if cond_h:
-                obj_new[lab] = self[lab]
-        return obj_new
+b_scat is amplitude scattering  
+occupation is occupation factor  
+fract  is fraction of atoms
 
+        """
+        print(lsout)
+        
+    def add_atom(self, atom):
+        self._list_atoms.append(atom)
+        self._form_arrays()
+    
+    def del_atom(self, ind):
+        self._list_atoms.pop(ind)        
+        self._form_arrays()
+
+    def replace_atom(self, ind, atom):
+        self._list_atoms.pop(ind)
+        self._list_atoms.insert(ind, atom)
+        self._form_arrays()
+
+    def _form_arrays(self):
+        lb_scat, locc = [], []
+        lx, ly, lz = [], [], []
+        for atom in self._list_atoms:
+            lb_scat.append(atom.get_val("b_scat"))
+            locc.append(atom.get_val("occupation"))
+            lx.append(atom.get_val("x"))
+            ly.append(atom.get_val("y"))
+            lz.append(atom.get_val("z"))
+        np_b_scat = numpy.array(lb_scat, dtype=float)
+        np_occ = numpy.array(locc, dtype=float)
+        np_x = numpy.array(lx, dtype=float)
+        np_y = numpy.array(ly, dtype=float)
+        np_z = numpy.array(lz, dtype=float)
+        fract = Fract(x=np_x, y=np_y, z=np_z)
+        self._p_b_scat = np_b_scat
+        self._p_occupation = np_occ
+        self._p_fract = fract
+    
+    def calc_fn(self, cell, space_groupe, h, k, l):
+        """
+        calculate nuclear structure factor
+        """
+        #sthovl = cell.calc_sthovl(h, k, l)
+        
+        fract = self._p_fract
+        adp = self._p_adp
+        b_scat = self._p_b_scat
+        occupation = self._p_occupation
+        x, y, z = fract.get_val("x"), fract.get_val("y"), fract.get_val("z")
+        atom_multiplicity = space_groupe.calc_atom_mult(x, y, z)
+        occ_mult = occupation*atom_multiplicity 
+        
+        phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
+        
+        
+        dwf_3d = adp.calc_dwf(space_groupe, h, k, l)
+        
+        phase_2d = (phase_3d*dwf_3d).sum(axis=2)
+        
+        b_scat_2d = numpy.meshgrid(h, b_scat, indexing="ij")[1]
+        occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
+        
+        
+        hh = phase_2d * b_scat_2d * occ_mult_2d
+        
+
+        lel_symm = space_groupe.get_val("el_symm")
+        f_hkl_as = hh.sum(axis=1)*1./len(lel_symm)
+        
+        lorig = space_groupe.get_val("orig")
+        centr = space_groupe.get_val("centr")
+        
+        orig_x = [hh[0] for hh in lorig]
+        orig_y = [hh[1] for hh in lorig]
+        orig_z = [hh[2] for hh in lorig]
+        
+        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
+        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
+        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
+        
+        np_f_hkl_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
+        f_hkl_as = f_hkl_as*np_f_hkl_as.sum(axis=1)*1./len(lorig)
+
+        if (centr):
+            orig = space_groupe.get_val("p_centr")
+            f_nucl = (f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))*0.5
+        else:
+            f_nucl = f_hkl_as
+        return f_nucl
+
+    def calc_sft(self, cell, space_groupe, h, k, l):
+        return sft
 
 
     
@@ -1637,8 +1660,11 @@ class Crystal(dict):
         """
         calculate structure factor tensor
         """
-        pass
-
+        cell = self._p_cell
+        space_groupe = self._p_space_groupe
+        atom_site = self._p_atom_site
+        sft = atom_site.calc_sft(cell, space_groupe, h, k, l)
+        return sft
 
     
 if (__name__ == "__main__"):

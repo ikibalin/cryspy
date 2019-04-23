@@ -85,7 +85,8 @@ observed_data is the experimental data
         sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wavelength
         sthovl_max = numpy.sin(0.5*tth_max*numpy.pi/180.)/wavelength
 
-        res_1d = numpy.zeros(tth.shape[0], dtype=float)
+        res_u_1d = numpy.zeros(tth.shape[0], dtype=float)
+        res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
 
         for calculated_data in self._list_calculated_data:
             
@@ -94,7 +95,7 @@ observed_data is the experimental data
             space_groupe = calculated_data.get_val("crystal").get_val("space_groupe")
             h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
             
-            np_iint = calculated_data.calc_iint(h, k, l)
+            np_iint_u, np_iint_d = calculated_data.calc_iint(h, k, l)
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)
@@ -102,25 +103,39 @@ observed_data is the experimental data
             profile_2d = setup.calc_profile(tth, tth_hkl, i_g)
             
             
-            np_iint_2d = numpy.meshgrid(tth, np_iint*mult, indexing="ij")[1]
-            
-            res_2d = profile_2d*np_iint_2d 
+            np_iint_u_2d = numpy.meshgrid(tth, np_iint_u*mult, indexing="ij")[1]
 
-            res_1d += res_2d.sum(axis=1) 
+            np_iint_d_2d = numpy.meshgrid(tth, np_iint_d*mult, indexing="ij")[1]
             
-        return res_1d+background
+            res_u_2d = profile_2d*np_iint_u_2d 
+            res_d_2d = profile_2d*np_iint_d_2d 
+
+            res_u_1d += res_u_2d.sum(axis=1) 
+            res_d_1d += res_d_2d.sum(axis=1) 
+            
+        return res_u_1d+background, res_d_1d+background
     
     def calc_chi_sq(self):
         """
         calculate chi square
         """
         observed_data = self._p_observed_data
+
         tth = observed_data.get_val('tth')
         int_u_exp = observed_data.get_val('int_u')
         sint_u_exp = observed_data.get_val('sint_u')
-        int_u_mod = self.calc_profile(tth)
-        chi_sq = ((int_u_mod-int_u_exp)/sint_u_exp)**2
-        return chi_sq.sum()
+        int_d_exp = observed_data.get_val('int_d')
+        sint_d_exp = observed_data.get_val('sint_d')
+
+        int_u_mod, int_d_mod = self.calc_profile(tth)
+        sint_sum_exp = (sint_u_exp**2 + sint_d_exp**2)**0.5
+
+        chi_sq_u = ((int_u_mod-int_u_exp)/sint_u_exp)**2
+        chi_sq_d = ((int_d_mod-int_d_exp)/sint_d_exp)**2
+
+        chi_sq_sum = ((int_u_mod+int_d_mod-int_u_exp-int_d_exp)/sint_sum_exp)**2
+        chi_sq_dif = ((int_u_mod-int_d_mod-int_u_exp+int_d_exp)/sint_sum_exp)**2
+        return chi_sq_u.sum(), chi_sq_d.sum(), chi_sq_sum.sum(), chi_sq_dif.sum()
     
 if (__name__ == "__main__"):
   pass
