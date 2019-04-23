@@ -27,7 +27,7 @@ class ObservedData1DPD(dict):
         self._refresh(tth, int_u, sint_u, int_d, sint_d, field, wavelength)
 
     def __repr__(self):
-        lsout = """Calculated data:\n scale {:} """.format(scale, crystal)
+        lsout = """Observed data:"""
         return lsout
 
     def _refresh(self, tth, int_u, sint_u, int_d, sint_d, field, wavelength):
@@ -95,15 +95,15 @@ wavelength is the neutron wavelength
                 elif (len(lhelp)==2):
                     ddata[lhelp[0]]=lhelp[1]
                 else:
-                    print "Mistake in experimental file '{}' in line:\n{}".format(finp,line)
-                    print "The program is stopped."
+                    print("Mistake in experimental file '{:}' in line:\n {:}".format(finp, line))
+                    print("The program is stopped.")
                     quit()
         lnames=lparam[-1].split()
         for name in lnames:
             ddata[name]=[]
         lcontent=[line for line in lcontentH if line[0]!='#']
         for line in lcontent:
-            for name,val in zip(lnames,splitlinewminuses(line)):
+            for name,val in zip(lnames, splitlinewminuses(line)):
                 ddata[name].append(val)
         field = ddata["field"]
         wavelength = ddata["wavelength"]

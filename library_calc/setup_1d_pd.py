@@ -83,9 +83,13 @@ x, y are coefficients to describe the Lorentz part of peak shape
 
     
     def _calc_tancos(self, tth_hkl):
+        """
+        tth_hkl in radianas
+        """
         self._p_t_tth = numpy.tan(tth_hkl)
         self._p_t_tth_sq = self._p_t_tth**2
         res = numpy.cos(tth_hkl)
+
         self._p_c_tth = res
         self._p_ic_tth = 1./res
         
@@ -95,8 +99,8 @@ x, y are coefficients to describe the Lorentz part of peak shape
         gauss size
         """
         
-        res_sq = (self._p_u*self._p_t_tth_sq + self_p_v*self._p_t_tth + 
-                  self_p_w*self._p_c_tth + i_g*self._p_ic_tth**2)
+        res_sq = (self._p_u*self._p_t_tth_sq + self._p_v*self._p_t_tth + 
+                  self._p_w + i_g*self._p_ic_tth**2)
         self._p_hg = numpy.sqrt(res_sq)
         
     def _calc_hl(self):
@@ -104,7 +108,7 @@ x, y are coefficients to describe the Lorentz part of peak shape
         ttheta in radians, could be array
         lorentz site
         """
-        self._p_hl = self_p_x*self._p_t_tth + self_p_y*self._p_ic_tth
+        self._p_hl = self._p_x*self._p_t_tth + self._p_y*self._p_ic_tth
 
 
     def _calc_hpveta(self):
@@ -114,6 +118,7 @@ x, y are coefficients to describe the Lorentz part of peak shape
         """
         hg = self._p_hg
         hl = self._p_hl
+
         hg_2, hl_2 = hg**2, hl**2
         hg_3, hl_3 = hg_2*hg, hl_2*hl
         hg_4, hl_4 = hg_3*hg, hl_3*hl
@@ -127,6 +132,7 @@ x, y are coefficients to describe the Lorentz part of peak shape
 
     def _calc_agbg(self):
         hpv = self._p_hpv
+
         self._p_ag = (2./hpv)*(numpy.log(2.)/numpy.pi)**0.5
         self._p_bg = 4*numpy.log(2)/(hpv**2)
         
@@ -135,24 +141,26 @@ x, y are coefficients to describe the Lorentz part of peak shape
         self._p_al = 2./(numpy.pi*hpv )
         self._p_bl = 4./(hpv**2)
     
-    def calc_resolution(self, tth_hkl, i_g = 0):
+    def calc_resolution(self, tth_hkl, i_g = 0.):
         """
         Calculate parameters for tth
+        tth_hkl in degrees
         """
-        self._calc_tancos(tth_hkl)
+        self._calc_tancos(tth_hkl*numpy.pi/180.)
         self._calc_hg(i_g = i_g)
         self._calc_hl()
         self._calc_hpveta()
         self._calc_agbg()
         self._calc_albl()
 
-        a_g = self._p_ag, 
-        b_g = self._p_bg, 
-        a_l = self._p_al, 
-        b_l = self._p_bl,
-        h_g = self._p_hg, 
-        h_l = self._p_hl,
-        h_pv = self._p_hpv, eta = self._p_eta)
+        a_g = self._p_ag  
+        b_g = self._p_bg  
+        a_l = self._p_al  
+        b_l = self._p_bl 
+        h_g = self._p_hg  
+        h_l = self._p_hl 
+        h_pv = self._p_hpv 
+        eta = self._p_eta
         
         return h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
 
@@ -204,9 +212,10 @@ no parameters
     def calc_f_lorentz(self, tth):
         """
         Lorentz factor
-        tth should be in radians
+        tth should be in degrees
         """
-        factor_lorentz = 1./(numpy.sin(tth)*numpy.sin(0.5*tth))
+        tth_rad = tth*numpy.pi/180.
+        factor_lorentz = 1./(numpy.sin(tth_rad)*numpy.sin(0.5*tth_rad))
         return factor_lorentz 
 
 
@@ -215,13 +224,13 @@ class Asymmetry1DPD(dict):
     """
     Asymmetry of the diffractometer
     """
-    def __init__(self, p1 = 0, p2 = 0, p3 = 0, p4 = 0):
+    def __init__(self, p1 = 0., p2 = 0., p3 = 0., p4 = 0.):
         super(Asymmetry1DPD, self).__init__()
         self._p_p1 = None
         self._p_p2 = None
         self._p_p3 = None
         self._p_p4 = None
-
+        self._refresh(p1, p2, p3, p4)
         
     def __repr__(self):
         lsout = """Asymmetry: \n p1: {:}\n p2: {:}\n p3: {:}
@@ -283,12 +292,16 @@ p1, p2, p3, p4 are coefficients to describe the assymetry shape for all
         """
         Calculate asymmetry coefficients for  on the given list ttheta for 
         bragg reflections flaced on the position ttheta_hkl
+        tth and tth_hkl in degrees
+        
+        IMPORTANT: THERE IS MISTAKE (look page 54 in FullProf Manual)
         """
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl, indexing="ij")
         np_zero = numpy.zeros(tth_2d.shape, dtype = float)
         np_one = numpy.ones(tth_2d.shape, dtype = float)
         val_1, val_2 = np_zero, np_zero
-
+        
+        
         p1, p2 = self.get_val("p1"), self.get_val("p2")
         p3, p4 = self.get_val("p3"), self.get_val("p4")
         flag_1, flag_2 = False, False
@@ -299,7 +312,6 @@ p1, p2, p3, p4 are coefficients to describe the assymetry shape for all
             flag_2 = True
             fb = self._func_fb(tth)
             
-
         flag_3, flag_4 = False, False
         if ((p1!= 0.)|(p2!= 0.)):
             if flag_1:
@@ -384,7 +396,7 @@ class Background1DPD(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, tth_bkgd, int_bkdg):
+    def __init__(self, tth_bkgd=0., int_bkdg=0.):
         super(Background1DPD, self).__init__()
         self._p_tth_bkgd = None
         self._p_int_bkdg = None
@@ -447,25 +459,21 @@ int_bkdg is intensity to describe background
                 elif (len(lhelp)==2):
                     ddata[lhelp[0]]=lhelp[1]
                 else:
-                    print "Mistake in experimental file '{}' in line:\n{}".format(finp,line)
-                    print "The program is stopped."
+                    print("Mistake in experimental file '{:}' in line:\n{:}".format(finp, line))
+                    print("The program is stopped.")
                     quit()
         lnames=lparam[-1].split()
         for name in lnames:
             ddata[name]=[]
         lcontent=[line for line in lcontentH if not(line.startswith('#'))]
         for line in lcontent:
-            for name,val in zip(lnames,splitlinewminuses(line)):
+            for name,val in zip(lnames, splitlinewminuses(line)):
                 ddata[name].append(val)
                 
         tth_b = numpy.array(ddata["tth"], dtype=float)
         int_b = numpy.array(ddata["int"], dtype=float)
         self.set_val(tth_bkgd=tth_b, int_bkdg=int_b)
         
-
-
-
-
 
 
 
@@ -556,6 +564,7 @@ background  is Background class
         one dimensional gauss powder diffraction
         """
         ag, bg = self._p_ag, self._p_bg
+        
         self._p_gauss_pd = ag*numpy.exp(-bg*tth_2d**2)
         
     def _lor_pd(self, tth_2d):
@@ -565,17 +574,23 @@ background  is Background class
         al, bl = self._p_al, self._p_bl
         self._p_lor_pd = al*1./(1.+bl*tth_2d**2)
     
-    def calc_shape_profile(self, tth, tth_hkl, i_g = 0.):
+    def calc_shape_profile(self, tth, tth_hkl, i_g=0.):
         """
         calculate profile in the range ttheta for reflections placed on 
         ttheta_hkl with i_g parameter by defoult equal to zero
+        
+        tth, tth_hkl in degrees
+
         """
+        
+        resolution = self._p_resolution
         
         h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l = resolution.calc_resolution(
                                                   tth_hkl, i_g=i_g)
 
         
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth, tth_hkl, indexing="ij")
+
         self._p_ag = numpy.meshgrid(tth, a_g, indexing="ij")[1]
         self._p_bg = numpy.meshgrid(tth, b_g, indexing="ij")[1]
         self._p_al = numpy.meshgrid(tth, a_l, indexing="ij")[1]
@@ -587,35 +602,72 @@ background  is Background class
         self._lor_pd(tth_2d-tth_hkl_2d)
         g_pd_2d = self._p_gauss_pd 
         l_pd_2d = self._p_lor_pd
+        
         profile_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
         
         return profile_2d
     
     def calc_profile(self, tth, tth_hkl, i_g):
-        peak_shape, asymmetry = self.get_val("peak_shape") 
-        asymmetry  = self.get_val("asymmetry")
-        factor_lorentz = self.get_val("factor_lorentz")
-        peak_shape.calc_model(tth, tth_hkl, i_g = i_g)
-        asymmetry.calc_model(tth, tth_hkl)
-        factor_lorentz.calc_model(tth)
+        """
+        tth and tth_hkl in degrees
+        """
         
-        np_shape_2d = self.calc_shape_profile(tth, tth_hkl, i_g = i_g)
-        np_ass_2d = asymmetry.get_val("asymmetry")
-        np_lor_1d = factor_lorentz.get_val("factor_lorentz")
+        np_shape_2d = self.calc_shape_profile(tth, tth_hkl, i_g=i_g)
+        asymmetry = self.get_val("asymmetry")
+        np_ass_2d = asymmetry.calc_asymmetry(tth, tth_hkl)
+        factor_lorentz = self.get_val("factor_lorentz")
+        np_lor_1d = factor_lorentz.calc_f_lorentz(tth)
+        
+        
         np_lor_2d = numpy.meshgrid(np_lor_1d, tth_hkl, indexing="ij")[0]
+        
         
         profile_2d = np_shape_2d*np_ass_2d*np_lor_2d
         return profile_2d 
     
-    def calc_hkl(cell, tth_min, tth_max):
+    def calc_hkl(self, cell, space_groupe, sthovl_min, sthovl_max):
         """
-        give a list of reflections hkl for cell in the range tth_min, tth_max
+        give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
+        
+
         """
-        h, k = numpy.array([], dtype=int), numpy.array([], dtype=int)
-        l = numpy.array([], dtype=int)
-        return h, k, l
+        lhkl,lmult=[],[]
+        lhklres=[]
+
+        hmax = int(2.*cell.get_val('a')*sthovl_max)
+        kmax = int(2.*cell.get_val('b')*sthovl_max)
+        lmax = int(2.*cell.get_val('a')*sthovl_max)
+        hmin, kmin, lmin = -1*hmax, -1*kmax, -1*lmax
+
+        hmin=0
+        
+        lorig = space_groupe.get_val("orig")
+        lsymm = space_groupe.get_val("el_symm")
+        for h in range(hmin,hmax+1,1):
+            for k in range(kmin,kmax+1,1):
+                for l in range(lmin,lmax+1,1):
+                    flag=(abs(sum([numpy.exp(2.*numpy.pi*1j*(orig[0]*h+orig[1]*k+orig[2]*l)) for orig in lorig]))>0.00001)
+                    #flag=True
+                    if (flag):
+                        lhkls=[(h*symm[1]+k*symm[5]+l*symm[9], h*symm[2]+k*symm[6]+l*symm[10], h*symm[3]+k*symm[7]+l*symm[11]) for symm in lsymm]
+                        lhkls.extend([(-hkl[0],-hkl[1],-hkl[2]) for hkl in lhkls])
+                        lhkls.sort(key=lambda x:10000*x[0]+100*x[1]+x[2])
+                        if (not(lhkls[-1] in lhkl)):
+                            lhkl.append(lhkls[-1])
+                            lmult.append(len(set(lhkls)))
+                            
+        lhklsthovl=[(hkl, cell.calc_sthovl(hkl[0], hkl[1], hkl[2]), mult) for hkl, mult in zip(lhkl, lmult)]
+        lhklsthovl.sort(key=lambda x: x[1])
+        lhklres = [hklsthovl[0] for hklsthovl in lhklsthovl if ((hklsthovl[1]>sthovl_min) & (hklsthovl[1]<sthovl_max))]
+        lmultres = [hklsthovl[2] for hklsthovl in lhklsthovl if ((hklsthovl[1]>sthovl_min) & (hklsthovl[1]<sthovl_max))]
+
+        h = numpy.array([hh[0] for hh in lhklres], dtype=int)
+        k = numpy.array([hh[1] for hh in lhklres], dtype=int)
+        l = numpy.array([hh[2] for hh in lhklres], dtype=int)
+        mult = numpy.array(lmultres, dtype=int)
+        return h, k, l, mult
     
-    def calc_background(tth):
+    def calc_background(self, tth):
         """
         estimates background points on the given ttheta positions
         """

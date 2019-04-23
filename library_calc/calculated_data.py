@@ -13,14 +13,15 @@ class CalculatedData1DPD(dict):
     """
     Calculate the model data for 1D powder diffraction experiment
     """
-    def __init__(self, scale, crystal):
+    def __init__(self, scale=1., crystal=Crystal()):
         super(CalculatedData1DPD, self).__init__()
         self._p_scale = None
         self._p_crystal = None
         self._refresh(scale, crystal)
 
     def __repr__(self):
-        lsout = """Calculated data:\n scale {:} """.format(scale, crystal)
+        lsout = """Calculated data:\n scale {:}\n crystal: {:}""".format(
+                self._p_scale, self._p_crystal)
         return lsout
 
     def _refresh(self, scale, crystal):
@@ -62,7 +63,10 @@ crystal is the definition of crystal
         """
         crystal = self._p_crystal
         f_nucl = crystal.calc_fn(h, k, l)
-        iint = abs(f_nucl*fnucl.conjugate())
+        iint = self._p_scale * abs(f_nucl*f_nucl.conjugate())
+        print("   h   k   l       Iint")
+        for h1, k1, l1, iint1 in zip(h, k, l, iint):
+            print(" {:3} {:3} {:3} {:10.3f}".format(h1, k1, l1, iint1))
         return iint
     
 

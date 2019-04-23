@@ -503,11 +503,27 @@ class Frame(object):
             
         if x_1 == x_2: nx = x_1
         if y_1 == y_2: ny = y_1
-        if abs(t_1-t_2)<1.: temperature = t_1
-        if abs(f_1-f_2)<0.1: field = f_1
-        if abs(ga_1-ga_2)<0.1: gamma = ga_1
-        if abs(ph_1-ph_2)<0.1: phi = ph_1
-        if abs(om_1-om_2)<0.1: omega = om_1
+        
+        try:
+            if abs(t_1-t_2)<1.: temperature = t_1
+        except:
+            pass
+        try:
+            if abs(f_1-f_2)<0.1: field = f_1
+        except:
+            pass
+        try:
+            if abs(ga_1-ga_2)<0.1: gamma = ga_1
+        except:
+            pass
+        try:
+            if abs(ph_1-ph_2)<0.1: phi = ph_1
+        except:
+            pass
+        try:
+            if abs(om_1-om_2)<0.1: omega = om_1
+        except:
+            pass
             
         monitor = mon_1 + mon_2
         time_count = time_1 + time_2
@@ -1137,9 +1153,35 @@ n_min, n_max, n_step are minimal, maximal and step of nu (in radians)
         si_d_1 = si_d[flag]
         
         ing_gn_1 = numpy.vstack([ind_g_1, ind_n_1]).transpose()
-        ing_gn_uniq = numpy.unique(ing_gn_1, axis=0)
+        ing_gn_uniq, ind_inv = numpy.unique(ing_gn_1, return_inverse=True, axis=0)
         ing_g_uniq = ing_gn_uniq[:,0]
         ing_n_uniq = ing_gn_uniq[:,1]
+        
+        """
+        ind_uniq = numpy.array(range(ing_gn_uniq.shape[0]),dtype=int)
+        print(ind_inv.shape, ind_inv.shape)
+        ind_inv_2d, ind_uniq_2d = numpy.meshgrid(ind_inv, ind_uniq, indexing="ij")
+        
+        mask = (ind_inv_2d == ind_uniq_2d)
+
+        isi_u_2d = numpy.meshgrid(i_u_1/si_u_1**2, ind_uniq, indexing="ij")[0]
+        si_u_2d = numpy.meshgrid(1./si_u_1**2, ind_uniq, indexing="ij")[0]
+
+        isi_d_2d = numpy.meshgrid(i_d_1/si_d_1**2, ind_uniq, indexing="ij")[0]
+        si_d_2d = numpy.meshgrid(1./si_d_1**2, ind_uniq, indexing="ij")[0]
+        
+        i_av_u = (si_u_2d*isi_u_2d*mask).sum(axis=0)
+        si_av_u = 1./((si_u_2d*mask).sum(axis=0))**0.5
+        i_av_d = (si_d_2d*isi_d_2d*mask).sum(axis=0)
+        si_av_d = 1./((si_d_2d*mask).sum(axis=0))**0.5
+        
+        int_u[ing_g_uniq, ing_n_uniq] = i_av_u
+        sint_u[ing_g_uniq, ing_n_uniq] = si_av_u
+
+        int_d[ing_g_uniq, ing_n_uniq] = i_av_d
+        sint_d[ing_g_uniq, ing_n_uniq] = si_av_d
+        
+        """
         flag_perc = False
         nmax = ing_gn_uniq.shape[0]
         #flag_all = numpy.ones(ind_g_1.size).astype(numpy.int)
@@ -1169,15 +1211,14 @@ n_min, n_max, n_step are minimal, maximal and step of nu (in radians)
                 int_d[ind_g, ind_n] = i_d_val
                 sint_d[ind_g, ind_n] = si_d_val 
                 
-                """
-                flag_all[flag_all] = numpy.logical_not(flag)
                 
-                ing_gn_1  = numpy.delete(ing_gn_1, flag, axis=0)
-                i_u_1 = numpy.delete(i_u_1, flag)
-                si_u_1 = numpy.delete(si_u_1, flag)
-                i_d_1 = numpy.delete(i_d_1, flag)
-                si_d_1 = numpy.delete(si_d_1, flag)
-                """
+                #flag_all[flag_all] = numpy.logical_not(flag)
+                #ing_gn_1  = numpy.delete(ing_gn_1, flag, axis=0)
+                #i_u_1 = numpy.delete(i_u_1, flag)
+                #si_u_1 = numpy.delete(si_u_1, flag)
+                #i_d_1 = numpy.delete(i_d_1, flag)
+                #si_d_1 = numpy.delete(si_d_1, flag)
+                
             perc = int(round(100.*float(ind)/float(nmax)))
             if ((perc%2 == 1)&(flag_perc)):
                 flag_perc = False
