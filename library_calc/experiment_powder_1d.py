@@ -9,16 +9,16 @@ import numpy
 
 from observed_data import *
 from calculated_data import *
-from setup_1d_pd import *
+from setup_powder_1d import *
 
-class Experiment1DPD(dict):
+class ExperimentPowder1D(dict):
     """
     Class to describe all information concerning to the experiment
     """
-    def __init__(self, setup = Setup1DPD(), 
+    def __init__(self, setup = SetupPowder1D(), 
                  list_calculated_data = [], 
-                 observed_data = ObservedData1DPD()):
-        super(Experiment1DPD, self).__init__()
+                 observed_data = ObservedDataPowder1D()):
+        super(ExperimentPowder1D, self).__init__()
         self._p_setup = None
         self._list_calculated_data = []
         self._p_observed_data = None
@@ -80,6 +80,8 @@ observed_data is the experimental data
         setup = self._p_setup
         background = setup.calc_background(tth)
         wavelength = setup.get_val("wavelength")
+        beam_polarization = setup.get_val("beam_polarization")
+        
         tth_min = tth.min()
         tth_max = tth.max()
         sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wavelength
@@ -95,7 +97,7 @@ observed_data is the experimental data
             space_groupe = calculated_data.get_val("crystal").get_val("space_groupe")
             h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
             
-            np_iint_u, np_iint_d = calculated_data.calc_iint(h, k, l)
+            np_iint_u, np_iint_d = calculated_data.calc_iint(h, k, l, beam_polarization)
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)

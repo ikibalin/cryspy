@@ -6,6 +6,32 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
+def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,
+                 c11, c12, c13, c21, c22, c23, c31, c32, c33):
+    """
+    calculate matrix multiplication R*C*RT, when matrices are expressed througn 
+    its component and can be expressed as nD-array
+    """
+    rc_11, rc_12 = r11*c11+r12*c21+r13*c31, r11*c12+r12*c22+r13*c32
+    rc_13 = r11*c13+r12*c23+r13*c33
+    rc_21, rc_22 = r21*c11+r22*c21+r23*c31, r21*c12+r22*c22+r23*c32
+    rc_23 = r21*c13+r22*c23+r23*c33
+    rc_31, rc_32 = r31*c11+r32*c21+r33*c31, r31*c12+r32*c22+r33*c32
+    rc_33 = r31*c13+r32*c23+r33*c33
+
+    #dimension (atoms, symmetry)
+    rcrt_11 = (rc_11*r11+rc_12*r12+rc_13*r13)
+    rcrt_12 = (rc_11*r21+rc_12*r22+rc_13*r23)
+    rcrt_13 = (rc_11*r31+rc_12*r32+rc_13*r33)
+
+    rcrt_21 = (rc_21*r11+rc_22*r12+rc_23*r13)
+    rcrt_22 = (rc_21*r21+rc_22*r22+rc_23*r23)
+    rcrt_23 = (rc_21*r31+rc_22*r32+rc_23*r33)
+
+    rcrt_31 = (rc_31*r11+rc_32*r12+rc_33*r13)
+    rcrt_32 = (rc_31*r21+rc_32*r22+rc_33*r23)
+    rcrt_33 = (rc_31*r31+rc_32*r32+rc_33*r33)
+    return rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33
 
 class Cell(dict):
     """
@@ -93,6 +119,12 @@ class Cell(dict):
                                           singony]])
         if cond:
             self._constr_singony()
+            self._calc_cos_abc()
+            self._calc_volume()
+            self._calc_iucp()
+            self._calc_cos_iabc()
+            self._calc_m_b()
+            self._calc_m_ib()
     
     def _constr_singony(self):
         singony = self._p_singony
@@ -126,12 +158,7 @@ class Cell(dict):
     def set_val(self, a = None, b = None, c = None, alpha = None, 
                    beta = None, gamma= None, singony = None):
         self._refresh(a, b, c, alpha, beta, gamma, singony)
-        self._calc_cos_abc()
-        self._calc_volume()
-        self._calc_iucp()
-        self._calc_cos_iabc()
-        self._calc_m_b()
-        self._calc_m_ib()
+
 
     def get_val(self, label):
         lab = "_p_"+label
@@ -296,16 +323,10 @@ m_ib - inverse B matrix
                 
         
     
-    def calc_sthovl(self, h, k, l, a = None, b = None, c = None, alpha = None, 
-                   beta = None, gamma= None, singony = None):
+    def calc_sthovl(self, h, k, l):
         """
         calculate sin(theta)/lambda for list of hkl reflections
         """
-        cond = any([hh != None for hh in [a, b, c, alpha, beta, gamma, 
-                                          singony]])
-        if cond:
-            self.set_val(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma, 
-                         singony=singony)
             
         a = self._p_a
         b = self._p_b
@@ -328,26 +349,61 @@ m_ib - inverse B matrix
         inv_d = (B*1./A)**0.5
         return 0.5*inv_d
 
-
-    def calc_q_hkl(self, h, k, l, a = None, b = None, c = None, alpha = None, 
-                   beta = None, gamma= None, singony = None):
-        """
-        calculate sin(theta)/lambda for list of hkl reflections
-        """
-        cond_1 = any([hh != None for hh in [a, b, c, alpha, beta, gamma, singony]])
         
-        cond = cond_1
-        if cond:
-            self.set_val(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma, singony=singony)
-
-        matrix_ib = self.get_val("m_b")
-        v_ia = matrix_ib[:,0]
-        v_ib = matrix_ib[:,1]
-        v_ic = matrix_ib[:,2]
-        #mesh grid
-        q_hkl = h*v_ia+k*v_ib+l*v_ic
-        return q_hkl 
+    def calc_m_t(self, h, k, l):
+        """define rotation matrix to have new z axis along kloc
+        Rotation matrix is defined by Euler angles
+        """
+        m_b = self.get_val("m_b")
+        k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
+        k_y = m_b[1, 0]*h + m_b[1, 1]*k +m_b[1, 2]*l
+        k_z = m_b[2, 0]*h + m_b[2, 1]*k +m_b[2, 2]*l
         
+        k_norm = (k_x**2 + k_y**2 + k_z**2)**0.5
+        k_norm[k_norm == 0.] = 1.
+        
+        k_x = k_x/k_norm
+        k_y = k_y/k_norm
+        k_z = k_z/k_norm
+        
+
+        al = numpy.zeros(k_x.shape, dtype=float)
+        
+        be = numpy.arccos(k_z)
+        sb = numpy.sin(be)
+        flag = (sb != 0.)
+        
+        sa1 = k_x[flag]*1./sb[flag]
+        ca2 = -1*k_y[flag]*1./sb[flag]
+        sa1[sa1>1] = 1.
+        sa1[sa1<-1] = -1.
+            
+        ca2[ca2>1] = 1.
+        ca2[ca2<-1] = -1.
+
+        al1 = numpy.arcsin(sa1)
+        al2 = numpy.arccos(ca2)
+        
+        al_sh = numpy.copy(al1)
+        al_sh[sa1 > 0.] = al2[sa1 > 0.]
+        al_sh[sa1 <= 0.] = 2.*numpy.pi-al2[sa1 <= 0.]
+        al_sh[numpy.abs(al2-al1)<0.00001] = al1[numpy.abs(al2-al1)<0.00001]
+
+        al[flag] = al_sh
+            
+        ga=0.
+        ca, cb, cg = numpy.cos(al), numpy.cos(be), numpy.cos(ga)
+        sa, sb, sg = numpy.sin(al), numpy.sin(be), numpy.sin(ga)
+        t_11, t_12, t_13 = ca*cg-sa*cb*sg, -ca*sg-sa*cb*cg,  sa*sb
+        t_21, t_22, t_23 = sa*cg+ca*cb*sg, -sa*sg+ca*cb*cg, -ca*sb
+        t_31, t_32, t_33 =          sb*sg,           sb*cg,     cb
+        
+        flag = (((sa*sb-k_x)**2+(-ca*sb-k_y)**2+(cb-k_z)**2)>0.0001)
+        if any(flag):
+            print("Mistake with k_loc")
+            print("Program is stopped")
+            quit()
+        return t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 
         
 
 class SpaceGroupe(dict):
@@ -593,6 +649,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         """
         give equivalent reflections of hkl and its multiplicity
         """
+        
         r_11 = self._p_r_11
         r_12 = self._p_r_12
         r_13 = self._p_r_13
@@ -1251,9 +1308,7 @@ b_iso is the isotropical Debye-Waller factor
         r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
         r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
         r_33 = space_groupe.get_val("r_33")
-        
-        np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
-
+  
 
         b_11, b_22 = self._p_beta_11, self._p_beta_22 
         b_33, b_12 = self._p_beta_33, self._p_beta_12
@@ -1274,9 +1329,9 @@ b_iso is the isotropical Debye-Waller factor
         np_k_s = np_h*np_r_12 + np_k*np_r_22 + np_l*np_r_32
         np_l_s = np_h*np_r_13 + np_k*np_r_23 + np_l*np_r_33
         
-        dwf_aniso = numpy.exp(-1.*(np_b_11*np_h_s**2 + np_beta_22*np_k_s**2 + 
-                           np_beta_33*np_l_s**2 + 2.*np_beta_12*np_h_s*np_k_s + 
-                    2.*np_beta_13*np_h_s*np_l_s + 2.*np_beta_23*np_k_s*np_l_s))
+        dwf_aniso = numpy.exp(-1.*(np_b_11*np_h_s**2 + np_b_22*np_k_s**2 + 
+                           np_b_33*np_l_s**2 + 2.*np_b_12*np_h_s*np_k_s + 
+                    2.*np_b_13*np_h_s*np_l_s + 2.*np_b_23*np_k_s*np_l_s))
         
         return dwf_aniso 
         
@@ -1285,7 +1340,7 @@ b_iso is the isotropical Debye-Waller factor
         calculate Debye-Waller factor
         """
         #self._calc_dwf_iso(sthovl)
-        dwf_3d = self._calc_dwf_aniso(space_groupe, h, k, l)
+        dwf_3d = self.calc_dwf_aniso(space_groupe, h, k, l)
         return dwf_3d
         
 
@@ -1295,9 +1350,10 @@ class Magnetism(dict):
     """
     Magnetism
     """
-    def __init__(self, kappa = 1.0, factor_lande = 2.0, type = "",
-                 chi_11 = 0., chi_22 = 0., chi_33 = 0., 
-                 chi_12 = 0., chi_13 = 0., chi_23 = 0.):
+    def __init__(self, kappa=1.0, factor_lande=2.0, chi_11=0., chi_22=0., 
+                 chi_33=0., chi_12=0., chi_13=0., chi_23=0., j0_A=0., j0_a=0., 
+                 j0_B=0., j0_b=0., j0_C=0., j0_c=0., j0_D=0., j2_A=0., j2_a=0., 
+                 j2_B=0., j2_b=0., j2_C=0., j2_c=0., j2_D=0.):
         super(Magnetism, self).__init__()
         self._p_chi_11 = None
         self._p_chi_22 = None
@@ -1307,11 +1363,23 @@ class Magnetism(dict):
         self._p_chi_23 = None
         self._p_kappa = None
         self._p_factor_lande = None
-        
-        dd= {"kappa": kappa, "factor_lande": factor_lande , 
-             "chi_11": chi_11, "chi_22": chi_22, "chi_33": chi_33,
-             "chi_12": chi_12, "chi_13": chi_13, "chi_23": chi_23}
-        self.update(dd)
+        self._p_j0_A = None
+        self._p_j0_a = None
+        self._p_j0_B = None
+        self._p_j0_b = None
+        self._p_j0_C = None
+        self._p_j0_c = None
+        self._p_j0_D = None
+        self._p_j2_A = None
+        self._p_j2_a = None
+        self._p_j2_B = None
+        self._p_j2_b = None
+        self._p_j2_C = None
+        self._p_j2_c = None
+        self._p_j2_D = None
+        self._refresh(chi_11, chi_22, chi_33, chi_12, chi_13, chi_23,kappa, 
+                      factor_lande, j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, 
+                      j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D)
         
     def __repr__(self):
         lsout = """Magnetism: \n chi_11: {:}\n chi_22: {:}\n chi_33: {:}
@@ -1322,24 +1390,65 @@ class Magnetism(dict):
         return lsout
 
 
-    def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
+    def _refresh(self, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, kappa, 
+                      factor_lande, j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, 
+                      j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D):
         
-        if not(isinstance(f_dir_prog, type(None))):
-            f_itables = os.path.join(f_dir_prog,"itables.txt")
-            self._read_el_cards(f_itables)        
-            self._p_f_dir_prog = f_dir_prog
-        if not(isinstance(spgr_given_name, type(None))):
-            self._p_spgr_given_name = spgr_given_name
-        if not(isinstance(spgr_choice, type(None))):
-            self._p_spgr_choice = spgr_choice
+        if not(isinstance(chi_11, type(None))):
+            self._p_chi_11 = chi_11
+        if not(isinstance(chi_22, type(None))):
+            self._p_chi_22 = chi_22
+        if not(isinstance(chi_33, type(None))):
+            self._p_chi_33 = chi_33
+        if not(isinstance(chi_12, type(None))):
+            self._p_chi_12 = chi_12
+        if not(isinstance(chi_13, type(None))):
+            self._p_chi_13 = chi_13
+        if not(isinstance(chi_23, type(None))):
+            self._p_chi_23 = chi_23
+        if not(isinstance(kappa, type(None))):
+            self._p_kappa = kappa 
+        if not(isinstance(factor_lande, type(None))):
+            self._p_factor_lande = factor_lande 
+        if not(isinstance(j0_A, type(None))):
+            self._p_j0_A = j0_A 
+        if not(isinstance(j0_a, type(None))):
+            self._p_j0_a = j0_a 
+        if not(isinstance(j0_B, type(None))):
+            self._p_j0_B = j0_B 
+        if not(isinstance(j0_b, type(None))):
+            self._p_j0_b = j0_b 
+        if not(isinstance(j0_C, type(None))):
+            self._p_j0_C = j0_C 
+        if not(isinstance(j0_c, type(None))):
+            self._p_j0_c = j0_c 
+        if not(isinstance(j0_D, type(None))):
+            self._p_j0_D = j0_D 
+        if not(isinstance(j2_A, type(None))):
+            self._p_j2_A = j2_A 
+        if not(isinstance(j2_a, type(None))):
+            self._p_j2_a = j2_a 
+        if not(isinstance(j2_B, type(None))):
+            self._p_j2_B = j2_B 
+        if not(isinstance(j2_b, type(None))):
+            self._p_j2_b = j2_b 
+        if not(isinstance(j2_C, type(None))):
+            self._p_j2_C = j2_C 
+        if not(isinstance(j2_c, type(None))):
+            self._p_j2_c = j2_c 
+        if not(isinstance(j2_D, type(None))):
+            self._p_j2_D = j2_D 
             
 
-    def set_val(self, spgr_given_name = None, spgr_choice = None,
-                   f_dir_prog = None):
-        self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
+    def set_val(self, chi_11=None, chi_22=None, chi_33=None, chi_12=None, 
+                chi_13=None, chi_23=None, kappa=None, factor_lande=None, 
+                j0_A=None, j0_a=None, j0_B=None, j0_b=None, j0_C=None, 
+                j0_c=None, j0_D=None, j2_A=None, j2_a=None, j2_B=None, 
+                j2_b=None, j2_C=None, j2_c=None, j2_D=None):
+        self._refresh(chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, kappa, 
+                      factor_lande, j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, 
+                      j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D)
         
-        self._get_symm()
-        self._calc_rotation_matrix_anb_b()
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -1415,26 +1524,59 @@ factor_lande is the factor Lande (equals 2. by default)
         d_out = dict(matrix_chi_loc = matrix_chi_loc)
         self.update(d_out)
     
-    def calc_model(self, ia, ib, ic, matrix_ib, chi_11=None, chi_22=None, 
-                   chi_33=None, chi_12=None, chi_13=None, chi_23=None):
+    def calc_form_factor_tensor(self,space_groupe, cell, h, k, l):
+        """
+        give components of form factor tensor:
+            fft_11, fft_12, fft_13
+            fft_21, fft_22, fft_23
+            fft_31, fft_32, fft_33
+            
+        in 3 dimension (hkl, atoms, symmetry elements)            
+        """
+        sthovl = cell.calc_sthovl(h, k, l)
+        #dimension (hkl, atoms)
+        form_factor_2d = self._calc_form_factor(sthovl)
         
-        if chi_11 != None:
-            self["chi_11"] = chi_11 
-        if chi_22 != None:
-            self["chi_22"] = chi_22 
-        if chi_33 != None:
-            self["chi_33"] = chi_33
-        if chi_12 != None:
-            self["chi_12"] = chi_12 
-        if chi_13 != None:
-            self["chi_13"] = chi_13 
-        if chi_23 != None:
-            self["chi_23"] = chi_23 
-        
-        self._calc_chi_loc(ia, ib, ic, matrix_ib)
-        d_out = dict(ia=ia, ib=ib, ic=ic, matrix_ib=matrix_ib)
-        self.update(d_out)
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
 
+        chi_11, chi_22 = self._p_chi_11, self._p_chi_22 
+        chi_33, chi_12 = self._p_chi_33, self._p_chi_12
+        chi_13, chi_23 = self._p_chi_13, self._p_chi_23
+        chi_21, chi_31, chi_32 = chi_12, chi_13, chi_23 
+        
+        c11, r11 = numpy.meshgrid(chi_11, r_11, indexing="ij")
+        c22, r22 = numpy.meshgrid(chi_22, r_22, indexing="ij")
+        c33, r33 = numpy.meshgrid(chi_33, r_33, indexing="ij")
+        c12, r12 = numpy.meshgrid(chi_12, r_12, indexing="ij")
+        c13, r13 = numpy.meshgrid(chi_13, r_13, indexing="ij")
+        c23, r23 = numpy.meshgrid(chi_23, r_23, indexing="ij")
+        c21, r21 = numpy.meshgrid(chi_21, r_21, indexing="ij")
+        c31, r31 = numpy.meshgrid(chi_31, r_31, indexing="ij")
+        c32, r32 = numpy.meshgrid(chi_32, r_32, indexing="ij")
+        
+        
+        rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33 = calc_mRmCmRT(
+                r11, r12, r13, r21, r22, r23, r31, r32, r33,
+                c11, c12, c13, c21, c22, c23, c31, c32, c33)        
+        
+        #dimension (hkl, atoms, symmetry)
+        fft_11 = form_factor_2d[:,:,numpy.newaxis]*rcrt_11[numpy.newaxis, :,:]
+        fft_12 = form_factor_2d[:,:,numpy.newaxis]*rcrt_12[numpy.newaxis, :,:]
+        fft_13 = form_factor_2d[:,:,numpy.newaxis]*rcrt_13[numpy.newaxis, :,:]
+        fft_21 = form_factor_2d[:,:,numpy.newaxis]*rcrt_21[numpy.newaxis, :,:]
+        fft_22 = form_factor_2d[:,:,numpy.newaxis]*rcrt_22[numpy.newaxis, :,:]
+        fft_23 = form_factor_2d[:,:,numpy.newaxis]*rcrt_23[numpy.newaxis, :,:]
+        fft_31 = form_factor_2d[:,:,numpy.newaxis]*rcrt_31[numpy.newaxis, :,:]
+        fft_32 = form_factor_2d[:,:,numpy.newaxis]*rcrt_32[numpy.newaxis, :,:]
+        fft_33 = form_factor_2d[:,:,numpy.newaxis]*rcrt_33[numpy.newaxis, :,:]
+        
+        #ortogonalization should be done
+        
+        return fft_11, fft_12, fft_13, fft_21, fft_22, fft_23, fft_31, fft_32, fft_33
     
     def calc_chi_rot(matrix_chi, elsymm):
         """
@@ -1449,6 +1591,63 @@ factor_lande is the factor Lande (equals 2. by default)
         
         matrix_chi_rot = numpy.matmul(r_chi, matrix_rt)
         return matrix_chi_rot 
+    
+    def _calc_form_factor(self, sthovl):
+        """Calculate magnetic form factor in frame of Spherical model (Int.Tabl.C.p.592)\n
+        LFactor is Lande factor\n
+        coeff0 is a list [A,a,B,b,C,c,D] at n=0\n
+        coeff2 is a list [A,a,B,b,C,c,D] at n=2\n
+        lsthovl is list sin(theta)/lambda in Angstrems**-1
+
+        Calculation of magnetic form factor <j0>,<j2>,<j4>,<j6>\n
+        coeff is a list [A,a,B,b,C,c,D] at n=0,2,4,6
+        For help see International Table Vol.C p.460
+        """
+        #not sure about kappa, it is here just for test, by default it is 1.0
+        kappa = self._p_kappa
+        factor_lande = self._p_factor_lande
+        j0_A = self._p_j0_A
+        j0_a = self._p_j0_a
+        j0_B = self._p_j0_B
+        j0_b = self._p_j0_b
+        j0_C = self._p_j0_C
+        j0_c = self._p_j0_c
+        j0_D = self._p_j0_D
+        j2_A = self._p_j2_A
+        j2_a = self._p_j2_a
+        j2_B = self._p_j2_B
+        j2_b = self._p_j2_b
+        j2_C = self._p_j2_C
+        j2_c = self._p_j2_c
+        j2_D = self._p_j2_D     
+        
+        np_sthovl, np_kappa = numpy.meshgrid(sthovl, kappa, indexing ="ij")
+        np_factor_lande = numpy.meshgrid(sthovl, factor_lande, indexing ="ij")[1]
+        np_j0_A = numpy.meshgrid(sthovl, j0_A, indexing ="ij")[1]
+        np_j0_a = numpy.meshgrid(sthovl, j0_a, indexing ="ij")[1]
+        np_j0_B = numpy.meshgrid(sthovl, j0_B, indexing ="ij")[1]
+        np_j0_b = numpy.meshgrid(sthovl, j0_b, indexing ="ij")[1]
+        np_j0_C = numpy.meshgrid(sthovl, j0_C, indexing ="ij")[1]
+        np_j0_c = numpy.meshgrid(sthovl, j0_c, indexing ="ij")[1]
+        np_j0_D = numpy.meshgrid(sthovl, j0_D, indexing ="ij")[1]
+        np_j2_A = numpy.meshgrid(sthovl, j2_A, indexing ="ij")[1]
+        np_j2_a = numpy.meshgrid(sthovl, j2_a, indexing ="ij")[1]
+        np_j2_B = numpy.meshgrid(sthovl, j2_B, indexing ="ij")[1]
+        np_j2_b = numpy.meshgrid(sthovl, j2_b, indexing ="ij")[1]
+        np_j2_C = numpy.meshgrid(sthovl, j2_C, indexing ="ij")[1]
+        np_j2_c = numpy.meshgrid(sthovl, j2_c, indexing ="ij")[1]
+        np_j2_D = numpy.meshgrid(sthovl, j2_D, indexing ="ij")[1]
+
+        np_h = (np_sthovl*1./np_kappa)**2
+        j0_av = (np_j0_A*numpy.exp(-np_j0_a*np_h)+
+                 np_j0_B*numpy.exp(-np_j0_b*np_h)+
+                 np_j0_C*numpy.exp(-np_j0_c*np_h)+np_j0_D)
+        j2_av = (np_j2_A*numpy.exp(-np_j2_a*np_h)+
+                 np_j2_B*numpy.exp(-np_j2_b*np_h)+
+                 np_j2_C*numpy.exp(-np_j2_c*np_h)+np_j2_D)*np_h
+        form_factor = j0_av+(1.0-2.0/np_factor_lande)*j2_av
+        return form_factor
+
 
 
 
@@ -1459,6 +1658,8 @@ class AtomSite(dict):
     def __init__(self):
         super(AtomSite, self).__init__()
         self._p_fract = None
+        self._p_adp = None
+        self._p_magnetism = None
         self._p_b_scat = None
         self._p_occupation = None
         self._list_atoms = []
@@ -1524,23 +1725,109 @@ fract  is fraction of atoms
     def _form_arrays(self):
         lb_scat, locc = [], []
         lx, ly, lz = [], [], []
+        lbeta_11, lbeta_22, lbeta_33 = [], [], []
+        lbeta_12, lbeta_13, lbeta_23 = [], [], []
+        lb_iso = []
+        lchi_11, lchi_22, lchi_33 = [], [], []
+        lchi_12, lchi_13, lchi_23 = [], [], []
+        lkappa, lfactor_lande = [], []
+        lj0_A, lj0_a, lj0_B, lj0_b, lj0_C, lj0_c = [], [], [], [], [], []
+        lj0_D = []
+        lj2_A, lj2_a, lj2_B, lj2_b, lj2_C, lj2_c = [], [], [], [], [], []
+        lj2_D = []
         for atom in self._list_atoms:
             lb_scat.append(atom.get_val("b_scat"))
             locc.append(atom.get_val("occupation"))
             lx.append(atom.get_val("x"))
             ly.append(atom.get_val("y"))
             lz.append(atom.get_val("z"))
+            lbeta_11.append(atom.get_val("beta_11"))
+            lbeta_22.append(atom.get_val("beta_22"))
+            lbeta_33.append(atom.get_val("beta_33"))
+            lbeta_12.append(atom.get_val("beta_12"))
+            lbeta_13.append(atom.get_val("beta_13"))
+            lbeta_23.append(atom.get_val("beta_23"))
+            lb_iso.append(atom.get_val("b_iso"))
+            lchi_11.append(atom.get_val("chi_11"))
+            lchi_22.append(atom.get_val("chi_22"))
+            lchi_33.append(atom.get_val("chi_33"))
+            lchi_12.append(atom.get_val("chi_12"))
+            lchi_13.append(atom.get_val("chi_13"))
+            lchi_23.append(atom.get_val("chi_23"))
+            lkappa.append(atom.get_val("kappa"))
+            lfactor_lande.append(atom.get_val("factor_lande"))
+            lj0_A.append(atom.get_val("j0_A"))
+            lj0_a.append(atom.get_val("j0_a")) 
+            lj0_B.append(atom.get_val("j0_B")) 
+            lj0_b.append(atom.get_val("j0_b")) 
+            lj0_C.append(atom.get_val("j0_C")) 
+            lj0_c.append(atom.get_val("j0_c"))
+            lj0_D.append(atom.get_val("j0_D"))
+            lj2_A.append(atom.get_val("j2_A"))
+            lj2_a.append(atom.get_val("j2_a")) 
+            lj2_B.append(atom.get_val("j2_B")) 
+            lj2_b.append(atom.get_val("j2_b")) 
+            lj2_C.append(atom.get_val("j2_C")) 
+            lj2_c.append(atom.get_val("j2_c"))
+            lj2_D.append(atom.get_val("j2_D"))
+            
         np_b_scat = numpy.array(lb_scat, dtype=float)
         np_occ = numpy.array(locc, dtype=float)
         np_x = numpy.array(lx, dtype=float)
         np_y = numpy.array(ly, dtype=float)
         np_z = numpy.array(lz, dtype=float)
         fract = Fract(x=np_x, y=np_y, z=np_z)
+
+        np_beta_11 = numpy.array(lbeta_11, dtype=float)
+        np_beta_22 = numpy.array(lbeta_22, dtype=float)
+        np_beta_33 = numpy.array(lbeta_33, dtype=float)
+        np_beta_12 = numpy.array(lbeta_12, dtype=float)
+        np_beta_13 = numpy.array(lbeta_13, dtype=float)
+        np_beta_23 = numpy.array(lbeta_23, dtype=float)
+        np_b_iso = numpy.array(lb_iso, dtype=float)
+        adp = ADP(beta_11=np_beta_11, beta_22=np_beta_22, beta_33=np_beta_33,
+                  beta_12=np_beta_12, beta_13=np_beta_13, beta_23=np_beta_23,
+                  b_iso = np_b_iso)
+
+        np_chi_11 = numpy.array(lchi_11, dtype=float)
+        np_chi_22 = numpy.array(lchi_22, dtype=float)
+        np_chi_33 = numpy.array(lchi_33, dtype=float)
+        np_chi_12 = numpy.array(lchi_12, dtype=float)
+        np_chi_13 = numpy.array(lchi_13, dtype=float)
+        np_chi_23 = numpy.array(lchi_23, dtype=float)
+        np_kappa = numpy.array(lkappa, dtype=float)
+        np_factor_lande = numpy.array(lfactor_lande, dtype=float)
+        np_j0_A = numpy.array(lj0_A, dtype=float)
+        np_j0_a = numpy.array(lj0_a, dtype=float)
+        np_j0_B = numpy.array(lj0_B, dtype=float)
+        np_j0_b = numpy.array(lj0_b, dtype=float)
+        np_j0_C = numpy.array(lj0_C, dtype=float)
+        np_j0_c = numpy.array(lj0_c, dtype=float)
+        np_j0_D = numpy.array(lj0_D, dtype=float)
+        np_j2_A = numpy.array(lj2_A, dtype=float)
+        np_j2_a = numpy.array(lj2_a, dtype=float)
+        np_j2_B = numpy.array(lj2_B, dtype=float)
+        np_j2_b = numpy.array(lj2_b, dtype=float)
+        np_j2_C = numpy.array(lj2_C, dtype=float)
+        np_j2_c = numpy.array(lj2_c, dtype=float)
+        np_j2_D = numpy.array(lj2_D, dtype=float)
+        
+
+        magnetism = Magnetism(chi_11=np_chi_11, chi_22=np_chi_22, 
+            chi_33=np_chi_33, chi_12=np_chi_12, chi_13=np_chi_13, 
+            chi_23=np_chi_23, kappa = np_kappa, factor_lande = np_factor_lande,
+            j0_A=np_j0_A, j0_a=np_j0_a, j0_B=np_j0_B, j0_b=np_j0_b, 
+            j0_C=np_j0_C, j0_c=np_j0_c, j0_D=np_j0_D, j2_A=np_j2_A, 
+            j2_a=np_j2_a, j2_B=np_j2_B, j2_b=np_j2_b, j2_C=np_j2_C, 
+            j2_c=np_j2_c, j2_D=np_j2_D)
+        
         self._p_b_scat = np_b_scat
         self._p_occupation = np_occ
         self._p_fract = fract
+        self._p_adp = adp 
+        self._p_magnetism = magnetism
     
-    def calc_fn(self, cell, space_groupe, h, k, l):
+    def calc_sf(self, space_groupe, cell, h, k, l):
         """
         calculate nuclear structure factor
         """
@@ -1548,6 +1835,7 @@ fract  is fraction of atoms
         
         fract = self._p_fract
         adp = self._p_adp
+        magnetism = self._p_magnetism
         b_scat = self._p_b_scat
         occupation = self._p_occupation
         x, y, z = fract.get_val("x"), fract.get_val("y"), fract.get_val("z")
@@ -1555,24 +1843,34 @@ fract  is fraction of atoms
         occ_mult = occupation*atom_multiplicity 
         
         phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
-        
-        
         dwf_3d = adp.calc_dwf(space_groupe, h, k, l)
+        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_groupe, cell, h, k, l)
         
-        phase_2d = (phase_3d*dwf_3d).sum(axis=2)
+        hh = phase_3d*dwf_3d
+        
+        phase_2d = hh.sum(axis=2)
+
+        ft_11 = (ff_11*hh).sum(axis=2)
+        ft_12 = (ff_12*hh).sum(axis=2)
+        ft_13 = (ff_13*hh).sum(axis=2)
+        ft_21 = (ff_21*hh).sum(axis=2)
+        ft_22 = (ff_22*hh).sum(axis=2)
+        ft_23 = (ff_23*hh).sum(axis=2)
+        ft_31 = (ff_31*hh).sum(axis=2)
+        ft_32 = (ff_32*hh).sum(axis=2)
+        ft_33 = (ff_33*hh).sum(axis=2)
         
         b_scat_2d = numpy.meshgrid(h, b_scat, indexing="ij")[1]
         occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
         
-        
-        hh = phase_2d * b_scat_2d * occ_mult_2d
-        
-
         lel_symm = space_groupe.get_val("el_symm")
-        f_hkl_as = hh.sum(axis=1)*1./len(lel_symm)
-        
         lorig = space_groupe.get_val("orig")
         centr = space_groupe.get_val("centr")
+
+        #calculation of nuclear structure factor        
+        hh = phase_2d * b_scat_2d * occ_mult_2d
+        f_hkl_as = hh.sum(axis=1)*1./len(lel_symm)
+        
         
         orig_x = [hh[0] for hh in lorig]
         orig_y = [hh[1] for hh in lorig]
@@ -1582,21 +1880,54 @@ fract  is fraction of atoms
         np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
         np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
         
-        np_f_hkl_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
-        f_hkl_as = f_hkl_as*np_f_hkl_as.sum(axis=1)*1./len(lorig)
+        np_orig_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
+        f_hkl_as = f_hkl_as*np_orig_as.sum(axis=1)*1./len(lorig)
 
         if (centr):
             orig = space_groupe.get_val("p_centr")
-            f_nucl = (f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))*0.5
+            f_nucl = 0.5*(f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))
         else:
             f_nucl = f_hkl_as
-        return f_nucl
 
-    def calc_sft(self, cell, space_groupe, h, k, l):
-        return sft
+        #calculation of structure factor tensor
+        sft_as_11 = (ft_11 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_12 = (ft_12 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_13 = (ft_13 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_21 = (ft_21 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_22 = (ft_22 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_23 = (ft_23 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_31 = (ft_31 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_32 = (ft_32 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
+        sft_as_33 = (ft_33 * occ_mult_2d).sum(axis=1)*1./len(lel_symm)
 
-
+        sft_as_11 = sft_as_11 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_12 = sft_as_12 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_13 = sft_as_13 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_21 = sft_as_21 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_22 = sft_as_22 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_23 = sft_as_23 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_31 = sft_as_31 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_32 = sft_as_32 * np_orig_as.sum(axis=1)*1./len(lorig)
+        sft_as_33 = sft_as_33 * np_orig_as.sum(axis=1)*1./len(lorig)
     
+        if (centr):
+            orig = space_groupe.get_val("p_centr")
+            hh = numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2]))
+            sft_11 = 0.5*(sft_as_11+sft_as_11.conjugate()*hh)
+            sft_12 = 0.5*(sft_as_12+sft_as_12.conjugate()*hh)
+            sft_13 = 0.5*(sft_as_13+sft_as_13.conjugate()*hh)
+            sft_21 = 0.5*(sft_as_21+sft_as_21.conjugate()*hh)
+            sft_22 = 0.5*(sft_as_22+sft_as_22.conjugate()*hh)
+            sft_23 = 0.5*(sft_as_23+sft_as_23.conjugate()*hh)
+            sft_31 = 0.5*(sft_as_31+sft_as_31.conjugate()*hh)
+            sft_32 = 0.5*(sft_as_32+sft_as_32.conjugate()*hh)
+            sft_33 = 0.5*(sft_as_33+sft_as_33.conjugate()*hh)
+        else:
+            sft_11, sft_12, sft_13 = sft_as_11, sft_as_12, sft_as_13
+            sft_21, sft_22, sft_23 = sft_as_21, sft_as_22, sft_as_23
+            sft_31, sft_32, sft_33 = sft_as_31, sft_as_32, sft_as_33            
+            
+        return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
     
 class Crystal(dict):
     """
@@ -1646,25 +1977,94 @@ class Crystal(dict):
         return val
 
         
-    def calc_fn(self, h, k, l):
+    def calc_sf(self, h, k, l, mode="FN"):
         """
         calculate nuclear structure factor
         """
         cell = self._p_cell
         space_groupe = self._p_space_groupe
         atom_site = self._p_atom_site
-        f_nucl = atom_site.calc_fn(cell, space_groupe, h, k, l)
-        return f_nucl
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_groupe, cell, h, k, l)
+        #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
+        #chi in 10-12 cm; chim in muB (it is why here 0.2695)
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
+                cell,
+                sft_11*0.2695, sft_12*0.2695, sft_13*0.2695, 
+                sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
+                sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
 
-    def calc_sft(self):
+        return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+
+
+    def _orto_matrix(self, cell, l_11, l_12, l_13, l_21, l_22, l_23, l_31, 
+                     l_32, l_33):
         """
-        calculate structure factor tensor
+        rewrite matrix l_ij defined in coordinate (ia, ib, ic) to matrix s_ij, 
+        which is denined in Chartesian coordinate system, such as:
+        x||ia, y in blane (ia, ib), z perpendicular to that plane.
+        ...
+        
+        ...
+        representation of chi in crystallographic coordinate system defined as x||a*, z||c, y= [z x] (right handed)
+        expressions are taken from international tables
+        matrix_ib is inversed matrix B
+        ia, ib, ic is inversed unit cell parameters (it can be estimated from matrix matrix_ib)
+
+        X = B x, x = iB X
+        xT*CHI*x = XT iBT CHI iB X
+    
+        output chiLOC = iBT CHI iB
         """
-        cell = self._p_cell
-        space_groupe = self._p_space_groupe
-        atom_site = self._p_atom_site
-        sft = atom_site.calc_sft(cell, space_groupe, h, k, l)
-        return sft
+        m_ib = cell.get_val("m_ib")
+        ia, ib, ic = cell.get_val("ia"), cell.get_val("ib"), cell.get_val("ic")
+        """
+        matrix_chi = numpy.array(
+                [[self["chi_11"], self["chi_12"], self["chi_13"]],
+                 [self["chi_12"], self["chi_22"], self["chi_23"]],
+                 [self["chi_13"], self["chi_23"], self["chi_33"]]], 
+                 dtype = float)
+        #mchi=[[chi[0],chi[3],chi[4]],[chi[3],chi[1],chi[5]],[chi[4],chi[5],chi[2]]]
+        #[a,b,c,alpha,beta,gamma]=ucp
+        y1 = m_ib[0,0]
+        y2 = m_ib[1,1]
+        y3 = m_ib[2,2]
+        y4 = m_ib[0,1]
+        y5 = m_ib[0,2]
+        y6 = m_ib[1,2]
+        #B=[[x1,x4,x5],
+        #   [0.,x2,x6],
+        #   [0.,0.,x3]]
+        #it shuld be checked
+        #iB=numpy.linalg.inv(B)
+        y1 = 1./x1
+        y2 = 1./x2
+        y3 = 1./x3
+        y4 = -1*x4*1./(x1*x2)
+        y6 = -1*x6*1./(x2*x3)
+        y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
+        """
+        m_ib_norm = numpy.copy(m_ib)
+        m_ib_norm[:,0] *= ia
+        m_ib_norm[:,1] *= ib
+        m_ib_norm[:,2] *= ic
+        
+        m_ibt_norm = m_ib_norm.transpose()
+        
+        r11, r12, r13 = m_ibt_norm[0, 0], m_ibt_norm[0, 1], m_ibt_norm[0, 2]
+        r21, r22, r23 = m_ibt_norm[1, 0], m_ibt_norm[1, 1], m_ibt_norm[1, 2]
+        r31, r32, r33 = m_ibt_norm[2, 0], m_ibt_norm[2, 1], m_ibt_norm[2, 2]
+        
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = calc_mRmCmRT(
+                r11, r12, r13, r21, r22, r23, r31, r32, r33,
+                l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
+        """
+        ibt_chi = numpy.matmul(m_ibt_norm, matrix_chi)
+        matrix_chi_loc = numpy.matmul(ibt_chi, m_ib_norm)
+        d_out = dict(matrix_chi_loc = matrix_chi_loc)
+        self.update(d_out)
+        """
+        return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+    
 
     
 if (__name__ == "__main__"):

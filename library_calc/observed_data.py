@@ -8,13 +8,13 @@ import os
 import numpy
 
 
-class ObservedData1DPD(dict):
+class ObservedDataPowder1D(dict):
     """
     Containt the experimental data
     """
     def __init__(self, tth=None, int_u=None, sint_u=None, int_d=None, 
                  sint_d=None, field=None, wavelength=None):
-        super(ObservedData1DPD, self).__init__()
+        super(ObservedDataPowder1D, self).__init__()
         self._p_tth = None
         self._p_int_u = None
         self._p_sint_u = None

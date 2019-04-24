@@ -9,21 +9,21 @@ import numpy
     
 #Description of setup class
 
-class Resolution1DPD(dict):
+class ResolutionPowder1D(dict):
     """
     Resoulution of the diffractometer
     """
     def __init__(self, u = 0, v = 0, w = 0.01, x = 0, y = 0):
-        super(Resolution1DPD, self).__init__()
+        super(ResolutionPowder1D, self).__init__()
         self._p_u = None
         self._p_v = None
         self._p_w = None
         self._p_x = None
         self._p_y = None
 
-        self._p_tan_tth = None
-        self._p_tan_tth_sq = None
-        self._p_cos_tth = None
+        self._p_tan_th = None
+        self._p_tan_th_sq = None
+        self._p_cos_th = None
         self._p_hg = None
         self._p_hl = None
         self._p_hpv = None
@@ -82,16 +82,17 @@ x, y are coefficients to describe the Lorentz part of peak shape
         print(lsout)
 
     
-    def _calc_tancos(self, tth_hkl):
+    def _calc_tancos(self, th_hkl):
         """
         tth_hkl in radianas
+        calculate tangenth (theta)
         """
-        self._p_t_tth = numpy.tan(tth_hkl)
-        self._p_t_tth_sq = self._p_t_tth**2
-        res = numpy.cos(tth_hkl)
+        self._p_t_th = numpy.tan(th_hkl)
+        self._p_t_th_sq = self._p_t_th**2
+        res = numpy.cos(th_hkl)
 
-        self._p_c_tth = res
-        self._p_ic_tth = 1./res
+        self._p_c_th = res
+        self._p_ic_th = 1./res
         
     def _calc_hg(self, i_g = 0.):
         """
@@ -99,8 +100,8 @@ x, y are coefficients to describe the Lorentz part of peak shape
         gauss size
         """
         
-        res_sq = (self._p_u*self._p_t_tth_sq + self._p_v*self._p_t_tth + 
-                  self._p_w + i_g*self._p_ic_tth**2)
+        res_sq = (self._p_u*self._p_t_th_sq + self._p_v*self._p_t_th + 
+                  self._p_w + i_g*self._p_ic_th**2)
         self._p_hg = numpy.sqrt(res_sq)
         
     def _calc_hl(self):
@@ -108,7 +109,7 @@ x, y are coefficients to describe the Lorentz part of peak shape
         ttheta in radians, could be array
         lorentz site
         """
-        self._p_hl = self._p_x*self._p_t_tth + self._p_y*self._p_ic_tth
+        self._p_hl = self._p_x*self._p_t_th + self._p_y*self._p_ic_th
 
 
     def _calc_hpveta(self):
@@ -146,7 +147,7 @@ x, y are coefficients to describe the Lorentz part of peak shape
         Calculate parameters for tth
         tth_hkl in degrees
         """
-        self._calc_tancos(tth_hkl*numpy.pi/180.)
+        self._calc_tancos(0.5*tth_hkl*numpy.pi/180.)
         self._calc_hg(i_g = i_g)
         self._calc_hl()
         self._calc_hpveta()
@@ -166,12 +167,12 @@ x, y are coefficients to describe the Lorentz part of peak shape
 
 
 
-class FactorLorentz1DPD(dict):
+class FactorLorentzPowder1D(dict):
     """
     Lorentz Factor for one dimensional powder diffraction
     """
     def __init__(self):
-        super(FactorLorentz1DPD, self).__init__()
+        super(FactorLorentzPowder1D, self).__init__()
         dd= {}
         self.update(dd)
         
@@ -220,12 +221,12 @@ no parameters
 
 
 
-class Asymmetry1DPD(dict):
+class AsymmetryPowder1D(dict):
     """
     Asymmetry of the diffractometer
     """
     def __init__(self, p1 = 0., p2 = 0., p3 = 0., p4 = 0.):
-        super(Asymmetry1DPD, self).__init__()
+        super(AsymmetryPowder1D, self).__init__()
         self._p_p1 = None
         self._p_p2 = None
         self._p_p3 = None
@@ -392,12 +393,12 @@ p_u, p_d is describe the polarization of the beam at the flipper position up
 
 
         
-class Background1DPD(dict):
+class BackgroundPowder1D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
     def __init__(self, tth_bkgd=0., int_bkdg=0.):
-        super(Background1DPD, self).__init__()
+        super(BackgroundPowder1D, self).__init__()
         self._p_tth_bkgd = None
         self._p_int_bkdg = None
         
@@ -477,15 +478,15 @@ int_bkdg is intensity to describe background
 
 
 
-class Setup1DPD(dict):
+class SetupPowder1D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
     def __init__(self, label="exp", wavelength=1.4, zero_shift=0., 
-                 resolution=Resolution1DPD(), factor_lorentz=FactorLorentz1DPD(), 
-                 asymmetry=Asymmetry1DPD(), beam_polarization=BeamPolarization(),
-                 background=Background1DPD()):
-        super(Setup1DPD, self).__init__()
+                 resolution=ResolutionPowder1D(), factor_lorentz=FactorLorentzPowder1D(), 
+                 asymmetry=AsymmetryPowder1D(), beam_polarization=BeamPolarization(),
+                 background=BackgroundPowder1D()):
+        super(SetupPowder1D, self).__init__()
         self._p_label = None
         self._p_wavelength = None
         self._p_zero_shift = None
@@ -611,12 +612,13 @@ background  is Background class
         """
         tth and tth_hkl in degrees
         """
-        
-        np_shape_2d = self.calc_shape_profile(tth, tth_hkl, i_g=i_g)
+        zero_shift = self._p_zero_shift
+        tth_zs = tth-zero_shift
+        np_shape_2d = self.calc_shape_profile(tth_zs, tth_hkl, i_g=i_g)
         asymmetry = self.get_val("asymmetry")
-        np_ass_2d = asymmetry.calc_asymmetry(tth, tth_hkl)
+        np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl)
         factor_lorentz = self.get_val("factor_lorentz")
-        np_lor_1d = factor_lorentz.calc_f_lorentz(tth)
+        np_lor_1d = factor_lorentz.calc_f_lorentz(tth_zs)
         
         
         np_lor_2d = numpy.meshgrid(np_lor_1d, tth_hkl, indexing="ij")[0]

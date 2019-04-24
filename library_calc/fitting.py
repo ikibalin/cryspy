@@ -6,7 +6,7 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
-from experiment_pd import *
+from experiment_powder_1d import *
 
 
 class Fitting(dict):
