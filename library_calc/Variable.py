@@ -7,7 +7,9 @@ attributes
 __author__ = 'ikibalin'
 __version__ = "2019_04_02$"
 
-class Variable():
+import numpy
+
+class Variable(dict):
     """
     general class for Variable
     """
@@ -43,37 +45,72 @@ class Variable():
         """
         output is float
         """
-        return self.value+var2
+        if type(var2) is numpy.ndarray:
+            res_1 = self.value+var2
+            res = res_1.astype(var2.dtype)
+        else:
+            res = self.value+var2
+        return res
     def __radd__(self, var2):
         """
         output is float
         """
-        return self.value+var2
+        if type(var2) is numpy.ndarray:
+            res_1 = var2+self.value
+            res = res_1.astype(var2.dtype)
+        else:
+            res = var2+self.value
+        return res
     def __sub__(self, var2):
         """
         output is float
         """
-        return self.value-var2
+        if type(var2) is numpy.ndarray:
+            res_1 = self.value-var2
+            res = res_1.astype(var2.dtype)
+        else:
+            res = self.value-var2
+        return res
     def __rsub__(self, var2):
         """
         output is float
         """
-        return var2-self.value
+        if type(var2) is numpy.ndarray:
+            res_1 = var2-self.value
+            res = res_1.astype(var2.dtype)
+        else:
+            res = var2-self.value
+        return res
     def __mul__(self, var2):
         """
         output is float
         """
-        return self.value*var2
+        if type(var2) is numpy.ndarray:
+            res_1 = self.value*var2
+            res = res_1.astype(var2.dtype)
+        else:
+            res = self.value*var2
+        return res 
     def __rmul__(self, var2):
         """
         output is float
         """
-        return self.value*var2
+        if type(var2) is numpy.ndarray:
+            res_1 = self.value*var2
+            res = res_1.astype(var2.dtype)
+        else:
+            res = self.value*var2
+        return res
     def __div__(self, var2):
         """
         output is float
         """
-        return self.value*1./var2
+        if type(var2) is numpy.ndarray:
+            res_1 = self.value*1./var2
+            res = res_1.astype(var2.dtype)
+        else:
+            res = self.value*1./var2
+        return res 
     def __rdiv__(self, var2):
         """
         output is float
@@ -93,7 +130,7 @@ class Variable():
         """
         output is float
         """
-        return self.value%var2
+        return s-elf.value%var2
     def __rmod__(self, var2):
         """
         output is float

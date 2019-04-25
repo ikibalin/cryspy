@@ -500,7 +500,14 @@ class SetupPowder1D(dict):
                       factor_lorentz, asymmetry, beam_polarization, background)
 
     def __repr__(self):
-        lsout = """Setup:\n """.format(None)
+        lsout = """Setup:\n label: {:}, wavelength: {:}, zero_shift {:}
+ resolution: {:}
+ factor_lorentz: {:}
+ asymmetry: {:}
+ beam_polarization: {:}
+ background: {:}""".format(self._p_label, self._p_wavelength, 
+ self._p_zero_shift, self._p_resolution, self._p_factor_lorentz, 
+ self._p_asymmetry, self._p_beam_polarization, self._p_background)
         return lsout
 
     def _refresh(self, label, wavelength, zero_shift, resolution, 
@@ -565,7 +572,6 @@ background  is Background class
         one dimensional gauss powder diffraction
         """
         ag, bg = self._p_ag, self._p_bg
-        
         self._p_gauss_pd = ag*numpy.exp(-bg*tth_2d**2)
         
     def _lor_pd(self, tth_2d):
@@ -612,7 +618,7 @@ background  is Background class
         """
         tth and tth_hkl in degrees
         """
-        zero_shift = self._p_zero_shift
+        zero_shift = 1*self._p_zero_shift
         tth_zs = tth-zero_shift
         np_shape_2d = self.calc_shape_profile(tth_zs, tth_hkl, i_g=i_g)
         asymmetry = self.get_val("asymmetry")

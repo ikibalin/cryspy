@@ -6,12 +6,13 @@ Created on Sun Apr 14 19:45:08 2019
 """
 
 import matplotlib.pyplot
-
+import numpy
 
 from crystal import *
 from calculated_data import *
 from experiment_powder_1d import *
 from observed_data import *
+from Variable import *
 
 
 cell = Cell(a=8.5502, singony="Cubic")
@@ -64,10 +65,23 @@ np_tth = observed_data.get_val('tth')
 int_u_exp = observed_data.get_val("int_u")
 int_d_exp = observed_data.get_val("int_d")
 
+
+np_tth = numpy.linspace(2,60,200)
+
 int_u, int_d = experiment_powder_1d.calc_profile(np_tth)
-matplotlib.pyplot.plot(np_tth, int_u_exp+int_d_exp, "k-", np_tth, int_u+int_d, "b-")
-
-
 matplotlib.pyplot.plot(np_tth, int_u+int_d, "k-", np_tth, int_u-int_d, "b-")
 
 
+matplotlib.pyplot.plot(np_tth, int_u_exp+int_d_exp, "k-", np_tth, int_u+int_d, "b-")
+
+dd=Variable(val=0)
+
+
+setup.set_val(zero_shift=dd)
+
+
+
+
+dd["val"]=-0.777
+int_u2, int_d = experiment_powder_1d.calc_profile(np_tth)
+matplotlib.pyplot.plot(np_tth, int_u+int_d, "k-", np_tth, int_u-int_d, "b-")

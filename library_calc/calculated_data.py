@@ -21,8 +21,8 @@ class CalculatedDataPowder1D(dict):
         self._refresh(scale, field, crystal)
 
     def __repr__(self):
-        lsout = """Calculated data:\n scale {:}\n crystal: {:}""".format(
-                self._p_scale, self._p_crystal)
+        lsout = """Calculated data 1D:\n scale {:}\n field {:}\n{:}""".format(
+                self._p_scale, self._p_field, self._p_crystal)
         return lsout
 
     def _refresh(self, scale, field, crystal):
@@ -56,6 +56,7 @@ class CalculatedDataPowder1D(dict):
         lsout = """
 Parameters:
 scale is the scale factor for crystal
+field is the value of magnetic field applied along vertical direction in Tesla
 crystal is the definition of crystal 
         """
         print(lsout)
@@ -106,6 +107,82 @@ crystal is the definition of crystal
         return iint_u, iint_d
     
 
+class CalculatedDataPowder2D(dict):
+    """
+    Calculate the model data for 2D powder diffraction experiment
+    """
+    def __init__(self, scale=1., field=1., crystal=Crystal()):
+        super(CalculatedDataPowder2D, self).__init__()
+        self._p_scale = None
+        self._p_field = None
+        self._p_crystal = None
+        self._refresh(scale, field, crystal)
+
+    def __repr__(self):
+        lsout = """Calculated data 2D:\n scale {:}\n field {:}\n{:}""".format(
+                self._p_scale, self._p_field, self._p_crystal)
+        return lsout
+
+    def _refresh(self, scale, field, crystal):
+        if not(isinstance(scale, type(None))):
+            self._p_scale = scale
+        if not(isinstance(field, type(None))):
+            self._p_field = field
+        if not(isinstance(crystal, type(None))):
+            self._p_crystal = crystal
+            
+    def set_val(self, scale=None, field=None, crystal=None):
+        self._refresh(scale, field, crystal)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+scale is the scale factor for crystal
+field is the value of magnetic field applied along vertical direction in Tesla
+crystal is the definition of crystal 
+        """
+        print(lsout)
+    
+    def calc_for_iint(self, h, k, l):
+        """
+        calculate the integral intensity for h, k, l reflections
+        """
+        crystal = self._p_crystal
+        field = self._p_field
+        p_u = beam_polarization.get_val("p_u")
+        p_d = beam_polarization.get_val("p_d")
+
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        
+        cell = crystal.get_val("cell")
+        
+        #k_loc = cell.calc_k_loc(h, k, l)
+        t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 = cell.calc_m_t(h, k, l)
+        
+        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(
+                t_11, t_21, t_31, t_12, t_22, t_32, t_13, t_23, t_33,
+                sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, 
+                sft_33)
+        fm_p_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
+        fm_p_field = field*0.5*(th_11+th_22) 
+        cross = 2.*(f_nucl.real*fm_p_field.real+f_nucl.imag*fm_p_field.imag)
+        return fm_p_sq, fm_p_field, cross
         
 if (__name__ == "__main__"):
   pass
