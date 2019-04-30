@@ -1,5 +1,5 @@
 #wavelength 0.84
-#field 0. 0. 1.0
+#field 1.0
 #   ttheta     IntUP    sIntUP   IntDOWN  sIntDOWN
  4.00   465.80000   128.97000   301.88000   129.30000
  4.20   323.78000   118.22000   206.06000   120.00000

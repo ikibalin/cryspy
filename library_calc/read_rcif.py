@@ -17,6 +17,7 @@ from crystal import *
 from experiment_powder_1d import *
 from fitting import *
 from setup_powder_1d import *
+from setup_powder_2d import *
 from observed_data import *
 
 
@@ -649,10 +650,10 @@ def put_con(obj, lparam1, lparam2, lcoeff):
 
 def rcif_core_relation():
     #phase    
-    llab_rcif_ph = ["name", "_cell_length_a", "_cell_length_b", "_cell_length_c",
+    llab_rcif_ph = ["_cell_length_a", "_cell_length_b", "_cell_length_c",
                  "_cell_angle_alpha", "_cell_angle_beta", "_cell_angle_gamma"]
-    llab_core_ph = ["name", "cella", "cellb", "cellc",
-                  "cellalpha", "cellbeta", "cellgamma"]
+    llab_core_ph = ["a", "b", "c",
+                  "alpha", "beta", "gamma"]
     ltype_ph = ["text", "val", "val", "val", "val", "val", "val"]
 
     llab_rcif_sp = ["_space_group_name_H-M_alt", '_space_group_it_coordinate_system_code']
@@ -801,6 +802,10 @@ def rcif_core_relation():
 
 def trans_to_crystal(data):
     crystal = Crystal()
+    space_groupe = crystal.get_val("space_groupe")
+    cell = crystal.get_val("cell")
+    atom_site = crystal.get_val("atom_site")
+    
     drel = rcif_core_relation()
     
     llab_rcif = drel["lab_rcif_ph"]
@@ -948,7 +953,8 @@ def from_dict_to_obj(dict_i, llab_d, obj, llab_o, ltype):
         else:
             print "mistake in type variable of 'from_dict_to_obj' function"
             val = None
-        obj.__dict__[llab_o[numb]] = val
+        obj.set_val(llab_o[numb]=val)
+        obj.__dict__["_p_"+llab_o[numb]] = val
     return
 
 
