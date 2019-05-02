@@ -486,13 +486,13 @@ class SetupPowder2D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, label="exp", wavelength=1.4, zero_shift=0., 
+    def __init__(self, label="exp", wave_length=1.4, zero_shift=0., 
                  resolution=ResolutionPowder2D(), factor_lorentz=FactorLorentzPowder2D(), 
                  asymmetry=AsymmetryPowder2D(), beam_polarization=BeamPolarization(),
                  background=BackgroundPowder2D()):
         super(SetupPowder2D, self).__init__()
         self._p_label = None
-        self._p_wavelength = None
+        self._p_wave_length = None
         self._p_zero_shift = None
         self._p_resolution = None
         self._p_factor_lorentz = None
@@ -500,22 +500,22 @@ class SetupPowder2D(dict):
         self._p_beam_polarization = None
         self._p_background = None
         
-        self._refresh(label, wavelength, zero_shift, resolution, 
+        self._refresh(label, wave_length, zero_shift, resolution, 
                       factor_lorentz, asymmetry, beam_polarization, background)
 
     def __repr__(self):
-        lsout = """Setup 2D:\n label: {:}, wavelength: {:}, zero_shift {:}
- {:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, self._p_wavelength, 
+        lsout = """Setup 2D:\n label: {:}, wave_length: {:}, zero_shift {:}
+ {:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, self._p_wave_length, 
  self._p_zero_shift, self._p_resolution, self._p_factor_lorentz, 
  self._p_asymmetry, self._p_beam_polarization, self._p_background)
         return lsout
 
-    def _refresh(self, label, wavelength, zero_shift, resolution, 
+    def _refresh(self, label, wave_length, zero_shift, resolution, 
                  factor_lorentz, asymmetry, beam_polarization, background):
         if label is not None:
             self._p_label = label
-        if wavelength is not None:
-            self._p_wavelength = wavelength
+        if wave_length is not None:
+            self._p_wave_length = wave_length
         if zero_shift is not None:
             self._p_zero_shift = zero_shift
         if resolution is not None:
@@ -529,11 +529,11 @@ class SetupPowder2D(dict):
         if background is not None:
             self._p_background = background
             
-    def set_val(self, label=None, wavelength=None, zero_shift=None, 
+    def set_val(self, label=None, wave_length=None, zero_shift=None, 
                 resolution=None, factor_lorentz=None, asymmetry=None, 
                 beam_polarization=None, background=None):
         
-        self._refresh(label, wavelength, zero_shift, resolution, 
+        self._refresh(label, wave_length, zero_shift, resolution, 
                       factor_lorentz, asymmetry, beam_polarization, background)
         
     def get_val(self, label):
@@ -556,7 +556,7 @@ class SetupPowder2D(dict):
         lsout = """
 Parameters:
 label is just to make labe
-wavelength is to describe wavelength in angstrems
+wave_length is to describe wave_length in angstrems
 zero_shift is to describe zeroshift in degrees
 
 resolution is a class to describe resolution of powder diffractometer

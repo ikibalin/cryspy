@@ -482,13 +482,13 @@ class SetupPowder1D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, label="exp", wavelength=1.4, zero_shift=0., 
+    def __init__(self, label="exp", wave_length=1.4, zero_shift=0., 
                  resolution=ResolutionPowder1D(), factor_lorentz=FactorLorentzPowder1D(), 
                  asymmetry=AsymmetryPowder1D(), beam_polarization=BeamPolarization(),
                  background=BackgroundPowder1D()):
         super(SetupPowder1D, self).__init__()
         self._p_label = None
-        self._p_wavelength = None
+        self._p_wave_length = None
         self._p_zero_shift = None
         self._p_resolution = None
         self._p_factor_lorentz = None
@@ -496,26 +496,22 @@ class SetupPowder1D(dict):
         self._p_beam_polarization = None
         self._p_background = None
         
-        self._refresh(label, wavelength, zero_shift, resolution, 
+        self._refresh(label, wave_length, zero_shift, resolution, 
                       factor_lorentz, asymmetry, beam_polarization, background)
 
     def __repr__(self):
-        lsout = """Setup:\n label: {:}, wavelength: {:}, zero_shift {:}
- resolution: {:}
- factor_lorentz: {:}
- asymmetry: {:}
- beam_polarization: {:}
- background: {:}""".format(self._p_label, self._p_wavelength, 
+        lsout = """Setup:\n label: {:}, wave_length: {:}, zero_shift {:}
+{:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, self._p_wave_length, 
  self._p_zero_shift, self._p_resolution, self._p_factor_lorentz, 
  self._p_asymmetry, self._p_beam_polarization, self._p_background)
         return lsout
 
-    def _refresh(self, label, wavelength, zero_shift, resolution, 
+    def _refresh(self, label, wave_length, zero_shift, resolution, 
                  factor_lorentz, asymmetry, beam_polarization, background):
         if not(isinstance(label, type(None))):
             self._p_label = label
-        if not(isinstance(wavelength, type(None))):
-            self._p_wavelength = wavelength
+        if not(isinstance(wave_length, type(None))):
+            self._p_wave_length = wave_length
         if not(isinstance(zero_shift, type(None))):
             self._p_zero_shift = zero_shift
         if not(isinstance(resolution, type(None))):
@@ -529,11 +525,11 @@ class SetupPowder1D(dict):
         if not(isinstance(background, type(None))):
             self._p_background = background
             
-    def set_val(self, label=None, wavelength=None, zero_shift=None, 
+    def set_val(self, label=None, wave_length=None, zero_shift=None, 
                 resolution=None, factor_lorentz=None, asymmetry=None, 
                 beam_polarization=None, background=None):
         
-        self._refresh(label, wavelength, zero_shift, resolution, 
+        self._refresh(label, wave_length, zero_shift, resolution, 
                       factor_lorentz, asymmetry, beam_polarization, background)
         
     def get_val(self, label):
@@ -556,7 +552,7 @@ class SetupPowder1D(dict):
         lsout = """
 Parameters:
 label is just to make labe
-wavelength is to describe wavelength in angstrems
+wave_length is to describe wave_length in angstrems
 zero_shift is to describe zeroshift in degrees
 
 resolution is a class to describe resolution of powder diffractometer
@@ -682,3 +678,61 @@ background  is Background class
         bkgd = numpy.zeros(tth.shape, dtype=float)
         return bkgd 
                     
+
+
+class SetupSingle(dict):
+    """
+    Class to describe characteristics of powder diffractometer
+    """
+    def __init__(self, label="exp", wave_length=1.4, beam_polarization=BeamPolarization()):
+        super(SetupSingle, self).__init__()
+        self._p_label = None
+        self._p_wave_length = None
+        self._p_beam_polarization = None
+        
+        self._refresh(label, wave_length, beam_polarization)
+
+    def __repr__(self):
+        lsout = """Setup:\n label: {:}, wave_length: {:}
+{:}""".format(self._p_label, self._p_wave_length, 
+ self._p_beam_polarization)
+        return lsout
+
+    def _refresh(self, label, wave_length, beam_polarization):
+        if label is not None:
+            self._p_label = label
+        if wave_length  is not None:
+            self._p_wave_length = wave_length
+        if beam_polarization  is not None:
+            self._p_beam_polarization = beam_polarization
+            
+    def set_val(self, label=None, wave_length=None, beam_polarization=None):
+        
+        self._refresh(label, wave_length, beam_polarization)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters for setup_single:
+label is just to make labe
+wave_length is to describe wave_length in angstrems
+
+beam_polarization is a class to describe beam polarization
+        """
+        print(lsout)
+

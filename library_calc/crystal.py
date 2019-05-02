@@ -349,6 +349,23 @@ m_ib - inverse B matrix
         inv_d = (B*1./A)**0.5
         return 0.5*inv_d
 
+    def calc_k_loc(self, h, k, l):
+        """
+        calculate unity scattering vector
+        """
+        m_b = self.get_val("m_b")
+        k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
+        k_y = m_b[1, 0]*h + m_b[1, 1]*k +m_b[1, 2]*l
+        k_z = m_b[2, 0]*h + m_b[2, 1]*k +m_b[2, 2]*l
+        
+        k_norm = (k_x**2 + k_y**2 + k_z**2)**0.5
+        k_norm[k_norm == 0.] = 1.
+        
+        k_x = k_x/k_norm
+        k_y = k_y/k_norm
+        k_z = k_z/k_norm
+        
+        return k_x, k_y, k_z
         
     def calc_m_t(self, h, k, l):
         """define rotation matrix to have new z axis along kloc
@@ -1928,40 +1945,152 @@ fract  is fraction of atoms
             sft_31, sft_32, sft_33 = sft_as_31, sft_as_32, sft_as_33            
             
         return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
+
+
+class Extinction(dict):
+    """
+    Extinction
+    """
+    def __init__(self, domain_radius=0., mosaicity=0., model="gauss"):
+        super(Extinction, self).__init__()
+        self._p_domain_radius = None
+        self._p_mosaicity = None
+        self._p_model = None
+        self._refresh(domain_radius, mosaicity, model)
+
+    def __repr__(self):
+        lsout = """Extinction: \n model: {:},\n domain_radius: {:}
+ mosaicity: {:}""".format(self._p_model, self._p_domain_radius, 
+ self._p_mosaicity)
+        return lsout
+
+
+    def _refresh(self, domain_radius, mosaicity, model):
+        
+        if domain_radius is not None:
+            self._p_domain_radius = domain_radius
+        if mosaicity is not None:
+            self._p_mosaicity = mosaicity
+        if model is not None:
+            self._p_model = model
+
+    def set_val(self, domain_radius=None, mosaicity=None, model=None):
+        self._refresh(domain_radius, mosaicity, model)
+        
+    def get_val(self, label):
+        lab = "_p_"+label
+        
+        if lab in self.__dict__.keys():
+            val = self.__dict__[lab]
+            if isinstance(val, type(None)):
+                self.set_val()
+                val = self.__dict__[lab]
+        else:
+            print("The value '{:}' is not found".format(lab))
+            val = None
+        return val
+
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+model can be "gauss" of "lorentz" model
+domain_radius is the averaged radius of domains in Angstrems (???)
+mosaicity is the mosaicity of domains in Minutes (???)
+        """
+        print(lsout)
+        
+    def calc_extinction(self, cell, h, k, l, f_sq, wave_length):
+        """
+        f_sq in 10-12cm
+        extinction for spherical model
+        """
+        r = 1*self._p_domain_radius
+        g = 1*self._p_mosaicity
+        model = self._p_model
+        kk = 1.
+        vol = cell.get_val("vol")
+        sthovl = cell.calc_sthovl(h, k, l)
+        stheta = sthovl * wave_length
+        s2theta = 2. * stheta * (1. - stheta**2)**0.5
+        c2theta = 1. - 2. * stheta**2
+    
+        q = (f_sq*kk/vol**2)*(wave_length**3)*1./s2theta
+    
+        t = 1.5*r
+        alpha = 1.5*r*s2theta*1./wave_length
+        x = 2./3*q*alpha*t
+    
+        A = 0.20 + 0.45 * c2theta
+        B = 0.22 - 0.12 * (0.5-c2theta)**2
+        yp = (1+2*x+(A*x**2)*1./(1.+B*x))**(-0.5)
+        
+        ag = numpy.zeros(h.shape, dtype=float)
+        al = numpy.zeros(h.shape, dtype=float)
+        
+        flag = alpha != 0.
+        ag[flag] = alpha[flag]*g*(g**2+0.5*alpha[flag]**2)**(-0.5)
+        al[flag] = alpha[flag]*g*1./(g+alpha[flag]*2./3.)
+        
+        if model == "gauss":
+            xs = 2./3.*q*ag*t
+            A = 0.58 + 0.48 * c2theta + 0.24 * c2theta**2
+            B = 0.02 - 0.025 * c2theta
+            #print("A, B", A, B)
+            ys = (1+2.12*xs+(A*xs**2)*1./(1+B*xs))**(-0.5)
+        elif model == "lorentz":
+            xs = 2./3.*q*al*t
+            A = 0.025 + 0.285 * c2theta
+            B = -0.45 * c2theta
+            flag = c2theta>0
+            B[flag] = 0.15 - 0.2 * (0.75-c2theta[flag])**2
+            ys = (1+2*xs+(A*xs**2)*1./(1+B*xs))**(-0.5)
+        else:
+            ys = 1.
+        #print("ys", ys)
+        yext = yp * ys
+        return yext
+            
+
     
 class Crystal(dict):
     """
     Crystal
     """
     def __init__(self, space_groupe = SpaceGroupe(), cell = Cell(), 
-                 atom_site = AtomSite(), i_g = 0.):
+                 atom_site = AtomSite(), extinction=Extinction(), i_g = 0.):
         super(Crystal, self).__init__()
         
         self._p_space_groupe = None
         self._p_cell = None
         self._p_atom_site = None
+        self._p_extinction = None
         self._p_i_g = None
-        self._refresh(space_groupe, cell, atom_site, i_g)
+        self._refresh(space_groupe, cell, atom_site, extinction, i_g)
         
     def __repr__(self):
-        lsout = """Phase: \n i_g: {:}\n space groupe: {:}\n cell {:}
- atom_site {:}""".format(self._p_i_g, self._p_space_groupe, self._p_cell, 
-                         self._p_atom_site)
+        lsout = """Phase: \n i_g: {:}\n{:}\n{:}\n{:}
+{:}""".format(self._p_i_g, self._p_space_groupe, self._p_cell, 
+                         self._p_atom_site, self._p_extinction)
         return lsout
 
-    def _refresh(self, space_groupe, cell, atom_site, i_g):
-        if not(isinstance(space_groupe, type(None))):
+    def _refresh(self, space_groupe, cell, atom_site, extinction, i_g):
+        if space_groupe is not None:
             self._p_space_groupe = space_groupe
-        if not(isinstance(cell, type(None))):
+        if cell is not None:
             self._p_cell = cell
-        if not(isinstance(atom_site, type(None))):
+        if atom_site is not None:
             self._p_atom_site = atom_site
-        if not(isinstance(i_g, type(None))):
+        if extinction is not None:
+            self._p_extinction = extinction
+        if i_g is not None:
             self._p_i_g = i_g
 
-    def set_val(self, space_groupe = None, cell = None, atom_site = None, 
-                i_g = None):
-        self._refresh(space_groupe, cell, atom_site, i_g)
+    def set_val(self, space_groupe=None, cell=None, atom_site=None, 
+                extinction=None, i_g=None):
+        self._refresh(space_groupe, cell, atom_site, extinction, i_g)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -2065,7 +2194,14 @@ class Crystal(dict):
         """
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
     
-
+    def calc_extinction(self, h, k, l, fp_sq, fm_sq, fpm_sq, wave_length):
+        cell = self._p_cell
+        extinction = self._p_extinction
+        yp = extinction.calc_extinction(cell, h, k, l, fp_sq, wave_length)
+        ym = extinction.calc_extinction(cell, h, k, l, fm_sq, wave_length)
+        ypm = extinction.calc_extinction(cell, h, k, l, fpm_sq, wave_length)
+        return yp, ym, ypm
+        
     
 if (__name__ == "__main__"):
   pass

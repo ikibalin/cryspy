@@ -14,14 +14,16 @@ fdir_1 = os.path.join(fdir, "cwidgets")
 sys.path.append(fdir_1)
 """
 from crystal import *
-from experiment_powder_1d import *
-from fitting import *
+from calculated_data import *
 from setup_powder_1d import *
 from setup_powder_2d import *
 from observed_data import *
+from experiment import *
+from fitting import *
+from variable import *
 
 
-class crcif(object):
+class RCif(object):
     """
     class to store rcif data
     """
@@ -50,7 +52,7 @@ class crcif(object):
         fid.close()
 
     
-    def take_from_ccore(self, ccore):
+    def take_from_fitting(self, ccore):
         def temp_func(obj, ddata, l_rcif, l_core, t_core):
             lkey = obj.__dict__.keys()
             if l_core in lkey:
@@ -64,7 +66,7 @@ class crcif(object):
                     ddata[l_rcif] = sval 
             return
             
-        drel = rcif_core_relation()
+        drel = rcif_fitting_relation()
         lab_rcif = drel["lab_rcif_ref"]
         lab_core = drel["lab_core_ref"]
         type_core = drel["type_ref"]
@@ -254,55 +256,57 @@ class crcif(object):
                 
             self.data.append(d_exp)
 
-    def trans_to_crystal(self):
-        res_type = []
-        lphase = []
-        lexp = []
-        lref = []
+    def trans_to_fitting(self):
+        l_crystal = []
+        l_experiment = []
+        l_refinement = []
+        l_variable = []
         for data in self.data:
-            lab_phase = "_cell"
-            lab_exp_pd = "_pd"
-            lab_exp_2dpd = "_2dpd"
+            lab_crystal = "_cell"
+            lab_exp_pd_1d = "_pd"
+            lab_exp_pd_2d = "_2dpd"
             lab_exp_sd = "_sd"
             lab_ref = "_refinement"
             lkey = data.keys()
-            flag_ph = any([hh.startswith(lab_phase) for hh in lkey])
-            flag_exp_pd = any([hh.startswith(lab_exp_pd) for hh in lkey])
-            flag_exp_2dpd = any([hh.startswith(lab_exp_2dpd) for hh in lkey])
+            flag_ph = any([hh.startswith(lab_crystal) for hh in lkey])
+            flag_exp_pd = any([hh.startswith(lab_exp_pd_1d) for hh in lkey])
+            flag_exp_2dpd = any([hh.startswith(lab_exp_pd_2d) for hh in lkey])
             flag_exp_sd = any([hh.startswith(lab_exp_sd) for hh in lkey])
             flag_ref = any([hh.startswith(lab_ref) for hh in lkey])
             if flag_ph:
-                phase = trans_to_cphase(data)
-                lphase.append(phase)
+                crystal, l_variable_crystal = trans_to_crystal(data)
+                l_crystal.append(crystal)
+                l_variable.extend(l_variable_crystal)
             elif flag_exp_pd:
-                exp = trans_pd_to_cexp(data)
-                lexp.append(exp)
+                experiment, l_variable_experiment = trans_pd_to_experiment(data)
+                l_experiment.append(experiment)
+                l_variable.extend(l_variable_experiment)
             elif flag_exp_2dpd:
-                exp = trans_2dpd_to_cexp(data)
-                lexp.append(exp)
+                experiment, l_variable_experiment = trans_2dpd_to_experiment(data)
+                l_experiment.append(experiment)
+                l_variable.extend(l_variable_experiment)
             elif flag_exp_sd:
-                exp = trans_sd_to_cexp(data)
-                lexp.append(exp)
+                experiment, l_variable_experiment = trans_sd_to_experiment(data)
+                l_experiment.append(experiment)
+                l_variable.extend(l_variable_experiment)
             elif flag_ref:
-                ref, data_ref, data_con = trans_to_cref(data)
-                lref.append(ref)
+                refinement = trans_to_refinement(data)
+                l_refinement.append(refinement)
+                l_variable.extend(l_variable_experiment)
 
-        core = ccore.ccore()
-        core.ph = lphase
-        core.exp = lexp
-        core.ref = lref
-        if data_ref != {}:
-            lparam = data_ref["_refinement_param1"]
-            put_ref(core, lparam)
-        if data_con != {}:
-            lparam1 = data_con["_constraint_param1"]
-            lparam2 = data_con["_constraint_param2"]
-            lcoeff = data_con["_constraint_coeff"]
-            put_con(core, lparam1, lparam2, lcoeff)
-        return core
+        load_crystal_to_experiment(l_experiment, l_crystal)
+
+        fitting = Fitting()
+        for experiment in l_experiment:
+            fitting.add_experiment(experiment)
+        for variable in l_variable:
+            fitting.add_variable(variable)
+        
+        return fitting
 
 def get_link_rcif(link_core, ccore):
-    print ""
+    """
+    """
     link_core_2 = "".join([hh for hh in link_core.split()])[1:-1]
     
     lhelp = link_core_2.split(')(')
@@ -314,7 +318,7 @@ def get_link_rcif(link_core, ccore):
         link_rcif += "_${:}".format(name_2)
     name_core = lhelp[-1]
     
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     if type_1 == "exp":
         lname_exp = [hh.name for hh in ccore.exp]
         ind = lname_exp.index(name_1)
@@ -345,7 +349,7 @@ def get_link(obj, drel, param):
     if flag_1:
         name = lhelp[0][1:]
     else:
-        print "Mistake in link '{:}'".format(param)
+        print("Mistake in link '{:}'".format(param))
         return ""
     flag_exp = (name in lname_exp)
     flag_ph = (name in lname_ph)
@@ -407,16 +411,17 @@ def get_link(obj, drel, param):
                     ind = drel["lab_rcif_sp"].index(param_s)
                     slink += "({:})".format(drel["lab_core_sp"][ind])
     else:
-        print "Mistake with naming of phase or experiment in link '{:}'".format(param)
+        print("Mistake with naming of phase or experiment in link '{:}'".format(
+                param))
         return ""
     if ind == -1:
-        print "Code word in '{:}' is not defined".format(param)
+        print("Code word in '{:}' is not defined".format(param))
         return ""
     return slink 
 
 
 def rcif_to_str(drcif):
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
 
 
     def temp_func(dd2, llab):
@@ -628,7 +633,7 @@ def rcif_to_str(drcif):
     return lstr
 
 def put_ref(obj, lparam):
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     for param in lparam:
         slink = get_link(obj, drel, param)
         val_1, message = obj.set_val_by_link(slink, None)
@@ -637,7 +642,7 @@ def put_ref(obj, lparam):
 
 
 def put_con(obj, lparam1, lparam2, lcoeff):
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     for param1, param2, coeff in zip(lparam1, lparam2, lcoeff):
         slink_obj = get_link(obj, drel, param1)
         slink_sub = get_link(obj, drel, param2)
@@ -648,7 +653,7 @@ def put_con(obj, lparam1, lparam2, lcoeff):
         obj.set_val_by_link(slink_obj, val_1)    
 
 
-def rcif_core_relation():
+def rcif_fitting_relation():
     #phase    
     llab_rcif_ph = ["_cell_length_a", "_cell_length_b", "_cell_length_c",
                  "_cell_angle_alpha", "_cell_angle_beta", "_cell_angle_gamma"]
@@ -800,13 +805,42 @@ def rcif_core_relation():
     return drel
 
 
+
+
+def from_dict_to_obj(dict_i, llab_d, obj, llab_o, ltype):
+    lkey = dict_i.keys()
+    lnumb = [ihh for ihh, hh in enumerate(llab_d) if (hh in lkey)]
+    for numb in lnumb:
+        if ltype[numb] == "val":
+            #val = [dict_i[llab_d[numb]], False, ""]
+            val = dict_i[llab_d[numb]]
+        elif ltype[numb] == "text":
+            val = dict_i[llab_d[numb]]
+        elif ltype[numb] == "list":
+            val = dict_i[llab_d[numb]]
+        elif ltype[numb] == "logic":
+            val = dict_i[llab_d[numb]]
+        else:
+            print("mistake in type variable of 'from_dict_to_obj' function")
+            val = None
+        obj.set_val(val)
+        help(crystal.set_val)
+        crystal.set_val.kward
+        #obj.set_val(llab_o[numb]=val)
+        #obj.__dict__["_p_"+llab_o[numb]] = val
+    return
+
 def trans_to_crystal(data):
+    """
+    transform info in dictionary to class Crystal and give the list of refined parameters
+    """
+    l_variable = []
     crystal = Crystal()
     space_groupe = crystal.get_val("space_groupe")
     cell = crystal.get_val("cell")
     atom_site = crystal.get_val("atom_site")
     
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     
     llab_rcif = drel["lab_rcif_ph"]
     llab_crystal = drel["lab_crystal_ph"]
@@ -935,34 +969,18 @@ def trans_to_crystal(data):
                     elif typ == "val":
                         atom.__dict__[lab] = [obj_lat_bscat.__dict__[lab][ind], False, ""]
     phase.atom = latom
-    return phase
+    return phase, l_variable
 
 
-def from_dict_to_obj(dict_i, llab_d, obj, llab_o, ltype):
-    lkey = dict_i.keys()
-    lnumb = [ihh for ihh, hh in enumerate(llab_d) if (hh in lkey)]
-    for numb in lnumb:
-        if ltype[numb] == "val":
-            val = [dict_i[llab_d[numb]], False, ""]
-        elif ltype[numb] == "text":
-            val = dict_i[llab_d[numb]]
-        elif ltype[numb] == "list":
-            val = dict_i[llab_d[numb]]
-        elif ltype[numb] == "logic":
-            val = dict_i[llab_d[numb]]
-        else:
-            print "mistake in type variable of 'from_dict_to_obj' function"
-            val = None
-        obj.set_val(llab_o[numb]=val)
-        obj.__dict__["_p_"+llab_o[numb]] = val
-    return
-
-
-def trans_pd_to_cexp(data):
+def trans_pd_to_experiment(data):
+    """
+    transform info in dictionary to class ExperimentPowder1D and give the list of refined parameters
+    """
+    l_variable = []
     exp = ccore.ccore_exp()
     exp.powder = True
     exp.mode_2dpd = False
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     
     llab_rcif = drel["lab_rcif_exp_pd"]
     llab_exp = drel["lab_core_exp_pd"]
@@ -1001,13 +1019,17 @@ def trans_pd_to_cexp(data):
                 elif typ == "val":
                     ph_exp.__dict__[lab] = [hh, False, ""]
         exp.exp_ph = lph_exp
-    return exp
+    return exp, l_variable
 
-def trans_2dpd_to_cexp(data):
+def trans_2dpd_to_experiment(data):
+    """
+    transform info in dictionary to class ExperimentPowder2D and give the list of refined parameters
+    """
+    l_variable = []
     exp = ccore.ccore_exp()
     exp.powder = True
     exp.mode_2dpd = True
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     
     llab_rcif = drel["lab_rcif_exp_2dpd"]
     llab_exp = drel["lab_core_exp_2dpd"]
@@ -1046,13 +1068,17 @@ def trans_2dpd_to_cexp(data):
                 elif typ == "val":
                     ph_exp.__dict__[lab] = [hh, False, ""]
         exp.exp_ph = lph_exp
-    return exp
+    return exp, l_variable
 
-def trans_sd_to_cexp(data):
+def trans_sd_to_experiment(data):
+    """
+    transform info in dictionary to class ExperimentSingle and give the list of refined parameters
+    """
+    l_variable = []
     exp = ccore.ccore_exp()
     exp.powder = False
     exp.mode_2dpd = False
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     
     llab_rcif = drel["lab_rcif_exp_sd"]
     llab_exp = drel["lab_core_exp_sd"]
@@ -1091,11 +1117,14 @@ def trans_sd_to_cexp(data):
                 elif typ == "val":
                     ph_exp.__dict__[lab] = [hh, False, ""]
         exp.exp_ph = lph_exp
-    return exp
+    return exp, l_variable
 
-def trans_to_cref(data):
+def trans_to_refinement(data):
+    """
+    transform info in dictionary to intermediate class 
+    """
     ref = ccore.ccore_ref()
-    drel = rcif_core_relation()
+    drel = rcif_fitting_relation()
     
     llab_rcif = drel["lab_rcif_ref"]
     llab_ref = drel["lab_core_ref"]
@@ -1119,8 +1148,11 @@ def trans_to_cref(data):
             data_con[lab_con] = data[lab_con]
             data_con["_constraint_param2"] = data["_constraint_param2"]
             data_con["_constraint_coeff"] = data["_constraint_coeff"]
-    return ref, data_ref, data_con
+    return ref
 
+
+def load_crystal_to_experiment(l_experiment, l_crystal):
+    pass
 
 def smart_spleet(str):
     """
