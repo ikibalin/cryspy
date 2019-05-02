@@ -452,7 +452,7 @@ observed_data is the experimental data
         flag_u = "up" in mode_chi_sq 
         flag_d = "down" in mode_chi_sq 
         flag_sum = "sum" in mode_chi_sq 
-        flag_dif = "up" in mode_chi_sq 
+        flag_dif = "diff" in mode_chi_sq 
         
         chi_sq_val = (int(flag_u)*chi_sq_u_val + int(flag_d)*chi_sq_d_val + 
                   int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
