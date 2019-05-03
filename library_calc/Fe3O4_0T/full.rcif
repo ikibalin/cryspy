@@ -93,9 +93,10 @@ data_pnd
 _pd_file_name_bkgr 'full.bkg'
 _pd_file_name_input 'full.dat'
 _pd_file_name_output 'full.out'
-_pd_chi2_up True
-_pd_chi2_down True
-_pd_chi2_diff True
+_pd_chi2_up False
+_pd_chi2_down False
+_pd_chi2_diff False
+_pd_chi2_sum True
 _pd_exl2theta (40.,90.)
 _pd_beam_polarization_up 1e-05
 _pd_beam_polarization_down 1e-05

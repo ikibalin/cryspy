@@ -6,7 +6,8 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
-    
+#class BeamPolarization
+from setup_powder_1d import *
 #Description of setup class
 
 class ResolutionPowder2D(dict):
@@ -36,8 +37,8 @@ class ResolutionPowder2D(dict):
         self._refresh(u, v, w, x, y)
         
     def __repr__(self):
-        lsout = """Resolution 2D: 
- U {:}\n V {:}\n W {:}\n X {:}\n Y {:}""".format(self.get_val("u"),  
+        lsout = """ResolutionPowder2D: 
+ u: {:}\n v: {:}\n w: {:}\n x: {:}\n y: {:}""".format(self.get_val("u"),  
  self.get_val("v"), self.get_val("w"), self.get_val("x"), self.get_val("y"))
         return lsout
 
@@ -177,7 +178,7 @@ class FactorLorentzPowder2D(dict):
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Lorentz factor for two dimensional powder diffraction. """
+        lsout = """FactorLorentzPowder2D:"""
         return lsout
 
     def _refresh(self):
@@ -234,7 +235,7 @@ class AsymmetryPowder2D(dict):
         self._refresh(p1, p2, p3, p4)
         
     def __repr__(self):
-        lsout = """Asymmetry 2D: \n p1: {:}\n p2: {:}\n p3: {:}
+        lsout = """AsymmetryPowder2D:\n p1: {:}\n p2: {:}\n p3: {:}
  p4: {:}""".format(self.get_val("p1"),  self.get_val("p2"),  
  self.get_val("p3"),  self.get_val("p4"))
         return lsout
@@ -342,56 +343,6 @@ p1, p2, p3, p4 are coefficients to describe the assymetry shape for all
         return asymmetry_2d
     
 
-class BeamPolarization(dict):
-    """
-    Describe the polarisation of the beam
-    """
-    def __init__(self, p_u = 1.0, p_d = 1.0):
-        super(BeamPolarization, self).__init__()
-        self._p_p_u = None
-        self._p_p_d = None
-        
-        self._refresh(p_u, p_d)
-        
-    def __repr__(self):
-        lsout = """Polarization of the beam: \n p_u: {:}, p_d: {:}""".format(
-                self.get_val("p_u"), self.get_val("p_d"))
-        return lsout
-
-    def _refresh(self, p_u, p_d):
-        if not(isinstance(p_u, type(None))):
-            self._p_p_u = p_u
-        if not(isinstance(p_d, type(None))):
-            self._p_p_d = p_d
-            
-    def set_val(self, p_u=None, p_d=None):
-        self._refresh(p_u, p_d)
-        
-    def get_val(self, label):
-        lab = "_p_"+label
-        
-        if lab in self.__dict__.keys():
-            val = self.__dict__[lab]
-            if isinstance(val, type(None)):
-                self.set_val()
-                val = self.__dict__[lab]
-        else:
-            print("The value '{:}' is not found".format(lab))
-            val = None
-        return val
-
-    def list_vals(self):
-        """
-        give a list of parameters with small descripition
-        """
-        lsout = """
-Parameters:
-p_u, p_d is describe the polarization of the beam at the flipper position up 
-         and down
-        """
-        print(lsout)
-
-
         
 class BackgroundPowder2D(dict):
     """
@@ -406,7 +357,7 @@ class BackgroundPowder2D(dict):
         self._refresh(tth_bkgd, phi_bkgd, int_bkdg)
 
     def __repr__(self):
-        lsout = """Bakcgrounnd 2D:\n """.format(None)
+        lsout = """BackgroundPowder2D:""".format(None)
         return lsout
 
     def _refresh(self, tth_bkgd, phi_bkgd, int_bkdg):
@@ -504,10 +455,11 @@ class SetupPowder2D(dict):
                       factor_lorentz, asymmetry, beam_polarization, background)
 
     def __repr__(self):
-        lsout = """Setup 2D:\n label: {:}, wave_length: {:}, zero_shift {:}
- {:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, self._p_wave_length, 
- self._p_zero_shift, self._p_resolution, self._p_factor_lorentz, 
- self._p_asymmetry, self._p_beam_polarization, self._p_background)
+        lsout = """SetupPowder2D:\n label: {:}\n wave_length: {:}
+ zero_shift: {:}\n{:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, 
+ self._p_wave_length, self._p_zero_shift, self._p_resolution, 
+ self._p_factor_lorentz, self._p_asymmetry, self._p_beam_polarization, 
+ self._p_background)
         return lsout
 
     def _refresh(self, label, wave_length, zero_shift, resolution, 

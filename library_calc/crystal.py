@@ -439,6 +439,8 @@ class SpaceGroupe(dict):
         self._p_f_dir_prog = None
         self._p_spgr_table = None
 
+        self._p_singony = "Triclinic"
+
         self._p_centr = None
         self._p_el_symm = None
         self._p_orig = None
@@ -464,20 +466,21 @@ class SpaceGroupe(dict):
         self.set_val()
         
     def __repr__(self):
-        lsout = """Space group: \n name: {:}\n choiсe: {:}
+        lsout = """SpaceGroupe:\n name: {:}\n choiсe: {:}
  directory: '{:}'""".format(self._p_spgr_given_name, self._p_spgr_choice, 
                             self._p_f_dir_prog)
         return lsout
 
     def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
         
-        if not(isinstance(f_dir_prog, type(None))):
+        if f_dir_prog is not None:
             f_itables = os.path.join(f_dir_prog,"itables.txt")
             self._read_el_cards(f_itables)        
             self._p_f_dir_prog = f_dir_prog
-        if not(isinstance(spgr_given_name, type(None))):
-            self._p_spgr_given_name = spgr_given_name
-        if not(isinstance(spgr_choice, type(None))):
+        if spgr_given_name is not None:
+            hh = "".join(spgr_given_name.split())
+            self._p_spgr_given_name = hh
+        if spgr_choice is not None:
             self._p_spgr_choice = spgr_choice
             
 
@@ -517,6 +520,7 @@ el_symm is element of symmetry
 orig is packing
 spgr_name is name of space groupe
 spgr_number is number of space groupe
+singony is singony of the space groupe
 
 r_11, r_12, r_13  
 r_21, r_22, r_23    element of symmetry in form of element of rotation matrix
@@ -552,7 +556,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
             if lhelp[0].isdigit():
                 if dcard != None:
                     ldcard.append(dcard)
-                dcard = {"number":lhelp[0], "name": lhelp[1], "syngony": lhelp[2]}
+                dcard = {"number":lhelp[0], "name": lhelp[1], "singony": lhelp[2]}
             else:
                 lhelp = hh.split(":")
                 if (lhelp[0].strip() in dcard.keys()):
@@ -580,7 +584,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
             spgr_name = spgr_given_name
         
         spgr_table = self._p_spgr_table
-
+        flag = False
         for dcard in spgr_table:
             if (((dcard["number"] == spgr_n)|(dcard["name"] == spgr_name))&(dcard["choice"][0] == spgr_choice)):
                 flag = True
@@ -599,6 +603,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         fletter = dcard["name"][0]
         spgr = dcard["name"]
         number = int(dcard["number"])
+        singony = dcard["singony"]
         if (fletter == "P"):
             lorig = [(0, 0, 0)]
         elif fletter == "C":
@@ -622,6 +627,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         self._p_p_centr = pcentr
         self._p_spgr_name = spgr
         self._p_spgr_number = number
+        self._p_singony = singony
         
     def _calc_rotation_matrix_anb_b(self):
         """
@@ -800,13 +806,15 @@ class AtomType(dict):
     """
     Description of atom
     """    
-    def __init__(self, type_n="H", type_m="Fe3", flag_m=False, x=0., y=0., z=0., 
+    def __init__(self, name="H", type_n="H", type_m="Fe3", flag_m=False, 
+                 x=0., y=0., z=0., 
                  b_iso=0., beta_11=0., beta_22=0., beta_33=0., beta_12=0., 
                  beta_13=0., beta_23=0., chi_11=0., chi_22=0., chi_33=0., 
                  chi_12=0., chi_13=0., chi_23=0., kappa=1., factor_lande=2.,
                  occupation = 1., f_dir_prog = os.getcwd()):
         super(AtomType, self).__init__()
         
+        self._p_name = None
         self._p_type_n = None
         self._p_type_m = None
         self._p_flag_m = None
@@ -852,14 +860,15 @@ class AtomType(dict):
         self._handbook_nucl = []
         self._handbook_mag = []
         
-        self._refresh(type_n, type_m, flag_m, x, y, z, b_iso, beta_11, beta_22, 
-                      beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
-                      chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
-                      occupation, f_dir_prog)
+        self._refresh(name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
+                      beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, 
+                      chi_22, chi_33, chi_12, chi_13, chi_23, kappa, 
+                      factor_lande, occupation, f_dir_prog)
 
     def __repr__(self):
         lsout = """AtomType:
-            
+
+name: {}            
 Type nuclear: {:} and magentic {:}({:})
 b_scat: {:}
 occupation: {:}
@@ -874,8 +883,8 @@ j0 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
 j2 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
 
 f_dir_prog: {:}
-""".format(self._p_type_n, self._p_type_m, self._p_flag_m, self._p_b_scat, 
-self._p_occupation, self._p_x, 
+""".format(self._p_name, self._p_type_n, self._p_type_m, self._p_flag_m, 
+self._p_b_scat, self._p_occupation, self._p_x, 
 self._p_y, self._p_z, self._p_b_iso, self._p_kappa, self._p_factor_lande,
 self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
 self._p_beta_13, self._p_beta_23, self._p_chi_11, self._p_chi_22, 
@@ -885,80 +894,82 @@ self._p_j0_D, self._p_j2_A, self._p_j2_a, self._p_j2_B, self._p_j2_b,
 self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
         return lsout
     
-    def _refresh(self, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
+    def _refresh(self, name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
                  beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
                  chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
                  occupation, f_dir_prog):
         
-        if not(isinstance(f_dir_prog, type(None))):
+        if f_dir_prog is not None:
             self._p_f_dir_prog = f_dir_prog
             self._load_handbook_n()
             self._load_handbook_m()
 
-        if not(isinstance(type_n, type(None))):
+        if name is not None:
+            self._p_name = name
+        if type_n is not None:
             self._p_type_n = type_n
             self._get_b_scat(type_n)
-        if not(isinstance(type_m, type(None))):
+        if type_m is not None:
             self._p_type_m = type_m
             self._get_j0j2(type_m)
-        if not(isinstance(flag_m, type(None))):
+        if flag_m is not None:
             self._p_flag_m = flag_m
 
-        if not(isinstance(x, type(None))):
+        if x is not None:
             self._p_x = numpy.mod(x, 1.)
-        if not(isinstance(y, type(None))):
+        if y is not None:
             self._p_y = numpy.mod(y, 1.)
-        if not(isinstance(z, type(None))):
+        if z is not None:
             self._p_z = numpy.mod(z, 1.)
     
-        if not(isinstance(b_iso, type(None))):
+        if b_iso is not None:
             self._p_b_iso = b_iso
-        if not(isinstance(occupation, type(None))):
+        if occupation is not None:
             self._p_occupation = occupation
             
-        if not(isinstance(beta_11, type(None))):
+        if beta_11 is not None:
             self._p_beta_11 = beta_11 
-        if not(isinstance(beta_22, type(None))):
+        if beta_22 is not None:
             self._p_beta_22 = beta_22 
-        if not(isinstance(beta_33, type(None))):
+        if beta_33 is not None:
             self._p_beta_33 = beta_33 
-        if not(isinstance(beta_12, type(None))):
+        if beta_12 is not None:
             self._p_beta_12 = beta_12 
-        if not(isinstance(beta_13, type(None))):
+        if beta_13 is not None:
             self._p_beta_13 = beta_13 
-        if not(isinstance(beta_23, type(None))):
+        if beta_23 is not None:
             self._p_beta_23 = beta_23 
     
             
-        if not(isinstance(chi_11, type(None))):
+        if chi_11 is not None:
             self._p_chi_11 = chi_11 
-        if not(isinstance(chi_22, type(None))):
+        if chi_22 is not None:
             self._p_chi_22 = chi_22 
-        if not(isinstance(chi_33, type(None))):
+        if chi_33 is not None:
             self._p_chi_33 = chi_33 
-        if not(isinstance(chi_12, type(None))):
+        if chi_12 is not None:
             self._p_chi_12 = chi_12 
-        if not(isinstance(chi_13, type(None))):
+        if chi_13 is not None:
             self._p_chi_13 = chi_13 
-        if not(isinstance(chi_23, type(None))):
+        if chi_23 is not None:
             self._p_chi_23 = chi_23 
             
-        if not(isinstance(kappa, type(None))):
+        if kappa is not None:
             self._p_kappa = kappa 
-        if not(isinstance(factor_lande, type(None))):
+        if factor_lande is not None:
             self._p_factor_lande = factor_lande 
 
             
-    def set_val(self, type_n=None, type_m=None, flag_m=None, x=None, y=None, 
-                z=None, b_iso=None, beta_11=None, beta_22=None, beta_33=None, 
-                beta_12=None, beta_13=None, beta_23=None, chi_11=None, 
-                chi_22=None, chi_33=None, chi_12=None, chi_13=None, 
-                chi_23=None, kappa=None, factor_lande=None, occupation=None,
-                f_dir_prog=None):
-        self._refresh(type_n, type_m, flag_m, x, y, z, b_iso, beta_11, beta_22, 
-                      beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
-                      chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
-                      occupation, f_dir_prog)
+    def set_val(self, name=None, type_n=None, type_m=None, flag_m=None, x=None, 
+                y=None, z=None, b_iso=None, beta_11=None, beta_22=None, 
+                beta_33=None, beta_12=None, beta_13=None, beta_23=None, 
+                chi_11=None, chi_22=None, chi_33=None, chi_12=None, 
+                chi_13=None, chi_23=None, kappa=None, factor_lande=None, 
+                occupation=None, f_dir_prog=None):
+        self._refresh(name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
+                      beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, 
+                      chi_22, chi_33, chi_12, chi_13, chi_23, kappa, 
+                      factor_lande, occupation, f_dir_prog)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -980,6 +991,7 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
         """
         lsout = """
 Parameters of AtomType:
+name is the name/label of atom
 type_n is nuclear type of atom to defince b_scat
 type_m is magnetic type of atom to define magetic atom
 flag_m is True if atom magnetic and False if not.
@@ -1682,7 +1694,7 @@ class AtomSite(dict):
         self._list_atoms = []
     
     def __repr__(self):
-        lsout = """AtomSite:\n number of atoms: {:}.\n""".format(len(self._list_atoms))
+        lsout = """AtomSite:\n number of atoms: {:}""".format(len(self._list_atoms))
         for iatom, atom_type in enumerate(self._list_atoms):
             lsout += "\n"+70*"*"+"\n {:}. ".format(iatom+1)+atom_type.__repr__()
         return lsout
@@ -1959,7 +1971,7 @@ class Extinction(dict):
         self._refresh(domain_radius, mosaicity, model)
 
     def __repr__(self):
-        lsout = """Extinction: \n model: {:},\n domain_radius: {:}
+        lsout = """Extinction: \n model: {:}\n domain_radius: {:}
  mosaicity: {:}""".format(self._p_model, self._p_domain_radius, 
  self._p_mosaicity)
         return lsout
@@ -2059,24 +2071,27 @@ class Crystal(dict):
     """
     Crystal
     """
-    def __init__(self, space_groupe = SpaceGroupe(), cell = Cell(), 
-                 atom_site = AtomSite(), extinction=Extinction(), i_g = 0.):
+    def __init__(self, name=None, space_groupe=SpaceGroupe(), cell=Cell(), 
+                 atom_site=AtomSite(), extinction=Extinction(), i_g=0.):
         super(Crystal, self).__init__()
         
+        self._p_name = None
         self._p_space_groupe = None
         self._p_cell = None
         self._p_atom_site = None
         self._p_extinction = None
         self._p_i_g = None
-        self._refresh(space_groupe, cell, atom_site, extinction, i_g)
+        self._refresh(name, space_groupe, cell, atom_site, extinction, i_g)
         
     def __repr__(self):
-        lsout = """Phase: \n i_g: {:}\n{:}\n{:}\n{:}
-{:}""".format(self._p_i_g, self._p_space_groupe, self._p_cell, 
+        lsout = """Crystal: \n name: {:}\n i_g: {:}\n{:}\n{:}\n{:}
+{:}""".format(self._p_name, self._p_i_g, self._p_space_groupe, self._p_cell, 
                          self._p_atom_site, self._p_extinction)
         return lsout
 
-    def _refresh(self, space_groupe, cell, atom_site, extinction, i_g):
+    def _refresh(self, name, space_groupe, cell, atom_site, extinction, i_g):
+        if name is not None:
+            self._p_name = name
         if space_groupe is not None:
             self._p_space_groupe = space_groupe
         if cell is not None:
@@ -2088,9 +2103,9 @@ class Crystal(dict):
         if i_g is not None:
             self._p_i_g = i_g
 
-    def set_val(self, space_groupe=None, cell=None, atom_site=None, 
+    def set_val(self, name=None, space_groupe=None, cell=None, atom_site=None, 
                 extinction=None, i_g=None):
-        self._refresh(space_groupe, cell, atom_site, extinction, i_g)
+        self._refresh(name, space_groupe, cell, atom_site, extinction, i_g)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -2105,7 +2120,23 @@ class Crystal(dict):
             val = None
         return val
 
-        
+    def list_vals(self):
+        """
+        give a list of parameters with small descripition
+        """
+        lsout = """
+Parameters:
+    
+name is the name of the Crystal
+space_groupe is the space groupe
+cell is the unit cell parameters
+atome_sie is the atom site
+extinction is the extinction
+i_g is the parameter to described broadening of Bragg reflection due to the 
+       particle size
+        """
+        print(lsout)
+                
     def calc_sf(self, h, k, l, mode="FN"):
         """
         calculate nuclear structure factor

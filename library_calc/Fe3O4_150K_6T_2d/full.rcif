@@ -97,9 +97,10 @@ _2dpd_file_name_bkgr 'full.bkg'
 _2dpd_file_name_input 'full.dat'
 _2dpd_file_name_output 'full.out'
 
-_2dpd_chi2_up True
-_2dpd_chi2_down True
+_2dpd_chi2_up False
+_2dpd_chi2_down False
 _2dpd_chi2_diff True
+_2dpd_chi2_sum False
 _2dpd_exl2theta '(60.,90.)'
 
 _2dpd_beam_polarization_up 0.836865522283

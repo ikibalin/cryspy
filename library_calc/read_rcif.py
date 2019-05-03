@@ -30,12 +30,17 @@ class RCif(object):
 
     def __init__(self):
         self.data = []
+        self._p_file_dir = ""
+        self._p_file_name = ""
 
     def load_from_str(self, lcontent):
         p_glob = convert_rcif_to_glob(lcontent)
         self.data = p_glob["data"]
 
     def load_from_file(self, fname):
+        self._p_file_dir = os.path.dirname(fname)
+        self._p_file_name = os.path.basename(fname)
+        
         fid = open(fname, "r")
         lcontent = fid.readlines()
         fid.close()
@@ -278,23 +283,26 @@ class RCif(object):
                 l_crystal.append(crystal)
                 l_variable.extend(l_variable_crystal)
             elif flag_exp_pd:
-                experiment, l_variable_experiment = trans_pd_to_experiment(data)
+                f_dir = self._p_file_dir
+                experiment, l_variable_experiment = trans_pd_to_experiment(f_dir, data, l_crystal)
                 l_experiment.append(experiment)
                 l_variable.extend(l_variable_experiment)
             elif flag_exp_2dpd:
-                experiment, l_variable_experiment = trans_2dpd_to_experiment(data)
+                f_dir = self._p_file_dir
+                experiment, l_variable_experiment = trans_2dpd_to_experiment(f_dir, data, l_crystal)
                 l_experiment.append(experiment)
                 l_variable.extend(l_variable_experiment)
             elif flag_exp_sd:
-                experiment, l_variable_experiment = trans_sd_to_experiment(data)
+                f_dir = self._p_file_dir
+                experiment, l_variable_experiment = trans_sd_to_experiment(f_dir, data, l_crystal)
                 l_experiment.append(experiment)
                 l_variable.extend(l_variable_experiment)
             elif flag_ref:
-                refinement = trans_to_refinement(data)
-                l_refinement.append(refinement)
-                l_variable.extend(l_variable_experiment)
+                pass
+                #refinement = trans_to_refinement(data)
+                #l_refinement.append(refinement)
+                #l_variable.extend(l_variable_experiment)
 
-        load_crystal_to_experiment(l_experiment, l_crystal)
 
         fitting = Fitting()
         for experiment in l_experiment:
@@ -655,31 +663,33 @@ def put_con(obj, lparam1, lparam2, lcoeff):
 
 def rcif_fitting_relation():
     #phase    
-    llab_rcif_ph = ["_cell_length_a", "_cell_length_b", "_cell_length_c",
+    llab_rcif_cell = ["_cell_length_a", "_cell_length_b", "_cell_length_c",
                  "_cell_angle_alpha", "_cell_angle_beta", "_cell_angle_gamma"]
-    llab_core_ph = ["a", "b", "c",
+    llab_arg_cell = ["a", "b", "c",
                   "alpha", "beta", "gamma"]
-    ltype_ph = ["text", "val", "val", "val", "val", "val", "val"]
+    ltype_cell = ["val", "val", "val", "val", "val", "val"]
 
     llab_rcif_sp = ["_space_group_name_H-M_alt", '_space_group_it_coordinate_system_code']
-    llab_core_sp = ['spgr', 'spgr_code']
+    llab_arg_sp = ['spgr_given_name', 'spgr_choice']
     ltype_sp = ["text", "text"]
+
 
     llab_rcif_at = ["_atom_site_label", '_atom_site_type_symbol',
                 "_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z",
                 "_atom_site_occupancy", "_atom_site_b_iso_or_equiv"]
-    llab_core_at = ["name", "type_n", "coordx", "coordy", "coordz", "occ", "biso"]
+    llab_arg_at = ["name", "type_n", "x", "y", "z", "occupation", "b_iso"]
     ltype_at = ["text", "text", "val", "val", "val", "val", "val"]
 
     llab_rcif_bscat = ["_atom_site_type_symbol", "_atom_site_bscat"]
-    llab_core_bscat = ["type_n", "bscat"]
+    llab_arg_bscat = ["type_n", "b_scat"]
     ltype_bscat = ["text", "val"]
 
-    llab_rcif_beta = ["_atom_site_aniso_label", '_atom_site_aniso_beta_11',
+    llab_rcif_adp = ["_atom_site_aniso_label", '_atom_site_aniso_beta_11',
              "_atom_site_aniso_beta_22", "_atom_site_aniso_beta_33", "_atom_site_aniso_beta_12",
              "_atom_site_aniso_beta_13", "_atom_site_aniso_beta_23"]
-    llab_core_beta = ["name", "beta11", "beta22", "beta33", "beta12", "beta13", "beta23"]
-    ltype_beta = ["text", "val", "val", "val", "val", "val", "val"]
+    llab_arg_adp = ["name", "beta_11", "beta_22", "beta_33", "beta_12", 
+                    "beta_13", "beta_23"]
+    ltype_adp = ["text", "val", "val", "val", "val", "val", "val"]
 
 
     llab_rcif_chi = ["_atom_site_magnetism_aniso_label", '_atom_site_magnetism_type_symbol',
@@ -688,118 +698,182 @@ def rcif_fitting_relation():
              "_atom_site_susceptibility_aniso_chi_22", "_atom_site_susceptibility_aniso_chi_33",
              "_atom_site_susceptibility_aniso_chi_23", "_atom_site_susceptibility_aniso_chi_13",
              "_atom_site_susceptibility_aniso_chi_12"]
-    llab_core_chi = ["name", "type", "kappa", "lfactor", "chi11", "chi22", "chi33", "chi12", "chi13", "chi23"]
-    ltype_chi = ["text", "text", "val", "val", "val", "val", "val", "val", "val", "val"]
-
-
-    #experiment
-    llab_rcif_exp_pd = ["name", "_pd_file_name_bkgr", "_pd_file_name_input", "_pd_file_name_output",
-                 "_pd_chi2_up", "_pd_chi2_down", "_pd_chi2_diff", "_pd_exl2theta",
-                 "_pd_beam_polarization_up", "_pd_beam_polarization_down", "_pd_resolution_u",
-                 "_pd_resolution_v", "_pd_resolution_w", "_pd_resolution_x", "_pd_resolution_y",
-                 "_pd_shift_const", "_pd_shift_coeff",
-                 "_pd_reflex_asymetry_p1", "_pd_reflex_asymetry_p2", "_pd_reflex_asymetry_p3",
-                 "_pd_reflex_asymetry_p4"]
-    llab_core_exp_pd = ["name", "bkgr", "input", "output", "modechi2_up", "modechi2_down",
-                "modechi2_diff", "excl2theta", "pup", "pdown", "U", "V", "W", "x", "y",
-                "zeroshift", "zshift_a", "p_asym_1", "p_asym_2", "p_asym_3", "p_asym_4"]
-    ltype_exp_pd = ["text", "text", "text", "text", "logic", "logic", "logic", "text", "val", "val",
-             "val", "val", "val", "val", "val", "val", "val", "val", "val", "val", "val"]
-
-
-    llab_rcif_eph_pd = ["_pd_phase_name", "_pd_phase_scale", "_pd_phase_igsize",
-                     "_pd_phase_extinction_radius", "_pd_phase_extinction_mosaicity"]
-    llab_core_eph_pd = ["name", "scale", "igsize", "ext11", "ext22"]
-    ltype_eph_pd = ["text", "val", "val", "val", "val"]
-
-
-    llab_rcif_exp_2dpd = ["name", "_2dpd_file_name_bkgr", "_2dpd_file_name_input", "_2dpd_file_name_output",
-                 "_2dpd_chi2_up", "_2dpd_chi2_down", "_2dpd_chi2_diff", "_2dpd_exl2theta",
-                 "_2dpd_beam_polarization_up", "_2dpd_beam_polarization_down", "_2dpd_resolution_u",
-                 "_2dpd_resolution_v", "_2dpd_resolution_w", "_2dpd_resolution_x", "_2dpd_resolution_y",
-                 "_2dpd_shift_const", "_2dpd_shift_coeff",
-                 "_2dpd_reflex_asymetry_p1", "_2dpd_reflex_asymetry_p2", "_2dpd_reflex_asymetry_p3",
-                 "_2dpd_reflex_asymetry_p4", "_2dpd_tth_min", "_2dpd_tth_max", "_2dpd_phi_min", "_2dpd_phi_max"]
-    llab_core_exp_2dpd = ["name", "bkgr", "input", "output", "modechi2_up", "modechi2_down",
-                "modechi2_diff", "excl2theta", "pup", "pdown", "U", "V", "W", "x", "y",
-                "zeroshift", "zshift_a", "p_asym_1", "p_asym_2", "p_asym_3", "p_asym_4", "tth_min", "tth_max", "phi_min", "phi_max"]
-    ltype_exp_2dpd = ["text", "text", "text", "text", "logic", "logic", "logic", "text", "val", "val",
-             "val", "val", "val", "val", "val", "val", "val", "val", "val", "val", "val", "text", "text", "text", "text"]
-
-
-    llab_rcif_eph_2dpd = ["_2dpd_phase_name", "_2dpd_phase_scale", "_2dpd_phase_igsize",
-                     "_2dpd_phase_extinction_radius", "_2dpd_phase_extinction_mosaicity"]
-    llab_core_eph_2dpd = ["name", "scale", "igsize", "ext11", "ext22"]
-    ltype_eph_2dpd = ["text", "val", "val", "val", "val"]
+    llab_arg_chi = ["name", "type_m", "kappa", "factor_lande", "chi_11", 
+                    "chi_22", "chi_33", "chi_12", "chi_13", "chi_23"]
+    ltype_chi = ["text", "text", "val", "val", "val", "val", "val", "val", 
+                 "val", "val"]
 
 
 
-    llab_rcif_exp_sd = ["name", "_sd_file_name_input", "_sd_file_name_output",
-                 "_sd_beam_polarization_up", "_sd_beam_polarization_down"]
-    llab_core_exp_sd = ["name", "input", "output", "pup", "pdown"]
-    ltype_exp_sd = ["text", "text", "text", "val", "val"]
 
-    llab_rcif_eph_sd = ["_sd_phase_name", "_sd_phase_extinction_radius", "_sd_phase_extinction_mosaicity"]
-    llab_core_eph_sd = ["name", "ext11", "ext22"]
-    ltype_eph_sd = ["text", "val", "val"]
+    #ExperimentPowder1D
+    llab_rcif_experiment_1d = ["name"]
+    llab_arg_experiment_1d = ["name"]
+    ltype_experiment_1d = ["text"]
+    
+
+    llab_rcif_resolution_1d = ["_pd_resolution_u", "_pd_resolution_v", 
+                               "_pd_resolution_w", "_pd_resolution_x", 
+                               "_pd_resolution_y"]
+    llab_arg_resolution_1d = ["u", "v", "w", "x", "y"]
+    ltype_resolution_1d = ["val", "val", "val", "val", "val"]
+
+
+    llab_rcif_assymetry_1d = ["_pd_reflex_asymetry_p1", 
+                              "_pd_reflex_asymetry_p2", 
+                              "_pd_reflex_asymetry_p3",
+                              "_pd_reflex_asymetry_p4"]
+    llab_arg_assymetry_1d = ["p1", "p2", "p3", "p4"]
+    ltype_assymetry_1d = ["val", "val", "val", "val"]
+
+
+    llab_rcif_zero_shift_1d = ["_pd_shift_const"]
+    llab_arg_zero_shift_1d = ["zero_shift"]
+    ltype_zero_shift_1d = ["val"]
+
+
+
+    #ExperimentPowder2D
+    llab_rcif_experiment_2d = ["name"]
+    llab_arg_experiment_2d = ["name"]
+    ltype_experiment_2d = ["text"]
+    
+
+    llab_rcif_resolution_2d = ["_2dpd_resolution_u", "_2dpd_resolution_v", 
+                               "_2dpd_resolution_w", "_2dpd_resolution_x", 
+                               "_2dpd_resolution_y"]
+    llab_arg_resolution_2d = ["u", "v", "w", "x", "y"]
+    ltype_resolution_2d = ["val", "val", "val", "val", "val"]
+
+
+    llab_rcif_assymetry_2d = ["_2dpd_reflex_asymetry_p1", 
+                              "_2dpd_reflex_asymetry_p2", 
+                              "_2dpd_reflex_asymetry_p3",
+                              "_2dpd_reflex_asymetry_p4"]
+    llab_arg_assymetry_2d = ["p1", "p2", "p3", "p4"]
+    ltype_assymetry_2d = ["val", "val", "val", "val"]
+
+
+    llab_rcif_zero_shift_2d = ["_2dpd_shift_const"]
+    llab_arg_zero_shift_2d = ["zero_shift"]
+    ltype_zero_shift_2d = ["val"]
+
+
+
+    #ExperimentSingle
+    llab_rcif_beam_polarization = ["_sd_beam_polarization_up", "_sd_beam_polarization_down"]
+    llab_arg_beam_polarization = ["p_u", "p_d"]
+    ltype_beam_polarization = ["val", "val"]
+
+    llab_rcif_extinction = ["_sd_phase_extinction_radius", "_sd_phase_extinction_mosaicity"]
+    llab_arg_extinction = ["domain_radius", "mosaicity"]
+    ltype_extinction = ["val", "val"]
+
+
+    #llab_rcif_experiment_sd = ["name", "_sd_file_name_output"]
+    #llab_arg_experiment_sd = ["name", "output"]
+    #ltype_experiment_sd = ["text", "text"]
+    llab_rcif_experiment_sd = ["name"]
+    llab_arg_experiment_sd = ["name"]
+    ltype_experiment_sd = ["text"]
+
+
 
 
 
     #refinement
     llab_rcif_ref = ["_refinement_file_name_output", "_refinement_flag_errorbars",
                  "_refinement_flag_refinement"]
-    llab_core_ref = ["output", "refin", "sigmas"]
+    llab_arg_ref = ["output", "refin", "sigmas"]
     ltype_ref = ["text", "logic", "logic"]
 
     drel = {}
 
-    drel["lab_rcif_ph"] = llab_rcif_ph
-    drel["lab_core_ph"] = llab_core_ph
-    drel["type_ph"] = ltype_ph
+    drel["lab_rcif_cell"] = llab_rcif_cell
+    drel["lab_arg_cell"] = llab_arg_cell
+    drel["type_cell"] = ltype_cell
     
     drel["lab_rcif_sp"] = llab_rcif_sp
-    drel["lab_core_sp"] = llab_core_sp
+    drel["lab_arg_sp"] = llab_arg_sp
     drel["type_sp"] = ltype_sp
+
+    drel["lab_rcif_atom_type"] = (llab_rcif_at+llab_rcif_bscat+llab_rcif_adp+
+                                  llab_rcif_chi)
+    drel["lab_arg_atom_type"] = (llab_arg_at+llab_arg_bscat+llab_arg_adp+
+                                 llab_arg_chi)
+    drel["type_atom_type"] = (ltype_at+ltype_bscat+ltype_adp+ltype_chi)
+
     
     drel["lab_rcif_at"] = llab_rcif_at
-    drel["lab_core_at"] = llab_core_at
+    drel["lab_arg_at"] = llab_arg_at
     drel["type_at"] = ltype_at
     
     drel["lab_rcif_bscat"] = llab_rcif_bscat
-    drel["lab_core_bscat"] = llab_core_bscat
+    drel["lab_arg_bscat"] = llab_arg_bscat
     drel["type_bscat"] = ltype_bscat
     
-    drel["lab_rcif_beta"] = llab_rcif_beta
-    drel["lab_core_beta"] = llab_core_beta
-    drel["type_beta"] = ltype_beta
+    drel["lab_rcif_adp"] = llab_rcif_adp
+    drel["lab_arg_adp"] = llab_arg_adp
+    drel["type_adp"] = ltype_adp
     
     drel["lab_rcif_chi"] = llab_rcif_chi
-    drel["lab_core_chi"] = llab_core_chi
+    drel["lab_arg_chi"] = llab_arg_chi
     drel["type_chi"] = ltype_chi
 
-    drel["lab_rcif_exp_pd"] = llab_rcif_exp_pd
-    drel["lab_core_exp_pd"] = llab_core_exp_pd
-    drel["type_exp_pd"] = ltype_exp_pd
-    drel["lab_rcif_eph_pd"] = llab_rcif_eph_pd
-    drel["lab_core_eph_pd"] = llab_core_eph_pd
-    drel["type_eph_pd"] = ltype_eph_pd
 
-    drel["lab_rcif_exp_2dpd"] = llab_rcif_exp_2dpd
-    drel["lab_core_exp_2dpd"] = llab_core_exp_2dpd
-    drel["type_exp_2dpd"] = ltype_exp_2dpd
-    drel["lab_rcif_eph_2dpd"] = llab_rcif_eph_2dpd
-    drel["lab_core_eph_2dpd"] = llab_core_eph_2dpd
-    drel["type_eph_2dpd"] = ltype_eph_2dpd
+    drel["lab_rcif_experiment_1d"] = llab_rcif_experiment_1d
+    drel["lab_arg_experiment_1d"] = llab_arg_experiment_1d 
+    drel["type_experiment_1d"] = ltype_experiment_1d
 
-    drel["lab_rcif_exp_sd"] = llab_rcif_exp_sd
-    drel["lab_core_exp_sd"] = llab_core_exp_sd
-    drel["type_exp_sd"] = ltype_exp_sd
-    drel["lab_rcif_eph_sd"] = llab_rcif_eph_sd
-    drel["lab_core_eph_sd"] = llab_core_eph_sd
-    drel["type_eph_sd"] = ltype_eph_sd
+    drel["lab_rcif_resolution_1d"] = llab_rcif_resolution_1d
+    drel["lab_arg_resolution_1d"] = llab_arg_resolution_1d 
+    drel["type_resolution_1d"] = ltype_resolution_1d 
+
+    drel["lab_rcif_assymetry_1d"] = llab_rcif_assymetry_1d 
+    drel["lab_arg_assymetry_1d"] = llab_arg_assymetry_1d
+    drel["type_assymetry_1d"] = ltype_assymetry_1d 
+
+    drel["lab_rcif_zero_shift_1d"] = llab_rcif_zero_shift_1d
+    drel["lab_arg_zero_shift_1d"] = llab_arg_zero_shift_1d 
+    drel["type_zero_shift_1d"] = ltype_zero_shift_1d 
+
+
+
+    drel["lab_rcif_experiment_2d"] = llab_rcif_experiment_2d
+    drel["lab_arg_experiment_2d"] = llab_arg_experiment_2d 
+    drel["type_experiment_2d"] = ltype_experiment_2d
+
+    drel["lab_rcif_resolution_2d"] = llab_rcif_resolution_2d
+    drel["lab_arg_resolution_2d"] = llab_arg_resolution_2d 
+    drel["type_resolution_2d"] = ltype_resolution_2d 
+
+    drel["lab_rcif_assymetry_2d"] = llab_rcif_assymetry_2d 
+    drel["lab_arg_assymetry_2d"] = llab_arg_assymetry_2d
+    drel["type_assymetry_2d"] = ltype_assymetry_2d 
+
+    drel["lab_rcif_zero_shift_2d"] = llab_rcif_zero_shift_2d
+    drel["lab_arg_zero_shift_2d"] = llab_arg_zero_shift_2d 
+    drel["type_zero_shift_2d"] = ltype_zero_shift_2d 
+
+
+
+    drel["lab_rcif_beam_polarization"] = llab_rcif_beam_polarization
+    drel["lab_arg_beam_polarization"] = llab_arg_beam_polarization
+    drel["type_beam_polarization"] = ltype_beam_polarization
+
+    drel["lab_rcif_extinction"] = llab_rcif_extinction
+    drel["lab_arg_extinction"] = llab_arg_extinction
+    drel["type_extinction"] = ltype_extinction
+
+
+    drel["lab_rcif_experiment_sd"] = llab_rcif_experiment_sd
+    drel["lab_arg_experiment_sd"] = llab_arg_experiment_sd
+    drel["type_experiment_sd"] = ltype_experiment_sd
+
+
     
     drel["lab_rcif_ref"] = llab_rcif_ref
-    drel["lab_core_ref"] = llab_core_ref
+    drel["lab_arg_ref"] = llab_arg_ref
     drel["type_ref"] = ltype_ref
     
     return drel
@@ -810,6 +884,7 @@ def rcif_fitting_relation():
 def from_dict_to_obj(dict_i, llab_d, obj, llab_o, ltype):
     lkey = dict_i.keys()
     lnumb = [ihh for ihh, hh in enumerate(llab_d) if (hh in lkey)]
+    d_args = {}
     for numb in lnumb:
         if ltype[numb] == "val":
             #val = [dict_i[llab_d[numb]], False, ""]
@@ -823,40 +898,45 @@ def from_dict_to_obj(dict_i, llab_d, obj, llab_o, ltype):
         else:
             print("mistake in type variable of 'from_dict_to_obj' function")
             val = None
-        obj.set_val(val)
-        help(crystal.set_val)
-        crystal.set_val.kward
-        #obj.set_val(llab_o[numb]=val)
-        #obj.__dict__["_p_"+llab_o[numb]] = val
+        d_args.update({llab_o[numb]:val})
+    obj.set_val(**d_args)
     return
+
 
 def trans_to_crystal(data):
     """
     transform info in dictionary to class Crystal and give the list of refined parameters
     """
     l_variable = []
-    crystal = Crystal()
-    space_groupe = crystal.get_val("space_groupe")
-    cell = crystal.get_val("cell")
-    atom_site = crystal.get_val("atom_site")
+    
+    space_groupe = SpaceGroupe()
+    cell = Cell()
+    atom_site = AtomSite()
+    crystal = Crystal(cell=cell, atom_site=atom_site, 
+                      space_groupe=space_groupe)
+    
+    
+    crystal.set_val(name=data["name"])
     
     drel = rcif_fitting_relation()
     
-    llab_rcif = drel["lab_rcif_ph"]
-    llab_crystal = drel["lab_crystal_ph"]
-    ltype = drel["type_ph"]
-    
-    from_dict_to_obj(data, llab_rcif, crystal, llab_crystal, ltype)
-    
-
     llab_rcif = drel["lab_rcif_sp"]
-    llab_crystal = drel["lab_core_sp"]
+    llab_crystal = drel["lab_arg_sp"]
     ltype = drel["type_sp"]
-    from_dict_to_obj(data, llab_rcif, crystal, llab_crystal, ltype)
+    from_dict_to_obj(data, llab_rcif, space_groupe, llab_crystal, ltype)
+
+    llab_rcif = drel["lab_rcif_cell"]
+    llab_crystal = drel["lab_arg_cell"]
+    ltype = drel["type_cell"]
+    
+    from_dict_to_obj(data, llab_rcif, cell, llab_crystal, ltype)
+    
+    cell.set_val(singony=space_groupe.get_val("singony"))
+    
 
     lkey = data.keys()
     if (not ("loops" in lkey)):
-        return phase
+        return crystal, l_variable
 
     lab_xyz = "_atom_site_fract"
     lab_beta = "_atom_site_aniso_beta"
@@ -873,251 +953,362 @@ def trans_to_crystal(data):
             flag = any([True if hh1.startswith(hh) else False for hh1 in lkey])
             if flag:
                 numb.append(iloop)
+    
+    l_atom = []
 
-    obj_lat_xyz = ccore.ccore_ph_at()
-    obj_lat_beta = ccore.ccore_ph_at()
-    obj_lat_chi = ccore.ccore_ph_at()
-    obj_lat_bscat = ccore.ccore_ph_at()
     if lnumb[0] != []:
         llab_rcif = drel["lab_rcif_at"]
-        llab_phase = drel["lab_core_at"]
-        ltype = len(llab_rcif) * ["list"]
-        for hh in llab_phase:
-            obj_lat_xyz.__dict__[hh] = []
+        llab_arg = drel["lab_arg_at"]
+        ltype = drel["type_at"]
         for numb in lnumb[0]:
-            from_dict_to_obj(data["loops"][numb], llab_rcif, obj_lat_xyz, llab_phase, ltype)
-    if lnumb[1] != []:
-        llab_rcif = drel["lab_rcif_beta"]
-        llab_phase = drel["lab_core_beta"]
-        ltype = len(llab_rcif) * ["list"]
-        for hh in llab_phase:
-            obj_lat_beta.__dict__[hh] = []
-        for numb in lnumb[1]:
-            from_dict_to_obj(data["loops"][numb], llab_rcif, obj_lat_beta, llab_phase, ltype)
-    if lnumb[2] != []:
-        llab_rcif = drel["lab_rcif_chi"]
-        llab_phase = drel["lab_core_chi"]
-        ltype = len(llab_rcif) * ["list"]
-        for hh in llab_phase:
-            obj_lat_chi.__dict__[hh] = []
-        for numb in lnumb[2]:
-            from_dict_to_obj(data["loops"][numb], llab_rcif, obj_lat_chi, llab_phase, ltype)
+            l_key = list(data["loops"][numb].keys())
+            n_atom = len(data["loops"][numb][l_key[0]])
+            for i_atom in range(n_atom):
+                dd = {}
+                for key in l_key:
+                    dd.update({key:data["loops"][numb][key][i_atom]})
+                atom_1 = AtomType()
+                from_dict_to_obj(dd, llab_rcif, atom_1, llab_arg, ltype)
+                l_atom.append(atom_1)
+    else:
+        print("Fractional coordinates of atoms are necessaire")
+        return crystal, l_variable
+    """    
     if lnumb[3] != []:
         llab_rcif = drel["lab_rcif_bscat"]
-        llab_phase = drel["lab_core_bscat"]
-        ltype = len(llab_rcif) * ["list"]
-        for hh in llab_phase:
-            obj_lat_bscat.__dict__[hh] = []
+        llab_arg = drel["lab_arg_bscat"]
+        ltype = drel["type_bscat"]
         for numb in lnumb[3]:
-            from_dict_to_obj(data["loops"][numb], llab_rcif, obj_lat_bscat, llab_phase, ltype)
+            l_key = list(data["loops"][numb].keys())
+            n_atom = len(data["loops"][numb][l_key[0]])
+            for i_atom in range(n_atom):
+                dd = {}
+                for key in l_key:
+                    dd.update({key:data["loops"][numb][key][i_atom]})
+                for atom_1 in l_atom:
+                    if dd["_atom_site_type_symbol"] == atom_1.get_val("type_n"):
+                        from_dict_to_obj(dd, llab_rcif, atom_1, llab_arg, ltype)
+    """
+    if lnumb[1] != []:
+        llab_rcif = drel["lab_rcif_adp"]
+        llab_arg = drel["lab_arg_adp"]
+        ltype = drel["type_adp"]
+        for numb in lnumb[1]:
+            l_key = list(data["loops"][numb].keys())
+            n_atom = len(data["loops"][numb][l_key[0]])
+            for i_atom in range(n_atom):
+                dd = {}
+                for key in l_key:
+                    dd.update({key:data["loops"][numb][key][i_atom]})
+                for atom_1 in l_atom:
+                    if dd["_atom_site_aniso_label"] == atom_1.get_val("name"):
+                        from_dict_to_obj(dd, llab_rcif, atom_1, llab_arg, ltype)
+    if lnumb[2] != []:
+        llab_rcif = drel["lab_rcif_chi"]
+        llab_arg = drel["lab_arg_chi"]
+        ltype = drel["type_chi"]
+        for numb in lnumb[2]:
+            l_key = list(data["loops"][numb].keys())
+            n_atom = len(data["loops"][numb][l_key[0]])
+            for i_atom in range(n_atom):
+                dd = {}
+                for key in l_key:
+                    dd.update({key:data["loops"][numb][key][i_atom]})
+                for atom_1 in l_atom:
+                    if dd["_atom_site_magnetism_aniso_label"] == atom_1.get_val("name"):
+                        from_dict_to_obj(dd, llab_rcif, atom_1, llab_arg, ltype)
+                        atom_1.set_val(flag_m=True)
+            
     if lnumb[4] != []:
         pass
     if lnumb[5] != []:
         pass
-
-    nat = len(obj_lat_xyz.name)
-    if nat == 0:
-        return phase
-    latom = []
-    for name in obj_lat_xyz.name:
-        atom = ccore.ccore_ph_at()
-        atom.name = name
-        latom.append(atom)
-    llab_phase = drel["lab_core_at"]
-    ltype = drel["type_at"]
-    for lab, typ in zip(llab_phase, ltype):
-        for hh, atom in zip(obj_lat_xyz.__dict__[lab], latom):
-            if typ == "text":
-                atom.__dict__[lab] = hh
-            elif typ == "val":
-                atom.__dict__[lab] = [hh, False, ""]
-
-    if len(obj_lat_beta.name) != 0:
-        for atom in latom:
-            if atom.name in obj_lat_beta.name:
-                ind = obj_lat_beta.name.index(atom.name)
-                llab_phase = drel["lab_core_beta"]
-                ltype = drel["type_beta"]
-                for lab, typ in zip(llab_phase, ltype):
-                    if typ == "text":
-                        atom.__dict__[lab] = obj_lat_beta.__dict__[lab][ind]
-                    elif typ == "val":
-                        atom.__dict__[lab] = [obj_lat_beta.__dict__[lab][ind], False, ""]
-
-    if len(obj_lat_chi.name) != 0:
-        for atom in latom:
-            if atom.name in obj_lat_chi.name:
-                atom.modemagn = True
-                ind = obj_lat_chi.name.index(atom.name)
-                llab_phase = drel["lab_core_chi"]
-                ltype = drel["type_chi"]
-                for lab, typ in zip(llab_phase, ltype):
-                    if typ == "text":
-                        atom.__dict__[lab] = obj_lat_chi.__dict__[lab][ind]
-                    elif typ == "val":
-                        atom.__dict__[lab] = [obj_lat_chi.__dict__[lab][ind], False, ""]
-
-    if len(obj_lat_bscat.type_n) != 0:
-        for atom in latom:
-            if atom.type_n in obj_lat_bscat.type_n:
-                ind = obj_lat_bscat.type_n.index(atom.type_n)
-                llab_phase = drel["lab_core_bscat"]
-                ltype = drel["type_bscat"]
-                for lab, typ in zip(llab_phase, ltype):
-                    if typ == "text":
-                        atom.__dict__[lab] = obj_lat_bscat.__dict__[lab][ind]
-                    elif typ == "val":
-                        atom.__dict__[lab] = [obj_lat_bscat.__dict__[lab][ind], False, ""]
-    phase.atom = latom
-    return phase, l_variable
+    
+    for atom_1 in l_atom:
+        atom_site.add_atom(atom_1)
+    return crystal, l_variable
 
 
-def trans_pd_to_experiment(data):
+def trans_pd_to_experiment(f_dir, data, l_crystal):
     """
     transform info in dictionary to class ExperimentPowder1D and give the list of refined parameters
     """
     l_variable = []
-    exp = ccore.ccore_exp()
-    exp.powder = True
-    exp.mode_2dpd = False
+    beam_polarization = BeamPolarization()
+    resolution_powder_1d = ResolutionPowder1D()
+    factor_lorentz_powder_1d = FactorLorentzPowder1D()
+    asymmetry_powder_1d = AsymmetryPowder1D()
+    background_powder_1d = BackgroundPowder1D()
+    setup_powder_1d = SetupPowder1D(resolution=resolution_powder_1d, 
+            factor_lorentz=factor_lorentz_powder_1d, 
+            asymmetry=asymmetry_powder_1d, beam_polarization=beam_polarization, 
+            background=background_powder_1d)
+        
+    observed_data_powder_1d = ObservedDataPowder1D()
+    
+    experiment = ExperimentPowder1D(setup=setup_powder_1d, 
+                                    observed_data=observed_data_powder_1d)
+
+    
     drel = rcif_fitting_relation()
     
-    llab_rcif = drel["lab_rcif_exp_pd"]
-    llab_exp = drel["lab_core_exp_pd"]
-    ltype = drel["type_exp_pd"]
+    mode_chi_sq = ""
+    l_key = data.keys()
+    if "_pd_chi2_up" in l_key:
+        if data["_pd_chi2_up"]:
+            mode_chi_sq+="up "
+    if "_pd_chi2_down" in l_key:
+        if data["_pd_chi2_down"]:
+            mode_chi_sq+="down "
+    if "_pd_chi2_diff" in l_key:
+        if data["_pd_chi2_diff"]:
+            mode_chi_sq+="diff "
+    if "_pd_chi2_sum" in l_key:
+        if data["_pd_chi2_sum"]:
+            mode_chi_sq+="sum "
+    if mode_chi_sq != "":
+        experiment.set_val(mode_chi_sq=mode_chi_sq)
 
-    from_dict_to_obj(data, llab_rcif, exp, llab_exp, ltype)
 
-    lkey = data.keys()
-    if (not ("loops" in lkey)):
-        return exp
+    llab_rcif = drel["lab_rcif_experiment_1d"]
+    llab_arg = drel["lab_arg_experiment_1d"]
+    ltype = drel["type_experiment_1d"]
 
-    lab_exp = "_pd_phase_name"
+    from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)    
+    
 
-    obj_ph = ccore.ccore_exp_ph()
-    llab_rcif = drel["lab_rcif_eph_pd"]
-    llab_exp = drel["lab_core_eph_pd"]
-    ltype = len(llab_rcif) * ["list"]
-    for hh in llab_exp:
-        obj_ph.__dict__[hh] = []
+    llab_rcif = drel["lab_rcif_resolution_1d"]
+    llab_arg = drel["lab_arg_resolution_1d"]
+    ltype = drel["type_resolution_1d"]
+
+    from_dict_to_obj(data, llab_rcif, resolution_powder_1d, llab_arg, ltype)
+
+    llab_rcif = drel["lab_rcif_assymetry_1d"]
+    llab_arg = drel["lab_arg_assymetry_1d"]
+    ltype = drel["type_assymetry_1d"]
+
+    from_dict_to_obj(data, llab_rcif, asymmetry_powder_1d, llab_arg, ltype)
+
+    llab_rcif = drel["lab_rcif_zero_shift_1d"]
+    llab_arg = drel["lab_arg_zero_shift_1d"]
+    ltype = drel["type_zero_shift_1d"]
+
+    from_dict_to_obj(data, llab_rcif, setup_powder_1d, llab_arg, ltype)
+
+
+    f_inp=data["_pd_file_name_input"]
+    observed_data_powder_1d.read_data(os.path.join(f_dir, f_inp))
+    
+    
+    wave_length = observed_data_powder_1d.get_val("wave_length")
+    setup_powder_1d.set_val(wave_length=wave_length)
+
+    field = observed_data_powder_1d.get_val("field")
+
+    l_key = data.keys()
+    if (not ("loops" in l_key)):
+        return experiment, l_variable 
+    
+    
+    
     for data_ph in data["loops"]:
-        lkey = data_ph.keys()
-        if lab_exp in lkey:
-            from_dict_to_obj(data_ph, llab_rcif, obj_ph, llab_exp, ltype)
-            break
-    if len(obj_ph.name) != 0:
-        lph_exp = []
-        for name in obj_ph.name:
-            ph_exp = ccore.ccore_exp_ph()
-            lph_exp.append(ph_exp)
-        llab_exp = drel["lab_core_eph_pd"]
-        ltype = drel["type_eph_pd"]
-        for lab, typ in zip(llab_exp, ltype):
-            for hh, ph_exp in zip(obj_ph.__dict__[lab], lph_exp):
-                if typ == "text":
-                    ph_exp.__dict__[lab] = hh
-                elif typ == "val":
-                    ph_exp.__dict__[lab] = [hh, False, ""]
-        exp.exp_ph = lph_exp
-    return exp, l_variable
+        l_key = list(data_ph.keys())
+        flag_scale = "_pd_phase_scale" in l_key
+        if flag_scale:
+            n_crystal = len(data_ph["_pd_phase_name"])
+            for i_crystal in range(n_crystal):
+                dd = {}
+                for key in l_key:
+                    dd.update({key: data_ph[key][i_crystal]})
+                for crystal in l_crystal:
+                    if  dd["_pd_phase_name"] == crystal.get_val("name"):
+                        scale = dd["_pd_phase_scale"]
+                        i_g = dd["_pd_phase_igsize"]
+                        crystal.set_val(i_g=i_g)
+                        calculated_data = CalculatedDataPowder1D(field=field,
+                                scale=scale, crystal=crystal)
+                        experiment.add_calculated_data(calculated_data)
+    return experiment, l_variable
 
-def trans_2dpd_to_experiment(data):
+def trans_2dpd_to_experiment(f_dir, data, l_crystal):
     """
     transform info in dictionary to class ExperimentPowder2D and give the list of refined parameters
     """
     l_variable = []
-    exp = ccore.ccore_exp()
-    exp.powder = True
-    exp.mode_2dpd = True
+    beam_polarization = BeamPolarization()
+    resolution_powder_2d = ResolutionPowder2D()
+    factor_lorentz_powder_2d = FactorLorentzPowder2D()
+    asymmetry_powder_2d = AsymmetryPowder2D()
+    background_powder_2d = BackgroundPowder2D()
+    setup_powder_2d = SetupPowder2D(resolution=resolution_powder_2d, 
+            factor_lorentz=factor_lorentz_powder_2d, 
+            asymmetry=asymmetry_powder_2d, beam_polarization=beam_polarization, 
+            background=background_powder_2d)
+        
+    observed_data_powder_2d = ObservedDataPowder2D()
+    
+    experiment = ExperimentPowder2D(setup=setup_powder_2d, 
+                                    observed_data=observed_data_powder_2d)
+
+    
     drel = rcif_fitting_relation()
     
-    llab_rcif = drel["lab_rcif_exp_2dpd"]
-    llab_exp = drel["lab_core_exp_2dpd"]
-    ltype = drel["type_exp_2dpd"]
+    mode_chi_sq = ""
+    l_key = data.keys()
+    if "_2dpd_chi2_up" in l_key:
+        if data["_2dpd_chi2_up"]:
+            mode_chi_sq+="up "
+    if "_2dpd_chi2_down" in l_key:
+        if data["_2dpd_chi2_down"]:
+            mode_chi_sq+="down "
+    if "_2dpd_chi2_diff" in l_key:
+        if data["_2dpd_chi2_diff"]:
+            mode_chi_sq+="diff "
+    if "_2dpd_chi2_sum" in l_key:
+        if data["_2dpd_chi2_sum"]:
+            mode_chi_sq+="sum "
+    if mode_chi_sq != "":
+        experiment.set_val(mode_chi_sq=mode_chi_sq)
 
-    from_dict_to_obj(data, llab_rcif, exp, llab_exp, ltype)
 
-    lkey = data.keys()
-    if (not ("loops" in lkey)):
-        return exp
+    llab_rcif = drel["lab_rcif_experiment_2d"]
+    llab_arg = drel["lab_arg_experiment_2d"]
+    ltype = drel["type_experiment_2d"]
 
-    lab_exp = "_2dpd_phase_name"
+    from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)    
+    
 
-    obj_ph = ccore.ccore_exp_ph()
-    llab_rcif = drel["lab_rcif_eph_2dpd"]
-    llab_exp = drel["lab_core_eph_2dpd"]
-    ltype = len(llab_rcif) * ["list"]
-    for hh in llab_exp:
-        obj_ph.__dict__[hh] = []
+    llab_rcif = drel["lab_rcif_resolution_2d"]
+    llab_arg = drel["lab_arg_resolution_2d"]
+    ltype = drel["type_resolution_2d"]
+
+    from_dict_to_obj(data, llab_rcif, resolution_powder_2d, llab_arg, ltype)
+
+    llab_rcif = drel["lab_rcif_assymetry_2d"]
+    llab_arg = drel["lab_arg_assymetry_2d"]
+    ltype = drel["type_assymetry_2d"]
+
+    from_dict_to_obj(data, llab_rcif, asymmetry_powder_2d, llab_arg, ltype)
+
+    llab_rcif = drel["lab_rcif_zero_shift_2d"]
+    llab_arg = drel["lab_arg_zero_shift_2d"]
+    ltype = drel["type_zero_shift_2d"]
+
+    from_dict_to_obj(data, llab_rcif, setup_powder_2d, llab_arg, ltype)
+
+
+    f_inp=data["_2dpd_file_name_input"]
+    observed_data_powder_2d.read_data(os.path.join(f_dir, f_inp))
+    
+    
+    wave_length = observed_data_powder_2d.get_val("wave_length")
+    setup_powder_2d.set_val(wave_length=wave_length)
+
+    field = observed_data_powder_2d.get_val("field")
+
+    l_key = data.keys()
+    if (not ("loops" in l_key)):
+        return experiment, l_variable 
+    
+    
+    
     for data_ph in data["loops"]:
-        lkey = data_ph.keys()
-        if lab_exp in lkey:
-            from_dict_to_obj(data_ph, llab_rcif, obj_ph, llab_exp, ltype)
-            break
-    if len(obj_ph.name) != 0:
-        lph_exp = []
-        for name in obj_ph.name:
-            ph_exp = ccore.ccore_exp_ph()
-            lph_exp.append(ph_exp)
-        llab_exp = drel["lab_core_eph_2dpd"]
-        ltype = drel["type_eph_2dpd"]
-        for lab, typ in zip(llab_exp, ltype):
-            for hh, ph_exp in zip(obj_ph.__dict__[lab], lph_exp):
-                if typ == "text":
-                    ph_exp.__dict__[lab] = hh
-                elif typ == "val":
-                    ph_exp.__dict__[lab] = [hh, False, ""]
-        exp.exp_ph = lph_exp
-    return exp, l_variable
+        l_key = list(data_ph.keys())
+        flag_scale = "_2dpd_phase_scale" in l_key
+        if flag_scale:
+            n_crystal = len(data_ph["_2dpd_phase_name"])
+            for i_crystal in range(n_crystal):
+                dd = {}
+                for key in l_key:
+                    dd.update({key: data_ph[key][i_crystal]})
+                for crystal in l_crystal:
+                    if  dd["_2dpd_phase_name"] == crystal.get_val("name"):
+                        scale = dd["_2dpd_phase_scale"]
+                        i_g = dd["_2dpd_phase_igsize"]
+                        crystal.set_val(i_g=i_g)
+                        calculated_data = CalculatedDataPowder2D(field=field,
+                                scale=scale, crystal=crystal)
+                        experiment.add_calculated_data(calculated_data)
+    return experiment, l_variable
 
-def trans_sd_to_experiment(data):
+
+def trans_sd_to_experiment(f_dir, data, l_crystal):
     """
     transform info in dictionary to class ExperimentSingle and give the list of refined parameters
     """
     l_variable = []
-    exp = ccore.ccore_exp()
-    exp.powder = False
-    exp.mode_2dpd = False
-    drel = rcif_fitting_relation()
-    
-    llab_rcif = drel["lab_rcif_exp_sd"]
-    llab_exp = drel["lab_core_exp_sd"]
-    ltype = drel["type_exp_sd"]
+    experiment = ExperimentSingle()
+    setup = experiment.get_val("setup")
+    beam_polarization = setup.get_val("beam_polarization")
+    observed_data = experiment.get_val("observed_data")
 
-    from_dict_to_obj(data, llab_rcif, exp, llab_exp, ltype)
+
+    experiment.set_val(name=data["name"])
+
+    drel = rcif_fitting_relation()
+
+
+    llab_rcif = drel["lab_rcif_experiment_sd"] 
+    llab_arg = drel["lab_arg_experiment_sd"] 
+    ltype = drel["type_experiment_sd"] 
+    
+    from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)
+    
+    
+    llab_rcif = drel["lab_rcif_beam_polarization"]
+    llab_arg = drel["lab_arg_beam_polarization"]
+    ltype = drel["type_beam_polarization"]
+
+    from_dict_to_obj(data, llab_rcif, beam_polarization, llab_arg, ltype)
+
+
+    f_inp=data["_sd_file_name_input"]
+    observed_data.read_data(os.path.join(f_dir, f_inp))
+    
+    
+    wave_length = observed_data.get_val("wave_length")
+    setup.set_val(wave_length=wave_length)
+
+    field = observed_data.get_val("field")
+    orientation = observed_data.get_val("orientation")
 
     lkey = data.keys()
     if (not ("loops" in lkey)):
-        return exp
-
+        return experiment, l_variable 
+    
+    
     lab_exp = "_sd_phase_name"
-
-    obj_ph = ccore.ccore_exp_ph()
-    llab_rcif = drel["lab_rcif_eph_sd"]
-    llab_exp = drel["lab_core_eph_sd"]
-    ltype = len(llab_rcif) * ["list"]
-    for hh in llab_exp:
-        obj_ph.__dict__[hh] = []
+    
+    #llab_rcif = drel["lab_rcif_observed_data_sd"]
+    #llab_arg = drel["lab_observed_data_sd"]
+    #ltype = drel["type_observed_data_sd"]
+    
+    llab_rcif = drel["lab_rcif_extinction"]
+    llab_arg = drel["lab_arg_extinction"]
+    ltype = drel["type_extinction"]
+    
+    
     for data_ph in data["loops"]:
-        lkey = data_ph.keys()
-        if lab_exp in lkey:
-            from_dict_to_obj(data_ph, llab_rcif, obj_ph, llab_exp, ltype)
-            break
-    if len(obj_ph.name) != 0:
-        lph_exp = []
-        for name in obj_ph.name:
-            ph_exp = ccore.ccore_exp_ph()
-            lph_exp.append(ph_exp)
-        llab_exp = drel["lab_core_eph_sd"]
-        ltype = drel["type_eph_sd"]
-        for lab, typ in zip(llab_exp, ltype):
-            for hh, ph_exp in zip(obj_ph.__dict__[lab], lph_exp):
-                if typ == "text":
-                    ph_exp.__dict__[lab] = hh
-                elif typ == "val":
-                    ph_exp.__dict__[lab] = [hh, False, ""]
-        exp.exp_ph = lph_exp
-    return exp, l_variable
+        l_key = list(data_ph.keys())
+        flag_extinction = "_sd_phase_extinction_radius" in l_key
+        #flag_scale = "_sd_phase_scale" in lkey
+        if flag_extinction:
+            n_crystal = len(data_ph["_sd_phase_name"])
+            for i_crystal in range(n_crystal):
+                dd = {}
+                for key in l_key:
+                    dd.update({key: data_ph[key][i_crystal]})
+                for crystal in l_crystal:
+                    if  dd["_sd_phase_name"] == crystal.get_val("name"):
+                        extinction = crystal.get_val("extinction")
+                        from_dict_to_obj(dd, llab_rcif, extinction, llab_arg, ltype)
+                        #should crystal be a deepcopy or not???
+                        calculated_data = CalculatedDataSingle(field=field, 
+                                orientation=orientation, crystal=crystal)
+                        experiment.add_calculated_data(calculated_data)
+                        
+    return experiment, l_variable
+
 
 def trans_to_refinement(data):
     """

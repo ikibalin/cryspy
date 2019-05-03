@@ -22,6 +22,9 @@ class ObservedDataSingle(dict):
         self._p_flip_ratio = None
         self._p_sflip_ratio = None
         
+        self._p_file_dir = None
+        self._p_file_name = None
+        
         self._p_wave_length = None
         self._p_field = None
         self._p_orientation = None
@@ -30,8 +33,23 @@ class ObservedDataSingle(dict):
                  orientation)
 
     def __repr__(self):
-        lsout = """Observed data:"""
-        return lsout
+        ls_out = """ObservedDataSingle:\n file_dir: {:}
+ file_name: {:}""".format(self._p_file_dir, self._p_file_name)
+        if self._p_h is not None:
+            ls_out += "\n h range: {:} --- {:}".format(
+                    self._p_h.min(), self._p_h.max())
+        if self._p_k is not None:
+            ls_out += "\n k range: {:} --- {:}".format(
+                    self._p_k.min(), self._p_k.max())
+        if self._p_l is not None:
+            ls_out += "\n l range: {:} --- {:}".format(
+                    self._p_l.min(), self._p_l.max())
+            ls_out += "\n number of reflections: {:}".format(
+                    self._p_l.size)
+        ls_out += "\n field: {:}".format(self._p_field)
+        ls_out += "\n wave_length: {:}".format(self._p_wave_length)
+        ls_out += "\n orientation: {:}".format(self._p_orientation)
+        return ls_out
 
     def _refresh(self, h, k, l, flip_ratio, sflip_ratio, wave_length, field, 
                  orientation):
@@ -90,6 +108,8 @@ Parameters:
         """
         read file from file
         """
+        self._p_file_dir = os.path.dirname(finp)
+        self._p_file_name = os.path.basename(finp)
         ddata = {}
         fid = open(finp,'r')
         lcontentH = fid.readlines()
@@ -144,6 +164,9 @@ class ObservedDataPowder1D(dict):
         self._p_sint_u = None
         self._p_int_d = None
         self._p_sint_d = None
+
+        self._p_file_dir = None
+        self._p_file_name = None
         
         self._p_field = None
         self._p_wave_length = None
@@ -151,8 +174,14 @@ class ObservedDataPowder1D(dict):
         self._refresh(tth, int_u, sint_u, int_d, sint_d, field, wave_length)
 
     def __repr__(self):
-        lsout = """Observed data:"""
-        return lsout
+        ls_out = """ObservedDataPowder1D:\n file_dir: {:}
+ file_name: {:}""".format(self._p_file_dir, self._p_file_name)
+        if self._p_tth is not None:
+            ls_out += "\n tth range: {:} --- {:} ({:} points)".format(
+                    self._p_tth.min(), self._p_tth.max(), self._p_tth.size)
+        ls_out += "\n field: {:}".format(self._p_field)
+        ls_out += "\n wave_length: {:}".format(self._p_wave_length)
+        return ls_out
 
     def _refresh(self, tth, int_u, sint_u, int_d, sint_d, field, wave_length):
         if not(isinstance(tth, type(None))):
@@ -206,6 +235,8 @@ wave_length is the neutron wave_length
         """
         read file from file
         """
+        self._p_file_dir = os.path.dirname(finp)
+        self._p_file_name = os.path.basename(finp)
         ddata = {}
         fid = open(finp,'r')
         lcontentH = fid.readlines()
@@ -254,6 +285,9 @@ class ObservedDataPowder2D(dict):
         self._p_sint_u = None
         self._p_int_d = None
         self._p_sint_d = None
+
+        self._p_file_dir = None
+        self._p_file_name = None        
         
         self._p_field = None
         self._p_wave_length = None
@@ -261,8 +295,18 @@ class ObservedDataPowder2D(dict):
         self._refresh(tth, phi, int_u, sint_u, int_d, sint_d, field, wave_length)
 
     def __repr__(self):
-        lsout = """Observed data:"""
-        return lsout
+        ls_out = """ObservedDataPowder2D:\n file_dir: {:}
+ file_name: {:}""".format(self._p_file_dir, self._p_file_name)
+        if self._p_tth is not None:
+            ls_out += "\n tth range: {:} --- {:} ({:} points)".format(
+                    self._p_tth.min(), self._p_tth.max(), self._p_tth.size)
+        if self._p_phi is not None:
+            ls_out += "\n phi range: {:} --- {:} ({:} points)".format(
+                    self._p_phi.min(), self._p_phi.max(), self._p_phi.size)
+        ls_out += "\n field: {:}".format(self._p_field)
+        ls_out += "\n wave_length: {:}".format(self._p_wave_length)
+        
+        return ls_out
 
     def _refresh(self, tth, phi, int_u, sint_u, int_d, sint_d, field, wave_length):
         if tth is not None:
@@ -320,6 +364,8 @@ wave_length is the neutron wave_length in Angstrem
         """
         read file from file
         """
+        self._p_file_dir = os.path.dirname(finp)
+        self._p_file_name = os.path.basename(finp)
         ddata = {}
         fid = open(finp,'r')
         lcontentH = fid.readlines()
@@ -367,10 +413,10 @@ wave_length is the neutron wave_length in Angstrem
         wave_length = ddata["wave_length"]
         tth = numpy.array(l_ang1[0], dtype=float)
         phi = numpy.array(l_ang2[0], dtype=float)
-        int_u = numpy.array(ll_int[0], dtype=float)
-        sint_u = numpy.array(ll_int[1], dtype=float)
-        int_d = numpy.array(ll_int[2], dtype=float)
-        sint_d = numpy.array(ll_int[3], dtype=float)
+        int_u = numpy.array(ll_int[0], dtype=float).transpose()
+        sint_u = numpy.array(ll_int[1], dtype=float).transpose()
+        int_d = numpy.array(ll_int[2], dtype=float).transpose()
+        sint_d = numpy.array(ll_int[3], dtype=float).transpose()
         
         self.set_val(tth=tth, phi=phi, int_u=int_u, sint_u=sint_u, int_d=int_d, 
                      sint_d=sint_d, field=field, wave_length=wave_length)

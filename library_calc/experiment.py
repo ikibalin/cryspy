@@ -16,30 +16,39 @@ class ExperimentSingle(dict):
     """
     Class to describe all information concerning to the experiment for monocrystal
     """
-    def __init__(self, setup = SetupSingle(), 
+    def __init__(self, name=None, setup = SetupSingle(), 
                  list_calculated_data = [], 
                  observed_data = ObservedDataSingle()):
         super(ExperimentSingle, self).__init__()
+        self._p_name = None
         self._p_setup = None
         self._list_calculated_data = []
         self._p_observed_data = None
         
-        self._refresh(setup, observed_data)
+        self._refresh(name, setup, observed_data)
 
     def __repr__(self):
-        lsout = """Experiment for monocrystal:\n{:}\n{:} """.format(
-                self._p_setup, self._p_observed_data)
-        return lsout
+        ls_out = """ExperimentSingle:\n name: {:}\n{:}\n{:}""".format(
+                self._p_name, self._p_setup, self._p_observed_data)
+        
+        ls_calculated_data = []
+        for calculated_data in self._list_calculated_data:
+            ls_calculated_data.append("{:}".format(calculated_data))
 
-    def _refresh(self, setup, observed_data):
-        if not(isinstance(setup, type(None))):
+        ls_out += "\n\n\nCalculatedData:\n\n"+"\n\n".join(ls_calculated_data)
+        return ls_out
+
+    def _refresh(self, name, setup, observed_data):
+        if name is not None:
+            self._p_name = name
+        if setup is not None:
             self._p_setup = setup
-        if not(isinstance(observed_data, type(None))):
+        if observed_data is not None:
             self._p_observed_data = observed_data
 
             
-    def set_val(self, setup=None, observed_data=None):
-        self._refresh(setup, observed_data)
+    def set_val(self, name=None, setup=None, observed_data=None):
+        self._refresh(name, setup, observed_data)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -60,6 +69,7 @@ class ExperimentSingle(dict):
         """
         lsout = """
 Parameters:
+name is the name of experiment (should be unique)
 setup is to describe parameters of diffractometer 
 observed_data is the experimental data
         """
@@ -125,23 +135,33 @@ class ExperimentPowder1D(dict):
     """
     Class to describe all information concerning to the experiment for powder 1d
     """
-    def __init__(self, setup = SetupPowder1D(), 
-                 list_calculated_data = [], 
-                 observed_data = ObservedDataPowder1D(), mode_chi_sq="up, down"):
+    def __init__(self, name=None, setup=SetupPowder1D(), 
+                 list_calculated_data=[], 
+                 observed_data=ObservedDataPowder1D(), mode_chi_sq="up, down"):
         super(ExperimentPowder1D, self).__init__()
+        self._p_name = None
         self._p_setup = None
         self._list_calculated_data = []
         self._p_observed_data = None
         self._p_mode_chi_sq = None
         
-        self._refresh(setup, observed_data, mode_chi_sq)
+        self._refresh(name, setup, observed_data, mode_chi_sq)
 
     def __repr__(self):
-        lsout = """Experiment:\n{:}\n{:}\n mode_chi_sq: {:}""".format(
-                self._p_setup, self._p_observed_data, self._p_mode_chi_sq)
-        return lsout
+        ls_out = """ExperimentPowder1D:\nname: {:}\n{:}\n{:}
+ mode_chi_sq: {:}""".format(self._p_name, self._p_setup, self._p_observed_data, 
+                            self._p_mode_chi_sq)
+        
+        ls_calculated_data = []
+        for calculated_data in self._list_calculated_data:
+            ls_calculated_data.append("{:}".format(calculated_data))
 
-    def _refresh(self, setup, observed_data, mode_chi_sq):
+        ls_out += "\n\n\nCalculatedData:\n\n"+"\n\n".join(ls_calculated_data)
+        return ls_out
+
+    def _refresh(self, name, setup, observed_data, mode_chi_sq):
+        if name is not None:
+            self._p_name = name
         if setup is not None:
             self._p_setup = setup
         if observed_data is not None:
@@ -150,8 +170,9 @@ class ExperimentPowder1D(dict):
             self._p_mode_chi_sq = mode_chi_sq
 
             
-    def set_val(self, setup=None, observed_data=None, mode_chi_sq=None):
-        self._refresh(setup, observed_data, mode_chi_sq)
+    def set_val(self, name=None, setup=None, observed_data=None, 
+                mode_chi_sq=None):
+        self._refresh(name, setup, observed_data, mode_chi_sq)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -172,8 +193,10 @@ class ExperimentPowder1D(dict):
         """
         lsout = """
 Parameters:
+name is the name of experiment
 setup is to describe parameters of diffractometer 
 observed_data is the experimental data
+mode_chi_sq is define the refinement: "up down sum diff"
         """
         print(lsout)
     def add_calculated_data(self, observed_data):
@@ -289,30 +312,45 @@ class ExperimentPowder2D(dict):
     """
     Class to describe all information concerning to the experiment for powder 2d
     """
-    def __init__(self, setup = SetupPowder2D(), 
-                 list_calculated_data = [], 
-                 observed_data = ObservedDataPowder2D()):
+    def __init__(self, name=None, setup=SetupPowder2D(), 
+                 list_calculated_data=[], 
+                 observed_data=ObservedDataPowder2D(), mode_chi_sq="up, down"):
         super(ExperimentPowder2D, self).__init__()
+        self._p_name = None
         self._p_setup = None
         self._list_calculated_data = []
         self._p_observed_data = None
+        self._p_mode_chi_sq = None
         
-        self._refresh(setup, observed_data)
+        self._refresh(name, setup, observed_data, mode_chi_sq)
 
     def __repr__(self):
-        lsout = """Experiment 2D:\n{:}\n{:} """.format(
-                self._p_setup, self._p_observed_data)
-        return lsout
+        ls_out = """ExperimentPowder2D:\n name: {:}\n{:}\n{:}
+ mode_chi_sq: {:}""".format(self._p_name, self._p_setup, self._p_observed_data, 
+                            self._p_mode_chi_sq)
+        
+        ls_calculated_data = []
+        for calculated_data in self._list_calculated_data:
+            ls_calculated_data.append("{:}".format(calculated_data))
 
-    def _refresh(self, setup, observed_data):
-        if not(isinstance(setup, type(None))):
+        ls_out += "\n\n\nCalculatedData:\n\n"+"\n\n".join(ls_calculated_data)
+            
+        return ls_out
+
+    def _refresh(self, name, setup, observed_data, mode_chi_sq):
+        if name is not None:
+            self._p_name = name
+        if setup is not None:
             self._p_setup = setup
-        if not(isinstance(observed_data, type(None))):
+        if observed_data is not None:
             self._p_observed_data = observed_data
+        if mode_chi_sq is not None:
+            self._p_mode_chi_sq = mode_chi_sq
 
             
-    def set_val(self, setup=None, observed_data=None):
-        self._refresh(setup, observed_data)
+    def set_val(self, name=None, setup=None, observed_data=None, 
+                mode_chi_sq=None):
+        self._refresh(name, setup, observed_data, mode_chi_sq)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -333,8 +371,10 @@ class ExperimentPowder2D(dict):
         """
         lsout = """
 Parameters:
+name is the name of an experiment (should be unique)
 setup is to describe parameters of diffractometer 
 observed_data is the experimental data
+mode_chi_sq is define the refinement: "up down sum diff"
         """
         print(lsout)
     def add_calculated_data(self, observed_data):

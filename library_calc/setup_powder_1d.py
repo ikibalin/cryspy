@@ -37,7 +37,7 @@ class ResolutionPowder1D(dict):
         
     def __repr__(self):
         lsout = """Resolution: 
- U {:}\n V {:}\n W {:}\n X {:}\n Y {:}""".format(self.get_val("u"),  
+ u: {:}\n v: {:}\n w: {:}\n x: {:}\n y: {:}""".format(self.get_val("u"),  
  self.get_val("v"), self.get_val("w"), self.get_val("x"), self.get_val("y"))
         return lsout
 
@@ -177,7 +177,7 @@ class FactorLorentzPowder1D(dict):
         self.update(dd)
         
     def __repr__(self):
-        lsout = """Lorentz factor for one dimensional powder diffraction. """
+        lsout = """FactorLorentzPowder1D:"""
         return lsout
 
     def _refresh(self):
@@ -234,7 +234,7 @@ class AsymmetryPowder1D(dict):
         self._refresh(p1, p2, p3, p4)
         
     def __repr__(self):
-        lsout = """Asymmetry: \n p1: {:}\n p2: {:}\n p3: {:}
+        lsout = """AsymmetryPowder1D: \n p1: {:}\n p2: {:}\n p3: {:}
  p4: {:}""".format(self.get_val("p1"),  self.get_val("p2"),  
  self.get_val("p3"),  self.get_val("p4"))
         return lsout
@@ -354,7 +354,7 @@ class BeamPolarization(dict):
         self._refresh(p_u, p_d)
         
     def __repr__(self):
-        lsout = """Polarization of the beam: \n p_u: {:}, p_d: {:}""".format(
+        lsout = """BeamPolarization: \n p_u: {:}\n p_d: {:}""".format(
                 self.get_val("p_u"), self.get_val("p_d"))
         return lsout
 
@@ -405,7 +405,7 @@ class BackgroundPowder1D(dict):
         self._refresh(tth_bkgd, int_bkdg)
 
     def __repr__(self):
-        lsout = """Bakcgrounnd:\n """.format(None)
+        lsout = """BackgroundPowder1D:""".format(None)
         return lsout
 
     def _refresh(self, tth_bkgd, int_bkdg):
@@ -500,10 +500,11 @@ class SetupPowder1D(dict):
                       factor_lorentz, asymmetry, beam_polarization, background)
 
     def __repr__(self):
-        lsout = """Setup:\n label: {:}, wave_length: {:}, zero_shift {:}
-{:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, self._p_wave_length, 
- self._p_zero_shift, self._p_resolution, self._p_factor_lorentz, 
- self._p_asymmetry, self._p_beam_polarization, self._p_background)
+        lsout = """SetupPowder1D:\n label: {:}\n wave_length: {:}
+ zero_shift: {:}\n{:}\n{:}\n{:}\n{:}\n{:}""".format(self._p_label, 
+ self._p_wave_length, self._p_zero_shift, self._p_resolution, 
+ self._p_factor_lorentz, self._p_asymmetry, self._p_beam_polarization, 
+ self._p_background)
         return lsout
 
     def _refresh(self, label, wave_length, zero_shift, resolution, 
@@ -693,7 +694,7 @@ class SetupSingle(dict):
         self._refresh(label, wave_length, beam_polarization)
 
     def __repr__(self):
-        lsout = """Setup:\n label: {:}, wave_length: {:}
+        lsout = """SetupSingle:\n label: {:}\n wave_length: {:}
 {:}""".format(self._p_label, self._p_wave_length, 
  self._p_beam_polarization)
         return lsout

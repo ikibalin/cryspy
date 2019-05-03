@@ -30,7 +30,7 @@ class Fitting(dict):
         for variable in self._list_variable:
             ls_var.append("{:}".format(variable))
         
-        ls_out += "\n\n\nExperiments\n\n"+"\n\n".join(ls_exp)
+        ls_out += "\n\n\nExperiment:\n\n"+"\n\n".join(ls_exp)
         ls_out += "\n\n\nVariable:\n\n"+"\n\n".join(ls_var)
         return ls_out
 

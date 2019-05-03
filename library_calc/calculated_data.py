@@ -15,27 +15,30 @@ class CalculatedDataSingle(dict):
     """
     Calculate the model data for single crystal in polarized neutron diffraction experiment
     """
-    def __init__(self, field=1, orientation=numpy.array([[1., 0., 0.], 
+    def __init__(self, name=None, field=1, orientation=numpy.array([[1., 0., 0.], 
                  [0., 1., 0.], [0., 0., 1.]], dtype=float), crystal=Crystal()):
         """
         field is magnetic field in global coordinate system
         orientation is transfer matrix from local coordinate system to global one
         """
         super(CalculatedDataSingle, self).__init__()
+        self._p_name = None
         self._p_field = None
         self._p_crystal = None
         self._p_orientation = None
         orientation
-        self._refresh(field, orientation, crystal)
+        self._refresh(name, field, orientation, crystal)
 
     def __repr__(self):
-        lsout = """Calculated data 1D:\n field {:}
- orientation: {:}\n{:}""".format(
+        lsout = """CalculatedDataSingle:\n name: {}\n field: {:}
+ orientation: {:}\n{:}""".format(self._p_name,
                 self._p_field, self._p_orientation, 
                 self._p_crystal)
         return lsout
 
-    def _refresh(self, field, orientation, crystal):
+    def _refresh(self, name, field, orientation, crystal):
+        if name is not None:
+            self._p_name = name
         if field is not None:
             self._p_field = field
         if orientation is not None:
@@ -43,8 +46,8 @@ class CalculatedDataSingle(dict):
         if crystal  is not None:
             self._p_crystal = crystal
             
-    def set_val(self, field=None, orientation=None, crystal=None):
-        self._refresh(field, orientation, crystal)
+    def set_val(self, name=None, field=None, orientation=None, crystal=None):
+        self._refresh(name, field, orientation, crystal)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -65,6 +68,7 @@ class CalculatedDataSingle(dict):
         """
         lsout = """
 Parameters:
+name is the name of Calculated data
 scale is the scale factor for crystal
 field is magnetic field in global coordinate system
 orientation is transfer matrix from local coordinate system to global one
@@ -176,28 +180,32 @@ class CalculatedDataPowder1D(dict):
     """
     Calculate the model data for 1D powder diffraction experiment
     """
-    def __init__(self, scale=1., field=1., crystal=Crystal()):
+    def __init__(self, name=None, scale=1., field=1., crystal=Crystal()):
         super(CalculatedDataPowder1D, self).__init__()
+        self._p_name = None
         self._p_scale = None
         self._p_field = None
         self._p_crystal = None
-        self._refresh(scale, field, crystal)
+        self._refresh(name, scale, field, crystal)
 
     def __repr__(self):
-        lsout = """Calculated data 1D:\n scale {:}\n field {:}\n{:}""".format(
-                self._p_scale, self._p_field, self._p_crystal)
+        lsout = """CalculatedDataPowder1D: \n name: {:}\n scale: {:}
+ field: {:}\n{:}""".format(self._p_name, self._p_scale, self._p_field, 
+ self._p_crystal)
         return lsout
 
-    def _refresh(self, scale, field, crystal):
-        if not(isinstance(scale, type(None))):
+    def _refresh(self, name, scale, field, crystal):
+        if name is not None:
+            self._p_name = name
+        if scale is not None:
             self._p_scale = scale
-        if not(isinstance(field, type(None))):
+        if field is not None:
             self._p_field = field
-        if not(isinstance(crystal, type(None))):
+        if crystal is not None:
             self._p_crystal = crystal
             
-    def set_val(self, scale=None, field=None, crystal=None):
-        self._refresh(scale, field, crystal)
+    def set_val(self, name=None, scale=None, field=None, crystal=None):
+        self._refresh(name, scale, field, crystal)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -218,6 +226,7 @@ class CalculatedDataPowder1D(dict):
         """
         lsout = """
 Parameters:
+name is the name of CalculatedData1D
 scale is the scale factor for crystal
 field is the value of magnetic field applied along vertical direction in Tesla
 crystal is the definition of crystal 
@@ -274,28 +283,32 @@ class CalculatedDataPowder2D(dict):
     """
     Calculate the model data for 2D powder diffraction experiment
     """
-    def __init__(self, scale=1., field=1., crystal=Crystal()):
+    def __init__(self, name=None, scale=1., field=1., crystal=Crystal()):
         super(CalculatedDataPowder2D, self).__init__()
+        self._p_name = None
         self._p_scale = None
         self._p_field = None
         self._p_crystal = None
-        self._refresh(scale, field, crystal)
+        self._refresh(name, scale, field, crystal)
 
     def __repr__(self):
-        lsout = """Calculated data 2D:\n scale {:}\n field {:}\n{:}""".format(
-                self._p_scale, self._p_field, self._p_crystal)
+        lsout = """CalculatedDataPowder2D:\n name: {:}\n scale: {:}
+ field: {:}\n{:}""".format(self._p_name, self._p_scale, self._p_field, 
+ self._p_crystal)
         return lsout
 
-    def _refresh(self, scale, field, crystal):
-        if not(isinstance(scale, type(None))):
+    def _refresh(self, name, scale, field, crystal):
+        if name is not None:
+            self._p_name = name
+        if scale is not None:
             self._p_scale = scale
-        if not(isinstance(field, type(None))):
+        if field is not None:
             self._p_field = field
-        if not(isinstance(crystal, type(None))):
+        if crystal is not None:
             self._p_crystal = crystal
             
-    def set_val(self, scale=None, field=None, crystal=None):
-        self._refresh(scale, field, crystal)
+    def set_val(self, name=None, scale=None, field=None, crystal=None):
+        self._refresh(name, scale, field, crystal)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -316,6 +329,7 @@ class CalculatedDataPowder2D(dict):
         """
         lsout = """
 Parameters:
+name is the name of CalculatedDataPowder2D
 scale is the scale factor for crystal
 field is the value of magnetic field applied along vertical direction in Tesla
 crystal is the definition of crystal 
