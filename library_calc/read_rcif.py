@@ -711,6 +711,9 @@ def rcif_fitting_relation():
     llab_arg_experiment_1d = ["name"]
     ltype_experiment_1d = ["text"]
     
+    llab_rcif_beam_polarization_1d = ["_pd_beam_polarization_up", "_pd_beam_polarization_down"]
+    llab_arg_beam_polarization_1d = ["p_u", "p_d"]
+    ltype_beam_polarization_1d = ["val", "val"]
 
     llab_rcif_resolution_1d = ["_pd_resolution_u", "_pd_resolution_v", 
                                "_pd_resolution_w", "_pd_resolution_x", 
@@ -738,6 +741,10 @@ def rcif_fitting_relation():
     llab_arg_experiment_2d = ["name"]
     ltype_experiment_2d = ["text"]
     
+    llab_rcif_beam_polarization_2d = ["_2dpd_beam_polarization_up", "_2dpd_beam_polarization_down"]
+    llab_arg_beam_polarization_2d = ["p_u", "p_d"]
+    ltype_beam_polarization_2d = ["val", "val"]
+
 
     llab_rcif_resolution_2d = ["_2dpd_resolution_u", "_2dpd_resolution_v", 
                                "_2dpd_resolution_w", "_2dpd_resolution_x", 
@@ -761,9 +768,9 @@ def rcif_fitting_relation():
 
 
     #ExperimentSingle
-    llab_rcif_beam_polarization = ["_sd_beam_polarization_up", "_sd_beam_polarization_down"]
-    llab_arg_beam_polarization = ["p_u", "p_d"]
-    ltype_beam_polarization = ["val", "val"]
+    llab_rcif_beam_polarization_sd = ["_sd_beam_polarization_up", "_sd_beam_polarization_down"]
+    llab_arg_beam_polarization_sd = ["p_u", "p_d"]
+    ltype_beam_polarization_sd = ["val", "val"]
 
     llab_rcif_extinction = ["_sd_phase_extinction_radius", "_sd_phase_extinction_mosaicity"]
     llab_arg_extinction = ["domain_radius", "mosaicity"]
@@ -857,9 +864,18 @@ def rcif_fitting_relation():
 
 
 
-    drel["lab_rcif_beam_polarization"] = llab_rcif_beam_polarization
-    drel["lab_arg_beam_polarization"] = llab_arg_beam_polarization
-    drel["type_beam_polarization"] = ltype_beam_polarization
+    drel["lab_rcif_beam_polarization_sd"] = llab_rcif_beam_polarization_sd
+    drel["lab_arg_beam_polarization_sd"] = llab_arg_beam_polarization_sd
+    drel["type_beam_polarization_sd"] = ltype_beam_polarization_sd
+
+    drel["lab_rcif_beam_polarization_1d"] = llab_rcif_beam_polarization_1d
+    drel["lab_arg_beam_polarization_1d"] = llab_arg_beam_polarization_1d
+    drel["type_beam_polarization_1d"] = ltype_beam_polarization_1d
+
+    drel["lab_rcif_beam_polarization_2d"] = llab_rcif_beam_polarization_2d
+    drel["lab_arg_beam_polarization_2d"] = llab_arg_beam_polarization_2d
+    drel["type_beam_polarization_2d"] = ltype_beam_polarization_2d
+
 
     drel["lab_rcif_extinction"] = llab_rcif_extinction
     drel["lab_arg_extinction"] = llab_arg_extinction
@@ -1096,9 +1112,19 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
     from_dict_to_obj(data, llab_rcif, setup_powder_1d, llab_arg, ltype)
 
 
+    llab_rcif = drel["lab_rcif_beam_polarization_1d"]
+    llab_arg = drel["lab_arg_beam_polarization_1d"]
+    ltype = drel["type_beam_polarization_1d"]
+
+    from_dict_to_obj(data, llab_rcif, beam_polarization, llab_arg, ltype)
+
+
     f_inp=data["_pd_file_name_input"]
     observed_data_powder_1d.read_data(os.path.join(f_dir, f_inp))
     
+    
+    f_inp=data["_pd_file_name_bkgr"]
+    background_powder_1d.read_data(os.path.join(f_dir, f_inp))
     
     wave_length = observed_data_powder_1d.get_val("wave_length")
     setup_powder_1d.set_val(wave_length=wave_length)
@@ -1197,9 +1223,25 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
     from_dict_to_obj(data, llab_rcif, setup_powder_2d, llab_arg, ltype)
 
 
+    llab_rcif = drel["lab_rcif_beam_polarization_2d"]
+    llab_arg = drel["lab_arg_beam_polarization_2d"]
+    ltype = drel["type_beam_polarization_2d"]
+
+    from_dict_to_obj(data, llab_rcif, beam_polarization, llab_arg, ltype)
+
+
     f_inp=data["_2dpd_file_name_input"]
     observed_data_powder_2d.read_data(os.path.join(f_dir, f_inp))
+
+    tth_min = data["_2dpd_tth_min"]
+    tth_max = data["_2dpd_tth_max"]
+    phi_min = data["_2dpd_phi_min"]
+    phi_max = data["_2dpd_phi_max"]
+    observed_data_powder_2d.set_val(tth_min=tth_min, tth_max=tth_max, 
+                                    phi_min=phi_min, phi_max=phi_max,)
     
+    f_inp=data["_2dpd_file_name_bkgr"]
+    background_powder_2d.read_data(os.path.join(f_dir, f_inp))
     
     wave_length = observed_data_powder_2d.get_val("wave_length")
     setup_powder_2d.set_val(wave_length=wave_length)
@@ -1255,9 +1297,9 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
     from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)
     
     
-    llab_rcif = drel["lab_rcif_beam_polarization"]
-    llab_arg = drel["lab_arg_beam_polarization"]
-    ltype = drel["type_beam_polarization"]
+    llab_rcif = drel["lab_rcif_beam_polarization_sd"]
+    llab_arg = drel["lab_arg_beam_polarization_sd"]
+    ltype = drel["type_beam_polarization_sd"]
 
     from_dict_to_obj(data, llab_rcif, beam_polarization, llab_arg, ltype)
 

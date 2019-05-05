@@ -156,9 +156,19 @@ class ObservedDataPowder1D(dict):
     """
     Containt the experimental data
     """
-    def __init__(self, tth=None, int_u=None, sint_u=None, int_d=None, 
-                 sint_d=None, field=None, wave_length=None):
+    def __init__(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
+                 int_d_exp=None, sint_d_exp=None, field=None, wave_length=None):
         super(ObservedDataPowder1D, self).__init__()
+        self._p_tth_exp = None
+        self._p_int_u_exp = None
+        self._p_sint_u_exp = None
+        self._p_int_d_exp = None
+        self._p_sint_d_exp = None
+
+        self._p_tth_min = None
+        self._p_tth_max = None
+
+
         self._p_tth = None
         self._p_int_u = None
         self._p_sint_u = None
@@ -171,7 +181,8 @@ class ObservedDataPowder1D(dict):
         self._p_field = None
         self._p_wave_length = None
         
-        self._refresh(tth, int_u, sint_u, int_d, sint_d, field, wave_length)
+        self._refresh(tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
+                      field, wave_length)
 
     def __repr__(self):
         ls_out = """ObservedDataPowder1D:\n file_dir: {:}
@@ -183,25 +194,31 @@ class ObservedDataPowder1D(dict):
         ls_out += "\n wave_length: {:}".format(self._p_wave_length)
         return ls_out
 
-    def _refresh(self, tth, int_u, sint_u, int_d, sint_d, field, wave_length):
-        if not(isinstance(tth, type(None))):
-            self._p_tth = tth
-        if not(isinstance(int_u, type(None))):
-            self._p_int_u = int_u
-        if not(isinstance(sint_u, type(None))):
-            self._p_sint_u = sint_u
-        if not(isinstance(int_d, type(None))):
-            self._p_int_d = int_d
-        if not(isinstance(sint_d, type(None))):
-            self._p_sint_d = sint_d
-        if not(isinstance(field, type(None))):
+    def _refresh(self, tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
+                 field, wave_length):
+        flag = any([(hh is not None) for hh in [tth_exp, int_u_exp, sint_u_exp, 
+                                                int_d_exp, sint_d_exp]])
+        if tth_exp is not None:
+            self._p_tth_exp = tth_exp
+        if int_u_exp is not None:
+            self._p_int_u_exp = int_u_exp
+        if sint_u_exp is not None:
+            self._p_sint_u_exp = sint_u_exp
+        if int_d_exp is not None:
+            self._p_int_d_exp = int_d_exp
+        if sint_d_exp is not None:
+            self._p_sint_d_exp = sint_d_exp
+        if field is not None:
             self._p_field = field
-        if not(isinstance(wave_length, type(None))):
+        if wave_length is not None:
             self._p_wave_length = wave_length
+        if flag:
+            self.exclude_data()
             
-    def set_val(self, tth=None, int_u=None, sint_u=None, int_d=None, 
-                 sint_d=None, field=None, wave_length=None):
-        self._refresh(tth, int_u, sint_u, int_d, sint_d, field, wave_length)
+    def set_val(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
+                int_d_exp=None, sint_d_exp=None, field=None, wave_length=None):
+        self._refresh(tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
+                      field, wave_length)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -230,6 +247,36 @@ field is the magnetic field along z axis
 wave_length is the neutron wave_length
         """
         print(lsout)
+        
+    def exclude_data(self):
+        tth_exp = self._p_tth_exp
+        int_u_exp = self._p_int_u_exp
+        sint_u_exp = self._p_sint_u_exp
+        int_d_exp = self._p_int_d_exp
+        sint_d_exp = self._p_sint_d_exp
+        flag_tth = numpy.ones(tth_exp.size, dtype=bool)
+
+        tth_min = self._p_tth_min 
+        tth_max = self._p_tth_max 
+        
+        cond_tth = (tth_min is not None)&(tth_max is not None)
+
+        if cond_tth:
+            flag_1 = tth_exp >= tth_min
+            flag_2 = tth_max >= tth_exp
+            flag_tth = numpy.logical_and(flag_1, flag_2)
+        
+        tth = tth_exp[flag_tth]
+        int_u = int_u_exp[flag_tth]
+        sint_u = sint_u_exp[flag_tth]
+        int_d = int_d_exp[flag_tth]
+        sint_d = sint_d_exp[flag_tth]
+    
+        self._p_tth = tth
+        self._p_int_u = int_u 
+        self._p_sint_u = sint_u 
+        self._p_int_d = int_d 
+        self._p_sint_d = sint_d 
     
     def read_data(self, finp):
         """
@@ -256,7 +303,7 @@ wave_length is the neutron wave_length
         lnames = lparam[-1].split()
         for name in lnames:
             ddata[name] = []
-        lcontent = [line for line in lcontentH if line[0]!='#']
+        lcontent = [line for line in lcontentH if not(line.startswith('#'))]
         for line in lcontent:
             for name, val in zip(lnames, line.strip().split()):
                 ddata[name].append(val)
@@ -267,8 +314,9 @@ wave_length is the neutron wave_length
         sint_u = numpy.array(ddata["sIntUP"], dtype=float)
         int_d = numpy.array(ddata["IntDOWN"], dtype=float)
         sint_d = numpy.array(ddata["sIntDOWN"], dtype=float)
-        self.set_val(tth=tth, int_u=int_u, sint_u=sint_u, int_d=int_d, 
-                     sint_d=sint_d, field=field, wave_length=wave_length)
+        self.set_val(tth_exp=tth, int_u_exp=int_u, sint_u_exp=sint_u, 
+                     int_d_exp=int_d, sint_d_exp=sint_d, field=field, 
+                     wave_length=wave_length)
 
 
 
@@ -276,9 +324,23 @@ class ObservedDataPowder2D(dict):
     """
     Containt the experimental data
     """
-    def __init__(self, tth=None, phi=None, int_u=None, sint_u=None, int_d=None, 
-                 sint_d=None, field=None, wave_length=None):
+    def __init__(self, tth_exp=None, phi_exp=None, int_u_exp=None, 
+                 sint_u_exp=None, int_d_exp=None, 
+                 sint_d_exp=None, tth_min=None, tth_max=None, phi_min=None, 
+                 phi_max=None, field=None, wave_length=None):
         super(ObservedDataPowder2D, self).__init__()
+        self._p_tth_exp = None
+        self._p_phi_exp = None
+        self._p_int_u_exp = None
+        self._p_sint_u_exp = None
+        self._p_int_d_exp = None
+        self._p_sint_d_exp = None
+        
+        self._p_tth_min = None
+        self._p_tth_max = None
+        self._p_phi_min = None
+        self._p_phi_max = None
+
         self._p_tth = None
         self._p_phi = None
         self._p_int_u = None
@@ -292,7 +354,9 @@ class ObservedDataPowder2D(dict):
         self._p_field = None
         self._p_wave_length = None
         
-        self._refresh(tth, phi, int_u, sint_u, int_d, sint_d, field, wave_length)
+        self._refresh(tth_exp, phi_exp, int_u_exp, sint_u_exp, int_d_exp, 
+                      sint_d_exp, tth_min, tth_max, 
+                      phi_min, phi_max, field, wave_length)
 
     def __repr__(self):
         ls_out = """ObservedDataPowder2D:\n file_dir: {:}
@@ -308,27 +372,47 @@ class ObservedDataPowder2D(dict):
         
         return ls_out
 
-    def _refresh(self, tth, phi, int_u, sint_u, int_d, sint_d, field, wave_length):
-        if tth is not None:
-            self._p_tth = tth
-        if phi is not None:
-            self._p_phi = phi
-        if int_u is not None:
-            self._p_int_u = int_u
-        if sint_u is not None:
-            self._p_sint_u = sint_u
-        if int_d is not None:
-            self._p_int_d = int_d
-        if sint_d is not None:
-            self._p_sint_d = sint_d
+    def _refresh(self, tth_exp, phi_exp, int_u_exp, sint_u_exp, int_d_exp, 
+                 sint_d_exp, tth_min, 
+                 tth_max, phi_min, phi_max, field, wave_length):
+        flag = any([(hh is not None) for hh in [tth_exp, phi_exp, int_u_exp, 
+                                                sint_u_exp, int_d_exp, 
+                                                sint_d_exp, tth_min, tth_max, 
+                                                phi_min, phi_max]])
+        if tth_exp is not None:
+            self._p_tth_exp = tth_exp
+        if phi_exp is not None:
+            self._p_phi_exp = phi_exp
+        if int_u_exp is not None:
+            self._p_int_u_exp = int_u_exp
+        if sint_u_exp is not None:
+            self._p_sint_u_exp = sint_u_exp
+        if int_d_exp is not None:
+            self._p_int_d_exp = int_d_exp
+        if sint_d_exp is not None:
+            self._p_sint_d_exp = sint_d_exp
         if field is not None:
             self._p_field = field
         if wave_length is not None:
             self._p_wave_length = wave_length
+        if tth_min is not None:
+            self._p_tth_min = tth_min
+        if tth_max is not None:
+            self._p_tth_max = tth_max
+        if phi_min is not None:
+            self._p_phi_min = phi_min
+        if phi_max is not None:
+            self._p_phi_max = phi_max
+        if flag:
+            self.exclude_data()
             
-    def set_val(self, tth=None, phi=None, int_u=None, sint_u=None, int_d=None, 
-                 sint_d=None, field=None, wave_length=None):
-        self._refresh(tth, phi, int_u, sint_u, int_d, sint_d, field, wave_length)
+    def set_val(self, tth_exp=None, phi_exp=None, int_u_exp=None, 
+                sint_u_exp=None, int_d_exp=None, sint_d_exp=None, 
+                tth_min=None, tth_max=None, phi_min=None, phi_max=None, 
+                field=None, wave_length=None):
+        self._refresh(tth_exp, phi_exp, int_u_exp, sint_u_exp, int_d_exp, 
+                      sint_d_exp, tth_min, tth_max, 
+                      phi_min, phi_max, field, wave_length)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -359,7 +443,49 @@ field is the magnetic field along z axis
 wave_length is the neutron wave_length in Angstrem
         """
         print(lsout)
+
+    def exclude_data(self):
+        tth_exp = self._p_tth_exp
+        phi_exp = self._p_phi_exp
+        int_u_exp = self._p_int_u_exp
+        sint_u_exp = self._p_sint_u_exp
+        int_d_exp = self._p_int_d_exp
+        sint_d_exp = self._p_sint_d_exp
+        flag_tth = numpy.ones(tth_exp.size, dtype=bool)
+        flag_phi = numpy.ones(phi_exp.size, dtype=bool)
+
+        tth_min = self._p_tth_min 
+        tth_max = self._p_tth_max 
+        phi_min = self._p_phi_min 
+        phi_max = self._p_phi_max 
+        
+        cond_tth = (tth_min is not None)&(tth_max is not None)
+        cond_phi = (phi_min is not None)&(phi_max is not None)
+
+        if cond_tth:
+            flag_1 = tth_exp >= tth_min
+            flag_2 = tth_max >= tth_exp
+            flag_tth = numpy.logical_and(flag_1, flag_2)
+
+        if cond_phi:
+            flag_1 = phi_exp >= phi_min
+            flag_2 = phi_max >= phi_exp
+            flag_phi = numpy.logical_and(flag_1, flag_2)
+        
+        tth = tth_exp[flag_tth]
+        phi = phi_exp[flag_phi]
+        int_u = int_u_exp[flag_tth][:, flag_phi]
+        sint_u = sint_u_exp[flag_tth][:, flag_phi]
+        int_d = int_d_exp[flag_tth][:, flag_phi]
+        sint_d = sint_d_exp[flag_tth][:, flag_phi]
     
+        self._p_tth = tth
+        self._p_phi = phi
+        self._p_int_u = int_u 
+        self._p_sint_u = sint_u 
+        self._p_int_d = int_d 
+        self._p_sint_d = sint_d 
+
     def read_data(self, finp):
         """
         read file from file
@@ -418,8 +544,9 @@ wave_length is the neutron wave_length in Angstrem
         int_d = numpy.array(ll_int[2], dtype=float).transpose()
         sint_d = numpy.array(ll_int[3], dtype=float).transpose()
         
-        self.set_val(tth=tth, phi=phi, int_u=int_u, sint_u=sint_u, int_d=int_d, 
-                     sint_d=sint_d, field=field, wave_length=wave_length)
+        self.set_val(tth_exp=tth, phi_exp=phi, int_u_exp=int_u, 
+                     sint_u_exp=sint_u, int_d_exp=int_d, 
+                     sint_d_exp=sint_d, field=field, wave_length=wave_length)
 
 
 if (__name__ == "__main__"):

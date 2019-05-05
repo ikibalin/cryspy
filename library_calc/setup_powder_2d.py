@@ -350,6 +350,9 @@ class BackgroundPowder2D(dict):
     """
     def __init__(self, tth_bkgd=0., phi_bkgd=0., int_bkdg=0.):
         super(BackgroundPowder2D, self).__init__()
+        self._p_file_dir = ""
+        self._p_file_name = None
+
         self._p_tth_bkgd = None
         self._p_phi_bkgd = None
         self._p_int_bkdg = None
@@ -357,7 +360,8 @@ class BackgroundPowder2D(dict):
         self._refresh(tth_bkgd, phi_bkgd, int_bkdg)
 
     def __repr__(self):
-        lsout = """BackgroundPowder2D:""".format(None)
+        lsout = """BackgroundPowder2D:\n file_dir: {:}
+ file_name: {:}""".format(self._p_file_dir, self._p_file_name)
         return lsout
 
     def _refresh(self, tth_bkgd, phi_bkgd, int_bkdg):
@@ -367,6 +371,7 @@ class BackgroundPowder2D(dict):
             self._p_phi_bkgd = phi_bkgd
         if int_bkdg is not None:
             self._p_int_bkdg = int_bkdg
+
             
     def set_val(self, tth_bkgd=None, phi_bkgd=None, int_bkdg=None):
         
@@ -397,39 +402,64 @@ int_bkdg is intensity to describe background
         print(lsout)
         
         
-    def read_data(finp):
+    def read_data(self, finp):
         """
         read file from file
         """
+        self._p_file_dir = os.path.dirname(finp)
+        self._p_file_name = os.path.basename(finp)
         ddata={}
         fid=open(finp,'r')
         lcontentH=fid.readlines()
         fid.close()
-        lparam=[line[1:].strip() for line in lcontentH if line.startswith('#')]
-        if (len(lparam)>1):
-            for line in lparam:
-                lhelp=splitlinewminuses(line)
-                if (len(lhelp)>2):
-                    ddata[lhelp[0]]=lhelp[1:]
-                elif (len(lhelp)==2):
-                    ddata[lhelp[0]]=lhelp[1]
+        lparam = [line[1:].strip() for line in lcontentH if line.startswith('#')]
+        if (len(lparam) > 1):
+            for line in lparam[:-1]:
+                lhelp = line.strip().split()
+                if (len(lhelp) > 2):
+                    ddata[lhelp[0]] = [float(hh) for hh in lhelp[1:]]
+                elif (len(lhelp) == 2):
+                    ddata[lhelp[0]] = float(lhelp[1])
                 else:
-                    print("Mistake in experimental file '{:}' in line:\n{:}".format(finp, line))
+                    print("Mistake in background file '{:}' in line:\n {:}".format(finp, line))
                     print("The program is stopped.")
                     quit()
-        lnames=lparam[-1].split()
+        lnames = lparam[-1].split()
         for name in lnames:
-            ddata[name]=[]
-        lcontent=[line for line in lcontentH if not(line.startswith('#'))]
-        for line in lcontent:
-            for name,val in zip(lnames, splitlinewminuses(line)):
-                ddata[name].append(val)
-                
-        tth_b = numpy.array(ddata["tth"], dtype=float)
-        phi_b = numpy.array(ddata["phi"], dtype=float)
-        int_b = numpy.array(ddata["int"], dtype=float)
-        self.set_val(tth_bkgd=tth_b, phi_bkgd=phi_b, int_bkdg=int_b)
+            ddata[name] = []
         
+        lcontent = [line for line in lcontentH if not(line.startswith('#'))]
+        for line in lcontent:
+            for name, val in zip(lnames, line.strip().split()):
+                ddata[name].append(val)
+                     
+        tth_b = numpy.array(ddata["ttheta"], dtype=float)
+        if "phi" in ddata.keys():
+            phi_b = numpy.array(ddata["phi"], dtype=float)
+        else:
+            phi_b = 0.*tth_b
+        int_b = numpy.array(ddata["IntBKGR"], dtype=float)
+        self.set_val(tth_bkgd=tth_b, phi_bkgd=phi_b, int_bkdg=int_b)
+
+    def interpolate_by_points(self, tth, phi):
+        tth_b = self._p_tth_bkgd
+        #phi_b = self._p_phi_bkgd
+        int_b = self._p_int_bkdg
+        if tth_b is None:
+            file_dir = self._p_file_dir 
+            file_name = self._p_file_name 
+            if file_name is None:
+                f_inp = os.path.join(file_dir, file_name)
+                self.read_data(f_inp)
+                tth_b = self._p_tth_bkgd
+                #phi_b = self._p_phi_bkgd
+                int_b = self._p_int_bkdg
+        if tth_b is not None:
+            int_1d = numpy.interp(tth, tth_b, int_b)
+            int_2d = numpy.meshgrid(int_1d, phi, indexing="ij")[0]
+        else:
+            int_2d = numpy.zeros((tth.size, phi.size), dtype=float)
+        return int_2d
 
 
 
@@ -635,7 +665,7 @@ background  is Background class
     def calc_background(self, tth, phi):
         """
         estimates background points on the given ttheta positions
-        """
-        bkgd = numpy.zeros((tth.size, phi.size), dtype=float)
-        return bkgd 
-                    
+        """                   
+        background = self._p_background
+        int_bkgd = background.interpolate_by_points(tth, phi)
+        return int_bkgd 

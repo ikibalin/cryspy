@@ -866,33 +866,34 @@ class AtomType(dict):
                       factor_lande, occupation, f_dir_prog)
 
     def __repr__(self):
-        lsout = """AtomType:
-
-name: {}            
-Type nuclear: {:} and magentic {:}({:})
-b_scat: {:}
-occupation: {:}
-Fract  x: {:}  y: {:}  z: {:}\n b_iso: {:}, kappa: {:}, lande factor: {:}
-beta_11: {:}, beta_22: {:}, beta_33: {:}, 
-beta_12: {:}, beta_13: {:}, beta_23: {:}, 
-
-chi_11: {:}, chi_22: {:}, chi_33: {:}, 
-chi_12: {:}, chi_13: {:}, chi_23: {:}, 
-
-j0 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
-j2 -- A: {:}, a: {:}, B: {:}, b: {:}, C: {:},  c: {:}, D: {:}
-
-f_dir_prog: {:}
-""".format(self._p_name, self._p_type_n, self._p_type_m, self._p_flag_m, 
-self._p_b_scat, self._p_occupation, self._p_x, 
-self._p_y, self._p_z, self._p_b_iso, self._p_kappa, self._p_factor_lande,
-self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
-self._p_beta_13, self._p_beta_23, self._p_chi_11, self._p_chi_22, 
+        ls_out = """AtomType:
+ name: {}            
+ type_n: {:} (b_scat: {:})
+ occupation: {:}
+ fract  x: {:}  y: {:}  z: {:}\n b_iso: {:}
+ beta_11: {:}, beta_22: {:}, beta_33: {:}, 
+ beta_12: {:}, beta_13: {:}, beta_23: {:}, 
+ f_dir_prog: {:}""".format(
+ self._p_name, self._p_type_n, self._p_b_scat, self._p_occupation, self._p_x, 
+ self._p_y, self._p_z, self._p_b_iso, 
+ self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
+ self._p_beta_13, self._p_beta_23, self._p_f_dir_prog)
+        if self._p_flag_m:
+            ls_out += """\n\n type_m: {:}
+ kappa: {:}
+ lande factor: {:}
+ chi_11: {:.6f}, chi_22: {:.6f}, chi_33: {:.6f}, 
+ chi_12: {:.6f}, chi_13: {:.6f}, chi_23: {:.6f}, 
+ j0   A: {:}, a: {:}, B: {:}, b: {:}
+      C: {:}, c: {:}, D: {:}
+ j2   A: {:}, a: {:}, B: {:}, b: {:}
+      C: {:}, c: {:}, D: {:}
+""".format(self._p_type_m, self._p_kappa, self._p_factor_lande, self._p_chi_11, self._p_chi_22, 
 self._p_chi_33, self._p_chi_12, self._p_chi_13, self._p_chi_23, self._p_j0_A,
 self._p_j0_a, self._p_j0_B, self._p_j0_b, self._p_j0_C, self._p_j0_c, 
 self._p_j0_D, self._p_j2_A, self._p_j2_a, self._p_j2_B, self._p_j2_b, 
-self._p_j2_C, self._p_j2_c, self._p_j2_D, self._p_f_dir_prog)
-        return lsout
+self._p_j2_C, self._p_j2_c, self._p_j2_D)
+        return ls_out
     
     def _refresh(self, name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
                  beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 

@@ -58,6 +58,8 @@ rcif_powder_2d.load_from_file(f_inp)
 
 fitting_powder_2d = rcif_powder_2d.trans_to_fitting()
 experiment_powder_2d = fitting_powder_2d._list_experiment[0]
+setup_powder_2d = experiment_powder_2d.get_val("setup")
+
 calculated_data_powder_2d = experiment_powder_2d._list_calculated_data[0]
 
 observed_data_powder_2d = experiment_powder_2d.get_val("observed_data")
@@ -76,7 +78,14 @@ chi_sq, n = experiment_powder_2d.calc_chi_sq()
 
 int_u_mod, int_d_mod = experiment_powder_2d.calc_profile(np_tth, np_phi)
 matplotlib.pyplot.imshow(int_u_mod-int_d_mod)
+print(" chi_sq/n:   {:.3f}\n root of it: {:.3f}".format(chi_sq/n, 
+      (chi_sq/n)**0.5))
 
+matplotlib.pyplot.imshow(int_u_mod+int_d_mod)
+matplotlib.pyplot.imshow(int_u_exp+int_d_exp)
+
+matplotlib.pyplot.imshow(int_u_mod+int_d_mod-int_u_exp-int_d_exp)
+matplotlib.pyplot.imshow(int_u_mod-int_d_mod-int_u_exp+int_d_exp)
 
 
 
@@ -103,8 +112,11 @@ int_u_exp = observed_data_powder_1d.get_val("int_u")
 int_d_exp = observed_data_powder_1d.get_val("int_d")
 
 int_u, int_d = experiment_powder_1d.calc_profile(np_tth)
-matplotlib.pyplot.plot(np_tth, int_u_exp+int_d_exp, "k-", np_tth, int_u+int_d, "b-")
-
+matplotlib.pyplot.plot(np_tth, int_u_exp+int_d_exp, "k.", 
+                       np_tth, int_u+int_d, "b-",
+                       np_tth, int_u+int_d-int_u_exp-int_d_exp, "k-")
+print(" chi_sq/n:   {:.3f}\n root of it: {:.3f}".format(chi_sq/n, 
+      (chi_sq/n)**0.5))
 
 
 

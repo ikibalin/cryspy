@@ -214,7 +214,8 @@ mode_chi_sq is define the refinement: "up down sum diff"
         calculate intensity for the given diffraction angle
         """
         setup = self._p_setup
-        background = setup.calc_background(tth)
+        background = setup.get_val("background")
+        int_bkgd = background.interpolate_by_points(tth)
         wave_length = setup.get_val("wave_length")
         beam_polarization = setup.get_val("beam_polarization")
         
@@ -251,7 +252,7 @@ mode_chi_sq is define the refinement: "up down sum diff"
             res_u_1d += res_u_2d.sum(axis=1) 
             res_d_1d += res_d_2d.sum(axis=1) 
             
-        return res_u_1d+background, res_d_1d+background
+        return res_u_1d+int_bkgd, res_d_1d+int_bkgd
     
     def calc_chi_sq(self):
         """
@@ -397,7 +398,9 @@ mode_chi_sq is define the refinement: "up down sum diff"
         phi_rad = phi*numpy.pi/180.
         
         setup = self._p_setup
-        background = setup.calc_background(tth, phi)
+        background = setup.get_val("background")
+        int_bkgd = background.interpolate_by_points(tth, phi)
+        
         wave_length = setup.get_val("wave_length")
         beam_polarization = setup.get_val("beam_polarization")
         
@@ -444,7 +447,7 @@ mode_chi_sq is define the refinement: "up down sum diff"
             res_u_2d += res_u_3d.sum(axis=2) 
             res_d_2d += res_d_3d.sum(axis=2) 
             
-        return res_u_2d+background, res_d_2d+background
+        return res_u_2d+int_bkgd, res_d_2d+int_bkgd
     
     def calc_chi_sq(self):
         """

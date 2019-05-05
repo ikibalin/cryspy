@@ -399,23 +399,26 @@ class BackgroundPowder1D(dict):
     """
     def __init__(self, tth_bkgd=0., int_bkdg=0.):
         super(BackgroundPowder1D, self).__init__()
+        self._p_file_dir = ""
+        self._p_file_name = None
+
         self._p_tth_bkgd = None
         self._p_int_bkdg = None
         
         self._refresh(tth_bkgd, int_bkdg)
 
     def __repr__(self):
-        lsout = """BackgroundPowder1D:""".format(None)
+        lsout = """BackgroundPowder1D:\n file_dir: {:}
+ file_name: {:}""".format(self._p_file_dir, self._p_file_name)
         return lsout
 
     def _refresh(self, tth_bkgd, int_bkdg):
-        if not(isinstance(tth_bkgd, type(None))):
+        if tth_bkgd is not None:
             self._p_tth_bkgd = tth_bkgd
-        if not(isinstance(int_bkdg, type(None))):
+        if int_bkdg is not None:
             self._p_int_bkdg = int_bkdg
             
     def set_val(self, tth_bkgd=None, int_bkdg=None):
-        
         self._refresh(tth_bkgd, int_bkdg)
         
     def get_val(self, label):
@@ -443,38 +446,57 @@ int_bkdg is intensity to describe background
         print(lsout)
         
         
-    def read_data(finp):
+    def read_data(self, finp):
         """
         read file from file
         """
+        self._p_file_dir = os.path.dirname(finp)
+        self._p_file_name = os.path.basename(finp)
         ddata={}
         fid=open(finp,'r')
         lcontentH=fid.readlines()
         fid.close()
-        lparam=[line[1:].strip() for line in lcontentH if line.startswith('#')]
-        if (len(lparam)>1):
-            for line in lparam:
-                lhelp=splitlinewminuses(line)
-                if (len(lhelp)>2):
-                    ddata[lhelp[0]]=lhelp[1:]
-                elif (len(lhelp)==2):
-                    ddata[lhelp[0]]=lhelp[1]
+        lparam = [line[1:].strip() for line in lcontentH if line.startswith('#')]
+        if (len(lparam) > 1):
+            for line in lparam[:-1]:
+                lhelp = line.strip().split()
+                if (len(lhelp) > 2):
+                    ddata[lhelp[0]] = [float(hh) for hh in lhelp[1:]]
+                elif (len(lhelp) == 2):
+                    ddata[lhelp[0]] = float(lhelp[1])
                 else:
-                    print("Mistake in experimental file '{:}' in line:\n{:}".format(finp, line))
+                    print("Mistake in background file '{:}' in line:\n {:}".format(finp, line))
                     print("The program is stopped.")
                     quit()
-        lnames=lparam[-1].split()
+        lnames = lparam[-1].split()
         for name in lnames:
-            ddata[name]=[]
-        lcontent=[line for line in lcontentH if not(line.startswith('#'))]
-        for line in lcontent:
-            for name,val in zip(lnames, splitlinewminuses(line)):
-                ddata[name].append(val)
-                
-        tth_b = numpy.array(ddata["tth"], dtype=float)
-        int_b = numpy.array(ddata["int"], dtype=float)
-        self.set_val(tth_bkgd=tth_b, int_bkdg=int_b)
+            ddata[name] = []
         
+        lcontent = [line for line in lcontentH if not(line.startswith('#'))]
+        for line in lcontent:
+            for name, val in zip(lnames, line.strip().split()):
+                ddata[name].append(val)
+                     
+        tth_b = numpy.array(ddata["ttheta"], dtype=float)
+        int_b = numpy.array(ddata["IntBKGR"], dtype=float)
+        self.set_val(tth_bkgd=tth_b, int_bkdg=int_b)
+
+    def interpolate_by_points(self, tth):
+        tth_b = self._p_tth_bkgd
+        int_b = self._p_int_bkdg
+        if tth_b is None:
+            file_dir = self._p_file_dir 
+            file_name = self._p_file_name 
+            if file_name is None:
+                f_inp = os.path.join(file_dir, file_name)
+                self.read_data(f_inp)
+                tth_b = self._p_tth_bkgd
+                int_b = self._p_int_bkdg
+        if tth_b is not None:
+            int_1d = numpy.interp(tth, tth_b, int_b)
+        else:
+            int_1d = numpy.zeros(tth.size, dtype=float)
+        return int_1d
 
 
 
@@ -676,8 +698,9 @@ background  is Background class
         """
         estimates background points on the given ttheta positions
         """
-        bkgd = numpy.zeros(tth.shape, dtype=float)
-        return bkgd 
+        background = self._p_background
+        int_bkgd = background.interpolate_by_points(tth)
+        return int_bkgd 
                     
 
 
