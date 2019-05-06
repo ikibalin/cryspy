@@ -1963,6 +1963,16 @@ fract  is fraction of atoms
             
         return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
 
+     def plot_map(self):
+        d_map = {"flag": False, "out":None}
+        
+        d_phase = {"flag": False, "out":None}
+        d_adp = {"flag": False, "out":None}
+        d_magnetism = {"flag": False, "out":None}
+        d_map.update({"phase": d_phase, "adp": d_adp, 
+                      "magnetism": d_magnetism})
+        
+        return d_map
 
 class Extinction(dict):
     """
@@ -2237,6 +2247,13 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         ym = extinction.calc_extinction(cell, h, k, l, fm_sq, wave_length)
         ypm = extinction.calc_extinction(cell, h, k, l, fpm_sq, wave_length)
         return yp, ym, ypm
+        
+    def plot_map(self):
+        d_map = {"flag": False, "out":None}
+        atom_site = self.get_val("atom_site")
+        d_sf = atom_site.plot_map()
+        d_map.update({"sf":d_sf})
+        return d_map
         
     
 if (__name__ == "__main__"):

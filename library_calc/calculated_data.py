@@ -342,7 +342,7 @@ crystal is the definition of crystal
         Output: f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
         """
         crystal = self._p_crystal
-        field = self._p_field
+        field = 1.*self._p_field
 
         f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
         
@@ -365,6 +365,13 @@ crystal is the definition of crystal
         #    print(""" {:3} {:3} {:3} {:9.3f} {:9.3f} {:9.3f} {:9.3f}""".format(
         #            h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4))        
         return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
+
+     def plot_map(self):
+        d_map = {"flag": False, "out":None}
+        crystal = self._p_crystal
+        d_calc_sf = crystal.plot_map()
+        d_map.update({"calc_sf":d_calc_sf})
+        return d_map
         
 if (__name__ == "__main__"):
   pass

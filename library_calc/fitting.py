@@ -119,7 +119,14 @@ None
         print("refinement is finished")
         print("\n\nResult is:\n", res)
         return res
-
+    
+    def plot_map(self):
+        d_map = {"flag": False, "out":None}
+        for experiment in self._list_experiment:
+            d_exp = experiment.plot_map()
+            name = experiment.get_val("name")
+            d_map.update({("chi_sq",name):d_exp})
+        return d_map
 
 
 

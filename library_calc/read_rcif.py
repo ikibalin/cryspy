@@ -1152,8 +1152,9 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
                         scale = dd["_pd_phase_scale"]
                         i_g = dd["_pd_phase_igsize"]
                         crystal.set_val(i_g=i_g)
+                        name = crystal.get_val("name")
                         calculated_data = CalculatedDataPowder1D(field=field,
-                                scale=scale, crystal=crystal)
+                                scale=scale, crystal=crystal, name=name)
                         experiment.add_calculated_data(calculated_data)
     return experiment, l_variable
 
@@ -1269,8 +1270,9 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
                         scale = dd["_2dpd_phase_scale"]
                         i_g = dd["_2dpd_phase_igsize"]
                         crystal.set_val(i_g=i_g)
+                        name = crystal.get_val("name")
                         calculated_data = CalculatedDataPowder2D(field=field,
-                                scale=scale, crystal=crystal)
+                                scale=scale, crystal=crystal, name=name)
                         experiment.add_calculated_data(calculated_data)
     return experiment, l_variable
 
@@ -1345,9 +1347,11 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
                     if  dd["_sd_phase_name"] == crystal.get_val("name"):
                         extinction = crystal.get_val("extinction")
                         from_dict_to_obj(dd, llab_rcif, extinction, llab_arg, ltype)
+                        name = crystal.get_val("name")
                         #should crystal be a deepcopy or not???
                         calculated_data = CalculatedDataSingle(field=field, 
-                                orientation=orientation, crystal=crystal)
+                                orientation=orientation, crystal=crystal,
+                                name=name)
                         experiment.add_calculated_data(calculated_data)
                         
     return experiment, l_variable

@@ -514,7 +514,25 @@ mode_chi_sq is define the refinement: "up down sum diff"
              int(flag_dif)*n_sum)
         return chi_sq_val, n
 
-    
+    def plot_map(self):
+        d_map = {"flag": False, "out":None}
+        d_background = {"flag": False, "out":None}
+
+        d_profile = {"flag": False, "out":None}
+        d_profile.update({"background":d_background})
+        d_map.update({"profile":d_profile})
+        
+        for calculated_data in self._list_calculated_data:
+            d_for_iint = calculated_data.plot_map()
+            name = calculated_data.get_val("name")
+            d_hkl = {"flag": False, "out":None}
+            #for setup.calc_profile
+            d_profile = {"flag": False, "out":None}
+            d_map.update({("hkl", name): d_hkl, 
+                          ("for_iint", name): d_for_iint,
+                          ("profile", name): d_profile})
+        return d_map
+   
     
 if (__name__ == "__main__"):
   pass
