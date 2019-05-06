@@ -62,6 +62,13 @@ setup_powder_2d = experiment_powder_2d.get_val("setup")
 
 calculated_data_powder_2d = experiment_powder_2d._list_calculated_data[0]
 
+
+crystal_2d = calculated_data_powder_2d.get_val("crystal")
+help(crystal_2d)
+crystal_2d.calc_sf(1, 1, 1)
+calculated_data_powder_2d.calc_for_iint(h, k, l)
+
+
 observed_data_powder_2d = experiment_powder_2d.get_val("observed_data")
 
 np_tth = observed_data_powder_2d.get_val('tth')

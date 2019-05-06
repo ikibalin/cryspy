@@ -6,6 +6,7 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
+
 def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,
                  c11, c12, c13, c21, c22, c23, c31, c32, c33):
     """
@@ -359,7 +360,10 @@ m_ib - inverse B matrix
         k_z = m_b[2, 0]*h + m_b[2, 1]*k +m_b[2, 2]*l
         
         k_norm = (k_x**2 + k_y**2 + k_z**2)**0.5
-        k_norm[k_norm == 0.] = 1.
+        if not((type(h) is float)|(type(h) is int)|(type(h) is numpy.float64)):
+            k_norm[k_norm == 0.] = 1.
+        elif k_norm == 0.:
+            k_norm = 1.
         
         k_x = k_x/k_norm
         k_y = k_y/k_norm
@@ -428,11 +432,9 @@ class SpaceGroupe(dict):
     Space Groupe
     """
     def __init__(self, spgr_given_name = "P1", spgr_choice = "1",
-                 f_dir_prog = os.getcwd()):
+                 f_dir_prog = os.path.dirname(__file__)):
+        #         f_dir_prog = os.getcwd()):
         super(SpaceGroupe, self).__init__()
-        
-        if isinstance(spgr_choice, float):
-            spgr_choice = "{:}".format(int(spgr_choice))
         
         self._p_spgr_given_name = None
         self._p_spgr_choice = None
@@ -481,6 +483,8 @@ class SpaceGroupe(dict):
             hh = "".join(spgr_given_name.split())
             self._p_spgr_given_name = hh
         if spgr_choice is not None:
+            if isinstance(spgr_choice, float):
+                spgr_choice = "{:}".format(int(spgr_choice))
             self._p_spgr_choice = spgr_choice
             
 
@@ -590,7 +594,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
                 flag = True
                 break
         if (not flag):
-            print("Space groupe is not found")
+            print("Space groupe is not found: {:} {:} {:}".format(spgr_n, spgr_name, spgr_choice))
             return
         
         flag = False
@@ -811,7 +815,7 @@ class AtomType(dict):
                  b_iso=0., beta_11=0., beta_22=0., beta_33=0., beta_12=0., 
                  beta_13=0., beta_23=0., chi_11=0., chi_22=0., chi_33=0., 
                  chi_12=0., chi_13=0., chi_23=0., kappa=1., factor_lande=2.,
-                 occupation = 1., f_dir_prog = os.getcwd()):
+                 occupation = 1., f_dir_prog = os.path.dirname(__file__)):
         super(AtomType, self).__init__()
         
         self._p_name = None
@@ -2138,9 +2142,9 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         """
         print(lsout)
                 
-    def calc_sf(self, h, k, l, mode="FN"):
+    def calc_sf(self, h, k, l):
         """
-        calculate nuclear structure factor
+        calculate structure factors (nuclear and components of susceptibility)
         """
         cell = self._p_cell
         space_groupe = self._p_space_groupe

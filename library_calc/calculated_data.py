@@ -238,7 +238,7 @@ crystal is the definition of crystal
         calculate the integral intensity for h, k, l reflections
         """
         crystal = self._p_crystal
-        field = self._p_field
+        field = 1.*self._p_field
         p_u = beam_polarization.get_val("p_u")
         p_d = beam_polarization.get_val("p_d")
 
@@ -258,11 +258,11 @@ crystal is the definition of crystal
         cross = 2.*(f_nucl.real*fm_p_field.real+f_nucl.imag*fm_p_field.imag)
         #lkloc=[cfunc.calck(hkl,mB) for hkl in lhkl]
 
-        iint_u = self._p_scale * (abs(f_nucl*f_nucl.conjugate()) +
-                 fm_p_sq + p_u*cross)
+        iint_u = abs(f_nucl*f_nucl.conjugate()) + fm_p_sq + p_u*cross
+                 
 
-        iint_d = self._p_scale * (abs(f_nucl*f_nucl.conjugate()) +
-                 fm_p_sq - p_d*cross)
+        iint_d = abs(f_nucl*f_nucl.conjugate()) + fm_p_sq - p_d*cross
+                 
         
         #I_p, I_m = self.calc_extinc_powder(h, k, l, fn, fm_perp_eup, fm_p_sq,ext, p_up, p_down, ucp, wave_length)
         #
@@ -339,6 +339,7 @@ crystal is the definition of crystal
     def calc_for_iint(self, h, k, l):
         """
         calculate the integral intensity for h, k, l reflections
+        Output: f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
         """
         crystal = self._p_crystal
         field = self._p_field
@@ -357,8 +358,12 @@ crystal is the definition of crystal
         f_nucl_sq = abs(f_nucl*f_nucl.conjugate())
         f_m_p_sin_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
         f_m_p_cos_sq = (field**2)*abs(th_13*th_13.conjugate()+th_23*th_23.conjugate())
-        f_m_p_field = field*0.5*(th_11+th_22) 
+        f_m_p_field = 0.5*field*(th_11+th_22) 
         cross_sin = 2.*(f_nucl.real*f_m_p_field.real+f_nucl.imag*f_m_p_field.imag)
+        #print("   h   k   l f_nucl_sq f_m_p_sin_sq f_m_p_cos_sq cross_sin")
+        #for h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4  in zip(h, k, l, f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin):
+        #    print(""" {:3} {:3} {:3} {:9.3f} {:9.3f} {:9.3f} {:9.3f}""".format(
+        #            h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4))        
         return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
         
 if (__name__ == "__main__"):

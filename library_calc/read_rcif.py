@@ -939,6 +939,7 @@ def trans_to_crystal(data):
     llab_rcif = drel["lab_rcif_sp"]
     llab_crystal = drel["lab_arg_sp"]
     ltype = drel["type_sp"]
+    
     from_dict_to_obj(data, llab_rcif, space_groupe, llab_crystal, ltype)
 
     llab_rcif = drel["lab_rcif_cell"]

@@ -228,8 +228,9 @@ mode_chi_sq is define the refinement: "up down sum diff"
         res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
 
         for calculated_data in self._list_calculated_data:
+            scale = 1.*calculated_data.get_val("scale")
             
-            i_g = calculated_data.get_val("crystal").get_val("i_g")
+            i_g = 1.*calculated_data.get_val("crystal").get_val("i_g")
             cell = calculated_data.get_val("crystal").get_val("cell")
             space_groupe = calculated_data.get_val("crystal").get_val("space_groupe")
             h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
@@ -249,8 +250,8 @@ mode_chi_sq is define the refinement: "up down sum diff"
             res_u_2d = profile_2d*np_iint_u_2d 
             res_d_2d = profile_2d*np_iint_d_2d 
 
-            res_u_1d += res_u_2d.sum(axis=1) 
-            res_d_1d += res_d_2d.sum(axis=1) 
+            res_u_1d += scale*res_u_2d.sum(axis=1) 
+            res_d_1d += scale*res_d_2d.sum(axis=1) 
             
         return res_u_1d+int_bkgd, res_d_1d+int_bkgd
     
@@ -403,6 +404,9 @@ mode_chi_sq is define the refinement: "up down sum diff"
         
         wave_length = setup.get_val("wave_length")
         beam_polarization = setup.get_val("beam_polarization")
+
+        p_u = beam_polarization.get_val("p_u")
+        p_d = beam_polarization.get_val("p_d")
         
         tth_min = tth.min()
         tth_max = tth.max()
@@ -413,25 +417,32 @@ mode_chi_sq is define the refinement: "up down sum diff"
         res_d_2d = numpy.zeros((tth.shape[0],phi.shape[0]), dtype=float)
 
         for calculated_data in self._list_calculated_data:
-            
-            i_g = calculated_data.get_val("crystal").get_val("i_g")
+            scale = 1.*calculated_data.get_val("scale")
+            i_g = 1.*calculated_data.get_val("crystal").get_val("i_g")
             cell = calculated_data.get_val("crystal").get_val("cell")
             space_groupe = calculated_data.get_val("crystal").get_val("space_groupe")
             h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
             mult_3d = numpy.meshgrid(tth, phi, mult, indexing="ij")[2]
             
+            
 
             #dimension: (tth_hkl)
             f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin = calculated_data.calc_for_iint(h, k, l)
+            
+            print("   h   k   l mult   f_nucl_sq f_m_p_sin_sq f_m_p_cos_sq cross_sin")
+            for h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4, hh_5  in zip(h, k, l, mult, f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin):
+                print(""" {:3} {:3} {:3} {:4} {:11.3f} {:11.3f} {:11.3f} {:11.3f}""".format(
+                        h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4, hh_5))   
              
             tth_r_3d, phi_r_3d, f_n_3d = numpy.meshgrid(tth_rad, phi_rad, f_nucl_sq, indexing="ij")
             f_m_s_3d = numpy.meshgrid(tth, phi, f_m_p_sin_sq, indexing="ij")[2]
             f_m_c_3d = numpy.meshgrid(tth, phi, f_m_p_cos_sq, indexing="ij")[2]
             f_c_s_3d = numpy.meshgrid(tth, phi, cross_sin, indexing="ij")[2]
-            s_a_sq_3d = numpy.sin(tth_r_3d)**2*numpy.cos(phi_r_3d)**2
+            c_a_sq_3d = (numpy.cos(0.5*tth_r_3d)*numpy.sin(phi_r_3d))**2
+            s_a_sq_3d = 1.-c_a_sq_3d
 
-            i_u_3d = mult_3d*(f_n_3d +(f_m_s_3d+f_c_s_3d)*s_a_sq_3d+f_m_c_3d*(1.-s_a_sq_3d))
-            i_d_3d = mult_3d*(f_n_3d +(f_m_s_3d-f_c_s_3d)*s_a_sq_3d+f_m_c_3d*(1.-s_a_sq_3d))
+            i_u_3d = mult_3d*(f_n_3d +(f_m_s_3d+p_u*f_c_s_3d)*s_a_sq_3d+f_m_c_3d*c_a_sq_3d)
+            i_d_3d = mult_3d*(f_n_3d +(f_m_s_3d-p_d*f_c_s_3d)*s_a_sq_3d+f_m_c_3d*c_a_sq_3d)
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wave_length)
@@ -444,8 +455,8 @@ mode_chi_sq is define the refinement: "up down sum diff"
             res_u_3d = profile_3d*i_u_3d
             res_d_3d = profile_3d*i_d_3d
 
-            res_u_2d += res_u_3d.sum(axis=2) 
-            res_d_2d += res_d_3d.sum(axis=2) 
+            res_u_2d += scale*res_u_3d.sum(axis=2) 
+            res_d_2d += scale*res_d_3d.sum(axis=2) 
             
         return res_u_2d+int_bkgd, res_d_2d+int_bkgd
     
