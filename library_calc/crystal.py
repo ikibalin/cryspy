@@ -5,6 +5,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_04_06"
 import os
 import numpy
+from variable import *
 
 
 def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,
@@ -425,7 +426,34 @@ m_ib - inverse B matrix
             print("Program is stopped")
             quit()
         return t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 
+    
+    def is_variable(self):
+        """
+        without extinction
+        """
+        res = any([isinstance(self._p_a, Variable), 
+                   isinstance(self._p_b, Variable),
+                   isinstance(self._p_c, Variable),
+                   isinstance(self._p_alpha, Variable),
+                   isinstance(self._p_beta, Variable),
+                   isinstance(self._p_gamma, Variable)])
+        return res
         
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_a, Variable):
+            l_variable.append(self._p_a)
+        if isinstance(self._p_b, Variable):
+            l_variable.append(self._p_b)
+        if isinstance(self._p_c, Variable):
+            l_variable.append(self._p_c)
+        if isinstance(self._p_alpha, Variable):
+            l_variable.append(self._p_alpha)
+        if isinstance(self._p_beta, Variable):
+            l_variable.append(self._p_beta)
+        if isinstance(self._p_gamma, Variable):
+            l_variable.append(self._p_gamma)
+        return l_variable
 
 class SpaceGroupe(dict):
     """
@@ -469,7 +497,9 @@ class SpaceGroupe(dict):
         
     def __repr__(self):
         lsout = """SpaceGroupe:\n name: {:}\n choiсe: {:}
+ {:}
  directory: '{:}'""".format(self._p_spgr_given_name, self._p_spgr_choice, 
+                           self._trans_el_symm_to_str(),
                             self._p_f_dir_prog)
         return lsout
 
@@ -669,9 +699,6 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         self._p_b_2 = b_2
         self._p_b_3 = b_3
 
-        
-        
-
     def calc_hkl_equiv(self, h, k, l):
         """
         give equivalent reflections of hkl and its multiplicity
@@ -804,7 +831,50 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         [elsymm.extend(hh) for hh in lelsymm]
         return elsymm
 
+    def _trans_el_symm_to_str(self):
+        ls_out = []
+        l_el_symm = self._p_el_symm
+        centr = self._p_centr
+        if centr:
+            p_centr = self._p_p_centr
+            ls_out.append("inversion center at ({:.3f}, {:.3f}, {:.3f})".format(
+                    p_centr[0], p_centr[1], p_centr[2]))
+        if l_el_symm == []:
+            return ""
+        for el_symm in l_el_symm:
+            s_x = ""
+            if el_symm[0] != 0.: s_x+="{:.3f}".format(el_symm[0])
+            if el_symm[1] == 1: s_x+="+x"
+            if el_symm[1] == -1: s_x+="-x"
+            if el_symm[2] == 1: s_x+="+y"
+            if el_symm[2] == -1: s_x+="-y"
+            if el_symm[3] == 1: s_x+="+z"
+            if el_symm[3] == -1: s_x+="-z"
+            if s_x.startswith("+"): s_x = s_x[1:]
+            
+            s_y = ""
+            if el_symm[4] != 0.: s_y+="{:.3f}".format(el_symm[0])
+            if el_symm[5] == 1: s_y+="+x"
+            if el_symm[5] == -1: s_y+="-x"
+            if el_symm[6] == 1: s_y+="+y"
+            if el_symm[6] == -1: s_y+="-y"
+            if el_symm[7] == 1: s_y+="+z"
+            if el_symm[7] == -1: s_y+="-z"
+            if s_y.startswith("+"): s_y = s_y[1:]
 
+            s_z = ""
+            if el_symm[8] != 0.: s_z+="{:.3f}".format(el_symm[0])
+            if el_symm[9]==1: s_z+="+x"
+            if el_symm[9] == -1: s_z+="-x"
+            if el_symm[10] == 1: s_z+="+y"
+            if el_symm[10] == -1: s_z+="-y"
+            if el_symm[11] == 1: s_z+="+z"
+            if el_symm[11] == -1: s_z+="-z"
+            if s_z.startswith("+"): s_z = s_z[1:]
+
+            line=" {:}, {:}, {:}".format(s_x, s_y, s_z)
+            ls_out.append(line)
+        return "\n".join(ls_out)
 
 class AtomType(dict):
     """
@@ -822,12 +892,13 @@ class AtomType(dict):
         self._p_type_n = None
         self._p_type_m = None
         self._p_flag_m = None
+        
+        self._p_b_occupation = None
+
         self._p_x = None
         self._p_y = None
         self._p_z = None
-
         self._p_b_scat = None
-        self._p_b_occupation = None
 
         self._p_b_iso = None
         self._p_beta_11 = None 
@@ -836,6 +907,7 @@ class AtomType(dict):
         self._p_beta_12 = None 
         self._p_beta_13 = None 
         self._p_beta_23 = None 
+        
         self._p_chi_11 = None 
         self._p_chi_22 = None 
         self._p_chi_33 = None 
@@ -886,8 +958,8 @@ class AtomType(dict):
             ls_out += """\n\n type_m: {:}
  kappa: {:}
  lande factor: {:}
- chi_11: {:.6f}, chi_22: {:.6f}, chi_33: {:.6f}, 
- chi_12: {:.6f}, chi_13: {:.6f}, chi_23: {:.6f}, 
+ chi_11: {:}, chi_22: {:}, chi_33: {:}, 
+ chi_12: {:}, chi_13: {:}, chi_23: {:}, 
  j0   A: {:}, a: {:}, B: {:}, b: {:}
       C: {:}, c: {:}, D: {:}
  j2   A: {:}, a: {:}, B: {:}, b: {:}
@@ -921,11 +993,24 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D)
             self._p_flag_m = flag_m
 
         if x is not None:
-            self._p_x = numpy.mod(x, 1.)
+            #it is not good solution, but may be it is not needed at all
+            if isinstance(x, Variable):
+                x[0] = numpy.mod(x[0], 1.)
+                self._p_x = x
+            else:
+                self._p_x = numpy.mod(x, 1.)
         if y is not None:
-            self._p_y = numpy.mod(y, 1.)
+            if isinstance(y, Variable):
+                y[0] = numpy.mod(y[0], 1.)
+                self._p_y = y
+            else:
+                self._p_y = numpy.mod(y, 1.)
         if z is not None:
-            self._p_z = numpy.mod(z, 1.)
+            if isinstance(z, Variable):
+                z[0] = numpy.mod(z[0], 1.)
+                self._p_z = z
+            else:
+                self._p_z = numpy.mod(z, 1.)
     
         if b_iso is not None:
             self._p_b_iso = b_iso
@@ -1111,6 +1196,88 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         if not(flag_2):
             print("Can not find coefficients <j2> for '{:}'".format(type_m))
 
+    def is_variable_phase(self):
+        res = any([isinstance(self._p_x, Variable), 
+                   isinstance(self._p_y, Variable),
+                   isinstance(self._p_z, Variable)])
+        return res
+
+    def is_variable_adp(self):
+        res = any([isinstance(self._p_b_iso, Variable), 
+                   isinstance(self._p_beta_11, Variable), 
+                   isinstance(self._p_beta_22, Variable),
+                   isinstance(self._p_beta_33, Variable),
+                   isinstance(self._p_beta_12, Variable),
+                   isinstance(self._p_beta_13, Variable),
+                   isinstance(self._p_beta_23, Variable)])
+        return res
+
+    def is_variable_magnetism(self):
+        res = any([isinstance(self._p_kappa, Variable), 
+                   isinstance(self._p_factor_lande, Variable), 
+                   isinstance(self._p_chi_11, Variable), 
+                   isinstance(self._p_chi_22, Variable),
+                   isinstance(self._p_chi_33, Variable),
+                   isinstance(self._p_chi_12, Variable),
+                   isinstance(self._p_chi_13, Variable),
+                   isinstance(self._p_chi_23, Variable)])
+        return res
+    
+    def is_variable(self):
+        res = any([self.is_variable_phase(), 
+                   self.is_variable_adp(),
+                   self.is_variable_magnetism(),
+                   isinstance(self._p_occupation, Variable)])
+        return res
+
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_x, Variable):
+            l_variable.append(self._p_x)
+        if isinstance(self._p_y, Variable):
+            l_variable.append(self._p_y)
+        if isinstance(self._p_z, Variable):
+            l_variable.append(self._p_z)
+
+        if isinstance(self._p_occupation, Variable):
+            l_variable.append(self._p_occupation)
+        if isinstance(self._p_b_scat, Variable):
+            l_variable.append(self._p_b_scat)
+            
+        if isinstance(self._p_b_iso, Variable):
+            l_variable.append(self._p_b_iso)
+        if isinstance(self._p_beta_11, Variable):
+            l_variable.append(self._p_beta_11)
+        if isinstance(self._p_beta_22, Variable):
+            l_variable.append(self._p_beta_22)
+        if isinstance(self._p_beta_33, Variable):
+            l_variable.append(self._p_beta_33)
+        if isinstance(self._p_beta_12, Variable):
+            l_variable.append(self._p_beta_12)
+        if isinstance(self._p_beta_13, Variable):
+            l_variable.append(self._p_beta_13)
+        if isinstance(self._p_beta_23, Variable):
+            l_variable.append(self._p_beta_23)
+            
+        if isinstance(self._p_kappa, Variable):
+            l_variable.append(self._p_kappa)
+        if isinstance(self._p_factor_lande, Variable):
+            l_variable.append(self._p_factor_lande)
+
+        if isinstance(self._p_chi_11, Variable):
+            l_variable.append(self._p_chi_11)
+        if isinstance(self._p_chi_22, Variable):
+            l_variable.append(self._p_chi_22)
+        if isinstance(self._p_chi_33, Variable):
+            l_variable.append(self._p_chi_33)
+        if isinstance(self._p_chi_12, Variable):
+            l_variable.append(self._p_chi_12)
+        if isinstance(self._p_chi_13, Variable):
+            l_variable.append(self._p_chi_13)
+        if isinstance(self._p_chi_23, Variable):
+            l_variable.append(self._p_chi_23)
+
+        return l_variable
 
 class Fract(dict):
     """
@@ -1770,26 +1937,26 @@ fract  is fraction of atoms
         lj2_A, lj2_a, lj2_B, lj2_b, lj2_C, lj2_c = [], [], [], [], [], []
         lj2_D = []
         for atom in self._list_atoms:
-            lb_scat.append(atom.get_val("b_scat"))
-            locc.append(atom.get_val("occupation"))
-            lx.append(atom.get_val("x"))
-            ly.append(atom.get_val("y"))
-            lz.append(atom.get_val("z"))
-            lbeta_11.append(atom.get_val("beta_11"))
-            lbeta_22.append(atom.get_val("beta_22"))
-            lbeta_33.append(atom.get_val("beta_33"))
-            lbeta_12.append(atom.get_val("beta_12"))
-            lbeta_13.append(atom.get_val("beta_13"))
-            lbeta_23.append(atom.get_val("beta_23"))
-            lb_iso.append(atom.get_val("b_iso"))
-            lchi_11.append(atom.get_val("chi_11"))
-            lchi_22.append(atom.get_val("chi_22"))
-            lchi_33.append(atom.get_val("chi_33"))
-            lchi_12.append(atom.get_val("chi_12"))
-            lchi_13.append(atom.get_val("chi_13"))
-            lchi_23.append(atom.get_val("chi_23"))
-            lkappa.append(atom.get_val("kappa"))
-            lfactor_lande.append(atom.get_val("factor_lande"))
+            lb_scat.append(1.*atom.get_val("b_scat"))
+            locc.append(1.*atom.get_val("occupation"))
+            lx.append(1.*atom.get_val("x"))
+            ly.append(1.*atom.get_val("y"))
+            lz.append(1.*atom.get_val("z"))
+            lbeta_11.append(1.*atom.get_val("beta_11"))
+            lbeta_22.append(1.*atom.get_val("beta_22"))
+            lbeta_33.append(1.*atom.get_val("beta_33"))
+            lbeta_12.append(1.*atom.get_val("beta_12"))
+            lbeta_13.append(1.*atom.get_val("beta_13"))
+            lbeta_23.append(1.*atom.get_val("beta_23"))
+            lb_iso.append(1.*atom.get_val("b_iso"))
+            lchi_11.append(1.*atom.get_val("chi_11"))
+            lchi_22.append(1.*atom.get_val("chi_22"))
+            lchi_33.append(1.*atom.get_val("chi_33"))
+            lchi_12.append(1.*atom.get_val("chi_12"))
+            lchi_13.append(1.*atom.get_val("chi_13"))
+            lchi_23.append(1.*atom.get_val("chi_23"))
+            lkappa.append(1.*atom.get_val("kappa"))
+            lfactor_lande.append(1.*atom.get_val("factor_lande"))
             lj0_A.append(atom.get_val("j0_A"))
             lj0_a.append(atom.get_val("j0_a")) 
             lj0_B.append(atom.get_val("j0_B")) 
@@ -1861,10 +2028,17 @@ fract  is fraction of atoms
         self._p_adp = adp 
         self._p_magnetism = magnetism
     
-    def calc_sf(self, space_groupe, cell, h, k, l):
+    def calc_sf(self, space_groupe, cell, h, k, l, d_map={}):
         """
         calculate nuclear structure factor
         """
+        if d_map == {}:
+            d_map.update(self.plot_map())
+        if not(d_map["flag"]|(d_map["out"] is None)):
+            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_map["out"]
+            return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
+        if self.is_variable():
+            self._form_arrays()
         #sthovl = cell.calc_sthovl(h, k, l)
         
         fract = self._p_fract
@@ -1876,9 +2050,26 @@ fract  is fraction of atoms
         atom_multiplicity = space_groupe.calc_atom_mult(x, y, z)
         occ_mult = occupation*atom_multiplicity 
         
-        phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
-        dwf_3d = adp.calc_dwf(space_groupe, h, k, l)
-        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_groupe, cell, h, k, l)
+        d_phase = d_map["phase"]
+        if not(d_phase["flag"]|(d_phase["out"] is None)):
+            phase_3d = d_phase["out"] 
+        else:
+            phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
+            d_phase["out"] = phase_3d 
+        
+        d_adp = d_map["adp"]
+        if not(d_adp["flag"]|(d_adp["out"] is None)):
+            dwf_3d = d_adp["out"] 
+        else:
+            dwf_3d = adp.calc_dwf(space_groupe, h, k, l)
+            d_adp["out"] = dwf_3d 
+        
+        d_magnetism = d_map["magnetism"]
+        if not(d_magnetism["flag"]|(d_magnetism["out"] is None)):
+            ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = d_magnetism["out"] 
+        else:
+            ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_groupe, cell, h, k, l)
+            d_magnetism["out"] = (ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33)
         
         hh = phase_3d*dwf_3d
         
@@ -1961,19 +2152,53 @@ fract  is fraction of atoms
             sft_21, sft_22, sft_23 = sft_as_21, sft_as_22, sft_as_23
             sft_31, sft_32, sft_33 = sft_as_31, sft_as_32, sft_as_33            
             
+
+        d_map["out"] = f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
         return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
 
-     def plot_map(self):
-        d_map = {"flag": False, "out":None}
+
+    def plot_map(self):
+        b_variable = self.is_variable()   
+        d_map = {"flag": b_variable, "out":None}
         
-        d_phase = {"flag": False, "out":None}
-        d_adp = {"flag": False, "out":None}
-        d_magnetism = {"flag": False, "out":None}
+        b_variable_phase = self.is_variable_phase()   
+        d_phase = {"flag": b_variable_phase, "out":None}
+        b_variable_adp = self.is_variable_adp()   
+        d_adp = {"flag": b_variable_adp, "out":None}
+        b_variable_magnetism = self.is_variable_magnetism()   
+        d_magnetism = {"flag": b_variable_magnetism, "out":None}
         d_map.update({"phase": d_phase, "adp": d_adp, 
                       "magnetism": d_magnetism})
         
         return d_map
+    
+    def is_variable_phase(self):
+        res = any([atom_type.is_variable_phase() for atom_type in 
+                   self._list_atoms])
+        return res
 
+    def is_variable_adp(self):
+        res = any([atom_type.is_variable_adp() for atom_type in 
+                   self._list_atoms])
+        return res
+
+    def is_variable_magnetism(self):
+        res = any([atom_type.is_variable_magnetism() for atom_type in 
+                   self._list_atoms])
+        return res
+    
+    def is_variable(self):
+        res = any([atom_type.is_variable() for atom_type in 
+                   self._list_atoms])
+        return res
+    
+    def get_variables(self):
+        l_variable = []
+        for atom_type in self._list_atoms:
+            l_var = atom_type.get_variables()    
+            l_variable.extend(l_var)
+        return l_variable
+    
 class Extinction(dict):
     """
     Extinction
@@ -2080,6 +2305,21 @@ mosaicity is the mosaicity of domains in Minutes (???)
         yext = yp * ys
         return yext
             
+    def is_variable(self):
+        """
+        without extinction
+        """
+        res = any([isinstance(self._p_domain_radius, Variable), 
+                   isinstance(self._p_mosaicity, Variable)])
+        return res
+
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_domain_radius, Variable):
+            l_variable.append(self._p_domain_radius)
+        if isinstance(self._p_mosaicity, Variable):
+            l_variable.append(self._p_mosaicity)
+        return l_variable
 
     
 class Crystal(dict):
@@ -2152,14 +2392,24 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         """
         print(lsout)
                 
-    def calc_sf(self, h, k, l):
+    def calc_sf(self, h, k, l, d_map={}):
         """
         calculate structure factors (nuclear and components of susceptibility)
         """
+        if d_map == {}:
+            d_map.update(self.plot_map())
+        if not(d_map["flag"]|(d_map["out"] is None)):
+            f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = d_map["out"]
+            return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+        
         cell = self._p_cell
         space_groupe = self._p_space_groupe
         atom_site = self._p_atom_site
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_groupe, cell, h, k, l)
+        d_sf = d_map["sf"]
+        if not(d_sf["flag"]|(d_sf["out"] is None)):
+            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
+        else:
+            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_groupe, cell, h, k, l, d_sf)
         #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
         #chi in 10-12 cm; chim in muB (it is why here 0.2695)
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
@@ -2168,6 +2418,7 @@ i_g is the parameter to described broadening of Bragg reflection due to the
                 sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
                 sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
 
+        d_map["out"] = (f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33)
         return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
 
@@ -2249,12 +2500,51 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         return yp, ym, ypm
         
     def plot_map(self):
-        d_map = {"flag": False, "out":None}
+        b_variable = self.is_variable()         
+        d_map = {"flag": b_variable, "out":None}
         atom_site = self.get_val("atom_site")
         d_sf = atom_site.plot_map()
         d_map.update({"sf":d_sf})
         return d_map
         
+    def is_variable_sf(self):
+        cell = self._p_cell 
+        atom_site = self._p_atom_site 
+        res = any([cell.is_variable(), atom_site.is_variable()])
+        return res
+    
+    def is_variable_extinction(self):
+        extinction = self._p_extinction 
+        res = extinction.is_variable()
+        return res
+    
+    def is_variable(self):
+        """
+        without extinction
+        """
+        i_g = self._p_i_g 
+        res = any([self.is_variable_sf(), 
+                   isinstance(i_g, Variable)])
+        return res
+
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_i_g, Variable):
+            l_variable.append(self._p_i_g)
+            
+        cell = self._p_cell 
+        l_var = cell.get_variables()
+        l_variable.extend(l_var)
+        
+        extinction = self._p_extinction 
+        l_var = extinction.get_variables()
+        l_variable.extend(l_var)
+        
+        atom_site = self.get_val("atom_site")
+        l_var = atom_site.get_variables()
+        l_variable.extend(l_var)
+
+        return l_variable
     
 if (__name__ == "__main__"):
   pass

@@ -25,7 +25,7 @@ f_inp = os.path.join("HoTi_single", "full.rcif")
 rcif_single.load_from_file(f_inp)
 
 fitting_single = rcif_single.trans_to_fitting()
-
+d_map_single = fitting_single.plot_map()
 chi_sq, n_point = fitting_single.calc_chi_sq()
 
 experiment_single = fitting_single._list_experiment[0]
@@ -57,16 +57,11 @@ f_inp = os.path.join("Fe3O4_150K_6T_2d", "full.rcif")
 rcif_powder_2d.load_from_file(f_inp)
 
 fitting_powder_2d = rcif_powder_2d.trans_to_fitting()
-experiment_powder_2d = fitting_powder_2d._list_experiment[0]
-setup_powder_2d = experiment_powder_2d.get_val("setup")
 
-calculated_data_powder_2d = experiment_powder_2d._list_calculated_data[0]
+d_map_powder_2d = {}
+fitting_powder_2d.refinement(d_map_powder_2d)
 
 
-crystal_2d = calculated_data_powder_2d.get_val("crystal")
-help(crystal_2d)
-crystal_2d.calc_sf(1, 1, 1)
-calculated_data_powder_2d.calc_for_iint(h, k, l)
 
 
 observed_data_powder_2d = experiment_powder_2d.get_val("observed_data")
@@ -81,9 +76,9 @@ sint_d_exp = observed_data_powder_2d.get_val("sint_d")
 
 matplotlib.pyplot.imshow(int_u_exp-int_d_exp)
 
-chi_sq, n = experiment_powder_2d.calc_chi_sq()
 
-int_u_mod, int_d_mod = experiment_powder_2d.calc_profile(np_tth, np_phi)
+int_u_mod, int_d_mod = experiment_powder_2d.calc_profile(np_tth, np_phi, d_map)
+
 matplotlib.pyplot.imshow(int_u_mod-int_d_mod)
 print(" chi_sq/n:   {:.3f}\n root of it: {:.3f}".format(chi_sq/n, 
       (chi_sq/n)**0.5))
@@ -105,6 +100,9 @@ f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 rcif_powder_1d.load_from_file(f_inp)
 
 fitting_powder_1d = rcif_powder_1d.trans_to_fitting()
+d_map_powder_1d = fitting_powder_1d.plot_map()
+
+
 experiment_powder_1d = fitting_powder_1d._list_experiment[0]
 calculated_data_powder_1d = experiment_powder_1d._list_calculated_data[0]
 

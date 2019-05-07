@@ -1392,7 +1392,7 @@ def trans_to_refinement(data):
 def load_crystal_to_experiment(l_experiment, l_crystal):
     pass
 
-def smart_spleet(str):
+def smart_spleet(line, l_name):
     """
     split string like:
     "C C 0.0033 0.0016 'International Tables Vol C Tables 4.2.6.8 and 6.1.1.4'"
@@ -1401,7 +1401,7 @@ def smart_spleet(str):
     """
     flag_in = False
     lval, val = [], []
-    for hh in str.strip():
+    for hh in line.strip():
         if (hh == " ") & (not flag_in):
             if val != []:
                 lval.append("".join(val))
@@ -1415,10 +1415,8 @@ def smart_spleet(str):
     if val != []:
         lval.append("".join(val))
     lval_2 = []
-    for val in lval:
-        
-        val_2 = conv_str_to_text_float_logic(val)
-
+    for val, name in zip(lval, l_name):
+        val_2 = conv_str_to_text_float_logic(val, name)
         lval_2.append(val_2)
     return lval_2
 
@@ -1517,14 +1515,20 @@ def convert_lines_to_vals(lcont):
         value = line[len(name):]
         if len(lnumb) > 1:
             value += " ".join([lcont_vals[numb] for numb in lnumb[1:]])
-        res[name] = conv_str_to_text_float_logic(value)
+        res[name] = conv_str_to_text_float_logic(value, name)
     return res
 
-def conv_str_to_text_float_logic(sval):
+def conv_str_to_text_float_logic(sval, name=""):
     if (not (isinstance(sval,str))):
         return sval
     try:
-        val = float(sval)
+        if len(sval.strip().split("("))>1:
+            l_help = sval.split("(")
+            val_1 = float(l_help[0])
+            val = Variable(val_1, True, name)
+            pass
+        else:
+            val = float(sval)
         return val
     except:
         val_1 = sval.strip()
@@ -1553,7 +1557,7 @@ def convert_lines_to_loop(lcont):
     for name in lname:
         res[name] = []
     for line in lcont[iline:]:
-        lval = smart_spleet(line)
+        lval = smart_spleet(line, lname)
         for name, val in zip(lname, lval):
             res[name].append(val)
     return res

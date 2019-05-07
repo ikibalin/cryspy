@@ -6,6 +6,7 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
+from variable import *
     
 #Description of setup class
 
@@ -164,7 +165,31 @@ x, y are coefficients to describe the Lorentz part of peak shape
         eta = self._p_eta
         
         return h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
+    
+    def is_variable(self):
+        """
+        without extinction
+        """
+        res = any([isinstance(self._p_u, Variable), 
+                   isinstance(self._p_v, Variable), 
+                   isinstance(self._p_w, Variable), 
+                   isinstance(self._p_x, Variable), 
+                   isinstance(self._p_y, Variable)])
+        return res        
 
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_u, Variable):
+            l_variable.append(self._p_u)
+        if isinstance(self._p_v, Variable):
+            l_variable.append(self._p_v)
+        if isinstance(self._p_w, Variable):
+            l_variable.append(self._p_w)
+        if isinstance(self._p_x, Variable):
+            l_variable.append(self._p_x)
+        if isinstance(self._p_y, Variable):
+            l_variable.append(self._p_y)
+        return l_variable
 
 
 class FactorLorentzPowder1D(dict):
@@ -341,7 +366,28 @@ p1, p2, p3, p4 are coefficients to describe the assymetry shape for all
         asymmetry_2d = np_one+val_1+val_2
         return asymmetry_2d
     
-
+    def is_variable(self):
+        """
+        without extinction
+        """
+        res = any([isinstance(self._p_p1, Variable), 
+                   isinstance(self._p_p2, Variable), 
+                   isinstance(self._p_p3, Variable), 
+                   isinstance(self._p_p4, Variable)])
+        return res        
+    
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_p1, Variable):
+            l_variable.append(self._p_p1)
+        if isinstance(self._p_p2, Variable):
+            l_variable.append(self._p_p2)
+        if isinstance(self._p_p3, Variable):
+            l_variable.append(self._p_p3)
+        if isinstance(self._p_p4, Variable):
+            l_variable.append(self._p_p4)
+        return l_variable 
+    
 class BeamPolarization(dict):
     """
     Describe the polarisation of the beam
@@ -391,7 +437,21 @@ p_u, p_d is describe the polarization of the beam at the flipper position up
         """
         print(lsout)
 
-
+    def is_variable(self):
+        """
+        without extinction
+        """
+        res = any([isinstance(self._p_p_u, Variable), 
+                   isinstance(self._p_p_d, Variable)])
+        return res        
+    
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_p_u, Variable):
+            l_variable.append(self._p_p_u)
+        if isinstance(self._p_p_d, Variable):
+            l_variable.append(self._p_p_d)
+        return l_variable
         
 class BackgroundPowder1D(dict):
     """
@@ -693,6 +753,30 @@ background  is Background class
         l = numpy.array([hh[2] for hh in lhklres], dtype=int)
         mult = numpy.array(lmultres, dtype=int)
         return h, k, l, mult
+
+    def calc_hkl_in_range(self, cell, sthovl_min, sthovl_max):
+        h_max = int(2.*cell.get_val('a')*sthovl_max)
+        k_max = int(2.*cell.get_val('b')*sthovl_max)
+        l_max = int(2.*cell.get_val('a')*sthovl_max)
+        h_min, k_min, l_min = -1*h_max, -1*k_max, -1*l_max
+
+        np_h = numpy.array(range(h_min, h_max+1, 1), dtype=int)
+        np_k = numpy.array(range(k_min, k_max+1, 1), dtype=int)
+        np_l = numpy.array(range(l_min, l_max+1, 1), dtype=int)
+        h_3d, k_3d, l_3d = numpy.meshgrid(np_h, np_k, np_l, indexing="ij")
+        
+        sthovl_3d = cell.calc_sthovl(h_3d, k_3d, l_3d)
+        flag_1 = sthovl_3d >= sthovl_min
+        flag_2 = sthovl_3d <= sthovl_max
+        flag_12 = numpy.logical_and(flag_1, flag_2)
+        
+        h = h_3d[flag_12]
+        k = k_3d[flag_12]
+        l = l_3d[flag_12]
+        mult = numpy.ones(h.size, dtype=int)
+        sthovl = sthovl_3d[flag_12]
+        arg_sort = numpy.argsort(sthovl)
+        return h[arg_sort], k[arg_sort], l[arg_sort], mult[arg_sort]
     
     def calc_background(self, tth):
         """
@@ -702,7 +786,34 @@ background  is Background class
         int_bkgd = background.interpolate_by_points(tth)
         return int_bkgd 
                     
+    def is_variable(self):
+        """
+        without extinction
+        """
+        beam_polarization = self.get_val("beam_polarization")
+        resolution = self.get_val("resolution")
+        asymmetry = self.get_val("asymmetry")
+        res = any([isinstance(self._p_zero_shift, Variable), 
+                   beam_polarization.is_variable(), 
+                   resolution.is_variable(), 
+                   asymmetry.is_variable()])
+        return res   
 
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_zero_shift, Variable):
+            l_variable.append(self._p_zero_shift)
+        
+        beam_polarization = self.get_val("beam_polarization")
+        l_var = beam_polarization.get_variables()
+        l_variable.extend(l_var)
+        resolution = self.get_val("resolution")
+        l_var = resolution.get_variables()
+        l_variable.extend(l_var)
+        asymmetry = self.get_val("asymmetry")
+        l_var = asymmetry.get_variables()
+        l_variable.extend(l_var)
+        return l_variable
 
 class SetupSingle(dict):
     """
@@ -760,3 +871,17 @@ beam_polarization is a class to describe beam polarization
         """
         print(lsout)
 
+    def is_variable(self):
+        """
+        without extinction
+        """
+        beam_polarization = self.get_val("beam_polarization")
+        res = any([beam_polarization.is_variable()])
+        return res   
+    
+    def get_variables(self):
+        l_variable = []
+        beam_polarization = self.get_val("beam_polarization")
+        l_var = beam_polarization.get_variables()
+        l_variable.extend(l_var)
+        return l_variable    

@@ -8,7 +8,7 @@ import os
 import numpy
 
 from crystal import *
-
+from variable import *
 
 
 class CalculatedDataSingle(dict):
@@ -174,7 +174,31 @@ crystal is the definition of crystal
                     h1, k1, l1, i_u, i_d, f_r))
         """
         return iint_u, iint_d, flip_ratio
-
+    
+    def is_variable_sf(self):
+        """
+        without extinction
+        """
+        crystal = self._p_crystal
+        res = crystal.is_variable_sf()
+        return res      
+    
+    def is_variable(self):
+        """
+        without extinction
+        """
+        crystal = self._p_crystal
+        extinction = crystal.get_val("extinction")
+        res = any([extinction.is_variable(), 
+                   self.is_variable_sf()])
+        return res        
+    
+    def get_variables(self):
+        l_variable = []
+        crystal = self.get_val("crystal")
+        l_var = crystal.get_variables()
+        l_variable.extend(l_var)
+        return l_variable
 
 class CalculatedDataPowder1D(dict):
     """
@@ -278,7 +302,34 @@ crystal is the definition of crystal
         #            c32.imag, c33.real, c33.imag))
         return iint_u, iint_d
     
+    def is_variable_sf(self):
+        """
+        without extinction
+        """
+        crystal = self._p_crystal
+        res = crystal.is_variable_sf()
+        return res      
+    
+    def is_variable(self):
+        """
+        without extinction
+        """
+        crystal = self._p_crystal
+        extinction = crystal.get_val("extinction")
+        res = any([extinction.is_variable(), 
+                   self.is_variable_sf(), 
+                   isinstance(self._p_scale, Variable)])
+        return res        
 
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_scale, Variable):
+            l_variable.append(self._p_scale)
+        crystal = self.get_val("crystal")
+        l_var = crystal.get_variables()
+        l_variable.extend(l_var)
+        return l_variable
+    
 class CalculatedDataPowder2D(dict):
     """
     Calculate the model data for 2D powder diffraction experiment
@@ -336,15 +387,26 @@ crystal is the definition of crystal
         """
         print(lsout)
     
-    def calc_for_iint(self, h, k, l):
+    def calc_for_iint(self, h, k, l, d_map={}):
         """
         calculate the integral intensity for h, k, l reflections
         Output: f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
         """
+        if d_map == {}:
+            d_map.update(self.plot_map())
+        if not(d_map["flag"]|(d_map["out"] is None)):
+            f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin = d_map["out"]
+            return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
+
+        
         crystal = self._p_crystal
         field = 1.*self._p_field
 
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        d_sf = d_map["sf"]
+        if not(d_sf["flag"]|(d_sf["out"] is None)):
+            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
+        else:
+            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l, d_sf)
         
         cell = crystal.get_val("cell")
         
@@ -364,15 +426,45 @@ crystal is the definition of crystal
         #for h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4  in zip(h, k, l, f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin):
         #    print(""" {:3} {:3} {:3} {:9.3f} {:9.3f} {:9.3f} {:9.3f}""".format(
         #            h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4))        
+        d_map["out"] = (f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin)
         return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
 
-     def plot_map(self):
-        d_map = {"flag": False, "out":None}
+    def plot_map(self):
+        b_variable = self.is_variable()       
+        d_map = {"flag": b_variable, "out":None}
         crystal = self._p_crystal
-        d_calc_sf = crystal.plot_map()
-        d_map.update({"calc_sf":d_calc_sf})
+        d_sf = crystal.plot_map()
+        d_map.update({"sf":d_sf})
         return d_map
-        
+
+    def is_variable_sf(self):
+        """
+        without extinction
+        """
+        crystal = self._p_crystal
+        res = crystal.is_variable_sf()
+        return res      
+    
+    def is_variable(self):
+        """
+        without extinction
+        """
+        crystal = self._p_crystal
+        extinction = crystal.get_val("extinction")
+        res = any([extinction.is_variable(), 
+                   self.is_variable_sf(), 
+                   isinstance(self._p_scale, Variable)])
+        return res        
+    
+    def get_variables(self):
+        l_variable = []
+        if isinstance(self._p_scale, Variable):
+            l_variable.append(self._p_scale)
+        crystal = self.get_val("crystal")
+        l_var = crystal.get_variables()
+        l_variable.extend(l_var)
+        return l_variable
+    
 if (__name__ == "__main__"):
   pass
 

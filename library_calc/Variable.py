@@ -16,11 +16,12 @@ class Variable(dict):
     value = 0.
     refinement = False
     constraint = ""
-    def __init__(self, val = 0., ref = False, constr = ""):
+    def __init__(self, val=0., ref=False, name="", constr=""):
         super(Variable, self).__init__()
         self[0] = val 
         self[1] = ref
         self[2] = constr
+        self[3] = name
     def __pos__(self):
         """
         output is float
@@ -197,7 +198,9 @@ class Variable(dict):
         """
         return  (var2 | self.refinement)
     def __getitem__(self, i):
-        if i==2:
+        if i==3:
+            return self.name
+        elif i==2:
             return self.constraint
         elif i == 1:
             return self.refinement
@@ -205,7 +208,13 @@ class Variable(dict):
             return self.value
     def __setitem__(self, i, v):
         #self.check(v)
-        if i==2:
+        if i==3:
+            cond = isinstance(v, str)            
+            if cond:
+                self.name = v 
+            else:
+                print ("Name should be given as a string")
+        elif i==2:
             cond = isinstance(v, str)            
             if cond:
                 self.constraint = v 
@@ -226,12 +235,17 @@ class Variable(dict):
                 print ("Variable should be integer of float type")
         return
     def __repr__(self):
-        lsout = """For variable with id {:}:\n    value: {:}
-    refinement: {:}\n""".format(id(self), self.value, self.refinement)
-        if self.constraint != "":
-            lsout_add = "    constraint:{:}".format(self.constraint)
+        ls_out = " {:} (refinement: {:}".format(self.value, self.refinement)
+        if self.name != "":
+            ls_out += ", name: {:})".format(self.name)
         else:
-            lsout_add = "    constraint: None"
-        return "".join([lsout, lsout_add])
+            ls_out += ")"
+        #id(self)
+        #if self.constraint != "":
+        #    lsout_add = "    constraint:{:}".format(self.constraint)
+        #else:
+        #    lsout_add = "    constraint: None"
+        # "".join([lsout, lsout_add])
+        return ls_out
         
     
