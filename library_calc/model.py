@@ -1,9 +1,10 @@
 """
-define classe to describe fitting of experiments
+define classe to describe model of experiments
 """
 __author__ = 'ikibalin'
 __version__ = "2019_04_06"
 import os
+import sys
 import numpy
 import scipy.optimize
 import time
@@ -11,18 +12,18 @@ import time
 from experiment import *
 from variable import *
 
-class Fitting(dict):
+class Model(dict):
     """
-    Class to describe fitting
+    Class to describe model
     """
     def __init__(self, l_experiment=None, l_variable=None):
-        super(Fitting, self).__init__()
+        super(Model, self).__init__()
         self._list_experiment = []
         self._list_variable = []
         self._refresh(l_experiment, l_variable)
 
     def __repr__(self):
-        ls_out = """Fitting\n """.format()
+        ls_out = """Model\n """.format()
         ls_exp = []
         for epxeriment in self._list_experiment:
             ls_exp.append("{:}".format(epxeriment))
@@ -57,7 +58,7 @@ class Fitting(dict):
             val = None
         return val
 
-    def list_vals(self):
+    def print_vals(self):
         """
         give a list of parameters with small descripition
         """
@@ -110,7 +111,7 @@ None
         d_map["out"] = (chi_sq, n_res)
         return chi_sq, n_res 
     
-    def refinement(self, d_map={}):
+    def refine_model(self, d_map={}):
         """
         optimization
         """
@@ -173,5 +174,7 @@ None
             l_variable.extend(l_var)
         return l_variable
     
+
+    
 if (__name__ == "__main__"):
-  pass
+    pass

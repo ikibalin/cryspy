@@ -131,21 +131,21 @@ class Cell(dict):
     def _constr_singony(self):
         singony = self._p_singony
         if singony == "Cubic":
-            self._p_b = self._p_a
-            self._p_c = self._p_a
+            self._p_b = 1.*self._p_a
+            self._p_c = 1.*self._p_a
             self._p_alpha = 90.
             self._p_beta = 90.
             self._p_gamma = 90.
         elif singony == "Hexagonal":
-            self._p_b = self._p_a
+            self._p_b = 1.*self._p_a
             self._p_alpha = 90.
             self._p_beta = 90.
             self._p_gamma = 120.        
         elif singony == "Trigonal":
-            self._p_b = self._p_a
-            self._p_c = self._p_a
+            self._p_b = 1.*self._p_a
+            self._p_c = 1.*self._p_a
         elif singony == "Tetragonal":
-            self._p_b = self._p_a
+            self._p_b = 1.*self._p_a
             self._p_alpha = 90.
             self._p_beta = 90.
             self._p_gamma = 90.
@@ -235,9 +235,9 @@ m_ib - inverse B matrix
         self._p_sin_g_sq = 1.-self._p_cos_g_sq
 
     def _calc_volume(self):
-        a = self._p_a
-        b = self._p_b
-        c = self._p_c
+        a = 1.*self._p_a
+        b = 1.*self._p_b
+        c = 1.*self._p_c
         c_a = self._p_cos_a
         c_b = self._p_cos_b
         c_g = self._p_cos_g
@@ -254,9 +254,9 @@ m_ib - inverse B matrix
         """
         irad = 180./numpy.pi
 
-        a = self._p_a
-        b = self._p_b
-        c = self._p_c
+        a = 1.*self._p_a
+        b = 1.*self._p_b
+        c = 1.*self._p_c
         c_a = self._p_cos_a
         c_b = self._p_cos_b
         c_g = self._p_cos_g
@@ -278,7 +278,7 @@ m_ib - inverse B matrix
         """
         calculate matrix B 
         """
-        c = self._p_c
+        c = 1.*self._p_c
 
         ia = self._p_ia 
         ib = self._p_ib 
@@ -330,9 +330,9 @@ m_ib - inverse B matrix
         calculate sin(theta)/lambda for list of hkl reflections
         """
             
-        a = self._p_a
-        b = self._p_b
-        c = self._p_c
+        a = 1.*self._p_a
+        b = 1.*self._p_b
+        c = 1.*self._p_c
         c_a = self._p_cos_a
         c_b = self._p_cos_b
         c_g = self._p_cos_g
@@ -496,7 +496,7 @@ class SpaceGroupe(dict):
         self.set_val()
         
     def __repr__(self):
-        lsout = """SpaceGroupe:\n name: {:}\n choiсe: {:}
+        lsout = """SpaceGroupe:\n name: {:}\n choice: {:}
  {:}
  directory: '{:}'""".format(self._p_spgr_given_name, self._p_spgr_choice, 
                            self._trans_el_symm_to_str(),
@@ -881,13 +881,14 @@ class AtomType(dict):
     Description of atom
     """    
     def __init__(self, name="H", type_n="H", type_m="Fe3", flag_m=False, 
-                 x=0., y=0., z=0., 
-                 b_iso=0., beta_11=0., beta_22=0., beta_33=0., beta_12=0., 
-                 beta_13=0., beta_23=0., chi_11=0., chi_22=0., chi_33=0., 
-                 chi_12=0., chi_13=0., chi_23=0., kappa=1., factor_lande=2.,
+                 x=0., y=0., z=0., adp_type="Uiso",  
+                 b_iso=0., u_11=0., u_22=0., u_33=0., u_12=0., 
+                 u_13=0., u_23=0., chi_type='Cani', chi_11=0., chi_22=0., 
+                 chi_33=0., chi_12=0., chi_13=0., chi_23=0., kappa=1., 
+                 factor_lande=2.,
                  occupation = 1., f_dir_prog = os.path.dirname(__file__)):
         super(AtomType, self).__init__()
-        
+
         self._p_name = None
         self._p_type_n = None
         self._p_type_m = None
@@ -900,14 +901,16 @@ class AtomType(dict):
         self._p_z = None
         self._p_b_scat = None
 
+        self._p_adp_type = None
         self._p_b_iso = None
-        self._p_beta_11 = None 
-        self._p_beta_22 = None 
-        self._p_beta_33 = None 
-        self._p_beta_12 = None 
-        self._p_beta_13 = None 
-        self._p_beta_23 = None 
+        self._p_u_11 = None 
+        self._p_u_22 = None 
+        self._p_u_33 = None 
+        self._p_u_12 = None 
+        self._p_u_13 = None 
+        self._p_u_23 = None 
         
+        self._p_chi_type = None 
         self._p_chi_11 = None 
         self._p_chi_22 = None 
         self._p_chi_33 = None 
@@ -936,43 +939,46 @@ class AtomType(dict):
         self._handbook_nucl = []
         self._handbook_mag = []
         
-        self._refresh(name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
-                      beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, 
+        self._refresh(name, type_n, type_m, flag_m, x, y, z, adp_type, b_iso, 
+                      u_11, u_22, u_33, u_12, u_13, u_23, chi_type, chi_11, 
                       chi_22, chi_33, chi_12, chi_13, chi_23, kappa, 
                       factor_lande, occupation, f_dir_prog)
 
     def __repr__(self):
         ls_out = """AtomType:
  name: {}            
- type_n: {:} (b_scat: {:})
+ type_n: {:} (b_scat: {:} cm**-12)
  occupation: {:}
- fract  x: {:}  y: {:}  z: {:}\n b_iso: {:}
- beta_11: {:}, beta_22: {:}, beta_33: {:}, 
- beta_12: {:}, beta_13: {:}, beta_23: {:}, 
+ fract  x: {:}  y: {:}  z: {:}\n b_iso: {:} Ang**2
+ adp_type: {:}
+ u_11: {:}, u_22: {:}, u_33: {:} (in Ang**2)
+ u_12: {:}, u_13: {:}, u_23: {:} (in Ang**2)
  f_dir_prog: {:}""".format(
  self._p_name, self._p_type_n, self._p_b_scat, self._p_occupation, self._p_x, 
- self._p_y, self._p_z, self._p_b_iso, 
- self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
- self._p_beta_13, self._p_beta_23, self._p_f_dir_prog)
+ self._p_y, self._p_z, self._p_b_iso, self._p_adp_type,
+ self._p_u_11, self._p_u_22, self._p_u_33, self._p_u_12, 
+ self._p_u_13, self._p_u_23, self._p_f_dir_prog)
         if self._p_flag_m:
             ls_out += """\n\n type_m: {:}
  kappa: {:}
  lande factor: {:}
- chi_11: {:}, chi_22: {:}, chi_33: {:}, 
- chi_12: {:}, chi_13: {:}, chi_23: {:}, 
+ chi_type: {}
+ chi_11: {:}, chi_22: {:}, chi_33: {:} (in mu_B)
+ chi_12: {:}, chi_13: {:}, chi_23: {:} (in mu_B) 
  j0   A: {:}, a: {:}, B: {:}, b: {:}
       C: {:}, c: {:}, D: {:}
  j2   A: {:}, a: {:}, B: {:}, b: {:}
       C: {:}, c: {:}, D: {:}
-""".format(self._p_type_m, self._p_kappa, self._p_factor_lande, self._p_chi_11, self._p_chi_22, 
+""".format(self._p_type_m, self._p_kappa, self._p_factor_lande, 
+self._p_chi_type, self._p_chi_11, self._p_chi_22, 
 self._p_chi_33, self._p_chi_12, self._p_chi_13, self._p_chi_23, self._p_j0_A,
 self._p_j0_a, self._p_j0_B, self._p_j0_b, self._p_j0_C, self._p_j0_c, 
 self._p_j0_D, self._p_j2_A, self._p_j2_a, self._p_j2_B, self._p_j2_b, 
 self._p_j2_C, self._p_j2_c, self._p_j2_D)
         return ls_out
     
-    def _refresh(self, name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
-                 beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, chi_22, 
+    def _refresh(self, name, type_n, type_m, flag_m, x, y, z, adp_type, b_iso, 
+                 u_11, u_22, u_33, u_12, u_13, u_23, chi_type, chi_11, chi_22, 
                  chi_33, chi_12, chi_13, chi_23, kappa, factor_lande, 
                  occupation, f_dir_prog):
         
@@ -1012,25 +1018,35 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D)
             else:
                 self._p_z = numpy.mod(z, 1.)
     
-        if b_iso is not None:
-            self._p_b_iso = b_iso
         if occupation is not None:
             self._p_occupation = occupation
-            
-        if beta_11 is not None:
-            self._p_beta_11 = beta_11 
-        if beta_22 is not None:
-            self._p_beta_22 = beta_22 
-        if beta_33 is not None:
-            self._p_beta_33 = beta_33 
-        if beta_12 is not None:
-            self._p_beta_12 = beta_12 
-        if beta_13 is not None:
-            self._p_beta_13 = beta_13 
-        if beta_23 is not None:
-            self._p_beta_23 = beta_23 
+
+        if adp_type is not None:
+            if adp_type.lower().startswith("uani"):
+                self._p_adp_type = "uani"
+            else:
+                self._p_adp_type = "uiso"
+        if b_iso is not None:
+            self._p_b_iso = b_iso
+        if u_11 is not None:
+            self._p_u_11 = u_11 
+        if u_22 is not None:
+            self._p_u_22 = u_22 
+        if u_33 is not None:
+            self._p_u_33 = u_33 
+        if u_12 is not None:
+            self._p_u_12 = u_12 
+        if u_13 is not None:
+            self._p_u_13 = u_13 
+        if u_23 is not None:
+            self._p_u_23 = u_23 
     
             
+        if chi_type is not None:
+            if chi_type.lower().startswith("cani"):
+                self._p_chi_type = "cani"
+            else:
+                self._p_chi_type = "ciso"
         if chi_11 is not None:
             self._p_chi_11 = chi_11 
         if chi_22 is not None:
@@ -1051,13 +1067,13 @@ self._p_j2_C, self._p_j2_c, self._p_j2_D)
 
             
     def set_val(self, name=None, type_n=None, type_m=None, flag_m=None, x=None, 
-                y=None, z=None, b_iso=None, beta_11=None, beta_22=None, 
-                beta_33=None, beta_12=None, beta_13=None, beta_23=None, 
-                chi_11=None, chi_22=None, chi_33=None, chi_12=None, 
-                chi_13=None, chi_23=None, kappa=None, factor_lande=None, 
-                occupation=None, f_dir_prog=None):
-        self._refresh(name, type_n, type_m, flag_m, x, y, z, b_iso, beta_11, 
-                      beta_22, beta_33, beta_12, beta_13, beta_23, chi_11, 
+                y=None, z=None, adp_type=None, b_iso=None, u_11=None, 
+                u_22=None, u_33=None, u_12=None, u_13=None, u_23=None, 
+                chi_type=None, chi_11=None, chi_22=None, chi_33=None, 
+                chi_12=None, chi_13=None, chi_23=None, kappa=None, 
+                factor_lande=None, occupation=None, f_dir_prog=None):
+        self._refresh(name, type_n, type_m, flag_m, x, y, z, adp_type, b_iso, 
+                      u_11, u_22, u_33, u_12, u_13, u_23, chi_type, chi_11, 
                       chi_22, chi_33, chi_12, chi_13, chi_23, kappa, 
                       factor_lande, occupation, f_dir_prog)
         
@@ -1091,14 +1107,16 @@ b_scat is scattering amplitude
 occupation is occupation factor
 b_iso is isotropical atomic vibrations
 
-beta_11, beta_22, beta_33 
-beta_12, beta_13, beta_23       is anisotropical atomic vibrations
+adp_type
+u_11, u_22, u_33 
+u_12, u_13, u_23       is anisotropical atomic vibrations in Ang**2
 
+chi_type
 chi_11, chi_22, chi_33
-chi_12, chi_13, chi_23          is susceptibility
+chi_12, chi_13, chi_23          is susceptibility in Bohr magneton
 
 kappa is expansion/contraction coefficient (by default 1.)
-factor_lande is factor landé (by default 2.)
+factor_lande is factor lande (by default 2.)
 
 j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D is coefficient to calculate <j0>
 
@@ -1203,24 +1221,29 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         return res
 
     def is_variable_adp(self):
-        res = any([isinstance(self._p_b_iso, Variable), 
-                   isinstance(self._p_beta_11, Variable), 
-                   isinstance(self._p_beta_22, Variable),
-                   isinstance(self._p_beta_33, Variable),
-                   isinstance(self._p_beta_12, Variable),
-                   isinstance(self._p_beta_13, Variable),
-                   isinstance(self._p_beta_23, Variable)])
+        if self._p_adp_type == "uiso":
+            res = isinstance(self._p_b_iso, Variable)
+        else:
+            res = any([isinstance(self._p_u_11, Variable), 
+                   isinstance(self._p_u_22, Variable),
+                   isinstance(self._p_u_33, Variable),
+                   isinstance(self._p_u_12, Variable),
+                   isinstance(self._p_u_13, Variable),
+                   isinstance(self._p_u_23, Variable)])
         return res
 
     def is_variable_magnetism(self):
-        res = any([isinstance(self._p_kappa, Variable), 
+        res_1 = any([isinstance(self._p_kappa, Variable), 
                    isinstance(self._p_factor_lande, Variable), 
-                   isinstance(self._p_chi_11, Variable), 
-                   isinstance(self._p_chi_22, Variable),
+                   isinstance(self._p_chi_11, Variable)])
+        res_2 = False
+        if self._p_chi_type == "cani":
+            res_2 = any([isinstance(self._p_chi_22, Variable),
                    isinstance(self._p_chi_33, Variable),
                    isinstance(self._p_chi_12, Variable),
                    isinstance(self._p_chi_13, Variable),
                    isinstance(self._p_chi_23, Variable)])
+        res = res_1 | res_2
         return res
     
     def is_variable(self):
@@ -1244,20 +1267,22 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         if isinstance(self._p_b_scat, Variable):
             l_variable.append(self._p_b_scat)
             
-        if isinstance(self._p_b_iso, Variable):
-            l_variable.append(self._p_b_iso)
-        if isinstance(self._p_beta_11, Variable):
-            l_variable.append(self._p_beta_11)
-        if isinstance(self._p_beta_22, Variable):
-            l_variable.append(self._p_beta_22)
-        if isinstance(self._p_beta_33, Variable):
-            l_variable.append(self._p_beta_33)
-        if isinstance(self._p_beta_12, Variable):
-            l_variable.append(self._p_beta_12)
-        if isinstance(self._p_beta_13, Variable):
-            l_variable.append(self._p_beta_13)
-        if isinstance(self._p_beta_23, Variable):
-            l_variable.append(self._p_beta_23)
+        if self._p_adp_type == "uiso":
+            if isinstance(self._p_b_iso, Variable):
+                l_variable.append(self._p_b_iso)
+        else:
+            if isinstance(self._p_u_11, Variable):
+                l_variable.append(self._p_u_11)
+            if isinstance(self._p_u_22, Variable):
+                l_variable.append(self._p_u_22)
+            if isinstance(self._p_u_33, Variable):
+                l_variable.append(self._p_u_33)
+            if isinstance(self._p_u_12, Variable):
+                l_variable.append(self._p_u_12)
+            if isinstance(self._p_u_13, Variable):
+                l_variable.append(self._p_u_13)
+            if isinstance(self._p_u_23, Variable):
+                l_variable.append(self._p_u_23)
             
         if isinstance(self._p_kappa, Variable):
             l_variable.append(self._p_kappa)
@@ -1266,18 +1291,50 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
 
         if isinstance(self._p_chi_11, Variable):
             l_variable.append(self._p_chi_11)
-        if isinstance(self._p_chi_22, Variable):
-            l_variable.append(self._p_chi_22)
-        if isinstance(self._p_chi_33, Variable):
-            l_variable.append(self._p_chi_33)
-        if isinstance(self._p_chi_12, Variable):
-            l_variable.append(self._p_chi_12)
-        if isinstance(self._p_chi_13, Variable):
-            l_variable.append(self._p_chi_13)
-        if isinstance(self._p_chi_23, Variable):
-            l_variable.append(self._p_chi_23)
+        if self._p_chi_type == "cani":  
+            if isinstance(self._p_chi_22, Variable):
+                l_variable.append(self._p_chi_22)
+            if isinstance(self._p_chi_33, Variable):
+                l_variable.append(self._p_chi_33)
+            if isinstance(self._p_chi_12, Variable):
+                l_variable.append(self._p_chi_12)
+            if isinstance(self._p_chi_13, Variable):
+                l_variable.append(self._p_chi_13)
+            if isinstance(self._p_chi_23, Variable):
+                l_variable.append(self._p_chi_23)
 
         return l_variable
+
+    def calc_beta(self, cell):
+        """
+        calculate beta_ij from U_ij
+        """
+        ia, ib, ic = 1.*cell.get_val("ia"), 1.*cell.get_val("ib"), 1.*cell.get_val("ic")
+        u_11, u_22, u_33 = 1.*self._p_u_11, 1.*self._p_u_22, 1.*self._p_u_33
+        u_12, u_13, u_23 = 1.*self._p_u_12, 1.*self._p_u_13, 1.*self._p_u_23
+        beta_11 = 2.*numpy.pi**2*u_11*ia**2
+        beta_22 = 2.*numpy.pi**2*u_22*ib**2
+        beta_33 = 2.*numpy.pi**2*u_33*ic**2
+        beta_12 = 2.*numpy.pi**2*u_12*ia*ib
+        beta_13 = 2.*numpy.pi**2*u_13*ia*ic
+        beta_23 = 2.*numpy.pi**2*u_23*ib*ic
+        return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
+
+
+    def calc_chi_iso(self, cell):
+        c_a = cell.get_val("cos_a")
+        s_ib = cell.get_val("sin_ib")
+        s_ig = cell.get_val("sin_ig")
+        c_ib = cell.get_val("cos_ib")
+        c_ig = cell.get_val("cos_ig")
+        #not sure, it is better to check
+        chi_11 = 1.*self._p_chi_11
+        chi_22 = chi_11
+        chi_33 = chi_11
+        chi_12 = chi_11*c_ig
+        chi_13 = chi_11*c_ib
+        chi_23 = chi_11*(c_ib*c_ig-s_ib*s_ig*c_a)
+        return chi_11, chi_22, chi_33, chi_12, chi_13, chi_23
 
 class Fract(dict):
     """
@@ -1419,49 +1476,46 @@ class ADP(dict):
     """
     ADP
     """
-    def __init__(self, beta_11 = 0., beta_22 = 0., beta_33 = 0., 
-                 beta_12 = 0., beta_13 = 0., beta_23 = 0., b_iso = 0.):
+    def __init__(self, u_11 = 0., u_22 = 0., u_33 = 0., 
+                 u_12 = 0., u_13 = 0., u_23 = 0., b_iso = 0.):
         super(ADP, self).__init__()
-        self._p_beta_11 = None
-        self._p_beta_22 = None
-        self._p_beta_33 = None
-        self._p_beta_12 = None
-        self._p_beta_13 = None
-        self._p_beta_23 = None
+        self._p_u_11 = None
+        self._p_u_22 = None
+        self._p_u_33 = None
+        self._p_u_12 = None
+        self._p_u_13 = None
+        self._p_u_23 = None
         self._p_b_iso = None
-        self._refresh(beta_11, beta_22, beta_33, beta_12, beta_13, beta_23, 
-                      b_iso)
+        self._refresh(u_11, u_22, u_33, u_12, u_13, u_23, b_iso)
 
     def __repr__(self):
-        lsout = """Debye Waller: \n beta_11: {:}, beta_22: {:}, beta_33: {:}
- beta_12: {:}, beta_13: {:}, beta_23: {:}\n b_iso: {:}""".format(
- self._p_beta_11, self._p_beta_22, self._p_beta_33, self._p_beta_12, 
- self._p_beta_13, self._p_beta_23, self._p_b_iso)
+        lsout = """Debye Waller: \n u_11: {:}, u_22: {:}, u_33: {:}
+ u_12: {:}, u_13: {:}, u_23: {:}\n b_iso: {:}""".format(
+ self._p_u_11, self._p_u_22, self._p_u_33, self._p_u_12, 
+ self._p_u_13, self._p_u_23, self._p_b_iso)
         return lsout
 
 
-    def _refresh(self, beta_11, beta_22, beta_33, beta_12, beta_13, beta_23, 
-                 b_iso):
+    def _refresh(self, u_11, u_22, u_33, u_12, u_13, u_23, b_iso):
         
-        if not(isinstance(beta_11, type(None))):
-            self._p_beta_11 = beta_11
-        if not(isinstance(beta_22, type(None))):
-            self._p_beta_22 = beta_22
-        if not(isinstance(beta_33, type(None))):
-            self._p_beta_33 = beta_33
-        if not(isinstance(beta_12, type(None))):
-            self._p_beta_12 = beta_12
-        if not(isinstance(beta_13, type(None))):
-            self._p_beta_13 = beta_13
-        if not(isinstance(beta_23, type(None))):
-            self._p_beta_23 = beta_23
+        if not(isinstance(u_11, type(None))):
+            self._p_u_11 = u_11
+        if not(isinstance(u_22, type(None))):
+            self._p_u_22 = u_22
+        if not(isinstance(u_33, type(None))):
+            self._p_u_33 = u_33
+        if not(isinstance(u_12, type(None))):
+            self._p_u_12 = u_12
+        if not(isinstance(u_13, type(None))):
+            self._p_u_13 = u_13
+        if not(isinstance(u_23, type(None))):
+            self._p_u_23 = u_23
         if not(isinstance(b_iso, type(None))):
             self._p_b_iso = b_iso
 
-    def set_val(self, beta_11=None, beta_22=None, beta_33=None, beta_12=None, 
-                beta_13=None, beta_23=None, b_iso=None):
-        self._refresh(beta_11, beta_22, beta_33, beta_12, beta_13, beta_23, 
-                      b_iso)
+    def set_val(self, u_11=None, u_22=None, u_33=None, u_12=None, 
+                u_13=None, u_23=None, b_iso=None):
+        self._refresh(u_11, u_22, u_33, u_12, u_13, u_23, b_iso)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -1487,18 +1541,18 @@ b_iso is the isotropical Debye-Waller factor
         """
         print(lsout)
         
-    def _calc_dwf_iso(self, sthovl):
+    def _calc_power_dwf_iso(self, sthovl):
         """
         isotropic harmonic Debye-Waller factor
         """
-        b_iso = self._p_b_iso
+        b_iso = 1.*self._p_b_iso
         sthovl_sq = sthovl**2
-        np_biso, np_sthovl_sq = numpy.meshgrid(sthovl_sq, b_iso, indexing="ij")
+        b_iso_2d, sthovl_sq_2d = numpy.meshgrid(sthovl_sq, b_iso, indexing="ij")
         
-        dwf_iso = numpy.exp(-np_biso*np_sthovl_sq)
-        return dwf_iso
+        power_dwf_iso_2d = b_iso_2d*sthovl_sq_2d
+        return power_dwf_iso_2d
 
-    def calc_dwf_aniso(self, space_groupe, h, k, l):
+    def calc_power_dwf_aniso(self, space_groupe, cell, h, k, l):
         """
         anisotropic harmonic Debye-Waller factor
         
@@ -1510,11 +1564,7 @@ b_iso is the isotropical Debye-Waller factor
         r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
         r_33 = space_groupe.get_val("r_33")
   
-
-        b_11, b_22 = self._p_beta_11, self._p_beta_22 
-        b_33, b_12 = self._p_beta_33, self._p_beta_12
-        b_13, b_23 = self._p_beta_13, self._p_beta_23
-        
+        b_11, b_22, b_33, b_12, b_13, b_23 = self.calc_beta(cell)
 
         np_h, np_b_11, np_r_11 = numpy.meshgrid(h, b_11, r_11, indexing="ij")
         np_k, np_b_22, np_r_22 = numpy.meshgrid(k, b_22, r_22, indexing="ij")
@@ -1530,21 +1580,40 @@ b_iso is the isotropical Debye-Waller factor
         np_k_s = np_h*np_r_12 + np_k*np_r_22 + np_l*np_r_32
         np_l_s = np_h*np_r_13 + np_k*np_r_23 + np_l*np_r_33
         
-        dwf_aniso = numpy.exp(-1.*(np_b_11*np_h_s**2 + np_b_22*np_k_s**2 + 
-                           np_b_33*np_l_s**2 + 2.*np_b_12*np_h_s*np_k_s + 
-                    2.*np_b_13*np_h_s*np_l_s + 2.*np_b_23*np_k_s*np_l_s))
+        power_dwf_aniso = (np_b_11*np_h_s**2 + np_b_22*np_k_s**2 + 
+                       np_b_33*np_l_s**2 + 2.*np_b_12*np_h_s*np_k_s + 
+                       2.*np_b_13*np_h_s*np_l_s + 2.*np_b_23*np_k_s*np_l_s)
         
-        return dwf_aniso 
+        return power_dwf_aniso 
         
-    def calc_dwf(self, space_groupe, h, k, l):
+    def calc_dwf(self, space_groupe, cell, h, k, l):
         """
         calculate Debye-Waller factor
         """
-        #self._calc_dwf_iso(sthovl)
-        dwf_3d = self.calc_dwf_aniso(space_groupe, h, k, l)
+        sthovl = cell.calc_sthovl(h, k, l)
+        #dimensions (hkl, atoms in assymmetric unit cell)
+        power_iso_2d = self._calc_power_dwf_iso(sthovl)
+        #dimensions (hkl, atoms in assymmetric unit cell, el.symmetry)
+        power_aniso_3d = self.calc_power_dwf_aniso(space_groupe, cell, h, k, l)
+        power_3d = power_iso_2d[:, :, numpy.newaxis] + power_aniso_3d
+        dwf_3d = numpy.exp(-power_3d)
         return dwf_3d
         
-
+    def calc_beta(self, cell):
+        """
+        calculate beta_ij from U_ij
+        """
+        ia, ib, ic = 1.*cell.get_val("ia"), 1.*cell.get_val("ib"), 1.*cell.get_val("ic")
+        u_11, u_22, u_33 = 1.*self._p_u_11, 1.*self._p_u_22, 1.*self._p_u_33
+        u_12, u_13, u_23 = 1.*self._p_u_12, 1.*self._p_u_13, 1.*self._p_u_23
+        
+        beta_11 = 2.*numpy.pi**2 * u_11 *ia**2
+        beta_22 = 2.*numpy.pi**2 * u_22 *ib**2
+        beta_33 = 2.*numpy.pi**2 * u_33 *ic**2
+        beta_12 = 2.*numpy.pi**2 * u_12 *ia*ib
+        beta_13 = 2.*numpy.pi**2 * u_13 *ia*ic
+        beta_23 = 2.*numpy.pi**2 * u_23 *ib*ic
+        return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
 
 
 class Magnetism(dict):
@@ -1912,22 +1981,22 @@ fract  is fraction of atoms
         
     def add_atom(self, atom):
         self._list_atoms.append(atom)
-        self._form_arrays()
+        #self._form_arrays(cell)
     
     def del_atom(self, ind):
         self._list_atoms.pop(ind)        
-        self._form_arrays()
+        #self._form_arrays(cell)
 
     def replace_atom(self, ind, atom):
         self._list_atoms.pop(ind)
         self._list_atoms.insert(ind, atom)
-        self._form_arrays()
+        #self._form_arrays(cell_)
 
-    def _form_arrays(self):
+    def _form_arrays(self, cell):
         lb_scat, locc = [], []
         lx, ly, lz = [], [], []
-        lbeta_11, lbeta_22, lbeta_33 = [], [], []
-        lbeta_12, lbeta_13, lbeta_23 = [], [], []
+        lu_11, lu_22, lu_33 = [], [], []
+        lu_12, lu_13, lu_23 = [], [], []
         lb_iso = []
         lchi_11, lchi_22, lchi_33 = [], [], []
         lchi_12, lchi_13, lchi_23 = [], [], []
@@ -1936,41 +2005,61 @@ fract  is fraction of atoms
         lj0_D = []
         lj2_A, lj2_a, lj2_B, lj2_b, lj2_C, lj2_c = [], [], [], [], [], []
         lj2_D = []
-        for atom in self._list_atoms:
-            lb_scat.append(1.*atom.get_val("b_scat"))
-            locc.append(1.*atom.get_val("occupation"))
-            lx.append(1.*atom.get_val("x"))
-            ly.append(1.*atom.get_val("y"))
-            lz.append(1.*atom.get_val("z"))
-            lbeta_11.append(1.*atom.get_val("beta_11"))
-            lbeta_22.append(1.*atom.get_val("beta_22"))
-            lbeta_33.append(1.*atom.get_val("beta_33"))
-            lbeta_12.append(1.*atom.get_val("beta_12"))
-            lbeta_13.append(1.*atom.get_val("beta_13"))
-            lbeta_23.append(1.*atom.get_val("beta_23"))
-            lb_iso.append(1.*atom.get_val("b_iso"))
-            lchi_11.append(1.*atom.get_val("chi_11"))
-            lchi_22.append(1.*atom.get_val("chi_22"))
-            lchi_33.append(1.*atom.get_val("chi_33"))
-            lchi_12.append(1.*atom.get_val("chi_12"))
-            lchi_13.append(1.*atom.get_val("chi_13"))
-            lchi_23.append(1.*atom.get_val("chi_23"))
-            lkappa.append(1.*atom.get_val("kappa"))
-            lfactor_lande.append(1.*atom.get_val("factor_lande"))
-            lj0_A.append(atom.get_val("j0_A"))
-            lj0_a.append(atom.get_val("j0_a")) 
-            lj0_B.append(atom.get_val("j0_B")) 
-            lj0_b.append(atom.get_val("j0_b")) 
-            lj0_C.append(atom.get_val("j0_C")) 
-            lj0_c.append(atom.get_val("j0_c"))
-            lj0_D.append(atom.get_val("j0_D"))
-            lj2_A.append(atom.get_val("j2_A"))
-            lj2_a.append(atom.get_val("j2_a")) 
-            lj2_B.append(atom.get_val("j2_B")) 
-            lj2_b.append(atom.get_val("j2_b")) 
-            lj2_C.append(atom.get_val("j2_C")) 
-            lj2_c.append(atom.get_val("j2_c"))
-            lj2_D.append(atom.get_val("j2_D"))
+        for atom_type in self._list_atoms:
+            lb_scat.append(1.*atom_type.get_val("b_scat"))
+            locc.append(1.*atom_type.get_val("occupation"))
+            lx.append(1.*atom_type.get_val("x"))
+            ly.append(1.*atom_type.get_val("y"))
+            lz.append(1.*atom_type.get_val("z"))
+            adp_type = atom_type.get_val("adp_type")
+            if adp_type == "uiso":
+                lb_iso.append(1.*atom_type.get_val("b_iso"))
+                lu_11.append(0.)
+                lu_22.append(0.)
+                lu_33.append(0.)
+                lu_12.append(0.)
+                lu_13.append(0.)
+                lu_23.append(0.)
+            else:
+                lu_11.append(1.*atom_type.get_val("u_11"))
+                lu_22.append(1.*atom_type.get_val("u_22"))
+                lu_33.append(1.*atom_type.get_val("u_33"))
+                lu_12.append(1.*atom_type.get_val("u_12"))
+                lu_13.append(1.*atom_type.get_val("u_13"))
+                lu_23.append(1.*atom_type.get_val("u_23"))
+                lb_iso.append(0.)
+            chi_type = atom_type.get_val("chi_type")
+            if chi_type == "ciso":
+                c_11, c_22, c_33, c_12, c_13, c_23 = atom_type.calc_chi_iso(cell)
+                lchi_11.append(c_11)
+                lchi_22.append(c_22)
+                lchi_33.append(c_33)
+                lchi_12.append(c_12)
+                lchi_13.append(c_13)
+                lchi_23.append(c_23)
+            else:
+                lchi_11.append(1.*atom_type.get_val("chi_11"))
+                lchi_22.append(1.*atom_type.get_val("chi_22"))
+                lchi_33.append(1.*atom_type.get_val("chi_33"))
+                lchi_12.append(1.*atom_type.get_val("chi_12"))
+                lchi_13.append(1.*atom_type.get_val("chi_13"))
+                lchi_23.append(1.*atom_type.get_val("chi_23"))
+            lkappa.append(1.*atom_type.get_val("kappa"))
+            lfactor_lande.append(1.*atom_type.get_val("factor_lande"))
+            lj0_A.append(atom_type.get_val("j0_A"))
+            lj0_a.append(atom_type.get_val("j0_a")) 
+            lj0_B.append(atom_type.get_val("j0_B")) 
+            lj0_b.append(atom_type.get_val("j0_b")) 
+            lj0_C.append(atom_type.get_val("j0_C")) 
+            lj0_c.append(atom_type.get_val("j0_c"))
+            lj0_D.append(atom_type.get_val("j0_D"))
+            lj2_A.append(atom_type.get_val("j2_A"))
+            lj2_a.append(atom_type.get_val("j2_a")) 
+            lj2_B.append(atom_type.get_val("j2_B")) 
+            lj2_b.append(atom_type.get_val("j2_b")) 
+            lj2_C.append(atom_type.get_val("j2_C")) 
+            lj2_c.append(atom_type.get_val("j2_c"))
+            lj2_D.append(atom_type.get_val("j2_D"))
             
         np_b_scat = numpy.array(lb_scat, dtype=float)
         np_occ = numpy.array(locc, dtype=float)
@@ -1979,15 +2068,15 @@ fract  is fraction of atoms
         np_z = numpy.array(lz, dtype=float)
         fract = Fract(x=np_x, y=np_y, z=np_z)
 
-        np_beta_11 = numpy.array(lbeta_11, dtype=float)
-        np_beta_22 = numpy.array(lbeta_22, dtype=float)
-        np_beta_33 = numpy.array(lbeta_33, dtype=float)
-        np_beta_12 = numpy.array(lbeta_12, dtype=float)
-        np_beta_13 = numpy.array(lbeta_13, dtype=float)
-        np_beta_23 = numpy.array(lbeta_23, dtype=float)
+        np_u_11 = numpy.array(lu_11, dtype=float)
+        np_u_22 = numpy.array(lu_22, dtype=float)
+        np_u_33 = numpy.array(lu_33, dtype=float)
+        np_u_12 = numpy.array(lu_12, dtype=float)
+        np_u_13 = numpy.array(lu_13, dtype=float)
+        np_u_23 = numpy.array(lu_23, dtype=float)
         np_b_iso = numpy.array(lb_iso, dtype=float)
-        adp = ADP(beta_11=np_beta_11, beta_22=np_beta_22, beta_33=np_beta_33,
-                  beta_12=np_beta_12, beta_13=np_beta_13, beta_23=np_beta_23,
+        adp = ADP(u_11=np_u_11, u_22=np_u_22, u_33=np_u_33,
+                  u_12=np_u_12, u_13=np_u_13, u_23=np_u_23,
                   b_iso = np_b_iso)
 
         np_chi_11 = numpy.array(lchi_11, dtype=float)
@@ -2038,7 +2127,7 @@ fract  is fraction of atoms
             f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_map["out"]
             return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
         if self.is_variable():
-            self._form_arrays()
+            self._form_arrays(cell)
         #sthovl = cell.calc_sthovl(h, k, l)
         
         fract = self._p_fract
@@ -2061,7 +2150,7 @@ fract  is fraction of atoms
         if not(d_adp["flag"]|(d_adp["out"] is None)):
             dwf_3d = d_adp["out"] 
         else:
-            dwf_3d = adp.calc_dwf(space_groupe, h, k, l)
+            dwf_3d = adp.calc_dwf(space_groupe, cell, h, k, l)
             d_adp["out"] = dwf_3d 
         
         d_magnetism = d_map["magnetism"]

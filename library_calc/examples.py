@@ -8,13 +8,14 @@ import os
 import matplotlib.pyplot
 import numpy
 
+
 from crystal import *
 from calculated_data import *
 from experiment import *
 from observed_data import *
 from variable import *
 
-from fitting import *
+from model import *
 
 from read_rcif import *
 
@@ -24,11 +25,11 @@ rcif_single = RCif()
 f_inp = os.path.join("HoTi_single", "full.rcif")
 rcif_single.load_from_file(f_inp)
 
-fitting_single = rcif_single.trans_to_fitting()
-d_map_single = fitting_single.plot_map()
-chi_sq, n_point = fitting_single.calc_chi_sq()
+model_single = rcif_single.trans_to_model()
+d_map_single = model_single.plot_map()
+chi_sq, n_point = model_single.calc_chi_sq()
 
-experiment_single = fitting_single._list_experiment[0]
+experiment_single = model_single._list_experiment[0]
 
 
 
@@ -56,13 +57,12 @@ rcif_powder_2d = RCif()
 f_inp = os.path.join("Fe3O4_150K_6T_2d", "full.rcif")
 rcif_powder_2d.load_from_file(f_inp)
 
-fitting_powder_2d = rcif_powder_2d.trans_to_fitting()
+model_powder_2d = rcif_powder_2d.trans_to_model()
 
 d_map_powder_2d = {}
-fitting_powder_2d.refinement(d_map_powder_2d)
+model_powder_2d.refine_model(d_map_powder_2d)
 
-
-
+model_powder_2d.get_variables()
 
 observed_data_powder_2d = experiment_powder_2d.get_val("observed_data")
 
@@ -99,11 +99,11 @@ rcif_powder_1d = RCif()
 f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 rcif_powder_1d.load_from_file(f_inp)
 
-fitting_powder_1d = rcif_powder_1d.trans_to_fitting()
-d_map_powder_1d = fitting_powder_1d.plot_map()
+model_powder_1d = rcif_powder_1d.trans_to_model()
+d_map_powder_1d = model_powder_1d.plot_map()
 
 
-experiment_powder_1d = fitting_powder_1d._list_experiment[0]
+experiment_powder_1d = model_powder_1d._list_experiment[0]
 calculated_data_powder_1d = experiment_powder_1d._list_calculated_data[0]
 
 
@@ -136,9 +136,9 @@ setup_powder_1d.set_val(zero_shift=dd_1)
 dd_2 = Variable(val=0.023, ref=True)
 calculated_data_powder_1d.set_val(scale=dd_2)
 
-fitting.add_variable(dd_1)
-fitting.add_variable(dd_2)
-res = fitting.refinement()
+model.add_variable(dd_1)
+model.add_variable(dd_2)
+res = model.refine_model()
 
 
 

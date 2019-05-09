@@ -19,7 +19,7 @@ from setup_powder_1d import *
 from setup_powder_2d import *
 from observed_data import *
 from experiment import *
-from fitting import *
+from model import *
 from variable import *
 
 
@@ -57,7 +57,7 @@ class RCif(object):
         fid.close()
 
     
-    def take_from_fitting(self, ccore):
+    def take_from_model(self, ccore):
         def temp_func(obj, ddata, l_rcif, l_core, t_core):
             lkey = obj.__dict__.keys()
             if l_core in lkey:
@@ -71,7 +71,7 @@ class RCif(object):
                     ddata[l_rcif] = sval 
             return
             
-        drel = rcif_fitting_relation()
+        drel = rcif_model_relation()
         lab_rcif = drel["lab_rcif_ref"]
         lab_core = drel["lab_core_ref"]
         type_core = drel["type_ref"]
@@ -261,7 +261,7 @@ class RCif(object):
                 
             self.data.append(d_exp)
 
-    def trans_to_fitting(self):
+    def trans_to_model(self):
         l_crystal = []
         l_experiment = []
         l_refinement = []
@@ -304,13 +304,13 @@ class RCif(object):
                 #l_variable.extend(l_variable_experiment)
 
 
-        fitting = Fitting()
+        model = Model()
         for experiment in l_experiment:
-            fitting.add_experiment(experiment)
+            model.add_experiment(experiment)
         for variable in l_variable:
-            fitting.add_variable(variable)
+            model.add_variable(variable)
         
-        return fitting
+        return model
 
 def get_link_rcif(link_core, ccore):
     """
@@ -326,7 +326,7 @@ def get_link_rcif(link_core, ccore):
         link_rcif += "_${:}".format(name_2)
     name_core = lhelp[-1]
     
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     if type_1 == "exp":
         lname_exp = [hh.name for hh in ccore.exp]
         ind = lname_exp.index(name_1)
@@ -429,7 +429,7 @@ def get_link(obj, drel, param):
 
 
 def rcif_to_str(drcif):
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
 
 
     def temp_func(dd2, llab):
@@ -641,7 +641,7 @@ def rcif_to_str(drcif):
     return lstr
 
 def put_ref(obj, lparam):
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     for param in lparam:
         slink = get_link(obj, drel, param)
         val_1, message = obj.set_val_by_link(slink, None)
@@ -650,7 +650,7 @@ def put_ref(obj, lparam):
 
 
 def put_con(obj, lparam1, lparam2, lcoeff):
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     for param1, param2, coeff in zip(lparam1, lparam2, lcoeff):
         slink_obj = get_link(obj, drel, param1)
         slink_sub = get_link(obj, drel, param2)
@@ -661,7 +661,7 @@ def put_con(obj, lparam1, lparam2, lcoeff):
         obj.set_val_by_link(slink_obj, val_1)    
 
 
-def rcif_fitting_relation():
+def rcif_model_relation():
     #phase    
     llab_rcif_cell = ["_cell_length_a", "_cell_length_b", "_cell_length_c",
                  "_cell_angle_alpha", "_cell_angle_beta", "_cell_angle_gamma"]
@@ -676,32 +676,32 @@ def rcif_fitting_relation():
 
     llab_rcif_at = ["_atom_site_label", '_atom_site_type_symbol',
                 "_atom_site_fract_x", "_atom_site_fract_y", "_atom_site_fract_z",
-                "_atom_site_occupancy", "_atom_site_b_iso_or_equiv"]
-    llab_arg_at = ["name", "type_n", "x", "y", "z", "occupation", "b_iso"]
-    ltype_at = ["text", "text", "val", "val", "val", "val", "val"]
+                "_atom_site_occupancy", "_atom_site_b_iso_or_equiv", "_atom_site_adp_type"]
+    llab_arg_at = ["name", "type_n", "x", "y", "z", "occupation", "b_iso", "adp_type"]
+    ltype_at = ["text", "text", "val", "val", "val", "val", "val", "text"]
 
     llab_rcif_bscat = ["_atom_site_type_symbol", "_atom_site_bscat"]
     llab_arg_bscat = ["type_n", "b_scat"]
     ltype_bscat = ["text", "val"]
 
-    llab_rcif_adp = ["_atom_site_aniso_label", '_atom_site_aniso_beta_11',
-             "_atom_site_aniso_beta_22", "_atom_site_aniso_beta_33", "_atom_site_aniso_beta_12",
-             "_atom_site_aniso_beta_13", "_atom_site_aniso_beta_23"]
-    llab_arg_adp = ["name", "beta_11", "beta_22", "beta_33", "beta_12", 
-                    "beta_13", "beta_23"]
+    llab_rcif_adp = ["_atom_site_aniso_label", '_atom_site_aniso_U_11',
+             "_atom_site_aniso_U_22", "_atom_site_aniso_U_33", "_atom_site_aniso_U_12",
+             "_atom_site_aniso_U_13", "_atom_site_aniso_U_23"]
+    llab_arg_adp = ["name", "u_11", "u_22", "u_33", "u_12", 
+                    "u_13", "u_23"]
     ltype_adp = ["text", "val", "val", "val", "val", "val", "val"]
 
 
     llab_rcif_chi = ["_atom_site_magnetism_aniso_label", '_atom_site_magnetism_type_symbol',
              "_atom_site_magnetism_kappa",
-             "_atom_site_magnetism_lfactor", "_atom_site_susceptibility_aniso_chi_11",
+             "_atom_site_magnetism_factor_lande", "_atom_site_susceptibility_aniso_chi_11",
              "_atom_site_susceptibility_aniso_chi_22", "_atom_site_susceptibility_aniso_chi_33",
              "_atom_site_susceptibility_aniso_chi_23", "_atom_site_susceptibility_aniso_chi_13",
-             "_atom_site_susceptibility_aniso_chi_12"]
+             "_atom_site_susceptibility_aniso_chi_12", "_atom_site_magnetism_type"]
     llab_arg_chi = ["name", "type_m", "kappa", "factor_lande", "chi_11", 
-                    "chi_22", "chi_33", "chi_12", "chi_13", "chi_23"]
+                    "chi_22", "chi_33", "chi_12", "chi_13", "chi_23", "chi_type"]
     ltype_chi = ["text", "text", "val", "val", "val", "val", "val", "val", 
-                 "val", "val"]
+                 "val", "val", "text"]
 
 
 
@@ -934,7 +934,7 @@ def trans_to_crystal(data):
     
     crystal.set_val(name=data["name"])
     
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     
     llab_rcif = drel["lab_rcif_sp"]
     llab_crystal = drel["lab_arg_sp"]
@@ -1067,7 +1067,7 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
                                     observed_data=observed_data_powder_1d)
 
     
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     
     mode_chi_sq = ""
     l_key = data.keys()
@@ -1179,7 +1179,7 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
                                     observed_data=observed_data_powder_2d)
 
     
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     
     mode_chi_sq = ""
     l_key = data.keys()
@@ -1290,7 +1290,7 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
 
     experiment.set_val(name=data["name"])
 
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
 
 
     llab_rcif = drel["lab_rcif_experiment_sd"] 
@@ -1362,7 +1362,7 @@ def trans_to_refinement(data):
     transform info in dictionary to intermediate class 
     """
     ref = ccore.ccore_ref()
-    drel = rcif_fitting_relation()
+    drel = rcif_model_relation()
     
     llab_rcif = drel["lab_rcif_ref"]
     llab_ref = drel["lab_core_ref"]
@@ -1577,7 +1577,6 @@ def convert_rcif_to_glob(lcontent):
 
     res_glob = convert_lines_to_global(glob_lstr)
     res_glob["name"] = glob_name
-
     return res_glob
 
 def get_core_from_file(fname):
