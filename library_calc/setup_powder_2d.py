@@ -601,7 +601,9 @@ background  is Background class
         one dimensional gauss powder diffraction
         """
         ag, bg = self._p_ag, self._p_bg
-        self._p_gauss_pd = ag*numpy.exp(-bg*tth_3d**2)
+        val_1 = bg*tth_3d**2
+        val_2 = numpy.where(val_1 < 5., numpy.exp(-val_1), 0.)
+        self._p_gauss_pd = ag*val_2
         
     def _lor_pd(self, tth_3d):
         """

@@ -101,7 +101,7 @@ _pd_chi2_sum True
 _pd_exl2theta (40.,90.)
 _pd_beam_polarization_up 1e-05
 _pd_beam_polarization_down 1e-05
-_pd_resolution_u 17.4877038937
+_pd_resolution_u 17.4877038937()
 _pd_resolution_v -2.83572490939
 _pd_resolution_w 0.576309204074
 _pd_resolution_x 0.0

@@ -16,7 +16,7 @@ class CalculatedDataSingle(dict):
     Calculate the model data for single crystal in polarized neutron diffraction experiment
     """
     def __init__(self, name=None, field=1, orientation=numpy.array([[1., 0., 0.], 
-                 [0., 1., 0.], [0., 0., 1.]], dtype=float), crystal=Crystal()):
+                 [0., 1., 0.], [0., 0., 1.]], dtype=float)):
         """
         field is magnetic field in global coordinate system
         orientation is transfer matrix from local coordinate system to global one
@@ -24,30 +24,26 @@ class CalculatedDataSingle(dict):
         super(CalculatedDataSingle, self).__init__()
         self._p_name = None
         self._p_field = None
-        self._p_crystal = None
         self._p_orientation = None
         orientation
-        self._refresh(name, field, orientation, crystal)
+        self._refresh(name, field, orientation)
 
     def __repr__(self):
         lsout = """CalculatedDataSingle:\n name: {}\n field: {:}
- orientation: {:}\n{:}""".format(self._p_name,
-                self._p_field, self._p_orientation, 
-                self._p_crystal)
+ orientation: {:}""".format(self._p_name,
+                self._p_field, self._p_orientation)
         return lsout
 
-    def _refresh(self, name, field, orientation, crystal):
+    def _refresh(self, name, field, orientation):
         if name is not None:
             self._p_name = name
         if field is not None:
             self._p_field = field
         if orientation is not None:
             self._p_orientation = orientation
-        if crystal  is not None:
-            self._p_crystal = crystal
             
-    def set_val(self, name=None, field=None, orientation=None, crystal=None):
-        self._refresh(name, field, orientation, crystal)
+    def set_val(self, name=None, field=None, orientation=None):
+        self._refresh(name, field, orientation)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -72,16 +68,14 @@ name is the name of Calculated data
 scale is the scale factor for crystal
 field is magnetic field in global coordinate system
 orientation is transfer matrix from local coordinate system to global one
-crystal is the definition of crystal 
         """
         print(lsout)
     
-    def calc_iint_u_d_flip_ratio(self, h, k, l, beam_polarization, wave_length):
+    def calc_iint_u_d_flip_ratio(self, h, k, l, beam_polarization, wave_length, crystal):
         """
         calculate the integral intensity for h, k, l reflections
         wave_length is needed only for extinction correction
         """
-        crystal = self._p_crystal
         field_z = 1.*self._p_field
         orientation = self._p_orientation
         
@@ -175,61 +169,46 @@ crystal is the definition of crystal
         """
         return iint_u, iint_d, flip_ratio
     
-    def is_variable_sf(self):
-        """
-        without extinction
-        """
-        crystal = self._p_crystal
-        res = crystal.is_variable_sf()
-        return res      
     
     def is_variable(self):
         """
         without extinction
         """
-        crystal = self._p_crystal
-        extinction = crystal.get_val("extinction")
-        res = any([extinction.is_variable(), 
-                   self.is_variable_sf()])
+        res = False
         return res        
     
     def get_variables(self):
         l_variable = []
-        crystal = self.get_val("crystal")
-        l_var = crystal.get_variables()
-        l_variable.extend(l_var)
         return l_variable
+
+
 
 class CalculatedDataPowder1D(dict):
     """
     Calculate the model data for 1D powder diffraction experiment
     """
-    def __init__(self, name=None, scale=1., field=1., crystal=Crystal()):
+    def __init__(self, name=None, scale=1., field=1.):
         super(CalculatedDataPowder1D, self).__init__()
         self._p_name = None
         self._p_scale = None
         self._p_field = None
-        self._p_crystal = None
-        self._refresh(name, scale, field, crystal)
+        self._refresh(name, scale, field)
 
     def __repr__(self):
         lsout = """CalculatedDataPowder1D: \n name: {:}\n scale: {:}
- field: {:}\n{:}""".format(self._p_name, self._p_scale, self._p_field, 
- self._p_crystal)
+ field: {:}""".format(self._p_name, self._p_scale, self._p_field)
         return lsout
 
-    def _refresh(self, name, scale, field, crystal):
+    def _refresh(self, name, scale, field):
         if name is not None:
             self._p_name = name
         if scale is not None:
             self._p_scale = scale
         if field is not None:
             self._p_field = field
-        if crystal is not None:
-            self._p_crystal = crystal
             
-    def set_val(self, name=None, scale=None, field=None, crystal=None):
-        self._refresh(name, scale, field, crystal)
+    def set_val(self, name=None, scale=None, field=None):
+        self._refresh(name, scale, field)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -257,14 +236,14 @@ crystal is the definition of crystal
         """
         print(lsout)
     
-    def calc_iint(self, h, k, l, beam_polarization):
+    def calc_iint(self, h, k, l, beam_polarization, crystal):
         """
         calculate the integral intensity for h, k, l reflections
         """
-        crystal = self._p_crystal
         field = 1.*self._p_field
         p_u = beam_polarization.get_val("p_u")
         p_d = beam_polarization.get_val("p_d")
+
 
         f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
         
@@ -302,64 +281,46 @@ crystal is the definition of crystal
         #            c32.imag, c33.real, c33.imag))
         return iint_u, iint_d
     
-    def is_variable_sf(self):
-        """
-        without extinction
-        """
-        crystal = self._p_crystal
-        res = crystal.is_variable_sf()
-        return res      
-    
     def is_variable(self):
         """
         without extinction
         """
-        crystal = self._p_crystal
-        extinction = crystal.get_val("extinction")
-        res = any([extinction.is_variable(), 
-                   self.is_variable_sf(), 
-                   isinstance(self._p_scale, Variable)])
+        res = any([isinstance(self._p_scale, Variable)])
         return res        
 
     def get_variables(self):
         l_variable = []
         if isinstance(self._p_scale, Variable):
             l_variable.append(self._p_scale)
-        crystal = self.get_val("crystal")
-        l_var = crystal.get_variables()
-        l_variable.extend(l_var)
         return l_variable
+
     
 class CalculatedDataPowder2D(dict):
     """
     Calculate the model data for 2D powder diffraction experiment
     """
-    def __init__(self, name=None, scale=1., field=1., crystal=Crystal()):
+    def __init__(self, name=None, scale=1., field=1.):
         super(CalculatedDataPowder2D, self).__init__()
         self._p_name = None
         self._p_scale = None
         self._p_field = None
-        self._p_crystal = None
-        self._refresh(name, scale, field, crystal)
+        self._refresh(name, scale, field)
 
     def __repr__(self):
         lsout = """CalculatedDataPowder2D:\n name: {:}\n scale: {:}
- field: {:}\n{:}""".format(self._p_name, self._p_scale, self._p_field, 
- self._p_crystal)
+ field: {:}""".format(self._p_name, self._p_scale, self._p_field)
         return lsout
 
-    def _refresh(self, name, scale, field, crystal):
+    def _refresh(self, name, scale, field):
         if name is not None:
             self._p_name = name
         if scale is not None:
             self._p_scale = scale
         if field is not None:
             self._p_field = field
-        if crystal is not None:
-            self._p_crystal = crystal
             
-    def set_val(self, name=None, scale=None, field=None, crystal=None):
-        self._refresh(name, scale, field, crystal)
+    def set_val(self, name=None, scale=None, field=None):
+        self._refresh(name, scale, field)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -383,30 +344,28 @@ Parameters:
 name is the name of CalculatedDataPowder2D
 scale is the scale factor for crystal
 field is the value of magnetic field applied along vertical direction in Tesla
-crystal is the definition of crystal 
         """
         print(lsout)
     
-    def calc_for_iint(self, h, k, l, d_map={}):
+    def calc_for_iint(self, h, k, l, crystal, d_map={}):
         """
         calculate the integral intensity for h, k, l reflections
         Output: f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
         """
         if d_map == {}:
             d_map.update(self.plot_map())
-        if not(d_map["flag"]|(d_map["out"] is None)):
-            f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin = d_map["out"]
-            return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
-
+        #if not(d_map["flag"]|(d_map["out"] is None)):
+        #    f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin = d_map["out"]
+        #    return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
         
-        crystal = self._p_crystal
+        
         field = 1.*self._p_field
 
-        d_sf = d_map["sf"]
-        if not(d_sf["flag"]|(d_sf["out"] is None)):
-            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
-        else:
-            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l, d_sf)
+        #d_sf = d_map["sf"]
+        #if not(d_sf["flag"]|(d_sf["out"] is None)):
+        #    f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
+        #else:
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
         
         cell = crystal.get_val("cell")
         
@@ -432,37 +391,19 @@ crystal is the definition of crystal
     def plot_map(self):
         b_variable = self.is_variable()       
         d_map = {"flag": b_variable, "out":None}
-        crystal = self._p_crystal
-        d_sf = crystal.plot_map()
-        d_map.update({"sf":d_sf})
         return d_map
 
-    def is_variable_sf(self):
-        """
-        without extinction
-        """
-        crystal = self._p_crystal
-        res = crystal.is_variable_sf()
-        return res      
-    
     def is_variable(self):
         """
         without extinction
         """
-        crystal = self._p_crystal
-        extinction = crystal.get_val("extinction")
-        res = any([extinction.is_variable(), 
-                   self.is_variable_sf(), 
-                   isinstance(self._p_scale, Variable)])
+        res = any([isinstance(self._p_scale, Variable)])
         return res        
     
     def get_variables(self):
         l_variable = []
         if isinstance(self._p_scale, Variable):
             l_variable.append(self._p_scale)
-        crystal = self.get_val("crystal")
-        l_var = crystal.get_variables()
-        l_variable.extend(l_var)
         return l_variable
     
 if (__name__ == "__main__"):

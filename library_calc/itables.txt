@@ -569,13 +569,22 @@ symmetry: -x,y+1/2,-z+1/2
 symmetry: x+1/2,-y+1/2,-z
 
 62 Pnma            Orthorhombic
-choice: 1
+choice: abc
 centr: true
 pcentr: 0, 0, 0
 symmetry: x,y,z
 symmetry: -x+1/2,-y,z+1/2
 symmetry: -x,y+1/2,-z
 symmetry: x+1/2,-y+1/2,-z+1/2
+
+62 Pbnm            Orthorhombic
+choice: cab
+centr: true
+pcentr: 0, 0, 0
+symmetry: x,y,z
+symmetry: x+1/2,-y+1/2,-z
+symmetry: -x+1/2,y+1/2,-z+1/2
+symmetry: -x,-y,z+1/2
 
 63 Cmcm            Orthorhombic
 choice: 1

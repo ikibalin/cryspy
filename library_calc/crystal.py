@@ -853,7 +853,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
             if s_x.startswith("+"): s_x = s_x[1:]
             
             s_y = ""
-            if el_symm[4] != 0.: s_y+="{:.3f}".format(el_symm[0])
+            if el_symm[4] != 0.: s_y+="{:.3f}".format(el_symm[4])
             if el_symm[5] == 1: s_y+="+x"
             if el_symm[5] == -1: s_y+="-x"
             if el_symm[6] == 1: s_y+="+y"
@@ -863,7 +863,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
             if s_y.startswith("+"): s_y = s_y[1:]
 
             s_z = ""
-            if el_symm[8] != 0.: s_z+="{:.3f}".format(el_symm[0])
+            if el_symm[8] != 0.: s_z+="{:.3f}".format(el_symm[8])
             if el_symm[9]==1: s_z+="+x"
             if el_symm[9] == -1: s_z+="-x"
             if el_symm[10] == 1: s_z+="+y"
@@ -949,15 +949,15 @@ class AtomType(dict):
  name: {}            
  type_n: {:} (b_scat: {:} cm**-12)
  occupation: {:}
- fract  x: {:}  y: {:}  z: {:}\n b_iso: {:} Ang**2
- adp_type: {:}
- u_11: {:}, u_22: {:}, u_33: {:} (in Ang**2)
- u_12: {:}, u_13: {:}, u_23: {:} (in Ang**2)
- f_dir_prog: {:}""".format(
+ fract  x: {:}  y: {:}  z: {:}\n  adp_type: {:}\n""".format(
  self._p_name, self._p_type_n, self._p_b_scat, self._p_occupation, self._p_x, 
- self._p_y, self._p_z, self._p_b_iso, self._p_adp_type,
- self._p_u_11, self._p_u_22, self._p_u_33, self._p_u_12, 
- self._p_u_13, self._p_u_23, self._p_f_dir_prog)
+ self._p_y, self._p_z, self._p_adp_type)
+        if self._p_adp_type == "uiso":
+             ls_out += """ b_iso: {:} Ang**2""".format(self._p_b_iso)
+        elif self._p_adp_type == "uani":
+             ls_out += """ u_11: {:}, u_22: {:}, u_33: {:} (in Ang**2)
+ u_12: {:}, u_13: {:}, u_23: {:} (in Ang**2)""".format(self._p_u_11, 
+ self._p_u_22, self._p_u_33, self._p_u_12, self._p_u_13, self._p_u_23)
         if self._p_flag_m:
             ls_out += """\n\n type_m: {:}
  kappa: {:}
@@ -1335,7 +1335,16 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         chi_13 = chi_11*c_ib
         chi_23 = chi_11*(c_ib*c_ig-s_ib*s_ig*c_a)
         return chi_11, chi_22, chi_33, chi_12, chi_13, chi_23
-
+    
+    def apply_chi_iso(self, cell):
+        chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 = self.calc_chi_iso(cell)
+        self._p_chi_22 = chi_22
+        self._p_chi_33 = chi_33
+        self._p_chi_12 = chi_12
+        self._p_chi_13 = chi_13
+        self._p_chi_23 = chi_23
+        
+    
 class Fract(dict):
     """
     Fract of atom_site(s) in unit cell.
@@ -1932,6 +1941,7 @@ class AtomSite(dict):
         self._p_magnetism = None
         self._p_b_scat = None
         self._p_occupation = None
+        self._flag_refresh = False
         self._list_atoms = []
     
     def __repr__(self):
@@ -1981,15 +1991,18 @@ fract  is fraction of atoms
         
     def add_atom(self, atom):
         self._list_atoms.append(atom)
+        self._flag_refresh = True
         #self._form_arrays(cell)
     
     def del_atom(self, ind):
-        self._list_atoms.pop(ind)        
+        self._list_atoms.pop(ind)
+        self._flag_refresh = True        
         #self._form_arrays(cell)
 
     def replace_atom(self, ind, atom):
         self._list_atoms.pop(ind)
         self._list_atoms.insert(ind, atom)
+        self._flag_refresh = True
         #self._form_arrays(cell_)
 
     def _form_arrays(self, cell):
@@ -2030,20 +2043,13 @@ fract  is fraction of atoms
                 lb_iso.append(0.)
             chi_type = atom_type.get_val("chi_type")
             if chi_type == "ciso":
-                c_11, c_22, c_33, c_12, c_13, c_23 = atom_type.calc_chi_iso(cell)
-                lchi_11.append(c_11)
-                lchi_22.append(c_22)
-                lchi_33.append(c_33)
-                lchi_12.append(c_12)
-                lchi_13.append(c_13)
-                lchi_23.append(c_23)
-            else:
-                lchi_11.append(1.*atom_type.get_val("chi_11"))
-                lchi_22.append(1.*atom_type.get_val("chi_22"))
-                lchi_33.append(1.*atom_type.get_val("chi_33"))
-                lchi_12.append(1.*atom_type.get_val("chi_12"))
-                lchi_13.append(1.*atom_type.get_val("chi_13"))
-                lchi_23.append(1.*atom_type.get_val("chi_23"))
+                atom_type.apply_chi_iso(cell)
+            lchi_11.append(1.*atom_type.get_val("chi_11"))
+            lchi_22.append(1.*atom_type.get_val("chi_22"))
+            lchi_33.append(1.*atom_type.get_val("chi_33"))
+            lchi_12.append(1.*atom_type.get_val("chi_12"))
+            lchi_13.append(1.*atom_type.get_val("chi_13"))
+            lchi_23.append(1.*atom_type.get_val("chi_23"))
             lkappa.append(1.*atom_type.get_val("kappa"))
             lfactor_lande.append(1.*atom_type.get_val("factor_lande"))
             lj0_A.append(atom_type.get_val("j0_A"))
@@ -2121,15 +2127,15 @@ fract  is fraction of atoms
         """
         calculate nuclear structure factor
         """
-        if d_map == {}:
-            d_map.update(self.plot_map())
-        if not(d_map["flag"]|(d_map["out"] is None)):
-            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_map["out"]
-            return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
-        if self.is_variable():
+        #if d_map == {}:
+        #    d_map.update(self.plot_map())
+        #if not(d_map["flag"]|(d_map["out"] is None)):
+        #    f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_map["out"]
+        #    return f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33
+        if (self.is_variable()|self._flag_refresh):
             self._form_arrays(cell)
         #sthovl = cell.calc_sthovl(h, k, l)
-        
+
         fract = self._p_fract
         adp = self._p_adp
         magnetism = self._p_magnetism
@@ -2139,26 +2145,26 @@ fract  is fraction of atoms
         atom_multiplicity = space_groupe.calc_atom_mult(x, y, z)
         occ_mult = occupation*atom_multiplicity 
         
-        d_phase = d_map["phase"]
-        if not(d_phase["flag"]|(d_phase["out"] is None)):
-            phase_3d = d_phase["out"] 
-        else:
-            phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
-            d_phase["out"] = phase_3d 
+        #d_phase = d_map["phase"]
+        #if not(d_phase["flag"]|(d_phase["out"] is None)):
+        #    phase_3d = d_phase["out"] 
+        #else:
+        phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
+        #d_phase["out"] = phase_3d 
         
-        d_adp = d_map["adp"]
-        if not(d_adp["flag"]|(d_adp["out"] is None)):
-            dwf_3d = d_adp["out"] 
-        else:
-            dwf_3d = adp.calc_dwf(space_groupe, cell, h, k, l)
-            d_adp["out"] = dwf_3d 
+        #d_adp = d_map["adp"]
+        #if not(d_adp["flag"]|(d_adp["out"] is None)):
+        #    dwf_3d = d_adp["out"] 
+        #else:
+        dwf_3d = adp.calc_dwf(space_groupe, cell, h, k, l)
+        #    d_adp["out"] = dwf_3d 
         
-        d_magnetism = d_map["magnetism"]
-        if not(d_magnetism["flag"]|(d_magnetism["out"] is None)):
-            ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = d_magnetism["out"] 
-        else:
-            ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_groupe, cell, h, k, l)
-            d_magnetism["out"] = (ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33)
+        #d_magnetism = d_map["magnetism"]
+        #if not(d_magnetism["flag"]|(d_magnetism["out"] is None)):
+        #    ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = d_magnetism["out"] 
+        #else:
+        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_groupe, cell, h, k, l)
+        #    d_magnetism["out"] = (ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33)
         
         hh = phase_3d*dwf_3d
         
@@ -2485,20 +2491,20 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         """
         calculate structure factors (nuclear and components of susceptibility)
         """
-        if d_map == {}:
-            d_map.update(self.plot_map())
-        if not(d_map["flag"]|(d_map["out"] is None)):
-            f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = d_map["out"]
-            return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+        #if d_map == {}:
+        #    d_map.update(self.plot_map())
+        #if not(d_map["flag"]|(d_map["out"] is None)):
+        #    f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = d_map["out"]
+        #    return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
         
         cell = self._p_cell
         space_groupe = self._p_space_groupe
         atom_site = self._p_atom_site
-        d_sf = d_map["sf"]
-        if not(d_sf["flag"]|(d_sf["out"] is None)):
-            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
-        else:
-            f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_groupe, cell, h, k, l, d_sf)
+        #d_sf = d_map["sf"]
+        #if not(d_sf["flag"]|(d_sf["out"] is None)):
+        #    f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
+        #else:
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_groupe, cell, h, k, l)#, d_sf
         #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
         #chi in 10-12 cm; chim in muB (it is why here 0.2695)
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
@@ -2506,7 +2512,6 @@ i_g is the parameter to described broadening of Bragg reflection due to the
                 sft_11*0.2695, sft_12*0.2695, sft_13*0.2695, 
                 sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
                 sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
-
         d_map["out"] = (f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33)
         return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 

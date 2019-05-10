@@ -1,0 +1,59 @@
+#plot Slater type function and Gaussian type function
+#!/usr/bin/gnuplot
+
+set terminal png enhanced truecolor font Arial 30 size 800,800
+#set terminal postscript eps enhanced size 7cm,7cm dashed dl 1 color clip 18
+set encoding utf8
+
+# Color definitions
+set border lw 2
+set style line  1 lc rgb '#0047AB' lt 1 lw 1.0 pt  7 ps 1.0 #cobalt blue
+set style line  2 lc rgb '#CD5B45' lt 2 lw 2.5 pt  9 ps 1.0 dt 2#orange
+set style line  3 lc rgb '#000000' lt 1 lw 0.5 pt  6 ps 1.0 #
+set style line  4 lc rgb '#000000' lt 2 lw 1.0 pt  8 ps 1.0 dt 2#
+set style line  5 lc rgb '#68aefd' lt 1 lw 1.0 pt 10 ps 1.0 #
+set style line  6 lc rgb '#12129B' lt 1 lw 1.0 pt 12 ps 1.0 #
+
+# Axes
+set style line 15 lc rgb '#000000' lt 2 lw 2
+set tics nomirror out scale 1.25
+set size 1, 1
+
+set rmargin at screen 0.95
+set lmargin at screen 0.2
+set tmargin at screen 0.9
+set bmargin at screen 0.15
+
+set output "full_sum_diff.png"
+
+#set xlabel "diffraction angle (°)" offset 0, 0.7
+set xlabel "sin{/Symbol q} / {/Symbol l} (Å^{-1})" offset 0, 0.5
+set ylabel "intensity (a.u.)" 
+
+
+f_name_1 = "full.out"
+
+
+cl = 7000
+
+set label 1 "'up' + 'down'"  at 0.50,  0.45*cl
+set label 3 "'up' - 'down'" at 0.50, -0.45*cl
+
+
+set xrange [0: 0.8]
+set yrange [-cl: 1.25*cl]
+
+set xtics 0.2
+set ytics cl
+unset ytics
+
+lambda = 0.84
+
+plot f_name_1 index 0 u (sin($1*0.5*pi/180)/lambda):($5+$2)       w p notitle  ls 1,\
+     f_name_1 index 0 u (sin($1*0.5*pi/180)/lambda):($7+$4)       w l notitle  ls 2,\
+     f_name_1 index 0 u (sin($1*0.5*pi/180)/lambda):($5+$2-$7-$4-0.09*cl) w l notitle  ls 3,\
+     f_name_1 index 0 u (sin($1*0.5*pi/180)/lambda):($2-$5-0.6*cl)       w p notitle  ls 1,\
+     f_name_1 index 0 u (sin($1*0.5*pi/180)/lambda):($4-$7-0.6*cl)       w l notitle  ls 2,\
+     f_name_1 index 0 u (sin($1*0.5*pi/180)/lambda):($2-$4-$5+$7-0.9*cl) w l notitle  ls 3,\
+	 f_name_1 index 1 u (sin($6*0.5*pi/180)/lambda):(1.15*cl):('|') w labels notitle  ls 3
+	 

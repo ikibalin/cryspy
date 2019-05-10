@@ -36,7 +36,7 @@ set palette model HSV
 
 set cbrange [-500:7500]
 
-fname1 = "e_Fe3O4.out"
+fname1 = "full.out"
 
 fnameb=fname1[1:strlen(fname1)-4]
 set output fnameb."_u.png"
@@ -44,7 +44,7 @@ splot  fname1 index 0 nonuniform matrix  notitle
 set output fnameb."_d.png"
 splot  fname1 index 2 nonuniform matrix  notitle
 
-fname1 = "m_Fe3O4.out"
+fname1 = "full.out"
 
 fnameb=fname1[1:strlen(fname1)-4]
 set output fnameb."_u.png"
@@ -56,29 +56,17 @@ splot  fname1 index 2 nonuniform matrix  notitle
 set cbrange [ -4000:4000]
 
 
-fname1 = "e_Fe3O4.out"
+fname1 = "full.out"
 fnameb=fname1[1:strlen(fname1)-4]
 set output fnameb."_diff.png"
 splot  fname1 index 4 nonuniform matrix  notitle
 
-fname1 = "m_Fe3O4.out"
+fname1 = "full.out"
 fnameb=fname1[1:strlen(fname1)-4]
 set output fnameb."_diff.png"
 splot  fname1 index 4 nonuniform matrix  notitle
 
 
-
-set cbrange [ -4000:4000]
-
-fname1 = "diff_Fe3O4.out"
-
-fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_u.png"
-splot  fname1 index 0 nonuniform matrix  notitle
-set output fnameb."_d.png"
-splot  fname1 index 2 nonuniform matrix  notitle
-set output fnameb."_diff.png"
-splot  fname1 index 4 nonuniform matrix  notitle
 
 
 quit

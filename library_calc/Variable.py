@@ -14,14 +14,16 @@ class Variable(dict):
     general class for Variable
     """
     value = 0.
+    sigma = 0.
     refinement = False
     constraint = ""
-    def __init__(self, val=0., ref=False, name="", constr=""):
+    def __init__(self, val=0., ref=False, name="", constr="", sigma=0.):
         super(Variable, self).__init__()
         self[0] = val 
         self[1] = ref
         self[2] = constr
         self[3] = name
+        self[4] = sigma
     def __pos__(self):
         """
         output is float
@@ -198,7 +200,9 @@ class Variable(dict):
         """
         return  (var2 | self.refinement)
     def __getitem__(self, i):
-        if i==3:
+        if i==4:
+            return self.sigma
+        elif i==3:
             return self.name
         elif i==2:
             return self.constraint
@@ -208,7 +212,14 @@ class Variable(dict):
             return self.value
     def __setitem__(self, i, v):
         #self.check(v)
-        if i==3:
+        if i==4:
+            cond1 = isinstance(v, float)
+            cond2 = isinstance(v, int)
+            if (cond1 | cond2):
+                self.sigma = v 
+            else:
+                print ("Sigma should be integer or float type")
+        elif i==3:
             cond = isinstance(v, str)            
             if cond:
                 self.name = v 
@@ -232,12 +243,21 @@ class Variable(dict):
             if (cond1 | cond2):
                 self.value = v 
             else:
-                print ("Variable should be integer of float type")
+                print ("Variable should be integer or float type")
         return
     def __repr__(self):
-        ls_out = " {:} (refinement: {:}".format(self.value, self.refinement)
+        if self.sigma != 0.:
+            n_power = numpy.round(numpy.log10(self.sigma), decimals=0)
+            val_1 = numpy.round(self.value, decimals = -1*int(n_power)+1)
+            val_2 = numpy.round(self.sigma, decimals = -1*int(n_power)+1)
+            if n_power < 0:
+                val_2=int(val_2*10**(-n_power+1))
+            ls_out = " {:}({:})".format(val_1, int(val_2))
+        else:
+            ls_out = " {:} (refinement: {:}, sigma: {:}".format(self.value, 
+                   self.refinement, self.sigma)
         if self.name != "":
-            ls_out += ", name: {:})".format(self.name)
+            ls_out += ", {:}".format(self.name)
         else:
             ls_out += ")"
         #id(self)

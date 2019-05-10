@@ -60,8 +60,8 @@ _atom_site_susceptibility_aniso_chi_23
 _atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_12
 _atom_site_magnetism_type
- Fe3A  Fe3  1.0  2.0  -4.04558269874()  -4.04558269874()  -4.04558269874  0.0  0.0  0.0 Ciso
- Fe3B  Fe3  1.0  2.0  3.98446052732()  3.98446052732()  3.98446052732  0.0  0.0  0.0 Ciso
+ Fe3A  Fe3  1.0  2.0  -4.04558269874  -4.04558269874()  -4.04558269874  0.0  0.0  0.0 Ciso
+ Fe3B  Fe3  1.0  2.0  3.98446052732  3.98446052732()  3.98446052732  0.0  0.0  0.0 Ciso
 
 
 
@@ -80,7 +80,7 @@ _2dpd_exl2theta '(60.,90.)'
 _2dpd_beam_polarization_up 0.836865522283
 _2dpd_beam_polarization_down 0.836865522283
 
-_2dpd_resolution_u 17.4877038937
+_2dpd_resolution_u 17.4877038937()
 _2dpd_resolution_v -2.83572490939
 _2dpd_resolution_w 0.576309204074
 _2dpd_resolution_x 0.0

@@ -57,57 +57,26 @@ class RCif(object):
         fid.close()
 
     
-    def take_from_model(self, ccore):
-        def temp_func(obj, ddata, l_rcif, l_core, t_core):
+    def take_from_model(self, model):
+        def temp_func(obj, ddata, label_rcif, label_mod, type_mod):
             lkey = obj.__dict__.keys()
-            if l_core in lkey:
-                if t_core == "logic":
-                    sval = obj.__dict__[l_core]
-                    ddata[l_rcif] = sval 
-                elif t_core == "text":
-                    ddata[l_rcif] = obj.__dict__[l_core]
+            if label_mod in lkey:
+                if type_mod == "logic":
+                    sval = obj.__dict__[label_mod]
+                    ddata[label_rcif] = sval 
+                elif type_mod == "text":
+                    ddata[label_rcif] = obj.__dict__[label_mod]
                 elif t_core == "val":
-                    sval = obj.__dict__[l_core][0]
-                    ddata[l_rcif] = sval 
+                    val = obj.__dict__[label_mod]
+                    if isinstance(val, Variable):
+                        sval = "{:}({:})".format(val[0], val[4])
+                    else:
+                        sval = "{:}".format(val)
+                    ddata[label_rcif] = sval 
             return
             
         drel = rcif_model_relation()
-        lab_rcif = drel["lab_rcif_ref"]
-        lab_core = drel["lab_core_ref"]
-        type_core = drel["type_ref"]
-        d_ref = {"name": "ref"}
-        for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-            obj = ccore.ref[0]
-            temp_func(obj, d_ref, l_rcif, l_core, t_core)
         
-        l_par_ref = ccore.take_param_ref()
-        l_par_con = ccore.take_param_const()
-        if ((l_par_ref != [])|(l_par_con != [])):
-            d_ref["loops"] = []
-        if l_par_ref != []:
-            l_link_rcif = [get_link_rcif(hh, ccore) for hh in l_par_ref]
-            d_par_ref = {"_refinement_param1": l_link_rcif}
-            d_ref["loops"].append(d_par_ref)
-        if l_par_con != []:
-            l_link_rcif_1 = [get_link_rcif(hh, ccore) for hh in l_par_con]
-
-            d_par_con = {"_constraint_param1": l_link_rcif_1}
-            
-            l_link_rcif_2, l_coeff = [], []
-            lhelp = [ccore.set_val_by_link(hh, None)[0][2] for hh in l_par_con]
-            for hh in lhelp:
-                coeff = float(hh.split("[")[0].strip().replace("x1","").replace("*",""))
-                link_core_2 = hh.split("[")[1].strip()[:-1]
-                link_rcif_2 = get_link_rcif(link_core_2, ccore)
-                l_coeff.append(coeff)
-                l_link_rcif_2.append(link_rcif_2)
-                
-            d_par_con["_constraint_param2"] = l_link_rcif_2
-            d_par_con["_constraint_coeff"] = l_coeff
-
-            d_ref["loops"].append(d_par_con)
-
-        self.data.append(d_ref)
         
 
         
@@ -264,8 +233,6 @@ class RCif(object):
     def trans_to_model(self):
         l_crystal = []
         l_experiment = []
-        l_refinement = []
-        l_variable = []
         for data in self.data:
             lab_crystal = "_cell"
             lab_exp_pd_1d = "_pd"
@@ -281,22 +248,18 @@ class RCif(object):
             if flag_ph:
                 crystal, l_variable_crystal = trans_to_crystal(data)
                 l_crystal.append(crystal)
-                l_variable.extend(l_variable_crystal)
             elif flag_exp_pd:
                 f_dir = self._p_file_dir
                 experiment, l_variable_experiment = trans_pd_to_experiment(f_dir, data, l_crystal)
                 l_experiment.append(experiment)
-                l_variable.extend(l_variable_experiment)
             elif flag_exp_2dpd:
                 f_dir = self._p_file_dir
                 experiment, l_variable_experiment = trans_2dpd_to_experiment(f_dir, data, l_crystal)
                 l_experiment.append(experiment)
-                l_variable.extend(l_variable_experiment)
             elif flag_exp_sd:
                 f_dir = self._p_file_dir
                 experiment, l_variable_experiment = trans_sd_to_experiment(f_dir, data, l_crystal)
                 l_experiment.append(experiment)
-                l_variable.extend(l_variable_experiment)
             elif flag_ref:
                 pass
                 #refinement = trans_to_refinement(data)
@@ -307,8 +270,8 @@ class RCif(object):
         model = Model()
         for experiment in l_experiment:
             model.add_experiment(experiment)
-        for variable in l_variable:
-            model.add_variable(variable)
+        for crystal in l_crystal:
+            model.add_crystal(crystal) 
         
         return model
 
@@ -707,9 +670,9 @@ def rcif_model_relation():
 
 
     #ExperimentPowder1D
-    llab_rcif_experiment_1d = ["name"]
-    llab_arg_experiment_1d = ["name"]
-    ltype_experiment_1d = ["text"]
+    llab_rcif_experiment_1d = ["name", "_pd_file_name_output"]
+    llab_arg_experiment_1d = ["name", "f_out"]
+    ltype_experiment_1d = ["text", "text"]
     
     llab_rcif_beam_polarization_1d = ["_pd_beam_polarization_up", "_pd_beam_polarization_down"]
     llab_arg_beam_polarization_1d = ["p_u", "p_d"]
@@ -737,9 +700,9 @@ def rcif_model_relation():
 
 
     #ExperimentPowder2D
-    llab_rcif_experiment_2d = ["name"]
-    llab_arg_experiment_2d = ["name"]
-    ltype_experiment_2d = ["text"]
+    llab_rcif_experiment_2d = ["name", "_2dpd_file_name_output"]
+    llab_arg_experiment_2d = ["name", "f_out"]
+    ltype_experiment_2d = ["text", "text"]
     
     llab_rcif_beam_polarization_2d = ["_2dpd_beam_polarization_up", "_2dpd_beam_polarization_down"]
     llab_arg_beam_polarization_2d = ["p_u", "p_d"]
@@ -777,15 +740,9 @@ def rcif_model_relation():
     ltype_extinction = ["val", "val"]
 
 
-    #llab_rcif_experiment_sd = ["name", "_sd_file_name_output"]
-    #llab_arg_experiment_sd = ["name", "output"]
-    #ltype_experiment_sd = ["text", "text"]
-    llab_rcif_experiment_sd = ["name"]
-    llab_arg_experiment_sd = ["name"]
-    ltype_experiment_sd = ["text"]
-
-
-
+    llab_rcif_experiment_sd = ["name", "_sd_file_name_output"]
+    llab_arg_experiment_sd = ["name", "f_out"]
+    ltype_experiment_sd = ["text", "text"]
 
 
     #refinement
@@ -905,6 +862,7 @@ def from_dict_to_obj(dict_i, llab_d, obj, llab_o, ltype):
         if ltype[numb] == "val":
             #val = [dict_i[llab_d[numb]], False, ""]
             val = dict_i[llab_d[numb]]
+            val = conv_str_to_text_float_logic(val, llab_o[numb])
         elif ltype[numb] == "text":
             val = dict_i[llab_d[numb]]
         elif ltype[numb] == "list":
@@ -1092,6 +1050,9 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
     ltype = drel["type_experiment_1d"]
 
     from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)    
+    if experiment.get_val("f_out") is not None:
+        f_out = experiment.get_val("f_out")
+        experiment.set_val(f_out=os.path.join(f_dir, f_out))
     
 
     llab_rcif = drel["lab_rcif_resolution_1d"]
@@ -1120,11 +1081,11 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
     from_dict_to_obj(data, llab_rcif, beam_polarization, llab_arg, ltype)
 
 
-    f_inp=data["_pd_file_name_input"]
+    f_inp = data["_pd_file_name_input"]
     observed_data_powder_1d.read_data(os.path.join(f_dir, f_inp))
     
     
-    f_inp=data["_pd_file_name_bkgr"]
+    f_inp = data["_pd_file_name_bkgr"]
     background_powder_1d.read_data(os.path.join(f_dir, f_inp))
     
     wave_length = observed_data_powder_1d.get_val("wave_length")
@@ -1154,7 +1115,7 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
                         crystal.set_val(i_g=i_g)
                         name = crystal.get_val("name")
                         calculated_data = CalculatedDataPowder1D(field=field,
-                                scale=scale, crystal=crystal, name=name)
+                                scale=scale, name=name)
                         experiment.add_calculated_data(calculated_data)
     return experiment, l_variable
 
@@ -1204,7 +1165,10 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
     ltype = drel["type_experiment_2d"]
 
     from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)    
-    
+    if experiment.get_val("f_out") is not None:
+        f_out = experiment.get_val("f_out")
+        experiment.set_val(f_out=os.path.join(f_dir, f_out))
+
 
     llab_rcif = drel["lab_rcif_resolution_2d"]
     llab_arg = drel["lab_arg_resolution_2d"]
@@ -1272,7 +1236,7 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
                         crystal.set_val(i_g=i_g)
                         name = crystal.get_val("name")
                         calculated_data = CalculatedDataPowder2D(field=field,
-                                scale=scale, crystal=crystal, name=name)
+                                scale=scale, name=name)
                         experiment.add_calculated_data(calculated_data)
     return experiment, l_variable
 
@@ -1298,6 +1262,9 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
     ltype = drel["type_experiment_sd"] 
     
     from_dict_to_obj(data, llab_rcif, experiment, llab_arg, ltype)
+    if experiment.get_val("f_out") is not None:
+        f_out = experiment.get_val("f_out")
+        experiment.set_val(f_out=os.path.join(f_dir, f_out))
     
     
     llab_rcif = drel["lab_rcif_beam_polarization_sd"]
@@ -1350,8 +1317,7 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
                         name = crystal.get_val("name")
                         #should crystal be a deepcopy or not???
                         calculated_data = CalculatedDataSingle(field=field, 
-                                orientation=orientation, crystal=crystal,
-                                name=name)
+                                orientation=orientation, name=name)
                         experiment.add_calculated_data(calculated_data)
                         
     return experiment, l_variable

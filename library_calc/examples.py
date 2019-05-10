@@ -26,8 +26,14 @@ f_inp = os.path.join("HoTi_single", "full.rcif")
 rcif_single.load_from_file(f_inp)
 
 model_single = rcif_single.trans_to_model()
+d_map_single = {}
 d_map_single = model_single.plot_map()
-chi_sq, n_point = model_single.calc_chi_sq()
+
+
+res = model_single.refine_model(d_map_single)
+
+
+
 
 experiment_single = model_single._list_experiment[0]
 
@@ -63,6 +69,8 @@ d_map_powder_2d = {}
 model_powder_2d.refine_model(d_map_powder_2d)
 
 model_powder_2d.get_variables()
+
+
 
 observed_data_powder_2d = experiment_powder_2d.get_val("observed_data")
 
@@ -100,8 +108,13 @@ f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 rcif_powder_1d.load_from_file(f_inp)
 
 model_powder_1d = rcif_powder_1d.trans_to_model()
-d_map_powder_1d = model_powder_1d.plot_map()
+d_map_powder_1d = {}
+model_powder_1d.refine_model(d_map_powder_1d)
 
+model_powder_1d.get_variables()
+
+del model_powder_1d
+del rcif_powder_1d
 
 experiment_powder_1d = model_powder_1d._list_experiment[0]
 calculated_data_powder_1d = experiment_powder_1d._list_calculated_data[0]

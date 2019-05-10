@@ -16,34 +16,42 @@ class Model(dict):
     """
     Class to describe model
     """
-    def __init__(self, l_experiment=None, l_variable=None):
+    def __init__(self, l_experiment=None, l_variable=None, l_crystal=None):
         super(Model, self).__init__()
         self._list_experiment = []
+        self._list_crystal = []
         self._list_variable = []
-        self._refresh(l_experiment, l_variable)
+        self._refresh(l_experiment, l_crystal, l_variable)
 
     def __repr__(self):
         ls_out = """Model\n """.format()
         ls_exp = []
         for epxeriment in self._list_experiment:
             ls_exp.append("{:}".format(epxeriment))
+
+        ls_cry = []
+        for crystal in self._list_crystal:
+            ls_cry.append("{:}".format(crystal))
             
         ls_var = []
         for variable in self._list_variable:
             ls_var.append("{:}".format(variable))
         
         ls_out += "\n\n\nExperiment:\n\n"+"\n\n".join(ls_exp)
+        ls_out += "\n\n\nCrystal:\n\n"+"\n\n".join(ls_cry)
         ls_out += "\n\n\nVariable:\n\n"+"\n\n".join(ls_var)
         return ls_out
 
-    def _refresh(self, l_experiment=None, l_variable=None):
+    def _refresh(self, l_experiment=None, l_crystal=None, l_variable=None):
         if l_experiment is not None:
             self._list_experiment = l_experiment
+        if l_crystal is not None:
+            self._list_crystal = l_crystal
         if l_variable is not None:
             self._list_variable = l_variable
             
-    def set_val(self, l_experiment=None, l_variable=None):
-        self._refresh(l_experiment, l_variable)
+    def set_val(self, l_experiment=None, l_crystal=None, l_variable=None):
+        self._refresh(l_experiment, l_crystal, l_variable)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -81,6 +89,16 @@ None
         self._list_experiment.pop(ind)
         self._list_experiment.insert(ind, experiment)
 
+    def add_crystal(self, crystal):
+        self._list_crystal.append(crystal)
+
+    def del_crystal(self, ind):
+        self._list_crystal.pop(ind)        
+
+    def replace_crystal(self, ind, crystal):
+        self._list_crystal.pop(ind)
+        self._list_crystal.insert(ind, experiment)
+
     def add_variable(self, variable):
         self._list_variable.append(variable)
 
@@ -97,14 +115,17 @@ None
         """
         if d_map == {}:
             d_map.update(self.plot_map())
-        if not(d_map["flag"]|(d_map["out"] is None)):
-            chi_sq, n_res = d_map["out"]
-            return chi_sq, n_res 
+        #if not(d_map["flag"]|(d_map["out"] is None)):
+        #    chi_sq, n_res = d_map["out"]
+        #    return chi_sq, n_res 
             
+        l_crystal = self._list_crystal
+
         chi_sq_res, n_res = 0., 0.
+
         for experiment in self._list_experiment:
             name = experiment.get_val("name")
-            chi_sq, n = experiment.calc_chi_sq(d_map[("chi_sq", name)])
+            chi_sq, n = experiment.calc_chi_sq(l_crystal)#d_map[("chi_sq", name)]
             chi_sq_res += chi_sq
             n_res += n
 
@@ -124,14 +145,14 @@ None
             return None
         
         #to load d_map
-        chi_sq, n = self.calc_chi_sq(d_map)
-        
+        chi_sq, n = self.calc_chi_sq()#d_map
         l_param_0 = [variable["val"] for variable in l_variable]
 
         def tempfunc(l_param):
             for variable, param in zip(l_variable, l_param):
                 variable["val"] = param
-            chi_sq, n = self.calc_chi_sq(d_map)
+            d_map_new = {}
+            chi_sq, n = self.calc_chi_sq(d_map_new)#d_map
             return chi_sq
 
         #if self.ref[0].refin:
@@ -145,6 +166,11 @@ None
         bb = time.time()
         print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n))
         #print("\n\nResult is:\n", res)
+        
+        #very rough estimation of the errorbar        
+        l_sigma = [float(hh) for hh in numpy.std(res["final_simplex"][0],axis=0)]
+        for variable, sigma in zip(l_variable, l_sigma):
+            variable[4] = sigma
         return res
     
     def _f_callback(self, res_x):
@@ -157,6 +183,11 @@ None
             d_exp = experiment.plot_map()
             name = experiment.get_val("name")
             d_map.update({("chi_sq",name):d_exp})
+        for crystal in self._list_crystal:
+            d_cry = crystal.plot_map()
+            name = crystal.get_val("name")
+            #???
+            d_map.update({("crystal",name):d_cry})
         return d_map
 
     
@@ -164,6 +195,8 @@ None
         lres = []
         for experiment in self._list_experiment:
             lres.append(experiment.is_variable())
+        for crystal in self._list_crystal:
+            lres.append(crystal.is_variable())
         res = any(lres)
         return res
 
@@ -172,9 +205,15 @@ None
         for experiment in self._list_experiment:
             l_var = experiment.get_variables()
             l_variable.extend(l_var)
+        for crystal in self._list_crystal:
+            l_var = crystal.get_variables()
+            l_variable.extend(l_var)
         return l_variable
     
-
+    def save_exp_mod_data(self):
+        l_crystal = self._list_crystal
+        for experiment in self._list_experiment:
+            experiment.save_exp_mod_data(l_crystal)
     
 if (__name__ == "__main__"):
     pass
