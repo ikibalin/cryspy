@@ -1,20 +1,19 @@
 
                     * * * C H I L S Q * * *
 
-         Cambridge Crystallography Subroutine Library   Mark 4.40 Update:4.4.13
+         Cambridge Crystallography Subroutine Library   Mark 4.40 Update:4.4.7
 
-                    Job run on Mon Feb 08 16:27:47 2016
+                    Job run on Thu Jan 29 16:39:41 2009
 
  Crystal data file  chi.cry opened
 
  Data read by PREFIN from file chi.cry
-        6 cards  labelled A
+        5 cards  labelled A
         1 card   labelled C
         6 cards  labelled D
-        1 card   labelled E
        13 cards  labelled F
         2 cards  labelled I
-        6 cards  labelled L
+        5 cards  labelled L
         1 card   labelled N
         1 card   labelled P
         5 cards  labelled Q
@@ -75,9 +74,6 @@
     4  O1       0.1053    0.4656    0.2500    0.3666    1.0000   O    -2  0
     8  O2       0.7084    0.3268    0.0518    0.4812    1.0000   O   
     4  Mn       0.5000    0.0000    0.0000    0.3157    1.0000   Mn    1  0 -1
- Group of K :   1   1   1   1
- Vectors in the star:     0.0000    0.0000    0.0000
-
  Constraints on susceptibility tensor for Tb
 
   CH23 = 0, CH31 = 0,
@@ -122,9 +118,9 @@
 
 
                              Least Squares Refinement
-                      Paramagnetic structure factors program
+                 Paragnetic and nuclear structure factor program
 
-   50 cycles of refinement with first numbered   1
+   20 cycles of refinement with first numbered   1
 
  Printing of obs and calc values wanted
  last cycle
@@ -134,72 +130,81 @@
  Cycles to stop if max(shift/esd) <     0.0100
 
  Scale factor(s) :
-   1.0000      1.0000      1.0000      1.0000    
+   1.0000    
  Refine using polarised neutron Flipping Ratios
-
- Weights to be read with reflection data
 
  No L TFAC card read - assuming TFAC=0. and fixed
 
+ No L WGHT card given - assuming type 2
+
  Sigma read from reflection data - weight is 1/sigma squared
 
- Extinction type is  2 Becker and Coppens Gaussian model
-  Domain radius =  100.0000  Mosaic spread =    0.0000
+ No extinction correction
+
+ Input file  1.dat opened
+
+ Data input as h,k,l,Gobs,Sigma,4 coeffs,(Scale)
+
+ Polarisation of beam is  -0.91000 +or-   0.00100.  Flipping efficiency is   1.00000 +or-   0.00100
+
+ Data geometry type    8 -
+                            D3 polarised neutron diffractometer
+
+ Wavelength values     0.84000     1.00000     1.00000
+
+ Beam diffracted to right
+                            positive angles correspond to anti-clockwise rotations
+
+ CCSL UB Matrix:    0.00293   0.00122   0.18862
+                   -0.14277  -0.09266   0.00281
+                    0.07310  -0.11265  -0.00041
+
+
+ Determinant of UB matrix is     0.999903
+
+ Matrix between diffractometer axes and orthogonal crystallographic measurement axes is:
+               0.01551   0.00646   0.99986
+              -0.83879  -0.54436   0.01653
+               0.54435  -0.83886  -0.00303
+
+
+Measurement set number:  1  182 Observations read from 1 Weight 1.000
+
 
  Magnetic susceptibilities and form factors with respect to crystallographic axes are:
      Atom     Form        Susceptibility Tensor Components
              factor     11      22      33      23      31      12
-     Tb       Tb3     0.6000  0.5000  0.0154  0.0000  0.0000  0.3000
-     Mn       Mn3    -0.1312 -0.1312 -0.1312  0.0000  0.0000  0.0000
+     Tb       Tb3     4.7207  0.0001  0.0001  0.0000  0.0000  1.0000
+     Mn       Mn3     2.6074  0.0001  0.0001  0.0001  0.0001  0.0001
 
-        5 basic variable(s) :
+ Transformed susceptibility coefficients:
+      0.9999  0.0000  0.0000  0.0000 -0.0030  0.0165
+   1  0.0000  0.0165  0.0000 -0.0030  0.0000  0.9999
+      0.0000  0.0000 -0.0030  0.0165  0.9999  0.0000
 
- Tb   CH11  Tb   CH22  Tb   CH33  Tb   CH12  Mn   CH11
+      0.9999  0.0000  0.0000  0.0000  0.0030  0.0165
+   2  0.0000  0.0165  0.0000  0.0030  0.0000  0.9999
+      0.0000  0.0000 -0.0030 -0.0165 -0.9999  0.0000
 
-     2 constraint(s) - relations between shifts in variables are :
+      0.9999  0.0000  0.0000  0.0000 -0.0030 -0.0165
+   3  0.0000  0.0165  0.0000  0.0030  0.0000 -0.9999
+      0.0000  0.0000 -0.0030 -0.0165  0.9999  0.0000
 
- Mn   CH22 = Mn   CH11
- Mn   CH33 = Mn   CH11
-
- Input file  50k7a.dat opened
- Refine using polarised neutron Flipping Ratios
-Wavelength      1.4000
-U Matrix:       0.0155  0.0065  0.9999
-               -0.8388 -0.5444  0.0165
-                0.5444 -0.8389 -0.0030
-Polarisation   -0.9100  0.9100 parallel to  0.9999  0.0165 -0.0030
-Magnetic Field    7.00 T
- Data input as h,k,l,Gobs,Sigma,4 coeffs,(Scale)
- Measurement set number:  1  182 Observations read from 50k7a.dat Weight 1.000
+      0.9999  0.0000  0.0000  0.0000  0.0030 -0.0165
+   4  0.0000  0.0165  0.0000 -0.0030  0.0000 -0.9999
+      0.0000  0.0000 -0.0030  0.0165 -0.9999  0.0000
 
 
- Input file  50k7c.dat opened
- Refine using polarised neutron Flipping Ratios
-Wavelength      1.4000
-U Matrix:       0.3505 -0.9323  0.0893
-                0.9333  0.3556  0.0501
-               -0.0785  0.0658  0.9947
-Polarisation   -0.9100  0.9100 parallel to  0.0893  0.0501  0.9947
-Magnetic Field    7.00 T
- Data input as h,k,l,Gobs,Sigma,4 coeffs,(Scale)
- Measurement set number:  2  310 Observations read from 50k7c.dat Weight 1.000
+        3 basic variable(s) :
 
+ Tb   CH11  Tb   CH12  Mn   CH11
 
- R1=Sum diffs/Sum obs =   27.05    
- R2=Sum of diffs of squares/Sum obs squared =    47.98    
- Chi squared =    209.     Sum weighted diffs sqrd =   0.369E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    8.910    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   20.83    
-
- R1=Sum diffs/Sum obs =   43.78    
- R2=Sum of diffs of squares/Sum obs squared =    153.7    
- Chi squared =   0.516E+04 Sum weighted diffs sqrd =   0.634E+06
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    27.22    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   61.84    
- Chisqrd over all  2 data sets:  2200.3
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   49.91    
+ R2=Sum of diffs of squares/Sum obs squared =    138.8    
+ Chi squared =   0.201E+04 Sum weighted diffs sqrd =   0.359E+06
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    21.81    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   68.31    
 
 
 
@@ -207,39 +212,30 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  1
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW    0.615      0.1    0.027     0.35
-   ESD    0.054      1.7    0.019     0.17
- SHIFT    0.015     -0.4    0.011     0.05
-   OLD    0.600      0.5    0.015     0.30
- SH/SD  0.27232  0.21679  0.57817  0.32022
+  Tb     CH11     CH12
+   NEW     4.26     2.01
+   ESD     0.24     0.42
+ SHIFT    -0.46     1.01
+   OLD     4.72     1.00
+ SH/SD  1.89454  2.39517
 
-  Mn     CH11     CH22     CH33
-   NEW  -0.0563  -0.0563  -0.0563
-   ESD   0.0076   0.0076   0.0076
- SHIFT   0.0749   0.0749   0.0749
-   OLD  -0.1312  -0.1312  -0.1312
- SH/SD  9.88057  9.88057  9.88057
+  Mn     CH11
+   NEW     0.85
+   ESD     0.14
+ SHIFT    -1.75
+   OLD     2.61
+ SH/SD 12.22098
 
 
- Average SHIFT/ESD for cycle   1 =    4.4327    
- Maximum SHIFT/ESD =     9.8806    
+ Average SHIFT/ESD for cycle   1 =    5.5036    
+ Maximum SHIFT/ESD =     12.221    
 
- R1=Sum diffs/Sum obs =   23.77    
- R2=Sum of diffs of squares/Sum obs squared =    43.58    
- Chi squared =    65.8     Sum weighted diffs sqrd =   0.117E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    5.231    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   11.06    
-
- R1=Sum diffs/Sum obs =   26.18    
- R2=Sum of diffs of squares/Sum obs squared =    58.86    
- Chi squared =   0.125E+04 Sum weighted diffs sqrd =   0.154E+06
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    15.83    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   29.62    
- Chisqrd over all  2 data sets:   542.4
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   28.12    
+ R2=Sum of diffs of squares/Sum obs squared =    50.62    
+ Chi squared =    176.     Sum weighted diffs sqrd =   0.315E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    10.88    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   20.17    
 
 
 
@@ -247,39 +243,30 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  2
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW    0.631     0.40    0.023    0.363
-   ESD    0.032     0.90    0.010    0.093
- SHIFT    0.016     0.27   -0.004    0.009
-   OLD    0.615     0.13    0.027    0.354
- SH/SD  0.50747  0.29875  0.37991  0.09495
+  Tb     CH11     CH12
+   NEW    4.393     2.48
+   ESD    0.085     0.22
+ SHIFT    0.129     0.46
+   OLD    4.263     2.01
+ SH/SD  1.52700  2.15267
 
-  Mn     CH11     CH22     CH33
-   NEW   0.0205   0.0205   0.0205
-   ESD   0.0080   0.0080   0.0080
- SHIFT   0.0768   0.0768   0.0768
-   OLD  -0.0563  -0.0563  -0.0563
- SH/SD  9.64997  9.64997  9.64997
+  Mn     CH11
+   NEW    0.087
+   ESD    0.082
+ SHIFT   -0.766
+   OLD    0.853
+ SH/SD  9.33749
 
 
- Average SHIFT/ESD for cycle   2 =    4.3187    
- Maximum SHIFT/ESD =     9.6500    
+ Average SHIFT/ESD for cycle   2 =    4.3391    
+ Maximum SHIFT/ESD =     9.3375    
 
- R1=Sum diffs/Sum obs =   25.91    
- R2=Sum of diffs of squares/Sum obs squared =    52.20    
- Chi squared =    74.8     Sum weighted diffs sqrd =   0.132E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    5.610    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.81    
-
- R1=Sum diffs/Sum obs =   15.54    
- R2=Sum of diffs of squares/Sum obs squared =    37.95    
- Chi squared =    92.7     Sum weighted diffs sqrd =   0.114E+05
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    4.098    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   8.287    
- Chisqrd over all  2 data sets:    80.8
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   26.37    
+ R2=Sum of diffs of squares/Sum obs squared =    53.28    
+ Chi squared =    80.4     Sum weighted diffs sqrd =   0.144E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.440    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.71    
 
 
 
@@ -287,39 +274,30 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  3
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW   0.6401     0.46   0.0386    0.363
-   ESD   0.0092     0.22   0.0024    0.025
- SHIFT   0.0093     0.05   0.0159    0.001
-   OLD   0.6308     0.40   0.0227    0.363
- SH/SD  1.01453  0.25142  6.74914  0.02693
+  Tb     CH11     CH12
+   NEW    4.419     2.77
+   ESD    0.060     0.16
+ SHIFT    0.026     0.29
+   OLD    4.393     2.48
+ SH/SD  0.43692  1.81471
 
-  Mn     CH11     CH22     CH33
-   NEW   0.0410   0.0410   0.0410
-   ESD   0.0022   0.0022   0.0022
- SHIFT   0.0205   0.0205   0.0205
-   OLD   0.0205   0.0205   0.0205
- SH/SD  9.40759  9.40759  9.40759
+  Mn     CH11
+   NEW    0.182
+   ESD    0.037
+ SHIFT    0.095
+   OLD    0.087
+ SH/SD  2.53321
 
 
- Average SHIFT/ESD for cycle   3 =    5.1807    
- Maximum SHIFT/ESD =     9.4076    
+ Average SHIFT/ESD for cycle   3 =    1.5949    
+ Maximum SHIFT/ESD =     2.5332    
 
- R1=Sum diffs/Sum obs =   25.24    
- R2=Sum of diffs of squares/Sum obs squared =    53.43    
- Chi squared =    76.1     Sum weighted diffs sqrd =   0.135E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    5.907    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   11.01    
-
- R1=Sum diffs/Sum obs =   16.01    
- R2=Sum of diffs of squares/Sum obs squared =    61.64    
- Chi squared =    14.1     Sum weighted diffs sqrd =   0.174E+04
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    1.795    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   3.568    
- Chisqrd over all  2 data sets:    49.8
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   25.35    
+ R2=Sum of diffs of squares/Sum obs squared =    50.80    
+ Chi squared =    73.0     Sum weighted diffs sqrd =   0.131E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.833    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   11.22    
 
 
 
@@ -327,39 +305,30 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  4
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW   0.6418    0.555  0.03879    0.363
-   ESD   0.0037    0.090  0.00084    0.010
- SHIFT   0.0018    0.099  0.00020    0.000
-   OLD   0.6401    0.457  0.03859    0.363
- SH/SD  0.47839  1.10306  0.23859  0.02675
+  Tb     CH11     CH12
+   NEW    4.424     2.60
+   ESD    0.058     0.17
+ SHIFT    0.005    -0.17
+   OLD    4.419     2.77
+ SH/SD  0.08712  0.97074
 
-  Mn     CH11     CH22     CH33
-   NEW  0.04153  0.04153  0.04153
-   ESD  0.00083  0.00083  0.00083
- SHIFT  0.00053  0.00053  0.00053
-   OLD  0.04100  0.04100  0.04100
- SH/SD  0.63744  0.63744  0.63744
+  Mn     CH11
+   NEW    0.195
+   ESD    0.032
+ SHIFT    0.013
+   OLD    0.182
+ SH/SD  0.39649
 
 
- Average SHIFT/ESD for cycle   4 =   0.53702    
- Maximum SHIFT/ESD =     1.1031    
+ Average SHIFT/ESD for cycle   4 =   0.48478    
+ Maximum SHIFT/ESD =    0.97074    
 
- R1=Sum diffs/Sum obs =   25.30    
- R2=Sum of diffs of squares/Sum obs squared =    53.98    
- Chi squared =    76.2     Sum weighted diffs sqrd =   0.135E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    5.919    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   11.01    
-
- R1=Sum diffs/Sum obs =   15.73    
- R2=Sum of diffs of squares/Sum obs squared =    58.50    
- Chi squared =    13.8     Sum weighted diffs sqrd =   0.169E+04
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    1.781    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   3.527    
- Chisqrd over all  2 data sets:    49.8
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   25.38    
+ R2=Sum of diffs of squares/Sum obs squared =    51.13    
+ Chi squared =    72.5     Sum weighted diffs sqrd =   0.130E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.761    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.98    
 
 
 
@@ -367,39 +336,30 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  5
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW   0.6420    0.562  0.03884   0.3634
-   ESD   0.0036    0.089  0.00083   0.0100
- SHIFT   0.0002    0.007  0.00005  -0.0001
-   OLD   0.6418    0.555  0.03879   0.3635
- SH/SD  0.05879  0.07815  0.05471  0.00995
+  Tb     CH11     CH12
+   NEW    4.427     2.60
+   ESD    0.058     0.16
+ SHIFT    0.003     0.00
+   OLD    4.424     2.60
+ SH/SD  0.04546  0.01939
 
-  Mn     CH11     CH22     CH33
-   NEW  0.04157  0.04157  0.04157
-   ESD  0.00082  0.00082  0.00082
- SHIFT  0.00004  0.00004  0.00004
-   OLD  0.04153  0.04153  0.04153
- SH/SD  0.05121  0.05121  0.05121
+  Mn     CH11
+   NEW    0.198
+   ESD    0.031
+ SHIFT    0.004
+   OLD    0.195
+ SH/SD  0.11648
 
 
- Average SHIFT/ESD for cycle   5 =   0.50746E-01
- Maximum SHIFT/ESD =    0.78150E-01
+ Average SHIFT/ESD for cycle   5 =   0.60441E-01
+ Maximum SHIFT/ESD =    0.11648    
 
- R1=Sum diffs/Sum obs =   25.31    
- R2=Sum of diffs of squares/Sum obs squared =    54.04    
- Chi squared =    76.2     Sum weighted diffs sqrd =   0.135E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    5.919    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   11.01    
-
- R1=Sum diffs/Sum obs =   15.71    
- R2=Sum of diffs of squares/Sum obs squared =    58.34    
- Chi squared =    13.7     Sum weighted diffs sqrd =   0.169E+04
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    1.785    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   3.533    
- Chisqrd over all  2 data sets:    49.8
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   25.37    
+ R2=Sum of diffs of squares/Sum obs squared =    51.20    
+ Chi squared =    72.5     Sum weighted diffs sqrd =   0.130E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.763    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.98    
 
 
 
@@ -407,354 +367,30 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  6
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW   0.6420    0.563  0.03884   0.3634
-   ESD   0.0036    0.089  0.00083   0.0100
- SHIFT   0.0000    0.001  0.00000   0.0000
-   OLD   0.6420    0.562  0.03884   0.3634
- SH/SD  0.00755  0.00584  0.00440  0.00068
+  Tb     CH11     CH12
+   NEW    4.427     2.60
+   ESD    0.058     0.16
+ SHIFT    0.000     0.00
+   OLD    4.427     2.60
+ SH/SD  0.00728  0.01893
 
-  Mn     CH11     CH22     CH33
-   NEW  0.04158  0.04158  0.04158
-   ESD  0.00082  0.00082  0.00082
- SHIFT  0.00000  0.00000  0.00000
-   OLD  0.04157  0.04157  0.04157
- SH/SD  0.00414  0.00414  0.00414
-
-
- Average SHIFT/ESD for cycle   6 =   0.44146E-02
- Maximum SHIFT/ESD =    0.75517E-02
+  Mn     CH11
+   NEW    0.198
+   ESD    0.031
+ SHIFT   -0.001
+   OLD    0.198
+ SH/SD  0.02409
 
 
- Structure factor listing :
-     h    k    l     G(obs)   G(calc)     Diff   F(nucl)    F(mag)    mod Fc    Scale    Weight
-     1    1    0     0.262     0.261     0.001    2.8288    2.3121    3.6535    1.0000  0.7716E+05
-     2    1    0     0.509     0.496     0.014    2.3345    1.6113    2.8366    1.0000  0.1778E+05
-     0    2    0     2.134     1.935     0.200    0.4370    2.4178    2.4569    1.0000   2657.    
-     1    2    0     0.757     0.649     0.107    2.9018    0.3989    2.9291    1.0000  0.1731E+05
-     2    2    0     0.495     0.403     0.092    2.8014    1.1685    3.0353    1.0000  0.1890E+06
-     1    3    0     2.208     0.939     1.269    0.9491    0.0175    0.9493    1.0000   466.5    
-     2    3    0     2.339     2.036     0.303    0.7350    0.1844    0.7578    1.0000   22.94    
-     0    4    0     0.213     0.263    -0.050    2.7904    1.0134    2.9687    1.0000  0.4938E+05
-     1    4    0     0.811     0.833    -0.023    5.1250    0.2682    5.1320    1.0000  0.1276E+06
-     2    4    0     0.150     0.128     0.021    0.9849    0.8029    1.2707    1.0000   3303.    
-     1    5    0     0.145     0.111     0.034    0.9770    1.5401    1.8238    1.0000   7432.    
-     2    5    0     0.414     2.397    -1.983    0.1030    0.3861    0.3996    1.0000   147.6    
-     0    6    0     3.028     3.095    -0.067    0.4033    1.3103    1.3710    1.0000   26.49    
-     1    6    0     0.582     0.219     0.364    0.3050    0.1292    0.3313    1.0000   33.18    
-     2    6    0     0.614     0.615    -0.002    7.3351    1.0510    7.4100    1.0000  0.5165E+05
-     1    7    0     0.088     0.069     0.019    1.0376    0.8185    1.3216    1.0000   1765.    
-     2    7    0     1.092     1.079     0.012    3.9211    0.0868    3.9220    1.0000   2356.    
-     0    8    0     0.827     0.809     0.018    6.0450    0.3510    6.0552    1.0000   4691.    
-     1    8    0     0.959     1.003    -0.043    1.2836    0.0009    1.2836    1.0000   51.02    
-     1    0    1     0.510     0.313     0.197    0.1610    0.1374    0.2117    1.0000   83.25    
-     1    1    1     0.201     0.193     0.008    1.4732    1.6054    2.1789    1.0000  0.1041E+06
-     2    1    1     0.629     0.622     0.007    2.7663    1.0474    2.9580    1.0000  0.2268E+06
-     0    2    1     0.712     0.708     0.004    0.3203    3.3781    3.3932    1.0000  0.2500E+06
-     1    2    1     3.503     3.184     0.320    1.9915    1.0740    2.2627    1.0000   220.1    
-     2    2    1     0.285     0.286    -0.002    3.2380    1.9742    3.7924    1.0000  0.6944E+06
-     1    3    1     0.108     0.104     0.004    4.0113    2.9327    4.9690    1.0000  0.8264E+06
-     2    3    1     0.237     0.205     0.032    1.0450    0.9449    1.4089    1.0000  0.2100E+05
-     0    4    1     0.055     0.048     0.007    2.2101    2.2987    3.1888    1.0000  0.5917E+06
-     1    4    1     1.606     1.794    -0.188    1.4239    0.3448    1.4650    1.0000   891.1    
-     2    4    1     0.189     0.170     0.019    1.0291    1.6609    1.9538    1.0000  0.2778E+05
-     1    5    1     0.342     0.347    -0.005    3.3979    1.0122    3.5454    1.0000  0.4726E+05
-     2    5    1     1.089     0.815     0.273    1.1780    0.1103    1.1832    1.0000   195.6    
-     0    6    1     1.472     1.307     0.166    2.0323    0.1493    2.0378    1.0000   414.8    
-     1    6    1     1.831     1.300     0.530    0.7228    0.0542    0.7248    1.0000   5.536    
-     1    9    1     0.101     0.359    -0.257    1.0703    0.3027    1.1123    1.0000   102.4    
-     0    0    2     0.102     0.067     0.035    3.0673    4.0894    5.1119    1.0000  0.5102E+06
-     2    0    2     0.630     0.610     0.021    8.0459    1.9490    8.2786    1.0000  0.1929E+05
-     1    1    2     3.420     2.926     0.494    1.1179    3.1578    3.3498    1.0000   387.5    
-     2    1    2     1.452     1.487    -0.035    1.2623    1.5399    1.9911    1.0000   432.2    
-     0    2    2     0.375     0.405    -0.030    7.1507    1.7644    7.3651    1.0000  0.1208E+05
-     1    2    2     1.084     1.158    -0.074    3.5728    0.6810    3.6371    1.0000  0.1984E+05
-     2    2    2     0.240     0.255    -0.015    1.7378    1.0278    2.0190    1.0000  0.2163E+05
-     1    3    2     1.169     1.671    -0.502    1.7937    0.2705    1.8140    1.0000   2829.    
-     2    3    2     2.311     1.593     0.718    1.2094    0.1913    1.2245    1.0000   47.17    
-     0    4    2     3.219     4.392    -1.173    2.8434    1.1412    3.0639    1.0000   21.73    
-     1    4    2     1.754     1.493     0.261    1.9523    0.3066    1.9762    1.0000   124.0    
-     2    4    2     0.344     0.184     0.160    0.5055    0.8887    1.0224    1.0000   976.6    
-     1    5    2     0.385     0.400    -0.015    5.0660    1.3047    5.2313    1.0000  0.1111E+06
-     2    5    2     1.578     1.465     0.113    2.8788    0.3943    2.9057    1.0000   1479.    
-     0    6    2     0.302     0.302     0.000    3.9556    1.2883    4.1601    1.0000  0.5408E+05
-     1    6    2     0.806     0.822    -0.016    2.0045    0.2062    2.0151    1.0000   1858.    
-     2    6    2    11.211     9.375     1.836    1.4394    1.0324    1.7713    1.0000  0.2234    
-     1    7    2     0.471     0.530    -0.059    4.1038    0.7247    4.1673    1.0000  0.2100E+05
-     2    7    2     2.631     1.555     1.077    0.5718    0.1123    0.5828    1.0000  0.4931E-01
-     1    8    2     1.042     1.000     0.041    2.9270    0.0350    2.9272    1.0000   439.5    
-     1    0    3     1.264     1.126     0.138    4.8727    0.1753    4.8758    1.0000   3810.    
-     1    1    3     0.180     0.156     0.025    2.6480    1.5700    3.0785    1.0000  0.1111E+06
-     2    1    3     0.481     0.576    -0.095    1.5446    0.8694    1.7725    1.0000  0.5949E+05
-     0    2    3     0.115     0.106     0.009    4.5714    2.7835    5.3521    1.0000  0.8651E+05
-     1    2    3     0.534     0.606    -0.072    0.8584    1.2099    1.4835    1.0000  0.2296E+05
-     2    2    3     1.646     1.860    -0.213    0.4066    1.9015    1.9445    1.0000   3956.    
-     1    3    3     0.113     0.112     0.001    3.8143    2.5046    4.5631    1.0000  0.1736E+06
-     2    3    3     0.679     0.659     0.020    3.4988    0.9492    3.6252    1.0000   8116.    
-     0    4    3    15.007    16.697    -1.690    2.4352    1.9409    3.1141    1.0000  0.6265    
-     1    4    3     0.846     0.699     0.147    0.2729    0.5564    0.6197    1.0000   76.01    
-     2    4    3     0.395     0.388     0.006    4.9729    1.4580    5.1822    1.0000  0.1372E+06
-     1    5    3     0.245     0.280    -0.035    2.4412    0.8694    2.5914    1.0000  0.1984E+05
-     2    5    3     0.749     1.244    -0.495    0.4023    0.1961    0.4476    1.0000   64.00    
-     0    6    3    -0.129     1.695    -1.824    0.8858    0.1281    0.8950    1.0000   72.80    
-     1    6    3     0.940     0.954    -0.014    3.5938    0.0539    3.5943    1.0000   6610.    
-     1    8    3     1.510     1.061     0.450    2.2781    0.0693    2.2791    1.0000   8.535    
-     1    9    3     0.311     0.528    -0.217    1.4332    0.2534    1.4554    1.0000   275.9    
-     0    0    4     0.108     0.079     0.028    4.9017    3.4111    5.9718    1.0000  0.4444E+06
-     2    0    4     0.316     0.311     0.005    0.9531    2.3118    2.5006    1.0000   8900.    
-     1    1    4     0.079     0.074     0.005    2.3907    2.3313    3.3392    1.0000  0.4444E+06
-     2    1    4     0.972     0.931     0.042    0.8323    1.2350    1.4892    1.0000   3764.    
-     0    2    4     0.070     0.050     0.020    1.4513    1.6237    2.1777    1.0000  0.2367E+05
-     1    2    4     0.921     1.025    -0.104    0.2294    0.6829    0.7204    1.0000   487.3    
-     2    2    4     0.151     0.126     0.025    1.1485    1.1314    1.6122    1.0000  0.2296E+05
-     1    3    4     0.995     1.876    -0.881    0.0949    0.0533    0.1088    1.0000   74.44    
-     2    3    4     2.765     1.819     0.946    0.9058    0.1750    0.9225    1.0000   6.782    
-     0    4    4     0.157     0.186    -0.029    1.6259    0.7411    1.7868    1.0000   7972.    
-     1    4    4     0.766     0.789    -0.023    2.1606    0.3104    2.1828    1.0000   5739.    
-     2    4    4     0.306     0.356    -0.050    1.9220    0.6071    2.0156    1.0000  0.1181E+05
-     1    5    4     0.072     0.077    -0.005    1.4910    1.1238    1.8671    1.0000   6299.    
-     0    6    4     0.101     0.237    -0.135    2.4869    0.9720    2.6701    1.0000   7305.    
-     2    6    4     0.529     0.563    -0.034    4.7508    0.7915    4.8163    1.0000  0.2520E+05
-     1    7    4     0.049     0.163    -0.114    1.2011    0.6015    1.3433    1.0000   754.7    
-     2    7    4     1.040     1.069    -0.029    2.4835    0.1331    2.4871    1.0000   840.2    
-     0    8    4     0.739     0.787    -0.047    3.9093    0.2578    3.9178    1.0000   91.92    
-     2    8    4     0.499     0.730    -0.231    2.3171    0.2077    2.3264    1.0000   195.6    
-     1    0    5     0.778     0.860    -0.082    3.0119    0.1293    3.0147    1.0000  0.2367E+05
-     1    1    5     0.130     0.106     0.024    0.7639    1.1454    1.3767    1.0000   1502.    
-     2    1    5     0.753     0.811    -0.058    3.3361    0.6153    3.3924    1.0000  0.5165E+05
-     0    2    5    17.593    20.900    -3.307    2.0617    1.9539    2.8404    1.0000   2.344    
-     1    2    5     1.252     1.144     0.108    3.5145    0.9575    3.6426    1.0000  0.1384E+05
-     2    2    5     0.410     0.401     0.010    5.1994    1.4827    5.4067    1.0000  0.1736E+06
-     1    3    5     0.195     0.197    -0.003    3.9890    1.8241    4.3863    1.0000  0.2066E+06
-     2    3    5     1.306     1.449    -0.144    0.3952    0.7798    0.8742    1.0000   187.1    
-     0    4    5     0.342     0.340     0.002    4.7894    1.4076    4.9920    1.0000  0.1111E+06
-     1    4    5     1.047     1.078    -0.031    2.3216    0.5410    2.3838    1.0000   2475.    
-     2    4    5     3.228    11.472    -8.244    1.2102    1.1049    1.6387    1.0000   60.94    
-     1    5    5     0.539     0.546    -0.007    3.8124    0.6442    3.8665    1.0000  0.1877E+05
-     2    5    5     1.153     1.008     0.144    2.0156    0.2061    2.0262    1.0000   535.8    
-     0    6    5     1.356     1.143     0.213    2.5830    0.0946    2.5847    1.0000   441.4    
-     1    6    5     1.119     1.043     0.076    3.1354    0.0464    3.1358    1.0000   2204.    
-     2    6    5     0.799     0.690     0.109    0.6276    0.0714    0.6317    1.0000   11.47    
-     0    8    5     0.854     0.853     0.002    6.2035    0.2718    6.2095    1.0000   6009.    
-     1    8    5     0.963     0.965    -0.002    2.4436    0.0696    2.4446    1.0000   1034.    
-     0    0    6     0.408     0.400     0.008    8.0477    2.0145    8.2960    1.0000  0.4444E+06
-     2    0    6     0.211     0.230    -0.019    3.3799    1.5516    3.7190    1.0000  0.1276E+06
-     1    1    6     2.055     2.353    -0.298    0.4169    1.7322    1.7817    1.0000   82.64    
-     2    1    6     1.237     1.071     0.165    0.9940    0.8358    1.2987    1.0000   413.1    
-     0    2    6     0.389     0.432    -0.044    3.9791    0.9117    4.0822    1.0000  0.7716E+05
-     1    2    6     1.453     1.199     0.254    0.5639    0.4930    0.7490    1.0000   23.18    
-     2    2    6     0.537     0.565    -0.028    4.1121    0.7086    4.1727    1.0000  0.5165E+05
-     1    3    6     1.126     1.166    -0.040    2.9618    0.1331    2.9648    1.0000   3956.    
-     2    3    6     3.445     1.642     1.803    0.8470    0.1297    0.8569    1.0000   1.188    
-     0    4    6     4.011     8.823    -4.813    0.9915    0.5848    1.1511    1.0000   5.057    
-     1    4    6     0.812     0.888    -0.076    2.4669    0.2430    2.4789    1.0000   4628.    
-     2    4    6     3.090     5.372    -2.282    0.9467    0.4803    1.0615    1.0000   7.589    
-     1    5    6     0.483     0.528    -0.044    4.0659    0.7228    4.1296    1.0000  0.2778E+05
-     2    5    6     1.911     1.473     0.438    1.0256    0.2894    1.0657    1.0000   7.234    
-     2    6    6     0.322     0.436    -0.114    2.3754    0.5664    2.4420    1.0000   2799.    
-     1    7    6     0.605     0.680    -0.074    3.6922    0.3954    3.7133    1.0000   7182.    
-     2    7    6     1.007     1.031    -0.024    2.5810    0.1156    2.5836    1.0000   891.1    
-     1    0    7     1.160     1.071     0.089    4.2174    0.0807    4.2182    1.0000  0.1208E+05
-     1    1    7     0.370     0.349     0.020    2.4330    0.7149    2.5358    1.0000  0.1984E+05
-     2    1    7     0.626     0.766    -0.141    1.5325    0.3823    1.5795    1.0000   2922.    
-     0    2    7     0.335     0.335     0.000    4.0528    1.2071    4.2288    1.0000  0.7716E+05
-     1    2    7     0.656     0.845    -0.189    0.6149    0.6207    0.8737    1.0000   409.8    
-     2    2    7     1.171     1.311    -0.140    0.0770    0.9677    0.9707    1.0000   137.8    
-     1    3    7     0.313     0.320    -0.007    3.6513    1.1542    3.8294    1.0000  0.5408E+05
-     2    3    7     0.927     0.916     0.011    3.1087    0.5269    3.1531    1.0000   5653.    
-     0    4    7     6.017     5.617     0.401    1.9039    0.8891    2.1013    1.0000   7.547    
-     1    4    7     0.680     0.971    -0.291    0.1405    0.3926    0.4169    1.0000   8.733    
-     2    4    7     0.538     0.573    -0.035    4.4506    0.7189    4.5083    1.0000  0.2601E+05
-     1    5    7     0.454     0.538    -0.084    2.3869    0.4112    2.4220    1.0000   4890.    
-     2    5    7     0.451     0.837    -0.387    0.2769    0.1571    0.3184    1.0000   35.86    
-     1    6    7     0.933     0.972    -0.039    3.0767    0.0327    3.0769    1.0000   3265.    
-     2    7    7     0.503     0.746    -0.242    0.4556    0.0549    0.4589    1.0000   11.24    
-     0    0    8     0.786     0.924    -0.138    0.0270    1.2435    1.2437    1.0000   1639.    
-     2    0    8     0.494     0.491     0.003    4.8430    1.0017    4.9455    1.0000  0.3560E+05
-     1    1    8     0.133     0.144    -0.011    1.7533    0.9429    1.9907    1.0000   7972.    
-     2    1    8     0.859     0.908    -0.049    1.2136    0.4929    1.3099    1.0000   425.1    
-     0    2    8     0.579     0.575     0.004    3.9347    0.5970    3.9798    1.0000  0.2520E+05
-     1    2    8     0.934     0.958    -0.025    3.3575    0.2982    3.3707    1.0000   7182.    
-     2    2    8     3.918     4.444    -0.527    1.0942    0.4809    1.1952    1.0000   2.939    
-     1    3    8     0.806     0.908    -0.102    1.0616    0.0371    1.0623    1.0000   198.9    
-     0    4    8     0.491     0.720    -0.229    0.0277    0.3081    0.3093    1.0000   4.897    
-     1    4    8     1.161     1.083     0.078    1.8912    0.1543    1.8975    1.0000   577.8    
-     2    4    8     0.745     0.750    -0.005    3.1236    0.2595    3.1344    1.0000   4006.    
-     1    5    8     0.403     0.474    -0.071    2.1455    0.4433    2.1908    1.0000   3380.    
-     0    6    8     0.745     0.799    -0.054    6.3013    0.3889    6.3133    1.0000  0.1984E+05
-     1    6    8     1.094     0.971     0.123    1.8468    0.1549    1.8533    1.0000   254.4    
-     2    6    8     0.002     0.377    -0.375    1.1481    0.3181    1.1913    1.0000   74.83    
-     1    1    9     0.341     0.381    -0.040    1.4633    0.3911    1.5147    1.0000   1694.    
-     2    1    9     0.869     0.906    -0.037    2.3297    0.2082    2.3390    1.0000   1941.    
-     0    2    9     0.177     0.054     0.123    0.7770    0.6567    1.0173    1.0000   458.5    
-     1    2    9     1.071     1.056     0.015    1.4875    0.3450    1.5270    1.0000   401.6    
-     2    2    9     0.464     0.490    -0.025    2.6262    0.5387    2.6809    1.0000   5102.    
-     1    3    9     0.481     0.534    -0.053    3.6347    0.6315    3.6891    1.0000  0.1417E+05
-     2    3    9     1.051     0.924     0.128    1.1379    0.2972    1.1761    1.0000   49.87    
-     0    4    9     0.258     0.341    -0.083    1.6411    0.4817    1.7103    1.0000   1141.    
-     1    4    9     1.095     0.993     0.102    1.0999    0.2282    1.1233    1.0000   59.45    
-     1    5    9     0.672     0.766    -0.094    2.9703    0.2194    2.9784    1.0000   4328.    
-     2    5    9     1.277     1.064     0.213    0.8805    0.0916    0.8852    1.0000   10.17    
-     0    6    9     0.916     1.069    -0.153    1.6657    0.0306    1.6660    1.0000   99.40    
-     0    0   10     0.803     0.797     0.006    9.6449    0.6000    9.6636    1.0000  0.7716E+05
-     2    0   10     0.198     0.244    -0.046    1.2253    0.4938    1.3210    1.0000   775.9    
-     1    1   10     0.333     1.230    -0.898    0.0287    0.5002    0.5010    1.0000   25.92    
-     2    1   10     1.117     1.047     0.070    1.8746    0.2485    1.8910    1.0000   368.4    
-     0    2   10     0.598     0.652    -0.054    2.3775    0.2790    2.3938    1.0000   3265.    
-     1    2   10     1.166     1.037     0.129    2.2796    0.1524    2.2847    1.0000   811.7    
-     1    3   10     1.052     1.032     0.020    3.2402    0.0308    3.2404    1.0000   2311.    
-     1    4   10     0.996     0.984     0.012    4.1636    0.0786    4.1643    1.0000   4959.    
-     2    4   10     1.691     1.366     0.325    1.4718    0.1311    1.4776    1.0000   26.22    
-     1    1   11     0.447     0.593    -0.146    1.2350    0.1786    1.2478    1.0000   348.1    
-     2    1   11     0.922     0.957    -0.036    2.3536    0.0935    2.3554    1.0000   1240.    
-     0    2   11     0.856     0.098     0.758    0.1872    0.2970    0.3511    1.0000   229.6    
-     2    2   11     0.708     0.754    -0.046    3.0215    0.2419    3.0312    1.0000   2829.    
-     1    3   11     0.655     0.749    -0.094    3.4899    0.2792    3.5011    1.0000   6104.    
+ Average SHIFT/ESD for cycle   6 =   0.16766E-01
+ Maximum SHIFT/ESD =    0.24094E-01
 
- R1=Sum diffs/Sum obs =   25.31    
- R2=Sum of diffs of squares/Sum obs squared =    54.05    
- Chi squared =    76.2     Sum weighted diffs sqrd =   0.135E+05
- For   182 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    5.919    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   11.01    
-     h    k    l     G(obs)   G(calc)     Diff   F(nucl)    F(mag)    mod Fc    Scale    Weight
-     2    0    0     2.509     2.390     0.119    1.9564    0.4976    2.0187    1.0000   2194.    
-    -2    0    0     2.482     2.390     0.093    1.9564    0.4976    2.0187    1.0000   4047.    
-    -6    0    0     0.402     7.149    -6.746    0.1508    0.0986    0.1802    1.0000   1.333    
-     1    1    0     1.078     1.046     0.032    2.8288    0.1035    2.8307    1.0000  0.9352E+05
-     1   -1    0     1.017     1.007     0.010    2.8288    0.3255    2.8475    1.0000  0.1294E+06
-     2    1    0     1.025     1.020     0.005    2.3345    0.1147    2.3373    1.0000  0.1635E+05
-     2   -1    0     0.980     0.996    -0.016    2.3345    0.1760    2.3411    1.0000  0.2324E+05
-     3    1    0     1.013     0.989     0.024    3.3776    0.0493    3.3780    1.0000   2799.    
-     3   -1    0     1.008     0.978     0.030    3.3776    0.1524    3.3810    1.0000   7654.    
-     4    1    0     1.011     0.983     0.028    3.3749    0.0883    3.3760    1.0000   2797.    
-     4   -1    0     0.994     0.992     0.002    3.3749    0.0926    3.3761    1.0000   1608.    
-     5    1    0     0.976     0.986    -0.010    7.6745    0.0513    7.6747    1.0000  0.1174E+05
-     5   -1    0     0.983     0.985    -0.002    7.6745    0.0694    7.6748    1.0000  0.1861E+05
-    -6    1    0     1.004     1.009    -0.005    2.7726    0.0386    2.7728    1.0000   649.4    
-     6   -1    0     0.647     1.009    -0.362    2.7726    0.0386    2.7728    1.0000   17.03    
-     1    2    0     1.036     1.014     0.022    2.9018    0.0149    2.9018    1.0000  0.4322E+05
-     1   -2    0     1.014     1.002     0.011    2.9018    0.0853    2.9030    1.0000  0.6097E+05
-     2    2    0     0.681     0.691    -0.011    2.8014    0.2882    2.8162    1.0000  0.2892E+05
-     2   -2    0     0.667     0.678    -0.011    2.8014    0.3289    2.8207    1.0000  0.6442E+05
-     3    2    0     0.964     0.980    -0.016    3.8078    0.0434    3.8081    1.0000   9335.    
-     3   -2    0     0.950     0.984    -0.034    3.8078    0.0562    3.8082    1.0000  0.2787E+05
-     4    2    0     1.242     1.193     0.050    2.8988    0.1418    2.9023    1.0000   287.2    
-     4   -2    0     1.213     1.200     0.012    2.8988    0.1556    2.9030    1.0000   1091.    
-    -6    2    0     1.176     1.168     0.007    1.2025    0.0539    1.2037    1.0000   17.17    
-     6   -2    0     2.004     1.168     0.835    1.2025    0.0539    1.2037    1.0000  0.1371    
-     1    3    0     0.583     0.558     0.025    0.9491    0.1528    0.9613    1.0000   2377.    
-     1   -3    0     0.621     0.556     0.065    0.9491    0.1529    0.9613    1.0000   2960.    
-     2    3    0     0.501     1.095    -0.593    0.7350    0.0217    0.7353    1.0000   9.065    
-     2   -3    0     0.856     1.103    -0.248    0.7350    0.0274    0.7355    1.0000   30.91    
-     3    3    0     1.039     1.061    -0.022    5.3205    0.0868    5.3212    1.0000   8029.    
-     3   -3    0     1.052     1.062    -0.010    5.3205    0.0884    5.3212    1.0000  0.2560E+05
-     5    3    0     0.562     0.859    -0.297    0.7171    0.0316    0.7178    1.0000  0.8090    
-     5   -3    0     0.416     0.853    -0.437    0.7171    0.0341    0.7179    1.0000   1.528    
-     0    4    0     1.040     1.055    -0.015    2.7904    0.1031    2.7923    1.0000  0.1072E+05
-     0   -4    0     1.038     1.055    -0.017    2.7904    0.1031    2.7923    1.0000   9389.    
-     1    4    0     0.984     0.995    -0.011    5.1250    0.0094    5.1250    1.0000  0.5510E+05
-     1   -4    0     0.972     0.991    -0.019    5.1250    0.0563    5.1253    1.0000  0.6007E+05
-     2    4    0     0.877     1.116    -0.239    0.9849    0.0590    0.9867    1.0000   86.42    
-     2   -4    0     1.000     1.087    -0.086    0.9849    0.1011    0.9901    1.0000   214.9    
-     4    4    0     1.041     1.005     0.036    4.4898    0.0209    4.4898    1.0000   561.8    
-     4   -4    0     1.002     1.000     0.002    4.4898    0.0650    4.4902    1.0000   4283.    
-    -5    4    0     0.952     0.953    -0.001    1.3554    0.0461    1.3562    1.0000   388.4    
-     3    5    0     0.922     0.847     0.075    2.3907    0.1212    2.3937    1.0000   246.1    
-     3   -5    0     0.844     0.835     0.009    2.3907    0.1597    2.3960    1.0000   1927.    
-     4    5    0     0.852     1.010    -0.158    3.0962    0.0169    3.0962    1.0000   94.22    
-     4   -5    0     0.990     1.016    -0.026    3.0962    0.0583    3.0967    1.0000   789.0    
-     0    6    0     0.891     1.525    -0.634    0.4033    0.1238    0.4218    1.0000   32.05    
-     0   -6    0     1.634     1.525     0.109    0.4033    0.1238    0.4218    1.0000   7.614    
-     2    6    0     0.964     0.979    -0.016    7.3351    0.0857    7.3356    1.0000  0.1945E+05
-     2   -6    0     0.969     0.976    -0.007    7.3351    0.1180    7.3360    1.0000  0.3890E+05
-     3    6    0     0.998     0.998     0.000    2.5303    0.0012    2.5303    1.0000   167.4    
-     3   -6    0     0.925     0.991    -0.067    2.5303    0.0487    2.5308    1.0000   1010.    
-     3    0    1     1.017     1.026    -0.009    2.6114    0.0280    2.6115    1.0000   2841.    
-    -3    0    1     1.168     1.056     0.112    2.6114    0.0436    2.6117    1.0000  0.1205E+05
-     2   -1    1     0.960     0.974    -0.015    2.7663    0.1294    2.7694    1.0000  0.3670E+05
-     2    1    1     0.949     0.960    -0.011    2.7663    0.0694    2.7672    1.0000  0.1208E+05
-     3   -1    1     0.921     0.893     0.028    2.0752    0.1318    2.0794    1.0000   4439.    
-     3    1    1     0.923     0.912     0.011    2.0752    0.0559    2.0760    1.0000   2233.    
-     5    1    1     1.116     1.566    -0.451    0.2753    0.0350    0.2775    1.0000  0.9108E-01
-     0    2    1     0.438     0.418     0.020    0.3203    0.3305    0.4602    1.0000   1730.    
-     0   -2    1     0.538     0.256     0.282    0.3203    0.3879    0.5030    1.0000   5611.    
-     1   -2    1     1.169     1.101     0.069    1.9915    0.1733    1.9991    1.0000  0.1224E+05
-     1    2    1     1.155     1.113     0.042    1.9915    0.0642    1.9926    1.0000   2967.    
-     2   -2    1     0.813     0.840    -0.027    3.2380    0.2997    3.2518    1.0000  0.4916E+05
-     2    2    1     0.869     0.902    -0.033    3.2380    0.1244    3.2404    1.0000  0.2552E+05
-     3   -2    1     1.181     1.086     0.095    1.0429    0.1468    1.0532    1.0000   89.30    
-     3    2    1     1.238     1.109     0.130    1.0429    0.0721    1.0454    1.0000   10.79    
-     4   -2    1     0.844     0.882    -0.038    2.5881    0.1598    2.5930    1.0000   1726.    
-     4    2    1     0.900     0.906    -0.006    2.5881    0.0727    2.5891    1.0000   538.3    
-     6    2    1     0.668     0.954    -0.286    2.7761    0.0372    2.7763    1.0000   25.43    
-     1   -3    1     0.835     0.823     0.013    4.0113    0.3641    4.0278    1.0000  0.1089E+06
-     1    3    1     0.884     0.884     0.000    4.0113    0.2501    4.0191    1.0000  0.6037E+05
-     2   -3    1     0.799     0.906    -0.108    1.0450    0.1464    1.0552    1.0000   920.5    
-     2    3    1     0.875     0.893    -0.018    1.0450    0.0389    1.0457    1.0000   300.3    
-     3   -3    1     0.825     0.801     0.023    2.1625    0.2344    2.1751    1.0000   2676.    
-     3    3    1     0.756     0.857    -0.102    2.1625    0.1112    2.1653    1.0000   427.4    
-     4   -3    1     0.934     0.980    -0.046    1.9971    0.0965    1.9995    1.0000   910.0    
-     4    3    1     0.842     0.976    -0.134    1.9971    0.0448    1.9977    1.0000   41.46    
-     0    4    1     0.753     0.808    -0.055    2.2101    0.2360    2.2227    1.0000  0.1210E+05
-     0   -4    1     0.716     0.756    -0.040    2.2101    0.2575    2.2251    1.0000  0.1566E+05
-     1   -4    1     1.170     1.056     0.114    1.4239    0.0854    1.4264    1.0000   547.7    
-     1    4    1     1.105     1.045     0.060    1.4239    0.0403    1.4245    1.0000   696.5    
-     2   -4    1     0.615     0.640    -0.025    1.0291    0.2187    1.0520    1.0000   682.8    
-     2    4    1     0.628     0.730    -0.102    1.0291    0.1401    1.0385    1.0000   235.6    
-     4   -4    1     0.934     0.942    -0.008    4.4767    0.1217    4.4784    1.0000   5009.    
-     4    4    1     0.907     0.957    -0.050    4.4767    0.0628    4.4772    1.0000   1106.    
-     1   -5    1     0.940     0.923     0.017    3.3979    0.1183    3.3999    1.0000  0.1352E+05
-     1    5    1     0.941     0.941     0.000    3.3979    0.0976    3.3993    1.0000  0.1018E+05
-     2   -5    1     1.037     1.002     0.034    1.1780    0.0295    1.1784    1.0000   200.9    
-     2    5    1     1.010     1.000     0.010    1.1780    0.0140    1.1781    1.0000   82.99    
-     0    6    1     0.988     1.016    -0.028    2.0323    0.0156    2.0324    1.0000   1243.    
-     0   -6    1     1.031     1.020     0.011    2.0323    0.0165    2.0324    1.0000   1402.    
-     3    6    1     1.067     0.986     0.081    1.8013    0.0110    1.8014    1.0000   50.73    
-     2    0    2     1.086     1.052     0.034    8.0459    0.2153    8.0488    1.0000  0.9467E+05
-    -2    0    2     0.906     0.925    -0.019    8.0459    0.2402    8.0495    1.0000  0.4444E+06
-     4    0    2     3.332     1.101     2.231    0.5597    0.0894    0.5668    1.0000  0.4094E-01
-     6    0    2     3.015     0.980     2.035    2.5659    0.0418    2.5663    1.0000  0.4735    
-     1    1    2     1.103     1.087     0.016    1.1179    0.1052    1.1228    1.0000   2808.    
-     3   -1    2     0.823     0.826    -0.003    3.0759    0.2338    3.0848    1.0000   8015.    
-     3    1    2     0.888     0.865     0.023    3.0759    0.1494    3.0796    1.0000   3599.    
-     4    1    2     0.956     0.981    -0.025    2.5432    0.0821    2.5445    1.0000   280.0    
-     5    1    2     0.997     0.838     0.159    1.5526    0.0904    1.5552    1.0000   8.684    
-     6    1    2     1.014     1.000     0.014    3.5064    0.0406    3.5066    1.0000   160.3    
-     0    2    2     1.028     1.037    -0.009    7.1507    0.1952    7.1533    1.0000  0.1021E+06
-     0   -2    2     1.003     1.001     0.002    7.1507    0.1590    7.1524    1.0000  0.3265E+06
-     1   -2    2     1.060     1.029     0.031    3.5728    0.0808    3.5737    1.0000  0.5669E+05
-     1    2    2     1.062     1.049     0.013    3.5728    0.0620    3.5733    1.0000  0.2296E+05
-     2    2    2     1.324     1.233     0.091    1.7378    0.1263    1.7424    1.0000   1909.    
-     4    2    2     1.018     1.068    -0.050    2.1111    0.0442    2.1115    1.0000   120.1    
-     3   -3    2     1.059     1.097    -0.038    2.9507    0.0806    2.9518    1.0000   2838.    
-     3    3    2     1.122     1.084     0.039    2.9507    0.0719    2.9516    1.0000   1122.    
-     5    3    2     0.989     0.974     0.015    3.4804    0.0283    3.4805    1.0000   324.8    
-     0    4    2     1.204     1.183     0.021    2.8434    0.1690    2.8484    1.0000   6380.    
-     0   -4    2     1.262     1.245     0.016    2.8434    0.2000    2.8504    1.0000   8495.    
-     1    4    2     1.058     1.040     0.019    1.9523    0.0241    1.9525    1.0000   1765.    
-     3   -4    2     0.982     0.981     0.001    4.1051    0.0637    4.1056    1.0000  0.1268E+05
-     3    4    2     0.962     0.984    -0.022    4.1051    0.0257    4.1052    1.0000   3951.    
-     5    4    2     0.576     1.121    -0.545    0.3760    0.0178    0.3764    1.0000   1.299    
-     1   -5    2     0.955     0.969    -0.014    5.0660    0.1348    5.0678    1.0000  0.4148E+05
-     1    5    2     0.982     0.995    -0.013    5.0660    0.1027    5.0670    1.0000  0.5165E+05
-     2   -5    2     1.048     1.030     0.018    2.8788    0.0688    2.8797    1.0000   3468.    
-     2    5    2     1.034     1.028     0.006    2.8788    0.0232    2.8789    1.0000   2059.    
-     3    5    2     1.192     0.986     0.206    1.6871    0.0497    1.6878    1.0000   6.803    
-     4    5    2     0.973     0.966     0.007    1.4976    0.0201    1.4978    1.0000   6.316    
-     0    6    2     0.910     0.913    -0.003    3.9556    0.1483    3.9584    1.0000  0.1330E+05
-     1    6    2     0.908     0.975    -0.067    2.0045    0.0277    2.0047    1.0000   1017.    
-     2    6    2     1.194     1.200    -0.006    1.4394    0.1034    1.4431    1.0000   46.62    
-     3    6    2     0.832     0.968    -0.137    1.3080    0.0121    1.3081    1.0000   12.45    
-
- R1=Sum diffs/Sum obs =   15.71    
- R2=Sum of diffs of squares/Sum obs squared =    58.33    
- Chi squared =    13.7     Sum weighted diffs sqrd =   0.169E+04
- For   128 observations and   5 basic variables
- R3=Sum weighted diffs/Sum weighted obs =    1.785    
- R4=Sum weighted diffs of squares/Sum weighted squares obs =   3.533    
- Chisqrd over all  2 data sets:    49.8
-for   310 observations and    5 parameters
+ R1=Sum diffs/Sum obs =   25.38    
+ R2=Sum of diffs of squares/Sum obs squared =    51.24    
+ Chi squared =    72.5     Sum weighted diffs sqrd =   0.130E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.759    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.97    
 
 
 
@@ -762,58 +398,290 @@ for   310 observations and    5 parameters
 
 1Shifts in variables for cycle  7
 
-  Tb     CH11     CH22     CH33     CH12
-   NEW   0.6420    0.563  0.03884   0.3634
-   ESD   0.0036    0.089  0.00083   0.0100
- SHIFT   0.0000    0.000  0.00000   0.0000
-   OLD   0.6420    0.563  0.03884   0.3634
- SH/SD  0.00096  0.00043  0.00036  0.00012
+  Tb     CH11     CH12
+   NEW    4.427     2.60
+   ESD    0.058     0.16
+ SHIFT    0.000     0.00
+   OLD    4.427     2.60
+ SH/SD  0.00115  0.00487
 
-  Mn     CH11     CH22     CH33
-   NEW  0.04158  0.04158  0.04158
-   ESD  0.00082  0.00082  0.00082
- SHIFT  0.00000  0.00000  0.00000
-   OLD  0.04158  0.04158  0.04158
- SH/SD  0.00038  0.00038  0.00038
+  Mn     CH11
+   NEW    0.198
+   ESD    0.031
+ SHIFT    0.000
+   OLD    0.198
+ SH/SD  0.01181
 
 
- Average SHIFT/ESD for cycle   7 =   0.43091E-03
- Maximum SHIFT/ESD =    0.95642E-03
+ Average SHIFT/ESD for cycle   7 =   0.59414E-02
+ Maximum SHIFT/ESD =    0.11808E-01
+
+ R1=Sum diffs/Sum obs =   25.38    
+ R2=Sum of diffs of squares/Sum obs squared =    51.23    
+ Chi squared =    72.5     Sum weighted diffs sqrd =   0.130E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.760    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.97    
+
+
+
+
+
+1Shifts in variables for cycle  8
+
+  Tb     CH11     CH12
+   NEW    4.427     2.60
+   ESD    0.058     0.16
+ SHIFT    0.000     0.00
+   OLD    4.427     2.60
+ SH/SD  0.00013  0.00220
+
+  Mn     CH11
+   NEW    0.198
+   ESD    0.031
+ SHIFT    0.000
+   OLD    0.198
+ SH/SD  0.00434
+
+
+ Average SHIFT/ESD for cycle   8 =   0.22219E-02
+ Maximum SHIFT/ESD =    0.43412E-02
+
+
+ Structure factor listing :
+     h    k    l     G(obs)   G(calc)     Diff   F(nucl)    F(mag)    mod Fc    Scale    Weight
+     1    1    0     0.262     0.259     0.003    2.8288    2.3687    3.6895    1.0000  0.7716E+05
+     2    1    0     0.509     0.493     0.016    2.3345    1.6454    2.8561    1.0000  0.1778E+05
+     0    2    0     2.134     1.997     0.138    0.4370    2.3081    2.3491    1.0000   2657.    
+     1    2    0     0.757     0.640     0.116    2.9018    0.4115    2.9308    1.0000  0.1731E+05
+     2    2    0     0.495     0.413     0.082    2.8014    1.1313    3.0212    1.0000  0.1890E+06
+     1    3    0     2.208     1.108     1.100    0.9491    0.0286    0.9495    1.0000   466.5    
+     2    3    0     2.339     2.020     0.319    0.7350    0.1823    0.7573    1.0000   22.94    
+     0    4    0     0.213     0.255    -0.043    2.7904    1.0343    2.9759    1.0000  0.4938E+05
+     1    4    0     0.811     0.832    -0.021    5.1250    0.2702    5.1321    1.0000  0.1276E+06
+     2    4    0     0.150     0.126     0.024    0.9849    0.8229    1.2835    1.0000   3303.    
+     1    5    0     0.145     0.106     0.039    0.9770    1.5019    1.7917    1.0000   7432.    
+     2    5    0     0.414     2.369    -1.955    0.1030    0.3915    0.4048    1.0000   147.6    
+     0    6    0     3.028     3.114    -0.086    0.4033    1.3034    1.3644    1.0000   26.49    
+     1    6    0     0.582     0.213     0.370    0.3050    0.1317    0.3323    1.0000   33.18    
+     2    6    0     0.614     0.615    -0.002    7.3351    1.0502    7.4098    1.0000  0.5165E+05
+     1    7    0     0.088     0.071     0.017    1.0376    0.8022    1.3115    1.0000   1765.    
+     2    7    0     1.092     1.082     0.010    3.9211    0.0896    3.9221    1.0000   2356.    
+     0    8    0     0.827     0.811     0.017    6.0450    0.3483    6.0550    1.0000   4691.    
+     1    8    0     0.959     1.005    -0.046    1.2836    0.0017    1.2836    1.0000   51.02    
+     1    0    1     0.510     0.314     0.196    0.1610    0.1354    0.2103    1.0000   83.25    
+     1    1    1     0.201     0.193     0.008    1.4732    1.5993    2.1744    1.0000  0.1041E+06
+     2    1    1     0.629     0.619     0.010    2.7663    1.0691    2.9657    1.0000  0.2268E+06
+     0    2    1     0.712     0.704     0.008    0.3203    3.3276    3.3430    1.0000  0.2500E+06
+     1    2    1     3.503     3.224     0.279    1.9915    1.0947    2.2726    1.0000   220.1    
+     2    2    1     0.285     0.287    -0.002    3.2380    1.9738    3.7922    1.0000  0.6944E+06
+     1    3    1     0.108     0.105     0.002    4.0113    2.9035    4.9518    1.0000  0.8264E+06
+     2    3    1     0.237     0.204     0.033    1.0450    0.9645    1.4220    1.0000  0.2100E+05
+     0    4    1     0.055     0.047     0.007    2.2101    2.2644    3.1642    1.0000  0.5917E+06
+     1    4    1     1.606     1.822    -0.216    1.4239    0.3531    1.4670    1.0000   891.1    
+     2    4    1     0.189     0.168     0.020    1.0291    1.6481    1.9429    1.0000  0.2778E+05
+     1    5    1     0.342     0.352    -0.010    3.3979    0.9999    3.5420    1.0000  0.4726E+05
+     2    5    1     1.089     0.803     0.285    1.1780    0.1149    1.1836    1.0000   195.6    
+     0    6    1     1.472     1.301     0.171    2.0323    0.1470    2.0376    1.0000   414.8    
+     1    6    1     1.831     1.293     0.537    0.7228    0.0531    0.7247    1.0000   5.536    
+     1    9    1     0.101     0.364    -0.262    1.0703    0.2988    1.1112    1.0000   102.4    
+     0    0    2     0.102     0.068     0.034    3.0673    4.1091    5.1277    1.0000  0.5102E+06
+     2    0    2     0.630     0.609     0.021    8.0459    1.9538    8.2797    1.0000  0.1929E+05
+     1    1    2     3.420     3.018     0.401    1.1179    3.0627    3.2603    1.0000   387.5    
+     2    1    2     1.452     1.488    -0.036    1.2623    1.5711    2.0154    1.0000   432.2    
+     0    2    2     0.375     0.398    -0.022    7.1507    1.8009    7.3740    1.0000  0.1208E+05
+     1    2    2     1.084     1.166    -0.082    3.5728    0.6951    3.6397    1.0000  0.1984E+05
+     2    2    2     0.240     0.249    -0.009    1.7378    1.0546    2.0328    1.0000  0.2163E+05
+     1    3    2     1.169     1.533    -0.364    1.7937    0.2261    1.8079    1.0000   2829.    
+     2    3    2     2.311     1.584     0.727    1.2094    0.1889    1.2241    1.0000   47.17    
+     0    4    2     3.219     4.120    -0.901    2.8434    1.0928    3.0462    1.0000   21.73    
+     1    4    2     1.754     1.496     0.258    1.9523    0.3109    1.9769    1.0000   124.0    
+     2    4    2     0.344     0.177     0.168    0.5055    0.8617    0.9990    1.0000   976.6    
+     1    5    2     0.385     0.399    -0.014    5.0660    1.3071    5.2319    1.0000  0.1111E+06
+     2    5    2     1.578     1.472     0.106    2.8788    0.4006    2.9066    1.0000   1479.    
+     0    6    2     0.302     0.311    -0.009    3.9556    1.2580    4.1508    1.0000  0.5408E+05
+     1    6    2     0.806     0.819    -0.013    2.0045    0.2104    2.0155    1.0000   1858.    
+     2    6    2    11.211     9.125     2.086    1.4394    1.0141    1.7607    1.0000  0.2234    
+     1    7    2     0.471     0.532    -0.061    4.1038    0.7205    4.1665    1.0000  0.2100E+05
+     2    7    2     2.631     1.577     1.055    0.5718    0.1152    0.5833    1.0000  0.4931E-01
+     1    8    2     1.042     1.000     0.042    2.9270    0.0357    2.9272    1.0000   439.5    
+     1    0    3     1.264     1.124     0.140    4.8727    0.1726    4.8758    1.0000   3810.    
+     1    1    3     0.180     0.159     0.021    2.6480    1.5519    3.0693    1.0000  0.1111E+06
+     2    1    3     0.481     0.578    -0.097    1.5446    0.8879    1.7816    1.0000  0.5949E+05
+     0    2    3     0.115     0.109     0.005    4.5714    2.7418    5.3306    1.0000  0.8651E+05
+     1    2    3     0.534     0.610    -0.076    0.8584    1.2354    1.5044    1.0000  0.2296E+05
+     2    2    3     1.646     1.867    -0.221    0.4066    1.8873    1.9306    1.0000   3956.    
+     1    3    3     0.113     0.114    -0.001    3.8143    2.4753    4.5471    1.0000  0.1736E+06
+     2    3    3     0.679     0.655     0.024    3.4988    0.9690    3.6305    1.0000   8116.    
+     0    4    3    15.007    16.222    -1.215    2.4352    1.9119    3.0961    1.0000  0.6265    
+     1    4    3     0.846     0.700     0.146    0.2729    0.5681    0.6302    1.0000   76.01    
+     2    4    3     0.395     0.392     0.003    4.9729    1.4440    5.1783    1.0000  0.1372E+06
+     1    5    3     0.245     0.285    -0.039    2.4412    0.8584    2.5877    1.0000  0.1984E+05
+     2    5    3     0.749     1.277    -0.527    0.4023    0.2001    0.4493    1.0000   64.00    
+     0    6    3    -0.129     1.681    -1.810    0.8858    0.1262    0.8947    1.0000   72.80    
+     1    6    3     0.940     0.955    -0.015    3.5938    0.0532    3.5942    1.0000   6610.    
+     1    8    3     1.510     1.061     0.449    2.2781    0.0705    2.2792    1.0000   8.535    
+     1    9    3     0.311     0.532    -0.221    1.4332    0.2500    1.4548    1.0000   275.9    
+     0    0    4     0.108     0.085     0.023    4.9017    3.3088    5.9140    1.0000  0.4444E+06
+     2    0    4     0.316     0.301     0.014    0.9531    2.2450    2.4390    1.0000   8900.    
+     1    1    4     0.079     0.074     0.005    2.3907    2.3414    3.3462    1.0000  0.4444E+06
+     2    1    4     0.972     0.927     0.045    0.8323    1.2592    1.5094    1.0000   3764.    
+     0    2    4     0.070     0.048     0.022    1.4513    1.5589    2.1299    1.0000  0.2367E+05
+     1    2    4     0.921     1.019    -0.098    0.2294    0.6956    0.7325    1.0000   487.3    
+     2    2    4     0.151     0.126     0.025    1.1485    1.0908    1.5840    1.0000  0.2296E+05
+     1    3    4     0.995     3.875    -2.880    0.0949    0.0694    0.1176    1.0000   74.44    
+     2    3    4     2.765     1.805     0.960    0.9058    0.1725    0.9220    1.0000   6.782    
+     0    4    4     0.157     0.181    -0.024    1.6259    0.7511    1.7910    1.0000   7972.    
+     1    4    4     0.766     0.789    -0.023    2.1606    0.3163    2.1836    1.0000   5739.    
+     2    4    4     0.306     0.350    -0.044    1.9220    0.6174    2.0188    1.0000  0.1181E+05
+     1    5    4     0.072     0.080    -0.008    1.4910    1.0974    1.8514    1.0000   6299.    
+     0    6    4     0.101     0.239    -0.138    2.4869    0.9650    2.6676    1.0000   7305.    
+     2    6    4     0.529     0.565    -0.035    4.7508    0.7885    4.8158    1.0000  0.2520E+05
+     1    7    4     0.049     0.169    -0.120    1.2011    0.5904    1.3384    1.0000   754.7    
+     2    7    4     1.040     1.071    -0.032    2.4835    0.1360    2.4873    1.0000   840.2    
+     0    8    4     0.739     0.789    -0.049    3.9093    0.2550    3.9177    1.0000   91.92    
+     2    8    4     0.499     0.732    -0.233    2.3171    0.2057    2.3262    1.0000   195.6    
+     1    0    5     0.778     0.862    -0.084    3.0119    0.1274    3.0146    1.0000  0.2367E+05
+     1    1    5     0.130     0.104     0.026    0.7639    1.1303    1.3642    1.0000   1502.    
+     2    1    5     0.753     0.812    -0.060    3.3361    0.6286    3.3948    1.0000  0.5165E+05
+     0    2    5    17.593    20.673    -3.080    2.0617    1.9245    2.8203    1.0000   2.344    
+     1    2    5     1.252     1.145     0.107    3.5145    0.9780    3.6481    1.0000  0.1384E+05
+     2    2    5     0.410     0.405     0.005    5.1994    1.4664    5.4022    1.0000  0.1736E+06
+     1    3    5     0.195     0.201    -0.007    3.9890    1.8002    4.3764    1.0000  0.2066E+06
+     2    3    5     1.306     1.442    -0.136    0.3952    0.7962    0.8889    1.0000   187.1    
+     0    4    5     0.342     0.346    -0.004    4.7894    1.3865    4.9861    1.0000  0.1111E+06
+     1    4    5     1.047     1.082    -0.034    2.3216    0.5521    2.3864    1.0000   2475.    
+     2    4    5     3.228    11.408    -8.180    1.2102    1.0922    1.6302    1.0000   60.94    
+     1    5    5     0.539     0.550    -0.011    3.8124    0.6355    3.8650    1.0000  0.1877E+05
+     2    5    5     1.153     1.004     0.149    2.0156    0.2096    2.0265    1.0000   535.8    
+     0    6    5     1.356     1.140     0.216    2.5830    0.0932    2.5847    1.0000   441.4    
+     1    6    5     1.119     1.042     0.077    3.1354    0.0461    3.1358    1.0000   2204.    
+     2    6    5     0.799     0.694     0.105    0.6276    0.0703    0.6316    1.0000   11.47    
+     0    8    5     0.854     0.855     0.000    6.2035    0.2677    6.2093    1.0000   6009.    
+     1    8    5     0.963     0.965    -0.002    2.4436    0.0710    2.4446    1.0000   1034.    
+     0    0    6     0.408     0.401     0.007    8.0477    2.0097    8.2948    1.0000  0.4444E+06
+     2    0    6     0.211     0.231    -0.020    3.3799    1.5460    3.7167    1.0000  0.1276E+06
+     1    1    6     2.055     2.411    -0.356    0.4169    1.6848    1.7356    1.0000   82.64    
+     2    1    6     1.237     1.066     0.171    0.9940    0.8520    1.3091    1.0000   413.1    
+     0    2    6     0.389     0.430    -0.041    3.9791    0.9187    4.0837    1.0000  0.7716E+05
+     1    2    6     1.453     1.189     0.264    0.5639    0.5020    0.7550    1.0000   23.18    
+     2    2    6     0.537     0.563    -0.026    4.1121    0.7131    4.1735    1.0000  0.5165E+05
+     1    3    6     1.126     1.143    -0.017    2.9618    0.1171    2.9641    1.0000   3956.    
+     2    3    6     3.445     1.631     1.814    0.8470    0.1278    0.8566    1.0000   1.188    
+     0    4    6     4.011     8.205    -4.194    0.9915    0.5649    1.1411    1.0000   5.057    
+     1    4    6     0.812     0.888    -0.076    2.4669    0.2480    2.4794    1.0000   4628.    
+     2    4    6     3.090     5.135    -2.045    0.9467    0.4676    1.0558    1.0000   7.589    
+     1    5    6     0.483     0.529    -0.046    4.0659    0.7198    4.1291    1.0000  0.2778E+05
+     2    5    6     1.911     1.476     0.435    1.0256    0.2952    1.0673    1.0000   7.234    
+     2    6    6     0.322     0.442    -0.120    2.3754    0.5572    2.4399    1.0000   2799.    
+     1    7    6     0.605     0.682    -0.077    3.6922    0.3913    3.7128    1.0000   7182.    
+     2    7    6     1.007     1.033    -0.025    2.5810    0.1180    2.5837    1.0000   891.1    
+     1    0    7     1.160     1.070     0.090    4.2174    0.0795    4.2182    1.0000  0.1208E+05
+     1    1    7     0.370     0.355     0.015    2.4330    0.7051    2.5331    1.0000  0.1984E+05
+     2    1    7     0.626     0.769    -0.143    1.5325    0.3906    1.5815    1.0000   2922.    
+     0    2    7     0.335     0.341    -0.006    4.0528    1.1890    4.2236    1.0000  0.7716E+05
+     1    2    7     0.656     0.848    -0.193    0.6149    0.6341    0.8833    1.0000   409.8    
+     2    2    7     1.171     1.315    -0.144    0.0770    0.9556    0.9587    1.0000   137.8    
+     1    3    7     0.313     0.326    -0.012    3.6513    1.1382    3.8246    1.0000  0.5408E+05
+     2    3    7     0.927     0.915     0.012    3.1087    0.5380    3.1550    1.0000   5653.    
+     0    4    7     6.017     5.470     0.547    1.9039    0.8758    2.0957    1.0000   7.547    
+     1    4    7     0.680     0.970    -0.290    0.1405    0.4006    0.4245    1.0000   8.733    
+     2    4    7     0.538     0.577    -0.039    4.4506    0.7098    4.5068    1.0000  0.2601E+05
+     1    5    7     0.454     0.542    -0.089    2.3869    0.4054    2.4211    1.0000   4890.    
+     2    5    7     0.451     0.850    -0.399    0.2769    0.1596    0.3196    1.0000   35.86    
+     1    6    7     0.933     0.972    -0.040    3.0767    0.0325    3.0769    1.0000   3265.    
+     2    7    7     0.503     0.747    -0.243    0.4556    0.0556    0.4590    1.0000   11.24    
+     0    0    8     0.786     0.922    -0.136    0.0270    1.2144    1.2147    1.0000   1639.    
+     2    0    8     0.494     0.499    -0.005    4.8430    0.9789    4.9410    1.0000  0.3560E+05
+     1    1    8     0.133     0.146    -0.012    1.7533    0.9379    1.9884    1.0000   7972.    
+     2    1    8     0.859     0.910    -0.051    1.2136    0.5024    1.3135    1.0000   425.1    
+     0    2    8     0.579     0.584    -0.005    3.9347    0.5796    3.9772    1.0000  0.2520E+05
+     1    2    8     0.934     0.959    -0.025    3.3575    0.3036    3.3712    1.0000   7182.    
+     2    2    8     3.918     4.279    -0.361    1.0942    0.4675    1.1899    1.0000   2.939    
+     1    3    8     0.806     0.892    -0.085    1.0616    0.0415    1.0625    1.0000   198.9    
+     0    4    8     0.491     0.720    -0.229    0.0277    0.3078    0.3090    1.0000   4.897    
+     1    4    8     1.161     1.083     0.079    1.8912    0.1576    1.8977    1.0000   577.8    
+     2    4    8     0.745     0.750    -0.005    3.1236    0.2598    3.1344    1.0000   4006.    
+     1    5    8     0.403     0.481    -0.078    2.1455    0.4352    2.1891    1.0000   3380.    
+     0    6    8     0.745     0.801    -0.056    6.3013    0.3839    6.3130    1.0000  0.1984E+05
+     1    6    8     1.094     0.971     0.123    1.8468    0.1582    1.8536    1.0000   254.4    
+     2    6    8     0.002     0.381    -0.379    1.1481    0.3145    1.1904    1.0000   74.83    
+     1    1    9     0.341     0.387    -0.046    1.4633    0.3857    1.5133    1.0000   1694.    
+     2    1    9     0.869     0.908    -0.039    2.3297    0.2128    2.3394    1.0000   1941.    
+     0    2    9     0.177     0.056     0.122    0.7770    0.6469    1.0110    1.0000   458.5    
+     1    2    9     1.071     1.055     0.016    1.4875    0.3525    1.5287    1.0000   401.6    
+     2    2    9     0.464     0.495    -0.030    2.6262    0.5316    2.6794    1.0000   5102.    
+     1    3    9     0.481     0.539    -0.058    3.6347    0.6226    3.6876    1.0000  0.1417E+05
+     2    3    9     1.051     0.923     0.129    1.1379    0.3035    1.1777    1.0000   49.87    
+     0    4    9     0.258     0.346    -0.089    1.6411    0.4744    1.7083    1.0000   1141.    
+     1    4    9     1.095     0.994     0.101    1.0999    0.2329    1.1243    1.0000   59.45    
+     1    5    9     0.672     0.769    -0.097    2.9703    0.2162    2.9782    1.0000   4328.    
+     2    5    9     1.277     1.062     0.216    0.8805    0.0931    0.8854    1.0000   10.17    
+     0    6    9     0.916     1.068    -0.152    1.6657    0.0301    1.6660    1.0000   99.40    
+     0    0   10     0.803     0.799     0.004    9.6449    0.5939    9.6632    1.0000  0.7716E+05
+     2    0   10     0.198     0.248    -0.050    1.2253    0.4883    1.3190    1.0000   775.9    
+     1    1   10     0.333     1.235    -0.903    0.0287    0.4902    0.4911    1.0000   25.92    
+     2    1   10     1.117     1.046     0.071    1.8746    0.2532    1.8917    1.0000   368.4    
+     0    2   10     0.598     0.654    -0.056    2.3775    0.2769    2.3936    1.0000   3265.    
+     1    2   10     1.166     1.036     0.129    2.2796    0.1551    2.2849    1.0000   811.7    
+     1    3   10     1.052     1.030     0.022    3.2402    0.0293    3.2404    1.0000   2311.    
+     1    4   10     0.996     0.984     0.012    4.1636    0.0804    4.1644    1.0000   4959.    
+     2    4   10     1.691     1.360     0.331    1.4718    0.1295    1.4775    1.0000   26.22    
+     1    1   11     0.447     0.598    -0.151    1.2350    0.1761    1.2475    1.0000   348.1    
+     2    1   11     0.922     0.958    -0.036    2.3536    0.0956    2.3555    1.0000   1240.    
+     0    2   11     0.856     0.095     0.761    0.1872    0.2926    0.3473    1.0000   229.6    
+     2    2   11     0.708     0.757    -0.049    3.0215    0.2386    3.0309    1.0000   2829.    
+     1    3   11     0.655     0.752    -0.097    3.4899    0.2752    3.5008    1.0000   6104.    
+
+ R1=Sum diffs/Sum obs =   25.38    
+ R2=Sum of diffs of squares/Sum obs squared =    51.24    
+ Chi squared =    72.5     Sum weighted diffs sqrd =   0.130E+05
+ For   182 observations and   3 basic variables
+ R3=Sum weighted diffs/Sum weighted obs =    5.759    
+ R4=Sum weighted diffs of squares/Sum weighted squares obs =   10.97    
+
+
+
+
+
+1Shifts in variables for cycle  9
+
+  Tb     CH11     CH12
+   NEW    4.427     2.60
+   ESD    0.058     0.16
+ SHIFT    0.000     0.00
+   OLD    4.427     2.60
+ SH/SD  0.00003  0.00083
+
+  Mn     CH11
+   NEW    0.198
+   ESD    0.031
+ SHIFT    0.000
+   OLD    0.198
+ SH/SD  0.00174
+
+
+ Average SHIFT/ESD for cycle   9 =   0.86642E-03
+ Maximum SHIFT/ESD =    0.17434E-02
 
  No correlations found above  70 per cent
 
  Magnetisation elipsoid for Tb  
- Principal axes:     chi (muB/T)    x       y       z
-                        0.968      0.744   0.668   0.000
-                        0.237     -0.668   0.744   0.000
-                        0.039      0.000   0.000   1.000
-
- Induced moments with field  7.00 T, parallel to   1.000   0.017  -0.003
- Operator      Atom Position            x       y       z
-    1      0.9916  0.0804  0.2500     4.536   2.608  -0.001
-    3     -0.4916  0.5804  0.2500     4.452  -2.478  -0.001
-
- Induced moments with field  7.00 T, parallel to   0.089   0.050   0.995
- Operator      Atom Position            x       y       z
-    1      0.9916  0.0804  0.2500     0.529   0.425   0.270
-    3     -0.4916  0.5804  0.2500     0.274  -0.030   0.270
+ Principal axes:            chi        x       y       z
+                           5.626     0.908   0.419   0.000
+                           0.000     0.000   0.000   1.000
+                          -1.199    -0.419   0.908   0.000
+ Induced moments: operator      atom position            x       y       z
+                       1    0.9916  0.0804  0.2500     4.470   2.597   0.000
+                       3   -0.4916  0.5804  0.2500     4.384  -2.597   0.000
 
  Magnetisation elipsoid for Mn  
- Principal axes:     chi (muB/T)    x       y       z
-                        0.042      0.000   1.000   0.000
-                        0.042      1.000   0.000   0.000
-                        0.042      0.000   0.000   1.000
-
- Induced moments with field  7.00 T, parallel to   1.000   0.017  -0.003
- Operator      Atom Position            x       y       z
-    1      0.5000  0.0000  0.0000     0.291   0.005  -0.001
-    2     -0.5000  0.0000  0.5000     0.291   0.005  -0.001
-    3      0.0000  0.5000  0.5000     0.291   0.005  -0.001
-    4      1.0000  0.5000  0.0000     0.291   0.005  -0.001
-
- Induced moments with field  7.00 T, parallel to   0.089   0.050   0.995
- Operator      Atom Position            x       y       z
-    1      0.5000  0.0000  0.0000     0.026   0.015   0.290
-    2     -0.5000  0.0000  0.5000     0.026   0.015   0.290
-    3      0.0000  0.5000  0.5000     0.026   0.015   0.290
-    4      1.0000  0.5000  0.0000     0.026   0.015   0.290
+ Principal axes:            chi        x       y       z
+                           0.198    -1.000  -0.001  -0.001
+                           0.000    -0.001   0.707   0.707
+                           0.000     0.000   0.707  -0.707
+ Induced moments: operator      atom position            x       y       z
+                       1    0.5000  0.0000  0.0000     0.198   0.000   0.000
+                       2   -0.5000  0.0000  0.5000     0.198   0.000   0.000
+                       3    0.0000  0.5000  0.5000     0.198   0.000   0.000
+                       4    1.0000  0.5000  0.0000     0.198   0.000   0.000

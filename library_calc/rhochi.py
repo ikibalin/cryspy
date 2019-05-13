@@ -7,14 +7,14 @@ from read_rcif import *
 
 from crystal import *
 
-f_name = r"C:\Users\yurik\Documents\GitHub\rhochi\library_calc\TbMnO3\full.rcif"
-def rhochi_refinement(f_name):
+def rhochi_refinement(f_name_in, f_name_out):
     """
     refinement,
     parameters are defined in given .rcif fiel
     """
     rcif = RCif()
-    rcif.load_from_file(f_name)
+    rcif.load_from_file(f_name_in)
+    print("Parameters are taken from file '{:}'".format(f_name_in))
     model = rcif.trans_to_model()
     model.get_variables()
     d_map = {}
@@ -24,12 +24,21 @@ def rhochi_refinement(f_name):
         print(var)
     model.save_exp_mod_data()
     print("Data are saved in the files")
+
+    if f_name_out is not None:
+        rcif_2 = RCif()
+        rcif_2.take_from_model(model)
+        rcif_2.save_to_file(f_name_out)
+        print("Parameters are saved in file '{:}'".format(f_name_out))
     
     
 if (__name__ == "__main__"):
     l_arg = sys.argv
     if len(l_arg) >= 2:
-        f_name = l_arg[1]
-        if os.path.isfile(f_name):
-            rhochi_refinement(f_name)
-
+        f_name_in = l_arg[1]
+        
+        f_name_out = None
+        if len(l_arg) >= 3:
+            f_name_out = l_arg[2]
+        if os.path.isfile(f_name_in):
+            rhochi_refinement(f_name_in, f_name_out)

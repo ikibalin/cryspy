@@ -108,10 +108,10 @@ _pd_resolution_x 0.0
 _pd_resolution_y 0.0
 _pd_shift_const -0.412323938051
 _pd_shift_coeff 0.00140610183867
-_pd_reflex_asymetry_p1 0.0
-_pd_reflex_asymetry_p2 0.0
-_pd_reflex_asymetry_p3 0.0
-_pd_reflex_asymetry_p4 0.0
+_pd_reflex_asymmetry_p1 0.0
+_pd_reflex_asymmetry_p2 0.0
+_pd_reflex_asymmetry_p3 0.0
+_pd_reflex_asymmetry_p4 0.0
 
 
 

@@ -1942,11 +1942,11 @@ class AtomSite(dict):
         self._p_b_scat = None
         self._p_occupation = None
         self._flag_refresh = False
-        self._list_atoms = []
+        self._list_atom_type = []
     
     def __repr__(self):
-        lsout = """AtomSite:\n number of atoms: {:}""".format(len(self._list_atoms))
-        for iatom, atom_type in enumerate(self._list_atoms):
+        lsout = """AtomSite:\n number of atoms: {:}""".format(len(self._list_atom_type))
+        for iatom, atom_type in enumerate(self._list_atom_type):
             lsout += "\n"+70*"*"+"\n {:}. ".format(iatom+1)+atom_type.__repr__()
         return lsout
     
@@ -1990,18 +1990,18 @@ fract  is fraction of atoms
         print(lsout)
         
     def add_atom(self, atom):
-        self._list_atoms.append(atom)
+        self._list_atom_type.append(atom)
         self._flag_refresh = True
         #self._form_arrays(cell)
     
     def del_atom(self, ind):
-        self._list_atoms.pop(ind)
+        self._list_atom_type.pop(ind)
         self._flag_refresh = True        
         #self._form_arrays(cell)
 
     def replace_atom(self, ind, atom):
-        self._list_atoms.pop(ind)
-        self._list_atoms.insert(ind, atom)
+        self._list_atom_type.pop(ind)
+        self._list_atom_type.insert(ind, atom)
         self._flag_refresh = True
         #self._form_arrays(cell_)
 
@@ -2018,7 +2018,7 @@ fract  is fraction of atoms
         lj0_D = []
         lj2_A, lj2_a, lj2_B, lj2_b, lj2_C, lj2_c = [], [], [], [], [], []
         lj2_D = []
-        for atom_type in self._list_atoms:
+        for atom_type in self._list_atom_type:
             lb_scat.append(1.*atom_type.get_val("b_scat"))
             locc.append(1.*atom_type.get_val("occupation"))
             lx.append(1.*atom_type.get_val("x"))
@@ -2269,27 +2269,27 @@ fract  is fraction of atoms
     
     def is_variable_phase(self):
         res = any([atom_type.is_variable_phase() for atom_type in 
-                   self._list_atoms])
+                   self._list_atom_type])
         return res
 
     def is_variable_adp(self):
         res = any([atom_type.is_variable_adp() for atom_type in 
-                   self._list_atoms])
+                   self._list_atom_type])
         return res
 
     def is_variable_magnetism(self):
         res = any([atom_type.is_variable_magnetism() for atom_type in 
-                   self._list_atoms])
+                   self._list_atom_type])
         return res
     
     def is_variable(self):
         res = any([atom_type.is_variable() for atom_type in 
-                   self._list_atoms])
+                   self._list_atom_type])
         return res
     
     def get_variables(self):
         l_variable = []
-        for atom_type in self._list_atoms:
+        for atom_type in self._list_atom_type:
             l_var = atom_type.get_variables()    
             l_variable.extend(l_var)
         return l_variable

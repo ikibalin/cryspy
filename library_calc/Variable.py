@@ -258,8 +258,7 @@ class Variable(dict):
                    self.refinement, self.sigma)
         if self.name != "":
             ls_out += ", {:}".format(self.name)
-        else:
-            ls_out += ")"
+            
         #id(self)
         #if self.constraint != "":
         #    lsout_add = "    constraint:{:}".format(self.constraint)

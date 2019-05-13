@@ -50,180 +50,348 @@ class RCif(object):
         lstr = rcif_to_str(self.data)
         return lstr
 
-    def save_to_file(self, fname):
+    def save_to_file(self, f_name):
         lstr = self.save_to_str()
-        fid = open(fname, "w")
-        fid.write("\n".join(lstr))
+        fid = open(f_name, "w")
+        fid.write("\n".join(lstr)+"\n")
         fid.close()
 
     
     def take_from_model(self, model):
+        self.data = []
         def temp_func(obj, ddata, label_rcif, label_mod, type_mod):
-            lkey = obj.__dict__.keys()
-            if label_mod in lkey:
-                if type_mod == "logic":
-                    sval = obj.__dict__[label_mod]
-                    ddata[label_rcif] = sval 
-                elif type_mod == "text":
-                    ddata[label_rcif] = obj.__dict__[label_mod]
-                elif t_core == "val":
-                    val = obj.__dict__[label_mod]
-                    if isinstance(val, Variable):
-                        sval = "{:}({:})".format(val[0], val[4])
-                    else:
-                        sval = "{:}".format(val)
-                    ddata[label_rcif] = sval 
+            if type_mod == "logic":
+                sval = obj.get_val(label_mod)
+                ddata[label_rcif] = sval 
+            elif type_mod == "text":
+                ddata[label_rcif] = obj.get_val(label_mod)
+            elif type_mod == "val":
+                val = obj.get_val(label_mod)
+                #if val is None:
+                #    print(label_rcif, label_mod, obj,"\n\n")
+                if isinstance(val, Variable):
+                    sval = "{:}({:})".format(val.value, val.sigma)
+                else:
+                    sval = "{:}".format(val)
+                ddata[label_rcif] = sval 
             return
             
         drel = rcif_model_relation()
         
-        
 
         
-        for obj in ccore.ph:
-            d_ph = {"name": obj.name}
-            lab_rcif = drel["lab_rcif_sp"]
-            lab_core = drel["lab_core_sp"]
-            type_core = drel["type_sp"]
-            for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                temp_func(obj, d_ph, l_rcif, l_core, t_core)
-            lab_rcif = drel["lab_rcif_ph"]
-            lab_core = drel["lab_core_ph"]
-            type_core = drel["type_ph"]
-            for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                temp_func(obj, d_ph, l_rcif, l_core, t_core)
+        for obj in model._list_crystal:
+            d_ph = {"name": obj.get_val("name")}
+            llab_rcif = drel["lab_rcif_sp"]
+            llab_arg = drel["lab_arg_sp"]
+            ltype_arg = drel["type_sp"]
+            
+            space_groupe = obj.get_val("space_groupe")
+            for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                   ltype_arg):
+                temp_func(space_groupe, d_ph, lab_rcif, lab_arg, type_arg)
+
+            llab_rcif = drel["lab_rcif_cell"]
+            llab_arg = drel["lab_arg_cell"]
+            ltype_arg = drel["type_cell"]
+
+            cell = obj.get_val("cell")
+            for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                   ltype_arg):
+                temp_func(cell, d_ph, lab_rcif, lab_arg, type_arg)
                 
             lloop_d = []
             
             d_at = {}
-            lab_rcif = drel["lab_rcif_at"]
-            lab_core = drel["lab_core_at"]
-            type_core = drel["type_at"]
-            lab_rcif_used = []
+            llab_rcif = drel["lab_rcif_at"]
+            llab_arg = drel["lab_arg_at"]
+            ltype_arg = drel["type_at"]
+
+            atom_site = obj.get_val("atom_site")
+            l_atom_type = atom_site._list_atom_type
+
+            l_lab_rcif_used = []
             l_dhelp = []
-            for obj_2 in obj.atom:
-                lkey = obj_2.__dict__.keys()
+            for obj_2 in l_atom_type:
                 dhelp = {}
-                for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                    temp_func(obj_2, dhelp, l_rcif, l_core, t_core)
-                    if ((not(l_rcif in lab_rcif_used))&(l_core in lkey)):
-                        lab_rcif_used.append(l_rcif)
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                   ltype_arg):
+                    temp_func(obj_2, dhelp, lab_rcif, lab_arg, type_arg)
+                    if (not(lab_rcif in l_lab_rcif_used)): #&(l_core in lkey)
+                        l_lab_rcif_used.append(lab_rcif)
                 l_dhelp.append(dhelp) 
-            for l_rcif in lab_rcif_used:
+            for l_rcif in l_lab_rcif_used:
                 d_at[l_rcif] = [hh[l_rcif] for hh in l_dhelp]
             lloop_d.append(d_at)
             
+
             d_bscat = {}
-            lab_rcif = drel["lab_rcif_bscat"]
-            lab_core = drel["lab_core_bscat"]
-            type_core = drel["type_bscat"]
-            lab_rcif_used = []
+            llab_rcif = drel["lab_rcif_bscat"]
+            llab_arg = drel["lab_arg_bscat"]
+            ltype_arg = drel["type_bscat"]
+
+            l_lab_rcif_used = []
             l_dhelp = []
-            for obj_2 in obj.atom:
+            for obj_2 in l_atom_type:
                 dhelp = {}
-                lkey = obj_2.__dict__.keys()
-                for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                    temp_func(obj_2, dhelp, l_rcif, l_core, t_core)
-                    if ((not(l_rcif in lab_rcif_used))&(l_core in lkey)):
-                        lab_rcif_used.append(l_rcif)
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                   ltype_arg):
+                    temp_func(obj_2, dhelp, lab_rcif, lab_arg, type_arg)
+                    if (not(lab_rcif in l_lab_rcif_used)): #&(l_core in lkey)
+                        l_lab_rcif_used.append(lab_rcif)
                 l_dhelp.append(dhelp) 
             lab_uniq = "_atom_site_type_symbol"
             l_val = [hh[lab_uniq] for hh in l_dhelp]
             s_uniq = set(l_val)
-            lind_uniq = [l_val.index(hh) for hh in s_uniq]
-            for l_rcif in lab_rcif_used:
-                d_bscat[l_rcif] = [l_dhelp[ind][l_rcif] for ind in  lind_uniq]
+            l_ind_uniq = [l_val.index(hh) for hh in s_uniq]
+            for l_rcif in l_lab_rcif_used:
+                d_bscat[l_rcif] = [l_dhelp[ind][l_rcif] for ind in l_ind_uniq]
             lloop_d.append(d_bscat)
 
-            d_beta = {}
-            lab_rcif = drel["lab_rcif_beta"]
-            lab_core = drel["lab_core_beta"]
-            type_core = drel["type_beta"]
-            lab_rcif_used = []
+
+            d_adp = {}
+            llab_rcif = drel["lab_rcif_adp"]
+            llab_arg = drel["lab_arg_adp"]
+            ltype_arg = drel["type_adp"]
+
+            l_lab_rcif_used = []
             l_dhelp = []
-            for obj_2 in obj.atom:
-                lkey = obj_2.__dict__.keys()
+            for obj_2 in l_atom_type:
                 dhelp = {}
-                for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                    temp_func(obj_2, dhelp, l_rcif, l_core, t_core)
-                    if ((not(l_rcif in lab_rcif_used))&(l_core in lkey)):
-                        lab_rcif_used.append(l_rcif)
-                l_dhelp.append(dhelp) 
-            for l_rcif in lab_rcif_used:
-                d_beta[l_rcif] = [hh[l_rcif] for hh in l_dhelp]
-            lloop_d.append(d_beta)      
-            
-            d_chi = {}
-            lab_rcif = drel["lab_rcif_chi"]
-            lab_core = drel["lab_core_chi"]
-            type_core = drel["type_chi"]
-            lab_rcif_used = []
-            l_dhelp = []
-            for obj_2 in obj.atom:
-                if obj_2.modemagn:
-                    lkey = obj_2.__dict__.keys()
-                    dhelp = {}
-                    for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                        temp_func(obj_2, dhelp, l_rcif, l_core, t_core)
-                        if ((not(l_rcif in lab_rcif_used))&(l_core in lkey)):
-                            lab_rcif_used.append(l_rcif)
+                flag_beta = obj_2.get_val("adp_type") == "uani"
+                if flag_beta:
+                    for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                           ltype_arg):
+                        temp_func(obj_2, dhelp, lab_rcif, lab_arg, type_arg)
+                        if (not(lab_rcif in l_lab_rcif_used)): #&(l_core in lkey)
+                            l_lab_rcif_used.append(lab_rcif)
                     l_dhelp.append(dhelp) 
-            for l_rcif in lab_rcif_used:
+            for l_rcif in l_lab_rcif_used:
+                d_adp[l_rcif] = [hh[l_rcif] for hh in l_dhelp]
+            lloop_d.append(d_adp)
+            
+
+            d_chi = {}
+            llab_rcif = drel["lab_rcif_chi"]
+            llab_arg = drel["lab_arg_chi"]
+            ltype_arg = drel["type_chi"]
+
+            l_lab_rcif_used = []
+            l_dhelp = []
+            for obj_2 in l_atom_type:
+                dhelp = {}
+                flag_m = obj_2.get_val("flag_m")
+                if flag_m:
+                    for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                           ltype_arg):
+                        temp_func(obj_2, dhelp, lab_rcif, lab_arg, type_arg)
+                        if (not(lab_rcif in l_lab_rcif_used)): #&(l_core in lkey)
+                            l_lab_rcif_used.append(lab_rcif)
+                    l_dhelp.append(dhelp) 
+            for l_rcif in l_lab_rcif_used:
                 d_chi[l_rcif] = [hh[l_rcif] for hh in l_dhelp]
-            lloop_d.append(d_chi)              
+            lloop_d.append(d_chi)
             
             if lloop_d != []:
                 d_ph["loops"] = lloop_d
                 
             self.data.append(d_ph)
 
-        for obj in ccore.exp:
-            d_exp = {"name": obj.name}
-            if obj.powder:
-                if obj.mode_2dpd:
-                    lab_rcif = drel["lab_rcif_exp_2dpd"]
-                    lab_core = drel["lab_core_exp_2dpd"]
-                    type_core = drel["type_exp_2dpd"]
-                else:
-                    lab_rcif = drel["lab_rcif_exp_pd"]
-                    lab_core = drel["lab_core_exp_pd"]
-                    type_core = drel["type_exp_pd"]
-            else:
-                lab_rcif = drel["lab_rcif_exp_sd"]
-                lab_core = drel["lab_core_exp_sd"]
-                type_core = drel["type_exp_sd"]
+        for obj in model._list_experiment:
+            d_exp = {"name": obj.get_val("name")}
+            if isinstance(obj, ExperimentSingle):
+                llab_rcif = drel["lab_rcif_experiment_sd"]
+                llab_arg = drel["lab_arg_experiment_sd"]
+                ltype_arg = drel["type_experiment_sd"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(obj, d_exp, lab_rcif, lab_arg, type_arg)
+                d_exp["_sd_file_name_output"] = os.path.basename(
+                                                d_exp["_sd_file_name_output"])
                 
-            for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                temp_func(obj, d_exp, l_rcif, l_core, t_core)
+                observed_data = obj.get_val("observed_data")
+                d_exp["_sd_file_name_input"] = observed_data.get_val("file_name")
+                
+                setup = obj.get_val("setup")
+                beam_polarization = setup.get_val("beam_polarization")
+                llab_rcif = drel["lab_rcif_beam_polarization_sd"]
+                llab_arg = drel["lab_arg_beam_polarization_sd"]
+                ltype_arg = drel["type_beam_polarization_sd"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(beam_polarization, d_exp, lab_rcif, lab_arg, 
+                              type_arg)
+
+            if isinstance(obj, ExperimentPowder1D):
+                llab_rcif = drel["lab_rcif_experiment_1d"]
+                llab_arg = drel["lab_arg_experiment_1d"]
+                ltype_arg = drel["type_experiment_1d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(obj, d_exp, lab_rcif, lab_arg, type_arg)
+                d_exp["_pd_file_name_output"] = os.path.basename(
+                                                d_exp["_pd_file_name_output"])
+                observed_data = obj.get_val("observed_data")
+                d_exp["_pd_file_name_input"] = observed_data.get_val("file_name")
+                
+                setup = obj.get_val("setup")
+                llab_rcif = drel["lab_rcif_zero_shift_1d"]
+                llab_arg = drel["lab_arg_zero_shift_1d"]
+                ltype_arg = drel["type_zero_shift_1d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(setup, d_exp, lab_rcif, lab_arg, type_arg)
+
+                beam_polarization = setup.get_val("beam_polarization")
+                llab_rcif = drel["lab_rcif_beam_polarization_1d"]
+                llab_arg = drel["lab_arg_beam_polarization_1d"]
+                ltype_arg = drel["type_beam_polarization_1d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(beam_polarization, d_exp, lab_rcif, lab_arg, 
+                              type_arg)
+                
+                resolution = setup.get_val("resolution")
+                llab_rcif = drel["lab_rcif_resolution_1d"]
+                llab_arg = drel["lab_arg_resolution_1d"]
+                ltype_arg = drel["type_resolution_1d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(resolution, d_exp, lab_rcif, lab_arg, type_arg)
+                
+                asymmetry = setup.get_val("asymmetry")
+                llab_rcif = drel["lab_rcif_asymmetry_1d"]
+                llab_arg = drel["lab_arg_asymmetry_1d"]
+                ltype_arg = drel["type_asymmetry_1d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(asymmetry, d_exp, lab_rcif, lab_arg, type_arg)
+                
+            if isinstance(obj, ExperimentPowder2D):
+                llab_rcif = drel["lab_rcif_experiment_2d"]
+                llab_arg = drel["lab_arg_experiment_2d"]
+                ltype_arg = drel["type_experiment_2d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(obj, d_exp, lab_rcif, lab_arg, type_arg)
+                d_exp["_2dpd_file_name_output"] = os.path.basename(
+                                                d_exp["_2dpd_file_name_output"])
+                observed_data = obj.get_val("observed_data")
+                d_exp["_2dpd_file_name_input"] = observed_data.get_val("file_name")
+                
+                setup = obj.get_val("setup")
+                llab_rcif = drel["lab_rcif_zero_shift_2d"]
+                llab_arg = drel["lab_arg_zero_shift_2d"]
+                ltype_arg = drel["type_zero_shift_2d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(setup, d_exp, lab_rcif, lab_arg, type_arg)
+
+                beam_polarization = setup.get_val("beam_polarization")
+                llab_rcif = drel["lab_rcif_beam_polarization_2d"]
+                llab_arg = drel["lab_arg_beam_polarization_2d"]
+                ltype_arg = drel["type_beam_polarization_2d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(beam_polarization, d_exp, lab_rcif, lab_arg, 
+                              type_arg)
+                
+                resolution = setup.get_val("resolution")
+                llab_rcif = drel["lab_rcif_resolution_2d"]
+                llab_arg = drel["lab_arg_resolution_2d"]
+                ltype_arg = drel["type_resolution_2d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(resolution, d_exp, lab_rcif, lab_arg, type_arg)
+                
+                asymmetry = setup.get_val("asymmetry")
+                llab_rcif = drel["lab_rcif_asymmetry_2d"]
+                llab_arg = drel["lab_arg_asymmetry_2d"]
+                ltype_arg = drel["type_asymmetry_2d"]
+                for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                    temp_func(asymmetry, d_exp, lab_rcif, lab_arg, type_arg)
+                
                 
             d_eph = {}
-            if obj.powder:
-                if obj.mode_2dpd:
-                    lab_rcif = drel["lab_rcif_eph_2dpd"]
-                    lab_core = drel["lab_core_eph_2dpd"]
-                    type_core = drel["type_eph_2dpd"]
-                else:
-                    lab_rcif = drel["lab_rcif_eph_pd"]
-                    lab_core = drel["lab_core_eph_pd"]
-                    type_core = drel["type_eph_pd"]
-            else:
-                lab_rcif = drel["lab_rcif_eph_sd"]
-                lab_core = drel["lab_core_eph_sd"]
-                type_core = drel["type_eph_sd"]
+            lloop_d = []
+            l_calculated_data = obj._list_calculated_data
+            if isinstance(obj, ExperimentSingle):
+                crystal = model._list_crystal[0]
+                extinction = crystal.get_val("extinction")
+                llab_rcif = drel["lab_rcif_extinction"]
+                llab_arg = drel["lab_arg_extinction"]
+                ltype_arg = drel["type_extinction"]
                 
-            lab_rcif_used = []
-            l_dhelp = []
-            for obj_2 in obj.exp_ph:
-                lkey = obj_2.__dict__.keys()
-                dhelp = {}
-                for l_rcif, l_core, t_core in zip(lab_rcif, lab_core, type_core):
-                    temp_func(obj_2, dhelp, l_rcif, l_core, t_core)
-                    if ((not(l_rcif in lab_rcif_used))&(l_core in lkey)):
-                        lab_rcif_used.append(l_rcif)
-                l_dhelp.append(dhelp) 
-            for l_rcif in lab_rcif_used:
-                d_eph[l_rcif] = [hh[l_rcif] for hh in l_dhelp]
-            lloop_d.append(d_eph)
+                l_dhelp = []
+                for calculated_data in l_calculated_data:
+                    name = calculated_data.get_val("name")
+                    dhelp = {"_sd_phase_name": name}
+                    for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                        temp_func(extinction, dhelp, lab_rcif, lab_arg, type_arg)
+                    l_dhelp.append(dhelp) 
+                for lab_rcif in ["_sd_phase_name"]+llab_rcif:
+                    d_eph[lab_rcif] = [hh[lab_rcif] for hh in l_dhelp]
+                lloop_d.append(d_eph)
+
+            if isinstance(obj, ExperimentPowder1D):
+                llab_rcif = ["_pd_phase_name", "_pd_phase_scale"]
+                llab_arg = ["name", "scale"]
+                ltype_arg = ["text", "val"]
+
+                l_dhelp = []
+                for calculated_data in l_calculated_data:
+                    dhelp = {}
+                    for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                        temp_func(calculated_data, dhelp, lab_rcif, lab_arg, type_arg)
+
+
+                    name = calculated_data.get_val("name")
+                    ind = 0
+                    for i_crystal, crystal in enumerate(model._list_crystal):
+                        if crystal.get_val("name") == name:
+                            ind = i_crystal
+                            break
+
+                    crystal = model._list_crystal[ind]
+                    
+
+                    temp_func(crystal, dhelp, ["_pd_phase_igsize"], ["i_g"], ["val"])
+                    l_dhelp.append(dhelp) 
+
+                for lab_rcif in llab_rcif:
+                    d_eph[lab_rcif] = [hh[lab_rcif] for hh in l_dhelp]
+                lloop_d.append(d_eph)
+
+            if isinstance(obj, ExperimentPowder2D):
+                llab_rcif = ["_2dpd_phase_name", "_2dpd_phase_scale"]
+                llab_arg = ["name", "scale"]
+                ltype_arg = ["text", "val"]
+
+                l_dhelp = []
+                for calculated_data in l_calculated_data:
+                    dhelp = {}
+                    for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
+                                                                    ltype_arg):
+                        temp_func(calculated_data, dhelp, lab_rcif, lab_arg, type_arg)
+
+                    name = calculated_data.get_val("name")
+                    ind = 0
+                    for i_crystal, crystal in enumerate(model._list_crystal):
+                        if crystal.get_val("name") == name:
+                            ind = i_crystal
+                            break
+                    crystal = model._list_crystal[ind]
+
+
+                    temp_func(crystal, dhelp, ["_2dpd_phase_igsize"], ["i_g"], ["val"])
+                    l_dhelp.append(dhelp) 
+
+                for lab_rcif in llab_rcif:
+                    d_eph[lab_rcif] = [hh[lab_rcif] for hh in l_dhelp]
+                lloop_d.append(d_eph)
                 
             if lloop_d != []:
                 d_exp["loops"] = lloop_d
@@ -391,217 +559,44 @@ def get_link(obj, drel, param):
     return slink 
 
 
-def rcif_to_str(drcif):
-    drel = rcif_model_relation()
-
-
-    def temp_func(dd2, llab):
-        lstr = []
-        lkey2 = dd2.keys()    
-        llab_used = []
-        for lab in llab:
-            if lab in lkey2:
-                llab_used.append(lab)
-                line = "{:}".format(lab)
-                lstr.append(line)
-        nval = len(dd2[llab_used[0]])
-        lline = [[] for hh in range(nval)]
-        for lab in llab_used:
-            for val, line in zip(dd2[lab], lline):
-                if isinstance(val, str):
-                    if len(val.split()) > 1:
-                        line.append("'{:}'".format(val))
-                    else:
-                        line.append("{:}".format(val))
+def rcif_to_str(l_ddata):
+    #structure of cif is data blokcs and loop blocks, 
+    #nested loops are not supported
+    ls_out = []
+    for ddata in l_ddata:    
+        l_key = ddata.keys()    
+        if "name" in l_key:
+            ls_out.append("\ndata_{:}".format(ddata["name"].strip()))
+        else:
+            ls_out.append("\ndata_")
+            
+        for lab in sorted(l_key):
+            if lab.startswith("_"):
+                if ((len(ddata[lab].strip().split())>1)&
+                    (not(ddata[lab].strip().startswith("'")))):
+                    ls_out.append("{:} '{:}'".format(lab, ddata[lab].strip()))
                 else:
-                    line.append(str(val))
-        for line in lline:
-            lstr.append(" "+"  ".join(line))
-        return lstr
-                            
+                    ls_out.append("{:} {:}".format(lab, ddata[lab].strip()))
 
-    lstr = ["#\#RCIF_1.0", "global_filerhochi", ""]
-    for dd in drcif:
-        line = "data_{:}".format(dd["name"])
-        lstr.append(line)
-        
-        lab_phase = "_cell"
-        lab_exp_pd = "_pd"
-        lab_exp_2dpd = "_2dpd"
-        lab_exp_sd = "_sd"
-        lab_ref = "_refinement"
-        lkey = dd.keys()
-        flag_ph = any([hh.startswith(lab_phase) for hh in lkey])
-        flag_exp_pd = any([hh.startswith(lab_exp_pd) for hh in lkey])
-        flag_exp_2dpd = any([hh.startswith(lab_exp_2dpd) for hh in lkey])
-        flag_exp_sd = any([hh.startswith(lab_exp_sd) for hh in lkey])
-        flag_ref = any([hh.startswith(lab_ref) for hh in lkey])
-        if flag_ph:
-            llab = drel["lab_rcif_ph"]
-            for lab in llab:
-                if ((lab in lkey)&(lab != "name")):
-                    if isinstance(dd[lab], str):
-                        line = "{:} '{:}'".format(lab, dd[lab])
+        if "loops" in l_key:
+            for d_loop in ddata["loops"]:
+                l_key_loop = d_loop.keys()
+                if d_loop != {}:
+                    if "name" in sorted(l_key_loop):
+                        ls_out.append("\nloop_{:}".format(lab, d_loop[lab].strip()))
                     else:
-                        line = "{:} {:}".format(lab, dd[lab])
-                    lstr.append(line)
-            lstr.append("\n")
-            llab = drel["lab_rcif_sp"]
-            for lab in llab:
-                if lab in lkey:
-                    if isinstance(dd[lab], str):
-                        line = "{:} '{:}'".format(lab, dd[lab])
-                    else:
-                        line = "{:} {:}".format(lab, dd[lab])
-                    lstr.append(line)
-                    
-            if "loops" in dd.keys():
-                lab_at = "_atom_site_fract_x"
-                lab_bscat = "_atom_site_bscat"
-                lab_beta = "_atom_site_aniso_beta_11"
-                lab_chi = "_atom_site_susceptibility_aniso_chi_11"
-                for dd2 in dd["loops"]:
-                    lstr.append("")  
-                    lkey2 = dd2.keys()
-                    flag_at = any([hh.startswith(lab_at) for hh in lkey2])
-                    flag_bscat = any([hh.startswith(lab_bscat) for hh in lkey2])
-                    flag_beta = any([hh.startswith(lab_beta) for hh in lkey2])
-                    flag_chi = any([hh.startswith(lab_chi) for hh in lkey2])
-                    if flag_at:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_at"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                            
-                    elif flag_bscat:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_bscat"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                        
-                    elif flag_beta:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_beta"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
+                        ls_out.append("\nloop_")
 
-                    elif flag_chi:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_chi"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                    lstr.append("")                        
-                    
-        elif flag_exp_pd:
-            llab = drel["lab_rcif_exp_pd"]
-            for lab in llab:
-                if ((lab in lkey)&(lab != "name")):
-                    if isinstance(dd[lab], str):
-                        line = "{:} '{:}'".format(lab, dd[lab])
-                    else:
-                        line = "{:} {:}".format(lab, dd[lab])
-                    lstr.append(line)
-                    
-            if "loops" in dd.keys():
-                lab_eph = "_pd_phase_scale"
-                for dd2 in dd["loops"]:
-                    lstr.append("")                      
-                    lkey2 = dd2.keys()
-                    flag_eph = any([hh.startswith(lab_eph) for hh in lkey2])
-                    if flag_eph:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_eph_pd"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                    lstr.append("")                        
-                    
-        elif flag_exp_2dpd:
-            llab = drel["lab_rcif_exp_2dpd"]
-            for lab in llab:
-                if ((lab in lkey)&(lab != "name")):
-                    if isinstance(dd[lab], str):
-                        line = "{:} '{:}'".format(lab, dd[lab])
-                    else:
-                        line = "{:} {:}".format(lab, dd[lab])
-                    lstr.append(line)
-                    
-            if "loops" in dd.keys():
-                lab_eph = "_2dpd_phase_scale"
-                for dd2 in dd["loops"]:
-                    lstr.append("")                      
-                    lkey2 = dd2.keys()
-                    flag_eph = any([hh.startswith(lab_eph) for hh in lkey2])
-                    if flag_eph:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_eph_2dpd"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                    lstr.append("")                        
-                    
-        elif flag_exp_sd:
-            llab = drel["lab_rcif_exp_sd"]
-            for lab in llab:
-                if ((lab in lkey)&(lab != "name")):
-                    if isinstance(dd[lab], str):
-                        line = "{:} '{:}'".format(lab, dd[lab])
-                    else:
-                        line = "{:} {:}".format(lab, dd[lab])
-                    lstr.append(line)
-                    
-            if "loops" in dd.keys():
-                lab_eph = "_sd_phase_name"
-                for dd2 in dd["loops"]:
-                    lkey2 = dd2.keys()
-                    flag_eph = any([hh.startswith(lab_eph) for hh in lkey2])
-                    if flag_eph:
-                        lstr.append("")  
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = drel["lab_rcif_eph_sd"]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                        lstr.append("")                        
-                    
-        elif flag_ref:
-            llab = drel["lab_rcif_ref"]
-            for lab in llab:
-                if lab in lkey:
-                    if isinstance(dd[lab], str):
-                        line = "{:} '{:}'".format(lab, dd[lab])
-                    else:
-                        line = "{:} {:}".format(lab, dd[lab])
-                    lstr.append(line)
-            if "loops" in dd.keys():
-                lab_par_ref = "_refinement_param1"
-                lab_par_con = "_constraint_param1"
-                for dd2 in dd["loops"]:
-                    lstr.append("")                      
-                    lkey2 = dd2.keys()
-                    flag_par_ref = any([hh.startswith(lab_par_ref) for hh in lkey2])
-                    flag_par_con = any([hh.startswith(lab_par_con) for hh in lkey2])
-                    if flag_par_ref:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = [lab_par_ref]
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                    elif flag_par_con:
-                        line = "loop_"
-                        lstr.append(line)
-                        llab = ["_constraint_param1", "_constraint_param2", "_constraint_coeff"]
-                        
-                        lstr_1 = temp_func(dd2, llab)
-                        lstr.extend(lstr_1)
-                    lstr.append("")                        
-        lstr.append("")
+                    for lab in sorted(l_key_loop):
+                        ls_out.append(lab)
 
-    return lstr
+                    n_line = len(d_loop[lab])
+                    for i_line in range(n_line):
+                        line = []
+                        for lab in sorted(l_key_loop):
+                            line.append("{:}".format(d_loop[lab][i_line].strip()))
+                        ls_out.append(" "+" ".join(line))
+    return ls_out
 
 def put_ref(obj, lparam):
     drel = rcif_model_relation()
@@ -685,12 +680,12 @@ def rcif_model_relation():
     ltype_resolution_1d = ["val", "val", "val", "val", "val"]
 
 
-    llab_rcif_assymetry_1d = ["_pd_reflex_asymetry_p1", 
-                              "_pd_reflex_asymetry_p2", 
-                              "_pd_reflex_asymetry_p3",
-                              "_pd_reflex_asymetry_p4"]
-    llab_arg_assymetry_1d = ["p1", "p2", "p3", "p4"]
-    ltype_assymetry_1d = ["val", "val", "val", "val"]
+    llab_rcif_asymmetry_1d = ["_pd_reflex_asymmetry_p1", 
+                              "_pd_reflex_asymmetry_p2", 
+                              "_pd_reflex_asymmetry_p3",
+                              "_pd_reflex_asymmetry_p4"]
+    llab_arg_asymmetry_1d = ["p1", "p2", "p3", "p4"]
+    ltype_asymmetry_1d = ["val", "val", "val", "val"]
 
 
     llab_rcif_zero_shift_1d = ["_pd_shift_const"]
@@ -716,12 +711,12 @@ def rcif_model_relation():
     ltype_resolution_2d = ["val", "val", "val", "val", "val"]
 
 
-    llab_rcif_assymetry_2d = ["_2dpd_reflex_asymetry_p1", 
-                              "_2dpd_reflex_asymetry_p2", 
-                              "_2dpd_reflex_asymetry_p3",
-                              "_2dpd_reflex_asymetry_p4"]
-    llab_arg_assymetry_2d = ["p1", "p2", "p3", "p4"]
-    ltype_assymetry_2d = ["val", "val", "val", "val"]
+    llab_rcif_asymmetry_2d = ["_2dpd_reflex_asymmetry_p1", 
+                              "_2dpd_reflex_asymmetry_p2", 
+                              "_2dpd_reflex_asymmetry_p3",
+                              "_2dpd_reflex_asymmetry_p4"]
+    llab_arg_asymmetry_2d = ["p1", "p2", "p3", "p4"]
+    ltype_asymmetry_2d = ["val", "val", "val", "val"]
 
 
     llab_rcif_zero_shift_2d = ["_2dpd_shift_const"]
@@ -793,9 +788,9 @@ def rcif_model_relation():
     drel["lab_arg_resolution_1d"] = llab_arg_resolution_1d 
     drel["type_resolution_1d"] = ltype_resolution_1d 
 
-    drel["lab_rcif_assymetry_1d"] = llab_rcif_assymetry_1d 
-    drel["lab_arg_assymetry_1d"] = llab_arg_assymetry_1d
-    drel["type_assymetry_1d"] = ltype_assymetry_1d 
+    drel["lab_rcif_asymmetry_1d"] = llab_rcif_asymmetry_1d 
+    drel["lab_arg_asymmetry_1d"] = llab_arg_asymmetry_1d
+    drel["type_asymmetry_1d"] = ltype_asymmetry_1d 
 
     drel["lab_rcif_zero_shift_1d"] = llab_rcif_zero_shift_1d
     drel["lab_arg_zero_shift_1d"] = llab_arg_zero_shift_1d 
@@ -811,9 +806,9 @@ def rcif_model_relation():
     drel["lab_arg_resolution_2d"] = llab_arg_resolution_2d 
     drel["type_resolution_2d"] = ltype_resolution_2d 
 
-    drel["lab_rcif_assymetry_2d"] = llab_rcif_assymetry_2d 
-    drel["lab_arg_assymetry_2d"] = llab_arg_assymetry_2d
-    drel["type_assymetry_2d"] = ltype_assymetry_2d 
+    drel["lab_rcif_asymmetry_2d"] = llab_rcif_asymmetry_2d 
+    drel["lab_arg_asymmetry_2d"] = llab_arg_asymmetry_2d
+    drel["type_asymmetry_2d"] = ltype_asymmetry_2d 
 
     drel["lab_rcif_zero_shift_2d"] = llab_rcif_zero_shift_2d
     drel["lab_arg_zero_shift_2d"] = llab_arg_zero_shift_2d 
@@ -1061,9 +1056,9 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
 
     from_dict_to_obj(data, llab_rcif, resolution_powder_1d, llab_arg, ltype)
 
-    llab_rcif = drel["lab_rcif_assymetry_1d"]
-    llab_arg = drel["lab_arg_assymetry_1d"]
-    ltype = drel["type_assymetry_1d"]
+    llab_rcif = drel["lab_rcif_asymmetry_1d"]
+    llab_arg = drel["lab_arg_asymmetry_1d"]
+    ltype = drel["type_asymmetry_1d"]
 
     from_dict_to_obj(data, llab_rcif, asymmetry_powder_1d, llab_arg, ltype)
 
@@ -1176,9 +1171,9 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
 
     from_dict_to_obj(data, llab_rcif, resolution_powder_2d, llab_arg, ltype)
 
-    llab_rcif = drel["lab_rcif_assymetry_2d"]
-    llab_arg = drel["lab_arg_assymetry_2d"]
-    ltype = drel["type_assymetry_2d"]
+    llab_rcif = drel["lab_rcif_asymmetry_2d"]
+    llab_arg = drel["lab_arg_asymmetry_2d"]
+    ltype = drel["type_asymmetry_2d"]
 
     from_dict_to_obj(data, llab_rcif, asymmetry_powder_2d, llab_arg, ltype)
 
