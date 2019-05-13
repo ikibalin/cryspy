@@ -7,7 +7,7 @@ from read_rcif import *
 
 from crystal import *
 
-
+f_name = r"C:\Users\yurik\Documents\GitHub\rhochi\library_calc\TbMnO3\full.rcif"
 def rhochi_refinement(f_name):
     """
     refinement,
@@ -16,7 +16,7 @@ def rhochi_refinement(f_name):
     rcif = RCif()
     rcif.load_from_file(f_name)
     model = rcif.trans_to_model()
-    
+    model.get_variables()
     d_map = {}
     res = model.refine_model(d_map)
     print("\nRefined parameters:\n")

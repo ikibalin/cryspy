@@ -33,13 +33,9 @@ class Model(dict):
         for crystal in self._list_crystal:
             ls_cry.append("{:}".format(crystal))
             
-        ls_var = []
-        for variable in self._list_variable:
-            ls_var.append("{:}".format(variable))
         
         ls_out += "\n\n\nExperiment:\n\n"+"\n\n".join(ls_exp)
         ls_out += "\n\n\nCrystal:\n\n"+"\n\n".join(ls_cry)
-        ls_out += "\n\n\nVariable:\n\n"+"\n\n".join(ls_var)
         return ls_out
 
     def _refresh(self, l_experiment=None, l_crystal=None, l_variable=None):

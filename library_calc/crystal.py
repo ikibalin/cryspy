@@ -2354,13 +2354,14 @@ mosaicity is the mosaicity of domains in Minutes (???)
         f_sq in 10-12cm
         extinction for spherical model
         """
-        r = 1*self._p_domain_radius
-        g = 1*self._p_mosaicity
+        r = 1.*self._p_domain_radius
+        g = 1.*self._p_mosaicity
         model = self._p_model
         kk = 1.
         vol = cell.get_val("vol")
         sthovl = cell.calc_sthovl(h, k, l)
         stheta = sthovl * wave_length
+
         s2theta = 2. * stheta * (1. - stheta**2)**0.5
         c2theta = 1. - 2. * stheta**2
     
@@ -2372,7 +2373,7 @@ mosaicity is the mosaicity of domains in Minutes (???)
     
         A = 0.20 + 0.45 * c2theta
         B = 0.22 - 0.12 * (0.5-c2theta)**2
-        yp = (1+2*x+(A*x**2)*1./(1.+B*x))**(-0.5)
+        yp = (1.+2.*x+(A*x**2)*1./(1.+B*x))**(-0.5)
         
         ag = numpy.zeros(h.shape, dtype=float)
         al = numpy.zeros(h.shape, dtype=float)

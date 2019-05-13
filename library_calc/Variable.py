@@ -133,7 +133,7 @@ class Variable(dict):
         """
         output is float
         """
-        return s-elf.value%var2
+        return self.value%var2
     def __rmod__(self, var2):
         """
         output is float
