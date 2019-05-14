@@ -9,6 +9,8 @@ import numpy
 import scipy.optimize
 import time
 
+import matplotlib.pyplot
+
 from experiment import *
 from variable import *
 
@@ -109,6 +111,7 @@ None
         """
         calculate the integral intensity for h, k, l reflections
         """
+        self.apply_constraint()
         if d_map == {}:
             d_map.update(self.plot_map())
         #if not(d_map["flag"]|(d_map["out"] is None)):
@@ -127,6 +130,10 @@ None
 
         d_map["out"] = (chi_sq, n_res)
         return chi_sq, n_res 
+    
+    def apply_constraint(self):
+        for crystal in self._list_crystal:
+            crystal.apply_constraint()
     
     def refine_model(self, d_map={}):
         """
@@ -211,5 +218,7 @@ None
         for experiment in self._list_experiment:
             experiment.save_exp_mod_data(l_crystal)
     
+
+
 if (__name__ == "__main__"):
     pass

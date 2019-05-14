@@ -74,6 +74,9 @@ class RCif(object):
                 else:
                     sval = "{:}".format(val)
                 ddata[label_rcif] = sval 
+            else:
+                print(50*"ERROR ")
+                print("type_mod: ", type_mod)
             return
             
         drel = rcif_model_relation()
@@ -233,8 +236,29 @@ class RCif(object):
                                                 d_exp["_pd_file_name_output"])
                 observed_data = obj.get_val("observed_data")
                 d_exp["_pd_file_name_input"] = observed_data.get_val("file_name")
-                
+
+                if "up" in obj.get_val("mode_chi_sq"):
+                    d_exp["_pd_chi2_up"] = "True" 
+                else:
+                    d_exp["_2dpd_chi2_up"] = "False" 
+                if "down" in obj.get_val("mode_chi_sq"):
+                    d_exp["_pd_chi2_down"] = "True" 
+                else:
+                    d_exp["_pd_chi2_down"] = "False" 
+                if "sum" in obj.get_val("mode_chi_sq"):
+                    d_exp["_pd_chi2_sum"] = "True" 
+                else:
+                    d_exp["_pd_chi2_sum"] = "False" 
+                if "dif" in obj.get_val("mode_chi_sq"):
+                    d_exp["_pd_chi2_diff"] = "True" 
+                else:
+                    d_exp["_pd_chi2_diff"] = "False" 
+
+
                 setup = obj.get_val("setup")
+                background = setup.get_val("background")
+                d_exp["_pd_file_name_bkgr"] = background.get_val("file_name")
+                
                 llab_rcif = drel["lab_rcif_zero_shift_1d"]
                 llab_arg = drel["lab_arg_zero_shift_1d"]
                 ltype_arg = drel["type_zero_shift_1d"]
@@ -279,7 +303,28 @@ class RCif(object):
                 observed_data = obj.get_val("observed_data")
                 d_exp["_2dpd_file_name_input"] = observed_data.get_val("file_name")
                 
+                if "up" in obj.get_val("mode_chi_sq"):
+                    d_exp["_2dpd_chi2_up"] = "True" 
+                else:
+                    d_exp["_2dpd_chi2_up"] = "False" 
+                if "down" in obj.get_val("mode_chi_sq"):
+                    d_exp["_2dpd_chi2_down"] = "True" 
+                else:
+                    d_exp["_2dpd_chi2_down"] = "False" 
+                if "sum" in obj.get_val("mode_chi_sq"):
+                    d_exp["_2dpd_chi2_sum"] = "True" 
+                else:
+                    d_exp["_2dpd_chi2_sum"] = "False" 
+                if "dif" in obj.get_val("mode_chi_sq"):
+                    d_exp["_2dpd_chi2_diff"] = "True" 
+                else:
+                    d_exp["_2dpd_chi2_diff"] = "False" 
+                
+                
                 setup = obj.get_val("setup")
+                background = setup.get_val("background")
+                d_exp["_2dpd_file_name_bkgr"] = background.get_val("file_name")
+                
                 llab_rcif = drel["lab_rcif_zero_shift_2d"]
                 llab_arg = drel["lab_arg_zero_shift_2d"]
                 ltype_arg = drel["type_zero_shift_2d"]
@@ -357,11 +402,11 @@ class RCif(object):
 
                     crystal = model._list_crystal[ind]
                     
-
-                    temp_func(crystal, dhelp, ["_pd_phase_igsize"], ["i_g"], ["val"])
+                    
+                    temp_func(crystal, dhelp, "_pd_phase_igsize", "i_g", "val")
                     l_dhelp.append(dhelp) 
 
-                for lab_rcif in llab_rcif:
+                for lab_rcif in ["_pd_phase_igsize"]+llab_rcif:
                     d_eph[lab_rcif] = [hh[lab_rcif] for hh in l_dhelp]
                 lloop_d.append(d_eph)
 
@@ -386,10 +431,10 @@ class RCif(object):
                     crystal = model._list_crystal[ind]
 
 
-                    temp_func(crystal, dhelp, ["_2dpd_phase_igsize"], ["i_g"], ["val"])
+                    temp_func(crystal, dhelp, "_2dpd_phase_igsize", "i_g", "val")
                     l_dhelp.append(dhelp) 
 
-                for lab_rcif in llab_rcif:
+                for lab_rcif in ["_2dpd_phase_igsize"]+llab_rcif:
                     d_eph[lab_rcif] = [hh[lab_rcif] for hh in l_dhelp]
                 lloop_d.append(d_eph)
                 
@@ -654,8 +699,8 @@ def rcif_model_relation():
              "_atom_site_magnetism_kappa",
              "_atom_site_magnetism_factor_lande", "_atom_site_susceptibility_aniso_chi_11",
              "_atom_site_susceptibility_aniso_chi_22", "_atom_site_susceptibility_aniso_chi_33",
-             "_atom_site_susceptibility_aniso_chi_23", "_atom_site_susceptibility_aniso_chi_13",
-             "_atom_site_susceptibility_aniso_chi_12", "_atom_site_magnetism_type"]
+             "_atom_site_susceptibility_aniso_chi_12", "_atom_site_susceptibility_aniso_chi_13",
+             "_atom_site_susceptibility_aniso_chi_23", "_atom_site_magnetism_type"]
     llab_arg_chi = ["name", "type_m", "kappa", "factor_lande", "chi_11", 
                     "chi_22", "chi_33", "chi_12", "chi_13", "chi_23", "chi_type"]
     ltype_chi = ["text", "text", "val", "val", "val", "val", "val", "val", 

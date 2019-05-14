@@ -375,9 +375,9 @@ f_out is the file name of experimental and model data
         """
         if d_map == {}:
             d_map.update(self.plot_map())
-        if not(d_map["flag"]|(d_map["out"] is None)):
-            chi_sq_val, n = d_map["out"]
-            return chi_sq_val, n
+        #if not(d_map["flag"]|(d_map["out"] is None)):
+        #    chi_sq_val, n = d_map["out"]
+        #    return chi_sq_val, n
         
         observed_data = self._p_observed_data
 

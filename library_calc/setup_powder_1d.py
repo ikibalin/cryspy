@@ -100,9 +100,9 @@ x, y are coefficients to describe the Lorentz part of peak shape
         ttheta in radians, could be array
         gauss size
         """
-        
-        res_sq = (self._p_u*self._p_t_th_sq + self._p_v*self._p_t_th + 
-                  self._p_w + i_g*self._p_ic_th**2)
+        u, v, w = 1.*self._p_u, 1.*self._p_v, 1.*self._p_w
+        res_sq = (u*self._p_t_th_sq + v*self._p_t_th + w + 
+                  i_g*self._p_ic_th**2)
         self._p_hg = numpy.sqrt(res_sq)
         
     def _calc_hl(self):
@@ -110,7 +110,8 @@ x, y are coefficients to describe the Lorentz part of peak shape
         ttheta in radians, could be array
         lorentz site
         """
-        self._p_hl = self._p_x*self._p_t_th + self._p_y*self._p_ic_th
+        x, y = self._p_x, self._p_y
+        self._p_hl = x*self._p_t_th + y*self._p_ic_th
 
 
     def _calc_hpveta(self):

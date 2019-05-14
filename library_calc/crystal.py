@@ -102,31 +102,25 @@ class Cell(dict):
         """
         refresh variables
         """
-        if a != None:
+        if a is not None:
             self._p_a = a
-        if b != None:
+        if b is not None:
             self._p_b = b
-        if c != None:
+        if c is not None:
             self._p_c = c
-        if alpha != None:
+        if alpha is not None:
             self._p_alpha = alpha
-        if beta != None:
+        if beta is not None:
             self._p_beta = beta
-        if gamma != None:
+        if gamma is not None:
             self._p_gamma = gamma
-        if singony != None:
+        if singony is not None:
             self._p_singony = singony
 
-        cond = any([hh != None for hh in [a, b, c, alpha, beta, gamma, 
+        cond = any([hh is not None for hh in [a, b, c, alpha, beta, gamma, 
                                           singony]])
         if cond:
-            self._constr_singony()
-            self._calc_cos_abc()
-            self._calc_volume()
-            self._calc_iucp()
-            self._calc_cos_iabc()
-            self._calc_m_b()
-            self._calc_m_ib()
+            self.apply_constraint()
     
     def _constr_singony(self):
         singony = self._p_singony
@@ -454,7 +448,17 @@ m_ib - inverse B matrix
         if isinstance(self._p_gamma, Variable):
             l_variable.append(self._p_gamma)
         return l_variable
-
+    
+    def apply_constraint(self):
+        self._constr_singony()
+        self._calc_cos_abc()
+        self._calc_volume()
+        self._calc_iucp()
+        self._calc_cos_iabc()
+        self._calc_m_b()
+        self._calc_m_ib()
+        
+        
 class SpaceGroupe(dict):
     """
     Space Groupe
@@ -779,8 +783,113 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         xyz_s_un = numpy.unique(xyz_s, axis=1)
         n_atom = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
         x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
+        
+        
+        
         return x_s, y_s, z_s, n_atom
     
+    def calc_el_symm_for_xyz(self, x, y, z):
+        r_11 = self._p_r_11
+        r_12 = self._p_r_12
+        r_13 = self._p_r_13
+        r_21 = self._p_r_21
+        r_22 = self._p_r_22
+        r_23 = self._p_r_23
+        r_31 = self._p_r_31
+        r_32 = self._p_r_32
+        r_33 = self._p_r_33
+        b_1 = self._p_b_1
+        b_2 = self._p_b_2
+        b_3 = self._p_b_3
+        
+        lorig = self._p_orig
+        centr = self._p_centr
+        p_centr = self._p_p_centr
+
+
+        x_o = [orig[0] for orig in lorig]
+        y_o = [orig[1] for orig in lorig]
+        z_o = [orig[2] for orig in lorig]
+        
+        r_11_2d, x_o_2d = numpy.meshgrid(r_11, x_o, indexing="ij")
+        r_12_2d, y_o_2d = numpy.meshgrid(r_12, y_o, indexing="ij")
+        r_13_2d, z_o_2d = numpy.meshgrid(r_13, z_o, indexing="ij")
+
+        r_21_2d = numpy.meshgrid(r_21, x_o, indexing="ij")[0]
+        r_22_2d = numpy.meshgrid(r_22, y_o, indexing="ij")[0]
+        r_23_2d = numpy.meshgrid(r_23, z_o, indexing="ij")[0]
+        
+        r_31_2d = numpy.meshgrid(r_31, x_o, indexing="ij")[0]
+        r_32_2d = numpy.meshgrid(r_32, y_o, indexing="ij")[0]
+        r_33_2d = numpy.meshgrid(r_33, z_o, indexing="ij")[0]
+        
+        b_1_2d = numpy.meshgrid(b_1, x_o, indexing="ij")[0]
+        b_2_2d = numpy.meshgrid(b_2, y_o, indexing="ij")[0]
+        b_3_2d = numpy.meshgrid(b_3, z_o, indexing="ij")[0]
+        
+        b_1_2d = b_1_2d + x_o_2d
+        b_2_2d = b_2_2d + x_o_2d
+        b_3_2d = b_3_2d + x_o_2d
+
+        e_11 = r_11_2d.flatten()
+        e_12 = r_12_2d.flatten()
+        e_13 = r_13_2d.flatten()
+
+        e_21 = r_21_2d.flatten()
+        e_22 = r_22_2d.flatten()
+        e_23 = r_23_2d.flatten()
+
+        e_31 = r_31_2d.flatten()
+        e_32 = r_32_2d.flatten()
+        e_33 = r_33_2d.flatten()
+
+        e_1 = b_1_2d.flatten()
+        e_2 = b_2_2d.flatten()
+        e_3 = b_3_2d.flatten()
+
+        if centr:
+            me_11, me_12, me_13 = -1*e_11, -1*e_12, -1*e_13
+            me_21, me_22, me_23 = -1*e_21, -1*e_22, -1*e_23
+            me_31, me_32, me_33 = -1*e_31, -1*e_32, -1*e_33
+            me_1 = 2.*p_centr[0]-1.*e_1
+            me_2 = 2.*p_centr[1]-1.*e_2
+            me_3 = 2.*p_centr[2]-1.*e_3 
+            
+            e_11 = numpy.hstack([e_11, me_11])
+            e_12 = numpy.hstack([e_12, me_12])
+            e_13 = numpy.hstack([e_13, me_13])
+                                          
+            e_21 = numpy.hstack([e_21, me_21])
+            e_22 = numpy.hstack([e_22, me_22])
+            e_23 = numpy.hstack([e_23, me_23])
+                                          
+            e_31 = numpy.hstack([e_31, me_31])
+            e_32 = numpy.hstack([e_32, me_32])
+            e_33 = numpy.hstack([e_33, me_33])
+
+            e_1 = numpy.hstack([e_1, me_1])
+            e_2 = numpy.hstack([e_2, me_2])
+            e_3 = numpy.hstack([e_3, me_3])
+
+            
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+            
+        xyz_s = numpy.vstack([x_s, y_s, z_s])
+        
+        xyz_s_un, unique_inverse = numpy.unique(xyz_s, return_inverse=True, axis=1)
+        x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
+        ind = (numpy.where((x-x_s)**2+(y-y_s)**2+(z-z_s)**2 < 0.00001))[0][0]
+
+        flag = unique_inverse == ind
+        o_11, o_12, o_13 = e_11[flag], e_12[flag], e_13[flag]
+        o_21, o_22, o_23 = e_21[flag], e_22[flag], e_23[flag]
+        o_31, o_32, o_33 = e_31[flag], e_32[flag], e_33[flag]
+        o_3, o_2, o_3 = e_3[flag], e_2[flag], e_3[flag]
+        return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3
+
+
     
     def calc_atom_mult(self, np_x, np_y, np_z):
         """
@@ -1343,7 +1452,240 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         self._p_chi_12 = chi_12
         self._p_chi_13 = chi_13
         self._p_chi_23 = chi_23
+
         
+    def apply_constraint(self, space_groupe, cell):
+        chi_type = self.get_val("chi_type")
+        if chi_type == "ciso":
+            self.apply_chi_iso(cell)
+        self.apply_space_groupe_constraint(space_groupe)
+
+    def calc_constr_number(self, space_groupe):
+        """
+        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
+        """
+        x, y, z = 1.*self._p_x, 1.*self._p_y, 1.*self._p_z
+        o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 = space_groupe.calc_el_symm_for_xyz(x,y,z)
+        
+        b_11, b_22, b_33, b_12, b_13, b_23 = 107, 181, 41, 7, 19, 1
+        
+        i_11 = (o_11*o_11*b_11 + o_12*o_12*b_22 + o_13*o_13*b_33 + 
+                o_11*o_12*b_12 + o_11*o_13*b_13 + o_12*o_13*b_23 + 
+                o_12*o_11*b_12 + o_13*o_11*b_13 + o_13*o_12*b_23)
+                
+        i_22 = (o_21*o_21*b_11 + o_22*o_22*b_22 + o_23*o_23*b_33 + 
+                o_21*o_22*b_12 + o_21*o_23*b_13 + o_22*o_23*b_23 + 
+                o_22*o_21*b_12 + o_23*o_21*b_13 + o_23*o_22*b_23)
+                
+        i_33 = (o_31*o_31*b_11 + o_32*o_32*b_22 + o_33*o_33*b_33 + 
+                o_31*o_32*b_12 + o_31*o_33*b_13 + o_32*o_33*b_23 + 
+                o_32*o_31*b_12 + o_33*o_31*b_13 + o_33*o_32*b_23) 
+                
+        i_12 = (o_11*o_21*b_11 + o_12*o_22*b_22 + o_13*o_23*b_33 + 
+                o_11*o_22*b_12 + o_11*o_23*b_13 + o_12*o_23*b_23 + 
+                o_12*o_21*b_12 + o_13*o_21*b_13 + o_13*o_22*b_23) 
+                
+        i_13 = (o_11*o_31*b_11 + o_12*o_32*b_22 + o_13*o_33*b_33 + 
+                o_11*o_32*b_12 + o_11*o_33*b_13 + o_12*o_33*b_23 + 
+                o_12*o_31*b_12 + o_13*o_31*b_13 + o_13*o_32*b_23)
+                
+        i_23 = (o_21*o_31*b_11 + o_22*o_32*b_22 + o_23*o_33*b_33 + 
+                o_21*o_32*b_12 + o_21*o_33*b_13 + o_22*o_33*b_23 + 
+                o_22*o_31*b_12 + o_23*o_31*b_13 + o_23*o_32*b_23) 
+        
+        r_11, r_22, r_33, r_12, r_13, r_23 = i_11.sum(), i_22.sum(), i_33.sum(), i_12.sum(), i_13.sum(), i_23.sum()
+        
+        if r_13 == 0:
+            if r_23 == 0:
+                if r_12 == 0:
+                    if r_11 == r_22:
+                        if r_22 == r_33:
+                            numb = 17
+                        else:
+                            numb = 8
+                    elif r_22 == r_33:
+                        numb = 12
+                    else:
+                        numb = 4
+                elif r_11 == r_22:
+                    if r_22 == 2*r_12:
+                        numb = 16
+                    else:
+                        numb = 5
+                elif r_22 == 2*r_12:
+                    numb = 14
+                else:
+                    numb = 2
+            elif r_22 == r_33:
+                numb = 9
+            else:
+                numb = 3
+        elif r_23 == 0:
+            if r_22 == 2*r_12:
+                numb = 13
+            else:
+                numb = 1
+        elif r_23 == r_13:
+            if r_22 == r_33:
+                numb = 18
+            else:
+                numb = 6
+        elif r_12 == r_13:
+            numb = 10
+        elif r_11 == 22:
+            numb = 7
+        elif r_22 == r_33:
+            numb = 11
+        elif r_22 == 2*r_12:
+            numb = 15
+        else:
+            numb = 0 #no constraint
+        return numb
+    
+    def apply_space_groupe_constraint(self, space_groupe):
+        """
+        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
+        """
+        numb = self.calc_constr_number(space_groupe)
+        if numb == 1:
+            self._p_u_12 = 0.
+            self._p_u_23 = 0.
+
+            self._p_chi_12 = 0.
+            self._p_chi_23 = 0.
+        elif numb == 2:
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 3:
+            self._p_u_12 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_12 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 4:
+            self._p_u_12 = 0.
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_12 = 0.
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 5:
+            self._p_u_22 = 1.*self._p_u_11
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_22 = 1.*self._p_chi_11
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 6:
+            self._p_u_22 = 1.*self._p_u_11
+            self._p_u_23 = 1.*self._p_u_13
+
+            self._p_chi_22 = 1.*self._p_chi_11
+            self._p_chi_23 = 1.*self._p_chi_13
+        elif numb == 7:
+            self._p_u_22 = 1.*self._p_u_11
+            self._p_u_23 = -1.*self._p_u_13
+
+            self._p_chi_22 = 1.*self._p_chi_11
+            self._p_chi_23 = -1.*self._p_chi_13
+        elif numb == 8:
+            self._p_u_22 = 1.*self._p_u_11
+            self._p_u_12 = 0.
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_22 = 1.*self._p_chi_11
+            self._p_chi_12 = 0.
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 9:
+            self._p_u_33 = 1.*self._p_u_22
+            self._p_u_12 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_33 = 1.*self._p_chi_22
+            self._p_chi_12 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 10:
+            self._p_u_33 = 1.*self._p_u_22
+            self._p_u_13 = 1.*self._p_u_12 
+
+            self._p_chi_33 = 1.*self._p_chi_22
+            self._p_chi_13 = 1.*self._p_chi_12 
+        elif numb == 11:
+            self._p_u_33 = 1.*self._p_u_22
+            self._p_u_13 = -1.*self._p_u_12 
+
+            self._p_chi_33 = 1.*self._p_chi_22
+            self._p_chi_13 = -1.*self._p_chi_12 
+        elif numb == 12:
+            self._p_u_33 = 1.*self._p_u_22
+            self._p_u_12 = 0.
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_33 = 1.*self._p_chi_22
+            self._p_chi_12 = 0.
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 13:
+            self._p_u_12 = 0.5*self._p_u_22
+            self._p_u_23 = 0.
+
+            self._p_chi_12 = 0.5*self._p_chi_22
+            self._p_chi_23 = 0.
+        elif numb == 14:
+            self._p_u_12 = 0.5*self._p_u_22
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_12 = 0.5*self._p_chi_22
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 15:
+            self._p_u_12 = 0.5*self._p_u_22
+            self._p_u_23 = 2.0*self._p_u_13
+
+            self._p_chi_12 = 0.5*self._p_chi_22
+            self._p_chi_23 = 2.0*self._p_chi_13
+        elif numb == 16:
+            self._p_u_22 = 1.0*self._p_u_11
+            self._p_u_12 = 0.5*self._p_u_11
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_22 = 1.0*self._p_chi_11
+            self._p_chi_12 = 0.5*self._p_chi_11
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 17:
+            self._p_u_22 = 1.0*self._p_u_11
+            self._p_u_33 = 1.0*self._p_u_11
+            self._p_u_12 = 0.
+            self._p_u_23 = 0.
+            self._p_u_13 = 0.
+
+            self._p_chi_22 = 1.0*self._p_chi_11
+            self._p_chi_33 = 1.0*self._p_chi_11
+            self._p_chi_12 = 0.
+            self._p_chi_23 = 0.
+            self._p_chi_13 = 0.
+        elif numb == 18:
+            self._p_u_22 = 1.0*self._p_u_11
+            self._p_u_33 = 1.0*self._p_u_11
+            self._p_u_23 = 1.0*self._p_u_12
+            self._p_u_13 = 1.0*self._p_u_12
+
+            self._p_chi_22 = 1.0*self._p_chi_11
+            self._p_chi_33 = 1.0*self._p_chi_11
+            self._p_chi_23 = 1.0*self._p_chi_12
+            self._p_chi_13 = 1.0*self._p_chi_12
+            
     
 class Fract(dict):
     """
@@ -2294,6 +2636,12 @@ fract  is fraction of atoms
             l_variable.extend(l_var)
         return l_variable
     
+    def apply_constraint(self, space_groupe, cell):
+        for atom_type in self._list_atom_type:
+            atom_type.apply_constraint(space_groupe, cell)
+        self._form_arrays(cell)
+
+    
 class Extinction(dict):
     """
     Extinction
@@ -2443,10 +2791,12 @@ class Crystal(dict):
     def _refresh(self, name, space_groupe, cell, atom_site, extinction, i_g):
         if name is not None:
             self._p_name = name
-        if space_groupe is not None:
-            self._p_space_groupe = space_groupe
         if cell is not None:
             self._p_cell = cell
+        if space_groupe is not None:
+            self._p_space_groupe = space_groupe
+            if self._p_cell is not None:
+                self._p_cell.set_val(singony=space_groupe.get_val("singony"))
         if atom_site is not None:
             self._p_atom_site = atom_site
         if extinction is not None:
@@ -2640,6 +2990,13 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         l_variable.extend(l_var)
 
         return l_variable
+    
+    def apply_constraint(self):
+        space_groupe = self.get_val("space_groupe")
+        cell = self.get_val("cell")
+        cell.apply_constraint()
+        atom_site = self.get_val("atom_site")
+        atom_site.apply_constraint(space_groupe, cell)
     
 if (__name__ == "__main__"):
   pass
