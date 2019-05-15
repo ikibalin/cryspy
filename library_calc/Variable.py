@@ -245,6 +245,7 @@ class Variable(dict):
             else:
                 print ("Variable should be integer or float type")
         return
+    
     def __repr__(self):
         if self.sigma != 0.:
             n_power = numpy.round(numpy.log10(self.sigma), decimals=0)
@@ -266,5 +267,17 @@ class Variable(dict):
         #    lsout_add = "    constraint: None"
         # "".join([lsout, lsout_add])
         return ls_out
+    
+    def print_with_sigma(self):
+        if self.sigma != 0.:
+            n_power = numpy.round(numpy.log10(self.sigma), decimals=0)
+            val_1 = numpy.round(self.value, decimals = -1*int(n_power)+1)
+            val_2 = numpy.round(self.sigma, decimals = -1*int(n_power)+1)
+            if n_power < 0:
+                val_2=int(val_2*10**(-n_power+1))
+            ls_out = " {:}({:})".format(val_1, int(val_2))
+        else:
+            ls_out = "{:}".format(self.value)
+        return ls_out        
         
     

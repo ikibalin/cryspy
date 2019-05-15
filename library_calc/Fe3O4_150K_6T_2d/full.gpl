@@ -39,32 +39,29 @@ set cbrange [-500:7500]
 fname1 = "full.out"
 
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_u.png"
+set output fnameb."_u_e.png"
 splot  fname1 index 0 nonuniform matrix  notitle
-set output fnameb."_d.png"
-splot  fname1 index 2 nonuniform matrix  notitle
+set output fnameb."_d_e.png"
+splot  fname1 index 3 nonuniform matrix  notitle
 
-fname1 = "full.out"
 
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_u.png"
-splot  fname1 index 0 nonuniform matrix  notitle
-set output fnameb."_d.png"
-splot  fname1 index 2 nonuniform matrix  notitle
+set output fnameb."_u_m.png"
+splot  fname1 index 1 nonuniform matrix  notitle
+set output fnameb."_d_m.png"
+splot  fname1 index 4 nonuniform matrix  notitle
 
 
 set cbrange [ -4000:4000]
 
 
-fname1 = "full.out"
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_diff.png"
-splot  fname1 index 4 nonuniform matrix  notitle
+set output fnameb."_u_diff.png"
+splot  fname1 index 2 nonuniform matrix  notitle
 
-fname1 = "full.out"
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_diff.png"
-splot  fname1 index 4 nonuniform matrix  notitle
+set output fnameb."_d_diff.png"
+splot  fname1 index 5 nonuniform matrix  notitle
 
 
 

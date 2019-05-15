@@ -121,10 +121,13 @@ f_out is the file name of model data
                 return
             crystal = l_crystal[ind_cry]
             
-            iint_u, iint_d, flip_ratio = calculated_data.calc_iint_u_d_flip_ratio(
+            iint_u, iint_d, flip_ratio, d_info_cd = calculated_data.calc_iint_u_d_flip_ratio(
                               h, k, l, beam_polarization, wave_length, crystal)
+
+        d_info_out = {}
+        d_info_out.update(d_info_cd)        
             
-        return iint_u, iint_d, flip_ratio 
+        return iint_u, iint_d, flip_ratio, d_info_out
     
     def calc_chi_sq(self, l_crystal, d_map={}):
         """
@@ -152,15 +155,17 @@ f_out is the file name of model data
         for calculated_data in self._list_calculated_data:
             calculated_data.set_val(field=field, orientation=orientation)
 
-        int_u_mod, int_d_mod, flip_ratio_mod = self.calc_iint_u_d_flip_ratio(
+        int_u_mod, int_d_mod, flip_ratio_mod, d_info_cd = self.calc_iint_u_d_flip_ratio(
                                                h, k, l, l_crystal)
         
 
         chi_sq = ((flip_ratio_mod-flip_ratio_exp)/sflip_ratio_exp)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
-        d_map["out"] = chi_sq_val, n
-        return chi_sq_val, n
+
+        d_info_out = {"chi_sq_val": chi_sq_val, "n": n}
+        d_info_out.update(d_info_cd)        
+        return chi_sq_val, n, d_info_out
     
     def plot_map(self):
         b_variable = self.is_variable()
@@ -206,7 +211,7 @@ f_out is the file name of model data
         sfr_exp = observed_data.get_val("sflip_ratio")
         
         
-        iint_u_mod, iint_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(h, k, l, l_crystal)
+        iint_u_mod, iint_d_mod, fr_mod, d_info = self.calc_iint_u_d_flip_ratio(h, k, l, l_crystal)
         
         s_1 = "   h   k   l       FR_exp        sigma       FR_mod  iint_up_mod iint_down_mod\n"
         l_s_2 = ["{:4}{:4}{:4} {:12.5f} {:12.5f} {:12.5f} {:12.5f} {:12.5f}".format(
@@ -226,6 +231,33 @@ f_out is the file name of model data
         fid.write(s_out)
         fid.close()
 
+    def print_report(self, l_crystal):
+        s_out = "{:}".format(self)
+        
+        chi_sq_val, n, d_info = self.calc_chi_sq(l_crystal)
+        
+        ls_out = []
+        ls_out.append("\n\n   h   k   l   fn_real   fn_imag   iint_up iint_down flip_ratio")
+
+        h, k, l, f_nucl = d_info["h"], d_info["k"], d_info["l"], d_info["f_nucl"]
+        flip_ratio = d_info["flip_ratio"]
+        iint_u, iint_d = d_info["iint_u"], d_info["iint_d"]
+        sft_11, sft_12, sft_13 = d_info["sft_11"], d_info["sft_12"], d_info["sft_13"]
+        sft_21, sft_22, sft_23 = d_info["sft_21"], d_info["sft_22"], d_info["sft_23"]
+        sft_31, sft_32, sft_33 = d_info["sft_31"], d_info["sft_32"], d_info["sft_33"]
+
+        for h1, k1, l1, f, i_u, i_d, f_r in zip(
+            h, k, l, f_nucl, iint_u, iint_d, flip_ratio):
+                ls_out.append(""" {:3} {:3} {:3}  {:8.3f}  {:8.3f}  {:8.1f}  {:8.1f} {:8.5f}""".format(
+     h1, k1, l1, f.real, f.imag, i_u, i_d, f_r))
+        ls_out.append("\n\nStructure factor tensor in a*, b*, c* (real part, mu_B) ")
+        ls_out.append("\n   h   k   l   sft_11   sft_22   sft_33    sft_12   sft_13   sft_23")
+        for h1, k1, l1, c11, c22,  c33, c12, c13, c23 in zip(
+            h, k, l, sft_11, sft_22, sft_33, sft_12, sft_13, sft_23):
+                ls_out.append(""" {:3} {:3} {:3} {:8.3f} {:8.3f} {:8.3f}  {:8.3f} {:8.3f} {:8.3f}""".format(
+                        h1, k1, l1, c11.real, c22.real, c33.real, c12.real, c13.real, c23.real))
+                
+        return s_out+"\n".join(ls_out)
 
 
 class ExperimentPowder1D(dict):
@@ -327,7 +359,7 @@ f_out is the file name of experimental and model data
 
         res_u_1d = numpy.zeros(tth.shape[0], dtype=float)
         res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
-        
+        l_d_info = []
         for calculated_data in self._list_calculated_data:
             ind_cry = None
             observed_data_name = calculated_data.get_val("name")
@@ -348,7 +380,7 @@ f_out is the file name of experimental and model data
             space_groupe = crystal.get_val("space_groupe")
             h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
             
-            np_iint_u, np_iint_d = calculated_data.calc_iint(h, k, l, 
+            np_iint_u, np_iint_d, d_info_cd = calculated_data.calc_iint(h, k, l, 
                                                     beam_polarization, crystal)
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             
@@ -367,7 +399,13 @@ f_out is the file name of experimental and model data
             res_u_1d += scale*res_u_2d.sum(axis=1) 
             res_d_1d += scale*res_d_2d.sum(axis=1) 
             
-        return res_u_1d+int_bkgd, res_d_1d+int_bkgd
+            d_info = {}
+            d_info.update(d_info_cd)
+            l_d_info.append(d_info)
+        
+        d_info_out = {"crystal": l_d_info}
+            
+        return res_u_1d+int_bkgd, res_d_1d+int_bkgd, d_info_out
     
     def calc_chi_sq(self, l_crystal, d_map={}):
         """
@@ -395,7 +433,7 @@ f_out is the file name of experimental and model data
         for calculated_data in self._list_calculated_data:
             calculated_data.set_val(field=field)
 
-        int_u_mod, int_d_mod = self.calc_profile(tth, l_crystal)
+        int_u_mod, int_d_mod, d_info_prof = self.calc_profile(tth, l_crystal)
         sint_sum_exp = (sint_u_exp**2 + sint_d_exp**2)**0.5
 
         chi_sq_u = ((int_u_mod-int_u_exp)/sint_u_exp)**2
@@ -427,8 +465,10 @@ f_out is the file name of experimental and model data
                   int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
         n = (int(flag_u)*n_u + int(flag_d)*n_d + int(flag_sum)*n_sum + 
              int(flag_dif)*n_sum)
-        d_map["out"] = chi_sq_val, n
-        return chi_sq_val, n
+        
+        d_info_out = {"chi_sq_val": chi_sq_val, "n": n}
+        d_info_out.update(d_info_prof)
+        return chi_sq_val, n, d_info_out
     
     def plot_map(self):
         b_variable = self.is_variable()
@@ -478,7 +518,7 @@ f_out is the file name of experimental and model data
         int_d_exp = observed_data.get_val("int_d")
         sint_d_exp = observed_data.get_val("sint_d")
         
-        int_u_mod, int_d_mod = self.calc_profile(tth, l_crystal) 
+        int_u_mod, int_d_mod, d_info = self.calc_profile(tth, l_crystal) 
         
         s_1 = "    ttheta       exp_up        sigma       mod_up     exp_down        sigma     mod_down\n"
         l_s_2 = ["{:10.2f} {:12.5f} {:12.5f} {:12.5f} {:12.5f} {:12.5f} {:12.5f}".format(
@@ -498,6 +538,33 @@ f_out is the file name of experimental and model data
         fid = open(f_out, "w")
         fid.write(s_out)
         fid.close()
+        
+    def print_report(self, l_crystal):
+        s_out = "{:}".format(self)
+        
+        chi_sq_val, n, d_info_full = self.calc_chi_sq(l_crystal)
+        
+        ls_out = []
+        l_d_info = d_info_full["crystal"]
+        for d_info in l_d_info:
+            ls_out.append("\n\n   h   k   l   fn_real   fn_imag   iint_up iint_down")
+            h, k, l, f_nucl = d_info["h"], d_info["k"], d_info["l"], d_info["f_nucl"]
+            iint_u, iint_d = d_info["iint_u"], d_info["iint_d"]
+            sft_11, sft_12, sft_13 = d_info["sft_11"], d_info["sft_12"], d_info["sft_13"]
+            sft_21, sft_22, sft_23 = d_info["sft_21"], d_info["sft_22"], d_info["sft_23"]
+            sft_31, sft_32, sft_33 = d_info["sft_31"], d_info["sft_32"], d_info["sft_33"]
+
+            for h1, k1, l1, f, i_u, i_d in zip(h, k, l, f_nucl, iint_u, iint_d):
+                ls_out.append(""" {:3} {:3} {:3}  {:8.3f}  {:8.3f}  {:8.1f}  {:8.1f}""".format(
+                        h1, k1, l1, f.real, f.imag, i_u, i_d))
+            ls_out.append("\n\nStructure factor tensor in a*, b*, c* (real part, mu_B) ")
+            ls_out.append("\n   h   k   l   sft_11   sft_22   sft_33    sft_12   sft_13   sft_23")
+            for h1, k1, l1, c11, c22,  c33, c12, c13, c23 in zip(
+                    h, k, l, sft_11, sft_22, sft_33, sft_12, sft_13, sft_23):
+                ls_out.append(""" {:3} {:3} {:3} {:8.3f} {:8.3f} {:8.3f}  {:8.3f} {:8.3f} {:8.3f}""".format(
+                        h1, k1, l1, c11.real, c22.real, c33.real, c12.real, c13.real, c23.real))
+        
+        return s_out+"\n".join(ls_out)
 
 
 class ExperimentPowder2D(dict):
@@ -617,7 +684,8 @@ f_out is the file name to save model profiles
 
         res_u_2d = numpy.zeros((tth.shape[0],phi.shape[0]), dtype=float)
         res_d_2d = numpy.zeros((tth.shape[0],phi.shape[0]), dtype=float)
-
+        
+        l_d_info = []
         for calculated_data in self._list_calculated_data:
             ind_cry = None
             observed_data_name = calculated_data.get_val("name")
@@ -637,12 +705,12 @@ f_out is the file name to save model profiles
             space_groupe = crystal.get_val("space_groupe")
             
             
-            d_hkl = d_map[("hkl", observed_data_name)]
-            if not(d_hkl["flag"]|(d_hkl["out"] is None)):
-                h, k, l, mult = d_hkl["out"]
-            else:
-                h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
-                d_hkl["out"] = (h, k, l, mult)
+            #d_hkl = d_map[("hkl", observed_data_name)]
+            #if not(d_hkl["flag"]|(d_hkl["out"] is None)):
+            #    h, k, l, mult = d_hkl["out"]
+            #else:
+            h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
+            #d_hkl["out"] = (h, k, l, mult)
             mult_3d = numpy.meshgrid(tth, phi, mult, indexing="ij")[2]
             
             
@@ -651,7 +719,7 @@ f_out is the file name to save model profiles
             #    f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin = d_for_iint["out"]
             #else:
             #    #dimension: (tth_hkl)
-            f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin = calculated_data.calc_for_iint(
+            f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, d_info_cd = calculated_data.calc_for_iint(
                         h, k, l, crystal)#d_for_iint
             
             #print("   h   k   l mult   f_nucl_sq f_m_p_sin_sq f_m_p_cos_sq cross_sin")
@@ -674,13 +742,12 @@ f_out is the file name to save model profiles
             tth_hkl = tth_hkl_rad*180./numpy.pi
             
 
-            d_profile_s = d_map[("profile", observed_data_name)]
-            if not(d_profile_s["flag"]|(d_profile_s["out"] is None)):
-                profile_3d = d_profile_s["out"]
-            else:
-                #dimension: (tth, phi, tth_hkl)
-                profile_3d = setup.calc_profile(tth, phi, tth_hkl, i_g)
-                d_profile_s["out"] = profile_3d
+            #if not(d_profile_s["flag"]|(d_profile_s["out"] is None)):
+            #    profile_3d = d_profile_s["out"]
+            #else:
+            #    #dimension: (tth, phi, tth_hkl)
+            profile_3d = setup.calc_profile(tth, phi, tth_hkl, i_g)
+            #d_profile_s["out"] = profile_3d
             
             
             res_u_3d = profile_3d*i_u_3d
@@ -688,19 +755,25 @@ f_out is the file name to save model profiles
 
             res_u_2d += scale*res_u_3d.sum(axis=2) 
             res_d_2d += scale*res_d_3d.sum(axis=2) 
-        d_profile["out"] = res_u_2d+int_bkgd, res_d_2d+int_bkgd
-        return res_u_2d+int_bkgd, res_d_2d+int_bkgd
+            
+            
+            d_info = {}
+            d_info.update(d_info_cd)
+            l_d_info.append(d_info)
+        
+        d_info_out = {"crystal": l_d_info}            
+        #d_profile["out"] = res_u_2d+int_bkgd, res_d_2d+int_bkgd
+        return res_u_2d+int_bkgd, res_d_2d+int_bkgd, d_info_out
     
     def calc_chi_sq(self, l_crystal, d_map={}):
         """
         calculate chi square
         """
-        if d_map == {}:
-            d_map.update(self.plot_map())
-        if not(d_map["flag"]|(d_map["out"] is None)):
-            chi_sq_val, n = d_map["out"]
-            return chi_sq_val, n
-        
+        #if d_map == {}:
+        #    d_map.update(self.plot_map())
+        #if not(d_map["flag"]|(d_map["out"] is None)):
+        #    chi_sq_val, n = d_map["out"]
+        #    return chi_sq_val, n
         observed_data = self._p_observed_data
 
         tth = observed_data.get_val('tth')
@@ -721,7 +794,7 @@ f_out is the file name to save model profiles
         
             
             
-        int_u_mod, int_d_mod = self.calc_profile(tth, phi, l_crystal, d_map)
+        int_u_mod, int_d_mod, d_info_prof = self.calc_profile(tth, phi, l_crystal)
         sint_sum_exp = (sint_u_exp**2 + sint_d_exp**2)**0.5
 
         chi_sq_u = ((int_u_mod-int_u_exp)/sint_u_exp)**2
@@ -753,8 +826,9 @@ f_out is the file name to save model profiles
         n = (int(flag_u)*n_u + int(flag_d)*n_d + int(flag_sum)*n_sum + 
              int(flag_dif)*n_sum)
         
-        d_map["out"] = (chi_sq_val, n)
-        return chi_sq_val, n
+        d_info_out = {"chi_sq_val": chi_sq_val, "n": n}
+        d_info_out.update(d_info_prof)
+        return chi_sq_val, n, d_info_out        
 
     def plot_map(self):
         b_variable = self.is_variable()
@@ -825,18 +899,20 @@ f_out is the file name to save model profiles
         sint_d_exp = observed_data.get_val("sint_d")
         
         
-        int_u_mod, int_d_mod = self.calc_profile(tth, phi, l_crystal) 
+        int_u_mod, int_d_mod, d_info = self.calc_profile(tth, phi, l_crystal) 
 
-        s_int_u_exp = save_2d(tth, phi, int_u_exp)
-        s_sint_u_exp = save_2d(tth, phi, sint_u_exp)
-        s_int_d_exp = save_2d(tth, phi, int_d_exp)
-        s_sint_d_exp = save_2d(tth, phi, sint_d_exp)
-        s_int_u_mod = save_2d(tth, phi, int_u_mod)
-        s_int_d_mod = save_2d(tth, phi, int_d_mod)
+        s_int_sum_exp = save_2d(tth, phi, int_u_exp+int_d_exp)
+        s_int_sum_mod = save_2d(tth, phi, int_u_mod+int_d_mod)
+        s_int_dif_exp = save_2d(tth, phi, int_u_exp-int_d_exp)
+        s_int_dif_mod = save_2d(tth, phi, int_u_mod-int_d_mod)
+        
+        s_int_sum_dif = save_2d(tth, phi, int_u_exp+int_d_exp-int_u_mod-int_d_mod)
+        s_int_dif_dif = save_2d(tth, phi, int_u_exp-int_d_exp-int_u_mod+int_d_mod)
+
         
         #list of hkl should be added
-        s_out = (s_int_u_exp+3*"\n"+s_sint_u_exp+3*"\n"+s_int_u_mod+3*"\n"+
-                 s_int_d_exp+3*"\n"+s_sint_d_exp+3*"\n"+s_int_d_mod)
+        s_out = (s_int_sum_exp+3*"\n"+s_int_sum_mod+3*"\n"+s_int_sum_dif+3*"\n"+
+                 s_int_dif_exp+3*"\n"+s_int_dif_mod+3*"\n"+s_int_dif_dif)
         
         f_out = self._p_f_out
         if f_out is None:
@@ -846,6 +922,35 @@ f_out is the file name to save model profiles
         fid.write(s_out)
         fid.close()
         
+    def print_report(self, l_crystal):
+        s_out = "{:}".format(self)
+        
+        chi_sq_val, n, d_info_full = self.calc_chi_sq(l_crystal)
+        
+        ls_out = []
+        l_d_info = d_info_full["crystal"]
+        for d_info in l_d_info:
+            ls_out.append("\n\n   h   k   l   fn_real   fn_imag  f_nucl_sq f_m_p_sin_sq f_m_p_cos_sq cross_sin")
+            h, k, l, f_nucl = d_info["h"], d_info["k"], d_info["l"], d_info["f_nucl"]
+            f_nucl_sq, f_m_p_sin_sq = d_info["f_nucl_sq"], d_info["f_m_p_sin_sq"]
+            f_m_p_cos_sq, cross_sin = d_info["f_m_p_cos_sq"], d_info["cross_sin"]
+            
+            sft_11, sft_12, sft_13 = d_info["sft_11"], d_info["sft_12"], d_info["sft_13"]
+            sft_21, sft_22, sft_23 = d_info["sft_21"], d_info["sft_22"], d_info["sft_23"]
+            sft_31, sft_32, sft_33 = d_info["sft_31"], d_info["sft_32"], d_info["sft_33"]
+
+            for h1, k1, l1, f, i_1, i_2, i_3, i_4 in zip(h, k, l, f_nucl, f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin):
+                ls_out.append(""" {:3} {:3} {:3}  {:8.3f}  {:8.3f}  {:8.1f}  {:8.1f}  {:8.1f}  {:8.1f}""".format(
+                        h1, k1, l1, f.real, f.imag, i_1, i_2, i_3, i_4))
+            ls_out.append("\n\nStructure factor tensor in a*, b*, c* (real part, mu_B) ")
+            ls_out.append("\n   h   k   l   sft_11   sft_22   sft_33    sft_12   sft_13   sft_23")
+            for h1, k1, l1, c11, c22,  c33, c12, c13, c23 in zip(
+                    h, k, l, sft_11, sft_22, sft_33, sft_12, sft_13, sft_23):
+                ls_out.append(""" {:3} {:3} {:3} {:8.3f} {:8.3f} {:8.3f}  {:8.3f} {:8.3f} {:8.3f}""".format(
+                        h1, k1, l1, c11.real, c22.real, c33.real, c12.real, c13.real, c23.real))
+        
+        return s_out+"\n".join(ls_out)
+
     
 if (__name__ == "__main__"):
   pass

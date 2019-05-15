@@ -1,57 +1,61 @@
-#\#RCIF_1.0
-global_filerhochi
+global_
+
+_file_name_output_listing full.lis
 
 data_TbMnO3
-_cell_length_a    5.3010
-_cell_length_b    5.8740
-_cell_length_c    7.4467
 _cell_angle_alpha 90.0
-_cell_angle_beta  90.0
+_cell_angle_beta 90.0
 _cell_angle_gamma 90.0
-
-
-_space_group_name_H-M_alt 'P b n m'
-_space_group_it_coordinate_system_code 'cab'
+_cell_length_a 5.301
+_cell_length_b 5.874
+_cell_length_c 7.4467
+_space_group_it_coordinate_system_code cab
+_space_group_name_H-M_alt Pbnm
 
 loop_
-_atom_site_label
-_atom_site_type_symbol
+_atom_site_adp_type
+_atom_site_b_iso_or_equiv
 _atom_site_fract_x
 _atom_site_fract_y
 _atom_site_fract_z
+_atom_site_label
 _atom_site_occupancy
-_atom_site_b_iso_or_equiv
- Tb  Tb   0.99157   0.08036   0.25000   1.00  0.22322 
- O1   O   0.10528   0.46562   0.25000   1.00  0.36659
- O2   O   0.70844   0.32684   0.05177   1.00  0.48125
- Mn  Mn   0.50000   0.00000   0.00000   1.00  0.31570
+_atom_site_type_symbol
+ uiso 0.22322 0.99157 0.08036 0.25 Tb 1.0 Tb
+ uiso 0.36659 0.10528 0.46562 0.25 O1 1.0 O
+ uiso 0.48125 0.70844 0.32684 0.05177 O2 1.0 O
+ uiso 0.3157 0.5 0.0 0.0 Mn 1.0 Mn
 
-
-
+loop_
+_atom_site_bscat
+_atom_site_type_symbol
+ -0.373 Mn
+ 0.738 Tb
+ 0.5803 O
 
 loop_
 _atom_site_magnetism_aniso_label
+_atom_site_magnetism_factor_lande
+_atom_site_magnetism_kappa
+_atom_site_magnetism_type
 _atom_site_magnetism_type_symbol
 _atom_site_susceptibility_aniso_chi_11
-_atom_site_susceptibility_aniso_chi_22
-_atom_site_susceptibility_aniso_chi_33
-_atom_site_susceptibility_aniso_chi_23
-_atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_12
- Tb  Tb3    4.427()    0.0001    0.0001   2.60() 0.000  0.000 
- Mn  Mn3    0.198()     0.0001    0.0001    0.0001   .0001   0.0001
-
-
+_atom_site_susceptibility_aniso_chi_13
+_atom_site_susceptibility_aniso_chi_22
+_atom_site_susceptibility_aniso_chi_23
+_atom_site_susceptibility_aniso_chi_33
+ Tb 2.0 1.0 cani Tb3 4.59(3) 2.64(4) 0.0 0.0001 0.0 0.0001
+ Mn 2.0 1.0 cani Mn3 0.21(5) 0.0001 0.0001 0.0001 0.0001 0.0001
 
 data_pnd
-_sd_file_name_input 'full_7a.dat'
-_sd_file_name_output 'full_7a.out'
-_sd_beam_polarization_up -0.91
 _sd_beam_polarization_down -0.91
+_sd_beam_polarization_up -0.91
+_sd_file_name_input full_7a.dat
+_sd_file_name_output full_7a.out
 
 loop_
-_sd_phase_name
-_sd_phase_extinction_radius
 _sd_phase_extinction_mosaicity
- TbMnO3  0.0  0.0
-
+_sd_phase_extinction_radius
+_sd_phase_name
+ 0.0 0.0 TbMnO3

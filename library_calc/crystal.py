@@ -2863,8 +2863,12 @@ i_g is the parameter to described broadening of Bragg reflection due to the
                 sft_11*0.2695, sft_12*0.2695, sft_13*0.2695, 
                 sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
                 sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
-        d_map["out"] = (f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33)
-        return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+        d_info_out = {"h": h, "k": k, "l": l,
+                      "f_nucl": f_nucl, "sft_11": sft_11, "sft_12": sft_12, 
+                      "sft_13": sft_13, "sft_21": sft_21, "sft_22": sft_22, 
+                      "sft_23": sft_23, "sft_31": sft_31, "sft_32": sft_32, 
+                      "sft_33": sft_33}
+        return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, d_info_out
 
 
     def _orto_matrix(self, cell, l_11, l_12, l_13, l_21, l_22, l_23, l_31, 
@@ -2997,6 +3001,10 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         cell.apply_constraint()
         atom_site = self.get_val("atom_site")
         atom_site.apply_constraint(space_groupe, cell)
+        
+    def print_report(self):
+        s_out = "{:}".format(self)
+        return s_out
     
 if (__name__ == "__main__"):
   pass

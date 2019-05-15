@@ -29,13 +29,14 @@ class RCif(object):
     """
 
     def __init__(self):
-        self.data = []
+        self.glob = {"data":[], "name":""}
         self._p_file_dir = ""
         self._p_file_name = ""
 
     def load_from_str(self, lcontent):
         p_glob = convert_rcif_to_glob(lcontent)
-        self.data = p_glob["data"]
+        #self.data = p_glob["data"]
+        self.glob = p_glob
 
     def load_from_file(self, fname):
         self._p_file_dir = os.path.dirname(fname)
@@ -47,7 +48,7 @@ class RCif(object):
         self.load_from_str(lcontent)
         
     def save_to_str(self):
-        lstr = rcif_to_str(self.data)
+        lstr = rcif_to_str(self.glob)
         return lstr
 
     def save_to_file(self, f_name):
@@ -58,7 +59,8 @@ class RCif(object):
 
     
     def take_from_model(self, model):
-        self.data = []
+        self.glob = {}
+        l_data = []
         def temp_func(obj, ddata, label_rcif, label_mod, type_mod):
             if type_mod == "logic":
                 sval = obj.get_val(label_mod)
@@ -70,7 +72,7 @@ class RCif(object):
                 #if val is None:
                 #    print(label_rcif, label_mod, obj,"\n\n")
                 if isinstance(val, Variable):
-                    sval = "{:}({:})".format(val.value, val.sigma)
+                    sval = "{:}".format(val.print_with_sigma())
                 else:
                     sval = "{:}".format(val)
                 ddata[label_rcif] = sval 
@@ -198,7 +200,7 @@ class RCif(object):
             if lloop_d != []:
                 d_ph["loops"] = lloop_d
                 
-            self.data.append(d_ph)
+            l_data.append(d_ph)
 
         for obj in model._list_experiment:
             d_exp = {"name": obj.get_val("name")}
@@ -236,6 +238,8 @@ class RCif(object):
                                                 d_exp["_pd_file_name_output"])
                 observed_data = obj.get_val("observed_data")
                 d_exp["_pd_file_name_input"] = observed_data.get_val("file_name")
+                d_exp["_pd_tth_min"] = str(observed_data.get_val("tth_min"))
+                d_exp["_pd_tth_max"] = str(observed_data.get_val("tth_max"))
 
                 if "up" in obj.get_val("mode_chi_sq"):
                     d_exp["_pd_chi2_up"] = "True" 
@@ -302,6 +306,10 @@ class RCif(object):
                                                 d_exp["_2dpd_file_name_output"])
                 observed_data = obj.get_val("observed_data")
                 d_exp["_2dpd_file_name_input"] = observed_data.get_val("file_name")
+                d_exp["_2dpd_tth_min"] = str(observed_data.get_val("tth_min"))
+                d_exp["_2dpd_tth_max"] = str(observed_data.get_val("tth_max"))
+                d_exp["_2dpd_phi_min"] = str(observed_data.get_val("phi_min"))
+                d_exp["_2dpd_phi_max"] = str(observed_data.get_val("phi_max"))
                 
                 if "up" in obj.get_val("mode_chi_sq"):
                     d_exp["_2dpd_chi2_up"] = "True" 
@@ -441,12 +449,23 @@ class RCif(object):
             if lloop_d != []:
                 d_exp["loops"] = lloop_d
                 
-            self.data.append(d_exp)
+            l_data.append(d_exp)
+            p_glob = {}
+            p_glob["data"] = l_data
+            p_glob["name"] = model.get_val("name")
+            f_out = model.get_val("f_out")
+            if f_out is None:
+                f_out = "full.lis"
+            p_glob["_file_name_output_listing"] = os.path.basename(f_out)
+            self.glob = p_glob
 
     def trans_to_model(self):
         l_crystal = []
         l_experiment = []
-        for data in self.data:
+        p_glob = self.glob
+        
+        l_data = p_glob["data"]
+        for data in l_data:
             lab_crystal = "_cell"
             lab_exp_pd_1d = "_pd"
             lab_exp_pd_2d = "_2dpd"
@@ -480,7 +499,16 @@ class RCif(object):
                 #l_variable.extend(l_variable_experiment)
 
 
-        model = Model()
+        name_p_glob = p_glob["name"]
+        l_key_g = p_glob.keys()
+        
+        model = Model(name=name_p_glob)
+        if "_file_name_output_listing" in l_key_g:
+            f_out = p_glob["_file_name_output_listing"]
+            f_out = os.path.join(self._p_file_dir, f_out)
+            model.set_val(f_out=f_out)
+            
+        model.set_val(name=name_p_glob)
         for experiment in l_experiment:
             model.add_experiment(experiment)
         for crystal in l_crystal:
@@ -604,11 +632,25 @@ def get_link(obj, drel, param):
     return slink 
 
 
-def rcif_to_str(l_ddata):
+def rcif_to_str(p_glob):
     #structure of cif is data blokcs and loop blocks, 
     #nested loops are not supported
     ls_out = []
-    for ddata in l_ddata:    
+    l_key_g = p_glob.keys()
+    if "name" in l_key_g:
+        ls_out.append("global_{:}\n".format(p_glob["name"].strip()))
+    else:
+        ls_out.append("global_\n")
+    for lab in sorted(l_key_g):
+        if lab.startswith("_"):
+            if ((len(p_glob[lab].strip().split())>1)&
+                 (not(p_glob[lab].strip().startswith("'")))):
+                ls_out.append("{:} '{:}'".format(lab, p_glob[lab].strip()))
+            else:
+                ls_out.append("{:} {:}".format(lab, p_glob[lab].strip()))
+    
+    l_data = p_glob["data"]
+    for ddata in l_data:    
         l_key = ddata.keys()    
         if "name" in l_key:
             ls_out.append("\ndata_{:}".format(ddata["name"].strip()))
@@ -1123,6 +1165,15 @@ def trans_pd_to_experiment(f_dir, data, l_crystal):
 
     f_inp = data["_pd_file_name_input"]
     observed_data_powder_1d.read_data(os.path.join(f_dir, f_inp))
+
+    l_key = data.keys()
+    tth_min, tth_max = None, None
+    if "_2dpd_tth_min" in l_key:
+        tth_min = float(data["_2dpd_tth_min"])
+    if "_2dpd_tth_max" in l_key:
+        tth_max = float(data["_2dpd_tth_max"])
+        
+    observed_data_powder_1d.set_val(tth_min=tth_min, tth_max=tth_max)
     
     
     f_inp = data["_pd_file_name_bkgr"]
@@ -1238,13 +1289,20 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
 
     f_inp=data["_2dpd_file_name_input"]
     observed_data_powder_2d.read_data(os.path.join(f_dir, f_inp))
-
-    tth_min = data["_2dpd_tth_min"]
-    tth_max = data["_2dpd_tth_max"]
-    phi_min = data["_2dpd_phi_min"]
-    phi_max = data["_2dpd_phi_max"]
+    
+    l_key = data.keys()
+    tth_min, tth_max, phi_min, phi_max = None, None, None, None
+    if "_2dpd_tth_min" in l_key:
+        tth_min = float(data["_2dpd_tth_min"])
+    if "_2dpd_tth_max" in l_key:
+        tth_max = float(data["_2dpd_tth_max"])
+    if "_2dpd_phi_min" in l_key:
+        phi_min = float(data["_2dpd_phi_min"])
+    if "_2dpd_phi_max" in l_key:
+        phi_max = float(data["_2dpd_phi_max"])
+        
     observed_data_powder_2d.set_val(tth_min=tth_min, tth_max=tth_max, 
-                                    phi_min=phi_min, phi_max=phi_max,)
+                                    phi_min=phi_min, phi_max=phi_max)
     
     f_inp=data["_2dpd_file_name_bkgr"]
     background_powder_2d.read_data(os.path.join(f_dir, f_inp))
@@ -1507,6 +1565,7 @@ def convert_lines_to_vals(lcont):
 
     del lflag_loops
     lval_numb = [iline for iline, line in enumerate(lcont_vals) if line.startswith("_")]
+    lcommon = []
     if len(lval_numb) > 1:
         lcommon = [range(inumb, lval_numb[ival + 1]) for ival, inumb in enumerate(lval_numb[:-1])]
     if len(lval_numb) > 0:

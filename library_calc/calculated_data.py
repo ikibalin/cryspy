@@ -103,7 +103,7 @@ orientation is transfer matrix from local coordinate system to global one
         e_u_loc = field_loc/field_norm
 
 
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33, d_info_sf = crystal.calc_sf(h, k, l)
         
         
         cell = crystal.get_val("cell")
@@ -160,14 +160,17 @@ orientation is transfer matrix from local coordinate system to global one
         iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
 
         flip_ratio = iint_u/iint_d
-
+        
+        d_info_out = {"iint_u": iint_u, "iint_d": iint_d, 
+                      "flip_ratio": flip_ratio}
+        d_info_out.update(d_info_sf)      
         """
         print("   h   k   l  iint_u  iint_d flip_ratio")
         for h1, k1, l1, i_u, i_d, f_r in zip(h, k, l, iint_u, iint_d, flip_ratio):
             print("{:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}".format(
                     h1, k1, l1, i_u, i_d, f_r))
         """
-        return iint_u, iint_d, flip_ratio
+        return iint_u, iint_d, flip_ratio, d_info_out
     
     
     def is_variable(self):
@@ -245,7 +248,7 @@ crystal is the definition of crystal
         p_d = beam_polarization.get_val("p_d")
 
 
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33, d_info_cry = crystal.calc_sf(h, k, l)
         
         cell = crystal.get_val("cell")
         
@@ -265,7 +268,8 @@ crystal is the definition of crystal
                  
 
         iint_d = abs(f_nucl*f_nucl.conjugate()) + fm_p_sq - p_d*cross
-                 
+        d_info_out = {"iint_u": iint_u, "iint_d": iint_d}   
+        d_info_out.update(d_info_cry)
         
         #I_p, I_m = self.calc_extinc_powder(h, k, l, fn, fm_perp_eup, fm_p_sq,ext, p_up, p_down, ucp, wave_length)
         #
@@ -279,7 +283,7 @@ crystal is the definition of crystal
         #            c12.imag, c13.real, c13.imag, c21.real, c21.imag, c22.real, 
         #            c22.imag, c23.real, c23.imag, c31.real, c31.imag, c32.real, 
         #            c32.imag, c33.real, c33.imag))
-        return iint_u, iint_d
+        return iint_u, iint_d, d_info_out
     
     def is_variable(self):
         """
@@ -365,7 +369,7 @@ field is the value of magnetic field applied along vertical direction in Tesla
         #if not(d_sf["flag"]|(d_sf["out"] is None)):
         #    f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
         #else:
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33, d_info_cry = crystal.calc_sf(h, k, l)
         
         cell = crystal.get_val("cell")
         
@@ -385,8 +389,10 @@ field is the value of magnetic field applied along vertical direction in Tesla
         #for h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4  in zip(h, k, l, f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin):
         #    print(""" {:3} {:3} {:3} {:9.3f} {:9.3f} {:9.3f} {:9.3f}""".format(
         #            h_1, k_1, l_1, hh_1, hh_2, hh_3, hh_4))        
-        d_map["out"] = (f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin)
-        return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin
+        d_info_out = {"f_nucl_sq": f_nucl_sq, "f_m_p_sin_sq": f_m_p_sin_sq, 
+                      "f_m_p_cos_sq": f_m_p_cos_sq, "cross_sin": cross_sin}   
+        d_info_out.update(d_info_cry)        
+        return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, d_info_out 
 
     def plot_map(self):
         b_variable = self.is_variable()       

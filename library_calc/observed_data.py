@@ -317,7 +317,11 @@ wave_length is the neutron wave_length
         self.set_val(tth_exp=tth, int_u_exp=int_u, sint_u_exp=sint_u, 
                      int_d_exp=int_d, sint_d_exp=sint_d, field=field, 
                      wave_length=wave_length)
-
+        
+        if self._p_tth_min is None:
+            self._p_tth_min = tth.min()
+        if self._p_tth_max is None:
+            self._p_tth_max = tth.max()
 
 
 class ObservedDataPowder2D(dict):
@@ -547,7 +551,16 @@ wave_length is the neutron wave_length in Angstrem
         self.set_val(tth_exp=tth, phi_exp=phi, int_u_exp=int_u, 
                      sint_u_exp=sint_u, int_d_exp=int_d, 
                      sint_d_exp=sint_d, field=field, wave_length=wave_length)
+        
+        if self._p_tth_min is None:
+            self._p_tth_min = tth.min()
+        if self._p_tth_max is None:
+            self._p_tth_max = tth.max()
 
+        if self._p_phi_min is None:
+            self._p_phi_min = phi.min()
+        if self._p_phi_max is None:
+            self._p_phi_max = phi.max()
             
 
 if (__name__ == "__main__"):

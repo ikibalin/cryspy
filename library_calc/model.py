@@ -13,20 +13,24 @@ import matplotlib.pyplot
 
 from experiment import *
 from variable import *
+from error_simplex import *
 
 class Model(dict):
     """
     Class to describe model
     """
-    def __init__(self, l_experiment=None, l_variable=None, l_crystal=None):
+    def __init__(self, l_experiment=None, l_variable=None, l_crystal=None, name="", f_out=None):
         super(Model, self).__init__()
         self._list_experiment = []
         self._list_crystal = []
         self._list_variable = []
-        self._refresh(l_experiment, l_crystal, l_variable)
+        self._p_name = None
+        self._p_f_out = None
+        self._refresh(l_experiment, l_crystal, l_variable, name, f_out)
 
     def __repr__(self):
-        ls_out = """Model\n """.format()
+        ls_out = """Model\n name: {:}\n f_out: {:}\n""".format(self._p_name, 
+                                  self._p_f_out)
         ls_exp = []
         for epxeriment in self._list_experiment:
             ls_exp.append("{:}".format(epxeriment))
@@ -40,16 +44,22 @@ class Model(dict):
         ls_out += "\n\n\nCrystal:\n\n"+"\n\n".join(ls_cry)
         return ls_out
 
-    def _refresh(self, l_experiment=None, l_crystal=None, l_variable=None):
+    def _refresh(self, l_experiment=None, l_crystal=None, l_variable=None, 
+                 name=None, f_out=None):
         if l_experiment is not None:
             self._list_experiment = l_experiment
         if l_crystal is not None:
             self._list_crystal = l_crystal
         if l_variable is not None:
             self._list_variable = l_variable
+        if name is not None:
+            self._p_name = name
+        if f_out is not None:
+            self._p_f_out = f_out
             
-    def set_val(self, l_experiment=None, l_crystal=None, l_variable=None):
-        self._refresh(l_experiment, l_crystal, l_variable)
+    def set_val(self, l_experiment=None, l_crystal=None, l_variable=None, 
+                name=None, f_out=None):
+        self._refresh(l_experiment, l_crystal, l_variable, name, f_out)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -71,7 +81,8 @@ class Model(dict):
         lsout = """
 Parameters:
 
-None
+name is the name of model parameter
+f_out is the file name for listing, full path should be given
     
         """
         print(lsout)
@@ -124,11 +135,10 @@ None
 
         for experiment in self._list_experiment:
             name = experiment.get_val("name")
-            chi_sq, n = experiment.calc_chi_sq(l_crystal)#d_map[("chi_sq", name)]
+            chi_sq, n, d_info_exp = experiment.calc_chi_sq(l_crystal)
             chi_sq_res += chi_sq
             n_res += n
 
-        d_map["out"] = (chi_sq, n_res)
         return chi_sq, n_res 
     
     def apply_constraint(self):
@@ -159,7 +169,7 @@ None
             return chi_sq
 
         #if self.ref[0].refin:
-        print("starting chi_sq/n: {:.2f}".format(chi_sq*1./n))
+        print("starting chi_sq/n: {:.2f} (n = {:}).".format(chi_sq*1./n, int(n)))
         print("\nrefinement started for parameters:")
         ls_out = " ".join(["{:12}".format(var[3].rjust(12)) if len(var[3])<=12 
                            else "{:12}".format(var[3][-12:]) for var in l_variable])
@@ -168,13 +178,34 @@ None
         res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', callback=self._f_callback)
         bb = time.time()
         print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n))
-        #print("\n\nResult is:\n", res)
         
-        #very rough estimation of the errorbar        
-        l_sigma = [float(hh) for hh in numpy.std(res["final_simplex"][0],axis=0)]
+        #it is not checked
+        m_error = error_estimation_simplex(res["final_simplex"][0], res["final_simplex"][1], tempfunc)
+        l_sigma = []
+        for i in range(m_error.shape[0]):
+            #slightly change definition, instead of (n-k) here is n
+            error = (abs(m_error[i,i])*1./n)**0.5
+            if m_error[i,i] < 0.:
+                print(50*"*"+"\nErrors are incorrect\n(negative diagonal elements of Hessian)\n"+50*"*")
+            l_sigma.append(error)
+
         for variable, sigma in zip(l_variable, l_sigma):
             variable[4] = sigma
         return res
+    
+    def print_report(self):
+        ls_out = []
+        ls_out.append("Model: {:}\n".format(self._p_name))
+        ls_out.append("Crystals:\n")
+        l_crystal = self._list_crystal
+        for crystal in l_crystal:
+            s_out_1 = crystal.print_report()
+            ls_out.append(s_out_1)
+        ls_out.append("\n\nExperiments:\n")
+        for experiment in self._list_experiment:
+            s_out_1 = experiment.print_report(l_crystal)
+            ls_out.append(s_out_1)
+        return "\n".join(ls_out)
     
     def _f_callback(self, res_x):
         ls_out = " ".join(["{:12.5f}".format(hh) for hh in res_x])
