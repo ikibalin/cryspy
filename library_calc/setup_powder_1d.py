@@ -458,29 +458,33 @@ class BackgroundPowder1D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, tth_bkgd=0., int_bkdg=0.):
+    def __init__(self, tth_bkgd=0., int_bkgd=0.):
         super(BackgroundPowder1D, self).__init__()
         self._p_file_dir = ""
         self._p_file_name = None
 
         self._p_tth_bkgd = None
-        self._p_int_bkdg = None
+        self._p_int_bkgd = None
         
-        self._refresh(tth_bkgd, int_bkdg)
+        self._refresh(tth_bkgd, int_bkgd)
 
     def __repr__(self):
         lsout = """BackgroundPowder1D:\n file_dir: {:}
  file_name: {:}""".format(self._p_file_dir, self._p_file_name)
+        if self._p_tth_bkgd is not None:
+            lsout += "\n ttheta  IntBKGR"
+            for hh_1, hh_2 in zip(self._p_tth_bkgd, self._p_int_bkgd):
+                lsout += "\n {:}    {:}".format(hh_1, hh_2)
         return lsout
 
-    def _refresh(self, tth_bkgd, int_bkdg):
+    def _refresh(self, tth_bkgd, int_bkgd):
         if tth_bkgd is not None:
             self._p_tth_bkgd = tth_bkgd
-        if int_bkdg is not None:
-            self._p_int_bkdg = int_bkdg
+        if int_bkgd is not None:
+            self._p_int_bkgd = int_bkgd
             
-    def set_val(self, tth_bkgd=None, int_bkdg=None):
-        self._refresh(tth_bkgd, int_bkdg)
+    def set_val(self, tth_bkgd=None, int_bkgd=None):
+        self._refresh(tth_bkgd, int_bkgd)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -502,7 +506,7 @@ class BackgroundPowder1D(dict):
         lsout = """
 Parameters:
 tth_bkgd is ttheta in degrees to describe background
-int_bkdg is intensity to describe background
+int_bkgd is intensity to describe background
         """
         print(lsout)
         
@@ -537,28 +541,53 @@ int_bkdg is intensity to describe background
         for line in lcontent:
             for name, val in zip(lnames, line.strip().split()):
                 ddata[name].append(val)
-                     
-        tth_b = numpy.array(ddata["ttheta"], dtype=float)
-        int_b = numpy.array(ddata["IntBKGR"], dtype=float)
-        self.set_val(tth_bkgd=tth_b, int_bkdg=int_b)
+        
+        l_tth_b, l_int_b = [], []
+        i_numb = 0
+        for hh_1, hh_2 in zip(ddata["ttheta"], ddata["IntBKGR"])             :
+            i_numb += 1
+            val_1 = float(hh_1)
+            l_help = hh_2.split("(")
+            if len(l_help) > 1:
+                val_2 = Variable(val=float(l_help[0]), ref=True, name="IntBKGR_{:}".format(i_numb))
+            else:
+                val_2 = float(hh_2)
+            l_tth_b.append(val_1)
+            l_int_b.append(val_2)
+        self.set_val(tth_bkgd=l_tth_b, int_bkgd=l_int_b)
 
     def interpolate_by_points(self, tth):
-        tth_b = self._p_tth_bkgd
-        int_b = self._p_int_bkdg
-        if tth_b is None:
+        l_tth_b = self._p_tth_bkgd
+        l_int_b = self._p_int_bkgd
+        tth_b = numpy.array([1.*hh for hh in l_tth_b], dtype=float)
+        int_b = numpy.array([1.*hh for hh in l_int_b], dtype=float)
+        
+        if l_tth_b is None:
             file_dir = self._p_file_dir 
             file_name = self._p_file_name 
             if file_name is None:
                 f_inp = os.path.join(file_dir, file_name)
                 self.read_data(f_inp)
-                tth_b = self._p_tth_bkgd
-                int_b = self._p_int_bkdg
-        if tth_b is not None:
+                l_tth_b = self._p_tth_bkgd
+                l_int_b = self._p_int_bkgd
+                tth_b = numpy.array([1.*hh for hh in l_tth_b], dtype=float)
+                int_b = numpy.array([1.*hh for hh in l_int_b], dtype=float)
+        if l_tth_b is not None:
             int_1d = numpy.interp(tth, tth_b, int_b)
         else:
             int_1d = numpy.zeros(tth.size, dtype=float)
         return int_1d
-
+    
+    def get_variables(self):
+        l_tth_b = self._p_tth_bkgd
+        l_int_b = self._p_int_bkgd
+        l_variable = []
+        for hh_1, hh_2 in zip(l_tth_b, l_int_b):
+            if isinstance(hh_1, Variable):
+                l_variable.append(hh_1)
+            if isinstance(hh_2, Variable):
+                l_variable.append(hh_2)
+        return l_variable
 
 
 class SetupPowder1D(dict):
@@ -807,15 +836,22 @@ background  is Background class
         if isinstance(self._p_zero_shift, Variable):
             l_variable.append(self._p_zero_shift)
         
+        background = self.get_val("background")
+        l_var = background.get_variables()
+        l_variable.extend(l_var)
+        
         beam_polarization = self.get_val("beam_polarization")
         l_var = beam_polarization.get_variables()
         l_variable.extend(l_var)
+        
         resolution = self.get_val("resolution")
         l_var = resolution.get_variables()
         l_variable.extend(l_var)
+        
         asymmetry = self.get_val("asymmetry")
         l_var = asymmetry.get_variables()
         l_variable.extend(l_var)
+        
         return l_variable
 
 class SetupSingle(dict):

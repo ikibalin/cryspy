@@ -24,7 +24,7 @@ def model_refinement(model):
     res = model.refine_model(d_map)
     print("\nRefined parameters:\n")
     for var in model.get_variables():
-        print(var)
+        print(var, "", var.sigma)
     model.save_exp_mod_data()
     print("\nData are saved in the files.")
 

@@ -29,38 +29,74 @@ set ytics 20
 
 unset colorbox
 
-set palette rgb 30,31,32
-set palette rgb 33,13,10
-set palette model HSV
 
 
-set cbrange [-500:7500]
+cbmin = -500
+cbmax = 7500
+set cbrange [cbmin:cbmax]
+vc = (cbmax-cbmin)
+
+
+      
+set palette defined ( (cbmin + 0.00*vc) "#FFFFFF",\
+                      (cbmin + 0.25*vc) "#67E667",\
+                      (cbmin + 0.50*vc) "#DCF900",\
+                      (cbmin + 0.75*vc) "#E6399B",\
+                      (cbmin + 1.00*vc) "#A60000")    
+
+
+
 
 fname1 = "full.out"
 
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_u_e.png"
+set output fnameb."_sum_e.png"
 splot  fname1 index 0 nonuniform matrix  notitle
-set output fnameb."_d_e.png"
-splot  fname1 index 3 nonuniform matrix  notitle
+
+
 
 
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_u_m.png"
+set output fnameb."_sum_m.png"
 splot  fname1 index 1 nonuniform matrix  notitle
-set output fnameb."_d_m.png"
+
+
+
+
+
+
+cbmin = -4000
+cbmax = 4000
+set cbrange [cbmin:cbmax]
+vc = (-1.*cbmin*1./(cbmax-cbmin))
+
+
+      
+set palette defined ( (0.0*2*vc) "#080E73",\
+                      (1.0*2*vc) "#510FAD",\
+                      (2.0*2*vc) "#3D9AD1",\
+                      (3.0*2*vc) "#7277D8",\
+                      (4.0*2*vc) "#FFFFFF",\
+       (2*(1-vc)*5.0+8*(2*vc-1)) "#67E667",\
+       (2*(1-vc)*6.0+8*(2*vc-1)) "#DCF900",\
+       (2*(1-vc)*7.0+8*(2*vc-1)) "#E6399B",\
+       (2*(1-vc)*8.0+8*(2*vc-1)) "#A60000")    
+
+
+set output fnameb."_diff_e.png"
+splot  fname1 index 3 nonuniform matrix  notitle
+
+set output fnameb."_diff_m.png"
 splot  fname1 index 4 nonuniform matrix  notitle
 
 
-set cbrange [ -4000:4000]
-
 
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_u_diff.png"
+set output fnameb."_sum_diff.png"
 splot  fname1 index 2 nonuniform matrix  notitle
 
 fnameb=fname1[1:strlen(fname1)-4]
-set output fnameb."_d_diff.png"
+set output fnameb."_diff_diff.png"
 splot  fname1 index 5 nonuniform matrix  notitle
 
 

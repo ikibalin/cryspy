@@ -5,6 +5,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_04_06"
 import os
 import numpy
+import scipy.interpolate
 
 #class BeamPolarization
 from setup_powder_1d import *
@@ -394,34 +395,42 @@ class BackgroundPowder2D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, tth_bkgd=0., phi_bkgd=0., int_bkdg=0.):
+    def __init__(self, tth_bkgd=0., phi_bkgd=0., int_bkgd=0.):
         super(BackgroundPowder2D, self).__init__()
         self._p_file_dir = ""
         self._p_file_name = None
 
         self._p_tth_bkgd = None
         self._p_phi_bkgd = None
-        self._p_int_bkdg = None
+        self._p_int_bkgd = None
         
-        self._refresh(tth_bkgd, phi_bkgd, int_bkdg)
+        self._refresh(tth_bkgd, phi_bkgd, int_bkgd)
 
     def __repr__(self):
         lsout = """BackgroundPowder2D:\n file_dir: {:}
  file_name: {:}""".format(self._p_file_dir, self._p_file_name)
+        if self._p_tth_bkgd is not None:
+            lsout += "\n ttheta  IntBKGR"
+            lsout += ("\n "+7*" "+
+                      " ".join(["{:7.2f}".format(hh_1) for hh_1 in 
+                                                           self._p_tth_bkgd]))
+            for hh_1, l_hh in zip(self._p_phi_bkgd, self._p_int_bkgd):
+                lsout += ("\n {:7.2f} ".format(hh_1) +
+                          " ".join(["{:}".format(hh_2) for hh_2 in l_hh]))
         return lsout
 
-    def _refresh(self, tth_bkgd, phi_bkgd, int_bkdg):
+    def _refresh(self, tth_bkgd, phi_bkgd, int_bkgd):
         if tth_bkgd is not None:
             self._p_tth_bkgd = tth_bkgd
         if phi_bkgd is not None:
             self._p_phi_bkgd = phi_bkgd
-        if int_bkdg is not None:
-            self._p_int_bkdg = int_bkdg
+        if int_bkgd is not None:
+            self._p_int_bkgd = int_bkgd
 
             
-    def set_val(self, tth_bkgd=None, phi_bkgd=None, int_bkdg=None):
+    def set_val(self, tth_bkgd=None, phi_bkgd=None, int_bkgd=None):
         
-        self._refresh(tth_bkgd, phi_bkgd, int_bkdg)
+        self._refresh(tth_bkgd, phi_bkgd, int_bkgd)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -443,7 +452,7 @@ class BackgroundPowder2D(dict):
         lsout = """
 Parameters:
 tth_bkgd is ttheta in degrees to describe background
-int_bkdg is intensity to describe background
+int_bkgd is intensity to describe background
         """
         print(lsout)
         
@@ -454,59 +463,71 @@ int_bkdg is intensity to describe background
         """
         self._p_file_dir = os.path.dirname(finp)
         self._p_file_name = os.path.basename(finp)
-        ddata={}
-        fid=open(finp,'r')
-        lcontentH=fid.readlines()
+        fid = open(finp,'r')
+        l_cont = fid.readlines()
         fid.close()
-        lparam = [line[1:].strip() for line in lcontentH if line.startswith('#')]
-        if (len(lparam) > 1):
-            for line in lparam[:-1]:
-                lhelp = line.strip().split()
-                if (len(lhelp) > 2):
-                    ddata[lhelp[0]] = [float(hh) for hh in lhelp[1:]]
-                elif (len(lhelp) == 2):
-                    ddata[lhelp[0]] = float(lhelp[1])
-                else:
-                    print("Mistake in background file '{:}' in line:\n {:}".format(finp, line))
-                    print("The program is stopped.")
-                    quit()
-        lnames = lparam[-1].split()
-        for name in lnames:
-            ddata[name] = []
         
-        lcontent = [line for line in lcontentH if not(line.startswith('#'))]
-        for line in lcontent:
-            for name, val in zip(lnames, line.strip().split()):
-                ddata[name].append(val)
-                     
-        tth_b = numpy.array(ddata["ttheta"], dtype=float)
-        if "phi" in ddata.keys():
-            phi_b = numpy.array(ddata["phi"], dtype=float)
-        else:
-            phi_b = 0.*tth_b
-        int_b = numpy.array(ddata["IntBKGR"], dtype=float)
-        self.set_val(tth_bkgd=tth_b, phi_bkgd=phi_b, int_bkdg=int_b)
+        l_tth = [float(hh) for hh in l_cont[1].strip().split()[1:]]
+        l_phi = []
+        ll_int = []
+        for line in l_cont[2:]:
+            l_int = []
+            if line.strip() != "":
+                l_help = line.strip().split()
+                phi = float(l_help[0])
+                l_phi.append(phi)
+                for hh, tth in zip(l_help[1:], l_tth):
+                    l_help_2 = hh.split("(")
+                    if len(l_help_2) > 1:
+                        val = Variable(val=float(l_help_2[0]), name="IntBKGR_{:.1f}_{:.1f}".format(tth, phi))
+                    else:
+                        val = float(l_help_2[0])
+                    l_int.append(val)
+            ll_int.append(l_int)
+        
+        #n_tth, n_phi = len(l_tth), len(l_phi)
+        #ll_int_b = [[ll_int[i_phi][i_tth] for i_phi in range(n_phi)] 
+        #                                  for i_tth in range(n_tth)]
+        self.set_val(tth_bkgd=l_tth, phi_bkgd=l_phi, int_bkgd=ll_int)
+        
 
     def interpolate_by_points(self, tth, phi):
-        tth_b = self._p_tth_bkgd
-        #phi_b = self._p_phi_bkgd
-        int_b = self._p_int_bkdg
-        if tth_b is None:
+        l_tth_b = self._p_tth_bkgd
+        l_phi_b = self._p_phi_bkgd
+        ll_int_b = self._p_int_bkgd
+        
+        if l_tth_b is None:
             file_dir = self._p_file_dir 
             file_name = self._p_file_name 
             if file_name is None:
                 f_inp = os.path.join(file_dir, file_name)
                 self.read_data(f_inp)
-                tth_b = self._p_tth_bkgd
-                #phi_b = self._p_phi_bkgd
-                int_b = self._p_int_bkdg
-        if tth_b is not None:
-            int_1d = numpy.interp(tth, tth_b, int_b)
-            int_2d = numpy.meshgrid(int_1d, phi, indexing="ij")[0]
+                l_tth_b = self._p_tth_bkgd
+                l_phi_b = self._p_phi_bkgd
+                ll_int_b = self._p_int_bkgd
+        if l_tth_b is not None:
+            tth_b = numpy.array(l_tth_b, dtype=float)
+            phi_b = numpy.array(l_phi_b, dtype=float)
+            int_b = numpy.array([[1.*hh2 for hh2 in hh1] for hh1 in ll_int_b], dtype=float)
+            
+            func = scipy.interpolate.interp2d(tth_b, phi_b, int_b)
+            
+            tth_2d, phi_2d = numpy.meshgrid(tth, phi, indexing="ij")
+            
+            int_1d = func(tth, phi)
+            int_2d = int_1d.transpose()
         else:
             int_2d = numpy.zeros((tth.size, phi.size), dtype=float)
         return int_2d
-       
+    
+    def get_variables(self):
+        l_int_b = self._p_int_bkgd
+        l_variable = []
+        for l_hh_1 in l_int_b:
+            for hh_1 in l_hh_1:
+                if isinstance(hh_1, Variable):
+                    l_variable.append(hh_1)
+        return l_variable       
 
 
 
@@ -761,13 +782,21 @@ background  is Background class
         l_variable = []
         if isinstance(self._p_zero_shift, Variable):
             l_variable.append(self._p_zero_shift)
+
+        background = self.get_val("background")
+        l_var = background.get_variables()
+        l_variable.extend(l_var)
+
         beam_polarization = self.get_val("beam_polarization")
         l_var = beam_polarization.get_variables()
         l_variable.extend(l_var)
+
         resolution = self.get_val("resolution")
         l_var = resolution.get_variables()
         l_variable.extend(l_var)
+
         asymmetry = self.get_val("asymmetry")
         l_var = asymmetry.get_variables()
         l_variable.extend(l_var)
+
         return l_variable

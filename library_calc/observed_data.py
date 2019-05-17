@@ -157,7 +157,8 @@ class ObservedDataPowder1D(dict):
     Containt the experimental data
     """
     def __init__(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
-                 int_d_exp=None, sint_d_exp=None, field=None, wave_length=None):
+                 int_d_exp=None, sint_d_exp=None, tth_min=None, tth_max=None,
+                 field=None, wave_length=None):
         super(ObservedDataPowder1D, self).__init__()
         self._p_tth_exp = None
         self._p_int_u_exp = None
@@ -182,7 +183,7 @@ class ObservedDataPowder1D(dict):
         self._p_wave_length = None
         
         self._refresh(tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
-                      field, wave_length)
+                      tth_min, tth_max, field, wave_length)
 
     def __repr__(self):
         ls_out = """ObservedDataPowder1D:\n file_dir: {:}
@@ -190,12 +191,14 @@ class ObservedDataPowder1D(dict):
         if self._p_tth is not None:
             ls_out += "\n tth range: {:} --- {:} ({:} points)".format(
                     self._p_tth.min(), self._p_tth.max(), self._p_tth.size)
+            ls_out += "\n tth_min: {:}\n tth_max: {:}".format(self._p_tth_min, 
+                                   self._p_tth_max)
         ls_out += "\n field: {:}".format(self._p_field)
         ls_out += "\n wave_length: {:}".format(self._p_wave_length)
         return ls_out
 
     def _refresh(self, tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
-                 field, wave_length):
+                 tth_min, tth_max, field, wave_length):
         flag = any([(hh is not None) for hh in [tth_exp, int_u_exp, sint_u_exp, 
                                                 int_d_exp, sint_d_exp]])
         if tth_exp is not None:
@@ -208,6 +211,10 @@ class ObservedDataPowder1D(dict):
             self._p_int_d_exp = int_d_exp
         if sint_d_exp is not None:
             self._p_sint_d_exp = sint_d_exp
+        if tth_min is not None:
+            self._p_tth_min = tth_min
+        if tth_max is not None:
+            self._p_tth_max = tth_max
         if field is not None:
             self._p_field = field
         if wave_length is not None:
@@ -216,9 +223,10 @@ class ObservedDataPowder1D(dict):
             self.exclude_data()
             
     def set_val(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
-                int_d_exp=None, sint_d_exp=None, field=None, wave_length=None):
+                int_d_exp=None, sint_d_exp=None, tth_min=None, tth_max=None, 
+                field=None, wave_length=None):
         self._refresh(tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
-                      field, wave_length)
+                      tth_min, tth_max, field, wave_length)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -245,6 +253,8 @@ int_d, sint_d are 1D array of intensity with errorbars at flipper postion 'down'
 
 field is the magnetic field along z axis 
 wave_length is the neutron wave_length
+
+tth_min, tth_max -- range of diffraction angle for calculations
         """
         print(lsout)
         

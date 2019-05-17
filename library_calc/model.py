@@ -139,7 +139,7 @@ f_out is the file name for listing, full path should be given
             chi_sq_res += chi_sq
             n_res += n
 
-        return chi_sq, n_res 
+        return chi_sq_res, n_res 
     
     def apply_constraint(self):
         for crystal in self._list_crystal:
@@ -175,7 +175,8 @@ f_out is the file name for listing, full path should be given
                            else "{:12}".format(var[3][-12:]) for var in l_variable])
         print(ls_out)
         aa = time.time()
-        res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', callback=self._f_callback)
+        res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
+                                      callback=self._f_callback, options = {"fatol": 0.01*n})
         bb = time.time()
         print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n))
         

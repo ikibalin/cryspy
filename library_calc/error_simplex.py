@@ -5,8 +5,9 @@ Created on Wed May 15 10:14:11 2019
 @author: ikibalin
 """
 import numpy
+import random
 
-def error_estimation_simplex(vertex_vector, vertex_chi_sq, func):
+def error_estimation_simplex(vertex_vector_h, vertex_chi_sq_h, func):
     """
     Calculations according to 
     ANALYTICAL CHEMISTRY, VOL. 60, NO. 8, APRIL 15, 1988
@@ -15,8 +16,31 @@ def error_estimation_simplex(vertex_vector, vertex_chi_sq, func):
     theta_i = vertex_vector[i, :]
     chi_sq_i = vertex_chi_sq[i]
     """
-    k, hh = vertex_vector.shape#hh = k-1
-    theta_0 = vertex_vector[0, :]
+    """
+    print("\nvertex_vector")
+    print(vertex_vector_h)    
+    print("\nvertex_chi_sq")
+    print(vertex_chi_sq_h)    
+    """
+    #temporary solution
+    k, hh = vertex_vector_h.shape#hh = k-1
+    theta_0 = vertex_vector_h[0, :]
+    m_q = numpy.zeros((k-1, k-1))
+    vertex_vector = numpy.zeros(vertex_vector_h.shape,dtype=float)
+    vertex_vector[0, :] = theta_0
+    for i in range(1, k):
+        theta_i = vertex_vector_h[i, :]
+        radius = theta_i-theta_0
+        rand_radius = numpy.array([(2.*random.random()-1)*hh for hh in radius], dtype=float)
+        vertex_vector[i, :] = theta_0+rand_radius
+    l_chi_sq = []
+    for i in range(0, k):
+        theta_i = vertex_vector_h[i, :]
+        chi_sq = func(theta_i)
+        l_chi_sq.append(chi_sq)
+    vertex_chi_sq = numpy.array(l_chi_sq, dtype=float)
+    
+    
     #print("hh, k: ", hh, k)
     #print("theta_0: ", theta_0)
     chi_sq_0 = vertex_chi_sq[0]
@@ -30,7 +54,11 @@ def error_estimation_simplex(vertex_vector, vertex_chi_sq, func):
         theta_i = vertex_vector[i, :]
         theta_0i = 0.5*(theta_0+theta_i)
         chi_sq_0i = func(theta_0i)
+        #print("ii: {:}     {:}".format(i, chi_sq_0i))
         m_chi_sq_0i[i-1] = chi_sq_0i
+        
+        
+        m_q[i-1, :] = theta_i-theta_0
         
     #print("step 2")
     for i in range(1, k):
@@ -43,28 +71,37 @@ def error_estimation_simplex(vertex_vector, vertex_chi_sq, func):
         
         b_ii = 2.*(chi_sq_i + chi_sq_0 - 2.*chi_sq_0i)
         m_b[i-1, i-1] = b_ii
-        for j in range(1, k):
-            theta_j = vertex_vector[j, :]
+
+        for j in range(i+1, k):
             chi_sq_0j = m_chi_sq_0i[j-1]
 
+            
+            theta_j = vertex_vector[j, :]
             theta_ij = 0.5*(theta_i+theta_j)
             chi_sq_ij = func(theta_ij)
-
+            #print("ij: {:} {:}    {:}".format(i, j, chi_sq_ij))
             b_ij = 2.*(chi_sq_ij + chi_sq_0 - chi_sq_0i - chi_sq_0j)
             m_b[i-1, j-1] = b_ij
             m_b[j-1, i-1] = b_ij
-            q_ij = chi_sq_ij - chi_sq_0j
-            m_q[i-1, j-1] = q_ij
-            m_q[j-1, i-1] = q_ij
     #print("step 3")
     m_ib = numpy.linalg.inv(m_b)
+    print("\nm_q")
+    print(m_q)
     m_qib = numpy.matmul(m_q, m_ib)
     v_qiba = numpy.matmul(m_qib, v_a)
     theta_min = theta_0 - v_qiba
-    #print("\ntheta_min: ", theta_min)
-    #print("\ntheta_0: ", theta_0)
     m_qibqt = numpy.matmul(m_qib, m_q.transpose())
     m_error = 2.*chi_sq_0*m_qibqt
+    """
+    print("\nm_b")
+    print(m_b)
+    print("\nm_ib")
+    print(m_ib)
+    print("\nv_a")
+    print(v_a)
+    print("\ntheta_min: ", theta_min)
+    print("\ntheta_0: ", theta_0)
+    """
     #print("\nm_error: ", m_error)
     #print(50*"*")
     return m_error
