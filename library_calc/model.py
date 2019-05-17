@@ -181,15 +181,18 @@ f_out is the file name for listing, full path should be given
         print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n))
         
         #it is not checked
-        m_error = error_estimation_simplex(res["final_simplex"][0], res["final_simplex"][1], tempfunc)
+        m_error, dist_hh = error_estimation_simplex(res["final_simplex"][0], res["final_simplex"][1], tempfunc)
         l_sigma = []
-        for i in range(m_error.shape[0]):
+        for i, val_2 in zip(range(m_error.shape[0]), dist_hh):
             #slightly change definition, instead of (n-k) here is n
             error = (abs(m_error[i,i])*1./n)**0.5
             if m_error[i,i] < 0.:
-                print(50*"*"+"\nErrors are incorrect\n(negative diagonal elements of Hessian)\n"+50*"*")
-            l_sigma.append(error)
-
+                print(50*"*"+"\nError is incorrect\n(negative diagonal elements of Hessian)\n"+50*"*")
+            if val_2 > error:
+                print(50*"*"+"\nErrors is incorrect\n(minimum is not found)\n"+50*"*")
+                
+            l_sigma.append(max(error,val_2))
+            
         for variable, sigma in zip(l_variable, l_sigma):
             variable[4] = sigma
         return res

@@ -5,7 +5,6 @@ Created on Wed May 15 10:14:11 2019
 @author: ikibalin
 """
 import numpy
-import random
 
 def error_estimation_simplex(vertex_vector_h, vertex_chi_sq_h, func):
     """
@@ -28,11 +27,17 @@ def error_estimation_simplex(vertex_vector_h, vertex_chi_sq_h, func):
     m_q = numpy.zeros((k-1, k-1))
     vertex_vector = numpy.zeros(vertex_vector_h.shape,dtype=float)
     vertex_vector[0, :] = theta_0
+    max_radius = numpy.zeros(k-1, dtype=float)
     for i in range(1, k):
         theta_i = vertex_vector_h[i, :]
-        radius = theta_i-theta_0
-        rand_radius = numpy.array([(2.*random.random()-1)*hh for hh in radius], dtype=float)
-        vertex_vector[i, :] = theta_0+rand_radius
+        rand_radius = numpy.abs(theta_i-theta_0)
+        max_radius = numpy.max(numpy.vstack([max_radius,rand_radius]), axis=0)
+    #print("max_radius ", max_radius)
+    for i in range(1, k):
+        radius_h = numpy.zeros(k-1, dtype=float)
+        radius_h[i-1] = max_radius[i-1]
+        vertex_vector[i, :] = theta_0+radius_h
+
     l_chi_sq = []
     for i in range(0, k):
         theta_i = vertex_vector_h[i, :]
@@ -85,14 +90,14 @@ def error_estimation_simplex(vertex_vector_h, vertex_chi_sq_h, func):
             m_b[j-1, i-1] = b_ij
     #print("step 3")
     m_ib = numpy.linalg.inv(m_b)
-    print("\nm_q")
-    print(m_q)
     m_qib = numpy.matmul(m_q, m_ib)
     v_qiba = numpy.matmul(m_qib, v_a)
     theta_min = theta_0 - v_qiba
     m_qibqt = numpy.matmul(m_qib, m_q.transpose())
     m_error = 2.*chi_sq_0*m_qibqt
     """
+    print("\nm_q")
+    print(m_q)
     print("\nm_b")
     print(m_b)
     print("\nm_ib")
@@ -104,4 +109,4 @@ def error_estimation_simplex(vertex_vector_h, vertex_chi_sq_h, func):
     """
     #print("\nm_error: ", m_error)
     #print(50*"*")
-    return m_error
+    return m_error, numpy.abs(v_qiba)
