@@ -14,7 +14,7 @@ class ObservedDataSingle(dict):
     """
     def __init__(self, h=None, k=None, l=None, flip_ratio=None, 
                  sflip_ratio=None, wave_length=None, field=None, 
-                 orientation=None):
+                 orientation=None, file_dir=None, file_name=None):
         super(ObservedDataSingle, self).__init__()
         self._p_h = None
         self._p_k = None
@@ -30,7 +30,7 @@ class ObservedDataSingle(dict):
         self._p_orientation = None
         
         self._refresh(h, k, l, flip_ratio, sflip_ratio, wave_length, field, 
-                 orientation)
+                 orientation, file_dir, file_name)
 
     def __repr__(self):
         ls_out = """ObservedDataSingle:\n file_dir: {:}
@@ -52,7 +52,7 @@ class ObservedDataSingle(dict):
         return ls_out
 
     def _refresh(self, h, k, l, flip_ratio, sflip_ratio, wave_length, field, 
-                 orientation):
+                 orientation, file_dir, file_name):
         if h is not None:
             self._p_h = h
         if k is not None:
@@ -69,12 +69,16 @@ class ObservedDataSingle(dict):
             self._p_field = field
         if orientation is not None:
             self._p_orientation = orientation
+        if file_dir is not None:
+            self._p_file_dir = file_dir
+        if file_name is not None:
+            self._p_file_name = file_name
             
     def set_val(self,  h=None, k=None, l=None, flip_ratio=None, 
                  sflip_ratio=None, wave_length=None, field=None, 
-                 orientation=None):
+                 orientation=None, file_dir=None, file_name=None):
         self._refresh(h, k, l, flip_ratio, sflip_ratio, wave_length, field, 
-                 orientation)
+                 orientation, file_dir, file_name)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -101,6 +105,9 @@ Parameters:
  wave_length is the neutron wave length in the Angtrems
  field is the magnetic field along z axis 
  orientation is the tranbsformation matrix from local coordinate system to global (matrix U)
+ file_dir is directory of file with measured data
+ file_name is basename of file with measured data
+ 
         """
         print(lsout)
     
@@ -111,6 +118,8 @@ Parameters:
         self._p_file_dir = os.path.dirname(finp)
         self._p_file_name = os.path.basename(finp)
         ddata = {}
+        if not(os.path.isfile(finp)):
+            return
         fid = open(finp,'r')
         lcontentH = fid.readlines()
         fid.close()
@@ -150,15 +159,33 @@ Parameters:
                  sflip_ratio=sflip_ratio, wave_length=wave_length, field=field, 
                  orientation=orientation)
 
-
-
+    def create_input_file(self, f_inp=None):
+        if f_inp is not None:
+            f_dir= os.path.dirname(f_inp)
+            f_name= os.path.bathename(f_inp)
+            self.set_val(file_dir=f_dir, file_name=f_name)
+        f_dir = self._p_file_dir
+        f_name = self._p_file_name
+        f_full = os.path.join(f_dir, f_name)
+        
+        s_out = """#wave_length 1.40 
+#field  1.000
+#orientation 0.6468462   -0.6860854   0.3300297 0.2141139   -0.2557555   -0.9343334 0.7319312   0.6810804    -0.0183183 
+#   h    k    l        FR       sFR
+    0    0    8   0.64545   0.01329 """
+    
+        fid = open(f_full, "w")
+        fid.write(s_out)
+        fid.close()
+        
+        
 class ObservedDataPowder1D(dict):
     """
     Containt the experimental data
     """
     def __init__(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
                  int_d_exp=None, sint_d_exp=None, tth_min=None, tth_max=None,
-                 field=None, wave_length=None):
+                 field=None, wave_length=None, file_dir=None, file_name=None):
         super(ObservedDataPowder1D, self).__init__()
         self._p_tth_exp = None
         self._p_int_u_exp = None
@@ -183,7 +210,7 @@ class ObservedDataPowder1D(dict):
         self._p_wave_length = None
         
         self._refresh(tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
-                      tth_min, tth_max, field, wave_length)
+                      tth_min, tth_max, field, wave_length, file_dir, file_name)
 
     def __repr__(self):
         ls_out = """ObservedDataPowder1D:\n file_dir: {:}
@@ -198,7 +225,7 @@ class ObservedDataPowder1D(dict):
         return ls_out
 
     def _refresh(self, tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
-                 tth_min, tth_max, field, wave_length):
+                 tth_min, tth_max, field, wave_length, file_dir, file_name):
         flag = any([(hh is not None) for hh in [tth_exp, int_u_exp, sint_u_exp, 
                                                 int_d_exp, sint_d_exp]])
         if tth_exp is not None:
@@ -219,14 +246,18 @@ class ObservedDataPowder1D(dict):
             self._p_field = field
         if wave_length is not None:
             self._p_wave_length = wave_length
+        if file_dir is not None:
+            self._p_file_dir = file_dir
+        if file_name is not None:
+            self._p_file_name = file_name
         if flag:
             self.exclude_data()
             
     def set_val(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
                 int_d_exp=None, sint_d_exp=None, tth_min=None, tth_max=None, 
-                field=None, wave_length=None):
+                field=None, wave_length=None, file_dir=None, file_name=None):
         self._refresh(tth_exp, int_u_exp, sint_u_exp, int_d_exp, sint_d_exp, 
-                      tth_min, tth_max, field, wave_length)
+                      tth_min, tth_max, field, wave_length, file_dir, file_name)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -255,6 +286,9 @@ field is the magnetic field along z axis
 wave_length is the neutron wave_length
 
 tth_min, tth_max -- range of diffraction angle for calculations
+
+file_dir
+file_name
         """
         print(lsout)
         
@@ -333,7 +367,25 @@ tth_min, tth_max -- range of diffraction angle for calculations
         if self._p_tth_max is None:
             self._p_tth_max = tth.max()
 
-
+    def create_input_file(self, f_inp=None):
+        if f_inp is not None:
+            f_dir= os.path.dirname(f_inp)
+            f_name= os.path.bathename(f_inp)
+            self.set_val(file_dir=f_dir, file_name=f_name)
+        f_dir = self._p_file_dir
+        f_name = self._p_file_name
+        f_full = os.path.join(f_dir, f_name)
+        
+        s_out = """#wave_length 0.84
+#field 1.0
+#   ttheta     IntUP    sIntUP   IntDOWN  sIntDOWN
+ 4.00   465.80000   128.97000   301.88000   129.30000
+ 4.20   323.78000   118.22000   206.06000   120.00000 """
+    
+        fid = open(f_full, "w")
+        fid.write(s_out)
+        fid.close()
+        
 class ObservedDataPowder2D(dict):
     """
     Containt the experimental data
@@ -341,7 +393,8 @@ class ObservedDataPowder2D(dict):
     def __init__(self, tth_exp=None, phi_exp=None, int_u_exp=None, 
                  sint_u_exp=None, int_d_exp=None, 
                  sint_d_exp=None, tth_min=None, tth_max=None, phi_min=None, 
-                 phi_max=None, field=None, wave_length=None):
+                 phi_max=None, field=None, wave_length=None, file_dir=None, 
+                 file_name=None):
         super(ObservedDataPowder2D, self).__init__()
         self._p_tth_exp = None
         self._p_phi_exp = None
@@ -369,8 +422,8 @@ class ObservedDataPowder2D(dict):
         self._p_wave_length = None
         
         self._refresh(tth_exp, phi_exp, int_u_exp, sint_u_exp, int_d_exp, 
-                      sint_d_exp, tth_min, tth_max, 
-                      phi_min, phi_max, field, wave_length)
+                      sint_d_exp, tth_min, tth_max, phi_min, phi_max, field, 
+                      wave_length, file_dir, file_name)
 
     def __repr__(self):
         ls_out = """ObservedDataPowder2D:\n file_dir: {:}
@@ -387,8 +440,8 @@ class ObservedDataPowder2D(dict):
         return ls_out
 
     def _refresh(self, tth_exp, phi_exp, int_u_exp, sint_u_exp, int_d_exp, 
-                 sint_d_exp, tth_min, 
-                 tth_max, phi_min, phi_max, field, wave_length):
+                 sint_d_exp, tth_min, tth_max, phi_min, phi_max, field, 
+                 wave_length, file_dir, file_name):
         flag = any([(hh is not None) for hh in [tth_exp, phi_exp, int_u_exp, 
                                                 sint_u_exp, int_d_exp, 
                                                 sint_d_exp, tth_min, tth_max, 
@@ -417,16 +470,21 @@ class ObservedDataPowder2D(dict):
             self._p_phi_min = phi_min
         if phi_max is not None:
             self._p_phi_max = phi_max
+        if file_dir is not None:
+            self._p_file_dir = file_dir
+        if file_name is not None:
+            self._p_file_name = file_name
+            
         if flag:
             self.exclude_data()
             
     def set_val(self, tth_exp=None, phi_exp=None, int_u_exp=None, 
                 sint_u_exp=None, int_d_exp=None, sint_d_exp=None, 
                 tth_min=None, tth_max=None, phi_min=None, phi_max=None, 
-                field=None, wave_length=None):
+                field=None, wave_length=None, file_dir=None, file_name=None):
         self._refresh(tth_exp, phi_exp, int_u_exp, sint_u_exp, int_d_exp, 
                       sint_d_exp, tth_min, tth_max, 
-                      phi_min, phi_max, field, wave_length)
+                      phi_min, phi_max, field, wave_length, file_dir, file_name)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -455,6 +513,8 @@ int_d, sint_d are 2D array of intensity with errorbars at flipper postion 'down'
 
 field is the magnetic field along z axis 
 wave_length is the neutron wave_length in Angstrem
+file_dir 
+file_name
         """
         print(lsout)
 
@@ -572,6 +632,41 @@ wave_length is the neutron wave_length in Angstrem
         if self._p_phi_max is None:
             self._p_phi_max = phi.max()
             
+    def create_input_file(self, f_inp=None):
+        if f_inp is not None:
+            f_dir= os.path.dirname(f_inp)
+            f_name= os.path.bathename(f_inp)
+            self.set_val(file_dir=f_dir, file_name=f_name)
+        f_dir = self._p_file_dir
+        f_name = self._p_file_name
+        f_full = os.path.join(f_dir, f_name)
+        
+        s_out = """#wave_length 0.84
+#field 1.0
+              2        4.00000        4.20000        4.40000
+      -40.00000     -331.22430     -441.71840     -165.45740
+      -39.50000     -367.06001     -334.89957      -19.03981
+
+
+              2        4.00000        4.20000        4.40000
+      -40.00000      233.54349      224.10645      208.27566
+      -39.50000      232.66974      223.49483      209.67221
+
+
+              2        4.00000        4.20000        4.40000
+      -40.00000     -163.92064     -171.98843     -391.59225
+      -39.50000     -316.22822     -202.02991     -366.83589
+
+
+              2        4.00000        4.20000        4.40000
+      -40.00000      237.29160      222.90559      212.65555
+      -39.50000      234.99514      225.90897      211.71155
+
+"""
+    
+        fid = open(f_full, "w")
+        fid.write(s_out)
+        fid.close()            
 
 if (__name__ == "__main__"):
   pass

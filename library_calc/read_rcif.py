@@ -211,6 +211,7 @@ class RCif(object):
                 for lab_rcif, lab_arg, type_arg in zip(llab_rcif, llab_arg, 
                                                                     ltype_arg):
                     temp_func(obj, d_exp, lab_rcif, lab_arg, type_arg)
+
                 d_exp["_sd_file_name_output"] = os.path.basename(
                                                 d_exp["_sd_file_name_output"])
                 
@@ -1293,13 +1294,25 @@ def trans_2dpd_to_experiment(f_dir, data, l_crystal):
     l_key = data.keys()
     tth_min, tth_max, phi_min, phi_max = None, None, None, None
     if "_2dpd_tth_min" in l_key:
-        tth_min = float(data["_2dpd_tth_min"])
+        try:
+            tth_min = float(data["_2dpd_tth_min"])
+        except:
+            pass
     if "_2dpd_tth_max" in l_key:
-        tth_max = float(data["_2dpd_tth_max"])
+        try:
+            tth_max = float(data["_2dpd_tth_max"])
+        except:
+            pass
     if "_2dpd_phi_min" in l_key:
-        phi_min = float(data["_2dpd_phi_min"])
+        try:
+            phi_min = float(data["_2dpd_phi_min"])
+        except:
+            pass
     if "_2dpd_phi_max" in l_key:
-        phi_max = float(data["_2dpd_phi_max"])
+        try:
+            phi_max = float(data["_2dpd_phi_max"])
+        except:
+            pass
         
     observed_data_powder_2d.set_val(tth_min=tth_min, tth_max=tth_max, 
                                     phi_min=phi_min, phi_max=phi_max)

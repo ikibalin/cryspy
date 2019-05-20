@@ -3,7 +3,12 @@ import sys
 import matplotlib.pyplot
 import numpy
 
+from setup_powder_1d import *
+from setup_powder_2d import *
+from observed_data import *
+from calculated_data import *
 from experiment import *
+
 from model import *
 from variable import *
 from read_rcif import *
@@ -144,6 +149,68 @@ def plot_data(model):
             matplotlib.pyplot.show()
 
 
+def create_temporary(f_name_in):
+    print("Master to create .rcif file in\n'{:}'\n".format(f_name_in))
+    print("""You would like to work with:
+ 1. single diffraction data;
+ 2. 1D powder diffraction data;
+ 3. 2D powder diffraction data. """)
+    s_help = input("")
+    if type(s_help) is int:
+        s_help = str(s_help)
+    f_dir = os.path.dirname(f_name_in)
+    model = Model()
+
+    atom_type = AtomType()
+    crystal_name="Phase1"
+    crystal = Crystal(name=crystal_name)
+    crystal.add_atom(atom_type)
+    model.add_crystal(crystal)
+    
+    if "1" in s_help:
+        f_out = os.path.join(f_dir, "full_sd.out")
+        observed_data = ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
+        observed_data.create_input_file()
+        experiment = ExperimentSingle(name="exp_sd", observed_data=observed_data,
+                                      f_out=f_out)
+
+        calculated_data = CalculatedDataSingle(name=crystal_name)
+        experiment.add_calculated_data(calculated_data)
+        model.add_experiment(experiment)
+    if "2" in s_help:
+        f_out = os.path.join(f_dir, "full_pd.out")
+        observed_data = ObservedDataPowder1D(file_dir=f_dir, file_name="full_pd.dat")
+        observed_data.create_input_file()
+        
+        background = BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
+        background.create_input_file()
+        
+        setup = SetupPowder1D(background=background)
+        
+        experiment = ExperimentPowder1D(name="exp_pd", setup=setup, f_out=f_out,
+                                        observed_data=observed_data)
+
+        calculated_data = CalculatedDataPowder1D(name=crystal_name)
+        experiment.add_calculated_data(calculated_data)
+        model.add_experiment(experiment)
+    if "3" in s_help:
+        f_out = os.path.join(f_dir, "full_2dpd.out")
+        observed_data = ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat")
+        observed_data.create_input_file()
+        
+        background = BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
+        background.create_input_file()
+        
+        setup = SetupPowder2D(background=background)
+        
+        experiment = ExperimentPowder2D(name="exp_2dpd", setup=setup, f_out=f_out, 
+                                        observed_data=observed_data)
+
+        calculated_data = CalculatedDataPowder2D(name=crystal_name)
+        experiment.add_calculated_data(calculated_data)
+        model.add_experiment(experiment)
+    write_to_rcif(model, f_name_in)
+
 if (__name__ == "__main__"):
     l_arg = sys.argv
     if len(l_arg) >= 2:
@@ -154,3 +221,5 @@ if (__name__ == "__main__"):
             f_name_out = l_arg[2]
         if os.path.isfile(f_name_in):
             rhochi_refinement(f_name_in, f_name_out)
+        else:
+            create_temporary(f_name_in)

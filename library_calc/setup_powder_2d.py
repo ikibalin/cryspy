@@ -395,7 +395,8 @@ class BackgroundPowder2D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, tth_bkgd=0., phi_bkgd=0., int_bkgd=0.):
+    def __init__(self, tth_bkgd=0., phi_bkgd=0., int_bkgd=0., file_dir=None, 
+                 file_name=None):
         super(BackgroundPowder2D, self).__init__()
         self._p_file_dir = ""
         self._p_file_name = None
@@ -404,7 +405,7 @@ class BackgroundPowder2D(dict):
         self._p_phi_bkgd = None
         self._p_int_bkgd = None
         
-        self._refresh(tth_bkgd, phi_bkgd, int_bkgd)
+        self._refresh(tth_bkgd, phi_bkgd, int_bkgd, file_dir, file_name)
 
     def __repr__(self):
         lsout = """BackgroundPowder2D:\n file_dir: {:}
@@ -419,18 +420,22 @@ class BackgroundPowder2D(dict):
                           " ".join(["{:}".format(hh_2) for hh_2 in l_hh]))
         return lsout
 
-    def _refresh(self, tth_bkgd, phi_bkgd, int_bkgd):
+    def _refresh(self, tth_bkgd, phi_bkgd, int_bkgd, file_dir, file_name):
         if tth_bkgd is not None:
             self._p_tth_bkgd = tth_bkgd
         if phi_bkgd is not None:
             self._p_phi_bkgd = phi_bkgd
         if int_bkgd is not None:
             self._p_int_bkgd = int_bkgd
-
+        if file_dir is not None:
+            self._p_file_dir = file_dir
+        if file_name is not None:
+            self._p_file_name = file_name
             
-    def set_val(self, tth_bkgd=None, phi_bkgd=None, int_bkgd=None):
-        
-        self._refresh(tth_bkgd, phi_bkgd, int_bkgd)
+    def set_val(self, tth_bkgd=None, phi_bkgd=None, int_bkgd=None, 
+                file_dir=None, file_name=None):
+
+        self._refresh(tth_bkgd, phi_bkgd, int_bkgd, file_dir, file_name)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -453,6 +458,8 @@ class BackgroundPowder2D(dict):
 Parameters:
 tth_bkgd is ttheta in degrees to describe background
 int_bkgd is intensity to describe background
+file_dir
+file_name
         """
         print(lsout)
         
@@ -527,8 +534,25 @@ int_bkgd is intensity to describe background
             for hh_1 in l_hh_1:
                 if isinstance(hh_1, Variable):
                     l_variable.append(hh_1)
-        return l_variable       
-
+        return l_variable    
+    
+    def create_input_file(self, f_inp=None):
+        if f_inp is not None:
+            f_dir= os.path.dirname(f_inp)
+            f_name= os.path.bathename(f_inp)
+            self.set_val(file_dir=f_dir, file_name=f_name)
+        f_dir = self._p_file_dir
+        f_name = self._p_file_name
+        f_full = os.path.join(f_dir, f_name)
+        
+        s_out = """#ttheta phi IntBKGR  
+   3   4.50   40.00   80.00 
+  -3   -350    -350    -400
+  41   -350    -350    -400"""
+    
+        fid = open(f_full, "w")
+        fid.write(s_out)
+        fid.close()
 
 
 class SetupPowder2D(dict):

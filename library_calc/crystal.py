@@ -3006,6 +3006,17 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         s_out = "{:}".format(self)
         return s_out
     
+    def add_atom(self, atom):
+        atom_site = self._p_atom_site
+        atom_site._list_atom_type.append(atom)
+        atom_site._flag_refresh = True
+        #self._form_arrays(cell)
+    
+    def del_atom(self, ind):
+        atom_site = self._p_atom_site
+        atom_site._list_atom_type.pop(ind)
+        atom_site._flag_refresh = True        
+        
 if (__name__ == "__main__"):
   pass
 
