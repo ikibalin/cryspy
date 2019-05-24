@@ -245,7 +245,7 @@ class RCif(object):
                 if "up" in obj.get_val("mode_chi_sq"):
                     d_exp["_pd_chi2_up"] = "True" 
                 else:
-                    d_exp["_2dpd_chi2_up"] = "False" 
+                    d_exp["_pd_chi2_up"] = "False" 
                 if "down" in obj.get_val("mode_chi_sq"):
                     d_exp["_pd_chi2_down"] = "True" 
                 else:
@@ -997,7 +997,7 @@ def trans_to_crystal(data):
         return crystal, l_variable
 
     lab_xyz = "_atom_site_fract"
-    lab_beta = "_atom_site_aniso_beta"
+    lab_beta = "_atom_site_aniso_U"
     lab_chi = "_atom_site_susceptibility"
     lab_bscat = "_atom_site_bscat"
     lab_j0 = "_atom_site_magnetism_j0"
@@ -1047,6 +1047,7 @@ def trans_to_crystal(data):
                     if dd["_atom_site_type_symbol"] == atom_1.get_val("type_n"):
                         from_dict_to_obj(dd, llab_rcif, atom_1, llab_arg, ltype)
     """
+
     if lnumb[1] != []:
         llab_rcif = drel["lab_rcif_adp"]
         llab_arg = drel["lab_arg_adp"]
@@ -1357,11 +1358,17 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
     transform info in dictionary to class ExperimentSingle and give the list of refined parameters
     """
     l_variable = []
+    
+    beam_polarization = BeamPolarization()
+    setup = SetupSingle(beam_polarization=beam_polarization)
+    observed_data = ObservedDataSingle()
+    experiment = ExperimentSingle(setup=setup, observed_data=observed_data)
+    """
     experiment = ExperimentSingle()
     setup = experiment.get_val("setup")
     beam_polarization = setup.get_val("beam_polarization")
     observed_data = experiment.get_val("observed_data")
-
+    """
 
     experiment.set_val(name=data["name"])
 
@@ -1388,7 +1395,7 @@ def trans_sd_to_experiment(f_dir, data, l_crystal):
     f_inp=data["_sd_file_name_input"]
     observed_data.read_data(os.path.join(f_dir, f_inp))
     
-    
+
     wave_length = observed_data.get_val("wave_length")
     setup.set_val(wave_length=wave_length)
 

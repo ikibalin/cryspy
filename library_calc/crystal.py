@@ -2408,8 +2408,8 @@ fract  is fraction of atoms
             lj2_C.append(atom_type.get_val("j2_C")) 
             lj2_c.append(atom_type.get_val("j2_c"))
             lj2_D.append(atom_type.get_val("j2_D"))
-            
-        np_b_scat = numpy.array(lb_scat, dtype=float)
+
+        np_b_scat = numpy.array(lb_scat, dtype=complex)
         np_occ = numpy.array(locc, dtype=float)
         np_x = numpy.array(lx, dtype=float)
         np_y = numpy.array(ly, dtype=float)

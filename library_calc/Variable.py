@@ -247,16 +247,7 @@ class Variable(dict):
         return
     
     def __repr__(self):
-        if self.sigma != 0.:
-            n_power = numpy.round(numpy.log10(self.sigma), decimals=0)
-            val_1 = numpy.round(self.value, decimals = -1*int(n_power)+1)
-            val_2 = numpy.round(self.sigma, decimals = -1*int(n_power)+1)
-            if n_power < 0:
-                val_2=int(val_2*10**(-n_power+1))
-            ls_out = " {:}({:})".format(val_1, int(val_2))
-        else:
-            ls_out = " {:} (refinement: {:}, sigma: {:}".format(self.value, 
-                   self.refinement, self.sigma)
+        ls_out = self.print_with_sigma()
         if self.name != "":
             ls_out += ", {:}".format(self.name)
             
@@ -270,14 +261,24 @@ class Variable(dict):
     
     def print_with_sigma(self):
         if self.sigma != 0.:
-            n_power = numpy.round(numpy.log10(self.sigma), decimals=0)
-            val_1 = numpy.round(self.value, decimals = -1*int(n_power)+1)
-            val_2 = numpy.round(self.sigma, decimals = -1*int(n_power)+1)
-            if n_power < 0:
-                val_2=int(val_2*10**(-n_power+1))
-            ls_out = " {:}({:})".format(val_1, int(val_2))
+            val_hh = numpy.log10(self.sigma)
+            n_power = int(val_hh)
+            if val_hh <= 0:
+                val_1 = numpy.round(self.value, decimals = -1*int(n_power)+2)
+                val_2 = numpy.round(self.sigma, decimals = -1*int(n_power)+2)
+                i_val_11 = int(val_1)
+                s_sign = ""
+                if val_1 < 0.:
+                    s_sign = "-"
+                s_val_12 = ("{:}".format(int(abs(val_1)%1.*10**(-n_power+2)))).rjust(int(-n_power+2),"0")
+                val_2=int(val_2*10**(-n_power+2))
+                ls_out = " {:}{:}.{:}({:})".format(s_sign, abs(i_val_11), s_val_12, int(val_2))
+            else:
+                val_1 = numpy.round(self.value)
+                val_2 = numpy.round(self.sigma)
+                ls_out = " {:}({:})".format(int(val_1), int(val_2))
         else:
             ls_out = "{:}".format(self.value)
-        return ls_out        
-        
-    
+        return ls_out 
+
+

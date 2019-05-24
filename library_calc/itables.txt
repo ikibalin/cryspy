@@ -59,6 +59,9 @@ pcentr: 0, 0, 0
 symmetry: x,y,z
 symmetry: x,-y,1/2+z
 
+
+
+
 10 P2/m            Monoclinic
 choice: 1
 centr: true
