@@ -106,7 +106,7 @@ f_out is the file name for listing, full path should be given
 
     def replace_crystal(self, ind, crystal):
         self._list_crystal.pop(ind)
-        self._list_crystal.insert(ind, experiment)
+        self._list_crystal.insert(ind, crystal)
 
     def add_variable(self, variable):
         self._list_variable.append(variable)
