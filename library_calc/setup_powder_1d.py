@@ -778,7 +778,7 @@ background  is Background class
 
         hmax = int(2.*cell.get_val('a')*sthovl_max)
         kmax = int(2.*cell.get_val('b')*sthovl_max)
-        lmax = int(2.*cell.get_val('a')*sthovl_max)
+        lmax = int(2.*cell.get_val('c')*sthovl_max)
         hmin, kmin, lmin = -1*hmax, -1*kmax, -1*lmax
 
         hmin=0

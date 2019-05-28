@@ -11,7 +11,7 @@ from variable import *
 def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,
                  c11, c12, c13, c21, c22, c23, c31, c32, c33):
     """
-    calculate matrix multiplication R*C*RT, when matrices are expressed througn 
+    calculate matrix multiplication R*C*RT, when matrices are expressed through 
     its component and can be expressed as nD-array
     """
     rc_11, rc_12 = r11*c11+r12*c21+r13*c31, r11*c12+r12*c22+r13*c32
@@ -750,9 +750,9 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         centr = self._p_centr
         p_centr = self._p_p_centr
 
-        x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 5)
-        y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 5)
-        z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 5)
+        x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 4)
+        y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 4)
+        z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 4)
 
         x_o = [orig[0] for orig in lorig]
         y_o = [orig[1] for orig in lorig]
@@ -762,18 +762,18 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         y_s_2d, y_o_2d = numpy.meshgrid(y_s, y_o)
         z_s_2d, z_o_2d = numpy.meshgrid(z_s, z_o)
         
-        x_s_2d = numpy.round(numpy.mod(x_s_2d+x_o_2d, 1), 5)
-        y_s_2d = numpy.round(numpy.mod(y_s_2d+y_o_2d, 1), 5)
-        z_s_2d = numpy.round(numpy.mod(z_s_2d+z_o_2d, 1), 5)
+        x_s_2d = numpy.round(numpy.mod(x_s_2d+x_o_2d, 1), 4)
+        y_s_2d = numpy.round(numpy.mod(y_s_2d+y_o_2d, 1), 4)
+        z_s_2d = numpy.round(numpy.mod(z_s_2d+z_o_2d, 1), 4)
 
         x_s = x_s_2d.flatten()
         y_s = y_s_2d.flatten()
         z_s = z_s_2d.flatten()
 
         if centr:
-            x_s_h = numpy.round(numpy.mod(2.*p_centr[0]-1.*x_s, 1), 5)
-            y_s_h = numpy.round(numpy.mod(2.*p_centr[1]-1.*y_s, 1), 5)
-            z_s_h = numpy.round(numpy.mod(2.*p_centr[2]-1.*z_s, 1), 5)
+            x_s_h = numpy.round(numpy.mod(2.*p_centr[0]-1.*x_s, 1), 4)
+            y_s_h = numpy.round(numpy.mod(2.*p_centr[1]-1.*y_s, 1), 4)
+            z_s_h = numpy.round(numpy.mod(2.*p_centr[2]-1.*z_s, 1), 4)
             x_s =numpy.hstack([x_s, x_s_h])
             y_s =numpy.hstack([y_s, y_s_h])
             z_s =numpy.hstack([z_s, z_s_h])

@@ -32,8 +32,8 @@ class Model(dict):
         ls_out = """Model\n name: {:}\n f_out: {:}\n""".format(self._p_name, 
                                   self._p_f_out)
         ls_exp = []
-        for epxeriment in self._list_experiment:
-            ls_exp.append("{:}".format(epxeriment))
+        for experiment in self._list_experiment:
+            ls_exp.append("{:}".format(experiment))
 
         ls_cry = []
         for crystal in self._list_crystal:
@@ -136,6 +136,7 @@ f_out is the file name for listing, full path should be given
         for experiment in self._list_experiment:
             name = experiment.get_val("name")
             chi_sq, n, d_info_exp = experiment.calc_chi_sq(l_crystal)
+            #print("experiment: {:} {:} {:}".format(name, chi_sq, n))
             chi_sq_res += chi_sq
             n_res += n
 
