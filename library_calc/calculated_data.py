@@ -246,7 +246,7 @@ crystal is the definition of crystal
         field = 1.*self._p_field
         p_u = beam_polarization.get_val("p_u")
         p_d = beam_polarization.get_val("p_d")
-
+        
 
         f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33, d_info_cry = crystal.calc_sf(h, k, l)
         
