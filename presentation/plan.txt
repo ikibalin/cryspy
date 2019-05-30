@@ -1,7 +1,0 @@
-1. rcif
-2. 2D refinement
-3. GUI organisation 
-4. Calculatuions
-
-Problems:
-1. structure of modules

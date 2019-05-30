@@ -1,3 +1,0 @@
-!averaging
-!            finp  mode   min  max          fout  way
-       2dprofile.dat   axX    -0.5    0.5     1dprofile.out sum
