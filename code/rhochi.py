@@ -3,48 +3,57 @@ import sys
 import matplotlib.pyplot
 import numpy
 
-from setup_powder_1d import *
-from setup_powder_2d import *
-from observed_data import *
-from calculated_data import *
-from experiment import *
+import cl_setup_single 
+import cl_setup_powder_1d 
+import cl_setup_powder_2d 
+import cl_observed_data_single 
+import cl_observed_data_powder_1d 
+import cl_observed_data_powder_2d 
+import cl_calculated_data_single 
+import cl_calculated_data_powder_1d 
+import cl_calculated_data_powder_2d 
+import cl_experiment_single 
+import cl_experiment_powder_1d 
+import cl_experiment_powder_2d 
+import cl_model 
+import cl_variable 
+import cl_crystal 
 
-from model import *
-from variable import *
-from read_rcif import *
-from crystal import *
+import cl_rcif 
+import api_rcif_model
 
 
 def read_model(f_name_in):
-    rcif = RCif()
+    rcif = cl_rcif.RCif()
     rcif.load_from_file(f_name_in)
     print("\nParameters are taken from file '{:}'.".format(f_name_in))
-    model = rcif.trans_to_model()
+    model = api_rcif_model.conv_rcif_to_model(rcif)
     return model
 
 def model_refinement(model):
     model.apply_constraint()
     model.get_variables()
-    d_map = {}
-    res = model.refine_model(d_map)
+    d_info_in = {}
+    res = model.refine_model(d_info_in)
     print("\nRefined parameters:\n")
     for var in model.get_variables():
         print(var)
     model.save_exp_mod_data()
     print("\nData are saved in the files.")
 
-    f_out = model.get_val("f_out")
-    if f_out is not None:
+    file_out = model.get_val("file_out")
+    file_dir = model.get_val("file_dir")
+    if ((file_out is not None)|(file_dir is not None)):
+        f_name = os.path.join(file_dir, file_out)
         s_out = model.print_report()
-        fid = open(f_out, "w")
+        fid = open(f_name, "w")
         fid.write(s_out)
         fid.close()
-        print("\nListing is saved in the file '{:}'.".format(f_out))
+        print("\nListing is saved in the file '{:}'.".format(f_name))
         
 def write_to_rcif(model, f_name_out):
     if f_name_out is not None:
-        rcif_2 = RCif()
-        rcif_2.take_from_model(model)
+        rcif_2 = api_rcif_model.conv_model_to_rcif(model)
         rcif_2.save_to_file(f_name_out)
         print("\nParameters are saved in the file '{:}'.".format(f_name_out))
     
@@ -64,7 +73,7 @@ def rhochi_refinement(f_name_in, f_name_out):
 
 def plot_data(model):
     for experiment in model._list_experiment:
-        if isinstance(experiment, ExperimentSingle):
+        if isinstance(experiment, cl_experiment_single.ExperimentSingle):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             observed_data = experiment.get_val("observed_data")
@@ -73,20 +82,27 @@ def plot_data(model):
             f_r_exp = observed_data.get_val("flip_ratio")
             sf_r_exp = observed_data.get_val("sflip_ratio")
             
+            as_exp = (f_r_exp-1.)/(f_r_exp+1.)
+            sas_exp = ((as_exp**2+1.)**0.5)*sf_r_exp/(f_r_exp+1.)
+            
             iint_u, iint_d, f_r_mod, d_info = experiment.calc_iint_u_d_flip_ratio(h, k, l, l_crystal)
 
-            matplotlib.pyplot.errorbar(f_r_mod, f_r_exp, sf_r_exp, fmt=".")
-            matplotlib.pyplot.plot(f_r_mod, f_r_mod, "-")
+            as_mod = (f_r_mod-1.)/(f_r_mod+1.)
+
+            matplotlib.pyplot.errorbar(as_mod, as_exp, sas_exp, fmt=".")
+            matplotlib.pyplot.plot(as_mod, as_mod, "-")
             matplotlib.pyplot.xlabel("model")
             matplotlib.pyplot.ylabel("experiment")
-            matplotlib.pyplot.title("experiment: '{:}', flip ratio".format(name))
+            matplotlib.pyplot.title("experiment: '{:}', assymetry".format(name))
             matplotlib.pyplot.show()
             
-        elif isinstance(experiment, ExperimentPowder1D):
+        elif isinstance(experiment, cl_experiment_powder_1d.ExperimentPowder1D):
             name = experiment.get_val("name")
-            f_out = experiment.get_val("f_out")
+            file_dir = experiment.get_val("file_dir")
+            file_out = experiment.get_val("file_out")
+            f_name = os.path.join(file_dir, file_out)
         
-            fid = open(f_out, 'r')
+            fid = open(f_name, 'r')
             l_cont = fid.readlines()
             fid.close
             l_name = l_cont[0].strip().split()
@@ -116,7 +132,7 @@ def plot_data(model):
             matplotlib.pyplot.title("experiment: '{:}', up-down".format(name))
             matplotlib.pyplot.show()
             
-        elif isinstance(experiment, ExperimentPowder2D):
+        elif isinstance(experiment, cl_experiment_powder_2d.ExperimentPowder2D):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             observed_data = experiment.get_val("observed_data")
@@ -124,9 +140,10 @@ def plot_data(model):
             phi = observed_data.get_val("phi")
             int_u_exp = observed_data.get_val("int_u")
             int_d_exp = observed_data.get_val("int_d")
-            
-            int_u_mod, int_d_mod, d_info = experiment.calc_profile(tth, phi, 
-                                                                   l_crystal)
+
+            d_info_in = {}
+            int_u_mod, int_d_mod, d_info_out = experiment.calc_profile(
+                                         tth, phi, l_crystal, d_info_in)
             i_u_exp = numpy.where(numpy.isnan(int_u_exp), 0., int_u_exp).sum(axis=1)
             i_u_mod = numpy.where(numpy.isnan(int_u_exp), 0., int_u_mod).sum(axis=1)
             i_d_exp = numpy.where(numpy.isnan(int_d_exp), 0., int_d_exp).sum(axis=1)
@@ -159,54 +176,56 @@ def create_temporary(f_name_in):
     if type(s_help) is int:
         s_help = str(s_help)
     f_dir = os.path.dirname(f_name_in)
-    model = Model()
+    model = cl_model.Model()
 
-    atom_type = AtomType()
-    crystal_name="Phase1"
+    atom_type = cl_crystal.AtomType()
+    crystal_name = "Phase1"
     crystal = Crystal(name=crystal_name)
     crystal.add_atom(atom_type)
     model.add_crystal(crystal)
     
     if "1" in s_help:
-        f_out = os.path.join(f_dir, "full_sd.out")
-        observed_data = ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
+        file_out = "full_sd.out"
+        observed_data = cl_observed_data_single.ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
         observed_data.create_input_file()
-        experiment = ExperimentSingle(name="exp_sd", observed_data=observed_data,
-                                      f_out=f_out)
+        experiment = cl_experiment_single.ExperimentSingle(name="exp_sd", observed_data=observed_data,
+                                      file_out=file_out, file_dir=f_dir)
 
-        calculated_data = CalculatedDataSingle(name=crystal_name)
+        calculated_data = cl_calculated_data_single.CalculatedDataSingle(name=crystal_name)
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
+
     if "2" in s_help:
-        f_out = os.path.join(f_dir, "full_pd.out")
-        observed_data = ObservedDataPowder1D(file_dir=f_dir, file_name="full_pd.dat")
+        file_out = "full_pd.out"
+        observed_data = cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir, file_name="full_pd.dat")
         observed_data.create_input_file()
         
-        background = BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
+        background = cl_setup_powder_1d.BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
         background.create_input_file()
         
-        setup = SetupPowder1D(background=background)
+        setup = cl_setup_powder_1d.SetupPowder1D(background=background)
         
-        experiment = ExperimentPowder1D(name="exp_pd", setup=setup, f_out=f_out,
-                                        observed_data=observed_data)
+        experiment = cl_experiment_powder_1d.ExperimentPowder1D(name="exp_pd", setup=setup, file_dir=f_dir, 
+                        file_out=file_out, observed_data=observed_data)
 
-        calculated_data = CalculatedDataPowder1D(name=crystal_name)
+        calculated_data = cl_calculated_data_powder_1d.CalculatedDataPowder1D(name=crystal_name)
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
+
     if "3" in s_help:
-        f_out = os.path.join(f_dir, "full_2dpd.out")
-        observed_data = ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat")
+        file_out = "full_2dpd.out"
+        observed_data = cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat")
         observed_data.create_input_file()
         
-        background = BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
+        background = cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
         background.create_input_file()
         
-        setup = SetupPowder2D(background=background)
+        setup = cl_setup_powder_2d.SetupPowder2D(background=background)
         
-        experiment = ExperimentPowder2D(name="exp_2dpd", setup=setup, f_out=f_out, 
-                                        observed_data=observed_data)
+        experiment = cl_experiment_powder_2d.ExperimentPowder2D(name="exp_2dpd", setup=setup, file_out=file_out,
+                               file_dir=f_dir, observed_data=observed_data)
 
-        calculated_data = CalculatedDataPowder2D(name=crystal_name)
+        calculated_data = cl_calculated_data_powder_2d.CalculatedDataPowder2D(name=crystal_name)
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
     write_to_rcif(model, f_name_in)

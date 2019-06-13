@@ -9,28 +9,50 @@ import matplotlib.pyplot
 import numpy
 
 
-from crystal import *
-from calculated_data import *
-from experiment import *
-from observed_data import *
-from variable import *
+import cl_crystal 
+import cl_calculated_data_single 
+import cl_calculated_data_powder_1d 
+import cl_calculated_data_powder_2d 
+import cl_experiment_single 
+import cl_experiment_powder_1d 
+import cl_experiment_powder_2d 
+import cl_observed_data_single 
+import cl_observed_data_powder_1d 
+import cl_observed_data_powder_2d 
+import cl_variable 
+import cl_model 
 
-from model import *
+import cl_rcif 
 
-from read_rcif import *
+import api_rcif_model
 
 
+dir_name = r"C:\Users\ikibalin\Documents\documents\working_comp\RhoChi\version_next\examples"
+os.chdir(dir_name)
 # single crystal polarized neutron diffraction
-rcif_single = RCif()
+rcif_single = cl_rcif.RCif()
+f_inp = os.path.join("Fe3O4_150K_6T_2d", "full.rcif")
+f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 f_inp = os.path.join("HoTi_single", "full.rcif")
+f_inp = os.path.join("EuTiO3_twinning", "full.rcif")
 rcif_single.load_from_file(f_inp)
 
-model_single = rcif_single.trans_to_model()
-d_map_single = {}
-d_map_single = model_single.plot_map()
+model = api_rcif_model.conv_rcif_to_model(rcif_single)
 
 
-res = model_single.refine_model(d_map_single)
+d_info_in = {}
+res = model.refine_model(d_info_in)
+
+
+rcif_2 = api_rcif_model.conv_model_to_rcif(model)
+
+experiment = model._list_experiment[0]
+
+experiment.get_val("scale_domain")
+observed_data = experiment.get_val("observed_data")
+
+
+
 
 
 
