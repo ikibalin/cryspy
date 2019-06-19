@@ -158,6 +158,7 @@ file_dir is the working directory
             
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wave_length)
             tth_hkl = tth_hkl_rad*180./numpy.pi
+            d_info_cd.update({"tth_hkl": tth_hkl})
             profile_2d = setup.calc_profile(tth, tth_hkl, i_g)
             
             
@@ -299,8 +300,20 @@ file_dir is the working directory
                          int_d_exp, sint_d_exp, int_d_mod)]
 
         s_int = s_1 + "\n".join(l_s_2)
-        #hkl should be added
         s_out = s_int
+        #hkl should be added
+        ls_int = []
+        for i_phase, d_info_cd in enumerate(d_info["crystal"]):
+            ls_int.append("\n\n\n\n#phase {:}".format(i_phase+1))
+            tth_hkl = d_info_cd["tth_hkl"]
+            np_h = d_info_cd["h"]
+            np_k = d_info_cd["k"]
+            np_l = d_info_cd["l"]
+            for h, k, l, tth in zip(np_h, np_k, np_l, tth_hkl):
+                ls_int.append(" {:} {:} {:} {:}".format(h, k, l, tth))
+        s_out += "\n".join(ls_int)
+        
+        
         
         file_out, file_dir = self._p_file_out, self._p_file_dir
         if ((file_out is None) | (file_dir is None)):

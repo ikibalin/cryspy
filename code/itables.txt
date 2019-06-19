@@ -1830,7 +1830,7 @@ symmetry: y,x,-z
 symmetry: x-y,-y,-z+1/3
 symmetry: -x,-x+y,-z+2/3
 
-155 R32            Trigonal
+155 R32            Hexagonal
 choice: 1
 centr: false
 pcentr: 0, 0, 0

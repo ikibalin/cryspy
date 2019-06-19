@@ -1,0 +1,27 @@
+
+set border linewidth 3
+
+set style line  1 lc rgb '#72B830' lt 1 lw 1 pt  6 ps 0.5 #72B830
+set style line  2 lc rgb '#000000' lt 1 lw 2 pt  8 ps 0.5 #DB7093
+set style line  3 lc rgb '#000000' lt 1 lw 1 pt 10 ps 0.5 #DB7093
+set style line  4 lc rgb '#AAAAAA' lt 1 lw 1 pt  6 ps 0.5 #72B830
+set style line  5 lc rgb '#DB7093' lt 1 lw 1 pt  6 ps 0.5 #72B830
+set style line  6 lc rgb '#000000' lt 1 lw 2 pt  8 ps 0.5 #DB7093
+
+set grid xtics ytics mxtics mytics
+fname = "full.out"
+
+#set multiplot layout 2, 1
+set ylabel "intensity"
+set xlabel "2{/Symbol q}, degree"
+stats fname  index 0 u 1:2
+
+plot fname  index 0 u 1:2:3  w yerrorbars title 'exp.UP' ls 1,\
+     fname  index 0 u 1:4  w l  notitle ls 2,\
+     fname  index 0 u 1:($2-$4) w l  notitle ls 3,\
+     fname  index "phase 1" u 4:(1.07*STATS_min_y-0.07*STATS_max_y):('|') w labels  notitle ls 3,\
+     fname  index "phase 1" u 4:(1.2*STATS_min_y-0.2*STATS_max_y):(sprintf("(%i%i%i)",$1,$2,$3)) w labels  notitle  rotate by 90 font ",8" ,\
+     fname  index "phase 2" u 4:(1.37*STATS_min_y-0.37*STATS_max_y):('|') w labels  notitle ls 3,\
+     fname  index "phase 2" u 4:(1.5*STATS_min_y-0.5*STATS_max_y):(sprintf("(%i%i%i)",$1,$2,$3)) w labels  notitle  rotate by 90 font ",8" 
+
+     

@@ -1,0 +1,50 @@
+COMM # CRYSTAL DATA
+! Current global Chi2 (Bragg contrib.) =      1.602    
+! Files => DAT-file: tetr10K.dat,  PCR-file: eto-tetr-10K
+!Job Npr Nph Nba Nex Nsc Nor Dum Iwg Ilo Ias Res Ste Nre Cry Uni Cor Opt Aut
+   1   0   1   0   0   0   0   0   0   0   0   0   0   0   1   0   0   0   1
+!
+!Ipr Ppl Ioc Mat Pcr Ls1 Ls2 Ls3 NLI Prf Ins Rpa Sym Hkl Fou Sho Ana
+   0   0   1   0   1   0   4   0   0   3   0   0   0   0   0   0   0
+!
+!NCY  Eps  R_at  R_an  R_pr  R_gl     Thmin       Step       Thmax    PSD    Sent0
+  1  0.10  1.00  1.00  1.00  1.00      0.1112   0.020000   150.0000   0.000   0.000
+!
+!
+       8    !Number of refined parameters
+!-------------------------------------------------------------------------------
+!  Data for PHASE number:   1  ==> Current R_Bragg for Pattern#  1:     6.73
+!-------------------------------------------------------------------------------
+# CRYSTAL DATA
+!
+!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More
+   4   0   0 0.0 0.0 1.0   0   4   0   0   0        991.301   0   0   0
+!
+!
+I 4/m c m                <--Space group symbol
+!Atom   Typ       X        Y        Z     Biso       Occ     In Fin N_t Spc /Codes
+Eu1    Eu      0.00000  0.50000  0.25000 -0.81424   0.12500   0   0   0    0  
+                  0.00     0.00     0.00    41.00      0.00
+Ti1    Ti      0.00000  0.00000  0.00000  0.34013   0.12500   0   0   0    0  
+                  0.00     0.00     0.00    51.00      0.00
+O1     O       0.00000  0.00000  0.25000  0.29017   0.12500   0   0   0    0  
+                  0.00     0.00     0.00    61.00      0.00
+O2     O       0.22835  0.72835  0.00000  0.11701   0.25000   0   0   0    0  
+                 81.00    81.00     0.00    71.00      0.00
+!-------> Scale, Extinction and  Cell Parameters for Pattern #  1
+!  Scale Factors 
+!   Sc1        Sc2         Sc3         Sc4         Sc5         Sc6
+  0.7104      0.7620       1.436       0.000       0.000       0.000    
+       11.00       21.00       31.00        0.00        0.00        0.00
+!  Extinction Parameters 
+! Ext1       Ext2       Ext3       Ext4       Ext5       Ext6       Ext7   Ext-Model
+  0.000      0.000      0.000      0.000      0.000      0.000      0.000       1
+       0.00       0.00       0.00       0.00       0.00       0.00       0.00
+!     a          b         c        alpha      beta       gamma      #Cell Info
+   5.507000   5.507000   7.796000  90.000000  90.000000  90.000000   
+    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+! x-Lambda/2  +          Not yet used parameters
+     0.00000     0.00000     0.00000     0.00000     0.00000
+        0.00        0.00        0.00        0.00        0.00
+!  2Th1/TOF1    2Th2/TOF2  Pattern to plot
+       0.111     150.000       1

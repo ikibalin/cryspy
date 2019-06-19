@@ -680,7 +680,7 @@ def conv_model_to_rcif(model):
             l_dhelp = []
             for calculated_data in l_calculated_data:
                 name = calculated_data.get_val("name")
-                dhelp = {"_sd_phase_name": name}
+                dhelp = {"_sdd_phase_name": name}
                 for relation in l_relation:
                     temp_func(dhelp, relation, extinction)
                 l_dhelp.append(dhelp) 

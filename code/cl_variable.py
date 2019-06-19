@@ -248,8 +248,9 @@ class Variable(dict):
     
     def __repr__(self):
         ls_out = self.print_with_sigma()
-        if self.name != "":
-            ls_out += ", {:}".format(self.name)
+        
+        #if self.name != "":
+        #    ls_out += ", {:}".format(self.name)
             
         #id(self)
         #if self.constraint != "":

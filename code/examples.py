@@ -34,7 +34,7 @@ rcif_single = cl_rcif.RCif()
 f_inp = os.path.join("Fe3O4_150K_6T_2d", "full.rcif")
 f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 f_inp = os.path.join("HoTi_single", "full.rcif")
-f_inp = os.path.join("EuTiO3_twinning", "full.rcif")
+f_inp = os.path.join("EuTiO3_single_domain", "full.rcif")
 rcif_single.load_from_file(f_inp)
 
 model = api_rcif_model.conv_rcif_to_model(rcif_single)
@@ -47,6 +47,10 @@ res = model.refine_model(d_info_in)
 rcif_2 = api_rcif_model.conv_model_to_rcif(model)
 
 experiment = model._list_experiment[0]
+l_crystal = model._list_crystal
+experiment.save_exp_mod_data(l_crystal)
+s_out = experiment.print_report(l_crystal)
+print(s_out)
 
 experiment.get_val("scale_domain")
 observed_data = experiment.get_val("observed_data")
