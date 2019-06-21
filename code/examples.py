@@ -16,6 +16,7 @@ import cl_calculated_data_powder_2d
 import cl_experiment_single 
 import cl_experiment_powder_1d 
 import cl_experiment_powder_2d 
+import cl_experiment_powder_texture_2d 
 import cl_observed_data_single 
 import cl_observed_data_powder_1d 
 import cl_observed_data_powder_2d 
@@ -35,10 +36,11 @@ f_inp = os.path.join("Fe3O4_150K_6T_2d", "full.rcif")
 f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 f_inp = os.path.join("HoTi_single", "full.rcif")
 f_inp = os.path.join("EuTiO3_single_domain", "full.rcif")
+f_inp = os.path.join("SMM_powder_texture_2d", "full.rcif")
 rcif_single.load_from_file(f_inp)
 
 model = api_rcif_model.conv_rcif_to_model(rcif_single)
-
+model._list_experiment
 
 d_info_in = {}
 res = model.refine_model(d_info_in)

@@ -117,6 +117,7 @@ file_out is the file name to save model profiles
 file_dir is the working directory
         """
         print(lsout)
+
     def add_calculated_data(self, observed_data):
         self._list_calculated_data.append(observed_data)
 
@@ -265,8 +266,6 @@ file_dir is the working directory
         for calculated_data in self._list_calculated_data:
             calculated_data.set_val(field=field)
 
-        
-            
         int_u_mod, int_d_mod, d_info_prof = self.calc_profile(tth, phi, l_crystal)
         sint_sum_exp = (sint_u_exp**2 + sint_d_exp**2)**0.5
 

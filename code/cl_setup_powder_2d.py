@@ -554,7 +554,20 @@ file_name
         fid.write(s_out)
         fid.close()
 
+    def save_data(self):
+        l_tth_b = self.get_val("tth_bkgd")
+        l_phi_b = self.get_val("phi_bkgd")
+        ll_int_b = self.get_val("int_bkgd")
+        ls_out = ["#   phi\ttheta     IntBKGR"]
+        ls_out.append(" {:12}".format(len(l_phi_b))+" ".join(["{:12.3f}".format(hh) for hh in l_tth_b]))
+        for phi_b, l_int_b in zip(l_phi_b, ll_int_b):
+            ls_out.append(" {:12.3f} ".format(phi_b)+"   ".join(["{:}".format(hh) for hh in l_int_b]))
 
+        f_name = os.path.join(self._p_file_dir, self._p_file_name)
+        fid = open(f_name, "w")
+        fid.write("\n".join(ls_out))
+        fid.close()
+        
 class SetupPowder2D(dict):
     """
     Class to describe characteristics of powder diffractometer

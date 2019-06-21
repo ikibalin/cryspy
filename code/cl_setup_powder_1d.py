@@ -561,6 +561,18 @@ file_name
             l_int_b.append(val_2)
         self.set_val(tth_bkgd=l_tth_b, int_bkgd=l_int_b)
 
+    def save_data(self):
+        l_tth_b = self.get_val("tth_bkgd")
+        l_int_b = self.get_val("int_bkgd")
+        ls_out = ["#   ttheta     IntBKGR"]
+        for tth_b, int_b in zip(l_tth_b, l_int_b):
+            ls_out.append(" {:}  {:}".format(tth_b, int_b))
+
+        f_name = os.path.join(self._p_file_dir, self._p_file_name)
+        fid = open(f_name, "w")
+        fid.write("\n".join(ls_out))
+        fid.close()
+
     def interpolate_by_points(self, tth):
         l_tth_b = self._p_tth_bkgd
         l_int_b = self._p_int_bkgd

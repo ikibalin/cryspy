@@ -181,7 +181,7 @@ file_out is the file name for listing, full path should be given
         print("starting chi_sq/n: {:.2f} (n = {:}).".format(chi_sq*1./n, int(n)))
         print("\nrefinement started for parameters:")
         ls_out = " ".join(["{:12}".format(var[3].rjust(12)) if len(var[3])<=12 
-                           else "{:12}".format(var[3][-12:]) for var in l_variable])
+                           else "{:12}".format(var[3][-12:]) for var in l_variable]) + "       chi_sq"
         print(ls_out)
         aa = time.time()
         """
@@ -226,8 +226,12 @@ file_out is the file name for listing, full path should be given
             ls_out.append(s_out_1)
         return "\n".join(ls_out)
     
-    def _f_callback(self, res_x):
+    def _f_callback(self, *arg):
+        res_x = arg[0]
         ls_out = " ".join(["{:12.5f}".format(hh) for hh in res_x])
+        if len(arg) > 1:
+            res_fun = arg[1]
+            ls_out += " {:12.1f}".format(res_fun.fun)
         print(ls_out)
     
     def plot_map(self):

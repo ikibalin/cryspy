@@ -510,12 +510,13 @@ class SpaceGroupe(dict):
         self.set_val()
         
     def __repr__(self):
-        lsout = """SpaceGroupe:\n name: {:}\n choice: {:}
- {:}
- directory: '{:}'""".format(self._p_spgr_given_name, self._p_spgr_choice, 
-                           self._trans_el_symm_to_str(),
-                            self._p_f_dir_prog)
-        return lsout
+        ls_out = ["SpaceGroupe:\n given name: {:}\n choice: {:}".format(self._p_spgr_given_name, self._p_spgr_choice)]
+        if self._p_spgr_name is not None:
+            ls_out.append(" name: {:}".format(self._p_spgr_name))
+        if self._p_spgr_number is not None:
+            ls_out.append(" number: {:}".format(self._p_spgr_number))
+        ls_out.append(" {:}\n directory: '{:}'".format(self._trans_el_symm_to_str(), self._p_f_dir_prog))
+        return "\n".join(ls_out)
 
     def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
         

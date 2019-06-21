@@ -6,8 +6,10 @@ Crystal:
  name: Fe3O4
  i_g: 0.0
 SpaceGroupe:
- name: Fd-3m
+ given name: Fd-3m
  choice: 2
+ name: Fd-3m
+ number: 227
  inversion center at (0.000, 0.000, 0.000)
  x, y, z
  0.750-x, 0.250-y, 0.500+z
@@ -138,7 +140,7 @@ BackgroundPowder1D:
  file_name: full.bkg
  ttheta  IntBKGR
  4.5    150.0
- 40.0    150.0
+ 40.0     173(4)
  80.0    100.0
 ObservedDataPowder1D:
  file_dir: 

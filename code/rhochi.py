@@ -20,6 +20,7 @@ import cl_experiment_single
 import cl_experiment_single_domain 
 import cl_experiment_powder_1d 
 import cl_experiment_powder_2d 
+import cl_experiment_powder_texture_2d 
 
 import cl_model 
 import cl_variable 
@@ -166,6 +167,39 @@ def plot_data(model):
             matplotlib.pyplot.show()
             
         elif isinstance(experiment, cl_experiment_powder_2d.ExperimentPowder2D):
+            name = experiment.get_val("name")
+            l_crystal = model._list_crystal
+            observed_data = experiment.get_val("observed_data")
+            tth = observed_data.get_val("tth")
+            phi = observed_data.get_val("phi")
+            int_u_exp = observed_data.get_val("int_u")
+            int_d_exp = observed_data.get_val("int_d")
+
+            d_info_in = {}
+            int_u_mod, int_d_mod, d_info_out = experiment.calc_profile(
+                                         tth, phi, l_crystal, d_info_in)
+            i_u_exp = numpy.where(numpy.isnan(int_u_exp), 0., int_u_exp).sum(axis=1)
+            i_u_mod = numpy.where(numpy.isnan(int_u_exp), 0., int_u_mod).sum(axis=1)
+            i_d_exp = numpy.where(numpy.isnan(int_d_exp), 0., int_d_exp).sum(axis=1)
+            i_d_mod = numpy.where(numpy.isnan(int_d_exp), 0., int_d_mod).sum(axis=1)
+
+            matplotlib.pyplot.plot(tth, i_u_exp+i_d_exp,".",
+                                   tth, i_u_mod+i_d_mod,"-",
+                                   tth, i_u_exp+i_d_exp-i_u_mod-i_d_mod,"-")
+            matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            matplotlib.pyplot.ylabel("intensity")
+            matplotlib.pyplot.title("experiment: '{:}', up+down, projection".format(name))
+            matplotlib.pyplot.show()
+
+            matplotlib.pyplot.plot(tth, i_u_exp-i_d_exp,".",
+                                   tth, i_u_mod-i_d_mod,"-",
+                                   tth, i_u_exp-i_d_exp-i_u_mod+i_d_mod,"-")
+            matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            matplotlib.pyplot.ylabel("intensity")
+            matplotlib.pyplot.title("experiment: '{:}', up-down, projection".format(name))
+            matplotlib.pyplot.show()
+
+        elif isinstance(experiment, cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             observed_data = experiment.get_val("observed_data")

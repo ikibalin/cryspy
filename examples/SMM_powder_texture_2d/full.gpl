@@ -1,0 +1,87 @@
+#!/usr/bin/gnuplot
+
+set terminal png enhanced truecolor font Arial 30 size 800,800
+set encoding utf8
+
+set style line  1 lc rgb '#0905de' lt  1  lw 1.0 pt  7 ps 2.0
+set style line  2 lc rgb '#e30405' lt  2  lw 1.0 pt  5 ps 2.5
+set style line  3 lc rgb '#2fe72f' lt  0  lw 1.0 pt  5 ps 2.5
+
+set style arrow 1 nohead lw 2
+set arrow arrowstyle 1
+
+set pm3d interpolate 1,1 map
+
+set rmargin at screen 0.95
+set lmargin at screen 0.2
+set tmargin at screen 0.9
+set bmargin at screen 0.15
+
+set xlabel "2{/Symbol q}, degrees" offset 0,0.5
+set ylabel "{/Symbol f}, degrees" offset 0.5,0
+
+set xrange [ 0:60]
+set yrange [ 0:40]
+
+set xtics 20
+set ytics 10
+
+
+unset colorbox
+
+
+cbmin = 0.
+cbmax = 100.
+set cbrange [cbmin:cbmax]
+vc = (-1.*cbmin*1./(cbmax-cbmin))
+
+
+      
+set palette defined ((4.0*2*vc) "#FFFFFF",\
+       (2*(1-vc)*5.0+8*(2*vc-1)) "#67E667",\
+       (2*(1-vc)*6.0+8*(2*vc-1)) "#DCF900",\
+       (2*(1-vc)*7.0+8*(2*vc-1)) "#E6399B",\
+       (2*(1-vc)*8.0+8*(2*vc-1)) "#A60000")      
+
+fname1 = "full.out"
+unset colorbox
+
+fnameb=fname1[1:strlen(fname1)-4]
+set output fnameb."_sum_e.png"
+splot  fname1 index 0 nonuniform matrix  notitle
+
+set output fnameb."_sum_m.png"
+splot  fname1 index 1 nonuniform matrix  notitle
+
+
+cbmin = -30
+cbmax = 15
+set cbrange [cbmin:cbmax]
+vc = (-1.*cbmin*1./(cbmax-cbmin))
+
+
+      
+set palette defined ( (0.0*2*vc) "#080E73",\
+                      (1.0*2*vc) "#510FAD",\
+                      (2.0*2*vc) "#3D9AD1",\
+                      (3.0*2*vc) "#7277D8",\
+                      (4.0*2*vc) "#FFFFFF",\
+       (2*(1-vc)*5.0+8*(2*vc-1)) "#67E667",\
+       (2*(1-vc)*6.0+8*(2*vc-1)) "#DCF900",\
+       (2*(1-vc)*7.0+8*(2*vc-1)) "#E6399B",\
+       (2*(1-vc)*8.0+8*(2*vc-1)) "#A60000")        
+
+unset colorbox
+
+set output fnameb."_diff_m.png"
+splot  fname1 index 4 nonuniform matrix  notitle
+
+set output fnameb."_diff_e.png"
+splot  fname1 index 3 nonuniform matrix  notitle
+
+
+
+
+
+
+quit

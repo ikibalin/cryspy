@@ -26,6 +26,8 @@ import cl_experiment_powder_1d
 import cl_experiment_powder_2d 
 import cl_experiment_single_domain 
 
+import cl_experiment_powder_texture_2d 
+
 import cl_model 
 import cl_variable 
 
@@ -51,10 +53,12 @@ def conv_rcif_to_model(rcif):
         l_key = data.keys()
 
         lab_exp_pd_1d, lab_exp_pd_2d = "_pd_", "_2dpd_"
+        lab_exp_pdt_2d = "_2dpdt_"
         lab_exp_sd, lab_exp_sdd = "_sd_", "_sdd_"
 
         flag_exp_pd = any([hh.startswith(lab_exp_pd_1d) for hh in l_key])
         flag_exp_pd_2d = any([hh.startswith(lab_exp_pd_2d) for hh in l_key])
+        flag_exp_pdt_2d = any([hh.startswith(lab_exp_pdt_2d) for hh in l_key])
         flag_exp_sd = any([hh.startswith(lab_exp_sd) for hh in l_key])
         flag_exp_sdd = any([hh.startswith(lab_exp_sdd) for hh in l_key])
         
@@ -63,6 +67,9 @@ def conv_rcif_to_model(rcif):
             l_experiment.append(experiment)
         elif flag_exp_pd_2d:
             experiment = conv_data_to_experiment_powder_2d(data, f_dir, l_crystal)
+            l_experiment.append(experiment)
+        elif flag_exp_pdt_2d:
+            experiment = conv_data_to_experiment_powder_texture_2d(data, f_dir, l_crystal)
             l_experiment.append(experiment)
         elif flag_exp_sd:
             experiment = conv_data_to_experiment_single(data, f_dir, l_crystal)
@@ -416,6 +423,74 @@ def conv_data_to_experiment_powder_2d(data, f_dir, l_crystal):
     return experiment
 
 
+def conv_data_to_experiment_powder_texture_2d(data, f_dir, l_crystal):
+    beam_polarization = cl_setup_powder_1d.BeamPolarization()
+    resolution = cl_setup_powder_2d.ResolutionPowder2D()
+    factor_lorentz = cl_setup_powder_2d.FactorLorentzPowder2D()
+    asymmetry = cl_setup_powder_2d.AsymmetryPowder2D()
+    background = cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir)
+    setup = cl_setup_powder_2d.SetupPowder2D(resolution=resolution, 
+            factor_lorentz=factor_lorentz, asymmetry=asymmetry, 
+            beam_polarization=beam_polarization, background=background)
+        
+    observed_data = cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir)
+    
+    experiment = cl_experiment_powder_texture_2d.ExperimentPowderTexture2D(setup=setup, 
+                                    observed_data=observed_data, file_dir=f_dir)
+
+    l_relation = data_experiment_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, experiment)    
+
+    
+    l_relation = data_resolution_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, resolution)    
+
+    l_relation = data_asymmetry_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, asymmetry)    
+
+    l_relation = data_zero_shift_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, setup)    
+
+    l_relation = data_beam_polarization_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, beam_polarization)
+
+    l_relation = data_observed_data_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, observed_data)
+
+    l_relation = data_background_powder_texture_2d_relation()
+    from_dict_to_obj(data, l_relation, background)
+    
+    background.read_data()
+
+    observed_data.read_data()
+    wave_length = observed_data.get_val("wave_length")
+    field = observed_data.get_val("field")
+
+    setup.set_val(wave_length=wave_length)
+
+    l_key = data.keys()
+    if (not ("loops" in l_key)):
+        return experiment 
+    
+    for loop in data["loops"]:
+        l_key = list(loop.keys())
+        flag_scale = "_2dpdt_phase_scale" in l_key
+        if flag_scale:
+            n_crystal = len(loop["_2dpdt_phase_name"])
+            for i_crystal in range(n_crystal):
+                dd = {}
+                for key in l_key:
+                    dd.update({key: loop[key][i_crystal]})
+                for crystal in l_crystal:
+                    if  dd["_2dpdt_phase_name"] == crystal.get_val("name"):
+                        scale = conv_str_to_text_float_logic(dd["_2dpdt_phase_scale"], "scale")
+                        i_g = conv_str_to_text_float_logic(dd["_2dpdt_phase_igsize"], "i_g")
+                        crystal.set_val(i_g=i_g)
+                        name = crystal.get_val("name")
+                        calculated_data = cl_calculated_data_powder_2d.CalculatedDataPowder2D(field=field,
+                                scale=scale, name=name)
+                        experiment.add_calculated_data(calculated_data)   
+    return experiment
 
 
 def conv_model_to_rcif(model):
@@ -596,7 +671,8 @@ def conv_model_to_rcif(model):
             l_relation = data_background_powder_1d_relation()
             for relation in l_relation:
                 temp_func(dd, relation, background)
-                
+            background.save_data()
+
             beam_polarization = setup.get_val("beam_polarization")
             l_relation = data_beam_polarization_powder_1d_relation()
             for relation in l_relation:
@@ -631,7 +707,8 @@ def conv_model_to_rcif(model):
             l_relation = data_background_powder_2d_relation()
             for relation in l_relation:
                 temp_func(dd, relation, background)
-                
+            background.save_data()
+            
             beam_polarization = setup.get_val("beam_polarization")
             l_relation = data_beam_polarization_powder_2d_relation()
             for relation in l_relation:
@@ -644,6 +721,43 @@ def conv_model_to_rcif(model):
             
             asymmetry = setup.get_val("asymmetry")
             l_relation = data_asymmetry_powder_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, asymmetry)
+
+
+        if isinstance(obj, cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
+            l_relation = data_experiment_powder_texture_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, obj)
+
+            observed_data = obj.get_val("observed_data")
+            l_relation = data_observed_data_powder_texture_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, observed_data)
+
+            setup = obj.get_val("setup")
+            l_relation = data_zero_shift_powder_texture_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, setup)
+
+            background = setup.get_val("background")
+            l_relation = data_background_powder_texture_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, background)
+            background.save_data()
+            
+            beam_polarization = setup.get_val("beam_polarization")
+            l_relation = data_beam_polarization_powder_texture_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, beam_polarization)
+            
+            resolution = setup.get_val("resolution")
+            l_relation = data_resolution_powder_texture_2d_relation()
+            for relation in l_relation:
+                temp_func(dd, relation, resolution)
+            
+            asymmetry = setup.get_val("asymmetry")
+            l_relation = data_asymmetry_powder_texture_2d_relation()
             for relation in l_relation:
                 temp_func(dd, relation, asymmetry)
 
@@ -732,6 +846,32 @@ def conv_model_to_rcif(model):
                         break
                 crystal = model._list_crystal[ind]
                 relation = ("_2dpd_phase_igsize", "i_g", "val")
+                temp_func(dhelp, relation, crystal)
+                l_dhelp.append(dhelp) 
+
+            l_lab_d = list(dhelp.keys())
+            for lab_d in l_lab_d:
+                d_eph[lab_d] = [hh[lab_d] for hh in l_dhelp]
+            lloop_d.append(d_eph)
+            
+
+        if isinstance(obj, cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
+            l_relation = [("_2dpdt_phase_name", "name", "text"),
+                          ("_2dpdt_phase_scale", "scale", "val")]
+
+            l_dhelp = []
+            for calculated_data in l_calculated_data:
+                dhelp = {}
+                for relation in l_relation:
+                    temp_func(dhelp, relation, calculated_data)
+                name = calculated_data.get_val("name")
+                ind = 0
+                for i_crystal, crystal in enumerate(model._list_crystal):
+                    if crystal.get_val("name") == name:
+                        ind = i_crystal
+                        break
+                crystal = model._list_crystal[ind]
+                relation = ("_2dpdt_phase_igsize", "i_g", "val")
                 temp_func(dhelp, relation, crystal)
                 l_dhelp.append(dhelp) 
 
@@ -952,6 +1092,63 @@ def data_asymmetry_powder_2d_relation():
 def data_zero_shift_powder_2d_relation():
     l_relation =[("_2dpd_shift_const", "zero_shift", "val")]
     return l_relation
+
+
+
+
+
+def data_experiment_powder_texture_2d_relation():
+    l_relation = [("name", "name", "text"),
+        ("_2dpdt_file_name_output", "file_out", "text"),
+        ("_2dpdt_chi2_sum", "flag_chi2_sum", "logic"),
+        ("_2dpdt_chi2_diff", "flag_chi2_diff", "logic"),
+        ("_2dpdt_chi2_up", "flag_chi2_up", "logic"),
+        ("_2dpdt_chi2_down", "flag_chi2_down", "logic"),
+        ("_2dpdt_h_ax", "h_ax", "val"),
+        ("_2dpdt_k_ax", "k_ax", "val"),
+        ("_2dpdt_l_ax", "l_ax", "val"),
+        ("_2dpdt_g_1", "g_1", "val"),
+        ("_2dpdt_g_2", "g_2", "val"),
+        ("_2dpdt_phi_0", "phi_0", "val")]
+    return l_relation
+
+def data_background_powder_texture_2d_relation():
+    l_relation =[("_2dpdt_file_name_bkgr", "file_name", "text")]
+    return l_relation
+
+def data_observed_data_powder_texture_2d_relation():
+    l_relation = [("_2dpdt_file_name_input", "file_name", "text"),
+        ("_2dpdt_tth_min", "tth_min" , "val"),
+        ("_2dpdt_tth_max", "tth_max" , "val"),
+        ("_2dpdt_phi_min", "phi_min" , "val"),
+        ("_2dpdt_phi_max", "phi_max" , "val")]
+    return l_relation
+
+def data_beam_polarization_powder_texture_2d_relation():
+    l_relation = [("_2dpdt_beam_polarization_up", "p_u", "val"),
+        ("_2dpdt_beam_polarization_down", "p_d", "val")]
+    return l_relation
+
+def data_resolution_powder_texture_2d_relation():
+    l_relation = [("_2dpdt_resolution_u", "u", "val"),
+        ("_2dpdt_resolution_v", "v", "val"),
+        ("_2dpdt_resolution_w", "w", "val"),
+        ("_2dpdt_resolution_x", "x", "val"),
+        ("_2dpdt_resolution_y", "y", "val")]
+    return l_relation
+
+def data_asymmetry_powder_texture_2d_relation():
+    l_relation = [("_2dpdt_reflex_asymmetry_p1", "p1", "val"),
+        ("_2dpdt_reflex_asymmetry_p2", "p2", "val"),
+        ("_2dpdt_reflex_asymmetry_p3", "p3", "val"),
+        ("_2dpdt_reflex_asymmetry_p4", "p4", "val")]
+    return l_relation
+
+def data_zero_shift_powder_texture_2d_relation():
+    l_relation =[("_2dpdt_shift_const", "zero_shift", "val")]
+    return l_relation
+
+
 
 
 def data_experiment_single_relation():
