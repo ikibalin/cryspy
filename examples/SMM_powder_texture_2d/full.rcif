@@ -68,12 +68,12 @@ _atom_site_type_symbol
 loop_
 _atom_site_bscat
 _atom_site_type_symbol
- -0.3739 H
- 0.9577 Cl
- 0.2847 S
- 0.6646000000000001 C
- 0.24900000000000003 Co
  0.9359999999999999 N
+ -0.3739 H
+ 0.24900000000000003 Co
+ 0.2847 S
+ 0.9577 Cl
+ 0.6646000000000001 C
 
 loop_
 _atom_site_magnetism_aniso_label

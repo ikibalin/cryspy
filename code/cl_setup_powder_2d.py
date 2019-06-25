@@ -395,7 +395,7 @@ class BackgroundPowder2D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, tth_bkgd=0., phi_bkgd=0., int_bkgd=0., file_dir=None, 
+    def __init__(self, tth_bkgd=None, phi_bkgd=None, int_bkgd=None, file_dir=None, 
                  file_name=None):
         super(BackgroundPowder2D, self).__init__()
         self._p_file_dir = None
@@ -558,6 +558,10 @@ file_name
         l_tth_b = self.get_val("tth_bkgd")
         l_phi_b = self.get_val("phi_bkgd")
         ll_int_b = self.get_val("int_bkgd")
+        
+        if ((l_tth_b is None)|(l_phi_b is None)|(ll_int_b is None)):
+            return
+
         ls_out = ["#   phi\ttheta     IntBKGR"]
         ls_out.append(" {:12}".format(len(l_phi_b))+" ".join(["{:12.3f}".format(hh) for hh in l_tth_b]))
         for phi_b, l_int_b in zip(l_phi_b, ll_int_b):

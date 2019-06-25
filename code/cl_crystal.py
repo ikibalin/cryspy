@@ -2277,7 +2277,9 @@ factor_lande is the factor Lande (equals 2. by default)
         j2_av = (np_j2_A*numpy.exp(-np_j2_a*np_h)+
                  np_j2_B*numpy.exp(-np_j2_b*np_h)+
                  np_j2_C*numpy.exp(-np_j2_c*np_h)+np_j2_D)*np_h
-        form_factor = j0_av+(1.0-2.0/np_factor_lande)*j2_av
+        #according https://journals.aps.org/prb/pdf/10.1103/PhysRevB.79.140405
+        #mismatch with international tables where (1.0-2.0/np_factor_lande)
+        form_factor = j0_av+(2.0/np_factor_lande-1.0)*j2_av
         return form_factor
 
 
