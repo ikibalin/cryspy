@@ -3,38 +3,38 @@ import sys
 import matplotlib.pyplot
 import numpy
 
-import cl_setup_single 
-import cl_setup_powder_1d 
-import cl_setup_powder_2d 
+import f_experiment.f_single.cl_setup_single 
+import f_experiment.f_powder_1d.cl_setup_powder_1d 
+import f_experiment.f_powder_2d.cl_setup_powder_2d 
 
-import cl_observed_data_single 
-import cl_observed_data_single_domain
-import cl_observed_data_powder_1d 
-import cl_observed_data_powder_2d
+import f_experiment.f_single.cl_observed_data_single 
+import f_experiment.f_single_domain.cl_observed_data_single_domain
+import f_experiment.f_powder_1d.cl_observed_data_powder_1d 
+import f_experiment.f_powder_2d.cl_observed_data_powder_2d
 
-import cl_calculated_data_single 
-import cl_calculated_data_powder_1d 
-import cl_calculated_data_powder_2d 
+import f_experiment.f_single.cl_calculated_data_single 
+import f_experiment.f_powder_1d.cl_calculated_data_powder_1d 
+import f_experiment.f_powder_2d.cl_calculated_data_powder_2d 
 
-import cl_experiment_single 
-import cl_experiment_single_domain 
-import cl_experiment_powder_1d 
-import cl_experiment_powder_2d 
-import cl_experiment_powder_texture_2d 
+import f_experiment.f_single.cl_experiment_single 
+import f_experiment.f_single_domain.cl_experiment_single_domain 
+import f_experiment.f_powder_1d.cl_experiment_powder_1d 
+import f_experiment.f_powder_2d.cl_experiment_powder_2d 
+import f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d 
 
-import cl_model 
-import cl_variable 
-import cl_crystal 
+import f_rhochi_model.cl_model 
+import f_common.cl_variable 
+import f_crystal.cl_crystal 
 
-import cl_rcif 
-import api_rcif_model
+import f_rcif.cl_rcif 
+import f_api_rcif.api_rcif_model
 
 
 def read_model(f_name_in):
-    rcif = cl_rcif.RCif()
+    rcif = f_rcif.cl_rcif.RCif()
     rcif.load_from_file(f_name_in)
     print("\nParameters are taken from file '{:}'.".format(f_name_in))
-    model = api_rcif_model.conv_rcif_to_model(rcif)
+    model = f_api_rcif.api_rcif_model.conv_rcif_to_model(rcif)
     return model
 
 def model_refinement(model):
@@ -60,7 +60,7 @@ def model_refinement(model):
         
 def write_to_rcif(model, f_name_out):
     if f_name_out is not None:
-        rcif_2 = api_rcif_model.conv_model_to_rcif(model)
+        rcif_2 = f_api_rcif.api_rcif_model.conv_model_to_rcif(model)
         rcif_2.save_to_file(f_name_out)
         print("\nParameters are saved in the file '{:}'.".format(f_name_out))
     
@@ -80,7 +80,7 @@ def rhochi_refinement(f_name_in, f_name_out):
 
 def plot_data(model):
     for experiment in model._list_experiment:
-        if isinstance(experiment, cl_experiment_single.ExperimentSingle):
+        if isinstance(experiment, f_experiment.f_single.cl_experiment_single.ExperimentSingle):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             observed_data = experiment.get_val("observed_data")
@@ -103,7 +103,7 @@ def plot_data(model):
             matplotlib.pyplot.title("experiment: '{:}', assymetry".format(name))
             matplotlib.pyplot.show()
 
-        if isinstance(experiment, cl_experiment_single_domain.ExperimentSingleDomain):
+        if isinstance(experiment, f_experiment.f_single_domain.cl_experiment_single_domain.ExperimentSingleDomain):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             
@@ -128,7 +128,7 @@ def plot_data(model):
             matplotlib.pyplot.title("experiment: '{:}', assymetry".format(name))
             matplotlib.pyplot.show()
 
-        elif isinstance(experiment, cl_experiment_powder_1d.ExperimentPowder1D):
+        elif isinstance(experiment, f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D):
             name = experiment.get_val("name")
             file_dir = experiment.get_val("file_dir")
             file_out = experiment.get_val("file_out")
@@ -166,7 +166,7 @@ def plot_data(model):
             matplotlib.pyplot.title("experiment: '{:}', up-down".format(name))
             matplotlib.pyplot.show()
             
-        elif isinstance(experiment, cl_experiment_powder_2d.ExperimentPowder2D):
+        elif isinstance(experiment, f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             observed_data = experiment.get_val("observed_data")
@@ -199,7 +199,7 @@ def plot_data(model):
             matplotlib.pyplot.title("experiment: '{:}', up-down, projection".format(name))
             matplotlib.pyplot.show()
 
-        elif isinstance(experiment, cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
+        elif isinstance(experiment, f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
             name = experiment.get_val("name")
             l_crystal = model._list_crystal
             observed_data = experiment.get_val("observed_data")
@@ -243,56 +243,56 @@ def create_temporary(f_name_in):
     if type(s_help) is int:
         s_help = str(s_help)
     f_dir = os.path.dirname(f_name_in)
-    model = cl_model.Model()
+    model = f_rhochi_model.cl_model.Model()
 
-    atom_type_1 = cl_crystal.AtomType(flag_m=True)
+    atom_type_1 = f_crystal.cl_crystal.AtomType(flag_m=True)
     crystal_name = "Phase1"
-    crystal = cl_crystal.Crystal(name=crystal_name)
+    crystal = f_crystal.cl_crystal.Crystal(name=crystal_name)
     crystal.add_atom(atom_type_1)
     model.add_crystal(crystal)
     
     if "1" in s_help:
         file_out = "full_sd.out"
-        observed_data = cl_observed_data_single.ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
+        observed_data = f_experiment.f_single.cl_observed_data_single.ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
         observed_data.create_input_file()
-        experiment = cl_experiment_single.ExperimentSingle(name="exp_sd", observed_data=observed_data,
+        experiment = f_experiment.f_single.cl_experiment_single.ExperimentSingle(name="exp_sd", observed_data=observed_data,
                                       file_out=file_out, file_dir=f_dir)
 
-        calculated_data = cl_calculated_data_single.CalculatedDataSingle(name=crystal_name)
+        calculated_data = f_experiment.f_single.cl_calculated_data_single.CalculatedDataSingle(name=crystal_name)
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
 
     if "2" in s_help:
         file_out = "full_pd.out"
-        observed_data = cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir, file_name="full_pd.dat")
+        observed_data = f_experiment.f_powder_1d.cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir, file_name="full_pd.dat")
         observed_data.create_input_file()
         
-        background = cl_setup_powder_1d.BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
+        background = f_experiment.f_powder_1d.cl_setup_powder_1d.BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
         background.create_input_file()
         
-        setup = cl_setup_powder_1d.SetupPowder1D(background=background)
+        setup = f_experiment.f_powder_1d.cl_setup_powder_1d.SetupPowder1D(background=background)
         
-        experiment = cl_experiment_powder_1d.ExperimentPowder1D(name="exp_pd", setup=setup, file_dir=f_dir, 
+        experiment = f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D(name="exp_pd", setup=setup, file_dir=f_dir, 
                         file_out=file_out, observed_data=observed_data)
 
-        calculated_data = cl_calculated_data_powder_1d.CalculatedDataPowder1D(name=crystal_name)
+        calculated_data = f_experiment.f_powder_1d.cl_calculated_data_powder_1d.CalculatedDataPowder1D(name=crystal_name)
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
 
     if "3" in s_help:
         file_out = "full_2dpd.out"
-        observed_data = cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat")
+        observed_data = f_experiment.f_powder_2d.cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat")
         observed_data.create_input_file()
         
-        background = cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
+        background = f_experiment.f_powder_2d.cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
         background.create_input_file()
         
-        setup = cl_setup_powder_2d.SetupPowder2D(background=background)
+        setup = f_experiment.f_powder_2d.cl_setup_powder_2d.SetupPowder2D(background=background)
         
-        experiment = cl_experiment_powder_2d.ExperimentPowder2D(name="exp_2dpd", setup=setup, file_out=file_out,
+        experiment = f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D(name="exp_2dpd", setup=setup, file_out=file_out,
                                file_dir=f_dir, observed_data=observed_data)
 
-        calculated_data = cl_calculated_data_powder_2d.CalculatedDataPowder2D(name=crystal_name)
+        calculated_data = f_experiment.f_powder_2d.cl_calculated_data_powder_2d.CalculatedDataPowder2D(name=crystal_name)
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
     write_to_rcif(model, f_name_in)

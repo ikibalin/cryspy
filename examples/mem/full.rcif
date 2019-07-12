@@ -48,14 +48,17 @@ _atom_site_susceptibility_aniso_chi_33
  Tb 2.0 1.0 cani Tb3 4.59(3) 2.64(4) 0.0 0.0001 0.0 0.0001
  Mn 2.0 1.0 cani Mn3 0.21(5) 0.0001 0.0001 0.0001 0.0001 0.0001
 
-data_pnd
-_sd_beam_flipper_efficiency 1.
-_sd_beam_polarization_up -0.91
-_sd_file_name_input full_7a.dat
-_sd_file_name_output full_7a.out
+data_mem
+_mem_points_number_a 30
+_mem_points_number_b 30
+_mem_points_number_c 30
+_mem_file_name_output full.den
 
 loop_
-_sd_phase_extinction_mosaicity
-_sd_phase_extinction_radius
-_sd_phase_name
- 0.0 0.0 TbMnO3
+_mem_beam_polarization_up 
+_mem_beam_flipper_efficiency 
+_mem_file_name_input 
+_mem_phase_extinction_mosaicity
+_mem_phase_extinction_radius
+_mem_phase_name
+  -0.91 1.0 full_1.dat  0.0 0.0 TbMnO3

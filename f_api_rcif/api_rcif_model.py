@@ -4,32 +4,32 @@ transform inforamtion from cif file to class phase
 import sys
 import os
 
-import cl_rcif 
+import f_rcif.cl_rcif 
 
-import cl_crystal
+import f_crystal.cl_crystal
 
-import cl_calculated_data_single 
-import cl_calculated_data_powder_1d 
-import cl_calculated_data_powder_2d 
+import f_experiment.f_single.cl_calculated_data_single 
+import f_experiment.f_powder_1d.cl_calculated_data_powder_1d 
+import f_experiment.f_powder_2d.cl_calculated_data_powder_2d 
 
-import cl_setup_single 
-import cl_setup_powder_1d 
-import cl_setup_powder_2d 
+import f_experiment.f_single.cl_setup_single 
+import f_experiment.f_powder_1d.cl_setup_powder_1d 
+import f_experiment.f_powder_2d.cl_setup_powder_2d 
 
-import cl_observed_data_single 
-import cl_observed_data_powder_1d 
-import cl_observed_data_powder_2d 
-import cl_observed_data_single_domain 
+import f_experiment.f_single.cl_observed_data_single 
+import f_experiment.f_powder_1d.cl_observed_data_powder_1d 
+import f_experiment.f_powder_2d.cl_observed_data_powder_2d 
+import f_experiment.f_single_domain.cl_observed_data_single_domain 
 
-import cl_experiment_single 
-import cl_experiment_powder_1d 
-import cl_experiment_powder_2d 
-import cl_experiment_single_domain 
+import f_experiment.f_single.cl_experiment_single 
+import f_experiment.f_powder_1d.cl_experiment_powder_1d 
+import f_experiment.f_powder_2d.cl_experiment_powder_2d 
+import f_experiment.f_single_domain.cl_experiment_single_domain 
 
-import cl_experiment_powder_texture_2d 
+import f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d 
 
-import cl_model 
-import cl_variable 
+import f_rhochi_model.cl_model 
+import f_common.cl_variable 
 
 
 def conv_rcif_to_model(rcif):
@@ -82,7 +82,7 @@ def conv_rcif_to_model(rcif):
     name_p_glob = p_glob["name"]
     l_key_g = p_glob.keys()
 
-    model = cl_model.Model(name=name_p_glob, file_dir=f_dir)
+    model = f_rhochi_model.cl_model.Model(name=name_p_glob, file_dir=f_dir)
     if "_file_name_output_listing" in l_key_g:
         file_out = p_glob["_file_name_output_listing"]
         model.set_val(file_out=file_out)
@@ -98,11 +98,11 @@ def conv_data_to_crystal(data):
     """
     transform info from dictionary to Crystal  class
     """
-    space_groupe = cl_crystal.SpaceGroupe()
-    cell = cl_crystal.Cell()
-    atom_site = cl_crystal.AtomSite()
+    space_groupe = f_crystal.cl_crystal.SpaceGroupe()
+    cell = f_crystal.cl_crystal.Cell()
+    atom_site = f_crystal.cl_crystal.AtomSite()
 
-    crystal = cl_crystal.Crystal(cell=cell, atom_site=atom_site, 
+    crystal = f_crystal.cl_crystal.Crystal(cell=cell, atom_site=atom_site, 
                       space_groupe=space_groupe)
 
     crystal.set_val(name=data["name"])
@@ -142,7 +142,7 @@ def conv_data_to_crystal(data):
                 dd = {}
                 for key in l_key:
                     dd.update({key:data["loops"][numb][key][i_atom]})
-                atom_type = cl_crystal.AtomType()
+                atom_type = f_crystal.cl_crystal.AtomType()
                 from_dict_to_obj(dd, l_relation, atom_type)
                 l_atom_type.append(atom_type)
     else:
@@ -181,10 +181,10 @@ def conv_data_to_crystal(data):
     return crystal
 
 def conv_data_to_experiment_single(data, f_dir, l_crystal):
-    beam_polarization = cl_setup_powder_1d.BeamPolarization()
-    setup = cl_setup_single.SetupSingle(beam_polarization=beam_polarization)
-    observed_data = cl_observed_data_single.ObservedDataSingle(file_dir=f_dir)
-    experiment = cl_experiment_single.ExperimentSingle(setup=setup, 
+    beam_polarization = f_experiment.f_powder_1d.cl_setup_powder_1d.BeamPolarization()
+    setup = f_experiment.f_single.cl_setup_single.SetupSingle(beam_polarization=beam_polarization)
+    observed_data = f_experiment.f_single.cl_observed_data_single.ObservedDataSingle(file_dir=f_dir)
+    experiment = f_experiment.f_single.cl_experiment_single.ExperimentSingle(setup=setup, 
                                     observed_data=observed_data, file_dir=f_dir)
 
     l_relation = data_experiment_single_relation()
@@ -222,16 +222,16 @@ def conv_data_to_experiment_single(data, f_dir, l_crystal):
                         extinction = crystal.get_val("extinction")
                         from_dict_to_obj(dd, l_relation, extinction)
                         name = crystal.get_val("name")
-                        calculated_data = cl_calculated_data_single.CalculatedDataSingle(field=field,
+                        calculated_data = f_experiment.f_single.cl_calculated_data_single.CalculatedDataSingle(field=field,
                                 orientation=orientation, name=name)
                         experiment.add_calculated_data(calculated_data)    
     return experiment
 
 def conv_data_to_experiment_single_domain(data, f_dir, l_crystal):
-    beam_polarization = cl_setup_powder_1d.BeamPolarization()
-    setup = cl_setup_single.SetupSingle(beam_polarization=beam_polarization)
-    observed_data = cl_observed_data_single_domain.ObservedDataSingleDomain(file_dir=f_dir)
-    experiment = cl_experiment_single_domain.ExperimentSingleDomain(setup=setup, 
+    beam_polarization = f_experiment.f_powder_1d.cl_setup_powder_1d.BeamPolarization()
+    setup = f_experiment.f_single.cl_setup_single.SetupSingle(beam_polarization=beam_polarization)
+    observed_data = f_experiment.f_single_domain.cl_observed_data_single_domain.ObservedDataSingleDomain(file_dir=f_dir)
+    experiment = f_experiment.f_single_domain.cl_experiment_single_domain.ExperimentSingleDomain(setup=setup, 
                                     observed_data=observed_data, file_dir=f_dir)
 
     l_relation = data_experiment_single_domain_relation()
@@ -268,7 +268,7 @@ def conv_data_to_experiment_single_domain(data, f_dir, l_crystal):
                         extinction = crystal.get_val("extinction")
                         from_dict_to_obj(dd, l_relation, extinction)
                         name = crystal.get_val("name")
-                        calculated_data = cl_calculated_data_single.CalculatedDataSingle(field=field,
+                        calculated_data = f_experiment.f_single.cl_calculated_data_single.CalculatedDataSingle(field=field,
                                 name=name)
                         experiment.add_calculated_data(calculated_data) 
         flag_domain = "_sdd_scale_domain" in l_key   
@@ -285,18 +285,18 @@ def conv_data_to_experiment_single_domain(data, f_dir, l_crystal):
     return experiment
 
 def conv_data_to_experiment_powder_1d(data, f_dir, l_crystal):
-    beam_polarization = cl_setup_powder_1d.BeamPolarization()
-    resolution = cl_setup_powder_1d.ResolutionPowder1D()
-    factor_lorentz = cl_setup_powder_1d.FactorLorentzPowder1D()
-    asymmetry = cl_setup_powder_1d.AsymmetryPowder1D()
-    background = cl_setup_powder_1d.BackgroundPowder1D(file_dir=f_dir)
-    setup = cl_setup_powder_1d.SetupPowder1D(resolution=resolution, 
+    beam_polarization = f_experiment.f_powder_1d.cl_setup_powder_1d.BeamPolarization()
+    resolution = f_experiment.f_powder_1d.cl_setup_powder_1d.ResolutionPowder1D()
+    factor_lorentz = f_experiment.f_powder_1d.cl_setup_powder_1d.FactorLorentzPowder1D()
+    asymmetry = f_experiment.f_powder_1d.cl_setup_powder_1d.AsymmetryPowder1D()
+    background = f_experiment.f_powder_1d.cl_setup_powder_1d.BackgroundPowder1D(file_dir=f_dir)
+    setup = f_experiment.f_powder_1d.cl_setup_powder_1d.SetupPowder1D(resolution=resolution, 
             factor_lorentz=factor_lorentz, asymmetry=asymmetry, 
             beam_polarization=beam_polarization, background=background)
         
-    observed_data = cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir)
+    observed_data = f_experiment.f_powder_1d.cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir)
     
-    experiment = cl_experiment_powder_1d.ExperimentPowder1D(setup=setup, 
+    experiment = f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D(setup=setup, 
                                     observed_data=observed_data, file_dir=f_dir)
 
     l_relation = data_experiment_powder_1d_relation()
@@ -347,25 +347,25 @@ def conv_data_to_experiment_powder_1d(data, f_dir, l_crystal):
                         i_g = conv_str_to_text_float_logic(dd["_pd_phase_igsize"], "i_g")
                         crystal.set_val(i_g=i_g)
                         name = crystal.get_val("name")
-                        calculated_data = cl_calculated_data_powder_1d.CalculatedDataPowder1D(field=field,
+                        calculated_data = f_experiment.f_powder_1d.cl_calculated_data_powder_1d.CalculatedDataPowder1D(field=field,
                                 scale=scale, name=name)
                         experiment.add_calculated_data(calculated_data)  
     
     return experiment
 
 def conv_data_to_experiment_powder_2d(data, f_dir, l_crystal):
-    beam_polarization = cl_setup_powder_1d.BeamPolarization()
-    resolution = cl_setup_powder_2d.ResolutionPowder2D()
-    factor_lorentz = cl_setup_powder_2d.FactorLorentzPowder2D()
-    asymmetry = cl_setup_powder_2d.AsymmetryPowder2D()
-    background = cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir)
-    setup = cl_setup_powder_2d.SetupPowder2D(resolution=resolution, 
+    beam_polarization = f_experiment.f_powder_1d.cl_setup_powder_1d.BeamPolarization()
+    resolution = f_experiment.f_powder_2d.cl_setup_powder_2d.ResolutionPowder2D()
+    factor_lorentz = f_experiment.f_powder_2d.cl_setup_powder_2d.FactorLorentzPowder2D()
+    asymmetry = f_experiment.f_powder_2d.cl_setup_powder_2d.AsymmetryPowder2D()
+    background = f_experiment.f_powder_2d.cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir)
+    setup = f_experiment.f_powder_2d.cl_setup_powder_2d.SetupPowder2D(resolution=resolution, 
             factor_lorentz=factor_lorentz, asymmetry=asymmetry, 
             beam_polarization=beam_polarization, background=background)
         
-    observed_data = cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir)
+    observed_data = f_experiment.f_powder_2d.cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir)
     
-    experiment = cl_experiment_powder_2d.ExperimentPowder2D(setup=setup, 
+    experiment = f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D(setup=setup, 
                                     observed_data=observed_data, file_dir=f_dir)
 
     l_relation = data_experiment_powder_2d_relation()
@@ -417,25 +417,25 @@ def conv_data_to_experiment_powder_2d(data, f_dir, l_crystal):
                         i_g = conv_str_to_text_float_logic(dd["_2dpd_phase_igsize"], "i_g")
                         crystal.set_val(i_g=i_g)
                         name = crystal.get_val("name")
-                        calculated_data = cl_calculated_data_powder_2d.CalculatedDataPowder2D(field=field,
+                        calculated_data = f_experiment.f_powder_2d.cl_calculated_data_powder_2d.CalculatedDataPowder2D(field=field,
                                 scale=scale, name=name)
                         experiment.add_calculated_data(calculated_data)   
     return experiment
 
 
 def conv_data_to_experiment_powder_texture_2d(data, f_dir, l_crystal):
-    beam_polarization = cl_setup_powder_1d.BeamPolarization()
-    resolution = cl_setup_powder_2d.ResolutionPowder2D()
-    factor_lorentz = cl_setup_powder_2d.FactorLorentzPowder2D()
-    asymmetry = cl_setup_powder_2d.AsymmetryPowder2D()
-    background = cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir)
-    setup = cl_setup_powder_2d.SetupPowder2D(resolution=resolution, 
+    beam_polarization = f_experiment.f_powder_1d.cl_setup_powder_1d.BeamPolarization()
+    resolution = f_experiment.f_powder_2d.cl_setup_powder_2d.ResolutionPowder2D()
+    factor_lorentz = f_experiment.f_powder_2d.cl_setup_powder_2d.FactorLorentzPowder2D()
+    asymmetry = f_experiment.f_powder_2d.cl_setup_powder_2d.AsymmetryPowder2D()
+    background = f_experiment.f_powder_2d.cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir)
+    setup = f_experiment.f_powder_2d.cl_setup_powder_2d.SetupPowder2D(resolution=resolution, 
             factor_lorentz=factor_lorentz, asymmetry=asymmetry, 
             beam_polarization=beam_polarization, background=background)
         
-    observed_data = cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir)
+    observed_data = f_experiment.f_powder_2d.cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir)
     
-    experiment = cl_experiment_powder_texture_2d.ExperimentPowderTexture2D(setup=setup, 
+    experiment = f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d.ExperimentPowderTexture2D(setup=setup, 
                                     observed_data=observed_data, file_dir=f_dir)
 
     l_relation = data_experiment_powder_texture_2d_relation()
@@ -487,7 +487,7 @@ def conv_data_to_experiment_powder_texture_2d(data, f_dir, l_crystal):
                         i_g = conv_str_to_text_float_logic(dd["_2dpdt_phase_igsize"], "i_g")
                         crystal.set_val(i_g=i_g)
                         name = crystal.get_val("name")
-                        calculated_data = cl_calculated_data_powder_2d.CalculatedDataPowder2D(field=field,
+                        calculated_data = f_experiment.f_powder_2d.cl_calculated_data_powder_2d.CalculatedDataPowder2D(field=field,
                                 scale=scale, name=name)
                         experiment.add_calculated_data(calculated_data)   
     return experiment
@@ -506,7 +506,7 @@ def conv_model_to_rcif(model):
             ddata[key_d] = obj.get_val(lab_o)
         elif type_val == "val":
             val = obj.get_val(lab_o)
-            if isinstance(val, cl_variable.Variable):
+            if isinstance(val, f_common.cl_variable.Variable):
                 sval = "{:}".format(val.print_with_sigma())
             else:
                 sval = "{:}".format(val)
@@ -618,7 +618,7 @@ def conv_model_to_rcif(model):
     for obj in model._list_experiment:
         dd = {"name": obj.get_val("name")}
 
-        if isinstance(obj, cl_experiment_single.ExperimentSingle):
+        if isinstance(obj, f_experiment.f_single.cl_experiment_single.ExperimentSingle):
             l_relation = data_experiment_single_relation()
             for relation in l_relation:
                 temp_func(dd, relation, obj)
@@ -635,7 +635,7 @@ def conv_model_to_rcif(model):
             for relation in l_relation:
                 temp_func(dd, relation, beam_polarization)
 
-        if isinstance(obj, cl_experiment_single_domain.ExperimentSingleDomain):
+        if isinstance(obj, f_experiment.f_single_domain.cl_experiment_single_domain.ExperimentSingleDomain):
             l_relation = data_experiment_single_domain_relation()
             for relation in l_relation:
                 temp_func(dd, relation, obj)
@@ -652,7 +652,7 @@ def conv_model_to_rcif(model):
             for relation in l_relation:
                 temp_func(dd, relation, beam_polarization)
 
-        if isinstance(obj, cl_experiment_powder_1d.ExperimentPowder1D):
+        if isinstance(obj, f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D):
             l_relation = data_experiment_powder_1d_relation()
             for relation in l_relation:
                 temp_func(dd, relation, obj)
@@ -688,7 +688,7 @@ def conv_model_to_rcif(model):
             for relation in l_relation:
                 temp_func(dd, relation, asymmetry)
 
-        if isinstance(obj, cl_experiment_powder_2d.ExperimentPowder2D):
+        if isinstance(obj, f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D):
             l_relation = data_experiment_powder_2d_relation()
             for relation in l_relation:
                 temp_func(dd, relation, obj)
@@ -725,7 +725,7 @@ def conv_model_to_rcif(model):
                 temp_func(dd, relation, asymmetry)
 
 
-        if isinstance(obj, cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
+        if isinstance(obj, f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
             l_relation = data_experiment_powder_texture_2d_relation()
             for relation in l_relation:
                 temp_func(dd, relation, obj)
@@ -765,7 +765,7 @@ def conv_model_to_rcif(model):
         lloop_d = []
         l_calculated_data = obj._list_calculated_data
 
-        if isinstance(obj, cl_experiment_single.ExperimentSingle):
+        if isinstance(obj, f_experiment.f_single.cl_experiment_single.ExperimentSingle):
             crystal = model._list_crystal[0]
             extinction = crystal.get_val("extinction")
             l_relation = data_extinction_single_relation()
@@ -782,7 +782,7 @@ def conv_model_to_rcif(model):
                 d_eph[lab_d] = [hh[lab_d] for hh in l_dhelp]
             lloop_d.append(d_eph)
 
-        if isinstance(obj, cl_experiment_single_domain.ExperimentSingleDomain):
+        if isinstance(obj, f_experiment.f_single_domain.cl_experiment_single_domain.ExperimentSingleDomain):
             l_val = ["{:}".format(hh) for hh in obj.get_val("scale_domain")]
             d_domain = {"_sdd_scale_domain": l_val}
             lloop_d.append(d_domain)
@@ -803,7 +803,7 @@ def conv_model_to_rcif(model):
                 d_eph[lab_d] = [hh[lab_d] for hh in l_dhelp]
             lloop_d.append(d_eph)
 
-        if isinstance(obj, cl_experiment_powder_1d.ExperimentPowder1D):
+        if isinstance(obj, f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D):
             l_relation = [("_pd_phase_name", "name", "text"),
                           ("_pd_phase_scale", "scale", "val")]
 
@@ -829,7 +829,7 @@ def conv_model_to_rcif(model):
                 d_eph[lab_d] = [hh[lab_d] for hh in l_dhelp]
             lloop_d.append(d_eph)
 
-        if isinstance(obj, cl_experiment_powder_2d.ExperimentPowder2D):
+        if isinstance(obj, f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D):
             l_relation = [("_2dpd_phase_name", "name", "text"),
                           ("_2dpd_phase_scale", "scale", "val")]
 
@@ -855,7 +855,7 @@ def conv_model_to_rcif(model):
             lloop_d.append(d_eph)
             
 
-        if isinstance(obj, cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
+        if isinstance(obj, f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
             l_relation = [("_2dpdt_phase_name", "name", "text"),
                           ("_2dpdt_phase_scale", "scale", "val")]
 
@@ -885,7 +885,7 @@ def conv_model_to_rcif(model):
             
         l_data.append(dd)
 
-    rcif = cl_rcif.RCif()
+    rcif = f_rcif.cl_rcif.RCif()
     rcif.glob["data"] = l_data
     rcif.glob["name"] = model.get_val("name")
 
@@ -955,8 +955,8 @@ def data_space_groupe_relation():
 
 def data_cell_relation():
     l_relation = [("_cell_length_a", "a", "val"), ("_cell_length_b", "b", "val"),
-        ("_cell_length_c", "c", "val"), ("_cell_length_alpha", "alpha", "val"),
-        ("_cell_length_beta", "beta", "val"), ("_cell_length_gamma", "gamma", "val")]
+        ("_cell_length_c", "c", "val"), ("_cell_angle_alpha", "alpha", "val"),
+        ("_cell_angle_beta", "beta", "val"), ("_cell_angle_gamma", "gamma", "val")]
     return l_relation
 
 def data_atom_relation():
@@ -1024,7 +1024,7 @@ def data_observed_data_powder_1d_relation():
 
 def data_beam_polarization_powder_1d_relation():
     l_relation = [("_pd_beam_polarization_up", "p_u", "val"),
-        ("_pd_beam_polarization_down", "p_d", "val")]
+        ("_pd_beam_flipper_efficiency", "flipper_efficiency", "val")]
     return l_relation
 
 def data_resolution_powder_1d_relation():
@@ -1071,7 +1071,7 @@ def data_observed_data_powder_2d_relation():
 
 def data_beam_polarization_powder_2d_relation():
     l_relation = [("_2dpd_beam_polarization_up", "p_u", "val"),
-        ("_2dpd_beam_polarization_down", "p_d", "val")]
+        ("_2dpd_beam_flipper_efficiency", "flipper_efficiency", "val")]
     return l_relation
 
 def data_resolution_powder_2d_relation():
@@ -1126,7 +1126,7 @@ def data_observed_data_powder_texture_2d_relation():
 
 def data_beam_polarization_powder_texture_2d_relation():
     l_relation = [("_2dpdt_beam_polarization_up", "p_u", "val"),
-        ("_2dpdt_beam_polarization_down", "p_d", "val")]
+        ("_2dpdt_beam_flipper_efficiency", "flipper_efficiency", "val")]
     return l_relation
 
 def data_resolution_powder_texture_2d_relation():
@@ -1162,7 +1162,7 @@ def data_observed_data_single_relation():
 
 def data_beam_polarization_single_relation():
     l_relation = [("_sd_beam_polarization_up", "p_u", "val"),
-        ("_sd_beam_polarization_down", "p_d", "val")]
+        ("_sd_beam_flipper_efficiency", "flipper_efficiency", "val")]
     return l_relation
 
 def data_extinction_single_relation():
@@ -1183,7 +1183,7 @@ def data_observed_data_single_domain_relation():
 
 def data_beam_polarization_single_domain_relation():
     l_relation = [("_sdd_beam_polarization_up", "p_u", "val"),
-        ("_sdd_beam_polarization_down", "p_d", "val")]
+        ("_sdd_beam_flipper_efficiency", "flipper_efficiency", "val")]
     return l_relation
 
 def data_extinction_single_domain_relation():
@@ -1203,7 +1203,7 @@ def conv_str_to_text_float_logic(sval, name=""):
         if len(sval.strip().split("("))>1:
             l_help = sval.split("(")
             val_1 = float(l_help[0])
-            val = cl_variable.Variable(val_1, True, name)
+            val = f_common.cl_variable.Variable(val_1, True, name)
             pass
         else:
             val = float(sval)

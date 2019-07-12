@@ -11,13 +11,13 @@ import sys
 import matplotlib
 import matplotlib.pyplot  
 
-import cl_observed_data_powder_2d
-import cl_calculated_data_powder_2d
-import cl_setup_powder_2d 
+import f_experiment.f_powder_2d.cl_observed_data_powder_2d
+import f_experiment.f_powder_2d.cl_calculated_data_powder_2d
+import f_experiment.f_powder_2d.cl_setup_powder_2d 
 
-import cl_variable 
+import f_common.cl_variable 
 
-import cl_experiment_powder_2d 
+import f_experiment.f_powder_2d.cl_experiment_powder_2d 
     
 
 def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
@@ -35,9 +35,9 @@ class ExperimentPowderTexture2D(dict):
     """
     Class to describe all information concerning to the experiment for powder 2d
     """
-    def __init__(self, name=None, setup=cl_setup_powder_2d.SetupPowder2D(), 
+    def __init__(self, name=None, setup=f_experiment.f_powder_2d.cl_setup_powder_2d.SetupPowder2D(), 
                  list_calculated_data=[], 
-                 observed_data=cl_observed_data_powder_2d.ObservedDataPowder2D(),
+                 observed_data=f_experiment.f_powder_2d.cl_observed_data_powder_2d.ObservedDataPowder2D(),
                  flag_chi2_up=None, flag_chi2_down=None, 
                  flag_chi2_sum=None, flag_chi2_diff=None, 
                  file_out=None, file_dir=None, h_ax = 1., k_ax = 0., l_ax = 0.,
@@ -183,8 +183,8 @@ phi_0 is the zero shift
         wave_length = setup.get_val("wave_length")
         beam_polarization = setup.get_val("beam_polarization")
         
-        p_u = beam_polarization.get_val("p_u")
-        p_d = beam_polarization.get_val("p_d")
+        p_u = 1.*beam_polarization.get_val("p_u")
+        p_d = (2.*beam_polarization.get_val("flipper_efficiency")-1)*p_u
         
         tth_min = tth.min()
         tth_max = tth.max()
@@ -410,12 +410,12 @@ phi_0 is the zero shift
     def is_variable_profile(self):
         lres = self.is_variable_for_iint() 
         lres.extend(self.is_variable_profile_s())
-        lres.extend([isinstance(self._p_h_ax, cl_variable.Variable),
-                     isinstance(self._p_k_ax, cl_variable.Variable),
-                     isinstance(self._p_l_ax, cl_variable.Variable),
-                     isinstance(self._p_phi_0, cl_variable.Variable),
-                     isinstance(self._p_g_1, cl_variable.Variable),
-                     isinstance(self._p_g_2, cl_variable.Variable)])
+        lres.extend([isinstance(self._p_h_ax, f_common.cl_variable.Variable),
+                     isinstance(self._p_k_ax, f_common.cl_variable.Variable),
+                     isinstance(self._p_l_ax, f_common.cl_variable.Variable),
+                     isinstance(self._p_phi_0, f_common.cl_variable.Variable),
+                     isinstance(self._p_g_1, f_common.cl_variable.Variable),
+                     isinstance(self._p_g_2, f_common.cl_variable.Variable)])
         res = any(lres) 
         return res
     
@@ -428,17 +428,17 @@ phi_0 is the zero shift
 
     def get_variables(self):
         l_variable = []
-        if isinstance(self._p_h_ax, cl_variable.Variable):
+        if isinstance(self._p_h_ax, f_common.cl_variable.Variable):
             l_variable.append(self._p_h_ax)
-        if isinstance(self._p_k_ax, cl_variable.Variable):
+        if isinstance(self._p_k_ax, f_common.cl_variable.Variable):
             l_variable.append(self._p_k_ax)
-        if isinstance(self._p_l_ax, cl_variable.Variable):
+        if isinstance(self._p_l_ax, f_common.cl_variable.Variable):
             l_variable.append(self._p_l_ax)
-        if isinstance(self._p_phi_0, cl_variable.Variable):
+        if isinstance(self._p_phi_0, f_common.cl_variable.Variable):
             l_variable.append(self._p_phi_0)
-        if isinstance(self._p_g_1, cl_variable.Variable):
+        if isinstance(self._p_g_1, f_common.cl_variable.Variable):
             l_variable.append(self._p_g_1)
-        if isinstance(self._p_g_2, cl_variable.Variable):
+        if isinstance(self._p_g_2, f_common.cl_variable.Variable):
             l_variable.append(self._p_g_2)
             
         setup = self.get_val("setup")
@@ -462,13 +462,13 @@ phi_0 is the zero shift
         int_u_mod, int_d_mod, d_info_out = self.calc_profile(tth, phi, l_crystal, d_info_in) 
 
 
-        s_int_sum_exp = cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp+int_d_exp)
-        s_int_sum_mod = cl_experiment_powder_2d.save_2d(tth, phi, int_u_mod+int_d_mod)
-        s_int_dif_exp = cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp-int_d_exp)
-        s_int_dif_mod = cl_experiment_powder_2d.save_2d(tth, phi, int_u_mod-int_d_mod)
+        s_int_sum_exp = f_experiment.f_powder_2d.cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp+int_d_exp)
+        s_int_sum_mod = f_experiment.f_powder_2d.cl_experiment_powder_2d.save_2d(tth, phi, int_u_mod+int_d_mod)
+        s_int_dif_exp = f_experiment.f_powder_2d.cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp-int_d_exp)
+        s_int_dif_mod = f_experiment.f_powder_2d.cl_experiment_powder_2d.save_2d(tth, phi, int_u_mod-int_d_mod)
         
-        s_int_sum_dif = cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp+int_d_exp-int_u_mod-int_d_mod)
-        s_int_dif_dif = cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp-int_d_exp-int_u_mod+int_d_mod)
+        s_int_sum_dif = f_experiment.f_powder_2d.cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp+int_d_exp-int_u_mod-int_d_mod)
+        s_int_dif_dif = f_experiment.f_powder_2d.cl_experiment_powder_2d.save_2d(tth, phi, int_u_exp-int_d_exp-int_u_mod+int_d_mod)
 
         
         #list of hkl should be added

@@ -35,7 +35,7 @@ SpaceGroupe:
  0.250+z, 0.500-y, 0.750+x
  0.500-z, 0.750+y, 0.250+x
  -z, -y, -x
- directory: 'C:\Users\ikibalin\Documents\documents\working_comp\RhoChi\version_next'
+ directory: 'C:\docs\working_comp\RhoChi\version_next\f_crystal'
 Cell: 
  a: 8.55020223851
  b: 8.55020223851
@@ -140,7 +140,7 @@ BackgroundPowder1D:
  file_name: full.bkg
  ttheta  IntBKGR
  4.5    150.0
- 40.0     173(4)
+ 40.0     173(7)
  80.0    100.0
 ObservedDataPowder1D:
  file_dir: 

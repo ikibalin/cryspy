@@ -3,12 +3,12 @@ global_
 _file_name_output_listing full.lis
 
 data_EuTiO
+_cell_angle_alpha 90.0
+_cell_angle_beta 90.0
+_cell_angle_gamma 90.0
 _cell_length_a 5.507
-_cell_length_alpha 90.0
 _cell_length_b 5.507
-_cell_length_beta 90.0
 _cell_length_c 7.796
-_cell_length_gamma 90.0
 _space_group_it_coordinate_system_code 1
 _space_group_name_H-M_alt I4/mcm
 
@@ -29,9 +29,9 @@ _atom_site_type_symbol
 loop_
 _atom_site_bscat
 _atom_site_type_symbol
- 0.5803 O
  -0.34380000000000005 Ti
  0.8220000000000001 153Eu
+ 0.5803 O
 
 loop_
 _atom_site_magnetism_aniso_label
@@ -51,7 +51,7 @@ _atom_site_susceptibility_aniso_chi_33
  O2 2.0 1.0 ciso O2 0.101 -1.624203876173403e-17 -1.624203876173403e-17 0.101 -6.1844663356941316e-18 0.101
 
 data_exp_sdd
-_sdd_beam_polarization_down -0.8
+_sdd_beam_flipper_efficiency 1.
 _sdd_beam_polarization_up -0.8
 _sdd_file_name_input full.dat
 _sdd_file_name_output full.out

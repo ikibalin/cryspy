@@ -13,11 +13,11 @@ import matplotlib.pyplot
 
 
 
-from cl_observed_data_single_domain import *
-from cl_calculated_data_single import *
-from cl_setup_single import *
+from f_experiment.f_single_domain.cl_observed_data_single_domain import *
+from f_experiment.f_single.cl_calculated_data_single import *
+from f_experiment.f_single.cl_setup_single import *
 
-from cl_variable import *
+from f_common.cl_variable import *
 
 
 

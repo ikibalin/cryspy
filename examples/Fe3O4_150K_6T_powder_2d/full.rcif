@@ -28,8 +28,8 @@ _atom_site_type_symbol
 loop_
 _atom_site_bscat
 _atom_site_type_symbol
- 0.945 Fe
  0.5803 O
+ 0.945 Fe
 
 loop_
 _atom_site_aniso_U_11
@@ -54,11 +54,11 @@ _atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_22
 _atom_site_susceptibility_aniso_chi_23
 _atom_site_susceptibility_aniso_chi_33
- Fe3A 2.0 1.0 ciso Fe3 -4.04558269874 6.50579316898e-16 6.50579316898e-16 -4.04558269874 2.47720495135e-16 -4.04558269874
- Fe3B 2.0 1.0 ciso Fe3 3.98446052732 -6.40750122073e-16 -6.40750122073e-16 3.98446052732 -2.43977841556e-16 3.98446052732
+ Fe3A 2.0 1.0 ciso Fe3 -4.04558269874 6.505793168983726e-16 6.505793168983726e-16 -4.04558269874 2.4772049513489247e-16 -4.04558269874
+ Fe3B 2.0 1.0 ciso Fe3 3.98446052732 -6.407501220725808e-16 -6.407501220725808e-16 3.98446052732 -2.4397784155557056e-16 3.98446052732
 
 data_pnd
-_2dpd_beam_polarization_down 0.836865522283
+_2dpd_beam_flipper_efficiency 1.
 _2dpd_beam_polarization_up 0.836865522283
 _2dpd_chi2_diff True
 _2dpd_chi2_down False
@@ -73,7 +73,7 @@ _2dpd_reflex_asymmetry_p1 0.0
 _2dpd_reflex_asymmetry_p2 0.0
 _2dpd_reflex_asymmetry_p3 0.0
 _2dpd_reflex_asymmetry_p4 0.0
-_2dpd_resolution_u 16.94(30)
+_2dpd_resolution_u 16.94(16)
 _2dpd_resolution_v -2.83572490939
 _2dpd_resolution_w 0.576309204074
 _2dpd_resolution_x 0.0

@@ -1,0 +1,44 @@
+1. Devision of cell according to atoms
+2. Entropy calculation
+
+
+
+
+Classes:
++    - api rcif mem reconstruction:
++        чтение из rcif файла
++        запись в rcif файл
++    - cell density class
++            количество точек вдоль a, b, c
++            список из atom density
+        расчет магнитного структурного фактора
+        преобразование Фурье (матрица)
+        запись плотности в .den файл
+        чтение плотности из .den файла
+    - atom density class
+            тензор восприимчивости
+            плотность электронов приписанная одному атому
+    - mem reconstruction class
+            кристаллическая структура
+            cell density
+            список observed data mem
+        расчет энтропии
+        расчет хи-квадрата
+        расчет потенциала
+        расчет флип-отношения
+        минимизация энтропии
+    - observed data mem class
+            длина волны
+            ориентация
+            имя
+            список hkl с флип отношением
+            beam polarization up
+            beam polarization down
+            extinction_mosaicity
+            extinction_radius
+            file_input
+            crystal_name
+        чтение из файла
+        
+        
+    

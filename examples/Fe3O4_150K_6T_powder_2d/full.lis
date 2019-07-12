@@ -6,8 +6,10 @@ Crystal:
  name: Fe3O4
  i_g: 0.0
 SpaceGroupe:
- name: Fd-3m
+ given name: Fd-3m
  choice: 2
+ name: Fd-3m
+ number: 227
  inversion center at (0.000, 0.000, 0.000)
  x, y, z
  0.750-x, 0.250-y, 0.500+z
@@ -33,7 +35,7 @@ SpaceGroupe:
  0.250+z, 0.500-y, 0.750+x
  0.500-z, 0.750+y, 0.250+x
  -z, -y, -x
- directory: 'C:\Users\ikibalin\Documents\documents\working_comp\RhoChi\version_next'
+ directory: 'C:\docs\working_comp\RhoChi\version_next\f_crystal'
 Cell: 
  a: 8.53046738033
  b: 8.53046738033
@@ -119,7 +121,7 @@ SetupPowder2D:
  wave_length: 0.84
  zero_shift: -0.37138377716
 ResolutionPowder2D: 
- u:  16.94(16), u
+ u:  16.94(16)
  v: -2.83572490939
  w: 0.576309204074
  x: 0.0
@@ -134,14 +136,14 @@ BeamPolarization:
  p_u: 0.836865522283
  p_d: 0.836865522283
 BackgroundPowder2D:
- file_dir: .
+ file_dir: 
  file_name: full.bkg
  ttheta  IntBKGR
            4.50   40.00   80.00
    -3.00 -350.0 -350.0 -400.0
    41.00 -350.0 -350.0 -400.0
 ObservedDataPowder2D:
- file_dir: .
+ file_dir: 
  file_name: full.dat
  tth range: 4.0 --- 80.0 (381 points)
  phi range: -2.0 --- 40.0 (85 points)

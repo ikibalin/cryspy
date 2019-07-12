@@ -6,8 +6,10 @@ Crystal:
  name: EuTiO
  i_g: 0.0
 SpaceGroupe:
- name: I4/mcm
+ given name: I4/mcm
  choice: 1
+ name: I4/mcm
+ number: 140
  inversion center at (0.000, 0.000, 0.000)
  x, y, z
  -x, -y, z
@@ -17,7 +19,7 @@ SpaceGroupe:
  x, -y, 0.500-z
  y, x, 0.500-z
  -y, -x, 0.500-z
- directory: 'C:\Users\ikibalin\Documents\documents\working_comp\RhoChi\version_next'
+ directory: 'C:\docs\working_comp\RhoChi\version_next\f_crystal'
 Cell: 
  a: 5.507
  b: 5.507

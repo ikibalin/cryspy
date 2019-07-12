@@ -7,8 +7,8 @@ __version__ = "2019_04_16"
 import os
 import numpy
 
-from cl_crystal import *
-from cl_variable import *
+from f_crystal.cl_crystal import *
+from f_common.cl_variable import *
 
 
 class CalculatedDataSingle(dict):
@@ -97,8 +97,8 @@ orientation is transfer matrix from local coordinate system to global one
         field_loc = numpy.matmul(m_u_d.transpose(), field)
         field_norm = ((field_loc**2).sum())**0.5
         
-        p_u = beam_polarization.get_val("p_u")
-        p_d = beam_polarization.get_val("p_d")
+        p_u = 1.*beam_polarization.get_val("p_u")
+        p_d = (2.*beam_polarization.get_val("flipper_efficiency")-1)*p_u
         
         e_u_loc = field_loc/field_norm
 

@@ -6,8 +6,8 @@ __version__ = "2019_04_06"
 import os
 import numpy
 
-from cl_setup_powder_1d import BeamPolarization
-from cl_variable import *
+from f_experiment.f_powder_1d.cl_setup_powder_1d import BeamPolarization
+from f_common.cl_variable import *
     
 
 #Description of setup class

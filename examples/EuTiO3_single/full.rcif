@@ -3,12 +3,12 @@ global_
 _file_name_output_listing full.lis
 
 data_EuTiO
+_cell_angle_alpha 90.0
+_cell_angle_beta 90.0
+_cell_angle_gamma 90.0
 _cell_length_a 5.507
-_cell_length_alpha 90.0
 _cell_length_b 5.507
-_cell_length_beta 90.0
 _cell_length_c 7.796
-_cell_length_gamma 90.0
 _space_group_it_coordinate_system_code 1
 _space_group_name_H-M_alt I4/mcm
 
@@ -29,9 +29,9 @@ _atom_site_type_symbol
 loop_
 _atom_site_bscat
 _atom_site_type_symbol
- 0.8220000000000001 153Eu
  0.5803 O
  -0.34380000000000005 Ti
+ 0.8220000000000001 153Eu
 
 loop_
 _atom_site_magnetism_aniso_label
@@ -45,17 +45,16 @@ _atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_22
 _atom_site_susceptibility_aniso_chi_23
 _atom_site_susceptibility_aniso_chi_33
- Eu1 2.0 1.0 cani Eu2 6.448 0.0 0.0 6.448902959220087 0.0 6.823
- Ti1 2.0 1.0 ciso Ti3 0.613 -9.859711591961507e-17 -9.859711591961507e-17 0.6131193782976759 -3.754273420637319e-17 0.6131193782976759
- O1 2.0 1.0 ciso O2 -0.293 4.7113454921264234e-17 4.7113454921264234e-17 -0.29297177631779436 1.7939347405405053e-17 -0.29297177631779436
- O2 2.0 1.0 ciso O2 0.101 -1.622363254787108e-17 -1.622363254787108e-17 0.10088554222610661 -6.177457818372328e-18 0.10088554222610661
+ Eu1 2.0 1.0 cani Eu2 6.448 0.0 0.0 6.448 0.0 6.823
+ Ti1 2.0 1.0 ciso Ti3 0.613 -9.857791842517782e-17 -9.857791842517782e-17 0.613 -3.753542439386636e-17 0.613
+ O1 2.0 1.0 ciso O2 -0.293 4.711799363552545e-17 4.711799363552545e-17 -0.293 1.7941075607508716e-17 -0.293
+ O2 2.0 1.0 ciso O2 0.101 -1.624203876173403e-17 -1.624203876173403e-17 0.101 -6.1844663356941316e-18 0.101
 
 data_exp_sdd
-_sd_beam_polarization_down -0.8
+_sd_beam_flipper_efficiency 1.
 _sd_beam_polarization_up -0.8
 _sd_file_name_input full.dat
 _sd_file_name_output full.out
-
 
 loop_
 _sd_phase_extinction_mosaicity

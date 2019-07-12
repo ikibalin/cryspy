@@ -11,11 +11,11 @@ import time
 
 import matplotlib.pyplot
 
-from cl_experiment_powder_1d import *
-from cl_experiment_powder_2d import *
-from cl_experiment_single import *
-from cl_variable import *
-from error_simplex import *
+from f_experiment.f_powder_1d.cl_experiment_powder_1d import *
+from f_experiment.f_powder_2d.cl_experiment_powder_2d import *
+from f_experiment.f_single.cl_experiment_single import *
+from f_common.cl_variable import *
+from f_common.error_simplex import *
 
 class Model(dict):
     """

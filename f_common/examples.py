@@ -9,29 +9,77 @@ import matplotlib.pyplot
 import numpy
 
 
-import cl_crystal 
-import cl_calculated_data_single 
-import cl_calculated_data_powder_1d 
-import cl_calculated_data_powder_2d 
-import cl_experiment_single 
-import cl_experiment_powder_1d 
-import cl_experiment_powder_2d 
-import cl_experiment_powder_texture_2d 
-import cl_observed_data_single 
-import cl_observed_data_powder_1d 
-import cl_observed_data_powder_2d 
-import cl_variable 
-import cl_model 
+import f_crystal.cl_crystal 
+import f_experiment.f_single.cl_calculated_data_single 
+import f_experiment.f_powder_1d.cl_calculated_data_powder_1d 
+import f_experiment.f_powder_2d.cl_calculated_data_powder_2d 
+import f_experiment.f_single.cl_experiment_single 
+import f_experiment.f_powder_1d.cl_experiment_powder_1d 
+import f_experiment.f_powder_2d.cl_experiment_powder_2d 
+import f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d 
+import f_experiment.f_single.cl_observed_data_single 
+import f_experiment.f_powder_1d.cl_observed_data_powder_1d 
+import f_experiment.f_powder_2d.cl_observed_data_powder_2d 
+import f_common.cl_variable 
+import f_rhochi_model.cl_model 
 
-import cl_rcif 
+import f_rcif.cl_rcif 
+import f_api_rcif.api_rcif_crystal
+import f_api_rcif.api_rcif_mem
 
-import api_rcif_model
+
+spgr = f_crystal.cl_crystal.SpaceGroupe("Fd-3m", "2")
+
+n_a, n_b, n_c = 30, 30, 30
+l_assymm, l_symm = spgr.calc_assymmetric_cell(n_a, n_b, n_c)
+
+n_a, n_b, n_c = 24, 24, 24
+np_x = [float(el[0])/]
+
+x_at, y_at, z_at = 2.3, 0.2, 0.32
+
+np_x = [float(hh[0])/float(n_a) for hh in l_assym]
+np_y = [float(hh[1])/float(n_b) for hh in l_assym]
+np_z = [float(hh[2])/float(n_c) for hh in l_assym]
+
+np_diff_x_at = np_x - x_at
+np_diff_y_at = np_y - y_at
+np_diff_z_at = np_z - z_at
+
+
+l_n_x = [hh for hh in range(10)]
+for i_n_x, n_x in enumerate(l_n_x):
+      print("1: ", i_n_x, "  ", n_x)
+      n_x_2 = n_x+1
+
+      if n_x_2 in l_n_x:
+            l_n_x.remove(n_x_2)
+
+
+len(l_assymm)
+
+len(l_symm)
+len(l_symm[0])
+
+
+f_name = r"C:\docs\working_comp\RhoChi\version_next\examples\mem\full.rcif"
+
+rcif = f_rcif.cl_rcif.RCif()
+
+rcif.load_from_file(f_name)
+
+mem_reconstruction = f_api_rcif.api_rcif_mem.conv_rcif_to_mem_reconstruction(rcif)
+
+rcif_2 = f_api_rcif.api_rcif_mem.conv_mem_reconstruction_to_rcif(mem_reconstruction)
+
+cell_density = mem_reconstruction.get_val("cell_density")
+
 
 
 dir_name = r"C:\Users\ikibalin\Documents\documents\working_comp\RhoChi\version_next\examples"
 os.chdir(dir_name)
 # single crystal polarized neutron diffraction
-rcif_single = cl_rcif.RCif()
+rcif_single = f_rcif.cl_rcif.RCif()
 f_inp = os.path.join("Fe3O4_150K_6T_2d", "full.rcif")
 f_inp = os.path.join("Fe3O4_0T", "full.rcif")
 f_inp = os.path.join("HoTi_single", "full.rcif")

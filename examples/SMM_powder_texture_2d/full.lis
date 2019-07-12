@@ -13,7 +13,7 @@ SpaceGroupe:
  inversion center at (0.000, 0.000, 0.000)
  x, y, z
  0.500-x, 0.500+y, 0.500-z
- directory: 'C:\Users\ikibalin\Documents\documents\working_comp\RhoChi\version_next'
+ directory: 'C:\docs\working_comp\RhoChi\version_next\f_crystal'
 Cell: 
  a: 9.83105751
  b: 12.581533
@@ -424,8 +424,8 @@ BackgroundPowder2D:
  file_name: full.bkgr
  ttheta  IntBKGR
            5.70    7.80   14.30   20.07   30.62   45.68   56.65   67.34
-   -2.00 8.65 13.99  20.57(30) 21.62 13.65 11.91 5.164 0.284
-   41.00 8.65 7.13  11.67(18) 17.82 14.72 9.11 5.164 0.284
+   -2.00 8.65 13.99 20.57 21.62 13.65 11.91 5.164 0.284
+   41.00 8.65 7.13 11.67 17.82 14.72 9.11 5.164 0.284
 ObservedDataPowder2D:
  file_dir: 
  file_name: full.dat

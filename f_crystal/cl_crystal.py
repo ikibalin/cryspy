@@ -5,7 +5,8 @@ __author__ = 'ikibalin'
 __version__ = "2019_04_06"
 import os
 import numpy
-from cl_variable import *
+
+from f_common.cl_variable import *
 
 
 def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,
@@ -521,7 +522,7 @@ class SpaceGroupe(dict):
     def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
         
         if f_dir_prog is not None:
-            f_itables = os.path.join(f_dir_prog,"itables.txt")
+            f_itables = os.path.join(f_dir_prog, "tables", "itables.txt")
             self._read_el_cards(f_itables)        
             self._p_f_dir_prog = f_dir_prog
         if spgr_given_name is not None:
@@ -996,6 +997,71 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
             ls_out.append(line)
         return "\n".join(ls_out)
 
+    def calc_assymmetric_cell(self, n_a, n_b, n_c):
+        """
+        give the numbers in assymmetric cell
+
+        n_a is the number of points along a axis
+        n_b is the numper of points along b axis
+        n_c is the numper of points along c axis
+
+        na, n_b, nc should be devided on 24: 8 and 3
+
+        output: 
+        l_coord is a list of coordinates in assymmetric cell (frac_x = n_x/n_a and so on)
+        l_symm contains a list of symmetry given as (n_symm, centr, n_orig)
+        """
+
+        n_a_new = int(round(n_a/24))*24
+        n_b_new = int(round(n_b/24))*24
+        n_c_new = int(round(n_c/24))*24
+
+        print("na: {:}, n_b: {:}, n_c: {:}".format(n_a_new, n_b_new, n_c_new))
+
+        l_el_symm = self._p_el_symm
+        f_centr = self._p_centr
+        p_centr = self._p_p_centr
+        l_orig = self._p_orig
+
+        l_coord, l_symm = [], []
+        l_n_xyz = []
+        for n_x in range(n_a_new):
+            for n_y in range(n_b_new):
+                for n_z in range(n_c_new):
+                    l_n_xyz.append((n_x, n_y, n_z))
+                    l_symm.append([(1, False, 0)])
+        
+        for i_n_xyz, (n_x, n_y, n_z) in enumerate(l_n_xyz):
+            for i_el_symm, e_s in enumerate(l_el_symm):
+                for i_orig, orig in enumerate(l_orig):
+                    n_x_s = round((e_s[0]+orig[0])*n_a_new + e_s[1]*n_x + e_s[2]*n_y + e_s[3]*n_z)%n_a_new  
+                    n_y_s = round((e_s[4]+orig[1])*n_b_new + e_s[5]*n_x + e_s[6]*n_y + e_s[7]*n_z)%n_b_new
+                    n_z_s = round((e_s[8]+orig[2])*n_c_new + e_s[9]*n_x + e_s[10]*n_y + e_s[11]*n_z)%n_c_new
+
+                    if ((n_x_s != n_x) & (n_y_s != n_y) & (n_z_s != n_z)):
+                        if (n_x_s, n_y_s, n_z_s) in l_n_xyz: 
+                            ind = l_n_xyz.index((n_x_s, n_y_s, n_z_s)) 
+                            l_n_xyz.pop(ind)
+                            l_symm.pop(ind)
+                            l_symm[i_n_xyz].append((i_el_symm, False, i_orig))
+
+                    if f_centr:
+                        n_x_s = round(-float(n_x_s) + p_centr[0]*n_a_new)%n_a_new
+                        n_y_s = round(-float(n_y_s) + p_centr[1]*n_b_new)%n_b_new
+                        n_z_s = round(-float(n_z_s) + p_centr[2]*n_c_new)%n_c_new
+
+                        if ((n_x_s != n_x) & (n_y_s != n_y) & (n_z_s != n_z)):
+                            if (n_x_s, n_y_s, n_z_s) in l_n_xyz: 
+                                ind = l_n_xyz.index((n_x_s, n_y_s, n_z_s)) 
+                                l_n_xyz.pop(ind)
+                                l_symm.pop(ind)
+                                l_symm[i_n_xyz].append((i_el_symm, True, i_orig))
+
+
+        return l_coord, l_symm
+
+
+
 class AtomType(dict):
     """
     Description of atom
@@ -1247,7 +1313,7 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         print(lsout)
         
     def _load_handbook_n(self):
-        f_name = os.path.join(self._p_f_dir_prog, "bscat.tab")
+        f_name = os.path.join(self._p_f_dir_prog, "tables", "bscat.tab")
         fid = open(f_name, 'r')
         lcont = fid.readlines()
         fid.close()
@@ -1270,7 +1336,7 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         self._handbook_nucl = ldcard
     
     def _load_handbook_m(self):
-        f_name = os.path.join(self._p_f_dir_prog, "formmag.tab")
+        f_name = os.path.join(self._p_f_dir_prog, "tables", "formmag.tab")
         fid = open(f_name, 'r')
         lcont = fid.readlines()
         fid.close()
