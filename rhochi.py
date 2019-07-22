@@ -273,7 +273,7 @@ def create_temporary(f_name_in):
         setup = f_experiment.f_powder_1d.cl_setup_powder_1d.SetupPowder1D(background=background)
         
         experiment = f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D(name="exp_pd", setup=setup, file_dir=f_dir, 
-                        file_out=file_out, observed_data=observed_data)
+                        file_out=file_out, observed_data=observed_data, excl_tth_min=[35], excl_tth_max=[40])
 
         calculated_data = f_experiment.f_powder_1d.cl_calculated_data_powder_1d.CalculatedDataPowder1D(name=crystal_name)
         experiment.add_calculated_data(calculated_data)

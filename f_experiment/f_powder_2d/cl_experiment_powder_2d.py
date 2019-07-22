@@ -153,7 +153,9 @@ file_dir is the working directory
         p_d = (2.*beam_polarization.get_val("flipper_efficiency")-1)*p_u
         
         tth_min = tth.min()
-        tth_max = tth.max()
+        tth_max = tth.max()+3.
+        if tth_max > 180.:
+            tth_max = 180.
         sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wave_length
         sthovl_max = numpy.sin(0.5*tth_max*numpy.pi/180.)/wave_length
 
@@ -184,7 +186,7 @@ file_dir is the working directory
             #if not(d_hkl["flag"]|(d_hkl["out"] is None)):
             #    h, k, l, mult = d_hkl["out"]
             #else:
-            h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
+            h, k, l, mult = cell.calc_hkl(space_groupe, sthovl_min, sthovl_max)
             #d_hkl["out"] = (h, k, l, mult)
             mult_3d = numpy.meshgrid(tth, phi, mult, indexing="ij")[2]
             

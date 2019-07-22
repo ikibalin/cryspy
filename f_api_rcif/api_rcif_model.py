@@ -335,6 +335,7 @@ def conv_data_to_experiment_powder_1d(data, f_dir, l_crystal):
     for loop in data["loops"]:
         l_key = list(loop.keys())
         flag_scale = "_pd_phase_scale" in l_key
+        flag_exclude = "_pd_exclude_tth_min" in l_key
         if flag_scale:
             n_crystal = len(loop["_pd_phase_name"])
             for i_crystal in range(n_crystal):
@@ -350,7 +351,10 @@ def conv_data_to_experiment_powder_1d(data, f_dir, l_crystal):
                         calculated_data = f_experiment.f_powder_1d.cl_calculated_data_powder_1d.CalculatedDataPowder1D(field=field,
                                 scale=scale, name=name)
                         experiment.add_calculated_data(calculated_data)  
-    
+        if flag_exclude:
+            l_excl_tth_min = [conv_str_to_text_float_logic(hh, "tth_min") for hh in loop["_pd_exclude_tth_min"]]
+            l_excl_tth_max = [conv_str_to_text_float_logic(hh, "tth_max") for hh in loop["_pd_exclude_tth_max"]]
+            experiment.set_val(excl_tth_min=l_excl_tth_min, excl_tth_max=l_excl_tth_max)
     return experiment
 
 def conv_data_to_experiment_powder_2d(data, f_dir, l_crystal):
@@ -635,6 +639,7 @@ def conv_model_to_rcif(model):
             for relation in l_relation:
                 temp_func(dd, relation, beam_polarization)
 
+            
         if isinstance(obj, f_experiment.f_single_domain.cl_experiment_single_domain.ExperimentSingleDomain):
             l_relation = data_experiment_single_domain_relation()
             for relation in l_relation:
@@ -828,6 +833,12 @@ def conv_model_to_rcif(model):
             for lab_d in l_lab_d:
                 d_eph[lab_d] = [hh[lab_d] for hh in l_dhelp]
             lloop_d.append(d_eph)
+
+            l_excl_tth_min = ["{:}".format(hh) for hh in obj._p_excl_tth_min]
+            l_excl_tth_max = ["{:}".format(hh) for hh in obj._p_excl_tth_max]
+            if len(l_excl_tth_min) != 0:
+                d_eph_2 = {"_pd_exclude_tth_min":l_excl_tth_min, "_pd_exclude_tth_max":l_excl_tth_max}
+                lloop_d.append(d_eph_2)
 
         if isinstance(obj, f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D):
             l_relation = [("_2dpd_phase_name", "name", "text"),
@@ -1046,7 +1057,10 @@ def data_zero_shift_powder_1d_relation():
     l_relation = [("_pd_shift_const", "zero_shift", "val")]
     return l_relation
 
-
+def data_exclude_powder_1d_relation():
+    l_relation = [("_pd_exclude_tth_min", "excl_tth_min", "val"),
+        ("_pd_exclude_tth_max", "excl_tth_max", "val")]
+    return l_relation
 
 def data_experiment_powder_2d_relation():
     l_relation = [("name", "name", "text"),

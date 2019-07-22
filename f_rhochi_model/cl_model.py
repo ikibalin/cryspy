@@ -192,7 +192,7 @@ file_out is the file name for listing, full path should be given
         res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
                                       callback=self._f_callback, options = {"fatol": 0.01*n})
         bb = time.time()
-        print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n))
+        print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n, chi_sq*1./n))
         
         #it is not checked
         m_error, dist_hh = error_estimation_simplex(res["final_simplex"][0], res["final_simplex"][1], tempfunc)

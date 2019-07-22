@@ -21,7 +21,7 @@ class ExperimentPowder1D(dict):
                  list_calculated_data=[], 
                  observed_data=ObservedDataPowder1D(), flag_chi2_up=False, 
                  flag_chi2_down=False, flag_chi2_sum=False, flag_chi2_diff=False, 
-                 file_out=None, file_dir=None):
+                 file_out=None, file_dir=None, excl_tth_min=[], excl_tth_max=[]):
         super(ExperimentPowder1D, self).__init__()
         self._p_name = None
         self._p_setup = None
@@ -33,9 +33,11 @@ class ExperimentPowder1D(dict):
         self._p_flag_chi2_diff = None
         self._p_file_out = None
         self._p_file_dir = None
+        self._p_excl_tth_min = None
+        self._p_excl_tth_max = None
 
         self._refresh(name, setup, observed_data, flag_chi2_up, flag_chi2_down, 
-        flag_chi2_sum, flag_chi2_diff, file_out, file_dir)
+        flag_chi2_sum, flag_chi2_diff, file_out, file_dir, excl_tth_min, excl_tth_max)
 
     def __repr__(self):
         ls_out = """ExperimentPowder1D:\nname: {:}
@@ -50,7 +52,7 @@ class ExperimentPowder1D(dict):
         return ls_out
 
     def _refresh(self, name, setup, observed_data, flag_chi2_up, flag_chi2_down, 
-                flag_chi2_sum, flag_chi2_diff, file_out, file_dir):
+                flag_chi2_sum, flag_chi2_diff, file_out, file_dir, excl_tth_min, excl_tth_max):
         if name is not None:
             self._p_name = name
         if setup is not None:
@@ -69,12 +71,17 @@ class ExperimentPowder1D(dict):
             self._p_file_out = file_out
         if file_dir is not None:
             self._p_file_dir = file_dir
+        if excl_tth_min is not None:
+            self._p_excl_tth_min = excl_tth_min
+        if excl_tth_max is not None:
+            self._p_excl_tth_max = excl_tth_max
             
     def set_val(self, name=None, setup=None, observed_data=None, 
                 flag_chi2_up=None, flag_chi2_down=None, 
-                flag_chi2_sum=None, flag_chi2_diff=None, file_out=None, file_dir=None):
+                flag_chi2_sum=None, flag_chi2_diff=None, file_out=None, file_dir=None, 
+                excl_tth_min=None, excl_tth_max=None):
         self._refresh(name, setup, observed_data, flag_chi2_up, flag_chi2_down, 
-                flag_chi2_sum, flag_chi2_diff, file_out, file_dir)
+                flag_chi2_sum, flag_chi2_diff, file_out, file_dir, excl_tth_min, excl_tth_max)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -102,6 +109,8 @@ flag_chi2_up, flag_chi2_down are flags for  refinement: "up down"
 flag_chi2_sum, flag_chi2_diff  are flags for  refinement: "sum diff"
 file_out is the file name of experimental and model data (basename)
 file_dir is the working directory
+excl_tth_min is the list of excluded ttheta from up, down and sum (difference is taken into account), minimal
+excl_tth_max is the list of excluded ttheta from up, down and sum (difference is taken into account), maximal
         """
         print(lsout)
     def add_calculated_data(self, observed_data):
@@ -125,7 +134,9 @@ file_dir is the working directory
         beam_polarization = setup.get_val("beam_polarization")
         
         tth_min = tth.min()
-        tth_max = tth.max()
+        tth_max = tth.max()+3. 
+        if tth_max > 180.:
+            tth_max = 180.
         sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wave_length
         sthovl_max = numpy.sin(0.5*tth_max*numpy.pi/180.)/wave_length
 
@@ -150,7 +161,7 @@ file_dir is the working directory
             i_g = 1.*crystal.get_val("i_g")
             cell = crystal.get_val("cell")
             space_groupe = crystal.get_val("space_groupe")
-            h, k, l, mult = setup.calc_hkl(cell, space_groupe, sthovl_min, sthovl_max)
+            h, k, l, mult = cell.calc_hkl(space_groupe, sthovl_min, sthovl_max)
             
             np_iint_u, np_iint_d, d_info_cd = calculated_data.calc_iint(h, k, l, 
                                                     beam_polarization, crystal)
@@ -215,18 +226,31 @@ file_dir is the working directory
         chi_sq_sum = ((int_u_mod+int_d_mod-int_u_exp-int_d_exp)/sint_sum_exp)**2
         chi_sq_dif = ((int_u_mod-int_d_mod-int_u_exp+int_d_exp)/sint_sum_exp)**2
 
+        cond_u = numpy.logical_not(numpy.isnan(chi_sq_u))
+        cond_d = numpy.logical_not(numpy.isnan(chi_sq_d))
+        cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
+        cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
         
-        chi_sq_u_val = (chi_sq_u[numpy.logical_not(numpy.isnan(chi_sq_u))]).sum()
-        n_u = numpy.logical_not(numpy.isnan(chi_sq_u)).sum()
+        #exclude region
+        l_excl_tth_min = self._p_excl_tth_min
+        l_excl_tth_max = self._p_excl_tth_max
+        for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
+            cond_1 = numpy.logical_or(tth < 1.*excl_tth_min, tth > 1.*excl_tth_max)
+            cond_u = numpy.logical_and(cond_u, cond_1)
+            cond_d = numpy.logical_and(cond_d, cond_1)
+            cond_sum = numpy.logical_and(cond_sum, cond_1)
+
+        chi_sq_u_val = (chi_sq_u[cond_u]).sum()
+        n_u = cond_u.sum()
         
-        chi_sq_d_val = (chi_sq_d[numpy.logical_not(numpy.isnan(chi_sq_d))]).sum()
-        n_d = numpy.logical_not(numpy.isnan(chi_sq_d)).sum()
+        chi_sq_d_val = (chi_sq_d[cond_d]).sum()
+        n_d = cond_d.sum()
 
-        chi_sq_sum_val = (chi_sq_sum[numpy.logical_not(numpy.isnan(chi_sq_sum))]).sum()
-        n_sum = numpy.logical_not(numpy.isnan(chi_sq_sum)).sum()
+        chi_sq_sum_val = (chi_sq_sum[cond_sum]).sum()
+        n_sum = cond_sum.sum()
 
-        chi_sq_dif_val = (chi_sq_dif[numpy.logical_not(numpy.isnan(chi_sq_dif))]).sum()
-        n_sum = numpy.logical_not(numpy.isnan(chi_sq_dif)).sum()
+        chi_sq_dif_val = (chi_sq_dif[cond_dif]).sum()
+        n_sum = cond_dif.sum()
 
         flag_u = self._p_flag_chi2_up
         flag_d = self._p_flag_chi2_down
@@ -289,7 +313,8 @@ file_dir is the working directory
         sint_u_exp = observed_data.get_val("sint_u")
         int_d_exp = observed_data.get_val("int_d")
         sint_d_exp = observed_data.get_val("sint_d")
-        
+        setup = self.get_val("setup")
+        zero_shift = setup.get_val("zero_shift")
         int_u_mod, int_d_mod, d_info = self.calc_profile(tth, l_crystal) 
         
         s_1 = "    ttheta       exp_up        sigma       mod_up     exp_down        sigma     mod_down\n"
@@ -305,7 +330,8 @@ file_dir is the working directory
         ls_int = []
         for i_phase, d_info_cd in enumerate(d_info["crystal"]):
             ls_int.append("\n\n\n\n#phase {:}".format(i_phase+1))
-            tth_hkl = d_info_cd["tth_hkl"]
+            tth_hkl = d_info_cd["tth_hkl"] + 1.*zero_shift 
+
             np_h = d_info_cd["h"]
             np_k = d_info_cd["k"]
             np_l = d_info_cd["l"]

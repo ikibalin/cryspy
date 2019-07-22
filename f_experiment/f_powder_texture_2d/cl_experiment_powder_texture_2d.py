@@ -243,7 +243,7 @@ phi_0 is the zero shift
             if "hklmult" in d_info_in_2.keys():
                 h, k, l, mult = d_info_in_2["hklmult"]
             else:
-                h, k, l, mult = setup.calc_hkl_in_range(cell, sthovl_min, sthovl_max)
+                h, k, l, mult = cell.calc_hkl_in_range(sthovl_min, sthovl_max)
             d_info_out_2["hklmult"] = h, k, l, mult
 
             mult_3d = numpy.meshgrid(tth, phi, mult, indexing="ij")[2]
