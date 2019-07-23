@@ -129,42 +129,42 @@ def plot_data(model):
             matplotlib.pyplot.show()
 
         elif isinstance(experiment, f_experiment.f_powder_1d.cl_experiment_powder_1d.ExperimentPowder1D):
-            name = experiment.get_val("name")
-            file_dir = experiment.get_val("file_dir")
-            file_out = experiment.get_val("file_out")
-            f_name = os.path.join(file_dir, file_out)
-        
-            fid = open(f_name, 'r')
-            l_cont = fid.readlines()
-            fid.close
-            l_name = l_cont[0].strip().split()
-            dd = {}
-            for hh in l_name:
-                dd[hh] = []
-            for line in l_cont[1:]:
-                if line.strip()=="":
-                    break
-                for hh_1, hh_2 in zip(l_name, line.strip().split()):
-                    dd[hh_1].append(float(hh_2))
-            for hh in l_name:
-                dd[hh] = numpy.array(dd[hh], dtype=float)
-                
-            matplotlib.pyplot.plot(dd["ttheta"],dd["exp_up"]+dd["exp_down"],".",
-                               dd["ttheta"],dd["mod_up"]+dd["mod_down"],"-",
-                               dd["ttheta"],dd["exp_up"]+dd["exp_down"]-
-                                            dd["mod_up"]-dd["mod_down"],"-")
-            matplotlib.pyplot.xlabel("diffraction angle, degrees")
-            matplotlib.pyplot.ylabel("intensity")
-            matplotlib.pyplot.title("experiment: '{:}', up+down".format(name))
-            matplotlib.pyplot.show()
-            matplotlib.pyplot.plot(dd["ttheta"],dd["exp_up"]-dd["exp_down"],".",
-                               dd["ttheta"],dd["mod_up"]-dd["mod_down"],"-",
-                               dd["ttheta"],dd["exp_up"]-dd["exp_down"]-
-                                            dd["mod_up"]+dd["mod_down"],"-")
-            matplotlib.pyplot.xlabel("diffraction angle, degrees")
-            matplotlib.pyplot.ylabel("intensity")
-            matplotlib.pyplot.title("experiment: '{:}', up-down".format(name))
-            matplotlib.pyplot.show()
+            pass
+            #name = experiment.get_val("name")
+            #file_dir = experiment.get_val("file_dir")
+            #file_out = experiment.get_val("file_out")
+            #f_name = os.path.join(file_dir, file_out)
+            #fid = open(f_name, 'r')
+            #l_cont = fid.readlines()
+            #fid.close
+            #l_name = l_cont[0].strip().split()
+            #dd = {}
+            #for hh in l_name:
+            #    dd[hh] = []
+            #for line in l_cont[1:]:
+            #    if line.strip()=="":
+            #        break
+            #    for hh_1, hh_2 in zip(l_name, line.strip().split()):
+            #        dd[hh_1].append(float(hh_2))
+            #for hh in l_name:
+            #    dd[hh] = numpy.array(dd[hh], dtype=float)
+            #    
+            #matplotlib.pyplot.plot(dd["ttheta"],dd["exp_up"]+dd["exp_down"],".",
+            #                   dd["ttheta"],dd["mod_up"]+dd["mod_down"],"-",
+            #                   dd["ttheta"],dd["exp_up"]+dd["exp_down"]-
+            #                                dd["mod_up"]-dd["mod_down"],"-")
+            #matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            #matplotlib.pyplot.ylabel("intensity")
+            #matplotlib.pyplot.title("experiment: '{:}', up+down".format(name))
+            #matplotlib.pyplot.show()
+            #matplotlib.pyplot.plot(dd["ttheta"],dd["exp_up"]-dd["exp_down"],".",
+            #                   dd["ttheta"],dd["mod_up"]-dd["mod_down"],"-",
+            #                   dd["ttheta"],dd["exp_up"]-dd["exp_down"]-
+            #                                dd["mod_up"]+dd["mod_down"],"-")
+            #matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            #matplotlib.pyplot.ylabel("intensity")
+            #matplotlib.pyplot.title("experiment: '{:}', up-down".format(name))
+            #matplotlib.pyplot.show()
             
         elif isinstance(experiment, f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D):
             name = experiment.get_val("name")

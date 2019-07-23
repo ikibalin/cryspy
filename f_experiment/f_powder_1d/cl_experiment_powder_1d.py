@@ -317,7 +317,7 @@ excl_tth_max is the list of excluded ttheta from up, down and sum (difference is
         zero_shift = setup.get_val("zero_shift")
         int_u_mod, int_d_mod, d_info = self.calc_profile(tth, l_crystal) 
         
-        s_1 = "    ttheta       exp_up        sigma       mod_up     exp_down        sigma     mod_down\n"
+        s_1 = "    ttheta       exp_up     s_exp_up       mod_up     exp_down   s_exp_down     mod_down\n"
         l_s_2 = ["{:10.2f} {:12.5f} {:12.5f} {:12.5f} {:12.5f} {:12.5f} {:12.5f}".format(
                 hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7) for 
                 hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7 in 
