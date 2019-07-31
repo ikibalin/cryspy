@@ -28,7 +28,7 @@ import f_api_rcif.api_rcif_crystal
 import f_api_rcif.api_rcif_mem
 
 
-spgr = f_crystal.cl_crystal.SpaceGroup("Fd-3m", "2")
+spgr = f_crystal.cl_crystal.SpaceGroupe("Fd-3m", "2")
 
 n_a, n_b, n_c = 30, 30, 30
 l_assymm, l_symm = spgr.calc_assymmetric_cell(n_a, n_b, n_c)
@@ -247,27 +247,22 @@ matplotlib.pyplot.plot(np_tth, int_u_exp-int_d_exp, "k-", np_tth, int_u-int_d, "
 
 
 #crystal definition
-cell = f_crystal.cl_crystal.Cell(a=8.5502, singony="Cubic")
+cell = Cell(a=8.5502, singony="Cubic")
 
-fe_a = f_crystal.cl_crystal.AtomType(type_n="Fe", type_m="Fe3", x=0.125, y=0.125, z=0.125,
+fe_a = AtomType(type_n="Fe", type_m="Fe3", x=0.125, y=0.125, z=0.125,
                 chi_11=-3.616, chi_22=-3.616, chi_33=-3.616)
-fe_b = f_crystal.cl_crystal.AtomType(type_n="Fe", type_m="Fe3", x=0.500, y=0.500, z=0.500,
+fe_b = AtomType(type_n="Fe", type_m="Fe3", x=0.500, y=0.500, z=0.500,
                 chi_11=3.1846, chi_22=3.1846, chi_33=3.1846)
-o = f_crystal.cl_crystal.AtomType(type_n="O", x=0.25223, y=0.25223, z=0.25223)
+o = AtomType(type_n="O", x=0.25223, y=0.25223, z=0.25223)
 
 
-atom_site = f_crystal.cl_crystal.AtomSite()
+atom_site = AtomSite()
 atom_site.add_atom(fe_a)
 atom_site.add_atom(fe_b)
 atom_site.add_atom(o)
 
-space_group = f_crystal.cl_crystal.SpaceGroup(spgr_given_name = "Fd-3m", spgr_choice="2")
+space_groupe = SpaceGroupe(spgr_given_name = "Fd-3m", spgr_choice="2")
 
-crystal = f_crystal.cl_crystal.Crystal(space_group=space_group, cell=cell, atom_site=atom_site)
+crystal = Crystal(space_groupe, cell, atom_site)
 
-l_name, ll_frac = crystal.calc_atoms_in_cell()
-for name, l_frac in zip(l_name, ll_frac):
-    print(name)
-    for frac in l_frac:
-        print(frac[0], frac[1], frac[2])
 

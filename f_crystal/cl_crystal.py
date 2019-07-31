@@ -469,7 +469,7 @@ m_ib - inverse B matrix
         self._calc_m_b()
         self._calc_m_ib()
 
-    def calc_hkl(self, space_group, sthovl_min, sthovl_max):
+    def calc_hkl(self, space_groupe, sthovl_min, sthovl_max):
         """
         give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
         
@@ -485,8 +485,8 @@ m_ib - inverse B matrix
 
         hmin=0
         
-        lorig = space_group.get_val("orig")
-        lsymm = space_group.get_val("el_symm")
+        lorig = space_groupe.get_val("orig")
+        lsymm = space_groupe.get_val("el_symm")
         for h in range(hmin,hmax+1,1):
             for k in range(kmin,kmax+1,1):
                 for l in range(lmin,lmax+1,1):
@@ -536,14 +536,14 @@ m_ib - inverse B matrix
         arg_sort = numpy.argsort(sthovl)
         return h[arg_sort], k[arg_sort], l[arg_sort], mult[arg_sort]        
         
-class SpaceGroup(dict):
+class SpaceGroupe(dict):
     """
-    Space Group
+    Space Groupe
     """
     def __init__(self, spgr_given_name = "P1", spgr_choice = "1",
                  f_dir_prog = os.path.dirname(__file__)):
         #         f_dir_prog = os.getcwd()):
-        super(SpaceGroup, self).__init__()
+        super(SpaceGroupe, self).__init__()
         
         self._p_spgr_given_name = None
         self._p_spgr_choice = None
@@ -577,7 +577,7 @@ class SpaceGroup(dict):
         self.set_val()
         
     def __repr__(self):
-        ls_out = ["SpaceGroup:\n given name: {:}\n choice: {:}".format(self._p_spgr_given_name, self._p_spgr_choice)]
+        ls_out = ["SpaceGroupe:\n given name: {:}\n choice: {:}".format(self._p_spgr_given_name, self._p_spgr_choice)]
         if self._p_spgr_name is not None:
             ls_out.append(" name: {:}".format(self._p_spgr_name))
         if self._p_spgr_number is not None:
@@ -626,7 +626,7 @@ class SpaceGroup(dict):
         """
         lsout = """
 Parameters:
-spgr_given_name is number or name of the space group
+spgr_given_name is number or name of the space groupe
 spgr_choice is choise of origin, 1, 2, "abc", "bac"
 f_dir_prog is directory where the file "itables.txt" it is 
 
@@ -634,9 +634,9 @@ centr is inversion center
 p_centr is position of inversin center
 el_symm is element of symmetry
 orig is packing
-spgr_name is name of space group
-spgr_number is number of space group
-singony is singony of the space group
+spgr_name is name of space groupe
+spgr_number is number of space groupe
+singony is singony of the space groupe
 
 r_11, r_12, r_13  
 r_21, r_22, r_23    element of symmetry in form of element of rotation matrix
@@ -706,7 +706,7 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
                 flag = True
                 break
         if (not flag):
-            print("Space group is not found: {:} {:} {:}".format(spgr_n, spgr_name, spgr_choice))
+            print("Space groupe is not found: {:} {:} {:}".format(spgr_n, spgr_name, spgr_choice))
             return
         
         flag = False
@@ -1597,18 +1597,18 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
         self._p_chi_23 = chi_23
 
         
-    def apply_constraint(self, space_group, cell):
+    def apply_constraint(self, space_groupe, cell):
         chi_type = self.get_val("chi_type")
         if chi_type == "ciso":
             self.apply_chi_iso(cell)
-        self.apply_space_group_constraint(space_group)
+        self.apply_space_groupe_constraint(space_groupe)
 
-    def calc_constr_number(self, space_group):
+    def calc_constr_number(self, space_groupe):
         """
         according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
         x, y, z = 1.*self._p_x, 1.*self._p_y, 1.*self._p_z
-        o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 = space_group.calc_el_symm_for_xyz(x,y,z)
+        o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 = space_groupe.calc_el_symm_for_xyz(x,y,z)
         
         b_11, b_22, b_33, b_12, b_13, b_23 = 107, 181, 41, 7, 19, 1
         
@@ -1685,11 +1685,11 @@ f_dir_prog is directory with file 'bscat.tab', 'formmag.tab'
             numb = 0 #no constraint
         return numb
     
-    def apply_space_group_constraint(self, space_group):
+    def apply_space_groupe_constraint(self, space_groupe):
         """
         according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
-        numb = self.calc_constr_number(space_group)
+        numb = self.calc_constr_number(space_groupe)
         if numb == 1:
             self._p_u_12 = 0.
             self._p_u_23 = 0.
@@ -1885,7 +1885,7 @@ x, y, z is atoms coordinate
         """
         print(lsout)
     
-    def calc_phase(self, space_group, h, k, l):
+    def calc_phase(self, space_groupe, h, k, l):
         """
         calculate phase: exp(-2 pi i * (h*x+k*y+l*z))
         r_11, r_22, r_33, r_12, r_13, r_23 are element of symmetry 
@@ -1893,13 +1893,13 @@ x, y, z is atoms coordinate
         
         x, y, z = self._p_x, self._p_y, self._p_z
 
-        r_11, r_12 = space_group.get_val("r_11"), space_group.get_val("r_12")
-        r_13, r_21 = space_group.get_val("r_13"), space_group.get_val("r_21")
-        r_22, r_23 = space_group.get_val("r_22"), space_group.get_val("r_23")
-        r_31, r_32 = space_group.get_val("r_31"), space_group.get_val("r_32")
-        r_33 = space_group.get_val("r_33")
-        b_1, b_2 = space_group.get_val("b_1"), space_group.get_val("b_2")
-        b_3 = space_group.get_val("b_3")
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
+        b_1, b_2 = space_groupe.get_val("b_1"), space_groupe.get_val("b_2")
+        b_3 = space_groupe.get_val("b_3")
         
         np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
         np_k, np_y, np_r_22 = numpy.meshgrid(k, y, r_22, indexing="ij")
@@ -1926,15 +1926,15 @@ x, y, z is atoms coordinate
         return phase
         
         
-    def els4pos(self, space_group):
+    def els4pos(self, space_groupe):
         """
         give the lelements of symmetry which transfer atom to the same atom
         """
         
-        lelsymm = space_group.get_val("el_symm")
-        lorig = space_group.get_val("orig")
-        centr = space_group.get_val("centr")
-        pcentr = space_group.get_val("pcentr")
+        lelsymm = space_groupe.get_val("el_symm")
+        lorig = space_groupe.get_val("orig")
+        centr = space_groupe.get_val("centr")
+        pcentr = space_groupe.get_val("pcentr")
     
         lelsat = []
         lelsuniqat, lcoorduniqat = [], []
@@ -2046,17 +2046,17 @@ b_iso is the isotropical Debye-Waller factor
         power_dwf_iso_2d = b_iso_2d*sthovl_sq_2d
         return power_dwf_iso_2d
 
-    def calc_power_dwf_aniso(self, space_group, cell, h, k, l):
+    def calc_power_dwf_aniso(self, space_groupe, cell, h, k, l):
         """
         anisotropic harmonic Debye-Waller factor
         
         h,k,l is 1D (temporary solution)
         """
-        r_11, r_12 = space_group.get_val("r_11"), space_group.get_val("r_12")
-        r_13, r_21 = space_group.get_val("r_13"), space_group.get_val("r_21")
-        r_22, r_23 = space_group.get_val("r_22"), space_group.get_val("r_23")
-        r_31, r_32 = space_group.get_val("r_31"), space_group.get_val("r_32")
-        r_33 = space_group.get_val("r_33")
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
   
         b_11, b_22, b_33, b_12, b_13, b_23 = self.calc_beta(cell)
 
@@ -2080,7 +2080,7 @@ b_iso is the isotropical Debye-Waller factor
         
         return power_dwf_aniso 
         
-    def calc_dwf(self, space_group, cell, h, k, l):
+    def calc_dwf(self, space_groupe, cell, h, k, l):
         """
         calculate Debye-Waller factor
         """
@@ -2088,7 +2088,7 @@ b_iso is the isotropical Debye-Waller factor
         #dimensions (hkl, atoms in assymmetric unit cell)
         power_iso_2d = self._calc_power_dwf_iso(sthovl)
         #dimensions (hkl, atoms in assymmetric unit cell, el.symmetry)
-        power_aniso_3d = self.calc_power_dwf_aniso(space_group, cell, h, k, l)
+        power_aniso_3d = self.calc_power_dwf_aniso(space_groupe, cell, h, k, l)
         power_3d = power_iso_2d[:, :, numpy.newaxis] + power_aniso_3d
         dwf_3d = numpy.exp(-power_3d)
         return dwf_3d
@@ -2288,7 +2288,7 @@ factor_lande is the factor Lande (equals 2. by default)
         d_out = dict(matrix_chi_loc = matrix_chi_loc)
         self.update(d_out)
     
-    def calc_form_factor_tensor(self,space_group, cell, h, k, l):
+    def calc_form_factor_tensor(self,space_groupe, cell, h, k, l):
         """
         give components of form factor tensor:
             fft_11, fft_12, fft_13
@@ -2301,11 +2301,11 @@ factor_lande is the factor Lande (equals 2. by default)
         #dimension (hkl, atoms)
         form_factor_2d = self._calc_form_factor(sthovl)
         
-        r_11, r_12 = space_group.get_val("r_11"), space_group.get_val("r_12")
-        r_13, r_21 = space_group.get_val("r_13"), space_group.get_val("r_21")
-        r_22, r_23 = space_group.get_val("r_22"), space_group.get_val("r_23")
-        r_31, r_32 = space_group.get_val("r_31"), space_group.get_val("r_32")
-        r_33 = space_group.get_val("r_33")
+        r_11, r_12 = space_groupe.get_val("r_11"), space_groupe.get_val("r_12")
+        r_13, r_21 = space_groupe.get_val("r_13"), space_groupe.get_val("r_21")
+        r_22, r_23 = space_groupe.get_val("r_22"), space_groupe.get_val("r_23")
+        r_31, r_32 = space_groupe.get_val("r_31"), space_groupe.get_val("r_32")
+        r_33 = space_groupe.get_val("r_33")
 
         chi_11, chi_22 = self._p_chi_11, self._p_chi_22 
         chi_33, chi_12 = self._p_chi_33, self._p_chi_12
@@ -2610,7 +2610,7 @@ fract  is fraction of atoms
         self._p_adp = adp 
         self._p_magnetism = magnetism
     
-    def calc_sf(self, space_group, cell, h, k, l, d_map={}):
+    def calc_sf(self, space_groupe, cell, h, k, l, d_map={}):
         """
         calculate nuclear structure factor
         """
@@ -2629,28 +2629,28 @@ fract  is fraction of atoms
         b_scat = self._p_b_scat
         occupation = self._p_occupation
         x, y, z = fract.get_val("x"), fract.get_val("y"), fract.get_val("z")
-        atom_multiplicity = space_group.calc_atom_mult(x, y, z)
+        atom_multiplicity = space_groupe.calc_atom_mult(x, y, z)
         occ_mult = occupation*atom_multiplicity 
         
         #d_phase = d_map["phase"]
         #if not(d_phase["flag"]|(d_phase["out"] is None)):
         #    phase_3d = d_phase["out"] 
         #else:
-        phase_3d = fract.calc_phase(space_group, h, k, l)#3d object
+        phase_3d = fract.calc_phase(space_groupe, h, k, l)#3d object
         #d_phase["out"] = phase_3d 
         
         #d_adp = d_map["adp"]
         #if not(d_adp["flag"]|(d_adp["out"] is None)):
         #    dwf_3d = d_adp["out"] 
         #else:
-        dwf_3d = adp.calc_dwf(space_group, cell, h, k, l)
+        dwf_3d = adp.calc_dwf(space_groupe, cell, h, k, l)
         #    d_adp["out"] = dwf_3d 
         
         #d_magnetism = d_map["magnetism"]
         #if not(d_magnetism["flag"]|(d_magnetism["out"] is None)):
         #    ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = d_magnetism["out"] 
         #else:
-        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_group, cell, h, k, l)
+        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 =  magnetism.calc_form_factor_tensor(space_groupe, cell, h, k, l)
         #    d_magnetism["out"] = (ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33)
         
         hh = phase_3d*dwf_3d
@@ -2670,9 +2670,9 @@ fract  is fraction of atoms
         b_scat_2d = numpy.meshgrid(h, b_scat, indexing="ij")[1]
         occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
         
-        lel_symm = space_group.get_val("el_symm")
-        lorig = space_group.get_val("orig")
-        centr = space_group.get_val("centr")
+        lel_symm = space_groupe.get_val("el_symm")
+        lorig = space_groupe.get_val("orig")
+        centr = space_groupe.get_val("centr")
 
         #calculation of nuclear structure factor        
         hh = phase_2d * b_scat_2d * occ_mult_2d
@@ -2691,7 +2691,7 @@ fract  is fraction of atoms
         f_hkl_as = f_hkl_as*np_orig_as.sum(axis=1)*1./len(lorig)
 
         if (centr):
-            orig = space_group.get_val("p_centr")
+            orig = space_groupe.get_val("p_centr")
             f_nucl = 0.5*(f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))
         else:
             f_nucl = f_hkl_as
@@ -2718,7 +2718,7 @@ fract  is fraction of atoms
         sft_as_33 = sft_as_33 * np_orig_as.sum(axis=1)*1./len(lorig)
     
         if (centr):
-            orig = space_group.get_val("p_centr")
+            orig = space_groupe.get_val("p_centr")
             hh = numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2]))
             sft_11 = 0.5*(sft_as_11+sft_as_11.conjugate()*hh)
             sft_12 = 0.5*(sft_as_12+sft_as_12.conjugate()*hh)
@@ -2781,9 +2781,9 @@ fract  is fraction of atoms
             l_variable.extend(l_var)
         return l_variable
     
-    def apply_constraint(self, space_group, cell):
+    def apply_constraint(self, space_groupe, cell):
         for atom_type in self._list_atom_type:
-            atom_type.apply_constraint(space_group, cell)
+            atom_type.apply_constraint(space_groupe, cell)
         self._form_arrays(cell)
 
     
@@ -2915,33 +2915,33 @@ class Crystal(dict):
     """
     Crystal
     """
-    def __init__(self, name=None, space_group=SpaceGroup(), cell=Cell(), 
+    def __init__(self, name=None, space_groupe=SpaceGroupe(), cell=Cell(), 
                  atom_site=AtomSite(), extinction=Extinction(), i_g=0.):
         super(Crystal, self).__init__()
         
         self._p_name = None
-        self._p_space_group = None
+        self._p_space_groupe = None
         self._p_cell = None
         self._p_atom_site = None
         self._p_extinction = None
         self._p_i_g = None
-        self._refresh(name, space_group, cell, atom_site, extinction, i_g)
+        self._refresh(name, space_groupe, cell, atom_site, extinction, i_g)
         
     def __repr__(self):
         lsout = """Crystal: \n name: {:}\n i_g: {:}\n{:}\n{:}\n{:}
-{:}""".format(self._p_name, self._p_i_g, self._p_space_group, self._p_cell, 
+{:}""".format(self._p_name, self._p_i_g, self._p_space_groupe, self._p_cell, 
                          self._p_atom_site, self._p_extinction)
         return lsout
 
-    def _refresh(self, name, space_group, cell, atom_site, extinction, i_g):
+    def _refresh(self, name, space_groupe, cell, atom_site, extinction, i_g):
         if name is not None:
             self._p_name = name
         if cell is not None:
             self._p_cell = cell
-        if space_group is not None:
-            self._p_space_group = space_group
+        if space_groupe is not None:
+            self._p_space_groupe = space_groupe
             if self._p_cell is not None:
-                self._p_cell.set_val(singony=space_group.get_val("singony"))
+                self._p_cell.set_val(singony=space_groupe.get_val("singony"))
         if atom_site is not None:
             self._p_atom_site = atom_site
         if extinction is not None:
@@ -2949,9 +2949,9 @@ class Crystal(dict):
         if i_g is not None:
             self._p_i_g = i_g
 
-    def set_val(self, name=None, space_group=None, cell=None, atom_site=None, 
+    def set_val(self, name=None, space_groupe=None, cell=None, atom_site=None, 
                 extinction=None, i_g=None):
-        self._refresh(name, space_group, cell, atom_site, extinction, i_g)
+        self._refresh(name, space_groupe, cell, atom_site, extinction, i_g)
         
     def get_val(self, label):
         lab = "_p_"+label
@@ -2974,7 +2974,7 @@ class Crystal(dict):
 Parameters:
     
 name is the name of the Crystal
-space_group is the space group
+space_groupe is the space groupe
 cell is the unit cell parameters
 atome_sie is the atom site
 extinction is the extinction
@@ -2994,13 +2994,13 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         #    return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
         
         cell = self._p_cell
-        space_group = self._p_space_group
+        space_groupe = self._p_space_groupe
         atom_site = self._p_atom_site
         #d_sf = d_map["sf"]
         #if not(d_sf["flag"]|(d_sf["out"] is None)):
         #    f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
         #else:
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_group, cell, h, k, l)#, d_sf
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_groupe, cell, h, k, l)#, d_sf
         #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
         #chi in 10-12 cm; chim in muB (it is why here 0.2695)
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
@@ -3141,11 +3141,11 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         return l_variable
     
     def apply_constraint(self):
-        space_group = self.get_val("space_group")
+        space_groupe = self.get_val("space_groupe")
         cell = self.get_val("cell")
         cell.apply_constraint()
         atom_site = self.get_val("atom_site")
-        atom_site.apply_constraint(space_group, cell)
+        atom_site.apply_constraint(space_groupe, cell)
         
     def print_report(self):
         s_out = "{:}".format(self)
@@ -3161,20 +3161,6 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         atom_site = self._p_atom_site
         atom_site._list_atom_type.pop(ind)
         atom_site._flag_refresh = True        
-
-    def calc_atoms_in_cell(self):
-        atom_site = self.get_val("atom_site")
-        space_group = self.get_val("space_group")
-        l_atom_type = atom_site._list_atom_type
-        l_name = []
-        l_frac = []
-        for atom_type in l_atom_type:
-            name = atom_type.get_val("name")
-            x, y, z = 1.*atom_type.get_val("x"), 1.*atom_type.get_val("y"), 1.*atom_type.get_val("z")
-            x_s, y_s, z_s, mult_a = space_group.calc_xyz_mult(x, y, z)
-            l_name.append(name)
-            l_frac.append([(hh_1, hh_2, hh_3) for hh_1, hh_2, hh_3 in zip(x_s, y_s, z_s)])
-        return l_name, l_frac
         
 if (__name__ == "__main__"):
   pass

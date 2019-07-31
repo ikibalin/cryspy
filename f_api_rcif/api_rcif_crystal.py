@@ -21,7 +21,7 @@ def conv_data_to_crystal(l_data):
     """
     l_flag_crystal = []
     for data in l_data:
-        l_relation = data_space_group_relation()
+        l_relation = data_space_groupe_relation()
         l_keys = data.keys()
         flag_crystal = any(relation[0] in l_keys for relation in l_relation)
         l_flag_crystal.append(flag_crystal)
@@ -30,22 +30,22 @@ def conv_data_to_crystal(l_data):
     l_crystal = []
     for data in l_data_crystal:
 
-        space_group = f_crystal.cl_crystal.SpaceGroup()
+        space_groupe = f_crystal.cl_crystal.SpaceGroupe()
         cell = f_crystal.cl_crystal.Cell()
         atom_site = f_crystal.cl_crystal.AtomSite()
 
         crystal = f_crystal.cl_crystal.Crystal(cell=cell, atom_site=atom_site, 
-                      space_group=space_group)
+                      space_groupe=space_groupe)
 
         crystal.set_val(name=data["name"])
     
-        l_relation = data_space_group_relation()
-        f_api_rcif.api_rcif_common.from_dict_to_obj(data, l_relation, space_group)
+        l_relation = data_space_groupe_relation()
+        f_api_rcif.api_rcif_common.from_dict_to_obj(data, l_relation, space_groupe)
 
         l_relation = data_cell_relation()
         f_api_rcif.api_rcif_common.from_dict_to_obj(data, l_relation, cell)
     
-        cell.set_val(singony=space_group.get_val("singony"))
+        cell.set_val(singony=space_groupe.get_val("singony"))
 
         l_key = data.keys()
         if (not ("loops" in l_key)):
@@ -141,11 +141,11 @@ def conv_crystal_to_data(l_crystal):
     
     for obj in l_crystal:
         dd = {"name": obj.get_val("name")}
-        l_relation = data_space_group_relation()
-        space_group = obj.get_val("space_group")
+        l_relation = data_space_groupe_relation()
+        space_groupe = obj.get_val("space_groupe")
 
         for relation in l_relation:
-            temp_func(dd, relation, space_group)
+            temp_func(dd, relation, space_groupe)
 
         l_relation = data_cell_relation()
         cell = obj.get_val("cell")
@@ -242,7 +242,7 @@ def conv_crystal_to_data(l_crystal):
 
 
 
-def data_space_group_relation():
+def data_space_groupe_relation():
     l_relation = [ ("_space_group_name_H-M_alt", "spgr_given_name", "text"),
         ("_space_group_it_coordinate_system_code", "spgr_choice", "text")]
     return l_relation

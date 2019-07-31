@@ -152,7 +152,7 @@ class Graph(matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg):
         y_up_min = min(ly1)
         ly1_mod = self.data_3_y_mod
         ly1_exp_mod = [-hh1+hh2+y_up_min for hh1, hh2 in zip(ly1, ly1_mod)]
-        
+
         self.ax_pri.plot(lx, ly1_mod, "k-",linewidth=1.0)
         self.ax_pri.plot(lx, ly1_exp_mod, "k-",linewidth=0.5)
         self.ax_pri.errorbar(lx, ly1, yerr = lsy1, ecolor = col_1,  fmt='.', color=col_1, linewidth = 0.5)
@@ -173,14 +173,14 @@ class Graph(matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg):
         self.ax_pri.errorbar(lx, ly1, yerr = lsy1, ecolor = col_1, fmt='.', color=col_2, linewidth = 0.5)
 
 
-        #ly1_before = self.data_4_y_exp
-        #y_diff_max = max(ly1_before)
-        #y_diff_min = min(ly1_before) - y_diff_max + y_down_min
+        ly1_before = self.data_4_y_exp
+        y_diff_max = max(ly1_before)
+        y_diff_min = min(ly1_before) - y_diff_max + y_down_min
 
         x_diff = max(lx)-min(lx)
-        y_diff = max(self.data_4_y_exp) - y_down_min
+        y_diff = max(self.data_4_y_exp) - y_diff_min
         self.xlim_orig = (min(lx)-0.05*x_diff, max(lx)+0.05*x_diff)
-        self.ylim_orig = (y_down_min-0.05*y_diff, max(self.data_3_y_exp)+0.05*y_diff)
+        self.ylim_orig = (y_diff_min-0.05*y_diff, max(self.data_3_y_exp)+0.05*y_diff)
         """
         self.ax_pri.plot(self.data_1_x, self.data_1_y_mod, "k-", linewidth=1.0)    
          

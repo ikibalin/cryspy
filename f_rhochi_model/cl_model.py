@@ -79,7 +79,7 @@ class Model(dict):
             val = None
         return val
 
-    def list_vals(self):
+    def print_vals(self):
         """
         give a list of parameters with small descripition
         """

@@ -234,7 +234,7 @@ phi_0 is the zero shift
             scale = 1.*calculated_data.get_val("scale")
             i_g = 1.*crystal.get_val("i_g")
             cell = crystal.get_val("cell")
-            space_group = crystal.get_val("space_group")
+            space_groupe = crystal.get_val("space_groupe")
             
             #d_hkl = d_map[("hkl", name)]
             #if not(d_hkl["flag"]|(d_hkl["out"] is None)):

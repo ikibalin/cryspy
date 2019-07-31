@@ -81,26 +81,27 @@ def rhochi_refinement(f_name_in, f_name_out):
 def plot_data(model):
     for experiment in model._list_experiment:
         if isinstance(experiment, f_experiment.f_single.cl_experiment_single.ExperimentSingle):
-            pass
-            #name = experiment.get_val("name")
-            #l_crystal = model._list_crystal
-            #observed_data = experiment.get_val("observed_data")
-            #h, k = observed_data.get_val("h"), observed_data.get_val("k")
-            #l = observed_data.get_val("l")
-            #f_r_exp = observed_data.get_val("flip_ratio")
-            #sf_r_exp = observed_data.get_val("sflip_ratio")
-            #
-            #as_exp = (f_r_exp-1.)/(f_r_exp+1.)
-            #sas_exp = ((as_exp**2+1.)**0.5)*sf_r_exp/(f_r_exp+1.)
-            #
-            #iint_u, iint_d, f_r_mod, d_info = experiment.calc_iint_u_d_flip_ratio(h, k, l, l_crystal)
-            #as_mod = (f_r_mod-1.)/(f_r_mod+1.)
-            #matplotlib.pyplot.errorbar(as_mod, as_exp, sas_exp, fmt=".")
-            #matplotlib.pyplot.plot(as_mod, as_mod, "-")
-            #matplotlib.pyplot.xlabel("model")
-            #matplotlib.pyplot.ylabel("experiment")
-            #matplotlib.pyplot.title("experiment: '{:}', assymetry".format(name))
-            #matplotlib.pyplot.show()
+            name = experiment.get_val("name")
+            l_crystal = model._list_crystal
+            observed_data = experiment.get_val("observed_data")
+            h, k = observed_data.get_val("h"), observed_data.get_val("k")
+            l = observed_data.get_val("l")
+            f_r_exp = observed_data.get_val("flip_ratio")
+            sf_r_exp = observed_data.get_val("sflip_ratio")
+            
+            as_exp = (f_r_exp-1.)/(f_r_exp+1.)
+            sas_exp = ((as_exp**2+1.)**0.5)*sf_r_exp/(f_r_exp+1.)
+            
+            iint_u, iint_d, f_r_mod, d_info = experiment.calc_iint_u_d_flip_ratio(h, k, l, l_crystal)
+
+            as_mod = (f_r_mod-1.)/(f_r_mod+1.)
+
+            matplotlib.pyplot.errorbar(as_mod, as_exp, sas_exp, fmt=".")
+            matplotlib.pyplot.plot(as_mod, as_mod, "-")
+            matplotlib.pyplot.xlabel("model")
+            matplotlib.pyplot.ylabel("experiment")
+            matplotlib.pyplot.title("experiment: '{:}', assymetry".format(name))
+            matplotlib.pyplot.show()
 
         if isinstance(experiment, f_experiment.f_single_domain.cl_experiment_single_domain.ExperimentSingleDomain):
             name = experiment.get_val("name")
@@ -166,75 +167,81 @@ def plot_data(model):
             #matplotlib.pyplot.show()
             
         elif isinstance(experiment, f_experiment.f_powder_2d.cl_experiment_powder_2d.ExperimentPowder2D):
-            pass
-            #name = experiment.get_val("name")
-            #l_crystal = model._list_crystal
-            #observed_data = experiment.get_val("observed_data")
-            #tth = observed_data.get_val("tth")
-            #phi = observed_data.get_val("phi")
-            #int_u_exp = observed_data.get_val("int_u")
-            #int_d_exp = observed_data.get_val("int_d")
-            #
-            #d_info_in = {}
-            #int_u_mod, int_d_mod, d_info_out = experiment.calc_profile(
-            #                             tth, phi, l_crystal, d_info_in)
-            #i_u_exp = numpy.where(numpy.isnan(int_u_exp), 0., int_u_exp).sum(axis=1)
-            #i_u_mod = numpy.where(numpy.isnan(int_u_exp), 0., int_u_mod).sum(axis=1)
-            #i_d_exp = numpy.where(numpy.isnan(int_d_exp), 0., int_d_exp).sum(axis=1)
-            #i_d_mod = numpy.where(numpy.isnan(int_d_exp), 0., int_d_mod).sum(axis=1)
-            #
-            #matplotlib.pyplot.plot(tth, i_u_exp+i_d_exp,".",
-            #                       tth, i_u_mod+i_d_mod,"-",
-            #                       tth, i_u_exp+i_d_exp-i_u_mod-i_d_mod,"-")
-            #matplotlib.pyplot.xlabel("diffraction angle, degrees")
-            #matplotlib.pyplot.ylabel("intensity")
-            #matplotlib.pyplot.title("experiment: '{:}', up+down, projection".format(name))
-            #matplotlib.pyplot.show()
-            #
-            #matplotlib.pyplot.plot(tth, i_u_exp-i_d_exp,".",
-            #                       tth, i_u_mod-i_d_mod,"-",
-            #                       tth, i_u_exp-i_d_exp-i_u_mod+i_d_mod,"-")
-            #matplotlib.pyplot.xlabel("diffraction angle, degrees")
-            #matplotlib.pyplot.ylabel("intensity")
-            #matplotlib.pyplot.title("experiment: '{:}', up-down, projection".format(name))
-            #matplotlib.pyplot.show()
+            name = experiment.get_val("name")
+            l_crystal = model._list_crystal
+            observed_data = experiment.get_val("observed_data")
+            tth = observed_data.get_val("tth")
+            phi = observed_data.get_val("phi")
+            int_u_exp = observed_data.get_val("int_u")
+            int_d_exp = observed_data.get_val("int_d")
+
+            d_info_in = {}
+            int_u_mod, int_d_mod, d_info_out = experiment.calc_profile(
+                                         tth, phi, l_crystal, d_info_in)
+            i_u_exp = numpy.where(numpy.isnan(int_u_exp), 0., int_u_exp).sum(axis=1)
+            i_u_mod = numpy.where(numpy.isnan(int_u_exp), 0., int_u_mod).sum(axis=1)
+            i_d_exp = numpy.where(numpy.isnan(int_d_exp), 0., int_d_exp).sum(axis=1)
+            i_d_mod = numpy.where(numpy.isnan(int_d_exp), 0., int_d_mod).sum(axis=1)
+
+            matplotlib.pyplot.plot(tth, i_u_exp+i_d_exp,".",
+                                   tth, i_u_mod+i_d_mod,"-",
+                                   tth, i_u_exp+i_d_exp-i_u_mod-i_d_mod,"-")
+            matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            matplotlib.pyplot.ylabel("intensity")
+            matplotlib.pyplot.title("experiment: '{:}', up+down, projection".format(name))
+            matplotlib.pyplot.show()
+
+            matplotlib.pyplot.plot(tth, i_u_exp-i_d_exp,".",
+                                   tth, i_u_mod-i_d_mod,"-",
+                                   tth, i_u_exp-i_d_exp-i_u_mod+i_d_mod,"-")
+            matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            matplotlib.pyplot.ylabel("intensity")
+            matplotlib.pyplot.title("experiment: '{:}', up-down, projection".format(name))
+            matplotlib.pyplot.show()
 
         elif isinstance(experiment, f_experiment.f_powder_texture_2d.cl_experiment_powder_texture_2d.ExperimentPowderTexture2D):
-            pass
-           #name = experiment.get_val("name")
-           #l_crystal = model._list_crystal
-           #observed_data = experiment.get_val("observed_data")
-           #tth = observed_data.get_val("tth")
-           #phi = observed_data.get_val("phi")
-           #int_u_exp = observed_data.get_val("int_u")
-           #int_d_exp = observed_data.get_val("int_d")
+            name = experiment.get_val("name")
+            l_crystal = model._list_crystal
+            observed_data = experiment.get_val("observed_data")
+            tth = observed_data.get_val("tth")
+            phi = observed_data.get_val("phi")
+            int_u_exp = observed_data.get_val("int_u")
+            int_d_exp = observed_data.get_val("int_d")
 
-           #d_info_in = {}
-           #int_u_mod, int_d_mod, d_info_out = experiment.calc_profile(
-           #                             tth, phi, l_crystal, d_info_in)
-           #i_u_exp = numpy.where(numpy.isnan(int_u_exp), 0., int_u_exp).sum(axis=1)
-           #i_u_mod = numpy.where(numpy.isnan(int_u_exp), 0., int_u_mod).sum(axis=1)
-           #i_d_exp = numpy.where(numpy.isnan(int_d_exp), 0., int_d_exp).sum(axis=1)
-           #i_d_mod = numpy.where(numpy.isnan(int_d_exp), 0., int_d_mod).sum(axis=1)
+            d_info_in = {}
+            int_u_mod, int_d_mod, d_info_out = experiment.calc_profile(
+                                         tth, phi, l_crystal, d_info_in)
+            i_u_exp = numpy.where(numpy.isnan(int_u_exp), 0., int_u_exp).sum(axis=1)
+            i_u_mod = numpy.where(numpy.isnan(int_u_exp), 0., int_u_mod).sum(axis=1)
+            i_d_exp = numpy.where(numpy.isnan(int_d_exp), 0., int_d_exp).sum(axis=1)
+            i_d_mod = numpy.where(numpy.isnan(int_d_exp), 0., int_d_mod).sum(axis=1)
 
-           #matplotlib.pyplot.plot(tth, i_u_exp+i_d_exp,".",
-           #                       tth, i_u_mod+i_d_mod,"-",
-           #                       tth, i_u_exp+i_d_exp-i_u_mod-i_d_mod,"-")
-           #matplotlib.pyplot.xlabel("diffraction angle, degrees")
-           #matplotlib.pyplot.ylabel("intensity")
-           #matplotlib.pyplot.title("experiment: '{:}', up+down, projection".format(name))
-           #matplotlib.pyplot.show()
+            matplotlib.pyplot.plot(tth, i_u_exp+i_d_exp,".",
+                                   tth, i_u_mod+i_d_mod,"-",
+                                   tth, i_u_exp+i_d_exp-i_u_mod-i_d_mod,"-")
+            matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            matplotlib.pyplot.ylabel("intensity")
+            matplotlib.pyplot.title("experiment: '{:}', up+down, projection".format(name))
+            matplotlib.pyplot.show()
 
-           #matplotlib.pyplot.plot(tth, i_u_exp-i_d_exp,".",
-           #                       tth, i_u_mod-i_d_mod,"-",
-           #                       tth, i_u_exp-i_d_exp-i_u_mod+i_d_mod,"-")
-           #matplotlib.pyplot.xlabel("diffraction angle, degrees")
-           #matplotlib.pyplot.ylabel("intensity")
-           #matplotlib.pyplot.title("experiment: '{:}', up-down, projection".format(name))
-           #matplotlib.pyplot.show()
+            matplotlib.pyplot.plot(tth, i_u_exp-i_d_exp,".",
+                                   tth, i_u_mod-i_d_mod,"-",
+                                   tth, i_u_exp-i_d_exp-i_u_mod+i_d_mod,"-")
+            matplotlib.pyplot.xlabel("diffraction angle, degrees")
+            matplotlib.pyplot.ylabel("intensity")
+            matplotlib.pyplot.title("experiment: '{:}', up-down, projection".format(name))
+            matplotlib.pyplot.show()
 
 
-def create_temporary(f_name_in, exp_type="2"):
+def create_temporary(f_name_in):
+    print("Master to create .rcif file in\n'{:}'\n".format(f_name_in))
+    print("""You would like to work with:
+ 1. single diffraction data;
+ 2. 1D powder diffraction data;
+ 3. 2D powder diffraction data. """)
+    s_help = input("")
+    if type(s_help) is int:
+        s_help = str(s_help)
     f_dir = os.path.dirname(f_name_in)
     model = f_rhochi_model.cl_model.Model()
 
@@ -244,7 +251,7 @@ def create_temporary(f_name_in, exp_type="2"):
     crystal.add_atom(atom_type_1)
     model.add_crystal(crystal)
     
-    if "1" in exp_type:
+    if "1" in s_help:
         file_out = "full_sd.out"
         observed_data = f_experiment.f_single.cl_observed_data_single.ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
         observed_data.create_input_file()
@@ -255,10 +262,9 @@ def create_temporary(f_name_in, exp_type="2"):
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
 
-    if "2" in exp_type:
+    if "2" in s_help:
         file_out = "full_pd.out"
-        observed_data = f_experiment.f_powder_1d.cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir, 
-                        file_name="full_pd.dat", tth_min=2., tth_max=100)
+        observed_data = f_experiment.f_powder_1d.cl_observed_data_powder_1d.ObservedDataPowder1D(file_dir=f_dir, file_name="full_pd.dat")
         observed_data.create_input_file()
         
         background = f_experiment.f_powder_1d.cl_setup_powder_1d.BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
@@ -273,10 +279,9 @@ def create_temporary(f_name_in, exp_type="2"):
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
 
-    if "3" in exp_type:
+    if "3" in s_help:
         file_out = "full_2dpd.out"
-        observed_data = f_experiment.f_powder_2d.cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat",
-        tth_min=2., tth_max=80, phi_min=0., phi_max=20.)
+        observed_data = f_experiment.f_powder_2d.cl_observed_data_powder_2d.ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat")
         observed_data.create_input_file()
         
         background = f_experiment.f_powder_2d.cl_setup_powder_2d.BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
@@ -302,12 +307,4 @@ if (__name__ == "__main__"):
         if os.path.isfile(f_name_in):
             rhochi_refinement(f_name_in, f_name_out)
         else:
-            print("Master to create .rcif file in\n'{:}'\n".format(f_name_in))
-            print("""You would like to work with:
- 1. single diffraction data;
- 2. 1D powder diffraction data;
- 3. 2D powder diffraction data. """)
-            exp_type = input("")
-            if type(exp_type) is int:
-                exp_type = str(exp_type)
-            create_temporary(f_name_in, exp_type)
+            create_temporary(f_name_in)
