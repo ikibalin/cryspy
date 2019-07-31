@@ -179,14 +179,14 @@ file_dir is the working directory
             scale = 1.*calculated_data.get_val("scale")
             i_g = 1.*crystal.get_val("i_g")
             cell = crystal.get_val("cell")
-            space_groupe = crystal.get_val("space_groupe")
+            space_group = crystal.get_val("space_group")
             
             
             #d_hkl = d_map[("hkl", observed_data_name)]
             #if not(d_hkl["flag"]|(d_hkl["out"] is None)):
             #    h, k, l, mult = d_hkl["out"]
             #else:
-            h, k, l, mult = cell.calc_hkl(space_groupe, sthovl_min, sthovl_max)
+            h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
             #d_hkl["out"] = (h, k, l, mult)
             mult_3d = numpy.meshgrid(tth, phi, mult, indexing="ij")[2]
             

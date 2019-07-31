@@ -4,28 +4,52 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
- 
+import numpy
 import matplotlib
 import matplotlib.backends.backend_qt5agg
 import matplotlib.figure 
 import matplotlib.pyplot
  
 
-def read_pwd_ddata(ffile):
-    fid = open(ffile, 'r')
-    lcontent = fid.readlines()
-    fid.close()
-    lcontent = [hh1 for hh1 in lcontent if hh1[0] != "#"]
-    lname=lcontent[0].strip().split()
-    ddata = {}
-    for name in lname:
-        ddata[name]=[]
-    for line in lcontent[1:]:
-        if (line.strip()==''): break
-        for name,sval in zip(lname, line.strip().split()):
-            ddata[name].append(float(sval))
-    return ddata
+def read_data(file_name):
 
+    fid = open(file_name,'r')
+    l_cont = fid.readlines()
+    fid.close()
+
+    lmat, mat = [], []
+    for hh in l_cont:
+        if hh.strip() == "":
+            if mat != []:
+                lmat.append(mat)
+                mat = []
+        else:
+            mat.append(hh)
+    if mat != []:
+        lmat.append(mat)
+        mat = []
+    
+    ll_int, l_ang1, l_ang2 = [], [], []
+    for mat in lmat:
+        ang1 = [float(hh) for hh in mat[0].split()[1:]]
+        l_int, ang2 = [], []
+        for hh in mat[1:]:
+            lhelp = hh.split()
+            ang2.append(float(lhelp[0]))
+            l_int.append([float(hh2) if hh2 != "None" else None for hh2 in lhelp[1:]])
+        ll_int.append(l_int)
+        l_ang1.append(ang1)
+        l_ang2.append(ang2)
+
+    tth = numpy.array(l_ang1[0], dtype=float)
+    phi = numpy.array(l_ang2[0], dtype=float)
+    int_s_e = numpy.array(ll_int[0], dtype=float).transpose()
+    int_s_m = numpy.array(ll_int[1], dtype=float).transpose()
+    sint_s = numpy.array(ll_int[2], dtype=float).transpose()
+    int_d_e = numpy.array(ll_int[3], dtype=float).transpose()
+    int_d_m = numpy.array(ll_int[4], dtype=float).transpose()
+    sint_d = numpy.array(ll_int[5], dtype=float).transpose()
+    return tth, phi, int_s_e, int_s_m, sint_s, int_d_e, int_d_m, sint_d
 
 
 class cwind_central(QtWidgets.QMainWindow):
@@ -61,33 +85,40 @@ class cwidg_central(QtWidgets.QWidget):
         
     def plot_file(self, ffig_full):
         self.graph.ax_pri.cla()
-        ddata = read_pwd_ddata(ffig_full)
+        tth, phi, int_s_e, int_s_m, sint_s, int_d_e, int_d_m, sint_d = read_data(ffig_full)
 
-        self.graph.data_1_x = ddata["ttheta"]
-        self.graph.data_1_y_exp = ddata["exp_up"]
-        self.graph.data_1_sy_exp = ddata["s_exp_up"]
-        self.graph.data_1_y_mod = ddata["mod_up"]
-        self.graph.data_1_y_diff = [hh1 - hh2 for hh1, hh2 in zip(ddata["mod_up"], ddata["exp_up"])]
+        i_s_e_1d = numpy.where(numpy.isnan(int_s_e), 0., int_s_e).sum(axis=1)
+        i_s_m_1d = numpy.where(numpy.isnan(int_s_e), 0., int_s_m).sum(axis=1)
+        si_s_e_1d = numpy.where(numpy.isnan(int_s_e), 0., sint_s).sum(axis=1)
+        i_d_e_1d = numpy.where(numpy.isnan(int_d_e), 0., int_d_e).sum(axis=1)
+        i_d_m_1d = numpy.where(numpy.isnan(int_d_e), 0., int_d_m).sum(axis=1)
+        si_d_e_1d = numpy.where(numpy.isnan(int_d_e), 0., sint_d).sum(axis=1)
+
+        self.graph.data_1_x = []
+        self.graph.data_1_y_exp = []
+        self.graph.data_1_sy_exp = []
+        self.graph.data_1_y_mod = []
+        self.graph.data_1_y_diff = []
         
         
-        self.graph.data_2_y_exp = ddata["exp_down"]
-        self.graph.data_2_sy_exp = ddata["s_exp_down"]
-        self.graph.data_2_y_mod = ddata["mod_down"]
-        self.graph.data_2_y_diff = [hh1 - hh2 for hh1, hh2 in zip(ddata["mod_down"], ddata["exp_down"])]
+        self.graph.data_2_y_exp = []
+        self.graph.data_2_sy_exp = []
+        self.graph.data_2_y_mod = []
+        self.graph.data_2_y_diff = []
 
 
-        self.graph.data_3_x = ddata["ttheta"]
-        self.graph.data_3_y_exp = [hh1 + hh2 for hh1, hh2 in zip(ddata["exp_up"], ddata["exp_down"])]
-        self.graph.data_3_sy_exp = [(hh1**2 + hh2**2)**0.5 for hh1, hh2 in zip(ddata["s_exp_up"], ddata["s_exp_down"])]
-        self.graph.data_3_y_mod = [hh1 + hh2 for hh1, hh2 in zip(ddata["mod_up"], ddata["mod_down"])]
-        self.graph.data_3_y_diff = [hh1 + hh2 for hh1, hh2 in zip(self.graph.data_3_y_exp, self.graph.data_3_y_mod)]
+        self.graph.data_3_x = tth
+        self.graph.data_3_y_exp = i_s_e_1d
+        self.graph.data_3_sy_exp = si_s_e_1d
+        self.graph.data_3_y_mod = i_s_m_1d
+        self.graph.data_3_y_diff = i_s_e_1d-i_s_m_1d
         
 
-        self.graph.data_4_x = ddata["ttheta"]
-        self.graph.data_4_y_exp = [hh1 - hh2 for hh1, hh2 in zip(ddata["exp_up"], ddata["exp_down"])]
-        self.graph.data_4_sy_exp = [(hh1**2 + hh2**2)**0.5 for hh1, hh2 in zip(ddata["s_exp_up"], ddata["s_exp_down"])]
-        self.graph.data_4_y_mod = [hh1 - hh2 for hh1, hh2 in zip(ddata["mod_up"], ddata["mod_down"])]
-        self.graph.data_4_y_diff = [hh1 - hh2 for hh1, hh2 in zip(self.graph.data_4_y_exp, self.graph.data_4_y_mod)]
+        self.graph.data_4_x = tth
+        self.graph.data_4_y_exp = i_d_e_1d
+        self.graph.data_4_sy_exp = si_d_e_1d
+        self.graph.data_4_y_mod = i_d_m_1d
+        self.graph.data_4_y_diff = i_d_e_1d-i_d_m_1d
 
         
         self.graph.set_data_to_graph()

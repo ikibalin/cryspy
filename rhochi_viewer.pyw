@@ -13,7 +13,10 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
+import rhochi
+import f_rhochi_viewer.interactive_graph_mod_mono
 import f_rhochi_viewer.interactive_graph_mod_pwd
+import f_rhochi_viewer.interactive_graph_mod_pwd_2d_as_1d
 
 # =============================================================================
 # #rewrite it
@@ -147,22 +150,27 @@ class cbuilder(QtWidgets.QMainWindow):
         f_dir_prog = self._p_f_dir_prog
         f_dir_prog_icon = os.path.join(f_dir_prog, 'f_rhochi_viewer', 'f_icon')
 
-        open_rcif_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'open.png')),'&Open data', self)
+        create_rcif_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'create_new.png')),'Create &new', self)
+        create_rcif_action.setShortcut('Ctrl+N')
+        create_rcif_action.setStatusTip('Create new rcif')
+        create_rcif_action.triggered.connect(self.create_rcif)
+
+        open_rcif_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'open.png')),'&Open .rcif', self)
         open_rcif_action.setShortcut('Ctrl+O')
         open_rcif_action.setStatusTip('Open data (1D)')
         open_rcif_action.triggered.connect(self.open_rcif)
 
 
-        run_rhochi = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'calc.png')),'&Run RhoChi', self)
+        run_rhochi = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'calc_rcif.png')),'&Run RhoChi', self)
         run_rhochi.setShortcut('Ctrl+R')
         run_rhochi.setStatusTip('Model optimization of marked parameters')
         run_rhochi.triggered.connect(self.run_rhochi)
 
-        read_rcif_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'read_rcif.png')),'&Read .rcif', self)
+        read_rcif_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'read_rcif.png')),'Read .rcif', self)
         read_rcif_action.setStatusTip('Read .rcif')
         read_rcif_action.triggered.connect(self.read_rcif)
 
-        read_bkgr_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'read_bkgr.png')),'&Read .bkgr', self)
+        read_bkgr_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'read_bkgr.png')),'Read .bkgr', self)
         read_bkgr_action.setStatusTip('Read background')
         read_bkgr_action.triggered.connect(self.read_bkgr)
 
@@ -171,14 +179,17 @@ class cbuilder(QtWidgets.QMainWindow):
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(create_rcif_action)
         fileMenu.addAction(open_rcif_action)
 
         calcMenu = menubar.addMenu('&Calculations')
         calcMenu.addAction(run_rhochi)
         calcMenu.addAction(read_rcif_action)
+        calcMenu.addAction(read_bkgr_action)
 
 
         self.toolbar = self.addToolBar("Open")
+        self.toolbar.addAction(create_rcif_action)
         self.toolbar.addAction(open_rcif_action)
         self.toolbar.addAction(run_rhochi)
         self.toolbar.addAction(read_rcif_action)
@@ -195,13 +206,23 @@ class cbuilder(QtWidgets.QMainWindow):
         self.try_to_plot_from_rcif()
 
     def try_to_plot_from_rcif(self):
-        try:    
+        try:
             f_name_data = self._p_d_setup["f_name_data"]
             f_dir_data = self._p_d_setup["f_dir_data"]
             f_name_full = os.path.join(f_dir_data, f_name_data)
-            l_f_name_data = take_f_name_from_rcif(f_name_full, "_pd_file_name_output")
-            if len(l_f_name_data) >= 1:
-                self.plot_data(l_f_name_data[0])
+            l_f_name_data_pd = take_f_name_from_rcif(f_name_full, "_pd_file_name_output")
+            l_f_name_data_sd = take_f_name_from_rcif(f_name_full, "_sd_file_name_output")
+            l_f_name_data_2dpd = take_f_name_from_rcif(f_name_full, "_2dpd_file_name_output")
+            l_f_name_data_2dpdt = take_f_name_from_rcif(f_name_full, "_2dpdt_file_name_output")
+    
+            if len(l_f_name_data_pd) >= 1:
+                self.plot_data_powder_1d(l_f_name_data_pd[0])
+            elif len(l_f_name_data_sd) >= 1:
+                self.plot_data_mono(l_f_name_data_sd[0])
+            elif len(l_f_name_data_2dpd) >= 1:
+                self.plot_data_powder_2d(l_f_name_data_2dpd[0])
+            elif len(l_f_name_data_2dpdt) >= 1:
+                self.plot_data_powder_2d(l_f_name_data_2dpdt[0])
         except:
             pass
 
@@ -214,6 +235,30 @@ class cbuilder(QtWidgets.QMainWindow):
         #self.setMaximumSize(screen.width()*3/4, screen.height()*3/4)
         self.info_width = screen.width()*3/4
         self.move(screen.width()/8 , screen.height()/16)
+
+    def create_rcif(self):
+        if "f_dir_data" in self._p_d_setup.keys():
+            f_dir_data = self._p_d_setup["f_dir_data"]
+            if not(os.path.isdir(f_dir_data)):
+                f_dir_data = self._p_f_dir_prog
+        else:
+            f_dir_data = self._p_f_dir_prog
+        #f_file_data_new = QtWidgets.QFileDialog.getExistingDirectory(self, "Select a folder:", f_dir_data)
+        f_file_data_new, okPressed = QtWidgets.QFileDialog.getSaveFileName(self, "Select a folder:", "full.rcif")
+        if not okPressed:
+            return
+        if f_file_data_new != "":
+            f_dir_data = os.path.dirname(f_file_data_new)
+            f_name_data = os.path.basename(f_file_data_new)
+            self._p_d_setup["f_dir_data"] = f_dir_data
+            self._p_d_setup["f_name_data"] = f_name_data
+            self.write_setup()
+            f_name_full = os.path.join(f_dir_data, f_name_data)
+
+            i, okPressed = QtWidgets.QInputDialog.getInt(self, "Type of data","Type of experiment:\n\n 1. Single crystal\n 2. Powder 1D\n 3 .Powder 2D", 1, 1, 3, 1)
+            if okPressed:
+                exp_type = str(i)
+                rhochi.create_temporary(f_name_full, exp_type)
 
     def open_rcif(self):
         self.open_file(s_constr="Rcif files (*.rcif)")
@@ -230,8 +275,9 @@ class cbuilder(QtWidgets.QMainWindow):
                 f_dir_data = self._p_f_dir_prog
         else:
             f_dir_data = self._p_f_dir_prog
-        f_file_data_new, res = QtWidgets.QFileDialog.getOpenFileName(self, 'Select a file:', f_dir_data, s_constr)
-
+        f_file_data_new, okPressed = QtWidgets.QFileDialog.getOpenFileName(self, 'Select a file:', f_dir_data, s_constr)
+        if not okPressed:
+            return
         if f_file_data_new != "":
             f_dir_data = os.path.dirname(f_file_data_new)
             f_name_data = os.path.basename(f_file_data_new)
@@ -267,8 +313,9 @@ class cbuilder(QtWidgets.QMainWindow):
 
         f_dir_prog = self._p_f_dir_prog
         f_prog_full = os.path.join(f_dir_prog, "rhochi.py")
-        line = "python {:} {:} {:}".format(f_prog_full, f_name_full, f_name_full)
-        os.system(line)
+        #line = "python {:} {:} {:}".format(f_prog_full, f_name_full, f_name_full)
+        rhochi.rhochi_refinement(f_name_full, f_name_full)
+        #os.system(line)
         self.try_to_plot_from_rcif()
 
             
@@ -289,11 +336,32 @@ class cbuilder(QtWidgets.QMainWindow):
         if len(l_f_bkgr) >= 1:
             os.startfile(l_f_bkgr[0])
 
-    def plot_data(self, f_name_full):
+
+
+    def plot_data_mono(self, f_name_full):
         widg_central = self._p_widg_central
-        widg_graph = widg_central._p_widg_graph
+        stack_widg = widg_central._p_widg_graph
+        index = 0
+        stack_widg.setCurrentIndex(index)
+        widg_graph = stack_widg.widget(index)
         widg_graph.plot_file(f_name_full)
 
+    def plot_data_powder_1d(self, f_name_full):
+        widg_central = self._p_widg_central
+        stack_widg = widg_central._p_widg_graph
+        index = 1
+        stack_widg.setCurrentIndex(index)
+        widg_graph = stack_widg.widget(index)
+        widg_graph.plot_file(f_name_full)
+
+    def plot_data_powder_2d(self, f_name_full):
+        widg_central = self._p_widg_central
+        stack_widg = widg_central._p_widg_graph
+        index = 2
+        stack_widg.setCurrentIndex(index)
+        widg_graph = stack_widg.widget(index)
+        print("index, f_name_full: ", index, f_name_full)
+        widg_graph.plot_file(f_name_full)
 
 class cwidget(QtWidgets.QWidget):
     def __init__(self, width):
@@ -410,19 +478,39 @@ class cwidget(QtWidgets.QWidget):
     def form_widg_right(self):
 
         width_m_3 = self.width_right
-        #qframe_r = QtWidgets.QFrame()
-        qframe_r = f_rhochi_viewer.interactive_graph_mod_pwd.cwidg_central()
-        qframe_r.setMinimumSize(width_m_3, 1)
+        #widg_powder_1d = QtWidgets.QFrame()
+        stack_widg = QtWidgets.QStackedWidget(self)
+        stack_widg.setMinimumSize(width_m_3, 1)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        qframe_r.setSizePolicy(sizePolicy)
-        self.lay_right.addWidget(qframe_r)
-        self._p_widg_graph = qframe_r
+        stack_widg.setSizePolicy(sizePolicy)
+
+
+        widg_mono = f_rhochi_viewer.interactive_graph_mod_mono.cwidg_central()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        widg_mono.setSizePolicy(sizePolicy)
+        stack_widg.addWidget(widg_mono)
+        
+        widg_powder_1d = f_rhochi_viewer.interactive_graph_mod_pwd.cwidg_central()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        widg_powder_1d.setSizePolicy(sizePolicy)
+
+        stack_widg.addWidget(widg_powder_1d)
+
+        widg_powder_2d = f_rhochi_viewer.interactive_graph_mod_pwd_2d_as_1d.cwidg_central()
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        widg_powder_2d.setSizePolicy(sizePolicy)
+
+        stack_widg.addWidget(widg_powder_2d)
+        
+        self.lay_right.addWidget(stack_widg)
+        self._p_widg_graph = stack_widg
+        stack_widg.setCurrentIndex(0)
 
 if __name__ == '__main__':
     larg = sys.argv
     app = QtWidgets.QApplication(larg)
 
-    f_dir_prog = os.getcwd()
+    f_dir_prog = os.path.dirname(__file__)
     mainwind1 = cbuilder(f_dir_prog)
 
     sys.exit(app.exec_())

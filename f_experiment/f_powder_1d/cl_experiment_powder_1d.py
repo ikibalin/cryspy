@@ -160,8 +160,8 @@ excl_tth_max is the list of excluded ttheta from up, down and sum (difference is
             
             i_g = 1.*crystal.get_val("i_g")
             cell = crystal.get_val("cell")
-            space_groupe = crystal.get_val("space_groupe")
-            h, k, l, mult = cell.calc_hkl(space_groupe, sthovl_min, sthovl_max)
+            space_group = crystal.get_val("space_group")
+            h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
             
             np_iint_u, np_iint_d, d_info_cd = calculated_data.calc_iint(h, k, l, 
                                                     beam_polarization, crystal)
@@ -191,15 +191,16 @@ excl_tth_max is the list of excluded ttheta from up, down and sum (difference is
             
         return res_u_1d+int_bkgd, res_d_1d+int_bkgd, d_info_out
     
-    def calc_chi_sq(self, l_crystal, d_map={}):
+    def calc_chi_sq(self, l_crystal, d_exp_in={}):
         """
         calculate chi square
         """
-        if d_map == {}:
-            d_map.update(self.plot_map())
-        #if not(d_map["flag"]|(d_map["out"] is None)):
-        #    chi_sq_val, n = d_map["out"]
-        #    return chi_sq_val, n
+        l_keys = d_exp_in.keys()
+        #extinction does not take into account here. With it it will be wrong
+        if (all([hh in l_keys for hh in ["chi_sq", "n"]]) & self.is_variable()):
+            chi_sq_val, n = d_exp_in["chi_sq"], d_exp_in["n"]
+            d
+            return chi_sq_val, n
         
         observed_data = self._p_observed_data
 
