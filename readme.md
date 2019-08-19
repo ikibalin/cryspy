@@ -3,7 +3,7 @@
 
 [RhoChi] is a software for polarized neutron diffraction analysis. It allows to work with single crystals or powder magnetic compounds. A console version is given together with a simple GUI viewer. 
 
-![logo](rhochi/f_icon/smm.png "logo")
+![logo](./rhochi/f_icon/smm.png "logo")
 
 
 
@@ -11,7 +11,6 @@
  -----     |  :--------
  neupy     |  NeuPy library 
  rhochi    |  RhoChi script 
- mem       |  MEM script
  example   |  examples
  docs      |  documentation
 
@@ -42,13 +41,7 @@ If you have downloaded a source tarball you can install NeuPy by doing the follo
 python setup.py develop # as root 
 ```
 
-Or you can install NeuPy using pip like this (not realized):
-```
-pip install neupy
-```
-
-
-And then just import a library:
+And then just import a library in a python code:
 ```
 import neupy
 ```
