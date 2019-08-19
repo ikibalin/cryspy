@@ -28,10 +28,16 @@
 NeuPy is developed and tested using Python 3.7 and depends on:
 
 - *numpy* 
-- *scilab*.
+- *scipy*
+- *matplotlib*
+- *pyqt5*.
 
+They can be installed by
+```
+python -m pip install numpy scipy matplotlib pyqt5  # as root 
+```
 
-If you have downloaded a source tarball you can install it by doing the following:
+If you have downloaded a source tarball you can install NeuPy by doing the following:
 ```
 python setup.py develop # as root 
 ```
