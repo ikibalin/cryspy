@@ -5,7 +5,7 @@ Crystals:
 Crystal: 
  name: EuTiO
  i_g: 0.0
-SpaceGroupe:
+SpaceGroup:
  given name: I4/mcm
  choice: 1
  name: I4/mcm
@@ -19,7 +19,7 @@ SpaceGroupe:
  x, -y, 0.500-z
  y, x, 0.500-z
  -y, -x, 0.500-z
- directory: 'C:\docs\working_comp\RhoChi\version_next\f_crystal'
+ directory: 'c:\docs\working_comp\rhochi\version_next\libNeuPy\f_crystal'
 Cell: 
  a: 5.507
  b: 5.507
@@ -27,7 +27,7 @@ Cell:
  alpha: 90.0
  beta: 90.0
  gamma: 90.0
- singony: Tetragonal
+ Bravais lattice: Tetragonal
  B matrix is:
    0.18159  -0.00000  -0.00000
    0.00000   0.18159  -0.00000
@@ -135,7 +135,7 @@ SetupSingle:
  wave_length: 0.84
 BeamPolarization: 
  p_u: -0.8
- p_d: -0.8
+ flipper_efficiency: 1.0
 ObservedDataSingle:
  file_dir: 
  file_name: full.dat

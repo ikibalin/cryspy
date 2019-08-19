@@ -68,12 +68,12 @@ _atom_site_type_symbol
 loop_
 _atom_site_bscat
 _atom_site_type_symbol
- 0.9359999999999999 N
- 0.2847 S
  -0.3739 H
- 0.24900000000000003 Co
  0.6646000000000001 C
  0.9577 Cl
+ 0.24900000000000003 Co
+ 0.9359999999999999 N
+ 0.2847 S
 
 loop_
 _atom_site_magnetism_aniso_label
@@ -87,10 +87,10 @@ _atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_22
 _atom_site_susceptibility_aniso_chi_23
 _atom_site_susceptibility_aniso_chi_33
- Co1 2.0 1.0 cani Co3 1.93 -0.00081 0.08 2.29 -1.35 2.68
+ Co1 14(36) 1.0 cani Co3 1.93 -0.00081 0.08 2.29 -1.35 2.68
 
 data_exp
-_2dpdt_beam_flipper_efficiency 1.
+_2dpdt_beam_flipper_efficiency 1.0
 _2dpdt_beam_polarization_up 1.0
 _2dpdt_chi2_diff True
 _2dpdt_chi2_down False
@@ -105,7 +105,7 @@ _2dpdt_h_ax -0.66119
 _2dpdt_k_ax -0.0541
 _2dpdt_l_ax 3.0613
 _2dpdt_phi_0 -1.461
-_2dpdt_phi_max 70.0
+_2dpdt_phi_max 40.0
 _2dpdt_phi_min 0.0
 _2dpdt_reflex_asymmetry_p1 0.0
 _2dpdt_reflex_asymmetry_p2 0.0
