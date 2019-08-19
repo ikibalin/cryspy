@@ -247,7 +247,7 @@ excl_phi_min=None, excl_phi_max is a list of excluded regions in phi
             scale = 1.*calculated_data.get_val("scale")
             i_g = 1.*crystal.get_val("i_g")
             cell = crystal.get_val("cell")
-            space_groupe = crystal.get_val("space_groupe")
+            space_group = crystal.get_val("space_group")
             
             l_key_cryst = d_cryst_in.keys()
             if all([hh in l_key_cryst for hh in ["h", "k", "l", "mult"]]):

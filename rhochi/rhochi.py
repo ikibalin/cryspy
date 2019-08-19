@@ -249,7 +249,7 @@ def create_temporary(f_name_in, exp_type="2"):
     crystal.add_atom(atom_type_1)
     model.add_crystal(crystal)
     
-    if "1" in s_help:
+    if "1" in exp_type:
         file_out = "full_sd.out"
         observed_data = ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
         observed_data.create_input_file()
@@ -260,7 +260,7 @@ def create_temporary(f_name_in, exp_type="2"):
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
 
-    if "2" in s_help:
+    if "2" in exp_type:
         file_out = "full_pd.out"
         observed_data = ObservedDataPowder1D(file_dir=f_dir, 
                         file_name="full_pd.dat", tth_min=2., tth_max=100)
@@ -278,7 +278,7 @@ def create_temporary(f_name_in, exp_type="2"):
         experiment.add_calculated_data(calculated_data)
         model.add_experiment(experiment)
 
-    if "3" in s_help:
+    if "3" in exp_type:
         file_out = "full_2dpd.out"
         observed_data = ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat",
         tth_min=2., tth_max=80, phi_min=0., phi_max=20.)
@@ -307,4 +307,12 @@ if (__name__ == "__main__"):
         if os.path.isfile(f_name_in):
             rhochi_refinement(f_name_in, f_name_out)
         else:
-            create_temporary(f_name_in)
+            print("Master to create .rcif file in\n'{:}'\n".format(f_name_in))
+            print("""You would like to work with:
+ 1. single diffraction data;
+ 2. 1D powder diffraction data;
+ 3. 2D powder diffraction data. """)
+            exp_type = input("")
+            if type(exp_type) is int:
+                exp_type = str(exp_type)
+            create_temporary(f_name_in, exp_type)

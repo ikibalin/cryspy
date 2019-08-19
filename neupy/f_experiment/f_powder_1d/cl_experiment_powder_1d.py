@@ -205,7 +205,7 @@ excl_tth_max is the list of excluded ttheta from up, down and sum (difference is
         d_exp_prof_out = {"crystal": l_d_cryst_out}
         return res_u_1d+int_bkgd, res_d_1d+int_bkgd, d_exp_prof_out
     
-    def calc_chi_sq(self, l_crystal, d_map={}):
+    def calc_chi_sq(self, l_crystal, d_exp_in={}):
         """
         calculate chi square
         """
