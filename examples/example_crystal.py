@@ -7,6 +7,34 @@ from neupy import (Cell,
                                 Extinction, 
                                 Crystal)
 
+
+spgr = SpaceGroup("Fd-3m", "2")
+cell = Cell(a=10.2, singony="Cubic")
+ext = Extinction()                 
+
+at_Ho = AtomType(x=0.5, y=0.5, z=0.5, 
+         name="Ho1", type_n="Ho", type_m="Ho3",
+         flag_m=True, chi_11=3.5, chi_12=3.6)
+at_Ti = AtomType(x=0.0, y=0.0, z=0.0, 
+         name="Ti", type_n="Ti")
+at_O1 = AtomType(x= 0.33192, y=0.125, z=0.125, 
+         name="O1", type_n="O")
+at_O2 = AtomType(x=0.375, y=0.375, z=0.375, 
+         name="O2", type_n="O")
+
+cryst = Crystal(name="Ho2Ti2O7", space_group=spgr, cell=cell, 
+                extinction=ext)
+
+cryst.add_atom(at_Ho)
+cryst.add_atom(at_Ti)
+cryst.add_atom(at_O1)
+cryst.add_atom(at_O2)
+
+l_hkl = [(2, 0, 0), 
+         (4, 2,-2)]
+
+f_nucl = cryst.calc_fn(l_hkl, f_print=True)
+
 #define unit cell
 cell = Cell(a=7.2,alpha=62,beta=84,gamma=76,b=8)
 cell.set_val(c=6.3)

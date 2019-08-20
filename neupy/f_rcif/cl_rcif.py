@@ -10,10 +10,12 @@ class RCif(object):
     class to store rcif data
     """
 
-    def __init__(self):
+    def __init__(self, f_name=None):
         self.glob = {"data":[], "name":""}
         self._p_file_dir = ""
         self._p_file_name = ""
+        if f_name is not None:
+            self.load_from_file(f_name)
 
     def __repr__(self):
         ls_out = self.save_to_str()

@@ -4,6 +4,7 @@ transform inforamtion from cif file to class phase
 import sys
 import os
 
+from neupy.f_common.cl_variable  import Variable
 
 def from_dict_to_obj(dict_i, l_relation, obj):
     """
@@ -43,7 +44,7 @@ def conv_str_to_text_float_logic(sval, name=""):
         if len(sval.strip().split("("))>1:
             l_help = sval.split("(")
             val_1 = float(l_help[0])
-            val = cl_variable.Variable(val_1, True, name)
+            val = Variable(val_1, True, name)
             pass
         else:
             val = float(sval)

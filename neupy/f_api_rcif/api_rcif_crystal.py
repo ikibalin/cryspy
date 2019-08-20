@@ -4,6 +4,8 @@ transform inforamtion from cif file to class phase
 import sys
 import os
 
+from neupy.f_common.cl_variable import Variable
+
 from neupy.f_crystal import (
     SpaceGroup,
     Cell,
@@ -24,7 +26,6 @@ from neupy.f_api_rcif.api_rcif_common import (
 from neupy.f_experiment.cl_rhochi_model import Model 
 
 
-from neupy.f_common.cl_variable import Variable
 
 
 def conv_data_to_crystal(l_data):
@@ -104,7 +105,7 @@ def conv_data_to_crystal(l_data):
                     for atom_type in l_atom_type:
                         if dd["_atom_site_aniso_label"] == atom_type.get_val("name"):
                             from_dict_to_obj(dd, l_relation, atom_type)
-    
+
         if lnumb[2] != []:
             l_relation = data_chi_relation()
             for numb in lnumb[2]:
@@ -118,7 +119,6 @@ def conv_data_to_crystal(l_data):
                         if dd["_atom_site_magnetism_aniso_label"] == atom_type.get_val("name"):
                             from_dict_to_obj(dd, l_relation, atom_type)
                             atom_type.set_val(flag_m=True)
-
         for atom_type in l_atom_type:
             atom_site.add_atom(atom_type)
         l_crystal.append(crystal)

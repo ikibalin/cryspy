@@ -87,7 +87,33 @@ i_g is the parameter to described broadening of Bragg reflection due to the
        particle size
         """
         print(lsout)
-                
+
+    def load_from_rcif(self, f_name):
+        from neupy import (RCif, conv_data_to_crystal)
+        rcif = RCif(f_name)
+        p_glob = rcif.glob
+        l_data = p_glob["data"]
+        l_crystal = conv_data_to_crystal(l_data)
+        if len(l_crystal) != 0:
+            cryst = l_crystal[0]
+
+            self.set_val(name=cryst.get_val("name"), 
+                         space_group=cryst.get_val("space_group"), 
+                         cell=cryst.get_val("cell"), 
+                         atom_site=cryst.get_val("atom_site"), 
+                         extinction=cryst.get_val("extinction"), 
+                         i_g=cryst.get_val("i_g"))
+        else:
+            print("In file '{:}' phase is not found".format(f_name))
+        return
+
+    def calc_fn(self, l_hkl, f_print=False):
+        np_h = numpy.array([hh[0] for hh in l_hkl], dtype=int)
+        np_k = numpy.array([hh[1] for hh in l_hkl], dtype=int)
+        np_l = numpy.array([hh[2] for hh in l_hkl], dtype=int)
+        f_nucl = self.calc_sf(np_h, np_k, np_l, f_print=f_print)[0]
+        return f_nucl
+
     def calc_sf(self, h, k, l, d_map={}, f_print=False):
         """
         calculate structure factors (nuclear and components of susceptibility)
@@ -207,6 +233,9 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
     
     def calc_extinction(self, h, k, l, fp_sq, fm_sq, fpm_sq, wave_length):
+        """
+        extinction correction coefficients for polarized neutrons
+        """
         cell = self._p_cell
         extinction = self._p_extinction
         yp = extinction.calc_extinction(cell, h, k, l, fp_sq, wave_length)

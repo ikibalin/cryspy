@@ -114,15 +114,15 @@ excl_tth_min is the list of excluded ttheta from up, down and sum (difference is
 excl_tth_max is the list of excluded ttheta from up, down and sum (difference is taken into account), maximal
         """
         print(lsout)
-    def add_calculated_data(self, observed_data):
-        self._list_calculated_data.append(observed_data)
+    def add_calculated_data(self, calculated_data):
+        self._list_calculated_data.append(calculated_data)
 
     def del_calculated_data(self, ind):
         self._list_calculated_data.pop(ind)        
 
-    def replace_calculated_data(self, ind, observed_data):
+    def replace_calculated_data(self, ind, calculated_data):
         self._list_calculated_data.pop(ind)
-        self._list_calculated_data.insert(ind, observed_data)
+        self._list_calculated_data.insert(ind, calculated_data)
     
     def calc_profile(self, tth, l_crystal, d_exp_prof_in={}):
         """
