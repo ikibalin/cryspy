@@ -51,6 +51,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value+var2
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]+var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (self[4]**2+var2[4]**2)**0.5
         else:
             res = self.value+var2
         return res
@@ -61,6 +68,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = var2+self.value
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]+var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (self[4]**2+var2[4]**2)**0.5
         else:
             res = var2+self.value
         return res
@@ -71,6 +85,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value-var2
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]-var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (self[4]**2+var2[4]**2)**0.5
         else:
             res = self.value-var2
         return res
@@ -81,6 +102,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = var2-self.value
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = var2[0]-self[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (self[4]**2+var2[4]**2)**0.5
         else:
             res = var2-self.value
         return res
@@ -91,6 +119,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*var2
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]*var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = ((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5
         else:
             res = self.value*var2
         return res 
@@ -101,6 +136,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*var2
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]*var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = ((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5
         else:
             res = self.value*var2
         return res
@@ -111,6 +153,13 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*1./var2
             res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]*1./var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(var2[0])**2
         else:
             res = self.value*1./var2
         return res 
@@ -118,6 +167,54 @@ class Variable(dict):
         """
         output is float
         """
+        if type(var2) is numpy.ndarray:
+            res_1 = var2*1./self.value
+            res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = var2[0]*1./self[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(self[0])**2
+        else:
+            res = var2*1./self.value
+        return res 
+        return var2*1./self.value
+    def __truediv__(self, var2):
+        """
+        output is float
+        """
+        if type(var2) is numpy.ndarray:
+            res_1 = self.value*1./var2
+            res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = self[0]*1./var2[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(var2[0])**2
+        else:
+            res = self.value*1./var2
+        return res 
+    def __rtruediv__(self, var2):
+        """
+        output is float
+        """
+        if type(var2) is numpy.ndarray:
+            res_1 = var2*1./self.value
+            res = res_1.astype(var2.dtype)
+        elif isinstance(var2, Variable):
+            res = Variable()
+            res[0] = var2[0]*1./self[0]
+            res[1] = self[1] | var2[1]
+            res[2] = ""
+            res[3] = ""
+            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(self[0])**2
+        else:
+            res = var2*1./self.value
+        return res 
         return var2*1./self.value
     def __pow__(self, var2):
         """
