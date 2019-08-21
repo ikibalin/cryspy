@@ -14,7 +14,7 @@ class ObservedDataSingle(dict):
     """
     def __init__(self, h=None, k=None, l=None, flip_ratio=None, 
                  sflip_ratio=None, wave_length=None, field=None, 
-                 orientation=None, file_dir=None, file_name=None):
+                 orientation=None, file_dir=".", file_name=None):
         super(ObservedDataSingle, self).__init__()
         self._p_h = None
         self._p_k = None
@@ -53,6 +53,7 @@ class ObservedDataSingle(dict):
 
     def _refresh(self, h, k, l, flip_ratio, sflip_ratio, wave_length, field, 
                  orientation, file_dir, file_name):
+        f_read_data = False
         if h is not None:
             self._p_h = h
         if k is not None:
@@ -70,9 +71,18 @@ class ObservedDataSingle(dict):
         if orientation is not None:
             self._p_orientation = orientation
         if file_dir is not None:
+            f_read_data = True
             self._p_file_dir = file_dir
         if file_name is not None:
-            self._p_file_name = file_name
+            f_read_data = True
+            if os.path.dirname(file_name) != "":
+                self._p_file_name = os.path.basename(file_name)
+                self._p_file_dir = os.path.dirname(file_name)
+            else:
+                self._p_file_name = file_name
+        if (f_read_data & (self._p_file_name is not None)):
+            if os.path.isfile(os.path.join(self._p_file_dir, self._p_file_name)):
+                self.read_data()
             
     def set_val(self,  h=None, k=None, l=None, flip_ratio=None, 
                  sflip_ratio=None, wave_length=None, field=None, 

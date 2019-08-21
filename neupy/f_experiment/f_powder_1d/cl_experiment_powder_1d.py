@@ -21,8 +21,8 @@ class ExperimentPowder1D(dict):
     def __init__(self, name=None, setup=SetupPowder1D(), 
                  list_calculated_data=[], 
                  observed_data=ObservedDataPowder1D(), flag_chi2_up=False, 
-                 flag_chi2_down=False, flag_chi2_sum=False, flag_chi2_diff=False, 
-                 file_out=None, file_dir=None, excl_tth_min=[], excl_tth_max=[]):
+                 flag_chi2_down=False, flag_chi2_sum=True, flag_chi2_diff=True, 
+                 file_out=None, file_dir=".", excl_tth_min=[], excl_tth_max=[]):
         super(ExperimentPowder1D, self).__init__()
         self._p_name = None
         self._p_setup = None
@@ -205,11 +205,29 @@ excl_tth_max is the list of excluded ttheta from up, down and sum (difference is
         d_exp_prof_out = {"crystal": l_d_cryst_out}
         return res_u_1d+int_bkgd, res_d_1d+int_bkgd, d_exp_prof_out
     
+    def calc_y_mod(self, l_crystal, d_prof_in={}):
+        """
+        calculate model diffraction profiles up and down if observed data is defined
+        """
+        observed_data = self._p_observed_data
+        tth = observed_data.get_val('tth')
+
+        wave_length = observed_data.get_val('wave_length')
+        setup = self._p_setup
+        setup.set_val(wave_length=wave_length)
+
+        field = observed_data.get_val('field')
+        for calculated_data in self._list_calculated_data:
+            calculated_data.set_val(field=field)
+
+        int_u_mod, int_d_mod, d_exp_prof_out = self.calc_profile(tth, l_crystal, d_prof_in)
+        return int_u_mod, int_d_mod, d_exp_prof_out
+
     def calc_chi_sq(self, l_crystal, d_exp_in={}):
         """
         calculate chi square
         """
-        l_keys = d_exp_in.keys()
+        #l_keys = d_exp_in.keys()
         
         observed_data = self._p_observed_data
 
@@ -219,15 +237,9 @@ excl_tth_max is the list of excluded ttheta from up, down and sum (difference is
         int_d_exp = observed_data.get_val('int_d')
         sint_d_exp = observed_data.get_val('sint_d')
         
-        wave_length = observed_data.get_val('wave_length')
-        setup = self._p_setup
-        setup.set_val(wave_length=wave_length)
+        int_u_mod, int_d_mod, d_exp_prof_out = self.calc_y_mod(l_crystal, d_exp_in)
+        
 
-        field = observed_data.get_val('field')
-        for calculated_data in self._list_calculated_data:
-            calculated_data.set_val(field=field)
-
-        int_u_mod, int_d_mod, d_exp_prof_out = self.calc_profile(tth, l_crystal, d_exp_in)
         sint_sum_exp = (sint_u_exp**2 + sint_d_exp**2)**0.5
 
         chi_sq_u = ((int_u_mod-int_u_exp)/sint_u_exp)**2

@@ -1,7 +1,7 @@
-# RhoChi 
+# NeuPy 
 ***
 
-[RhoChi] is a software for polarized neutron diffraction analysis. It allows to work with single crystals or powder magnetic compounds. A console version is given together with a simple GUI viewer. 
+[NeuPy] is a crystallographic library for neutron data analysis. Based on the library *NeuPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments performed with single crystals as well as with powder magnetic compounds. A console version is given together with a simple GUI viewer. 
 
 ![logo](./rhochi/f_icon/smm.png "logo")
 
@@ -17,12 +17,10 @@
 ## Main Features
 
 
- - Crystallographical calculations by library *NeuPy*;
- - Diffraction data analysis for single crystals or powder by script *RhoChi*;
- - MEM reconstruction by script *MEM*.
-
+ - Analysis of the polarized neutron scattering on crystals by the library *NeuPy*;
+ - Diffraction data refinement for single crystals or powder by *RhoChi*;
+ 
 ## Installation and Requirements of *NeuPy*
-
 
 NeuPy is developed and tested using Python 3.7 and depends on:
 
@@ -33,7 +31,7 @@ NeuPy is developed and tested using Python 3.7 and depends on:
 
 They can be installed by
 ```
-python -m pip install numpy scipy matplotlib pyqt5  # as root 
+python -m pip install numpy scipy matplotlib pyqt5  # as root (in Windows OS)
 ```
 
 If you have downloaded a source tarball you can install NeuPy by doing the following:
@@ -47,7 +45,9 @@ import neupy
 ```
 
 
-## Run RhoChi
+## Run *RhoChi*
+
+The *NeuPy* library should be installed.
 
 ### As a script (CLI) 
 Use the command-line to run the refinement. E.g.:
@@ -56,13 +56,13 @@ python ./rhochi.py ./full.rcif ./full.rcif
 ```
 
 ### Simple Viewer (GUI) 
-Run the file `rhochi_viewer.pyw`
+Run the file `rhochi_viewer.pyw`.
 
 ## Collaboration
 
 Any third-party scripts based on the library *NeuPy* can be added.
 
-If you have any suggestions, bug reports or annoyances please report them to our issue tracker at [site][RhoChi].
+If you have any suggestions, bug reports or annoyances please report them to our issue tracker at [site][NeuPy].
 
 ## Copyright and License
 
@@ -89,4 +89,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[RhoChi]: https://github.com/ikibalin/rhochi "GitHub link on RhoChi"
+[NeuPy]: https://github.com/ikibalin/neupy "GitHub link on NeuPy"

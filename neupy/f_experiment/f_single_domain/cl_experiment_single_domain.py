@@ -24,7 +24,7 @@ class ExperimentSingleDomain(dict):
     """
     def __init__(self, name=None, setup = SetupSingle(), 
                  list_calculated_data = [], 
-                 observed_data = ObservedDataSingleDomain(), file_out=None, file_dir=None, scale_domain=None):
+                 observed_data = ObservedDataSingleDomain(), file_out=None, file_dir=".", scale_domain=None):
         super(ExperimentSingleDomain, self).__init__()
         self._p_name = None
         self._p_setup = None

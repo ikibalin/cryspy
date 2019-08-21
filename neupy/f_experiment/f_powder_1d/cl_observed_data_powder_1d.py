@@ -14,7 +14,7 @@ class ObservedDataPowder1D(dict):
     """
     def __init__(self, tth_exp=None, int_u_exp=None, sint_u_exp=None, 
                  int_d_exp=None, sint_d_exp=None, tth_min=None, tth_max=None,
-                 field=None, wave_length=None, file_dir=None, file_name=None):
+                 field=None, wave_length=None, file_dir=".", file_name=None):
         super(ObservedDataPowder1D, self).__init__()
         self._p_tth_exp = None
         self._p_int_u_exp = None
@@ -57,6 +57,7 @@ class ObservedDataPowder1D(dict):
                  tth_min, tth_max, field, wave_length, file_dir, file_name):
         flag = any([(hh is not None) for hh in [tth_exp, int_u_exp, sint_u_exp, 
                                                 int_d_exp, sint_d_exp]])
+        f_read_data = False
         if tth_exp is not None:
             self._p_tth_exp = tth_exp
         if int_u_exp is not None:
@@ -76,9 +77,18 @@ class ObservedDataPowder1D(dict):
         if wave_length is not None:
             self._p_wave_length = wave_length
         if file_dir is not None:
+            f_read_data = True
             self._p_file_dir = file_dir
         if file_name is not None:
-            self._p_file_name = file_name
+            f_read_data = True
+            if os.path.dirname(file_name) != "":
+                self._p_file_name = os.path.basename(file_name)
+                self._p_file_dir = os.path.dirname(file_name)
+            else:
+                self._p_file_name = file_name
+        if (f_read_data & (self._p_file_name is not None)):
+            if os.path.isfile(os.path.join(self._p_file_dir, self._p_file_name)):
+                self.read_data()
         if flag:
             self.exclude_data()
             

@@ -30,9 +30,9 @@ class ExperimentPowder2D(dict):
     """
     def __init__(self, name=None, setup=SetupPowder2D(), 
                  list_calculated_data=[], 
-                 observed_data=ObservedDataPowder2D(), flag_chi2_up=None, flag_chi2_down=None, 
-                 flag_chi2_sum=None, flag_chi2_diff=None, 
-                 file_out=None, file_dir=None,
+                 observed_data=ObservedDataPowder2D(), flag_chi2_up=False, flag_chi2_down=False, 
+                 flag_chi2_sum=True, flag_chi2_diff=True, 
+                 file_out=None, file_dir=".",
                  excl_tth_min=[], excl_tth_max=[], excl_phi_min=[], excl_phi_max=[]):
         super(ExperimentPowder2D, self).__init__()
         self._p_name = None

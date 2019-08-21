@@ -18,7 +18,7 @@ class BackgroundPowder2D(dict):
     """
     Class to describe characteristics of powder diffractometer
     """
-    def __init__(self, tth_bkgd=None, phi_bkgd=None, int_bkgd=None, file_dir=None, 
+    def __init__(self, tth_bkgd=[0.1, 170.], phi_bkgd=[-20., 80.], int_bkgd=[[0.,0.],[0.,0.]], file_dir=".", 
                  file_name=None):
         super(BackgroundPowder2D, self).__init__()
         self._p_file_dir = None
@@ -44,6 +44,7 @@ class BackgroundPowder2D(dict):
         return lsout
 
     def _refresh(self, tth_bkgd, phi_bkgd, int_bkgd, file_dir, file_name):
+        f_read_data = False
         if tth_bkgd is not None:
             self._p_tth_bkgd = tth_bkgd
         if phi_bkgd is not None:
@@ -51,9 +52,18 @@ class BackgroundPowder2D(dict):
         if int_bkgd is not None:
             self._p_int_bkgd = int_bkgd
         if file_dir is not None:
+            f_read_data = True
             self._p_file_dir = file_dir
         if file_name is not None:
-            self._p_file_name = file_name
+            f_read_data = True
+            if os.path.dirname(file_name) != "":
+                self._p_file_name = os.path.basename(file_name)
+                self._p_file_dir = os.path.dirname(file_name)
+            else:
+                self._p_file_name = file_name
+        if (f_read_data & (self._p_file_name is not None)):
+            if os.path.isfile(os.path.join(self._p_file_dir, self._p_file_name)):
+                self.read_data()
             
     def set_val(self, tth_bkgd=None, phi_bkgd=None, int_bkgd=None, 
                 file_dir=None, file_name=None):
