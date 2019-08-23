@@ -1,29 +1,61 @@
 """
-define the class variable.
-
-It has the similar operation as a number, but also have some additional 
-attributes
+define the class Fitable.
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_02$"
+__version__ = "2019_08_22"
 
 import numpy
 
-class Variable(dict):
+class Fitable(object):
     """
-    general class for Variable
+    Fitable class to describe variable parameter
     """
-    value = 0.
-    sigma = 0.
-    refinement = False
-    constraint = ""
-    def __init__(self, val=0., ref=False, name="", constr="", sigma=0.):
-        super(Variable, self).__init__()
-        self[0] = val 
-        self[1] = ref
-        self[2] = constr
-        self[3] = name
-        self[4] = sigma
+    def __init__(self, value=0., sigma=0., refinement=False, 
+                 name=None, constraint=None, minimal=None, maximal=None):
+        super(Fitable, self).__init__()
+        self.value = value
+        self.sigma = sigma
+        self.refinement = refinement
+        self.name = name
+        self.constraint = constraint
+        self.minimal = minimal
+        self.maximal = maximal
+    def __setattr__(self, name, value):
+        name_s = name.lower()
+        if name_s in ["value", "sigma", "minimal", "maximal"]:
+            func = float
+        elif name_s in ["refinement"]:
+            func = bool
+        elif name_s in ["name", "constraint"]:
+            func = str
+        else:
+            func = lambda x: x
+        if value is not None:
+            self.__dict__[name_s] = func(value)
+        else:
+            self.__dict__[name_s] = None
+    def __array__(self):
+        return array(self.value)
+
+    def __float__(self):
+        return self.value
+    def __repr__(self):
+        ls_out = ["Fitable object:"]
+        if self.name is not None:
+            ls_out.append("name: {:}".format(self.name))
+        if self.value is not None:
+            ls_out.append("value: {:.3f}".format(self.value))
+        if self.sigma is not None:
+            ls_out.append("sigma: {:.3f}".format(self.sigma))
+        if self.minimal is not None:
+            ls_out.append("minimal: {:.3f}".format(self.minimal))
+        if self.maximal is not None:
+            ls_out.append("maximal: {:.3f}".format(self.maximal))
+        if self.refinement is not None:
+            ls_out.append("refinement: {:}".format(self.refinement))
+        if self.constraint is not None:
+            ls_out.append("constraint: {:.3f}".format(self.constraint))
+        return "\n".join(ls_out)
     def __pos__(self):
         """
         output is float
@@ -51,13 +83,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value+var2
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]+var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (self[4]**2+var2[4]**2)**0.5
+        elif isinstance(var2, Fitable):
+            res = Fitable(value=self.value+var2.value,
+                          refinement=(self.refinement|var2.refinement),
+                          sigma=(self.sigma**2+var2.sigma**2)**0.5
+                          )
         else:
             res = self.value+var2
         return res
@@ -68,13 +98,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = var2+self.value
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]+var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (self[4]**2+var2[4]**2)**0.5
+        elif isinstance(var2, Fitable):
+            res = Fitable(value=self.value+var2.value,
+                          refinement=(self.refinement|var2.refinement),
+                          sigma=(self.sigma**2+var2.sigma**2)**0.5
+                          )
         else:
             res = var2+self.value
         return res
@@ -85,13 +113,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value-var2
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]-var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (self[4]**2+var2[4]**2)**0.5
+        elif isinstance(var2, Fitable):
+            res = Fitable(value=self.value-var2.value,
+                          refinement=(self.refinement|var2.refinement),
+                          sigma=(self.sigma**2+var2.sigma**2)**0.5
+                          )
         else:
             res = self.value-var2
         return res
@@ -102,13 +128,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = var2-self.value
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = var2[0]-self[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (self[4]**2+var2[4]**2)**0.5
+        elif isinstance(var2, Fitable):
+            res = Fitable(value=var2.value-self.value,
+                          refinement=(self.refinement|var2.refinement),
+                          sigma=(self.sigma**2+var2.sigma**2)**0.5
+                          )
         else:
             res = var2-self.value
         return res
@@ -119,13 +143,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*var2
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]*var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = ((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5
+        elif isinstance(var2, Fitable):
+            res = Fitable(value=var2.value*self.value,
+                          refinement=(self.refinement|var2.refinement),
+                          sigma=((self.sigma*var2.value)**2+(var2.sigma*self.value)**2)**0.5
+                          )
         else:
             res = self.value*var2
         return res 
@@ -136,13 +158,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*var2
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]*var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = ((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5
+        elif isinstance(var2, Fitable):
+            res = Fitable(value=var2.value*self.value,
+                          refinement=(self.refinement|var2.refinement),
+                          sigma=((self.sigma*var2.value)**2+(var2.sigma*self.value)**2)**0.5
+                          )
         else:
             res = self.value*var2
         return res
@@ -153,13 +173,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*1./var2
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]*1./var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(var2[0])**2
+        elif isinstance(var2, Fitable):
+            hh = (((var2.value*self.sigma)**2+(self.value*var2.sigma)**2)**0.5)/(var2.value)**2
+            res = Fitable(value=self.value*1./var2.value, 
+                          refinement=(self.refinement | var2.refinement),
+                          sigma=hh)
         else:
             res = self.value*1./var2
         return res 
@@ -170,13 +188,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = var2*1./self.value
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = var2[0]*1./self[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(self[0])**2
+        elif isinstance(var2, Fitable):
+            hh = (((var2.value*self.sigma)**2+(self.value*var2.sigma)**2)**0.5)/(self.value)**2
+            res = Fitable(value=var2.value*1./self.value, 
+                          refinement=(self.refinement | var2.refinement),
+                          sigma=hh)
         else:
             res = var2*1./self.value
         return res 
@@ -188,13 +204,11 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = self.value*1./var2
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = self[0]*1./var2[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(var2[0])**2
+        elif isinstance(var2, Fitable):
+            hh = (((var2.value*self.sigma)**2+(self.value*var2.sigma)**2)**0.5)/(var2.value)**2
+            res = Fitable(value=self.value*1./var2.value, 
+                          refinement=(self.refinement | var2.refinement),
+                          sigma=hh)
         else:
             res = self.value*1./var2
         return res 
@@ -205,17 +219,14 @@ class Variable(dict):
         if type(var2) is numpy.ndarray:
             res_1 = var2*1./self.value
             res = res_1.astype(var2.dtype)
-        elif isinstance(var2, Variable):
-            res = Variable()
-            res[0] = var2[0]*1./self[0]
-            res[1] = self[1] | var2[1]
-            res[2] = ""
-            res[3] = ""
-            res[4] = (((var2[0]*self[4])**2+(self[0]*var2[4])**2)**0.5)/(self[0])**2
+        elif isinstance(var2, Fitable):
+            hh = (((var2.value*self.sigma)**2+(self.value*var2.sigma)**2)**0.5)/(self.value)**2
+            res = Fitable(value=var2.value*1./self.value, 
+                          refinement=(self.refinement | var2.refinement),
+                          sigma=hh)
         else:
             res = var2*1./self.value
         return res 
-        return var2*1./self.value
     def __pow__(self, var2):
         """
         output is float
@@ -296,69 +307,10 @@ class Variable(dict):
         output is bool
         """
         return  (var2 | self.refinement)
-    def __getitem__(self, i):
-        if i==4:
-            return self.sigma
-        elif i==3:
-            return self.name
-        elif i==2:
-            return self.constraint
-        elif i == 1:
-            return self.refinement
-        else:
-            return self.value
-    def __setitem__(self, i, v):
-        #self.check(v)
-        if i==4:
-            cond1 = isinstance(v, float)
-            cond2 = isinstance(v, int)
-            if (cond1 | cond2):
-                self.sigma = v 
-            else:
-                print ("Sigma should be integer or float type")
-        elif i==3:
-            cond = isinstance(v, str)            
-            if cond:
-                self.name = v 
-            else:
-                print ("Name should be given as a string")
-        elif i==2:
-            cond = isinstance(v, str)            
-            if cond:
-                self.constraint = v 
-            else:
-                print ("Constraints should be given as a string")
-        elif i == 1:
-            cond = isinstance(v, bool)
-            if cond:
-                self.refinement = v 
-            else:
-                print ("Refinement should have a bool type variable")
-        else:
-            cond1 = isinstance(v, float)
-            cond2 = isinstance(v, int)
-            if (cond1 | cond2):
-                self.value = v 
-            else:
-                print ("Variable should be integer or float type")
-        return
-    
+
     def __float__(self):
         return float(self[0])
-    def __repr__(self):
-        ls_out = self.print_with_sigma()
-        
-        #if self.name != "":
-        #    ls_out += ", {:}".format(self.name)
-            
-        #id(self)
-        #if self.constraint != "":
-        #    lsout_add = "    constraint:{:}".format(self.constraint)
-        #else:
-        #    lsout_add = "    constraint: None"
-        # "".join([lsout, lsout_add])
-        return ls_out
-    
+
     def print_with_sigma(self):
         if self.sigma != 0.:
             val_hh = numpy.log10(self.sigma)

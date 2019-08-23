@@ -89,6 +89,9 @@ i_g is the parameter to described broadening of Bragg reflection due to the
         print(lsout)
 
     def load_from_rcif(self, f_name):
+        """
+        load information from rcif file to crystal object
+        """
         from neupy import (RCif, conv_data_to_crystal)
         rcif = RCif(f_name)
         p_glob = rcif.glob

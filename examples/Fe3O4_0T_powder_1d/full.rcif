@@ -54,8 +54,8 @@ _atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_22
 _atom_site_susceptibility_aniso_chi_23
 _atom_site_susceptibility_aniso_chi_33
- Fe3A 2.0 1.0 cani Fe3 -3.468(89) 0.0 0.0 -3.4678943735435928 0.0 -3.4678943735435928
- Fe3B 2.0 1.0 cani Fe3 3.041(44) 0.0 0.0 3.042102881498757 0.0 3.042102881498757
+ Fe3A 2.0 1.0 cani Fe3 -3.468(74) 0.0 0.0 -3.468141284179687 0.0 -3.468141284179687
+ Fe3B 2.0 1.0 cani Fe3 3.041 0.0 0.0 3.041 0.0 3.041
 
 data_pnd
 _pd_beam_flipper_efficiency 1.0
@@ -84,4 +84,4 @@ loop_
 _pd_phase_igsize
 _pd_phase_name
 _pd_phase_scale
- 0.0 Fe3O4 0.02381(12)
+ 0.0 Fe3O4 0.02381
