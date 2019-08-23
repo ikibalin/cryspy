@@ -57,9 +57,6 @@ class Fitable(object):
             ls_out.append("constraint: {:.3f}".format(self.constraint))
         return "\n".join(ls_out)
     def __pos__(self):
-        """
-        output is float
-        """
         return self.value
     def __neg__(self):
         """
