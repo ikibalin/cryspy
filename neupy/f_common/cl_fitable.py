@@ -59,9 +59,6 @@ class Fitable(object):
     def __pos__(self):
         return self.value
     def __neg__(self):
-        """
-        output is float
-        """
         return -1*self.value
     def __abs__(self):
         """
