@@ -3,6 +3,7 @@ __author__ = 'Iurii Kibalin'
 __contact__ = 'iurii.kibalin@cea.fr'
 
 from neupy.f_common.cl_variable import Variable
+from neupy.f_common.cl_fitable import Fitable
 
 from neupy.f_rcif import RCif
 
