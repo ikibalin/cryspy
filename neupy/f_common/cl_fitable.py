@@ -103,7 +103,7 @@ class Fitable(object):
             ls_out.append("minimal: {:.3f}".format(self.minimal))
         if self.maximal is not None:
             ls_out.append("maximal: {:.3f}".format(self.maximal))
-        if self.refinement is not None:
+        if self.refinement:
             ls_out.append("refinement: {:}".format(self.refinement))
         if self.constraint is not None:
             ls_out.append("constraint: {:}".format(self.constraint))
@@ -112,7 +112,7 @@ class Fitable(object):
             res = "{:} ({:})".format(res, ", ".join(ls_out[1:]))            
         return res
     def print_with_sigma(self):
-        if self.sigma != 0.:
+        if not((self.sigma == 0.)|(self.sigma is None)):
             val_hh = numpy.log10(self.sigma)
             n_power = int(val_hh)
             if val_hh <= 0:

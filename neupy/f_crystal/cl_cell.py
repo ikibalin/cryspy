@@ -7,228 +7,313 @@ import os
 import numpy
 
 from neupy.f_common.cl_variable import Variable
-from neupy.f_interface.cl_abstract_cell import AbstractCell
-
-class Cell(AbstractCell):
+from neupy.f_common.cl_fitable import Fitable
+from copy import deepcopy
+class Cell(object):
     """
     Cell parameters
     """
-    def __init__(self, a = 1.0, b = 1.0, c = 1.0, alpha = 90.0, beta = 90.0, 
-                 gamma= 90., singony = "Triclinic"):
+    def __init__(self, a = Fitable(1.0), 
+                       b = Fitable(1.0), 
+                       c = Fitable(1.0), 
+                       alpha = Fitable(90.0), 
+                       beta = Fitable(90.0), 
+                       gamma= Fitable(90.), bravais_lattice = "Triclinic"):
         super(Cell, self).__init__()
-        self._p_a = None
-        self._p_b = None
-        self._p_c = None
-        self._p_alpha = None
-        self._p_beta = None
-        self._p_gamma = None
-        self._p_singony = None
-        
-        self._p_cos_a = None
-        self._p_cos_b = None
-        self._p_cos_g = None
-        self._p_cos_a_sq = None
-        self._p_cos_b_sq = None
-        self._p_cos_g_sq = None
-        self._p_sin_a = None
-        self._p_sin_b = None
-        self._p_sin_g = None
-        self._p_sin_a_sq = None
-        self._p_sin_b_sq = None
-        self._p_sin_g_sq = None
-        
-        self._p_ia = None
-        self._p_ib = None
-        self._p_ic = None
-        self._p_ialpha = None
-        self._p_ibeta = None
-        self._p_igamma = None        
+        self.__cell_length_a = None
+        self.__cell_length_b = None
+        self.__cell_length_c = None
+        self.__cell_angle_alpha = None
+        self.__cell_angle_beta = None
+        self.__cell_angle_gamma = None
+        self.__bravais_lattice = None
 
-        self._p_cos_ia = None
-        self._p_cos_ib = None
-        self._p_cos_ig = None
-        self._p_cos_ia_sq = None
-        self._p_cos_ib_sq = None
-        self._p_cos_ig_sq = None
-        self._p_sin_ia = None
-        self._p_sin_ib = None
-        self._p_sin_ig = None
-        self._p_sin_ia_sq = None
-        self._p_sin_ib_sq = None
-        self._p_sin_ig_sq = None
+        self.__cos_a = None
+        self.__cos_b = None
+        self.__cos_g = None
+        self.__cos_a_sq = None
+        self.__cos_b_sq = None
+        self.__cos_g_sq = None
+        self.__sin_a = None
+        self.__sin_b = None
+        self.__sin_g = None
+        self.__sin_a_sq = None
+        self.__sin_b_sq = None
+        self.__sin_g_sq = None
         
-        self._p_vol = None
-        self._p_ivol = None
-        self._p_m_b = None
-        self._p_m_ib = None
+        self.__ia = None
+        self.__ib = None
+        self.__ic = None
+        self.__ialpha = None
+        self.__ibeta = None
+        self.__igamma = None        
 
-        self._refresh(a, b, c, alpha, beta, gamma, singony)
-        self.set_val()
+        self.__cos_ia = None
+        self.__cos_ib = None
+        self.__cos_ig = None
+        self.__cos_ia_sq = None
+        self.__cos_ib_sq = None
+        self.__cos_ig_sq = None
+        self.__sin_ia = None
+        self.__sin_ib = None
+        self.__sin_ig = None
+        self.__sin_ia_sq = None
+        self.__sin_ib_sq = None
+        self.__sin_ig_sq = None
+        
+        self.__cell_volume = None
+        self.__cell_ivolume = None
+        self.__m_b = None
+        self.__m_ib = None
+
+        self.a = a # type: Fitable
+        self.b = b # type: Fitable
+        self.c = c # type: Fitable
+        self.alpha = alpha # type: Fitable
+        self.beta = beta # type: Fitable
+        self.gamma = gamma # type: Fitable
+        self.bravais_lattice = bravais_lattice # type: str
+        
+
+    @property
+    def a(self):
+        return self.__cell_length_a
+    @a.setter
+    def a(self, x):
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            try:
+                x_in = Fitable(x, None, False, "_cell_length_a")
+            except:
+                x_in = None
+        self.__cell_length_a = x_in
+        self.apply_constraint()        
+    @property
+    def b(self):
+        return self.__cell_length_b
+    @b.setter
+    def b(self, x):
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            try:
+                x_in = Fitable(x, None, False, "_cell_length_b")
+            except:
+                x_in = None
+        self.__cell_length_b = x_in
+        self.apply_constraint()        
+    @property
+    def c(self):
+        return self.__cell_length_c
+    @c.setter
+    def c(self, x):
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            try:
+                x_in = Fitable(x, None, False, "_cell_length_c")
+            except:
+                x_in = None
+        self.__cell_length_c = x_in
+        self.apply_constraint()        
+    @property
+    def alpha(self):
+        """
+        help test
+        """
+        return self.__cell_angle_alpha
+    @alpha.setter
+    def alpha(self, x):
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            try:
+                x_in = Fitable(x, None, False, "_cell_angle_alpha")
+            except:
+                x_in = None
+        self.__cell_angle_alpha = x_in
+        self.apply_constraint()        
+    @property
+    def beta(self):
+        return self.__cell_angle_beta
+    @beta.setter
+    def beta(self, x):
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            try:
+                x_in = Fitable(x, None, False, "_cell_angle_beta")
+            except:
+                x_in = None
+        self.__cell_angle_beta = x_in
+        self.apply_constraint()        
+    @property
+    def gamma(self):
+        return self.__cell_angle_gamma
+    @gamma.setter
+    def gamma(self, x):
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            try:
+                x_in = Fitable(x, None, False, "_cell_angle_gamma")
+            except:
+                x_in = None
+        self.__cell_angle_gamma = x_in
+        self.apply_constraint()        
+    @property
+    def bravais_lattice(self):
+        return self.__bravais_lattice
+    @bravais_lattice.setter
+    def bravais_lattice(self, x):
+        try:
+            x_in = str(x)
+        except:
+            x_in = "Triclinic"
+        l_bravais_lattice = ["Cubic", "Hexagonal", "Rhombohedral", "Trigonal", "Tetragonal", 
+                             "Orthorhombic", "Monoclinic", "Triclinic"]
+        if x_in not in l_bravais_lattice:
+            print("Introduced bravais_lattice is not found.")
+            print("Please try one of them: {:}.".format(", ".join(l_bravais_lattice)))
+            x_in = "Triclinic"
+        self.__bravais_lattice = x_in
+        self.apply_constraint()        
+    @property
+    def volume(self):
+        return self.__cell_volume
+    @property
+    def ivolume(self):
+        return self.__cell_ivolume
+    @property
+    def ia(self):
+        return self.__ia
+    @property
+    def ib(self):
+        return self.__ib
+    @property
+    def ic(self):
+        return self.__ic
+    @property
+    def ialpha(self):
+        return self.__ialpha
+    @property
+    def ibeta(self):
+        return self.__ibeta
+    @property
+    def igamma(self):
+        return self.__igamma
+    @property
+    def m_b(self):
+        return self.__m_b
+    @property
+    def m_ib(self):
+        return self.__m_ib
+        
         
     def __repr__(self):
-        lsout = """Cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
- beta: {:}\n gamma: {:}\n Bravais lattice: {:}\n""".format(self._p_a, self._p_b, 
-                 self._p_c, self._p_alpha, self._p_beta, self._p_gamma, 
-                 self._p_singony)
-        if self._p_m_b is not None:
-             lsout += """ B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
- {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}\n""".format(self._p_m_b[0, 0],
- self._p_m_b[0, 1], self._p_m_b[0, 2], self._p_m_b[1, 0], self._p_m_b[1, 1], 
- self._p_m_b[1, 2], self._p_m_b[2, 0], self._p_m_b[2, 1], self._p_m_b[2, 2])
-        if self._p_m_ib is not None:
-             lsout += """ inversed B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
- {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}\n""".format(self._p_m_ib[0, 0],
- self._p_m_ib[0, 1], self._p_m_ib[0, 2], self._p_m_ib[1, 0], self._p_m_ib[1, 1], 
- self._p_m_ib[1, 2], self._p_m_ib[2, 0], self._p_m_ib[2, 1], self._p_m_ib[2, 2])
-        return lsout
+        ls_out = ["""Cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
+ beta: {:}\n gamma: {:}\n bravais_lattice: {:}""".format(self.a, self.b, 
+                 self.c, self.alpha, self.beta, self.gamma, 
+                 self.bravais_lattice)]
+        if self.__cell_volume is not None:
+            ls_out.append(" volume: {:.3f}".format(self.__cell_volume))
+
+        if self.__m_b is not None:
+             ls_out.append(""" B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
+ {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}""".format(self.__m_b[0, 0],
+ self.__m_b[0, 1], self.__m_b[0, 2], self.__m_b[1, 0], self.__m_b[1, 1], 
+ self.__m_b[1, 2], self.__m_b[2, 0], self.__m_b[2, 1], self.__m_b[2, 2]))
+        if self.__m_ib is not None:
+             ls_out.append(""" inversed B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
+ {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}""".format(self.__m_ib[0, 0],
+ self.__m_ib[0, 1], self.__m_ib[0, 2], self.__m_ib[1, 0], self.__m_ib[1, 1], 
+ self.__m_ib[1, 2], self.__m_ib[2, 0], self.__m_ib[2, 1], self.__m_ib[2, 2]))
+        return "\n".join(ls_out)
     
-    def _refresh(self, a, b, c, alpha, beta, gamma, singony):
-        """
-        refresh variables
-        """
-        if a is not None:
-            self._p_a = a
-        if b is not None:
-            self._p_b = b
-        if c is not None:
-            self._p_c = c
-        if alpha is not None:
-            self._p_alpha = alpha
-        if beta is not None:
-            self._p_beta = beta
-        if gamma is not None:
-            self._p_gamma = gamma
-        if singony is not None:
-            self._p_singony = singony
-
-        cond = any([hh is not None for hh in [a, b, c, alpha, beta, gamma, 
-                                          singony]])
-        if cond:
-            self.apply_constraint()
     
-    def _constr_singony(self):
-        singony = self._p_singony
-        if singony == "Cubic":
-            self._p_b = 1.*self._p_a
-            self._p_c = 1.*self._p_a
-            self._p_alpha = 90.
-            self._p_beta = 90.
-            self._p_gamma = 90.
-        elif singony == "Hexagonal":
-            self._p_b = 1.*self._p_a
-            self._p_alpha = 90.
-            self._p_beta = 90.
-            self._p_gamma = 120.        
-        elif singony == "Rhombohedral":
-            self._p_b = 1.*self._p_a
-            self._p_c = 1.*self._p_a
-            self._p_beta = 1.*self._p_alpha
-            self._p_gamma = 1.*self._p_alpha
-        elif singony == "Trigonal":
-            self._p_b = 1.*self._p_a
-            self._p_c = 1.*self._p_a
-        elif singony == "Tetragonal":
-            self._p_b = 1.*self._p_a
-            self._p_alpha = 90.
-            self._p_beta = 90.
-            self._p_gamma = 90.
-        elif singony == "Orthorhombic":
-            self._p_alpha = 90.
-            self._p_beta = 90.
-            self._p_gamma = 90.
-        elif singony == "Monoclinic":
-            self._p_alpha = 90.
-            self._p_gamma = 90.
+    def _constr_bravais_lattice(self):
+        bravais_lattice = self.bravais_lattice
+        if bravais_lattice == "Cubic":
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
+            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+        elif bravais_lattice == "Hexagonal":
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
+            self.__cell_angle_gamma = Fitable(120., None, False, "_cell_angle_gamma")
+        elif bravais_lattice == "Rhombohedral":
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
+            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
+            self.__cell_angle_beta = Fitable(self.alpha.value, None, False, "_cell_angle_beta")
+            self.__cell_angle_gamma = Fitable(self.alpha.value, None, False, "_cell_angle_gamma")
+        elif bravais_lattice == "Trigonal":
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
+            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
+        elif bravais_lattice == "Tetragonal":
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+        elif bravais_lattice == "Orthorhombic":
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+        elif bravais_lattice == "Monoclinic":
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
 
-    def set_val(self, a = None, b = None, c = None, alpha = None, 
-                   beta = None, gamma= None, singony = None):
-        self._refresh(a, b, c, alpha, beta, gamma, singony)
-
-
-    def get_val(self, label):
-        lab = "_p_"+label
-        
-        if lab in self.__dict__.keys():
-            val = self.__dict__[lab]
-            if isinstance(val, type(None)):
-                self.set_val()
-                val = self.__dict__[lab]
-        else:
-            print("The value '{:}' is not found".format(lab))
-            val = None
-        return val
-    
-    def list_vals(self):
-        """
-        give a list of parameters with small descripition
-        """
-        lsout = """
-Parameters:
-a, b, c - unit cell parameters in Angstrems
-alpha, beta, gamma - angles in degrees
-
-singony - singony: "Triclinic", "Monoclinic", "Orthorhombic", "Tetragonal", 
-                   "Trigonal", "Hexagonal" or "Cubic"
-
-ia, ib, ic - inverse unit cell parameters in Angstrems**-1
-ialpha, ibeta, igamma - angles of inverse cell in degrees
-
-vol - volume of unit cell in Angstrems**3
-ivol - volume of inverse cell in Angstrems**3
-
-m_b - matrix B (x is along ia, y is in (ia,ib) plane, z is vector product x, y)
-m_ib - inverse B matrix 
-        """
-        print(lsout)
-            
     def _calc_cos_abc(self):
         rad=numpy.pi/180.
-        self._p_cos_a = numpy.cos(self._p_alpha*rad)
-        self._p_cos_b = numpy.cos(self._p_beta*rad)
-        self._p_cos_g = numpy.cos(self._p_gamma*rad)
+        self.__cos_a = numpy.cos(self.alpha*rad)
+        self.__cos_b = numpy.cos(self.beta*rad)
+        self.__cos_g = numpy.cos(self.gamma*rad)
         
-        self._p_sin_a = numpy.sin(self._p_alpha*rad)
-        self._p_sin_b = numpy.sin(self._p_beta*rad)
-        self._p_sin_g = numpy.sin(self._p_gamma*rad)
+        self.__sin_a = numpy.sin(self.alpha*rad)
+        self.__sin_b = numpy.sin(self.beta*rad)
+        self.__sin_g = numpy.sin(self.gamma*rad)
         
-        self._p_cos_a_sq = self._p_cos_a**2
-        self._p_cos_b_sq = self._p_cos_b**2
-        self._p_cos_g_sq = self._p_cos_g**2
+        self.__cos_a_sq = self.__cos_a**2
+        self.__cos_b_sq = self.__cos_b**2
+        self.__cos_g_sq = self.__cos_g**2
 
-        self._p_sin_a_sq = 1.-self._p_cos_a_sq
-        self._p_sin_b_sq = 1.-self._p_cos_b_sq
-        self._p_sin_g_sq = 1.-self._p_cos_g_sq
+        self.__sin_a_sq = 1.-self.__cos_a_sq
+        self.__sin_b_sq = 1.-self.__cos_b_sq
+        self.__sin_g_sq = 1.-self.__cos_g_sq
         
     def _calc_cos_iabc(self):
         rad=numpy.pi/180.
-        self._p_cos_ia = numpy.cos(self._p_ialpha*rad)
-        self._p_cos_ib = numpy.cos(self._p_ibeta*rad)
-        self._p_cos_ig = numpy.cos(self._p_igamma*rad)
+        self.__cos_ia = numpy.cos(self.__ialpha*rad)
+        self.__cos_ib = numpy.cos(self.__ibeta*rad)
+        self.__cos_ig = numpy.cos(self.__igamma*rad)
         
-        self._p_sin_ia = numpy.sin(self._p_ialpha*rad)
-        self._p_sin_ib = numpy.sin(self._p_ibeta*rad)
-        self._p_sin_ig = numpy.sin(self._p_igamma*rad)
+        self.__sin_ia = numpy.sin(self.__ialpha*rad)
+        self.__sin_ib = numpy.sin(self.__ibeta*rad)
+        self.__sin_ig = numpy.sin(self.__igamma*rad)
         
-        self._p_cos_ia_sq = self._p_cos_ia**2
-        self._p_cos_ib_sq = self._p_cos_ib**2
-        self._p_cos_ig_sq = self._p_cos_ig**2
+        self.__cos_ia_sq = self.__cos_ia**2
+        self.__cos_ib_sq = self.__cos_ib**2
+        self.__cos_ig_sq = self.__cos_ig**2
 
-        self._p_sin_a_sq = 1.-self._p_cos_a_sq
-        self._p_sin_b_sq = 1.-self._p_cos_b_sq
-        self._p_sin_g_sq = 1.-self._p_cos_g_sq
+        self.__sin_a_sq = 1.-self.__cos_a_sq
+        self.__sin_b_sq = 1.-self.__cos_b_sq
+        self.__sin_g_sq = 1.-self.__cos_g_sq
 
     def _calc_volume(self):
-        a = 1.*self._p_a
-        b = 1.*self._p_b
-        c = 1.*self._p_c
-        c_a = self._p_cos_a
-        c_b = self._p_cos_b
-        c_g = self._p_cos_g
-        c_a_sq = self._p_cos_a_sq
-        c_b_sq = self._p_cos_b_sq
-        c_g_sq = self._p_cos_g_sq
+        a = 1.*self.a
+        b = 1.*self.b
+        c = 1.*self.c
+        c_a = self.__cos_a
+        c_b = self.__cos_b
+        c_g = self.__cos_g
+        c_a_sq = self.__cos_a_sq
+        c_b_sq = self.__cos_b_sq
+        c_g_sq = self.__cos_g_sq
         vol = a*b*c*(1.-c_a_sq-c_b_sq-c_g_sq+2.*c_a*c_b*c_g)**0.5
-        self._p_vol = vol
+        self.__cell_volume = vol
         
     
     def _calc_iucp(self):
@@ -237,46 +322,46 @@ m_ib - inverse B matrix
         """
         irad = 180./numpy.pi
 
-        a = 1.*self._p_a
-        b = 1.*self._p_b
-        c = 1.*self._p_c
-        c_a = self._p_cos_a
-        c_b = self._p_cos_b
-        c_g = self._p_cos_g
-        s_a = self._p_sin_a
-        s_b = self._p_sin_b
-        s_g = self._p_sin_g
-        vol = self._p_vol
+        a = 1.*self.a
+        b = 1.*self.b
+        c = 1.*self.c
+        c_a = self.__cos_a
+        c_b = self.__cos_b
+        c_g = self.__cos_g
+        s_a = self.__sin_a
+        s_b = self.__sin_b
+        s_g = self.__sin_g
+        vol = self.__cell_volume
         
-        self._p_ialpha = numpy.arccos((c_b*c_g-c_a)/(s_b*s_g))*irad
-        self._p_ibeta = numpy.arccos((c_g*c_a-c_b)/(s_g*s_a))*irad
-        self._p_igamma = numpy.arccos((c_a*c_b-c_g)/(s_a*s_b))*irad
+        self.__ialpha = numpy.arccos((c_b*c_g-c_a)/(s_b*s_g))*irad
+        self.__ibeta = numpy.arccos((c_g*c_a-c_b)/(s_g*s_a))*irad
+        self.__igamma = numpy.arccos((c_a*c_b-c_g)/(s_a*s_b))*irad
 
-        self._p_ia = b*c*s_a/vol
-        self._p_ib = c*a*s_b/vol
-        self._p_ic = a*b*s_g/vol
+        self.__ia = b*c*s_a/vol
+        self.__ib = c*a*s_b/vol
+        self.__ic = a*b*s_g/vol
 
 
     def _calc_m_b(self):
         """
         calculate matrix B 
         """
-        c = 1.*self._p_c
+        c = 1.*self.c
 
-        ia = self._p_ia 
-        ib = self._p_ib 
-        ic = self._p_ic 
+        ia = self.__ia 
+        ib = self.__ib 
+        ic = self.__ic 
         
-        c_a = self._p_cos_a
+        c_a = self.__cos_a
         
         #ic_a = self._p_cos_ia 
-        ic_b = self._p_cos_ib 
-        ic_g = self._p_cos_ig 
+        ic_b = self.__cos_ib 
+        ic_g = self.__cos_ig 
         #is_a = self._p_sin_ia 
-        is_b = self._p_sin_ib 
-        is_g = self._p_sin_ig 
+        is_b = self.__sin_ib 
+        is_g = self.__sin_ig 
         
-        self._p_m_b = numpy.array([[ia,  ib*ic_g,  ic*ic_b],
+        self.__m_b = numpy.array([[ia,  ib*ic_g,  ic*ic_b],
             [0.,  ib*is_g, -ic*is_b*c_a],
             [0.,       0.,  1./c]], dtype = float)
 
@@ -284,12 +369,12 @@ m_ib - inverse B matrix
         """
         calculate inverse B matrix 
         """
-        x1 = self._p_m_b[0,0]
-        x2 = self._p_m_b[1,1]
-        x3 = self._p_m_b[2,2]
-        x4 = self._p_m_b[0,1]
-        x5 = self._p_m_b[0,2]
-        x6 = self._p_m_b[1,2]
+        x1 = self.__m_b[0,0]
+        x2 = self.__m_b[1,1]
+        x3 = self.__m_b[2,2]
+        x4 = self.__m_b[0,1]
+        x5 = self.__m_b[0,2]
+        x6 = self.__m_b[1,2]
         #B=[[x1,x4,x5],
         #   [0.,x2,x6],
         #   [0.,0.,x3]]
@@ -302,43 +387,77 @@ m_ib - inverse B matrix
         y6 = -1*x6*1./(x2*x3)
         y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
         
-        self._p_m_ib = numpy.array([[y1,y4,y5],[0.,y2,y6],[0.,0.,y3]], 
+        self.__m_ib = numpy.array([[y1,y4,y5],[0.,y2,y6],[0.,0.,y3]], 
                                    dtype = float)
             
                 
-        
+    def message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)
+
     
-    def calc_sthovl(self, h, k, l):
+    def calc_sthovl(self, h=None, k=None, l=None, hkl=None, l_hkl=None, f_print=False):
         """
         calculate sin(theta)/lambda for list of hkl reflections
         """
-            
-        a = 1.*self._p_a
-        b = 1.*self._p_b
-        c = 1.*self._p_c
-        c_a = self._p_cos_a
-        c_b = self._p_cos_b
-        c_g = self._p_cos_g
-        c_a_sq = self._p_cos_a_sq
-        c_b_sq = self._p_cos_b_sq
-        c_g_sq = self._p_cos_g_sq
-        s_a_sq = self._p_sin_a_sq
-        s_b_sq = self._p_sin_b_sq
-        s_g_sq = self._p_sin_g_sq
+        cond_1 = all([h is not None, k is not None, l is not None])
+        cond_2 = hkl is not None
+        cond_3 = l_hkl is not None
+        if cond_1:
+            np_h = h # type: numpy.array or float
+            np_k = k # type: numpy.array or float
+            np_l = l # type: numpy.array or float
+        elif cond_2:
+            np_h = hkl[0] # type: float
+            np_k = hkl[1] # type: float
+            np_l = hkl[2] # type: float
+        elif cond_3:
+            np_h = numpy.array([hh[0] for hh in l_hkl], dtype=float) # type: numpy.array
+            np_k = numpy.array([hh[1] for hh in l_hkl], dtype=float) # type: numpy.array
+            np_l = numpy.array([hh[2] for hh in l_hkl], dtype=float) # type: numpy.array
+        else: 
+            self.message("Did not found correct input. Expected h, k, l or hkl or l_hkl")
+            return
+        a = 1.*self.a
+        b = 1.*self.b
+        c = 1.*self.c
+        c_a = self.__cos_a
+        c_b = self.__cos_b
+        c_g = self.__cos_g
+        c_a_sq = self.__cos_a_sq
+        c_b_sq = self.__cos_b_sq
+        c_g_sq = self.__cos_g_sq
+        s_a_sq = self.__sin_a_sq
+        s_b_sq = self.__sin_b_sq
+        s_g_sq = self.__sin_g_sq
 
         A=( 1. - c_a_sq - c_b_sq - c_g_sq + 2.*c_a*c_b*c_g)
-        B1 = (s_a_sq*(h*1./a)**2+s_b_sq*(k*1./b)**2+s_g_sq*(l*1./c)**2)
-        B2 = 2.*(k*l*c_a)/(b*c)+2.*(h*l*c_b)/(a*c)+2.*(h*k*c_g)/(a*b)
+        B1 = (s_a_sq*(np_h*1./a)**2+s_b_sq*(np_k*1./b)**2+s_g_sq*(np_l*1./c)**2)
+        B2 = 2.*(np_k*np_l*c_a)/(b*c)+2.*(np_h*np_l*c_b)/(a*c)+2.*(np_h*np_k*c_g)/(a*b)
         #it should be checked, I am not sure
         B = B1-B2
         inv_d = (B*1./A)**0.5
-        return 0.5*inv_d
+        res = 0.5*inv_d
+        if f_print:
+            ls_out = ["    h     k     l     sthovl"]
+            try:
+                _ = (hh for hh in res)
+                f_iter = True # type: bool
+            except TypeError:
+                f_iter = False # type: bool
+            if f_iter:
+                for hh_1, hh_2, hh_3, hh_4 in zip(np_h, np_k, np_l, res):
+                    ls_out.append("{:5.1f} {:5.1f} {:5.1f} {:10.5f}".format(hh_1, hh_2, hh_3, hh_4))
+            else:
+                ls_out.append("{:5.1f} {:5.1f} {:5.1f} {:10.5f}".format(np_h, np_k, np_l, res))
+            print("\n".join(ls_out))
+        return res
 
     def calc_k_loc(self, h, k, l):
         """
         calculate unity scattering vector
         """
-        m_b = self.get_val("m_b")
+        m_b = self.__m_b
         k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
         k_y = m_b[1, 0]*h + m_b[1, 1]*k +m_b[1, 2]*l
         k_z = m_b[2, 0]*h + m_b[2, 1]*k +m_b[2, 2]*l
@@ -359,7 +478,7 @@ m_ib - inverse B matrix
         """define rotation matrix to have new z axis along kloc
         Rotation matrix is defined by Euler angles
         """
-        m_b = self.get_val("m_b")
+        m_b = self.__m_b
         k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
         k_y = m_b[1, 0]*h + m_b[1, 1]*k +m_b[1, 2]*l
         k_z = m_b[2, 0]*h + m_b[2, 1]*k +m_b[2, 2]*l
@@ -409,43 +528,52 @@ m_ib - inverse B matrix
             print("Program is stopped")
             quit()
         return t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 
-    
+
+    @property
     def is_variable(self):
         """
         without extinction
         """
-        res = any([isinstance(self._p_a, Variable), 
-                   isinstance(self._p_b, Variable),
-                   isinstance(self._p_c, Variable),
-                   isinstance(self._p_alpha, Variable),
-                   isinstance(self._p_beta, Variable),
-                   isinstance(self._p_gamma, Variable)])
+        res = any([self.a.refinement,
+                   self.b.refinement,
+                   self.c.refinement,
+                   self.alpha.refinement,
+                   self.beta.refinement,
+                   self.gamma.refinement])
         return res
         
     def get_variables(self):
         l_variable = []
-        if isinstance(self._p_a, Variable):
-            l_variable.append(self._p_a)
-        if isinstance(self._p_b, Variable):
-            l_variable.append(self._p_b)
-        if isinstance(self._p_c, Variable):
-            l_variable.append(self._p_c)
-        if isinstance(self._p_alpha, Variable):
-            l_variable.append(self._p_alpha)
-        if isinstance(self._p_beta, Variable):
-            l_variable.append(self._p_beta)
-        if isinstance(self._p_gamma, Variable):
-            l_variable.append(self._p_gamma)
+        if self.a.refinement:
+            l_variable.append(self.a)
+        if self.b.refinement:
+            l_variable.append(self.b)
+        if self.c.refinement:
+            l_variable.append(self.c)
+        if self.alpha.refinement:
+            l_variable.append(self.alpha)
+        if self.beta.refinement:
+            l_variable.append(self.beta)
+        if self.gamma.refinement:
+            l_variable.append(self.gamma)
         return l_variable
     
     def apply_constraint(self):
-        self._constr_singony()
-        self._calc_cos_abc()
-        self._calc_volume()
-        self._calc_iucp()
-        self._calc_cos_iabc()
-        self._calc_m_b()
-        self._calc_m_ib()
+        if self.is_defined:
+            self._constr_bravais_lattice()
+            self._calc_cos_abc()
+            self._calc_volume()
+            self._calc_iucp()
+            self._calc_cos_iabc()
+            self._calc_m_b()
+            self._calc_m_ib()
+
+    @property
+    def is_defined(self):
+        cond = any([self.a is None, self.b is None, self.c is None,
+                    self.alpha is None, self.beta is None, self.gamma is None,
+                    self.bravais_lattice is None])
+        return not(cond)
 
     def calc_hkl(self, space_group, sthovl_min, sthovl_max):
         """
@@ -453,12 +581,15 @@ m_ib - inverse B matrix
         
 
         """
+        if not(self.is_defined()):
+            print("Object 'Cell' is not fully defined for calculations")
+            return None
         lhkl,lmult=[],[]
         lhklres=[]
 
-        hmax = int(2.*self.get_val('a')*sthovl_max)
-        kmax = int(2.*self.get_val('b')*sthovl_max)
-        lmax = int(2.*self.get_val('c')*sthovl_max)
+        hmax = int(2.*self.a*sthovl_max)
+        kmax = int(2.*self.b*sthovl_max)
+        lmax = int(2.*self.c*sthovl_max)
         hmin, kmin, lmin = -1*hmax, -1*kmax, -1*lmax
 
         hmin=0
@@ -491,9 +622,12 @@ m_ib - inverse B matrix
 
 
     def calc_hkl_in_range(self, sthovl_min, sthovl_max):
-        h_max = int(2.*self.get_val('a')*sthovl_max)
-        k_max = int(2.*self.get_val('b')*sthovl_max)
-        l_max = int(2.*self.get_val('c')*sthovl_max)
+        if not(self.is_defined()):
+            print("Object 'Cell' is not fully defined for calculations")
+            return None
+        h_max = int(2.*self.a*sthovl_max)
+        k_max = int(2.*self.b*sthovl_max)
+        l_max = int(2.*self.c*sthovl_max)
         h_min, k_min, l_min = -1*h_max, -1*k_max, -1*l_max
 
         np_h = numpy.array(range(h_min, h_max+1, 1), dtype=int)
@@ -515,6 +649,3 @@ m_ib - inverse B matrix
         return h[arg_sort], k[arg_sort], l[arg_sort], mult[arg_sort] 
 
         
-if (__name__ == "__main__"):
-  pass
-
