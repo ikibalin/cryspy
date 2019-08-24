@@ -1,24 +1,30 @@
-"""
-define classes to describe crystal 
-"""
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_08_25"
 import os
 import numpy
 
-from neupy.f_common.cl_variable import Variable
 from neupy.f_common.cl_fitable import Fitable
-from copy import deepcopy
+
 class Cell(object):
     """
-    Cell parameters
+    Data items in the Cell class record details about the
+    crystallographic cell parameters and their measurement.
+
+    Description in cif file:
+
+        _cell_length_a                     5.959(1)
+        _cell_length_b                     14.956(1)
+        _cell_length_c                     19.737(3)
+        _cell_angle_alpha                  90
+        _cell_angle_beta                   90
+        _cell_angle_gamma                  90
     """
     def __init__(self, a = Fitable(1.0), 
                        b = Fitable(1.0), 
                        c = Fitable(1.0), 
                        alpha = Fitable(90.0), 
                        beta = Fitable(90.0), 
-                       gamma= Fitable(90.), bravais_lattice = "Triclinic"):
+                       gamma= Fitable(90.), bravais_lattice = "triclinic"):
         super(Cell, self).__init__()
         self.__cell_length_a = None
         self.__cell_length_b = None
@@ -26,7 +32,7 @@ class Cell(object):
         self.__cell_angle_alpha = None
         self.__cell_angle_beta = None
         self.__cell_angle_gamma = None
-        self.__bravais_lattice = None
+        self.__cell_setting = None
 
         self.__cos_a = None
         self.__cos_b = None
@@ -41,12 +47,12 @@ class Cell(object):
         self.__sin_b_sq = None
         self.__sin_g_sq = None
         
-        self.__ia = None
-        self.__ib = None
-        self.__ic = None
-        self.__ialpha = None
-        self.__ibeta = None
-        self.__igamma = None        
+        self.__cell_reciprocal_length_a = None
+        self.__cell_reciprocal_length_b = None
+        self.__cell_reciprocal_length_c = None
+        self.__cell_reciprocal_angle_alpha = None
+        self.__cell_reciprocal_angle_beta = None
+        self.__cell_reciprocal_angle_gamma = None        
 
         self.__cos_ia = None
         self.__cos_ib = None
@@ -74,9 +80,15 @@ class Cell(object):
         self.gamma = gamma # type: Fitable
         self.bravais_lattice = bravais_lattice # type: str
         
-
     @property
     def a(self):
+        """
+        Unit-cell lengths in angstroms corresponding to the structure
+        reported. 
+        The permitted range is 0.0 -> infinity
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html
+        """
         return self.__cell_length_a
     @a.setter
     def a(self, x):
@@ -88,9 +100,16 @@ class Cell(object):
             except:
                 x_in = None
         self.__cell_length_a = x_in
-        self.apply_constraint()        
+        self._apply_constraint()        
     @property
     def b(self):
+        """
+        Unit-cell lengths in angstroms corresponding to the structure
+        reported. 
+        The permitted range is 0.0 -> infinity
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html
+        """
         return self.__cell_length_b
     @b.setter
     def b(self, x):
@@ -102,9 +121,16 @@ class Cell(object):
             except:
                 x_in = None
         self.__cell_length_b = x_in
-        self.apply_constraint()        
+        self._apply_constraint()        
     @property
     def c(self):
+        """
+        Unit-cell lengths in angstroms corresponding to the structure
+        reported. 
+        The permitted range is 0.0 -> infinity
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html
+        """
         return self.__cell_length_c
     @c.setter
     def c(self, x):
@@ -116,11 +142,15 @@ class Cell(object):
             except:
                 x_in = None
         self.__cell_length_c = x_in
-        self.apply_constraint()        
+        self._apply_constraint()        
     @property
     def alpha(self):
         """
-        help test
+        Unit-cell angles of the reported structure in degrees.
+        The permitted range is 0.0 -> 180.0 
+        Enumeration default: 90.0
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html
         """
         return self.__cell_angle_alpha
     @alpha.setter
@@ -133,9 +163,16 @@ class Cell(object):
             except:
                 x_in = None
         self.__cell_angle_alpha = x_in
-        self.apply_constraint()        
+        self._apply_constraint()        
     @property
     def beta(self):
+        """
+        Unit-cell angles of the reported structure in degrees.
+        The permitted range is 0.0 -> 180.0 
+        Enumeration default: 90.0
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html
+        """
         return self.__cell_angle_beta
     @beta.setter
     def beta(self, x):
@@ -147,9 +184,16 @@ class Cell(object):
             except:
                 x_in = None
         self.__cell_angle_beta = x_in
-        self.apply_constraint()        
+        self._apply_constraint()        
     @property
     def gamma(self):
+        """
+        Unit-cell angles of the reported structure in degrees.
+        The permitted range is 0.0 -> 180.0 
+        Enumeration default: 90.0
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html
+        """
         return self.__cell_angle_gamma
     @gamma.setter
     def gamma(self, x):
@@ -161,53 +205,203 @@ class Cell(object):
             except:
                 x_in = None
         self.__cell_angle_gamma = x_in
-        self.apply_constraint()        
+        self._apply_constraint()        
     @property
     def bravais_lattice(self):
-        return self.__bravais_lattice
+        """
+        The cell settings for this space-group symmetry.
+
+        The data value must be one of the following:
+
+        triclinic	
+        monoclinic	
+        orthorhombic	
+        tetragonal	
+        rhombohedral	
+        trigonal	
+        hexagonal	
+        cubic
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Isymmetry_cell_setting.html
+        """
+        return self.__cell_setting
     @bravais_lattice.setter
     def bravais_lattice(self, x):
         try:
-            x_in = str(x)
+            x_in = str(x).lower()
         except:
-            x_in = "Triclinic"
-        l_bravais_lattice = ["Cubic", "Hexagonal", "Rhombohedral", "Trigonal", "Tetragonal", 
-                             "Orthorhombic", "Monoclinic", "Triclinic"]
+            x_in = "triclinic"
+        l_bravais_lattice = ["cubic", "hexagonal", "rhombohedral", "trigonal", "tetragonal", 
+                             "orthorhombic", "monoclinic", "triclinic"]
         if x_in not in l_bravais_lattice:
             print("Introduced bravais_lattice is not found.")
             print("Please try one of them: {:}.".format(", ".join(l_bravais_lattice)))
             x_in = "Triclinic"
-        self.__bravais_lattice = x_in
-        self.apply_constraint()        
+        self.__cell_setting = x_in
+        self._apply_constraint()        
     @property
     def volume(self):
+        """
+        Cell volume V in angstroms cubed.
+        
+        V = a b c [1 - cos^2^(alpha) - cos^2^(beta) - cos^2^(gamma)
+               + 2 cos(alpha) cos(beta) cos(gamma) ] ^1/2^
+
+        The permitted range is 0.0 -> infinity
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_volume.html
+        """
         return self.__cell_volume
     @property
     def ivolume(self):
+        """
+        The reciprocal-cell volume V in angstroms cubed.
+        (not realized)
+        """
         return self.__cell_ivolume
     @property
     def ia(self):
-        return self.__ia
+        """
+        The reciprocal-cell lengths in inverse angstroms.  These are
+        related to the real cell by:
+
+        recip-a = b*c*sin(alpha)/V
+        recip-b = c*a*sin(beta)/V
+        recip-c = a*b*sin(gamma)/V
+
+        where V is the cell volume.
+
+        Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
+           New York: John Wiley & Sons Inc.
+
+        The permitted range is 0.0 -> infinity
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html
+        """
+        return self.__cell_reciprocal_length_a
     @property
     def ib(self):
-        return self.__ib
+        """
+        The reciprocal-cell lengths in inverse angstroms.  These are
+        related to the real cell by:
+
+        recip-a = b*c*sin(alpha)/V
+        recip-b = c*a*sin(beta)/V
+        recip-c = a*b*sin(gamma)/V
+
+        where V is the cell volume.
+
+        Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
+           New York: John Wiley & Sons Inc.
+
+        The permitted range is 0.0 -> infinity
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html
+        """
+        return self.__cell_reciprocal_length_b
     @property
     def ic(self):
-        return self.__ic
+        """
+        The reciprocal-cell lengths in inverse angstroms.  These are
+        related to the real cell by:
+
+        recip-a = b*c*sin(alpha)/V
+        recip-b = c*a*sin(beta)/V
+        recip-c = a*b*sin(gamma)/V
+
+        where V is the cell volume.
+
+        Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
+           New York: John Wiley & Sons Inc.
+
+        The permitted range is 0.0 -> infinity
+        
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html
+        """
+        return self.__cell_reciprocal_length_c
     @property
     def ialpha(self):
-        return self.__ialpha
+        """
+        The angles defining the reciprocal cell in degrees. These
+        are related to those in the real cell by:
+
+        cos(recip-alpha)
+          = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
+
+        cos(recip-beta)
+          = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
+
+        cos(recip-gamma)
+         = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]
+
+        Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
+           New York: John Wiley & Sons Inc.
+
+        The permitted range is 0.0 -> 180.0 
+        Enumeration default: 90.0
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html
+        """
+        return self.__cell_reciprocal_angle_alpha
     @property
     def ibeta(self):
-        return self.__ibeta
+        """
+        The angles defining the reciprocal cell in degrees. These
+        are related to those in the real cell by:
+
+        cos(recip-alpha)
+          = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
+
+        cos(recip-beta)
+          = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
+
+        cos(recip-gamma)
+         = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]
+
+        Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
+           New York: John Wiley & Sons Inc.
+
+        The permitted range is 0.0 -> 180.0 
+        Enumeration default: 90.0
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html
+        """
+        return self.__cell_reciprocal_angle_beta
     @property
     def igamma(self):
-        return self.__igamma
+        """
+        The angles defining the reciprocal cell in degrees. These
+        are related to those in the real cell by:
+
+        cos(recip-alpha)
+          = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
+
+        cos(recip-beta)
+          = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
+
+        cos(recip-gamma)
+         = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]
+
+        Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
+           New York: John Wiley & Sons Inc.
+
+        The permitted range is 0.0 -> 180.0 
+        Enumeration default: 90.0
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html
+        """
+        return self.__cell_reciprocal_angle_gamma
     @property
     def m_b(self):
+        """
+        B matrix
+        """
         return self.__m_b
     @property
     def m_ib(self):
+        """
+        Inversed B matrix
+        """
         return self.__m_ib
         
         
@@ -234,35 +428,35 @@ class Cell(object):
     
     def _constr_bravais_lattice(self):
         bravais_lattice = self.bravais_lattice
-        if bravais_lattice == "Cubic":
+        if bravais_lattice == "cubic":
             self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
             self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
             self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
             self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
             self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
-        elif bravais_lattice == "Hexagonal":
+        elif bravais_lattice == "hexagonal":
             self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
             self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
             self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
             self.__cell_angle_gamma = Fitable(120., None, False, "_cell_angle_gamma")
-        elif bravais_lattice == "Rhombohedral":
+        elif bravais_lattice == "rhombohedral":
             self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
             self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
             self.__cell_angle_beta = Fitable(self.alpha.value, None, False, "_cell_angle_beta")
             self.__cell_angle_gamma = Fitable(self.alpha.value, None, False, "_cell_angle_gamma")
-        elif bravais_lattice == "Trigonal":
+        elif bravais_lattice == "trigonal":
             self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
             self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
-        elif bravais_lattice == "Tetragonal":
+        elif bravais_lattice == "tetragonal":
             self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
             self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
             self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
             self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
-        elif bravais_lattice == "Orthorhombic":
+        elif bravais_lattice == "orthorhombic":
             self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
             self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
             self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
-        elif bravais_lattice == "Monoclinic":
+        elif bravais_lattice == "monoclinic":
             self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
             self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
 
@@ -286,13 +480,13 @@ class Cell(object):
         
     def _calc_cos_iabc(self):
         rad=numpy.pi/180.
-        self.__cos_ia = numpy.cos(self.__ialpha*rad)
-        self.__cos_ib = numpy.cos(self.__ibeta*rad)
-        self.__cos_ig = numpy.cos(self.__igamma*rad)
+        self.__cos_ia = numpy.cos(self.__cell_reciprocal_angle_alpha*rad)
+        self.__cos_ib = numpy.cos(self.__cell_reciprocal_angle_beta*rad)
+        self.__cos_ig = numpy.cos(self.__cell_reciprocal_angle_gamma*rad)
         
-        self.__sin_ia = numpy.sin(self.__ialpha*rad)
-        self.__sin_ib = numpy.sin(self.__ibeta*rad)
-        self.__sin_ig = numpy.sin(self.__igamma*rad)
+        self.__sin_ia = numpy.sin(self.__cell_reciprocal_angle_alpha*rad)
+        self.__sin_ib = numpy.sin(self.__cell_reciprocal_angle_beta*rad)
+        self.__sin_ig = numpy.sin(self.__cell_reciprocal_angle_gamma*rad)
         
         self.__cos_ia_sq = self.__cos_ia**2
         self.__cos_ib_sq = self.__cos_ib**2
@@ -333,13 +527,13 @@ class Cell(object):
         s_g = self.__sin_g
         vol = self.__cell_volume
         
-        self.__ialpha = numpy.arccos((c_b*c_g-c_a)/(s_b*s_g))*irad
-        self.__ibeta = numpy.arccos((c_g*c_a-c_b)/(s_g*s_a))*irad
-        self.__igamma = numpy.arccos((c_a*c_b-c_g)/(s_a*s_b))*irad
+        self.__cell_reciprocal_angle_alpha = numpy.arccos((c_b*c_g-c_a)/(s_b*s_g))*irad
+        self.__cell_reciprocal_angle_beta = numpy.arccos((c_g*c_a-c_b)/(s_g*s_a))*irad
+        self.__cell_reciprocal_angle_gamma = numpy.arccos((c_a*c_b-c_g)/(s_a*s_b))*irad
 
-        self.__ia = b*c*s_a/vol
-        self.__ib = c*a*s_b/vol
-        self.__ic = a*b*s_g/vol
+        self.__cell_reciprocal_length_a = b*c*s_a/vol
+        self.__cell_reciprocal_length_b = c*a*s_b/vol
+        self.__cell_reciprocal_length_c = a*b*s_g/vol
 
 
     def _calc_m_b(self):
@@ -348,9 +542,9 @@ class Cell(object):
         """
         c = 1.*self.c
 
-        ia = self.__ia 
-        ib = self.__ib 
-        ic = self.__ic 
+        ia = self.__cell_reciprocal_length_a 
+        ib = self.__cell_reciprocal_length_b 
+        ic = self.__cell_reciprocal_length_c 
         
         c_a = self.__cos_a
         
@@ -391,7 +585,7 @@ class Cell(object):
                                    dtype = float)
             
                 
-    def message(self, s_out: str):
+    def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)
 
@@ -416,7 +610,7 @@ class Cell(object):
             np_k = numpy.array([hh[1] for hh in l_hkl], dtype=float) # type: numpy.array
             np_l = numpy.array([hh[2] for hh in l_hkl], dtype=float) # type: numpy.array
         else: 
-            self.message("Did not found correct input. Expected h, k, l or hkl or l_hkl")
+            self._show_message("Did not found correct input. Expected h, k, l or hkl or l_hkl")
             return
         a = 1.*self.a
         b = 1.*self.b
@@ -475,7 +669,8 @@ class Cell(object):
         return k_x, k_y, k_z
         
     def calc_m_t(self, h, k, l):
-        """define rotation matrix to have new z axis along kloc
+        """
+        define rotation matrix to have new z axis along kloc
         Rotation matrix is defined by Euler angles
         """
         m_b = self.__m_b
@@ -532,7 +727,7 @@ class Cell(object):
     @property
     def is_variable(self):
         """
-        without extinction
+        Output: True if there is any refined parameter
         """
         res = any([self.a.refinement,
                    self.b.refinement,
@@ -543,6 +738,9 @@ class Cell(object):
         return res
         
     def get_variables(self):
+        """
+        Output: the list of the refined parameters
+        """
         l_variable = []
         if self.a.refinement:
             l_variable.append(self.a)
@@ -558,7 +756,7 @@ class Cell(object):
             l_variable.append(self.gamma)
         return l_variable
     
-    def apply_constraint(self):
+    def _apply_constraint(self):
         if self.is_defined:
             self._constr_bravais_lattice()
             self._calc_cos_abc()
@@ -570,6 +768,10 @@ class Cell(object):
 
     @property
     def is_defined(self):
+        """
+        Output: True if all started parameters are given
+        """
+
         cond = any([self.a is None, self.b is None, self.c is None,
                     self.alpha is None, self.beta is None, self.gamma is None,
                     self.bravais_lattice is None])
@@ -577,9 +779,8 @@ class Cell(object):
 
     def calc_hkl(self, space_group, sthovl_min, sthovl_max):
         """
-        give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
-        
-
+        a list of reflections hkl for cell in the range sthovl_min, sthovl_max
+        taking into account the space group
         """
         if not(self.is_defined()):
             print("Object 'Cell' is not fully defined for calculations")
@@ -622,6 +823,9 @@ class Cell(object):
 
 
     def calc_hkl_in_range(self, sthovl_min, sthovl_max):
+        """
+        give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
+        """
         if not(self.is_defined()):
             print("Object 'Cell' is not fully defined for calculations")
             return None
