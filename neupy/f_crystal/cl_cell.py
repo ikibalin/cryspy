@@ -592,7 +592,15 @@ class Cell(object):
     
     def calc_sthovl(self, h=None, k=None, l=None, hkl=None, l_hkl=None, f_print=False):
         """
-        calculate sin(theta)/lambda for list of hkl reflections
+        Calculate sin(theta)/lambda for list of hkl reflections.
+
+        Keyword arguments:
+        h, k, l --- Miller indices (example: h=1, k=0, l=2)
+        or
+        hkl --- a turple of Miller indices (example: hkl=(1, 0, 2))
+        or
+        l_hkl --- a list of turples of Miller indices (example: l_hkl=[(1, 0, 2), (1, 1, 3)])
+        f_print --- a flag to print output information in terminal
         """
         cond_1 = all([h is not None, k is not None, l is not None])
         cond_2 = hkl is not None
@@ -649,7 +657,10 @@ class Cell(object):
 
     def calc_k_loc(self, h, k, l):
         """
-        calculate unity scattering vector
+        Calculate unity scattering vector.
+
+        Keyword arguments:
+        h, k, l -- Miller indices
         """
         m_b = self.__m_b
         k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
