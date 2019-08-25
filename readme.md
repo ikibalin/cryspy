@@ -3,7 +3,7 @@
 
 [NeuPy] is a crystallographic library for neutron data analysis. Based on the library *NeuPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments performed with single crystals as well as with powder magnetic compounds. A console version is given together with a simple GUI viewer. 
 
-<img src="rhochi/f_icon/smm.PNG">
+![logo](rhochi/f_icon/smm.PNG "logo")
 
 
 
