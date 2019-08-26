@@ -1,32 +1,57 @@
 """
-define classes to describe crystal 
+define classes to describe AtomType
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_08_26"
 import os
 import numpy
 
-from neupy.f_common.cl_variable import Variable
-from neupy.f_interface.cl_abstract_atom_type import AbstractAtomType
 
+from neupy.f_common.cl_fitable import Fitable
 
-class AtomType(AbstractAtomType):
+class AtomType(object):
     """
-    Description of atom
+    Data items in the ATOM_TYPE category record details about
+    properties of the atoms that occupy the atom sites, such as the
+    atomic scattering factors.
+    
+    Description in cif file:
+
+    loop_
+    _atom_type_symbol
+    _atom_type_oxidation_number
+    _atom_type_number_in_cell
+    _atom_type_scat_dispersion_real
+    _atom_type_scat_dispersion_imag
+    _atom_type_scat_source
+      C 0 72  .017  .009  International_Tables_Vol_IV_Table_2.2B
+      H 0 100  0     0    International_Tables_Vol_IV_Table_2.2B
+      O 0 12  .047  .032  International_Tables_Vol_IV_Table_2.2B
+      N 0 4   .029  .018  International_Tables_Vol_IV_Table_2.2B
+
+    reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_type.html
+    
+    NOTE: Now is much more than this but it should be reduced in future
     """    
-    def __init__(self, name="H", type_n="H", type_m="Fe3", flag_m=False, 
-                 x=0., y=0., z=0., adp_type="Uiso",  
-                 b_iso=0., u_11=0., u_22=0., u_33=0., u_12=0., 
-                 u_13=0., u_23=0., chi_type='Cani', chi_11=0., chi_22=0., 
-                 chi_33=0., chi_12=0., chi_13=0., chi_23=0., kappa=1., 
-                 factor_lande=2.,
-                 occupation = 1., f_dir_prog = os.path.dirname(__file__)):
+    def __init__(self, name="H", 
+                 type_n="H", type_m="Fe3", #todo replace by one atom_type_symbol
+                 flag_m=False, 
+                 x=0., y=0., z=0., 
+                 adp_type="Uiso", b_iso=0., 
+                 u_11=0., u_22=0., u_33=0., 
+                 u_12=0., u_13=0., u_23=0., 
+                 chi_type='Cani', 
+                 chi_11=0., chi_22=0., chi_33=0., chi_12=0., 
+                 chi_13=0., chi_23=0., 
+                 kappa=1., factor_lande=2.,
+                 occupation = 1., 
+                 f_dir_prog = os.path.dirname(__file__)):
         super(AtomType, self).__init__()
 
-        self._p_name = None
-        self._p_type_n = None
-        self._p_type_m = None
-        self._p_flag_m = None
+        self.__atom_tyme_name = None
+        self.__atom_tyme_type_n = None
+        self.__atom_tyme_type_m = None
+        self.__atom_tyme_flag_m = None
         
         self._p_b_occupation = None
 

@@ -1,89 +1,141 @@
 """
-define classes to describe crystal 
+internal class to calculate Debye-Waller factor
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_08_29"
 import os
 import numpy
 
-from neupy.f_common.cl_variable import Variable
-from neupy.f_interface.cl_abstract_adp import AbstractADP
+from neupy.f_common.cl_fitable import Fitable
 
 
-class ADP(AbstractADP):
+class ADP(object):
     """
     ADP
     """
-    def __init__(self, u_11 = 0., u_22 = 0., u_33 = 0., 
-                 u_12 = 0., u_13 = 0., u_23 = 0., b_iso = 0.):
+    def __init__(self, u_11=numpy.array([0], dtype=float), 
+                       u_22=numpy.array([0], dtype=float), 
+                       u_33=numpy.array([0], dtype=float), 
+                       u_12=numpy.array([0], dtype=float), 
+                       u_13=numpy.array([0], dtype=float), 
+                       u_23=numpy.array([0], dtype=float), 
+                       b_iso=numpy.array([0], dtype=float)):
         super(ADP, self).__init__()
-        self._p_u_11 = None
-        self._p_u_22 = None
-        self._p_u_33 = None
-        self._p_u_12 = None
-        self._p_u_13 = None
-        self._p_u_23 = None
-        self._p_b_iso = None
-        self._refresh(u_11, u_22, u_33, u_12, u_13, u_23, b_iso)
+        self.__atom_site_aniso_u_11 = None
+        self.__atom_site_aniso_u_22 = None
+        self.__atom_site_aniso_u_33 = None
+        self.__atom_site_aniso_u_12 = None
+        self.__atom_site_aniso_u_13 = None
+        self.__atom_site_aniso_u_23 = None
+        self.__atom_site_b_iso_or_equiv = None
+
+        self.u_11 = u_11
+        self.u_22 = u_22
+        self.u_33 = u_33
+        self.u_12 = u_12
+        self.u_13 = u_13
+        self.u_23 = u_23
+        self.b_iso = b_iso
+
+    def _trans_to_float_array(self, x):
+        if isinstance(x, numpy.ndarray):
+            x_out = x.astype(float)
+        else:
+            x_out = numpy.array([x], dtype=float)
+        return x_out
+        
+    @property
+    def u_11(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_aniso_u_11
+    @u_11.setter
+    def u_11(self, x):
+        self.__atom_site_aniso_u_11 = self._trans_to_float_array(x)
+
+    @property
+    def u_22(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_aniso_u_22
+    @u_22.setter
+    def u_22(self, x):
+        self.__atom_site_aniso_u_22 = self._trans_to_float_array(x)
+
+    @property
+    def u_33(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_aniso_u_33
+    @u_33.setter
+    def u_33(self, x):
+        self.__atom_site_aniso_u_33 = self._trans_to_float_array(x)
+
+    @property
+    def u_12(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_aniso_u_12
+    @u_12.setter
+    def u_12(self, x):
+        self.__atom_site_aniso_u_12 = self._trans_to_float_array(x)
+
+    @property
+    def u_13(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_aniso_u_13
+    @u_13.setter
+    def u_13(self, x):
+        self.__atom_site_aniso_u_13 = self._trans_to_float_array(x)
+
+    @property
+    def u_23(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_aniso_u_23
+    @u_23.setter
+    def u_23(self, x):
+        self.__atom_site_aniso_u_23 = self._trans_to_float_array(x)
+
+
+    @property
+    def b_iso(self):
+        """
+
+        reference:
+        """
+        return self.__atom_site_b_iso_or_equiv
+    @b_iso.setter
+    def b_iso(self, x):
+        self.__atom_site_b_iso_or_equiv = self._trans_to_float_array(x)
+
+
 
     def __repr__(self):
-        lsout = """Debye Waller: \n u_11: {:}, u_22: {:}, u_33: {:}
- u_12: {:}, u_13: {:}, u_23: {:}\n b_iso: {:}""".format(
- self._p_u_11, self._p_u_22, self._p_u_33, self._p_u_12, 
- self._p_u_13, self._p_u_23, self._p_b_iso)
-        return lsout
+        ls_out = ["Debye Waller:\n   U_iso    U_11     U_22     U_33    U_12     U_13     U_23"]
+        ls_out.extend(["{:8.5f} {:8.5f} {:8.5f}{:8.5f} {:8.5f} {:8.5f} {:8.5f}".format(
+            hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7) for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7 
+            in zip(self.b_iso, self.u_11, self.u_22, self.u_33, self.u_12, self.u_13, self.u_23)])
+        return "\n".join(ls_out)
 
-
-    def _refresh(self, u_11, u_22, u_33, u_12, u_13, u_23, b_iso):
-        
-        if not(isinstance(u_11, type(None))):
-            self._p_u_11 = u_11
-        if not(isinstance(u_22, type(None))):
-            self._p_u_22 = u_22
-        if not(isinstance(u_33, type(None))):
-            self._p_u_33 = u_33
-        if not(isinstance(u_12, type(None))):
-            self._p_u_12 = u_12
-        if not(isinstance(u_13, type(None))):
-            self._p_u_13 = u_13
-        if not(isinstance(u_23, type(None))):
-            self._p_u_23 = u_23
-        if not(isinstance(b_iso, type(None))):
-            self._p_b_iso = b_iso
-
-    def set_val(self, u_11=None, u_22=None, u_33=None, u_12=None, 
-                u_13=None, u_23=None, b_iso=None):
-        self._refresh(u_11, u_22, u_33, u_12, u_13, u_23, b_iso)
-        
-    def get_val(self, label):
-        lab = "_p_"+label
-        
-        if lab in self.__dict__.keys():
-            val = self.__dict__[lab]
-            if isinstance(val, type(None)):
-                self.set_val()
-                val = self.__dict__[lab]
-        else:
-            print("The value '{:}' is not found".format(lab))
-            val = None
-        return val
-
-    def list_vals(self):
-        """
-        give a list of parameters with small descripition
-        """
-        lsout = """
-Parameters:
-beta_ij are Debye-Waller factor
-b_iso is the isotropical Debye-Waller factor
-        """
-        print(lsout)
-        
     def _calc_power_dwf_iso(self, sthovl):
         """
         isotropic harmonic Debye-Waller factor
         """
-        b_iso = 1.*self._p_b_iso
+        b_iso = 1.*self.b_iso
         sthovl_sq = sthovl**2
         b_iso_2d, sthovl_sq_2d = numpy.meshgrid(sthovl_sq, b_iso, indexing="ij")
         
@@ -96,11 +148,11 @@ b_iso is the isotropical Debye-Waller factor
         
         h,k,l is 1D (temporary solution)
         """
-        r_11, r_12 = space_group.get_val("r_11"), space_group.get_val("r_12")
-        r_13, r_21 = space_group.get_val("r_13"), space_group.get_val("r_21")
-        r_22, r_23 = space_group.get_val("r_22"), space_group.get_val("r_23")
-        r_31, r_32 = space_group.get_val("r_31"), space_group.get_val("r_32")
-        r_33 = space_group.get_val("r_33")
+        r_11, r_12 = space_group.r_11, space_group.r_12
+        r_13, r_21 = space_group.r_13, space_group.r_21
+        r_22, r_23 = space_group.r_22, space_group.r_23
+        r_31, r_32 = space_group.r_31, space_group.r_32
+        r_33 = space_group.r_33
   
         b_11, b_22, b_33, b_12, b_13, b_23 = self.calc_beta(cell)
 
@@ -141,9 +193,9 @@ b_iso is the isotropical Debye-Waller factor
         """
         calculate beta_ij from U_ij
         """
-        ia, ib, ic = 1.*cell.get_val("ia"), 1.*cell.get_val("ib"), 1.*cell.get_val("ic")
-        u_11, u_22, u_33 = 1.*self._p_u_11, 1.*self._p_u_22, 1.*self._p_u_33
-        u_12, u_13, u_23 = 1.*self._p_u_12, 1.*self._p_u_13, 1.*self._p_u_23
+        ia, ib, ic = 1.*cell.ia, 1.*cell.ib, 1.*cell.ic
+        u_11, u_22, u_33 = 1.*self.u_11, 1.*self.u_22, 1.*self.u_33
+        u_12, u_13, u_23 = 1.*self.u_12, 1.*self.u_13, 1.*self.u_23
         
         beta_11 = 2.*numpy.pi**2 * u_11 *ia**2
         beta_22 = 2.*numpy.pi**2 * u_22 *ib**2

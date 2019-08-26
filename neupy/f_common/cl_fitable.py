@@ -5,6 +5,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_08_22"
 
 import numpy
+from math import *
 
 class Fitable(object):
     """
@@ -252,6 +253,8 @@ class Fitable(object):
         else:
             res = var2*1./self.value
         return res 
+    def exp(self):
+        return exp(self.value)
     def __pos__(self):
         return self.value
     def __neg__(self):
