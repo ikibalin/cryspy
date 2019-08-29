@@ -2,7 +2,6 @@
 transform inforamtion from cif file to class phase
 """
 import sys
-
 import os
 
 class RCif(object):
@@ -272,20 +271,3 @@ def convert_rcif_to_glob(lcontent):
     res_glob = convert_lines_to_global(glob_lstr)
     res_glob["name"] = glob_name
     return res_glob
-
-    
-
-def main(larg):
-    if len(larg) > 1:
-        fname = "powder.rcif"
-        fname = larg[1]
-    else:
-        fname = input("What is the name of the 'rcif' file?\n")
-        
-    rcif = RCif()
-    rcif.load_from_file(fname)
-    print(rcif)
-    
-
-if __name__ == "__main__":
-    main(sys.argv)

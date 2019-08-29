@@ -6,12 +6,12 @@ data_Fe3O4                                # object Crystal - Fitable
 _cell_angle_alpha 90.0                    # object Cell - Fitable
 _cell_angle_beta 90.0
 _cell_angle_gamma 90.0
-_cell_length_a 8.56212
+_cell_length_a 8.56212()
 _cell_length_b 8.56212
 _cell_length_c 8.56212
 
 _space_group_it_coordinate_system_code 2  # object SpaceGroup - NonFitable
-_space_group_name_H-M_alt 'F d -3 m'
+_space_group_name_H-M_alt "F d -3 m"
 _space_group_IT_number    232
 
 loop_                                     # object AtomSite - Fitable
@@ -61,8 +61,8 @@ loop_                                     # object AtomSiteMagnetism - Fitable
 _atom_site_magnetism_label
 _atom_site_magnetism_lande
 _atom_site_magnetism_kappa
-Fe3A 2.0 1.0
-Fe3B 2.0 1.0
+Fe3A 2.0 1.0()
+Fe3B 2.0() 1.0
 
 
 # if future:

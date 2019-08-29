@@ -73,15 +73,15 @@ class AtomSite(object):
     reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html
     """
     def __init__(self, label=numpy.array([], dtype=str), 
+                       type_symbol=numpy.array([], dtype=str),
                        frac_x=numpy.array([], dtype=Fitable),
                        frac_y=numpy.array([], dtype=Fitable),
                        frac_z=numpy.array([], dtype=Fitable),
-                       u_iso=numpy.array([], dtype=Fitable),
+                       b_iso=numpy.array([], dtype=Fitable),
                        adp_type=numpy.array([], dtype=str),
                        occupancy=numpy.array([], dtype=Fitable),
 
                        aniso_label=numpy.array([], dtype=str),
-                       type_symbol=numpy.array([], dtype=str),
                        u_11=numpy.array([], dtype=Fitable),
                        u_22=numpy.array([], dtype=Fitable),
                        u_33=numpy.array([], dtype=Fitable),
@@ -100,16 +100,17 @@ class AtomSite(object):
                        chi_22=numpy.array([], dtype=Fitable),
                        chi_23=numpy.array([], dtype=Fitable),
                        chi_33=numpy.array([], dtype=Fitable),
+
                        l_atom_type = []
                        ):
         super(AtomSite, self).__init__()
-        #information from first loop: frac
+        #information from first loop: fract
         self.__atom_site_label = None
         self.__atom_site_type_symbol = None
         self.__atom_site_fract_x = None
         self.__atom_site_fract_y = None
         self.__atom_site_fract_z = None
-        self.__atom_site_u_iso_or_equiv = None
+        self.__atom_site_b_iso_or_equiv = None
         self.__atom_site_adp_type = None
         self.__atom_site_occupancy = None
 
@@ -142,15 +143,15 @@ class AtomSite(object):
         self.__flag_refresh = False
 
         self.label = label
+        self.type_symbol = type_symbol
         self.x = frac_x
         self.y = frac_y
         self.z = frac_z
-        self.u_iso = u_iso
+        self.b_iso = b_iso
         self.adp_type = adp_type
         self.occupancy = occupancy
 
-        self.adp_label = aniso_label
-        self.type_symbol = type_symbol
+        self.aniso_label = aniso_label
         self.u_11 = u_11
         self.u_22 = u_22
         self.u_33 = u_33
@@ -174,7 +175,7 @@ class AtomSite(object):
         
 
         #internal classes
-        self.__frac = None
+        self.__fract = None
         self.__adp = None
         self.__magnetism = None
         #internal parameters
@@ -251,7 +252,7 @@ class AtomSite(object):
         reference https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html        """
         return self.__atom_site_type_symbol
     @type_symbol.setter
-    def adp_type_symbol(self, x):
+    def type_symbol(self, x):
         self.__flag_refresh = True
         self.__atom_site_type_symbol = self._trans_to_str_array(x)
     @property
@@ -288,16 +289,16 @@ class AtomSite(object):
         self.__flag_refresh = True
         self.__atom_site_fract_z = self._trans_to_fitable_array(x, name="_atom_site_fract_z")
     @property
-    def u_iso(self):
+    def b_iso(self):
         """
 
         reference:
         """
-        return self.__atom_site_u_iso_or_equiv
-    @u_iso.setter
-    def u_iso(self, x):
+        return self.__atom_site_b_iso_or_equiv
+    @b_iso.setter
+    def b_iso(self, x):
         self.__flag_refresh = True
-        self.__atom_site_u_iso_or_equiv = self._trans_to_fitable_array(x, name="_atom_site_u_iso_or_equiv")
+        self.__atom_site_b_iso_or_equiv = self._trans_to_fitable_array(x, name="_atom_site_u_iso_or_equiv")
     @property
     def adp_type(self):
         """
@@ -324,14 +325,14 @@ class AtomSite(object):
 
 
     @property
-    def adp_label(self):
+    def aniso_label(self):
         """
 
         reference:
         """
         return self.__atom_site_aniso_label
-    @adp_label.setter
-    def adp_label(self, x):
+    @aniso_label.setter
+    def aniso_label(self, x):
         self.__flag_refresh = True
         self.__atom_site_aniso_label = self._trans_to_str_array(x)
     @property
@@ -524,6 +525,19 @@ class AtomSite(object):
     def chi_23(self, x):
         self.__flag_refresh = True
         self.__atom_site_aniso_magnetism_chi_23 = self._trans_to_fitable_array(x, name="_atom_site_aniso_magnetism_chi_23")
+    @property
+    def atom_type(self):
+        """
+
+        reference:
+        """
+        return self.__atom_type_list
+    @atom_type.setter
+    def atom_type(self, x):
+        self.__flag_refresh = True
+        self.__atom_type_list = x
+
+
 
     @property
     def is_defined(self):
@@ -598,7 +612,7 @@ class AtomSite(object):
         """
         return self.__j2_A
     @property
-    def j0_a(self):
+    def j2_a(self):
         """
 
         reference:
@@ -697,6 +711,112 @@ class AtomSite(object):
         self.__j2_D = numpy.array([l_atom_type[ind].j2_D for ind in l_ind], dtype=float)
         return True
 
+    def _form_fract_array(self):
+        if not(self.is_defined):
+            return None
+        fract = Fract(x=self.x.astype(float), 
+                     y=self.y.astype(float),
+                     z=self.z.astype(float))
+        self.__fract = fract
+
+    def _form_adp_array(self, cell):
+        label = self.label.astype(str)
+        b_iso = self.b_iso #it is not used but is should be reconverted to u_ij
+
+        #default values
+        u_11_in = numpy.zeros(label.shape, dtype=float)
+        u_22_in = numpy.zeros(label.shape, dtype=float)
+        u_33_in = numpy.zeros(label.shape, dtype=float)
+        u_12_in = numpy.zeros(label.shape, dtype=float)
+        u_13_in = numpy.zeros(label.shape, dtype=float)
+        u_23_in = numpy.zeros(label.shape, dtype=float)
+
+        aniso_label = self.aniso_label.astype(str)
+        if not(set(aniso_label).issubset(set(label))):
+            self._show_message("Unknown 'aniso_label'")
+            return False
+
+        u_11, u_22, u_33 = self.u_11.astype(float), self.u_22.astype(float), self.u_33.astype(float)
+        u_12, u_13, u_23 = self.u_12.astype(float), self.u_13.astype(float), self.u_23.astype(float)
+
+        np_index = numpy.array([int(numpy.argwhere(label==hh)[0]) for hh in aniso_label], dtype=int)
+
+        u_11_in[np_index], u_22_in[np_index], u_33_in[np_index] = u_11, u_22, u_33
+        u_12_in[np_index], u_13_in[np_index], u_23_in[np_index] = u_12, u_13, u_23
+
+        adp = ADP(u_11=u_11_in, u_22=u_22_in, u_33=u_33_in,
+                  u_12=u_12_in, u_13=u_13_in, u_23=u_23_in)
+        self.__adp = adp
+        return True
+
+    def _form_magnetism_array(self):
+        label = self.label.astype(str)
+
+        magnetism_aniso_label = self.magnetism_aniso_label.astype(str)
+        if not(set(magnetism_aniso_label).issubset(set(label))):
+            self._show_message("Unknown 'magnetism_aniso_label'")
+            return False
+
+        #default values
+        kappa_in = numpy.ones(label.shape, dtype=float)
+        factor_lande_in = 2.*numpy.ones(label.shape, dtype=float) 
+        chi_11_in = numpy.zeros(label.shape, dtype=float)
+        chi_22_in = numpy.zeros(label.shape, dtype=float)
+        chi_33_in = numpy.zeros(label.shape, dtype=float)
+        chi_12_in = numpy.zeros(label.shape, dtype=float)
+        chi_13_in = numpy.zeros(label.shape, dtype=float)
+        chi_23_in = numpy.zeros(label.shape, dtype=float)
+        j0_A_in = numpy.zeros(label.shape, dtype=float)
+        j0_a_in = numpy.zeros(label.shape, dtype=float)
+        j0_B_in = numpy.zeros(label.shape, dtype=float)
+        j0_b_in = numpy.zeros(label.shape, dtype=float)
+        j0_C_in = numpy.zeros(label.shape, dtype=float)
+        j0_c_in = numpy.zeros(label.shape, dtype=float)
+        j0_D_in = numpy.zeros(label.shape, dtype=float)
+        j2_A_in = numpy.zeros(label.shape, dtype=float)
+        j2_a_in = numpy.zeros(label.shape, dtype=float)
+        j2_B_in = numpy.zeros(label.shape, dtype=float)
+        j2_b_in = numpy.zeros(label.shape, dtype=float)
+        j2_C_in = numpy.zeros(label.shape, dtype=float)
+        j2_c_in = numpy.zeros(label.shape, dtype=float)
+        j2_D_in = numpy.zeros(label.shape, dtype=float)
+
+        kappa, factor_lande = self.kappa, self.factor_lande
+
+        chi_11, chi_22, chi_33 = self.chi_11.astype(float), self.chi_22.astype(float), self.chi_33.astype(float)
+        chi_12, chi_13, chi_23 = self.chi_12.astype(float), self.chi_13.astype(float), self.chi_23.astype(float)
+
+        j0_A, j0_a, j0_B, j0_b = self.j0_A, self.j0_a, self.j0_B, self.j0_b
+        j0_C, j0_c, j0_D = self.j0_C, self.j0_c, self.j0_D
+
+        j2_A, j2_a, j2_B, j2_b = self.j2_A, self.j2_a, self.j2_B, self.j2_b
+        j2_C, j2_c, j2_D = self.j2_C, self.j2_c, self.j2_D
+
+
+        np_index = numpy.array([int(numpy.argwhere(label==hh)[0]) for hh in magnetism_aniso_label], dtype=int)
+
+        kappa_in[np_index], factor_lande_in[np_index] = kappa, factor_lande
+
+        chi_11_in[np_index], chi_22_in[np_index], chi_33_in[np_index] = chi_11, chi_22, chi_33
+        chi_12_in[np_index], chi_13_in[np_index], chi_23_in[np_index] = chi_12, chi_13, chi_23
+
+        j0_A_in[np_index], j0_a_in[np_index], j0_B_in[np_index], j0_b_in[np_index] = j0_A, j0_a, j0_B, j0_b
+        j0_C_in[np_index], j0_c_in[np_index], j0_D_in[np_index] = j0_C, j0_c, j0_D
+
+        j2_A_in[np_index], j2_a_in[np_index], j2_B_in[np_index], j2_b_in[np_index] = j2_A, j2_a, j2_B, j2_b
+        j2_C_in[np_index], j2_c_in[np_index], j2_D_in[np_index] = j2_C, j2_c, j2_D
+
+        magnetism = Magnetism(kappa=kappa_in, factor_lande=factor_lande_in, 
+                              chi_11=chi_11_in, chi_22=chi_22_in, chi_33=chi_33_in,
+                              chi_12=chi_12_in, chi_13=chi_13_in, chi_23=chi_23_in,
+                              j0_A=j0_A_in, j0_a=j0_a_in, j0_B=j0_B_in, j0_b=j0_b_in,
+                              j0_C=j0_C_in, j0_c=j0_c_in, j0_D=j0_D_in,
+                              j2_A=j2_A_in, j2_a=j2_a_in, j2_B=j2_B_in, j2_b=j2_b_in,
+                              j2_C=j2_C_in, j2_c=j2_c_in, j2_D=j2_D_in)
+
+        self.__magnetism = magnetism
+        return True
+
     def _form_arrays(self, cell):
         if not(self.is_defined):
             return None
@@ -704,42 +824,10 @@ class AtomSite(object):
         self._take_from_atom_type()
         self._apply_chi_iso(cell)
 
-        frac = Fract(x=self.x.astype(float), 
-                     y=self.y.astype(float),
-                     z=self.z.astype(float))
-        self.__frac = frac
+        self._form_fract_array()
+        self._form_adp_array(cell)
+        self._form_magnetism_array()
 
-        adp = ADP(u_11=self.u_11.astype(float),
-                  u_22=self.u_22.astype(float),
-                  u_33=self.u_33.astype(float),
-                  u_12=self.u_12.astype(float),
-                  u_13=self.u_13.astype(float),
-                  u_23=self.u_23.astype(float))
-        self.__adp = adp
-
-        magnetism = Magnetism(kappa=self.kappa.astype(float), 
-                              factor_lande=self.factor_lande.astype(float), 
-                              chi_11=self.chi_11.astype(float),
-                              chi_22=self.chi_22.astype(float),
-                              chi_33=self.chi_33.astype(float),
-                              chi_12=self.chi_12.astype(float),
-                              chi_13=self.chi_13.astype(float),
-                              chi_23=self.chi_23.astype(float),
-                              j0_A=self.j0_A.astype(float),
-                              j0_a=self.j0_a.astype(float),
-                              j0_B=self.j0_B.astype(float),
-                              j0_b=self.j0_b.astype(float),
-                              j0_C=self.j0_C.astype(float),
-                              j0_c=self.j0_c.astype(float),
-                              j0_D=self.j0_D.astype(float),
-                              j2_A=self.j2_A.astype(float),
-                              j2_a=self.j2_a.astype(float),
-                              j2_B=self.j2_B.astype(float),
-                              j2_b=self.j2_b.astype(float),
-                              j2_C=self.j2_C.astype(float),
-                              j2_c=self.j2_c.astype(float),
-                              j2_D=self.j2_D.astype(float))
-        self.__magnetism = magnetism
 
     
     def calc_sf(self, space_group, cell, h, k, l, d_in={}):
@@ -749,12 +837,13 @@ class AtomSite(object):
         if (self.is_variable() | self.__flag_refresh):
             self._form_arrays(cell)
 
-        occupancy = self._atom_site_occupancy
+        occupancy = self.occupancy
+        scat_length_neutron = self.__atom_site_scat_length_neutron
 
         fract = self.__fract
         adp = self.__adp
         magnetism = self.__magnetism
-        scat_length_neutron = self.__atom_site_scat_length_neutron
+
 
         x, y, z = fract.x, fract.y, fract.z
 
@@ -764,7 +853,7 @@ class AtomSite(object):
 
         phase_3d = fract.calc_phase(space_group, h, k, l)#3d object
         dwf_3d = adp.calc_dwf(space_group, cell, h, k, l)
-        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = /
+        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
                    magnetism.calc_form_factor_tensor(space_group, cell, h, k, l)
 
         hh = phase_3d*dwf_3d

@@ -5,7 +5,7 @@ __contact__ = 'iurii.kibalin@cea.fr'
 from neupy.f_common.cl_variable import Variable
 from neupy.f_common.cl_fitable import Fitable
 
-from neupy.f_rcif import RCif
+from neupy.f_rcif.cl_rcif import RCif
 
 from neupy.f_crystal import (
     SpaceGroup,
@@ -17,7 +17,9 @@ from neupy.f_crystal import (
     Magnetism,
     AtomSite,
     Crystal,
-    calc_mRmCmRT
+    calc_mRmCmRT,
+    AtomSiteMagnetism,
+    AtomSiteMagnetismAniso
     )
 
 from neupy.f_experiment import (

@@ -1,15 +1,15 @@
 """
-define classes to describe crystal 
+define classes to describe space group
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_08_27"
 import os
 import numpy
+from pystar import CIFglobal
 
-from neupy.f_common.cl_variable import Variable
-from neupy.f_interface.cl_abstract_space_group import AbstractSpaceGroup
+from neupy.f_common.cl_fitable import Fitable
 
-class SpaceGroup(AbstractSpaceGroup):
+class SpaceGroup(object):
     """
     Space Group
     """
@@ -18,106 +18,169 @@ class SpaceGroup(AbstractSpaceGroup):
         #         f_dir_prog = os.getcwd()):
         super(SpaceGroup, self).__init__()
         
-        self._p_spgr_given_name = None
-        self._p_spgr_choice = None
-        self._p_f_dir_prog = None
-        self._p_spgr_table = None
+        self.__spgr_given_name = None
+        self.__spgr_choice = None
+        self.__f_dir_prog = None
+        self.__spgr_table = None
 
-        self._p_singony = "Triclinic"
 
-        self._p_centr = None
-        self._p_el_symm = None
-        self._p_orig = None
-        self._p_p_centr = None
-        self._p_spgr_name = None
-        self._p_spgr_number = None
+        self.__singony = "Triclinic"
 
-        self._p_r_11 = None
-        self._p_r_12 = None
-        self._p_r_13 = None
-        self._p_r_21 = None
-        self._p_r_22 = None
-        self._p_r_23 = None
-        self._p_r_31 = None
-        self._p_r_32 = None
-        self._p_r_33 = None
+        self.__centr = None
+        self.__el_symm = None
+        self.__orig = None
+        self.__p_centr = None
+        self.__spgr_name = None
+        self.__spgr_number = None
 
-        self._p_b_1 = None
-        self._p_b_2 = None
-        self._p_b_3 = None
+        self.__r_11 = None
+        self.__r_12 = None
+        self.__r_13 = None
+        self.__r_21 = None
+        self.__r_22 = None
+        self.__r_23 = None
+        self.__r_31 = None
+        self.__r_32 = None
+        self.__r_33 = None
 
-        self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
-        self.set_val()
-        
+        self.__b_1 = None
+        self.__b_2 = None
+        self.__b_3 = None
+
+        self.f_dir_prog = f_dir_prog
+        self.spgr_name = spgr_given_name
+        self.spgr_choice = spgr_choice
+
+
+    @property
+    def spgr_given_name(self):
+        """
+
+        reference:
+        """
+        return self.__spgr_given_name
+    @spgr_given_name.setter
+    def spgr_given_name(self, x):
+        self.__spgr_given_name = "".join(x.split()).strip("\"").strip("'")
+        if self.is_defined:
+            _ = self._form_object()
+
+    @property
+    def spgr_choice(self):
+        """
+
+        reference:
+        """
+        return self.__spgr_choice
+    @spgr_choice.setter
+    def spgr_choice(self, x):
+        if isinstance(x, float):
+            x_in = "{:}".format(int(x))
+        else:
+            x_in = str(x)
+        self.__spgr_choice = x_in.strip()
+        if self.is_defined:
+            _ = self._form_object()
+
+    @property
+    def f_dir_prog(self):
+        """
+
+        reference:
+        """
+        return self.__f_dir_prog
+    @f_dir_prog.setter
+    def f_dir_prog(self, x):
+        f_itables = os.path.join(x, "tables", "itables.txt")
+        self._read_el_cards(f_itables)    
+        self.__f_dir_prog = x
+        if self.is_defined:
+            _ = self._form_object()
+
+
+
+    @property
+    def spgr_name(self):
+        return self.__spgr_name
+    @spgr_name.setter
+    def spgr_name(self, x):
+        self.__spgr_given_name = "".join(str(x).split()) # __spgr_given_name is not mistake
+        if self.is_defined:
+            _ = self._form_object()
+
+    @property
+    def spgr_number(self):
+        return self.__spgr_number
+    @property
+    def singony(self):
+        return self.__singony
+    @property
+    def bravais_lattice(self):
+        return self.__singony
+    @property
+    def centr(self):
+        return self.__centr
+    @property
+    def el_symm(self):
+        return self.__el_symm
+    @property
+    def orig(self):
+        return self.__orig
+    @property
+    def p_centr(self):
+        return self.__p_centr
+    @property
+    def r_11(self):
+        return self.__r_11
+    @property
+    def r_22(self):
+        return self.__r_22
+    @property
+    def r_33(self):
+        return self.__r_33
+    @property
+    def r_12(self):
+        return self.__r_12
+    @property
+    def r_13(self):
+        return self.__r_13
+    @property
+    def r_23(self):
+        return self.__r_23
+    @property
+    def b_1(self):
+        return self.__b_1
+    @property
+    def b_2(self):
+        return self.__b_2
+    @property
+    def b_3(self):
+        return self.__b_3
+
+
+
+    def _show_message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)
+
     def __repr__(self):
-        ls_out = ["SpaceGroup:\n given name: {:}\n choice: {:}".format(self._p_spgr_given_name, self._p_spgr_choice)]
-        if self._p_spgr_name is not None:
-            ls_out.append(" name: {:}".format(self._p_spgr_name))
-        if self._p_spgr_number is not None:
-            ls_out.append(" number: {:}".format(self._p_spgr_number))
-        ls_out.append(" {:}\n directory: '{:}'".format(self._trans_el_symm_to_str(), self._p_f_dir_prog))
+        ls_out = ["SpaceGroup:\n given name: {:}\n choice: {:}".format(self.spgr_given_name, self.spgr_choice)]
+        if self.spgr_name is not None:
+            ls_out.append(" name: {:}".format(self.spgr_name))
+        if self.spgr_number is not None:
+            ls_out.append(" number: {:}".format(self.spgr_number))
+        ls_out.append(" {:}\n directory: '{:}'".format(self._trans_el_symm_to_str(), self.f_dir_prog))
         return "\n".join(ls_out)
 
-    def _refresh(self, spgr_given_name, spgr_choice, f_dir_prog):
-        
-        if f_dir_prog is not None:
-            f_itables = os.path.join(f_dir_prog, "tables", "itables.txt")
-            self._read_el_cards(f_itables)        
-            self._p_f_dir_prog = f_dir_prog
-        if spgr_given_name is not None:
-            hh = "".join(spgr_given_name.split())
-            self._p_spgr_given_name = hh
-        if spgr_choice is not None:
-            if isinstance(spgr_choice, float):
-                spgr_choice = "{:}".format(int(spgr_choice))
-            self._p_spgr_choice = spgr_choice = spgr_choice.strip()
-            
-
-    def set_val(self, spgr_given_name = None, spgr_choice = None,
-                   f_dir_prog = None):
-        self._refresh(spgr_given_name, spgr_choice, f_dir_prog)
-        
-        self._get_symm()
-        self._calc_rotation_matrix_anb_b()
-        
-    def get_val(self, label):
-        lab = "_p_"+label
-        
-        if lab in self.__dict__.keys():
-            val = self.__dict__[lab]
-            if isinstance(val, type(None)):
-                self.set_val()
-                val = self.__dict__[lab]
-        else:
-            print("The value '{:}' is not found".format(lab))
-            val = None
-        return val
-
-    def list_vals(self):
+    @property
+    def is_defined(self):
         """
-        give a list of parameters with small descripition
+        Output: True if all started parameters are given
         """
-        lsout = """
-Parameters:
-spgr_given_name is number or name of the space group
-spgr_choice is choise of origin, 1, 2, "abc", "bac"
-f_dir_prog is directory where the file "itables.txt" it is 
-
-centr is inversion center
-p_centr is position of inversin center
-el_symm is element of symmetry
-orig is packing
-spgr_name is name of space group
-spgr_number is number of space group
-singony is singony of the space group
-
-r_11, r_12, r_13  
-r_21, r_22, r_23    element of symmetry in form of element of rotation matrix
-r_31, r_32, r_33 
-
-b_1, b_2,  b_3 is translation vecto for symmetry elements
-        """
-        print(lsout)
+        cond = any([self.spgr_given_name is None, 
+                    self.spgr_choice is None, 
+                    self.f_dir_prog is None])
+        return not(cond)
         
     def _read_el_cards(self, f_itables):
         """
@@ -160,9 +223,8 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         get symmetry from space group
         """
         
-        spgr_choice = self._p_spgr_choice
-        
-        spgr_given_name = self._p_spgr_given_name
+        spgr_choice = self.spgr_choice
+        spgr_given_name = self.spgr_given_name
         
 
         if spgr_given_name.isdigit():
@@ -184,9 +246,9 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         
         flag = False
             
-        lelsymm = []
+        l_el_symm = []
         for ssymm in dcard["symmetry"]:
-            lelsymm.append(self._trans_str_to_el_symm(ssymm))
+            l_el_symm.append(self._trans_str_to_el_symm(ssymm))
         centr = dcard["centr"][0]=="true"
         pcentr = [float(hh) for hh in dcard["pcentr"][0].split(",")]
         fletter = dcard["name"][0]
@@ -194,35 +256,35 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         number = int(dcard["number"])
         singony = dcard["singony"]
         if (fletter == "P"):
-            lorig = [(0, 0, 0)]
+            l_orig = [(0, 0, 0)]
         elif fletter == "C":
-            lorig = [(0, 0, 0), (0.5, 0.5, 0)]
+            l_orig = [(0, 0, 0), (0.5, 0.5, 0)]
         elif fletter == "I":
-            lorig = [(0, 0, 0), (0.5, 0.5, 0.5)]
+            l_orig = [(0, 0, 0), (0.5, 0.5, 0.5)]
         elif fletter == "F":
-            lorig = [(0, 0, 0), (0.5, 0.5, 0), (0.5, 0, 0.5), (0, 0.5, 0.5)]
+            l_orig = [(0, 0, 0), (0.5, 0.5, 0), (0.5, 0, 0.5), (0, 0.5, 0.5)]
         elif (fletter == "R"):
             if spgr_choice == "1":
-                lorig = [(0, 0, 0), (0.66667, 0.33333, 0.33333), (0.33334, 0.66666, 0.66666)]
+                l_orig = [(0, 0, 0), (0.66667, 0.33333, 0.33333), (0.33334, 0.66666, 0.66666)]
             else:
-                lorig = [(0, 0, 0)]
+                l_orig = [(0, 0, 0)]
         else:
             print("Undefined syngony")
 
             
-        self._p_centr = centr
-        self._p_el_symm = lelsymm
-        self._p_orig = lorig
-        self._p_p_centr = pcentr
-        self._p_spgr_name = spgr
-        self._p_spgr_number = number
-        self._p_singony = singony
+        self.__centr = centr
+        self.__el_symm = l_el_symm
+        self.__orig = l_orig
+        self.__p_centr = pcentr
+        self.__spgr_name = spgr
+        self.__spgr_number = number
+        self.__singony = singony
         
     def _calc_rotation_matrix_anb_b(self):
         """
         give representation for rotation matrix: r_11, r_22, r_33, r_12, r_13, r_23 and vector b_1, b_2, b_3
         """
-        lel_symm = self._p_el_symm
+        lel_symm = self.el_symm
         b_1 = numpy.array([hh[0] for hh in lel_symm], dtype = float)
         r_11 = numpy.array([hh[1] for hh in lel_symm], dtype = int)
         r_12 = numpy.array([hh[2] for hh in lel_symm], dtype = int)
@@ -238,36 +300,45 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         r_32 = numpy.array([hh[10] for hh in lel_symm], dtype = int)
         r_33 = numpy.array([hh[11] for hh in lel_symm], dtype = int)
         
-        self._p_r_11 = r_11
-        self._p_r_12 = r_12
-        self._p_r_13 = r_13
+        self.__r_11 = r_11
+        self.__r_12 = r_12
+        self.__r_13 = r_13
 
-        self._p_r_21 = r_21
-        self._p_r_22 = r_22
-        self._p_r_23 = r_23
+        self.__r_21 = r_21
+        self.__r_22 = r_22
+        self.__r_23 = r_23
 
-        self._p_r_31 = r_31
-        self._p_r_32 = r_32
-        self._p_r_33 = r_33
+        self.__r_31 = r_31
+        self.__r_32 = r_32
+        self.__r_33 = r_33
 
-        self._p_b_1 = b_1
-        self._p_b_2 = b_2
-        self._p_b_3 = b_3
+        self.__b_1 = b_1
+        self.__b_2 = b_2
+        self.__b_3 = b_3
+
+    def _form_object(self):
+        if self.is_defined:
+            self._get_symm()
+            self._calc_rotation_matrix_anb_b()
+        else:
+            self._show_message("Object is not properly defined")
+            return False
+        return True
 
     def calc_hkl_equiv(self, h, k, l):
         """
         give equivalent reflections of hkl and its multiplicity
         """
-        
-        r_11 = self._p_r_11
-        r_12 = self._p_r_12
-        r_13 = self._p_r_13
-        r_21 = self._p_r_21
-        r_22 = self._p_r_22
-        r_23 = self._p_r_23
-        r_31 = self._p_r_31
-        r_32 = self._p_r_32
-        r_33 = self._p_r_33
+
+        r_11 = self.r_11
+        r_12 = self.r_12
+        r_13 = self.r_13
+        r_21 = self.r_21
+        r_22 = self.r_22
+        r_23 = self.r_23
+        r_31 = self.r_31
+        r_32 = self.r_32
+        r_33 = self.r_33
 
         h_s = r_11*h + r_21*k + r_31*l 
         k_s = r_12*h + r_22*k + r_32*l 
@@ -284,30 +355,30 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         """
         give unique x,y,z elements and calculate multiplicit for given x,y,z fract
         """
-        r_11 = self._p_r_11
-        r_12 = self._p_r_12
-        r_13 = self._p_r_13
-        r_21 = self._p_r_21
-        r_22 = self._p_r_22
-        r_23 = self._p_r_23
-        r_31 = self._p_r_31
-        r_32 = self._p_r_32
-        r_33 = self._p_r_33
-        b_1 = self._p_b_1
-        b_2 = self._p_b_2
-        b_3 = self._p_b_3
+        r_11 = self.r_11
+        r_12 = self.r_12
+        r_13 = self.r_13
+        r_21 = self.r_21
+        r_22 = self.r_22
+        r_23 = self.r_23
+        r_31 = self.r_31
+        r_32 = self.r_32
+        r_33 = self.r_33
+        b_1 = self.b_1
+        b_2 = self.b_2
+        b_3 = self.b_3
         
-        lorig = self._p_orig
-        centr = self._p_centr
-        p_centr = self._p_p_centr
+        l_orig = self.orig
+        centr = self.centr
+        p_centr = self.p_centr
 
         x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 4)
         y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 4)
         z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 4)
 
-        x_o = [orig[0] for orig in lorig]
-        y_o = [orig[1] for orig in lorig]
-        z_o = [orig[2] for orig in lorig]
+        x_o = [orig[0] for orig in l_orig]
+        y_o = [orig[1] for orig in l_orig]
+        z_o = [orig[2] for orig in l_orig]
         
         x_s_2d, x_o_2d = numpy.meshgrid(x_s, x_o)
         y_s_2d, y_o_2d = numpy.meshgrid(y_s, y_o)
@@ -335,32 +406,30 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         n_atom = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
         x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
         
-        
-        
         return x_s, y_s, z_s, n_atom
     
     def calc_el_symm_for_xyz(self, x, y, z):
-        r_11 = self._p_r_11
-        r_12 = self._p_r_12
-        r_13 = self._p_r_13
-        r_21 = self._p_r_21
-        r_22 = self._p_r_22
-        r_23 = self._p_r_23
-        r_31 = self._p_r_31
-        r_32 = self._p_r_32
-        r_33 = self._p_r_33
-        b_1 = self._p_b_1
-        b_2 = self._p_b_2
-        b_3 = self._p_b_3
+        r_11 = self.r_11
+        r_12 = self.r_12
+        r_13 = self.r_13
+        r_21 = self.r_21
+        r_22 = self.r_22
+        r_23 = self.r_23
+        r_31 = self.r_31
+        r_32 = self.r_32
+        r_33 = self.r_33
+        b_1 = self.b_1
+        b_2 = self.b_2
+        b_3 = self.b_3
         
-        lorig = self._p_orig
-        centr = self._p_centr
-        p_centr = self._p_p_centr
+        l_orig = self.orig
+        centr = self.centr
+        p_centr = self.p_centr
 
 
-        x_o = [orig[0] for orig in lorig]
-        y_o = [orig[1] for orig in lorig]
-        z_o = [orig[2] for orig in lorig]
+        x_o = [orig[0] for orig in l_orig]
+        y_o = [orig[1] for orig in l_orig]
+        z_o = [orig[2] for orig in l_orig]
         
         r_11_2d, x_o_2d = numpy.meshgrid(r_11, x_o, indexing="ij")
         r_12_2d, y_o_2d = numpy.meshgrid(r_12, y_o, indexing="ij")
@@ -458,45 +527,45 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
         """
         transform string to element of symmetry: (x,y,-z) -> 0.0 1 0 0  0.0 0 1 0  0.0 0 0 -1
         """
-        str2="".join(str1.split(" "))
-        lhelp1,lhelp2,lhelp3=[],[],[]
-        lhelp1=[hh for hh in str2.split('(') if hh!=""]
-        [lhelp2.extend(hh.split(')')) for hh in lhelp1 if hh!=""]
-        [lhelp3.extend(hh.split(',')) for hh in lhelp2 if hh!=""]
-        lAx=['x','y','z']
-        lelsymm=[]
-        for hh in lhelp3:
-            elsymmh=[0.0,0,0,0]
-            strh=hh
-            for inum,Ax in enumerate(lAx):
-                if (strh.find(Ax)!=-1):
-                    if (strh.find("+"+Ax)!=-1):
-                        elsymmh[inum+1]=1
-                        strh="".join(strh.split("+"+Ax))
-                    elif (strh.find("-"+Ax)!=-1):
-                        elsymmh[inum+1]=-1
-                        strh="".join(strh.split("-"+Ax))
+        str2 = "".join(str1.split(" "))
+        l_help1, l_help2, l_help3 = [], [], []
+        l_help1 = [hh for hh in str2.split('(') if hh != ""]
+        [l_help2.extend(hh.split(')')) for hh in l_help1 if hh != ""]
+        [l_help3.extend(hh.split(',')) for hh in l_help2 if hh != ""]
+        l_Ax = ['x', 'y', 'z']
+        l_el_symm = []
+        for hh in l_help3:
+            el_symm_h = [0.0, 0, 0, 0]
+            str_h = hh
+            for i_num, Ax in enumerate(l_Ax):
+                if (str_h.find(Ax) != -1):
+                    if (str_h.find("+"+Ax) != -1):
+                        el_symm_h[i_num+1] = 1
+                        str_h = "".join(str_h.split("+"+Ax))
+                    elif (str_h.find("-"+Ax) != -1):
+                        el_symm_h[i_num+1] = -1
+                        str_h = "".join(str_h.split("-"+Ax))
                     else:
-                        elsymmh[inum+1]=1
-                        strh="".join(strh.split(Ax))
-            if (strh==""):
+                        el_symm_h[i_num+1] = 1
+                        str_h = "".join(str_h.split(Ax))
+            if (str_h==""):
                 pass
-            elif (strh.find("/")!=-1):
-                lhelp1=strh.split("/")
-                elsymmh[0]=float(lhelp1[0])/float(lhelp1[1])
+            elif (str_h.find("/") != -1):
+                l_help1 = str_h.split("/")
+                el_symm_h[0] = float(l_help1[0])/float(l_help1[1])
             else:
-                elsymmh[0]=float(strh)
-            lelsymm.append(elsymmh)
-        elsymm=[]
-        [elsymm.extend(hh) for hh in lelsymm]
-        return elsymm
+                el_symm_h[0] = float(str_h)
+            l_el_symm.append(el_symm_h)
+        el_symm = []
+        [el_symm.extend(hh) for hh in l_el_symm]
+        return el_symm
 
     def _trans_el_symm_to_str(self):
         ls_out = []
-        l_el_symm = self._p_el_symm
-        centr = self._p_centr
+        l_el_symm = self.el_symm
+        centr = self.centr
         if centr:
-            p_centr = self._p_p_centr
+            p_centr = self.p_centr
             ls_out.append("inversion center at ({:.3f}, {:.3f}, {:.3f})".format(
                     p_centr[0], p_centr[1], p_centr[2]))
         if l_el_symm == []:
@@ -536,18 +605,18 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
             ls_out.append(line)
         return "\n".join(ls_out)
 
-    def calc_assymmetric_cell(self, n_a, n_b, n_c):
+    def calc_asymmetric_cell(self, n_a, n_b, n_c):
         """
-        give the numbers in assymmetric cell
+        give the numbers in asymmetric cell
 
         n_a is the number of points along a axis
         n_b is the numper of points along b axis
         n_c is the numper of points along c axis
 
-        na, n_b, nc should be devided on 24: 8 and 3
+        na, n_b, nc should be divided on 24: 8 and 3
 
         output: 
-        l_coord is a list of coordinates in assymmetric cell (frac_x = n_x/n_a and so on)
+        l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)
         l_symm contains a list of symmetry given as (n_symm, centr, n_orig)
         """
 
@@ -557,16 +626,15 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
 
         #print("na: {:}, n_b: {:}, n_c: {:}".format(n_a_new, n_b_new, n_c_new))
 
-        l_el_symm = self._p_el_symm
-        f_centr = self._p_centr
-        p_centr = self._p_p_centr
-        l_orig = self._p_orig
-
+        l_el_symm = self.el_symm
+        f_centr = self.centr
+        p_centr = self.p_centr
+        l_orig = self.orig
         l_coord = []
         
-        spgr_choice = self._p_spgr_choice 
-        spgr_name = self._p_spgr_name 
-        spgr_number = self._p_spgr_number
+        spgr_choice = self.spgr_choice 
+        spgr_name = self.spgr_name 
+        spgr_number = self.spgr_number
         
         if (spgr_number==227) & (spgr_choice=="2"):
             n_a_new = int(round(n_a/8))*8
@@ -583,3 +651,21 @@ b_1, b_2,  b_3 is translation vecto for symmetry elements
                             l_coord.append((coord_x, coord_y, coord_z))
         return l_coord
 
+    def from_cif(self, string: str):
+        cif_global = CIFglobal()
+        flag = cif_global.take_from_string(string)
+        if not flag:
+            return False
+        flag = False
+        if cif_global.is_value("_space_group_name_H-M_alt"):
+            self.spgr_name = cif_global["_space_group_name_H-M_alt"].value
+        if cif_global.is_value("_space_group_it_coordinate_system_code"):
+            self.spgr_choice = cif_global["_space_group_it_coordinate_system_code"].value
+        return True
+
+    @property
+    def to_cif(self):
+        ls_out = []
+        ls_out.append("_space_group_name_H-M_alt {:}".format(self.spgr_name))
+        ls_out.append("_space_group_it_coordinate_system_code {:}".format(self.spgr_choice))
+        return "\n".join(ls_out)

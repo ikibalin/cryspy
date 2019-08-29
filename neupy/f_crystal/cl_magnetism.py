@@ -150,17 +150,21 @@ class Magnetism(object):
     @chi_33.setter
     def chi_33(self, x):
         self.__atom_site_aniso_magnetism_chi_33 = self._trans_to_float_array(x)    
-
     @property
     def chi_12(self):
         return self.__atom_site_aniso_magnetism_chi_12
     @chi_12.setter
     def chi_12(self, x):
         self.__atom_site_aniso_magnetism_chi_12 = self._trans_to_float_array(x)    
-
     @property
     def chi_13(self):
         return self.__atom_site_aniso_magnetism_chi_13
+    @chi_13.setter
+    def chi_13(self, x):
+        self.__atom_site_aniso_magnetism_chi_13 = self._trans_to_float_array(x)    
+    @property
+    def chi_23(self):
+        return self.__atom_site_aniso_magnetism_chi_23
     @chi_23.setter
     def chi_23(self, x):
         self.__atom_site_aniso_magnetism_chi_23 = self._trans_to_float_array(x)    

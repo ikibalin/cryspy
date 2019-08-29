@@ -6,9 +6,9 @@ data_Fe3O4
 _cell_angle_alpha 90.0
 _cell_angle_beta 90.0
 _cell_angle_gamma 90.0
-_cell_length_a 8.55020223851
-_cell_length_b 8.55020223851
-_cell_length_c 8.55020223851
+_cell_length_a 8.56212
+_cell_length_b 8.56212
+_cell_length_c 8.56212
 _space_group_it_coordinate_system_code 2
 _space_group_name_H-M_alt Fd-3m
 
@@ -54,11 +54,11 @@ _atom_site_susceptibility_aniso_chi_13
 _atom_site_susceptibility_aniso_chi_22
 _atom_site_susceptibility_aniso_chi_23
 _atom_site_susceptibility_aniso_chi_33
- Fe3A 2.0 1.0 cani Fe3 -3.61694652768 0.0 0.0 -3.61694652768 0.0 -3.61694652768
- Fe3B 2.0 1.0 cani Fe3 3.18467555329 0.0 0.0 3.18467555329 0.0 3.18467555329
+ Fe3A 2.0 1.0 cani Fe3 -3.468(74) 0.0 0.0 -3.468141284179687 0.0 -3.468141284179687
+ Fe3B 2.0 1.0 cani Fe3 3.041 0.0 0.0 3.041 0.0 3.041
 
 data_pnd
-_pd_beam_flipper_efficiency 1.
+_pd_beam_flipper_efficiency 1.0
 _pd_beam_polarization_up 1e-05
 _pd_chi2_diff False
 _pd_chi2_down False
@@ -76,7 +76,7 @@ _pd_resolution_v -2.83572490939
 _pd_resolution_w 0.576309204074
 _pd_resolution_x 0.0
 _pd_resolution_y 0.0
-_pd_shift_const -0.412323938051
+_pd_shift_const -0.385404
 _pd_tth_max 80.0
 _pd_tth_min 4.0
 
@@ -84,4 +84,4 @@ loop_
 _pd_phase_igsize
 _pd_phase_name
 _pd_phase_scale
- 0.0 Fe3O4 0.0232
+ 0.0 Fe3O4 0.02381

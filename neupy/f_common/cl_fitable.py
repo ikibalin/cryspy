@@ -6,6 +6,7 @@ __version__ = "2019_08_22"
 
 import numpy
 from math import *
+from pystar import CIFvalue
 
 class Fitable(object):
     """
@@ -21,6 +22,52 @@ class Fitable(object):
         self.constraint = constraint
         self.minimal = minimal
         self.maximal = maximal
+
+    def take_it(self, object_):
+        """
+        Try to convert some objects to Fitable attributes
+        """
+        if isinstance(object_, Fitable):
+            self.value = object_.value
+            self.sigma = object_.sigma
+            self.refinement = object_.refinement
+            self.name = object_.name
+            self.constraint = object_.constraint
+            self.minimal = object_.minimal
+            self.maximal = object_.maximal
+        elif isinstance(object_, CIFvalue):
+            self.name = object_.name
+            self.constraint = object_.comment
+            string = object_.value
+            ind_1 = string.find("(")
+            if  ind_1 != -1:
+                self.refinement = True
+            str_1 = string.split("(")[0]
+            try:
+                self.value = float(str_1)
+            except:
+                self._show_message("Can not convert value of CIFvalue to float")
+                return False
+        elif isinstance(object_, str):
+            string = object_
+            ind_1 = string.find("(")
+            if ind_1 != -1:
+                self.refinement = True
+            str_1 = string.split("(")[0]
+            try:
+                self.value = float(str_1)
+            except:
+                self._show_message("Can not convert string to float")
+                return False
+        else:
+            self._show_message("Unsupported format object for convertation to Fitable")
+            return False
+        return True
+
+    def _show_message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)
+
     @property
     def value(self):
         return self.__value
@@ -97,7 +144,7 @@ class Fitable(object):
     def __bool__(self):
         return self.refinement
     def __repr__(self):
-        ls_out = [self.print_with_sigma()]
+        ls_out = [self.print_with_sigma]
         if self.name is not None:
             ls_out.append("name: {:}".format(self.name))
         if self.minimal is not None:
@@ -106,12 +153,14 @@ class Fitable(object):
             ls_out.append("maximal: {:.3f}".format(self.maximal))
         if self.refinement:
             ls_out.append("refinement: {:}".format(self.refinement))
-        if self.constraint is not None:
-            ls_out.append("constraint: {:}".format(self.constraint))
+        if (self.constraint is not None):
+            if self.constraint != "":
+                ls_out.append("constraint: {:}".format(self.constraint))
         res = ls_out[0]
         if len(ls_out) > 1:
             res = "{:} ({:})".format(res, ", ".join(ls_out[1:]))            
         return res
+    @property
     def print_with_sigma(self):
         if not((self.sigma == 0.)|(self.sigma is None)):
             val_hh = numpy.log10(self.sigma)
@@ -130,6 +179,8 @@ class Fitable(object):
                 val_1 = numpy.round(self.value)
                 val_2 = numpy.round(self.sigma)
                 ls_out = " {:}({:})".format(int(val_1), int(val_2))
+        elif self.refinement:
+            ls_out = "{:}()".format(self.value)
         else:
             ls_out = "{:}".format(self.value)
         return ls_out 

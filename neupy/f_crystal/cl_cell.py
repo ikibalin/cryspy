@@ -2,8 +2,10 @@ __author__ = 'ikibalin'
 __version__ = "2019_08_25"
 import os
 import numpy
+from pystar import CIFglobal
 
 from neupy.f_common.cl_fitable import Fitable
+from neupy.f_crystal.cl_space_group import SpaceGroup
 
 class Cell(object):
     """
@@ -92,13 +94,8 @@ class Cell(object):
         return self.__cell_length_a
     @a.setter
     def a(self, x):
-        if isinstance(x, Fitable):
-            x_in = x
-        else:
-            try:
-                x_in = Fitable(x, None, False, "_cell_length_a")
-            except:
-                x_in = None
+        x_in = Fitable()
+        flag = x_in.take_it(x)
         self.__cell_length_a = x_in
         self._apply_constraint()        
     @property
@@ -113,13 +110,8 @@ class Cell(object):
         return self.__cell_length_b
     @b.setter
     def b(self, x):
-        if isinstance(x, Fitable):
-            x_in = x
-        else:
-            try:
-                x_in = Fitable(x, None, False, "_cell_length_b")
-            except:
-                x_in = None
+        x_in = Fitable()
+        flag = x_in.take_it(x)
         self.__cell_length_b = x_in
         self._apply_constraint()        
     @property
@@ -134,13 +126,8 @@ class Cell(object):
         return self.__cell_length_c
     @c.setter
     def c(self, x):
-        if isinstance(x, Fitable):
-            x_in = x
-        else:
-            try:
-                x_in = Fitable(x, None, False, "_cell_length_c")
-            except:
-                x_in = None
+        x_in = Fitable()
+        flag = x_in.take_it(x)
         self.__cell_length_c = x_in
         self._apply_constraint()        
     @property
@@ -155,13 +142,8 @@ class Cell(object):
         return self.__cell_angle_alpha
     @alpha.setter
     def alpha(self, x):
-        if isinstance(x, Fitable):
-            x_in = x
-        else:
-            try:
-                x_in = Fitable(x, None, False, "_cell_angle_alpha")
-            except:
-                x_in = None
+        x_in = Fitable()
+        flag = x_in.take_it(x)
         self.__cell_angle_alpha = x_in
         self._apply_constraint()        
     @property
@@ -176,13 +158,8 @@ class Cell(object):
         return self.__cell_angle_beta
     @beta.setter
     def beta(self, x):
-        if isinstance(x, Fitable):
-            x_in = x
-        else:
-            try:
-                x_in = Fitable(x, None, False, "_cell_angle_beta")
-            except:
-                x_in = None
+        x_in = Fitable()
+        flag = x_in.take_it(x)
         self.__cell_angle_beta = x_in
         self._apply_constraint()        
     @property
@@ -197,13 +174,8 @@ class Cell(object):
         return self.__cell_angle_gamma
     @gamma.setter
     def gamma(self, x):
-        if isinstance(x, Fitable):
-            x_in = x
-        else:
-            try:
-                x_in = Fitable(x, None, False, "_cell_angle_gamma")
-            except:
-                x_in = None
+        x_in = Fitable()
+        flag = x_in.take_it(x)
         self.__cell_angle_gamma = x_in
         self._apply_constraint()        
     @property
@@ -863,4 +835,38 @@ class Cell(object):
         arg_sort = numpy.argsort(sthovl)
         return h[arg_sort], k[arg_sort], l[arg_sort], mult[arg_sort] 
 
-        
+    @property
+    def to_cif(self):
+        ls_out = ["_cell_length_a {:}".format(self.a.print_with_sigma)]
+        ls_out.append("_cell_length_b {:}".format(self.b.print_with_sigma))
+        ls_out.append("_cell_length_c {:}".format(self.c.print_with_sigma))
+        ls_out.append("_cell_angle_alpha {:}".format(self.alpha.print_with_sigma))
+        ls_out.append("_cell_angle_beta {:}".format(self.beta.print_with_sigma))
+        ls_out.append("_cell_angle_gamma {:}".format(self.beta.print_with_sigma))
+        return "\n".join(ls_out)
+    
+    def from_cif(self, string: str):
+        cif_global = CIFglobal()
+        flag = cif_global.take_from_string(string)
+        if not flag:
+            return False
+        flag = False
+        if cif_global.is_value("cell_length_a"):
+            self.a = cif_global["cell_length_a"] # CIFvalue
+        if cif_global.is_value("cell_length_b"):
+            self.b = cif_global["cell_length_b"] # CIFvalue
+        if cif_global.is_value("cell_length_c"):
+            self.c = cif_global["cell_length_c"] # CIFvalue
+        if cif_global.is_value("cell_angle_alpha"):
+            self.alpha = cif_global["cell_angle_alpha"] # CIFvalue
+        if cif_global.is_value("cell_angle_beta"):
+            self.beta = cif_global["cell_angle_beta"] # CIFvalue
+        if cif_global.is_value("cell_angle_gamma"):
+            self.gamma = cif_global["cell_angle_gamma"] # CIFvalue
+        if (cif_global.is_value("_space_group_name_H-M_alt") & cif_global.is_value("_space_group_it_coordinate_system_code")):
+            space_groupe = SpaceGroup(spgr_given_name=cif_global["_space_group_name_H-M_alt"].value, 
+                                      spgr_choice=cif_global["_space_group_it_coordinate_system_code"].value)
+            self.bravais_lattice =space_groupe.bravais_lattice
+
+        return True
+
