@@ -169,7 +169,7 @@ class SpaceGroup(object):
             ls_out.append(" name: {:}".format(self.spgr_name))
         if self.spgr_number is not None:
             ls_out.append(" number: {:}".format(self.spgr_number))
-        ls_out.append(" {:}\n directory: '{:}'".format(self._trans_el_symm_to_str(), self.f_dir_prog))
+        #ls_out.append(" {:}\n directory: '{:}'".format(self._trans_el_symm_to_str(), self.f_dir_prog))
         return "\n".join(ls_out)
 
     @property

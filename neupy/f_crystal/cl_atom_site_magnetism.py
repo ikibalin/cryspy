@@ -51,7 +51,7 @@ class AtomSiteMagnetism(object):
 
         Type: char
         """
-        return self.__atom_site_magnetism_label
+        return tuple(self.__atom_site_magnetism_label)
     @label.setter
     def label(self, l_x):
         l_x_in = []
@@ -83,7 +83,7 @@ class AtomSiteMagnetism(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_lande
+        return tuple(self.__atom_site_magnetism_lande)
     @lande.setter
     def lande(self, l_x):
         l_fitable = []
@@ -111,7 +111,7 @@ class AtomSiteMagnetism(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_kappa
+        return tuple(self.__atom_site_magnetism_kappa)
     @kappa.setter
     def kappa(self, l_x):
         l_fitable = []

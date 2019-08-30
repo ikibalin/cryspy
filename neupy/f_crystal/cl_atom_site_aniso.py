@@ -78,7 +78,7 @@ class AtomSiteAniso(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html
         """
-        return self.__atom_site_aniso_label
+        return tuple(self.__atom_site_aniso_label)
     @label.setter
     def label(self, l_x):
         l_x_in = []
@@ -151,7 +151,7 @@ class AtomSiteAniso(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html
         """
-        return self.__atom_site_aniso_u_11
+        return tuple(self.__atom_site_aniso_u_11)
     @u_11.setter
     def u_11(self, l_x):
         l_fitable = []
@@ -176,7 +176,7 @@ class AtomSiteAniso(object):
         """
         see help for u_11 parameter
         """
-        return self.__atom_site_aniso_u_22
+        return tuple(self.__atom_site_aniso_u_22)
     @u_22.setter
     def u_22(self, l_x):
         l_fitable = []
@@ -201,7 +201,7 @@ class AtomSiteAniso(object):
         """
         see help for u_11 parameter
         """
-        return self.__atom_site_aniso_u_33
+        return tuple(self.__atom_site_aniso_u_33)
     @u_33.setter
     def u_33(self, l_x):
         l_fitable = []
@@ -226,7 +226,7 @@ class AtomSiteAniso(object):
         """
         see help for u_11 parameter
         """
-        return self.__atom_site_aniso_u_12
+        return tuple(self.__atom_site_aniso_u_12)
     @u_12.setter
     def u_12(self, l_x):
         l_fitable = []
@@ -251,7 +251,7 @@ class AtomSiteAniso(object):
         """
         see help for u_11 parameter
         """
-        return self.__atom_site_aniso_u_13
+        return tuple(self.__atom_site_aniso_u_13)
     @u_13.setter
     def u_13(self, l_x):
         l_fitable = []
@@ -276,7 +276,7 @@ class AtomSiteAniso(object):
         """
         see help for u_11 parameter
         """
-        return self.__atom_site_aniso_u_23
+        return tuple(self.__atom_site_aniso_u_23)
     @u_23.setter
     def u_23(self, l_x):
         l_fitable = []

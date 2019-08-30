@@ -71,7 +71,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: char
         """
-        return self.__atom_site_magnetism_aniso_label
+        return tuple(self.__atom_site_magnetism_aniso_label)
     @label.setter
     def label(self, l_x):
         l_x_in = []
@@ -139,7 +139,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: char
         """
-        return self.__atom_site_magnetism_aniso_chi_type
+        return tuple(self.__atom_site_magnetism_aniso_chi_type)
     @chi_type.setter
     def chi_type(self, l_x):
         l_fitable = []
@@ -163,7 +163,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_aniso_chi_11
+        return tuple(self.__atom_site_magnetism_aniso_chi_11)
     @chi_11.setter
     def chi_11(self, l_x):
         l_fitable = []
@@ -192,7 +192,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_aniso_chi_22
+        return tuple(self.__atom_site_magnetism_aniso_chi_22)
     @chi_22.setter
     def chi_22(self, l_x):
         l_fitable = []
@@ -221,7 +221,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_aniso_chi_33
+        return tuple(self.__atom_site_magnetism_aniso_chi_33)
     @chi_33.setter
     def chi_33(self, l_x):
         l_fitable = []
@@ -250,7 +250,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_aniso_chi_12
+        return tuple(self.__atom_site_magnetism_aniso_chi_12)
     @chi_12.setter
     def chi_12(self, l_x):
         l_fitable = []
@@ -279,7 +279,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_aniso_chi_13
+        return tuple(self.__atom_site_magnetism_aniso_chi_13)
     @chi_13.setter
     def chi_13(self, l_x):
         l_fitable = []
@@ -308,7 +308,7 @@ class AtomSiteMagnetismAniso(object):
 
         Type: float
         """
-        return self.__atom_site_magnetism_aniso_chi_23
+        return tuple(self.__atom_site_magnetism_aniso_chi_23)
     @chi_23.setter
     def chi_23(self, l_x):
         l_fitable = []

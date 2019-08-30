@@ -36,7 +36,8 @@ class AtomSite(object):
     reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html
     """    
     def __init__(self, label=[],  type_symbol=[], x=[], y=[], z=[], 
-                       adp_type=[], b_iso=[], occupancy=[]):
+                       adp_type=[], b_iso=[], occupancy=[],
+                       f_dir_prog = os.path.dirname(__file__)):
         super(AtomSite, self).__init__()
 
         self.__atom_site_label = []
@@ -47,6 +48,27 @@ class AtomSite(object):
         self.__atom_site_adp_type = []
         self.__atom_site_b_iso_or_equiv = []
         self.__atom_site_occupancy = []
+        self.__f_dir_prog = None
+        #internal data
+        self.__handbook_nucl = None
+        self.__handbook_mag = None
+        self.__scat_length_neutron = None
+        self.__j0_A = None
+        self.__j0_a = None
+        self.__j0_B = None
+        self.__j0_b = None
+        self.__j0_C = None
+        self.__j0_c = None
+        self.__j0_D = None
+        self.__j2_A = None
+        self.__j2_a = None
+        self.__j2_B = None
+        self.__j2_b = None
+        self.__j2_C = None
+        self.__j2_c = None
+        self.__j2_D = None
+
+
 
         self.label = label
         self.type_symbol = type_symbol
@@ -56,17 +78,36 @@ class AtomSite(object):
         self.adp_type = adp_type
         self.b_iso = b_iso
         self.occupancy = occupancy
+        self.f_dir_prog = f_dir_prog
         
     def __repr__(self):
         ls_out = ["AtomSite:"]
-
-                       
         ls_out.append(" label type_symbol x        y        z        adp_type b_iso    occupancy")
         for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in zip(
             self.label, self.type_symbol, self.x, self.y, self.z, self.adp_type, self.b_iso, self.occupancy):
             ls_out.append(" {:8} {:8} {:8} {:8} {:8} {:8} {:8} {:8}".format(hh_1, hh_2,
                     hh_3.print_with_sigma, hh_4.print_with_sigma, hh_5.print_with_sigma,
                     hh_6, hh_7.print_with_sigma, hh_8.print_with_sigma))
+        l_type_symbol = self.type_symbol
+        l_ind = [l_type_symbol.index(hh) for hh in set(l_type_symbol)]
+        l_scat = self.scat_length_neutron
+        l_j0_A, l_j0_a, l_j0_B, l_j0_b, l_j0_C, l_j0_c, l_j0_D, l_j2_A, l_j2_a, l_j2_B, l_j2_b, l_j2_C, l_j2_c, l_j2_D = self.j0j2
+        l_1, l_2, l_3 = [l_type_symbol[hh] for hh in l_ind], [l_scat[hh] for hh in l_ind], [l_j0_A[hh] for hh in l_ind]
+        l_4, l_5, l_6 = [l_j0_a[hh] for hh in l_ind], [l_j0_B[hh] for hh in l_ind], [l_j0_b[hh] for hh in l_ind]
+        l_7, l_8, l_9 = [l_j0_C[hh] for hh in l_ind], [l_j0_c[hh] for hh in l_ind], [l_j0_D[hh] for hh in l_ind]
+        l_10, l_11, l_12 = [l_j2_A[hh] for hh in l_ind], [l_j2_a[hh] for hh in l_ind], [l_j2_B[hh] for hh in l_ind]
+        l_13, l_14, l_15 = [l_j2_b[hh] for hh in l_ind], [l_j2_C[hh] for hh in l_ind], [l_j2_c[hh] for hh in l_ind]
+        l_16 = [l_j2_D[hh] for hh in l_ind]
+
+        for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8, hh_9, hh_10, hh_11, hh_12, hh_13, hh_14, hh_15, hh_16 in zip(
+            l_1, l_2, l_3, l_4, l_5, l_6, l_7, l_8, l_9, l_10, l_11, l_12, l_13, l_14, l_15, l_16):
+            ls_out.append("\n for type_symbol '{:}'".format(hh_1))
+            ls_out.append(" scat_length_neutron: {:.4f} cm**-12".format(hh_2))
+            ls_out.append(" j0_A:{:8.4f},  j0_a:{:8.4f},  j0_B:{:8.4f},  j0_b:{:8.4f}".format(hh_3, hh_4, hh_5, hh_6))
+            ls_out.append(" j0_C:{:8.4f},  j0_c:{:8.4f},  j0_D:{:8.4f}".format(hh_7, hh_8, hh_9))
+            ls_out.append(" j2_A:{:8.4f},  j2_a:{:8.4f},  j2_B:{:8.4f},  j2_b:{:8.4f}".format(hh_10, hh_11, hh_12, hh_13))
+            ls_out.append(" j2_C:{:8.4f},  j2_c:{:8.4f},  j2_D:{:8.4f}".format(hh_14, hh_15, hh_16))
+        
         return "\n".join(ls_out)
 
     @property
@@ -79,7 +120,7 @@ class AtomSite(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html
         """
-        return self.__atom_site_label
+        return tuple(self.__atom_site_label)
     @label.setter
     def label(self, l_x):
         l_x_in = []
@@ -142,7 +183,7 @@ class AtomSite(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html
         """
-        return self.__atom_site_type_symbol
+        return tuple(self.__atom_site_type_symbol)
     @type_symbol.setter
     def type_symbol(self, l_x):
         l_x_in = []
@@ -156,7 +197,21 @@ class AtomSite(object):
         elif len_1 > len_x:
             l_x_in.extend(["Fe3+" for hh in range(len_1-len_x)])
         self.__atom_site_type_symbol = l_x_in
-
+        self.__scat_length_neutron = None
+        self.__j0_A = None
+        self.__j0_a = None
+        self.__j0_B = None
+        self.__j0_b = None
+        self.__j0_C = None
+        self.__j0_c = None
+        self.__j0_D = None
+        self.__j2_A = None
+        self.__j2_a = None
+        self.__j2_B = None
+        self.__j2_b = None
+        self.__j2_C = None
+        self.__j2_c = None
+        self.__j2_D = None
 
     @property
     def x(self):
@@ -169,7 +224,7 @@ class AtomSite(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html
         """
-        return self.__atom_site_fract_x
+        return tuple(self.__atom_site_fract_x)
     @x.setter
     def x(self, l_x):
         l_fitable = []
@@ -194,7 +249,7 @@ class AtomSite(object):
         """
         see help for x parameter
         """
-        return self.__atom_site_fract_y
+        return tuple(self.__atom_site_fract_y)
     @y.setter
     def y(self, l_x):
         l_fitable = []
@@ -219,7 +274,7 @@ class AtomSite(object):
         """
         see help for x parameter
         """
-        return self.__atom_site_fract_z
+        return tuple(self.__atom_site_fract_z)
     @z.setter
     def z(self, l_x):
         l_fitable = []
@@ -248,7 +303,7 @@ class AtomSite(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_adp_type.html
         """
-        return self.__atom_site_adp_type
+        return tuple(self.__atom_site_adp_type)
     @adp_type.setter
     def adp_type(self, l_x):
         l_list = ["uani", "uiso"]
@@ -290,7 +345,7 @@ class AtomSite(object):
 
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_B_iso_or_equiv.html
         """
-        return self.__atom_site_b_iso_or_equiv
+        return tuple(self.__atom_site_b_iso_or_equiv)
     @b_iso.setter
     def b_iso(self, l_x):
         l_fitable = []
@@ -324,7 +379,7 @@ class AtomSite(object):
         
         reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_occupancy.html
         """
-        return self.__atom_site_occupancy
+        return tuple(self.__atom_site_occupancy)
     @occupancy.setter
     def occupancy(self, l_x):
         l_fitable = []
@@ -345,6 +400,18 @@ class AtomSite(object):
             l_fitable.extend([Fitable(value=1., name="_atom_site_occupancy") for hh in range(len_1-len_x)])
         self.__atom_site_occupancy = l_fitable
 
+    @property
+    def f_dir_prog(self):
+        """
+
+        reference:
+        """
+        return self.__f_dir_prog
+    @f_dir_prog.setter
+    def f_dir_prog(self, x):
+        self.__f_dir_prog = x
+        self._load_handbook_n()    
+        self._load_handbook_m()
 
     def _show_message(self, s_out: str):
         print("***  Error ***")
@@ -456,3 +523,269 @@ class AtomSite(object):
             self.label = []
         return True
 
+    def _load_handbook_n(self):
+        f_name = os.path.join(self.__f_dir_prog, "tables", "bscat.tab")
+        fid = open(f_name, 'r')
+        lcont = fid.readlines()
+        fid.close()
+        lcont = [line for line in lcont if not(line.startswith("#"))]
+        ldcard = []
+        for line in lcont:
+            lhelp = line.strip().split()
+            
+            sline = lhelp[2].replace("i","j")
+            sline = sline.split("(")[0]
+            try:
+                if sline.rfind("j") != -1:
+                    b_scat = 0.1*complex(sline)
+                else:
+                    b_scat = 0.1*float(sline)
+            except:
+                b_scat = 0.
+            dcard = {"type_n": lhelp[0], "b_scat": b_scat}
+            ldcard.append(dcard)
+        self.__handbook_nucl = ldcard
+
+    def _load_handbook_m(self):
+        f_name = os.path.join(self.__f_dir_prog, "tables", "formmag.tab")
+        fid = open(f_name, 'r')
+        lcont = fid.readlines()
+        fid.close()
+        lcont = [line for line in lcont if line.startswith("F")]
+        ldcard = []
+        for line in lcont:
+            lhelp = line.strip().split()
+            dcard = {"type_m": lhelp[1], "order": int(lhelp[2]),
+                     "A": float(lhelp[3]),"a": float(lhelp[4]),
+                     "B": float(lhelp[5]),"b": float(lhelp[6]),
+                     "C": float(lhelp[7]),"c": float(lhelp[8]),
+                     "D": float(lhelp[9])}
+            ldcard.append(dcard)
+        self.__handbook_mag = ldcard
+
+    @property
+    def scat_length_neutron(self):
+        if self.__scat_length_neutron is None:
+            l_res = [self._get_scat_length_neutron(type_symbol) for type_symbol in self.type_symbol]
+            res = tuple(l_res)
+            self.__scat_length_neutron = l_res 
+        else:
+            res = tuple(self.__scat_length_neutron)
+        return res
+
+    @property
+    def b_scat(self):
+        return self.scat_length_neutron
+
+    def _get_scat_length_neutron(self, type_n):
+        """
+        Take scat_length_neutron
+        """
+        str_1 = type_n.strip().lower()
+        str_1 = "".join([hh if hh.isalpha() else ' ' for hh in str_1 ]).split(" ")[0]
+        l_dcard = self.__handbook_nucl 
+        flag = False
+        for dcard in l_dcard:
+            if (dcard["type_n"].lower() == str_1):
+                res = dcard["b_scat"]
+                flag = True
+            elif flag:
+                break
+        if not(flag):
+            res = 0.
+            self._show_message("Can not find b_scat for '{:}'.\n It is putted as 0.".format(type_n))
+        return res 
+
+
+    @property
+    def j0j2(self):
+        flag = any([self.__j0_A is None, self.__j0_a is None, self.__j0_B is None, self.__j0_b is None, 
+                    self.__j0_C is None, self.__j0_c is None, self.__j0_D is None, 
+                    self.__j2_A is None, self.__j2_a is None, self.__j2_B is None, self.__j2_b is None, 
+                    self.__j2_C is None, self.__j2_c is None, self.__j2_D is None])
+
+        if flag:
+            l_j0_A, l_j0_a, l_j0_B, l_j0_b, l_j0_C, l_j0_c, l_j0_D = [], [], [], [], [], [], []
+            l_j2_A, l_j2_a, l_j2_B, l_j2_b, l_j2_C, l_j2_c, l_j2_D = [], [], [], [], [], [], []
+            for type_symbol in self.type_symbol:
+                j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D = self._get_j0j2(type_symbol)
+                l_j0_A.append(j0_A)
+                l_j0_a.append(j0_a)
+                l_j0_B.append(j0_B)
+                l_j0_b.append(j0_b)
+                l_j0_C.append(j0_C)
+                l_j0_c.append(j0_c)
+                l_j0_D.append(j0_D)
+                l_j2_A.append(j2_A)
+                l_j2_a.append(j2_a)
+                l_j2_B.append(j2_B)
+                l_j2_b.append(j2_b)
+                l_j2_C.append(j2_C)
+                l_j2_c.append(j2_c)
+                l_j2_D.append(j2_D)
+            self.__j0_A, self.__j0_a, self.__j0_B, self.__j0_b = tuple(l_j0_A), tuple(l_j0_a), tuple(l_j0_B), tuple(l_j0_b)
+            self.__j0_C, self.__j0_c, self.__j0_D = tuple(l_j0_C), tuple(l_j0_c), tuple(l_j0_D)
+            self.__j2_A, self.__j2_a, self.__j2_B, self.__j2_b = tuple(l_j2_A), tuple(l_j2_a), tuple(l_j2_B), tuple(l_j2_b)
+            self.__j2_C, self.__j2_c, self.__j2_D = tuple(l_j2_C), tuple(l_j2_c), tuple(l_j2_D)
+            l_res = tuple([l_j0_A, l_j0_a, l_j0_B, l_j0_b, l_j0_C, l_j0_c, l_j0_D, 
+                           l_j2_A, l_j2_a, l_j2_B, l_j2_b, l_j2_C, l_j2_c, l_j2_D])
+        else:
+            j0_A, j0_a, j0_B, j0_b = self.__j0_A, self.__j0_a, self.__j0_B, self.__j0_b
+            j0_C, j0_c, j0_D = self.__j0_C, self.__j0_c, self.__j0_D
+            j2_A, j2_a, j2_B, j2_b = self.__j2_A, self.__j2_a, self.__j2_B, self.__j2_b
+            j2_C, j2_c, j2_D = self.__j2_C, self.__j2_c, self.__j2_D
+            l_res = tuple([j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, 
+                           j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D])
+        return l_res
+
+    @property
+    def j0_A(self):
+        if self.__j0_A is None:
+            l_res = self.j0j2
+            res = l_res[0]
+        else:
+            res = self.__j0_A
+        return res
+    @property
+    def j0_a(self):
+        if self.__j0_a is None:
+            l_res = self.j0j2
+            res = l_res[1]
+        else:
+            res = self.__j0_a
+        return res
+    @property
+    def j0_B(self):
+        if self.__j0_B is None:
+            l_res = self.j0j2
+            res = l_res[2]
+        else:
+            res = self.__j0_B
+        return res
+    @property
+    def j0_b(self):
+        if self.__j0_b is None:
+            l_res = self.j0j2
+            res = l_res[3]
+        else:
+            res = self.__j0_b
+        return res
+    @property
+    def j0_C(self):
+        if self.__j0_C is None:
+            l_res = self.j0j2
+            res = l_res[4]
+        else:
+            res = self.__j0_C
+        return res
+    @property
+    def j0_c(self):
+        if self.__j0_c is None:
+            l_res = self.j0j2
+            res = l_res[5]
+        else:
+            res = self.__j0_c
+        return res
+    @property
+    def j0_D(self):
+        if self.__j0_D is None:
+            l_res = self.j0j2
+            res = l_res[6]
+        else:
+            res = self.__j0_D
+        return res
+    @property
+    def j2_A(self):
+        if self.__j2_A is None:
+            l_res = self.j0j2
+            res = l_res[7]
+        else:
+            res = self.__j2_A
+        return res
+    @property
+    def j2_a(self):
+        if self.__j2_a is None:
+            l_res = self.j0j2
+            res = l_res[8]
+        else:
+            res = self.__j2_a
+        return res
+    @property
+    def j2_B(self):
+        if self.__j2_B is None:
+            l_res = self.j0j2
+            res = l_res[9]
+        else:
+            res = self.__j2_B
+        return res
+    @property
+    def j2_b(self):
+        if self.__j2_b is None:
+            l_res = self.j0j2
+            res = l_res[10]
+        else:
+            res = self.__j2_b
+        return res
+    @property
+    def j2_C(self):
+        if self.__j2_C is None:
+            l_res = self.j0j2
+            res = l_res[11]
+        else:
+            res = self.__j2_C
+        return res
+    @property
+    def j2_c(self):
+        if self.__j2_c is None:
+            l_res = self.j0j2
+            res = l_res[12]
+        else:
+            res = self.__j2_c
+        return res
+    @property
+    def j2_D(self):
+        if self.__j2_D is None:
+            l_res = self.j0j2
+            res = l_res[13]
+        else:
+            res = self.__j2_D
+        return res
+
+
+    def _get_j0j2(self, type_m):
+        """
+        Take coefficients for <j0> and <j2>
+        """
+        str_1 = type_m.strip().lower()
+        str_1 = "".join([hh if hh.isalnum() else ' ' for hh in str_1 ]).split(" ")[0]
+
+        ldcard = self.__handbook_mag 
+        flag_0, flag_2 = False, False
+        for dcard in ldcard:
+            if ((dcard["type_m"].lower() == str_1)&(dcard["order"] == 0)):
+                j0_A = dcard["A"]
+                j0_a = dcard["a"]
+                j0_B = dcard["B"]
+                j0_b = dcard["b"]
+                j0_C = dcard["C"]
+                j0_c = dcard["c"]
+                j0_D = dcard["D"]
+                flag_0 = True
+            elif ((dcard["type_m"].lower() == str_1)&(dcard["order"] == 2)):
+                j2_A = dcard["A"]
+                j2_a = dcard["a"]
+                j2_B = dcard["B"]
+                j2_b = dcard["b"]
+                j2_C = dcard["C"]
+                j2_c = dcard["c"]
+                j2_D = dcard["D"]
+                flag_2 = True
+            elif (flag_0 & flag_2):
+                break
+        if not(flag_0):
+            j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D = 0., 0., 0., 0., 0., 0. ,0.
+            self._show_message("Can not find coefficients <j0> for '{:}'.\n It is setted as 0.".format(type_m))
+        if not(flag_2):
+            j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D = 0., 0., 0., 0., 0., 0. ,0.
+            self._show_message("Can not find coefficients <j2> for '{:}.\n It is setted as 0.'".format(type_m))
+        return j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D

@@ -111,28 +111,21 @@ class Crystal(object):
         
     def __repr__(self):
         ls_out = ["Crystal:"]
-        ls_out.append(self.label)
+        ls_out.append("label: "+self.label+"\n")
         if self.cell is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.cell))
+            ls_out.append(str(self.cell)+"\n")
         if self.space_group is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.space_group))
+            ls_out.append(str(self.space_group)+"\n")
         if self.atom_type is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.atom_type))
+            ls_out.append(str(self.atom_type)+"\n")
         if self.atom_site is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.atom_site))
+            ls_out.append(str(self.atom_site)+"\n")
         if self.atom_site_aniso is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.atom_site_aniso))
+            ls_out.append(str(self.atom_site_aniso)+"\n")
         if self.atom_site_magnetism is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.atom_site_magnetism))
+            ls_out.append(str(self.atom_site_magnetism)+"\n")
         if self.atom_site_magnetism_aniso is not None:
-            ls_out.append("\n")
-            ls_out.append(str(self.atom_site_magnetism_aniso))
+            ls_out.append(str(self.atom_site_magnetism_aniso)+"\n")
         return "\n".join(ls_out)
 
     @property
@@ -378,8 +371,9 @@ class Crystal(object):
         return cond
     @property
     def is_variable(self):
+        flag_1, flag_2, flag_3, flag_4, flag_5, flag_6, flag_7 = False, False, False, False, False, False, False
         if self.cell is not None: flag_1 = self.cell.is_variable
-        if self.space_group is not None: flag_2 = self.space_group.is_variable
+        #if self.space_group is not None: flag_2 = self.space_group.is_variable
         if self.atom_type is not None: flag_3 = self.atom_type.is_variable
         if self.atom_site is not None: flag_4 = self.atom_site.is_variable
         if self.atom_site_aniso is not None: flag_5 = self.atom_site_aniso.is_variable
@@ -390,8 +384,9 @@ class Crystal(object):
 
 
     def get_variables(self):
+        l_val_1, l_val_2, l_val_3, l_val_4, l_val_5, l_val_6, l_val_7 = [], [], [], [], [], [], []
         if self.cell is not None: l_val_1 = self.cell.get_variables()
-        if self.space_group is not None: l_val_2 = self.space_group.get_variables()
+        #if self.space_group is not None: l_val_2 = self.space_group.get_variables()
         if self.atom_type is not None: l_val_3 = self.atom_type.get_variables()
         if self.atom_site is not None: l_val_4 = self.atom_site.get_variables()
         if self.atom_site_aniso is not None: l_val_5 = self.atom_site_aniso.get_variables()
@@ -429,7 +424,7 @@ class Crystal(object):
         flag = cif_data.take_from_string(string)
         if not flag:
             return False
-        self.name = cif_data.name
+        self.label = cif_data.name
         cif_values = cif_data.values
         if cif_values is not None:
             if cif_values.is_prefix("cell"):
