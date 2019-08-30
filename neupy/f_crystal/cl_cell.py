@@ -94,8 +94,11 @@ class Cell(object):
         return self.__cell_length_a
     @a.setter
     def a(self, x):
-        x_in = Fitable()
-        flag = x_in.take_it(x)
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__cell_length_a = x_in
         self._apply_constraint()        
     @property
@@ -110,8 +113,11 @@ class Cell(object):
         return self.__cell_length_b
     @b.setter
     def b(self, x):
-        x_in = Fitable()
-        flag = x_in.take_it(x)
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__cell_length_b = x_in
         self._apply_constraint()        
     @property
@@ -126,8 +132,11 @@ class Cell(object):
         return self.__cell_length_c
     @c.setter
     def c(self, x):
-        x_in = Fitable()
-        flag = x_in.take_it(x)
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__cell_length_c = x_in
         self._apply_constraint()        
     @property
@@ -142,8 +151,11 @@ class Cell(object):
         return self.__cell_angle_alpha
     @alpha.setter
     def alpha(self, x):
-        x_in = Fitable()
-        flag = x_in.take_it(x)
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__cell_angle_alpha = x_in
         self._apply_constraint()        
     @property
@@ -158,8 +170,11 @@ class Cell(object):
         return self.__cell_angle_beta
     @beta.setter
     def beta(self, x):
-        x_in = Fitable()
-        flag = x_in.take_it(x)
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__cell_angle_beta = x_in
         self._apply_constraint()        
     @property
@@ -174,8 +189,11 @@ class Cell(object):
         return self.__cell_angle_gamma
     @gamma.setter
     def gamma(self, x):
-        x_in = Fitable()
-        flag = x_in.take_it(x)
+        if isinstance(x, Fitable):
+            x_in = x
+        else:
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__cell_angle_gamma = x_in
         self._apply_constraint()        
     @property

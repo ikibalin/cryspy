@@ -18,3 +18,4 @@ from neupy.f_crystal.cl_crystal import Crystal
 
 from neupy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
 from neupy.f_crystal.cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
+from neupy.f_crystal.cl_atom_site_aniso import AtomSiteAniso

@@ -1,334 +1,445 @@
 """
-define classes to describe crystal 
+define classes to describe Crystal
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_08_30"
 import os
 import numpy
 
-from neupy.f_common.cl_variable import Variable
-from neupy.f_interface.cl_abstract_crystal import AbstractCrystal
 
+from pystar import CIFdata
+from neupy.f_common.cl_fitable import Fitable
 from neupy.f_crystal.cl_space_group import SpaceGroup
 from neupy.f_crystal.cl_cell import Cell
 from neupy.f_crystal.cl_atom_site import AtomSite
-from neupy.f_crystal.cl_extinction import Extinction
+from neupy.f_crystal.cl_atom_site_aniso import AtomSiteAniso
+from neupy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
+from neupy.f_crystal.cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
 
-from neupy.f_crystal.cl_magnetism import calc_mRmCmRT
+
+
+class Crystal(object):
+    """
+    Data items in the CRYSTAL category record details about
+    crystal structure.
     
-class Crystal(AbstractCrystal):
-    """
-    Crystal
-    """
-    def __init__(self, name=None, space_group=SpaceGroup(), cell=Cell(), 
-                 atom_site=AtomSite(), extinction=Extinction(), i_g=0.):
+    Description in cif file:
+
+    data_Fe3O4                                # object Crystal with label 'Fe3O4'
+    _cell_angle_alpha 90.0                    # object Cell
+    _cell_angle_beta 90.0
+    _cell_angle_gamma 90.0
+    _cell_length_a 8.56212()
+    _cell_length_b 8.56212
+    _cell_length_c 8.56212
+
+    _space_group_it_coordinate_system_code 2  # object SpaceGroup
+    _space_group_name_H-M_alt "F d -3 m"
+    _space_group_IT_number    232
+
+    loop_                                     # object AtomSite
+    _atom_site_adp_type
+    _atom_site_B_iso_or_equiv
+    _atom_site_fract_x
+    _atom_site_fract_y
+    _atom_site_fract_z
+    _atom_site_label
+    _atom_site_occupancy
+    _atom_site_type_symbol
+     uani 0.0 0.125 0.125 0.125 Fe3A 1.0 Fe3+
+     uani 0.0 0.5 0.5 0.5 Fe3B 1.0 Fe3+
+     uiso 0.0 0.25521 0.25521 0.25521 O1 1.0 O2-
+
+    loop_                                     # object AtomType (optional)
+    _atom_type_scat_length_neutron
+    _atom_type_symbol
+      0.945 Fe3+
+     0.5803 O2-
+
+    loop_                                     # object AtomSiteAniso (optional)
+    _atom_site_aniso_U_11
+    _atom_site_aniso_U_12
+    _atom_site_aniso_U_13
+    _atom_site_aniso_U_22
+    _atom_site_aniso_U_23
+    _atom_site_aniso_U_33
+    _atom_site_aniso_label
+     0.0 0.0 0.0 0.0 0.0 0.0 Fe3A
+     0.0 0.0 0.0 0.0 0.0 0.0 Fe3B
+
+    loop_                                     # object AtomSiteMagnetism (optional)
+    _atom_site_magnetism_label
+    _atom_site_magnetism_lande
+    _atom_site_magnetism_kappa
+    Fe3A 2.0 1.0()
+    Fe3B 2.0() 1.0
+
+    loop_                                     # object AtomSiteMagnetismAniso (optional)
+    _atom_site_magnetism_aniso_label
+    _atom_site_magnetism_aniso_chi_type
+    _atom_site_magnetism_aniso_chi_11
+    _atom_site_magnetism_aniso_chi_12
+    _atom_site_magnetism_aniso_chi_13
+    _atom_site_magnetism_aniso_chi_22
+    _atom_site_magnetism_aniso_chi_23
+    _atom_site_magnetism_aniso_chi_33
+     Fe3A cani -3.468(74) 0.0 0.0 -3.468 0.0 -3.468
+     Fe3B cani 3.041      0.0 0.0  3.041 0.0  3.041
+    """    
+    def __init__(self, label='',  cell=None, space_group=None, atom_type=None,
+                       atom_site=None, atom_site_aniso=None, 
+                       atom_site_magnetism=None, atom_site_magnetism_aniso=None):
         super(Crystal, self).__init__()
-        
-        self._p_name = None
-        self._p_space_group = None
-        self._p_cell = None
-        self._p_atom_site = None
-        self._p_extinction = None
-        self._p_i_g = None
-        self._refresh(name, space_group, cell, atom_site, extinction, i_g)
+
+        self.__label = ""
+        self.__cell = None
+        self.__space_group = None
+        self.__atom_type = None
+        self.__atom_site = None
+        self.__atom_site_aniso = None
+        self.__atom_site_magnetism = None
+        self.__atom_site_magnetism_aniso = None
+
+        self.label = label
+        self.cell = cell
+        self.space_group = space_group
+        self.atom_type = atom_type
+        self.atom_site = atom_site
+        self.atom_site_aniso = atom_site_aniso
+        self.atom_site_magnetism = atom_site_magnetism
+        self.atom_site_magnetism_aniso = atom_site_magnetism_aniso
         
     def __repr__(self):
-        lsout = """Crystal: \n name: {:}\n i_g: {:}\n{:}\n{:}\n{:}
-{:}""".format(self._p_name, self._p_i_g, self._p_space_group, self._p_cell, 
-                         self._p_atom_site, self._p_extinction)
-        return lsout
+        ls_out = ["Crystal:"]
+        ls_out.append(self.label)
+        if self.cell is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.cell))
+        if self.space_group is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.space_group))
+        if self.atom_type is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.atom_type))
+        if self.atom_site is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.atom_site))
+        if self.atom_site_aniso is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.atom_site_aniso))
+        if self.atom_site_magnetism is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.atom_site_magnetism))
+        if self.atom_site_magnetism_aniso is not None:
+            ls_out.append("\n")
+            ls_out.append(str(self.atom_site_magnetism_aniso))
+        return "\n".join(ls_out)
 
-    def _refresh(self, name, space_group, cell, atom_site, extinction, i_g):
-        if name is not None:
-            self._p_name = name
-        if cell is not None:
-            self._p_cell = cell
-        if space_group is not None:
-            self._p_space_group = space_group
-            if self._p_cell is not None:
-                self._p_cell.set_val(singony=space_group.get_val("singony"))
-        if atom_site is not None:
-            self._p_atom_site = atom_site
-        if extinction is not None:
-            self._p_extinction = extinction
-        if i_g is not None:
-            self._p_i_g = i_g
+    @property
+    def label(self):
+        """
+        The label is a unique identifier for a particular crystal. 
 
-    def set_val(self, name=None, space_group=None, cell=None, atom_site=None, 
-                extinction=None, i_g=None):
-        self._refresh(name, space_group, cell, atom_site, extinction, i_g)
-        
-    def get_val(self, label):
-        lab = "_p_"+label
-        
-        if lab in self.__dict__.keys():
-            val = self.__dict__[lab]
-            if isinstance(val, type(None)):
-                self.set_val()
-                val = self.__dict__[lab]
+        Type: char
+        """
+        return self.__label
+    @label.setter
+    def label(self, x):
+        if x is None:
+            x_in = ""
         else:
-            print("The value '{:}' is not found".format(lab))
-            val = None
-        return val
+            x_in = str(x).strip()
+        self.__label = x_in
 
-    def list_vals(self):
+    @property
+    def cell(self):
         """
-        give a list of parameters with small descripition
-        """
-        lsout = """
-Parameters:
-    
-name is the name of the Crystal
-space_group is the space group
-cell is the unit cell parameters
-atome_sie is the atom site
-extinction is the extinction
-i_g is the parameter to described broadening of Bragg reflection due to the 
-       particle size
-        """
-        print(lsout)
+        Data items in the CELL category record details about the
+        crystallographic cell parameters and their measurement.
 
-    def load_from_rcif(self, f_name):
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Ccell.html
         """
-        load information from rcif file to crystal object
-        """
-        from neupy import (RCif, conv_data_to_crystal)
-        rcif = RCif(f_name)
-        p_glob = rcif.glob
-        l_data = p_glob["data"]
-        l_crystal = conv_data_to_crystal(l_data)
-        if len(l_crystal) != 0:
-            cryst = l_crystal[0]
-
-            self.set_val(name=cryst.get_val("name"), 
-                         space_group=cryst.get_val("space_group"), 
-                         cell=cryst.get_val("cell"), 
-                         atom_site=cryst.get_val("atom_site"), 
-                         extinction=cryst.get_val("extinction"), 
-                         i_g=cryst.get_val("i_g"))
+        return self.__cell
+    @cell.setter
+    def cell(self, x):
+        if isinstance(x, Cell):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = Cell()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to Cell")
+                x_in = None
+        elif x is None:
+            x_in = None
         else:
-            print("In file '{:}' phase is not found".format(f_name))
-        return
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into Cell")
+        self.__cell = x_in
 
-    def calc_fn(self, l_hkl, f_print=False):
-        np_h = numpy.array([hh[0] for hh in l_hkl], dtype=int)
-        np_k = numpy.array([hh[1] for hh in l_hkl], dtype=int)
-        np_l = numpy.array([hh[2] for hh in l_hkl], dtype=int)
-        f_nucl = self.calc_sf(np_h, np_k, np_l, f_print=f_print)[0]
-        return f_nucl
+    @property
+    def space_group(self):
+        """
+        Contains all the data items that refer to the space group as a
+        whole, such as its name or crystal system. They may be looped,
+        for example, in a list of space groups and their properties.
 
-    def calc_sf(self, h, k, l, d_map={}, f_print=False):
-        """
-        calculate structure factors (nuclear and components of susceptibility)
+        Only a subset of the SPACE_GROUP category items appear in the
+        core dictionary.  The remainder are found in the symmetry CIF
+        dictionary.
 
-        output:
+        Space-group types are identified by their number as given in
+        International Tables for Crystallography Vol. A. Specific
+        settings of the space groups can be identified either by their
+        Hall symbol or by specifying their symmetry operations.
 
-        f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, d_info_out
+        The commonly used Hermann-Mauguin symbol determines the
+        space-group type uniquely but several different Hermann-Mauguin
+        symbols may refer to the same space-group type. A
+        Hermann-Mauguin symbol contains information on the choice of
+        the basis, but not on the choice of origin.  Different formats
+        for the Hermann-Mauguin symbol are found in the symmetry CIF
+        dictionary.
 
-        f_nucl is a nuclear structure factor
-        s_ij is a component of structure factor tensor in Cartezian crystallographic system
-        d_info_out is a dictionary with additional information
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html
         """
-        #if d_map == {}:
-        #    d_map.update(self.plot_map())
-        #if not(d_map["flag"]|(d_map["out"] is None)):
-        #    f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = d_map["out"]
-        #    return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
-        
-        cell = self._p_cell
-        space_group = self._p_space_group
-        atom_site = self._p_atom_site
-        #d_sf = d_map["sf"]
-        #if not(d_sf["flag"]|(d_sf["out"] is None)):
-        #    f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = d_sf["out"]
-        #else:
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = atom_site.calc_sf(space_group, cell, h, k, l)#, d_sf
-        #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
-        #chi in 10-12 cm; chim in muB (it is why here 0.2695)
-        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
-                cell,
-                sft_11*0.2695, sft_12*0.2695, sft_13*0.2695, 
-                sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
-                sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
-        d_info_out = {"h": h, "k": k, "l": l,
-                      "f_nucl": f_nucl, "sft_11": sft_11, "sft_12": sft_12, 
-                      "sft_13": sft_13, "sft_21": sft_21, "sft_22": sft_22, 
-                      "sft_23": sft_23, "sft_31": sft_31, "sft_32": sft_32, 
-                      "sft_33": sft_33}
-        if f_print:
-            ls_out = ["   h   k   l     Re(f_nucl)    Im(f_nucl)"]
-            try:
-                ls_out.extend(["{:4}{:4}{:4} {:14.3f}{:14.3f}".format(h_1, h_2, h_3, h_4, h_5) 
-                    for h_1, h_2, h_3, h_4, h_5 in zip(h, k, l, f_nucl.real, f_nucl.imag)])
-            except TypeError:
-                ls_out.append("{:4}{:4}{:4} {:14.3f}{:14.3f}".format(h, k, l, float(f_nucl.real), float(f_nucl.imag)))
-            print("\n".join(ls_out))
-        return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, d_info_out
+        return self.__space_group
+    @space_group.setter
+    def space_group(self, x):
+        if isinstance(x, SpaceGroup):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = SpaceGroup()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to SpaceGroup")
+                x_in = None
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into SpaceGroup")
+        self.__space_group = x_in
+
+    @property
+    def atom_type(self):
+        """
+        Data items in the ATOM_TYPE category record details about
+        properties of the atoms that occupy the atom sites, such as the
+        atomic scattering factors.
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_type.html
+        """
+        return self.__atom_type
+    @atom_type.setter
+    def atom_type(self, x):
+        """
+        if isinstance(x, AtomType):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = AtomType()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to AtomType")
+                x_in = None
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into AtomType")
+        self.__atom_type = x_in
+        """
+        self.__atom_type = None #class AtomType is still not introduced
 
 
-    def _orto_matrix(self, cell, l_11, l_12, l_13, l_21, l_22, l_23, l_31, 
-                     l_32, l_33):
+    @property
+    def atom_site(self):
         """
-        rewrite matrix l_ij defined in coordinate (ia, ib, ic) to matrix s_ij, 
-        which is denined in Chartesian coordinate system, such as:
-        x||ia, y in blane (ia, ib), z perpendicular to that plane.
-        ...
-        
-        ...
-        representation of chi in crystallographic coordinate system defined as x||a*, z||c, y= [z x] (right handed)
-        expressions are taken from international tables
-        matrix_ib is inversed matrix B
-        ia, ib, ic is inversed unit cell parameters (it can be estimated from matrix matrix_ib)
+        Data items in the ATOM_SITE category record details about
+        the atom sites in a crystal structure, such as the positional
+        coordinates.
 
-        X = B x, x = iB X
-        xT*CHI*x = XT iBT CHI iB X
-    
-        output chiLOC = iBT CHI iB
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html
         """
-        m_ib = cell.get_val("m_ib")
-        ia, ib, ic = cell.get_val("ia"), cell.get_val("ib"), cell.get_val("ic")
+        return self.__atom_site
+    @atom_site.setter
+    def atom_site(self, x):
+        if isinstance(x, AtomSite):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = AtomSite()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to AtomSite")
+                x_in = None
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into AtomSite")
+        self.__atom_site = x_in
+
+    @property
+    def atom_site_aniso(self):
         """
-        matrix_chi = numpy.array(
-                [[self["chi_11"], self["chi_12"], self["chi_13"]],
-                 [self["chi_12"], self["chi_22"], self["chi_23"]],
-                 [self["chi_13"], self["chi_23"], self["chi_33"]]], 
-                 dtype = float)
-        #mchi=[[chi[0],chi[3],chi[4]],[chi[3],chi[1],chi[5]],[chi[4],chi[5],chi[2]]]
-        #[a,b,c,alpha,beta,gamma]=ucp
-        y1 = m_ib[0,0]
-        y2 = m_ib[1,1]
-        y3 = m_ib[2,2]
-        y4 = m_ib[0,1]
-        y5 = m_ib[0,2]
-        y6 = m_ib[1,2]
-        #B=[[x1,x4,x5],
-        #   [0.,x2,x6],
-        #   [0.,0.,x3]]
-        #it shuld be checked
-        #iB=numpy.linalg.inv(B)
-        y1 = 1./x1
-        y2 = 1./x2
-        y3 = 1./x3
-        y4 = -1*x4*1./(x1*x2)
-        y6 = -1*x6*1./(x2*x3)
-        y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
+        Data items in the ATOM_SITE_ANISO category record details about
+        the atom sites in a crystal structure, such as atomic displacement 
+        parameters.
+
+        reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html
         """
-        m_ib_norm = numpy.copy(m_ib)
-        m_ib_norm[:,0] *= ia
-        m_ib_norm[:,1] *= ib
-        m_ib_norm[:,2] *= ic
-        
-        m_ibt_norm = m_ib_norm.transpose()
-        
-        r11, r12, r13 = m_ibt_norm[0, 0], m_ibt_norm[0, 1], m_ibt_norm[0, 2]
-        r21, r22, r23 = m_ibt_norm[1, 0], m_ibt_norm[1, 1], m_ibt_norm[1, 2]
-        r31, r32, r33 = m_ibt_norm[2, 0], m_ibt_norm[2, 1], m_ibt_norm[2, 2]
-        
-        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = calc_mRmCmRT(
-                r11, r12, r13, r21, r22, r23, r31, r32, r33,
-                l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
+        return self.__atom_site_aniso
+    @atom_site_aniso.setter
+    def atom_site_aniso(self, x):
+        if isinstance(x, AtomSiteAniso):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = AtomSiteAniso()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to AtomSiteAniso")
+                x_in = None
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into AtomSiteAniso")
+        self.__atom_site_aniso = x_in
+
+
+    @property
+    def atom_site_magnetism(self):
         """
-        ibt_chi = numpy.matmul(m_ibt_norm, matrix_chi)
-        matrix_chi_loc = numpy.matmul(ibt_chi, m_ib_norm)
-        d_out = dict(matrix_chi_loc = matrix_chi_loc)
-        self.update(d_out)
+        Data items in the ATOM_SITE_MAGNETISM category record details about
+        the magnetic parameters.
+
         """
-        return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
-    
-    def calc_extinction(self, h, k, l, fp_sq, fm_sq, fpm_sq, wave_length):
+        return self.__atom_site_magnetism
+    @atom_site_magnetism.setter
+    def atom_site_magnetism(self, x):
+        if isinstance(x, AtomSiteMagnetism):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = AtomSiteMagnetism()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to AtomSiteMagnetism")
+                x_in = None
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into AtomSiteMagnetism")
+        self.__atom_site_magnetism = x_in
+
+
+    @property
+    def atom_site_magnetism_aniso(self):
         """
-        extinction correction coefficients for polarized neutrons
+        Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
+        the susceptibility tensor.
         """
-        cell = self._p_cell
-        extinction = self._p_extinction
-        yp = extinction.calc_extinction(cell, h, k, l, fp_sq, wave_length)
-        ym = extinction.calc_extinction(cell, h, k, l, fm_sq, wave_length)
-        ypm = extinction.calc_extinction(cell, h, k, l, fpm_sq, wave_length)
-        return yp, ym, ypm
-        
-    def plot_map(self):
-        b_variable = self.is_variable()         
-        d_map = {"flag": b_variable, "out":None}
-        atom_site = self.get_val("atom_site")
-        d_sf = atom_site.plot_map()
-        d_map.update({"sf":d_sf})
-        return d_map
-        
-    def is_variable_sf(self):
-        cell = self._p_cell 
-        atom_site = self._p_atom_site 
-        res = any([cell.is_variable(), atom_site.is_variable()])
-        return res
-    
-    def is_variable_extinction(self):
-        extinction = self._p_extinction 
-        res = extinction.is_variable()
-        return res
-    
+        return self.__atom_site_magnetism_aniso
+    @atom_site_magnetism_aniso.setter
+    def atom_site_magnetism_aniso(self, x):
+        if isinstance(x, AtomSiteMagnetismAniso):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = AtomSiteMagnetismAniso()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                self._show_message("A induced string can not be converted to AtomSiteMagnetismAniso")
+                x_in = None
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("A type of induced element is not recognized to convert it into AtomSiteMagnetismAniso")
+        self.__atom_site_magnetism_aniso = x_in
+
+    @property
+    def magnetism_aniso(self):
+        return self.atom_site_magnetism_aniso
+    @magnetism_aniso.setter
+    def magnetism_aniso(self, x):
+        self.atom_site_magnetism_aniso = x
+
+
+    def _show_message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)
+
+    @property
+    def is_defined(self):
+        """
+        Output: True if all started parameters are given
+        """
+        cond = any([self.cell is not None, self.space_group is not None, self.atom_site is not None])
+        return cond
+    @property
     def is_variable(self):
-        """
-        without extinction
-        """
-        i_g = self._p_i_g 
-        res = any([self.is_variable_sf(), 
-                   isinstance(i_g, Variable)])
+        if self.cell is not None: flag_1 = self.cell.is_variable
+        if self.space_group is not None: flag_2 = self.space_group.is_variable
+        if self.atom_type is not None: flag_3 = self.atom_type.is_variable
+        if self.atom_site is not None: flag_4 = self.atom_site.is_variable
+        if self.atom_site_aniso is not None: flag_5 = self.atom_site_aniso.is_variable
+        if self.atom_site_magnetism is not None: flag_6 = self.atom_site_magnetism.is_variable
+        if self.atom_site_magnetism_aniso is not None: flag_7 = self.atom_site_magnetism_aniso.is_variable
+        res = any([flag_1, flag_2, flag_3, flag_4, flag_5, flag_6, flag_7])
         return res
+
 
     def get_variables(self):
+        if self.cell is not None: l_val_1 = self.cell.get_variables()
+        if self.space_group is not None: l_val_2 = self.space_group.get_variables()
+        if self.atom_type is not None: l_val_3 = self.atom_type.get_variables()
+        if self.atom_site is not None: l_val_4 = self.atom_site.get_variables()
+        if self.atom_site_aniso is not None: l_val_5 = self.atom_site_aniso.get_variables()
+        if self.atom_site_magnetism is not None: l_val_6 = self.atom_site_magnetism.get_variables()
+        if self.atom_site_magnetism_aniso is not None: l_val_7 = self.atom_site_magnetism_aniso.get_variables()
+
         l_variable = []
-        if isinstance(self._p_i_g, Variable):
-            l_variable.append(self._p_i_g)
-            
-        cell = self._p_cell 
-        l_var = cell.get_variables()
-        l_variable.extend(l_var)
-        
-        extinction = self._p_extinction 
-        l_var = extinction.get_variables()
-        l_variable.extend(l_var)
-        
-        atom_site = self.get_val("atom_site")
-        l_var = atom_site.get_variables()
-        l_variable.extend(l_var)
-
+        l_variable.extend(l_val_1)
+        l_variable.extend(l_val_2)
+        l_variable.extend(l_val_3)
+        l_variable.extend(l_val_4)
+        l_variable.extend(l_val_5)
+        l_variable.extend(l_val_6)
+        l_variable.extend(l_val_7)
         return l_variable
-    
-    def apply_constraint(self):
-        space_group = self.get_val("space_group")
-        cell = self.get_val("cell")
-        cell.apply_constraint()
-        atom_site = self.get_val("atom_site")
-        atom_site.apply_constraint(space_group, cell)
-        
-    def print_report(self):
-        s_out = "{:}".format(self)
-        return s_out
-    
-    def add_atom(self, atom):
-        atom_site = self._p_atom_site
-        atom_site._list_atom_type.append(atom)
-        atom_site._flag_refresh = True
-        #self._form_arrays(cell)
-    
-    def del_atom(self, ind):
-        atom_site = self._p_atom_site
-        atom_site._list_atom_type.pop(ind)
-        atom_site._flag_refresh = True        
 
-    def calc_atoms_in_cell(self):
-        atom_site = self.get_val("atom_site")
-        space_group = self.get_val("space_group")
-        l_atom_type = atom_site._list_atom_type
-        l_name = []
-        l_frac = []
-        for atom_type in l_atom_type:
-            name = atom_type.get_val("name")
-            x, y, z = 1.*atom_type.get_val("x"), 1.*atom_type.get_val("y"), 1.*atom_type.get_val("z")
-            x_s, y_s, z_s, mult_a = space_group.calc_xyz_mult(x, y, z)
-            l_name.append(name)
-            l_frac.append([(hh_1, hh_2, hh_3) for hh_1, hh_2, hh_3 in zip(x_s, y_s, z_s)])
-        return l_name, l_frac
-        
-if (__name__ == "__main__"):
-  pass
+    @property
+    def to_cif(self):
+        ls_out = []
+        if self.is_defined:
+            str_1, str_2, str_3, str_4, str_5, str_6, str_7 = "", "", "", "", "", "", ""
+            ls_out.append("data_{:}".format(self.label))
+            if self.cell is not None: str_1 = self.cell.to_cif + "\n"
+            if self.space_group is not None: str_2 = self.space_group.to_cif + "\n"
+            if self.atom_type is not None: str_3 = self.atom_type.to_cif + "\n"
+            if self.atom_site is not None: str_4 = self.atom_site.to_cif + "\n"
+            if self.atom_site_aniso is not None: str_5 = self.atom_site_aniso.to_cif + "\n"
+            if self.atom_site_magnetism is not None: str_6 = self.atom_site_magnetism.to_cif + "\n"
+            if self.atom_site_magnetism_aniso is not None: str_7 = self.atom_site_magnetism_aniso.to_cif + "\n"
+            ls_out.extend([str_1, str_2, str_3, str_4, str_5, str_6, str_7])
+        return "\n".join(ls_out)
+
+    def from_cif(self, string: str):
+        cif_data = CIFdata()
+        flag = cif_data.take_from_string(string)
+        if not flag:
+            return False
+        self.name = cif_data.name
+        cif_values = cif_data.values
+        if cif_values is not None:
+            if cif_values.is_prefix("cell"):
+                self.cell = str(cif_values)
+            if cif_values.is_prefix("space_group"):
+                self.space_group = str(cif_values)
+        if cif_data.is_prefix("atom_type"): self.atom_type = str(cif_data["atom_type"])
+        if cif_data.is_prefix("atom_site"): self.atom_site = str(cif_data["atom_site"])
+        if cif_data.is_prefix("atom_site_aniso"): self.atom_site_aniso = str(cif_data["atom_site_aniso"])
+        if cif_data.is_prefix("atom_site_magnetism"): self.atom_site_magnetism = str(cif_data["atom_site_magnetism"])
+        if cif_data.is_prefix("atom_site_magnetism_aniso"): self.atom_site_magnetism_aniso = str(cif_data["atom_site_magnetism_aniso"])
+        return True
 

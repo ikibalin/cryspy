@@ -19,7 +19,8 @@ from neupy.f_crystal import (
     Crystal,
     calc_mRmCmRT,
     AtomSiteMagnetism,
-    AtomSiteMagnetismAniso
+    AtomSiteMagnetismAniso,
+    AtomSiteAniso
     )
 
 from neupy.f_experiment import (

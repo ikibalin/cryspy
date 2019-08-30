@@ -59,6 +59,8 @@ class Fitable(object):
             except:
                 self._show_message("Can not convert string to float")
                 return False
+        elif (isinstance(object_, float) | isinstance(object_, int)):
+            self.value = float(object_)
         else:
             self._show_message("Unsupported format object for convertation to Fitable")
             return False

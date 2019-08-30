@@ -92,42 +92,42 @@ class AtomSiteMagnetismAniso(object):
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_11 = self.__atom_site_magnetism_aniso_chi_11[:len_x]
         elif len_1 < len_x:
-            l_fitable = [Fitable(value=0., name="__atom_site_magnetism_aniso_chi_11") for hh in range(len_x-len_1)]
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_11") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_11.extend(l_fitable)
 
         len_1 = len(self.__atom_site_magnetism_aniso_chi_22)
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_22 = self.__atom_site_magnetism_aniso_chi_22[:len_x]
         elif len_1 < len_x:
-            l_fitable = [Fitable(value=0., name="__atom_site_magnetism_aniso_chi_22") for hh in range(len_x-len_1)]
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_22") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_22.extend(l_fitable)
 
         len_1 = len(self.__atom_site_magnetism_aniso_chi_33)
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_33 = self.__atom_site_magnetism_aniso_chi_33[:len_x]
         elif len_1 < len_x:
-            l_fitable = [Fitable(value=0., name="__atom_site_magnetism_aniso_chi_33") for hh in range(len_x-len_1)]
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_33") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_33.extend(l_fitable)
 
         len_1 = len(self.__atom_site_magnetism_aniso_chi_11)
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_12 = self.__atom_site_magnetism_aniso_chi_12[:len_x]
         elif len_1 < len_x:
-            l_fitable = [Fitable(value=0., name="__atom_site_magnetism_aniso_chi_12") for hh in range(len_x-len_1)]
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_12") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_12.extend(l_fitable)
 
         len_1 = len(self.__atom_site_magnetism_aniso_chi_13)
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_13 = self.__atom_site_magnetism_aniso_chi_13[:len_x]
         elif len_1 < len_x:
-            l_fitable = [Fitable(value=0., name="__atom_site_magnetism_aniso_chi_13") for hh in range(len_x-len_1)]
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_13") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_13.extend(l_fitable)
 
         len_1 = len(self.__atom_site_magnetism_aniso_chi_23)
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_23 = self.__atom_site_magnetism_aniso_chi_23[:len_x]
         elif len_1 < len_x:
-            l_fitable = [Fitable(value=0., name="__atom_site_magnetism_aniso_chi_23") for hh in range(len_x-len_1)]
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_23") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_23.extend(l_fitable)
 
     @property
@@ -168,15 +168,18 @@ class AtomSiteMagnetismAniso(object):
     def chi_11(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_aniso_label)
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend([Fitable(value=0., name="__atom_site_magnetism_aniso_chi_11") for hh in range(len_1-len_x)])
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_11") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_11 = l_fitable
 
 
@@ -194,15 +197,18 @@ class AtomSiteMagnetismAniso(object):
     def chi_22(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_aniso_label)
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend([Fitable(value=0., name="__atom_site_magnetism_aniso_chi_22") for hh in range(len_1-len_x)])
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_22") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_22 = l_fitable
 
 
@@ -220,15 +226,18 @@ class AtomSiteMagnetismAniso(object):
     def chi_33(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_aniso_label)
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend([Fitable(value=0., name="__atom_site_magnetism_aniso_chi_33") for hh in range(len_1-len_x)])
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_33") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_33 = l_fitable
 
 
@@ -246,15 +255,18 @@ class AtomSiteMagnetismAniso(object):
     def chi_12(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_aniso_label)
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend([Fitable(value=0., name="__atom_site_magnetism_aniso_chi_12") for hh in range(len_1-len_x)])
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_12") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_12 = l_fitable
 
 
@@ -272,15 +284,18 @@ class AtomSiteMagnetismAniso(object):
     def chi_13(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_aniso_label)
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend([Fitable(value=0., name="__atom_site_magnetism_aniso_chi_13") for hh in range(len_1-len_x)])
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_13") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_13 = l_fitable
 
 
@@ -298,15 +313,18 @@ class AtomSiteMagnetismAniso(object):
     def chi_23(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_aniso_label)
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend([Fitable(value=0., name="__atom_site_magnetism_aniso_chi_23") for hh in range(len_1-len_x)])
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_23") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_23 = l_fitable
 
     def _show_message(self, s_out: str):

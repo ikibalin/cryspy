@@ -88,8 +88,11 @@ class AtomSiteMagnetism(object):
     def lande(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_label)
@@ -113,8 +116,11 @@ class AtomSiteMagnetism(object):
     def kappa(self, l_x):
         l_fitable = []
         for x in l_x:
-            x_in = Fitable()
-            flag = x_in.take_it(x)
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
         len_1 = len(self.__atom_site_magnetism_label)
