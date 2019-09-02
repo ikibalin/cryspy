@@ -2,11 +2,9 @@
 internal class to calculate phases
 """
 __author__ = 'ikibalin'
-__version__ = "2019_08_29"
+__version__ = "2019_09_02"
 import os
 import numpy
-
-from neupy.f_common.cl_fitable import Fitable
 
 
 class Fract(object):

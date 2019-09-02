@@ -6,8 +6,6 @@ __version__ = "2019_08_29"
 import os
 import numpy
 
-from neupy.f_common.cl_fitable import Fitable
-
 
 class ADP(object):
     """

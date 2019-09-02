@@ -16,6 +16,8 @@ from neupy.f_crystal.cl_atom_site_aniso import AtomSiteAniso
 from neupy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
 from neupy.f_crystal.cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
 
+from neupy.f_crystal.cl_magnetism import calc_mRmCmRT
+
 
 
 class Crystal(object):
@@ -438,3 +440,210 @@ class Crystal(object):
         if cif_data.is_prefix("atom_site_magnetism_aniso"): self.atom_site_magnetism_aniso = str(cif_data["atom_site_magnetism_aniso"])
         return True
 
+    def calc_sf(self, h, k, l, f_print=False):
+        """
+        calculate nuclear structure factor and components of structure factor tensor
+        """
+
+        space_group = self.space_group
+        cell = self.cell
+        atom_site = self.atom_site
+        atom_site_aniso = self.atom_site_aniso
+        atom_site_magnetism = self.atom_site_magnetism
+        atom_site_magnetism_aniso = self.atom_site_magnetism_aniso
+
+
+        occupancy = numpy.array(atom_site.occupancy, dtype=float)
+        scat_length_neutron = numpy.array(atom_site.scat_length_neutron, dtype=float)
+
+
+        fract = atom_site._form_fract()
+        adp = atom_site_aniso._form_adp(atom_site)
+        magnetism = atom_site_magnetism_aniso._form_magnetism(atom_site, atom_site_magnetism)
+
+
+        x, y, z = fract.x, fract.y, fract.z
+
+        atom_multiplicity = space_group.calc_atom_mult(x, y, z)
+        occ_mult = occupancy*atom_multiplicity 
+        
+
+        phase_3d = fract.calc_phase(space_group, h, k, l)#3d object
+        dwf_3d = adp.calc_dwf(space_group, cell, h, k, l)
+        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
+                   magnetism.calc_form_factor_tensor(space_group, cell, h, k, l)
+
+        hh = phase_3d*dwf_3d
+
+        phase_2d = hh.sum(axis=2)
+
+        ft_11 = (ff_11*hh).sum(axis=2)
+        ft_12 = (ff_12*hh).sum(axis=2)
+        ft_13 = (ff_13*hh).sum(axis=2)
+        ft_21 = (ff_21*hh).sum(axis=2)
+        ft_22 = (ff_22*hh).sum(axis=2)
+        ft_23 = (ff_23*hh).sum(axis=2)
+        ft_31 = (ff_31*hh).sum(axis=2)
+        ft_32 = (ff_32*hh).sum(axis=2)
+        ft_33 = (ff_33*hh).sum(axis=2)
+        
+        b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
+        occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
+        
+        l_el_symm = space_group.el_symm
+        l_orig = space_group.orig
+        centr = space_group.centr
+
+        #calculation of nuclear structure factor        
+        hh = phase_2d * b_scat_2d * occ_mult_2d
+        f_hkl_as = hh.sum(axis=1)*1./len(l_el_symm)
+        
+        orig_x = [hh[0] for hh in l_orig]
+        orig_y = [hh[1] for hh in l_orig]
+        orig_z = [hh[2] for hh in l_orig]
+        
+        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
+        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
+        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
+        
+        np_orig_as = numpy.exp(2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z))
+        f_hkl_as = f_hkl_as*np_orig_as.sum(axis=1)*1./len(l_orig)
+
+        if (centr):
+            orig = space_group.p_centr
+            f_nucl = 0.5*(f_hkl_as+f_hkl_as.conjugate()*numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2])))
+        else:
+            f_nucl = f_hkl_as
+
+        #calculation of structure factor tensor
+        sft_as_11 = (ft_11 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_12 = (ft_12 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_13 = (ft_13 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_21 = (ft_21 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_22 = (ft_22 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_23 = (ft_23 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_31 = (ft_31 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_32 = (ft_32 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+        sft_as_33 = (ft_33 * occ_mult_2d).sum(axis=1)*1./len(l_el_symm)
+
+        sft_as_11 = sft_as_11 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_12 = sft_as_12 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_13 = sft_as_13 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_21 = sft_as_21 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_22 = sft_as_22 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_23 = sft_as_23 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_31 = sft_as_31 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_32 = sft_as_32 * np_orig_as.sum(axis=1)*1./len(l_orig)
+        sft_as_33 = sft_as_33 * np_orig_as.sum(axis=1)*1./len(l_orig)
+    
+        if (centr):
+            orig = space_group.p_centr
+            hh = numpy.exp(2.*2.*numpy.pi*1j* (h*orig[0]+k*orig[1]+l*orig[2]))
+            sft_11 = 0.5*(sft_as_11+sft_as_11.conjugate()*hh)
+            sft_12 = 0.5*(sft_as_12+sft_as_12.conjugate()*hh)
+            sft_13 = 0.5*(sft_as_13+sft_as_13.conjugate()*hh)
+            sft_21 = 0.5*(sft_as_21+sft_as_21.conjugate()*hh)
+            sft_22 = 0.5*(sft_as_22+sft_as_22.conjugate()*hh)
+            sft_23 = 0.5*(sft_as_23+sft_as_23.conjugate()*hh)
+            sft_31 = 0.5*(sft_as_31+sft_as_31.conjugate()*hh)
+            sft_32 = 0.5*(sft_as_32+sft_as_32.conjugate()*hh)
+            sft_33 = 0.5*(sft_as_33+sft_as_33.conjugate()*hh)
+        else:
+            sft_11, sft_12, sft_13 = sft_as_11, sft_as_12, sft_as_13
+            sft_21, sft_22, sft_23 = sft_as_21, sft_as_22, sft_as_23
+            sft_31, sft_32, sft_33 = sft_as_31, sft_as_32, sft_as_33            
+
+        #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
+        #chi in 10-12 cm; chim in muB (it is why here 0.2695)
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
+                cell,
+                sft_11*0.2695, sft_12*0.2695, sft_13*0.2695, 
+                sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
+                sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
+
+        if f_print:
+            ls_out = ["   h   k   l   Re(f_nucl)  Im(f_nucl)  Re(sft_11)  Re(sft_12)  Re(sft_13)\n"+37*" "+"  Re(sft_21)  Re(sft_22)  Re(sft_23)\n"+37*" "+"  Re(sft_31)  Re(sft_32)  Re(sft_33)"]
+            try:
+                for h_1, h_2, h_3, h_4, h_5, h_6, h_7, h_8, h_9, h_10, h_11, h_12, h_13, h_14 in zip(
+                    h, k, l, f_nucl.real, f_nucl.imag, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33):
+                    ls_out.append(
+                        """{:4}{:4}{:4} {:12.3f}{:12.3f}{:12.3f}{:12.3f}{:12.3f}
+                                     {:12.3f}{:12.3f}{:12.3f}
+                                     {:12.3f}{:12.3f}{:12.3f}""".format(
+                        h_1, h_2, h_3, h_4, h_5, h_6.real, h_7.real, h_8.real, h_9.real, h_10.real, h_11.real, h_12.real, h_13.real, h_14.real))
+            except TypeError:
+                ls_out.append("{:4}{:4}{:4} {:12.3f}{:12.3f}".format(h, k, l, float(f_nucl.real), float(f_nucl.imag)))
+            print("\n".join(ls_out))
+
+
+        return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+
+
+    def _orto_matrix(self, cell, l_11, l_12, l_13, l_21, l_22, l_23, l_31, 
+                     l_32, l_33):
+        """
+        rewrite matrix l_ij defined in coordinate (ia, ib, ic) to matrix s_ij, 
+        which is denined in Chartesian coordinate system, such as:
+        x||ia, y in blane (ia, ib), z perpendicular to that plane.
+        ...
+        
+        ...
+        representation of chi in crystallographic coordinate system defined as x||a*, z||c, y= [z x] (right handed)
+        expressions are taken from international tables
+        matrix_ib is inversed matrix B
+        ia, ib, ic is inversed unit cell parameters (it can be estimated from matrix matrix_ib)
+
+        X = B x, x = iB X
+        xT*CHI*x = XT iBT CHI iB X
+    
+        output chiLOC = iBT CHI iB
+        """
+        m_ib = cell.m_ib
+        ia, ib, ic = cell.ia, cell.ib, cell.ic
+        """
+        matrix_chi = numpy.array(
+                [[self["chi_11"], self["chi_12"], self["chi_13"]],
+                 [self["chi_12"], self["chi_22"], self["chi_23"]],
+                 [self["chi_13"], self["chi_23"], self["chi_33"]]], 
+                 dtype = float)
+        #mchi=[[chi[0],chi[3],chi[4]],[chi[3],chi[1],chi[5]],[chi[4],chi[5],chi[2]]]
+        #[a,b,c,alpha,beta,gamma]=ucp
+        y1 = m_ib[0,0]
+        y2 = m_ib[1,1]
+        y3 = m_ib[2,2]
+        y4 = m_ib[0,1]
+        y5 = m_ib[0,2]
+        y6 = m_ib[1,2]
+        #B=[[x1,x4,x5],
+        #   [0.,x2,x6],
+        #   [0.,0.,x3]]
+        #it shuld be checked
+        #iB=numpy.linalg.inv(B)
+        y1 = 1./x1
+        y2 = 1./x2
+        y3 = 1./x3
+        y4 = -1*x4*1./(x1*x2)
+        y6 = -1*x6*1./(x2*x3)
+        y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
+        """
+        m_ib_norm = numpy.copy(m_ib)
+        m_ib_norm[:,0] *= ia
+        m_ib_norm[:,1] *= ib
+        m_ib_norm[:,2] *= ic
+        
+        m_ibt_norm = m_ib_norm.transpose()
+        
+        r11, r12, r13 = m_ibt_norm[0, 0], m_ibt_norm[0, 1], m_ibt_norm[0, 2]
+        r21, r22, r23 = m_ibt_norm[1, 0], m_ibt_norm[1, 1], m_ibt_norm[1, 2]
+        r31, r32, r33 = m_ibt_norm[2, 0], m_ibt_norm[2, 1], m_ibt_norm[2, 2]
+        
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = calc_mRmCmRT(
+                r11, r12, r13, r21, r22, r23, r31, r32, r33,
+                l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
+        """
+        ibt_chi = numpy.matmul(m_ibt_norm, matrix_chi)
+        matrix_chi_loc = numpy.matmul(ibt_chi, m_ib_norm)
+        d_out = dict(matrix_chi_loc = matrix_chi_loc)
+        self.update(d_out)
+        """
+        return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33

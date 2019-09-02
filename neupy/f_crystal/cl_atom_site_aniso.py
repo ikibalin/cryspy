@@ -9,6 +9,7 @@ import numpy
 
 from pystar import CIFglobal
 from neupy.f_common.cl_fitable import Fitable
+from neupy.f_crystal.cl_adp import ADP
 
 class AtomSiteAniso(object):
     """
@@ -412,3 +413,47 @@ class AtomSiteAniso(object):
 
         return True
 
+    def _form_adp(self, atom_site):
+        label = numpy.array(atom_site.label, dtype=str)
+        b_iso = numpy.array(atom_site.b_iso, dtype=float)
+        adp_type = numpy.array(atom_site.adp_type, dtype=str)
+
+        b_iso_in = numpy.zeros(b_iso.shape, dtype=float)
+        b_iso_in = numpy.where(adp_type=="uiso", b_iso, b_iso_in)
+        label_aniso = numpy.array(self.label, dtype=str)
+        if not(set(label_aniso).issubset(set(label))):
+            self._show_message("Unknown 'aniso_label'")
+            return False
+        
+        u_11 = numpy.array(self.u_11, dtype=float)
+        u_22 = numpy.array(self.u_22, dtype=float)
+        u_33 = numpy.array(self.u_33, dtype=float)
+        u_12 = numpy.array(self.u_12, dtype=float)
+        u_13 = numpy.array(self.u_13, dtype=float)
+        u_23 = numpy.array(self.u_23, dtype=float)
+
+
+        np_index = numpy.array([int(numpy.argwhere(label==hh)[0]) for hh in label_aniso], dtype=int)
+
+        u_11_in = numpy.zeros(label.shape, dtype=float)
+        u_22_in = numpy.zeros(label.shape, dtype=float)
+        u_33_in = numpy.zeros(label.shape, dtype=float)
+        u_12_in = numpy.zeros(label.shape, dtype=float)
+        u_13_in = numpy.zeros(label.shape, dtype=float)
+        u_23_in = numpy.zeros(label.shape, dtype=float)
+
+        u_11_in[np_index], u_22_in[np_index], u_33_in[np_index] = u_11, u_22, u_33
+        u_12_in[np_index], u_13_in[np_index], u_23_in[np_index] = u_12, u_13, u_23
+
+        np_zeros = numpy.zeros(label.shape, dtype=float)
+        u_11_in = numpy.where(adp_type=="uani", u_11_in, np_zeros)
+        u_22_in = numpy.where(adp_type=="uani", u_22_in, np_zeros)
+        u_33_in = numpy.where(adp_type=="uani", u_33_in, np_zeros)
+        u_12_in = numpy.where(adp_type=="uani", u_12_in, np_zeros)
+        u_13_in = numpy.where(adp_type=="uani", u_13_in, np_zeros)
+        u_23_in = numpy.where(adp_type=="uani", u_23_in, np_zeros)
+
+        adp = ADP(u_11=u_11_in, u_22=u_22_in, u_33=u_33_in, 
+                  u_12=u_12_in, u_13=u_13_in, u_23=u_23_in, 
+                  b_iso=b_iso_in)
+        return adp

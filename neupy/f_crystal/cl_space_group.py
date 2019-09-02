@@ -148,6 +148,15 @@ class SpaceGroup(object):
     def r_23(self):
         return self.__r_23
     @property
+    def r_21(self):
+        return self.__r_21
+    @property
+    def r_31(self):
+        return self.__r_31
+    @property
+    def r_32(self):
+        return self.__r_32
+    @property
     def b_1(self):
         return self.__b_1
     @property

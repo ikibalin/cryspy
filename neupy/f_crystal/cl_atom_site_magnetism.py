@@ -201,3 +201,21 @@ class AtomSiteMagnetism(object):
 
         return True
 
+    def _form_lande_kappa(self, atom_site):
+        label = numpy.array(atom_site.label, dtype=str)
+        label_magnetism = numpy.array(self.label, dtype=str)
+        if not(set(label_magnetism).issubset(set(label))):
+            self._show_message("Unknown 'aniso_label'")
+            return False
+
+        np_index = numpy.array([int(numpy.argwhere(label==hh)[0]) for hh in label_magnetism], dtype=int)
+
+        lande_in = 2.*numpy.ones(label.shape, dtype=float)
+        kappa_in = numpy.ones(label.shape, dtype=float)
+
+        lande = numpy.array(self.lande, dtype=float)
+        kappa = numpy.array(self.kappa, dtype=float)
+
+        lande_in[np_index], kappa_in[np_index] = lande, kappa
+
+        return lande_in, kappa_in

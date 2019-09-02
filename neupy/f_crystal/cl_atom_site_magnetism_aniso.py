@@ -10,6 +10,10 @@ import numpy
 from pystar import CIFglobal
 from neupy.f_common.cl_fitable import Fitable
 
+from neupy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
+from neupy.f_crystal.cl_magnetism import Magnetism
+
+
 class AtomSiteMagnetismAniso(object):
     """
     Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
@@ -447,3 +451,52 @@ class AtomSiteMagnetismAniso(object):
 
         return True
 
+    def _form_magnetism(self, atom_site, atom_magnetism):
+        label = numpy.array(atom_site.label, dtype=str)
+        label_aniso = numpy.array(self.label, dtype=str)
+        if not(set(label_aniso).issubset(set(label))):
+            self._show_message("Unknown 'aniso_label'")
+            return False
+        
+        j0_A_in, j2_A_in = atom_site.j0_A, atom_site.j2_A
+        j0_a_in, j2_a_in = atom_site.j0_a, atom_site.j2_a
+        j0_B_in, j2_B_in = atom_site.j0_B, atom_site.j2_B
+        j0_b_in, j2_b_in = atom_site.j0_b, atom_site.j2_b
+        j0_C_in, j2_C_in = atom_site.j0_C, atom_site.j2_C
+        j0_c_in, j2_c_in = atom_site.j0_c, atom_site.j2_c
+        j0_D_in, j2_D_in = atom_site.j0_D, atom_site.j2_D
+
+        lande_in, kappa_in = atom_magnetism._form_lande_kappa(atom_site)
+        
+        #chi_type = numpy.array(self.chi_type, dtype=str)
+        chi_11 = numpy.array(self.chi_11, dtype=float)
+        chi_22 = numpy.array(self.chi_22, dtype=float)
+        chi_33 = numpy.array(self.chi_33, dtype=float)
+        chi_12 = numpy.array(self.chi_12, dtype=float)
+        chi_13 = numpy.array(self.chi_13, dtype=float)
+        chi_23 = numpy.array(self.chi_23, dtype=float)
+
+
+        np_index = numpy.array([int(numpy.argwhere(label==hh)[0]) for hh in label_aniso], dtype=int)
+
+        chi_11_in = numpy.zeros(label.shape, dtype=float)
+        chi_22_in = numpy.zeros(label.shape, dtype=float)
+        chi_33_in = numpy.zeros(label.shape, dtype=float)
+        chi_12_in = numpy.zeros(label.shape, dtype=float)
+        chi_13_in = numpy.zeros(label.shape, dtype=float)
+        chi_23_in = numpy.zeros(label.shape, dtype=float)
+
+        chi_11_in[np_index], chi_22_in[np_index], chi_33_in[np_index] = chi_11, chi_22, chi_33
+        chi_12_in[np_index], chi_13_in[np_index], chi_23_in[np_index] = chi_12, chi_13, chi_23
+
+
+
+        magnetism = Magnetism(factor_lande=lande_in, kappa=kappa_in, 
+                              chi_11=chi_11_in, chi_22=chi_22_in, chi_33=chi_33_in,
+                              chi_12=chi_12_in, chi_13=chi_13_in, chi_23=chi_23_in,
+                              j0_A=j0_A_in, j0_a=j0_a_in, j0_B=j0_B_in, j0_b=j0_b_in,
+                              j0_C=j0_C_in, j0_c=j0_c_in, j0_D=j0_D_in,
+                              j2_A=j2_A_in, j2_a=j2_a_in, j2_B=j2_B_in, j2_b=j2_b_in,
+                              j2_C=j2_C_in, j2_c=j2_c_in, j2_D=j2_D_in)
+
+        return magnetism

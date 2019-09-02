@@ -2,11 +2,9 @@
 internal class to calculate magnetic form factor
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_09_02"
 import os
 import numpy
-
-from neupy.f_common.cl_fitable import Fitable
 
 
 def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,

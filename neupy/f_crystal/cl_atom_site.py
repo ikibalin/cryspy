@@ -9,6 +9,7 @@ import numpy
 
 from pystar import CIFglobal
 from neupy.f_common.cl_fitable import Fitable
+from neupy.f_crystal.cl_fract import Fract
 
 class AtomSite(object):
     """
@@ -789,3 +790,9 @@ class AtomSite(object):
             j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D = 0., 0., 0., 0., 0., 0. ,0.
             self._show_message("Can not find coefficients <j2> for '{:}.\n It is setted as 0.'".format(type_m))
         return j0_A, j0_a, j0_B, j0_b, j0_C, j0_c, j0_D, j2_A, j2_a, j2_B, j2_b, j2_C, j2_c, j2_D
+
+    def _form_fract(self):
+        fract = Fract(x=numpy.array(self.x, dtype=float), 
+                      y=numpy.array(self.y, dtype=float), 
+                      z=numpy.array(self.z, dtype=float))
+        return fract
