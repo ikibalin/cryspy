@@ -1,0 +1,164 @@
+
+"""
+define classe DiffrnRefln which describes the single diffraction experiment
+"""
+__author__ = 'ikibalin'
+__version__ = "2019_09_04"
+import os
+import numpy
+
+from neupy.f_common.cl_fitable import Fitable
+
+
+class DiffrnRefln(object):
+    """
+    Data items in the DIFFRN_REFLN category record details about
+    the intensities measured in the diffraction experiment.
+
+    The DIFFRN_REFLN data items refer to individual intensity
+    measurements and must be included in looped lists.
+
+    Example:
+
+    loop_
+    _diffrn_refln_index_h
+    _diffrn_refln_index_k
+    _diffrn_refln_index_l
+    _diffrn_refln_fr
+    _diffrn_refln_fr_sigma
+        0    0    8   0.64545   0.01329 
+        2    0    6   1.75682   0.0454  
+    
+    reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cdiffrn_refln.html
+    """
+    def __init__(self, h=[], k=[], l=[], fr=[], fr_sigma=[]
+                 ):
+        super(DiffrnRefln, self).__init__()
+        self.__diffrn_refln_index_h = None
+        self.__diffrn_refln_index_k = None
+        self.__diffrn_refln_index_l = None
+        self.__diffrn_refln_fr = None
+        self.__diffrn_refln_fr_sigma = None
+
+    @property
+    def h(self):
+        return tuple(self.__diffrn_refln_index_h)
+    @h.setter
+    def h(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        self.__diffrn_refln_index_h = l_x_in
+
+    @property
+    def k(self):
+        return tuple(self.__diffrn_refln_index_k)
+    @k.setter
+    def k(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        self.__diffrn_refln_index_k = l_x_in
+
+    @property
+    def l(self):
+        return tuple(self.__diffrn_refln_index_l)
+    @l.setter
+    def l(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        self.__diffrn_refln_index_l = l_x_in
+
+    @property
+    def fr(self):
+        return tuple(self.__diffrn_refln_fr)
+    @fr.setter
+    def fr(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        self.__diffrn_refln_fr = l_x_in
+
+
+    @property
+    def fr_sigma(self):
+        return tuple(self.__diffrn_refln_fr_sigma)
+    @fr_sigma.setter
+    def fr_sigma(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        self.__diffrn_refln_fr_sigma = l_x_in
+
+    def __repr__(self):
+        ls_out = ["DiffrnRefln"]
+        ls_out.append("     h     k     l        fr  fr_sigma")
+        for _1, _2, _3, _4, _5 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma):
+            ls_out.append(" {:5} {:5} {:5} {:9.5} {:9.5}".format(_1, _2, _3, _4, _5))
+        return "\n".join(ls_out)
+
+    
+    _diffrn_refln_index_k
+    _diffrn_refln_index_l
+    _diffrn_refln_fr
+    _diffrn_refln_fr_sigma
+
+    @property
+    def to_cif(self):
+        ls_out = []
+        if self.is_defined:
+            ls_out.append("loop_")
+            ls_out.append("_diffrn_refln_index_h")
+            ls_out.append("_diffrn_refln_index_k")
+            ls_out.append("_diffrn_refln_index_l")
+            ls_out.append("_diffrn_refln_fr")
+            ls_out.append("_diffrn_refln_fr_sigma")
+            for _1, _2, _3, _4, _5 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma):
+                ls_out.append("{:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5))
+        return "\n".join(ls_out)
+
+    def from_cif(self, string: str):
+        cif_global = CIFglobal()
+        flag = cif_global.take_from_string(string)
+        if not flag:
+            return False
+        flag = False
+        flag = cif_global.is_prefix("_diffrn_refln")
+        if flag:
+            cif_loop = cif_global["_diffrn_refln"]
+            l_name = cif_loop.names
+            if "_diffrn_refln_index_h" in l_name:
+                self.h = [int(_1) for _1 in cif_loop["_diffrn_refln_index_h"]]
+            if "_diffrn_refln_index_k" in l_name:
+                self.k = [int(_1) for _1 in cif_loop["_diffrn_refln_index_k"]]
+            if "_diffrn_refln_index_l" in l_name:
+                self.l = [int(_1) for _1 in cif_loop["_diffrn_refln_index_l"]]
+            if "_diffrn_refln_fr" in l_name:
+                self.fr = [float(_1) for _1 in cif_loop["_diffrn_refln_fr"]]
+            if "_diffrn_refln_fr_sigma" in l_name:
+                self.fr_sigma = [float(_1) for _1 in cif_loop["_diffrn_refln_fr_sigma"]]
+        else:
+            self.h, self.k, self.l, self.fr, self.fr_sigma = [], [], [], [], []
+        return True
+

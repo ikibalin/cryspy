@@ -458,8 +458,12 @@ class Crystal(object):
 
 
         fract = atom_site._form_fract()
-        adp = atom_site_aniso._form_adp(atom_site)
-        magnetism = atom_site_magnetism_aniso._form_magnetism(atom_site, atom_site_magnetism)
+        flag_adp = atom_site is not None
+        flag_magnetism = atom_site_magnetism_aniso is not None
+        if flag_adp:
+            adp = atom_site_aniso._form_adp(atom_site)
+        if flag_magnetism:
+            magnetism = atom_site_magnetism_aniso._form_magnetism(atom_site, atom_site_magnetism)
 
 
         x, y, z = fract.x, fract.y, fract.z
@@ -469,11 +473,22 @@ class Crystal(object):
         
 
         phase_3d = fract.calc_phase(space_group, h, k, l)#3d object
-        dwf_3d = adp.calc_dwf(space_group, cell, h, k, l)
-        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
-                   magnetism.calc_form_factor_tensor(space_group, cell, h, k, l)
+        if flag_adp:
+            dwf_3d = adp.calc_dwf(space_group, cell, h, k, l)
+        else:
+            dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
 
         hh = phase_3d*dwf_3d
+
+        if flag_magnetism:
+            ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
+                   magnetism.calc_form_factor_tensor(space_group, cell, h, k, l)
+        else:
+            np_zeros = numpy.zeros(phase_3d.shape, dtype=float)
+            ff_11, ff_12, ff_13 = np_zeros, np_zeros, np_zeros
+            ff_21, ff_22, ff_23 = np_zeros, np_zeros, np_zeros 
+            ff_31, ff_32, ff_33 = np_zeros, np_zeros, np_zeros
+
 
         phase_2d = hh.sum(axis=2)
 

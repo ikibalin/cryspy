@@ -10,7 +10,6 @@ from neupy.f_rcif.cl_rcif import RCif
 from neupy.f_crystal import (
     SpaceGroup,
     Cell,
-    Extinction,
     AtomType,
     Fract,
     ADP,

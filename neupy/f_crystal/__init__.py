@@ -4,7 +4,6 @@ __contact__ = 'iurii.kibalin@cea.fr'
 
 from neupy.f_crystal.cl_space_group import SpaceGroup
 from neupy.f_crystal.cl_cell import Cell
-from neupy.f_crystal.cl_extinction import Extinction
 from neupy.f_crystal.cl_atom_type import AtomType
 from neupy.f_crystal.cl_fract import Fract
 from neupy.f_crystal.cl_adp import ADP
