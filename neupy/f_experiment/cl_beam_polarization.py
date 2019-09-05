@@ -45,7 +45,7 @@ class BeamPolarization(object):
     @property
     def efficiency(self):
         """
-        The efficiency of the flipper. 
+        The efficiency of the efficiency. 
 
         The permitted range is -1.0 -> 1.0
         """
@@ -74,7 +74,7 @@ class BeamPolarization(object):
         Output: True if there is any refined parameter
         """
         res = any([self.polarization.refinement, 
-                   self.flipper.refinement])
+                   self.efficiency.refinement])
         return res        
     
     def get_variables(self):
@@ -84,8 +84,8 @@ class BeamPolarization(object):
         l_variable = []
         if self.polarization.refinement:
             l_variable.append(self.polarization)
-        if self.flipper.refinement:
-            l_variable.append(self.flipper)
+        if self.efficiency.refinement:
+            l_variable.append(self.efficiency)
         return l_variable
 
     def _show_message(self, s_out: str):

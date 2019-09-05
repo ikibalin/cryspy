@@ -1,0 +1,677 @@
+#============================================================================= 
+# Example powder cif for a multiple phase/multiple data set refinement
+#=============================================================================
+# This powder cif shows how to describe the Rietveld refinement of a
+# two-phase (nickel and silicon) mixture against two sets of powder
+# diffraction data using a unique value of _pd_block_id for each data
+# block and pointers from one data block to another to show how the
+# results and data are linked. The powder diffraction data are included
+# in this cif, but have been truncated for brevity.
+#
+# The data blocks and their ID's are as follows:
+#
+# Data block _pd_block_id
+# ---------- ------------
+# data_NISI_publ (none) (publication details)
+# data_NISI_overall 2002-12-22T17:32|NISI|Brian_H._Toby|Overall
+# (overall Rietveld results)
+# data_NISI_phase_1 2002-12-22T17:32|NISI_phase1|Brian_H._Toby||
+# (information for phase 1, nickel)
+# data_NISI_phase_2 2002-12-22T17:32|NISI_phase2|Brian_H._Toby||
+# (information for phase 2, silicon)
+# data_NISI_p_01 2002-12-22T17:32|NISI_H_01|Brian_H._Toby|GPD
+# (first powder profile)
+# data_NISI_p_02 2002-12-22T17:32|NISI_H_02|Brian_H._Toby|GPD
+# (second powder profile)
+#
+# (This CIF was adapted from a sample file distributed as part of the
+# [NIST] CIFTOOLS software (http://www.ncnr.nist.gov/xtal/software/cif/)
+# with the kind permission of Dr B. H. Toby. The original CIF can be
+# obtained from ftp://ftp.ncnr.nist.gov/pub/cryst/cif/NISI.cif.)
+#=============================================================================
+# PUBLICATION DETAILS
+#============================================================================= data_NISI_publ
+loop_
+_audit_conform_dict_name
+_audit_conform_dict_version
+_audit_conform_dict_location 
+cif_core.dic 2.3 ftp://ftp.iucr.org/pub/cif_core.dic 
+cif_pd.dic 1.0 ftp://ftp.iucr.org/pub/cif_pd.dic
+
+_audit_creation_method "from EXP file using GSAS2CIF"
+_audit_creation_date 2002-12-22T17:32
+_audit_author_name "Brian H. Toby"
+_audit_update_record 
+; 2002-12-22T17:32 Initial CIF as created by GSAS2CIF 2005-02-11T14:35 Long data loops truncated for brevity, NJA 
+;
+# 1. SUBMISSION DETAILS
+_publ_contact_author_name ?
+# Name of author for correspondence
+_publ_contact_author_address
+# Address of author for correspondence ; ? ;
+_publ_contact_author_email ?
+_publ_contact_author_fax ?
+_publ_contact_author_phone ?
+_publ_contact_letter ; ? ;
+_publ_requested_journal ?
+_publ_requested_coeditor_name ?
+_publ_requested_category ?
+# Acta Cryst. C: one of FI/FM/FO/AD
+# Acta Cryst. E: one of EI/EM/EO/AD
+#==============================================================================
+# 2. PROCESSING SUMMARY (IUCr Office Use Only)
+_journal_data_validation_number ?
+_journal_date_recd_electronic ?
+_journal_date_to_coeditor ?
+_journal_date_from_coeditor ?
+_journal_date_accepted ?
+_journal_date_printers_first ?
+_journal_date_printers_final ?
+_journal_date_proofs_out ?
+_journal_date_proofs_in ?
+_journal_coeditor_name ?
+_journal_coeditor_code ?
+_journal_coeditor_notes ; ? ;
+_journal_techeditor_code ?
+_journal_techeditor_notes ; ? ;
+_journal_coden_ASTM ?
+_journal_name_full ?
+_journal_year ?
+_journal_volume ?
+_journal_issue ?
+_journal_page_first ?
+_journal_page_last ?
+_journal_paper_category ?
+_journal_suppl_publ_number ?
+_journal_suppl_publ_pages ?
+#==============================================================================
+# 3. TITLE AND AUTHOR LIST
+_publ_section_title ; ? ;
+_publ_section_title_footnote ; ? ;
+# The loop structure below should contain the names and addresses of all
+# authors, in the required order of publication. Repeat as necessary.
+loop_
+_publ_author_name
+_publ_author_footnote
+_publ_author_address ?
+#<--'Last name, first name' ; ? ; ; ? ;
+#==============================================================================
+# 4. TEXT (For Acta Cryst. C and E, include the text of your paper in the CIF)
+_publ_section_synopsis ; ? ;
+_publ_section_abstract ; ? ;
+_publ_section_comment ; ? ;
+_publ_section_exptl_prep
+# Details of the preparation of the sample(s)
+# should be given here. ; ? ;
+_publ_section_exptl_refinement ; ? ;
+_publ_section_references ; ? ;
+_publ_section_figure_captions ; ? ;
+_publ_section_acknowledgements ; ? ;
+
+
+
+
+#=============================================================================
+# OVERALL RESULTS OF THE RIETVELD REFINEMENT
+#============================================================================= data_NISI_overall
+_pd_block_id 2002-12-22T17:32|NISI|Brian_H._Toby|Overall
+# 5. SAMPLE PREPARATION DATA
+# (In the unusual case where multiple samples are used in a single
+# Rietveld study, this information should be placed in a separate
+# block for each sample and linked to the appropriate diffraction
+# and crystal data blocks using pointers.)
+# The following three fields describe the preparation of the material.
+# The cooling rate is in K/min. The pressure at which the sample was
+# prepared is in kPa. The temperature of preparation is in K.
+_pd_prep_cool_rate ?
+_pd_prep_pressure ?
+_pd_prep_temperature ?
+_pd_char_colour ?
+# use ICDD colour descriptions
+#==============================================================================
+# 6. OVERALL REFINEMENT & COMPUTING DETAILS
+_refine_special_details ; ? ;
+_pd_proc_ls_special_details ; ? ;
+# The following items are used to identify the programs used.
+_computing_molecular_graphics ?
+_computing_publication_material ?
+_refine_ls_weighting_scheme ?
+_refine_ls_weighting_details ?
+_refine_ls_hydrogen_treatment ?
+_refine_ls_extinction_method ?
+_refine_ls_extinction_coef ?
+_refine_ls_number_constraints ?
+_refine_ls_restrained_S_all ?
+_refine_ls_restrained_S_obs ?
+_refine_ls_shift/su_max 0.08
+_refine_ls_shift/su_mean 0.00
+_computing_structure_refinement GSAS
+_refine_ls_number_parameters 33
+_refine_ls_goodness_of_fit_all 1.50
+_refine_ls_number_restraints 0
+# Overall powder R-factors
+_pd_proc_ls_prof_R_factor 0.0271
+_pd_proc_ls_prof_wR_factor 0.0370
+_refine_ls_matrix_type full
+# pointers to the data blocks containing information on the phases
+loop_
+_pd_phase_block_id 2002-12-22T17:32|NISI_phase1|Brian_H._Toby|| 2002-12-22T17:32|NISI_phase2|Brian_H._Toby||
+# pointers to the data blocks containing the powder diffraction data
+loop_
+_pd_block_diffractogram_id 2002-12-22T17:32|NISI_H_01|Brian_H._Toby|GPD 2002-12-22T17:32|NISI_H_02|Brian_H._Toby|GPD
+
+
+
+
+#=============================================================================
+# INFORMATION FOR PHASE 1 (Nickel)
+#============================================================================= data_NISI_phase_1
+_pd_block_id 2002-12-22T17:32|NISI_phase1|Brian_H._Toby||
+# pointers to the data blocks containing powder diffraction data for phase 1
+loop_
+_pd_block_diffractogram_id 2002-12-22T17:32|NISI_H_01|Brian_H._Toby|GPD 2002-12-22T17:32|NISI_H_02|Brian_H._Toby|GPD
+#==============================================================================
+# 7. CHEMICAL, STRUCTURAL AND CRYSTAL DATA
+_chemical_name_systematic nickel
+_chemical_name_common nickel
+_chemical_formula_moiety ?
+_chemical_formula_structural ?
+_chemical_formula_analytical ?
+_chemical_melting_point ?
+_chemical_compound_source ?
+# for minerals and
+# natural products
+_cell_measurement_temperature ?
+_cell_special_details ; ? ;
+_geom_special_details ?
+_pd_char_particle_morphology ?
+# The following item identifies the program(s) used (if appropriate).
+_computing_structure_solution ?
+#==============================================================================
+# 8. Phase information from GSAS
+_pd_phase_name nickel
+_cell_length_a 3.523433(29)
+_cell_length_b 3.523433
+_cell_length_c 3.523433
+_cell_angle_alpha 90.0
+_cell_angle_beta 90.0
+_cell_angle_gamma 90.0
+_cell_volume 43.74194
+_space_group_crystal_system cubic
+_space_group_name_H-M_alt 'F m -3 m'
+_space_group_name_Hall '-F 4 2 3'
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz 1 +x,+y,+z 2 +z,+x,+y 3 +y,+z,+x 4 +x,+y,-z 5 -z,+x,+y 6 +y,-z,+x 7 -z,+x,-y 8 -y,-z,+x 9 +y,-z,-x 10 -x,+y,-z 11 -z,-x,+y 12 +x,-y,-z 13 +y,+x,+z 14 +z,+y,+x 15 +x,+z,+y 16 +y,+x,-z 17 -z,+y,+x 18 +x,-z,+y 19 -z,+y,-x 20 -x,-z,+y 21 +x,-z,-y 22 -y,+x,-z 23 -z,-y,+x 24 +y,-x,-z 25 -x,-y,-z 26 -z,-x,-y 27 -y,-z,-x 28 -x,-y,+z 29 +z,-x,-y 30 -y,+z,-x 31 +z,-x,+y 32 +y,+z,-x 33 -y,+z,+x 34 +x,-y,+z 35 +z,+x,-y 36 -x,+y,+z 37 -y,-x,-z 38 -z,-y,-x 39 -x,-z,-y 40 -y,-x,+z 41 +z,-y,-x 42 -x,+z,-y 43 +z,-y,+x 44 +x,+z,-y 45 -x,+z,+y 46 +y,-x,+z 47 +z,+y,-x 48 -y,+x,+z 49 +x,+y+1/2,+z+1/2 50 +z,+x+1/2,+y+1/2 51 +y,+z+1/2,+x+1/2 52 +x,+y+1/2,-z+1/2 53 -z,+x+1/2,+y+1/2 54 +y,-z+1/2,+x+1/2 55 -z,+x+1/2,-y+1/2 56 -y,-z+1/2,+x+1/2 57 +y,-z+1/2,-x+1/2 58 -x,+y+1/2,-z+1/2 59 -z,-x+1/2,+y+1/2 60 +x,-y+1/2,-z+1/2 61 +y,+x+1/2,+z+1/2 62 +z,+y+1/2,+x+1/2 63 +x,+z+1/2,+y+1/2 64 +y,+x+1/2,-z+1/2 65 -z,+y+1/2,+x+1/2 66 +x,-z+1/2,+y+1/2 67 -z,+y+1/2,-x+1/2 68 -x,-z+1/2,+y+1/2 69 +x,-z+1/2,-y+1/2 70 -y,+x+1/2,-z+1/2 71 -z,-y+1/2,+x+1/2 72 +y,-x+1/2,-z+1/2 73 -x,-y+1/2,-z+1/2 74 -z,-x+1/2,-y+1/2 75 -y,-z+1/2,-x+1/2 76 -x,-y+1/2,+z+1/2 77 +z,-x+1/2,-y+1/2 78 -y,+z+1/2,-x+1/2 79 +z,-x+1/2,+y+1/2 80 +y,+z+1/2,-x+1/2 81 -y,+z+1/2,+x+1/2 82 +x,-y+1/2,+z+1/2 83 +z,+x+1/2,-y+1/2 84 -x,+y+1/2,+z+1/2 85 -y,-x+1/2,-z+1/2 86 -z,-y+1/2,-x+1/2 87 -x,-z+1/2,-y+1/2 88 -y,-x+1/2,+z+1/2 89 +z,-y+1/2,-x+1/2 90 -x,+z+1/2,-y+1/2 91 +z,-y+1/2,+x+1/2 92 +x,+z+1/2,-y+1/2 93 -x,+z+1/2,+y+1/2 94 +y,-x+1/2,+z+1/2 95 +z,+y+1/2,-x+1/2 96 -y,+x+1/2,+z+1/2 97 +x+1/2,+y,+z+1/2 98 +z+1/2,+x,+y+1/2 99 +y+1/2,+z,+x+1/2 100 +x+1/2,+y,-z+1/2 101 -z+1/2,+x,+y+1/2 102 +y+1/2,-z,+x+1/2 103 -z+1/2,+x,-y+1/2 104 -y+1/2,-z,+x+1/2 105 +y+1/2,-z,-x+1/2 106 -x+1/2,+y,-z+1/2 107 -z+1/2,-x,+y+1/2 108 +x+1/2,-y,-z+1/2 109 +y+1/2,+x,+z+1/2 110 +z+1/2,+y,+x+1/2 111 +x+1/2,+z,+y+1/2 112 +y+1/2,+x,-z+1/2 113 -z+1/2,+y,+x+1/2 114 +x+1/2,-z,+y+1/2 115 -z+1/2,+y,-x+1/2 116 -x+1/2,-z,+y+1/2 117 +x+1/2,-z,-y+1/2 118 -y+1/2,+x,-z+1/2 119 -z+1/2,-y,+x+1/2 120 +y+1/2,-x,-z+1/2 121 -x+1/2,-y,-z+1/2 122 -z+1/2,-x,-y+1/2 123 -y+1/2,-z,-x+1/2 124 -x+1/2,-y,+z+1/2 125 +z+1/2,-x,-y+1/2 126 -y+1/2,+z,-x+1/2 127 +z+1/2,-x,+y+1/2 128 +y+1/2,+z,-x+1/2 129 -y+1/2,+z,+x+1/2 130 +x+1/2,-y,+z+1/2 131 +z+1/2,+x,-y+1/2 132 -x+1/2,+y,+z+1/2 133 -y+1/2,-x,-z+1/2 134 -z+1/2,-y,-x+1/2 135 -x+1/2,-z,-y+1/2 136 -y+1/2,-x,+z+1/2 137 +z+1/2,-y,-x+1/2 138 -x+1/2,+z,-y+1/2 139 +z+1/2,-y,+x+1/2 140 +x+1/2,+z,-y+1/2 141 -x+1/2,+z,+y+1/2 142 +y+1/2,-x,+z+1/2 143 +z+1/2,+y,-x+1/2 144 -y+1/2,+x,+z+1/2 145 +x+1/2,+y+1/2,+z 146 +z+1/2,+x+1/2,+y 147 +y+1/2,+z+1/2,+x 148 +x+1/2,+y+1/2,-z 149 -z+1/2,+x+1/2,+y 150 +y+1/2,-z+1/2,+x 151 -z+1/2,+x+1/2,-y 152 -y+1/2,-z+1/2,+x 153 +y+1/2,-z+1/2,-x 154 -x+1/2,+y+1/2,-z 155 -z+1/2,-x+1/2,+y 156 +x+1/2,-y+1/2,-z 157 +y+1/2,+x+1/2,+z 158 +z+1/2,+y+1/2,+x 159 +x+1/2,+z+1/2,+y 160 +y+1/2,+x+1/2,-z 161 -z+1/2,+y+1/2,+x 162 +x+1/2,-z+1/2,+y 163 -z+1/2,+y+1/2,-x 164 -x+1/2,-z+1/2,+y 165 +x+1/2,-z+1/2,-y 166 -y+1/2,+x+1/2,-z 167 -z+1/2,-y+1/2,+x 168 +y+1/2,-x+1/2,-z 169 -x+1/2,-y+1/2,-z 170 -z+1/2,-x+1/2,-y 171 -y+1/2,-z+1/2,-x 172 -x+1/2,-y+1/2,+z 173 +z+1/2,-x+1/2,-y 174 -y+1/2,+z+1/2,-x 175 +z+1/2,-x+1/2,+y 176 +y+1/2,+z+1/2,-x 177 -y+1/2,+z+1/2,+x 178 +x+1/2,-y+1/2,+z 179 +z+1/2,+x+1/2,-y 180 -x+1/2,+y+1/2,+z 181 -y+1/2,-x+1/2,-z 182 -z+1/2,-y+1/2,-x 183 -x+1/2,-z+1/2,-y 184 -y+1/2,-x+1/2,+z 185 +z+1/2,-y+1/2,-x 186 -x+1/2,+z+1/2,-y 187 +z+1/2,-y+1/2,+x 188 +x+1/2,+z+1/2,-y 189 -x+1/2,+z+1/2,+y 190 +y+1/2,-x+1/2,+z 191 +z+1/2,+y+1/2,-x 192 -y+1/2,+x+1/2,+z
+# ATOMIC COORDINATES AND DISPLACEMENT PARAMETERS
+loop_
+_atom_site_type_symbol
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_symmetry_multiplicity Ni Nickel 0.0 0.0 0.0 1.0 Uiso 0.00435(10) 4
+loop_
+_atom_type_symbol
+_atom_type_number_in_cell Ni 4.0
+# If you change Z, be sure to change all 3 of the following
+_chemical_formula_sum Ni
+_chemical_formula_weight 58.71
+_cell_formula_units_Z 4
+# MOLECULAR GEOMETRY
+loop_
+_geom_bond_atom_site_label_1
+_geom_bond_atom_site_label_2
+_geom_bond_distance
+_geom_bond_site_symmetry_1
+_geom_bond_site_symmetry_2
+_geom_bond_publ_flag ? ? ? ? ? ?
+loop_
+_geom_angle_atom_site_label_1
+_geom_angle_atom_site_label_2
+_geom_angle_atom_site_label_3
+_geom_angle
+_geom_angle_site_symmetry_1
+_geom_angle_site_symmetry_2
+_geom_angle_site_symmetry_3
+_geom_angle_publ_flag ? ? ? ? ? ? ? ?
+
+
+
+
+#=============================================================================
+# INFORMATION FOR PHASE 2 (Silicon)
+#============================================================================= data_NISI_phase_2
+_pd_block_id 2002-12-22T17:32|NISI_phase2|Brian_H._Toby||
+# pointers to the data blocks containing powder diffraction data for phase 2
+loop_
+_pd_block_diffractogram_id 2002-12-22T17:32|NISI_H_01|Brian_H._Toby|GPD 2002-12-22T17:32|NISI_H_02|Brian_H._Toby|GPD
+#==============================================================================
+# 7. CHEMICAL, STRUCTURAL AND CRYSTAL DATA
+_chemical_name_systematic silicon
+_chemical_name_common silicon
+_chemical_formula_moiety ?
+_chemical_formula_structural ?
+_chemical_formula_analytical ?
+_chemical_melting_point ?
+_chemical_compound_source ?
+# for minerals and
+# natural products
+_cell_measurement_temperature ?
+_cell_special_details ; ? ;
+_geom_special_details ?
+_pd_char_particle_morphology ?
+# The following item identifies the program(s) used (if appropriate).
+_computing_structure_solution ?
+#==============================================================================
+# 8. Phase information from GSAS
+_pd_phase_name Silicon
+_cell_length_a 5.42957(9)
+_cell_length_b 5.42957
+_cell_length_c 5.42957
+_cell_angle_alpha 90.0
+_cell_angle_beta 90.0
+_cell_angle_gamma 90.0
+_cell_volume 160.06508
+_space_group_crystal_system cubic
+_space_group_name_H-M_alt 'F d -3 m'
+_space_group_name_Hall '-F 4vw 2vw'
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz 1 +x,+y,+z 2 +z,+x,+y 3 +y,+z,+x 4 +x+1/4,+y+1/4,-z 5 -z,+x+1/4,+y+1/4 6 +y+1/4,-z,+x+1/4 7 -z+1/4,+x+1/2,-y+3/4 8 -y+3/4,-z+1/4,+x+1/2 9 +y+1/2,-z+1/4,-x+3/4 10 -x+3/4,+y+1/2,-z+1/4 11 -z+1/4,-x+3/4,+y+1/2 12 +x+1/2,-y+3/4,-z+1/4 13 +y,+x,+z 14 +z,+y,+x 15 +x,+z,+y 16 +y+1/4,+x+1/4,-z 17 -z,+y+1/4,+x+1/4 18 +x+1/4,-z,+y+1/4 19 -z+1/4,+y+1/2,-x+3/4 20 -x+3/4,-z+1/4,+y+1/2 21 +x+1/2,-z+1/4,-y+3/4 22 -y+3/4,+x+1/2,-z+1/4 23 -z+1/4,-y+3/4,+x+1/2 24 +y+1/2,-x+3/4,-z+1/4 25 -x,-y,-z 26 -z,-x,-y 27 -y,-z,-x 28 -x+3/4,-y+3/4,+z 29 +z,-x+3/4,-y+3/4 30 -y+3/4,+z,-x+3/4 31 +z+3/4,-x+1/2,+y+1/4 32 +y+1/4,+z+3/4,-x+1/2 33 -y+1/2,+z+3/4,+x+1/4 34 +x+1/4,-y+1/2,+z+3/4 35 +z+3/4,+x+1/4,-y+1/2 36 -x+1/2,+y+1/4,+z+3/4 37 -y,-x,-z 38 -z,-y,-x 39 -x,-z,-y 40 -y+3/4,-x+3/4,+z 41 +z,-y+3/4,-x+3/4 42 -x+3/4,+z,-y+3/4 43 +z+3/4,-y+1/2,+x+1/4 44 +x+1/4,+z+3/4,-y+1/2 45 -x+1/2,+z+3/4,+y+1/4 46 +y+1/4,-x+1/2,+z+3/4 47 +z+3/4,+y+1/4,-x+1/2 48 -y+1/2,+x+1/4,+z+3/4 49 +x,+y+1/2,+z+1/2 50 +z,+x+1/2,+y+1/2 51 +y,+z+1/2,+x+1/2 52 +x+1/4,+y+3/4,-z+1/2 53 -z,+x+3/4,+y+3/4 54 +y+1/4,-z+1/2,+x+3/4 55 -z+1/4,+x,-y+1/4 56 -y+3/4,-z+3/4,+x 57 +y+1/2,-z+3/4,-x+1/4 58 -x+3/4,+y,-z+3/4 59 -z+1/4,-x+1/4,+y 60 +x+1/2,-y+1/4,-z+3/4 61 +y,+x+1/2,+z+1/2 62 +z,+y+1/2,+x+1/2 63 +x,+z+1/2,+y+1/2 64 +y+1/4,+x+3/4,-z+1/2 65 -z,+y+3/4,+x+3/4 66 +x+1/4,-z+1/2,+y+3/4 67 -z+1/4,+y,-x+1/4 68 -x+3/4,-z+3/4,+y 69 +x+1/2,-z+3/4,-y+1/4 70 -y+3/4,+x,-z+3/4 71 -z+1/4,-y+1/4,+x 72 +y+1/2,-x+1/4,-z+3/4 73 -x,-y+1/2,-z+1/2 74 -z,-x+1/2,-y+1/2 75 -y,-z+1/2,-x+1/2 76 -x+3/4,-y+1/4,+z+1/2 77 +z,-x+1/4,-y+1/4 78 -y+3/4,+z+1/2,-x+1/4 79 +z+3/4,-x,+y+3/4 80 +y+1/4,+z+1/4,-x 81 -y+1/2,+z+1/4,+x+3/4 82 +x+1/4,-y,+z+1/4 83 +z+3/4,+x+3/4,-y 84 -x+1/2,+y+3/4,+z+1/4 85 -y,-x+1/2,-z+1/2 86 -z,-y+1/2,-x+1/2 87 -x,-z+1/2,-y+1/2 88 -y+3/4,-x+1/4,+z+1/2 89 +z,-y+1/4,-x+1/4 90 -x+3/4,+z+1/2,-y+1/4 91 +z+3/4,-y,+x+3/4 92 +x+1/4,+z+1/4,-y 93 -x+1/2,+z+1/4,+y+3/4 94 +y+1/4,-x,+z+1/4 95 +z+3/4,+y+3/4,-x 96 -y+1/2,+x+3/4,+z+1/4 97 +x+1/2,+y,+z+1/2 98 +z+1/2,+x,+y+1/2 99 +y+1/2,+z,+x+1/2 100 +x+3/4,+y+1/4,-z+1/2 101 -z+1/2,+x+1/4,+y+3/4 102 +y+3/4,-z,+x+3/4 103 -z+3/4,+x+1/2,-y+1/4 104 -y+1/4,-z+1/4,+x 105 +y,-z+1/4,-x+1/4 106 -x+1/4,+y+1/2,-z+3/4 107 -z+3/4,-x+3/4,+y 108 +x,-y+3/4,-z+3/4 109 +y+1/2,+x,+z+1/2 110 +z+1/2,+y,+x+1/2 111 +x+1/2,+z,+y+1/2 112 +y+3/4,+x+1/4,-z+1/2 113 -z+1/2,+y+1/4,+x+3/4 114 +x+3/4,-z,+y+3/4 115 -z+3/4,+y+1/2,-x+1/4 116 -x+1/4,-z+1/4,+y 117 +x,-z+1/4,-y+1/4 118 -y+1/4,+x+1/2,-z+3/4 119 -z+3/4,-y+3/4,+x 120 +y,-x+3/4,-z+3/4 121 -x+1/2,-y,-z+1/2 122 -z+1/2,-x,-y+1/2 123 -y+1/2,-z,-x+1/2 124 -x+1/4,-y+3/4,+z+1/2 125 +z+1/2,-x+3/4,-y+1/4 126 -y+1/4,+z,-x+1/4 127 +z+1/4,-x+1/2,+y+3/4 128 +y+3/4,+z+3/4,-x 129 -y,+z+3/4,+x+3/4 130 +x+3/4,-y+1/2,+z+1/4 131 +z+1/4,+x+1/4,-y 132 -x,+y+1/4,+z+1/4 133 -y+1/2,-x,-z+1/2 134 -z+1/2,-y,-x+1/2 135 -x+1/2,-z,-y+1/2 136 -y+1/4,-x+3/4,+z+1/2 137 +z+1/2,-y+3/4,-x+1/4 138 -x+1/4,+z,-y+1/4 139 +z+1/4,-y+1/2,+x+3/4 140 +x+3/4,+z+3/4,-y 141 -x,+z+3/4,+y+3/4 142 +y+3/4,-x+1/2,+z+1/4 143 +z+1/4,+y+1/4,-x 144 -y,+x+1/4,+z+1/4 145 +x+1/2,+y+1/2,+z 146 +z+1/2,+x+1/2,+y 147 +y+1/2,+z+1/2,+x 148 +x+3/4,+y+3/4,-z 149 -z+1/2,+x+3/4,+y+1/4 150 +y+3/4,-z+1/2,+x+1/4 151 -z+3/4,+x,-y+3/4 152 -y+1/4,-z+3/4,+x+1/2 153 +y,-z+3/4,-x+3/4 154 -x+1/4,+y,-z+1/4 155 -z+3/4,-x+1/4,+y+1/2 156 +x,-y+1/4,-z+1/4 157 +y+1/2,+x+1/2,+z 158 +z+1/2,+y+1/2,+x 159 +x+1/2,+z+1/2,+y 160 +y+3/4,+x+3/4,-z 161 -z+1/2,+y+3/4,+x+1/4 162 +x+3/4,-z+1/2,+y+1/4 163 -z+3/4,+y,-x+3/4 164 -x+1/4,-z+3/4,+y+1/2 165 +x,-z+3/4,-y+3/4 166 -y+1/4,+x,-z+1/4 167 -z+3/4,-y+1/4,+x+1/2 168 +y,-x+1/4,-z+1/4 169 -x+1/2,-y+1/2,-z 170 -z+1/2,-x+1/2,-y 171 -y+1/2,-z+1/2,-x 172 -x+1/4,-y+1/4,+z 173 +z+1/2,-x+1/4,-y+3/4 174 -y+1/4,+z+1/2,-x+3/4 175 +z+1/4,-x,+y+1/4 176 +y+3/4,+z+1/4,-x+1/2 177 -y,+z+1/4,+x+1/4 178 +x+3/4,-y,+z+3/4 179 +z+1/4,+x+3/4,-y+1/2 180 -x,+y+3/4,+z+3/4 181 -y+1/2,-x+1/2,-z 182 -z+1/2,-y+1/2,-x 183 -x+1/2,-z+1/2,-y 184 -y+1/4,-x+1/4,+z 185 +z+1/2,-y+1/4,-x+3/4 186 -x+1/4,+z+1/2,-y+3/4 187 +z+1/4,-y,+x+1/4 188 +x+3/4,+z+1/4,-y+1/2 189 -x,+z+1/4,+y+1/4 190 +y+3/4,-x,+z+3/4 191 +z+1/4,+y+3/4,-x+1/2 192 -y,+x+3/4,+z+3/4
+# ATOMIC COORDINATES AND DISPLACEMENT PARAMETERS
+loop_
+_atom_site_type_symbol
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_symmetry_multiplicity Si Silicon 0.125 0.125 0.125 1.0 Uiso 0.00540(21) 8
+loop_
+_atom_type_symbol
+_atom_type_number_in_cell Si 8.0
+# If you change Z, be sure to change all 3 of the following
+_chemical_formula_sum Si
+_chemical_formula_weight 28.09
+_cell_formula_units_Z 8
+# MOLECULAR GEOMETRY
+loop_
+_geom_bond_atom_site_label_1
+_geom_bond_atom_site_label_2
+_geom_bond_distance
+_geom_bond_site_symmetry_1
+_geom_bond_site_symmetry_2
+_geom_bond_publ_flag Silicon Silicon 2.351070(30) . 4_555 n Silicon Silicon 2.351070(30) . 5_555 n Silicon Silicon 2.351070(30) . 6_555 n Silicon Silicon 2.351070(30) . 25_555 n
+loop_
+_geom_angle_atom_site_label_1
+_geom_angle_atom_site_label_2
+_geom_angle_atom_site_label_3
+_geom_angle
+_geom_angle_site_symmetry_1
+_geom_angle_site_symmetry_2
+_geom_angle_site_symmetry_3
+_geom_angle_publ_flag Silicon Silicon Silicon 109.4712(6) 4_555 . 5_555 n Silicon Silicon Silicon 109.4712(6) 4_555 . 6_555 n Silicon Silicon Silicon 109.4712(12) 4_555 . 25_555 n Silicon Silicon Silicon 109.4712(12) 5_555 . 6_555 n Silicon Silicon Silicon 109.4712(6) 5_555 . 25_555 n Silicon Silicon Silicon 109.4712(6) 6_555 . 25_555 n
+
+
+
+#=============================================================================
+# FIRST SET OF POWDER DIFFRACTION DATA
+#============================================================================= data_NISI_p_01
+_pd_block_id 2002-12-22T17:32|NISI_H_01|Brian_H._Toby|GPD
+#==============================================================================
+# 9. INSTRUMENT CHARACTERIZATION
+_exptl_special_details ; ? ;
+# if regions of the data are excluded, the reason(s) are supplied here:
+_pd_proc_info_excluded_regions ; ? ;
+# The following item is used to identify the equipment used to record
+# the powder pattern when the diffractogram was measured at a laboratory
+# other than the authors' home institution, e.g. when neutron or synchrotron
+# radiation is used.
+_pd_instr_location ; ? ;
+_pd_calibration_special_details
+# description of the method used
+# to calibrate the instrument ; ? ;
+_diffrn_ambient_temperature ?
+_diffrn_source ?
+_diffrn_source_target ?
+_diffrn_source_type ?
+_diffrn_measurement_device_type ?
+_diffrn_detector ?
+_diffrn_detector_type ?
+# make or model of detector
+_pd_meas_scan_method ?
+# options are 'step', 'cont',
+# 'tof', 'fixed' or
+# 'disp' (= dispersive)
+_pd_meas_special_details ; ? ;
+# The following two items identify the program(s) used (if appropriate).
+_computing_data_collection ?
+_computing_data_reduction ?
+# Describe any processing performed on the data, prior to refinement.
+# For example: a manual Lp correction or a precomputed absorption correction
+_pd_proc_info_data_reduction ?
+# The following item is used for angular dispersive measurements only.
+_diffrn_radiation_monochromator ?
+# The following items are used to define the size of the instrument.
+# Not all distances are appropriate for all instrument types.
+_pd_instr_dist_src/mono ?
+_pd_instr_dist_mono/spec ?
+_pd_instr_dist_src/spec ?
+_pd_instr_dist_spec/anal ?
+_pd_instr_dist_anal/detc ?
+_pd_instr_dist_spec/detc ?
+# 10. Specimen size and mounting information
+# The next three fields give the specimen dimensions in mm. The equatorial
+# plane contains the incident and diffracted beam.
+_pd_spec_size_axial ?
+# perpendicular to
+# equatorial plane
+_pd_spec_size_equat ?
+# parallel to
+# scattering vector
+# in transmission
+_pd_spec_size_thick ?
+# parallel to
+# scattering vector
+# in reflection
+_pd_spec_mounting
+# This field should be
+# used to give details of the
+# container. ; ? ;
+_pd_spec_mount_mode ?
+# options are 'reflection'
+# or 'transmission'
+_pd_spec_shape ?
+# options are 'cylinder'
+# 'flat_sheet' or 'irregular'
+# Information about the phases contributing to this set of powder
+# diffraction data
+loop_
+_pd_phase_id
+_pd_phase_block_id
+_pd_phase_mass_%
+_pd_proc_ls_profile_function
+_pd_proc_ls_peak_cutoff 
+1 2002-12-22T17:32|NISI_phase1|Brian_H._Toby|| 51(49) ; TOF profile function number 1 with 12 terms Profile coefficients for Von Dreele, Jorgensen & Windsor convolution function J. Appl. Cryst. (1982). 15, 581-589 Modified by Von Dreele - unpublished (1983).
+#1(alp-0) = 0.0000
+#3(bet-0) = 5.5766E-02
+#5(sig-0) = 0.286
+#2(alp-1) = 0.1374
+#4(bet-1) = 1.3723E-03
+#6(sig-1) = 49.963
+#8(rstr ) = 0.000
+#9(rsta ) = 0.000
+#7(sig-2) = -4.490
+#10(rsca) = 0.000
+#11(s1ec) = 0.00
+#12(s2ec) = 4.95 Peak tails are ignored where the intensity is below 0.0050 times the peak Aniso. broadening axis 0.0 0.0 1.0 ; 0.00500 
+2 2002-12-22T17:32|NISI_phase2|Brian_H._Toby|| 49(49) ; TOF profile function number 1 with 12 terms Profile coefficients for Von Dreele, Jorgensen & Windsor convolution function J. Appl. Cryst. (1982). 15, 581-589 Modified by Von Dreele - unpublished (1983).
+#1(alp-0) = 0.0000
+#3(bet-0) = 5.5766E-02
+#5(sig-0) = 1.267
+#2(alp-1) = 0.1374
+#4(bet-1) = 1.3723E-03
+#6(sig-1) = 10.000
+#8(rstr ) = 0.000
+#9(rsta ) = 0.000
+#7(sig-2) = 0.000
+#10(rsca) = 0.000
+#11(s1ec) = 0.00
+#12(s2ec) = 0.00 Peak tails are ignored where the intensity is below 0.0050 times the peak Aniso. broadening axis 0.0 0.0 1.0 ; 0.00500
+loop_
+_atom_type_symbol
+_atom_type_scat_length_neutron
+_atom_type_scat_source Ni 1.0300 International_Tables_Vol_C Si 0.4149 International_Tables_Vol_C
+_diffrn_radiation_probe neutron
+_pd_proc_ls_prof_R_factor 0.0272
+_pd_proc_ls_prof_wR_factor 0.0384
+_pd_proc_ls_prof_wR_expected 0.0294
+_refine_ls_R_Fsqd_factor 0.07288
+_pd_proc_ls_background_function ; GSAS background function number 2 with 6 terms. Cosine Fourier series 1: 0.257511 2: -5.126050E-02 3: -0.106891 4: -7.253230E-02 5: -4.390250E-02 6: -1.267150E-02 ;
+_exptl_absorpt_process_details ; GSAS absorption/surface roughness correction: function number 0 Debye-Scherrer absorption correction Term (= MU.r/wave) = 0.24308E-01 Correction is refined. ;
+_exptl_absorpt_correction_T_min 0.89986
+_exptl_absorpt_correction_T_max 0.96223
+# Extinction correction
+_gsas_exptl_extinct_corr_T_min 1.00000
+_gsas_exptl_extinct_corr_T_max 1.00000
+_pd_proc_info_datetime 2002-12-22T17:32:19
+_pd_calc_method "Rietveld refinement"
+_pd_meas_2theta_fixed 148.29
+#---- raw data loop -----
+loop_
+_pd_meas_time_of_flight
+_pd_meas_intensity_total
+_pd_meas_point_id 
+1000.0 1818(34) 626 
+1001.6 1810(34) 627 
+1003.2 1808(34) 628 
+1004.8 1838(34) 629 
+1006.4 1783(33) 630 
+1008.0 1821(34) 631 
+1009.6 1871(34) 632
+ 1011.2 1850(34) 633
+# data truncated for brevity
+_pd_meas_number_of_points 4495
+#---- calculated data loop -----
+loop_
+_pd_proc_d_spacing
+_pd_proc_intensity_total
+_pd_proc_ls_weight
+_pd_proc_intensity_bkg_calc
+_pd_calc_intensity_total
+_pd_proc_point_id 
+0.50035 0.424(7) 19401. 0.3726 0.4155 1 
+0.50090 0.413(7) 19904. 0.3726 0.4059 2 
+0.50145 0.413(7) 19881. 0.3725 0.3976 3 
+0.50200 0.383(7) 21427. 0.3725 0.3920 4 
+0.50255 0.404(7) 20253. 0.3724 0.3876 5 
+0.50310 0.393(7) 20813. 0.3724 0.3844 6 
+0.50365 0.388(7) 21071. 0.3723 0.3823 7 
+0.50420 0.386(7) 21153. 0.3722 0.3816 8 
+0.50475 0.377(7) 21629. 0.3722 0.3838 9
+# data truncated for brevity
+_pd_proc_number_of_points 1648
+#---- reflection table -----
+loop_
+_refln_index_h
+_refln_index_k
+_refln_index_l
+_pd_refln_phase_id
+_refln_observed_status
+_refln_F_squared_meas
+_refln_F_squared_calc
+_refln_phase_calc
+_refln_d_spacing
+_gsas_i100_meas 
+4 0 0 2 o 9.773 9.812 180.00 1.35739 11.88 
+3 3 1 2 o 4.799 4.801 0.00 1.24563 16.69 
+2 2 0 1 o 15.254 15.195 0.00 1.24572 96.38 
+4 2 2 2 o 9.070 9.260 0.00 1.10831 19.98 
+3 1 1 1 o 14.752 14.576 0.00 1.06236 100.00 
+3 3 3 2 o 4.808 4.531 0.00 1.04492 2.80 
+5 1 1 2 o 4.808 4.531 0.00 1.04492 8.41 
+2 2 2 1 o 14.685 14.376 0.00 1.01713 27.98 
+4 4 0 2 o 8.118 8.739 0.00 0.95982 5.09
+# data truncated for brevity
+_reflns_number_observed 60
+_reflns_limit_h_min 1
+_reflns_limit_h_max 11
+_reflns_limit_k_min 0
+_reflns_limit_k_max 7
+_reflns_limit_l_min 0
+_reflns_limit_l_max 6
+_reflns_d_resolution_high 0.504
+_reflns_d_resolution_low 1.357
+
+
+
+#=============================================================================
+# SECOND SET OF POWDER DIFFRACTION DATA
+#============================================================================= data_NISI_p_02
+_pd_block_id 2002-12-22T17:32|NISI_H_02|Brian_H._Toby|GPD
+#==============================================================================
+# 9. INSTRUMENT CHARACTERIZATION
+_exptl_special_details ; ? ;
+# if regions of the data are excluded, the reason(s) are supplied here:
+_pd_proc_info_excluded_regions ; ? ;
+# The following item is used to identify the equipment used to record
+# the powder pattern when the diffractogram was measured at a laboratory
+# other than the authors' home institution, e.g. when neutron or synchrotron
+# radiation is used.
+_pd_instr_location ; ? ;
+_pd_calibration_special_details
+# description of the method used
+# to calibrate the instrument ; ? ;
+_diffrn_ambient_temperature ?
+_diffrn_source ?
+_diffrn_source_target ?
+_diffrn_source_type ?
+_diffrn_measurement_device_type ?
+_diffrn_detector ?
+_diffrn_detector_type ?
+# make or model of detector
+_pd_meas_scan_method ?
+# options are 'step', 'cont',
+# 'tof', 'fixed' or
+# 'disp' (= dispersive)
+_pd_meas_special_details ; ? ;
+# The following two items identify the program(s) used (if appropriate).
+_computing_data_collection ?
+_computing_data_reduction ?
+# Describe any processing performed on the data, prior to refinement.
+# For example: a manual Lp correction or a precomputed absorption correction
+_pd_proc_info_data_reduction ?
+# The following item is used for angular dispersive measurements only.
+_diffrn_radiation_monochromator ?
+# The following items are used to define the size of the instrument.
+# Not all distances are appropriate for all instrument types.
+_pd_instr_dist_src/mono ?
+_pd_instr_dist_mono/spec ?
+_pd_instr_dist_src/spec ?
+_pd_instr_dist_spec/anal ?
+_pd_instr_dist_anal/detc ?
+_pd_instr_dist_spec/detc ?
+# 10. Specimen size and mounting information
+# The next three fields give the specimen dimensions in mm. The equatorial
+# plane contains the incident and diffracted beam.
+_pd_spec_size_axial ?
+# perpendicular to
+# equatorial plane
+_pd_spec_size_equat ?
+# parallel to
+# scattering vector
+# in transmission
+_pd_spec_size_thick ?
+# parallel to
+# scattering vector
+# in reflection
+_pd_spec_mounting
+# This field should be
+# used to give details of the
+# container. ; ? ;
+_pd_spec_mount_mode ?
+# options are 'reflection'
+# or 'transmission'
+_pd_spec_shape ?
+# options are 'cylinder'
+# 'flat_sheet' or 'irregular'
+# Information about the phases contributing to this set of powder
+# diffraction data
+loop_
+_pd_phase_id
+_pd_phase_block_id
+_pd_phase_mass_%
+_pd_proc_ls_profile_function
+_pd_proc_ls_peak_cutoff 
+1 2002-12-22T17:32|NISI_phase1|Brian_H._Toby|| 51.38 ; TOF profile function number 1 with 12 terms Profile coefficients for Von Dreele, Jorgensen & Windsor convolution function J. Appl. Cryst. (1982). 15, 581-589 Modified by Von Dreele - unpublished (1983). #1(alp-0) = 0.0000 #3(bet-0) = 5.5766E-02 #5(sig-0) = 2.422 #2(alp-1) = 0.1428 #4(bet-1) = 3.4450E-03 #6(sig-1) = 71.488 #8(rstr ) = 0.000 #9(rsta ) = 0.000 #7(sig-2) = 14.951 #10(rsca) = 0.000 #11(s1ec) = 0.00 #12(s2ec) = 0.00 Peak tails are ignored where the intensity is below 0.0050 times the peak Aniso. broadening axis 0.0 0.0 1.0 ; 0.00500
+ 2 2002-12-22T17:32|NISI_phase2|Brian_H._Toby|| 48.62(28) ; TOF profile function number 1 with 12 terms Profile coefficients for Von Dreele, Jorgensen & Windsor convolution function J. Appl. Cryst. (1982). 15, 581-589 Modified by Von Dreele - unpublished (1983). #1(alp-0) = 0.0000 #3(bet-0) = 5.5766E-02 #5(sig-0) = 0.208 #2(alp-1) = 0.1428 #4(bet-1) = 3.4450E-03 #6(sig-1) = 57.992 #8(rstr ) = 0.000 #9(rsta ) = 0.000 #7(sig-2) = 0.000 #10(rsca) = 0.000 #11(s1ec) = 0.00 #12(s2ec) = 0.00 Peak tails are ignored where the intensity is below 0.0050 times the peak Aniso. broadening axis 0.0 0.0 1.0 ; 0.00500
+loop_
+_atom_type_symbol
+_atom_type_scat_length_neutron
+_atom_type_scat_source 
+Ni 1.0300 International_Tables_Vol_C 
+Si 0.4149 International_Tables_Vol_C
+_diffrn_radiation_probe neutron
+_pd_proc_ls_prof_R_factor 0.0270
+_pd_proc_ls_prof_wR_factor 0.0363
+_pd_proc_ls_prof_wR_expected 0.0222
+_refine_ls_R_Fsqd_factor 0.07645
+_pd_proc_ls_background_function 
+; 
+GSAS background function number 4 with 4 terms. Power series in Q**2n/n! 1: 0.254241 2: 1.830450E-03 3: -1.977130E-05 4: 1.556390E-07 
+;
+_exptl_absorpt_process_details 
+; GSAS absorption/surface roughness correction: function number 0 Debye-Scherrer absorption correction Term (= MU.r/wave) = 0.24308E-01 Correction is refined. 
+;
+_exptl_absorpt_correction_T_min 0.90482
+_exptl_absorpt_correction_T_max 0.97471
+# Extinction correction
+_gsas_exptl_extinct_corr_T_min 1.00000
+_gsas_exptl_extinct_corr_T_max 1.00000
+_pd_proc_info_datetime 2002-12-22T17:32:19
+_pd_calc_method "Rietveld refinement"
+_pd_meas_2theta_fixed 88.05
+#---- raw data loop -----
+loop_
+_pd_meas_time_of_flight
+_pd_meas_intensity_total
+_pd_meas_point_id 
+750.4 2780(42) 470 
+752.0 2776(42) 471 
+753.6 2775(42) 472 
+755.2 2746(41) 473 
+756.8 2779(42) 474 
+758.4 2769(42) 475 
+760.0 2743(41) 476 
+761.6 2755(41) 477 
+763.2 2712(41) 478
+# data truncated for brevity
+_pd_meas_number_of_points 4651
+#---- calculated data loop -----
+loop_
+_pd_proc_d_spacing
+_pd_proc_intensity_total
+_pd_proc_ls_weight
+_pd_proc_intensity_bkg_calc
+_pd_calc_intensity_total
+_pd_proc_point_id 
+0.45802 0.778(9) 12931. 0.4211 0.7851 1 
+0.45875 0.880(9) 11421. 0.4206 0.8992 2 
+0.45949 0.890(9) 11288. 0.4201 0.9062 3 
+0.46022 0.816(9) 12327. 0.4196 0.8249 4 
+0.46095 0.709(8) 14193. 0.4191 0.7178 5 
+0.46168 0.601(8) 16748. 0.4186 0.6240 6 
+0.46242 0.539(7) 18683. 0.4181 0.5557 7 
+0.46315 0.503(7) 20015. 0.4177 0.5120 8 
+0.46388 0.499(7) 20188. 0.4172 0.4896 9
+# data truncated for brevity
+_pd_proc_number_of_points 1933
+#---- reflection table -----
+loop_
+_refln_index_h
+_refln_index_k
+_refln_index_l
+_pd_refln_phase_id
+_refln_observed_status
+_refln_F_squared_meas
+_refln_F_squared_calc
+_refln_phase_calc
+_refln_d_spacing
+_gsas_i100_meas 2 0 0 1 o 16.505 16.060 0.00 1.76172 100.00 3 1 1 2 o 4.854 5.087 180.00 1.63708 23.87 2 2 2 2 o 0.000 0.000 0.00 1.56738 0.00 4 0 0 2 o 10.301 9.812 180.00 1.35739 6.08 2 2 0 1 o 15.566 15.195 0.00 1.24572 48.55 3 3 1 2 o 4.948 4.801 0.00 1.24563 8.34 4 2 2 2 o 9.626 9.260 0.00 1.10831 10.25 3 1 1 1 o 14.502 14.576 0.00 1.06236 48.34 3 3 3 2 o 5.035 4.531 0.00 1.04492 1.42
+# data truncated for brevity
+_reflns_number_observed 83
+_reflns_limit_h_min 1
+_reflns_limit_h_max 12
+_reflns_limit_k_min 0
+_reflns_limit_k_max 8
+_reflns_limit_l_min 0
+_reflns_limit_l_max 7
+_reflns_d_resolution_high 0.459
+_reflns_d_resolution_low 1.762
+#--eof--eof--eof--eof--eof--eof--eof--eof--eof--eof--eof--eof--eof--eof--eof--# 

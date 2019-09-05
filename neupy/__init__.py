@@ -19,6 +19,8 @@ from neupy.f_crystal import (
 
 from neupy.f_experiment import (
     BeamPolarization,
+    OrientMatrix,
+    Extinction,
     DiffrnRefln, 
     Diffrn
     )
