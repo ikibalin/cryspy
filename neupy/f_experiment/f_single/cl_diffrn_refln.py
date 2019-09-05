@@ -1,12 +1,13 @@
-
 """
 define classe DiffrnRefln which describes the single diffraction experiment
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_04"
+__version__ = "2019_09_05"
 import os
 import numpy
 
+
+from pystar import CIFglobal
 from neupy.f_common.cl_fitable import Fitable
 
 
@@ -42,49 +43,52 @@ class DiffrnRefln(object):
 
     @property
     def h(self):
-        return tuple(self.__diffrn_refln_index_h)
+        return self.__diffrn_refln_index_h
     @h.setter
     def h(self, l_x):
         l_x_in = []
         for x in l_x:
-            if isinstance(x, float):
+            if isinstance(x, int):
                 x_in = x
             else:
-                x_in = float(x)
+                x_in = int(round(x))
             l_x_in.append(x_in)
-        self.__diffrn_refln_index_h = l_x_in
+        np_x_in = numpy.array(l_x_in, dtype=int)
+        self.__diffrn_refln_index_h = np_x_in
 
     @property
     def k(self):
-        return tuple(self.__diffrn_refln_index_k)
+        return self.__diffrn_refln_index_k
     @k.setter
     def k(self, l_x):
         l_x_in = []
         for x in l_x:
-            if isinstance(x, float):
+            if isinstance(x, int):
                 x_in = x
             else:
-                x_in = float(x)
+                x_in = int(round(x))
             l_x_in.append(x_in)
-        self.__diffrn_refln_index_k = l_x_in
+        np_x_in = numpy.array(l_x_in, dtype=int)
+        self.__diffrn_refln_index_k = np_x_in
 
     @property
     def l(self):
-        return tuple(self.__diffrn_refln_index_l)
+        return self.__diffrn_refln_index_l
     @l.setter
     def l(self, l_x):
         l_x_in = []
         for x in l_x:
-            if isinstance(x, float):
+            if isinstance(x, int):
                 x_in = x
             else:
-                x_in = float(x)
+                x_in = int(round(x))
             l_x_in.append(x_in)
-        self.__diffrn_refln_index_l = l_x_in
+        np_x_in = numpy.array(l_x_in, dtype=int)
+        self.__diffrn_refln_index_l = np_x_in
 
     @property
     def fr(self):
-        return tuple(self.__diffrn_refln_fr)
+        return self.__diffrn_refln_fr
     @fr.setter
     def fr(self, l_x):
         l_x_in = []
@@ -94,12 +98,13 @@ class DiffrnRefln(object):
             else:
                 x_in = float(x)
             l_x_in.append(x_in)
-        self.__diffrn_refln_fr = l_x_in
+        np_x_in = numpy.array(l_x_in, dtype=float)
+        self.__diffrn_refln_fr = np_x_in
 
 
     @property
     def fr_sigma(self):
-        return tuple(self.__diffrn_refln_fr_sigma)
+        return self.__diffrn_refln_fr_sigma
     @fr_sigma.setter
     def fr_sigma(self, l_x):
         l_x_in = []
@@ -109,7 +114,8 @@ class DiffrnRefln(object):
             else:
                 x_in = float(x)
             l_x_in.append(x_in)
-        self.__diffrn_refln_fr_sigma = l_x_in
+        np_x_in = numpy.array(l_x_in, dtype=float)
+        self.__diffrn_refln_fr_sigma = np_x_in
 
     def __repr__(self):
         ls_out = ["DiffrnRefln"]
@@ -118,11 +124,6 @@ class DiffrnRefln(object):
             ls_out.append(" {:5} {:5} {:5} {:9.5} {:9.5}".format(_1, _2, _3, _4, _5))
         return "\n".join(ls_out)
 
-    
-    _diffrn_refln_index_k
-    _diffrn_refln_index_l
-    _diffrn_refln_fr
-    _diffrn_refln_fr_sigma
 
     @property
     def to_cif(self):
@@ -162,3 +163,18 @@ class DiffrnRefln(object):
             self.h, self.k, self.l, self.fr, self.fr_sigma = [], [], [], [], []
         return True
 
+    @property
+    def is_defined(self):
+        cond = all([self.h is not None, self.k is not None, self.l is not None, self.fr is not None, self.fr_sigma is not None])
+        return cond
+
+    @property
+    def is_variable(self):
+        return False
+    
+    def get_variables(self):
+        return []
+
+    def _show_message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)

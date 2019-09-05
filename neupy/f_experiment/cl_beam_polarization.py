@@ -61,8 +61,10 @@ class BeamPolarization(object):
 
 
     def __repr__(self):
-        ls_out = ["""BeamPolarization: \n polarization: {:}\n flipper: {:}""".format(
-                self.get_val("p_u"), self.get_val("flipper_efficiency"))]
+        ls_out = []
+        ls_out.append("BeamPolarization: ")
+        ls_out.append("polarization: {}".format(self.polarization.print_with_sigma))
+        ls_out.append("efficiency: {}".format(self.efficiency.print_with_sigma))
         return "\n".join(ls_out)
 
 
@@ -86,11 +88,14 @@ class BeamPolarization(object):
             l_variable.append(self.flipper)
         return l_variable
 
+    def _show_message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)
         
     @property
     def to_cif(self):
         ls_out = ["_diffrn_radiation_polarization {:}".format(self.polarization.print_with_sigma)]
-        ls_out.append("_diffrn_radiation_efficiency {:}".format(self.flipper.print_with_sigma))
+        ls_out.append("_diffrn_radiation_efficiency {:}".format(self.efficiency.print_with_sigma))
         return "\n".join(ls_out)
 
 

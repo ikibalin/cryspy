@@ -6,11 +6,13 @@ __author__ = 'ikibalin'
 __version__ = "2019_09_04"
 import os
 import numpy
+from pystar import CIFdata, CIFloop
 
 from neupy.f_common.cl_fitable import Fitable
 from neupy.f_experiment.cl_beam_polarization import BeamPolarization
 from neupy.f_experiment.cl_orient_matrix import OrientMatrix
 from neupy.f_experiment.f_single.cl_diffrn_refln import DiffrnRefln
+from neupy.f_experiment.cl_extinction import Extinction
 
 
 
@@ -18,7 +20,7 @@ class Diffrn(object):
     """
     Class to describe information about single diffraction measurements
     """
-    def __init__(self, label=None, 
+    def __init__(self, label="", 
                  extinction = None, diffrn_refln=None, orient_matrix=None,
                  beam_polarization=None, crystal=None,
                  wavelength=1.4, field=1.0
@@ -34,229 +36,340 @@ class Diffrn(object):
         self.__diffrn_radiation_wavelength = None
         self.__diffrn_ambient_field = None
 
-    def __repr__(self):
-        ls_out = """Diffrn:\n name: {:}\n file_out: {:}\n{:}\n{:}""".format(
-                self._p_name, self._p_file_out, self._p_setup, self._p_observed_data)
-        
-        ls_calculated_data = []
-        for calculated_data in self._list_calculated_data:
-            ls_calculated_data.append("{:}".format(calculated_data))
+    @property
+    def label(self):
+        return self.__label
+    @label.setter
+    def label(self, x: str):
+        self.__label = str(x)
 
-        ls_out += "\n\n\nCalculatedData:\n\n"+"\n\n".join(ls_calculated_data)
-        return ls_out
-
-    def _refresh(self, name, setup, observed_data, file_out, file_dir):
-        if name is not None:
-            self._p_name = name
-        if setup is not None:
-            self._p_setup = setup
-        if observed_data is not None:
-            self._p_observed_data = observed_data
-        if file_out is not None:
-            self._p_file_out = file_out
-        if file_dir is not None:
-            self._p_file_dir = file_dir
-            
-    def set_val(self, name=None, setup=None, observed_data=None, file_out=None, file_dir=None):
-        self._refresh(name, setup, observed_data, file_out, file_dir)
-        
-    def get_val(self, label):
-        lab = "_p_"+label
-        
-        if lab in self.__dict__.keys():
-            val = self.__dict__[lab]
-            if isinstance(val, type(None)):
-                self.set_val()
-                val = self.__dict__[lab]
+    @property
+    def extinction(self):
+        return self.__extinction
+    @extinction.setter
+    def extinction(self, x):
+        if isinstance(x, Extinction):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = Extinction()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                x_in = None
+                self._show_message("A induced string can not be converted to Extinction")
+        elif x is None:
+            x_in = None
         else:
-            print("The value '{:}' is not found".format(lab))
-            val = None
-        return val
+            x_in = None
+            self._show_message("Input type for extinction is not recognized")
+        self.__extinction = x_in
 
-    def list_vals(self):
-        """
-        give a list of parameters with small descripition
-        """
-        lsout = """
-Parameters:
-name is the name of experiment (should be unique)
-setup is to describe parameters of diffractometer 
-observed_data is the experimental data
-file_out is the file name of model data
-        """
-        print(lsout)
-    def add_calculated_data(self, observed_data):
-        self._list_calculated_data.append(observed_data)
+    @property
+    def diffrn_refln(self):
+        return self.__diffrn_refln
+    @diffrn_refln.setter
+    def diffrn_refln(self, x):
+        if isinstance(x, DiffrnRefln):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = DiffrnRefln()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                x_in = None
+                self._show_message("A induced string can not be converted to DiffrnRefln")
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("Input type for diffrn_refln is not recognized")
+        self.__diffrn_refln = x_in
 
-    def del_calculated_data(self, ind):
-        self._list_calculated_data.pop(ind)        
+    @property
+    def orient_matrix(self):
+        return self.__orient_matrix
+    @orient_matrix.setter
+    def orient_matrix(self, x):
+        if isinstance(x, OrientMatrix):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = OrientMatrix()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                x_in = None
+                self._show_message("A induced string can not be converted to OrientMatrix")
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("Input type for orient_matrix is not recognized")
+        self.__orient_matrix = x_in
 
-    def replace_calculated_data(self, ind, observed_data):
-        self._list_calculated_data.pop(ind)
-        self._list_calculated_data.insert(ind, observed_data)
+    @property
+    def beam_polarization(self):
+        return self.__beam_polarization
+    @beam_polarization.setter
+    def beam_polarization(self, x):
+        if isinstance(x, BeamPolarization):
+            x_in = x
+        elif isinstance(x, str):
+            x_in = BeamPolarization()
+            flag = x_in.from_cif(x)
+            if not(flag):
+                x_in = None
+                self._show_message("A induced string can not be converted to BeamPolarization")
+        elif x is None:
+            x_in = None
+        else:
+            x_in = None
+            self._show_message("Input type for beam_polarization is not recognized")
+        self.__beam_polarization = x_in
+
+    @property
+    def wavelength(self):
+        return self.__diffrn_radiation_wavelength
+    @wavelength.setter
+    def wavelength(self, x):
+        if isinstance(x, float):
+            x_in = x
+        elif x is None:
+            x_in = None
+        else:
+            x_in = float(x)
+        self.__diffrn_radiation_wavelength = x_in
+
+    @property
+    def field(self):
+        return self.__diffrn_ambient_field
+    @field.setter
+    def field(self, x):
+        if isinstance(x, float):
+            x_in = x
+        elif x is None:
+            x_in = None
+        else:
+            x_in = float(x)
+        self.__diffrn_ambient_field = x_in
+
+
+    def _show_message(self, s_out: str):
+        print("***  Error ***")
+        print(s_out)
+
+    def __repr__(self):
+        ls_out = ["Diffrn"]
+        if self.label is not None:
+            ls_out.append("label: {:}".format(self.label))
+        if self.wavelength is not None:
+            ls_out.append("\nwavelength: {:.3f}".format(float(self.wavelength)))
+        if self.field is not None:
+            ls_out.append("field: {:.3f}".format(float(self.field)))
+        if self.extinction is not None:
+            ls_out.append("\n"+str(self.extinction))
+        if self.beam_polarization is not None:
+            ls_out.append("\n"+str(self.beam_polarization))
+        if self.orient_matrix is not None:
+            ls_out.append("\n"+str(self.orient_matrix))
+        if self.diffrn_refln is not None:
+            ls_out.append("\n"+str(self.diffrn_refln))
+        return "\n".join(ls_out)
+
     
-    def calc_iint_u_d_flip_ratio(self, h, k, l, l_crystal):
+    def calc_iint_u_d_flip_ratio(self, h, k, l, crystal):
         """
         calculate intensity for the given diffraction angle
         """
-        setup = self._p_setup
-        wave_length = setup.get_val("wave_length")
-        beam_polarization = setup.get_val("beam_polarization")
-        
-        #calculations only for first crystal phase
-        for calculated_data in self._list_calculated_data[0:1]:
-            ind_cry = None
-            observed_data_name = calculated_data.get_val("name")
-            for i_crystal, crystal in enumerate(l_crystal):
-                if crystal.get_val("name") == observed_data_name:
-                    ind_cry = i_crystal
-                    break
-            if ind_cry is None:
-                print("Crystal with name '{:}' is not found.".format(
-                        observed_data_name))
-                return
-            crystal = l_crystal[ind_cry]
-            
-            iint_u, iint_d, flip_ratio, d_info_cd = calculated_data.calc_iint_u_d_flip_ratio(
-                              h, k, l, beam_polarization, wave_length, crystal)
+        wavelength = self.wavelength
+        field_z = self.field
+        beam_polarization = self.beam_polarization
+        extinction = self.extinction
+        orient_matrix = self.orient_matrix
 
-        d_info_out = {}
-        d_info_out.update(d_info_cd)        
+        orientation = orient_matrix.u 
+        
+        field_vec = numpy.array([0., 0., field_z], dtype=float)
+
+        phi_d, chi_d, omega_d = 0., 0., 0.
+        m_phi_d = numpy.array([[ numpy.cos(phi_d), numpy.sin(phi_d),0.],
+                               [-numpy.sin(phi_d), numpy.cos(phi_d),0.],
+                               [         0.,       0.,    1.]], dtype=float)
+
+        m_omega_d = numpy.array([[ numpy.cos(omega_d), numpy.sin(omega_d),0.],
+                                 [-numpy.sin(omega_d), numpy.cos(omega_d),0.],
+                                 [       0.,       0.,    1.]], dtype=float)
+
+        m_chi_d = numpy.array([[ numpy.cos(chi_d), 0., numpy.sin(chi_d)],
+                               [               0., 1.,               0.],
+                               [-numpy.sin(chi_d), 0., numpy.cos(chi_d)]], dtype=float)
+        
+        m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(m_phi_d, 
+                             orientation)))
+
+        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
+        field_norm = ((field_loc**2).sum())**0.5
+        
+        p_u = float(beam_polarization.polarization)
+        p_d = (2.*float(beam_polarization.efficiency)-1.)*p_u
+        
+        e_u_loc = field_loc/field_norm
+
+        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        
+        cell = crystal.cell
+        k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
+        
+        mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + sft_13*field_loc[2]
+        mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + sft_23*field_loc[2]
+        mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + sft_33*field_loc[2]
+        
+        #vector product k x mag x k        
+        mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
+        mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
+        mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1
+        
+        mag_p_sq = abs(mag_p_1*mag_p_1.conjugate() + mag_p_2*mag_p_2.conjugate() + 
+                       mag_p_3*mag_p_3.conjugate())
+        
+        mag_p_e_u = mag_p_1*e_u_loc[0]+mag_p_2*e_u_loc[1]+mag_p_3*e_u_loc[2]
+        
+        f_nucl_sq = abs(f_nucl)**2
+        mag_p_e_u_sq = abs(mag_p_e_u*mag_p_e_u.conjugate())
+        fnp = (mag_p_e_u*f_nucl.conjugate()+mag_p_e_u.conjugate()*f_nucl).real
+        fp_sq = f_nucl_sq + mag_p_sq + fnp
+        fm_sq = f_nucl_sq + mag_p_sq - fnp
+        fpm_sq = mag_p_sq - mag_p_e_u_sq
+
+        #extinction correction     
+        yp = extinction.calc_extinction(cell, h, k, l, fp_sq, wavelength)
+        ym = extinction.calc_extinction(cell, h, k, l, fm_sq, wavelength)
+        ypm = extinction.calc_extinction(cell, h, k, l, fpm_sq, wavelength)
+
+        pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
+        ppmin= 0.5*((1-p_d)*yp+(1+p_d)*ym)
+        pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
+        pmmin= 0.5*((1-p_d)*yp-(1+p_d)*ym)
+        """
+        print("   h   k   l  f_nucl f_m_p_sq   f_np  fpm_sq")
+        for h1, k1, l1, f_n_sq, f_m_sq, f_np, f_pm_sq in zip(h, k, l, f_nucl_sq, mag_p_e_u_sq, fnp, fpm_sq):
+            print(" {:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f} {:7.3f}".format(
+                    h1, k1, l1, f_n_sq, f_m_sq, f_np, f_pm_sq))
+
+        print("   h   k   l      yp      ym     ypm      pppl   ppmin    pmpl   pmmin")
+        for h1, k1, l1, y_p, y_m, y_pm, p_ppl, p_pmin, p_mpl, p_mmin in zip(
+                h, k, l, yp, ym, ypm, pppl, ppmin, pmpl, pmmin):
+            print(" {:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}   {:7.3f} {:7.3f} {:7.3f} {:7.3f}".format(
+                    h1, k1, l1, y_p, y_m, y_pm, p_ppl, p_pmin, p_mpl, p_mmin))
+        """
+        #integral intensities and flipping ratios
+        iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
+        iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
+
+        flip_ratio = iint_u/iint_d
+        
+        """
+        d_info_out = {"iint_u": iint_u, "iint_d": iint_d, 
+                      "flip_ratio": flip_ratio}
+        d_info_out.update(d_info_sf)      
+        print("   h   k   l  iint_u  iint_d flip_ratio")
+        for h1, k1, l1, i_u, i_d, f_r in zip(h, k, l, iint_u, iint_d, flip_ratio):
+            print("{:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}".format(
+                    h1, k1, l1, i_u, i_d, f_r))
+        """
             
-        return iint_u, iint_d, flip_ratio, d_info_out
+        return iint_u, iint_d, flip_ratio
     
-    def calc_chi_sq(self, l_crystal, d_map={}):
+    def calc_chi_sq(self, crystal):
         """
         calculate chi square
         """
-        if d_map == {}:
-            d_map.update(self.plot_map())
-        #if not(d_map["flag"]|(d_map["out"] is None)):
-        #    chi_sq_val, n = d_map["out"]
-        #    return chi_sq_val, n        
-        observed_data = self._p_observed_data
-
-        h = observed_data.get_val('h')
-        k = observed_data.get_val('k')
-        l = observed_data.get_val('l')
-        flip_ratio_exp = observed_data.get_val('flip_ratio')
-        sflip_ratio_exp = observed_data.get_val('sflip_ratio')
-
-        wave_length = observed_data.get_val('wave_length')
-        setup = self._p_setup
-        setup.set_val(wave_length=wave_length)
-
-        field = observed_data.get_val('field')
-        orientation = observed_data.get_val('orientation')
-        for calculated_data in self._list_calculated_data:
-            calculated_data.set_val(field=field, orientation=orientation)
-
-        int_u_mod, int_d_mod, flip_ratio_mod, d_info_cd = self.calc_iint_u_d_flip_ratio(
-                                               h, k, l, l_crystal)
+        diffrn_refln = self.diffrn_refln
+        h, k, l = diffrn_refln.h, diffrn_refln.k, diffrn_refln.l
+        fr_exp = diffrn_refln.fr
+        fr_sigma = diffrn_refln.fr_sigma
+        int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
+                                               h, k, l, crystal)
         
 
-        chi_sq = ((flip_ratio_mod-flip_ratio_exp)/sflip_ratio_exp)**2
+        chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
 
-        d_info_out = {"chi_sq_val": chi_sq_val, "n": n}
-        d_info_out.update(d_info_cd)        
-        return chi_sq_val, n, d_info_out
+        return chi_sq_val, n
     
-    def plot_map(self):
-        b_variable = self.is_variable()
-        d_map = {"flag": b_variable, "out":None}
-        return d_map
-    
-    def is_variable_iint(self):
-        lres = []
-        for calculated_data in self._list_calculated_data:
-            lres.append(calculated_data.is_variable())
-        return lres
-
-    def is_variable_setup(self):
-        setup = self.get_val("setup")
-        res = setup.is_variable()
-        return res
-
+    @property
     def is_variable(self):
         """
         without extinction
         """
-        lres = self.is_variable_iint() 
-        lres.append(self.is_variable_setup())
-        res = any(lres) 
-        return res 
-    
+        l_bool = []
+        if self.beam_polarization is not None:
+            l_bool.append(self.beam_polarization.is_variable)
+        if self.extinction is not None:
+            l_bool.append(self.extinction.is_variable)
+        res = any(l_bool)
+        return res
+
     def get_variables(self):
         l_variable = []
-        setup = self.get_val("setup")
-        l_var = setup.get_variables()
-        l_variable.extend(l_var)
-        for calculated_data in self._list_calculated_data:
-            l_var = calculated_data.get_variables()
-            l_variable.extend(l_var)
+        if self.beam_polarization is not None:
+            l_variable.extend(self.beam_polarization.get_variables())
+        if self.extinction is not None:
+            l_variable.extend(self.extinction.get_variables())
         return l_variable
 
-    def save_exp_mod_data(self, l_crystal):
-        observed_data = self.get_val("observed_data")
-        h = observed_data.get_val("h")
-        k = observed_data.get_val("k")
-        l = observed_data.get_val("l")
-        fr_exp = observed_data.get_val("flip_ratio")
-        sfr_exp = observed_data.get_val("sflip_ratio")
-        
-        
-        iint_u_mod, iint_d_mod, fr_mod, d_info = self.calc_iint_u_d_flip_ratio(h, k, l, l_crystal)
-        
-        s_1 = "   h   k   l       FR_exp        sigma       FR_mod  iint_up_mod iint_down_mod\n"
-        l_s_2 = ["{:4}{:4}{:4} {:12.5f} {:12.5f} {:12.5f} {:12.5f} {:12.5f}".format(
-                hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8) for 
-                hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in 
-                zip(h, k, l, fr_exp, sfr_exp, fr_mod, iint_u_mod, iint_d_mod)]
 
-        s_int = s_1 + "\n".join(l_s_2)
-        #hkl should be added
-        s_out = s_int
-        
-        file_out, file_dir = self._p_file_out, self._p_file_dir
-        if ((file_out is None) | (file_dir is None)):
-            print("File to save model data is not defined.")
-            return
-        f_name = os.path.join(file_dir, file_out)
-        fid = open(f_name, "w")
-        fid.write(s_out)
-        fid.close()
 
-    def print_report(self, l_crystal):
-        s_out = "{:}".format(self)
+
+    def print_exp_mod_data(self, crystal):
+        diffrn_refln = self.diffrn_refln
+        h, k, l = diffrn_refln.h, diffrn_refln.k, diffrn_refln.l
+        fr_exp = diffrn_refln.fr
+        fr_sigma = diffrn_refln.fr_sigma
+        int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
+                                               h, k, l, crystal)
         
-        chi_sq_val, n, d_info = self.calc_chi_sq(l_crystal)
-        
+        l_1 = ["_diffrn_refln_index_h", "_diffrn_refln_index_k", "_diffrn_refln_index_l",
+               "_diffrn_refln_fr", "_diffrn_refln_fr_sigma", "_diffrn_refln_fr_model"]
+        ll_2 = [[str(_1), str(_2), str(_3), str(_4), str(_5), str(_6)] 
+                 for _1, _2, _3, _4, _5, _6 in zip(h, k, l, fr_exp, fr_sigma, fr_mod)]
+        cif_loop = CIFloop(value_name=l_1, value_array=ll_2)
+        res = str(cif_loop)
+        return res
+
+    @property
+    def to_cif(self):
         ls_out = []
-        ls_out.append("\n\n   h   k   l   fn_real   fn_imag   iint_up iint_down flip_ratio")
+        ls_out.append("data_{:}".format(self.label))
+        if self.extinction is not None:
+            ls_out.append(self.extinction.to_cif)
+        if self.beam_polarization is not None:
+            ls_out.append(self.beam_polarization.to_cif)
+        if self.wavelength is not None:
+            ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength))
+        if self.field is not None:
+            ls_out.append("_diffrn_ambient_field {:}".format(self.field))
+        if self.orient_matrix is not None:
+            ls_out.append(self.orient_matrix.to_cif)
+        if self.diffrn_refln is not None:            
+            ls_out.append(self.diffrn_refln.to_cif)
+        return "\n".join(ls_out)
 
-        h, k, l, f_nucl = d_info["h"], d_info["k"], d_info["l"], d_info["f_nucl"]
-        flip_ratio = d_info["flip_ratio"]
-        iint_u, iint_d = d_info["iint_u"], d_info["iint_d"]
-        sft_11, sft_12, sft_13 = d_info["sft_11"], d_info["sft_12"], d_info["sft_13"]
-        sft_21, sft_22, sft_23 = d_info["sft_21"], d_info["sft_22"], d_info["sft_23"]
-        sft_31, sft_32, sft_33 = d_info["sft_31"], d_info["sft_32"], d_info["sft_33"]
+    def from_cif(self, string: str):
+        cif_data = CIFdata()
+        flag = cif_data.take_from_string(string)
+        if not flag:
+            return False
+        self.label = cif_data.name
+        cif_values = cif_data.values
+        if cif_values is not None:
+            if cif_values.is_prefix("_diffrn_radiation_wavelength"):
+                self.wavelength = float(cif_values["_diffrn_radiation_wavelength"])
+            if cif_values.is_prefix("_diffrn_ambient_field"):
+                self.field = float(cif_values["_diffrn_ambient_field"])
+            if cif_values.is_prefix("_diffrn_radiation"):
+                self.beam_polarization = str(cif_values)
+            if cif_values.is_prefix("_diffrn_orient_matrix_UB"):
+                self.orient_matrix = str(cif_values)
+            if cif_values.is_prefix("_refine_ls_extinction"):
+                self.extinction = str(cif_values)
+        if cif_data.is_prefix("_diffrn_refln"): self.diffrn_refln = str(cif_data["_diffrn_refln"])
+        return True
 
-        for h1, k1, l1, f, i_u, i_d, f_r in zip(
-            h, k, l, f_nucl, iint_u, iint_d, flip_ratio):
-                ls_out.append(""" {:3} {:3} {:3}  {:8.3f}  {:8.3f}  {:8.1f}  {:8.1f} {:8.5f}""".format(
-     h1, k1, l1, f.real, f.imag, i_u, i_d, f_r))
-        ls_out.append("\n\nStructure factor tensor in a*, b*, c* (real part, mu_B) ")
-        ls_out.append("\n   h   k   l   sft_11   sft_22   sft_33    sft_12   sft_13   sft_23")
-        for h1, k1, l1, c11, c22,  c33, c12, c13, c23 in zip(
-            h, k, l, sft_11, sft_22, sft_33, sft_12, sft_13, sft_23):
-                ls_out.append(""" {:3} {:3} {:3} {:8.3f} {:8.3f} {:8.3f}  {:8.3f} {:8.3f} {:8.3f}""".format(
-                        h1, k1, l1, c11.real, c22.real, c33.real, c12.real, c13.real, c23.real))
-                
-        return s_out+"\n".join(ls_out)
-
-
-    
-if (__name__ == "__main__"):
-  pass

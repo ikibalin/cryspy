@@ -25,8 +25,11 @@ class Extinction(object):
         self.mosaicity = mosaicity
 
     def __repr__(self):
-        ls_out = ["Extinction: \n model: {:}\n radius: {:}\n mosaicity: {:}".format(
-                 self.model, self.radius, self.mosaicity)
+        ls_out = []
+        ls_out.append("Extinction:")
+        ls_out.append("model: {:}".format(self.model))
+        ls_out.append("radius: {:}".format(self.radius))
+        ls_out.append("mosaicity: {:}".format(self.mosaicity))
         return "\n".join(ls_out)
 
     @property
@@ -71,7 +74,7 @@ class Extinction(object):
         """
         return self.__refine_ls_extinction_coef_mosaicity
     @mosaicity.setter
-    def radiusmosaicity(self, x):
+    def mosaicity(self, x):
         if isinstance(x, Fitable):
             x_in = x
         else:
@@ -131,6 +134,7 @@ class Extinction(object):
         yext = yp * ys
         return yext
             
+    @property
     def is_variable(self):
         """
         without extinction

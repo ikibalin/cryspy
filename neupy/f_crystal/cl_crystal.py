@@ -458,7 +458,7 @@ class Crystal(object):
 
 
         fract = atom_site._form_fract()
-        flag_adp = atom_site is not None
+        flag_adp = atom_site_aniso is not None
         flag_magnetism = atom_site_magnetism_aniso is not None
         if flag_adp:
             adp = atom_site_aniso._form_adp(atom_site)
