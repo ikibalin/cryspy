@@ -41,6 +41,10 @@ class DiffrnRefln(object):
         self.__diffrn_refln_fr = None
         self.__diffrn_refln_fr_sigma = None
 
+        self.__diffrn_refln_fr_calc = None
+        self.__diffrn_refln_intensity_up_calc = None
+        self.__diffrn_refln_intensity_down_calc = None
+
     @property
     def h(self):
         return self.__diffrn_refln_index_h
@@ -117,6 +121,61 @@ class DiffrnRefln(object):
         np_x_in = numpy.array(l_x_in, dtype=float)
         self.__diffrn_refln_fr_sigma = np_x_in
 
+
+    @property
+    def fr_calc(self):
+        return self.__diffrn_refln_fr_calc
+    @fr_calc.setter
+    def fr_calc(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        np_x_in = numpy.array(l_x_in, dtype=float)
+        if np_x_in.size != self.h.size:
+            np_x_in = None
+            self._show_message("Size of  fr_calc is different from size of hkl")
+        self.__diffrn_refln_fr_calc = np_x_in
+
+    @property
+    def intensity_up_calc(self):
+        return self.__diffrn_refln_intensity_up_calc
+    @intensity_up_calc.setter
+    def intensity_up_calc(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        np_x_in = numpy.array(l_x_in, dtype=float)
+        if np_x_in.size != self.h.size:
+            np_x_in = None
+            self._show_message("Size of  intensity_up_calc is different from size of hkl")
+        self.__diffrn_refln_intensity_up_calc = np_x_in
+
+    @property
+    def intensity_down_calc(self):
+        return self.__diffrn_refln_intensity_down_calc
+    @intensity_down_calc.setter
+    def intensity_down_calc(self, l_x):
+        l_x_in = []
+        for x in l_x:
+            if isinstance(x, float):
+                x_in = x
+            else:
+                x_in = float(x)
+            l_x_in.append(x_in)
+        np_x_in = numpy.array(l_x_in, dtype=float)
+        if np_x_in.size != self.h.size:
+            np_x_in = None
+            self._show_message("Size of  intensity_down_calc is different from size of hkl")
+        self.__diffrn_refln_intensity_down_calc = np_x_in
+            
     def __repr__(self):
         ls_out = ["DiffrnRefln"]
         ls_out.append("     h     k     l        fr  fr_sigma")
@@ -124,10 +183,10 @@ class DiffrnRefln(object):
             ls_out.append(" {:5} {:5} {:5} {:9.5} {:9.5}".format(_1, _2, _3, _4, _5))
         return "\n".join(ls_out)
 
-
     @property
     def to_cif(self):
         ls_out = []
+        flag_fr_calc = self.fr_calc is not None
         if self.is_defined:
             ls_out.append("loop_")
             ls_out.append("_diffrn_refln_index_h")
@@ -135,8 +194,14 @@ class DiffrnRefln(object):
             ls_out.append("_diffrn_refln_index_l")
             ls_out.append("_diffrn_refln_fr")
             ls_out.append("_diffrn_refln_fr_sigma")
-            for _1, _2, _3, _4, _5 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma):
-                ls_out.append("{:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5))
+            if flag_fr_calc:
+                ls_out.append("_diffrn_refln_fr_calc")
+                for _1, _2, _3, _4, _5, _6 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma, self.fr_calc):
+                    ls_out.append("{:} {:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5, _6))
+            else:
+                for _1, _2, _3, _4, _5 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma):
+                    ls_out.append("{:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5))
+
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):

@@ -33,16 +33,11 @@ from neupy.f_experiment.f_powder_texture_2d import (
     )
 
 from neupy.f_experiment.f_single import (
-    CalculatedDataSingle,
-    ExperimentSingle,
-    ObservedDataSingle,
-    SetupSingle
+    DiffrnRefln, 
+    Diffrn
     )
 
-from neupy.f_experiment.f_single_domain import (
-    ExperimentSingleDomain,
-    ObservedDataSingleDomain
-    )
+
 
 from neupy.f_experiment.cl_rhochi_model import Model
 

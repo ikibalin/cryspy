@@ -287,6 +287,9 @@ class Diffrn(object):
         int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
                                                h, k, l, crystal)
         
+        self.diffrn_refln.fr_calc = fr_mod
+        self.diffrn_refln.intensity_up_calc = int_u_mod
+        self.diffrn_refln.intensity_down_calc = int_d_mod
 
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
@@ -315,24 +318,6 @@ class Diffrn(object):
             l_variable.extend(self.extinction.get_variables())
         return l_variable
 
-
-
-
-    def print_exp_mod_data(self, crystal):
-        diffrn_refln = self.diffrn_refln
-        h, k, l = diffrn_refln.h, diffrn_refln.k, diffrn_refln.l
-        fr_exp = diffrn_refln.fr
-        fr_sigma = diffrn_refln.fr_sigma
-        int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
-                                               h, k, l, crystal)
-        
-        l_1 = ["_diffrn_refln_index_h", "_diffrn_refln_index_k", "_diffrn_refln_index_l",
-               "_diffrn_refln_fr", "_diffrn_refln_fr_sigma", "_diffrn_refln_fr_model"]
-        ll_2 = [[str(_1), str(_2), str(_3), str(_4), str(_5), str(_6)] 
-                 for _1, _2, _3, _4, _5, _6 in zip(h, k, l, fr_exp, fr_sigma, fr_mod)]
-        cif_loop = CIFloop(value_name=l_1, value_array=ll_2)
-        res = str(cif_loop)
-        return res
 
     @property
     def to_cif(self):
