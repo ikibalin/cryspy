@@ -1,11 +1,7 @@
-__version__ = '1.0.0'
-__author__ = 'Iurii Kibalin'
-__contact__ = 'iurii.kibalin@cea.fr'
-
-from neupy.f_common.cl_fitable import Fitable
+from .f_common.cl_fitable import Fitable
 
 
-from neupy.f_crystal import (
+from .f_crystal import (
     SpaceGroup,
     Cell,
     AtomType,
@@ -17,12 +13,21 @@ from neupy.f_crystal import (
     AtomSiteAniso
     )
 
-from neupy.f_experiment import (
+from .f_experiment import (
     BeamPolarization,
     OrientMatrix,
     Extinction,
     DiffrnRefln, 
-    Diffrn
+    Diffrn,
+    PdBackground,
+    PdExclude2Theta,
+    PdInstrReflexAsymmetry,
+    PdInstrResolution,
+    PdMeas,
+    PdPeak,
+    PdPhase,
+    PdProc,
+    Pd
     )
 
 

@@ -2,7 +2,7 @@
 define classes to calculated data
 """
 __author__ = 'ikibalin'
-__version__ = "2019_04_06"
+__version__ = "2019_09_06"
 import os
 import numpy
 
@@ -16,6 +16,12 @@ from neupy.f_common.cl_fitable import Fitable
 class BeamPolarization(object):
     """
     Describe the beam polarisation
+
+    Example:
+    
+    _diffrn_radiation_efficiency 1.0
+    _diffrn_radiation_polarization -0.87
+
     """
     def __init__(self, polarization = Fitable(1.0), efficiency = Fitable(1.0)):
         super(BeamPolarization, self).__init__()
@@ -63,8 +69,8 @@ class BeamPolarization(object):
     def __repr__(self):
         ls_out = []
         ls_out.append("BeamPolarization: ")
-        ls_out.append("polarization: {}".format(self.polarization.print_with_sigma))
-        ls_out.append("efficiency: {}".format(self.efficiency.print_with_sigma))
+        ls_out.append(" polarization: {}".format(self.polarization.print_with_sigma))
+        ls_out.append(" efficiency: {}".format(self.efficiency.print_with_sigma))
         return "\n".join(ls_out)
 
 

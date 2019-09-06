@@ -1,5 +1,16 @@
 global_Fe3O4_XK_XT
 
+loop_ 
+_data_block_file_name 
+full.bkgr
+full.dat
+full.rcif
+
+_output_file_name full.out
+
+
+
+
 data_Fe3O4
 _cell_angle_alpha 90.0
 _cell_angle_beta 90.0
@@ -48,26 +59,27 @@ _atom_site_magnetism_kappa
  Fe3B  2.053 1.0
 
 
-data_pd
 
 _diffrn_radiation_efficiency 1.0
 _diffrn_radiation_polarization -0.87
+
+
 _diffrn_radiation_wavelength 1.40 
 _diffrn_ambient_field  1.000
-
 _pd_chi2_diff False                       
 _pd_chi2_down False
 _pd_chi2_sum True
 _pd_chi2_up False
 _pd_calib_2theta_offset -0.385404             
-_pd_meas_2theta_range_max 80.0
-_pd_meas_2theta_range_min 4.0
+_pd_2theta_range_max 80.0
+_pd_2theta_range_min 4.0
 
 
-_pd_instr_reflex_asymmetry_p1 0.0         
+_pd_instr_reflex_asymmetry_p1 0.0
 _pd_instr_reflex_asymmetry_p2 0.0
 _pd_instr_reflex_asymmetry_p3 0.0
 _pd_instr_reflex_asymmetry_p4 0.0
+
 
 _pd_instr_resolution_u 16.9776            
 _pd_instr_resolution_v -2.83572490939
@@ -76,24 +88,42 @@ _pd_instr_resolution_x 0.0
 _pd_instr_resolution_y 0.0
 
 loop_
-_pd_exclude_tth_max
-_pd_exclude_tth_min
+_pd_exclude_2theta_max
+_pd_exclude_2theta_min
  12.0 4.0
  45.0 30.0
  63.0 58.0
 
-loop_                                     
-_pd_phase_igsize
+loop_
 _pd_phase_label
 _pd_phase_scale
- 0.0 Fe3O4 0.02381
+_pd_phase_igsize
+ Fe3O4 0.02381 0.0
 
 loop_
-_pd_background_ttheta
+_pd_background_2theta
 _pd_background_intensity
  4.5  256.0
  40.0  158.0
  80.0  65.0
+
+
+loop_
+_pd_proc_2theta
+_pd_proc_2theta_corrected
+_pd_proc_d_spacing
+_pd_proc_intensity_up_net
+_pd_proc_intensity_down_net
+_pd_proc_intensity_up_total
+_pd_proc_intensity_down_total
+_pd_proc_intensity_bkg_calc
+_pd_proc_intensity_up
+_pd_proc_intensity_up_sigma
+_pd_proc_intensity_down
+_pd_proc_intensity_down_sigma
+ 4.00  3.9  11.2   400.00   317.00   460.00   377.00   60.00    465.80000   128.97000   301.88000   129.30000
+
+
 
 loop_
 _pd_meas_angle_2theta

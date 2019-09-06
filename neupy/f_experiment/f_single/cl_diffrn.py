@@ -36,6 +36,14 @@ class Diffrn(object):
         self.__diffrn_radiation_wavelength = None
         self.__diffrn_ambient_field = None
 
+        self.label = label
+        self.extinction = extinction
+        self.diffrn_refln = diffrn_refln
+        self.orient_matrix = orient_matrix
+        self.beam_polarization = beam_polarization
+        self.wavelength = wavelength
+        self.field = field
+
     @property
     def label(self):
         return self.__label

@@ -783,11 +783,11 @@ class Cell(object):
         a list of reflections hkl for cell in the range sthovl_min, sthovl_max
         taking into account the space group
         """
-        if not(self.is_defined()):
+        if not(self.is_defined):
             print("Object 'Cell' is not fully defined for calculations")
             return None
         lhkl,lmult=[],[]
-        lhklres=[]
+        l_hklres=[]
 
         hmax = int(2.*self.a*sthovl_max)
         kmax = int(2.*self.b*sthovl_max)
@@ -796,30 +796,30 @@ class Cell(object):
 
         hmin=0
         
-        lorig = space_group.get_val("orig")
-        lsymm = space_group.get_val("el_symm")
+        l_orig = space_group.orig
+        l_symm = space_group.el_symm
         for h in range(hmin,hmax+1,1):
             for k in range(kmin,kmax+1,1):
                 for l in range(lmin,lmax+1,1):
-                    flag=(abs(sum([numpy.exp(2.*numpy.pi*1j*(orig[0]*h+orig[1]*k+orig[2]*l)) for orig in lorig]))>0.00001)
+                    flag=(abs(sum([numpy.exp(2.*numpy.pi*1j*(orig[0]*h+orig[1]*k+orig[2]*l)) for orig in l_orig]))>0.00001)
                     #flag=True
                     if (flag):
-                        lhkls=[(h*symm[1]+k*symm[5]+l*symm[9], h*symm[2]+k*symm[6]+l*symm[10], h*symm[3]+k*symm[7]+l*symm[11]) for symm in lsymm]
+                        lhkls=[(h*symm[1]+k*symm[5]+l*symm[9], h*symm[2]+k*symm[6]+l*symm[10], h*symm[3]+k*symm[7]+l*symm[11]) for symm in l_symm]
                         lhkls.extend([(-hkl[0],-hkl[1],-hkl[2]) for hkl in lhkls])
                         lhkls.sort(key=lambda x:10000*x[0]+100*x[1]+x[2])
                         if (not(lhkls[-1] in lhkl)):
                             lhkl.append(lhkls[-1])
                             lmult.append(len(set(lhkls)))
                             
-        lhklsthovl=[(hkl, self.calc_sthovl(hkl[0], hkl[1], hkl[2]), mult) for hkl, mult in zip(lhkl, lmult)]
-        lhklsthovl.sort(key=lambda x: x[1])
-        lhklres = [hklsthovl[0] for hklsthovl in lhklsthovl if ((hklsthovl[1]>sthovl_min) & (hklsthovl[1]<sthovl_max))]
-        lmultres = [hklsthovl[2] for hklsthovl in lhklsthovl if ((hklsthovl[1]>sthovl_min) & (hklsthovl[1]<sthovl_max))]
+        l_hklsthovl=[(hkl, self.calc_sthovl(hkl[0], hkl[1], hkl[2]), mult) for hkl, mult in zip(lhkl, lmult)]
+        l_hklsthovl.sort(key=lambda x: x[1])
+        l_hklres = [hklsthovl[0] for hklsthovl in l_hklsthovl if ((hklsthovl[1]>sthovl_min) & (hklsthovl[1]<sthovl_max))]
+        l_multres = [hklsthovl[2] for hklsthovl in l_hklsthovl if ((hklsthovl[1]>sthovl_min) & (hklsthovl[1]<sthovl_max))]
 
-        h = numpy.array([hh[0] for hh in lhklres], dtype=int)
-        k = numpy.array([hh[1] for hh in lhklres], dtype=int)
-        l = numpy.array([hh[2] for hh in lhklres], dtype=int)
-        mult = numpy.array(lmultres, dtype=int)
+        h = numpy.array([hh[0] for hh in l_hklres], dtype=int)
+        k = numpy.array([hh[1] for hh in l_hklres], dtype=int)
+        l = numpy.array([hh[2] for hh in l_hklres], dtype=int)
+        mult = numpy.array(l_multres, dtype=int)
         return h, k, l, mult
 
 
