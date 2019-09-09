@@ -1,5 +1,6 @@
 from .f_common.cl_fitable import Fitable
 
+from .scripts.rhochi.cl_rhochi import RhoChi, rhochi_refinement
 
 from .f_crystal import (
     SpaceGroup,
@@ -30,19 +31,3 @@ from .f_experiment import (
     Pd
     )
 
-
-
-#from neupy.f_common.error_simplex import error_estimation_simplex
-
-#from neupy.f_api_rcif.api_rcif_model import (
-#    conv_rcif_to_model,
-#    conv_model_to_rcif
-#    )
-
-#from neupy.f_api_rcif.api_rcif_crystal import (
-#    conv_data_to_crystal
-#    )
-#
-#from neupy.f_api_rcif.api_rcif_mem import (
-#    conv_rcif_to_mem_reconstruction
-#    )

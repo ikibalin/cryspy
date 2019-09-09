@@ -3,7 +3,7 @@
 define classe Pd which describes the 1d powder diffraction experiment
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_04"
+__version__ = "2019_09_09"
 import os
 import numpy
 from pystar import CIFdata, CIFloop
@@ -86,7 +86,9 @@ class Pd(object):
         self.range_max = range_max
         self.range_min = range_min
 
-        self.proc = PdProc()
+        self.__proc = None
+        self.__peaks = None
+        self.__reflns = None
 
     @property
     def label(self):
@@ -373,6 +375,27 @@ class Pd(object):
             flag = x_in.take_it(x)
         self.__pd_calib_2theta_offset = x_in
 
+    @property
+    def proc(self):
+        return self.__proc
+    @proc.setter
+    def proc(self, x):
+        self.__proc = x
+
+    @property
+    def peaks(self):
+        return self.__peaks
+    @peaks.setter
+    def peaks(self, x):
+        self.__peaks = x
+
+    @property
+    def reflns(self):
+        return self.__reflns
+    @reflns.setter
+    def reflns(self, x):
+        self.__reflns = x
+
     def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)
@@ -412,6 +435,12 @@ class Pd(object):
             ls_out.append("\n"+str(self.resolution))
         if self.phase is not None:
             ls_out.append("\n"+str(self.phase))
+        if self.reflns is not None:
+            ls_out.extend(["\n"+str(_) for _ in self.reflns])
+        if self.peaks is not None:
+            ls_out.extend(["\n"+str(_) for _ in self.peaks])
+        if self.proc is not None:
+            ls_out.append("\n"+str(self.proc))
         if self.meas is not None:
             ls_out.append("\n"+str(self.meas))
         return "\n".join(ls_out)
@@ -507,6 +536,13 @@ class Pd(object):
         if self.meas is not None:
             ls_out.append("\n"+self.meas.to_cif)
 
+        if self.reflns is not None:
+            ls_out.extend(["\n"+_.to_cif for _ in self.reflns])
+        if self.peaks is not None:
+            ls_out.extend(["\n"+_.to_cif for _ in self.peaks])
+        if self.proc is not None:
+            ls_out.append("\n"+self.proc.to_cif)
+
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
@@ -576,7 +612,7 @@ class Pd(object):
 
         phase = self.phase
 
-        l_peak = []
+        l_peak, l_refln = [], []
         for phase_label, phase_scale, phase_igsize in zip(phase.label, phase.scale, phase.igsize):
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.label == phase_label:
@@ -599,13 +635,15 @@ class Pd(object):
             peak.h, peak.k, peak.l, peak.mult = h, k, l, mult
 
             
-            np_iint_u, np_iint_d = self.calc_iint(h, k, l, crystal)
+            np_iint_u, np_iint_d, refln = self.calc_iint(h, k, l, crystal)
+            l_refln.append(refln)
             peak.up, peak.down = np_iint_u, np_iint_d
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)
             tth_hkl = tth_hkl_rad*180./numpy.pi
+            peak.ttheta = tth_hkl
 
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(tth, tth_hkl, i_g)
             peak.width_2theta = h_pv
@@ -624,7 +662,7 @@ class Pd(object):
         proc.down_net = res_d_1d
         proc.up_total = res_u_1d+int_bkgd
         proc.down_total = res_d_1d+int_bkgd
-        return proc, l_peak
+        return proc, l_peak, l_refln
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
     #    calculate model diffraction profiles up and down if observed data is defined
@@ -655,7 +693,6 @@ class Pd(object):
         int_d_exp = meas.down
         sint_d_exp = meas.down_sigma
 
-        exclude_2theta = self.exclude_2theta
 
         cond_in = numpy.ones(tth.shape, dtype=bool)
         cond_in = numpy.logical_and(cond_in, tth >= self.range_min)
@@ -667,13 +704,15 @@ class Pd(object):
         int_d_exp_in = int_d_exp[cond_in]
         sint_d_exp_in = sint_d_exp[cond_in]
         
-        proc, l_peak = self.calc_profile(tth_in, l_crystal)
+        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal)
         
         proc.up = int_u_exp_in
         proc.up_sigma = sint_u_exp_in
         proc.down = int_d_exp_in
         proc.down_sigma = sint_d_exp_in
         self.proc = proc
+        self.peaks = l_peak
+        self.reflns = l_refln
 
         int_u_mod = proc.up_total
         int_d_mod = proc.down_total
@@ -691,13 +730,16 @@ class Pd(object):
         cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
 
         #exclude region
-        l_excl_tth_min = exclude_2theta.min
-        l_excl_tth_max = exclude_2theta.max
-        for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
-            cond_1 = numpy.logical_or(tth < 1.*excl_tth_min, tth > 1.*excl_tth_max)
-            cond_u = numpy.logical_and(cond_u, cond_1)
-            cond_d = numpy.logical_and(cond_d, cond_1)
-            cond_sum = numpy.logical_and(cond_sum, cond_1)
+        exclude_2theta = self.exclude_2theta
+        if exclude_2theta is not None:
+            l_excl_tth_min = exclude_2theta.min
+            l_excl_tth_max = exclude_2theta.max
+            for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
+                cond_1 = numpy.logical_or(tth < 1.*excl_tth_min, tth > 1.*excl_tth_max)
+                cond_u = numpy.logical_and(cond_u, cond_1)
+                cond_d = numpy.logical_and(cond_d, cond_1)
+                cond_sum = numpy.logical_and(cond_sum, cond_1)
+            
 
         chi_sq_u_val = (chi_sq_u[cond_u]).sum()
         n_u = cond_u.sum()
@@ -734,8 +776,12 @@ class Pd(object):
         p_u = float(beam_polarization.polarization)
         p_d = (2.*float(beam_polarization.efficiency)-1)*p_u
 
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
-        
+        refln = crystal.calc_sf(h, k, l)
+
+        f_nucl, sft_11, sft_12, sft_13 = refln.f_nucl, refln.sft_11, refln.sft_12, refln.sft_13
+        sft_21, sft_22, sft_23 = refln.sft_21, refln.sft_22, refln.sft_23
+        sft_31, sft_32, sft_33 = refln.sft_31, refln.sft_32, refln.sft_33
+
         cell = crystal.cell
         
         #k_loc = cell.calc_k_loc(h, k, l)
@@ -756,7 +802,7 @@ class Pd(object):
         #d_info_out = {"iint_u": iint_u, "iint_d": iint_d}   
         #d_info_out.update(d_info_cry)
         
-        return iint_u, iint_d
+        return iint_u, iint_d, refln
 
     def _gauss_pd(self, tth_2d):
         """

@@ -1,9 +1,9 @@
 
 """
-define classe Diffrn which describes the single diffraction experiment
+define class Diffrn which describes the single diffraction experiment
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_04"
+__version__ = "2019_09_09"
 import os
 import numpy
 from pystar import CIFdata, CIFloop
@@ -219,7 +219,10 @@ class Diffrn(object):
         
         e_u_loc = field_loc/field_norm
 
-        f_nucl, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = crystal.calc_sf(h, k, l)
+        refln = crystal.calc_sf(h, k, l)
+        f_nucl, sft_11, sft_12, sft_13 = refln.f_nucl, refln.sft_11, refln.sft_12, refln.sft_13
+        sft_21, sft_22, sft_23 = refln.sft_21, refln.sft_22, refln.sft_23
+        sft_31, sft_32, sft_33 = refln.sft_31, refln.sft_32, refln.sft_33
         
         cell = crystal.cell
         k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)

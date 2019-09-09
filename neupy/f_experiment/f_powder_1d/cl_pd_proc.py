@@ -266,12 +266,11 @@ class PdProc(object):
     @property
     def to_cif(self):
         ls_out = []
-        flag_calc = self.up is not None
         if self.is_defined:
             ls_out.append("loop_")
             ls_out.append("_pd_proc_2theta")
             ls_out.append("_pd_proc_2theta_corrected")
-            ls_out.append("_pd_proc_d_spacing")
+            #ls_out.append("_pd_proc_d_spacing")
             ls_out.append("_pd_proc_intensity_up_net")
             ls_out.append("_pd_proc_intensity_down_net")
             ls_out.append("_pd_proc_intensity_up_total")
@@ -281,10 +280,14 @@ class PdProc(object):
             ls_out.append("_pd_meas_intensity_up_sigma")
             ls_out.append("_pd_meas_intensity_down")
             ls_out.append("_pd_meas_intensity_down_sigma")
-            for _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12 in zip(self.ttheta, self.ttheta_corrected, self.d, 
+            #for _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12 in zip(self.ttheta, self.ttheta_corrected, self.d, 
+            #    self.up_net, self.down_net, self.up_total, self.down_total, self.bkg_calc, 
+            #    self.up, self.up_sigma, self.down, self.down_sigma):
+            #    ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12))
+            for _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11 in zip(self.ttheta, self.ttheta_corrected, 
                 self.up_net, self.down_net, self.up_total, self.down_total, self.bkg_calc, 
                 self.up, self.up_sigma, self.down, self.down_sigma):
-                ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12))
+                ls_out.append("{:.3f} {:.3f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f} {:.5f}".format(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11))
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
@@ -329,10 +332,6 @@ class PdProc(object):
 
     @property
     def is_defined(self):
-        self.ttheta, self.ttheta_corrected, self.d = [], [], []
-        self.up_net, self.down_net, self.up_total, self.down_total, self.bkg_calc = [], [], [], [], []
-        self.up, self.up_sigma, self.down, self.down_sigma = [], [], [], []
-
         cond = all([self.ttheta is not None, self.ttheta_corrected is not None, self.d is not None, 
                     self.up_net is not None, self.down_net is not None, self.up_total is not None, self.down_total is not None,
                     self.bkg_calc is not None,

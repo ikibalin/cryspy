@@ -180,26 +180,26 @@ class PdPeak(object):
 
     def __repr__(self):
         ls_out = ["PdPeak:"]
-        ls_out.append("    h     k     l  mult  ttheta           up         down width_2theta")
+        ls_out.append("    h     k     l  mult    ttheta           up         down width_2theta")
         for _1, _2, _3, _4, _5, _6, _7, _8 in zip(self.h, self.k, self.l, self.mult, self.ttheta, self.up, self.down, self.width_2theta):
-            ls_out.append("{:5} {:5} {:5} {:5} {:12.5f} {:12.5f} {:12.5f} {:12.5f}".format(_1, _2, _3, _4, _5, _6, _7, _8))
+            ls_out.append("{:5} {:5} {:5} {:5} {:9.2f} {:12.5f} {:12.5f} {:12.5f}".format(_1, _2, _3, _4, _5, _6, _7, _8))
         return "\n".join(ls_out)
 
     @property
     def to_cif(self):
         ls_out = []
-        flag_calc = self.up_calc is not None
         if self.is_defined:
             ls_out.append("loop_")
             ls_out.append("_pd_peak_index_h")
             ls_out.append("_pd_peak_index_k")
             ls_out.append("_pd_peak_index_l")
+            ls_out.append("_pd_peak_mult")
             ls_out.append("_pd_peak_2theta")
             ls_out.append("_pd_peak_intensity_up")
             ls_out.append("_pd_peak_intensity_down")
             ls_out.append("_pd_peak_width_2theta")
             for _1, _2, _3, _4, _5, _6, _7, _8 in zip(self.h, self.k, self.l, self.mult, self.ttheta, self.up, self.down, self.width_2theta):
-                ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:}".format(_1, _2, _3, _4, _5, _6, _7, _8))
+                ls_out.append("{:} {:} {:} {:} {:.3f} {:.5f} {:.5f} {:.3f}".format(_1, _2, _3, _4, _5, _6, _7, _8))
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):

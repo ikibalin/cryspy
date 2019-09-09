@@ -2,22 +2,23 @@
 define classes to describe Crystal
 """
 __author__ = 'ikibalin'
-__version__ = "2019_08_30"
+__version__ = "2019_09_09"
 import os
 import numpy
-
+import copy
 
 from pystar import CIFdata
 from neupy.f_common.cl_fitable import Fitable
-from neupy.f_crystal.cl_space_group import SpaceGroup
-from neupy.f_crystal.cl_cell import Cell
-from neupy.f_crystal.cl_atom_site import AtomSite
-from neupy.f_crystal.cl_atom_site_aniso import AtomSiteAniso
-from neupy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
-from neupy.f_crystal.cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
+from .cl_space_group import SpaceGroup
+from .cl_cell import Cell
+from .cl_atom_site import AtomSite
+from .cl_atom_site_aniso import AtomSiteAniso
+from .cl_atom_site_magnetism import AtomSiteMagnetism
+from .cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
 
-from neupy.f_crystal.cl_magnetism import calc_mRmCmRT
+from .cl_magnetism import calc_mRmCmRT
 
+from .cl_refln import Refln
 
 
 class Crystal(object):
@@ -440,7 +441,7 @@ class Crystal(object):
         if cif_data.is_prefix("atom_site_magnetism_aniso"): self.atom_site_magnetism_aniso = str(cif_data["atom_site_magnetism_aniso"])
         return True
 
-    def calc_sf(self, h, k, l, f_print=False):
+    def calc_sf(self, h, k, l):
         """
         calculate nuclear structure factor and components of structure factor tensor
         """
@@ -576,22 +577,13 @@ class Crystal(object):
                 sft_21*0.2695, sft_22*0.2695, sft_23*0.2695, 
                 sft_31*0.2695, sft_32*0.2695, sft_33*0.2695)
 
-        if f_print:
-            ls_out = ["   h   k   l   Re(f_nucl)  Im(f_nucl)  Re(sft_11)  Re(sft_12)  Re(sft_13)\n"+37*" "+"  Re(sft_21)  Re(sft_22)  Re(sft_23)\n"+37*" "+"  Re(sft_31)  Re(sft_32)  Re(sft_33)"]
-            try:
-                for h_1, h_2, h_3, h_4, h_5, h_6, h_7, h_8, h_9, h_10, h_11, h_12, h_13, h_14 in zip(
-                    h, k, l, f_nucl.real, f_nucl.imag, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33):
-                    ls_out.append(
-                        """{:4}{:4}{:4} {:12.3f}{:12.3f}{:12.3f}{:12.3f}{:12.3f}
-                                     {:12.3f}{:12.3f}{:12.3f}
-                                     {:12.3f}{:12.3f}{:12.3f}""".format(
-                        h_1, h_2, h_3, h_4, h_5, h_6.real, h_7.real, h_8.real, h_9.real, h_10.real, h_11.real, h_12.real, h_13.real, h_14.real))
-            except TypeError:
-                ls_out.append("{:4}{:4}{:4} {:12.3f}{:12.3f}".format(h, k, l, float(f_nucl.real), float(f_nucl.imag)))
-            print("\n".join(ls_out))
-
-
-        return f_nucl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+        refln = Refln()
+        refln.h, refln.k, refln.l = copy.deepcopy(h), copy.deepcopy(k), copy.deepcopy(l)
+        refln.f_nucl = f_nucl
+        refln.sft_11, refln.sft_12, refln.sft_13 = s_11, s_12, s_13
+        refln.sft_21, refln.sft_22, refln.sft_23 = s_21, s_22, s_23
+        refln.sft_31, refln.sft_32, refln.sft_33 = s_31, s_32, s_33
+        return refln
 
 
     def _orto_matrix(self, cell, l_11, l_12, l_13, l_21, l_22, l_23, l_31, 

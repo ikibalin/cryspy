@@ -66,10 +66,12 @@ _diffrn_radiation_polarization -0.87
 
 _diffrn_radiation_wavelength 1.40 
 _diffrn_ambient_field  1.000
+
 _pd_chi2_diff False                       
 _pd_chi2_down False
 _pd_chi2_sum True
 _pd_chi2_up False
+
 _pd_calib_2theta_offset -0.385404             
 _pd_2theta_range_max 80.0
 _pd_2theta_range_min 4.0

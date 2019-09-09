@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jan 21 09:52:24 2019
-
-Создает главное окно, определяет компоновщик, вызывает первую модель, давая ее представлениям
-
-@author: ikibalin
+Simple RhoChi
 """
+__author__ = 'ikibalin'
+__version__ = "2019_09_09"
+
 import os
 import sys
 
@@ -13,36 +12,11 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 
-import rhochi
 import interactive_graph_mod_mono
 import interactive_graph_mod_pwd
 import interactive_graph_mod_pwd_2d_as_1d
 
-# =============================================================================
-# #rewrite it
-# =============================================================================
-
-def take_f_name_from_rcif(f_rcif, s_search="_pd_file_name_output"):
-    fid = open(f_rcif, 'r')
-    l_cont = fid.readlines()
-    fid.close
-    l_answ = []
-    for line in l_cont:
-        hh= line.strip()
-        if hh.startswith(s_search):
-            l_help = hh.split()
-            if len(l_help)>=2:
-                l_answ.append(l_help[1])
-    f_dir = os.path.dirname(f_rcif)
-    l_res = []
-    for answ in l_answ:
-        f_name = os.path.join(f_dir, answ)
-        if os.path.isfile(f_name):
-            l_res.append(f_name)
-    return l_res
-
-
-    
+from .cl_rhochi import RhoChi, rhochi_refinement
 
 
 def del_layout(layout):
@@ -66,8 +40,8 @@ class mythread(QtCore.QThread):
         QtCore.QThread.__init__(self,parent)
         self.signal = None
         self.core = None
-
         #self.startpatam = startparam
+
     def run(self):
         ccore = self.core
         try:
@@ -82,10 +56,8 @@ class mythread(QtCore.QThread):
         self.signal.rename_signal.emit()
 
 
-
 class cthread_signal(QtCore.QObject):
     rename_signal = QtCore.pyqtSignal()
-
 
 
 class cbuilder(QtWidgets.QMainWindow):
@@ -258,7 +230,7 @@ class cbuilder(QtWidgets.QMainWindow):
             i, okPressed = QtWidgets.QInputDialog.getInt(self, "Type of data","Type of experiment:\n\n 1. Single crystal\n 2. Powder 1D\n 3 .Powder 2D", 1, 1, 3, 1)
             if okPressed:
                 exp_type = str(i)
-                rhochi.create_temporary(f_name_full, exp_type)
+                #rhochi.create_temporary(f_name_full, exp_type)
 
     def open_rcif(self):
         self.open_file(s_constr="Rcif files (*.rcif)")
@@ -310,11 +282,12 @@ class cbuilder(QtWidgets.QMainWindow):
         f_name_data = self._p_d_setup["f_name_data"]
         f_dir_data = self._p_d_setup["f_dir_data"]
         f_name_full = os.path.join(f_dir_data, f_name_data)
+        f_name_out = os.path.join(f_dir_data, "out.rcif")
 
         f_dir_prog = self._p_f_dir_prog
         f_prog_full = os.path.join(f_dir_prog, "rhochi.py")
         #line = "python {:} {:} {:}".format(f_prog_full, f_name_full, f_name_full)
-        rhochi.rhochi_refinement(f_name_full, f_name_full)
+        rhochi_refinement(f_name_full, f_name_out)
         #os.system(line)
         self.try_to_plot_from_rcif()
 
@@ -416,63 +389,8 @@ class cwidget(QtWidgets.QWidget):
         width_m_1 = self.width_cpanel
 
 
-        #self.widg_ph = widg_cb_ph.cwidget(model)
-        #self.widg_exp = widg_cb_exp.cwidget(model)
-        
-
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
-        #b_spgr = QtWidgets.QPushButton("unit cell")
-        #b_spgr.setMaximumSize(width_m_1, 50)
-        #b_spgr.setSizePolicy(sizePolicy)
-        ##b_spgr.clicked.connect(lambda: self.form_widg_left(0, model))
-        #b_nucl = QtWidgets.QPushButton("nucl. structure")
-        ##b_nucl.clicked.connect(lambda: self.form_widg_left(1, model))
-        #b_adp = QtWidgets.QPushButton("anis.displacement")
-        ##b_adp.clicked.connect(lambda: self.form_widg_left(2, model))
-        #b_ms = QtWidgets.QPushButton("magnetic structure")
-        ##b_ms.clicked.connect(lambda: self.form_widg_left(3, model))
-        #b_ms_i = QtWidgets.QPushButton("Ising model")
-        ##b_ms_i.clicked.connect(lambda: self.form_widg_left(4, model))
-        #b_exp = QtWidgets.QPushButton("experiment")
-        ##b_exp.clicked.connect(lambda: self.form_widg_left(5, model))
-        #b_profile = QtWidgets.QPushButton("profile")
-        ##b_profile.clicked.connect(lambda: self.form_widg_left(6, model))
-        #b_scale = QtWidgets.QPushButton("scale")
-        ##b_scale.clicked.connect(lambda: self.form_widg_left(7, model))
-        #b_extinction = QtWidgets.QPushButton("extinction")
-        ##b_extinction.clicked.connect(lambda: self.form_widg_left(8, model))
-        #b_output = QtWidgets.QPushButton("output")
-        ##b_output.clicked.connect(lambda: self.form_widg_left(9, model))
-        #b_sconstr = QtWidgets.QPushButton("set constraints")
-        ##b_sconstr.clicked.connect(lambda: self.form_widg_left(10, model))
-        #b_hide = QtWidgets.QPushButton("replot")
-        ##b_hide.clicked.connect(lambda: self.form_widg_left(11, model))
-        #qframe_b = QtWidgets.QFrame()
-        #qframe_b.setMinimumSize(40,40)
-        #qframe_b.setSizePolicy(sizePolicy)
-        #qframe_s = QtWidgets.QFrame()
-        #qframe_s.setMinimumSize(40,2)
-        #qframe_s.setSizePolicy(sizePolicy)
-        ##self.lay_cpanel.addWidget(self.widg_ph)
-        #self.lay_cpanel.addWidget(qframe_s)
-        #self.lay_cpanel.addWidget(b_spgr)
-        #self.lay_cpanel.addWidget(b_nucl)
-        #self.lay_cpanel.addWidget(b_adp)
-        #self.lay_cpanel.addWidget(b_ms)
-        #self.lay_cpanel.addWidget(b_ms_i)
-        #self.lay_cpanel.addWidget(qframe_b)
-        ##self.lay_cpanel.addWidget(self.widg_exp)
-        #self.lay_cpanel.addWidget(qframe_s)
-        #self.lay_cpanel.addWidget(b_exp)
-        #self.lay_cpanel.addWidget(b_profile)
-        #self.lay_cpanel.addWidget(b_scale)
-        #self.lay_cpanel.addWidget(b_extinction)
-        #self.lay_cpanel.addWidget(qframe_b)
-        #self.lay_cpanel.addWidget(b_output)
-        #self.lay_cpanel.addWidget(b_sconstr)
-        #self.lay_cpanel.addStretch(1)
-        #self.lay_cpanel.addWidget(b_hide)
 
 
     def form_widg_right(self):
