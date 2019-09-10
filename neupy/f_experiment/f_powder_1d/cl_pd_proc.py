@@ -276,10 +276,10 @@ class PdProc(object):
             ls_out.append("_pd_proc_intensity_up_total")
             ls_out.append("_pd_proc_intensity_down_total")
             ls_out.append("_pd_proc_intensity_bkg_calc")
-            ls_out.append("_pd_meas_intensity_up")
-            ls_out.append("_pd_meas_intensity_up_sigma")
-            ls_out.append("_pd_meas_intensity_down")
-            ls_out.append("_pd_meas_intensity_down_sigma")
+            ls_out.append("_pd_proc_intensity_up")
+            ls_out.append("_pd_proc_intensity_up_sigma")
+            ls_out.append("_pd_proc_intensity_down")
+            ls_out.append("_pd_proc_intensity_down_sigma")
             #for _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12 in zip(self.ttheta, self.ttheta_corrected, self.d, 
             #    self.up_net, self.down_net, self.up_total, self.down_total, self.bkg_calc, 
             #    self.up, self.up_sigma, self.down, self.down_sigma):

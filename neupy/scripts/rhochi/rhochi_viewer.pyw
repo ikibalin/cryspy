@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Simple RhoChi
+Simple RhoChi viewer
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_09"
+__version__ = "2019_09_10"
 
 import os
 import sys
+import numpy
 
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
@@ -16,7 +17,8 @@ import interactive_graph_mod_mono
 import interactive_graph_mod_pwd
 import interactive_graph_mod_pwd_2d_as_1d
 
-from .cl_rhochi import RhoChi, rhochi_refinement
+import pystar
+from neupy import RhoChi, rhochi_refinement
 
 
 def del_layout(layout):
@@ -182,19 +184,41 @@ class cbuilder(QtWidgets.QMainWindow):
             f_name_data = self._p_d_setup["f_name_data"]
             f_dir_data = self._p_d_setup["f_dir_data"]
             f_name_full = os.path.join(f_dir_data, f_name_data)
-            l_f_name_data_pd = take_f_name_from_rcif(f_name_full, "_pd_file_name_output")
-            l_f_name_data_sd = take_f_name_from_rcif(f_name_full, "_sd_file_name_output")
-            l_f_name_data_2dpd = take_f_name_from_rcif(f_name_full, "_2dpd_file_name_output")
-            l_f_name_data_2dpdt = take_f_name_from_rcif(f_name_full, "_2dpdt_file_name_output")
-    
-            if len(l_f_name_data_pd) >= 1:
-                self.plot_data_powder_1d(l_f_name_data_pd[0])
-            elif len(l_f_name_data_sd) >= 1:
-                self.plot_data_mono(l_f_name_data_sd[0])
-            elif len(l_f_name_data_2dpd) >= 1:
-                self.plot_data_powder_2d(l_f_name_data_2dpd[0])
-            elif len(l_f_name_data_2dpdt) >= 1:
-                self.plot_data_powder_2d(l_f_name_data_2dpdt[0])
+            cif_global = pystar.to_global(f_name_full)
+
+            flag_powder_1d = cif_global.is_prefix("_pd_proc")
+            flag_single = cif_global.is_prefix("_diffrn_refln")
+            if flag_single:
+                x = numpy.array(cif_global["_diffrn_refln_fr_calc"], dtype=float)
+                y_exp = numpy.array(cif_global["_diffrn_refln_fr"], dtype=float)
+                y_sig = numpy.array(cif_global["_diffrn_refln_fr_sigma"], dtype=float)
+                self.plot_data_mono(x, y_exp, y_sig)
+            if flag_powder_1d:
+                x = numpy.array(cif_global["_pd_proc_2theta"], dtype=float)
+                y_1_mod = numpy.array(cif_global["_pd_proc_intensity_up_total"], dtype=float)
+                y_2_mod = numpy.array(cif_global["_pd_proc_intensity_down_total"], dtype=float)
+                y_1_exp = numpy.array(cif_global["_pd_proc_intensity_up"], dtype=float)
+                y_1_sig = numpy.array(cif_global["_pd_proc_intensity_up_sigma"], dtype=float)
+                y_2_exp = numpy.array(cif_global["_pd_proc_intensity_down"], dtype=float)
+                y_2_sig = numpy.array(cif_global["_pd_proc_intensity_down_sigma"], dtype=float)
+
+                y_3_mod = y_1_mod + y_2_mod
+                y_4_mod = y_1_mod - y_2_mod
+                y_3_exp = y_1_exp + y_2_exp
+                y_4_exp = y_1_exp - y_2_exp
+                y_3_sig = (y_1_sig**2 + y_2_sig**2)**0.5
+                y_4_sig = (y_1_sig**2 + y_2_sig**2)**0.5
+
+                l_y_mod = [y_3_mod, y_4_mod]
+                l_y_exp = [y_3_exp, y_4_exp]
+                l_y_sig = [y_3_sig, y_4_sig]
+                self.plot_data_powder_1d(x, l_y_mod, l_y_exp, l_y_sig)
+            #elif len(l_f_name_data_sd) >= 1:
+            #    self.plot_data_mono(l_f_name_data_sd[0])
+            #elif len(l_f_name_data_2dpd) >= 1:
+            #    self.plot_data_powder_2d(l_f_name_data_2dpd[0])
+            #elif len(l_f_name_data_2dpdt) >= 1:
+            #    self.plot_data_powder_2d(l_f_name_data_2dpdt[0])
         except:
             pass
 
@@ -283,9 +307,9 @@ class cbuilder(QtWidgets.QMainWindow):
         f_dir_data = self._p_d_setup["f_dir_data"]
         f_name_full = os.path.join(f_dir_data, f_name_data)
         f_name_out = os.path.join(f_dir_data, "out.rcif")
-
-        f_dir_prog = self._p_f_dir_prog
-        f_prog_full = os.path.join(f_dir_prog, "rhochi.py")
+        
+        #f_dir_prog = self._p_f_dir_prog
+        #f_prog_full = os.path.join(f_dir_prog, "rhochi.py")
         #line = "python {:} {:} {:}".format(f_prog_full, f_name_full, f_name_full)
         rhochi_refinement(f_name_full, f_name_out)
         #os.system(line)
@@ -311,21 +335,21 @@ class cbuilder(QtWidgets.QMainWindow):
 
 
 
-    def plot_data_mono(self, f_name_full):
+    def plot_data_mono(self, x, y_exp, y_sig):
         widg_central = self._p_widg_central
         stack_widg = widg_central._p_widg_graph
         index = 0
         stack_widg.setCurrentIndex(index)
         widg_graph = stack_widg.widget(index)
-        widg_graph.plot_file(f_name_full)
+        widg_graph.plot_file(x, y_exp, y_sig)
 
-    def plot_data_powder_1d(self, f_name_full):
+    def plot_data_powder_1d(self, x, l_y_mod, l_y_exp, l_y_sig):
         widg_central = self._p_widg_central
         stack_widg = widg_central._p_widg_graph
         index = 1
         stack_widg.setCurrentIndex(index)
         widg_graph = stack_widg.widget(index)
-        widg_graph.plot_file(f_name_full)
+        widg_graph.plot_file(x, l_y_mod, l_y_exp, l_y_sig)
 
     def plot_data_powder_2d(self, f_name_full):
         widg_central = self._p_widg_central
@@ -333,7 +357,6 @@ class cbuilder(QtWidgets.QMainWindow):
         index = 2
         stack_widg.setCurrentIndex(index)
         widg_graph = stack_widg.widget(index)
-        print("index, f_name_full: ", index, f_name_full)
         widg_graph.plot_file(f_name_full)
 
 class cwidget(QtWidgets.QWidget):

@@ -279,7 +279,7 @@ class Refln(object):
 
             
     def __repr__(self):
-        ls_out = ["PdMeas:"]
+        ls_out = ["Refln:"]
         ls_out.append("   h   k   l           A           B    sft_11_A    sft_12_A    sft_13_A      sft_11_B    sft_12_B    sft_13_B")
         ls_out.append("                                        sft_21_A    sft_22_A    sft_23_A      sft_21_B    sft_22_B    sft_23_B")
         ls_out.append("                                        sft_31_A    sft_32_A    sft_33_A      sft_31_B    sft_32_B    sft_33_B")

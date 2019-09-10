@@ -1,3 +1,6 @@
+__author__ = 'ikibalin'
+__version__ = "2019_09_10"
+
 import os
 import sys
  
@@ -10,24 +13,6 @@ import matplotlib.backends.backend_qt5agg
 import matplotlib.figure 
 import matplotlib.pyplot
  
-def read_sc_data(finp):
-    ddata={}
-    fid = open(finp,'r')
-    lcontentH = fid.readlines()
-    fid.close()
-    lname = [hh.strip() for hh in lcontentH[0].split()]
-    for hh1 in lname:
-        ddata[hh1] = []
-
-    lcontent = [hh.strip() for hh in lcontentH[1:] if hh.strip() != ""]
-    
-    for line in lcontent:
-        lhelp = [float(hh) for hh in line.split()]
-        for hh1, hh2 in zip(lname, lhelp):
-            ddata[hh1].append(hh2)
-    return ddata
-
-
 
 class cwind_central(QtWidgets.QMainWindow):
     def __init__(self, fname):
@@ -59,17 +44,12 @@ class cwidg_central(QtWidgets.QWidget):
         
         self.layout_central = lay_main
         
-    def plot_file(self, ffig_full): 
+    def plot_file(self, x, y_exp, y_sig): 
         self.graph.ax_pri.cla()       
-        ddata = read_sc_data(ffig_full)
 
-        lx = ddata["FR_mod"]
-        ly = ddata["FR_exp"]
-        lsy = ddata["sigma"]
-        
-        self.graph.data_x = lx
-        self.graph.data_y = ly
-        self.graph.data_sy = lsy
+        self.graph.data_x = x
+        self.graph.data_y = y_exp
+        self.graph.data_sy = y_sig
         
         self.graph.set_data_to_graph()
 
@@ -112,9 +92,9 @@ class Graph(matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg):
         
     def onclick(self, event):
         if event.button == 3:
-            print(event.xdata, event.ydata)
-            self.data_x.append(event.xdata)
-            self.data_y.append(event.ydata)
+            #print(event.xdata, event.ydata)
+            #self.data_x.append(event.xdata)
+            #self.data_y.append(event.ydata)
             #self.set_data_to_graph()
             
             if self.info_press == (False, False):

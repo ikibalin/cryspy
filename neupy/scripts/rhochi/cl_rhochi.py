@@ -105,7 +105,7 @@ class RhoChi(dict):
         """
         calculate the integral intensity for h, k, l reflections
         """
-        #self.apply_constraint()
+        self.apply_constraint()
             
         l_crystal = self.crystals
 
@@ -128,7 +128,7 @@ class RhoChi(dict):
         """
         optimization
         """
-
+        self.apply_constraint()
         l_fitable = self.get_variables()
         if l_fitable == []:
             self._show_message("Variables are not found")

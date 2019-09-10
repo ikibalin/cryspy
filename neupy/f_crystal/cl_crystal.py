@@ -654,3 +654,16 @@ class Crystal(object):
         self.update(d_out)
         """
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+
+    def apply_constraint(self):
+        space_group = self.space_group
+        cell = self.cell
+        cell.apply_constraint()
+        atom_site = self.atom_site
+        atom_site_aniso = self.atom_site_aniso
+        if atom_site_aniso is not None:
+            atom_site_aniso.apply_space_group_constraint(atom_site, space_group)
+        atom_site_magnetism_aniso = self.atom_site_magnetism_aniso
+        if atom_site_magnetism_aniso is not None:
+            atom_site_magnetism_aniso.apply_chi_iso_constraint(cell)
+            atom_site_magnetism_aniso.apply_space_group_constraint(atom_site, space_group)

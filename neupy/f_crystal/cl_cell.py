@@ -100,7 +100,7 @@ class Cell(object):
             x_in = Fitable()
             flag = x_in.take_it(x)
         self.__cell_length_a = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def b(self):
         """
@@ -119,7 +119,7 @@ class Cell(object):
             x_in = Fitable()
             flag = x_in.take_it(x)
         self.__cell_length_b = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def c(self):
         """
@@ -138,7 +138,7 @@ class Cell(object):
             x_in = Fitable()
             flag = x_in.take_it(x)
         self.__cell_length_c = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def alpha(self):
         """
@@ -157,7 +157,7 @@ class Cell(object):
             x_in = Fitable()
             flag = x_in.take_it(x)
         self.__cell_angle_alpha = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def beta(self):
         """
@@ -176,7 +176,7 @@ class Cell(object):
             x_in = Fitable()
             flag = x_in.take_it(x)
         self.__cell_angle_beta = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def gamma(self):
         """
@@ -195,7 +195,7 @@ class Cell(object):
             x_in = Fitable()
             flag = x_in.take_it(x)
         self.__cell_angle_gamma = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def bravais_lattice(self):
         """
@@ -228,7 +228,7 @@ class Cell(object):
             print("Please try one of them: {:}.".format(", ".join(l_bravais_lattice)))
             x_in = "Triclinic"
         self.__cell_setting = x_in
-        self._apply_constraint()        
+        self.apply_constraint()        
     @property
     def volume(self):
         """
@@ -394,6 +394,48 @@ class Cell(object):
         """
         return self.__m_ib
         
+    @property
+    def cos_a(self):
+        """
+        cos(alpha)
+        """
+        return self.__cos_a
+    @property
+    def cos_b(self):
+        """
+        cos(beta)
+        """
+        return self.__cos_b
+    @property
+    def cos_g(self):
+        """
+        cos(gamma)
+        """
+        return self.__cos_g
+    @property
+    def cos_ib(self):
+        """
+        cos(beta*)
+        """
+        return self.__cos_ib
+    @property
+    def sin_ib(self):
+        """
+        sin(beta*)
+        """
+        return self.__sin_ib
+    @property
+    def cos_ig(self):
+        """
+        cos(gamma*)
+        """
+        return self.__cos_ig
+    @property
+    def sin_ig(self):
+        """
+        sin(gamma*)
+        """
+        return self.__sin_ig
         
     def __repr__(self):
         ls_out = ["""Cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
@@ -757,7 +799,7 @@ class Cell(object):
             l_variable.append(self.gamma)
         return l_variable
     
-    def _apply_constraint(self):
+    def apply_constraint(self):
         if self.is_defined:
             self._constr_bravais_lattice()
             self._calc_cos_abc()

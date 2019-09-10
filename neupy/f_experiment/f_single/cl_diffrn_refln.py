@@ -2,7 +2,7 @@
 define classe DiffrnRefln which describes the single diffraction experiment
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_05"
+__version__ = "2019_09_10"
 import os
 import numpy
 
@@ -178,9 +178,18 @@ class DiffrnRefln(object):
             
     def __repr__(self):
         ls_out = ["DiffrnRefln"]
-        ls_out.append("     h     k     l        fr  fr_sigma")
-        for _1, _2, _3, _4, _5 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma):
-            ls_out.append(" {:5} {:5} {:5} {:9.5} {:9.5}".format(_1, _2, _3, _4, _5))
+
+
+        flag_fr_calc = self.fr_calc is not None
+        if flag_fr_calc:
+            ls_out.append("     h     k     l        fr  fr_sigma   fr_calc")
+            for _1, _2, _3, _4, _5, _6 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma, self.fr_calc):
+                ls_out.append(" {:5} {:5} {:5} {:9.5} {:9.5} {:9.5}".format(_1, _2, _3, _4, _5, _6))
+        else:
+            ls_out.append("     h     k     l        fr  fr_sigma")
+            for _1, _2, _3, _4, _5 in zip(self.h, self.k, self.l, self.fr, self.fr_sigma):
+                ls_out.append(" {:5} {:5} {:5} {:9.5} {:9.5}".format(_1, _2, _3, _4, _5))
+
         return "\n".join(ls_out)
 
     @property

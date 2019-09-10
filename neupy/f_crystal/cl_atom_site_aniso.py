@@ -457,3 +457,151 @@ class AtomSiteAniso(object):
                   u_12=u_12_in, u_13=u_13_in, u_23=u_23_in, 
                   b_iso=b_iso_in)
         return adp
+
+    def apply_space_group_constraint(self, atom_site, space_group):
+        """
+        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
+        """
+        l_numb = atom_site.calc_constr_number(space_group)
+        label_aniso = self.label
+        label = atom_site.label
+        l_ind = [label.index(_1) for _1 in label_aniso]
+        for index, u_11, u_22, u_33, u_12, u_13, u_23 in zip(l_ind, self.u_11, self.u_22, self.u_33, 
+                                                                    self.u_12, self.u_13, self.u_23):
+            numb = l_numb[index]
+            if numb == 1:
+                u_12.value = 0.
+                u_12.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 2:
+                u_23.value = 0.
+                u_23.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+            elif numb == 3:
+                u_12.value = 0.
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+            elif numb == 4:
+                u_12.value = 0.
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 5:
+                u_22.value = u_11.value
+                u_22.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 6:
+                u_22.value = u_11.value
+                u_22.refinement = False
+                u_23.value = u_13.value 
+                u_23.refinement = False
+            elif numb == 7:
+                u_22.value = u_11.value
+                u_22.refinement = False
+                u_23.value = -1.*u_13.value 
+                u_23.refinement = False
+            elif numb == 8:
+                u_22.value = u_11.value
+                u_22.refinement = False
+                u_12.value = 0.
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 9:
+                u_33.value = u_22.value
+                u_33.refinement = False
+                u_12.value = 0.
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+            elif numb == 10:
+                u_33.value = u_22.value
+                u_33.refinement = False
+                u_13.value = 1.*u_12.value 
+                u_13.refinement = False
+            elif numb == 11:
+                u_33.value = u_22.value
+                u_33.refinement = False
+                u_13.value = -1.*u_12.value 
+                u_13.refinement = False
+            elif numb == 12:
+                u_33.value = u_22.value
+                u_33.refinement = False
+                u_12.value = 0.
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 13:
+                u_12.value = 0.5*u_22.value
+                u_12.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 14:
+                u_12.value = 0.5*u_22.value
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 15:
+                u_12.value = 0.5*u_22.value
+                u_12.refinement = False
+                u_23.value = 2.*u_13.value
+                u_23.refinement = False
+            elif numb == 16:
+                u_22.value = 1.0*u_11.value
+                u_22.refinement = False
+                u_12.value = 0.5*u_11.value
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 17:
+                u_22.value = 1.0*u_11.value
+                u_22.refinement = False
+                u_33.value = 1.0*u_11.value
+                u_33.refinement = False
+                u_12.value = 0.
+                u_12.refinement = False
+                u_13.value = 0.
+                u_13.refinement = False
+                u_23.value = 0.
+                u_23.refinement = False
+            elif numb == 18:
+                u_22.value = 1.0*u_11.value
+                u_22.refinement = False
+                u_33.value = 1.0*u_11.value
+                u_33.refinement = False
+                u_13.value = 1.0*u_12.value
+                u_13.refinement = False
+                u_23.value = 1.0*u_12.value
+                u_23.refinement = False
+
+
+    def calc_beta(self, cell):
+        """
+        calculate beta_ij from U_ij
+        """
+        ia, ib, ic = cell.ia, cell.ib, cell.ic
+        u_11, u_22, u_33 = numpy.array(self.u_11, float), numpy.array(self.u_22, float), numpy.array(self.u_33, float)
+        u_12, u_13, u_23 = numpy.array(self.u_12, float), numpy.array(self.u_13, float), numpy.array(self.u_23, float)
+        beta_11 = 2.*numpy.pi**2*u_11*ia**2
+        beta_22 = 2.*numpy.pi**2*u_22*ib**2
+        beta_33 = 2.*numpy.pi**2*u_33*ic**2
+        beta_12 = 2.*numpy.pi**2*u_12*ia*ib
+        beta_13 = 2.*numpy.pi**2*u_13*ia*ic
+        beta_23 = 2.*numpy.pi**2*u_23*ib*ic
+        return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23

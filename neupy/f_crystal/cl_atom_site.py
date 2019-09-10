@@ -796,3 +796,88 @@ class AtomSite(object):
                       y=numpy.array(self.y, dtype=float), 
                       z=numpy.array(self.z, dtype=float))
         return fract
+
+    def calc_constr_number(self, space_group):
+        """
+        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
+        """
+        l_numb = []
+        for _1, _2, _3 in zip(self.x, self.y, self.z):
+            x, y, z = float(_1), float(_2), float(_3)
+            o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 = space_group.calc_el_symm_for_xyz(x,y,z)
+
+            b_11, b_22, b_33, b_12, b_13, b_23 = 107, 181, 41, 7, 19, 1
+
+            i_11 = (o_11*o_11*b_11 + o_12*o_12*b_22 + o_13*o_13*b_33 + 
+                    o_11*o_12*b_12 + o_11*o_13*b_13 + o_12*o_13*b_23 + 
+                    o_12*o_11*b_12 + o_13*o_11*b_13 + o_13*o_12*b_23)
+
+            i_22 = (o_21*o_21*b_11 + o_22*o_22*b_22 + o_23*o_23*b_33 + 
+                    o_21*o_22*b_12 + o_21*o_23*b_13 + o_22*o_23*b_23 + 
+                    o_22*o_21*b_12 + o_23*o_21*b_13 + o_23*o_22*b_23)
+
+            i_33 = (o_31*o_31*b_11 + o_32*o_32*b_22 + o_33*o_33*b_33 + 
+                    o_31*o_32*b_12 + o_31*o_33*b_13 + o_32*o_33*b_23 + 
+                    o_32*o_31*b_12 + o_33*o_31*b_13 + o_33*o_32*b_23) 
+
+            i_12 = (o_11*o_21*b_11 + o_12*o_22*b_22 + o_13*o_23*b_33 + 
+                    o_11*o_22*b_12 + o_11*o_23*b_13 + o_12*o_23*b_23 + 
+                    o_12*o_21*b_12 + o_13*o_21*b_13 + o_13*o_22*b_23) 
+
+            i_13 = (o_11*o_31*b_11 + o_12*o_32*b_22 + o_13*o_33*b_33 + 
+                    o_11*o_32*b_12 + o_11*o_33*b_13 + o_12*o_33*b_23 + 
+                    o_12*o_31*b_12 + o_13*o_31*b_13 + o_13*o_32*b_23)
+
+            i_23 = (o_21*o_31*b_11 + o_22*o_32*b_22 + o_23*o_33*b_33 + 
+                    o_21*o_32*b_12 + o_21*o_33*b_13 + o_22*o_33*b_23 + 
+                    o_22*o_31*b_12 + o_23*o_31*b_13 + o_23*o_32*b_23) 
+
+            r_11, r_22, r_33, r_12, r_13, r_23 = i_11.sum(), i_22.sum(), i_33.sum(), i_12.sum(), i_13.sum(), i_23.sum()
+
+            if r_13 == 0:
+                if r_23 == 0:
+                    if r_12 == 0:
+                        if r_11 == r_22:
+                            if r_22 == r_33:
+                                numb = 17
+                            else:
+                                numb = 8
+                        elif r_22 == r_33:
+                            numb = 12
+                        else:
+                            numb = 4
+                    elif r_11 == r_22:
+                        if r_22 == 2*r_12:
+                            numb = 16
+                        else:
+                            numb = 5
+                    elif r_22 == 2*r_12:
+                        numb = 14
+                    else:
+                        numb = 2
+                elif r_22 == r_33:
+                    numb = 9
+                else:
+                    numb = 3
+            elif r_23 == 0:
+                if r_22 == 2*r_12:
+                    numb = 13
+                else:
+                    numb = 1
+            elif r_23 == r_13:
+                if r_22 == r_33:
+                    numb = 18
+                else:
+                    numb = 6
+            elif r_12 == r_13:
+                numb = 10
+            elif r_11 == 22:
+                numb = 7
+            elif r_22 == r_33:
+                numb = 11
+            elif r_22 == 2*r_12:
+                numb = 15
+            else:
+                numb = 0 #no constraint
+            l_numb.append(numb)
+        return l_numb

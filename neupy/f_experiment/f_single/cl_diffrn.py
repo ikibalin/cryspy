@@ -35,6 +35,7 @@ class Diffrn(object):
 
         self.__diffrn_radiation_wavelength = None
         self.__diffrn_ambient_field = None
+        self.__refln = None
 
         self.label = label
         self.extinction = extinction
@@ -157,6 +158,13 @@ class Diffrn(object):
             x_in = float(x)
         self.__diffrn_ambient_field = x_in
 
+    @property
+    def refln(self):
+        return self.__refln
+    @refln.setter
+    def refln(self, x):
+        self.__refln = x
+
 
     def _show_message(self, s_out: str):
         print("***  Error ***")
@@ -178,13 +186,22 @@ class Diffrn(object):
             ls_out.append("\n"+str(self.orient_matrix))
         if self.diffrn_refln is not None:
             ls_out.append("\n"+str(self.diffrn_refln))
+        if self.refln is not None:
+            ls_out.append("\n"+str(self.refln))
         return "\n".join(ls_out)
 
     
-    def calc_iint_u_d_flip_ratio(self, h, k, l, crystal):
+    def calc_iint_u_d_flip_ratio(self, h, k, l, l_crystal):
         """
         calculate intensity for the given diffraction angle
         """
+        l_label = [_.label for _ in l_crystal]
+        if self.label in l_label:
+            ind = l_label.index(self.label)
+            crystal = l_crystal[ind]
+        else:
+            self._show_message("Crystal not found.\nThe first one is taken.")
+            crystal = l_crystal[0]
         wavelength = self.wavelength
         field_z = self.field
         beam_polarization = self.beam_polarization
@@ -285,9 +302,9 @@ class Diffrn(object):
                     h1, k1, l1, i_u, i_d, f_r))
         """
             
-        return iint_u, iint_d, flip_ratio
+        return iint_u, iint_d, flip_ratio, refln
     
-    def calc_chi_sq(self, crystal):
+    def calc_chi_sq(self, l_crystal):
         """
         calculate chi square
         """
@@ -295,12 +312,13 @@ class Diffrn(object):
         h, k, l = diffrn_refln.h, diffrn_refln.k, diffrn_refln.l
         fr_exp = diffrn_refln.fr
         fr_sigma = diffrn_refln.fr_sigma
-        int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
-                                               h, k, l, crystal)
-        
+        int_u_mod, int_d_mod, fr_mod, refln = self.calc_iint_u_d_flip_ratio(
+                                               h, k, l, l_crystal)
         self.diffrn_refln.fr_calc = fr_mod
         self.diffrn_refln.intensity_up_calc = int_u_mod
         self.diffrn_refln.intensity_down_calc = int_d_mod
+
+        self.refln = refln
 
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
@@ -335,17 +353,19 @@ class Diffrn(object):
         ls_out = []
         ls_out.append("data_{:}".format(self.label))
         if self.extinction is not None:
-            ls_out.append(self.extinction.to_cif)
+            ls_out.append("\n"+self.extinction.to_cif)
         if self.beam_polarization is not None:
-            ls_out.append(self.beam_polarization.to_cif)
+            ls_out.append("\n"+self.beam_polarization.to_cif)
         if self.wavelength is not None:
-            ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength))
+            ls_out.append("\n"+"_diffrn_radiation_wavelength {:}".format(self.wavelength))
         if self.field is not None:
             ls_out.append("_diffrn_ambient_field {:}".format(self.field))
         if self.orient_matrix is not None:
-            ls_out.append(self.orient_matrix.to_cif)
-        if self.diffrn_refln is not None:            
-            ls_out.append(self.diffrn_refln.to_cif)
+            ls_out.append("\n"+self.orient_matrix.to_cif)
+        if self.diffrn_refln is not None:
+            ls_out.append("\n"+self.diffrn_refln.to_cif)
+        if self.refln is not None:
+            ls_out.append("\n"+self.refln.to_cif)
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
