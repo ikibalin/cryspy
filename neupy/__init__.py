@@ -28,6 +28,12 @@ from .f_experiment import (
     PdPeak,
     PdPhase,
     PdProc,
-    Pd
+    Pd,
+    Pd2dBackground,
+    Pd2dExclude2Theta,
+    Pd2dInstrReflexAsymmetry,
+    Pd2dInstrResolution,
+    Pd2dMeas,
+    Pd2dPhase
     )
 

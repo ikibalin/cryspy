@@ -20,3 +20,13 @@ from .f_powder_1d import (
     PdProc,
     Pd
     )
+
+from .f_powder_2d import (
+    Pd2dBackground,
+    Pd2dExclude2Theta,
+    Pd2dInstrReflexAsymmetry,
+    Pd2dInstrResolution,
+    Pd2dMeas,
+    Pd2dPhase
+    )
+
