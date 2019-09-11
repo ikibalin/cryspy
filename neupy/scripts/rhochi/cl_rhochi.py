@@ -16,6 +16,7 @@ from neupy.f_crystal.cl_crystal import Crystal
 from neupy.f_experiment.f_single.cl_diffrn import Diffrn
 from neupy.f_experiment.f_powder_1d.cl_pd import Pd
 from neupy.f_experiment.f_powder_2d.cl_pd2d import Pd2d
+from neupy.f_experiment.f_powder_texture_2d.cl_pd2dt import Pd2dt
 
 
 class RhoChi(dict):
@@ -115,8 +116,8 @@ class RhoChi(dict):
         def tempfunc(l_param):
             for fitable, param in zip(l_fitable, l_param):
                 fitable.value = param
-            chi_sq = self.calc_chi_sq()[0]
-            return chi_sq
+            chi_sq, n_points = self.calc_chi_sq()
+            return (chi_sq*1./float(n_points))
 
         chi_sq, n = self.calc_chi_sq()
 
@@ -132,27 +133,18 @@ class RhoChi(dict):
             scipy.optimize.leastsq(tempfunc, l_param_0, full_output=1)
 
         """
-        res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
-                                      callback=self._f_callback, options = {"fatol": 0.01*n})
+        res = scipy.optimize.minimize(tempfunc, l_param_0, method='BFGS', callback=self._f_callback, options = {"disp": True})
+
+        #res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
+        #                              callback=self._f_callback, options = {"fatol": 0.01*n})
+
         bb = time.time()
-        print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun*1./n, chi_sq*1./n))
-        
-        ##it is not checked
-        #m_error, dist_hh = error_estimation_simplex(res["final_simplex"][0], res["final_simplex"][1], tempfunc)
-        #
-        #l_sigma = []
-        #for i, val_2 in zip(range(m_error.shape[0]), dist_hh):
-        #    #slightly change definition, instead of (n-k) here is n
-        #    error = (abs(m_error[i,i])*1./n)**0.5
-        #    if m_error[i,i] < 0.:
-        #        print(50*"*"+"\nError is incorrect\n(negative diagonal elements of Hessian)\n"+50*"*")
-        #    if val_2 > error:
-        #        print(50*"*"+"\nErrors is incorrect\n(minimum is not found)\n"+50*"*")
-        #        
-        #    l_sigma.append(max(error,val_2))
-        #    
-        #for variable, sigma in zip(l_variable, l_sigma):
-        #    variable[4] = sigma
+        print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun, chi_sq*1./n))
+        hess_inv = res["hess_inv"]
+        sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
+        for fitable, _1  in zip(l_fitable, sigma):
+            fitable.sigma = _1
+
         return res
 
     
@@ -202,6 +194,7 @@ class RhoChi(dict):
             flag_diffrn = cif_data.is_prefix("_diffrn_refln")
             flag_pd = cif_data.is_prefix("_pd_meas")
             flag_pd2d = cif_data.is_prefix("_pd2d_meas")
+            flag_pd2dt = cif_data.is_prefix("_2dpdt_texture")
             if flag_crystal:
                 crystal = Crystal()
                 crystal.from_cif(str(cif_data))
@@ -217,10 +210,15 @@ class RhoChi(dict):
                 pd.from_cif(str(cif_data))
                 l_experiment.append(pd)
 
-            if flag_pd2d:
+            if (flag_pd2d & (not(flag_pd2dt))):
                 pd2d = Pd2d()
                 pd2d.from_cif(str(cif_data))
                 l_experiment.append(pd2d)
+            elif (flag_pd2d & flag_pd2dt):
+                pd2dt = Pd2dt()
+                pd2dt.from_cif(str(cif_data))
+                l_experiment.append(pd2dt)
+
         self.experiments = l_experiment
         self.crystals = l_crystal
 

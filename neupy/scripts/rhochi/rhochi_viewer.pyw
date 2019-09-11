@@ -35,6 +35,18 @@ def del_layout(layout):
             layout.removeItem(layout.itemAt(i))
     return
 
+def multistring_to_array(string):
+    l_1 = string.strip().split("\n")
+    l_ttheta = [float(_) for _ in l_1[0].strip().split()[1:]]
+    l_phi, ll_intensity = [], []
+    for line in l_1[1:]:
+        l_1 = line.strip().split()
+        l_phi.append(float(l_1[0]))
+        ll_intensity.append([float(_) if _ != "None" else None for _ in l_1[1:]])
+    x = numpy.array(l_ttheta, dtype=float)
+    y = numpy.array(l_phi, dtype=float)
+    zz = (numpy.array(ll_intensity, dtype=float)).transpose()
+    return x, y, zz
 
 
 class mythread(QtCore.QThread):
@@ -186,8 +198,9 @@ class cbuilder(QtWidgets.QMainWindow):
             f_name_full = os.path.join(f_dir_data, f_name_data)
             cif_global = pystar.to_global(f_name_full)
 
-            flag_powder_1d = cif_global.is_prefix("_pd_proc")
             flag_single = cif_global.is_prefix("_diffrn_refln")
+            flag_powder_1d = cif_global.is_prefix("_pd_proc")
+            flag_powder_2d = cif_global.is_prefix("_pd2d_proc")
             if flag_single:
                 x = numpy.array(cif_global["_diffrn_refln_fr_calc"], dtype=float)
                 y_exp = numpy.array(cif_global["_diffrn_refln_fr"], dtype=float)
@@ -213,12 +226,38 @@ class cbuilder(QtWidgets.QMainWindow):
                 l_y_exp = [y_3_exp, y_4_exp]
                 l_y_sig = [y_3_sig, y_4_sig]
                 self.plot_data_powder_1d(x, l_y_mod, l_y_exp, l_y_sig)
-            #elif len(l_f_name_data_sd) >= 1:
-            #    self.plot_data_mono(l_f_name_data_sd[0])
-            #elif len(l_f_name_data_2dpd) >= 1:
-            #    self.plot_data_powder_2d(l_f_name_data_2dpd[0])
-            #elif len(l_f_name_data_2dpdt) >= 1:
-            #    self.plot_data_powder_2d(l_f_name_data_2dpdt[0])
+            if flag_powder_2d:
+                s_1_mod = cif_global["_pd2d_proc_2theta_phi_intensity_up_total"].value
+                s_2_mod = cif_global["_pd2d_proc_2theta_phi_intensity_down_total"].value
+                s_1_exp = cif_global["_pd2d_proc_2theta_phi_intensity_up"].value
+                s_1_sig = cif_global["_pd2d_proc_2theta_phi_intensity_up_sigma"].value
+                s_2_exp = cif_global["_pd2d_proc_2theta_phi_intensity_down"].value
+                s_2_sig = cif_global["_pd2d_proc_2theta_phi_intensity_down_sigma"].value
+                x, _2, yy_1_mod = multistring_to_array(s_1_mod)
+                x, _2, yy_2_mod = multistring_to_array(s_2_mod)
+                x, _2, yy_1_exp = multistring_to_array(s_1_exp)
+                x, _2, yy_2_exp = multistring_to_array(s_2_exp)
+                x, _2, yy_1_sig = multistring_to_array(s_1_sig)
+                x, _2, yy_2_sig = multistring_to_array(s_2_sig)
+                y_1_exp = numpy.where(numpy.isnan(yy_1_exp), 0., yy_1_exp).sum(axis=1)
+                y_1_mod = numpy.where(numpy.isnan(yy_1_exp), 0., yy_1_mod).sum(axis=1)
+                y_1_sig = ((numpy.where(numpy.isnan(yy_1_exp), 0., yy_1_sig)**2).sum(axis=1))**0.5
+
+                y_2_exp = numpy.where(numpy.isnan(yy_2_exp), 0., yy_2_exp).sum(axis=1)
+                y_2_mod = numpy.where(numpy.isnan(yy_2_exp), 0., yy_2_mod).sum(axis=1)
+                y_2_sig = ((numpy.where(numpy.isnan(yy_2_exp), 0., yy_2_sig)**2).sum(axis=1))**0.5
+
+                y_3_mod = y_1_mod + y_2_mod
+                y_4_mod = y_1_mod - y_2_mod
+                y_3_exp = y_1_exp + y_2_exp
+                y_4_exp = y_1_exp - y_2_exp
+                y_3_sig = (y_1_sig**2 + y_2_sig**2)**0.5
+                y_4_sig = (y_1_sig**2 + y_2_sig**2)**0.5
+
+                l_y_mod = [y_3_mod, y_4_mod]
+                l_y_exp = [y_3_exp, y_4_exp]
+                l_y_sig = [y_3_sig, y_4_sig]
+                self.plot_data_powder_1d(x, l_y_mod, l_y_exp, l_y_sig)
         except:
             pass
 
@@ -455,3 +494,5 @@ if __name__ == '__main__':
     mainwind1 = cbuilder(f_dir_prog)
 
     sys.exit(app.exec_())
+
+

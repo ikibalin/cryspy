@@ -37,6 +37,7 @@ from .f_experiment import (
     Pd2dPhase,
     Pd2dPeak,
     Pd2dProc,
-    Pd2d
+    Pd2d,
+    Pd2dt
     )
 

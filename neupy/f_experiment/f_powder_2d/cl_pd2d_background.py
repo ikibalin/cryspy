@@ -44,12 +44,15 @@ class Pd2dBackground(object):
             l_x_in.append(x_in)
         self.__pd2d_background_phi = l_x_in
         len_x = len(l_x_in)
-        len_1 = len(self.intensity)
-        if len_1 > len_x:
-            self.__pd2d_background_2theta_phi_intensity = self.__pd2d_background_2theta_phi_intensity[:len_x]
-        elif len_1 < len_x:
-            l_fitable = [[] for hh in range(len_x-len_1)] #default
-            self.__pd2d_background_2theta_phi_intensity.extend(l_fitable)        
+
+        for ind, l_intensity in enumerate(self.intensity):
+            len_1 = len(l_intensity)
+            if len_1 > len_x:
+                self.__pd2d_background_2theta_phi_intensity[ind] = self.__pd2d_background_2theta_phi_intensity[ind][:len_x]
+            elif len_1 < len_x:
+                l_fitable = [Fitable(value=0., name="_pd2d_background_2theta_phi_intensity") for hh in range(len_x-len_1)] #default
+                self.__pd2d_background_2theta_phi_intensity[ind].extend(l_fitable)
+
 
 
 
@@ -63,15 +66,14 @@ class Pd2dBackground(object):
             x_in = float(x)
             l_x_in.append(x_in)
         self.__pd2d_background_2theta = l_x_in
-        len_x = len(l_x_in)
 
-        for ind, l_intensity in enumerate(self.intensity):
-            len_1 = len(l_intensity)
-            if len_1 > len_x:
-                self.__pd2d_background_2theta_phi_intensity[ind] = self.__pd2d_background_2theta_phi_intensity[ind][:len_x]
-            elif len_1 < len_x:
-                l_fitable = [Fitable(value=0., name="_pd2d_background_2theta_phi_intensity") for hh in range(len_x-len_1)] #default
-                self.__pd2d_background_2theta_phi_intensity[ind].extend(l_fitable)
+        len_x = len(l_x_in)
+        len_1 = len(self.intensity)
+        if len_1 > len_x:
+            self.__pd2d_background_2theta_phi_intensity = self.__pd2d_background_2theta_phi_intensity[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [[] for hh in range(len_x-len_1)] #default
+            self.__pd2d_background_2theta_phi_intensity.extend(l_fitable)        
 
     @property
     def intensity(self):
@@ -91,19 +93,21 @@ class Pd2dBackground(object):
                 l_fitable.append(x_in)
             ll_fitable.append(l_fitable)
         len_x = len(ll_fitable)
-        len_1 = len(self.phi)
+
+        len_1 = len(self.ttheta)
         if len_1 < len_x:
             ll_fitable = ll_fitable[:len_1]
         elif len_1 > len_x:
             ll_fitable.extend([[] for hh in range(len_1-len_x)])
 
-        len_1 = len(self.ttheta)
+        len_1 = len(self.phi)
         for l_fitable in ll_fitable:
             len_x = len(l_fitable)
             if len_1 < len_x:
                 l_fitable = l_fitable[:len_1]
             elif len_1 > len_x:
                 l_fitable.extend([Fitable(value=0., name="_pd2d_background_2theta_phi_intensity") for hh in range(len_1-len_x)])
+
         self.__pd2d_background_2theta_phi_intensity = ll_fitable
 
 
@@ -150,8 +154,8 @@ class Pd2dBackground(object):
                 l_phi.append(float(l_1[0]))
                 ll_intensity.append(l_1[1:])
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
-            self.ttheta = l_ttheta
             self.phi = l_phi
+            self.ttheta = l_ttheta
             self.intensity = ll_intensity
         else:
             self.phi, self.ttheta, self.intensity = [], [], [[]]
@@ -180,10 +184,10 @@ class Pd2dBackground(object):
         print(s_out)
 
     def interpolate_by_points(self, phi, tth):
-        l_tth_b = self.ttheta
         l_phi_b = self.phi
+        l_tth_b = self.ttheta
         ll_int_b = self.intensity
-
+        ll_int_b = [[float(ll_int_b[_2][_1]) for _2 in range(len(ll_int_b))] for _1 in range(len(ll_int_b[0]))]
         if len(l_tth_b) == 0:
             int_2d = numpy.zeros((tth.size, phi.size), dtype=float)
         else:

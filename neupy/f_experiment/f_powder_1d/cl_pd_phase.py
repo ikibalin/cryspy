@@ -68,6 +68,7 @@ class PdPhase(object):
                 x_in = x
             else:
                 x_in = Fitable()
+                x_in.name = "_pd_phase_scale"
                 flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
@@ -89,6 +90,7 @@ class PdPhase(object):
                 x_in = x
             else:
                 x_in = Fitable()
+                x_in.name = "_pd_phase_igsize"
                 flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
@@ -117,7 +119,7 @@ class PdPhase(object):
             ls_out.append("_pd_phase_scale")
             ls_out.append("_pd_phase_igsize")
             for _1, _2, _3 in zip(self.label, self.scale, self.igsize):
-                ls_out.append("{:} {:} {:}".format(_1, _2, _3))
+                ls_out.append("{:} {:} {:}".format(_1, _2.print_with_sigma, _3.print_with_sigma))
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):

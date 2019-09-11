@@ -32,3 +32,7 @@ from .f_powder_2d import (
     Pd2dProc,
     Pd2d
     )
+
+from .f_powder_texture_2d import (
+    Pd2dt
+    )

@@ -869,7 +869,7 @@ class Cell(object):
         """
         give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
         """
-        if not(self.is_defined()):
+        if not(self.is_defined):
             print("Object 'Cell' is not fully defined for calculations")
             return None
         h_max = int(2.*self.a*sthovl_max)
