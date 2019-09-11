@@ -156,16 +156,16 @@ class Pd2dMeas(object):
             
     def __repr__(self):
         ls_out = ["Pd2dMeas:"]
-        ls_out.append("\n ttheta: {:}".format(str(self.ttheta)))
-        ls_out.append(" phi: {:}".format(str(self.phi)))
+        ls_out.append("\n ttheta: min - {:}°, max - {:}°, points - {:}".format(self.ttheta.min(), self.ttheta.max(), self.ttheta.size))
+        ls_out.append(" phi:    min - {:}°, max - {:}°, points - {:}".format(self.phi.min(), self.phi.max(), self.phi.size))
         ls_out.append("\n up")
-        ls_out.append(str(self.up))
+        ls_out.append(str(self.up.transpose()))
         ls_out.append("\n up_sigma")
-        ls_out.append(str(self.up_sigma))
+        ls_out.append(str(self.up_sigma.transpose()))
         ls_out.append("\n down")
-        ls_out.append(str(self.down))
+        ls_out.append(str(self.down.transpose()))
         ls_out.append("\n down_sigma")
-        ls_out.append(str(self.down_sigma))
+        ls_out.append(str(self.down_sigma.transpose()))
         return "\n".join(ls_out)
 
     @property
@@ -174,30 +174,30 @@ class Pd2dMeas(object):
         if self.is_defined:
             ls_out.append("_pd2d_meas_2theta_phi_intensity_up")
             ls_out.append(";")
-            ls_out.append("{:12} ".format(len(self.ttheta)) + " ".join(["{:6.2f}      ".format(_) for _ in self.phi]))
-            for ttheta, l_intensity in zip(self.ttheta, self.up):
-                ls_out.append("{:12.2f} ".format(ttheta) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
+            ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
+            for phi, l_intensity in zip(self.phi, self.up.transpose()):
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
             ls_out.append(";")
 
             ls_out.append("\n_pd2d_meas_2theta_phi_intensity_up_sigma")
             ls_out.append(";")
-            ls_out.append("{:12} ".format(len(self.ttheta)) + " ".join(["{:6.2f}      ".format(_) for _ in self.phi]))
-            for ttheta, l_intensity in zip(self.ttheta, self.up_sigma):
-                ls_out.append("{:12.2f} ".format(ttheta) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
+            ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
+            for phi, l_intensity in zip(self.phi, self.up_sigma.transpose()):
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
             ls_out.append(";")
 
             ls_out.append("\n_pd2d_meas_2theta_phi_intensity_down")
             ls_out.append(";")
-            ls_out.append("{:12} ".format(len(self.ttheta)) + " ".join(["{:6.2f}      ".format(_) for _ in self.phi]))
-            for ttheta, l_intensity in zip(self.ttheta, self.down):
-                ls_out.append("{:12.2f} ".format(ttheta) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
+            ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
+            for phi, l_intensity in zip(self.phi, self.down.transpose()):
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
             ls_out.append(";")
 
             ls_out.append("\n_pd2d_meas_2theta_phi_intensity_down_sigma")
             ls_out.append(";")
-            ls_out.append("{:12} ".format(len(self.ttheta)) + " ".join(["{:6.2f}      ".format(_) for _ in self.phi]))
-            for ttheta, l_intensity in zip(self.ttheta, self.down_sigma):
-                ls_out.append("{:12.2f} ".format(ttheta) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
+            ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
+            for phi, l_intensity in zip(self.phi, self.down_sigma.transpose()):
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) if _ is not numpy.nan else "        None" for _ in l_intensity]))
             ls_out.append(";")
         return "\n".join(ls_out)
 
@@ -211,12 +211,13 @@ class Pd2dMeas(object):
             cif_value = cif_global["_pd2d_meas_2theta_phi_intensity_up"]
             string = cif_value.value
             l_1 = string.strip().split("\n")
-            l_phi = [float(_) for _ in l_1[0].strip().split()[1:]]
-            l_ttheta, ll_intensity = [], []
+            l_ttheta = [float(_) for _ in l_1[0].strip().split()[1:]]
+            l_phi, ll_intensity = [], []
             for line in l_1[1:]:
                 l_1 = line.strip().split()
-                l_ttheta.append(float(l_1[0]))
+                l_phi.append(float(l_1[0]))
                 ll_intensity.append([float(_) if _ != "None" else None for _ in l_1[1:]])
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             self.phi = l_phi
             self.ttheta = l_ttheta
             self.up = ll_intensity
@@ -225,12 +226,13 @@ class Pd2dMeas(object):
             cif_value = cif_global["_pd2d_meas_2theta_phi_intensity_up_sigma"]
             string = cif_value.value
             l_1 = string.strip().split("\n")
-            l_phi = [float(_) for _ in l_1[0].strip().split()[1:]]
-            l_ttheta, ll_intensity = [], []
+            l_ttheta = [float(_) for _ in l_1[0].strip().split()[1:]]
+            l_phi, ll_intensity = [], []
             for line in l_1[1:]:
                 l_1 = line.strip().split()
-                l_ttheta.append(float(l_1[0]))
+                l_phi.append(float(l_1[0]))
                 ll_intensity.append([float(_) if _ != "None" else None for _ in l_1[1:]])
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             self.phi = l_phi
             self.ttheta = l_ttheta
             self.up_sigma = ll_intensity
@@ -239,12 +241,13 @@ class Pd2dMeas(object):
             cif_value = cif_global["_pd2d_meas_2theta_phi_intensity_down"]
             string = cif_value.value
             l_1 = string.strip().split("\n")
-            l_phi = [float(_) for _ in l_1[0].strip().split()[1:]]
-            l_ttheta, ll_intensity = [], []
+            l_ttheta = [float(_) for _ in l_1[0].strip().split()[1:]]
+            l_phi, ll_intensity = [], []
             for line in l_1[1:]:
                 l_1 = line.strip().split()
-                l_ttheta.append(float(l_1[0]))
+                l_phi.append(float(l_1[0]))
                 ll_intensity.append([float(_) if _ != "None" else None for _ in l_1[1:]])
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             self.phi = l_phi
             self.ttheta = l_ttheta
             self.down = ll_intensity
@@ -253,12 +256,13 @@ class Pd2dMeas(object):
             cif_value = cif_global["_pd2d_meas_2theta_phi_intensity_down_sigma"]
             string = cif_value.value
             l_1 = string.strip().split("\n")
-            l_phi = [float(_) for _ in l_1[0].strip().split()[1:]]
-            l_ttheta, ll_intensity = [], []
+            l_ttheta = [float(_) for _ in l_1[0].strip().split()[1:]]
+            l_phi, ll_intensity = [], []
             for line in l_1[1:]:
                 l_1 = line.strip().split()
-                l_ttheta.append(float(l_1[0]))
+                l_phi.append(float(l_1[0]))
                 ll_intensity.append([float(_) if _ != "None" else None for _ in l_1[1:]])
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             self.phi = l_phi
             self.ttheta = l_ttheta
             self.down_sigma = ll_intensity

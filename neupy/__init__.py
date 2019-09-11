@@ -34,6 +34,9 @@ from .f_experiment import (
     Pd2dInstrReflexAsymmetry,
     Pd2dInstrResolution,
     Pd2dMeas,
-    Pd2dPhase
+    Pd2dPhase,
+    Pd2dPeak,
+    Pd2dProc,
+    Pd2d
     )
 

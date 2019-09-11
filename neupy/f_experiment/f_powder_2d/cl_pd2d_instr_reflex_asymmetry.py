@@ -16,7 +16,7 @@ from neupy.f_common.cl_fitable import Fitable
 
 class Pd2dInstrReflexAsymmetry(dict):
     """
-    PdInstrReflexAsymmetry describes asymmetry of Bragg reflections for 1d powder diffractometer
+    Pd2dInstrReflexAsymmetry describes asymmetry of Bragg reflections for 2d powder diffractometer
 
     Example:
 
@@ -27,7 +27,7 @@ class Pd2dInstrReflexAsymmetry(dict):
     """
     def __init__(self, p1 = Fitable(0.), p2 = Fitable(0.), 
                        p3 = Fitable(0.), p4 = Fitable(0.)):
-        super(PdInstrReflexAsymmetry, self).__init__()
+        super(Pd2dInstrReflexAsymmetry, self).__init__()
         self.__pd2d_instr_reflex_asymmetry_p1 = None
         self.__pd2d_instr_reflex_asymmetry_p2 = None
         self.__pd2d_instr_reflex_asymmetry_p3 = None

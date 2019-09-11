@@ -14,3 +14,9 @@ from .cl_pd2d_instr_reflex_asymmetry import Pd2dInstrReflexAsymmetry
 from .cl_pd2d_instr_resolution import Pd2dInstrResolution
 from .cl_pd2d_meas import Pd2dMeas
 from .cl_pd2d_phase import Pd2dPhase
+from .cl_pd2d_peak import Pd2dPeak
+from .cl_pd2d_proc import Pd2dProc
+from .cl_pd2d import Pd2d
+
+
+

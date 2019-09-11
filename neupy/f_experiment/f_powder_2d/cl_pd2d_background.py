@@ -5,6 +5,8 @@ __author__ = 'ikibalin'
 __version__ = "2019_09_10"
 import os
 import numpy
+import scipy
+import scipy.interpolate
 
 
 from pystar import CIFglobal
@@ -42,13 +44,14 @@ class Pd2dBackground(object):
             l_x_in.append(x_in)
         self.__pd2d_background_phi = l_x_in
         len_x = len(l_x_in)
-
         len_1 = len(self.intensity)
         if len_1 > len_x:
             self.__pd2d_background_2theta_phi_intensity = self.__pd2d_background_2theta_phi_intensity[:len_x]
         elif len_1 < len_x:
             l_fitable = [[] for hh in range(len_x-len_1)] #default
-            self.__pd2d_background_2theta_phi_intensity.extend(l_fitable)
+            self.__pd2d_background_2theta_phi_intensity.extend(l_fitable)        
+
+
 
     @property
     def ttheta(self):
@@ -83,6 +86,7 @@ class Pd2dBackground(object):
                     x_in = x
                 else:
                     x_in = Fitable()
+                    x_in.name = "_pd2d_background_2theta_phi_intensity"
                     flag = x_in.take_it(x)
                 l_fitable.append(x_in)
             ll_fitable.append(l_fitable)
@@ -107,9 +111,11 @@ class Pd2dBackground(object):
             
     def __repr__(self):
         ls_out = ["Pd2dBackground:"]
-        ls_out.append("{:12} ".format(len(self.ttheta)) + " ".join(["{:6.2f}      ".format(_) for _ in self.phi]))
-        for ttheta, l_intensity in zip(self.ttheta, self.intensity):
-            ls_out.append("{:12.2f} ".format(ttheta) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
+        ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
+        ll_intensity = self.intensity
+        ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+        for phi, l_intensity in zip(self.phi, ll_intensity):
+            ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
         return "\n".join(ls_out)
 
     @property
@@ -118,9 +124,11 @@ class Pd2dBackground(object):
         if self.is_defined:
             ls_out.append("_pd2d_background_2theta_phi_intensity")
             ls_out.append(";")
-            ls_out.append("{:12} ".format(len(self.ttheta)) + " ".join(["{:6.2f}      ".format(_) for _ in self.phi]))
-            for ttheta, l_intensity in zip(self.ttheta, self.intensity):
-                ls_out.append("{:12.2f} ".format(ttheta) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
+            ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
+            ll_intensity = self.intensity
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for phi, l_intensity in zip(self.phi, ll_intensity):
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
             ls_out.append(";")
         return "\n".join(ls_out)
 
@@ -135,14 +143,15 @@ class Pd2dBackground(object):
             cif_value = cif_global["_pd2d_background_2theta_phi_intensity"]
             string = cif_value.value
             l_1 = string.strip().split("\n")
-            l_phi = [float(_) for _ in l_1[0].strip().split()[1:]]
-            l_ttheta, ll_intensity = [], []
+            l_ttheta = [float(_) for _ in l_1[0].strip().split()[1:]]
+            l_phi, ll_intensity = [], []
             for line in l_1[1:]:
                 l_1 = line.strip().split()
-                l_ttheta.append(float(l_1[0]))
+                l_phi.append(float(l_1[0]))
                 ll_intensity.append(l_1[1:])
-            self.phi = l_phi
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             self.ttheta = l_ttheta
+            self.phi = l_phi
             self.intensity = ll_intensity
         else:
             self.phi, self.ttheta, self.intensity = [], [], [[]]
@@ -160,7 +169,10 @@ class Pd2dBackground(object):
     
     def get_variables(self):
         l_variable = []
-        l_variable.extend([[_2 for _2 in _1 if _2.refinement] for _1 in self.intensity])
+        for _1 in self.intensity:
+            for _2 in _1:
+                if _2.refinement:
+                    l_variable.append(_2)
         return l_variable
 
     def _show_message(self, s_out: str):
@@ -168,13 +180,11 @@ class Pd2dBackground(object):
         print(s_out)
 
     def interpolate_by_points(self, phi, tth):
-        l_phi_b = self.phi
         l_tth_b = self.ttheta
+        l_phi_b = self.phi
         ll_int_b = self.intensity
 
-        tth_b = numpy.array(l_ttheta, dtype=float)
-        int_b = numpy.array(l_intensity, dtype=float)
-        if len(l_ttheta) == 0:
+        if len(l_tth_b) == 0:
             int_2d = numpy.zeros((tth.size, phi.size), dtype=float)
         else:
             phi_b = numpy.array(l_phi_b, dtype=float)
@@ -182,7 +192,6 @@ class Pd2dBackground(object):
             int_b = numpy.array(ll_int_b, dtype=float)
             func = scipy.interpolate.interp2d(tth_b, phi_b, int_b)
             #tth_2d, phi_2d = numpy.meshgrid(tth, phi, indexing="ij")
-            int_1d = func(tth, phi)
-            int_2d = int_1d.transpose()
+            int_2d = func(tth, phi)
         return int_2d
 

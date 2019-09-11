@@ -15,7 +15,7 @@ from neupy.f_common.cl_fitable import Fitable
 
 class Pd2dInstrResolution(dict):
     """
-    PdInstrResolution describes resolution of 1d powder diffractometer
+    Pd2dInstrResolution describes resolution of 2d powder diffractometer
 
     Example:
 
@@ -27,7 +27,7 @@ class Pd2dInstrResolution(dict):
     """
     def __init__(self, u = Fitable(0.), v = Fitable(0.), w = Fitable(0.01), 
                        x = Fitable(0.), y = Fitable(0.)):
-        super(PdInstrResolution, self).__init__()
+        super(Pd2dInstrResolution, self).__init__()
         self.__pd2d_instr_resolution_u = None
         self.__pd2d_instr_resolution_v = None
         self.__pd2d_instr_resolution_w = None

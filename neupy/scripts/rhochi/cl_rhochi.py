@@ -2,7 +2,7 @@
 RhoChi program
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_09"
+__version__ = "2019_09_10"
 import os
 import sys
 import numpy
@@ -15,6 +15,7 @@ from neupy.f_common.error_simplex import error_estimation_simplex
 from neupy.f_crystal.cl_crystal import Crystal
 from neupy.f_experiment.f_single.cl_diffrn import Diffrn
 from neupy.f_experiment.f_powder_1d.cl_pd import Pd
+from neupy.f_experiment.f_powder_2d.cl_pd2d import Pd2d
 
 
 class RhoChi(dict):
@@ -74,31 +75,6 @@ class RhoChi(dict):
         ls_out.append("\n Experiments:")
         ls_out.append("\n".join([str(_) for _ in self.experiments]))
         return "\n".join(ls_out)
-
-
-
-
-
-
-    def add_experiment(self, experiment):
-        self.__experiments.append(experiment)
-
-    def del_experiment(self, ind):
-        self.__experiments.pop(ind)        
-
-    def replace_experiment(self, ind, experiment):
-        self.__experiments.pop(ind)
-        self.__experiments.insert(ind, experiment)
-
-    def add_crystal(self, crystal):
-        self.__crystals.append(crystal)
-
-    def del_crystal(self, ind):
-        self.__crystals.pop(ind)        
-
-    def replace_crystal(self, ind, crystal):
-        self.__crystals.pop(ind)
-        self.__crystals.insert(ind, crystal)
 
     
     def calc_chi_sq(self):
@@ -221,10 +197,11 @@ class RhoChi(dict):
         self.label = cif_global.name
         l_cif_data = cif_global.datas
         for cif_data in l_cif_data:
-            flag_crystal, flag_diffrn, flag_pd = False, False, False
+            flag_crystal, flag_diffrn, flag_pd, flag_pd2d = False, False, False, False
             flag_crystal = cif_data.is_prefix("_cell_length_a")
             flag_diffrn = cif_data.is_prefix("_diffrn_refln")
             flag_pd = cif_data.is_prefix("_pd_meas")
+            flag_pd2d = cif_data.is_prefix("_pd2d_meas")
             if flag_crystal:
                 crystal = Crystal()
                 crystal.from_cif(str(cif_data))
@@ -239,6 +216,11 @@ class RhoChi(dict):
                 pd = Pd()
                 pd.from_cif(str(cif_data))
                 l_experiment.append(pd)
+
+            if flag_pd2d:
+                pd2d = Pd2d()
+                pd2d.from_cif(str(cif_data))
+                l_experiment.append(pd2d)
         self.experiments = l_experiment
         self.crystals = l_crystal
 
