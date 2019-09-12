@@ -6,7 +6,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_09_09"
 import os
 import numpy
-from pystar import CIFdata, CIFloop
+from pystar import Data, Loop
 
 from neupy.f_common.cl_fitable import Fitable
 from neupy.f_experiment.cl_beam_polarization import BeamPolarization
@@ -546,12 +546,12 @@ class Pd(object):
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
-        cif_data = CIFdata()
+        cif_data = Data()
         flag = cif_data.take_from_string(string)
         if not flag:
             return False
         self.label = cif_data.name
-        cif_values = cif_data.values
+        cif_values = cif_data.items
         if cif_values is not None:
             if cif_values.is_prefix("_diffrn_radiation_wavelength"):
                 self.wavelength = float(cif_values["_diffrn_radiation_wavelength"])

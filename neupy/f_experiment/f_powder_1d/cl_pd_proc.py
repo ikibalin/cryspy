@@ -7,7 +7,7 @@ import os
 import numpy
 
 
-from pystar import CIFglobal
+from pystar import Global
 
 
 class PdProc(object):
@@ -291,7 +291,7 @@ class PdProc(object):
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
-        cif_global = CIFglobal()
+        cif_global = Global()
         flag = cif_global.take_from_string(string)
         if not flag:
             return False

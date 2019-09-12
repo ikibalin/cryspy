@@ -6,7 +6,7 @@ __version__ = "2019_08_22"
 
 import numpy
 from math import *
-from pystar import CIFvalue
+from pystar import Item
 
 class Fitable(object):
     """
@@ -35,7 +35,7 @@ class Fitable(object):
             self.constraint = object_.constraint
             self.minimal = object_.minimal
             self.maximal = object_.maximal
-        elif isinstance(object_, CIFvalue):
+        elif isinstance(object_, Item):
             self.name = object_.name
             self.constraint = object_.comment
             string = object_.value
@@ -46,7 +46,7 @@ class Fitable(object):
             try:
                 self.value = float(str_1)
             except:
-                self._show_message("Can not convert value of CIFvalue to float")
+                self._show_message("Can not convert value of Item to float")
                 return False
         elif isinstance(object_, str):
             string = object_

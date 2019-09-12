@@ -7,7 +7,7 @@ import os
 import numpy
 import copy
 
-from pystar import CIFdata
+from pystar import Data
 from neupy.f_common.cl_fitable import Fitable
 from .cl_space_group import SpaceGroup
 from .cl_cell import Cell
@@ -423,12 +423,12 @@ class Crystal(object):
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
-        cif_data = CIFdata()
+        cif_data = Data()
         flag = cif_data.take_from_string(string)
         if not flag:
             return False
         self.label = cif_data.name
-        cif_values = cif_data.values
+        cif_values = cif_data.items
         if cif_values is not None:
             if cif_values.is_prefix("cell"):
                 self.cell = str(cif_values)

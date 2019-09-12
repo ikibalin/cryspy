@@ -7,7 +7,7 @@ import os
 import numpy
 
 
-from pystar import CIFdata
+from pystar import Data
 from neupy.f_common.cl_fitable import Fitable
 
 
@@ -166,7 +166,7 @@ class PdInstrResolution(dict):
 
 
     def from_cif(self, string: str):
-        cif_data = CIFdata()
+        cif_data = Data()
         flag = cif_data.take_from_string(string)
         if not flag:
             return False

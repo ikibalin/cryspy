@@ -6,8 +6,8 @@ __version__ = "2019_09_02"
 import os
 import numpy
 
+from pystar import Global
 from neupy.f_common.cl_fitable import Fitable
-from pystar import CIFglobal
 
 class Extinction(object):
     """
@@ -163,7 +163,7 @@ class Extinction(object):
 
 
     def from_cif(self, string: str):
-        cif_data = CIFglobal()
+        cif_data = Global()
         flag = cif_data.take_from_string(string)
         if not flag:
             return False

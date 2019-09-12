@@ -9,7 +9,7 @@ import numpy
 import scipy.optimize
 import time
 
-from pystar import CIFglobal
+from pystar import Global
 
 from neupy.f_common.error_simplex import error_estimation_simplex
 from neupy.f_crystal.cl_crystal import Crystal
@@ -182,7 +182,7 @@ class RhoChi(dict):
 
     def from_cif(self, string: str):
         l_crystal, l_experiment = [], []
-        cif_global = CIFglobal()
+        cif_global = Global()
         flag = cif_global.take_from_string(string)
         if not flag:
             return False
