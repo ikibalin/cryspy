@@ -6,7 +6,7 @@ __version__ = "2019_08_22"
 
 import numpy
 from math import *
-from pystar import Item
+from pycifstar import Item
 
 class Fitable(object):
     """

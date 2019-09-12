@@ -9,7 +9,7 @@ import numpy
 import scipy.optimize
 import time
 
-from pystar import Global
+from pycifstar import Global
 
 from neupy.f_common.error_simplex import error_estimation_simplex
 from neupy.f_crystal.cl_crystal import Crystal

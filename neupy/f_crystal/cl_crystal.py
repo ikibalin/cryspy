@@ -7,7 +7,7 @@ import os
 import numpy
 import copy
 
-from pystar import Data
+from pycifstar import Data
 from neupy.f_common.cl_fitable import Fitable
 from .cl_space_group import SpaceGroup
 from .cl_cell import Cell

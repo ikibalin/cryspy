@@ -6,7 +6,7 @@ __version__ = "2019_09_02"
 import os
 import numpy
 
-from pystar import Global
+from pycifstar import Global
 from neupy.f_common.cl_fitable import Fitable
 
 class Extinction(object):

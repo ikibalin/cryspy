@@ -5,7 +5,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_08_27"
 import os
 import numpy
-from pystar import Global
+from pycifstar import Global
 
 from neupy.f_common.cl_fitable import Fitable
 

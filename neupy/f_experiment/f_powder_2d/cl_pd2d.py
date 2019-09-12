@@ -6,7 +6,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_09_11"
 import os
 import numpy
-from pystar import Data, Loop
+from pycifstar import Data, Loop
 
 from neupy.f_common.cl_fitable import Fitable
 from neupy.f_experiment.cl_beam_polarization import BeamPolarization

@@ -7,7 +7,7 @@ import os
 import numpy
 
 
-from pystar import Global
+from pycifstar import Global
 
 
 class PdMeas(object):

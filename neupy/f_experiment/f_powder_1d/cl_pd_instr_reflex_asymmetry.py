@@ -9,7 +9,7 @@ import os
 import numpy
 
 
-from pystar import Data
+from pycifstar import Data
 from neupy.f_common.cl_fitable import Fitable
 
 

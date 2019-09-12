@@ -7,7 +7,7 @@ import os
 import numpy
 import copy
 
-from pystar import Global
+from pycifstar import Global
 from neupy.f_common.cl_fitable import Fitable
 from neupy.f_crystal.cl_cell import Cell
 

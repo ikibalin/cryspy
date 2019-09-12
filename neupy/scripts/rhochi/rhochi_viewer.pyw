@@ -18,7 +18,7 @@ import interactive_graph_mod_mono
 import interactive_graph_mod_pwd
 import interactive_graph_mod_pwd_2d_as_1d
 
-import pystar
+import pycifstar
 from neupy import RhoChi, rhochi_refinement
 
 
@@ -202,7 +202,7 @@ class cbuilder(QtWidgets.QMainWindow):
                 if len(l_file_calc) != 0:
                     f_name_data = l_file_calc[0]
             f_name_full = os.path.join(f_dir_data, f_name_data)
-            cif_global = pystar.to_global(f_name_full)
+            cif_global = pycifstar.to_global(f_name_full)
 
             flag_single = cif_global.is_prefix("_diffrn_refln")
             flag_powder_1d = cif_global.is_prefix("_pd_proc")
