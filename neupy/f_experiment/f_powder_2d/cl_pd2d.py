@@ -525,6 +525,20 @@ class Pd2d(object):
     def to_cif(self):
         ls_out = []
         ls_out.append("data_{:}\n".format(self.label))
+        str_1 = self.params_to_cif
+        if str_1 != "":
+            ls.out.append(str_1)
+        str_2 = self.data_to_cif
+        if str_2 != "":
+            ls.out.append(str_2)
+        str_3 = self.calc_to_cif
+        if str_3 != "":
+            ls.out.append(str_3)
+        return "\n".join(ls_out)
+
+    @property
+    def params_to_cif(self):
+        ls_out = []
         if self.wavelength is not None:
             ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength))
         if self.field is not None:
@@ -575,17 +589,27 @@ class Pd2d(object):
             ls_out.append("\n"+self.resolution.to_cif)
         if self.phase is not None:
             ls_out.append("\n"+self.phase.to_cif)
+        return "\n".join(ls_out)
+
+    @property
+    def data_to_cif(self):
+        ls_out = []
         if self.meas is not None:
             ls_out.append("\n"+self.meas.to_cif)
+        return "\n".join(ls_out)
 
+    @property
+    def calc_to_cif(self):
+        ls_out = []
         if self.reflns is not None:
             ls_out.extend(["\n"+_.to_cif for _ in self.reflns])
         if self.peaks is not None:
             ls_out.extend(["\n"+_.to_cif for _ in self.peaks])
         if self.proc is not None:
             ls_out.append("\n"+self.proc.to_cif)
-
         return "\n".join(ls_out)
+
+
 
     def from_cif(self, string: str):
         cif_data = Data()

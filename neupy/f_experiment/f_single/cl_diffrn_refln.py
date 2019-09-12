@@ -40,6 +40,11 @@ class DiffrnRefln(object):
         self.__diffrn_refln_index_l = None
         self.__diffrn_refln_fr = None
         self.__diffrn_refln_fr_sigma = None
+        self.h = h
+        self.k = k
+        self.l = l
+        self.fr = fr
+        self.fr_sigma = fr_sigma
 
         self.__diffrn_refln_fr_calc = None
         self.__diffrn_refln_intensity_up_calc = None

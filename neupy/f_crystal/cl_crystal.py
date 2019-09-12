@@ -667,3 +667,14 @@ class Crystal(object):
         if atom_site_magnetism_aniso is not None:
             atom_site_magnetism_aniso.apply_chi_iso_constraint(cell)
             atom_site_magnetism_aniso.apply_space_group_constraint(atom_site, space_group)
+    
+    def calc_hkl(self, sthol_min, sthovl_max):
+        cell = self.cell
+        space_group = self.space_group
+        res = cell.calc_hkl(space_group, sthol_min, sthovl_max)
+        return res
+
+    def calc_hkl_in_range(self, sthol_min, sthovl_max):
+        cell = self.cell
+        res = cell.calc_hkl_in_range(sthol_min, sthovl_max)
+        return res

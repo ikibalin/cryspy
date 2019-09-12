@@ -23,11 +23,12 @@ class RhoChi(dict):
     """
     Class to describe rhochi container
     """
-    def __init__(self, label="", file_out=None, file_dir=None, experiments=[], variables=[], crystals=[]):
+    def __init__(self, label="", file_out=None, file_dir=None, experiments=[], variables=[], crystals=[], file_input=None):
         super(RhoChi, self).__init__()
         self.__label = None
         self.__experiments = []
         self.__crystals = []
+        self.__file_input = None
         self.__file_out = None
         self.__file_dir = None
 
@@ -51,6 +52,13 @@ class RhoChi(dict):
     @crystals.setter
     def crystals(self, l_x):
         self.__crystals = l_x
+
+    @property
+    def file_input(self):
+        return self.__file_input
+    @file_input.setter
+    def file_input(self, x: str):
+        self.__file_input = x
 
     @property
     def file_out(self):
@@ -187,57 +195,131 @@ class RhoChi(dict):
         if not flag:
             return False
         self.label = cif_global.name
-        l_cif_data = cif_global.datas
-        for cif_data in l_cif_data:
+        l_data = cif_global.datas
+        for data in l_data:
             flag_crystal, flag_diffrn, flag_pd, flag_pd2d = False, False, False, False
-            flag_crystal = cif_data.is_prefix("_cell_length_a")
-            flag_diffrn = cif_data.is_prefix("_diffrn_refln")
-            flag_pd = cif_data.is_prefix("_pd_meas")
-            flag_pd2d = cif_data.is_prefix("_pd2d_meas")
-            flag_pd2dt = cif_data.is_prefix("_2dpdt_texture")
+            flag_crystal = data.is_prefix("_cell_length_a")
+            flag_diffrn = data.is_prefix("_diffrn_refln") | data.is_prefix("_diffrn_orient_matrix_UB")
+            flag_pd = data.is_prefix("_pd_meas") | data.is_prefix("_pd_instr_resolution")
+            flag_pd2d = data.is_prefix("_pd2d_meas") | data.is_prefix("_pd2d_instr_resolution")
+            flag_pd2dt = data.is_prefix("_2dpdt_texture")
             if flag_crystal:
                 crystal = Crystal()
-                crystal.from_cif(str(cif_data))
+                crystal.from_cif(str(data))
                 l_crystal.append(crystal)
 
             if flag_diffrn:
                 diffrn = Diffrn()
-                diffrn.from_cif(str(cif_data))
+                diffrn.from_cif(str(data))
                 l_experiment.append(diffrn)
 
             if flag_pd:
                 pd = Pd()
-                pd.from_cif(str(cif_data))
+                pd.from_cif(str(data))
                 l_experiment.append(pd)
 
             if (flag_pd2d & (not(flag_pd2dt))):
                 pd2d = Pd2d()
-                pd2d.from_cif(str(cif_data))
+                pd2d.from_cif(str(data))
                 l_experiment.append(pd2d)
             elif (flag_pd2d & flag_pd2dt):
                 pd2dt = Pd2dt()
-                pd2dt.from_cif(str(cif_data))
+                pd2dt.from_cif(str(data))
                 l_experiment.append(pd2dt)
 
         self.experiments = l_experiment
         self.crystals = l_crystal
 
+    def read_file(self, f_name):
+        self.file_input = f_name
+        with open(f_name, "r") as fid:
+            string = fid.read()
+            self.from_cif(string)
 
-    
-def rhochi_refinement(f_name_in, f_name_out):
+    def save_to_file(self, f_name):
+        self.file_input = f_name
+        if os.path.basename(f_name) == "main.rcif":
+            self.save_to_files()
+        else:
+            with open(f_name, "w") as fid:
+                fid.write(self.to_cif)
+
+
+    def save_to_files(self):
+        if self.file_input is None:
+            f_dir = "."
+        else:
+            f_dir = os.path.dirname(self.file_input)
+        f_main = os.path.join(f_dir, "main.rcif")
+        ls_main = []
+        for crystal in self.crystals:
+            ls_main.append("\n"+crystal.to_cif)
+        for experiment in self.experiments:   
+            ls_main.append("\ndata_{:}".format(experiment.label))
+            ls_main.append(experiment.params_to_cif)
+
+            f_data = os.path.join(f_dir, "{:}_data.rcif".format(experiment.label))
+            ls_data = []
+            ls_data.append("\ndata_{:}".format(experiment.label))
+            ls_data.append(experiment.data_to_cif)
+            with open(f_data, 'w') as fid:
+                fid.write("\n".join(ls_data))
+            f_calc = os.path.join(f_dir, "{:}_calc.rcif".format(experiment.label))
+            ls_calc = []
+            ls_calc.append("\ndata_{:}".format(experiment.label))
+            ls_calc.append(experiment.calc_to_cif)
+            with open(f_calc, 'w') as fid:
+                fid.write("\n".join(ls_calc))
+        with open(f_main, 'w') as fid:
+            fid.write("\n".join(ls_main))
+
+    def read_files(self, f_dir="."):
+        f_main = os.path.join(f_dir, "main.rcif")
+        self.file_input = f_main
+        
+        if not(os.path.isfile(f_main)):
+            self._show_message("File '{:}' is not found.".format(f_main))
+            return None
+        with open(f_main, "r") as fid:
+            string = fid.read()
+        self.from_cif(string)
+        
+        for experiment in self.experiments:
+            f_data = os.path.join(f_dir, "{:}_data.rcif".format(experiment.label))
+            if not(os.path.isfile(f_main)):
+                self._show_message("File '{:}' is not found.".format(f_data))
+            else:
+                with open(f_data, "r") as fid:
+                    string = fid.read()
+                experiment.from_cif(string)
+
+
+def rhochi_read_file(f_name):
+    rho_chi = RhoChi(file_input=f_name)
+    if os.path.basename(f_name) == "main.rcif":
+        rho_chi.read_files(os.path.dirname(f_name))
+    else:
+        rho_chi.read_file(f_name)
+    return rho_chi
+
+def rhochi_read_files():
+    rho_chi = RhoChi()
+    rho_chi.read_files(".")
+    return rho_chi
+
+def rhochi_refinement(f_name_in="", f_name_out=""):
     """
     refinement,
     parameters are defined in given .rcif fiel
     """
     print(70*"*"+"\n"+"RhoChi program. Console version.".center(70)+"\n"+
           70*"*")
-    rho_chi = RhoChi()
-    with open(f_name_in, 'r') as fid:
-        string = fid.read()
-
-    rho_chi.from_cif(string)
+    if f_name_in != "":
+        rho_chi = rhochi_read_file(f_name_in)
+    else:
+        rho_chi = rhochi_read_files()
     print("Before refinement:\n")
-    print(rho_chi)
+    #print(rho_chi)
     print("\nRefined parameters -- before:\n")
     for fitable in rho_chi.get_variables():
         print(fitable)
@@ -249,10 +331,11 @@ def rhochi_refinement(f_name_in, f_name_out):
     print("\nRefined parameters -- after:\n")
     for fitable in rho_chi.get_variables():
         print(fitable)
-    
-    string_out = rho_chi.to_cif
-    with open(f_name_out, 'w') as fid:
-        fid.write(string_out)
+
+    if f_name_out != "":
+        rho_chi.save_to_file(f_name_out)
+    else:
+        rho_chi.save_to_files()
 
     print(70*"*"+"\n"+70*"*")
 

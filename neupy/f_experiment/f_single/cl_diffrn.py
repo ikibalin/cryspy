@@ -20,9 +20,9 @@ class Diffrn(object):
     """
     Class to describe information about single diffraction measurements
     """
-    def __init__(self, label="", 
-                 extinction = None, diffrn_refln=None, orient_matrix=None,
-                 beam_polarization=None, crystal=None,
+    def __init__(self, label="mono", 
+                 extinction = Extinction(), diffrn_refln=DiffrnRefln(), orient_matrix=OrientMatrix(),
+                 beam_polarization=BeamPolarization(), 
                  wavelength=1.4, field=1.0
                  ):
         super(Diffrn, self).__init__()
@@ -31,7 +31,6 @@ class Diffrn(object):
         self.__diffrn_refln = None
         self.__orient_matrix = None
         self.__beam_polarization = None
-        self.__crystal = None #???
 
         self.__diffrn_radiation_wavelength = None
         self.__diffrn_ambient_field = None
@@ -40,9 +39,12 @@ class Diffrn(object):
         self.label = label
         self.extinction = extinction
         self.diffrn_refln = diffrn_refln
-        self.orient_matrix = orient_matrix
         self.beam_polarization = beam_polarization
         self.wavelength = wavelength
+        
+        orient_matrix.wavelength = wavelength
+        self.orient_matrix = orient_matrix
+        
         self.field = field
 
     @property
@@ -352,6 +354,20 @@ class Diffrn(object):
     def to_cif(self):
         ls_out = []
         ls_out.append("data_{:}".format(self.label))
+        str_1 = self.params_to_cif
+        if str_1 != "":
+            ls_out.append(str_1)
+        str_2 = self.data_to_cif
+        if str_2 != "":
+            ls_out.append(str_2)
+        str_3 = self.calc_to_cif
+        if str_3 != "":
+            ls_out.append(str_3)
+        return "\n".join(ls_out)
+
+    @property
+    def params_to_cif(self):
+        ls_out = []
         if self.extinction is not None:
             ls_out.append("\n"+self.extinction.to_cif)
         if self.beam_polarization is not None:
@@ -362,6 +378,19 @@ class Diffrn(object):
             ls_out.append("_diffrn_ambient_field {:}".format(self.field))
         if self.orient_matrix is not None:
             ls_out.append("\n"+self.orient_matrix.to_cif)
+        return "\n".join(ls_out)
+
+    @property
+    def data_to_cif(self):
+        ls_out = []
+        if self.diffrn_refln is not None:
+            ls_out.append("\n"+self.diffrn_refln.to_cif)
+        return "\n".join(ls_out)
+
+    @property
+    def calc_to_cif(self):
+        ls_out = []
+        #it is doubled with data_to_cif as there is calculated values.  Should it be separated???
         if self.diffrn_refln is not None:
             ls_out.append("\n"+self.diffrn_refln.to_cif)
         if self.refln is not None:

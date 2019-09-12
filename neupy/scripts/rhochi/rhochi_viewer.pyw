@@ -6,6 +6,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_09_10"
 
 import os
+import os.path
 import sys
 import numpy
 
@@ -195,6 +196,11 @@ class cbuilder(QtWidgets.QMainWindow):
         try:
             f_name_data = self._p_d_setup["f_name_data"]
             f_dir_data = self._p_d_setup["f_dir_data"]
+            if f_name_data == "main.rcif":
+                l_file = [_ for _ in os.listdir(f_dir_data) if os.path.isfile(os.path.join(f_dir_data, _))]
+                l_file_calc = [_ for _ in l_file if _.endswith("_calc.rcif")]
+                if len(l_file_calc) != 0:
+                    f_name_data = l_file_calc[0]
             f_name_full = os.path.join(f_dir_data, f_name_data)
             cif_global = pystar.to_global(f_name_full)
 
@@ -350,7 +356,7 @@ class cbuilder(QtWidgets.QMainWindow):
         #f_dir_prog = self._p_f_dir_prog
         #f_prog_full = os.path.join(f_dir_prog, "rhochi.py")
         #line = "python {:} {:} {:}".format(f_prog_full, f_name_full, f_name_full)
-        rhochi_refinement(f_name_full, f_name_out)
+        rhochi_refinement(f_name_full, f_name_full)
         #os.system(line)
         self.try_to_plot_from_rcif()
 
