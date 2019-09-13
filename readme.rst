@@ -23,7 +23,7 @@ Main Features
 - Analysis of the polarized neutron scattering on crystals by the library *CryPy*;
 - Diffraction data refinement for single crystals or powder by *RhoChi*;
 
-Installation and Requirements of *CryPy*
+Installation and Requirements of *CrysPy*
 ------------------------------------------
 
 CrysPy_ is developed and tested using Python 3.7 and depends on:
