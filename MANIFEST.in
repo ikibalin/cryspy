@@ -1,0 +1,11 @@
+include *.rst
+recursive-include cryspy *.txt *.py *.dat *.png *pyw
+include cryspy/f_crystal/tables/bscat.tab
+include cryspy/f_crystal/tables/formmag.tab
+include cryspy/f_crystal/tables/itables.txt
+include cryspy/scripts/rhochi/f_icon/calc_rcif.png
+include cryspy/scripts/rhochi/f_icon/create_new.png
+include cryspy/scripts/rhochi/f_icon/open.png
+include cryspy/scripts/rhochi/f_icon/read_bkgr.png
+include cryspy/scripts/rhochi/f_icon/read_rcif.png
+include cryspy/scripts/rhochi/f_icon/smm.png
