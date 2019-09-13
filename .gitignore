@@ -1,5 +1,9 @@
-
+*.lis
+*.out
+*.bkg
 *.json
 *.pyc
 rhochi/setup.dat
 todo.md
+mem
+rhochi.egg-info

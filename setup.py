@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (c) 2018-2019 Iurii Kibalin   
-# https://github.com/ikibalin/rhochi  
+# https://github.com/ikibalin/cryspy  
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -15,7 +15,7 @@
 #   notice, this list of conditions and the following disclaimer in the
 #   documentation and/or other materials provided with the distribution.
 # 
-# * Neither the name "RhoChi" nor the names of its contributors may
+# * Neither the name "CrysPy" nor the names of its contributors may
 #   be used to endorse or promote products derived from this software
 #   without specific prior written permission.
 # 
@@ -31,35 +31,38 @@
 # negligence or otherwise) arising in any way out of the use of this
 # software, even if advised of the possibility of such damage.
 
+import os
+import os.path
+from setuptools import setup, find_packages
 
-from setuptools import setup
-
-with open("readme.md", 'r') as f:
+f_name = os.path.join(os.path.dirname(__file__), "readme.rst")
+with open(f_name, 'r') as f:
     long_description = f.read()
 
 setup(
-    name='rhochi',
-    version='1.0',
+    name='cryspy',
+    version='0.1.7',
     description='PNPD data analysis',
     long_description = long_description,
     author='Iurii Kibalin',
-    author_email='iurii.kibalin@cea.fr',
-    url = 'https://github.com/ikibalin/rhochi',
+    author_email='yurikibalin@outlook.com',
+    url = 'https://github.com/ikibalin/cryspy',
     license          = 'MIT License',
     keywords         = 'Polarized Neutron Diffraction Data Analysis',
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Operating System :: OS Independent",
     ],    
-    packages=['neupy'],  #same as name
+    include_package_data=True,
+    packages=find_packages(),  #same as name
     install_requires=[
         'numpy', 
         'scipy', 
-        'matplotlib'
-    ] #external packages as dependencies
-    #scripts=[
-    #        'neupy',
-    #        'rhochi',
-    #        'mem',
-    #]
+        'matplotlib',
+        'PyQt5',
+        'pycifstar'
+    ] 
 )
