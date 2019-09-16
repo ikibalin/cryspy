@@ -61,9 +61,9 @@ class Pd2dt(object):
     _2dpdt_texture_k_ax -0.0541
     _2dpdt_texture_l_ax 3.0613
     """
-    def __init__(self, label="", 
-                 background = None, exclude_2theta=None, asymmetry=None,
-                 beam_polarization = None, resolution = None, meas=None, phase=None,
+    def __init__(self, label="powder2t", 
+                 background = None, exclude_2theta=None, asymmetry=Pd2dInstrReflexAsymmetry(),
+                 beam_polarization = BeamPolarization(), resolution = Pd2dInstrResolution(), meas=Pd2dMeas(), phase=Pd2dPhase(),
                  wavelength=1.4, field=1.0,
                  chi2_sum = True, chi2_diff = True, chi2_up = False, chi2_down = False,
                  offset = Fitable(0.), ttheta_min = 0.1, ttheta_max = 179.9, phi_min=0., phi_max=40., 

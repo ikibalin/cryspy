@@ -2,7 +2,7 @@
 RhoChi program
 """
 __author__ = 'ikibalin'
-__version__ = "2019_09_10"
+__version__ = "2019_09_15"
 import os
 import sys
 import numpy
@@ -10,6 +10,23 @@ import scipy.optimize
 import time
 
 from pycifstar import Global
+from cryspy.f_common.cl_fitable import Fitable
+
+from cryspy.f_crystal.cl_cell import Cell
+from cryspy.f_crystal.cl_space_group import SpaceGroup
+from cryspy.f_crystal.cl_atom_type import AtomType
+from cryspy.f_crystal.cl_atom_site import AtomSite
+from cryspy.f_crystal.cl_atom_site_aniso import AtomSiteAniso
+from cryspy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
+from cryspy.f_crystal.cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
+
+from cryspy.f_experiment.f_single.cl_diffrn_refln import DiffrnRefln
+from cryspy.f_experiment.f_powder_1d.cl_pd_meas import PdMeas
+from cryspy.f_experiment.f_powder_1d.cl_pd_phase import PdPhase
+from cryspy.f_experiment.f_powder_1d.cl_pd_background import PdBackground
+from cryspy.f_experiment.f_powder_2d.cl_pd2d_meas import Pd2dMeas
+from cryspy.f_experiment.f_powder_2d.cl_pd2d_phase import Pd2dPhase
+from cryspy.f_experiment.f_powder_2d.cl_pd2d_background import Pd2dBackground
 
 from cryspy.f_crystal.cl_crystal import Crystal
 from cryspy.f_experiment.f_single.cl_diffrn import Diffrn
@@ -18,11 +35,13 @@ from cryspy.f_experiment.f_powder_2d.cl_pd2d import Pd2d
 from cryspy.f_experiment.f_powder_texture_2d.cl_pd2dt import Pd2dt
 
 
+
+
 class RhoChi(dict):
     """
     Class to describe rhochi container
     """
-    def __init__(self, label="", file_out=None, file_dir=None, experiments=[], variables=[], crystals=[], file_input=None):
+    def __init__(self, label="", file_out=None, file_dir=None, experiments=[], crystals=[], file_input=None):
         super(RhoChi, self).__init__()
         self.__label = None
         self.__experiments = []
@@ -30,6 +49,13 @@ class RhoChi(dict):
         self.__file_input = None
         self.__file_out = None
         self.__file_dir = None
+
+        self.label = label
+        self.crystals = crystals
+        self.experiments = experiments
+        self.file_dir = file_dir
+        self.file_out = file_out
+        self.file_input = file_input
 
     @property
     def label(self):
@@ -116,6 +142,8 @@ class RhoChi(dict):
         l_fitable = self.get_variables()
         if l_fitable == []:
             self._show_message("Variables are not found")
+            chi_sq, n = self.calc_chi_sq()
+            self._show_message("Chi_sq {:.3f}\npoints: {:}".format(chi_sq, n))
             return None
         
         l_param_0 = [fitable.value for fitable in l_fitable]
@@ -340,60 +368,43 @@ def rhochi_refinement(f_name_in="", f_name_out=""):
 
 
 def create_temporary(f_name_in, exp_type="2"):
-    f_dir = os.path.dirname(f_name_in)
-    model = Model()
+    atom_site = AtomSite(label=["Fe"], type_symbol=["Fe3+"], x=[Fitable(0.125)],
+                         y=[Fitable(0.125)], z=[Fitable(0.125)], adp_type=["uani"],
+                         b_iso=[Fitable(0.0)], occupancy=[Fitable(0.)])
+    space_group = SpaceGroup(spgr_given_name="Fd-3m", spgr_choice="2")
+    cell = Cell(a=Fitable(8.3), bravais_lattice="cubic")
+    atom_site_aniso = AtomSiteAniso(label=["Fe"], u_11=[Fitable(0.)], u_22=[Fitable(0.)],
+                                    u_33=[Fitable(0.)], u_12=[Fitable(0.)], u_13=[Fitable(0.)], 
+                                    u_23=[Fitable(0.)])
+    atom_site_magnetism = AtomSiteMagnetism(label=["Fe"], lande=[Fitable(2.)], kappa=[Fitable(1.)])
+    atom_site_magnetism_aniso = AtomSiteMagnetismAniso(label=["Fe"], chi_type=["cani"], 
+                                    chi_11=[Fitable(0.)], chi_22=[Fitable(0.)], chi_33=[Fitable(0.)], 
+                                    chi_12=[Fitable(0.)], chi_13=[Fitable(0.)], chi_23=[Fitable(0.)])
 
-    atom_type_1 = AtomType(flag_m=True)
-    crystal_name = "Phase1"
-    crystal = Crystal(label=crystal_name)
-    crystal.add_atom(atom_type_1)
-    model.add_crystal(crystal)
+    crystal = Crystal(label="phase1", cell=cell, space_group=space_group, atom_site=atom_site,
+                      atom_site_aniso=atom_site_aniso, atom_site_magnetism=atom_site_magnetism,
+                      atom_site_magnetism_aniso=atom_site_magnetism_aniso)
     
     if "1" in exp_type:
-        file_out = "full_sd.out"
-        observed_data = ObservedDataSingle(file_dir=f_dir, file_name="full_sd.dat")
-        observed_data.create_input_file()
-        experiment = ExperimentSingle(label="exp_sd", observed_data=observed_data,
-                                      file_out=file_out, file_dir=f_dir)
-
-        calculated_data = CalculatedDataSingle(label=crystal_name)
-        experiment.add_calculated_data(calculated_data)
-        model.add_experiment(experiment)
-
+        diffrn_refln = DiffrnRefln(h=[1], k=[0], l=[0], fr=[1], fr_sigma=[0.1])
+        experiment = Diffrn(diffrn_refln=diffrn_refln)
     if "2" in exp_type:
-        file_out = "full_pd.out"
-        observed_data = ObservedDataPowder1D(file_dir=f_dir, 
-                        file_name="full_pd.dat", tth_min=2., tth_max=100)
-        observed_data.create_input_file()
-        
-        background = BackgroundPowder1D(file_dir=f_dir, file_name="full_pd.bkg")
-        background.create_input_file()
-        
-        setup = SetupPowder1D(background=background)
-        
-        experiment = ExperimentPowder1D(label="exp_pd", setup=setup, file_dir=f_dir, 
-                        file_out=file_out, observed_data=observed_data, excl_tth_min=[35], excl_tth_max=[40])
+        pd_phase = PdPhase(label=["phase1"], scale=[Fitable(1.)], igsize=[Fitable(0.)])
+        pd_meas = PdMeas(ttheta=[4., 25.], up=[100., 150.], up_sigma=[1., 1.], down=[80., 170.],
+                    down_sigma=[8., 10.])
+        pd_background = PdBackground(ttheta=[4.5, 80], intensity=[0., 0.])
+        experiment = Pd(meas=pd_meas, phase=pd_phase, background=pd_background)
+    if (("3" in exp_type) | ("4" in exp_type)):
+        pd2d_phase = Pd2dPhase(label=["phase1"], scale=[Fitable(1.)], igsize=[Fitable(0.)])
+        pd2d_meas = Pd2dMeas(ttheta=[3.,24.],phi=[0,5], 
+                            up=[[10,12], [11,17]], up_sigma=[[1,1], [1,2]], 
+                            down=[[11,11], [12,14]], down_sigma=[[1,1], [1,2]])
+        pd2d_background = Pd2dBackground(ttheta=[4.5, 80], phi=[0., 80.], intensity=[[0., 0.], [0., 0.]])
+        if "3" in exp_type:   
+            experiment = Pd2d(meas=pd2d_meas, phase=pd2d_phase, background=pd2d_background)
+        else: #elif "4"   
+            experiment = Pd2dt(meas=pd2d_meas, phase=pd2d_phase, background=pd2d_background)
 
-        calculated_data = CalculatedDataPowder1D(label=crystal_name)
-        experiment.add_calculated_data(calculated_data)
-        model.add_experiment(experiment)
-
-    if "3" in exp_type:
-        file_out = "full_2dpd.out"
-        observed_data = ObservedDataPowder2D(file_dir=f_dir, file_name="full_2dpd.dat",
-        tth_min=2., tth_max=80, phi_min=0., phi_max=20.)
-        observed_data.create_input_file()
-        
-        background = BackgroundPowder2D(file_dir=f_dir, file_name="full_2dpd.bkg")
-        background.create_input_file()
-        
-        setup = SetupPowder2D(background=background)
-        
-        experiment = ExperimentPowder2D(label="exp_2dpd", setup=setup, file_out=file_out,
-                               file_dir=f_dir, observed_data=observed_data)
-
-        calculated_data = CalculatedDataPowder2D(label=crystal_name)
-        experiment.add_calculated_data(calculated_data)
-        model.add_experiment(experiment)
-    write_to_rcif(model, f_name_in)
+    rhochi = RhoChi(crystals=[crystal], experiments = [experiment], file_input=f_name_in)
+    rhochi.save_to_files()
 

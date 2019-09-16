@@ -17,6 +17,7 @@ os.chdir(f_dir)
 sys.path.insert(0, f_dir)
 
 from cryspy import RhoChi, rhochi_refinement
+from cryspy.scripts.rhochi.cl_rhochi import create_temporary
 
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
@@ -164,9 +165,6 @@ class cbuilder(QtWidgets.QMainWindow):
         read_rcif_action.setStatusTip('Read .rcif')
         read_rcif_action.triggered.connect(self.read_rcif)
 
-        read_bkgr_action = QtWidgets.QAction(QtGui.QIcon(os.path.join(f_dir_prog_icon,'read_bkgr.png')),'Read .bkgr', self)
-        read_bkgr_action.setStatusTip('Read background')
-        read_bkgr_action.triggered.connect(self.read_bkgr)
 
 
         self.statusBar()
@@ -179,7 +177,6 @@ class cbuilder(QtWidgets.QMainWindow):
         calcMenu = menubar.addMenu('&Calculations')
         calcMenu.addAction(run_rhochi)
         calcMenu.addAction(read_rcif_action)
-        calcMenu.addAction(read_bkgr_action)
 
 
         self.toolbar = self.addToolBar("Open")
@@ -187,7 +184,6 @@ class cbuilder(QtWidgets.QMainWindow):
         self.toolbar.addAction(open_rcif_action)
         self.toolbar.addAction(run_rhochi)
         self.toolbar.addAction(read_rcif_action)
-        self.toolbar.addAction(read_bkgr_action)
 
     def init_widget(self): 
         """
@@ -303,14 +299,16 @@ class cbuilder(QtWidgets.QMainWindow):
             self.write_setup()
             f_name_full = os.path.join(f_dir_data, f_name_data)
 
-            i, okPressed = QtWidgets.QInputDialog.getInt(self, "Type of data","Type of experiment:\n\n 1. Single crystal\n 2. Powder 1D\n 3 .Powder 2D", 1, 1, 3, 1)
+            i, okPressed = QtWidgets.QInputDialog.getInt(self, "Type of data","Type of experiment:\n\n 1. Single crystal\n 2. Powder 1D\n 3 .Powder 2D\n 4 .Powder 2D (one-axial texture)", 1, 1, 4, 1)
             if okPressed:
                 exp_type = str(i)
-                #rhochi.create_temporary(f_name_full, exp_type)
+                create_temporary(f_name_full, exp_type)
 
     def open_rcif(self):
         self.open_file(s_constr="Rcif files (*.rcif)")
-        self.ask_file(ext=".rcif")
+        flag_out = self.ask_file(ext=".rcif")
+        if not flag_out:
+            return None
         self.try_to_plot_from_rcif()
 
 
@@ -325,36 +323,36 @@ class cbuilder(QtWidgets.QMainWindow):
             f_dir_data = self._p_f_dir_prog
         f_file_data_new, okPressed = QtWidgets.QFileDialog.getOpenFileName(self, 'Select a file:', f_dir_data, s_constr)
         if not okPressed:
-            return
+            return False
         if f_file_data_new != "":
             f_dir_data = os.path.dirname(f_file_data_new)
             f_name_data = os.path.basename(f_file_data_new)
             self._p_d_setup["f_dir_data"] = f_dir_data
             self._p_d_setup["f_name_data"] = f_name_data
             self.write_setup()
-
+        return True
     def ask_file(self, ext=".rcif"):
         cond_ask = False
         cond_cycle = True
-        while cond_cycle:
-            l_key = self._p_d_setup.keys()
-            if (("f_name_data" in l_key) & ("f_dir_data" in l_key)):
-                f_name_data = self._p_d_setup["f_name_data"]
-                f_dir_data = self._p_d_setup["f_dir_data"]
-                f_name_full = os.path.join(f_dir_data, f_name_data)
-                cond_1 = f_name_data.endswith(ext)
-                cond_2 = os.path.isfile(f_name_full)
-                cond_ask = not(cond_1 & cond_2)
-            else:
-                cond_ask = True
 
-            if cond_ask:
-                self.open_file()
-            else:
-                cond_cycle = False
+        l_key = self._p_d_setup.keys()
+        if (("f_name_data" in l_key) & ("f_dir_data" in l_key)):
+            f_name_data = self._p_d_setup["f_name_data"]
+            f_dir_data = self._p_d_setup["f_dir_data"]
+            f_name_full = os.path.join(f_dir_data, f_name_data)
+            cond_1 = f_name_data.endswith(ext)
+            cond_2 = os.path.isfile(f_name_full)
+            cond_ask = not(cond_1 & cond_2)
+        else:
+            cond_ask = True
+        if cond_ask:
+            cond_cycle = self.open_file()
+        return cond_cycle
 
     def run_rhochi(self):
-        self.ask_file(".rcif")
+        flag_out = self.ask_file(".rcif")
+        if not flag_out:
+            return None
         f_name_data = self._p_d_setup["f_name_data"]
         f_dir_data = self._p_d_setup["f_dir_data"]
         f_name_full = os.path.join(f_dir_data, f_name_data)
@@ -363,29 +361,26 @@ class cbuilder(QtWidgets.QMainWindow):
         #f_dir_prog = self._p_f_dir_prog
         #f_prog_full = os.path.join(f_dir_prog, "rhochi.py")
         #line = "python {:} {:} {:}".format(f_prog_full, f_name_full, f_name_full)
-        rhochi_refinement(f_name_full, f_name_full)
+        f_dir = os.path.dirname(f_name_full)
+        print("Step 1: Input files in directory: ", f_dir)
+        rhochi = RhoChi(file_input=f_name_full)
+        print("Step 2: File reading")
+        rhochi.read_files(f_dir=f_dir)
+        print("Step 3: Refienment")
+        rhochi.refine()
+        print("Step 4: Saving to files")
+        rhochi.save_to_files()
         #os.system(line)
         self.try_to_plot_from_rcif()
 
-            
-
     def read_rcif(self):
-        self.ask_file(".rcif")
+        flag_out = self.ask_file(".rcif")
+        if not flag_out:
+            return None
         f_name_data = self._p_d_setup["f_name_data"]
         f_dir_data = self._p_d_setup["f_dir_data"]
         f_name_full = os.path.join(f_dir_data, f_name_data)
         os.startfile(f_name_full)
-
-    def read_bkgr(self):
-        self.ask_file(".rcif")
-        f_name_data = self._p_d_setup["f_name_data"]
-        f_dir_data = self._p_d_setup["f_dir_data"]
-        f_rcif_full = os.path.join(f_dir_data, f_name_data)
-        l_f_bkgr = take_f_name_from_rcif(f_rcif_full, "_pd_file_name_bkgr")
-        if len(l_f_bkgr) >= 1:
-            os.startfile(l_f_bkgr[0])
-
-
 
     def plot_data_mono(self, x, y_exp, y_sig):
         widg_central = self._p_widg_central

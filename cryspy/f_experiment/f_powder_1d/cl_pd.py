@@ -42,9 +42,9 @@ class Pd(object):
     _pd_2theta_range_min 4.0
     _pd_2theta_range_max 80.0
     """
-    def __init__(self, label="", 
-                 background = None, exclude_2theta=None, asymmetry=None,
-                 beam_polarization = None, resolution = None, meas=None, phase=None,
+    def __init__(self, label="powder1", 
+                 background = None, exclude_2theta=None, asymmetry=PdInstrReflexAsymmetry(),
+                 beam_polarization = BeamPolarization(), resolution = PdInstrResolution(), meas=PdMeas(), phase=PdPhase(),
                  wavelength=1.4, field=1.0,
                  chi2_sum = True, chi2_diff = True, chi2_up = False, chi2_down = False,
                  offset = Fitable(0.), range_min = 0.1, range_max = 179.9):
