@@ -129,6 +129,14 @@ class Pd2dt(object):
         self.__proc = None
         self.__peaks = None
         self.__reflns = None
+    @property
+    def erase_precalc(self):
+        """
+        Erase precalculated values
+        """
+        self.__proc = None
+        self.__peaks = None
+        self.__reflns = None
 
     @property
     def label(self):
@@ -176,6 +184,8 @@ class Pd2dt(object):
             x_in = None
             self._show_message("Input type for Pd2dExclude2Theta is not recognized")
         self.__exclude_2theta = x_in
+        self.erase_precalc
+
 
     @property
     def asymmetry(self):
@@ -256,6 +266,8 @@ class Pd2dt(object):
             x_in = None
             self._show_message("Input type for Pd2dMeas is not recognized")
         self.__meas = x_in
+        self.erase_precalc
+
 
     @property
     def phase(self):
@@ -276,6 +288,8 @@ class Pd2dt(object):
             x_in = None
             self._show_message("Input type for Pd2dPhase is not recognized")
         self.__phase = x_in
+        self.erase_precalc
+
 
 
     @property
@@ -311,6 +325,8 @@ class Pd2dt(object):
         else:
             x_in = float(x)
         self.__diffrn_radiation_wavelength = x_in
+        self.erase_precalc
+
 
     @property
     def field(self):
@@ -324,6 +340,8 @@ class Pd2dt(object):
         else:
             x_in = float(x)
         self.__diffrn_ambient_field = x_in
+        self.erase_precalc
+
 
     @property
     def ttheta_min(self):
@@ -337,6 +355,8 @@ class Pd2dt(object):
         else:
             x_in = float(x)
         self.__pd2d_2theta_range_min = x_in
+        self.erase_precalc
+
 
     @property
     def phi_min(self):
@@ -350,6 +370,8 @@ class Pd2dt(object):
         else:
             x_in = float(x)
         self.__pd2d_phi_range_min = x_in
+        self.erase_precalc
+
 
 
     @property
@@ -364,6 +386,8 @@ class Pd2dt(object):
         else:
             x_in = float(x)
         self.__pd2d_2theta_range_max = x_in
+        self.erase_precalc
+
 
 
     @property
@@ -378,6 +402,8 @@ class Pd2dt(object):
         else:
             x_in = float(x)
         self.__pd2d_phi_range_max = x_in
+        self.erase_precalc
+
 
     @property
     def chi2_sum(self):
@@ -810,7 +836,7 @@ class Pd2dt(object):
 
         return True
 
-    def calc_profile(self, tth, phi, l_crystal):
+    def calc_profile(self, tth, phi, l_crystal, l_peak_in=[], l_refln_in=[]):
         """
         calculate intensity for the given diffraction angle
         """
@@ -852,9 +878,14 @@ class Pd2dt(object):
 
 
         phase = self.phase
+        if len(phase.label) != len(l_peak_in):
+            l_peak_in = len(phase.label) * [None] 
+        if len(phase.label) != len(l_refln_in):
+            l_refln_in = len(phase.label) * [None] 
 
         l_peak, l_refln = [], []
-        for phase_label, phase_scale, phase_igsize in zip(phase.label, phase.scale, phase.igsize):
+        for phase_label, phase_scale, phase_igsize, peak_in, refln_in in zip(
+            phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in):
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.label == phase_label:
                     ind_cry = i_crystal
@@ -872,11 +903,21 @@ class Pd2dt(object):
             space_group = crystal.space_group
             
             peak = Pd2dPeak()
-            h, k, l, mult = cell.calc_hkl_in_range(sthovl_min, sthovl_max)
+            if peak_in is not None:
+                h, k, l, mult = peak_in.h, peak_in.k, peak_in.l, peak_in.mult
+            else:
+                h, k, l, mult = cell.calc_hkl_in_range(sthovl_min, sthovl_max)
             peak.h, peak.k, peak.l, peak.mult = h, k, l, mult
 
             
-            f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, refln = self.calc_for_iint(h, k, l, crystal)
+            cond_1 = not(crystal.is_variable)
+            cond_2 = (peak_in is not None) & (refln_in is not None)
+            if cond_1 & cond_2:
+                f_nucl_sq, f_m_p_sin_sq = peak_in.f_nucl_sq, peak_in.f_m_p_sin_sq
+                f_m_p_cos_sq, cross_sin = peak_in.f_m_p_cos_sq, peak_in.cross_sin 
+                refln = refln_in
+            else:
+                f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, refln = self.calc_for_iint(h, k, l, crystal)
             l_refln.append(refln)
 
             peak.f_nucl_sq, peak.f_m_p_sin_sq = f_nucl_sq, f_m_p_sin_sq
