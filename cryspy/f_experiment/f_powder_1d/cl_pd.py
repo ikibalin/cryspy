@@ -391,12 +391,6 @@ class Pd(object):
             flag = x_in.take_it(x)
         self.__pd_calib_2theta_offset = x_in
 
-    @property
-    def proc(self):
-        return self.__proc
-    @proc.setter
-    def proc(self, x):
-        self.__proc = x
 
     @property
     def peaks(self):

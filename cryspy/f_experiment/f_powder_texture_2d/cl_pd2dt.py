@@ -543,12 +543,7 @@ class Pd2dt(object):
         self.__2dpdt_texture_l_ax = x_in       
 
 
-    @property
-    def proc(self):
-        return self.__proc
-    @proc.setter
-    def proc(self, x):
-        self.__proc = x
+
 
     @property
     def peaks(self):

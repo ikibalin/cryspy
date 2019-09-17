@@ -436,13 +436,6 @@ class Pd2d(object):
         self.__pd2d_calib_2theta_offset = x_in
 
     @property
-    def proc(self):
-        return self.__proc
-    @proc.setter
-    def proc(self, x):
-        self.__proc = x
-
-    @property
     def peaks(self):
         return self.__peaks
     @peaks.setter
