@@ -7,3 +7,6 @@ rhochi/setup.dat
 todo.md
 mem
 rhochi.egg-info
+build/*
+dist/*
+cryspy.egg-info/*
