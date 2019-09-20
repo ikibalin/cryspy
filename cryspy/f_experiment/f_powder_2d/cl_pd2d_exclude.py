@@ -1,5 +1,5 @@
 """
-define classe Pd2dExclude2Theta which describes the excluded regions in 2d powder diffraction experiment
+define classe Pd2dExclude which describes the excluded regions in 2d powder diffraction experiment
 """
 __author__ = 'ikibalin'
 __version__ = "2019_09_10"
@@ -10,7 +10,7 @@ import numpy
 from pycifstar import Global
 
 
-class Pd2dExclude2Theta(object):
+class Pd2dExclude(object):
     """
     Example:
 
@@ -23,7 +23,7 @@ class Pd2dExclude2Theta(object):
     """
     def __init__(self, ttheta_min=[], ttheta_max=[], phi_min=[], phi_max=[]
                  ):
-        super(Pd2dExclude2Theta, self).__init__()
+        super(Pd2dExclude, self).__init__()
         self.__pd2d_exclude_2theta_min = None
         self.__pd2d_exclude_2theta_max = None
         self.__pd2d_exclude_phi_min = None
@@ -98,7 +98,7 @@ class Pd2dExclude2Theta(object):
 
 
     def __repr__(self):
-        ls_out = ["Pd2dExclude2Theta:"]
+        ls_out = ["Pd2dExclude:"]
         ls_out.append("ttheta_min ttheta_max    phi_min    phi_max")
         for _1, _2, _3, _4 in zip(self.ttheta_min, self.ttheta_max, self.phi_min, self.phi_max):
             ls_out.append("{:10.2f} {:10.2f} {:10.2f} {:10.2f}".format(_1, _2, _3, _4))
@@ -109,8 +109,8 @@ class Pd2dExclude2Theta(object):
         ls_out = []
         if self.is_defined:
             ls_out.append("loop_")
-            ls_out.append("_pd2d_exclude_ttheta_min")
-            ls_out.append("_pd2d_exclude_ttheta_max")
+            ls_out.append("_pd2d_exclude_2theta_min")
+            ls_out.append("_pd2d_exclude_2theta_max")
             ls_out.append("_pd2d_exclude_phi_min")
             ls_out.append("_pd2d_exclude_phi_max")
             for _1, _2, _3, _4 in zip(self.ttheta_min, self.ttheta_max, self.phi_min, self.phi_max):

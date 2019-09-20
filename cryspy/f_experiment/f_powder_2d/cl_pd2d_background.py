@@ -183,7 +183,7 @@ class Pd2dBackground(object):
         print("***  Error ***")
         print(s_out)
 
-    def interpolate_by_points(self, phi, tth):
+    def interpolate_by_points(self, tth, phi):
         l_phi_b = self.phi
         l_tth_b = self.ttheta
         ll_int_b = self.intensity
@@ -197,5 +197,6 @@ class Pd2dBackground(object):
             func = scipy.interpolate.interp2d(tth_b, phi_b, int_b)
             #tth_2d, phi_2d = numpy.meshgrid(tth, phi, indexing="ij")
             int_2d = func(tth, phi)
+            int_2d = int_2d.transpose()
         return int_2d
 

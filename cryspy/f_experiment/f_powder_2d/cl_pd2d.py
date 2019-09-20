@@ -11,7 +11,7 @@ from pycifstar import Data, Loop
 from cryspy.f_common.cl_fitable import Fitable
 from cryspy.f_experiment.cl_beam_polarization import BeamPolarization
 from .cl_pd2d_background import Pd2dBackground
-from .cl_pd2d_exclude_2theta import Pd2dExclude2Theta
+from .cl_pd2d_exclude import Pd2dExclude
 from .cl_pd2d_instr_reflex_asymmetry import Pd2dInstrReflexAsymmetry
 from .cl_pd2d_instr_resolution import Pd2dInstrResolution
 from .cl_pd2d_meas import Pd2dMeas
@@ -45,7 +45,8 @@ class Pd2d(object):
     _pd2d_phi_range_max 40.0
     """
     def __init__(self, label="powder2", 
-                 background = None, exclude_2theta=None, asymmetry=Pd2dInstrReflexAsymmetry(),
+                 background = None, exclude=Pd2dExclude(ttheta_min=[0.], ttheta_max=[1.], phi_min=[0.0], phi_max=[0.1]), 
+                 asymmetry=Pd2dInstrReflexAsymmetry(),
                  beam_polarization = BeamPolarization(), resolution = Pd2dInstrResolution(), meas=Pd2dMeas(), phase=Pd2dPhase(),
                  wavelength=1.4, field=1.0,
                  chi2_sum = True, chi2_diff = True, chi2_up = False, chi2_down = False,
@@ -74,7 +75,7 @@ class Pd2d(object):
 
         self.label = label
         self.background = background
-        self.exclude_2theta = exclude_2theta
+        self.exclude = exclude
         self.asymmetry = asymmetry
         self.beam_polarization = beam_polarization
         self.resolution = resolution
@@ -133,23 +134,23 @@ class Pd2d(object):
         self.__background = x_in
 
     @property
-    def exclude_2theta(self):
+    def exclude(self):
         return self.__exclude_2theta
-    @exclude_2theta.setter
-    def exclude_2theta(self, x):
-        if isinstance(x, Pd2dExclude2Theta):
+    @exclude.setter
+    def exclude(self, x):
+        if isinstance(x, Pd2dExclude):
             x_in = x
         elif isinstance(x, str):
-            x_in = Pd2dExclude2Theta()
+            x_in = Pd2dExclude()
             flag = x_in.from_cif(x)
             if not(flag):
                 x_in = None
-                self._show_message("A induced string can not be converted to Pd2dExclude2Theta")
+                self._show_message("A induced string can not be converted to Pd2dExclude")
         elif x is None:
             x_in = None
         else:
             x_in = None
-            self._show_message("Input type for Pd2dExclude2Theta is not recognized")
+            self._show_message("Input type for Pd2dExclude is not recognized")
         self.__exclude_2theta = x_in
         self.erase_precalc
 
@@ -482,8 +483,8 @@ class Pd2d(object):
 
         if self.background is not None:
             ls_out.append("\n"+str(self.background))
-        if self.exclude_2theta is not None:
-            ls_out.append("\n"+str(self.exclude_2theta))
+        if self.exclude is not None:
+            ls_out.append("\n"+str(self.exclude))
         if self.asymmetry is not None:
             ls_out.append("\n"+str(self.asymmetry))
         if self.beam_polarization is not None:
@@ -508,8 +509,8 @@ class Pd2d(object):
         l_bool = []
         if self.background is not None:
             l_bool.append(self.background.is_variable)
-        if self.exclude_2theta is not None:
-            l_bool.append(self.exclude_2theta.is_variable)
+        if self.exclude is not None:
+            l_bool.append(self.exclude.is_variable)
         if self.asymmetry is not None:
             l_bool.append(self.asymmetry.is_variable)
         if self.beam_polarization is not None:
@@ -526,8 +527,8 @@ class Pd2d(object):
         l_variable = []
         if self.background is not None:
             l_variable.extend(self.background.get_variables())
-        if self.exclude_2theta is not None:
-            l_variable.extend(self.exclude_2theta.get_variables())
+        if self.exclude is not None:
+            l_variable.extend(self.exclude.get_variables())
         if self.asymmetry is not None:
             l_variable.extend(self.asymmetry.get_variables())
         if self.beam_polarization is not None:
@@ -598,8 +599,8 @@ class Pd2d(object):
             ls_out.append("_pd2d_calib_2theta_offset {:}".format(self.offset.print_with_sigma))
         if self.background is not None:
             ls_out.append("\n"+self.background.to_cif)
-        if self.exclude_2theta is not None:
-            ls_out.append("\n"+self.exclude_2theta.to_cif)
+        if self.exclude is not None:
+            ls_out.append("\n"+self.exclude.to_cif)
         if self.asymmetry is not None:
             ls_out.append("\n"+self.asymmetry.to_cif)
         if self.beam_polarization is not None:
@@ -670,7 +671,7 @@ class Pd2d(object):
                 self.resolution = "\n".join([str(_) for _ in cif_values["_pd2d_instr_resolution"]])
             if cif_values.is_prefix("_pd2d_meas_2theta_phi_intensity"): 
                 self.meas = "\n".join([str(_) for _ in cif_values["_pd2d_meas_2theta_phi_intensity"]])
-        if cif_data.is_prefix("_pd2d_exclude_2theta"): self.exclude_2theta = str(cif_data["_pd2d_exclude_2theta"])
+        if cif_data.is_prefix("_pd2d_exclude"): self.exclude = str(cif_data["_pd2d_exclude"])
         if cif_data.is_prefix("_pd2d_phase"): self.phase = str(cif_data["_pd2d_phase"])
 
         return True
@@ -874,13 +875,15 @@ class Pd2d(object):
         cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
 
         #exclude region
-        exclude_2theta = self.exclude_2theta
-        if exclude_2theta is not None:
-            l_excl_tth_min = exclude_2theta.min
-            l_excl_tth_max = exclude_2theta.max
-            for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
-                cond_1 = numpy.logical_or(tth < 1.*excl_tth_min, tth > 1.*excl_tth_max)
-                cond_2 = numpy.logical_or(phi < 1.*excl_phi_min, phi > 1.*excl_phi_max)
+        exclude = self.exclude
+        if exclude is not None:
+            l_excl_tth_min = exclude.ttheta_min
+            l_excl_tth_max = exclude.ttheta_max
+            l_excl_phi_min = exclude.phi_min
+            l_excl_phi_max = exclude.phi_max
+            for excl_tth_min, excl_tth_max, excl_phi_min, excl_phi_max in zip(l_excl_tth_min, l_excl_tth_max, l_excl_phi_min, l_excl_phi_max):
+                cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min, tth_in > 1.*excl_tth_max)
+                cond_2 = numpy.logical_or(phi_in < 1.*excl_phi_min, phi_in > 1.*excl_phi_max)
                 cond_11, cond_22 = numpy.meshgrid(cond_1, cond_2, indexing="ij")
                 cond_12 = numpy.logical_or(cond_11, cond_22)
                 cond_u = numpy.logical_and(cond_u, cond_12)

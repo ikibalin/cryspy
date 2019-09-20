@@ -59,6 +59,7 @@ class PdBackground(object):
                 x_in = x
             else:
                 x_in = Fitable()
+                x_in.name = "_pd_background_intensity"
                 flag = x_in.take_it(x)
             l_fitable.append(x_in)
         len_x = len(l_fitable)
@@ -87,7 +88,7 @@ class PdBackground(object):
             ls_out.append("_pd_background_2theta")
             ls_out.append("_pd_background_intensity")
             for _1, _2 in zip(self.ttheta, self.intensity):
-                ls_out.append("{:} {:}".format(_1, _2))
+                ls_out.append("{:} {:}".format(_1, _2.print_with_sigma))
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):

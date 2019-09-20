@@ -140,6 +140,7 @@ class RhoChi(dict):
         """
         self.apply_constraint()
         l_fitable = self.get_variables()
+
         if l_fitable == []:
             self._show_message("Variables are not found")
             chi_sq, n = self.calc_chi_sq()
@@ -147,7 +148,7 @@ class RhoChi(dict):
             return None
         
         l_param_0 = [fitable.value for fitable in l_fitable]
-
+        
         def tempfunc(l_param):
             for fitable, param in zip(l_fitable, l_param):
                 fitable.value = param

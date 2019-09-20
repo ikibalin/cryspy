@@ -108,7 +108,7 @@ from .f_experiment import (
     PdProc,
     Pd,
     Pd2dBackground,
-    Pd2dExclude2Theta,
+    Pd2dExclude,
     Pd2dInstrReflexAsymmetry,
     Pd2dInstrResolution,
     Pd2dMeas,

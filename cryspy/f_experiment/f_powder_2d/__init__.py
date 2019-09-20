@@ -9,7 +9,7 @@
 #from cryspy.f_experiment.f_powder_2d.cl_setup_powder_2d import SetupPowder2D
 
 from .cl_pd2d_background import Pd2dBackground
-from .cl_pd2d_exclude_2theta import Pd2dExclude2Theta
+from .cl_pd2d_exclude import Pd2dExclude
 from .cl_pd2d_instr_reflex_asymmetry import Pd2dInstrReflexAsymmetry
 from .cl_pd2d_instr_resolution import Pd2dInstrResolution
 from .cl_pd2d_meas import Pd2dMeas

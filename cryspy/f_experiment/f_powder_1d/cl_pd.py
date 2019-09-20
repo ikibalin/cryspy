@@ -43,7 +43,7 @@ class Pd(object):
     _pd_2theta_range_max 80.0
     """
     def __init__(self, label="powder1", 
-                 background = None, exclude_2theta=None, asymmetry=PdInstrReflexAsymmetry(),
+                 background = None, exclude_2theta=PdExclude2Theta(min=[0.], max=[1.0]), asymmetry=PdInstrReflexAsymmetry(),
                  beam_polarization = BeamPolarization(), resolution = PdInstrResolution(), meas=PdMeas(), phase=PdPhase(),
                  wavelength=1.4, field=1.0,
                  chi2_sum = True, chi2_diff = True, chi2_up = False, chi2_down = False,
@@ -785,7 +785,7 @@ class Pd(object):
             l_excl_tth_min = exclude_2theta.min
             l_excl_tth_max = exclude_2theta.max
             for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
-                cond_1 = numpy.logical_or(tth < 1.*excl_tth_min, tth > 1.*excl_tth_max)
+                cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min, tth_in > 1.*excl_tth_max)
                 cond_u = numpy.logical_and(cond_u, cond_1)
                 cond_d = numpy.logical_and(cond_d, cond_1)
                 cond_sum = numpy.logical_and(cond_sum, cond_1)
