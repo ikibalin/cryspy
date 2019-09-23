@@ -1046,8 +1046,8 @@ class Pd2dt(object):
         #exclude region
         exclude = self.exclude
         if exclude is not None:
-            l_excl_tth_min = exclude.min
-            l_excl_tth_max = exclude.max
+            l_excl_tth_min = exclude.ttheta_min
+            l_excl_tth_max = exclude.ttheta_max
             l_excl_phi_min = exclude.phi_min
             l_excl_phi_max = exclude.phi_max
             for excl_tth_min, excl_tth_max, excl_phi_min, excl_phi_max in zip(l_excl_tth_min, l_excl_tth_max, l_excl_phi_min, l_excl_phi_max):

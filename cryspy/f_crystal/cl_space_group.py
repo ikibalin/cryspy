@@ -224,6 +224,7 @@ class SpaceGroup(object):
                     dcard[lhelp[0].strip()].append(lhelp[1].strip())
                 else:
                     dcard[lhelp[0].strip()] = [lhelp[1].strip()]
+        ldcard.append(dcard)
         self._p_spgr_table = ldcard
         
 

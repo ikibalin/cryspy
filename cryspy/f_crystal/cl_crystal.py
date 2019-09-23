@@ -455,7 +455,7 @@ class Crystal(object):
 
 
         occupancy = numpy.array(atom_site.occupancy, dtype=float)
-        scat_length_neutron = numpy.array(atom_site.scat_length_neutron, dtype=float)
+        scat_length_neutron = numpy.array(atom_site.scat_length_neutron, dtype=complex)
 
 
         fract = atom_site._form_fract()
