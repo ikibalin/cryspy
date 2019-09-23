@@ -650,6 +650,9 @@ class Pd2dt(object):
         res = any(l_bool)
         return res
 
+
+
+
     def get_variables(self):
         l_variable = []
         if self.background is not None:
@@ -903,8 +906,6 @@ class Pd2dt(object):
                 h, k, l, mult = peak_in.h, peak_in.k, peak_in.l, peak_in.mult
             else:
                 h, k, l, mult = cell.calc_hkl_in_range(sthovl_min, sthovl_max)
-            peak.h, peak.k, peak.l, peak.mult = h, k, l, mult
-
             
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
@@ -914,6 +915,18 @@ class Pd2dt(object):
                 refln = refln_in
             else:
                 f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, refln = self.calc_for_iint(h, k, l, crystal)
+                flag_1 = numpy.abs(f_nucl_sq) > 10**-15
+                flag_2 = numpy.abs(numpy.abs(f_m_p_sin_sq)) > 10**-15
+                flag_3 = numpy.abs(numpy.abs(f_m_p_cos_sq)) > 10**-15
+                flag_4 = numpy.abs(numpy.abs( cross_sin)) > 10**-15
+                flag_12 = numpy.logical_or(flag_1, flag_2)
+                flag_34 = numpy.logical_or(flag_3, flag_4)
+                flag_1234 = numpy.logical_or(flag_12, flag_34)
+                h, k, l, mult = h[flag_1234], k[flag_1234], l[flag_1234], mult[flag_1234]
+                f_nucl_sq, f_m_p_sin_sq = f_nucl_sq[flag_1234], f_m_p_sin_sq[flag_1234]
+                f_m_p_cos_sq, cross_sin = f_m_p_cos_sq[flag_1234], cross_sin[flag_1234]
+
+            peak.h, peak.k, peak.l, peak.mult = h, k, l, mult
             l_refln.append(refln)
 
             peak.f_nucl_sq, peak.f_m_p_sin_sq = f_nucl_sq, f_m_p_sin_sq
