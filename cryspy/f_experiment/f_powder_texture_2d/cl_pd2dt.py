@@ -98,7 +98,8 @@ class Pd2dt(object):
         self.__2dpdt_texture_h_ax = None
         self.__2dpdt_texture_k_ax = None
         self.__2dpdt_texture_l_ax = None
-        
+
+        self.__dd = []
 
         self.label = label
         self.background = background
@@ -640,8 +641,14 @@ class Pd2dt(object):
             l_bool.append(self.resolution.is_variable)
         if self.phase is not None:
             l_bool.append(self.phase.is_variable)
-        l_bool.append(self.offset.refinement)
-        l_bool.append(self.phi_offset.refinement)
+        l_bool.append(self.is_variable_offset)
+        l_bool.append(self.is_variable_texture)
+        res = any(l_bool)
+        return res
+
+    @property
+    def is_variable_texture(self):
+        l_bool = []
         l_bool.append(self.g_1.refinement)
         l_bool.append(self.g_2.refinement)
         l_bool.append(self.h_ax.refinement)
@@ -651,7 +658,13 @@ class Pd2dt(object):
         return res
 
 
-
+    @property
+    def is_variable_offset(self):
+        l_bool = []
+        l_bool.append(self.offset.refinement)
+        l_bool.append(self.phi_offset.refinement)
+        res = any(l_bool)
+        return res
 
     def get_variables(self):
         l_variable = []
@@ -835,7 +848,7 @@ class Pd2dt(object):
 
         return True
 
-    def calc_profile(self, tth, phi, l_crystal, l_peak_in=[], l_refln_in=[]):
+    def calc_profile(self, tth, phi, l_crystal, l_peak_in=[], l_refln_in=[], l_dd_in=[]):
         """
         calculate intensity for the given diffraction angle
         """
@@ -881,10 +894,13 @@ class Pd2dt(object):
             l_peak_in = len(phase.label) * [None] 
         if len(phase.label) != len(l_refln_in):
             l_refln_in = len(phase.label) * [None] 
+        if len(phase.label) != len(l_dd_in):
+            l_dd_in = len(phase.label) * [None] 
 
-        l_peak, l_refln = [], []
-        for phase_label, phase_scale, phase_igsize, peak_in, refln_in in zip(
-            phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in):
+        l_peak, l_refln, l_dd_out = [], [], []
+        for phase_label, phase_scale, phase_igsize, peak_in, refln_in, dd_in in zip(
+            phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in, l_dd_in):
+            dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.label == phase_label:
                     ind_cry = i_crystal
@@ -932,19 +948,29 @@ class Pd2dt(object):
             peak.f_nucl_sq, peak.f_m_p_sin_sq = f_nucl_sq, f_m_p_sin_sq
             peak.f_m_p_cos_sq, peak.cross_sin = f_m_p_cos_sq, cross_sin
 
+            cond_1 = dd_in is not None
+            cond_2 = ((not(crystal.is_variable)) & 
+                      (not(beam_polarization.polarization.refinement)) & 
+                      (not(beam_polarization.efficiency.refinement)))
+            if cond_1 & cond_2:
+                iint_u_3d, iint_d_3d = dd_in["iint_u_3d"], dd_in["iint_d_3d"]
+                cos_theta_3d, sin_phi_3d = dd_in["cos_theta_3d"], dd_in["sin_phi_3d"]
+            else:
+                cos_theta_3d, sin_phi_3d, mult_f_n_3d = numpy.meshgrid(cos_theta_1d, sin_phi_1d, mult*f_nucl_sq, indexing="ij")
+                mult_f_m_c_3d = numpy.meshgrid(tth_rad, phi_rad, mult*f_m_p_cos_sq, indexing="ij")[2]
 
-            cos_theta_3d, sin_phi_3d, mult_f_n_3d = numpy.meshgrid(cos_theta_1d, sin_phi_1d, mult*f_nucl_sq, indexing="ij")
-            mult_f_m_c_3d = numpy.meshgrid(tth_rad, phi_rad, mult*f_m_p_cos_sq, indexing="ij")[2]
+                hh_u_s_3d = numpy.meshgrid(tth_rad, phi_rad, mult*(f_m_p_sin_sq+p_u*cross_sin), indexing="ij")[2]
+                hh_d_s_3d = numpy.meshgrid(tth_rad, phi_rad, mult*(f_m_p_sin_sq-p_d*cross_sin), indexing="ij")[2]
 
-            hh_u_s_3d = numpy.meshgrid(tth_rad, phi_rad, mult*(f_m_p_sin_sq+p_u*cross_sin), indexing="ij")[2]
-            hh_d_s_3d = numpy.meshgrid(tth_rad, phi_rad, mult*(f_m_p_sin_sq-p_d*cross_sin), indexing="ij")[2]
+                c_a_sq_3d = (cos_theta_3d * sin_phi_3d)**2
+                s_a_sq_3d = 1.-c_a_sq_3d
 
-            c_a_sq_3d = (cos_theta_3d * sin_phi_3d)**2
-            s_a_sq_3d = 1.-c_a_sq_3d
-
-            iint_u_3d = (mult_f_n_3d + hh_u_s_3d*s_a_sq_3d + mult_f_m_c_3d*c_a_sq_3d)
-            iint_d_3d = (mult_f_n_3d + hh_d_s_3d*s_a_sq_3d + mult_f_m_c_3d*c_a_sq_3d)
-
+                iint_u_3d = (mult_f_n_3d + hh_u_s_3d*s_a_sq_3d + mult_f_m_c_3d*c_a_sq_3d)
+                iint_d_3d = (mult_f_n_3d + hh_d_s_3d*s_a_sq_3d + mult_f_m_c_3d*c_a_sq_3d)
+            dd_out["cos_theta_3d"] = cos_theta_3d
+            dd_out["sin_phi_3d"] = sin_phi_3d
+            dd_out["iint_u_3d"] = iint_u_3d
+            dd_out["iint_d_3d"] = iint_d_3d
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             
@@ -952,21 +978,45 @@ class Pd2dt(object):
             tth_hkl = tth_hkl_rad*180./numpy.pi
             peak.ttheta = tth_hkl
 
-            profile_3d, tth_zs, h_pv = self.calc_shape_profile(tth, phi, tth_hkl, i_g)
+            cond_1 = dd_in is not None
+            cond_2 = ((not(phase_igsize.refinement)) & 
+                      (not(self.resolution.is_variable)) & 
+                      (not(self.is_variable_offset)))
+            if cond_1 & cond_2:
+                profile_3d, tth_zs, h_pv = dd_in["profile_3d"], dd_in["tth_zs"], dd_in["h_pv"]
+            else:
+                profile_3d, tth_zs, h_pv = self.calc_shape_profile(tth, phi, tth_hkl, i_g)
+
+            dd_out["profile_3d"] = profile_3d
+            dd_out["tth_zs"] = tth_zs
+            dd_out["h_pv"] = h_pv
             peak.width_2theta = h_pv
 
             #texture
-            cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax, h, k, l)
-            c_help = 1.-cos_alpha_ax**2
-            c_help[c_help<0.] = 0.
-            sin_alpha_ax = numpy.sqrt(c_help)
-            cos_alpha_ax_3d = numpy.meshgrid(tth, phi, cos_alpha_ax, indexing="ij")[2]
-            sin_alpha_ax_3d = numpy.meshgrid(tth, phi, sin_alpha_ax, indexing="ij")[2]
-            cos_alpha_ang_3d = cos_theta_3d * sin_phi_3d 
-            sin_alpha_ang_3d = numpy.sqrt(1.-cos_alpha_ang_3d**2)
-            cos_alpha_3d = cos_alpha_ax_3d*cos_alpha_ang_3d+sin_alpha_ax_3d*sin_alpha_ang_3d
-            texture_3d = g_2 + (1.-g_2)*(1./g_1 +
-                               (g_1**2-1./g_1)*cos_alpha_3d**2)**(-1.5)
+            cond_1 = dd_in is not None
+            if cond_1:
+                cos_alpha_ang_3d, sin_alpha_ang_3d = dd_in["cos_alpha_ang_3d"], dd_in["sin_alpha_ang_3d"]
+            else:
+                cos_alpha_ang_3d = cos_theta_3d * sin_phi_3d  
+                sin_alpha_ang_3d = numpy.sqrt(1.-cos_alpha_ang_3d**2)
+            dd_out["cos_alpha_ang_3d"], dd_out["sin_alpha_ang_3d"] = cos_alpha_ang_3d, sin_alpha_ang_3d
+
+            cond_2 = (not(self.is_variable_texture)) & (not(cell.is_variable))
+            if cond_1 & cond_2:
+                texture_3d = dd_in["texture_3d"]
+                print(80*"*")
+            else:
+                print(80*"-")
+                cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax, h, k, l)
+                c_help = 1.-cos_alpha_ax**2
+                c_help[c_help<0.] = 0.
+                sin_alpha_ax = numpy.sqrt(c_help)
+                cos_alpha_ax_3d = numpy.meshgrid(tth, phi, cos_alpha_ax, indexing="ij")[2]
+                sin_alpha_ax_3d = numpy.meshgrid(tth, phi, sin_alpha_ax, indexing="ij")[2]
+                cos_alpha_3d = cos_alpha_ax_3d*cos_alpha_ang_3d+sin_alpha_ax_3d*sin_alpha_ang_3d
+                texture_3d = g_2 + (1.-g_2)*(1./g_1 +
+                                   (g_1**2-1./g_1)*cos_alpha_3d**2)**(-1.5)
+            dd_out["texture_3d"] = texture_3d
 
             profile_3d_textured = profile_3d*texture_3d
 
@@ -977,12 +1027,13 @@ class Pd2dt(object):
             res_u_2d += scale*res_u_3d.sum(axis=2) 
             res_d_2d += scale*res_d_3d.sum(axis=2) 
             l_peak.append(peak)
+            l_dd_out.append(dd_out)
         proc.ttheta_corrected = tth_zs
         proc.up_net = res_u_2d
         proc.down_net = res_d_2d
         proc.up_total = res_u_2d+int_bkgd
         proc.down_total = res_d_2d+int_bkgd
-        return proc, l_peak, l_refln
+        return proc, l_peak, l_refln, l_dd_out
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
     #    calculate model diffraction profiles up and down if observed data is defined
@@ -1014,6 +1065,12 @@ class Pd2dt(object):
         int_d_exp = meas.down
         sint_d_exp = meas.down_sigma
 
+        if ((self.peaks is not None) & (self.reflns is not None)):
+            l_peak_in = self.peaks
+            l_refln_in = self.reflns
+            l_dd_in = self.__dd
+        else:
+            l_peak_in, l_refln_in, l_dd_in = [], [], [] 
 
         cond_tth_in = numpy.ones(tth.size, dtype=bool)
         cond_tth_in = numpy.logical_and(cond_tth_in, tth >= self.ttheta_min)
@@ -1032,7 +1089,7 @@ class Pd2dt(object):
         int_d_exp_in = int_d_exp[cond_tth_in, :][:, cond_phi_in]
         sint_d_exp_in = sint_d_exp[cond_tth_in, :][:, cond_phi_in]
         
-        proc, l_peak, l_refln = self.calc_profile(tth_in, phi_in, l_crystal)
+        proc, l_peak, l_refln, l_dd_out = self.calc_profile(tth_in, phi_in, l_crystal, l_peak_in, l_refln_in, l_dd_in)
         proc.up = int_u_exp_in
         proc.up_sigma = sint_u_exp_in
         proc.down = int_d_exp_in
@@ -1040,6 +1097,7 @@ class Pd2dt(object):
         self.proc = proc
         self.peaks = l_peak
         self.reflns = l_refln
+        self.__dd = l_dd_out
 
         int_u_mod = proc.up_total
         int_d_mod = proc.down_total

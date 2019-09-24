@@ -418,7 +418,8 @@ class SpaceGroup(object):
         
         return x_s, y_s, z_s, n_atom
     
-    def calc_el_symm_for_xyz(self, x, y, z):
+    def calc_el_symm_for_xyz(self, x_in, y_in, z_in):
+        x ,y, z = x_in%1., y_in%1., z_in%1.
         r_11 = self.r_11
         r_12 = self.r_12
         r_13 = self.r_13
