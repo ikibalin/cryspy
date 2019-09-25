@@ -314,8 +314,8 @@ class OrientMatrix(object):
     def __recalc_ub(self):
         u = self.u
         cell = self.cell
-        m_ib = cell.m_ib
-        ub_from = numpy.dot(u, m_ib)
+        m_b = cell.m_b
+        ub_from = numpy.dot(u, m_b)
         ub_ccsl = numpy.array([[ub_from[1, 0], ub_from[1, 1], ub_from[1, 2]],
                        [-1.*ub_from[0, 0], -1.*ub_from[0, 1], -1.*ub_from[0, 2]],
                        [ub_from[2, 0], ub_from[2, 1], ub_from[2, 2]]], dtype=float)
