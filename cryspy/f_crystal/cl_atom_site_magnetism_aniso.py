@@ -511,129 +511,180 @@ class AtomSiteMagnetismAniso(object):
         l_ind = [label.index(_1) for _1 in label_aniso]
         for index, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 in zip(l_ind, self.chi_11, self.chi_22, self.chi_33, 
                                                                                 self.chi_12, self.chi_13, self.chi_23):
+            chi_11.constraint_flag, chi_22.constraint_flag, chi_33.constraint_flag = False, False, False
+            chi_12.constraint_flag, chi_13.constraint_flag, chi_23.constraint_flag = False, False, False
             numb = l_numb[index]
             if numb == 1:
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 2:
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
             elif numb == 3:
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
             elif numb == 4:
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 5:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 6:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_23.value = chi_13.value 
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 7:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_23.value = -1.*chi_13.value 
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 8:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 9:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
+                chi_33.constraint_flag = True
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
             elif numb == 10:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
+                chi_33.constraint_flag = True
                 chi_13.value = 1.*chi_12.value 
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
             elif numb == 11:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
+                chi_33.constraint_flag = True
                 chi_13.value = -1.*chi_12.value 
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
             elif numb == 12:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
+                chi_33.constraint_flag = True
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 13:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 14:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 15:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_23.value = 2.*chi_13.value
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 16:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_12.value = 0.5*chi_11.value
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 17:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_33.value = 1.0*chi_11.value
                 chi_33.refinement = False
+                chi_33.constraint_flag = True
                 chi_12.value = 0.
                 chi_12.refinement = False
+                chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
+                chi_23.constraint_flag = True
             elif numb == 18:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
+                chi_22.constraint_flag = True
                 chi_33.value = 1.0*chi_11.value
                 chi_33.refinement = False
+                chi_33.constraint_flag = True
                 chi_13.value = 1.0*chi_12.value
                 chi_13.refinement = False
+                chi_13.constraint_flag = True
                 chi_23.value = 1.0*chi_12.value
                 chi_23.refinement = False
-
-
+                chi_23.constraint_flag = True
 
 
     def apply_chi_iso_constraint(self, cell):
