@@ -313,13 +313,15 @@ class RhoChi(dict):
         self.from_cif(string)
         
         for experiment in self.experiments:
-            f_data = os.path.join(f_dir, "{:}_data.rcif".format(experiment.label))
+            label_orig = experiment.label
+            f_data = os.path.join(f_dir, "{:}_data.rcif".format(label_orig))
             if not(os.path.isfile(f_main)):
                 self._show_message("File '{:}' is not found.".format(f_data))
             else:
                 with open(f_data, "r") as fid:
                     string = fid.read()
                 experiment.from_cif(string)
+                experiment.label = label_orig
 
 
 def rhochi_read_file(f_name):

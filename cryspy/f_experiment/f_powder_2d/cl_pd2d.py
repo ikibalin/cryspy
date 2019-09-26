@@ -556,13 +556,13 @@ class Pd2d(object):
         ls_out.append("data_{:}\n".format(self.label))
         str_1 = self.params_to_cif
         if str_1 != "":
-            ls.out.append(str_1)
+            ls_out.append(str_1)
         str_2 = self.data_to_cif
         if str_2 != "":
-            ls.out.append(str_2)
+            ls_out.append(str_2)
         str_3 = self.calc_to_cif
         if str_3 != "":
-            ls.out.append(str_3)
+            ls_out.append(str_3)
         return "\n".join(ls_out)
 
     @property

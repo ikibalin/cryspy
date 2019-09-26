@@ -12,12 +12,21 @@ class Fitable(object):
     """
     Fitable class to describe variable parameter
     """
-    def __init__(self, value=0., sigma=0., refinement=False, 
-                 name=None, constraint=None, minimal=None, maximal=None):
+    def __init__(self, value=0., sigma=0., refinement=False, name=None, 
+        constraint_flag=False, constraint=None, minimal=None, maximal=None):
         super(Fitable, self).__init__()
+        self.__value = None
+        self.__sigma = None
+        self.__refinement = None
+        self.__constraint_flag = None
+        self.__name = None
+        self.__constraint = None
+        self.__minimal = None
+        self.__maximal = None
         self.value = value
         self.sigma = sigma
         self.refinement = refinement
+        self.constraint_flag = constraint_flag
         self.name = name
         self.constraint = constraint
         self.minimal = minimal
@@ -31,6 +40,7 @@ class Fitable(object):
             self.value = object_.value
             self.sigma = object_.sigma
             self.refinement = object_.refinement
+            self.constraint_flag = object_.constraint_flag
             self.name = object_.name
             self.constraint = object_.constraint
             self.minimal = object_.minimal
@@ -97,6 +107,15 @@ class Fitable(object):
             self.__refinement = bool(x)
         except:
             self.__refinement = False
+    @property
+    def constraint_flag(self):
+        return self.__constraint_flag
+    @constraint_flag.setter
+    def constraint_flag(self, x):
+        try:
+            self.__constraint_flag = bool(x)
+        except:
+            self.__constraint_flag = False
     @property
     def name(self):
         return self.__name

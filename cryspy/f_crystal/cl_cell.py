@@ -461,36 +461,54 @@ class Cell(object):
     def _constr_bravais_lattice(self):
         bravais_lattice = self.bravais_lattice
         if bravais_lattice == "cubic":
-            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
-            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
-            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
-            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
-            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+            self.a.constraint_flag = False
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b", True)
+            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c", True)
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha", True)
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta", True)
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma", True)
         elif bravais_lattice == "hexagonal":
-            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
-            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
-            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
-            self.__cell_angle_gamma = Fitable(120., None, False, "_cell_angle_gamma")
+            self.a.constraint_flag = False
+            self.c.constraint_flag = False
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b", True)
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha", True)
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta", True)
+            self.__cell_angle_gamma = Fitable(120., None, False, "_cell_angle_gamma", True)
         elif bravais_lattice == "rhombohedral":
-            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
-            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
-            self.__cell_angle_beta = Fitable(self.alpha.value, None, False, "_cell_angle_beta")
-            self.__cell_angle_gamma = Fitable(self.alpha.value, None, False, "_cell_angle_gamma")
+            self.a.constraint_flag = False
+            self.alpha.constraint_flag = False
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b", True)
+            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c", True)
+            self.__cell_angle_beta = Fitable(self.alpha.value, None, False, "_cell_angle_beta", True)
+            self.__cell_angle_gamma = Fitable(self.alpha.value, None, False, "_cell_angle_gamma", True)
         elif bravais_lattice == "trigonal":
-            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
-            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c")
+            self.a.constraint_flag = False
+            self.alpha.constraint_flag = False
+            self.beta.constraint_flag = False
+            self.gamma.constraint_flag = False
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b", True)
+            self.__cell_length_c = Fitable(self.a.value, self.a.sigma, False, "_cell_length_c", True)
         elif bravais_lattice == "tetragonal":
-            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b")
-            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
-            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
-            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+            self.a.constraint_flag = False
+            self.c.constraint_flag = False
+            self.__cell_length_b = Fitable(self.a.value, self.a.sigma, False, "_cell_length_b", True)
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha", True)
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta", True)
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma", True)
         elif bravais_lattice == "orthorhombic":
-            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
-            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta")
-            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+            self.a.constraint_flag = False
+            self.b.constraint_flag = False
+            self.c.constraint_flag = False
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha", True)
+            self.__cell_angle_beta = Fitable(90., None, False, "_cell_angle_beta", True)
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma", True)
         elif bravais_lattice == "monoclinic":
-            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha")
-            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma")
+            self.a.constraint_flag = False
+            self.b.constraint_flag = False
+            self.c.constraint_flag = False
+            self.beta.constraint_flag = False
+            self.__cell_angle_alpha = Fitable(90., None, False, "_cell_angle_alpha", True)
+            self.__cell_angle_gamma = Fitable(90., None, False, "_cell_angle_gamma", True)
 
     def _calc_cos_abc(self):
         rad=numpy.pi/180.

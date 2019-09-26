@@ -468,127 +468,180 @@ class AtomSiteAniso(object):
         l_ind = [label.index(_1) for _1 in label_aniso]
         for index, u_11, u_22, u_33, u_12, u_13, u_23 in zip(l_ind, self.u_11, self.u_22, self.u_33, 
                                                                     self.u_12, self.u_13, self.u_23):
+            u_11.constraint_flag, u_22.constraint_flag, u_33.constraint_flag = False, False, False
+            u_12.constraint_flag, u_13.constraint_flag, u_23.constraint_flag = False, False, False
             numb = l_numb[index]
             if numb == 1:
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 2:
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
             elif numb == 3:
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
             elif numb == 4:
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 5:
                 u_22.value = u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 6:
                 u_22.value = u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_23.value = u_13.value 
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 7:
                 u_22.value = u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_23.value = -1.*u_13.value 
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 8:
                 u_22.value = u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 9:
                 u_33.value = u_22.value
                 u_33.refinement = False
+                u_33.constraint_flag = True
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
             elif numb == 10:
                 u_33.value = u_22.value
                 u_33.refinement = False
+                u_33.constraint_flag = True
                 u_13.value = 1.*u_12.value 
                 u_13.refinement = False
+                u_13.constraint_flag = True
             elif numb == 11:
                 u_33.value = u_22.value
                 u_33.refinement = False
+                u_33.constraint_flag = True
                 u_13.value = -1.*u_12.value 
                 u_13.refinement = False
+                u_13.constraint_flag = True
             elif numb == 12:
                 u_33.value = u_22.value
                 u_33.refinement = False
+                u_33.constraint_flag = True
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 13:
                 u_12.value = 0.5*u_22.value
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 14:
                 u_12.value = 0.5*u_22.value
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 15:
                 u_12.value = 0.5*u_22.value
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_23.value = 2.*u_13.value
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 16:
                 u_22.value = 1.0*u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_12.value = 0.5*u_11.value
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 17:
                 u_22.value = 1.0*u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_33.value = 1.0*u_11.value
                 u_33.refinement = False
+                u_33.constraint_flag = True
                 u_12.value = 0.
                 u_12.refinement = False
+                u_12.constraint_flag = True
                 u_13.value = 0.
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 0.
                 u_23.refinement = False
+                u_23.constraint_flag = True
             elif numb == 18:
                 u_22.value = 1.0*u_11.value
                 u_22.refinement = False
+                u_22.constraint_flag = True
                 u_33.value = 1.0*u_11.value
                 u_33.refinement = False
+                u_33.constraint_flag = True
                 u_13.value = 1.0*u_12.value
                 u_13.refinement = False
+                u_13.constraint_flag = True
                 u_23.value = 1.0*u_12.value
                 u_23.refinement = False
+                u_23.constraint_flag = True
 
 
     def calc_beta(self, cell):
