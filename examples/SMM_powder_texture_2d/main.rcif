@@ -112,6 +112,13 @@ _pd2d_background_2theta_phi_intensity
        41.00 8.65         7.13         11.67        17.82        14.72        9.11         5.164        0.284       
 ;
 
+loop_
+_pd2d_exclude_2theta_min
+_pd2d_exclude_2theta_max
+_pd2d_exclude_phi_min
+_pd2d_exclude_phi_max
+0.0 1.0 0.0 0.1
+
 _pd2d_instr_reflex_asymmetry_p1 0.0
 _pd2d_instr_reflex_asymmetry_p2 0.0
 _pd2d_instr_reflex_asymmetry_p3 0.0
@@ -130,4 +137,4 @@ loop_
 _pd2d_phase_label
 _pd2d_phase_scale
 _pd2d_phase_igsize
-COTMTU  0.00018680(40) 0.0
+COTMTU  0.00009974(40) 0.0

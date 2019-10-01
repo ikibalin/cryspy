@@ -910,7 +910,7 @@ class Pd2dt(object):
                         phase_label))
                 return
             crystal = l_crystal[ind_cry]
-            scale = float(phase_scale)
+            scale = float(phase_scale)/100000.
             i_g = float(phase_igsize)
 
 
@@ -951,7 +951,8 @@ class Pd2dt(object):
             cond_1 = dd_in is not None
             cond_2 = ((not(crystal.is_variable)) & 
                       (not(beam_polarization.polarization.refinement)) & 
-                      (not(beam_polarization.efficiency.refinement)))
+                      (not(beam_polarization.efficiency.refinement)) & 
+                      (not(self.phi_offset.refinement)))
             if cond_1 & cond_2:
                 iint_u_3d, iint_d_3d = dd_in["iint_u_3d"], dd_in["iint_d_3d"]
                 cos_theta_3d, sin_phi_3d = dd_in["cos_theta_3d"], dd_in["sin_phi_3d"]
@@ -994,19 +995,18 @@ class Pd2dt(object):
 
             #texture
             cond_1 = dd_in is not None
-            if cond_1:
+            cond_2 = (not(self.phi_offset.refinement))
+            if cond_1 & cond_2:
                 cos_alpha_ang_3d, sin_alpha_ang_3d = dd_in["cos_alpha_ang_3d"], dd_in["sin_alpha_ang_3d"]
             else:
                 cos_alpha_ang_3d = cos_theta_3d * sin_phi_3d  
                 sin_alpha_ang_3d = numpy.sqrt(1.-cos_alpha_ang_3d**2)
             dd_out["cos_alpha_ang_3d"], dd_out["sin_alpha_ang_3d"] = cos_alpha_ang_3d, sin_alpha_ang_3d
 
-            cond_2 = (not(self.is_variable_texture)) & (not(cell.is_variable))
+            cond_2 = (cond_2 & (not(self.is_variable_texture)) & (not(cell.is_variable)))
             if cond_1 & cond_2:
                 texture_3d = dd_in["texture_3d"]
-                print(80*"*")
             else:
-                print(80*"-")
                 cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax, h, k, l)
                 c_help = 1.-cos_alpha_ax**2
                 c_help[c_help<0.] = 0.
@@ -1031,6 +1031,7 @@ class Pd2dt(object):
         proc.ttheta_corrected = tth_zs
         proc.up_net = res_u_2d
         proc.down_net = res_d_2d
+        
         proc.up_total = res_u_2d+int_bkgd
         proc.down_total = res_d_2d+int_bkgd
         return proc, l_peak, l_refln, l_dd_out

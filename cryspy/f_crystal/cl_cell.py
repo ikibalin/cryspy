@@ -920,7 +920,7 @@ class Cell(object):
         ls_out.append("_cell_length_c {:}".format(self.c.print_with_sigma))
         ls_out.append("_cell_angle_alpha {:}".format(self.alpha.print_with_sigma))
         ls_out.append("_cell_angle_beta {:}".format(self.beta.print_with_sigma))
-        ls_out.append("_cell_angle_gamma {:}".format(self.beta.print_with_sigma))
+        ls_out.append("_cell_angle_gamma {:}".format(self.gamma.print_with_sigma))
         return "\n".join(ls_out)
     
     def from_cif(self, string: str):
