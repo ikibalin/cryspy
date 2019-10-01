@@ -325,7 +325,6 @@ class Diffrn(object):
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
-
         return chi_sq_val, n
     
     @property

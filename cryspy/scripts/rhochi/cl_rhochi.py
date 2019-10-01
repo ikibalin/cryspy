@@ -122,6 +122,8 @@ class RhoChi(dict):
         chi_sq_res, n_res = 0., 0.
         for experiment in self.experiments:
             chi_sq, n = experiment.calc_chi_sq(l_crystal)
+            experiment.chi_sq = chi_sq
+            experiment.n = n
             chi_sq_res += chi_sq
             n_res += n
         return chi_sq_res, n_res
@@ -180,7 +182,9 @@ class RhoChi(dict):
         sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
         for fitable, _1  in zip(l_fitable, sigma):
             fitable.sigma = _1
-
+        print("experiment  chi_sq_n")
+        for _1 in self.experiments:
+            print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))
         return res
 
     
@@ -357,7 +361,7 @@ def rhochi_refinement(f_name_in="", f_name_out=""):
     rho_chi.refine()
 
     print("After refinement:\n")
-    print(rho_chi)
+    #print(rho_chi)
     print("\nRefined parameters -- after:\n")
     for fitable in rho_chi.get_variables():
         print(fitable)
