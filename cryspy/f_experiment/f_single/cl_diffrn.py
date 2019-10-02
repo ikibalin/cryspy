@@ -23,7 +23,7 @@ class Diffrn(object):
     def __init__(self, label="mono", 
                  extinction = Extinction(), diffrn_refln=DiffrnRefln(), orient_matrix=OrientMatrix(),
                  beam_polarization=BeamPolarization(), 
-                 wavelength=1.4, field=1.0
+                 wavelength=1.4, field=1.0, phase_label="phase1",
                  ):
         super(Diffrn, self).__init__()
         self.__label = None
@@ -35,12 +35,14 @@ class Diffrn(object):
         self.__diffrn_radiation_wavelength = None
         self.__diffrn_ambient_field = None
         self.__refln = None
+        self.__phase_label = None
 
         self.label = label
         self.extinction = extinction
         self.diffrn_refln = diffrn_refln
         self.beam_polarization = beam_polarization
         self.wavelength = wavelength
+        self.phase_label = phase_label
         
         orient_matrix.wavelength = wavelength
         self.orient_matrix = orient_matrix
@@ -53,6 +55,13 @@ class Diffrn(object):
     @label.setter
     def label(self, x: str):
         self.__label = str(x)
+
+    @property
+    def phase_label(self):
+        return self.__phase_label
+    @phase_label.setter
+    def phase_label(self, x: str):
+        self.__phase_label = str(x)
 
     @property
     def extinction(self):
@@ -198,12 +207,17 @@ class Diffrn(object):
         calculate intensity for the given diffraction angle
         """
         l_label = [_.label for _ in l_crystal]
-        if self.label in l_label:
+        if self.phase_label in l_label:
+            ind = l_label.index(self.phase_label)
+            crystal = l_crystal[ind]
+        elif self.label in l_label:
+            self.phase_label = self.label
             ind = l_label.index(self.label)
             crystal = l_crystal[ind]
         else:
             self._show_message("Crystal not found.\nThe first one is taken.")
             crystal = l_crystal[0]
+            self.phase_label = crystal.label
         wavelength = self.wavelength
         field_z = self.field
         beam_polarization = self.beam_polarization
@@ -371,6 +385,8 @@ class Diffrn(object):
             ls_out.append("\n"+self.extinction.to_cif)
         if self.beam_polarization is not None:
             ls_out.append("\n"+self.beam_polarization.to_cif)
+        if self.phase_label is not None:
+            ls_out.append("\n"+"_diffrn_phase_label {:}".format(self.phase_label))
         if self.wavelength is not None:
             ls_out.append("\n"+"_diffrn_radiation_wavelength {:}".format(self.wavelength))
         if self.field is not None:
@@ -404,6 +420,8 @@ class Diffrn(object):
         self.label = cif_data.name
         cif_values = cif_data.items
         if cif_values is not None:
+            if cif_values.is_prefix("_diffrn_phase_label"):
+                self.phase_label = cif_values["_diffrn_phase_label"]
             if cif_values.is_prefix("_diffrn_radiation_wavelength"):
                 self.wavelength = float(cif_values["_diffrn_radiation_wavelength"])
             if cif_values.is_prefix("_diffrn_ambient_field"):

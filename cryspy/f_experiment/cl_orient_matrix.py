@@ -412,7 +412,7 @@ class OrientMatrix(object):
         return True
 
 
-    def read_ubfrom(self, f_name):
+    def read_ubfrom(self, f_name="ubfrom.raf"):
         fid = open(f_name)
         l_cont = fid.readlines()
         fid.close()
