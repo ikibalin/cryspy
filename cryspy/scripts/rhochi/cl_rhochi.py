@@ -267,6 +267,7 @@ class RhoChi(dict):
         with open(f_name, "r") as fid:
             string = fid.read()
             self.from_cif(string)
+        self.apply_constraint()
 
     def save_to_file(self, f_name):
         self.file_input = f_name
@@ -326,6 +327,7 @@ class RhoChi(dict):
                     string = fid.read()
                 experiment.from_cif(string)
                 experiment.label = label_orig
+        self.apply_constraint()
 
 
 def rhochi_read_file(f_name):

@@ -69,7 +69,7 @@ class AtomSite(object):
         self.__j2_c = None
         self.__j2_D = None
 
-
+        self.__atom_site_multiplicity = None #not sure that it is needed
 
         self.label = label
         self.type_symbol = type_symbol
@@ -401,6 +401,23 @@ class AtomSite(object):
             l_fitable.extend([Fitable(value=1., name="_atom_site_occupancy") for hh in range(len_1-len_x)])
         self.__atom_site_occupancy = l_fitable
 
+
+
+    @property
+    def multiplicity(self):
+        """
+        Atom-site multiplicity 
+        """
+        return self.__atom_site_multiplicity
+    @multiplicity.setter
+    def multiplicity(self, l_x):
+        l_val = []
+        if l_x is None:
+            l_val = None
+        else:
+            l_val = [int(x) for x in l_x]
+        self.__atom_site_multiplicity = l_val
+
     @property
     def f_dir_prog(self):
         """
@@ -457,11 +474,22 @@ class AtomSite(object):
             ls_out.append("_atom_site_adp_type")
             ls_out.append("_atom_site_B_iso_or_equiv")
             ls_out.append("_atom_site_occupancy")
-            for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in zip(self.label, self.type_symbol, 
-                self.x, self.y, self.z, self.adp_type, self.b_iso, self.occupancy):
-                ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:}".format(hh_1, hh_2, 
-                        hh_3.print_with_sigma, hh_4.print_with_sigma, hh_5.print_with_sigma,
-                        hh_6, hh_7.print_with_sigma, hh_8.print_with_sigma))
+            flag_multiplicity = False
+            if self.multiplicity is not None:
+                flag_multiplicity = True
+                ls_out.append("_atom_site_multiplicity")
+            if flag_multiplicity:
+                for _1, _2, _3, _4, _5, _6, _7, _8, _9 in zip(self.label, self.type_symbol, 
+                    self.x, self.y, self.z, self.adp_type, self.b_iso, self.occupancy, self.multiplicity):
+                    ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:} {:}".format(_1, _2, 
+                            _3.print_with_sigma, _4.print_with_sigma, _5.print_with_sigma,
+                            _6, _7.print_with_sigma, _8.print_with_sigma, _9))
+            else:
+                for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in zip(self.label, self.type_symbol, 
+                    self.x, self.y, self.z, self.adp_type, self.b_iso, self.occupancy):
+                    ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:}".format(hh_1, hh_2, 
+                            hh_3.print_with_sigma, hh_4.print_with_sigma, hh_5.print_with_sigma,
+                            hh_6, hh_7.print_with_sigma, hh_8.print_with_sigma))
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):

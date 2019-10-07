@@ -382,9 +382,9 @@ class SpaceGroup(object):
         centr = self.centr
         p_centr = self.p_centr
 
-        x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 4)
-        y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 4)
-        z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 4)
+        x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 6)
+        y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 6)
+        z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 6)
 
         x_o = [orig[0] for orig in l_orig]
         y_o = [orig[1] for orig in l_orig]
@@ -394,24 +394,24 @@ class SpaceGroup(object):
         y_s_2d, y_o_2d = numpy.meshgrid(y_s, y_o)
         z_s_2d, z_o_2d = numpy.meshgrid(z_s, z_o)
         
-        x_s_2d = numpy.round(numpy.mod(x_s_2d+x_o_2d, 1), 4)
-        y_s_2d = numpy.round(numpy.mod(y_s_2d+y_o_2d, 1), 4)
-        z_s_2d = numpy.round(numpy.mod(z_s_2d+z_o_2d, 1), 4)
+        x_s_2d = numpy.round(numpy.mod(x_s_2d+x_o_2d, 1), 6)
+        y_s_2d = numpy.round(numpy.mod(y_s_2d+y_o_2d, 1), 6)
+        z_s_2d = numpy.round(numpy.mod(z_s_2d+z_o_2d, 1), 6)
 
         x_s = x_s_2d.flatten()
         y_s = y_s_2d.flatten()
         z_s = z_s_2d.flatten()
 
         if centr:
-            x_s_h = numpy.round(numpy.mod(2.*p_centr[0]-1.*x_s, 1), 4)
-            y_s_h = numpy.round(numpy.mod(2.*p_centr[1]-1.*y_s, 1), 4)
-            z_s_h = numpy.round(numpy.mod(2.*p_centr[2]-1.*z_s, 1), 4)
+            x_s_h = numpy.round(numpy.mod(2.*p_centr[0]-1.*x_s, 1), 6)
+            y_s_h = numpy.round(numpy.mod(2.*p_centr[1]-1.*y_s, 1), 6)
+            z_s_h = numpy.round(numpy.mod(2.*p_centr[2]-1.*z_s, 1), 6)
             x_s =numpy.hstack([x_s, x_s_h])
             y_s =numpy.hstack([y_s, y_s_h])
             z_s =numpy.hstack([z_s, z_s_h])
                         
         xyz_s = numpy.vstack([x_s, y_s, z_s])
-        
+
         xyz_s_un = numpy.unique(xyz_s, axis=1)
         n_atom = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
         x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]

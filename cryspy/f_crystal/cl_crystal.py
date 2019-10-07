@@ -441,6 +441,23 @@ class Crystal(object):
         if cif_data.is_prefix("atom_site_magnetism_aniso"): self.atom_site_magnetism_aniso = str(cif_data["atom_site_magnetism_aniso"])
         return True
 
+    def calc_refln(self, h=0, k=0, l=0):
+        """
+        calculate refln object
+        """
+        try:
+            for _1, _2, _3 in zip(h, k, l):
+                pass
+            h_in = numpy.array(h, dtype=int)
+            k_in = numpy.array(k, dtype=int)
+            l_in = numpy.array(l, dtype=int)
+        except:
+            h_in = numpy.array([h], dtype=int)
+            k_in = numpy.array([k], dtype=int)
+            l_in = numpy.array([l], dtype=int)
+        refln = self.calc_sf(h_in, k_in, l_in)
+        return refln
+
     def calc_sf(self, h, k, l):
         """
         calculate nuclear structure factor and components of structure factor tensor
@@ -470,6 +487,7 @@ class Crystal(object):
         x, y, z = fract.x, fract.y, fract.z
 
         atom_multiplicity = space_group.calc_atom_mult(x, y, z)
+        atom_site.multiplicity = atom_multiplicity
         occ_mult = occupancy*atom_multiplicity 
         
 
