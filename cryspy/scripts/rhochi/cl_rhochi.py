@@ -149,11 +149,17 @@ class RhoChi(dict):
             self._show_message("Chi_sq {:.3f}\npoints: {:}".format(chi_sq, n))
             return None
         
-        l_param_0 = [fitable.value for fitable in l_fitable]
+
+        val_0 = numpy.array([fitable.value for fitable in l_fitable], dtype=float)
         
+        sign = 2*(numpy.array(val_0 >= 0., dtype=int)-0.5)
+        param_0 = numpy.log(abs(val_0)*(numpy.e-1.)+1.)*sign
+        coeff_norm = numpy.where(val_0 == 0., 1., val_0)/numpy.where(param_0==0., 1., param_0)
+        hes_coeff_norm = numpy.matmul(coeff_norm[:, numpy.newaxis], coeff_norm[numpy.newaxis, :])
+
         def tempfunc(l_param):
-            for fitable, param in zip(l_fitable, l_param):
-                fitable.value = param
+            for fitable, param, _1 in zip(l_fitable, l_param, coeff_norm):
+                fitable.value = param*_1
             chi_sq, n_points = self.calc_chi_sq()
             return (chi_sq*1./float(n_points))
 
@@ -168,17 +174,18 @@ class RhoChi(dict):
         aa = time.time()
         """
         res, m_error, infodict, errmsg, ier = \
-            scipy.optimize.leastsq(tempfunc, l_param_0, full_output=1)
+            scipy.optimize.leastsq(tempfunc, param_0, full_output=1)
 
         """
-        res = scipy.optimize.minimize(tempfunc, l_param_0, method='BFGS', callback=self._f_callback, options = {"disp": True})
+        res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(coeff_norm, x), options = {"disp": True})
 
         #res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
         #                              callback=self._f_callback, options = {"fatol": 0.01*n})
 
         bb = time.time()
         print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun, chi_sq*1./n))
-        hess_inv = res["hess_inv"]
+        
+        hess_inv = res["hess_inv"] * hes_coeff_norm
         sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
         for fitable, _1  in zip(l_fitable, sigma):
             fitable.sigma = _1
@@ -189,9 +196,10 @@ class RhoChi(dict):
 
     
     def _f_callback(self, *arg):
-        res_x = arg[0]
-        ls_out = " ".join(["{:12.5f}".format(hh) for hh in res_x])
-        if len(arg) > 1:
+        coeff_norm = arg[0]
+        res_x = arg[1]
+        ls_out = " ".join(["{:12.5f}".format(_1*_2) for _1, _2 in zip(res_x, coeff_norm)])
+        if len(arg) > 2:
             res_fun = arg[1]
             ls_out += " {:12.1f}".format(res_fun.fun)
         print(ls_out)
