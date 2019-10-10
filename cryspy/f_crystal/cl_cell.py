@@ -73,6 +73,7 @@ class Cell(object):
         self.__cell_ivolume = None
         self.__m_b = None
         self.__m_ib = None
+        self.__m_ib_norm = None
 
         self.a = a # type: Fitable
         self.b = b # type: Fitable
@@ -393,7 +394,14 @@ class Cell(object):
         Inversed B matrix
         """
         return self.__m_ib
-        
+
+    @property
+    def m_ib_norm(self):
+        """
+        Normalized inversed B matrix
+        """
+        return self.__m_ib_norm
+
     @property
     def cos_a(self):
         """
@@ -436,9 +444,13 @@ class Cell(object):
         sin(gamma*)
         """
         return self.__sin_ig
-        
     def __repr__(self):
-        ls_out = ["""Cell: \n a: {:}\n b: {:}\n c: {:}\n alpha: {:}
+        ls_out = ["Cell:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)
+        
+    def __str__(self):
+        ls_out = [""" a: {:}\n b: {:}\n c: {:}\n alpha: {:}
  beta: {:}\n gamma: {:}\n bravais_lattice: {:}""".format(self.a, self.b, 
                  self.c, self.alpha, self.beta, self.gamma, 
                  self.bravais_lattice)]
@@ -455,6 +467,11 @@ class Cell(object):
  {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}""".format(self.__m_ib[0, 0],
  self.__m_ib[0, 1], self.__m_ib[0, 2], self.__m_ib[1, 0], self.__m_ib[1, 1], 
  self.__m_ib[1, 2], self.__m_ib[2, 0], self.__m_ib[2, 1], self.__m_ib[2, 2]))
+        if self.__m_ib_norm is not None:
+             ls_out.append(""" normalized inversed B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
+ {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}""".format(self.__m_ib_norm[0, 0],
+ self.__m_ib_norm[0, 1], self.__m_ib_norm[0, 2], self.__m_ib_norm[1, 0], self.__m_ib_norm[1, 1], 
+ self.__m_ib_norm[1, 2], self.__m_ib_norm[2, 0], self.__m_ib_norm[2, 1], self.__m_ib_norm[2, 2]))
         return "\n".join(ls_out)
     
     
@@ -622,18 +639,25 @@ class Cell(object):
         #B=[[x1,x4,x5],
         #   [0.,x2,x6],
         #   [0.,0.,x3]]
-        #it shuld be checked
-        #iB=numpy.linalg.inv(B)
-        y1 = 1./x1
-        y2 = 1./x2
-        y3 = 1./x3
-        y4 = -1*x4*1./(x1*x2)
-        y6 = -1*x6*1./(x2*x3)
-        y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
-        
-        self.__m_ib = numpy.array([[y1,y4,y5],[0.,y2,y6],[0.,0.,y3]], 
-                                   dtype = float)
-            
+        #it should be checked
+        self.__m_ib = numpy.linalg.inv(self.__m_b)
+        #y1 = 1./x1
+        #y2 = 1./x2
+        #y3 = 1./x3
+        #y4 = -1.*x4*1./(x1*x2)
+        #y6 = -1.*x6*1./(x2*x3)
+        #y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
+        #
+        #self.__m_ib = numpy.array([[y1,y4,y5],[0.,y2,y6],[0.,0.,y3]], 
+        #                           dtype = float)
+
+
+        m_ib_norm = numpy.copy(self.__m_ib)
+        a, b, c = float(self.a), float(self.b), float(self.c)
+        m_ib_norm[0, :] /= a
+        m_ib_norm[1, :] /= b
+        m_ib_norm[2, :] /= c
+        self.__m_ib_norm = m_ib_norm
                 
     def _show_message(self, s_out: str):
         print("***  Error ***")

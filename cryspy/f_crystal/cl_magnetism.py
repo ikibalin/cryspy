@@ -268,6 +268,9 @@ class Magnetism(object):
     
     def _calc_chi_loc(ia, ib, ic, matrix_ib):
         """
+        IT SHOULD BE DELETED
+
+
         representation of chi in crystallographic coordinate system defined as x||a*, z||c, y= [z x] (right handed)
         expressions are taken from international tables
         matrix_ib is inversed matrix B
@@ -303,10 +306,11 @@ class Magnetism(object):
         y6 = -1*x6*1./(x2*x3)
         y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
         matrix_ib_norm = matrix_ib
-        matrix_ib_norm[:,0] *= ia
-        matrix_ib_norm[:,1] *= ib
-        matrix_ib_norm[:,2] *= ic
-        
+        #!!!! to check it !!! before it was [:, 0]
+        matrix_ib_norm[0, :] *= ia
+        matrix_ib_norm[1, :] *= ib
+        matrix_ib_norm[2, :] *= ic
+        print("There is mistake!!!!!")
         matrix_ibt_norm = matrix_ib_norm.transpose()
         #it is not compatible with case, vhen chi_ij is 1D array 
         ibt_chi = numpy.matmul(matrix_ibt_norm, matrix_chi)

@@ -623,39 +623,7 @@ class Crystal(object):
     
         output chiLOC = iBT CHI iB
         """
-        m_ib = cell.m_ib
-        ia, ib, ic = cell.ia, cell.ib, cell.ic
-        """
-        matrix_chi = numpy.array(
-                [[self["chi_11"], self["chi_12"], self["chi_13"]],
-                 [self["chi_12"], self["chi_22"], self["chi_23"]],
-                 [self["chi_13"], self["chi_23"], self["chi_33"]]], 
-                 dtype = float)
-        #mchi=[[chi[0],chi[3],chi[4]],[chi[3],chi[1],chi[5]],[chi[4],chi[5],chi[2]]]
-        #[a,b,c,alpha,beta,gamma]=ucp
-        y1 = m_ib[0,0]
-        y2 = m_ib[1,1]
-        y3 = m_ib[2,2]
-        y4 = m_ib[0,1]
-        y5 = m_ib[0,2]
-        y6 = m_ib[1,2]
-        #B=[[x1,x4,x5],
-        #   [0.,x2,x6],
-        #   [0.,0.,x3]]
-        #it shuld be checked
-        #iB=numpy.linalg.inv(B)
-        y1 = 1./x1
-        y2 = 1./x2
-        y3 = 1./x3
-        y4 = -1*x4*1./(x1*x2)
-        y6 = -1*x6*1./(x2*x3)
-        y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
-        """
-        m_ib_norm = numpy.copy(m_ib)
-        m_ib_norm[:,0] *= ia
-        m_ib_norm[:,1] *= ib
-        m_ib_norm[:,2] *= ic
-        
+        m_ib_norm = cell.m_ib_norm
         m_ibt_norm = m_ib_norm.transpose()
         
         r11, r12, r13 = m_ibt_norm[0, 0], m_ibt_norm[0, 1], m_ibt_norm[0, 2]
@@ -665,12 +633,7 @@ class Crystal(object):
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = calc_mRmCmRT(
                 r11, r12, r13, r21, r22, r23, r31, r32, r33,
                 l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
-        """
-        ibt_chi = numpy.matmul(m_ibt_norm, matrix_chi)
-        matrix_chi_loc = numpy.matmul(ibt_chi, m_ib_norm)
-        d_out = dict(matrix_chi_loc = matrix_chi_loc)
-        self.update(d_out)
-        """
+
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
     def apply_constraint(self):
