@@ -82,7 +82,7 @@ class Extinction(object):
             flag = x_in.take_it(x)
         self.__refine_ls_extinction_coef_mosaicity = x_in
 
-    def calc_extinction(self, cell, h, k, l, f_sq, wavelength):
+    def calc_extinction(self, cell, h, k, l, f_sq, wavelength, flag_derivative_f_sq=False):
         """
         f_sq in 10-12cm
         extinction for spherical model
@@ -99,14 +99,20 @@ class Extinction(object):
         c2theta = 1. - 2. * stheta**2
     
         q = (f_sq*kk/vol**2)*(wavelength**3)*1./s2theta
-    
+        delta_f_sq_q = (kk/vol**2)*(wavelength**3)*1./s2theta
+
         t = 1.5*r
         alpha = 1.5*r*s2theta*1./wavelength
         x = 2./3*q*alpha*t
-    
+        delta_f_sq_x = 2./3*delta_f_sq_q*alpha*t
+
         A = 0.20 + 0.45 * c2theta
         B = 0.22 - 0.12 * (0.5-c2theta)**2
         yp = (1.+2.*x+(A*x**2)*1./(1.+B*x))**(-0.5)
+        delta_f_sq_yp = -0.5*(yp**3)*(2.*delta_f_sq_x+
+                          2.*A*delta_f_sq_x*x*1./(1.+B*x)-
+                          B*delta_f_sq_x*(A*x**2)*1./((1.+B*x)**2)) 
+        
         
         ag = numpy.zeros(h.shape, dtype=float)
         al = numpy.zeros(h.shape, dtype=float)
@@ -117,22 +123,32 @@ class Extinction(object):
         
         if model == "gauss":
             xs = 2./3.*q*ag*t
+            delta_f_sq_xs = 2./3.*delta_f_sq_q*ag*t
             A = 0.58 + 0.48 * c2theta + 0.24 * c2theta**2
             B = 0.02 - 0.025 * c2theta
             #print("A, B", A, B)
             ys = (1+2.12*xs+(A*xs**2)*1./(1+B*xs))**(-0.5)
+            delta_f_sq_ys = -0.5*(ys**3)*(2.12*delta_f_sq_xs+2.*(A*xs*delta_f_sq_xs)*1./(1+B*xs)-B*delta_f_sq_xs*(A*xs**2)*1./((1+B*xs)**2))
         elif model == "lorentz":
             xs = 2./3.*q*al*t
+            delta_f_sq_xs = 2./3.*delta_f_sq_q*al*t
+
             A = 0.025 + 0.285 * c2theta
             B = -0.45 * c2theta
             flag = c2theta>0
             B[flag] = 0.15 - 0.2 * (0.75-c2theta[flag])**2
-            ys = (1+2*xs+(A*xs**2)*1./(1+B*xs))**(-0.5)
+            ys = (1.+2.*xs+(A*xs**2)*1./(1+B*xs))**(-0.5)
+            delta_f_sq_ys = -0.5*(ys**3)*(2.*delta_f_sq_xs+2.*(A*xs*delta_f_sq_xs)*1./(1+B*xs)-B*delta_f_sq_xs*(A*xs**2)*1./((1.+B*xs)**2))
         else:
             ys = 1.
+            delta_f_sq_ys = 0.
         #print("ys", ys)
         yext = yp * ys
-        return yext
+        delta_f_sq_yext = delta_f_sq_yp * ys + yp * delta_f_sq_ys
+        if flag_derivative_f_sq:
+            return yext, delta_f_sq_yext 
+        else:  
+            return yext
             
     @property
     def is_variable(self):

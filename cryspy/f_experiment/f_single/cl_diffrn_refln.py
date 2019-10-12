@@ -264,7 +264,7 @@ class DiffrnRefln(object):
     def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)
-    def calc_agreement_factor_exp(self):
+    def print_agreement_factor_exp(self):
         l_chi_sq_exp, l_ag_f_exp = [], []
         l_hkl = [(int(_1), int(_2), int(_3))for _1, _2, _3 in zip(self.h, self.k, self.l)]
         for _hkl, _fr_1, _fr_sigma_1 in zip(l_hkl, self.fr, self.fr_sigma):
@@ -279,14 +279,14 @@ class DiffrnRefln(object):
                 l_chi_sq_exp.append(chi_sq_exp)
                 ag_f_exp = abs((_fr_1-_fr_average)/(_fr_1-1.))
                 l_ag_f_exp.append(ag_f_exp)
-                print("hkl: {:4} {:4} {:4}".format(_hkl[0], _hkl[1], _hkl[2]))
+                #print("hkl: {:4} {:4} {:4}".format(_hkl[0], _hkl[1], _hkl[2]))
                 #print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))
                 #print("ag_f_exp: {:.3f} ".format(ag_f_exp))
-        print()
+        ls_out = []
         n_friedel = len(l_chi_sq_exp)
-        print("number of Friedel reflections is {:}".format(n_friedel))
-        print("agreement factor_exp/n is {:.3f}".format(sum(l_ag_f_exp)/n_friedel))
-        print("chi_sq_exp/n is {:.3f}".format(sum(l_chi_sq_exp)/n_friedel))
-        
-        return 
+        ls_out.append("number of Friedel reflections is {:}".format(n_friedel))
+        if n_friedel != 0:
+            ls_out.append("agreement factor_exp/n is {:.3f}".format(sum(l_ag_f_exp)/n_friedel))
+            ls_out.append("chi_sq_exp/n is {:.3f}".format(sum(l_chi_sq_exp)/n_friedel))
+        return "\n".join(ls_out) 
 
