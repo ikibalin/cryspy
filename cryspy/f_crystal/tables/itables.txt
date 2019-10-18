@@ -526,6 +526,17 @@ symmetry: -x,-y,z+1/2
 symmetry: -x,y+1/2,-z+1/2
 symmetry: x,-y+1/2,-z
 
+
+57 Pbcm            Orthorhombic
+choice: 4
+centr: true
+pcentr: 0, 0, 0
+symmetry:  x,y,z
+symmetry:  x,1/2+y,-z
+symmetry:  1/2-x,1/2+y,-z
+symmetry:  1/2+x,-y,-z
+
+
 58 Pnnm            Orthorhombic
 choice: 1
 centr: true
