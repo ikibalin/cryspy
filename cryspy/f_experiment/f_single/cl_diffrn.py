@@ -148,12 +148,11 @@ class Diffrn(object):
         return self.__diffrn_radiation_wavelength
     @wavelength.setter
     def wavelength(self, x):
-        if isinstance(x, float):
+        if isinstance(x, Fitable):
             x_in = x
-        elif x is None:
-            x_in = None
         else:
-            x_in = float(x)
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__diffrn_radiation_wavelength = x_in
 
     @property
@@ -218,7 +217,7 @@ class Diffrn(object):
             self._show_message("Crystal not found.\nThe first one is taken.")
             crystal = l_crystal[0]
             self.phase_label = crystal.label
-        wavelength = self.wavelength
+        wavelength = float(self.wavelength)
         field_z = self.field
         beam_polarization = self.beam_polarization
         extinction = self.extinction
@@ -351,6 +350,8 @@ class Diffrn(object):
             l_bool.append(self.beam_polarization.is_variable)
         if self.extinction is not None:
             l_bool.append(self.extinction.is_variable)
+        if self.wavelength.refinement:
+            l_bool.append(self.wavelength)
         res = any(l_bool)
         return res
 
@@ -360,6 +361,7 @@ class Diffrn(object):
             l_variable.extend(self.beam_polarization.get_variables())
         if self.extinction is not None:
             l_variable.extend(self.extinction.get_variables())
+        if self.wavelength.refinement: l_variable.append(self.wavelength)
         return l_variable
 
 
@@ -388,7 +390,7 @@ class Diffrn(object):
         if self.phase_label is not None:
             ls_out.append("\n"+"_diffrn_phase_label {:}".format(self.phase_label))
         if self.wavelength is not None:
-            ls_out.append("\n"+"_diffrn_radiation_wavelength {:}".format(self.wavelength))
+            ls_out.append("\n"+"_diffrn_radiation_wavelength {:}".format(self.wavelength.print_with_sigma))
         if self.field is not None:
             ls_out.append("_diffrn_ambient_field {:}".format(self.field))
         if self.orient_matrix is not None:
@@ -423,7 +425,7 @@ class Diffrn(object):
             if cif_values.is_prefix("_diffrn_phase_label"):
                 self.phase_label = cif_values["_diffrn_phase_label"]
             if cif_values.is_prefix("_diffrn_radiation_wavelength"):
-                self.wavelength = float(cif_values["_diffrn_radiation_wavelength"])
+                self.wavelength = cif_values["_diffrn_radiation_wavelength"]
             if cif_values.is_prefix("_diffrn_ambient_field"):
                 self.field = float(cif_values["_diffrn_ambient_field"])
             if cif_values.is_prefix("_diffrn_radiation"):

@@ -287,12 +287,11 @@ class Pd2d(object):
         return self.__diffrn_radiation_wavelength
     @wavelength.setter
     def wavelength(self, x):
-        if isinstance(x, float):
+        if isinstance(x, Fitable):
             x_in = x
-        elif x is None:
-            x_in = None
         else:
-            x_in = float(x)
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__diffrn_radiation_wavelength = x_in
         self.erase_precalc
 
@@ -522,6 +521,8 @@ class Pd2d(object):
         if self.phase is not None:
             l_bool.append(self.phase.is_variable)
         l_bool.append(self.is_variable_offset)
+        if self.wavelength.refinement:
+            l_bool.append(self.wavelength)
         res = any(l_bool)
         return res
 
@@ -547,6 +548,7 @@ class Pd2d(object):
         if self.phase is not None:
             l_variable.extend(self.phase.get_variables())
         if self.offset.refinement: l_variable.append(self.offset)
+        if self.wavelength.refinement: l_variable.append(self.wavelength)
         return l_variable
 
 
@@ -569,7 +571,7 @@ class Pd2d(object):
     def params_to_cif(self):
         ls_out = []
         if self.wavelength is not None:
-            ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength))
+            ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength.print_with_sigma))
         if self.field is not None:
             ls_out.append("_diffrn_ambient_field {:}".format(self.field))
         if self.chi2_sum is not None:
@@ -649,7 +651,7 @@ class Pd2d(object):
         cif_values = cif_data.items
         if cif_values is not None:
             if cif_values.is_prefix("_diffrn_radiation_wavelength"):
-                self.wavelength = float(cif_values["_diffrn_radiation_wavelength"])
+                self.wavelength = cif_values["_diffrn_radiation_wavelength"]
             if cif_values.is_prefix("_diffrn_ambient_field"):
                 self.field = float(cif_values["_diffrn_ambient_field"])
             if cif_values.is_prefix("_pd2d_chi2_sum"):
@@ -701,7 +703,7 @@ class Pd2d(object):
         cos_theta_1d = numpy.cos(0.5*tth_rad)
         sin_phi_1d = numpy.sin(phi_rad)
 
-        wavelength = self.wavelength
+        wavelength = float(self.wavelength)
         beam_polarization = self.beam_polarization
 
         p_u = float(beam_polarization.polarization)
@@ -804,7 +806,8 @@ class Pd2d(object):
             cond_1 = dd_in is not None
             cond_2 = ((not(phase_igsize.refinement)) & 
                       (not(self.resolution.is_variable)) & 
-                      (not(self.is_variable_offset)))
+                      (not(self.is_variable_offset)) &
+                      (not(self.wavelength.refinement)))
             if cond_1 & cond_2:
                 profile_3d, tth_zs, h_pv = dd_in["profile_3d"], dd_in["tth_zs"], dd_in["h_pv"]
             else:

@@ -276,12 +276,11 @@ class Pd(object):
         return self.__diffrn_radiation_wavelength
     @wavelength.setter
     def wavelength(self, x):
-        if isinstance(x, float):
+        if isinstance(x, Fitable):
             x_in = x
-        elif x is None:
-            x_in = None
         else:
-            x_in = float(x)
+            x_in = Fitable()
+            flag = x_in.take_it(x)
         self.__diffrn_radiation_wavelength = x_in
         self.erase_precalc
 
@@ -472,6 +471,8 @@ class Pd(object):
         if self.phase is not None:
             l_bool.append(self.phase.is_variable)
         l_bool.append(self.offset.refinement)
+        if self.wavelength.refinement:
+            l_bool.append(self.wavelength)
         res = any(l_bool)
         return res
 
@@ -490,6 +491,7 @@ class Pd(object):
         if self.phase is not None:
             l_variable.extend(self.phase.get_variables())
         if self.offset.refinement: l_variable.append(self.offset)
+        if self.wavelength.refinement: l_variable.append(self.wavelength)
         return l_variable
 
 
@@ -512,7 +514,7 @@ class Pd(object):
     def params_to_cif(self):
         ls_out = []
         if self.wavelength is not None:
-            ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength))
+            ls_out.append("_diffrn_radiation_wavelength {:}".format(self.wavelength.print_with_sigma))
         if self.field is not None:
             ls_out.append("_diffrn_ambient_field {:}".format(self.field))
         if self.chi2_sum is not None:
@@ -586,7 +588,7 @@ class Pd(object):
         cif_values = cif_data.items
         if cif_values is not None:
             if cif_values.is_prefix("_diffrn_radiation_wavelength"):
-                self.wavelength = float(cif_values["_diffrn_radiation_wavelength"])
+                self.wavelength = cif_values["_diffrn_radiation_wavelength"]
             if cif_values.is_prefix("_diffrn_ambient_field"):
                 self.field = float(cif_values["_diffrn_ambient_field"])
             if cif_values.is_prefix("_pd_chi2_sum"):
@@ -629,7 +631,7 @@ class Pd(object):
         proc.bkg_calc = int_bkgd
 
 
-        wavelength = self.wavelength
+        wavelength = float(self.wavelength)
         beam_polarization = self.beam_polarization
         
         tth_min = tth.min()
