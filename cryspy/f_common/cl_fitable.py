@@ -52,6 +52,8 @@ class Fitable(object):
             ind_1 = string.find("(")
             if  ind_1 != -1:
                 self.refinement = True
+            else:
+                self.refinement = False
             str_1 = string.split("(")[0]
             try:
                 self.value = float(str_1)
@@ -63,6 +65,8 @@ class Fitable(object):
             ind_1 = string.find("(")
             if ind_1 != -1:
                 self.refinement = True
+            else:
+                self.refinement = False
             str_1 = string.split("(")[0]
             try:
                 self.value = float(str_1)

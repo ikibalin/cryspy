@@ -9,7 +9,7 @@ import numpy
 import scipy.optimize
 import time
 
-from pycifstar import Global
+from pycifstar import Global, to_global
 from cryspy.f_common.cl_fitable import Fitable
 
 from cryspy.f_crystal.cl_cell import Cell
@@ -146,7 +146,7 @@ class RhoChi(dict):
         if l_fitable == []:
             self._show_message("Variables are not found")
             chi_sq, n = self.calc_chi_sq()
-            self._show_message("Chi_sq {:.3f}\npoints: {:}".format(chi_sq, n))
+            self._show_message(f"chi_sq/n {chi_sq/n:.2f} (n = {int(n):}).")
             return None
         
 
@@ -272,9 +272,9 @@ class RhoChi(dict):
 
     def read_file(self, f_name):
         self.file_input = f_name
-        with open(f_name, "r") as fid:
-            string = fid.read()
-            self.from_cif(string)
+        star_ = to_global(f_name)
+        string = str(star_)
+        self.from_cif(string)
         self.apply_constraint()
 
     def save_to_file(self, f_name):
@@ -293,6 +293,10 @@ class RhoChi(dict):
             f_dir = os.path.dirname(self.file_input)
         f_main = os.path.join(f_dir, "main.rcif")
         ls_main = []
+        ls_main.append("global_{:}\n".format(self.label))
+        for experiment in self.experiments:   
+            ls_main.append(f"\n_add_url {experiment.label:}_data.rcif\n")
+            ls_main.append(f"_add_url {experiment.label:}_calc.rcif\n")
         for crystal in self.crystals:
             ls_main.append("\n"+crystal.to_cif)
         for experiment in self.experiments:   
@@ -314,54 +318,23 @@ class RhoChi(dict):
         with open(f_main, 'w') as fid:
             fid.write("\n".join(ls_main))
 
-    def read_files(self, f_dir="."):
-        f_main = os.path.join(f_dir, "main.rcif")
-        self.file_input = f_main
-        
-        if not(os.path.isfile(f_main)):
-            self._show_message("File '{:}' is not found.".format(f_main))
-            return None
-        with open(f_main, "r") as fid:
-            string = fid.read()
-        self.from_cif(string)
-        
-        for experiment in self.experiments:
-            label_orig = experiment.label
-            f_data = os.path.join(f_dir, "{:}_data.rcif".format(label_orig))
-            if not(os.path.isfile(f_main)):
-                self._show_message("File '{:}' is not found.".format(f_data))
-            else:
-                with open(f_data, "r") as fid:
-                    string = fid.read()
-                experiment.from_cif(string)
-                experiment.label = label_orig
-        self.apply_constraint()
 
-
-def rhochi_read_file(f_name):
+def rhochi_read_file(f_name=os.path.join(".", "main.rcif")):
     rho_chi = RhoChi(file_input=f_name)
-    if os.path.basename(f_name) == "main.rcif":
-        rho_chi.read_files(os.path.dirname(f_name))
-    else:
-        rho_chi.read_file(f_name)
+    rho_chi.read_file(f_name)
     return rho_chi
 
-def rhochi_read_files():
-    rho_chi = RhoChi()
-    rho_chi.read_files(".")
-    return rho_chi
-
-def rhochi_refinement(f_name_in="", f_name_out=""):
+def rhochi_refinement(f_name_in=None, f_name_out=None):
     """
     refinement,
     parameters are defined in given .rcif fiel
     """
     print(70*"*"+"\n"+"RhoChi program. Console version.".center(70)+"\n"+
           70*"*")
-    if f_name_in != "":
-        rho_chi = rhochi_read_file(f_name_in)
+    if f_name_in is None:
+        rho_chi = rhochi_read_file()
     else:
-        rho_chi = rhochi_read_files()
+        rho_chi = rhochi_read_file(f_name_in)
     print("Before refinement:\n")
     #print(rho_chi)
     print("\nRefined parameters -- before:\n")
@@ -376,10 +349,10 @@ def rhochi_refinement(f_name_in="", f_name_out=""):
     for fitable in rho_chi.get_variables():
         print(fitable)
 
-    if f_name_out != "":
-        rho_chi.save_to_file(f_name_out)
-    else:
+    if f_name_out is None:
         rho_chi.save_to_files()
+    else:
+        rho_chi.save_to_file(f_name_out)
 
     print(70*"*"+"\n"+70*"*")
 
