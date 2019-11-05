@@ -50,7 +50,7 @@ class Pd2d(object):
                  beam_polarization = BeamPolarization(), resolution = Pd2dInstrResolution(), meas=Pd2dMeas(), phase=Pd2dPhase(),
                  wavelength=1.4, field=1.0,
                  chi2_sum = True, chi2_diff = True, chi2_up = False, chi2_down = False,
-                 offset = Fitable(0.), ttheta_min = 0.1, ttheta_max = 179.9, phi_min=0., phi_max=40.):
+                 ttheta_offset = Fitable(0.), ttheta_min = 0.1, ttheta_max = 179.9, phi_min=0., phi_max=40.):
         super(Pd2d, self).__init__()
         self.__label = None
         self.__background = None
@@ -89,7 +89,7 @@ class Pd2d(object):
         self.chi2_diff = chi2_diff
         self.chi2_up = chi2_up
         self.chi2_down = chi2_down
-        self.offset = offset
+        self.ttheta_offset = ttheta_offset
         self.ttheta_max = ttheta_max
         self.ttheta_min = ttheta_min
         self.phi_max = phi_max
@@ -426,10 +426,10 @@ class Pd2d(object):
         self.__pd2d_chi2_down = x_in
 
     @property
-    def offset(self):
+    def ttheta_offset(self):
         return self.__pd2d_calib_2theta_offset
-    @offset.setter
-    def offset(self, x):
+    @ttheta_offset.setter
+    def ttheta_offset(self, x):
         if isinstance(x, Fitable):
             x_in = x
         else:
@@ -471,8 +471,8 @@ class Pd2d(object):
             ls_out.append(" phi_min: {:.3f}".format(float(self.phi_min)))
         if self.phi_max is not None:
             ls_out.append(" phi_max: {:.3f}".format(float(self.phi_max)))
-        if self.offset is not None:
-            ls_out.append(" offset: {:}".format(self.offset.print_with_sigma))
+        if self.ttheta_offset is not None:
+            ls_out.append(" ttheta_offset: {:}".format(self.ttheta_offset.print_with_sigma))
         if self.chi2_up is not None:
             ls_out.append(" chi2_up: {:}".format(self.chi2_up))
         if self.chi2_down is not None:
@@ -529,7 +529,7 @@ class Pd2d(object):
     @property
     def is_variable_offset(self):
         l_bool = []
-        l_bool.append(self.offset.refinement)
+        l_bool.append(self.ttheta_offset.refinement)
         res = any(l_bool)
         return res
 
@@ -547,7 +547,7 @@ class Pd2d(object):
             l_variable.extend(self.resolution.get_variables())
         if self.phase is not None:
             l_variable.extend(self.phase.get_variables())
-        if self.offset.refinement: l_variable.append(self.offset)
+        if self.ttheta_offset.refinement: l_variable.append(self.ttheta_offset)
         if self.wavelength.refinement: l_variable.append(self.wavelength)
         return l_variable
 
@@ -606,8 +606,8 @@ class Pd2d(object):
             ls_out.append("\n_pd2d_phi_range_min {:.3f}".format( self.phi_min))
         if self.ttheta_max is not None:
             ls_out.append("_pd2d_phi_range_max {:.3f}".format( self.phi_max))
-        if self.offset is not None:
-            ls_out.append("_pd2d_calib_2theta_offset {:}".format(self.offset.print_with_sigma))
+        if self.ttheta_offset is not None:
+            ls_out.append("_pd2d_calib_2theta_offset {:}".format(self.ttheta_offset.print_with_sigma))
         if self.background is not None:
             ls_out.append("\n"+self.background.to_cif)
         if self.exclude is not None:
@@ -663,7 +663,7 @@ class Pd2d(object):
             if cif_values.is_prefix("_pd2d_chi2_down"):
                 self.chi2_down = (cif_values["_pd2d_chi2_down"].value).strip().lower()=="true"
             if cif_values.is_prefix("_pd2d_calib_2theta_offset"):
-                self.offset = cif_values["_pd2d_calib_2theta_offset"]
+                self.ttheta_offset = cif_values["_pd2d_calib_2theta_offset"]
             if cif_values.is_prefix("_pd2d_2theta_range_min"):
                 self.ttheta_min = float(cif_values["_pd2d_2theta_range_min"])
             if cif_values.is_prefix("_pd2d_2theta_range_max"):
@@ -1015,7 +1015,7 @@ class Pd2d(object):
         tth, phi, tth_hkl in degrees
 
         """
-        zero_shift = float(self.offset)
+        zero_shift = float(self.ttheta_offset)
         tth_zs = tth-zero_shift
 
         resolution = self.resolution
