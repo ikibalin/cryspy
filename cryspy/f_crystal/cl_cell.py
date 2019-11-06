@@ -450,21 +450,30 @@ class Cell(object):
         return "\n".join(ls_out)
         
     def __str__(self):
-        ls_out = [""" a: {:}\n b: {:}\n c: {:}\n alpha: {:}
- beta: {:}\n gamma: {:}\n bravais_lattice: {:}""".format(self.a, self.b, 
-                 self.c, self.alpha, self.beta, self.gamma, 
-                 self.bravais_lattice)]
+        ls_out = [f" a: {self.a.print_with_sigma:} Ang.\n b: {self.b.print_with_sigma:} Ang.\n c: {self.c.print_with_sigma:} Ang."]
+        ls_out.append(f" alpha: {self.alpha.print_with_sigma:} deg.\n beta: {self.beta.print_with_sigma:} deg.\n gamma: {self.gamma.print_with_sigma:} deg.")
+        ls_out.append(f" bravais_lattice: {self.bravais_lattice:}\n")
         if self.__cell_volume is not None:
-            ls_out.append(" volume: {:.3f}".format(self.__cell_volume))
+            ls_out.append(f" volume: {self.__cell_volume:.3f} Ang.**3\n")
+            
+        cond = ((self.__cell_reciprocal_length_a is not None) & (self.__cell_reciprocal_length_b is not None) &
+                (self.__cell_reciprocal_length_c is not None) & (self.__cell_reciprocal_angle_alpha is not None) &
+                (self.__cell_reciprocal_angle_beta is not None) & (self.__cell_reciprocal_angle_gamma is not None))
+        if cond:
+            ls_out.append(f" ia: {self.__cell_reciprocal_length_a:.5f} 1/Ang.\n ib: {self.__cell_reciprocal_length_b:.5f} 1/Ang.\n ic: {self.__cell_reciprocal_length_c:.5f} 1/Ang.")
+            ls_out.append(f" ialpha: {self.__cell_reciprocal_angle_alpha:.5f} deg.\n ibeta: {self.__cell_reciprocal_angle_beta:.5f}  deg.\n igamma: {self.__cell_reciprocal_angle_gamma:.5f}  deg.\n")
+        
+        if self.__cell_ivolume is not None:
+            ls_out.append(f" volume of inversed unit cell: {self.__cell_ivolume:.5f} Ang.**-3\n")
 
         if self.__m_b is not None:
              ls_out.append(""" B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
- {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}""".format(self.__m_b[0, 0],
+ {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}\n""".format(self.__m_b[0, 0],
  self.__m_b[0, 1], self.__m_b[0, 2], self.__m_b[1, 0], self.__m_b[1, 1], 
  self.__m_b[1, 2], self.__m_b[2, 0], self.__m_b[2, 1], self.__m_b[2, 2]))
         if self.__m_ib is not None:
              ls_out.append(""" inversed B matrix is:\n {:9.5f} {:9.5f} {:9.5f}
- {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}""".format(self.__m_ib[0, 0],
+ {:9.5f} {:9.5f} {:9.5f}\n {:9.5f} {:9.5f} {:9.5f}\n""".format(self.__m_ib[0, 0],
  self.__m_ib[0, 1], self.__m_ib[0, 2], self.__m_ib[1, 0], self.__m_ib[1, 1], 
  self.__m_ib[1, 2], self.__m_ib[2, 0], self.__m_ib[2, 1], self.__m_ib[2, 2]))
         if self.__m_ib_norm is not None:

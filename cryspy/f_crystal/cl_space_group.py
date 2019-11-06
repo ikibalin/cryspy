@@ -166,8 +166,41 @@ class SpaceGroup(object):
     def b_3(self):
         return self.__b_3
 
+    @property
+    def names(self):
+        """
+        Give a list of accessible names 
+        """
+        ls_out = []
+        for d_card in self._p_spgr_table:
+            ls_out.append(d_card["name"])
+        return ls_out
+
+    @property
+    def numbers(self):
+        """
+        Give a list of accessible nambers
+        """
+        ls_out = []
+        for d_card in self._p_spgr_table:
+            if d_card["number"] not in ls_out:
+                ls_out.append(d_card["number"])
+        return list(set(ls_out))
 
 
+    def choices(self, name_or_number):
+        """
+        Give a list of accessible choices
+        """
+        ls_out = []
+        sval = "".join((str(name_or_number).split()))
+        for d_card in self._p_spgr_table:
+            cond_1 = d_card["number"] == sval
+            cond_2 = d_card["name"] == sval
+            if (cond_1 | cond_2):
+                ls_out.append(d_card["choice"][0])
+        return list(set(ls_out))        
+        
     def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)
@@ -577,11 +610,15 @@ class SpaceGroup(object):
         centr = self.centr
         if centr:
             p_centr = self.p_centr
-            ls_out.append("inversion center at ({:.3f}, {:.3f}, {:.3f})".format(
+            ls_out.append("There is inversion center at \n ({:.3f}, {:.3f}, {:.3f})".format(
                     p_centr[0], p_centr[1], p_centr[2]))
         if l_el_symm == []:
             return ""
-        for el_symm in l_el_symm:
+        ls_out.append("\nBravais lattice:")
+        for _i_orig, _orig in enumerate(self.orig):
+            ls_out.append(f"({(_i_orig+1):1}) {_orig[0]:.5f} {_orig[0]:.5f} {_orig[0]:.5f}")
+        ls_out.append("\nElements of symmetry:")
+        for i_el_symm, el_symm in enumerate(l_el_symm):
             s_x = ""
             if el_symm[0] != 0.: s_x+="{:.3f}".format(el_symm[0])
             if el_symm[1] == 1: s_x+="+x"
@@ -612,7 +649,7 @@ class SpaceGroup(object):
             if el_symm[11] == -1: s_z+="-z"
             if s_z.startswith("+"): s_z = s_z[1:]
 
-            line=" {:}, {:}, {:}".format(s_x, s_y, s_z)
+            line=f"({(i_el_symm+1):2}) {s_x:}, {s_y:}, {s_y:}"
             ls_out.append(line)
         return "\n".join(ls_out)
 
