@@ -89,7 +89,8 @@ from .f_crystal import (
     calc_mRmCmRT,
     AtomSiteMagnetism,
     AtomSiteMagnetismAniso,
-    AtomSiteAniso
+    AtomSiteAniso,
+    AtomSiteMoment
     )
 
 from .f_experiment import (

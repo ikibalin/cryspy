@@ -19,5 +19,6 @@ from cryspy.f_crystal.cl_atom_site_magnetism import AtomSiteMagnetism
 from cryspy.f_crystal.cl_atom_site_magnetism_aniso import AtomSiteMagnetismAniso
 from cryspy.f_crystal.cl_atom_site_aniso import AtomSiteAniso
 
+from cryspy.f_crystal.cl_atom_site_moment import AtomSiteMoment
 
 
