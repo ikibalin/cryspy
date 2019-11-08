@@ -111,24 +111,29 @@ class Crystal(object):
         self.atom_site_aniso = atom_site_aniso
         self.atom_site_magnetism = atom_site_magnetism
         self.atom_site_magnetism_aniso = atom_site_magnetism_aniso
-        
+
     def __repr__(self):
         ls_out = ["Crystal:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)          
+
+    def __str__(self):
+        ls_out = []
         ls_out.append("label: "+self.label+"\n")
         if self.cell is not None:
-            ls_out.append(str(self.cell)+"\n")
+            ls_out.append("cell:\n"+str(self.cell)+"\n")
         if self.space_group is not None:
-            ls_out.append(str(self.space_group)+"\n")
+            ls_out.append("space_group:\n"+str(self.space_group)+"\n")
         if self.atom_type is not None:
-            ls_out.append(str(self.atom_type)+"\n")
+            ls_out.append("atom_type:\n"+str(self.atom_type)+"\n")
         if self.atom_site is not None:
-            ls_out.append(str(self.atom_site)+"\n")
+            ls_out.append("atom_site:\n"+str(self.atom_site)+"\n")
         if self.atom_site_aniso is not None:
-            ls_out.append(str(self.atom_site_aniso)+"\n")
+            ls_out.append("atom_site_aniso:\n"+str(self.atom_site_aniso)+"\n")
         if self.atom_site_magnetism is not None:
-            ls_out.append(str(self.atom_site_magnetism)+"\n")
+            ls_out.append("atom_site_magnetism:\n"+str(self.atom_site_magnetism)+"\n")
         if self.atom_site_magnetism_aniso is not None:
-            ls_out.append(str(self.atom_site_magnetism_aniso)+"\n")
+            ls_out.append("atom_site_magnetism_aniso:\n"+str(self.atom_site_magnetism_aniso)+"\n")
         return "\n".join(ls_out)
 
     @property
@@ -659,3 +664,78 @@ class Crystal(object):
         cell = self.cell
         res = cell.calc_hkl_in_range(sthol_min, sthovl_max)
         return res
+    
+    def calc_magnetization_ellipsoid(self):
+        """
+        Magnetization ellipsoids are given in the same coordinate system as U_ij (anisotropic Debye-Waller factor)
+        """
+        cell = self.cell
+        a_s_m_a = self.atom_site_magnetism_aniso
+        m_ib_norm = cell.m_ib_norm
+        m_ibt_norm = numpy.transpose(m_ib_norm)
+        l_res = []
+        for _l, _11, _22, _33, _12, _13, _23 in zip(a_s_m_a.label,
+                a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
+                a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
+            m_chi = numpy.array([[_11, _12, _13],
+                                 [_12, _22, _23],
+                                 [_13, _23, _33]], dtype=float)
+            _m1 = numpy.matmul(m_chi, m_ib_norm)
+            _m2 = numpy.matmul(m_ibt_norm, m_chi)
+            _m_u = numpy.matmul(_m1, _m2)
+            l_res.append(_m_u)
+        return l_res
+    
+    def calc_main_axes_of_magnetization_ellipsoids(self):
+        cell = self.cell
+        a_s_m_a = self.atom_site_magnetism_aniso
+        m_ib_norm = cell.m_ib_norm
+        m_ibt_norm = numpy.transpose(m_ib_norm)
+        ll_moments = []
+        ll_directions = []
+        for _l, _11, _22, _33, _12, _13, _23 in zip(a_s_m_a.label,
+                a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
+                a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
+
+            s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(cell, _11, _12, _13, _12, _22, _23, _13, _23, _33)
+            m_chi_norm = numpy.array([[s_11, s_12, s_13],
+                                      [s_12, s_22, s_23],
+                                      [s_13, s_23, s_33]], dtype=float)
+            eig, mat = numpy.linalg.eig(m_chi_norm)
+            l_moments = list(eig)
+            l_directions = [mat[:,0], mat[:,1], mat[:,2]]
+            ll_moments.append(l_moments)
+            ll_directions.append(l_directions)
+        return ll_moments, ll_directions
+    
+    def calc_magnetic_moments_with_field_loc(self, field_abc):
+        """
+        !!!!
+        TODO:
+        IMPORTANT:
+        IN GENERAL CASE NOT CORRECT
+        !!!!
+        """
+        np_field = numpy.array(field_abc, dtype=float)
+        spgr = self.space_group
+        
+        a_s = self.atom_site
+        a_s_m_a = self.atom_site_magnetism_aniso
+        l_lab_out, l_xyz_out, l_moment_out = [], [], []
+        for _l, _11, _22, _33, _12, _13, _23 in zip(a_s_m_a.label,
+                a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
+                a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
+            m_chi = numpy.array([[_11, _12, _13],
+                                 [_12, _22, _23],
+                                 [_13, _23, _33]], dtype=float)
+            _ind = a_s.label.index(_l)
+            x, y, z = float(a_s.x[_ind]), float(a_s.y[_ind]), float(a_s.z[_ind])
+            l_out = spgr.calc_rotated_matrix_for_position(m_chi, x, y, z)
+            for _i_out, _out in enumerate(l_out):
+                _xyz = _out[0]
+                _chi = _out[1]
+                _moment = numpy.matmul(_chi, np_field)
+                l_lab_out.append(f"{_l:}_{_i_out+1:}")
+                l_xyz_out.append(_xyz)
+                l_moment_out.append(_moment)
+        return l_lab_out, l_xyz_out, l_moment_out

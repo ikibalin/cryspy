@@ -52,7 +52,7 @@ class AtomSiteMoment(object):
         return "\n".join(ls_out)
 
     def __repr__(self):
-        ls_out = ["AtomSiteMagnetism:"]
+        ls_out = ["AtomSiteMoment:"]
         ls_out.append(str(self))
         return "\n".join(ls_out)
 

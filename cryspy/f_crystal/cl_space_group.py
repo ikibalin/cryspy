@@ -204,9 +204,14 @@ class SpaceGroup(object):
     def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)
-
+        
     def __repr__(self):
-        ls_out = ["SpaceGroup:\n given name: {:}\n choice: {:}".format(self.spgr_given_name, self.spgr_choice)]
+        ls_out = ["SpaceGroup:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)     
+        
+    def __str__(self):
+        ls_out = [" given name: {:}\n choice: {:}".format(self.spgr_given_name, self.spgr_choice)]
         if self.spgr_name is not None:
             ls_out.append(" name: {:}".format(self.spgr_name))
         if self.spgr_number is not None:
@@ -394,6 +399,7 @@ class SpaceGroup(object):
         h_s, k_s, l_s = hkl_s_un[0, :], hkl_s_un[1, :], hkl_s_un[2, :]
         return h_s, k_s, l_s, multiplicity
 
+
     def calc_xyz_mult(self, x, y, z):
         """
         give unique x,y,z elements and calculate multiplicit for given x,y,z fract
@@ -451,8 +457,11 @@ class SpaceGroup(object):
         
         return x_s, y_s, z_s, n_atom
     
-    def calc_el_symm_for_xyz(self, x_in, y_in, z_in):
-        x ,y, z = x_in%1., y_in%1., z_in%1.
+    @property
+    def full_r_b(self):
+        """
+        Give a full list of rotation matrix and b 
+        """
         r_11 = self.r_11
         r_12 = self.r_12
         r_13 = self.r_13
@@ -535,7 +544,11 @@ class SpaceGroup(object):
             e_2 = numpy.hstack([e_2, me_2])
             e_3 = numpy.hstack([e_3, me_3])
 
-            
+        return e_11, e_12, e_13, e_21, e_22, e_23, e_31, e_32, e_33, e_1, e_2, e_3
+
+    def calc_el_symm_for_xyz(self, x_in, y_in, z_in):
+        x, y, z = x_in%1., y_in%1., z_in%1.
+        e_11, e_12, e_13, e_21, e_22, e_23, e_31, e_32, e_33, e_1, e_2, e_3 = self.full_r_b
         x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
         y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
         z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
@@ -550,9 +563,8 @@ class SpaceGroup(object):
         o_11, o_12, o_13 = e_11[flag], e_12[flag], e_13[flag]
         o_21, o_22, o_23 = e_21[flag], e_22[flag], e_23[flag]
         o_31, o_32, o_33 = e_31[flag], e_32[flag], e_33[flag]
-        o_3, o_2, o_3 = e_3[flag], e_2[flag], e_3[flag]
-        return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3
-
+        o_1, o_2, o_3 = e_1[flag], e_2[flag], e_3[flag]
+        return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3
 
     
     def calc_atom_mult(self, np_x, np_y, np_z):
@@ -717,3 +729,33 @@ class SpaceGroup(object):
         ls_out.append("_space_group_name_H-M_alt {:}".format(self.spgr_name))
         ls_out.append("_space_group_it_coordinate_system_code {:}".format(self.spgr_choice))
         return "\n".join(ls_out)
+    
+    def calc_rotated_matrix_for_position(self, m_chi, x, y, z):
+        
+        e_11, e_12, e_13, e_21, e_22, e_23, e_31, e_32, e_33, e_1, e_2, e_3 = self.full_r_b
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        #o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3 = self.calc_el_symm_for_xyz(x, y, z)
+        #np_x, np_y, np_z, mult = self.calc_xyz_mult(x, y, z)
+        
+        l_ind, l_xyz = [], []
+        _ind = 0
+        for _x, _y, _z in zip(x_s, y_s, z_s):
+            if (_x, _y, _z) not in l_xyz:
+                l_ind.append(_ind)
+                l_xyz.append((_x, _y, _z))
+            _ind += 1
+        l_res = []
+        for _ind, _xyz in zip(l_ind, l_xyz):
+            _11, _12, _13 = e_11[_ind], e_12[_ind], e_13[_ind]
+            _21, _22, _23 = e_21[_ind], e_22[_ind], e_23[_ind]
+            _31, _32, _33 = e_31[_ind], e_32[_ind], e_33[_ind]
+            _1, _2, _3 = e_1[_ind], e_2[_ind], e_3[_ind]
+            matrix_r = numpy.array([[_11, _12, _13], [_21, _22, _23], 
+                               [_31, _32, _33]], dtype=float)
+            matrix_rt = matrix_r.transpose()
+            r_chi = numpy.matmul(matrix_r, m_chi)
+            matrix_chi_rot = numpy.matmul(r_chi, matrix_rt)
+            l_res.append((_xyz, matrix_chi_rot))
+        return l_res

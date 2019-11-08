@@ -58,6 +58,11 @@ class AtomSiteAniso(object):
         
     def __repr__(self):
         ls_out = ["AtomSiteAniso:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)        
+
+    def __str__(self):
+        ls_out = []
         ls_out.append(" label    u_11     u_22     u_33     u_12     u_13     u_23    ")
         for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7 in zip(
             self.label, self.u_11, self.u_22, self.u_33, self.u_12, self.u_13, self.u_23):

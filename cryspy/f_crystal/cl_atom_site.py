@@ -83,6 +83,11 @@ class AtomSite(object):
         
     def __repr__(self):
         ls_out = ["AtomSite:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)     
+
+    def __str__(self):
+        ls_out = []
         ls_out.append(" label type_symbol x        y        z        adp_type b_iso    occupancy")
         for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in zip(
             self.label, self.type_symbol, self.x, self.y, self.z, self.adp_type, self.b_iso, self.occupancy):

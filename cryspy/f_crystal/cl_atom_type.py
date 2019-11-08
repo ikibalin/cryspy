@@ -89,9 +89,14 @@ class AtomType(object):
     @b_scat.setter
     def b_scat(self, l_x):
         self.scat_length_neutron = l_x
-
+        
     def __repr__(self):
         ls_out = ["AtomType:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)     
+
+    def __str__(self):
+        ls_out = []
         ls_out.append(" symbol   scat_length_neutron")
         for _1, _2 in zip(self.symbol, self.scat_length_neutron):
             ls_out.append(" {:8} {:8}".format(_1, _2.print_with_sigma))

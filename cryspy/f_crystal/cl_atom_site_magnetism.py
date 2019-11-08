@@ -38,6 +38,11 @@ class AtomSiteMagnetism(object):
         
     def __repr__(self):
         ls_out = ["AtomSiteMagnetism:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)        
+        
+    def __str__(self):
+        ls_out = []
         ls_out.append(" label    kappa    lande   ")
         for hh_1, hh_2, hh_3 in zip(self.label, self.kappa, self.lande):
             ls_out.append(" {:8} {:8} {:8}".format(hh_1, hh_2.print_with_sigma, hh_3.print_with_sigma))

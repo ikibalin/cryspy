@@ -59,6 +59,11 @@ class AtomSiteMagnetismAniso(object):
         
     def __repr__(self):
         ls_out = ["AtomSiteMagnetismAniso:"]
+        ls_out.append(str(self))
+        return "\n".join(ls_out)
+
+    def __str__(self):
+        ls_out = []
         ls_out.append(" label    chi_type chi_11   chi_22   chi_33   chi_12   chi_13   chi_23   ")
         for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in zip(
             self.label, self.chi_type, self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23):
