@@ -255,13 +255,19 @@ class Diffrn(object):
         f_nucl, sft_11, sft_12, sft_13 = refln.f_nucl, refln.sft_11, refln.sft_12, refln.sft_13
         sft_21, sft_22, sft_23 = refln.sft_21, refln.sft_22, refln.sft_23
         sft_31, sft_32, sft_33 = refln.sft_31, refln.sft_32, refln.sft_33
-        
+
+        sftm_11, sftm_12, sftm_13 = refln.sftm_11, refln.sftm_12, refln.sftm_13
+        sftm_21, sftm_22, sftm_23 = refln.sftm_21, refln.sftm_22, refln.sftm_23
+        sftm_31, sftm_32, sftm_33 = refln.sftm_31, refln.sftm_32, refln.sftm_33
+
+
         cell = crystal.cell
         k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
         
-        mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + sft_13*field_loc[2]
-        mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + sft_23*field_loc[2]
-        mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + sft_33*field_loc[2]
+        #not sure about e_u_loc at field < 0 
+        mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + sft_13*field_loc[2] + sftm_11*e_u_loc[0] + sftm_12*e_u_loc[1] + sftm_13*e_u_loc[2]
+        mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + sft_23*field_loc[2] + sftm_21*e_u_loc[0] + sftm_22*e_u_loc[1] + sftm_23*e_u_loc[2]
+        mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + sft_33*field_loc[2] + sftm_31*e_u_loc[0] + sftm_32*e_u_loc[1] + sftm_33*e_u_loc[2]
         
         #vector product k x mag x k        
         mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2

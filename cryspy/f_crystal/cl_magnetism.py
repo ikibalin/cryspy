@@ -48,6 +48,12 @@ class Magnetism(object):
                        chi_22=numpy.array([], dtype=float),
                        chi_23=numpy.array([], dtype=float),
                        chi_33=numpy.array([], dtype=float),
+                       moment_11=numpy.array([], dtype=float),
+                       moment_12=numpy.array([], dtype=float),
+                       moment_13=numpy.array([], dtype=float),
+                       moment_22=numpy.array([], dtype=float),
+                       moment_23=numpy.array([], dtype=float),
+                       moment_33=numpy.array([], dtype=float),
                        j0_A=numpy.array([], dtype=float),
                        j0_a=numpy.array([], dtype=float),
                        j0_B=numpy.array([], dtype=float),
@@ -69,6 +75,12 @@ class Magnetism(object):
         self.__atom_site_aniso_magnetism_chi_22 = None
         self.__atom_site_aniso_magnetism_chi_23 = None
         self.__atom_site_aniso_magnetism_chi_33 = None
+        self.__atom_site_aniso_magnetism_moment_11 = None
+        self.__atom_site_aniso_magnetism_moment_12 = None
+        self.__atom_site_aniso_magnetism_moment_13 = None
+        self.__atom_site_aniso_magnetism_moment_22 = None
+        self.__atom_site_aniso_magnetism_moment_23 = None
+        self.__atom_site_aniso_magnetism_moment_33 = None
         self.__atom_site_magnetism_kappa = None
         self.__atom_site_magnetism_factor_lande = None
         self.__j0_A = None
@@ -96,6 +108,12 @@ class Magnetism(object):
         self.chi_22 = chi_22
         self.chi_23 = chi_23
         self.chi_33 = chi_33
+        self.moment_11 = moment_11
+        self.moment_12 = moment_12
+        self.moment_13 = moment_13
+        self.moment_22 = moment_22
+        self.moment_23 = moment_23
+        self.moment_33 = moment_33
         self.j0_A = j0_A
         self.j0_a = j0_a
         self.j0_B = j0_B
@@ -166,6 +184,45 @@ class Magnetism(object):
     @chi_23.setter
     def chi_23(self, x):
         self.__atom_site_aniso_magnetism_chi_23 = self._trans_to_float_array(x)    
+
+
+    @property
+    def moment_11(self):
+        return self.__atom_site_aniso_magnetism_moment_11
+    @moment_11.setter
+    def moment_11(self, x):
+        self.__atom_site_aniso_magnetism_moment_11 = self._trans_to_float_array(x)    
+    @property
+    def moment_22(self):
+        return self.__atom_site_aniso_magnetism_moment_22
+    @moment_22.setter
+    def moment_22(self, x):
+        self.__atom_site_aniso_magnetism_moment_22 = self._trans_to_float_array(x)    
+    @property
+    def moment_33(self):
+        return self.__atom_site_aniso_magnetism_moment_33
+    @moment_33.setter
+    def moment_33(self, x):
+        self.__atom_site_aniso_magnetism_moment_33 = self._trans_to_float_array(x)    
+    @property
+    def moment_12(self):
+        return self.__atom_site_aniso_magnetism_moment_12
+    @moment_12.setter
+    def moment_12(self, x):
+        self.__atom_site_aniso_magnetism_moment_12 = self._trans_to_float_array(x)    
+    @property
+    def moment_13(self):
+        return self.__atom_site_aniso_magnetism_moment_13
+    @moment_13.setter
+    def moment_13(self, x):
+        self.__atom_site_aniso_magnetism_moment_13 = self._trans_to_float_array(x)    
+    @property
+    def moment_23(self):
+        return self.__atom_site_aniso_magnetism_moment_23
+    @moment_23.setter
+    def moment_23(self, x):
+        self.__atom_site_aniso_magnetism_moment_23 = self._trans_to_float_array(x)    
+
 
     @property
     def j0_A(self):
@@ -259,67 +316,21 @@ class Magnetism(object):
         return self.__matrix_chi_loc
 
     def __repr__(self):
-        ls_out = ["Magnetism susceptibility:\n  chi_11   chi_22   chi_33  chi_12   chi_13   chi_23"]
-        ls_out.extend(["{:8.5f} {:8.5f} {:8.5f}{:8.5f} {:8.5f} {:8.5f}".format(
-            hh_1, hh_2, hh_3, hh_4, hh_5, hh_6) for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6 
-            in zip(self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23)])
+        ls_out = ["Magnetism susceptibility"]
+        ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
+    def __str__(self):
+        ls_out = []
+        ls_out.append("chi_11   chi_22   chi_33  chi_12   chi_13   chi_23")
+        ls_out.extend(["{:8.5f} {:8.5f} {:8.5f}{:8.5f} {:8.5f} {:8.5f}".format(
+            _1, _2, _3, _4, _5, _6) for _1, _2, _3, _4, _5, _6 
+            in zip(self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23)])
+        return "\n".join(ls_out)
     
-    def _calc_chi_loc(ia, ib, ic, matrix_ib):
+    def calc_form_factor_tensor_susceptibility(self, space_group, cell, h, k, l):
         """
-        IT SHOULD BE DELETED
-
-
-        representation of chi in crystallographic coordinate system defined as x||a*, z||c, y= [z x] (right handed)
-        expressions are taken from international tables
-        matrix_ib is inversed matrix B
-        ia, ib, ic is inversed unit cell parameters (it can be estimated from matrix matrix_ib)
-
-        X = B x, x = iB X
-        xT*CHI*x = XT iBT CHI iB X
-    
-        output chiLOC = iBT CHI iB
-        """
-        matrix_chi = numpy.array(
-                [[self.chi_11, self.chi_12, self.chi_13],
-                 [self.chi_12, self.chi_22, self.chi_23],
-                 [self.chi_13, self.chi_23, self.chi_33]], 
-                 dtype = float)
-        #mchi=[[chi[0],chi[3],chi[4]],[chi[3],chi[1],chi[5]],[chi[4],chi[5],chi[2]]]
-        #[a,b,c,alpha,beta,gamma]=ucp
-        y1 = matrix_ib[0,0]
-        y2 = matrix_ib[1,1]
-        y3 = matrix_ib[2,2]
-        y4 = matrix_ib[0,1]
-        y5 = matrix_ib[0,2]
-        y6 = matrix_ib[1,2]
-        #B=[[x1,x4,x5],
-        #   [0.,x2,x6],
-        #   [0.,0.,x3]]
-        #it shuld be checked
-        #iB=numpy.linalg.inv(B)
-        y1 = 1./x1
-        y2 = 1./x2
-        y3 = 1./x3
-        y4 = -1*x4*1./(x1*x2)
-        y6 = -1*x6*1./(x2*x3)
-        y5 = (x4*x6-x2*x5)*1./(x1*x2*x3)
-        matrix_ib_norm = matrix_ib
-        #!!!! to check it !!! before it was [:, 0]
-        matrix_ib_norm[0, :] *= ia
-        matrix_ib_norm[1, :] *= ib
-        matrix_ib_norm[2, :] *= ic
-        print("There is mistake!!!!!")
-        matrix_ibt_norm = matrix_ib_norm.transpose()
-        #it is not compatible with case, vhen chi_ij is 1D array 
-        ibt_chi = numpy.matmul(matrix_ibt_norm, matrix_chi)
-        matrix_chi_loc = numpy.matmul(ibt_chi, matrix_ib_norm)
-        self.__matrix_chi_loc = matrix_chi_loc
-    
-    def calc_form_factor_tensor(self, space_group, cell, h, k, l):
-        """
-        give components of form factor tensor:
+        give components of form factor tensor for susceptibility:
             fft_11, fft_12, fft_13
             fft_21, fft_22, fft_23
             fft_31, fft_32, fft_33
@@ -371,6 +382,62 @@ class Magnetism(object):
         
         return fft_11, fft_12, fft_13, fft_21, fft_22, fft_23, fft_31, fft_32, fft_33
     
+
+    def calc_form_factor_tensor_moment(self, space_group, cell, h, k, l):
+        """
+        give components of form factor tensor for moment:
+            fft_11, fft_12, fft_13
+            fft_21, fft_22, fft_23
+            fft_31, fft_32, fft_33
+            
+        in 3 dimension (hkl, atoms, symmetry elements)            
+        """
+        sthovl = cell.calc_sthovl(h, k, l)
+        #dimension (hkl, atoms)
+        form_factor_2d = self._calc_form_factor(sthovl)
+        
+        r_11, r_12 = space_group.r_11, space_group.r_12
+        r_13, r_21 = space_group.r_13, space_group.r_21
+        r_22, r_23 = space_group.r_22, space_group.r_23
+        r_31, r_32 = space_group.r_31, space_group.r_32
+        r_33 = space_group.r_33
+
+        moment_11, moment_22 = self.moment_11, self.moment_22 
+        moment_33, moment_12 = self.moment_33, self.moment_12
+        moment_13, moment_23 = self.moment_13, self.moment_23
+        moment_21, moment_31, moment_32 = moment_12, moment_13, moment_23 
+        
+        c11, r11 = numpy.meshgrid(moment_11, r_11, indexing="ij")
+        c22, r22 = numpy.meshgrid(moment_22, r_22, indexing="ij")
+        c33, r33 = numpy.meshgrid(moment_33, r_33, indexing="ij")
+        c12, r12 = numpy.meshgrid(moment_12, r_12, indexing="ij")
+        c13, r13 = numpy.meshgrid(moment_13, r_13, indexing="ij")
+        c23, r23 = numpy.meshgrid(moment_23, r_23, indexing="ij")
+        c21, r21 = numpy.meshgrid(moment_21, r_21, indexing="ij")
+        c31, r31 = numpy.meshgrid(moment_31, r_31, indexing="ij")
+        c32, r32 = numpy.meshgrid(moment_32, r_32, indexing="ij")
+        
+        
+        rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33 = calc_mRmCmRT(
+                r11, r12, r13, r21, r22, r23, r31, r32, r33,
+                c11, c12, c13, c21, c22, c23, c31, c32, c33)        
+        
+        #dimension (hkl, atoms, symmetry)
+        fft_11 = form_factor_2d[:,:,numpy.newaxis]*rcrt_11[numpy.newaxis, :,:]
+        fft_12 = form_factor_2d[:,:,numpy.newaxis]*rcrt_12[numpy.newaxis, :,:]
+        fft_13 = form_factor_2d[:,:,numpy.newaxis]*rcrt_13[numpy.newaxis, :,:]
+        fft_21 = form_factor_2d[:,:,numpy.newaxis]*rcrt_21[numpy.newaxis, :,:]
+        fft_22 = form_factor_2d[:,:,numpy.newaxis]*rcrt_22[numpy.newaxis, :,:]
+        fft_23 = form_factor_2d[:,:,numpy.newaxis]*rcrt_23[numpy.newaxis, :,:]
+        fft_31 = form_factor_2d[:,:,numpy.newaxis]*rcrt_31[numpy.newaxis, :,:]
+        fft_32 = form_factor_2d[:,:,numpy.newaxis]*rcrt_32[numpy.newaxis, :,:]
+        fft_33 = form_factor_2d[:,:,numpy.newaxis]*rcrt_33[numpy.newaxis, :,:]
+        
+        #ortogonalization should be done
+        
+        return fft_11, fft_12, fft_13, fft_21, fft_22, fft_23, fft_31, fft_32, fft_33
+    
+
     def calc_chi_rot(self, matrix_chi, elsymm):
         """
         calculate R*chi*RT
@@ -384,7 +451,22 @@ class Magnetism(object):
         
         matrix_chi_rot = numpy.matmul(r_chi, matrix_rt)
         return matrix_chi_rot 
-    
+
+    def calc_moment_rot(self, matrix_moment, elsymm):
+        """
+        calculate R*moment*RT
+        rotation of moment by element of symmetry
+        """
+        [b1,r11,r12,r13,b2,r21,r22,r23,b3,r31,r32,r33]=elsymm
+        matrix_r = numpy.array([[r11, r12, r13], [r21, r22, r23], 
+                               [r31, r32, r33]], dtype=float)
+        matrix_rt = matrix_r.transpose()
+        r_moment = numpy.matmul(matrix_r, matrix_moment)
+        
+        matrix_moment_rot = numpy.matmul(r_moment, matrix_rt)
+        return matrix_moment_rot 
+
+
     def _calc_form_factor(self, sthovl):
         """Calculate magnetic form factor in frame of Spherical model (Int.Tabl.C.p.592)\n
         LFactor is Lande factor\n

@@ -1,8 +1,17 @@
 """
 define classes to describe AtomSiteMagnetismAniso
+
+
+atom_site_magnetism_aniso_moment was added at the suggestion of Henrik Thoma <h.thoma@fz-juelich.de>:
+
+Since a large number of orientations and magnetic fields measured for one compound in the weak ferromagnetic state, 
+it is introduced an additional weak ferromagnetic moment tensor to refine data. 
+
+atom_moment_i = (moment_ij + abs(field) * chi_ij) * field_j
+
 """
 __author__ = 'ikibalin'
-__version__ = "2019_08_29"
+__version__ = "2019_11_25"
 import os
 import numpy
 
@@ -30,13 +39,24 @@ class AtomSiteMagnetismAniso(object):
     _atom_site_magnetism_aniso_chi_22
     _atom_site_magnetism_aniso_chi_23
     _atom_site_magnetism_aniso_chi_33
+    _atom_site_magnetism_aniso_moment_type
+    _atom_site_magnetism_aniso_moment_11
+    _atom_site_magnetism_aniso_moment_12
+    _atom_site_magnetism_aniso_moment_13
+    _atom_site_magnetism_aniso_moment_22
+    _atom_site_magnetism_aniso_moment_23
+    _atom_site_magnetism_aniso_moment_33
      Fe3A cani -3.468(74) 0.0 0.0 -3.468 0.0 -3.468
      Fe3B cani 3.041      0.0 0.0  3.041 0.0  3.041
     
     """    
     def __init__(self, label=[], chi_type=[], 
                  chi_11=[], chi_22=[], chi_33=[],
-                 chi_12=[], chi_13=[], chi_23=[]):
+                 chi_12=[], chi_13=[], chi_23=[],
+                 moment_type=[], 
+                 moment_11=[], moment_22=[], moment_33=[],
+                 moment_12=[], moment_13=[], moment_23=[],
+                 ):
         super(AtomSiteMagnetismAniso, self).__init__()
 
         self.__atom_site_magnetism_aniso_label = []
@@ -47,6 +67,13 @@ class AtomSiteMagnetismAniso(object):
         self.__atom_site_magnetism_aniso_chi_22 = []
         self.__atom_site_magnetism_aniso_chi_23 = []
         self.__atom_site_magnetism_aniso_chi_33 = []
+        self.__atom_site_magnetism_aniso_moment_type = []
+        self.__atom_site_magnetism_aniso_moment_11 = []
+        self.__atom_site_magnetism_aniso_moment_12 = []
+        self.__atom_site_magnetism_aniso_moment_13 = []
+        self.__atom_site_magnetism_aniso_moment_22 = []
+        self.__atom_site_magnetism_aniso_moment_23 = []
+        self.__atom_site_magnetism_aniso_moment_33 = []
 
         self.label = label
         self.chi_type = chi_type
@@ -56,6 +83,13 @@ class AtomSiteMagnetismAniso(object):
         self.chi_22 = chi_22
         self.chi_23 = chi_23
         self.chi_33 = chi_33
+        self.moment_type = moment_type
+        self.moment_11 = moment_11
+        self.moment_12 = moment_12
+        self.moment_13 = moment_13
+        self.moment_22 = moment_22
+        self.moment_23 = moment_23
+        self.moment_33 = moment_33
         
     def __repr__(self):
         ls_out = ["AtomSiteMagnetismAniso:"]
@@ -94,7 +128,7 @@ class AtomSiteMagnetismAniso(object):
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_type = self.__atom_site_magnetism_aniso_chi_type[:len_x]
         elif len_1 < len_x:
-            l_fitable = ["Fe3+" for hh in range(len_x-len_1)]
+            l_fitable = ["cani" for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_type.extend(l_fitable)
 
         len_1 = len(self.__atom_site_magnetism_aniso_chi_11)
@@ -118,7 +152,7 @@ class AtomSiteMagnetismAniso(object):
             l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_33") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_33.extend(l_fitable)
 
-        len_1 = len(self.__atom_site_magnetism_aniso_chi_11)
+        len_1 = len(self.__atom_site_magnetism_aniso_chi_12)
         if len_1 > len_x:
             self.__atom_site_magnetism_aniso_chi_12 = self.__atom_site_magnetism_aniso_chi_12[:len_x]
         elif len_1 < len_x:
@@ -138,6 +172,57 @@ class AtomSiteMagnetismAniso(object):
         elif len_1 < len_x:
             l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_chi_23") for hh in range(len_x-len_1)]
             self.__atom_site_magnetism_aniso_chi_23.extend(l_fitable)
+
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_type)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_type = self.__atom_site_magnetism_aniso_moment_type[:len_x]
+        elif len_1 < len_x:
+            l_fitable = ["mani" for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_type.extend(l_fitable)
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_11)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_11 = self.__atom_site_magnetism_aniso_moment_11[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_moment_11") for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_11.extend(l_fitable)
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_22)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_22 = self.__atom_site_magnetism_aniso_moment_22[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_moment_22") for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_22.extend(l_fitable)
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_33)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_33 = self.__atom_site_magnetism_aniso_moment_33[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_moment_33") for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_33.extend(l_fitable)
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_12)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_12 = self.__atom_site_magnetism_aniso_moment_12[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_moment_12") for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_12.extend(l_fitable)
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_13)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_13 = self.__atom_site_magnetism_aniso_moment_13[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_moment_13") for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_13.extend(l_fitable)
+
+        len_1 = len(self.__atom_site_magnetism_aniso_moment_23)
+        if len_1 > len_x:
+            self.__atom_site_magnetism_aniso_moment_23 = self.__atom_site_magnetism_aniso_moment_23[:len_x]
+        elif len_1 < len_x:
+            l_fitable = [Fitable(value=0., name="_atom_site_magnetism_aniso_moment_23") for hh in range(len_x-len_1)]
+            self.__atom_site_magnetism_aniso_moment_23.extend(l_fitable)
+
 
     @property
     def chi_type(self):
@@ -160,7 +245,7 @@ class AtomSiteMagnetismAniso(object):
         if len_1 < len_x:
             l_fitable = l_fitable[:len_1]
         elif len_1 > len_x:
-            l_fitable.extend(["Fe3+" for hh in range(len_1-len_x)])
+            l_fitable.extend(["cani" for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_type = l_fitable
 
     @property
@@ -336,6 +421,210 @@ class AtomSiteMagnetismAniso(object):
             l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_chi_23") for hh in range(len_1-len_x)])
         self.__atom_site_magnetism_aniso_chi_23 = l_fitable
 
+
+
+
+
+    @property
+    def moment_type(self):
+        """
+        Chi type. 
+
+        Default: mani
+
+        Type: char
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_type)
+    @moment_type.setter
+    def moment_type(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            x_in = str(x).strip()
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend(["mani" for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_type = l_fitable
+
+    @property
+    def moment_11(self):
+        """
+        moment_11
+
+        Default: 0.
+
+        Type: float
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_11)
+    @moment_11.setter
+    def moment_11(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_moment_11") for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_11 = l_fitable
+
+
+    @property
+    def moment_22(self):
+        """
+        moment_22
+
+        Default: 0.
+
+        Type: float
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_22)
+    @moment_22.setter
+    def moment_22(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_moment_22") for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_22 = l_fitable
+
+
+    @property
+    def moment_33(self):
+        """
+        moment_33
+
+        Default: 0.
+
+        Type: float
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_33)
+    @moment_33.setter
+    def moment_33(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_moment_33") for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_33 = l_fitable
+
+
+    @property
+    def moment_12(self):
+        """
+        moment_12
+
+        Default: 0.
+
+        Type: float
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_12)
+    @moment_12.setter
+    def moment_12(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_moment_12") for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_12 = l_fitable
+
+
+    @property
+    def moment_13(self):
+        """
+        moment_13
+
+        Default: 0.
+
+        Type: float
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_13)
+    @moment_13.setter
+    def moment_13(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_moment_13") for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_13 = l_fitable
+
+
+    @property
+    def moment_23(self):
+        """
+        moment_23
+
+        Default: 0.
+
+        Type: float
+        """
+        return tuple(self.__atom_site_magnetism_aniso_moment_23)
+    @moment_23.setter
+    def moment_23(self, l_x):
+        l_fitable = []
+        for x in l_x:
+            if isinstance(x, Fitable):
+                x_in = x
+            else:
+                x_in = Fitable()
+                flag = x_in.take_it(x)
+            l_fitable.append(x_in)
+        len_x = len(l_fitable)
+        len_1 = len(self.__atom_site_magnetism_aniso_label)
+        if len_1 < len_x:
+            l_fitable = l_fitable[:len_1]
+        elif len_1 > len_x:
+            l_fitable.extend([Fitable(value=0., name= "_atom_site_magnetism_aniso_moment_23") for hh in range(len_1-len_x)])
+        self.__atom_site_magnetism_aniso_moment_23 = l_fitable
+
+
+
+
     def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)
@@ -354,7 +643,13 @@ class AtomSiteMagnetismAniso(object):
                any([hh.refinement for hh in self.chi_33]) |
                any([hh.refinement for hh in self.chi_12]) |
                any([hh.refinement for hh in self.chi_13]) |
-               any([hh.refinement for hh in self.chi_23]))
+               any([hh.refinement for hh in self.chi_23]) |
+               any([hh.refinement for hh in self.moment_11]) | 
+               any([hh.refinement for hh in self.moment_22]) |
+               any([hh.refinement for hh in self.moment_33]) |
+               any([hh.refinement for hh in self.moment_12]) |
+               any([hh.refinement for hh in self.moment_13]) |
+               any([hh.refinement for hh in self.moment_23]))
         return res
 
 
@@ -365,6 +660,13 @@ class AtomSiteMagnetismAniso(object):
         l_variable.extend([hh for hh in self.chi_12 if hh.refinement])
         l_variable.extend([hh for hh in self.chi_13 if hh.refinement])
         l_variable.extend([hh for hh in self.chi_23 if hh.refinement])
+        
+        l_variable.extend([hh for hh in self.moment_11 if hh.refinement])
+        l_variable.extend([hh for hh in self.moment_22 if hh.refinement])
+        l_variable.extend([hh for hh in self.moment_33 if hh.refinement])
+        l_variable.extend([hh for hh in self.moment_12 if hh.refinement])
+        l_variable.extend([hh for hh in self.moment_13 if hh.refinement])
+        l_variable.extend([hh for hh in self.moment_23 if hh.refinement])
 
         return l_variable
 
@@ -381,11 +683,24 @@ class AtomSiteMagnetismAniso(object):
             ls_out.append("_atom_site_magnetism_aniso_chi_12")
             ls_out.append("_atom_site_magnetism_aniso_chi_13")
             ls_out.append("_atom_site_magnetism_aniso_chi_23")
-            for hh_1, hh_2, hh_3, hh_4, hh_5, hh_6, hh_7, hh_8 in zip(self.label, self.chi_type, 
-                self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23):
-                ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:}".format(hh_1, hh_2, 
-                        hh_3.print_with_sigma, hh_4.print_with_sigma, hh_5.print_with_sigma,
-                        hh_6.print_with_sigma, hh_7.print_with_sigma, hh_8.print_with_sigma))
+            
+            ls_out.append("_atom_site_magnetism_aniso_moment_type")
+            ls_out.append("_atom_site_magnetism_aniso_moment_11")
+            ls_out.append("_atom_site_magnetism_aniso_moment_22")
+            ls_out.append("_atom_site_magnetism_aniso_moment_33")
+            ls_out.append("_atom_site_magnetism_aniso_moment_12")
+            ls_out.append("_atom_site_magnetism_aniso_moment_13")
+            ls_out.append("_atom_site_magnetism_aniso_moment_23")
+            for _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15 in zip(self.label, self.chi_type, 
+                self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23, 
+                self.moment_type, 
+                self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23):
+                ls_out.append("{:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:} {:}".format(_1, _2, 
+                        _3.print_with_sigma, _4.print_with_sigma, _5.print_with_sigma,
+                        _6.print_with_sigma, _7.print_with_sigma, _8.print_with_sigma,
+                        _9, 
+                        _10.print_with_sigma, _11.print_with_sigma, _12.print_with_sigma,
+                        _13.print_with_sigma, _14.print_with_sigma, _15.print_with_sigma))
         return "\n".join(ls_out)
 
     def from_cif(self, string: str):
@@ -451,6 +766,62 @@ class AtomSiteMagnetismAniso(object):
                     fitable.take_it(val)
                     l_fitable.append(fitable)
                 self.chi_23 = l_fitable
+
+
+
+            if "_atom_site_magnetism_aniso_moment_type" in l_name:
+                self.moment_type = cif_loop["_atom_site_magnetism_aniso_moment_type"]
+            if "_atom_site_magnetism_aniso_moment_11" in l_name:
+                l_val = cif_loop["_atom_site_magnetism_aniso_moment_11"]
+                l_fitable = []
+                for val in l_val:
+                    fitable = Fitable(name="_atom_site_magnetism_aniso_moment_11")
+                    fitable.take_it(val)
+                    l_fitable.append(fitable)
+                self.moment_11 = l_fitable
+            if "_atom_site_magnetism_aniso_moment_22" in l_name:
+                l_val = cif_loop["_atom_site_magnetism_aniso_moment_22"]
+                l_fitable = []
+                for val in l_val:
+                    fitable = Fitable(name="_atom_site_magnetism_aniso_moment_22")
+                    fitable.take_it(val)
+                    l_fitable.append(fitable)
+                self.moment_22 = l_fitable
+            if "_atom_site_magnetism_aniso_moment_33" in l_name:
+                l_val = cif_loop["_atom_site_magnetism_aniso_moment_33"]
+                l_fitable = []
+                for val in l_val:
+                    fitable = Fitable(name="_atom_site_magnetism_aniso_moment_33")
+                    fitable.take_it(val)
+                    l_fitable.append(fitable)
+                self.moment_33 = l_fitable
+            if "_atom_site_magnetism_aniso_moment_12" in l_name:
+                l_val = cif_loop["_atom_site_magnetism_aniso_moment_12"]
+                l_fitable = []
+                for val in l_val:
+                    fitable = Fitable(name="_atom_site_magnetism_aniso_moment_12")
+                    fitable.take_it(val)
+                    l_fitable.append(fitable)
+                self.moment_12 = l_fitable
+            if "_atom_site_magnetism_aniso_moment_13" in l_name:
+                l_val = cif_loop["_atom_site_magnetism_aniso_moment_13"]
+                l_fitable = []
+                for val in l_val:
+                    fitable = Fitable(name="_atom_site_magnetism_aniso_moment_13")
+                    fitable.take_it(val)
+                    l_fitable.append(fitable)
+                self.moment_13 = l_fitable
+            if "_atom_site_magnetism_aniso_moment_23" in l_name:
+                l_val = cif_loop["_atom_site_magnetism_aniso_moment_23"]
+                l_fitable = []
+                for val in l_val:
+                    fitable = Fitable(name="_atom_site_magnetism_aniso_moment_23")
+                    fitable.take_it(val)
+                    l_fitable.append(fitable)
+                self.moment_23 = l_fitable
+
+
+
         else:
             self.label = []
 
@@ -481,6 +852,13 @@ class AtomSiteMagnetismAniso(object):
         chi_13 = numpy.array(self.chi_13, dtype=float)
         chi_23 = numpy.array(self.chi_23, dtype=float)
 
+        moment_11 = numpy.array(self.moment_11, dtype=float)
+        moment_22 = numpy.array(self.moment_22, dtype=float)
+        moment_33 = numpy.array(self.moment_33, dtype=float)
+        moment_12 = numpy.array(self.moment_12, dtype=float)
+        moment_13 = numpy.array(self.moment_13, dtype=float)
+        moment_23 = numpy.array(self.moment_23, dtype=float)
+
 
         np_index = numpy.array([int(numpy.argwhere(label==hh)[0]) for hh in label_aniso], dtype=int)
 
@@ -491,14 +869,25 @@ class AtomSiteMagnetismAniso(object):
         chi_13_in = numpy.zeros(label.shape, dtype=float)
         chi_23_in = numpy.zeros(label.shape, dtype=float)
 
+        moment_11_in = numpy.zeros(label.shape, dtype=float)
+        moment_22_in = numpy.zeros(label.shape, dtype=float)
+        moment_33_in = numpy.zeros(label.shape, dtype=float)
+        moment_12_in = numpy.zeros(label.shape, dtype=float)
+        moment_13_in = numpy.zeros(label.shape, dtype=float)
+        moment_23_in = numpy.zeros(label.shape, dtype=float)
+
         chi_11_in[np_index], chi_22_in[np_index], chi_33_in[np_index] = chi_11, chi_22, chi_33
         chi_12_in[np_index], chi_13_in[np_index], chi_23_in[np_index] = chi_12, chi_13, chi_23
 
+        moment_11_in[np_index], moment_22_in[np_index], moment_33_in[np_index] = moment_11, moment_22, moment_33
+        moment_12_in[np_index], moment_13_in[np_index], moment_23_in[np_index] = moment_12, moment_13, moment_23
 
 
         magnetism = Magnetism(factor_lande=lande_in, kappa=kappa_in, 
                               chi_11=chi_11_in, chi_22=chi_22_in, chi_33=chi_33_in,
                               chi_12=chi_12_in, chi_13=chi_13_in, chi_23=chi_23_in,
+                              moment_11=moment_11_in, moment_22=moment_22_in, moment_33=moment_33_in,
+                              moment_12=moment_12_in, moment_13=moment_13_in, moment_23=moment_23_in,
                               j0_A=j0_A_in, j0_a=j0_a_in, j0_B=j0_B_in, j0_b=j0_b_in,
                               j0_C=j0_C_in, j0_c=j0_c_in, j0_D=j0_D_in,
                               j2_A=j2_A_in, j2_a=j2_a_in, j2_B=j2_B_in, j2_b=j2_b_in,
@@ -514,10 +903,14 @@ class AtomSiteMagnetismAniso(object):
         label_aniso = self.label
         label = atom_site.label
         l_ind = [label.index(_1) for _1 in label_aniso]
-        for index, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 in zip(l_ind, self.chi_11, self.chi_22, self.chi_33, 
-                                                                                self.chi_12, self.chi_13, self.chi_23):
+        
+        for index, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, moment_11, moment_22, moment_33, moment_12, moment_13, moment_23 in zip(l_ind, 
+           self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23,
+           self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23):
             chi_11.constraint_flag, chi_22.constraint_flag, chi_33.constraint_flag = False, False, False
             chi_12.constraint_flag, chi_13.constraint_flag, chi_23.constraint_flag = False, False, False
+            moment_11.constraint_flag, moment_22.constraint_flag, moment_33.constraint_flag = False, False, False
+            moment_12.constraint_flag, moment_13.constraint_flag, moment_23.constraint_flag = False, False, False
             numb = l_numb[index]
             if numb == 1:
                 chi_12.value = 0.
@@ -526,6 +919,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 2:
                 chi_23.value = 0.
                 chi_23.refinement = False
@@ -533,6 +932,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_13.value = 0.
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
             elif numb == 3:
                 chi_12.value = 0.
                 chi_12.refinement = False
@@ -540,6 +945,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_13.value = 0.
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
             elif numb == 4:
                 chi_12.value = 0.
                 chi_12.refinement = False
@@ -550,6 +961,15 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 5:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
@@ -560,6 +980,15 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 6:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
@@ -567,6 +996,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = chi_13.value 
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_23.value = moment_13.value 
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 7:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
@@ -574,6 +1009,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = -1.*chi_13.value 
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_23.value = -1.*moment_13.value 
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 8:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
@@ -587,6 +1028,18 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 9:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
@@ -597,6 +1050,15 @@ class AtomSiteMagnetismAniso(object):
                 chi_13.value = 0.
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+                moment_33.value = moment_22.value
+                moment_33.refinement = False
+                moment_33.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
             elif numb == 10:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
@@ -604,6 +1066,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_13.value = 1.*chi_12.value 
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+                moment_33.value = moment_22.value
+                moment_33.refinement = False
+                moment_33.constraint_flag = True
+                moment_13.value = 1.*moment_12.value 
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
             elif numb == 11:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
@@ -611,6 +1079,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_13.value = -1.*chi_12.value 
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+                moment_33.value = moment_22.value
+                moment_33.refinement = False
+                moment_33.constraint_flag = True
+                moment_13.value = -1.*moment_12.value 
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
             elif numb == 12:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
@@ -624,6 +1098,18 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_33.value = moment_22.value
+                moment_33.refinement = False
+                moment_33.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 13:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
@@ -631,6 +1117,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_12.value = 0.5*moment_22.value
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 14:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
@@ -641,6 +1133,15 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_12.value = 0.5*moment_22.value
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 15:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
@@ -648,6 +1149,12 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 2.*chi_13.value
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_12.value = 0.5*moment_22.value
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_23.value = 2.*moment_13.value
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 16:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
@@ -661,6 +1168,18 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = 1.0*moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_12.value = 0.5*moment_11.value
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 17:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
@@ -677,6 +1196,21 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = 1.0*moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_33.value = 1.0*moment_11.value
+                moment_33.refinement = False
+                moment_33.constraint_flag = True
+                moment_12.value = 0.
+                moment_12.refinement = False
+                moment_12.constraint_flag = True
+                moment_13.value = 0.
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 0.
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
             elif numb == 18:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
@@ -690,6 +1224,18 @@ class AtomSiteMagnetismAniso(object):
                 chi_23.value = 1.0*chi_12.value
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+                moment_22.value = 1.0*moment_11.value
+                moment_22.refinement = False
+                moment_22.constraint_flag = True
+                moment_33.value = 1.0*moment_11.value
+                moment_33.refinement = False
+                moment_33.constraint_flag = True
+                moment_13.value = 1.0*moment_12.value
+                moment_13.refinement = False
+                moment_13.constraint_flag = True
+                moment_23.value = 1.0*moment_12.value
+                moment_23.refinement = False
+                moment_23.constraint_flag = True
 
 
     def apply_chi_iso_constraint(self, cell):
@@ -699,8 +1245,9 @@ class AtomSiteMagnetismAniso(object):
         c_ib = cell.cos_ib
         c_ig = cell.cos_ig
         #not sure, it is better to check
-        for chi_type, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 in zip(self.chi_type, self.chi_11, self.chi_22, self.chi_33, 
-                                                                                           self.chi_12, self.chi_13, self.chi_23):
+
+        for chi_type, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 in zip(
+            self.chi_type, self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23):
             if chi_type.lower().startswith("ciso"):
                 chi_22.value = chi_11.value
                 chi_33.value = chi_11.value
@@ -708,4 +1255,24 @@ class AtomSiteMagnetismAniso(object):
                 chi_13.value = chi_11.value*c_ib
                 chi_23.value = chi_11.value*(c_ib*c_ig-s_ib*s_ig*c_a)
                 chi_22.refinement, chi_33.refinement, chi_12.refinement, chi_13.refinement, chi_23.refinement =False, False, False, False, False
-        return chi_11, chi_22, chi_33, chi_12, chi_13, chi_23
+        return  
+
+    def apply_moment_iso_constraint(self, cell):
+        c_a = cell.cos_a
+        s_ib = cell.sin_ib
+        s_ig = cell.sin_ig
+        c_ib = cell.cos_ib
+        c_ig = cell.cos_ig
+        #not sure, it is better to check
+
+        for moment_type, moment_11, moment_22, moment_33, moment_12, moment_13, moment_23, moment_type, moment_11, moment_22, moment_33, moment_12, moment_13, moment_23 in zip(
+            self.moment_type, self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23,
+            self.moment_type, self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23):
+            if moment_type.lower().startswith("miso"):
+                moment_22.value = moment_11.value
+                moment_33.value = moment_11.value
+                moment_12.value = moment_11.value*c_ig
+                moment_13.value = moment_11.value*c_ib
+                moment_23.value = moment_11.value*(c_ib*c_ig-s_ib*s_ig*c_a)
+                moment_22.refinement, moment_33.refinement, moment_12.refinement, moment_13.refinement, moment_23.refinement =False, False, False, False, False
+        return  

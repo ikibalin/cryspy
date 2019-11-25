@@ -971,6 +971,15 @@ class Pd2d(object):
         sft_21, sft_22, sft_23 = refln.sft_21, refln.sft_22, refln.sft_23
         sft_31, sft_32, sft_33 = refln.sft_31, refln.sft_32, refln.sft_33
 
+
+        sftm_11, sftm_12, sftm_13 = refln.sftm_11, refln.sftm_12, refln.sftm_13
+        sftm_21, sftm_22, sftm_23 = refln.sftm_21, refln.sftm_22, refln.sftm_23
+        sftm_31, sftm_32, sftm_33 = refln.sftm_31, refln.sftm_32, refln.sftm_33
+
+        _11, _12, _13 = sftm_11+field*sft_11, sftm_12+field*sft_12, sftm_13+field*sft_13
+        _21, _22, _23 = sftm_21+field*sft_21, sftm_22+field*sft_22, sftm_23+field*sft_23
+        _31, _32, _33 = sftm_31+field*sft_31, sftm_32+field*sft_32, sftm_33+field*sft_33
+
         cell = crystal.cell
         
         #k_loc = cell.calc_k_loc(h, k, l)
@@ -978,14 +987,16 @@ class Pd2d(object):
         
         th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(
                 t_11, t_21, t_31, t_12, t_22, t_32, t_13, t_23, t_33,
-                sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, 
-                sft_33)
+                _11, _12, _13, _21, _22, _23, _31, _32, _33)
 
+        #f_m_p_sin_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
+        #f_m_p_cos_sq = (field**2)*abs(th_13*th_13.conjugate()+th_23*th_23.conjugate())
+        #f_m_p_field = 0.5*field*(th_11+th_22) 
 
         f_nucl_sq = abs(f_nucl*f_nucl.conjugate())
-        f_m_p_sin_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
-        f_m_p_cos_sq = (field**2)*abs(th_13*th_13.conjugate()+th_23*th_23.conjugate())
-        f_m_p_field = 0.5*field*(th_11+th_22) 
+        f_m_p_sin_sq = abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
+        f_m_p_cos_sq = abs(th_13*th_13.conjugate()+th_23*th_23.conjugate())
+        f_m_p_field = 0.5*(th_11+th_22) 
         cross_sin = 2.*(f_nucl.real*f_m_p_field.real+f_nucl.imag*f_m_p_field.imag)
         
         return f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, refln
