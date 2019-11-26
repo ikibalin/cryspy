@@ -1,14 +1,15 @@
+import warnings
 from cryspy.f_common.cl_item_constr import ItemConstr
 from typing import List, Tuple
+from pycifstar import Data
 
 
 class LoopConstr(object):
-    def __init__(self, category_key = (), item_class=ItemConstr, prefix="", label=""):
+    def __init__(self, category_key = (), item_class=ItemConstr, label=""):
         super(LoopConstr, self).__init__()
         self.__item = []
         self.__category_key = category_key   
         self.__item_class = item_class
-        self.__prefix = prefix
         self.__mandatory_attribute = item_class.MANDATORY_ATTRIBUTE
         self.__optional_attribute = item_class.OPTIONAL_ATTRIBUTE
         self.__internal_attribute = item_class.INTERNAL_ATTRIBUTE
@@ -60,6 +61,38 @@ class LoopConstr(object):
             ls_out.append(_item.print_attribute(l_attr_print))
         return "\n".join(ls_out)
 
+    @classmethod
+    def from_cif(cls, string: str):
+        cif_data = Data()
+        flag = cif_data.take_from_string(string)
+        _item_class = cls.ITEM_CLASS
+        prefix = _item_class.PREFIX
+        l_obj = []
+        for cif_loop in cif_data.loops:
+            if ("_"+prefix.lower()) == cif_loop.prefix.lower():
+                flag = False
+                prefix = cif_loop.prefix
+                l_name = cif_loop.names
+                label = cif_loop.name
+                l_name_short = [_[(len(prefix)+1): ] for _ in l_name]
+
+                _obj = cls(label=label)
+                _i = 0
+                for _name, _name_short in zip(l_name, l_name_short):
+                    if _i == 0:
+                        item = []
+                        for _val in cif_loop[_name]:
+                            _item = _item_class()
+                            setattr(_item, _name_short, _val)
+                            item.append(_item)
+                    else:
+                        for _val, _item in zip(cif_loop[_name], item):
+                            setattr(_item, _name_short, _val)
+                    _i += 1
+                _obj.item = item
+                l_obj.append(_obj)
+        return l_obj
+
 
     @property
     def category_key(self) -> Tuple[str]:
@@ -67,7 +100,7 @@ class LoopConstr(object):
 
     @property
     def prefix(self) -> str:
-        return self.__prefix
+        return self.__item_class.PREFIX
 
     @property
     def label(self) -> str:

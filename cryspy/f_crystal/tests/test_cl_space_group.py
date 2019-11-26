@@ -1,9 +1,9 @@
 import pytest
-from cryspy.f_crystal.cl_space_group_2 import SpaceGroup2
+from cryspy.f_crystal.cl_space_group_new import SpaceGroup
 
 def test_init():
     try:
-        _object = SpaceGroup2()
+        _object = SpaceGroup()
         flag = True
     except:
         flag = False
@@ -11,7 +11,7 @@ def test_init():
 
 def test_to_cif():
     try:
-        _object = SpaceGroup2()
+        _object = SpaceGroup()
         _str = _object.to_cif
         flag = True
     except:

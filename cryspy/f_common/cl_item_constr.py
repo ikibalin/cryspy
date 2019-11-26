@@ -1,12 +1,13 @@
-
+from pycifstar import Data
 from typing import List, Tuple
 
 class ItemConstr(object):
-    def __init__(self, mandatory_attribute = (), optional_attribute = (), internal_attribute = ()):
+    def __init__(self, mandatory_attribute = (), optional_attribute = (), internal_attribute = (), prefix=""):
         super(ItemConstr, self).__init__()
         self.__mandatory_attribute = mandatory_attribute
         self.__optional_attribute = optional_attribute
         self.__internal_attribute = internal_attribute
+        self.__prefix = prefix
         self.clean_attribute
 
     def __repr__(self) -> str:
@@ -89,6 +90,9 @@ class ItemConstr(object):
     @property
     def internal_attribute(self) -> Tuple[str]:
         return self.__internal_attribute
+    @property
+    def prefix(self) -> str:
+        return self.__prefix
 
     @property
     def clean_attribute(self):
@@ -141,3 +145,23 @@ class ItemConstr(object):
             if val is None:
                 flag = False
         return flag
+
+
+    @classmethod
+    def from_cif(cls, string: str):
+        cif_data = Data()
+        flag = cif_data.take_from_string(string)
+        mandatory_attribute = cls.MANDATORY_ATTRIBUTE
+        optional_attribute = cls.OPTIONAL_ATTRIBUTE
+        prefix = cls.PREFIX
+        flag = all([cif_data.is_value("_"+prefix+"_"+_attr) for _attr in mandatory_attribute])
+        if flag:
+            _item = cls()
+            l_attr = list(mandatory_attribute)+list(optional_attribute)
+            for _attr in l_attr:
+                _attr_full = "_"+prefix+"_"+_attr
+                if cif_data.is_value(_attr_full):
+                    setattr(_item, _attr, cif_data[_attr_full].value)
+        else:
+            _item = None
+        return _item        

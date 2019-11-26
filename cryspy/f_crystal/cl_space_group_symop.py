@@ -6,9 +6,7 @@ Defines SpaceGoupSymopEl and SpaceGoupSymop classes.
 __author__ = 'ikibalin'
 __version__ = "2019_11_26"
 
-import os
-import numpy
-from pycifstar import Global
+import warnings
 
 from typing import List, Tuple
 from cryspy.f_common.cl_item_constr import ItemConstr
@@ -42,12 +40,14 @@ Methods:
 
     """
     MANDATORY_ATTRIBUTE = ("id", "operation_xyz")
-    OPTIONAL_ATTRIBUTE = ("operation_description", "generator_xyz", "sg_id")
+    OPTIONAL_ATTRIBUTE = ("operation_description", "generator_xyz")
     INTERNAL_ATTRIBUTE = ()
+    PREFIX = "space_group_symop"
     def __init__(self, id=None, operation_xyz=None, operation_description=None, generator_xyz=None, sg_id=None):
         super(SpaceGroupSymopEl, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                                 optional_attribute=self.OPTIONAL_ATTRIBUTE, 
-                                                internal_attribute=self.INTERNAL_ATTRIBUTE)
+                                                internal_attribute=self.INTERNAL_ATTRIBUTE,
+                                                prefix=self.PREFIX)
         self.id = id
         self.operation_xyz = operation_xyz
         self.operation_description = operation_description
@@ -153,20 +153,7 @@ Example:
         x_in = "".join(str(x).split())
         setattr(self, "__generator_xyz", x_in)
 
-    @property
-    def sg_id(self) -> int:
-        """
-A child of _space_group.id allowing the symmetry operation to
-be identified with a particular space group
-        """
-        return getattr(self, "__sg_id")
-    @sg_id.setter
-    def sg_id(self, x):
-        if x is None:
-            x_in = None
-        else:
-            x_in = int(x)
-        setattr(self, "__sg_id", x_in)
+
 
 
 
@@ -211,22 +198,28 @@ Optional attribute:
 ---------------------
 - operation_description
 - generator_xyz
-- sg_id
 
 
-Methods:
+Class methods:
 ---------
-- 
+- sg_id
 
 
 reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html
     """
     CATEGORY_KEY = ("id", )
     ITEM_CLASS = SpaceGroupSymopEl
-    PREFIX = "space_group_symop"
     def __init__(self, item = [], label=""):
-        super(SpaceGroupSymop, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, prefix=self.PREFIX, label=label)
+        super(SpaceGroupSymop, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
         self.item = item
 
+    @classmethod
+    def sg_id(cls, id:int):
+        """
+A child of _space_group.id allowing the symmetry operation to
+be identified with a particular space group
+        """
+        _obj = cls.__init__()
+        return _obj
 
 

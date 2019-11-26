@@ -1,5 +1,5 @@
 """
-Defines SpaceGoup2 class. 
+Defines SpaceGroup class. 
 It will be used instead of old SpaceGroup class
 """
 
@@ -12,9 +12,9 @@ from pycifstar import Global
 
 from cryspy.f_common.cl_fitable import Fitable
 
-class SpaceGroup2(object):
+class SpaceGroup(object):
     """
-SpaceGroup2
+SpaceGroup
 ============
 
 Contains all the data items that refer to the space group as a
@@ -92,7 +92,7 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_gr
     def __init__(self, spgr_given_name = "P1", spgr_choice = "1",
                  f_dir_prog = os.path.dirname(__file__)):
         #         f_dir_prog = os.getcwd()):
-        super(SpaceGroup2, self).__init__()
+        super(SpaceGroup, self).__init__()
         
         self.__spgr_given_name = None
         self.__spgr_choice = None
