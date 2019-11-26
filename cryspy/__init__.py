@@ -5,9 +5,6 @@ CrysPy
 To run rhochi refinement from a command-line:
 >>> python -m cryspy.run_rhochi
 
-To run a simple gui interface for rhochi from a command-line:
->>> python -m cryspy.gui_rhochi
-
 To create a template in the folder run from a command-line:
 >>> python -m cryspy.rhochi_diffrn # template for single-crystal diffraction experiment
 >>> python -m cryspy.rhochi_pd # template for 1d powder diffraction experiment
