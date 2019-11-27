@@ -25,13 +25,13 @@ class LoopConstr(object):
 
     def __str__(self) -> str:
         ls_out = []
-        ls_out.append(f"prefix: {', '.join(self.__prefix):}")
+        ls_out.append(f"prefix: {self.prefix:}")
         ls_out.append(f"category_key: {', '.join(self.__category_key):}")
         ls_out.append(f"mandatory_attribute: {', '.join(self.__mandatory_attribute):}")
         ls_out.append(f"optional_attribute: {', '.join(self.__optional_attribute):}")
         for _item in self.item:
-            ls_out.append(" ".join([str(getattr(_item, _attr)) for _attr in self.__mandatory_attribute]))
-            ls_out.append(" ".join([str(getattr(_item, _attr)) for _attr in self.__optional_attribute]))
+            ls_out.append(" ".join([str(getattr(_item, _attr)) if (getattr(_item, _attr) is not None) else "." for _attr in self.__mandatory_attribute])+"  "+
+                          " ".join([str(getattr(_item, _attr)) if (getattr(_item, _attr) is not None) else "." for _attr in self.__optional_attribute]))
 
         return "\n".join(ls_out)
 

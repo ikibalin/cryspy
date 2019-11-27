@@ -1,3 +1,11 @@
+loop_
+_space_group.IT_number
+_space_group.name_HM_short_1 # _space_group.it_coordinate_system_code abc 
+_space_group.name_HM_short_2 # _space_group.it_coordinate_system_code ba-c
+_space_group.name_HM_short_3 # _space_group.it_coordinate_system_code cab 
+_space_group.name_HM_short_4 # _space_group.it_coordinate_system_code -cba 
+_space_group.name_HM_short_5 # _space_group.it_coordinate_system_code bca 
+_space_group.name_HM_short_6 # _space_group.it_coordinate_system_code a-cb 
 16 P222    P222    P222    P222    P222    P222
 17 P2221   P2221   P2122   P2122   P2212   P2212
 18 P21212  P21212  P22121  P22121  P21221  P21221
@@ -56,6 +64,4 @@
 71 Immm    Immm    Immm    Immm    Immm    Immm
 72 Ibam    Ibam    Imcb    Imcb    Icma    Icma
 73 Ibca    Icab    Ibca    Icab    Ibca    Icab
-74 Imma    Immb    Ibmm    Icmm    Imcm    Imam
-
-N  abc     ba(-c)  cab     (-c)ba  bca     a(-c)b
+74 Imma    Immb    Ibmm    Icmm    Imcm    Imam 

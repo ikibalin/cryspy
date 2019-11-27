@@ -18,6 +18,8 @@ from cryspy.f_common.cl_item_constr import ItemConstr
 
 from cryspy.f_common.cl_fitable import Fitable
 
+from cryspy.f_crystal.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopEl
+from cryspy.f_crystal.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffEl
 
 
 def trans_el_symm_to_str(el_symm:List) -> str :
@@ -171,7 +173,7 @@ Class methods:
 
 Methods:
 ---------
-- 
+- get_symop
 
 
 reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html
@@ -183,7 +185,8 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_gr
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "space_group"
     DIR_PROG = os.path.dirname(__file__)
-    ITABLES = os.path.join(DIR_PROG, "tables", "itables.txt")
+    ITABLES_FILE = os.path.join(DIR_PROG, "tables", "itables.txt")
+    WYCKOFF_FILE = os.path.join(DIR_PROG, "tables", "wyckoff.dat")
     ACCESIBLE_BRAVAIS_TYPE = ("aP", "mP", "mS", "oP", "oS", "oI", "oF", "tP", "tI", "hP", "hR", "cP", "cI", "cF")
     ACCESIBLE_IT_COORDINATE_SYSTEM_CODE = ("b1", "b2", "b3", "-b1", "-b2", "-b3", "c1", "c2", "c3", "-c1", "-c2", "-c3", 
     "a1", "a2", "a3", "-a1", "-a2", "-a3", "abc", "ba-c", "cab", "-cba", "bca", "a-cb", "1abc", "1ba-c", "1cab", "1-cba", 
@@ -210,6 +213,34 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_gr
     "F 2 3", "I 2 3", "P 21 3", "I 21 3", "P m -3", "P n -3", "F m -3", "F d -3", "I m -3", "P a -3", "I a -3", "P 4 3 2", "P 42 3 2", "F 4 3 2", 
     "F 41 3 2", "I 4 3 2", "P 43 3 2", "P 41 3 2", "I 41 3 2", "P -4 3 m", "F -4 3 m", "I -4 3 m", "P -4 3 n", "F -4 3 c", "I -4 3 d", "P m -3 m", 
     "P n -3 n", "P m -3 n", "P n -3 m", "F m -3 m", "F m -3 c", "F d -3 m", "F d -3 c", "I m -3 m", "I a -3 d")
+    ACCESIBLE_NAME_HM_ALT = ("P 1", "P -1", "P 2", "P 2 1 1", "P 1 2 1", "P 1 1 2", "P 21", "P 21 1 1", "P 1 21 1", "P 1 1 21", "C 2", "C 2 1 1", 
+    "C 1 2 1", "P m", "P m 1 1", "P 1 m 1", "P 1 1 m", "P c", "P c 1 1", "P 1 c 1", "C m", "C m 1 1", "C 1 m 1", "C c", "C c 1 1", "C 1 c 1", 
+    "P 2/m", "P 2/m 1 1", "P 1 2/m 1", "P 1 1 2/m", "P 21/m", "P 21/m 1 1", "P 1 21/m 1", "P 1 1 21/m", "C 2/m", "C 2/m 1 1", "C 1 2/m 1", 
+    "P 2/c", "P 2/c 1 1", "P 1 2/c 1", "P 21/c", "P 21/c 1 1", "P 1 21/c 1", "C 2/c", "C 2/c 1 1", "C 1 2/c 1", "P 2 2 2", "P 2 2 21", "P 21 2 2", 
+    "P 2 21 2", "P 21 21 2", "P 2 21 21", "P 21 2 21", "P 21 21 21", "C 2 2 21", "A 21 2 2", "B 2 21 2", "C 2 2 2", "A 2 2 2", "B 2 2 2", "F 2 2 2", 
+    "I 2 2 2", "I 21 21 21", "P m m 2", "P 2 m m", "P m 2 m", "P m c 21", "P 21 m a", "P b 21 m", "P c c 2", "P 2 a a", "P b 2 b", "P m a 2", "P 2 m b", 
+    "P c 2 m", "P c a 21", "P 21 a b", "P c 21 b", "P n c 2", "P 2 n a", "P b 2 n", "P m n 21", "P 21 m n", "P n 21 m", "P b a 2", "P 2 c b", "P c 2 a", 
+    "P n a 21", "P 21 n b", "P c 21 n", "P n n 2", "P 2 n n", "P n 2 n", "C m m 2", "A 2 m m", "B m 2 m", "C m c 21", "A 21 m a", "B b 21 m", "C c c 2", 
+    "A 2 a a", "B b 2 b", "A m m 2", "B 2 m m", "C m 2 m", "A b m 2", "B 2 c m", "C m 2 a", "A m a 2", "B 2 m b", "C c 2 m", "A b a 2", "B 2 c b", "C c 2 a", 
+    "F m m 2", "F 2 m m", "F m 2 m", "F d d 2", "F 2 d d", "F d 2 d", "I m m 2", "I 2 m m", "I m 2 m", "I b a 2", "I 2 c b", "I c 2 a", "I m a 2", "I 2 m b", 
+    "I c 2 m", "P m m m", "P n n n", "P c c m", "P m a a", "P b m b", "P b a n", "P n c b", "P c n a", "P m m a", "P b m m", "P m c m", "P n n a", "P b n n", 
+    "P n c n", "P m n a", "P b m n", "P n c m", "P c c a", "P b a a", "P b c b", "P b a m", "P m c b", "P c m a", "P c c n", "P n a a", "P b n b", "P b c m", 
+    "P m c a", "P b m a", "P n n m", "P m n n", "P n m n", "P m m n", "P n m m", "P m n m", "P b c n", "P n c a", "P b n a", "P b c a", "P c a b", "P n m a", 
+    "P b n m", "P m c n", "C m c m", "A m m a", "B b m m", "C m c a", "A b m a", "B b c m", "C m m m", "A m m m", "B m m m", "C c c m", "A m a a", "B b m b", 
+    "C m m a", "A b m m", "B m c m", "C c c a", "A b a a", "B b c b", "F m m m", "F d d d", "I m m m", "I b a m", "I m c b", "I c m a", "I b c a", "I c a b", 
+    "I m m a", "I b m m", "I m c m", "P 4", "P 41", "P 42", "P 43", "I 4", "I 41", "P -4", "I -4", "P 4/m", "P 42/m", "P 4/n", "P 42/n", "I 4/m", "I 41/a", 
+    "P 4 2 2", "P 4 21 2", "P 41 2 2", "P 41 21 2", "P 42 2 2", "P 42 21 2", "P 43 2 2", "P 43 21 2", "I 4 2 2", "I 41 2 2", "P 4 m m", "P 4 b m", "P 42 c m", 
+    "P 42 n m", "P 4 c c", "P 4 n c", "P 42 m c", "P 42 b c", "I 4 m m", "I 4 c m", "I 41 m d", "I 41 c d", "P -4 2 m", "P -4 2 c", "P -4 21 m", "P -4 21 c", 
+    "P -4 m 2", "P -4 c 2", "P -4 b 2", "P -4 n 2", "I -4 m 2", "I -4 c 2", "I -4 2 m", "I -4 2 d", "P 4/m m m", "P 4/m c c", "P 4/n b m", "P 4/n n c", "P 4/m b m", 
+    "P 4/m n c", "P 4/n m m", "P 4/n c c", "P 42/m m c", "P 42/m c m", "P 42/n b c", "P 42/n n m", "P 42/m b c", "P 42/m n m", "P 42/n m c", "P 42/n c m", "I 4/m m m", 
+    "I 4/m c m", "I 41/a m d", "I 41/a c d", "P 3", "P 31", "P 32", "R 3", "P -3", "R -3", "P 3 1 2", "P 3 2 1", "P 31 1 2", "P 31 2 1", "P 32 1 2", "P 32 2 1", "R 3 2", 
+    "P 3 m 1", "P 3 1 m", "P 3 c 1", "P 3 1 c", "R 3 m", "R 3 c", "P -3 1 m", "P -3 1 c", "P -3 m 1", "P -3 c 1", "R -3 m", "R -3 c", "P 6", "P 61", "P 65", "P 62", 
+    "P 64", "P 63", "P -6", "P 6/m", "P 63/m", "P 6 2 2", "P 61 2 2", "P 65 2 2", "P 62 2 2", "P 64 2 2", "P 63 2 2", "P 6 m m", "P 6 c c", "P 63 c m", "P 63 m c", 
+    "P -6 m 2", "P -6 c 2", "P -6 2 m", "P -6 2 c", "P 6/m m m", "P 6/m c c", "P 63/m c m", "P 63/m m c", "P 2 3", "F 2 3", "I 2 3", "P 21 3", "I 21 3", "P m -3", 
+    "P m 3", "P n -3", "P n 3", "F m -3", "F m 3", "F d -3", "F d 3", "I m -3", "I m 3", "P a -3", "P a 3", "I a -3", "I a 3", "P 4 3 2", "P 42 3 2", "F 4 3 2", "F 41 3 2", 
+    "I 4 3 2", "P 43 3 2", "P 41 3 2", "I 41 3 2", "P -4 3 m", "F -4 3 m", "I -4 3 m", "P -4 3 n", "F -4 3 c", "I -4 3 d", "P m -3 m", "P m 3 m", "P n -3 n", "P n 3 n", 
+    "P m -3 n", "P m 3 n", "P n -3 m", "P n 3 m", "F m -3 m", "F m 3 m", "F m -3 c", "F m 3 c", "F d -3 m", "F d 3 m", "F d -3 c", "F d 3 c", "I m -3 m", "I m 3 m", 
+    "I a -3 d", "I a 3 d")
     ACCESIBLE_NAME_SCHOENFLIES = ("C1.1", "Ci.1", "C2.1", "C2.2", "C2.3", "Cs.1", "Cs.2", "Cs.3", "Cs.4", "C2h.1", "C2h.2", "C2h.3", "C2h.4", 
     "C2h.5", "C2h.6", "D2.1", "D2.2", "D2.3", "D2.4", "D2.5", "D2.6", "D2.7", "D2.8", "D2.9", "C2v.1", "C2v.2", "C2v.3", "C2v.4", "C2v.5", 
     "C2v.6", "C2v.7", "C2v.8", "C2v.9", "C2v.10", "C2v.11", "C2v.12", "C2v.13", "C2v.14", "C2v.15", "C2v.16", "C2v.17", "C2v.18", "C2v.19", 
@@ -268,11 +299,12 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_gr
     "210:F 4d 2 3", "211:I 4 2 3", "212:P 4acd 2ab 3", "213:P 4bd 2ab 3", "214:I 4bd 2c 3", "215:P -4 2 3", "216:F -4 2 3", "217:I -4 2 3", "218:P -4n 2 3", 
     "219:F -4a 2 3", "220:I -4bd 2c 3", "221:-P 4 2 3", "222:-P 4a 2bc 3", "223:-P 4n 2 3", "224:-P 4bc 2bc 3", "225:-F 4 2 3", "226:-F 4a 2 3", "227:-F 4vw 2vw 3", 
     "228:-F 4ud 2vw 3", "229:-I 4 2 3", "230:-I 4bd 2c 3") 
-
+    
     def __init__(self, name_hm_alt=None, it_number=None, it_coordinate_system_code=None, id=None, bravais_type=None,
     laue_class=None, patterson_name_hm=None, centring_type=None, crystal_system=None, name_hm_alt_description=None, 
     name_hm_full=None, name_hm_ref=None, name_hall=None, name_schoenflies=None, point_group_hm=None,
     reference_setting=None, transform_pp_abc=None, transform_qq_xyz=None):
+        SpaceGroup.read_wyckoff()
         super(SpaceGroup, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                          optional_attribute=self.OPTIONAL_ATTRIBUTE, 
                                          internal_attribute=self.INTERNAL_ATTRIBUTE,
@@ -334,6 +366,8 @@ Reference:
 International Tables for Crystallography (2002).
 Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
 Dordrecht: Kluwer Academic Publishers.
+
+(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_ALT)
         """
         return getattr(self, "__name_hm_alt")
     @name_hm_alt.setter
@@ -342,6 +376,9 @@ Dordrecht: Kluwer Academic Publishers.
             x_in = None
         else:
             x_in = str(x)
+            if not(x_in in self.ACCESIBLE_NAME_HM_ALT):
+                print(f"name_hm_alt type '{x_in:}' is not supported")
+                x_in = None
         setattr(self, "__name_hm_alt", x_in)
 
     @property
@@ -941,11 +978,76 @@ Examples:
             x_in = str(x)
         setattr(self, "__transform_qq_xyz", x_in)
 
+    @classmethod
+    def read_wyckoff(cls):
+        with open(cls.WYCKOFF_FILE, "r") as fid:
+            l_cont = fid.readlines()
+        l_numb_b, l_numb_e = [], []
+        for _i_line, _line in enumerate(l_cont):
+            l_h = _line.strip().split()
+            for _i, _ in enumerate(l_h):
+                if not(_.isdigit()):
+                    break
+            if _i >= 4:
+                l_numb_b.append(_i_line)
+            if len(l_h) == 0:
+                l_numb_e.append(_i_line)
+        l_data = []
+        for _numb_b, _numb_e in zip(l_numb_b, l_numb_e):
+            l_param = l_cont[_numb_b].strip().split()[:5]
+            hm_full = ""
+            flag = False
+            for _char in l_cont[_numb_b].strip():
+                if _char.isalpha():
+                    flag = True
+                if flag:
+                    hm_full += _char 
+            data = {"it_number":int(l_param[0]), "set": int(l_param[1]), "centr_000": int(l_param[3]==1), "hm_full": hm_full.strip(), "wyckoff": []}
 
+            l_cont_2 = l_cont[(_numb_b+1):_numb_e]
+            l_wyckoff_symop = []
 
+            l_d_card = []
+            d_card = None
+            for _line in l_cont_2:
+                l_h = _line.strip().split()
+                if l_h[0].isdigit():
+                    if d_card is not None:
+                        l_d_card.append(d_card)
+                    d_card = {"multiplicity": int(l_h[0]), "letter": l_h[1], "syte_symmetry": l_h[2], "symop": []}
+                else:
+                    d_card["symop"].extend(l_h)
+            data["wyckoff"].extend(l_d_card)
+            l_data.append(data)
+        cls.WYCKOFF = l_data
 
+    @classmethod
+    def get_list_of_symop_by_it_number(cls, it_number: int):
+        l_data = cls.WYCKOFF
+        l_symop = []
+        for data in l_data:
+            if data["it_number"] == it_number:
+                l_data_symop = data["wyckoff"][0]["symop"]
+                item = []
+                for _i, _el in enumerate(l_data_symop):
+                    _id = f"{(_i+1):}"
+                    _item = SpaceGroupSymopEl(id=_id, operation_xyz=_el, sg_id=it_number)
+                    item.append(_item)
+                symop = SpaceGroupSymop(item)
+                l_symop.append(symop)
+        return l_symop
 
+    def get_symop(self):
+        if self.is_defined_attribute("it_number"):
+            l_symop = self.get_list_of_symop_by_it_number(self.it_number)
+        if len(l_symop) == 1:
+            return l_symop[0]
 
+        for _s in l_symop:
+            print(2*"\n")
+            print(_s)
+        symop = l_symop[0]
+        return symop
 
 
     @property
@@ -1410,3 +1512,8 @@ Examples:
         return l_res
 
 
+
+
+sg = SpaceGroup(it_number=15)
+symop = sg.get_symop()
+print(symop)

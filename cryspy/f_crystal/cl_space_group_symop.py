@@ -40,7 +40,7 @@ Methods:
 
     """
     MANDATORY_ATTRIBUTE = ("id", "operation_xyz")
-    OPTIONAL_ATTRIBUTE = ("operation_description", "generator_xyz")
+    OPTIONAL_ATTRIBUTE = ("operation_description", "generator_xyz", "sg_id")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "space_group_symop"
     def __init__(self, id=None, operation_xyz=None, operation_description=None, generator_xyz=None, sg_id=None):
@@ -167,6 +167,22 @@ Example:
             x_in = "".join(str(x).split())
         setattr(self, "__generator_xyz", x_in)
 
+    @property
+    def sg_id(self):
+        """
+A child of _space_group.id allowing the symmetry operation to
+be identified with a particular space group
+        """
+        return getattr(self, "__sg_id")
+
+    @sg_id.setter
+    def sg_id(self, x):
+        if x is None:
+            x_in = None
+        else:
+            x_in = int(x)
+        setattr(self, "__sg_id", x_in)
+        
 
 
 
@@ -226,13 +242,5 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_gro
         super(SpaceGroupSymop, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
         self.item = item
 
-    @classmethod
-    def sg_id(cls, id:int):
-        """
-A child of _space_group.id allowing the symmetry operation to
-be identified with a particular space group
-        """
-        _obj = cls.__init__()
-        return _obj
 
 
