@@ -3,11 +3,11 @@ from cryspy.f_crystal.cl_space_group_wyckoff import SpaceGroupWyckoffEl, SpaceGr
 
 STR_FROM_CIF_1 = """
 loop_
-_space_group_Wyckoff_id
-_space_group_Wyckoff_coord_xyz
-_space_group_Wyckoff_letter
-_space_group_Wyckoff_multiplicity
-_space_group_Wyckoff_site_symmetry
+_space_group_Wyckoff.id
+_space_group_Wyckoff.coord_xyz
+_space_group_Wyckoff.letter
+_space_group_Wyckoff.multiplicity
+_space_group_Wyckoff.site_symmetry
    1    x,y,z         h 192   1     
    2    1/4,y,-y      g  96   ..2   
    3    x,1/8,1/8     f  96   2..   
@@ -69,5 +69,6 @@ def test_from_cif():
     assert _obj.multiplicity == [192, 96, 96, 32]
     assert _obj["3"].multiplicity == 96
     _str_1 = STR_FROM_CIF_1.replace(" ","").replace("\n","").lower()
-    _str_2 = _obj.to_cif().replace(" ","").replace("\n","").lower()
+    _str_2 = _obj.to_cif(separator=".").replace(" ","").replace("\n","").lower()
     assert _str_1 == _str_2 
+

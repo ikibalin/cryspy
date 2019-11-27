@@ -63,7 +63,11 @@ tion in the list.
         return getattr(self, "__id")
     @id.setter
     def id(self, x):
-        setattr(self, "__id", str(x))
+        if x is None:
+            x_in = None
+        else:
+            x_in = str(x)
+        setattr(self, "__id", x_in)
 
     @property
     def operation_xyz(self) -> str:
@@ -97,7 +101,10 @@ Example:
         return getattr(self, "__operation_xyz")
     @operation_xyz.setter
     def operation_xyz(self, x):
-        x_in = "".join(str(x).split())
+        if x is None:
+            x_in = None
+        else:
+            x_in = "".join(str(x).split())
         setattr(self, "__operation_xyz", x_in)
 
     @property
@@ -109,7 +116,11 @@ the space group
         return getattr(self, "__operation_description")
     @operation_description.setter
     def operation_description(self, x):
-        setattr(self, "__operation_description", str(x))
+        if x is None:
+            x_in = None
+        else:
+            x_in = str(x)
+        setattr(self, "__operation_description", x_in)
 
     @property
     def generator_xyz(self):
@@ -150,7 +161,10 @@ Example:
         return getattr(self, "__generator_xyz")
     @generator_xyz.setter
     def generator_xyz(self, x) -> str:
-        x_in = "".join(str(x).split())
+        if x is None:
+            x_in = None
+        else:
+            x_in = "".join(str(x).split())
         setattr(self, "__generator_xyz", x_in)
 
 
@@ -185,7 +199,6 @@ Attributes:
 - operation_xyz
 - operation_description
 - generator_xyz
-- sg_id
 
 
 Mandatory attribute: 

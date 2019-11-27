@@ -1,5 +1,15 @@
 from pycifstar import Data
+from pycifstar.item import print_string
 from typing import List, Tuple
+
+def val_to_str(val):
+    if isinstance(val, str):
+        s_val = print_string(val)
+    elif val is None:
+        s_val = "."
+    else:
+        s_val = f"{val:}"
+    return s_val
 
 class ItemConstr(object):
     def __init__(self, mandatory_attribute = (), optional_attribute = (), internal_attribute = (), prefix=""):
@@ -22,20 +32,23 @@ class ItemConstr(object):
             s_attr = f"__{_attr:}"
             _val = getattr(self, s_attr)
             if _val is not None:
-                ls_out.append(f"{_attr:}: {_val:}")
+                s_val = val_to_str(_val)
+                ls_out.append(f"{_attr:}: {s_val:}")
         for _attr in self.__optional_attribute:
             s_attr = f"__{_attr:}"
             _val = getattr(self, s_attr)
             if _val is not None:
-                ls_out.append(f"{_attr:}: {_val:}")
+                s_val = val_to_str(_val)
+                ls_out.append(f"{_attr:}: {s_val:}")
         for _attr in self.__internal_attribute:
             s_attr = f"__{_attr:}"
             _val = getattr(self, s_attr)
             if _val is not None:
-                ls_out.append(f"{_attr:}: {_val:}")
+                s_val = val_to_str(_val)
+                ls_out.append(f"{_attr:}: {s_val:}")
         return "\n".join(ls_out)
 
-    def to_cif(self, prefix="", separator="_", flag=False) -> str: 
+    def to_cif(self, separator="_", flag=False) -> str: 
         """
         Save information about object in string in STAR format
 
@@ -47,21 +60,24 @@ class ItemConstr(object):
         Returns:
             A string in STAR/CIF format
         """
+        prefix = self.prefix
         ls_out = []
         for _attr in self.__mandatory_attribute:
             s_attr = f"__{_attr:}"
             _val = getattr(self, s_attr)
             if _val is not None:
-                ls_out.append(f"{prefix:}{separator:}{_attr:} {_val:}")
+                s_val = val_to_str(_val)
+                ls_out.append(f"_{prefix:}{separator:}{_attr:} {s_val:}")
             elif flag:
-                ls_out.append(f"{prefix:}{separator:}{_attr:} .")
+                ls_out.append(f"_{prefix:}{separator:}{_attr:} .")
         for _attr in self.__optional_attribute:
             s_attr = f"__{_attr:}"
             _val = getattr(self, s_attr)
             if _val is not None:
-                ls_out.append(f"{prefix:}{separator:}{_attr:} {_val:}")
+                s_val = val_to_str(_val)
+                ls_out.append(f"_{prefix:}{separator:}{_attr:} {s_val:}")
             elif flag:
-                ls_out.append(f"{prefix:}{separator:}{_attr:} .")
+                ls_out.append(f"_{prefix:}{separator:}{_attr:} .")
         return "\n".join(ls_out)
     def print_attribute(self, l_attr=()) -> str:
         """
@@ -76,7 +92,8 @@ class ItemConstr(object):
             s_attr = f"__{_attr:}"
             _val = getattr(self, s_attr)
             if _val is not None:
-                ls_out.append(f"{_val:}")
+                s_val = val_to_str(_val)
+                ls_out.append(f"{s_val:}")
             else:
                 ls_out.append(f".")
         return " ".join(ls_out)
@@ -154,14 +171,26 @@ class ItemConstr(object):
         mandatory_attribute = cls.MANDATORY_ATTRIBUTE
         optional_attribute = cls.OPTIONAL_ATTRIBUTE
         prefix = cls.PREFIX
-        flag = all([cif_data.is_value("_"+prefix+"_"+_attr) for _attr in mandatory_attribute])
+        separator = "_"
+        flag = all([cif_data.is_value("_"+prefix+separator+_attr) for _attr in mandatory_attribute])
+        if not (flag):
+            separator = "."
+            flag = all([cif_data.is_value("_"+prefix+separator+_attr) for _attr in mandatory_attribute])
         if flag:
-            _item = cls()
             l_attr = list(mandatory_attribute)+list(optional_attribute)
-            for _attr in l_attr:
-                _attr_full = "_"+prefix+"_"+_attr
-                if cif_data.is_value(_attr_full):
-                    setattr(_item, _attr, cif_data[_attr_full].value)
+            separator = "_"
+            flag_2 = any([cif_data.is_value("_"+prefix+separator+_attr) for _attr in l_attr])
+            if not(flag_2):
+                separator = "."
+                flag_2 = any([cif_data.is_value("_"+prefix+separator+_attr) for _attr in l_attr])
+            if flag_2:
+                _item = cls()
+                for _attr in l_attr:
+                    _attr_full = "_"+prefix+separator+_attr
+                    if cif_data.is_value(_attr_full):
+                        setattr(_item, _attr, cif_data[_attr_full].value)
+            else:
+                _item = None
         else:
             _item = None
         return _item        
