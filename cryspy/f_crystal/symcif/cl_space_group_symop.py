@@ -1,5 +1,5 @@
 """
-Defines SpaceGoupSymopEl and SpaceGoupSymop classes. 
+Defines SpaceGoupSymop and SpaceGoupSymopL classes. 
 
 """
 
@@ -12,9 +12,9 @@ from typing import List, Tuple
 from cryspy.f_common.cl_item_constr import ItemConstr
 from cryspy.f_common.cl_loop_constr import LoopConstr
 
-class SpaceGroupSymopEl(ItemConstr):
+class SpaceGroupSymop(ItemConstr):
     """
-SpaceGroupSymopEl
+SpaceGroupSymop
 =================
 
 Contains information about the symmetry operations of the
@@ -44,7 +44,7 @@ Methods:
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "space_group_symop"
     def __init__(self, id=None, operation_xyz=None, operation_description=None, generator_xyz=None, sg_id=None):
-        super(SpaceGroupSymopEl, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
+        super(SpaceGroupSymop, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                                 optional_attribute=self.OPTIONAL_ATTRIBUTE, 
                                                 internal_attribute=self.INTERNAL_ATTRIBUTE,
                                                 prefix=self.PREFIX)
@@ -187,9 +187,9 @@ be identified with a particular space group
 
 
 
-class SpaceGroupSymop(LoopConstr):
+class SpaceGroupSymopL(LoopConstr):
     """
-SpaceGroupSymop
+SpaceGroupSymopL
 =================
 
 Contains information about the symmetry operations of the
@@ -237,9 +237,9 @@ Class methods:
 reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html
     """
     CATEGORY_KEY = ("id", )
-    ITEM_CLASS = SpaceGroupSymopEl
+    ITEM_CLASS = SpaceGroupSymop
     def __init__(self, item = [], label=""):
-        super(SpaceGroupSymop, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
+        super(SpaceGroupSymopL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
         self.item = item
 
 

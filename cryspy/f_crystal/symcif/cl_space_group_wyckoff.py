@@ -18,9 +18,9 @@ from cryspy.f_common.cl_item_constr import ItemConstr
 from cryspy.f_common.cl_loop_constr import LoopConstr
 
 
-class SpaceGroupWyckoffEl(ItemConstr):
+class SpaceGroupWyckoff(ItemConstr):
     """
-SpaceGroupWyckoffEl
+SpaceGroupWyckoff
 ====================
 
 Contains information about Wyckoff positions of a space group.
@@ -56,7 +56,7 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_gro
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "space_group_Wyckoff"
     def __init__(self, id=None, coord_xyz=None, letter=None, multiplicity=None, site_symmetry=None):
-        super(SpaceGroupWyckoffEl, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
+        super(SpaceGroupWyckoff, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                                 optional_attribute=self.OPTIONAL_ATTRIBUTE, 
                                                 internal_attribute=self.INTERNAL_ATTRIBUTE,
                                                 prefix=self.PREFIX)
@@ -194,9 +194,9 @@ along one of the 100 directions.).
 
 
 
-class SpaceGroupWyckoff(LoopConstr):
+class SpaceGroupWyckoffL(LoopConstr):
     """
-SpaceGroupWyckoff
+SpaceGroupWyckoffL
 ====================
 
 Contains information about Wyckoff positions of a space group.
@@ -246,9 +246,9 @@ Class methods:
 reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_Wyckoff.html
     """
     CATEGORY_KEY = ("id", )
-    ITEM_CLASS = SpaceGroupWyckoffEl
+    ITEM_CLASS = SpaceGroupWyckoff
     def __init__(self, item = [], label=""):
-        super(SpaceGroupWyckoff, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
+        super(SpaceGroupWyckoffL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
         self.item = item
 
     @classmethod

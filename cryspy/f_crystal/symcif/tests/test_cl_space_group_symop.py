@@ -1,5 +1,5 @@
 import pytest
-from cryspy.f_crystal.cl_space_group_symop import SpaceGroupSymopEl, SpaceGroupSymop
+from cryspy.f_crystal.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
 
 STR_FROM_CIF_1 = """
 loop_
@@ -21,7 +21,7 @@ _space_group_symop.generator_xyz
 
 def test_init():
     try:
-        _object = SpaceGroupSymop()
+        _object = SpaceGroupSymopL()
         flag = True
     except:
         flag = False
@@ -29,7 +29,7 @@ def test_init():
 
 def test_to_cif():
     try:
-        _object = SpaceGroupSymop()
+        _object = SpaceGroupSymopL()
         _str = _object.to_cif
         flag = True
     except:
@@ -38,7 +38,7 @@ def test_to_cif():
 
 def test_init_el():
     try:
-        _object = SpaceGroupSymopEl()
+        _object = SpaceGroupSymop()
         flag = True
     except:
         flag = False
@@ -46,7 +46,7 @@ def test_init_el():
 
 def test_to_cif_el():
     try:
-        _object = SpaceGroupSymopEl()
+        _object = SpaceGroupSymop()
         _str = _object.to_cif
         flag = True
     except:
@@ -55,9 +55,9 @@ def test_to_cif_el():
 
     
 def test_init_2():
-    i_1 = SpaceGroupSymopEl(id=1, operation_xyz="x,y,z")
-    i_2 = SpaceGroupSymopEl(id="2", operation_xyz="-x,-y,-z")
-    _object = SpaceGroupSymop(item=[i_1, i_2])
+    i_1 = SpaceGroupSymop(id=1, operation_xyz="x,y,z")
+    i_2 = SpaceGroupSymop(id="2", operation_xyz="-x,-y,-z")
+    _object = SpaceGroupSymopL(item=[i_1, i_2])
     assert all([_1==_2 for _1, _2 in  zip(_object.id, ["1", "2"])])
     assert all([_1==_2 for _1, _2 in  zip(_object.operation_xyz, ["x,y,z", "-x,-y,-z"])])
     assert _object["1"].operation_xyz == "x,y,z"
@@ -67,7 +67,7 @@ def test_init_2():
 
 
 def test_from_cif():
-    l_obj = SpaceGroupSymop.from_cif(STR_FROM_CIF_1)
+    l_obj = SpaceGroupSymopL.from_cif(STR_FROM_CIF_1)
     assert len(l_obj) == 1
     _obj = l_obj[0]
     assert _obj.id == ["1", "2", "3", "4"]

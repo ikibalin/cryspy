@@ -1,5 +1,5 @@
 import pytest
-from cryspy.f_crystal.cl_space_group_wyckoff import SpaceGroupWyckoffEl, SpaceGroupWyckoff
+from cryspy.f_crystal.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
 
 STR_FROM_CIF_1 = """
 loop_
@@ -16,7 +16,7 @@ _space_group_Wyckoff.site_symmetry
 
 
 def test_init():
-    _object = SpaceGroupWyckoff()
+    _object = SpaceGroupWyckoffL()
     try:
         flag = True
     except:
@@ -25,7 +25,7 @@ def test_init():
 
 def test_to_cif():
     try:
-        _object = SpaceGroupWyckoff()
+        _object = SpaceGroupWyckoffL()
         _str = _object.to_cif
         flag = True
     except:
@@ -34,7 +34,7 @@ def test_to_cif():
 
 def test_init_el():
     try:
-        _object = SpaceGroupWyckoffEl()
+        _object = SpaceGroupWyckoff()
         flag = True
     except:
         flag = False
@@ -42,7 +42,7 @@ def test_init_el():
 
 def test_to_cif_el():
     try:
-        _object = SpaceGroupWyckoffEl()
+        _object = SpaceGroupWyckoff()
         _str = _object.to_cif
         flag = True
     except:
@@ -51,9 +51,9 @@ def test_to_cif_el():
 
     
 def test_init_2():
-    i_1 = SpaceGroupWyckoffEl(id=1, coord_xyz="x,y,z")
-    i_2 = SpaceGroupWyckoffEl(id="2", coord_xyz="-x,-y,-z")
-    _object = SpaceGroupWyckoff(item=[i_1, i_2])
+    i_1 = SpaceGroupWyckoff(id=1, coord_xyz="x,y,z")
+    i_2 = SpaceGroupWyckoff(id="2", coord_xyz="-x,-y,-z")
+    _object = SpaceGroupWyckoffL(item=[i_1, i_2])
     assert all([_1==_2 for _1, _2 in  zip(_object.id, ["1", "2"])])
     assert all([_1==_2 for _1, _2 in  zip(_object.coord_xyz, ["x,y,z", "-x,-y,-z"])])
     assert _object["1"].coord_xyz == "x,y,z"
@@ -62,7 +62,7 @@ def test_init_2():
     assert _object.prefix == "space_group_Wyckoff"
 
 def test_from_cif():
-    l_obj = SpaceGroupWyckoff.from_cif(STR_FROM_CIF_1)
+    l_obj = SpaceGroupWyckoffL.from_cif(STR_FROM_CIF_1)
     assert len(l_obj) == 1
     _obj = l_obj[0]
     assert _obj.id == ["1", "2", "3", "4"]

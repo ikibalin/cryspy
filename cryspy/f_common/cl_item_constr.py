@@ -19,6 +19,7 @@ class ItemConstr(object):
         self.__internal_attribute = internal_attribute
         self.__prefix = prefix
         self.clean_attribute
+        self.__flag_renewed = True
 
     def __repr__(self) -> str:
         ls_out = []
@@ -112,6 +113,14 @@ class ItemConstr(object):
         return self.__prefix
 
     @property
+    def flag_renewed(self)->bool:
+        return self.__flag_renewed
+
+    @flag_renewed.setter
+    def flag_renewed(self, x:bool):
+        self.__flag_renewed = bool(x)
+
+    @property
     def clean_attribute(self):
         for _ in self.__mandatory_attribute:
             setattr(self, f"__{_:}", None)
@@ -154,6 +163,10 @@ class ItemConstr(object):
                 flag = False
         return flag
 
+    @property
+    def form_object(self)->bool:
+        return True
+
     def is_defined_attribute(self, _attr:str) -> bool:
         s_attr = f"__{_attr:}"
         flag = hasattr(self, s_attr)
@@ -193,4 +206,7 @@ class ItemConstr(object):
                 _item = None
         else:
             _item = None
+        if _item is not None:
+            if _item.is_defined:
+                _item.form_object
         return _item        

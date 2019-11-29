@@ -16,83 +16,9 @@ import warnings
 from typing import List, Tuple
 from cryspy.f_common.cl_item_constr import ItemConstr
 
-from cryspy.f_common.cl_fitable import Fitable
-
-from cryspy.f_crystal.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopEl
-from cryspy.f_crystal.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffEl
-
-
-def trans_el_symm_to_str(el_symm:List) -> str :
-    s_x = ""
-    if el_symm[0] != 0.: s_x+="{:.3f}".format(el_symm[0])
-    if el_symm[1] == 1: s_x+="+x"
-    if el_symm[1] == -1: s_x+="-x"
-    if el_symm[2] == 1: s_x+="+y"
-    if el_symm[2] == -1: s_x+="-y"
-    if el_symm[3] == 1: s_x+="+z"
-    if el_symm[3] == -1: s_x+="-z"
-    if s_x.startswith("+"): s_x = s_x[1:]
-    
-    s_y = ""
-    if el_symm[4] != 0.: s_y+="{:.3f}".format(el_symm[4])
-    if el_symm[5] == 1: s_y+="+x"
-    if el_symm[5] == -1: s_y+="-x"
-    if el_symm[6] == 1: s_y+="+y"
-    if el_symm[6] == -1: s_y+="-y"
-    if el_symm[7] == 1: s_y+="+z"
-    if el_symm[7] == -1: s_y+="-z"
-    if s_y.startswith("+"): s_y = s_y[1:]
-
-    s_z = ""
-    if el_symm[8] != 0.: s_z+="{:.3f}".format(el_symm[8])
-    if el_symm[9]==1: s_z+="+x"
-    if el_symm[9] == -1: s_z+="-x"
-    if el_symm[10] == 1: s_z+="+y"
-    if el_symm[10] == -1: s_z+="-y"
-    if el_symm[11] == 1: s_z+="+z"
-    if el_symm[11] == -1: s_z+="-z"
-    if s_z.startswith("+"): s_z = s_z[1:]
-    line=f"{s_x:}, {s_y:}, {s_y:}"
-        
-    return line
-
-
-def trans_str_to_el_symm(str1:str)->List:
-    """
-    transform string to element of symmetry: (x,y,-z) -> 0.0 1 0 0  0.0 0 1 0  0.0 0 0 -1
-    """
-    str2 = "".join(str1.split(" "))
-    l_help1, l_help2, l_help3 = [], [], []
-    l_help1 = [hh for hh in str2.split('(') if hh != ""]
-    [l_help2.extend(hh.split(')')) for hh in l_help1 if hh != ""]
-    [l_help3.extend(hh.split(',')) for hh in l_help2 if hh != ""]
-    l_Ax = ['x', 'y', 'z']
-    l_el_symm = []
-    for hh in l_help3:
-        el_symm_h = [0.0, 0, 0, 0]
-        str_h = hh
-        for i_num, Ax in enumerate(l_Ax):
-            if (str_h.find(Ax) != -1):
-                if (str_h.find("+"+Ax) != -1):
-                    el_symm_h[i_num+1] = 1
-                    str_h = "".join(str_h.split("+"+Ax))
-                elif (str_h.find("-"+Ax) != -1):
-                    el_symm_h[i_num+1] = -1
-                    str_h = "".join(str_h.split("-"+Ax))
-                else:
-                    el_symm_h[i_num+1] = 1
-                    str_h = "".join(str_h.split(Ax))
-        if (str_h==""):
-            pass
-        elif (str_h.find("/") != -1):
-            l_help1 = str_h.split("/")
-            el_symm_h[0] = float(l_help1[0])/float(l_help1[1])
-        else:
-            el_symm_h[0] = float(str_h)
-        l_el_symm.append(el_symm_h)
-    el_symm = []
-    [el_symm.extend(hh) for hh in l_el_symm]
-    return el_symm
+import cryspy.f_crystal.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
+from cryspy.f_crystal.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
+from cryspy.f_crystal.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
 
 
 class SpaceGroup(ItemConstr):
@@ -126,7 +52,7 @@ Description in cif file:
 ---------------------------
 
     _space_group.id                    1
-    _space_group.name_H-M_ref            'C 2/c'
+    _space_group.name_H-M_ref         'C 2/c'
     _space_group.name_Schoenflies      C2h.6
     _space_group.IT_number             15
     _space_group.name_Hall           '-C 2yc'
@@ -137,7 +63,7 @@ Description in cif file:
     _space_group.Patterson_name_H-M  'C 2/m'
 
 TODO:: 
-all labels with '-' sign as  does not read now. 
+all labels with sign '-' does not read now. 
 The sign '-' has to be suppressed.
 Example: '_space_group.name_H-M_ref' -> '_space_group.name_HM_ref'
 
@@ -153,7 +79,7 @@ Optional attribute:
 - bravais_type
 - laue_class
 - patterson_name_hm
-- centering_type
+- centring_type
 - crystal_system
 - name_hm_alt_description
 - name_hm_full
@@ -179,132 +105,28 @@ Methods:
 reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html
     """
     MANDATORY_ATTRIBUTE = ()
-    OPTIONAL_ATTRIBUTE = ("name_hm_alt", "it_number", "it_coordinate_system_code", "id", "bravais_type", "laue_class", "patterson_name_hm", "centring_type",
-    "crystal_system", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies", "point_group_hm", 
-    "reference_setting", "transform_pp_abc", "transform_qq_xyz")
+    OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies",
+     "it_number", "it_coordinate_system_code", "point_group_hm", "laue_class", "patterson_name_hm", 
+    "centring_type", "bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "space_group"
-    DIR_PROG = os.path.dirname(__file__)
-    ITABLES_FILE = os.path.join(DIR_PROG, "tables", "itables.txt")
-    WYCKOFF_FILE = os.path.join(DIR_PROG, "tables", "wyckoff.dat")
-    ACCESIBLE_BRAVAIS_TYPE = ("aP", "mP", "mS", "oP", "oS", "oI", "oF", "tP", "tI", "hP", "hR", "cP", "cI", "cF")
-    ACCESIBLE_IT_COORDINATE_SYSTEM_CODE = ("b1", "b2", "b3", "-b1", "-b2", "-b3", "c1", "c2", "c3", "-c1", "-c2", "-c3", 
-    "a1", "a2", "a3", "-a1", "-a2", "-a3", "abc", "ba-c", "cab", "-cba", "bca", "a-cb", "1abc", "1ba-c", "1cab", "1-cba", 
-    "1bca", "1a-cb", "2abc", "2ba-c", "2cab", "2-cba", "2bca", "2a-cb", "1", "2", "h", "r")
-    ACCESIBLE_LAUE_CLASS = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
-    ACCESIBLE_CENTERING_TYPE = ("P", "A", "B", "C", "F", "I", "R", "Rrev", "H")
-    ACCESIBLE_CRYSTAL_SYSTEM = ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic")
-    ACCESIBLE_NAME_HM_REF = ("P 1", "P -1", "P 2", "P 21", "C 2", "P m", "P c", "C m", "C c", "P 2/m", "P 21/m", "C 2/m", 
-    "P 2/c", "P 21/c", "C 2/c", "P 2 2 2", "P 2 2 21", "P 21 21 2", "P 21 21 21", "C 2 2 21", "C 2 2 2", "F 2 2 2", "I 2 2 2", 
-    "I 21 21 21", "P m m 2", "P m c 21", "P c c 2", "P m a 2", "P c a 21", "P n c 2", "P m n 21", "P b a 2", "P n a 21", "P n n 2", 
-    "C m m 2", "C m c 21", "C c c 2", "A m m 2", "A e m 2", "A m a 2", "A e a 2", "F m m 2", "F d d 2", "I m m 2", "I b a 2", "I m a 2", 
-    "P m m m", "P n n n", "P c c m", "P b a n", "P m m a", "P n n a", "P m n a", "P c c a", "P b a m", "P c c n", "P b c m", "P n n m",
-    "P m m n", "P b c n", "P b c a", "P n m a", "C m c m", "C m c e", "C m m m", "C c c m", "C m m e", "C c c e", "F m m m", "F d d d", 
-    "I m m m", "I b a m", "I b c a", "I m m a", "P 4", "P 41", "P 42", "P 43", "I 4", "I 41", "P -4", "I -4", "P 4/m", "P 42/m", "P 4/n", 
-    "P 42/n", "I 4/m", "I 41/a", "P 4 2 2", "P 4 21 2", "P 41 2 2", "P 41 21 2", "P 42 2 2", "P 42 21 2", "P 43 2 2", "P 43 21 2", "I 4 2 2", 
-    "I 41 2 2", "P 4 m m", "P 4 b m", "P 42 c m", "P 42 n m", "P 4 c c", "P 4 n c", "P 42 m c", "P 42 b c", "I 4 m m", "I 4 c m", "I 41 m d", 
-    "I 41 c d", "P -4 2 m", "P -4 2 c", "P -4 21 m", "P -4 21 c", "P -4 m 2", "P -4 c 2", "P -4 b 2", "P -4 n 2", "I -4 m 2", "I -4 c 2", 
-    "I -4 2 m", "I -4 2 d", "P 4/m m m", "P 4/m c c", "P 4/n b m", "P 4/n n c", "P 4/m b m", "P 4/m n c", "P 4/n m m", "P 4/n c c", "P 42/m m c", 
-    "P 42/m c m", "P 42/n b c", "P 42/n n m", "P 42/m b c", "P 42/m n m", "P 42/n m c", "P 42/n c m", "I 4/m m m", "I 4/m c m", "I 41/a m d", 
-    "I 41/a c d", "P 3", "P 31", "P 32", "R 3", "P -3", "R -3", "P 3 1 2", "P 3 2 1", "P 31 1 2", "P 31 2 1", "P 32 1 2", "P 32 2 1", "R 3 2", 
-    "P 3 m 1", "P 3 1 m", "P 3 c 1", "P 3 1 c", "R 3 m", "R 3 c", "P -3 1 m", "P -3 1 c", "P -3 m 1", "P -3 c 1", "R -3 m", "R -3 c", "P 6", "P 61", 
-    "P 65", "P 62", "P 64", "P 63", "P -6", "P 6/m ", "P 63/m", "P 6 2 2", "P 61 2 2", "P 65 2 2", "P 62 2 2", "P 64 2 2", "P 63 2 2", "P 6 m m", 
-    "P 6 c c", "P 63 c m", "P 63 m c", "P -6 m 2", "P -6 c 2", "P -6 2 m", "P -6 2 c", "P 6/m m m", "P 6/m c c", "P 63/m c m", "P 63/m m c", "P 2 3", 
-    "F 2 3", "I 2 3", "P 21 3", "I 21 3", "P m -3", "P n -3", "F m -3", "F d -3", "I m -3", "P a -3", "I a -3", "P 4 3 2", "P 42 3 2", "F 4 3 2", 
-    "F 41 3 2", "I 4 3 2", "P 43 3 2", "P 41 3 2", "I 41 3 2", "P -4 3 m", "F -4 3 m", "I -4 3 m", "P -4 3 n", "F -4 3 c", "I -4 3 d", "P m -3 m", 
-    "P n -3 n", "P m -3 n", "P n -3 m", "F m -3 m", "F m -3 c", "F d -3 m", "F d -3 c", "I m -3 m", "I a -3 d")
-    ACCESIBLE_NAME_HM_ALT = ("P 1", "P -1", "P 2", "P 2 1 1", "P 1 2 1", "P 1 1 2", "P 21", "P 21 1 1", "P 1 21 1", "P 1 1 21", "C 2", "C 2 1 1", 
-    "C 1 2 1", "P m", "P m 1 1", "P 1 m 1", "P 1 1 m", "P c", "P c 1 1", "P 1 c 1", "C m", "C m 1 1", "C 1 m 1", "C c", "C c 1 1", "C 1 c 1", 
-    "P 2/m", "P 2/m 1 1", "P 1 2/m 1", "P 1 1 2/m", "P 21/m", "P 21/m 1 1", "P 1 21/m 1", "P 1 1 21/m", "C 2/m", "C 2/m 1 1", "C 1 2/m 1", 
-    "P 2/c", "P 2/c 1 1", "P 1 2/c 1", "P 21/c", "P 21/c 1 1", "P 1 21/c 1", "C 2/c", "C 2/c 1 1", "C 1 2/c 1", "P 2 2 2", "P 2 2 21", "P 21 2 2", 
-    "P 2 21 2", "P 21 21 2", "P 2 21 21", "P 21 2 21", "P 21 21 21", "C 2 2 21", "A 21 2 2", "B 2 21 2", "C 2 2 2", "A 2 2 2", "B 2 2 2", "F 2 2 2", 
-    "I 2 2 2", "I 21 21 21", "P m m 2", "P 2 m m", "P m 2 m", "P m c 21", "P 21 m a", "P b 21 m", "P c c 2", "P 2 a a", "P b 2 b", "P m a 2", "P 2 m b", 
-    "P c 2 m", "P c a 21", "P 21 a b", "P c 21 b", "P n c 2", "P 2 n a", "P b 2 n", "P m n 21", "P 21 m n", "P n 21 m", "P b a 2", "P 2 c b", "P c 2 a", 
-    "P n a 21", "P 21 n b", "P c 21 n", "P n n 2", "P 2 n n", "P n 2 n", "C m m 2", "A 2 m m", "B m 2 m", "C m c 21", "A 21 m a", "B b 21 m", "C c c 2", 
-    "A 2 a a", "B b 2 b", "A m m 2", "B 2 m m", "C m 2 m", "A b m 2", "B 2 c m", "C m 2 a", "A m a 2", "B 2 m b", "C c 2 m", "A b a 2", "B 2 c b", "C c 2 a", 
-    "F m m 2", "F 2 m m", "F m 2 m", "F d d 2", "F 2 d d", "F d 2 d", "I m m 2", "I 2 m m", "I m 2 m", "I b a 2", "I 2 c b", "I c 2 a", "I m a 2", "I 2 m b", 
-    "I c 2 m", "P m m m", "P n n n", "P c c m", "P m a a", "P b m b", "P b a n", "P n c b", "P c n a", "P m m a", "P b m m", "P m c m", "P n n a", "P b n n", 
-    "P n c n", "P m n a", "P b m n", "P n c m", "P c c a", "P b a a", "P b c b", "P b a m", "P m c b", "P c m a", "P c c n", "P n a a", "P b n b", "P b c m", 
-    "P m c a", "P b m a", "P n n m", "P m n n", "P n m n", "P m m n", "P n m m", "P m n m", "P b c n", "P n c a", "P b n a", "P b c a", "P c a b", "P n m a", 
-    "P b n m", "P m c n", "C m c m", "A m m a", "B b m m", "C m c a", "A b m a", "B b c m", "C m m m", "A m m m", "B m m m", "C c c m", "A m a a", "B b m b", 
-    "C m m a", "A b m m", "B m c m", "C c c a", "A b a a", "B b c b", "F m m m", "F d d d", "I m m m", "I b a m", "I m c b", "I c m a", "I b c a", "I c a b", 
-    "I m m a", "I b m m", "I m c m", "P 4", "P 41", "P 42", "P 43", "I 4", "I 41", "P -4", "I -4", "P 4/m", "P 42/m", "P 4/n", "P 42/n", "I 4/m", "I 41/a", 
-    "P 4 2 2", "P 4 21 2", "P 41 2 2", "P 41 21 2", "P 42 2 2", "P 42 21 2", "P 43 2 2", "P 43 21 2", "I 4 2 2", "I 41 2 2", "P 4 m m", "P 4 b m", "P 42 c m", 
-    "P 42 n m", "P 4 c c", "P 4 n c", "P 42 m c", "P 42 b c", "I 4 m m", "I 4 c m", "I 41 m d", "I 41 c d", "P -4 2 m", "P -4 2 c", "P -4 21 m", "P -4 21 c", 
-    "P -4 m 2", "P -4 c 2", "P -4 b 2", "P -4 n 2", "I -4 m 2", "I -4 c 2", "I -4 2 m", "I -4 2 d", "P 4/m m m", "P 4/m c c", "P 4/n b m", "P 4/n n c", "P 4/m b m", 
-    "P 4/m n c", "P 4/n m m", "P 4/n c c", "P 42/m m c", "P 42/m c m", "P 42/n b c", "P 42/n n m", "P 42/m b c", "P 42/m n m", "P 42/n m c", "P 42/n c m", "I 4/m m m", 
-    "I 4/m c m", "I 41/a m d", "I 41/a c d", "P 3", "P 31", "P 32", "R 3", "P -3", "R -3", "P 3 1 2", "P 3 2 1", "P 31 1 2", "P 31 2 1", "P 32 1 2", "P 32 2 1", "R 3 2", 
-    "P 3 m 1", "P 3 1 m", "P 3 c 1", "P 3 1 c", "R 3 m", "R 3 c", "P -3 1 m", "P -3 1 c", "P -3 m 1", "P -3 c 1", "R -3 m", "R -3 c", "P 6", "P 61", "P 65", "P 62", 
-    "P 64", "P 63", "P -6", "P 6/m", "P 63/m", "P 6 2 2", "P 61 2 2", "P 65 2 2", "P 62 2 2", "P 64 2 2", "P 63 2 2", "P 6 m m", "P 6 c c", "P 63 c m", "P 63 m c", 
-    "P -6 m 2", "P -6 c 2", "P -6 2 m", "P -6 2 c", "P 6/m m m", "P 6/m c c", "P 63/m c m", "P 63/m m c", "P 2 3", "F 2 3", "I 2 3", "P 21 3", "I 21 3", "P m -3", 
-    "P m 3", "P n -3", "P n 3", "F m -3", "F m 3", "F d -3", "F d 3", "I m -3", "I m 3", "P a -3", "P a 3", "I a -3", "I a 3", "P 4 3 2", "P 42 3 2", "F 4 3 2", "F 41 3 2", 
-    "I 4 3 2", "P 43 3 2", "P 41 3 2", "I 41 3 2", "P -4 3 m", "F -4 3 m", "I -4 3 m", "P -4 3 n", "F -4 3 c", "I -4 3 d", "P m -3 m", "P m 3 m", "P n -3 n", "P n 3 n", 
-    "P m -3 n", "P m 3 n", "P n -3 m", "P n 3 m", "F m -3 m", "F m 3 m", "F m -3 c", "F m 3 c", "F d -3 m", "F d 3 m", "F d -3 c", "F d 3 c", "I m -3 m", "I m 3 m", 
-    "I a -3 d", "I a 3 d")
-    ACCESIBLE_NAME_SCHOENFLIES = ("C1.1", "Ci.1", "C2.1", "C2.2", "C2.3", "Cs.1", "Cs.2", "Cs.3", "Cs.4", "C2h.1", "C2h.2", "C2h.3", "C2h.4", 
-    "C2h.5", "C2h.6", "D2.1", "D2.2", "D2.3", "D2.4", "D2.5", "D2.6", "D2.7", "D2.8", "D2.9", "C2v.1", "C2v.2", "C2v.3", "C2v.4", "C2v.5", 
-    "C2v.6", "C2v.7", "C2v.8", "C2v.9", "C2v.10", "C2v.11", "C2v.12", "C2v.13", "C2v.14", "C2v.15", "C2v.16", "C2v.17", "C2v.18", "C2v.19", 
-    "C2v.20", "C2v.21", "C2v.22", "D2h.1", "D2h.2", "D2h.3", "D2h.4", "D2h.5", "D2h.6", "D2h.7", "D2h.8", "D2h.9", "D2h.10", "D2h.11", "D2h.12", 
-    "D2h.13", "D2h.14", "D2h.15", "D2h.16", "D2h.17", "D2h.18", "D2h.19", "D2h.20", "D2h.21", "D2h.22", "D2h.23", "D2h.24", "D2h.25", "D2h.26", 
-    "D2h.27", "D2h.28", "C4.1", "C4.2", "C4.3", "C4.4", "C4.5", "C4.6", "S4.1", "S4.2", "C4h.1", "C4h.2", "C4h.3", "C4h.4", "C4h.5", "C4h.6", 
-    "D4.1", "D4.2", "D4.3", "D4.4", "D4.5", "D4.6", "D4.7", "D4.8", "D4.9", "D4.10", "C4v.1", "C4v.2", "C4v.3", "C4v.4", "C4v.5", "C4v.6", "C4v.7", 
-    "C4v.8", "C4v.9", "C4v.10", "C4v.11", "C4v.12", "D2d.1", "D2d.2", "D2d.3", "D2d.4", "D2d.5", "D2d.6", "D2d.7", "D2d.8", "D2d.9", "D2d.10", 
-    "D2d.11", "D2d.12", "D4h.1", "D4h.2", "D4h.3", "D4h.4", "D4h.5", "D4h.6", "D4h.7", "D4h.8", "D4h.9", "D4h.10", "D4h.11", "D4h.12", "D4h.13", 
-    "D4h.14", "D4h.15", "D4h.16", "D4h.17", "D4h.18", "D4h.19", "D4h.20", "C3.1", "C3.2", "C3.3", "C3.4", "C3i.1", "C3i.2", "D3.1", "D3.2", "D3.3", 
-    "D3.4", "D3.5", "D3.6", "D3.7", "C3v.1", "C3v.2", "C3v.3", "C3v.4", "C3v.5", "C3v.6", "D3d.1", "D3d.2", "D3d.3", "D3d.4", "D3d.5", "D3d.6", 
-    "C6.1", "C6.2", "C6.3", "C6.4", "C6.5", "C6.6", "C3h.1", "C6h.1", "C6h.2", "D6.1", "D6.2", "D6.3", "D6.4", "D6.5", "D6.6", "C6v.1", "C6v.2", 
-    "C6v.3", "C6v.4", "D3h.1", "D3h.2", "D3h.3", "D3h.4", "D6h.1", "D6h.2", "D6h.3", "D6h.4", "T.1", "T.2", "T.3", "T.4", "T.5", "Th.1", "Th.2", 
-    "Th.3", "Th.4", "Th.5", "Th.6", "Th.7", "O.1", "O.2", "O.3", "O.4", "O.5", "O.6", "O.7", "O.8", "Td.1", "Td.2", "Td.3", "Td.4", "Td.5", "Td.6", 
-    "Oh.1", "Oh.2", "Oh.3", "Oh.4", "Oh.5", "Oh.6", "Oh.7", "Oh.8", "Oh.9", "Oh.10")
-    ACCESIBLE_NAME_HALL = ("P 1", "-P 1", "P 2y", "P 2yb", "C 2y", "P -2y", "P -2yc", "C -2y", "C -2yc", "-P 2y", "-P 2yb", "-C 2y", "-P 2yc", "-P 2ybc", 
-    "-C 2yc", "P 2 2", "P 2c 2", "P 2 2ab", "P 2ac 2ab", "C 2c 2", "C 2 2", "F 2 2", "I 2 2", "I 2b 2c", "P 2 -2", "P 2c -2", "P 2 -2c", "P 2 -2a", "P 2c -2ac", 
-    "P 2 -2bc", "P 2ac -2", "P 2 -2ab", "P 2c -2n", "P 2 -2n", "C 2 -2", "C 2c -2", "C 2 -2c", "A 2 -2", "A 2 -2b", "A 2 -2a", "A 2 -2ab", "F 2 -2", 
-    "F 2 -2d", "I 2 -2", "I 2 -2c", "I 2 -2a", "-P 2 2", "-P 2ab 2bc", "-P 2 2c", "-P 2ab 2b", "-P 2a 2a", "-P 2a 2bc", "-P 2ac 2", "-P 2a 2ac", "-P 2 2ab", 
-    "-P 2ab 2ac", "-P 2c 2b", "-P 2 2n", "-P 2ab 2a", "-P 2n 2ab", "-P 2ac 2ab", "-P 2ac 2n", "-C 2c 2", "-C 2ac 2", "-C 2 2", "-C 2 2c", 
-    "-C 2a 2", "-C 2a 2ac", "-F 2 2", "-F 2uv 2vw", "-I 2 2", "-I 2 2c", "-I 2b 2c", "-I 2b 2", "P 4", "P 4w", "P 4c", "P 4cw", "I 4", "I 4bw", "P -4", "I -4", 
-    "-P 4", "-P 4c", "-P 4a", "-P 4bc", "-I 4", "-I 4ad", "P 4 2", "P 4ab 2ab", "P 4w 2c", "P 4abw 2nw", "P 4c 2", "P 4n 2n", "P 4cw 2c", "P 4nw 2abw", "I 4 2", 
-    "I 4bw 2bw", "P 4 -2", "P 4 -2ab", "P 4c -2c", "P 4n -2n", "P 4 -2c", "P 4 -2n", "P 4c -2", "P 4c -2ab", "I 4 -2", "I 4 -2c", "I 4bw -2", "I 4bw -2c", 
-    "P -4 2", "P -4 2c", "P -4 2ab", "P -4 2n", "P -4 -2", "P -4 -2c", "P -4 -2ab", "P -4 -2n", "I -4 -2", "I -4 -2c", "I -4 2", "I -4 2bw", "-P 4 2", 
-    "-P 4 2c", "-P 4a 2b", "-P 4a 2bc", "-P 4 2ab", "-P 4 2n", "-P 4a 2a", "-P 4a 2ac", "-P 4c 2", "-P 4c 2c", "-P 4ac 2b", "-P 4ac 2bc", "-P 4c 2ab", 
-    "-P 4n 2n", "-P 4ac 2a", "-P 4ac 2ac", "-I 4 2", "-I 4 2c", "-I 4bd 2", "-I 4bd 2c", "P 3", "P 31", "P 32", "R 3", "-P 3", "-R 3", 
-    "P 3 2", "P 3 2\"", "P 31 2 (0 0 4)", "P 31 2\"", "P 32 2 (0 0 2)", "P 32 2\"", "R 3 2\"", "P 3 -2\"", "P 3 -2", "P 3 -2\"c", "P 3 -2c", "R 3 -2\"", "R 3 -2\"c", 
-    "-P 3 2", "-P 3 2c", "-P 3 2\"", "-P 3 2\"c", "-R 3 2\"", "-R 3 2\"c", "P 6", "P 61", "P 65", "P 62", "P 64", "P 6c", "P -6", "-P 6", "-P 6c", "P 6 2", 
-    "P 61 2 (0 0 5)", "P 65 2 (0 0 1)", "P 62 2 (0 0 4)", "P 64 2 (0 0 2)", "P 6c 2c", "P 6 -2", "P 6 -2c", "P 6c -2", "P 6c -2c", "P -6 2", "P -6c 2", "P -6 -2", 
-    "P -6c -2c", "-P 6 2", "-P 6 2c", "-P 6c 2", "-P 6c 2c", "P 2 2 3", "F 2 2 3", "I 2 2 3", "P 2ac 2ab 3", "I 2b 2c 3", "-P 2 2 3", "-P 2ab 2bc 3", 
-    "-F 2 2 3", "-F 2uv 2vw 3", "-I 2 2 3", "-P 2ac 2ab 3", "-I 2b 2c 3", "P 4 2 3", "P 4n 2 3", "F 4 2 3", "F 4d 2 3", "I 4 2 3", "P 4acd 2ab 3", "P 4bd 2ab 3", 
-    "I 4bd 2c 3", "P -4 2 3", "F -4 2 3", "I -4 2 3", "P -4n 2 3", "F -4a 2 3", "I -4bd 2c 3", "-P 4 2 3", "-P 4a 2bc 3", "-P 4n 2 3", "-P 4bc 2bc 3", 
-    "-F 4 2 3", "-F 4a 2 3", "-F 4vw 2vw 3", "-F 4ud 2vw 3", "-I 4 2 3", "-I 4bd 2c 3") 
-    ACCESIBLE_REFERENCE_SETTING = ("001:P 1", "002:-P 1", "003:P 2y", "004:P 2yb", "005:C 2y", "006:P -2y", "007:P -2yc", "008:C -2y", "009:C -2yc", 
-    "010:-P 2y", "011:-P 2yb", "012:-C 2y", "013:-P 2yc", "014:-P 2ybc", "015:-C 2yc", "016:P 2 2", "017:P 2c 2", "018:P 2 2ab", "019:P 2ac 2ab", 
-    "020:C 2c 2", "021:C 2 2", "022:F 2 2", "023:I 2 2", "024:I 2b 2c", "025:P 2 -2", "026:P 2c -2", "027:P 2 -2c", "028:P 2 -2a", "029:P 2c -2ac", 
-    "030:P 2 -2bc", "031:P 2ac -2", "032:P 2 -2ab", "033:P 2c -2n", "034:P 2 -2n", "035:C 2 -2", "036:C 2c -2", "037:C 2 -2c", "038:A 2 -2", 
-    "039:A 2 -2b", "040:A 2 -2a", "041:A 2 -2ab", "042:F 2 -2", "043:F 2 -2d", "044:I 2 -2", "045:I 2 -2c", "046:I 2 -2a", "047:-P 2 2", "048:-P 2ab 2bc", 
-    "049:-P 2 2c", "050:-P 2ab 2b", "051:-P 2a 2a", "052:-P 2a 2bc", "053:-P 2ac 2", "054:-P 2a 2ac", "055:-P 2 2ab", "056:-P 2ab 2ac", "057:-P 2c 2b", 
-    "058:-P 2 2n", "059:-P 2ab 2a", "060:-P 2n 2ab", "061:-P 2ac 2ab", "062:-P 2ac 2n", "063:-C 2c 2", "064:-C 2ac 2", "065:-C 2 2", "066:-C 2 2c", 
-    "067:-C 2a 2", "068:-C 2a 2ac", "069:-F 2 2", "070:-F 2uv 2vw", "071:-I 2 2", "072:-I 2 2c", "073:-I 2b 2c", "074:-I 2b 2", "075:P 4", "076:P 4w", 
-    "077:P 4c", "078:P 4cw", "079:I 4", "080:I 4bw", "081:P -4", "082:I -4", "083:-P 4", "084:-P 4c", "085:-P 4a", "086:-P 4bc", "087:-I 4", "088:-I 4ad", 
-    "089:P 4 2", "090:P 4ab 2ab", "091:P 4w 2c", "092:P 4abw 2nw", "093:P 4c 2", "094:P 4n 2n", "095:P 4cw 2c", "096:P 4nw 2abw", "097:I 4 2", "098:I 4bw 2bw", 
-    "099:P 4 -2", "100:P 4 -2ab", "101:P 4c -2c", "102:P 4n -2n", "103:P 4 -2c", "104:P 4 -2n", "105:P 4c -2", "106:P 4c -2ab", "107:I 4 -2", "108:I 4 -2c", 
-    "109:I 4bw -2", "110:I 4bw -2c", "111:P -4 2", "112:P -4 2c", "113:P -4 2ab", "114:P -4 2n", "115:P -4 -2", "116:P -4 -2c", "117:P -4 -2ab", "118:P -4 -2n", 
-    "119:I -4 -2", "120:I -4 -2c", "121:I -4 2", "122:I -4 2bw", "123:-P 4 2", "124:-P 4 2c", "125:-P 4a 2b", "126:-P 4a 2bc", "127:-P 4 2ab", "128:-P 4 2n", 
-    "129:-P 4a 2a", "130:-P 4a 2ac", "131:-P 4c 2", "132:-P 4c 2c", "133:-P 4ac 2b", "134:-P 4ac 2bc", "135:-P 4c 2ab", "136:-P 4n 2n", "137:-P 4ac 2a", 
-    "138:-P 4ac 2ac", "139:-I 4 2", "140:-I 4 2c", "141:-I 4bd 2", "142:-I 4bd 2c", "143:P 3", "144:P 31", "145:P 32", "146:R 3", "147:-P 3", "148:-R 3", 
-    "149:P 3 2", "150:P 3 2\"", "151:P 31 2 (0 0 4)", "152:P 31 2\"", "153:P 32 2 (0 0 2)", "154:P 32 2\"", "155:R 3 2\"", "156:P 3 -2\"", "157:P 3 -2", 
-    "158:P 3 -2\"c", "159:P 3 -2c", "160:R 3 -2\"", "161:R 3 -2\"c", "162:-P 3 2", "163:-P 3 2c", "164:-P 3 2\"", "165:-P 3 2\"c", "166:-R 3 2\"", 
-    "167:-R 3 2\"c", "168:P 6", "169:P 61", "170:P 65", "171:P 62", "172:P 64", "173:P 6c", "174:P -6", "175:-P 6", "176:-P 6c", "177:P 6 2", 
-    "178:P 61 2 (0 0 5)", "179:P 65 2 (0 0 1)", "180:P 62 2 (0 0 4)", "181:P 64 2 (0 0 2)", "182:P 6c 2c", "183:P 6 -2", "184:P 6 -2c", 
-    "185:P 6c -2", "186:P 6c -2c", "187:P -6 2", "188:P -6c 2", "189:P -6 -2", "190:P -6c -2c", "191:-P 6 2", "192:-P 6 2c", "193:-P 6c 2", 
-    "194:-P 6c 2c", "195:P 2 2 3", "196:F 2 2 3", "197:I 2 2 3", "198:P 2ac 2ab 3", "199:I 2b 2c 3", "200:-P 2 2 3", "201:-P 2ab 2bc 3", 
-    "202:-F 2 2 3", "203:-F 2uv 2vw 3", "204:-I 2 2 3", "205:-P 2ac 2ab 3", "206:-I 2b 2c 3", "207:P 4 2 3", "208:P 4n 2 3", "209:F 4 2 3", 
-    "210:F 4d 2 3", "211:I 4 2 3", "212:P 4acd 2ab 3", "213:P 4bd 2ab 3", "214:I 4bd 2c 3", "215:P -4 2 3", "216:F -4 2 3", "217:I -4 2 3", "218:P -4n 2 3", 
-    "219:F -4a 2 3", "220:I -4bd 2c 3", "221:-P 4 2 3", "222:-P 4a 2bc 3", "223:-P 4n 2 3", "224:-P 4bc 2bc 3", "225:-F 4 2 3", "226:-F 4a 2 3", "227:-F 4vw 2vw 3", 
-    "228:-F 4ud 2vw 3", "229:-I 4 2 3", "230:-I 4bd 2c 3") 
+    ACCESIBLE_IT_NUMBER = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_IT_NUMBER
+    ACCESIBLE_BRAVAIS_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_BRAVAIS_TYPE
+    ACCESIBLE_IT_COORDINATE_SYSTEM_CODE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE
+    ACCESIBLE_LAUE_CLASS = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_LAUE_CLASS
+    ACCESIBLE_CENTERING_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_CENTERING_TYPE
+    ACCESIBLE_CRYSTAL_SYSTEM = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_CRYSTAL_SYSTEM
+    ACCESIBLE_NAME_HM_REF = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HM_SHORT
+    ACCESIBLE_NAME_HM_ALT = frozenset(set(CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HM_FULL).union(set(CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HM_EXTENDED)))
+    ACCESIBLE_NAME_SCHOENFLIES = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_SCHOENFLIES
+    ACCESIBLE_NAME_HALL = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HALL_SHORT
+    ACCESIBLE_REFERENCE_SETTING = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_REFERENCE_SETTING
     
     def __init__(self, name_hm_alt=None, it_number=None, it_coordinate_system_code=None, id=None, bravais_type=None,
     laue_class=None, patterson_name_hm=None, centring_type=None, crystal_system=None, name_hm_alt_description=None, 
     name_hm_full=None, name_hm_ref=None, name_hall=None, name_schoenflies=None, point_group_hm=None,
     reference_setting=None, transform_pp_abc=None, transform_qq_xyz=None):
-        SpaceGroup.read_wyckoff()
+        
         super(SpaceGroup, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                          optional_attribute=self.OPTIONAL_ATTRIBUTE, 
                                          internal_attribute=self.INTERNAL_ATTRIBUTE,
@@ -329,7 +151,8 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_gr
         self.reference_setting = reference_setting
         self.transform_pp_abc = transform_pp_abc
         self.transform_qq_xyz = transform_qq_xyz
-
+        if self.is_defined:
+            self.form_object
 
         
     @property
@@ -441,8 +264,8 @@ abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb,
         if x is None:
             x_in = None
         else:
-            if not(x_in in self.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE):
-                print(f"it_coordinate_system_code '{x_in:}' is not supported")
+            if not(x in self.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE):
+                print(f"it_coordinate_system_code '{x:}' is not supported")
                 x_in = None            
             x_in = str(x)
         setattr(self, "__it_coordinate_system_code", x_in)
@@ -502,9 +325,6 @@ cP cI cF
                 x_in = None
         setattr(self, "__bravais_type", x_in)
 
-
-
-    
 
     @property
     def laue_class(self) -> str:
@@ -978,64 +798,102 @@ Examples:
             x_in = str(x)
         setattr(self, "__transform_qq_xyz", x_in)
 
-    @classmethod
-    def read_wyckoff(cls):
-        with open(cls.WYCKOFF_FILE, "r") as fid:
-            l_cont = fid.readlines()
-        l_numb_b, l_numb_e = [], []
-        for _i_line, _line in enumerate(l_cont):
-            l_h = _line.strip().split()
-            for _i, _ in enumerate(l_h):
-                if not(_.isdigit()):
-                    break
-            if _i >= 4:
-                l_numb_b.append(_i_line)
-            if len(l_h) == 0:
-                l_numb_e.append(_i_line)
-        l_data = []
-        for _numb_b, _numb_e in zip(l_numb_b, l_numb_e):
-            l_param = l_cont[_numb_b].strip().split()[:5]
-            hm_full = ""
+    @property
+    def is_defined(self)->bool:
+        flag =  self.define_it_number_and_it_coordinate_system_code()
+        return flag 
+    @property
+    def form_object(self)->bool:
+        flag = self.form_object_by_it_number_it_coordinate_system_code()
+        return flag
+
+    def define_it_number_and_it_coordinate_system_code(self):
+        flag = True
+        it_coordinate_system_code = self.it_coordinate_system_code
+        if (self.is_defined_attribute("it_number") & self.is_defined_attribute("it_coordinate_system_code")):
+            it_number = self.it_number
+            it_coordinate_system_code = self.it_coordinate_system_code
+        elif self.is_defined_attribute("name_hm_alt"):
+            _res = get_type_hm(self.name_hm_alt)
+            if "extended" in _res:
+                it_number, it_coordinate_system_codes = CONSTANTS_AND_FUNCTIONS.get_it_number_it_coordinate_system_codes_by_name_hm_extended(self.name_hm_alt)
+                if  (not(it_coordinate_system_code in it_coordinate_system_codes)):
+                    it_coordinate_system_code = CONSTANTS_AND_FUNCTIONS.auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes)
+            elif "full" in _res:
+                it_number = get_it_number_by_name_hm_full(notation)
+        elif self.is_defined_attribute("name_hall"):
+            it_number = CONSTANTS_AND_FUNCTIONS.get_it_number_by_name_hall(self.name_hall)
+        elif self.is_defined_attribute("it_number"):
+            it_number = self.it_number
+            it_coordinate_system_code = self.it_coordinate_system_code
+        elif self.is_defined_attribute("name_schoenflies"):
+            it_number = CONSTANTS_AND_FUNCTIONS.get_it_number_by_name_schoenflies(self.name_schoenflies)
+        else:
             flag = False
-            for _char in l_cont[_numb_b].strip():
-                if _char.isalpha():
-                    flag = True
-                if flag:
-                    hm_full += _char 
-            data = {"it_number":int(l_param[0]), "set": int(l_param[1]), "centr_000": int(l_param[3]==1), "hm_full": hm_full.strip(), "wyckoff": []}
 
-            l_cont_2 = l_cont[(_numb_b+1):_numb_e]
-            l_wyckoff_symop = []
+        if flag:
+            it_coordinate_system_codes = CONSTANTS_AND_FUNCTIONS.get_it_coordinate_system_codes_by_it_number(it_number)
+            setattr(self, "it_number", it_number)
+            if  (not(it_coordinate_system_code in it_coordinate_system_codes)):
+                it_coordinate_system_code = CONSTANTS_AND_FUNCTIONS.auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes)
+            
+            setattr(self, "it_coordinate_system_code", it_coordinate_system_code)
+        return flag
 
-            l_d_card = []
-            d_card = None
-            for _line in l_cont_2:
-                l_h = _line.strip().split()
-                if l_h[0].isdigit():
-                    if d_card is not None:
-                        l_d_card.append(d_card)
-                    d_card = {"multiplicity": int(l_h[0]), "letter": l_h[1], "syte_symmetry": l_h[2], "symop": []}
-                else:
-                    d_card["symop"].extend(l_h)
-            data["wyckoff"].extend(l_d_card)
-            l_data.append(data)
-        cls.WYCKOFF = l_data
+    def form_object_by_it_number_it_coordinate_system_code(self):
+        bravais_type, laue_class, patterson_name_hm, centring_type, crystal_system = None, None, None, None, None
+        name_hm_extended, name_hm_full, name_hm_short = None, None, None
+        name_hall, name_schoenflies, point_group_hm = None, None, None
+    
+        lattice_type = None
+        generators = ()        
+        flag = self.define_it_number_and_it_coordinate_system_code()
+        it_number = self.it_number
+        it_c_s_c = self.it_coordinate_system_code
+        crystal_system = CONSTANTS_AND_FUNCTIONS.get_crystal_system_by_it_number(it_number)
+        name_hm_extended = CONSTANTS_AND_FUNCTIONS.get_name_hm_extended_by_it_number_it_coordinate_system_code(it_number, it_c_s_c)
+        if (name_hm_extended is not None): 
+            centring_type = CONSTANTS_AND_FUNCTIONS.get_centring_type_by_name_hm_extended(name_hm_extended)
+        if ((centring_type is not None) & (crystal_system is not None)): 
+            bravais_type = CONSTANTS_AND_FUNCTIONS.get_bravais_type_by_centring_type_crystal_system(centring_type, crystal_system)              
+        name_hm_short = CONSTANTS_AND_FUNCTIONS.get_name_hm_short_by_it_number(it_number)
+        if (name_hm_short is not None):
+            lattice_type = CONSTANTS_AND_FUNCTIONS.get_lattice_type_by_name_hm_short(name_hm_short)
+        name_hm_full = CONSTANTS_AND_FUNCTIONS.get_name_hm_full_by_it_number(it_number)
+        name_hall = CONSTANTS_AND_FUNCTIONS.get_name_hall_by_it_number(it_number)
+        if name_hall is not None:
+            centrosymmetry = CONSTANTS_AND_FUNCTIONS.get_centrosymmetry_by_name_hall(name_hall)
+        name_schoenflies = CONSTANTS_AND_FUNCTIONS.get_name_schoenflies_by_it_number(it_number)
+        if name_schoenflies is not None:
+            laue_class = CONSTANTS_AND_FUNCTIONS.get_laue_class_by_name_schoenflies(name_schoenflies)
+            point_group_hm = CONSTANTS_AND_FUNCTIONS.get_point_group_hm_short_by_name_schoenflies(name_schoenflies)
+            if point_group_hm is not None:
+                generators = CONSTANTS_AND_FUNCTIONS.get_generators_by_point_group_hm(point_group_hm)
+            if ((lattice_type is not None) & (laue_class is not None)):
+                patterson_name_hm = CONSTANTS_AND_FUNCTIONS.get_patterson_name_hm_by_lattice_type_laue_class(lattice_type, laue_class)
+        if name_hm_extended is not None: 
+            setattr(self, "name_hm_alt", name_hm_extended)
+            setattr(self, "name_hm_alt_description", "The extended international Hermann-Mauguin space-group symbol.")
+        if name_hm_full is not None: 
+            setattr(self, "name_hm_full", name_hm_full)
+        if name_hm_short is not None: setattr(self, "name_hm_ref", name_hm_short)
+        if name_hall is not None: setattr(self, "name_hall", name_hall)
+        if name_schoenflies is not None: setattr(self, "name_schoenflies", name_schoenflies)
+
+        if point_group_hm is not None: setattr(self, "point_group_hm", point_group_hm)
+        if laue_class is not None: setattr(self, "laue_class", laue_class)
+        if patterson_name_hm is not None: setattr(self, "patterson_name_hm", patterson_name_hm)
+        if centring_type is not None: setattr(self, "centring_type", centring_type)
+        if bravais_type is not None: setattr(self, "bravais_type", bravais_type)
+        if crystal_system is not None: setattr(self, "crystal_system", crystal_system)
+        return flag
+
 
     @classmethod
     def get_list_of_symop_by_it_number(cls, it_number: int):
-        l_data = cls.WYCKOFF
-        l_symop = []
-        for data in l_data:
-            if data["it_number"] == it_number:
-                l_data_symop = data["wyckoff"][0]["symop"]
-                item = []
-                for _i, _el in enumerate(l_data_symop):
-                    _id = f"{(_i+1):}"
-                    _item = SpaceGroupSymopEl(id=_id, operation_xyz=_el, sg_id=it_number)
-                    item.append(_item)
-                symop = SpaceGroupSymop(item)
-                l_symop.append(symop)
+        l_symop = ("x,y,z")
         return l_symop
+
 
     def get_symop(self):
         if self.is_defined_attribute("it_number"):
@@ -1050,40 +908,13 @@ Examples:
         return symop
 
 
-    @property
-    def names(self):
-        """
-        Give a list of accessible names 
-        """
-        ls_out = []
-        for d_card in self.__itables:
-            ls_out.append(d_card["name"])
-        return ls_out
+    @staticmethod
+    def get_it_coordinate_system_codes_by_it_number(it_number:int)->str:
+        return CONSTANTS_AND_FUNCTIONS.get_it_coordinate_system_codes_by_it_number(it_number)
 
-    @property
-    def numbers(self):
-        """
-        Give a list of accessible nambers
-        """
-        ls_out = []
-        for d_card in self.__itables:
-            if d_card["number"] not in ls_out:
-                ls_out.append(d_card["number"])
-        return list(set(ls_out))
-
-
-    def choices(self, name_or_number):
-        """
-        Give a list of accessible choices
-        """
-        ls_out = []
-        sval = "".join((str(name_or_number).split()))
-        for d_card in self.__itables:
-            cond_1 = d_card["number"] == sval
-            cond_2 = d_card["name"] == sval
-            if (cond_1 | cond_2):
-                ls_out.append(d_card["choice"][0])
-        return list(set(ls_out))        
+    @staticmethod
+    def get_default_it_coordinate_system_code_by_it_number(it_number:int)->str:
+        return CONSTANTS_AND_FUNCTIONS.get_default_it_coordinate_system_code_by_it_number(it_number)
         
     def _show_message(self, s_out: str):
         print("***  Error ***")
@@ -1091,42 +922,6 @@ Examples:
         
 
 
-    def _read_el_cards(self, f_itables):
-        """
-        reading information about space grooupe from file fitables to list of cards ldcard
-        Info in file fitables:
-        
-        1 P1               Triclinic
-        choice: 1
-        centr: false
-        pcentr: 0, 0, 0
-        symmetry: X,Y,Z
-        
-        2 P-1              Triclinic
-        ...
-        """
-        fid = open(f_itables, "r")
-        lcontent = fid.readlines()
-        fid.close()
-    
-        lcontent = [hh.strip() for hh in lcontent if hh.strip() != ""]
-        ldcard = []
-        dcard = None
-        for hh in lcontent:
-            lhelp = hh.split()
-            if lhelp[0].isdigit():
-                if dcard != None:
-                    ldcard.append(dcard)
-                dcard = {"number":lhelp[0], "name": lhelp[1], "singony": lhelp[2]}
-            else:
-                lhelp = hh.split(":")
-                if (lhelp[0].strip() in dcard.keys()):
-                    dcard[lhelp[0].strip()].append(lhelp[1].strip())
-                else:
-                    dcard[lhelp[0].strip()] = [lhelp[1].strip()]
-        ldcard.append(dcard)
-        self.__itables = ldcard
-        
 
 
 
@@ -1511,9 +1306,3 @@ Examples:
             l_res.append((_xyz, matrix_chi_rot))
         return l_res
 
-
-
-
-sg = SpaceGroup(it_number=15)
-symop = sg.get_symop()
-print(symop)
