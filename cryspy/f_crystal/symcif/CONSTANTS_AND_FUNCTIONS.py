@@ -13,9 +13,6 @@ ACCESIBLE_REFERENCE_SETTING
 
 DEFAULT_REFERENCE_TABLE_IT_NUMBER_NAME_HALL_NAME_SCHOENFLIES_NAME_HM_SHORT_REFERENCE_SETTING_IT_COORDINATE_SYSTEM_CODE
 
-REFERENCE_TABLE_IT_NUMBER_IT_COORDINATE_SYSTEM_CODE_NAME_HM_ALT
-REFERENCE_TABLE_ORTHORHOMBIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_ALT
-    
 D_CENTERING_TYPE_SHIFT - accessible list and shift
 D_CRYSTAL_FAMILY_DESCRIPTION - accessible list and description
 D_BRAVAIS_TYPE_CELL_CONSTRAINT_MODE_ABC - accessible list and description constraint_mode_abc
@@ -34,6 +31,7 @@ get_name_hall_by_it_number(it_number:int)->str
 
 """
 import os
+import numpy
 import warnings
 from fractions import Fraction
 from typing import List, Tuple
@@ -43,7 +41,7 @@ F_WYCKOFF = os.path.join(os.path.dirname(__file__), "wyckoff.dat")
 
 def read_el_cards():
     """
-    reading information about space grooupe from file to list of cards ldcard
+    reading information about space group from file to list of cards ldcard
     Info in file fitables:
     
     1 P1               Triclinic
@@ -888,28 +886,10 @@ D_BRAVAIS_TYPE_CELL_CONSTRAINT_MODE_ABC = {
 # Hermann–Mauguin symbol of crystal class
 # Generators Gi (sequence left to right)
 REFERENCE_TABLE_POINT_GROUP_HM_SYMBOL_GENERATORS = (
-("1", ("1", )),
-("-1", ("-1", )),
-("2", ("2", )),
-("m", ("m", )),
-("2/m", (2, -1)),
-("222", ("2z", "2y")),
-("mm2", ("2z", "my")),
-("mmm", ("2z", "2y", "-1")),
-("4", ("2z", "4")),
-("-4", ("2z", "-4")),
-("4/m", ("2z","4","-1")),
-("422", ("2z", "4", "2y")),
-("4mm", ("2z", "4", "my")),
-("-42m", ("2z", "-4", "2y")),
-("-4m2", ("2z", "-4", "my")),
-("4/mmm", ("2z", "4", "2y", "-1")),
-("3", ("3", )),
-("-3", ("3", "-1")),
-("321", ("3", "2110")),
-("321:r", ("3111", "210-1")),
-("312", ("3","21-10")),
-("3m1", ("3", "m110")),
+("1", ("1", )), ("-1", ("-1", )), ("2", ("2", )), ("m", ("m", )), ("2/m", (2, -1)), ("222", ("2z", "2y")), ("mm2", ("2z", "my")),
+("mmm", ("2z", "2y", "-1")), ("4", ("2z", "4")), ("-4", ("2z", "-4")), ("4/m", ("2z","4","-1")), ("422", ("2z", "4", "2y")),
+("4mm", ("2z", "4", "my")), ("-42m", ("2z", "-4", "2y")), ("-4m2", ("2z", "-4", "my")), ("4/mmm", ("2z", "4", "2y", "-1")), ("3", ("3", )),
+("-3", ("3", "-1")), ("321", ("3", "2110")), ("321:r", ("3111", "210-1")), ("312", ("3","21-10")), ("3m1", ("3", "m110")),
 ("3m1:r", ("3111", "m10-1")),
 ("31m", ("3", "m1-10")),
 ("-3m1", ("3", "2110", "-1")),
@@ -1051,7 +1031,9 @@ def separate_notation_it_coordinate_system_code(name:str):
 
 def get_symop_pcentr_for_standard_cell(it_number:int, it_coordinate_system_code:str):
     crystal_system = get_crystal_system_by_it_number(it_number)
-    if "3" in it_coordinate_system_code:
+    if it_coordinate_system_code is None:
+        choice = "1"
+    elif "3" in it_coordinate_system_code:
         choice = "3"
     elif "2" in it_coordinate_system_code:
         choice = "2"
@@ -1072,81 +1054,111 @@ def get_symop_pcentr_for_standard_cell(it_number:int, it_coordinate_system_code:
         if ((_el_card["it_number"] == it_number) & (_el_card["choice"][0] == choice)):
             symop = tuple(_el_card["symmetry"])
             p_centr = tuple(_el_card["pcentr"])
-    return symop, p_centr
-        
-
-
-def trans_el_symm_to_str(el_symm:List) -> str :
-    s_x = ""
-    if el_symm[0] != 0.: s_x+="{:.3f}".format(el_symm[0])
-    if el_symm[1] == 1: s_x+="+x"
-    if el_symm[1] == -1: s_x+="-x"
-    if el_symm[2] == 1: s_x+="+y"
-    if el_symm[2] == -1: s_x+="-y"
-    if el_symm[3] == 1: s_x+="+z"
-    if el_symm[3] == -1: s_x+="-z"
-    if s_x.startswith("+"): s_x = s_x[1:]
     
-    s_y = ""
-    if el_symm[4] != 0.: s_y+="{:.3f}".format(el_symm[4])
-    if el_symm[5] == 1: s_y+="+x"
-    if el_symm[5] == -1: s_y+="-x"
-    if el_symm[6] == 1: s_y+="+y"
-    if el_symm[6] == -1: s_y+="-y"
-    if el_symm[7] == 1: s_y+="+z"
-    if el_symm[7] == -1: s_y+="-z"
-    if s_y.startswith("+"): s_y = s_y[1:]
-
-    s_z = ""
-    if el_symm[8] != 0.: s_z+="{:.3f}".format(el_symm[8])
-    if el_symm[9]==1: s_z+="+x"
-    if el_symm[9] == -1: s_z+="-x"
-    if el_symm[10] == 1: s_z+="+y"
-    if el_symm[10] == -1: s_z+="-y"
-    if el_symm[11] == 1: s_z+="+z"
-    if el_symm[11] == -1: s_z+="-z"
-    if s_z.startswith("+"): s_z = s_z[1:]
-    line=f"{s_x:}, {s_y:}, {s_y:}"
-        
-    return line
+    _s_name, _choice = get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number, it_coordinate_system_code)
+    r, b = transform_string_to_r_b(_s_name, ("a", "b", "c"))
+    symop_2 = []
+    for _symop in symop:
+        r_xyz, b_xyz = transform_string_to_r_b(_symop, ("x", "y", "z"))
+        r_new = numpy.zeros(shape=(3, 3), dtype=float)
+        for _i in range(3):
+            for _j in range(3):
+                r_new[_i, _j] = sum(r_xyz[_j, :]*r[_i, :])
+        _s = transform_r_b_to_string(r_new, b_xyz, ("x", "y", "z"))                 
+        symop_2.append(_s) 
+    return symop_2, p_centr
 
 
-def trans_str_to_el_symm(str1:str)->List:
+
+
+def transform_string_to_digits(name:str, labels:Tuple[str]):
     """
-    transform string to element of symmetry: (x,y,-z) -> 0.0 1 0 0  0.0 0 1 0  0.0 0 0 -1
+    Multiplication has to be implicit, division must be explicit.
+    White space within the string is optional 
+
+    Example: 
+    transform_string_to_digits('-a+2x/7-0.7t+4', ('a', 'x', 't')) = 
+    = (Fraction(-1,1),fraction(2,7),Fraction(-7,10)), Fraction(4,1)
     """
-    str2 = "".join(str1.split(" "))
-    l_help1, l_help2, l_help3 = [], [], []
-    l_help1 = [hh for hh in str2.split('(') if hh != ""]
-    [l_help2.extend(hh.split(')')) for hh in l_help1 if hh != ""]
-    [l_help3.extend(hh.split(',')) for hh in l_help2 if hh != ""]
-    l_Ax = ['x', 'y', 'z']
-    l_el_symm = []
-    for hh in l_help3:
-        el_symm_h = [0.0, 0, 0, 0]
-        str_h = hh
-        for i_num, Ax in enumerate(l_Ax):
-            if (str_h.find(Ax) != -1):
-                if (str_h.find("+"+Ax) != -1):
-                    el_symm_h[i_num+1] = 1
-                    str_h = "".join(str_h.split("+"+Ax))
-                elif (str_h.find("-"+Ax) != -1):
-                    el_symm_h[i_num+1] = -1
-                    str_h = "".join(str_h.split("-"+Ax))
-                else:
-                    el_symm_h[i_num+1] = 1
-                    str_h = "".join(str_h.split(Ax))
-        if (str_h==""):
+    coefficients = []
+    offset = Fraction(0, 1).limit_denominator(10)
+    l_name = name.strip().replace(" ", "").replace("+", " +").replace("-", " -").split()
+    for _label in labels:
+        res = Fraction(0, 1).limit_denominator(10)
+        for _name in l_name:
+            if _label in _name:
+                s_1 = _name.replace(_label,"").replace("+/","+1/").replace("-/","-1/")
+                if s_1 == "": s_1 = "1"
+                if s_1.startswith("/"): s_1 = "1"+s_1
+                if s_1.endswith("+"): s_1 = s_1+"1"
+                if s_1.endswith("-"): s_1 = s_1+"1"
+                res += Fraction(s_1).limit_denominator(10)
+        coefficients.append(res)
+    for _name in l_name:
+        res = Fraction(0, 1).limit_denominator(10)
+        flag = all([not(_label in _name) for _label in labels])
+        if flag:
+            res += Fraction(_name).limit_denominator(10)
+    offset = res
+    return coefficients, offset
+
+def transform_fraction_with_label_to_string(number:Fraction, label:str)->str:
+    val = Fraction(number).limit_denominator(10)
+    if val == Fraction(0, 1):
+        res = ""
+    elif val == Fraction(1, 1):
+        res = f"{label:}"
+    elif val == Fraction(-1, 1):
+        res = f"-{label:}"
+    elif val.denominator == 1:
+        res = f"{val.numerator}{label:}"
+    elif val.numerator == 1:
+        res = f"{label:}/{val.denominator}"
+    else:
+        res = f"{val.numerator}{label:}/{val.denominator}"
+    return res
+
+def transform_digits_to_string(labels:Tuple[str], coefficients, offset:Fraction)->str:
+    l_res = []
+    for _coefficient, _label  in zip(coefficients, labels):
+        _name = transform_fraction_with_label_to_string(_coefficient, _label)
+        if _name=="":
             pass
-        elif (str_h.find("/") != -1):
-            l_help1 = str_h.split("/")
-            el_symm_h[0] = float(l_help1[0])/float(l_help1[1])
+        elif _name.startswith("-"):
+            l_res.append(_name)
+        elif l_res == []:
+            l_res.append(_name)
         else:
-            el_symm_h[0] = float(str_h)
-        l_el_symm.append(el_symm_h)
-    el_symm = []
-    [el_symm.extend(hh) for hh in l_el_symm]
-    return el_symm
+            l_res.append(f"+{_name:}")
+    _name = str(Fraction(offset).limit_denominator(10))
+    if _name == "0":
+        pass
+    elif ((l_res == [])|(_name.startswith("-"))):
+        l_res.append(_name)
+    else:
+        l_res.append(f"+{_name:}")
+    return "".join(l_res)
+
+def transform_string_to_r_b(name:str, labels=("x","y","z"))->Tuple:
+    """
+    transform string to rotation part and offset: 
+    x,y,-z   ->   0.0 1 0 0  0.0 0 1 0  0.0 0 0 -1
+    """
+    l_name = "".join(name.strip().split()).lstrip("(").rstrip(")").split(",")
+    rij, bi = [], []
+    for _name in l_name:
+        coefficients, offset = transform_string_to_digits(_name, labels)
+        rij.append(coefficients)
+        bi.append(offset)
+    res_rij = numpy.array(rij, dtype=object)
+    res_bi = numpy.array(bi, dtype=object)
+    return res_rij, res_bi
+
+def transform_r_b_to_string(r, b, labels=("x","y","z"))->str:
+    l_res = [transform_digits_to_string(labels, _ri, _bi) for _ri, _bi in zip(r, b)]
+    return ",".join(l_res)
+
+
 
 def auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes):
     if len(it_coordinate_system_codes) == 0: 
@@ -1170,6 +1182,38 @@ def auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes)
         it_coordinate_system_code = it_coordinate_system_codes[0]
     return it_coordinate_system_code
 
+
+
+def get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number:int, it_coordinate_system_code:str)->Tuple:
+    #TODO: not sure about -b1, c1, -c1, a1, -a1
+    if it_coordinate_system_code in ("b1", "b2", "b3", "abc", "1abc", "2abc", "1", "2", "h", "r", None):
+        transform_pp_abc = "a,b,c"
+    elif it_coordinate_system_code in ("-a1", "-a2", "-a3", "ba-c", "1ba-c", "2ba-c"):
+        transform_pp_abc = "b,a,-c"
+    elif it_coordinate_system_code in ("c1", "c2", "c3", "cab", "1cab", "2cab"):
+        transform_pp_abc = "c,a,b"
+    elif it_coordinate_system_code in ("-b1", "-b2", "-b3", "-cba", "1-cba", "2-cba"):
+        transform_pp_abc = "-c,b,a"
+    elif it_coordinate_system_code in ("a1", "a2", "a3", "bca", "1bca", "2bca"):
+        transform_pp_abc = "b,c,a"
+    elif it_coordinate_system_code in ("-c1", "-c2", "-c3", "a-cb", "1bca", "2a-cb"):
+        transform_pp_abc = "a,-c,b"
+
+    if it_coordinate_system_code is None:
+        choice = 1
+    elif "2" in it_coordinate_system_code:
+        choice = 2
+    elif "h" in it_coordinate_system_code:
+        crystal_system = get_crystal_system_by_it_number(it_number)
+        if crystal_system.startswith("trigonal"):
+            choice = 2
+        else:#hexagonal
+            choice = 1
+    elif "3" in it_coordinate_system_code:
+        choice = 3
+    else:
+        choice = 1
+    return transform_pp_abc, choice
 
 
 def print_long_list(ll):

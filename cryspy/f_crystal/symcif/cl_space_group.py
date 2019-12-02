@@ -1305,4 +1305,3 @@ Examples:
             matrix_chi_rot = numpy.matmul(r_chi, matrix_rt)
             l_res.append((_xyz, matrix_chi_rot))
         return l_res
-
