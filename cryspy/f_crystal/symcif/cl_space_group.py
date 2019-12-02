@@ -981,24 +981,20 @@ Examples:
         print("***  Error ***")
         print(s_out)
         
-
-
-
-
+        
     def calc_hkl_equiv(self, h, k, l):
         """
         give equivalent reflections of hkl and its multiplicity
         """
-
-        r_11 = self.r_11
-        r_12 = self.r_12
-        r_13 = self.r_13
-        r_21 = self.r_21
-        r_22 = self.r_22
-        r_23 = self.r_23
-        r_31 = self.r_31
-        r_32 = self.r_32
-        r_33 = self.r_33
+        r_11 = self.reduced_space_group_symop.r_11
+        r_12 = self.reduced_space_group_symop.r_12
+        r_13 = self.reduced_space_group_symop.r_13
+        r_21 = self.reduced_space_group_symop.r_21
+        r_22 = self.reduced_space_group_symop.r_22
+        r_23 = self.reduced_space_group_symop.r_23
+        r_31 = self.reduced_space_group_symop.r_31
+        r_32 = self.reduced_space_group_symop.r_32
+        r_33 = self.reduced_space_group_symop.r_33
 
         h_s = r_11*h + r_21*k + r_31*l 
         k_s = r_12*h + r_22*k + r_32*l 
@@ -1014,65 +1010,28 @@ Examples:
 
     def calc_xyz_mult(self, x, y, z):
         """
-        give unique x,y,z elements and calculate multiplicit for given x,y,z fract
+        give unique x,y,z elements and calculate multiplicity for given x,y,z fract
         """
-        r_11 = self.r_11
-        r_12 = self.r_12
-        r_13 = self.r_13
-        r_21 = self.r_21
-        r_22 = self.r_22
-        r_23 = self.r_23
-        r_31 = self.r_31
-        r_32 = self.r_32
-        r_33 = self.r_33
-        b_1 = self.b_1
-        b_2 = self.b_2
-        b_3 = self.b_3
-        
-        l_orig = self.orig
-        centr = self.centr
-        p_centr = self.p_centr
+        _letter = self.space_group_wyckoff.get_letter_for_fract(x, y, z)
+        np_r = numpy.array(self.space_group_wyckoff[_letter].full_r, dtype=float)
+        np_b = numpy.array(self.space_group_wyckoff[_letter].full_b, dtype=float)
 
-        x_s = numpy.round(numpy.mod(r_11*x + r_12*y + r_13*z + b_1, 1), 6)
-        y_s = numpy.round(numpy.mod(r_21*x + r_22*y + r_23*z + b_2, 1), 6)
-        z_s = numpy.round(numpy.mod(r_31*x + r_32*y + r_33*z + b_3, 1), 6)
+        x_s = (np_r[0, 0, :]*x + np_r[0, 1, :]*x + np_r[0, 2, :]*z + np_b[0, :])%1
+        y_s = (np_r[1, 0, :]*x + np_r[1, 1, :]*x + np_r[1, 2, :]*z + np_b[1, :])%1
+        z_s = (np_r[2, 0, :]*x + np_r[2, 1, :]*x + np_r[2, 2, :]*z + np_b[2, :])%1
 
-        x_o = [orig[0] for orig in l_orig]
-        y_o = [orig[1] for orig in l_orig]
-        z_o = [orig[2] for orig in l_orig]
-        
-        x_s_2d, x_o_2d = numpy.meshgrid(x_s, x_o)
-        y_s_2d, y_o_2d = numpy.meshgrid(y_s, y_o)
-        z_s_2d, z_o_2d = numpy.meshgrid(z_s, z_o)
-        
-        x_s_2d = numpy.round(numpy.mod(x_s_2d+x_o_2d, 1), 6)
-        y_s_2d = numpy.round(numpy.mod(y_s_2d+y_o_2d, 1), 6)
-        z_s_2d = numpy.round(numpy.mod(z_s_2d+z_o_2d, 1), 6)
-
-        x_s = x_s_2d.flatten()
-        y_s = y_s_2d.flatten()
-        z_s = z_s_2d.flatten()
-
-        if centr:
-            x_s_h = numpy.round(numpy.mod(2.*p_centr[0]-1.*x_s, 1), 6)
-            y_s_h = numpy.round(numpy.mod(2.*p_centr[1]-1.*y_s, 1), 6)
-            z_s_h = numpy.round(numpy.mod(2.*p_centr[2]-1.*z_s, 1), 6)
-            x_s =numpy.hstack([x_s, x_s_h])
-            y_s =numpy.hstack([y_s, y_s_h])
-            z_s =numpy.hstack([z_s, z_s_h])
-                        
-        xyz_s = numpy.vstack([x_s, y_s, z_s])
-
-        xyz_s_un = numpy.unique(xyz_s, axis=1)
-        n_atom = int(round(xyz_s.shape[1]*1./xyz_s_un.shape[1]))
-        x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
-        
-        return x_s, y_s, z_s, n_atom
+        multiplicity = self.space_group_wyckoff[_letter].multiplicity
+        return x_s, y_s, z_s, multiplicity
     
 
     def calc_el_symm_for_xyz(self, x_in, y_in, z_in):
         x, y, z = x_in%1., y_in%1., z_in%1.
-        e_11, e_12, e_13, e_21, e_22, e_23, e_31, e_32, e_33, e_1, e_2, e_3 = self.full_r_b
+
+        symop = self.full_space_group_symop
+        e_11, e_12, e_13, e_1 = symop.r_11, symop.r_12, symop.r_13, symop.b_1 
+        e_21, e_22, e_23, e_2 = symop.r_21, symop.r_22, symop.r_23, symop.b_2 
+        e_31, e_32, e_33, e_3 = symop.r_31, symop.r_32, symop.r_33, symop.b_3 
+
         x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
         y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
         z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
@@ -1090,9 +1049,6 @@ Examples:
         o_1, o_2, o_3 = e_1[flag], e_2[flag], e_3[flag]
         return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3
 
-    
-
-    
 
     def calc_asymmetric_cell(self, n_a, n_b, n_c):
         """
@@ -1141,8 +1097,12 @@ Examples:
         return l_coord
     
     def calc_rotated_matrix_for_position(self, m_chi, x, y, z):
-        
-        e_11, e_12, e_13, e_21, e_22, e_23, e_31, e_32, e_33, e_1, e_2, e_3 = self.full_r_b
+
+        symop = self.full_space_group_symop
+        e_11, e_12, e_13, e_1 = symop.r_11, symop.r_12, symop.r_13, symop.b_1 
+        e_21, e_22, e_23, e_2 = symop.r_21, symop.r_22, symop.r_23, symop.b_2 
+        e_31, e_32, e_33, e_3 = symop.r_31, symop.r_32, symop.r_33, symop.b_3 
+
         x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
         y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
         z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)

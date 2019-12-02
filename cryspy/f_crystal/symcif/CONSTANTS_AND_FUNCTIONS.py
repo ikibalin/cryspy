@@ -1067,7 +1067,6 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number:in
     P = numpy.transpose(Q)
     q = -1*mult_matrix_vector(Q, p)
     p_centr_new = p_centr+q
-    symop_2 = []
     symop_2 = [transform_symop_operation_xyz_by_pp_abc(_symop, P, p) for _symop in symop]
 
 
