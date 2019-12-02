@@ -108,7 +108,7 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_gr
     OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies",
      "it_number", "it_coordinate_system_code", "point_group_hm", "laue_class", "patterson_name_hm", 
     "centring_type", "bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
-    INTERNAL_ATTRIBUTE = ()
+    INTERNAL_ATTRIBUTE = ("centrosymmetry", "pcentr", "reduced_space_group_symop", "full_space_group_symop", "space_group_wyckoff")
     PREFIX = "space_group"
     ACCESIBLE_IT_NUMBER = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_IT_NUMBER
     ACCESIBLE_BRAVAIS_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_BRAVAIS_TYPE
@@ -799,6 +799,28 @@ Examples:
         setattr(self, "__transform_qq_xyz", x_in)
 
     @property
+    def centrosymmetry(self)->bool:
+        return getattr(self, "__centrosymmetry")
+
+    @property
+    def pcentr(self):
+        return getattr(self, "__pcentr")
+
+    @property
+    def reduced_space_group_symop(self):
+        return getattr(self, "__reduced_space_group_symop")
+
+    @property
+    def full_space_group_symop(self):
+        return getattr(self, "__full_space_group_symop")
+
+    @property
+    def space_group_wyckoff(self):
+        return getattr(self, "__space_group_wyckoff")
+
+
+
+    @property
     def is_defined(self)->bool:
         flag =  self.define_it_number_and_it_coordinate_system_code()
         return flag 
@@ -844,7 +866,10 @@ Examples:
         bravais_type, laue_class, patterson_name_hm, centring_type, crystal_system = None, None, None, None, None
         name_hm_extended, name_hm_full, name_hm_short = None, None, None
         name_hall, name_schoenflies, point_group_hm = None, None, None
-    
+        pcentr = None
+        reduced_space_group_symop, full_space_group_symop = None, None
+        space_group_wyckoff = None
+
         lattice_type = None
         generators = ()        
         flag = self.define_it_number_and_it_coordinate_system_code()
@@ -871,6 +896,20 @@ Examples:
                 generators = CONSTANTS_AND_FUNCTIONS.get_generators_by_point_group_hm(point_group_hm)
             if ((lattice_type is not None) & (laue_class is not None)):
                 patterson_name_hm = CONSTANTS_AND_FUNCTIONS.get_patterson_name_hm_by_lattice_type_laue_class(lattice_type, laue_class)
+
+        pcentr, reduced_space_group_symop, full_space_group_symop, space_group_wyckoff = self.form_reduced_full_space_group_symop_space_group_wyckoff(it_number, it_c_s_c, centrosymmetry, centring_type)
+
+        if pcentr is not None:
+            setattr(self, "__pcentr", pcentr)
+        if reduced_space_group_symop is not None:
+            setattr(self, "__reduced_space_group_symop", reduced_space_group_symop)
+        if full_space_group_symop is not None:
+            setattr(self, "__full_space_group_symop", full_space_group_symop)
+        if space_group_wyckoff is not None:
+            setattr(self, "__space_group_wyckoff", space_group_wyckoff)
+
+        if centrosymmetry is not None:
+            setattr(self, "__centrosymmetry", centrosymmetry)
         if name_hm_extended is not None: 
             setattr(self, "name_hm_alt", name_hm_extended)
             setattr(self, "name_hm_alt_description", "The extended international Hermann-Mauguin space-group symbol.")
@@ -888,25 +927,47 @@ Examples:
         if crystal_system is not None: setattr(self, "crystal_system", crystal_system)
         return flag
 
+    def form_reduced_full_space_group_symop_space_group_wyckoff(self, it_number:int, it_coordinate_system_code:str, centrosymmetry:bool, centring_type:str):
+        pcentr, reduced_space_group_symop, full_space_group_symop = None, None, None
 
-    @classmethod
-    def get_list_of_symop_by_it_number(cls, it_number: int):
-        l_symop = ("x,y,z")
-        return l_symop
+        symop, pcentr, _multiplicity, _letter, _site_symmetry, _l_coords_xyz_2 = CONSTANTS_AND_FUNCTIONS.get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number, it_coordinate_system_code)
+        item_reduced = []
+        for _i_symop, _symop in enumerate(symop):
+            _item = SpaceGroupSymop(id=f"{_i_symop+1:}", operation_xyz=_symop, operation_description=f"reduced",sg_id=it_number)
+            item_reduced.append(_item)
+        reduced_space_group_symop = SpaceGroupSymopL(item=item_reduced)
 
+        item_full = []
+        for _item in item_reduced:
+            _symop = _item.operation_xyz
+            _item_full = SpaceGroupSymop(operation_xyz=_symop)
+            item_full.append(_item_full)
+        if centrosymmetry:
+            item_add = []
+            for _item in item_full:
+                _item_add = _item.get_symop_inversed(pcentr)
+                item_add.append(_item_add)
+            item_full.extend(item_add)
+        item_new = []
+        for _item in item_full:
+            _items_new = _item.get_symops_by_centring_type(centring_type)
+            item_new.extend(_items_new)
+        for _i, _item in enumerate(item_new):
+            _item.id = f"{_i+1:}"
+            _item.sg_id = f"{it_number:}"
+            _item.operation_description = "full"
+        full_space_group_symop =  SpaceGroupSymopL(item=item_new)
 
-    def get_symop(self):
-        if self.is_defined_attribute("it_number"):
-            l_symop = self.get_list_of_symop_by_it_number(self.it_number)
-        if len(l_symop) == 1:
-            return l_symop[0]
-
-        for _s in l_symop:
-            print(2*"\n")
-            print(_s)
-        symop = l_symop[0]
-        return symop
-
+        _i_numb = 0
+        item = []
+        for _1, _2, _3, _4 in zip(_multiplicity, _letter, _site_symmetry, _l_coords_xyz_2):
+            _i_numb += 1
+            _item = SpaceGroupWyckoff(id=f"{_i_numb:}", multiplicity=_1, coord_xyz=_4[0], letter=_2, site_symmetry=_3)
+            setattr(_item, "__full_coord_xyz", _4)
+            _item.form_object
+            item.append(_item)
+        space_group_wyckoff = SpaceGroupWyckoffL(item=item)
+        return pcentr, reduced_space_group_symop, full_space_group_symop, space_group_wyckoff
 
     @staticmethod
     def get_it_coordinate_system_codes_by_it_number(it_number:int)->str:
@@ -923,115 +984,6 @@ Examples:
 
 
 
-
-
-
-    def _get_symm(self):
-        """
-        get symmetry from space group
-        """
-        
-        spgr_choice = self.spgr_choice
-        spgr_given_name = self.spgr_given_name
-        
-
-        if spgr_given_name.isdigit():
-            spgr_n = spgr_given_name
-            spgr_name = ""
-        else:
-            spgr_n = ""
-            spgr_name = spgr_given_name
-        
-        spgr_table = self.__itables
-        flag = False
-        for dcard in spgr_table:
-            if (((dcard["number"] == spgr_n)|(dcard["name"] == spgr_name))&(dcard["choice"][0] == spgr_choice)):
-                flag = True
-                break
-        if (not flag):
-            print("Space group is not found: {:} {:} {:}".format(spgr_n, spgr_name, spgr_choice))
-            return
-        
-        flag = False
-            
-        l_el_symm = []
-        for ssymm in dcard["symmetry"]:
-            l_el_symm.append(self._trans_str_to_el_symm(ssymm))
-        centr = dcard["centr"][0]=="true"
-        pcentr = [float(hh) for hh in dcard["pcentr"][0].split(",")]
-        fletter = dcard["name"][0]
-        spgr = dcard["name"]
-        number = int(dcard["number"])
-        singony = dcard["singony"]
-        if (fletter == "P"):
-            l_orig = [(0, 0, 0)]
-        elif fletter == "C":
-            l_orig = [(0, 0, 0), (0.5, 0.5, 0)]
-        elif fletter == "I":
-            l_orig = [(0, 0, 0), (0.5, 0.5, 0.5)]
-        elif fletter == "F":
-            l_orig = [(0, 0, 0), (0.5, 0.5, 0), (0.5, 0, 0.5), (0, 0.5, 0.5)]
-        elif (fletter == "R"):
-            if spgr_choice == "1":
-                l_orig = [(0, 0, 0), (0.66667, 0.33333, 0.33333), (0.33334, 0.66666, 0.66666)]
-            else:
-                l_orig = [(0, 0, 0)]
-        else:
-            print("Undefined syngony")
-
-            
-        self.__centr = centr
-        self.__el_symm = l_el_symm
-        self.__orig = l_orig
-        self.__p_centr = pcentr
-        self.__spgr_name = spgr
-        self.__spgr_number = number
-        self.__singony = singony
-        
-    def _calc_rotation_matrix_anb_b(self):
-        """
-        give representation for rotation matrix: r_11, r_22, r_33, r_12, r_13, r_23 and vector b_1, b_2, b_3
-        """
-        lel_symm = self.el_symm
-        b_1 = numpy.array([hh[0] for hh in lel_symm], dtype = float)
-        r_11 = numpy.array([hh[1] for hh in lel_symm], dtype = int)
-        r_12 = numpy.array([hh[2] for hh in lel_symm], dtype = int)
-        r_13 = numpy.array([hh[3] for hh in lel_symm], dtype = int)
-
-        b_2 = numpy.array([hh[4] for hh in lel_symm], dtype = float)
-        r_21 = numpy.array([hh[5] for hh in lel_symm], dtype = int)
-        r_22 = numpy.array([hh[6] for hh in lel_symm], dtype = int)
-        r_23 = numpy.array([hh[7] for hh in lel_symm], dtype = int)
-
-        b_3 = numpy.array([hh[8] for hh in lel_symm], dtype = float)
-        r_31 = numpy.array([hh[9] for hh in lel_symm], dtype = int)
-        r_32 = numpy.array([hh[10] for hh in lel_symm], dtype = int)
-        r_33 = numpy.array([hh[11] for hh in lel_symm], dtype = int)
-        
-        self.__r_11 = r_11
-        self.__r_12 = r_12
-        self.__r_13 = r_13
-
-        self.__r_21 = r_21
-        self.__r_22 = r_22
-        self.__r_23 = r_23
-
-        self.__r_31 = r_31
-        self.__r_32 = r_32
-        self.__r_33 = r_33
-
-        self.__b_1 = b_1
-        self.__b_2 = b_2
-        self.__b_3 = b_3
-
-    def _form_object(self):
-        if self.is_defined:
-            self._get_symm()
-            self._calc_rotation_matrix_anb_b()
-        else:
-            self._show_message("Object is not properly defined")
-            return False
-        return True
 
     def calc_hkl_equiv(self, h, k, l):
         """
@@ -1117,94 +1069,6 @@ Examples:
         
         return x_s, y_s, z_s, n_atom
     
-    @property
-    def full_r_b(self):
-        """
-        Give a full list of rotation matrix and b 
-        """
-        r_11 = self.r_11
-        r_12 = self.r_12
-        r_13 = self.r_13
-        r_21 = self.r_21
-        r_22 = self.r_22
-        r_23 = self.r_23
-        r_31 = self.r_31
-        r_32 = self.r_32
-        r_33 = self.r_33
-        b_1 = self.b_1
-        b_2 = self.b_2
-        b_3 = self.b_3
-        
-        l_orig = self.orig
-        centr = self.centr
-        p_centr = self.p_centr
-
-
-        x_o = [orig[0] for orig in l_orig]
-        y_o = [orig[1] for orig in l_orig]
-        z_o = [orig[2] for orig in l_orig]
-        
-        r_11_2d, x_o_2d = numpy.meshgrid(r_11, x_o, indexing="ij")
-        r_12_2d, y_o_2d = numpy.meshgrid(r_12, y_o, indexing="ij")
-        r_13_2d, z_o_2d = numpy.meshgrid(r_13, z_o, indexing="ij")
-
-        r_21_2d = numpy.meshgrid(r_21, x_o, indexing="ij")[0]
-        r_22_2d = numpy.meshgrid(r_22, y_o, indexing="ij")[0]
-        r_23_2d = numpy.meshgrid(r_23, z_o, indexing="ij")[0]
-        
-        r_31_2d = numpy.meshgrid(r_31, x_o, indexing="ij")[0]
-        r_32_2d = numpy.meshgrid(r_32, y_o, indexing="ij")[0]
-        r_33_2d = numpy.meshgrid(r_33, z_o, indexing="ij")[0]
-        
-        b_1_2d = numpy.meshgrid(b_1, x_o, indexing="ij")[0]
-        b_2_2d = numpy.meshgrid(b_2, y_o, indexing="ij")[0]
-        b_3_2d = numpy.meshgrid(b_3, z_o, indexing="ij")[0]
-        
-        b_1_2d = b_1_2d + x_o_2d
-        b_2_2d = b_2_2d + x_o_2d
-        b_3_2d = b_3_2d + x_o_2d
-
-        e_11 = r_11_2d.flatten()
-        e_12 = r_12_2d.flatten()
-        e_13 = r_13_2d.flatten()
-
-        e_21 = r_21_2d.flatten()
-        e_22 = r_22_2d.flatten()
-        e_23 = r_23_2d.flatten()
-
-        e_31 = r_31_2d.flatten()
-        e_32 = r_32_2d.flatten()
-        e_33 = r_33_2d.flatten()
-
-        e_1 = b_1_2d.flatten()
-        e_2 = b_2_2d.flatten()
-        e_3 = b_3_2d.flatten()
-
-        if centr:
-            me_11, me_12, me_13 = -1*e_11, -1*e_12, -1*e_13
-            me_21, me_22, me_23 = -1*e_21, -1*e_22, -1*e_23
-            me_31, me_32, me_33 = -1*e_31, -1*e_32, -1*e_33
-            me_1 = 2.*p_centr[0]-1.*e_1
-            me_2 = 2.*p_centr[1]-1.*e_2
-            me_3 = 2.*p_centr[2]-1.*e_3 
-            
-            e_11 = numpy.hstack([e_11, me_11])
-            e_12 = numpy.hstack([e_12, me_12])
-            e_13 = numpy.hstack([e_13, me_13])
-                                          
-            e_21 = numpy.hstack([e_21, me_21])
-            e_22 = numpy.hstack([e_22, me_22])
-            e_23 = numpy.hstack([e_23, me_23])
-                                          
-            e_31 = numpy.hstack([e_31, me_31])
-            e_32 = numpy.hstack([e_32, me_32])
-            e_33 = numpy.hstack([e_33, me_33])
-
-            e_1 = numpy.hstack([e_1, me_1])
-            e_2 = numpy.hstack([e_2, me_2])
-            e_3 = numpy.hstack([e_3, me_3])
-
-        return e_11, e_12, e_13, e_21, e_22, e_23, e_31, e_32, e_33, e_1, e_2, e_3
 
     def calc_el_symm_for_xyz(self, x_in, y_in, z_in):
         x, y, z = x_in%1., y_in%1., z_in%1.

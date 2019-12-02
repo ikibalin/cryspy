@@ -101,7 +101,7 @@ def read_wyckoff():
                 flag = True
             if flag:
                 hm_full += _char 
-        data = {"it_number":int(l_param[0]), "set": int(l_param[1]), "centr_000": int(l_param[3]==1), "hm_full": hm_full.strip(), "wyckoff": []}
+        data = {"it_number":int(l_param[0]), "choice": int(l_param[1]), "centr_000": int(l_param[3]==1), "hm_full": hm_full.strip(), "wyckoff": []}
         l_cont_2 = l_cont[(_numb_b+1):_numb_e]
         l_wyckoff_symop = []
         l_d_card = []
@@ -111,9 +111,10 @@ def read_wyckoff():
             if l_h[0].isdigit():
                 if d_card is not None:
                     l_d_card.append(d_card)
-                d_card = {"multiplicity": int(l_h[0]), "letter": l_h[1], "syte_symmetry": l_h[2], "symop": []}
+                d_card = {"multiplicity": int(l_h[0]), "letter": l_h[1], "site_symmetry": l_h[2], "symop": []}
             else:
                 d_card["symop"].extend(l_h)
+        l_d_card.append(d_card)
         data["wyckoff"].extend(l_d_card)
         l_data.append(data)
     return l_data
@@ -654,7 +655,7 @@ def get_name_hm_full_by_it_number(it_number:int)->str:
         name_hm_full = _l[0]
     return name_hm_full
 
-REFERENCE_TABLE_CENTERING_TYPE_SHIFT = (
+REFERENCE_TABLE_CENTRING_TYPE_SHIFT = (
 ("P",     ((Fraction(0,1), Fraction(0,1), Fraction(0,1)),)),
 ("A",     ((Fraction(0,1), Fraction(0,1), Fraction(0,1)),)), 
 ("B",     ((Fraction(0,1), Fraction(0,1), Fraction(0,1)), 
@@ -678,8 +679,15 @@ REFERENCE_TABLE_CENTERING_TYPE_SHIFT = (
            (Fraction(1,3), Fraction(2,3), Fraction(0,3))))
 )
     
-ACCESIBLE_CENTERING_TYPE = frozenset([_[0] for _ in REFERENCE_TABLE_CENTERING_TYPE_SHIFT])
+ACCESIBLE_CENTERING_TYPE = frozenset([_[0] for _ in REFERENCE_TABLE_CENTRING_TYPE_SHIFT])
 
+def get_shift_by_centring_type(centring_type:str):
+    shift = ()
+    for _1, _2 in REFERENCE_TABLE_CENTRING_TYPE_SHIFT:
+        if _1 == centring_type:
+            shift = _2
+            break
+    return shift
 
 def get_centring_type_by_name_hm_extended(hm_extended:str)->str:
     centring_type = hm_extended[0] #it is not correct for Rrev
@@ -1029,7 +1037,7 @@ def separate_notation_it_coordinate_system_code(name:str):
     return notation, it_coordinate_system_code
 
 
-def get_symop_pcentr_for_standard_cell(it_number:int, it_coordinate_system_code:str):
+def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number:int, it_coordinate_system_code:str):
     crystal_system = get_crystal_system_by_it_number(it_number)
     if it_coordinate_system_code is None:
         choice = "1"
@@ -1048,27 +1056,69 @@ def get_symop_pcentr_for_standard_cell(it_number:int, it_coordinate_system_code:
         choice = "1"
     else:
         choice = "1"
-        
     symop, p_centr = None, None
     for _el_card in EL_CARDS:
         if ((_el_card["it_number"] == it_number) & (_el_card["choice"][0] == choice)):
             symop = tuple(_el_card["symmetry"])
-            p_centr = tuple(_el_card["pcentr"])
-    
+            p_centr = numpy.array([Fraction(_).limit_denominator(10) for _ in _el_card["pcentr"][0].split(",")], dtype=Fraction)
+            break
     _s_name, _choice = get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number, it_coordinate_system_code)
-    r, b = transform_string_to_r_b(_s_name, ("a", "b", "c"))
+    Q, p = transform_string_to_r_b(_s_name, ("a", "b", "c"))
+    P = numpy.transpose(Q)
+    q = -1*mult_matrix_vector(Q, p)
+    p_centr_new = p_centr+q
     symop_2 = []
-    for _symop in symop:
-        r_xyz, b_xyz = transform_string_to_r_b(_symop, ("x", "y", "z"))
-        r_new = numpy.zeros(shape=(3, 3), dtype=float)
-        for _i in range(3):
-            for _j in range(3):
-                r_new[_i, _j] = sum(r_xyz[_j, :]*r[_i, :])
-        _s = transform_r_b_to_string(r_new, b_xyz, ("x", "y", "z"))                 
-        symop_2.append(_s) 
-    return symop_2, p_centr
+    symop_2 = [transform_symop_operation_xyz_by_pp_abc(_symop, P, p) for _symop in symop]
 
 
+    for _el_card in WYCKOFF:
+        if ((_el_card["it_number"] == it_number) & (_el_card["choice"] == int(choice))):
+            wyckoff = _el_card["wyckoff"]
+            break
+    l_multiplicity = [_h["multiplicity"] for _h in wyckoff]
+    l_letter = [_h["letter"] for _h in wyckoff]
+    l_site_symmetry = [_h["site_symmetry"] for _h in wyckoff] 
+    l_coord_xyz = [_h["symop"] for _h in wyckoff]  
+    l_coord_xyz_2 = [[transform_symop_operation_xyz_by_pp_abc(_coord_xyz, P, p) for _coord_xyz in coord_xyz] for coord_xyz in l_coord_xyz]
+
+    return symop_2, p_centr_new, l_multiplicity, l_letter, l_site_symmetry, l_coord_xyz_2
+
+def transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz:str, P, p)->str:
+    Q = numpy.transpose(P) #TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
+    q = -1*mult_matrix_vector(Q, p)
+
+    r_xyz, b_xyz = transform_string_to_r_b(symop_operation_xyz, ("x", "y", "z"))
+    b_new = numpy.zeros(shape=(3), dtype=float)
+    r_new = numpy.zeros(shape=(3, 3), dtype=float)
+    QW = mult_matrixes(Q, r_xyz)
+    QWP = mult_matrixes(QW, P)
+    QWp = mult_matrix_vector(QW, p)
+    Qw = mult_matrix_vector(Q, b_xyz)
+    r_new = QWP
+    b_new = QWp + Qw + q 
+    _s = transform_r_b_to_string(r_new, b_new, ("x", "y", "z"))
+    return _s
+
+def transform_symop_operation_xyz_by_Qq_xyz(symop_operation_xyz:str, Q, q)->str:
+    P = numpy.transpose(q) #TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
+    p = -1*mult_matrix_vector(P, q)
+    _s = transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz, P, p)
+    return _s
+    
+
+
+def mult_matrix_vector(a, v):
+    b = 0.*v
+    for _i in range(3):
+        b[_i] = sum(a[_i, :]*v[:])
+    return b
+
+def mult_matrixes(a, b):
+    c = 0.*a
+    for _i in range(3):
+        for _j in range(3):
+            c[_i, _j] = sum(a[_i, :] * b[:, _j] )
+    return c
 
 
 def transform_string_to_digits(name:str, labels:Tuple[str]):
@@ -1094,8 +1144,8 @@ def transform_string_to_digits(name:str, labels:Tuple[str]):
                 if s_1.endswith("-"): s_1 = s_1+"1"
                 res += Fraction(s_1).limit_denominator(10)
         coefficients.append(res)
+    res = Fraction(0, 1).limit_denominator(10)
     for _name in l_name:
-        res = Fraction(0, 1).limit_denominator(10)
         flag = all([not(_label in _name) for _label in labels])
         if flag:
             res += Fraction(_name).limit_denominator(10)
@@ -1132,7 +1182,8 @@ def transform_digits_to_string(labels:Tuple[str], coefficients, offset:Fraction)
             l_res.append(f"+{_name:}")
     _name = str(Fraction(offset).limit_denominator(10))
     if _name == "0":
-        pass
+        if l_res==[]:
+            l_res.append(_name)
     elif ((l_res == [])|(_name.startswith("-"))):
         l_res.append(_name)
     else:
@@ -1232,6 +1283,7 @@ def print_long_list(ll):
     print("\n".join(ls_out).rstrip())
     return 
 
+
 if __name__ == "__main__":
     print("List of functions: ")
     print("List of constants: ")
@@ -1245,7 +1297,7 @@ if __name__ == "__main__":
         generators = ()
         
         
-        symop, pcentr = get_symop_pcentr_for_standard_cell(it_number, it_coordinate_system_code)
+        symop, pcentr, l_multiplicity, l_letter, l_site_symmetry, l_coord_xyz_2 = get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number, it_coordinate_system_code)
         
         crystal_system = get_crystal_system_by_it_number(it_number)
 
@@ -1301,6 +1353,10 @@ if __name__ == "__main__":
         if symop is not None:
             print("Symop: ")#pcentr
             print_long_list([f"\"{_:}\"" for _ in symop])
+
+        print("Multiplicity letter syte_symmetry coord_xyz")
+        for _1, _2, _3, _4 in zip(l_multiplicity, l_letter, l_site_symmetry, l_coord_xyz_2):
+            print(f"{_1:} {_2:} {_3:} {('('+'), ('.join(_4)+')'):}")
         return 
     
 

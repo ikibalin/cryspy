@@ -583,7 +583,7 @@ symmetry: -x,y+1/2,-z+1/2
 symmetry: x+1/2,-y+1/2,-z
 
 62 Pnma            Orthorhombic
-choice: abc
+choice: 1
 centr: true
 pcentr: 0, 0, 0
 symmetry: x,y,z

@@ -8,11 +8,13 @@ __version__ = "2019_11_26"
 
 import os
 import numpy
+from fractions import Fraction
 from pycifstar import Global
 __author__ = 'ikibalin'
 __version__ = "2019_11_26"
 
 
+import cryspy.f_crystal.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from typing import List, Tuple
 from cryspy.f_common.cl_item_constr import ItemConstr
 from cryspy.f_common.cl_loop_constr import LoopConstr
@@ -51,9 +53,9 @@ Methods:
 
 reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_Wyckoff.html
     """
-    MANDATORY_ATTRIBUTE = ("id", "coord_xyz")
-    OPTIONAL_ATTRIBUTE = ("letter", "multiplicity", "site_symmetry")
-    INTERNAL_ATTRIBUTE = ()
+    MANDATORY_ATTRIBUTE = ("coord_xyz", )
+    OPTIONAL_ATTRIBUTE = ("id", "letter", "multiplicity", "site_symmetry")
+    INTERNAL_ATTRIBUTE = ("full_coord_xyz", "r", "b", "full_r", "full_b")
     PREFIX = "space_group_Wyckoff"
     def __init__(self, id=None, coord_xyz=None, letter=None, multiplicity=None, site_symmetry=None):
         super(SpaceGroupWyckoff, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
@@ -66,6 +68,8 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_gro
         self.letter = letter
         self.multiplicity = multiplicity
         self.site_symmetry = site_symmetry
+        if self.is_defined:
+            self.form_object
 
     @property
     def id(self) -> str:
@@ -107,6 +111,10 @@ Example:
             x_in = str(x)
         setattr(self, "__coord_xyz", x_in)
 
+    @property
+    def full_coord_xyz(self) -> List[str]:
+        return getattr(self, "__full_coord_xyz")
+    
 
     @property
     def letter(self) -> str:
@@ -192,6 +200,68 @@ along one of the 100 directions.).
             x_in = str(x)
         setattr(self, "__site_symmetry", x_in)
 
+    
+    @property
+    def sg_id(self):
+        """
+A child of _space_group.id allowing the Wyckoff position to be
+identified with a particular space group.
+        """
+        return getattr(self, "__sg_id")
+    @sg_id.setter
+    def sg_id(self, x):
+        if x is None:
+            x_in = None
+        else:
+            x_in = int(x)
+        setattr(self, "__sg_id", x_in)
+
+
+    @property
+    def r(self):
+        return getattr(self, "__r")
+    @property
+    def b(self):
+        return getattr(self, "__b")
+
+    @property
+    def full_r(self):
+        return getattr(self, "__full_r")
+    @property
+    def full_b(self):
+        return getattr(self, "__full_b")
+
+    @property
+    def form_object(self)->bool:
+        flag = True
+        coord_xyz = self.coord_xyz
+        if coord_xyz is None:
+            return False
+        r, b = CONSTANTS_AND_FUNCTIONS.transform_string_to_r_b(coord_xyz, labels=("x", "y", "z"))
+        setattr(self, "__r", r)
+        setattr(self, "__b", b)
+        full_coord_xyz = self.full_coord_xyz
+        if full_coord_xyz is not None:
+            full_r, full_b = [], []
+            for _coord_xyz in full_coord_xyz:
+                r, b = CONSTANTS_AND_FUNCTIONS.transform_string_to_r_b(_coord_xyz, labels=("x", "y", "z"))
+                full_r.append(r)
+                full_b.append(b)
+            setattr(self, "__full_r", full_r)
+            setattr(self, "__full_b", full_b)
+        return flag
+
+
+    def is_valid_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5) -> bool:
+        flag = True
+        nval = int(tol**-1)
+        xyz = numpy.array([Fraction(fract_x).limit_denominator(nval), 
+                           Fraction(fract_y).limit_denominator(nval), 
+                           Fraction(fract_z).limit_denominator(nval)], dtype=Fraction)
+        zeros = numpy.array([Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)], dtype=Fraction)
+        flag = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
+        return any(flag)
+
 
 
 class SpaceGroupWyckoffL(LoopConstr):
@@ -237,11 +307,13 @@ Optional attribute:
  - letter
  - multiplicity
  - site_symmetry
+ - sg_id
 
 
-Class methods:
+Methods:
 ---------
-- sg_id
+ - get_id_for_fract(fract_x, fract_y, fract_z)
+ - get_letter_for_fract(fract_x, fract_y, fract_z)
 
 reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_Wyckoff.html
     """
@@ -251,11 +323,17 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_gro
         super(SpaceGroupWyckoffL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
         self.item = item
 
-    @classmethod
-    def sg_id(cls, id:int):
-        """
-A child of _space_group.id allowing the Wyckoff position to be
-identified with a particular space group.
-        """
-        _obj = cls()
-        return _obj
+    def get_id_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5)->str:
+        l_res = []
+        for _item in self.item:
+            if _item.is_valid_for_fract(fract_x, fract_y, fract_z, tol):
+                l_res.append((_item.id, _item.multiplicity))
+        out = sorted(l_res, key=lambda x: x[1])   # sort by multiplicity
+        return out[0][0]
+
+    def get_letter_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5)->str:
+        _id = self.get_id_for_fract(fract_x, fract_y, fract_z)
+        res = self[_id].letter
+        return res
+
+

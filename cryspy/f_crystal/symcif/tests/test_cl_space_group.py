@@ -55,3 +55,10 @@ def test_from_cif():
     #print(_obj.to_cif(separator="."))
     #assert _str_1 == _str_2 
 
+def test_space_group_wyckoff():
+    _obj = SpaceGroup(it_number=64)
+    assert _obj.space_group_wyckoff["5"].coord_xyz == "1/4,1/4,0"
+
+    obj_2 = _obj.space_group_wyckoff
+    assert obj_2.get_id_for_fract(0.75,0.75,0.5) == "5"
+    assert obj_2.get_letter_for_fract(0.75,0.75,0.5) == "c"

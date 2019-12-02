@@ -3,15 +3,15 @@ from cryspy.f_crystal.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, Sp
 
 STR_FROM_CIF_1 = """
 loop_
-_space_group_Wyckoff.id
 _space_group_Wyckoff.coord_xyz
+_space_group_Wyckoff.id
 _space_group_Wyckoff.letter
 _space_group_Wyckoff.multiplicity
 _space_group_Wyckoff.site_symmetry
-   1    x,y,z         h 192   1     
-   2    1/4,y,-y      g  96   ..2   
-   3    x,1/8,1/8     f  96   2..   
-   4    1/4,1/4,1/4   b  32   .32   
+   x,y,z        1   h 192   1     
+   1/4,y,-y     2   g  96   ..2   
+   x,1/8,1/8    3   f  96   2..   
+   1/4,1/4,1/4  4   b  32   .32   
     """
 
 
