@@ -824,65 +824,6 @@ def get_notation(_name:str)->str:
 
 
 
-D_BRAVAIS_TYPE_CELL_CONSTRAINT_MODE_ABC = {
-"aP": {
- "bravais_type": "aP",
- "cell_constraint_mode_abc": None,
- },
-"mP": {
- "bravais_type": "mP",
- "cell_constraint_mode_abc": {"alpha":90, "gamma":90},
- },
-"mS": {
- "bravais_type": "mS",
- "cell_constraint_mode_abc": {"alpha":90, "gamma":90},
- },
-"oP": {
- "bravais_type": "oP",
- "cell_constraint_mode_abc": {"alpha":90, "beta":90, "gamma":90},
- },
-"oS": {
- "bravais_type": "oS",
- "cell_constraint_mode_abc": {"alpha":90, "beta":90, "gamma":90},
- },
-"oI": {
- "bravais_type": "oI",
- "cell_constraint_mode_abc": {"alpha":90, "beta":90, "gamma":90},
- },
-"oF": {
- "bravais_type": "oF",
- "cell_constraint_mode_abc": {"alpha":90, "beta":90, "gamma":90},
- },
-"tP": {
- "bravais_type": "tP",
- "cell_constraint_mode_abc": {"b":"a", "alpha":90, "beta":90, "gamma":90},
- },
-"tI": {
- "bravais_type": "tI",
- "cell_constraint_mode_abc": {"b":"a", "alpha":90, "beta":90, "gamma":90},
- },
-"hP": {
- "bravais_type": "hP",
- "cell_constraint_mode_abc": {"b":"a", "alpha":90, "beta":90, "gamma":120},
- },
-"hR": {
- "bravais_type": "hR",
- "cell_constraint_mode_abc": {"b":"a", "c":"a", "beta":"alpha", "gamma":"alpha"},
- },
-"cP":  {
- "bravais_type": "cP",
- "cell_constraint_mode_abc": {"b":"a", "c":"a", "alpha":90, "beta":90, "gamma":90},
- },
-"cI": {
- "bravais_type": "cI",
- "cell_constraint_mode_abc": {"b":"a", "c":"a", "alpha":90, "beta":90, "gamma":90},
- },
-"cF": {
- "bravais_type": "cF",
- "cell_constraint_mode_abc": {"b":"a", "c":"a", "alpha":90, "beta":90, "gamma":90},
- }
-}
-
 # IT A: Table 8.3.5.1. Sequence of generators for the crystal classes
 # The space-group generators differ from those listed here by their glide or screw
 # components. The generator 1 is omitted, except for crystal class 1. The

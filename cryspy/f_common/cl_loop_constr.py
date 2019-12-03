@@ -5,7 +5,7 @@ from pycifstar import Data
 
 
 class LoopConstr(object):
-    def __init__(self, category_key = (), item_class=ItemConstr, label=""):
+    def __init__(self, category_key = (), item_class=ItemConstr, loop_name=""):
         super(LoopConstr, self).__init__()
         self.__item = []
         self.__category_key = category_key   
@@ -13,9 +13,9 @@ class LoopConstr(object):
         self.__mandatory_attribute = item_class.MANDATORY_ATTRIBUTE
         self.__optional_attribute = item_class.OPTIONAL_ATTRIBUTE
         self.__internal_attribute = item_class.INTERNAL_ATTRIBUTE
-        self.__label = ""
+        self.__loop_name = ""
 
-        self.label = label
+        self.loop_name = loop_name
 
     def __repr__(self) -> str:
         ls_out = []
@@ -55,7 +55,7 @@ class LoopConstr(object):
         if not(flag):
             l_flag = [all([_item.is_defined_attribute(_attr) for _item in self.item]) for _attr in l_attr_print]
             l_attr_print = [_ for _, _flag in zip(l_attr_print, l_flag) if _flag]
-        ls_out.append(f"loop_{self.label}")
+        ls_out.append(f"loop_{self.loop_name}")
         ls_out.append("\n".join([f"{prefix:}{separator:}{_attr:}" for _attr in l_attr_print]))
         for _item in self.item:
             ls_out.append(_item.print_attribute(l_attr_print))
@@ -73,10 +73,10 @@ class LoopConstr(object):
                 flag = False
                 prefix = cif_loop.prefix
                 l_name = cif_loop.names
-                label = cif_loop.name
+                loop_name = cif_loop.name
                 l_name_short = [_[(len(prefix)+1): ] for _ in l_name]
 
-                _obj = cls(label=label)
+                _obj = cls(loop_name=loop_name)
                 _i = 0
                 for _name, _name_short in zip(l_name, l_name_short):
                     if _i == 0:
@@ -103,15 +103,15 @@ class LoopConstr(object):
         return self.__item_class.PREFIX
 
     @property
-    def label(self) -> str:
-        return getattr(self, "__label")
-    @label.setter
-    def label(self, x) -> str:
+    def loop_name(self) -> str:
+        return getattr(self, "__loop_name")
+    @loop_name.setter
+    def loop_name(self, x) -> str:
         if x is None:
             x_in = ""
         else:
             x_in = str(x)
-        setattr(self, "__label", x_in)
+        setattr(self, "__loop_name", x_in)
 
     @property
     def item_class(self):

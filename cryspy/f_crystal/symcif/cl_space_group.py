@@ -102,7 +102,8 @@ Methods:
 - get_symop
 
 
-reference: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html
+Reference:
+`the page <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html>`_
     """
     MANDATORY_ATTRIBUTE = ()
     OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies",
@@ -200,7 +201,7 @@ Dordrecht: Kluwer Academic Publishers.
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_NAME_HM_ALT):
-                print(f"name_hm_alt type '{x_in:}' is not supported")
+                warnings.warn(f"name_hm_alt type '{x_in:}' is not supported", UserWarning)
                 x_in = None
         setattr(self, "__name_hm_alt", x_in)
 
@@ -225,12 +226,13 @@ The permitted range is (1,230)
         return getattr(self, "__it_number")
     @it_number.setter
     def it_number(self, x):
+
         if x is None:
             x_in = None
         else:
             x_in = int(x)
             if not((x_in >=1)&(x_in <=230)):
-                print(f"it_number '{x_in:}' is not supported")
+                warnings.warn(f"it_number '{x_in:}' is not supported", UserWarning)
                 x_in = None              
         setattr(self, "__it_number", x_in)
 
@@ -265,7 +267,7 @@ abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb,
             x_in = None
         else:
             if not(x in self.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE):
-                print(f"it_coordinate_system_code '{x:}' is not supported")
+                warnings.warn(f"it_coordinate_system_code '{x_in:}' is not supported", UserWarning)
                 x_in = None            
             x_in = str(x)
         setattr(self, "__it_coordinate_system_code", x_in)
@@ -321,7 +323,7 @@ cP cI cF
         else:
             x_in = "".join(str(x).strip().split())
             if not(x_in in self.ACCESIBLE_BRAVAIS_TYPE):
-                print(f"Bravais type '{x_in:}' is not supported")
+                warnings.warn(f"bravais_type '{x_in:}' is not supported", UserWarning)
                 x_in = None
         setattr(self, "__bravais_type", x_in)
 
@@ -345,7 +347,7 @@ The data value must be one of the following:
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_LAUE_CLASS):
-                print(f"laue_class '{x_in:}' is not supported")
+                warnings.warn(f"laue_class '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__laue_class", x_in)
 
@@ -409,7 +411,7 @@ The data value must be one of the following:
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_CENTERING_TYPE):
-                print(f"centring_type '{x_in:}' is not supported")
+                warnings.warn(f"centring_type '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__centring_type", x_in)
 
@@ -433,7 +435,7 @@ The data value must be one of the following:
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_CRYSTAL_SYSTEM):
-                print(f"crystal_system '{x_in:}' is not supported")
+                warnings.warn(f"crystal_system '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__crystal_system", x_in)
 
@@ -545,7 +547,7 @@ The data value must be one of the following:
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_NAME_HM_REF):
-                print(f"name_hm_ref '{x_in:}' is not supported")
+                warnings.warn(f"name_hm_ref '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__name_hm_ref", x_in)
 
@@ -579,7 +581,7 @@ Examples:
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_NAME_HALL):
-                print(f"name_hall '{x_in:}' is not supported")
+                warnings.warn(f"name_hall '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__name_hall", x_in)
 
@@ -613,7 +615,7 @@ C1.1, Ci.1, ...
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_NAME_SCHOENFLIES):
-                print(f"name_schoenflies '{x_in:}' is not supported")
+                warnings.warn(f"name_schoenflies '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__name_schoenflies", x_in)
 
@@ -689,7 +691,7 @@ The data value must be one of the following:
         else:
             x_in = str(x)
             if not(x_in in self.ACCESIBLE_REFERENCE_SETTING):
-                print(f"reference_setting '{x_in:}' is not supported")
+                warnings.warn(f"reference_setting '{x_in:}' is not supported", UserWarning)
                 x_in = None            
         setattr(self, "__reference_setting", x_in)
 
@@ -978,8 +980,8 @@ Examples:
         return CONSTANTS_AND_FUNCTIONS.get_default_it_coordinate_system_code_by_it_number(it_number)
         
     def _show_message(self, s_out: str):
-        print("***  Error ***")
-        print(s_out)
+        warnings.warn(f"***  Error ***", UserWarning)
+        warnings.warn(s_out, UserWarning)
         
         
     def calc_hkl_equiv(self, h, k, l):

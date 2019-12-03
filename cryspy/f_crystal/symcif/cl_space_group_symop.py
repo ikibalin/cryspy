@@ -372,8 +372,8 @@ reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_gro
     """
     CATEGORY_KEY = ("id", )
     ITEM_CLASS = SpaceGroupSymop
-    def __init__(self, item = [], label=""):
-        super(SpaceGroupSymopL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, label=label)
+    def __init__(self, item = [], loop_name=""):
+        super(SpaceGroupSymopL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
         self.item = item
 
     @classmethod
