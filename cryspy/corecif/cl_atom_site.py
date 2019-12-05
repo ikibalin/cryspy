@@ -2,7 +2,7 @@
 define classes to describe AtomSite
 """
 __author__ = 'ikibalin'
-__version__ = "2019_12_30"
+__version__ = "2019_12_05"
 import os
 import numpy
 from pycifstar import Global

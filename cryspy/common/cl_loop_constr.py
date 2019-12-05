@@ -145,7 +145,7 @@ class LoopConstr(object):
             return self.__item[_ind]
         else:
             s_out = " ".join([f"{_:}" for _ in _id])
-            print(f"Element '{s_out:}' is not found in list")
+            warnings.warn(f"Element '{s_out:}' is not found in list", UserWarning, stacklevel=2)
             return None
 
     @property
