@@ -11,7 +11,7 @@ class DataConstr(object):
                  optional_classes = (),
                  internal_classes = ()):
         super(DataConstr, self).__init__()
-        self.__data_name = data_name
+        setattr(self, "__data_name", data_name)
         setattr(self, "__mandatory_classes", mandatory_classes)
         setattr(self, "__optional_classes", optional_classes)
         setattr(self, "__internal_classes", internal_classes)
@@ -33,11 +33,11 @@ class DataConstr(object):
         ls_out.append("\nOptional classes:")
         ls_out.extend([str(_) for _ in self.optional_classes])
         ls_out.append("\nMandatory objects:")
-        ls_out.extend([str(_) for _ in self.mandatory_objs])
+        ls_out.extend([str(_)+"\n" for _ in self.mandatory_objs])
         ls_out.append("\nOptional objects:")
-        ls_out.extend([str(_) for _ in self.optional_objs])
+        ls_out.extend([str(_)+"\n" for _ in self.optional_objs])
         ls_out.append("\nInternal objects:")
-        ls_out.extend([str(_) for _ in self.internal_objs])
+        ls_out.extend([str(_)+"\n" for _ in self.internal_objs])
         return "\n".join(ls_out)
 
     def to_cif(self, separator="_", flag=False) -> str: 
@@ -53,8 +53,9 @@ class DataConstr(object):
             A string in STAR/CIF format
         """
         ls_out = []
-        ls_out.extend([_.to_cif(separator=separator, flag=flag) for _ in self.mandatory_objs])
-        ls_out.extend([_.to_cif(separator=separator, flag=flag) for _ in self.optional_objs])
+        ls_out.append(f"data_{self.data_name:}\n")
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.mandatory_objs])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.optional_objs])
         return "\n".join(ls_out)
 
     @classmethod
@@ -69,53 +70,53 @@ class DataConstr(object):
         optional_objs = []
 
         flag = True
-        for _cls in cls.mandatory_classes:
+        for _cls in cls.MANDATORY_CLASSES:
             flag = False
-            prefix_cls = _cls.prefix
-            if isinstance(_cls, ItemConstr):
+            if issubclass(_cls, ItemConstr):
+                prefix_cls = _cls.PREFIX
                 if cif_items.is_prefix(prefix_cls):
                     cif_items_prefix = cif_items[prefix_cls]
                     cif_string = str(cif_items_prefix)
                     _obj_prefix = _cls.from_cif(cif_string)
                     mandatory_objs.append(_obj_prefix)
                     flag = True
-            elif isinstance(_cls, LoopConstr):
+            elif issubclass(_cls, LoopConstr):
+                prefix_cls = _cls.ITEM_CLASS.PREFIX
                 for cif_loop in cif_loops:
-                    if cif_loop.is_prefix(prefix_cls):
+                    if cif_loop.is_prefix("_"+prefix_cls):
                         cif_string = str(cif_loop)
                         _obj_prefix = _cls.from_cif(cif_string)
-                        mandatory_objs.append(_obj_prefix)
+                        mandatory_objs.extend(_obj_prefix)
                         flag = True
             if not(flag):
-                break
-            else:
                 warnings.warn(f"unknown class type : '{_cls:}'", UserWarning)
-
+                break
+        
         if not(flag):
             return None
 
-        for _cls in cls.optional_classes:
-            prefix_cls = _cls.prefix
-            if isinstance(_cls, ItemConstr):
+        for _cls in cls.OPTIONAL_CLASSES:
+            if issubclass(_cls, ItemConstr):
+                prefix_cls = _cls.PREFIX
                 if cif_items.is_prefix(prefix_cls):
                     cif_items_prefix = cif_items[prefix_cls]
                     cif_string = str(cif_items_prefix)
                     _obj_prefix = _cls.from_cif(cif_string)
                     optional_objs.append(_obj_prefix)
-            elif isinstance(_cls, LoopConstr):
+            elif issubclass(_cls, LoopConstr):
+                prefix_cls = _cls.ITEM_CLASS.PREFIX
                 for cif_loop in cif_loops:
-                    if cif_loop.is_prefix(prefix_cls):
+                    if cif_loop.is_prefix("_"+prefix_cls):
                         cif_string = str(cif_loop)
                         _obj_prefix = _cls.from_cif(cif_string)
-                        optional_objs.append(_obj_prefix)
+                        optional_objs.extend(_obj_prefix)
             else:
                 warnings.warn(f"unknown class type : '{_cls:}'", UserWarning)
-
         data_name = cif_data.name
         _obj = cls(data_name=data_name)
         _obj.mandatory_objs = mandatory_objs
         _obj.optional_objs = optional_objs
-
+        
         return _obj
 
 
@@ -131,14 +132,14 @@ class DataConstr(object):
         setattr(self, "__data_name", x_in)
 
     @property
-    def mandatory_classes(self) -> str:
+    def mandatory_classes(self):
         return getattr(self, "__mandatory_classes")
     @property
-    def optional_classes(self) -> str:
+    def optional_classes(self):
         return getattr(self, "__optional_classes")
 
     @property
-    def mandatory_objs(self) -> str:
+    def mandatory_objs(self):
         return getattr(self, "__mandatory_objs")
     @mandatory_objs.setter
     def mandatory_objs(self, l_x: List) -> str:
@@ -177,7 +178,9 @@ class DataConstr(object):
         return tuple(l_res)
     @property
     def is_defined(self):
-        flag = all([self.is_class(_cls) for _cls in getattr(self, "mandatory_classes")])
+        flag_1 = all([self.is_class(_cls) for _cls in getattr(self, "mandatory_classes")])
+        flag_2 = all([_obj.is_defined for _obj in getattr(self, "mandatory_objs")])
+        flag = flag_1 & flag_2
         return flag
     @property
     def form_object(self):

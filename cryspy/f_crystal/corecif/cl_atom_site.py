@@ -232,9 +232,10 @@ Reference:
             x_in = None
         else:
             if not(x in self.ACCESIBLE_ADP_TYPE):
-                warnings.warn(f"adp_type '{x_in:}' is not supported", UserWarning)
+                warnings.warn(f"adp_type '{x:}' is not supported", UserWarning, stacklevel=2)
                 x_in = None            
-            x_in = str(x)
+            else:
+                x_in = str(x)
         setattr(self, "__adp_type", x_in)
 
     @property
@@ -427,8 +428,7 @@ Reference:
 
 
     def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", UserWarning)
-        warnings.warn(s_out, UserWarning)
+        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
 
 
     @property
@@ -644,3 +644,8 @@ class AtomSiteL(LoopConstr):
         super(AtomSiteL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
         self.item = item
 
+    def __repr__(self) -> str:
+        ls_out = []
+        ls_out.append("AtomSiteL: ")
+        ls_out.append(f"{str(self):}")
+        return "\n".join(ls_out)

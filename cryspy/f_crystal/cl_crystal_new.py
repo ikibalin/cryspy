@@ -90,18 +90,46 @@ _atom_site_magnetism_aniso_chi_33
  Fe3A cani -3.468(74) 0.0 0.0 -3.468 0.0 -3.468
  Fe3B cani 3.041      0.0 0.0  3.041 0.0  3.041
     """
-    MANDATORY_CLASSES = (Cell, AtomSiteL)
+    MANDATORY_CLASSES = (SpaceGroup, Cell, AtomSiteL)
     OPTIONAL_CLASSES = ()
     INTERNAL_CLASSES = ()
-    def __init__(self, cell=None, atom_site=None,):
+    def __init__(self, cell=None, atom_site=None, data_name=""):
         super(Crystal, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
                                       optional_classes=self.OPTIONAL_CLASSES,
                                       internal_classes=self.INTERNAL_CLASSES)
         self.cell = cell
         self.atom_site = atom_site
+        self.data_name = data_name
         if self.is_defined:
             self.form_object
-        
+
+    @property
+    def space_group(self):
+        """
+        """
+        l_res = self[SpaceGroup]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
+    @space_group.setter
+    def space_group(self, x):
+        if x is None:
+            pass
+        elif isinstance(x, SpaceGroup):
+            l_ind = []
+            for _i, _obj in enumerate(self.mandatory_objs):
+                if isinstance(_obj, Cell):
+                    l_ind.append(_i)
+            if len(l_ind) == 0:
+                self.mandatory_objs.append(x)
+            else:
+                self.mandatory_objs[l_ind[0]] = x
+            if len(l_ind) > 1:
+                for _ind in l_ind.reverse():
+                    self.mandatory_objs.pop(_ind)
+
+
     @property
     def cell(self):
         """
@@ -132,7 +160,7 @@ _atom_site_magnetism_aniso_chi_33
     def atom_site(self):
         """
         """
-        l_res = self[AtomSite]
+        l_res = self[AtomSiteL]
         if len(l_res) >= 1:
             return l_res[0]
         else:
@@ -141,10 +169,10 @@ _atom_site_magnetism_aniso_chi_33
     def atom_site(self, x):
         if x is None:
             pass
-        elif isinstance(x, AtomSite):
+        elif isinstance(x, AtomSiteL):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, AtomSite):
+                if isinstance(_obj, AtomSiteL):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -156,8 +184,7 @@ _atom_site_magnetism_aniso_chi_33
 
 
     def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", UserWarning)
-        warnings.warn(s_out, UserWarning)
+        warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
 
     
     @property
@@ -180,6 +207,9 @@ _atom_site_magnetism_aniso_chi_33
             l_variable.extend(_obj.get_variables())
         return l_variable
 
-    def apply_constraint(self, type_cell:str)->bool:
-        flag = True
+    def apply_constraint(self)->bool:
+        type_cell = self.space_group.type_cell
+        space_group_wyckoff = self.space_group.space_group_wyckoff
+        flag = self.cell.apply_constraint(type_cell)
         return flag
+

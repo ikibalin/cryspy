@@ -61,8 +61,15 @@ class LoopConstr(object):
             ls_out.append(_item.print_attribute(l_attr_print))
         return "\n".join(ls_out)
 
+    @property
+    def is_defined(self)->bool:
+        flag_1 = True
+        flag_2 = all([_obj.is_defined for _obj in self.item])
+        flag = flag_1 & flag_2
+        return flag
+
     @classmethod
-    def from_cif(cls, string: str):
+    def from_cif(cls, string: str)->List:
         cif_data = Data()
         flag = cif_data.take_from_string(string)
         _item_class = cls.ITEM_CLASS

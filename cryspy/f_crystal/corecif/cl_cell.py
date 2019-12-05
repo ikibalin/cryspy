@@ -474,8 +474,7 @@ Reference:
 
 
     def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", UserWarning)
-        warnings.warn(s_out, UserWarning)
+        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
 
     
     @property
@@ -745,7 +744,7 @@ f_print --- a flag to print output information in terminal
         
         flag = (((sa*sb-k_x)**2+(-ca*sb-k_y)**2+(cb-k_z)**2)>0.0001)
         if any(flag):
-            warnings.warn("Mistake with k_loc\nProgram is stopped", UserWarning)
+            warnings.warn("Mistake with k_loc\nProgram is stopped", UserWarning, stacklevel=2)
             quit()
         return t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 
 
@@ -756,7 +755,7 @@ f_print --- a flag to print output information in terminal
         taking into account the space group
         """
         if not(self.is_defined):
-            print("Object 'Cell' is not fully defined for calculations")
+            warnings.warn("Object 'Cell' is not fully defined for calculations", UserWarning, stacklevel=2)
             return None
         lhkl,lmult=[],[]
         l_hklres=[]
