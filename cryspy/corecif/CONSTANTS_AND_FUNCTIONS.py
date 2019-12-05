@@ -11,9 +11,11 @@ List of functions:
 import os
 import numpy
 import warnings
-from cryspy.f_common.cl_fitable import Fitable
+
 import pycifstar
 from typing import List, Tuple
+
+from cryspy.common.cl_fitable import Fitable
 
 F_BSCAT = os.path.join(os.path.dirname(__file__), "bscat.tab")
 BSCAT = pycifstar.to_loop(F_BSCAT)

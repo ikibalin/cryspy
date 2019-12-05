@@ -1,5 +1,5 @@
 import pytest
-from cryspy.f_crystal.symcif.cl_space_group import SpaceGroup
+from cryspy.symcif.cl_space_group import SpaceGroup
 
 
 

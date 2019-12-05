@@ -1,5 +1,5 @@
 import warnings
-from cryspy.f_common.cl_item_constr import ItemConstr
+from cryspy.common.cl_item_constr import ItemConstr
 from typing import List, Tuple
 from pycifstar import Data
 

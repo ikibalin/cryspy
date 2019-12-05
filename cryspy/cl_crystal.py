@@ -8,18 +8,18 @@ import math
 import numpy
 from pycifstar import Global
 
-import cryspy.f_crystal.corecif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 
 import warnings
 from typing import List, Tuple
-from cryspy.f_common.cl_item_constr import ItemConstr
-from cryspy.f_common.cl_loop_constr import LoopConstr
-from cryspy.f_common.cl_data_constr import DataConstr
+from cryspy.common.cl_item_constr import ItemConstr
+from cryspy.common.cl_loop_constr import LoopConstr
+from cryspy.common.cl_data_constr import DataConstr
+from cryspy.common.cl_fitable import Fitable
 
-from cryspy.f_common.cl_fitable import Fitable
-from cryspy.f_crystal.symcif.cl_space_group import SpaceGroup
-from cryspy.f_crystal.corecif.cl_cell import Cell
-from cryspy.f_crystal.corecif.cl_atom_site import AtomSiteL
+from cryspy.symcif.cl_space_group import SpaceGroup
+import cryspy.corecif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
+from cryspy.corecif.cl_cell import Cell
+from cryspy.corecif.cl_atom_site import AtomSiteL
 
 class Crystal(DataConstr):
     """

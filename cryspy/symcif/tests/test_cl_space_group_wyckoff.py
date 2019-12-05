@@ -1,5 +1,5 @@
 import pytest
-from cryspy.f_crystal.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
+from cryspy.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
 
 STR_FROM_CIF_1 = """
 loop_

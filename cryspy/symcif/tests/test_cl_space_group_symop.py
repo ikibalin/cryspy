@@ -1,6 +1,6 @@
 import pytest
 import numpy
-from cryspy.f_crystal.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
+from cryspy.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
 
 STR_FROM_CIF_1 = """
 loop_

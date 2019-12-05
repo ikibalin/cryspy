@@ -14,11 +14,11 @@ from pycifstar import Global
 import warnings
 
 from typing import List, Tuple
-from cryspy.f_common.cl_item_constr import ItemConstr
+from cryspy.common.cl_item_constr import ItemConstr
 
-import cryspy.f_crystal.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
-from cryspy.f_crystal.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
-from cryspy.f_crystal.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
+import cryspy.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
+from cryspy.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
+from cryspy.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
 
 
 class SpaceGroup(ItemConstr):
@@ -838,13 +838,13 @@ Examples:
             it_number = self.it_number
             it_coordinate_system_code = self.it_coordinate_system_code
         elif self.is_defined_attribute("name_hm_alt"):
-            _res = get_type_hm(self.name_hm_alt)
+            _res = CONSTANTS_AND_FUNCTIONS.get_type_hm(self.name_hm_alt)
             if "extended" in _res:
                 it_number, it_coordinate_system_codes = CONSTANTS_AND_FUNCTIONS.get_it_number_it_coordinate_system_codes_by_name_hm_extended(self.name_hm_alt)
                 if  (not(it_coordinate_system_code in it_coordinate_system_codes)):
                     it_coordinate_system_code = CONSTANTS_AND_FUNCTIONS.auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes)
             elif "full" in _res:
-                it_number = get_it_number_by_name_hm_full(notation)
+                it_number = CONSTANTS_AND_FUNCTIONS.get_it_number_by_name_hm_full(self.name_hm_alt)
         elif self.is_defined_attribute("name_hm_ref"):
             it_number = CONSTANTS_AND_FUNCTIONS.get_it_number_by_name_hm_short(self.name_hm_ref)
         elif self.is_defined_attribute("name_hall"):

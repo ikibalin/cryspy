@@ -1,9 +1,9 @@
 import pytest
 import math
 import numpy
-from cryspy.f_common.cl_fitable import Fitable
+from cryspy.common.cl_fitable import Fitable
 
-from cryspy.f_crystal.cl_crystal_new import Crystal, Cell
+from cryspy.cl_crystal import Crystal, Cell
 
 STR_FROM_CIF_1 = """
 data_Fe3O4                                

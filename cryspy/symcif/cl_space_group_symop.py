@@ -12,9 +12,9 @@ import warnings
 import copy
 
 from typing import List, Tuple
-from cryspy.f_common.cl_item_constr import ItemConstr
-from cryspy.f_common.cl_loop_constr import LoopConstr
-import cryspy.f_crystal.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
+from cryspy.common.cl_item_constr import ItemConstr
+from cryspy.common.cl_loop_constr import LoopConstr
+import cryspy.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 
 class SpaceGroupSymop(ItemConstr):
     """

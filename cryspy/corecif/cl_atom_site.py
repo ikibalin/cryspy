@@ -9,11 +9,10 @@ from pycifstar import Global
 
 import warnings
 from typing import List, Tuple
-from cryspy.f_common.cl_item_constr import ItemConstr
-from cryspy.f_common.cl_loop_constr import LoopConstr
+from cryspy.common.cl_item_constr import ItemConstr
+from cryspy.common.cl_loop_constr import LoopConstr
+from cryspy.common.cl_fitable import Fitable
 
-from cryspy.f_common.cl_fitable import Fitable
-from cryspy.f_crystal.cl_fract import Fract
 
 class AtomSite(ItemConstr):
     """
@@ -25,14 +24,16 @@ coordinates.
 
 Description in cif file:
 -------------------------
-_atom_site_label            Fe3A
-_atom_site_type_symbol      Fe 
-_atom_site_fract_x          0.12500
-_atom_site_fract_y          0.12500
-_atom_site_fract_z          0.12500
-_atom_site_adp_type         Uani
-_atom_site_B_iso_or_equiv   0.0 
-_atom_site_occupancy        1.0
+::
+
+ _atom_site_label            Fe3A
+ _atom_site_type_symbol      Fe 
+ _atom_site_fract_x          0.12500
+ _atom_site_fract_y          0.12500
+ _atom_site_fract_z          0.12500
+ _atom_site_adp_type         Uani
+ _atom_site_B_iso_or_equiv   0.0 
+ _atom_site_occupancy        1.0
 
 Mandatory attribute: 
 ---------------------
@@ -104,14 +105,14 @@ Reference:
     @property
     def label(self)->str:
         """
-        The _atom_site_label is a unique identifier for a particular site
-        in the crystal. 
+The _atom_site_label is a unique identifier for a particular site
+in the crystal. 
 
-        Type: char
+Type: char
 
-        Reference: 
-        -----------
-        `link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html>`_
+Reference: 
+-----------
+`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html>`_
         """
         return getattr(self, "__label")
     @label.setter
@@ -125,15 +126,15 @@ Reference:
     @property
     def type_symbol(self):
         """
-        A code to identify the atom species (singular or plural)
-        occupying this site.
-        This code must match a corresponding _atom_type_symbol. 
+A code to identify the atom species (singular or plural)
+occupying this site.
+This code must match a corresponding _atom_type_symbol. 
 
-        Type: char
+Type: char
 
-        Reference: 
-        ------------
-        `link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html>`_
+Reference: 
+------------
+`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html>`_
         """
         return getattr(self, "__type_symbol")
     @type_symbol.setter
@@ -147,12 +148,13 @@ Reference:
     @property
     def fract_x(self):
         """
-        Atom-site coordinates as fractions of the _cell_length_ values.
+Atom-site coordinates as fractions of the _cell_length_ values.
 
-        Type: float
+Type: float
 
-        Reference: 
-        `link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
+Reference: 
+----------------
+`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
         """
         return getattr(self, "__fract_x")
     @fract_x.setter
@@ -491,9 +493,10 @@ Reference:
 
 
     def _form_fract(self):
-        fract = Fract(x=numpy.array(self.x, dtype=float), 
-                      y=numpy.array(self.y, dtype=float), 
-                      z=numpy.array(self.z, dtype=float))
+        #fract = Fract(x=numpy.array(self.x, dtype=float), 
+        #              y=numpy.array(self.y, dtype=float), 
+        #              z=numpy.array(self.z, dtype=float))
+        fract = None       
         return fract
 
     def calc_constr_number(self, space_group):
@@ -585,58 +588,60 @@ Reference:
 
 class AtomSiteL(LoopConstr):
     """
-    AtomSiteL:
-    ============
-    Data items in the ATOM_SITE category record details about
-    the atom sites in a crystal structure, such as the positional
-    coordinates.
+AtomSiteL:
+============
+Data items in the ATOM_SITE category record details about
+the atom sites in a crystal structure, such as the positional
+coordinates.
 
-    Description in cif file:
-    ---------------------------
-    loop_                                     
-    _atom_site_label          
-    _atom_site_type_symbol   
-    _atom_site_fract_x       
-    _atom_site_fract_y       
-    _atom_site_fract_z       
-    _atom_site_adp_type       
-    _atom_site_B_iso_or_equiv
-    _atom_site_occupancy     
-     Fe3A   Fe  0.12500 0.12500 0.12500  Uani   0.0   1.0
-     Fe3B   Fe  0.50000 0.50000 0.50000  Uani   0.0   1.0
-     O1     O   0.25521 0.25521 0.25521  Uiso   0.0   1.0
+Description in cif file:
+---------------------------
+::
 
-    Mandatory attribute: 
-    ---------------------
-    - label
-    - type_symbol
-    - fract_x
-    - fract_y
-    - fract_z
-    
-    Optional attribute: 
-    ---------------------
-    - occupancy
-    - adp_type
-    - wyckoff_symbol
-    - u_iso_or_equiv
-    - u_equiv_geom_mean
-    - b_iso_or_equiv
-    - cartn_x
-    - cartn_y
-    - cartn_z
-    
-    Class methods:
-    -----------------
-    - 
-    
-    Methods:
-    ---------
-    - get_symop
-    
-    Reference: 
-    -----------
-    `the page <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_    
+ loop_                                     
+ _atom_site_label          
+ _atom_site_type_symbol   
+ _atom_site_fract_x       
+ _atom_site_fract_y       
+ _atom_site_fract_z       
+ _atom_site_adp_type       
+ _atom_site_B_iso_or_equiv
+ _atom_site_occupancy     
+  Fe3A   Fe  0.12500 0.12500 0.12500  Uani   0.0   1.0
+  Fe3B   Fe  0.50000 0.50000 0.50000  Uani   0.0   1.0
+  O1     O   0.25521 0.25521 0.25521  Uiso   0.0   1.0
+
+Mandatory attribute: 
+---------------------
+- label
+- type_symbol
+- fract_x
+- fract_y
+- fract_z
+
+Optional attribute: 
+---------------------
+- occupancy
+- adp_type
+- wyckoff_symbol
+- u_iso_or_equiv
+- u_equiv_geom_mean
+- b_iso_or_equiv
+- cartn_x
+- cartn_y
+- cartn_z
+
+Class methods:
+-----------------
+- 
+
+Methods:
+---------
+- get_symop
+
+Reference: 
+-----------
+`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_    
     """
     CATEGORY_KEY = ("label", )
     ITEM_CLASS = AtomSite

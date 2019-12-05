@@ -1,8 +1,8 @@
 import pytest
 import numpy
-from cryspy.f_common.cl_fitable import Fitable
+from cryspy.common.cl_fitable import Fitable
 
-from cryspy.f_crystal.corecif.cl_atom_site import AtomSite, AtomSiteL
+from cryspy.corecif.cl_atom_site import AtomSite, AtomSiteL
 
 STR_FROM_CIF_1 = """
     loop_                                     

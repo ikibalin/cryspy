@@ -1,6 +1,6 @@
 import warnings
-from cryspy.f_common.cl_item_constr import ItemConstr
-from cryspy.f_common.cl_loop_constr import LoopConstr
+from cryspy.common.cl_item_constr import ItemConstr
+from cryspy.common.cl_loop_constr import LoopConstr
 from typing import List, Tuple
 from pycifstar import Data
 

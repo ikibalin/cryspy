@@ -1,9 +1,9 @@
 import pytest
 import math
 import numpy
-from cryspy.f_common.cl_fitable import Fitable
+from cryspy.common.cl_fitable import Fitable
 
-from cryspy.f_crystal.corecif.cl_cell import Cell
+from cryspy.corecif.cl_cell import Cell
 
 STR_FROM_CIF_1 = """
      _cell_length_a                     5.959(1)
