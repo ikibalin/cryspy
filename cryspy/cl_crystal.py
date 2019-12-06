@@ -19,7 +19,7 @@ from cryspy.common.cl_fitable import Fitable
 from cryspy.symcif.cl_space_group import SpaceGroup
 import cryspy.corecif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from cryspy.corecif.cl_cell import Cell
-from cryspy.corecif.cl_atom_site import AtomSiteL
+from cryspy.corecif.cl_atom_site import AtomSite, AtomSiteL
 
 class Crystal(DataConstr):
     """

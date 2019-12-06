@@ -1,6 +1,6 @@
 """
-Defines SpaceGoupWyckoff class. 
-
+SpaceGoupWyckoff class. 
+========================
 """
 
 __author__ = 'ikibalin'

@@ -1,6 +1,6 @@
 """
-Defines SpaceGroup class. 
-It will be used instead of old SpaceGroup class
+SpaceGroup class 
+===========================
 """
 
 __author__ = 'ikibalin'
@@ -62,7 +62,7 @@ Description in cif file:
     _space_group.centring_type         C
     _space_group.Patterson_name_H-M  'C 2/m'
 
-TODO:: 
+FIXME:: 
 all labels with sign '-' does not read now. 
 The sign '-' has to be suppressed.
 Example: '_space_group.name_H-M_ref' -> '_space_group.name_HM_ref'
@@ -91,9 +91,8 @@ Optional attribute:
 - transform_pp_abc
 - transform_qq_xyz
 
-
 Class methods:
----------
+-----------------
 - 
 
 
@@ -393,15 +392,15 @@ the coordinate system chosen.
 
 The data value must be one of the following:
 ------------------------------------------------
-    P primitive no centring
-    A A-face centred (0, 1/2, 1/2)
-    B B-face centred (1/2, 0, 1/2)
-    C C-face centred (1/2, 1/2, 0)
-    F all faces centred (0, 1/2, 1/2), (1/2, 0, 1/2), (1/2, 1/2, 0)
-    I body centred (1/2, 1/2, 1/2)
-    R rhombohedral obverse centred (2/3, 1/3, 1/3), (1/3, 2/3, 2/3)
-    Rrev rhombohedral reverse centred (1/3, 2/3, 1/3), (2/3, 1/3, 2/3)
-    H hexagonal centred (2/3, 1/3, 0), (1/3, 2/3, 0)
+    :"P": primitive no centring
+    :"A": A-face centred (0, 1/2, 1/2)
+    :"B": B-face centred (1/2, 0, 1/2)
+    :"C": C-face centred (1/2, 1/2, 0)
+    :"F": all faces centred (0, 1/2, 1/2), (1/2, 0, 1/2), (1/2, 1/2, 0)
+    :"I": body centred (1/2, 1/2, 1/2)
+    :"R": rhombohedral obverse centred (2/3, 1/3, 1/3), (1/3, 2/3, 2/3)
+    :"Rrev": rhombohedral reverse centred (1/3, 2/3, 1/3), (2/3, 1/3, 2/3)
+    :"H": hexagonal centred (2/3, 1/3, 0), (1/3, 2/3, 0)
         """
         return getattr(self, "__centring_type")
     @centring_type.setter
@@ -424,8 +423,8 @@ that crystals with the hR lattice type belong to the trigonal system.
 
 The data value must be one of the following:
 ------------------------------------------------
-    triclinic, monoclinic, orthorhombic, 
-    tetragonal, trigonal, hexagonal, cubic   
+triclinic, monoclinic, orthorhombic, 
+tetragonal, trigonal, hexagonal, cubic   
     """
         return getattr(self, "__crystal_system")
     @crystal_system.setter
@@ -704,17 +703,17 @@ given in _space_group.reference_setting (a' ,b' ,c'). The value
 is given in Jones–Faithful notation corresponding to the rotational
 matrix P combined with the origin shift vector p in the expression
 
-..math::
-(a', b', c') = (a, b, c) P + p.
+.. math::
+ (a', b', c') = (a, b, c) P + p.
 
 P is a post-multiplication matrix of a row (a,b,c) of column vec-
 tors. It is related to the inverse transformation (Q,q) by
 
-..math::
-P = Q**−1 ,
+.. math::
+ P = Q^{−1},
 
-..math::
-p = Pq = − (Q**−1) q.
+.. math::
+ p = Pq = − (Q^{−1}) q.
 
 These transformations are applied as follows: atomic coordi-
 nates (x', y', z') = Q (x,y,z) + q, Miller indices 
@@ -757,17 +756,17 @@ basis vectors (a', b', c')]. The value given in Jones–Faithful nota-
 tion corresponds to the rotational matrix Q combined with the ori-
 gin shift vector q in the expression
 
-..math::
-(x', y', z') = Q(x,y,z) + q.
+.. math::
+ (x', y', z') = Q(x,y,z) + q.
 
 Q is a pre-multiplication matrix of the column vector (x,y,z). It is
 related to the inverse transformation (P,p) by
 
-..math::
-P = Q**−1 ,
+.. math::
+ P = Q^{−1} ,
 
-..math::
-p = Pq = − (Q**−1) q,
+.. math::
+ p = Pq = − (Q^{−1}) q,
 
 where the P and Q transformations are applied as follows: atomic
 coordinates (x', y', z') = Q(x,y,z)+q, Miller indices 
@@ -776,8 +775,8 @@ symmetry operations
 W' = (Q, q) W (P, p), 
 basis vectors
 
-..math::
-(a', b', c') = (a, b, c) P + p.
+.. math::
+ (a', b', c') = (a, b, c) P + p.
 
 This item is given as a character string involving the characters
 x, y and z with commas separating the expressions for the x', y'

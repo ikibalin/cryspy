@@ -1,6 +1,6 @@
 """
-CrysPy
-======
+CrysPy Library
+=================
 
 To run rhochi refinement from a command-line:
 >>> python -m cryspy.run_rhochi
@@ -85,8 +85,12 @@ from .cl_crystal import (
     Crystal, 
     Cell, 
     SpaceGroup, 
-    AtomSiteL, 
     Fitable, 
     ItemConstr, 
     LoopConstr, 
     DataConstr)
+
+from .symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
+from cryspy.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
+    
+from .corecif.cl_atom_site import AtomSite, AtomSiteL

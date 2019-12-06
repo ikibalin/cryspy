@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>define classes to describe Cell &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-cryspy.corecif.cl_cell"></span><div class="section" id="define-classes-to-describe-cell">
+<h1>define classes to describe Cell<a class="headerlink" href="#define-classes-to-describe-cell" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.corecif.cl_cell.Cell">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_cell.</code><code class="sig-name descname">Cell</code><span class="sig-paren">(</span><em class="sig-param">length_a=None</em>, <em class="sig-param">length_b=None</em>, <em class="sig-param">length_c=None</em>, <em class="sig-param">angle_alpha=None</em>, <em class="sig-param">angle_beta=None</em>, <em class="sig-param">angle_gamma=None</em>, <em class="sig-param">formula_units_z=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Data items in the Cell class record details about the
+crystallographic cell parameters and their measurement.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_cell_length_a</span>                     <span class="mf">5.959</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_cell_length_b</span>                     <span class="mf">14.956</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_cell_length_c</span>                     <span class="mf">19.737</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">_cell_angle_alpha</span>                  <span class="mi">90</span>
+<span class="n">_cell_angle_beta</span>                   <span class="mi">90</span>
+<span class="n">_cell_angle_gamma</span>                  <span class="mi">90</span>
+</pre></div>
+</div>
+<p>FIXME:
+the following attributes are not introduced:
+measurement_pressure, measurement_radiation, measurement_reflns_used,
+measurement_temperature, measurement_theta_max, measurement_theta_min,
+measurement_wavelength, special_details.</p>
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('m_b', 'm_ib', 'm_ib_norm', 'type_cell', 'cos_a', 'cos_b', 'cos_g', 'sin_a', 'sin_b', 'sin_g', 'cos_a_sq', 'cos_b_sq', 'cos_g_sq', 'sin_a_sq', 'sin_b_sq', 'sin_g_sq', 'cos_ia', 'cos_ib', 'cos_ig', 'sin_ia', 'sin_ib', 'sin_ig', 'cos_ia_sq', 'cos_ib_sq', 'cos_ig_sq', 'sin_ia_sq', 'sin_ib_sq', 'sin_ig_sq')</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_cell.Cell.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('length_a', 'length_b', 'length_c', 'angle_alpha', 'angle_beta', 'angle_gamma')</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_cell.Cell.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('reciprocal_length_a', 'reciprocal_length_b', 'reciprocal_length_c', 'reciprocal_angle_alpha', 'reciprocal_angle_beta', 'reciprocal_angle_gamma', 'volume', 'formula_units_z')</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_cell.Cell.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'cell'</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.angle_alpha">
+<em class="property">property </em><code class="sig-name descname">angle_alpha</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.angle_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit-cell angles of the reported structure in degrees.
+The permitted range is 0.0 -&gt; 180.0
+Enumeration default: 90.0</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.angle_beta">
+<em class="property">property </em><code class="sig-name descname">angle_beta</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.angle_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit-cell angles of the reported structure in degrees.
+The permitted range is 0.0 -&gt; 180.0
+Enumeration default: 90.0</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.angle_gamma">
+<em class="property">property </em><code class="sig-name descname">angle_gamma</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.angle_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit-cell angles of the reported structure in degrees.
+The permitted range is 0.0 -&gt; 180.0
+Enumeration default: 90.0</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.apply_constraint">
+<code class="sig-name descname">apply_constraint</code><span class="sig-paren">(</span><em class="sig-param">type_cell: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.apply_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.apply_constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_hkl">
+<code class="sig-name descname">calc_hkl</code><span class="sig-paren">(</span><em class="sig-param">space_group</em>, <em class="sig-param">sthovl_min</em>, <em class="sig-param">sthovl_max</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_hkl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_hkl" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of reflections hkl for cell in the range sthovl_min, sthovl_max
+taking into account the space group</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_hkl_in_range">
+<code class="sig-name descname">calc_hkl_in_range</code><span class="sig-paren">(</span><em class="sig-param">sthovl_min</em>, <em class="sig-param">sthovl_max</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_hkl_in_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_hkl_in_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>give a list of reflections hkl for cell in the range sthovl_min, sthovl_max</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_k_loc">
+<code class="sig-name descname">calc_k_loc</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_k_loc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_k_loc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate unity scattering vector.</p>
+<p>Keyword arguments:
+h, k, l – Miller indices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_m_t">
+<code class="sig-name descname">calc_m_t</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_m_t"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_m_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>define rotation matrix to have new z axis along kloc
+Rotation matrix is defined by Euler angles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_sthovl">
+<code class="sig-name descname">calc_sthovl</code><span class="sig-paren">(</span><em class="sig-param">h=None</em>, <em class="sig-param">k=None</em>, <em class="sig-param">l=None</em>, <em class="sig-param">hkl=None</em>, <em class="sig-param">l_hkl=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_sthovl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_sthovl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate sin(theta)/lambda for list of hkl reflections.</p>
+<p>h, k, l — Miller indices (example: h=1, k=0, l=2)
+or
+hkl — a turple of Miller indices (example: hkl=(1, 0, 2))
+or
+l_hkl — a list of turples of Miller indices (example: l_hkl=[(1, 0, 2), (1, 1, 3)])
+f_print — a flag to print output information in terminal</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_a">
+<em class="property">property </em><code class="sig-name descname">cos_a</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_a_sq">
+<em class="property">property </em><code class="sig-name descname">cos_a_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_a_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_b">
+<em class="property">property </em><code class="sig-name descname">cos_b</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_b_sq">
+<em class="property">property </em><code class="sig-name descname">cos_b_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_b_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_g">
+<em class="property">property </em><code class="sig-name descname">cos_g</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_g" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_g_sq">
+<em class="property">property </em><code class="sig-name descname">cos_g_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_g_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_ia">
+<em class="property">property </em><code class="sig-name descname">cos_ia</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_ia" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_ia_sq">
+<em class="property">property </em><code class="sig-name descname">cos_ia_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_ia_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_ib">
+<em class="property">property </em><code class="sig-name descname">cos_ib</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_ib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_ib_sq">
+<em class="property">property </em><code class="sig-name descname">cos_ib_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_ib_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_ig">
+<em class="property">property </em><code class="sig-name descname">cos_ig</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_ig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.cos_ig_sq">
+<em class="property">property </em><code class="sig-name descname">cos_ig_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.cos_ig_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.estimate_type_cell">
+<code class="sig-name descname">estimate_type_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.estimate_type_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.estimate_type_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.form_object">
+<em class="property">property </em><code class="sig-name descname">form_object</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.form_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.formula_units_z">
+<em class="property">property </em><code class="sig-name descname">formula_units_z</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.formula_units_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of the formula units in the unit cell as specified
+by _chemical_formula_structural, _chemical_formula_moiety or
+_chemical_formula_sum.</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_formula_units_Z.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.length_a">
+<em class="property">property </em><code class="sig-name descname">length_a</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.length_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit-cell lengths in angstroms corresponding to the structure
+reported.
+The permitted range is 0.0 -&gt; infinity</p>
+<p><a href="#id10"><span class="problematic" id="id11">`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.length_b">
+<em class="property">property </em><code class="sig-name descname">length_b</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.length_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit-cell lengths in angstroms corresponding to the structure
+reported.
+The permitted range is 0.0 -&gt; infinity</p>
+<p><a href="#id12"><span class="problematic" id="id13">`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.length_c">
+<em class="property">property </em><code class="sig-name descname">length_c</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.length_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit-cell lengths in angstroms corresponding to the structure
+reported.
+The permitted range is 0.0 -&gt; infinity</p>
+<p><a href="#id14"><span class="problematic" id="id15">`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.m_b">
+<em class="property">property </em><code class="sig-name descname">m_b</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.m_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>B matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.m_ib">
+<em class="property">property </em><code class="sig-name descname">m_ib</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.m_ib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inversed B matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.m_ib_norm">
+<em class="property">property </em><code class="sig-name descname">m_ib_norm</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.m_ib_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalized inversed B matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.reciprocal_angle_alpha">
+<em class="property">property </em><code class="sig-name descname">reciprocal_angle_alpha</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_angle_alpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>The angles defining the reciprocal cell in degrees. These
+are related to those in the real cell by:</p>
+<p>cos(recip-alpha) = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
+cos(recip-beta)  = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
+cos(recip-gamma) = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]</p>
+<dl class="simple">
+<dt>Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.</dt><dd><p>New York: John Wiley &amp; Sons Inc.</p>
+</dd>
+</dl>
+<p>The permitted range is 0.0 -&gt; 180.0
+Enumeration default: 90.0</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.reciprocal_angle_beta">
+<em class="property">property </em><code class="sig-name descname">reciprocal_angle_beta</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_angle_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>The angles defining the reciprocal cell in degrees. These
+are related to those in the real cell by:</p>
+<p>cos(recip-alpha) = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
+cos(recip-beta)  = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
+cos(recip-gamma) = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]</p>
+<dl class="simple">
+<dt>Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.</dt><dd><p>New York: John Wiley &amp; Sons Inc.</p>
+</dd>
+</dl>
+<p>The permitted range is 0.0 -&gt; 180.0
+Enumeration default: 90.0</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.reciprocal_angle_gamma">
+<em class="property">property </em><code class="sig-name descname">reciprocal_angle_gamma</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_angle_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>The angles defining the reciprocal cell in degrees. These
+are related to those in the real cell by:</p>
+<p>cos(recip-alpha) = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
+cos(recip-beta)  = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
+cos(recip-gamma) = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]</p>
+<dl class="simple">
+<dt>Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.</dt><dd><p>New York: John Wiley &amp; Sons Inc.</p>
+</dd>
+</dl>
+<p>The permitted range is 0.0 -&gt; 180.0
+Enumeration default: 90.0</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.reciprocal_length_a">
+<em class="property">property </em><code class="sig-name descname">reciprocal_length_a</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_length_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reciprocal-cell lengths in inverse angstroms.  These are
+related to the real cell by:</p>
+<p>recip-a = b*c*sin(alpha)/V
+recip-b = c*a*sin(beta)/V
+recip-c = a*b*sin(gamma)/V</p>
+<p>where V is the cell volume.</p>
+<dl class="simple">
+<dt>Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.</dt><dd><p>New York: John Wiley &amp; Sons Inc.</p>
+</dd>
+</dl>
+<p>The permitted range is 0.0 -&gt; infinity</p>
+<p>reference:
+<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.reciprocal_length_b">
+<em class="property">property </em><code class="sig-name descname">reciprocal_length_b</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_length_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reciprocal-cell lengths in inverse angstroms.  These are
+related to the real cell by:</p>
+<p>recip-a = b*c*sin(alpha)/V
+recip-b = c*a*sin(beta)/V
+recip-c = a*b*sin(gamma)/V</p>
+<p>where V is the cell volume.</p>
+<dl class="simple">
+<dt>Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.</dt><dd><p>New York: John Wiley &amp; Sons Inc.</p>
+</dd>
+</dl>
+<p>The permitted range is 0.0 -&gt; infinity</p>
+<p>reference:
+<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.reciprocal_length_c">
+<em class="property">property </em><code class="sig-name descname">reciprocal_length_c</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_length_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reciprocal-cell lengths in inverse angstroms.  These are
+related to the real cell by:</p>
+<p>recip-a = b*c*sin(alpha)/V
+recip-b = c*a*sin(beta)/V
+recip-c = a*b*sin(gamma)/V</p>
+<p>where V is the cell volume.</p>
+<dl class="simple">
+<dt>Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.</dt><dd><p>New York: John Wiley &amp; Sons Inc.</p>
+</dd>
+</dl>
+<p>The permitted range is 0.0 -&gt; infinity</p>
+<p>reference:
+<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html">link</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_a">
+<em class="property">property </em><code class="sig-name descname">sin_a</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_a_sq">
+<em class="property">property </em><code class="sig-name descname">sin_a_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_a_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_b">
+<em class="property">property </em><code class="sig-name descname">sin_b</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_b_sq">
+<em class="property">property </em><code class="sig-name descname">sin_b_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_b_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_g">
+<em class="property">property </em><code class="sig-name descname">sin_g</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_g" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_g_sq">
+<em class="property">property </em><code class="sig-name descname">sin_g_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_g_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_ia">
+<em class="property">property </em><code class="sig-name descname">sin_ia</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_ia" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_ia_sq">
+<em class="property">property </em><code class="sig-name descname">sin_ia_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_ia_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_ib">
+<em class="property">property </em><code class="sig-name descname">sin_ib</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_ib" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_ib_sq">
+<em class="property">property </em><code class="sig-name descname">sin_ib_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_ib_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_ig">
+<em class="property">property </em><code class="sig-name descname">sin_ig</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_ig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.sin_ig_sq">
+<em class="property">property </em><code class="sig-name descname">sin_ig_sq</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.sin_ig_sq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.type_cell">
+<em class="property">property </em><code class="sig-name descname">type_cell</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.type_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.volume">
+<em class="property">property </em><code class="sig-name descname">volume</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cell volume V in angstroms cubed.
+V = a b c [1 - cos^2^(alpha) - cos^2^(beta) - cos^2^(gamma)</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>2 cos(alpha) cos(beta) cos(gamma) ] ^1/2^</p></li>
+</ul>
+</div></blockquote>
+<p>The permitted range is 0.0 -&gt; infinity</p>
+<p><a href="#id16"><span class="problematic" id="id17">`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_volume.html`_</span></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">cryspy</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.html">CrysPy Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.html#corecif-classes">CoreCIF classes:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.html#symcif-classes">symCIF classes:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.html#magneticcif-classes">MagneticCIF classes:</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.html#additional-classes">Additional classes:</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Iurii KIBALIN.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/cryspy.corecif.cell.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
