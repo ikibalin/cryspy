@@ -2,7 +2,7 @@
 define classes Refln, ReflnL
 """
 __author__ = 'ikibalin'
-__version__ = "2019_12_05"
+__version__ = "2019_12_06"
 import os
 import numpy
 from pycifstar import Global
@@ -15,7 +15,7 @@ from cryspy.common.cl_loop_constr import LoopConstr
 
 class Refln(ItemConstr):
     """
-ReflnL
+Refln
 ==============
 Data items in the REFLN category record details about the
 reflections used to determine the ATOM_SITE data items.
@@ -68,7 +68,8 @@ the attribute 'sint/lambda'is replaced by 'sintlambda'
                           "phase_calc", "phase_meas", "refinement_status", "scale_group_code",
                           "sintlambda", "symmetry_epsilon", "symmetry_multiplicity", "wavelength", "wavelength_id")
     INTERNAL_ATTRIBUTE = ()
-    ACCESIBLE_ADP_TYPE = ()
+    ACCESIBLE_INCLUDE_STATUS = ("o", "<", "-", "x", "h", "r")
+    ACCESIBLE_REFINEMENT_STATUS = ("incl", "excl", "extn")
     PREFIX = "refln"
     def __init__(self, index_h=None, index_k=None, index_l=None, 
     a_calc=None, a_meas=None, b_calc=None, b_meas=None, class_code=None, crystal_id=None, d_spacing=None,
@@ -76,7 +77,10 @@ the attribute 'sint/lambda'is replaced by 'sintlambda'
     include_status=None, intensity_calc=None, intensity_meas=None, intensity_sigma=None, mean_path_length_tbar=None,
     phase_calc=None, phase_meas=None, refinement_status=None, scale_group_code=None,
     sintlambda=None, symmetry_epsilon=None, symmetry_multiplicity=None, wavelength=None, wavelength_id=None):
-        super(Refln, self).__init__()
+        super(Refln, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE,
+                                    optional_attribute=self.OPTIONAL_ATTRIBUTE, 
+                                    internal_attribute=self.INTERNAL_ATTRIBUTE,
+                                    prefix=self.PREFIX)
         self.index_h = index_h
         self.index_k = index_k
         self.index_l = index_l
@@ -446,6 +450,9 @@ Type: char
             x_in = None
         else:
             x_in = str(x)
+            if not(x_in in self.ACCESIBLE_INCLUDE_STATUS):
+                warnings.warn(f"include_status '{x_in:}' is not supported", UserWarning, stacklevel=2)
+                x_in = None            
         setattr(self, "__include_status", x_in)
     @property
     def intensity_calc(self):
@@ -581,7 +588,11 @@ Enumeration default: incl
             x_in = None
         else:
             x_in = str(x)
-        setattr(self, "__refinement_status", x_in)
+
+            if not(x_in in self.ACCESIBLE_REFINEMENT_STATUS):
+                warnings.warn(f"refinement_status '{x_in:}' is not supported", UserWarning, stacklevel=2)
+                x_in = None                    
+            setattr(self, "__refinement_status", x_in)
     @property
     def scale_group_code(self):
         """
@@ -589,16 +600,9 @@ Code identifying the structure-factor scale. This code must
    correspond to one of the _reflns_scale_group_code values.
 
 Examples:
+1, 2, 3, s1
+A, B, c1, c2, c3
 
-1	
-2	
-3	
-s1	
-A	
-B	
-c1	
-c2	
-c3	
 Appears in list containing _refln_index_
 
 Must match data name_reflns_scale_group_code
@@ -756,24 +760,8 @@ Description in cif file:
   _refln_d_spacing
   _refln_A_calc
   _refln_B_calc
-  _refln_chi_11_A_calc
-  _refln_chi_12_A_calc
-  _refln_chi_13_A_calc
-  _refln_chi_21_A_calc
-  _refln_chi_22_A_calc
-  _refln_chi_23_A_calc
-  _refln_chi_31_A_calc
-  _refln_chi_32_A_calc
-  _refln_chi_33_A_calc
-  _refln_chi_11_B_calc
-  _refln_chi_12_B_calc
-  _refln_chi_13_B_calc
-  _refln_chi_21_B_calc
-  _refln_chi_22_B_calc
-  _refln_chi_23_B_calc
-  _refln_chi_31_B_calc
-  _refln_chi_32_B_calc
-  _refln_chi_33_B_calc
+  0 0 2 2.315 3.25  1.232
+  2 2 0 4.213 5.00 -4.05
  
 Reference:
 `iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_

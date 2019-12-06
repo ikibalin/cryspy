@@ -1,11 +1,11 @@
 """
-define classes AtomSiteMagnetismAniso, AtomSiteMagnetismAnisoL
+define classes AtomSiteSusceptibility, AtomSiteSusceptibilityL
 
 
 moment:
 -------
 
-atom_site_magnetism_aniso_moment was added according to suggestion of Henrik Thoma <h.thoma@fz-juelich.de>:
+atom_site_susceptibility_moment was added according to suggestion of Henrik Thoma <h.thoma@fz-juelich.de>:
 
 Since a large number of orientations and magnetic fields measured for one compound in the weak ferromagnetic state, 
 it is introduced an additional weak ferromagnetic moment tensor to refine data. 
@@ -27,7 +27,7 @@ from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
 
-class AtomSiteMagnetismAniso(ItemConstr):
+class AtomSiteSusceptibility(ItemConstr):
     """
 Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.
@@ -36,20 +36,20 @@ Description in cif file:
 ------------------------------
 ::
  
- _atom_site_magnetism_aniso_label     Fe3A 
- _atom_site_magnetism_aniso_chi_type  Cani 
- _atom_site_magnetism_aniso_chi_11   -3.468(74) 
- _atom_site_magnetism_aniso_chi_22   -3.468(74) 
- _atom_site_magnetism_aniso_chi_33   -3.468(74) 
- _atom_site_magnetism_aniso_chi_12    0.0
- _atom_site_magnetism_aniso_chi_13    0.0
- _atom_site_magnetism_aniso_chi_23    0.0 
+ _atom_site_susceptibility_label     Fe3A 
+ _atom_site_susceptibility_chi_type  Cani 
+ _atom_site_susceptibility_chi_11   -3.468(74) 
+ _atom_site_susceptibility_chi_22   -3.468(74) 
+ _atom_site_susceptibility_chi_33   -3.468(74) 
+ _atom_site_susceptibility_chi_12    0.0
+ _atom_site_susceptibility_chi_13    0.0
+ _atom_site_susceptibility_chi_23    0.0 
     """    
     MANDATORY_ATTRIBUTE = ("label", )
     OPTIONAL_ATTRIBUTE = ("chi_type", "moment_type", "chi_11", "chi_22", "chi_33", "chi_12", "chi_13", "chi_23", 
                           "moment_11", "moment_22", "moment_33", "moment_12", "moment_13", "moment_23")
     INTERNAL_ATTRIBUTE = ()
-    PREFIX = "atom_site_magnetism_aniso"
+    PREFIX = "atom_site_susceptibility"
     ACCESIBLE_CHI_TYPE = ("Ciso", "Cani")
     ACCESIBLE_MOMENT_TYPE = ("Miso", "Mani")
     def __init__(self, label=None, chi_type=None, 
@@ -59,7 +59,7 @@ Description in cif file:
                  moment_11=None, moment_22=None, moment_33=None,
                  moment_12=None, moment_13=None, moment_23=None,
                  ):
-        super(AtomSiteMagnetismAniso, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
+        super(AtomSiteSusceptibility, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                                      optional_attribute=self.OPTIONAL_ATTRIBUTE, 
                                                      internal_attribute=self.INTERNAL_ATTRIBUTE,
                                                      prefix=self.PREFIX)
@@ -82,7 +82,7 @@ Description in cif file:
             self.form_object
         
     def __repr__(self):
-        ls_out = ["AtomSiteMagnetismAniso:"]
+        ls_out = ["AtomSiteSusceptibility:"]
         ls_out.append(str(self))
         return "\n".join(ls_out)
 
@@ -878,9 +878,9 @@ Type: float
 
 
 
-class AtomSiteMagnetismAnisoL(LoopConstr):
+class AtomSiteSusceptibilityL(LoopConstr):
     """
-AtomSiteMagnetismAnisoL
+AtomSiteSusceptibilityL
 ===========================
 
 Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
@@ -891,34 +891,34 @@ Description in cif file:
 :: 
 
  loop_  
- _atom_site_magnetism_aniso_label
- _atom_site_magnetism_aniso_chi_type
- _atom_site_magnetism_aniso_chi_11
- _atom_site_magnetism_aniso_chi_12
- _atom_site_magnetism_aniso_chi_13
- _atom_site_magnetism_aniso_chi_22
- _atom_site_magnetism_aniso_chi_23
- _atom_site_magnetism_aniso_chi_33
- _atom_site_magnetism_aniso_moment_type
- _atom_site_magnetism_aniso_moment_11
- _atom_site_magnetism_aniso_moment_12
- _atom_site_magnetism_aniso_moment_13
- _atom_site_magnetism_aniso_moment_22
- _atom_site_magnetism_aniso_moment_23
- _atom_site_magnetism_aniso_moment_33
+ _atom_site_susceptibility_label
+ _atom_site_susceptibility_chi_type
+ _atom_site_susceptibility_chi_11
+ _atom_site_susceptibility_chi_12
+ _atom_site_susceptibility_chi_13
+ _atom_site_susceptibility_chi_22
+ _atom_site_susceptibility_chi_23
+ _atom_site_susceptibility_chi_33
+ _atom_site_susceptibility_moment_type
+ _atom_site_susceptibility_moment_11
+ _atom_site_susceptibility_moment_12
+ _atom_site_susceptibility_moment_13
+ _atom_site_susceptibility_moment_22
+ _atom_site_susceptibility_moment_23
+ _atom_site_susceptibility_moment_33
   Fe3A Cani -3.468(74) 0.0 0.0 -3.468 0.0 -3.468 Mani 0. 0. 0. 0. 0. 0.
   Fe3B Cani 3.041      0.0 0.0  3.041 0.0  3.041 Mani 0. 0. 0. 0. 0. 0.
     
     """    
     CATEGORY_KEY = ("label", )
-    ITEM_CLASS = AtomSiteMagnetismAniso
+    ITEM_CLASS = AtomSiteSusceptibility
     def __init__(self, item=[], loop_name=""):
-        super(AtomSiteMagnetismAnisoL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+        super(AtomSiteSusceptibilityL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
         self.item = item
 
     def __repr__(self) -> str:
         ls_out = []
-        ls_out.append("AtomSiteMagnetismAnisoL: ")
+        ls_out.append("AtomSiteSusceptibilityL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 

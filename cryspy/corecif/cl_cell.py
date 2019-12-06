@@ -23,19 +23,21 @@ from cryspy.symcif.cl_space_group import SpaceGroup
 
 class Cell(ItemConstr):
     """
- Cell:
- ===========
- Data items in the Cell class record details about the
- crystallographic cell parameters and their measurement.
+Cell:
+=======
+Data items in the Cell class record details about the
+crystallographic cell parameters and their measurement.
 
- Description in cif file:
- -------------------------
-     _cell_length_a                     5.959(1)
-     _cell_length_b                     14.956(1)
-     _cell_length_c                     19.737(3)
-     _cell_angle_alpha                  90
-     _cell_angle_beta                   90
-     _cell_angle_gamma                  90
+Description in cif file:
+-------------------------
+::
+
+    _cell_length_a                     5.959(1)
+    _cell_length_b                     14.956(1)
+    _cell_length_c                     19.737(3)
+    _cell_angle_alpha                  90
+    _cell_angle_beta                   90
+    _cell_angle_gamma                  90
 
 FIXME:
 the following attributes are not introduced: 
@@ -56,9 +58,9 @@ measurement_wavelength, special_details.
     def __init__(self, length_a=None, length_b=None, length_c=None, angle_alpha=None, angle_beta=None, 
     angle_gamma=None, formula_units_z=None):
         super(Cell, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
-                                       optional_attribute=self.OPTIONAL_ATTRIBUTE, 
-                                       internal_attribute=self.INTERNAL_ATTRIBUTE,
-                                       prefix=self.PREFIX)
+                                   optional_attribute=self.OPTIONAL_ATTRIBUTE, 
+                                   internal_attribute=self.INTERNAL_ATTRIBUTE,
+                                   prefix=self.PREFIX)
         self.length_a = length_a
         self.length_b = length_b
         self.length_c = length_c
@@ -66,7 +68,6 @@ measurement_wavelength, special_details.
         self.angle_beta = angle_beta
         self.angle_gamma = angle_gamma
         self.formula_units_z = formula_units_z
-
 
         if self.is_defined:
             self.form_object
