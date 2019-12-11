@@ -1,0 +1,1493 @@
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2779, in text
+        block = self.state_machine.get_text_block(flush_left=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 416, in get_text_block
+        flush_left)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 1365, in get_text_block
+        offset + 1)
+    docutils.statemachine.UnexpectedIndentationError: (StringList(['.. cryspy documentation master file, created by'], items=[('C:/Users/yurik/Documents/GitHub/rhochi/docs_rst/index.rst', 1)]), 'C:/Users/yurik/Documents/GitHub/rhochi/docs_rst/index.rst', 3)
+    
+    During handling of the above exception, another exception occurred:
+    
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2783, in text
+        source=src, line=srcline)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2346, in explicit_markup
+        self.explicit_list(blank_finish)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2376, in explicit_list
+        match_titles=self.state_machine.match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 319, in nested_list_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2649, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2346, in explicit_markup
+        self.explicit_list(blank_finish)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2376, in explicit_list
+        match_titles=self.state_machine.match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 319, in nested_list_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2649, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 307, in next_line
+        self.line = self.input_lines[self.line_offset]
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 1152, in __getitem__
+        return self.data[i]
+    IndexError: list index out of range
+    
+    During handling of the above exception, another exception occurred:
+    
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 230, in run
+        self.next_line()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 310, in next_line
+        raise EOFError
+    EOFError
+    
+    During handling of the above exception, another exception occurred:
+    
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 1269, in bullet
+        i, blank_finish = self.list_item(match.end())
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 1292, in list_item
+        node=listitem)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 245, in run
+        result = state.eof(context)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2714, in eof
+        self.blank(None, context, None)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2706, in blank
+        context, self.state_machine.abs_line_number() - 1)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 418, in paragraph
+        textnodes, messages = self.inline_text(text, lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 428, in inline_text
+        self.memo, self.parent)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 647, in parse
+        lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 791, in interpreted_or_phrase_ref
+        lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 889, in interpreted
+        line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2771, in underline
+        self.section(title, source, style, lineno - 1, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 327, in section
+        self.new_subsection(title, lineno, messages)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 395, in new_subsection
+        node=section_node, match_titles=True)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 282, in nested_parse
+        node=node, match_titles=match_titles)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 196, in run
+        results = StateMachineWS.run(self, input_lines, input_offset)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+
+Exception occurred while parsing document:
+Traceback (most recent call last):
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\tab.py", line 228, in updatePreviewBox
+    self.converted = self.converterProcess.get_result()
+  File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 172, in get_result
+    raise ConversionError(result)
+ReText.converterprocess.ConversionError: The background markup conversion process received this exception:
+    Traceback (most recent call last):
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\ReText\converterprocess.py", line 77, in _converter_process_func
+        converted = current_markup.convert(job['text'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\markups\restructuredtext.py", line 51, in convert
+        writer_name='html5', settings_overrides=self.overrides)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 450, in publish_parts
+        enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 664, in publish_programmatically
+        output = pub.publish(enable_exit_status=enable_exit_status)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\core.py", line 217, in publish
+        self.settings)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 71, in read
+        self.parse()
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\readers\__init__.py", line 77, in parse
+        self.parser.parse(self.input, document)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\__init__.py", line 191, in parse
+        self.statemachine.run(inputlines, document, inliner=self.inliner)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 171, in run
+        input_source=document['source'])
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 239, in run
+        context, state, transitions)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\statemachine.py", line 460, in check_line
+        return method(match, context, next_state)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2344, in explicit_markup
+        nodelist, blank_finish = self.explicit_construct(match)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2356, in explicit_construct
+        return method(self, expmatch)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2101, in directive
+        return self.unknown_directive(type_name)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\parsers\rst\states.py", line 2284, in unknown_directive
+        nodes.literal_block(text, text), line=lineno)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 229, in error
+        return self.system_message(self.ERROR_LEVEL, *args, **kwargs)
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\__init__.py", line 193, in system_message
+        self.stream.write(msg.astext() + '\n')
+      File "C:\Users\yurik\AppData\Local\Programs\Python\Python37\lib\site-packages\docutils\utils\error_reporting.py", line 199, in write
+        self.stream.write(data)
+    AttributeError: 'NoneType' object has no attribute 'write'
+

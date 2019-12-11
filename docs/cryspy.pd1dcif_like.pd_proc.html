@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>PdProc &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Unofficial powder 2D dictionary" href="cryspy.pd2dcif_like.html" />
+    <link rel="prev" title="PdMeas" href="cryspy.pd1dcif_like.pd_meas.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd2dcif_like.html" title="Unofficial powder 2D dictionary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_meas.html" title="PdMeas"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" accesskey="U">Unofficial powder 1D dictionary</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.pd1dcif_like.cl_pd_proc">
+<span id="pdproc"></span><h1>PdProc<a class="headerlink" href="#module-cryspy.pd1dcif_like.cl_pd_proc" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_proc.</code><code class="sig-name descname">PdProc</code><span class="sig-paren">(</span><em class="sig-param">ttheta=None</em>, <em class="sig-param">ttheta_corrected=None</em>, <em class="sig-param">d_spacing=None</em>, <em class="sig-param">intensity_up_net=None</em>, <em class="sig-param">intensity_up_total=None</em>, <em class="sig-param">intensity_down_net=None</em>, <em class="sig-param">intensity_down_total=None</em>, <em class="sig-param">intensity_bkg_calc=None</em>, <em class="sig-param">intensity_net=None</em>, <em class="sig-param">intensity_total=None</em>, <em class="sig-param">intensity_up=None</em>, <em class="sig-param">intensity_up_sigma=None</em>, <em class="sig-param">intensity_down=None</em>, <em class="sig-param">intensity_down_sigma=None</em>, <em class="sig-param">intensity=None</em>, <em class="sig-param">intensity_sigma=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_proc.html#PdProc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>This section contains the diffraction data set after processing
+and application of correction terms. If the data set is
+reprocessed, this section may be replaced (with the addition of
+a new _pd_block_id entry).</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_proc_2theta</span>                   <span class="mf">4.00</span>
+<span class="n">_pd_proc_2theta_corrected</span>         <span class="mf">3.90</span>
+<span class="n">_pd_proc_d_spacing</span>               <span class="mf">11.20</span>
+<span class="n">_pd_proc_intensity_up_net</span>       <span class="mf">400.00</span>
+<span class="n">_pd_proc_intensity_down_net</span>     <span class="mf">317.00</span>
+<span class="n">_pd_proc_intensity_up_total</span>     <span class="mf">460.00</span>
+<span class="n">_pd_proc_intensity_down_total</span>   <span class="mf">377.00</span>
+<span class="n">_pd_proc_intensity_bkg_calc</span>      <span class="mf">60.00</span>
+<span class="n">_pd_proc_intensity_up</span>           <span class="mf">465.80</span>
+<span class="n">_pd_proc_intensity_up_sigma</span>     <span class="mf">128.97</span>
+<span class="n">_pd_proc_intensity_down</span>         <span class="mf">301.88</span>
+<span class="n">_pd_proc_intensity_down_sigma</span>   <span class="mf">129.30</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_proc.html">Reference.</a></p>
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('ttheta',)</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('ttheta_corrected', 'd_spacing', 'intensity_up_net', 'intensity_down_net', 'intensity_up_total', 'intensity_down_total', 'intensity_bkg_calc', 'intensity_net', 'intensity_total', 'intensity_up', 'intensity_up_sigma', 'intensity_down', 'intensity_down_sigma', 'intensity', 'intensity_sigma')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_proc'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.d_spacing">
+<em class="property">property </em><code class="sig-name descname">d_spacing</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.d_spacing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_proc.html#PdProc.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity">
+<em class="property">property </em><code class="sig-name descname">intensity</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_bkg_calc">
+<em class="property">property </em><code class="sig-name descname">intensity_bkg_calc</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_bkg_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down">
+<em class="property">property </em><code class="sig-name descname">intensity_down</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down_net">
+<em class="property">property </em><code class="sig-name descname">intensity_down_net</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down_net" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down_sigma">
+<em class="property">property </em><code class="sig-name descname">intensity_down_sigma</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down_sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down_total">
+<em class="property">property </em><code class="sig-name descname">intensity_down_total</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_down_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_net">
+<em class="property">property </em><code class="sig-name descname">intensity_net</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_net" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_sigma">
+<em class="property">property </em><code class="sig-name descname">intensity_sigma</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_total">
+<em class="property">property </em><code class="sig-name descname">intensity_total</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up">
+<em class="property">property </em><code class="sig-name descname">intensity_up</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up_net">
+<em class="property">property </em><code class="sig-name descname">intensity_up_net</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up_net" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up_sigma">
+<em class="property">property </em><code class="sig-name descname">intensity_up_sigma</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up_sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up_total">
+<em class="property">property </em><code class="sig-name descname">intensity_up_total</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.intensity_up_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.ttheta">
+<em class="property">property </em><code class="sig-name descname">ttheta</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProc.ttheta_corrected">
+<em class="property">property </em><code class="sig-name descname">ttheta_corrected</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc.ttheta_corrected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProcL">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_proc.</code><code class="sig-name descname">PdProcL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_proc.html#PdProcL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProcL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
+<p>This section contains the diffraction data set after processing
+and application of correction terms. If the data set is
+reprocessed, this section may be replaced (with the addition of
+a new _pd_block_id entry).</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+<span class="n">_pd_proc_ttheta</span>
+<span class="n">_pd_proc_ttheta_corrected</span>
+<span class="n">_pd_proc_d_spacing</span>
+<span class="n">_pd_proc_intensity_up_net</span>
+<span class="n">_pd_proc_intensity_down_net</span>
+<span class="n">_pd_proc_intensity_up_total</span>
+<span class="n">_pd_proc_intensity_down_total</span>
+<span class="n">_pd_proc_intensity_bkg_calc</span>
+<span class="n">_pd_proc_intensity_up</span>
+<span class="n">_pd_proc_intensity_up_sigma</span>
+<span class="n">_pd_proc_intensity_down</span>
+<span class="n">_pd_proc_intensity_down_sigma</span>
+ <span class="mf">4.00</span>  <span class="mf">3.9</span>  <span class="mf">11.2</span>   <span class="mf">400.00</span>   <span class="mf">317.00</span>   <span class="mf">460.00</span>   <span class="mf">377.00</span>   <span class="mf">60.00</span>    <span class="mf">465.80000</span>   <span class="mf">128.97000</span>   <span class="mf">301.88000</span>   <span class="mf">129.30000</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_proc.html">Reference.</a></p>
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProcL.CATEGORY_KEY">
+<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('ttheta',)</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProcL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_proc.PdProcL.ITEM_CLASS">
+<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProcL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#cryspy.pd1dcif_like.cl_pd_proc.PdProc" title="cryspy.pd1dcif_like.cl_pd_proc.PdProc"><code class="xref py py-class docutils literal notranslate"><span class="pre">PdProc</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.pd1dcif_like.pd_meas.html"
+                        title="previous chapter">PdMeas</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.pd2dcif_like.html"
+                        title="next chapter">Unofficial powder 2D dictionary</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.pd1dcif_like.pd_proc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd2dcif_like.html" title="Unofficial powder 2D dictionary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_meas.html" title="PdMeas"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" >Unofficial powder 1D dictionary</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Magnetic CIF Dictionary &#8212; cryspy 0.2.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -15,84 +15,95 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="next" title="AtomSiteMoment" href="cryspy.magneticcif.atom_site_moment.html" />
+    <link rel="prev" title="DiffrnOrientMatrix" href="cryspy.corecif.diffrn_orient_matrix.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
 
   </head><body>
-  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.magneticcif.atom_site_moment.html" title="AtomSiteMoment"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.diffrn_orient_matrix.html" title="DiffrnOrientMatrix"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" accesskey="U">The classes</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <span class="target" id="module-cryspy.magneticcif"></span><div class="section" id="magnetic-cif-dictionary">
-<h1>Magnetic CIF Dictionary<a class="headerlink" href="#magnetic-cif-dictionary" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-cryspy.magneticcif">
+<span id="magnetic-cif-dictionary"></span><h1>Magnetic CIF Dictionary<a class="headerlink" href="#module-cryspy.magneticcif" title="Permalink to this headline">¶</a></h1>
 <p>This is a not full realization of  the presentation of both commensurate
 and incommensurate magnetic structures given by the <a href="#id1"><span class="problematic" id="id2">`</span></a>International Union</p>
 <blockquote>
 <div><p>of Crystallography &lt;<a class="reference external" href="https://www.iucr.org/resources/cif/dictionaries/cif_mag">https://www.iucr.org/resources/cif/dictionaries/cif_mag</a>&gt;`_</p>
 </div></blockquote>
 <p>by B. Cambell, J.M. Perez-Mato, V. Petricek, J. Rodriguez-Carvajal and W. Sikora</p>
-<div class="section" id="it-includes-classes">
-<h2>It includes classes:<a class="headerlink" href="#it-includes-classes" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>AtomSiteMoment() - ATOM_SITE_MOMENT category</p></li>
-<li><p>AtomSiteMomentL() - looped ATOM_SITE_MOMENT category</p></li>
-<li><p>AtomTypeScat() - ATOM_TYPE_SCAT category</p></li>
-</ul>
-</div>
-<div class="section" id="and-additional-files">
-<h2>and additional files:<a class="headerlink" href="#and-additional-files" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>…</p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">AtomSiteMoment</dt>
+<dd class="field-odd"><p>ATOM_SITE_MOMENT category</p>
+</dd>
+<dt class="field-even">AtomSiteMomentL</dt>
+<dd class="field-even"><p>looped ATOM_SITE_MOMENT category</p>
+</dd>
+<dt class="field-odd">AtomTypeScat</dt>
+<dd class="field-odd"><p>ATOM_TYPE_SCAT category</p>
+</dd>
+</dl>
 <p>Use help function to get more detailed description about used classes:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">cryspy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">help</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">AtomTypeScat</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cryspy</span>
+<span class="n">help</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">AtomTypeScat</span><span class="p">)</span>
 </pre></div>
 </div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">For further information see:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.magneticcif.atom_site_moment.html">AtomSiteMoment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.magneticcif.atom_site_susceptibility.html">AtomSiteSusceptibility</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.magneticcif.atom_type_scat.html">AtomtypeScat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryspy.magneticcif.refln_susceptibility.html">ReflnSusceptibility</a></li>
+</ul>
 </div>
 </div>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">cryspy</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html">CrysPy Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#corecif-classes">CoreCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#symcif-classes">symCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#magneticcif-classes">MagneticCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#additional-classes">Additional classes:</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.corecif.diffrn_orient_matrix.html"
+                        title="previous chapter">DiffrnOrientMatrix</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.magneticcif.atom_site_moment.html"
+                        title="next chapter">AtomSiteMoment</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.magneticcif.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -103,32 +114,32 @@ and incommensurate magnetic structures given by the <a href="#id1"><span class="
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2019, Iurii KIBALIN.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/cryspy.magneticcif.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.magneticcif.atom_site_moment.html" title="AtomSiteMoment"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.diffrn_orient_matrix.html" title="DiffrnOrientMatrix"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
   </body>
 </html>

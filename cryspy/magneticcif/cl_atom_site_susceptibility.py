@@ -1,17 +1,10 @@
 """
-define classes AtomSiteSusceptibility, AtomSiteSusceptibilityL
-
-
-moment:
--------
-
 atom_site_susceptibility_moment was added according to suggestion of Henrik Thoma <h.thoma@fz-juelich.de>:
 
 Since a large number of orientations and magnetic fields measured for one compound in the weak ferromagnetic state, 
 it is introduced an additional weak ferromagnetic moment tensor to refine data. 
 
 atom_moment_i = (moment_ij + abs(field) * chi_ij) * field_j
-
 """
 
 __author__ = 'ikibalin'

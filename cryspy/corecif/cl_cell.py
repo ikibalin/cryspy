@@ -1,7 +1,3 @@
-"""
-define classes to describe Cell
-=================================
-"""
 __author__ = 'ikibalin'
 __version__ = "2019_12_03"
 import os
@@ -24,14 +20,10 @@ from cryspy.symcif.cl_space_group import SpaceGroup
 
 class Cell(ItemConstr):
     """
-Cell:
-=======
 Data items in the Cell class record details about the
 crystallographic cell parameters and their measurement.
 
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
     _cell_length_a                     5.959(1)
     _cell_length_b                     14.956(1)
@@ -40,11 +32,10 @@ Description in cif file:
     _cell_angle_beta                   90
     _cell_angle_gamma                  90
 
-FIXME:
-the following attributes are not introduced: 
-measurement_pressure, measurement_radiation, measurement_reflns_used,
-measurement_temperature, measurement_theta_max, measurement_theta_min, 
-measurement_wavelength, special_details.
+:FIXME: the following attributes are not introduced: 
+        measurement_pressure, measurement_radiation, measurement_reflns_used,
+        measurement_temperature, measurement_theta_max, measurement_theta_min, 
+        measurement_wavelength, special_details.
     """
     MANDATORY_ATTRIBUTE = ("length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma")
     OPTIONAL_ATTRIBUTE = ("reciprocal_length_a", "reciprocal_length_b", "reciprocal_length_c", 
@@ -78,11 +69,10 @@ measurement_wavelength, special_details.
         """
 Unit-cell lengths in angstroms corresponding to the structure
 reported. 
+
 The permitted range is 0.0 -> infinity
 
-Reference: 
------------
-`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_
+`Reference. https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_
         """
         return getattr(self, "__length_a")
     @length_a.setter
@@ -485,7 +475,7 @@ Reference:
     @property
     def is_variable(self):
         """
-        Output: True if there is any refined parameter
+Output: True if there is any refined parameter
         """
         res = any([self.length_a.refinement,
                    self.length_b.refinement,
@@ -497,7 +487,7 @@ Reference:
         
     def get_variables(self):
         """
-        Output: the list of the refined parameters
+Output: the list of the refined parameters
         """
         l_variable = []
         if self.length_a.refinement: l_variable.append(self.length_a)

@@ -1,6 +1,3 @@
-"""
-define classes Refln, ReflnL
-"""
 __author__ = 'ikibalin'
 __version__ = "2019_12_06"
 import os

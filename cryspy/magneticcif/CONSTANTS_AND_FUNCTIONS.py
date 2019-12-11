@@ -1,11 +1,7 @@
 """
-List of constants:
--------------------
+:Constants:
 
-
-List of functions:
--------------------
-
+:Functions:
 
 """
 import os

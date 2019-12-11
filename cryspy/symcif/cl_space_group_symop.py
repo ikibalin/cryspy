@@ -1,8 +1,3 @@
-"""
-Defines SpaceGroupSymop and SpaceGroupSymopL classes. 
-
-"""
-
 __author__ = 'ikibalin'
 __version__ = "2019_11_26"
 
@@ -18,40 +13,29 @@ import cryspy.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 
 class SpaceGroupSymop(ItemConstr):
     """
-SpaceGroupSymop
-=================
-
 Contains information about the symmetry operations of the
 space group.
 
-Description in cif file:
--------------------------
-_space_group_symop.id  1    
-_space_group_symop.operation_xyz   x,y,z              
-_space_group_symop.operation_description 'identity mapping'
+Description in cif file::
 
-Mandatory attributes:
------------
-- operation_xyz
+ _space_group_symop.id  1    
+ _space_group_symop.operation_xyz   x,y,z              
+ _space_group_symop.operation_description 'identity mapping'
 
-Optional attributes:
------------
-- id
-- operation_description
-- generator_xyz
-- sg_id
+:Mandatory attributes: - operation_xyz
 
-Internal attributes (only for reading):
- - r, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33 -- rotational matrix
- - b, b_1, b_2, b_3 -- translation vector
+:Optional attributes: - id
+                      - operation_description
+                      - generator_xyz
+                      - sg_id
+
+:Internal attributes: - r, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33 -- rotational matrix
+                      - b, b_1, b_2, b_3 -- translation vector
  
-Methods:
----------
-- get_symop_inversed(pcentr=numpy.zeros(3, dtype=float)) 
-- get_symops_by_centring_type(centring_type)
-- get_symops_by_generator_xyz(generator_xyz)
-- get_coords_xyz_by_coord_xyz(coord_xyz)
-
+:Methods: - get_symop_inversed(pcentr=numpy.zeros(3, dtype=float)) 
+          - get_symops_by_centring_type(centring_type)
+          - get_symops_by_generator_xyz(generator_xyz)
+          - get_coords_xyz_by_coord_xyz(coord_xyz)
 
     """
     MANDATORY_ATTRIBUTE = ("operation_xyz", )
@@ -97,23 +81,20 @@ defined by the fractions, an equivalent positionx is generated from
 a given position x by
 
 
-..math::
-x^{'} = Wx + w
+.. math::
+
+    x^{'} = W \\cdot x + w
 
 When a list of symmetry operations is given, it is assumed that the
 list contains all the operations of the space group (including the
 identity operation) as given by the representatives of the general
 position in International Tables for Crystallography Volume A.
 
-Reference:
-------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
 
-Example: 
------------
-'x,1/2-y,1/2+z'
+:Example: 'x,1/2-y,1/2+z'
         """
         return getattr(self, "__operation_xyz")
     @operation_xyz.setter
@@ -149,31 +130,31 @@ signs of x, y and z, and w is a column of translations defined by
 the fractions, an equivalent position x ? is generated from a given
 position x by
 
-..math::
-x^{'} = Wx + w
+.. math::
+    
+    x^{'} = W \\cdot x + w
 
 When a list of symmetry generators is given, it is assumed that the
 completelist of symmetryoperationsofthespacegroup(including
 the identity operation) can be generated through repeated multipli-
-cation of the generators, that is, (W 3 ,w 3 ) is an operation of the
-space group if (W 2 ,w 2 ) and (W 1 ,w 1 ) [where (W 1 ,w 1 ) is applied
+cation of the generators, that is, :math:`(W_{3}, w_{3})` is an operation of the
+space group if :math:`(W_{2}, w_{2})` and :math:`(W_{1}, w_{1})` 
+[where :math:`(W_{1}, w_{1})` is applied
 first] are either operations or generators and
 
-..math::
-W_{3} = W_{2} \times  W_{1},
+.. math::
 
-..math::
-w_{3} = W_{2} \times w_{1} + w_{2}
+    W_{3} = W_{2} \\cdot  W_{1},
 
-Reference:
--------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+.. math::
 
-Example: 
----------
-'x,1/2-y,1/2+z'
+    w_{3} = W_{2} \\cdot w_{1} + w_{2}
+
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
+
+:Example: 'x,1/2-y,1/2+z'
         """
         return getattr(self, "__generator_xyz")
     @generator_xyz.setter
@@ -321,54 +302,34 @@ be identified with a particular space group
 
 class SpaceGroupSymopL(LoopConstr):
     """
-SpaceGroupSymopL
-=================
-
 Contains information about the symmetry operations of the
 space group.
 
-Description in cif file:
--------------------------
+Description in cif file::
 
  loop_
-_space_group_symop.id
-_space_group_symop.operation_xyz
-_space_group_symop.operation_description
-  1    x,y,z              'identity mapping'
-  2    -x,-y,-z           'inversion'
-  3    -x,1/2+y,1/2-z
-              '2-fold screw rotation with axis in (0,y,1/4)'
-  4    x,1/2-y,1/2+z
-            'c glide reflection through the plane (x,1/4,y)'
+ _space_group_symop.id
+ _space_group_symop.operation_xyz
+ _space_group_symop.operation_description
+   1    x,y,z              'identity mapping'
+   2    -x,-y,-z           'inversion'
+   3    -x,1/2+y,1/2-z
+               '2-fold screw rotation with axis in (0,y,1/4)'
+   4    x,1/2-y,1/2+z
+             'c glide reflection through the plane (x,1/4,y)'
 
-Attributes:
------------
-- id
-- operation_xyz
-- operation_description
-- generator_xyz
+:Mandatory attributes: - id (category key, 1st)
+                       - operation_xyz
 
-
-Mandatory attribute: 
----------------------
- - id (category key, 1st)
- - operation_xyz
+:Optional attributes: - operation_description
+                      - generator_xyz
+                      - sg_id
 
 
-Optional attribute: 
----------------------
-- operation_description
-- generator_xyz
-- sg_id
+:Class methods: - create_by_generators_xyz
+                - get_coords_xyz_by_coord_xyz
 
-
-Class methods:
----------
-- create_by_generators_xyz
-- get_coords_xyz_by_coord_xyz
-
-
-reference: https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html
+`Reference. <https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html>`_
     """
     CATEGORY_KEY = ("id", )
     ITEM_CLASS = SpaceGroupSymop

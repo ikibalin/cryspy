@@ -1,7 +1,4 @@
 """
-Magnetic CIF Dictionary
-==============================
-
 This is a not full realization of  the presentation of both commensurate
 and incommensurate magnetic structures given by the `International Union
  of Crystallography <https://www.iucr.org/resources/cif/dictionaries/cif_mag>`_
@@ -9,22 +6,15 @@ and incommensurate magnetic structures given by the `International Union
 by B. Cambell, J.M. Perez-Mato, V. Petricek, J. Rodriguez-Carvajal and W. Sikora
 
 
-It includes classes:
-------------------------
+:AtomSiteMoment:  ATOM_SITE_MOMENT category
+:AtomSiteMomentL: looped ATOM_SITE_MOMENT category
+:AtomTypeScat:    ATOM_TYPE_SCAT category
 
-- AtomSiteMoment() - ATOM_SITE_MOMENT category
-- AtomSiteMomentL() - looped ATOM_SITE_MOMENT category
-- AtomTypeScat() - ATOM_TYPE_SCAT category
 
-and additional files:
---------------------------
+Use help function to get more detailed description about used classes::
 
-- ...
-
-Use help function to get more detailed description about used classes:
-
->>> import cryspy 
->>> help(cryspy.AtomTypeScat)
+    import cryspy 
+    help(cryspy.AtomTypeScat)
 
 """
 __version__ = '1.0.0'

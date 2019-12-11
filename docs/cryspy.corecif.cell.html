@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>define classes to describe Cell &#8212; cryspy 0.2.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <title>Cell &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -15,30 +15,51 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="next" title="AtomSite" href="cryspy.corecif.atom_site.html" />
+    <link rel="prev" title="Core dictionary (coreCIF)" href="cryspy.corecif.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
 
   </head><body>
-  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.atom_site.html" title="AtomSite"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.html" title="Core dictionary (coreCIF)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" accesskey="U">Core dictionary (coreCIF)</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <span class="target" id="module-cryspy.corecif.cl_cell"></span><div class="section" id="define-classes-to-describe-cell">
-<h1>define classes to describe Cell<a class="headerlink" href="#define-classes-to-describe-cell" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-cryspy.corecif.cl_cell">
+<span id="cell"></span><h1>Cell<a class="headerlink" href="#module-cryspy.corecif.cl_cell" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="cryspy.corecif.cl_cell.Cell">
 <em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_cell.</code><code class="sig-name descname">Cell</code><span class="sig-paren">(</span><em class="sig-param">length_a=None</em>, <em class="sig-param">length_b=None</em>, <em class="sig-param">length_c=None</em>, <em class="sig-param">angle_alpha=None</em>, <em class="sig-param">angle_beta=None</em>, <em class="sig-param">angle_gamma=None</em>, <em class="sig-param">formula_units_z=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Data items in the Cell class record details about the
 crystallographic cell parameters and their measurement.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_cell_length_a</span>                     <span class="mf">5.959</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">_cell_length_b</span>                     <span class="mf">14.956</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">_cell_length_c</span>                     <span class="mf">19.737</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
@@ -47,11 +68,14 @@ crystallographic cell parameters and their measurement.</p>
 <span class="n">_cell_angle_gamma</span>                  <span class="mi">90</span>
 </pre></div>
 </div>
-<p>FIXME:
-the following attributes are not introduced:
+<dl class="field-list simple">
+<dt class="field-odd">FIXME</dt>
+<dd class="field-odd"><p>the following attributes are not introduced:
 measurement_pressure, measurement_radiation, measurement_reflns_used,
 measurement_temperature, measurement_theta_max, measurement_theta_min,
 measurement_wavelength, special_details.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('m_b', 'm_ib', 'm_ib_norm', 'type_cell', 'cos_a', 'cos_b', 'cos_g', 'sin_a', 'sin_b', 'sin_g', 'cos_a_sq', 'cos_b_sq', 'cos_g_sq', 'sin_a_sq', 'sin_b_sq', 'sin_g_sq', 'cos_ia', 'cos_ib', 'cos_ig', 'sin_ia', 'sin_ib', 'sin_ig', 'cos_ia_sq', 'cos_ib_sq', 'cos_ig_sq', 'sin_ia_sq', 'sin_ib_sq', 'sin_ig_sq')</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
@@ -244,9 +268,9 @@ _chemical_formula_sum.</p>
 <dt id="cryspy.corecif.cl_cell.Cell.length_a">
 <em class="property">property </em><code class="sig-name descname">length_a</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.length_a" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unit-cell lengths in angstroms corresponding to the structure
-reported.
-The permitted range is 0.0 -&gt; infinity</p>
-<p><a href="#id10"><span class="problematic" id="id11">`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span></a></p>
+reported.</p>
+<p>The permitted range is 0.0 -&gt; infinity</p>
+<p><a href="#id10"><span class="problematic" id="id11">`Reference. https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span></a></p>
 </dd></dl>
 
 <dl class="method">
@@ -475,37 +499,23 @@ V = a b c [1 - cos^2^(alpha) - cos^2^(beta) - cos^2^(gamma)</p>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">cryspy</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html">CrysPy Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#corecif-classes">CoreCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#symcif-classes">symCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#magneticcif-classes">MagneticCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#additional-classes">Additional classes:</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.corecif.html"
+                        title="previous chapter">Core dictionary (coreCIF)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.corecif.atom_site.html"
+                        title="next chapter">AtomSite</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.corecif.cell.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -516,32 +526,33 @@ V = a b c [1 - cos^2^(alpha) - cos^2^(beta) - cos^2^(gamma)</p>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2019, Iurii KIBALIN.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/cryspy.corecif.cell.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.atom_site.html" title="AtomSite"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.html" title="Core dictionary (coreCIF)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" >Core dictionary (coreCIF)</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
   </body>
 </html>

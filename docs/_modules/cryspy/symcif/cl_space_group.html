@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <title>cryspy.symcif.cl_space_group &#8212; cryspy 0.2.0 documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -15,29 +15,35 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-   
-  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
 
   </head><body>
-  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for cryspy.symcif.cl_space_group</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">SpaceGroup class </span>
-<span class="sd">===========================</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_11_26&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -57,9 +63,6 @@
 
 <div class="viewcode-block" id="SpaceGroup"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.SpaceGroup">[docs]</a><span class="k">class</span> <span class="nc">SpaceGroup</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">SpaceGroup</span>
-<span class="sd">============</span>
-
 <span class="sd">Contains all the data items that refer to the space group as a</span>
 <span class="sd">whole, such as its name, Laue group etc. </span>
 
@@ -78,12 +81,11 @@
 <span class="sd">Hermann-Mauguin symbol contains information on the choice of</span>
 <span class="sd">the basis, but not on the choice of origin.</span>
 
-<span class="sd">Ref: International Tables for Crystallography (2002). Volume A,</span>
-<span class="sd">     Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
-<span class="sd">     Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Ref: International Tables for Crystallography (2002). Volume A,</span>
+<span class="sd">      Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">      Dordrecht: Kluwer Academic Publishers.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">---------------------------</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd">    _space_group.id                    1</span>
 <span class="sd">    _space_group.name_H-M_ref         &#39;C 2/c&#39;</span>
@@ -96,47 +98,35 @@
 <span class="sd">    _space_group.centring_type         C</span>
 <span class="sd">    _space_group.Patterson_name_H-M  &#39;C 2/m&#39;</span>
 
-<span class="sd">FIXME:: </span>
-<span class="sd">all labels with sign &#39;-&#39; does not read now. </span>
-<span class="sd">The sign &#39;-&#39; has to be suppressed.</span>
-<span class="sd">Example: &#39;_space_group.name_H-M_ref&#39; -&gt; &#39;_space_group.name_HM_ref&#39;</span>
+<span class="sd">:FIXME: all labels with sign &#39;-&#39; does not read now. </span>
+<span class="sd">        The sign &#39;-&#39; has to be suppressed.</span>
 
-<span class="sd">Mandatory attribute: </span>
-<span class="sd">---------------------</span>
-<span class="sd">- name_hm_alt</span>
+<span class="sd">        &#39;_space_group.name_H-M_ref&#39; -&gt; &#39;_space_group.name_HM_ref&#39;</span>
 
-<span class="sd">Optional attribute: </span>
-<span class="sd">---------------------</span>
-<span class="sd">- it_number</span>
-<span class="sd">- it_coordinate_system_code</span>
-<span class="sd">- id</span>
-<span class="sd">- bravais_type</span>
-<span class="sd">- laue_class</span>
-<span class="sd">- patterson_name_hm</span>
-<span class="sd">- centring_type</span>
-<span class="sd">- crystal_system</span>
-<span class="sd">- name_hm_alt_description</span>
-<span class="sd">- name_hm_full</span>
-<span class="sd">- name_hm_ref</span>
-<span class="sd">- name_hall</span>
-<span class="sd">- name_hall_schoenflies</span>
-<span class="sd">- point_group_hm</span>
-<span class="sd">- reference_setting</span>
-<span class="sd">- transform_pp_abc</span>
-<span class="sd">- transform_qq_xyz</span>
+<span class="sd">:Mandatory attribute: no</span>
 
-<span class="sd">Class methods:</span>
-<span class="sd">-----------------</span>
-<span class="sd">- </span>
+<span class="sd">:Optional attribute: - name_hm_alt</span>
+<span class="sd">                     - it_number</span>
+<span class="sd">                     - it_coordinate_system_code</span>
+<span class="sd">                     - id</span>
+<span class="sd">                     - bravais_type</span>
+<span class="sd">                     - laue_class</span>
+<span class="sd">                     - patterson_name_hm</span>
+<span class="sd">                     - centring_type</span>
+<span class="sd">                     - crystal_system</span>
+<span class="sd">                     - name_hm_alt_description</span>
+<span class="sd">                     - name_hm_full</span>
+<span class="sd">                     - name_hm_ref</span>
+<span class="sd">                     - name_hall</span>
+<span class="sd">                     - name_hall_schoenflies</span>
+<span class="sd">                     - point_group_hm</span>
+<span class="sd">                     - reference_setting</span>
+<span class="sd">                     - transform_pp_abc</span>
+<span class="sd">                     - transform_qq_xyz</span>
 
+<span class="sd">:Methods: get_symop</span>
 
-<span class="sd">Methods:</span>
-<span class="sd">---------</span>
-<span class="sd">- get_symop</span>
-
-
-<span class="sd">Reference:</span>
-<span class="sd">`the page &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html&gt;`_</span>
+<span class="sd">`Reference &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_alt&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_alt_description&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_full&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_ref&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hall&quot;</span><span class="p">,</span> <span class="s2">&quot;name_schoenflies&quot;</span><span class="p">,</span>
@@ -218,11 +208,9 @@
 <span class="sd">setting to the reference setting defined in this dictionary under</span>
 <span class="sd">_space_group.reference_setting.</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-----------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
-<span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
 
 <span class="sd">(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_ALT)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -248,11 +236,9 @@
 <span class="sd">number defines the space-group type but not the coordinate system</span>
 <span class="sd">in which it is expressed.</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-----------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
-<span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
 
 <span class="sd">The permitted range is (1,230)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -280,18 +266,16 @@
 
 <span class="sd">Use _space_group.transform_ * instead.</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-----------------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
-<span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
 
 <span class="sd">The data value must be one of the following:</span>
 
-<span class="sd">b1, b2, b3, -b1, -b2, -b3, c1, c2, c3, </span>
-<span class="sd">-c1, -c2, -c3, a1, a2, a3, -a1, -a2, -a3, </span>
-<span class="sd">abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb, </span>
-<span class="sd">2abc, 2ba-c, 2cab, 2-cba, 2bca, 2a-cb, 1, 2, h, r, </span>
+<span class="sd">   b1, b2, b3, -b1, -b2, -b3, c1, c2, c3, </span>
+<span class="sd">   -c1, -c2, -c3, a1, a2, a3, -a1, -a2, -a3, </span>
+<span class="sd">   abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb, </span>
+<span class="sd">   2abc, 2ba-c, 2cab, 2-cba, 2bca, 2a-cb, 1, 2, h, r, </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_coordinate_system_code&quot;</span><span class="p">)</span>
     <span class="nd">@it_coordinate_system_code</span><span class="o">.</span><span class="n">setter</span>
@@ -309,8 +293,8 @@
     <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This is an identifier needed if _space_group .* items are looped.</span>
-<span class="sd">TODO::</span>
-<span class="sd">looped _space_group is not introduced</span>
+
+<span class="sd">:TODO: looped _space_group is not introduced</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__id&quot;</span><span class="p">)</span>
     <span class="nd">@id</span><span class="o">.</span><span class="n">setter</span>
@@ -333,20 +317,18 @@
 <span class="sd">symbols mB and mC, and the setting-independent symbol oS</span>
 <span class="sd">replaces the setting-dependent symbols oA, oB and oC.</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">---------------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,</span>
-<span class="sd">p. 15. Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,</span>
+<span class="sd">            p. 15. Dordrecht: Kluwer Academic Publishers.</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">-----------------------------------------------</span>
-<span class="sd">aP</span>
-<span class="sd">mP mS</span>
-<span class="sd">oP oS oI oF</span>
-<span class="sd">tP tI</span>
-<span class="sd">hP hR</span>
-<span class="sd">cP cI cF</span>
+
+<span class="sd">    aP</span>
+<span class="sd">    mP mS</span>
+<span class="sd">    oP oS oI oF</span>
+<span class="sd">    tP tI</span>
+<span class="sd">    hP hR</span>
+<span class="sd">    cP cI cF</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__bravais_type&quot;</span><span class="p">)</span>
     <span class="nd">@bravais_type</span><span class="o">.</span><span class="n">setter</span>
@@ -369,8 +351,9 @@
 <span class="sd">added if not already present.</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">-1, 2/m, mmm, 4/m, 4/mmm, </span>
-<span class="sd">-3, -3m, 6/m, 6/mmm, m-3, m-3m</span>
+
+<span class="sd">    -1, 2/m, mmm, 4/m, 4/mmm, </span>
+<span class="sd">    -3, -3m, 6/m, 6/mmm, m-3, m-3m</span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__laue_class&quot;</span><span class="p">)</span>
     <span class="nd">@laue_class</span><span class="o">.</span><span class="n">setter</span>
@@ -396,18 +379,14 @@
 <span class="sd">Bars should be given as negative signs before the number to which</span>
 <span class="sd">they apply.</span>
 
-<span class="sd">Reference:</span>
-<span class="sd">------------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,</span>
-<span class="sd">Table 2.2.5.1. Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,</span>
+<span class="sd">            Table 2.2.5.1. Dordrecht: Kluwer Academic Publishers.</span>
 
-<span class="sd">Examples:</span>
-<span class="sd">----------</span>
-<span class="sd">‘P -1’, ‘P 2/m’, ‘C 2/m’, ‘P m m m’, ‘C m m m’, ‘I m m m’, ‘F m m m’,</span>
-<span class="sd">‘P 4/m’, ‘I 4/m’, ‘P 4/m m m’, ‘I 4/m m m’, ‘P -3’, ‘R -3’, ‘P -3 m 1’,</span>
-<span class="sd">‘R -3 m’, ‘P -3 1 m’, ‘P 6/m’, ‘P 6/m m m’, ‘P m -3’, ‘I m -3’, ‘F m -3’,</span>
-<span class="sd">‘P m -3 m’, ‘I m -3 m’, ‘F m -3 m’.</span>
+<span class="sd">:Examples: ‘P -1’, ‘P 2/m’, ‘C 2/m’, ‘P m m m’, ‘C m m m’, ‘I m m m’, ‘F m m m’,</span>
+<span class="sd">           ‘P 4/m’, ‘I 4/m’, ‘P 4/m m m’, ‘I 4/m m m’, ‘P -3’, ‘R -3’, ‘P -3 m 1’,</span>
+<span class="sd">           ‘R -3 m’, ‘P -3 1 m’, ‘P 6/m’, ‘P 6/m m m’, ‘P m -3’, ‘I m -3’, ‘F m -3’,</span>
+<span class="sd">           ‘P m -3 m’, ‘I m -3 m’, ‘F m -3 m’.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__patterson_name_hm&quot;</span><span class="p">)</span>
     <span class="nd">@patterson_name_hm</span><span class="o">.</span><span class="n">setter</span>
@@ -425,7 +404,7 @@
 <span class="sd">the coordinate system chosen.</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">------------------------------------------------</span>
+
 <span class="sd">    :&quot;P&quot;: primitive no centring</span>
 <span class="sd">    :&quot;A&quot;: A-face centred (0, 1/2, 1/2)</span>
 <span class="sd">    :&quot;B&quot;: B-face centred (1/2, 0, 1/2)</span>
@@ -456,9 +435,9 @@
 <span class="sd">that crystals with the hR lattice type belong to the trigonal system.</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">------------------------------------------------</span>
-<span class="sd">triclinic, monoclinic, orthorhombic, </span>
-<span class="sd">tetragonal, trigonal, hexagonal, cubic   </span>
+
+<span class="sd">    triclinic, monoclinic, orthorhombic, </span>
+<span class="sd">    tetragonal, trigonal, hexagonal, cubic   </span>
 <span class="sd">    &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__crystal_system&quot;</span><span class="p">)</span>
     <span class="nd">@crystal_system</span><span class="o">.</span><span class="n">setter</span>
@@ -515,14 +494,7 @@
 <span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
 <span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
 
-<span class="sd">Related items: </span>
-<span class="sd">------------------</span>
-<span class="sd">_space_group.name_H-M_ref (alternate),</span>
-<span class="sd">_space_group.name_H-M_alt (alternate) .</span>
-
-<span class="sd">Example: </span>
-<span class="sd">-----------------</span>
-<span class="sd">‘P 21/n 21/m 21/a’ (full symbol for Pnma)</span>
+<span class="sd">:Example: ‘P 21/n 21/m 21/a’ (full symbol for Pnma)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_full&quot;</span><span class="p">)</span>
     <span class="nd">@name_hm_full</span><span class="o">.</span><span class="n">setter</span>
@@ -560,16 +532,14 @@
 <span class="sd">ation list below, each possible value is identified by space-group</span>
 <span class="sd">number and Schoenflies symbol.</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">------------------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
-<span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">-------------------------------------------------</span>
-<span class="sd">’P 1’, ’P 2’, ...</span>
-<span class="sd">(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_REF)</span>
+
+<span class="sd">    ’P 1’, ’P 2’, ...</span>
+<span class="sd">    (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_REF)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_ref&quot;</span><span class="p">)</span>
@@ -594,16 +564,13 @@
 <span class="sd">space is strongly recommended. The underscore is only retained</span>
 <span class="sd">because it was used in old CIFs. It should not be used in new CIFs.</span>
 
-<span class="sd">References:</span>
-<span class="sd">--------------</span>
-<span class="sd">Hall, S. R. (1981). Acta Cryst. A37, 517–525; erra-</span>
-<span class="sd">tum (1981), A37, 921. International Tables for Crystallography</span>
-<span class="sd">(2001). Volume B, Reciprocal space, edited by U. Shmueli, 2nd</span>
-<span class="sd">ed., Appendix 1.4.2. Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:References: Hall, S. R. (1981). Acta Cryst. A37, 517–525; erra-</span>
+<span class="sd">             tum (1981), A37, 921. International Tables for Crystallography</span>
+<span class="sd">             (2001). Volume B, Reciprocal space, edited by U. Shmueli, 2nd</span>
+<span class="sd">             ed., Appendix 1.4.2. Dordrecht: Kluwer Academic Publishers.</span>
 
-<span class="sd">Examples: </span>
-<span class="sd">‘P 2c -2ac’, ‘-I 4bd 2ab 3’, ...</span>
-<span class="sd">(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HALL)</span>
+<span class="sd">:Examples: ‘P 2c -2ac’, ‘-I 4bd 2ab 3’, ...</span>
+<span class="sd">            (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HALL)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hall&quot;</span><span class="p">)</span>
@@ -629,16 +596,14 @@
 <span class="sd">the space group is expressed. The symbol is given with a period,</span>
 <span class="sd">‘.’, separating the Schoenflies point group and the superscript.</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-----------------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
-<span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">------------------------------------------------</span>
-<span class="sd">C1.1, Ci.1, ...</span>
-<span class="sd">(full tuple stored in SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES)</span>
+
+<span class="sd">    C1.1, Ci.1, ...</span>
+<span class="sd">    (full tuple stored in SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_schoenflies&quot;</span><span class="p">)</span>
     <span class="nd">@name_schoenflies</span><span class="o">.</span><span class="n">setter</span>
@@ -660,9 +625,7 @@
 <span class="sd">geometric crystal class of point groups to which the point group of</span>
 <span class="sd">the space group belongs.</span>
 
-<span class="sd">Examples: </span>
-<span class="sd">---------------</span>
-<span class="sd">‘-4’, ‘4/m’. </span>
+<span class="sd">:Examples: ‘-4’, ‘4/m’. </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__point_group_hm&quot;</span><span class="p">)</span>
     <span class="nd">@point_group_hm</span><span class="o">.</span><span class="n">setter</span>
@@ -703,18 +666,17 @@
 <span class="sd">fied by Schoenfliessymbol and by the Hermann–Mauguinsymbol,</span>
 <span class="sd">augmented by :2 or :h suffixes as described above.</span>
 
-<span class="sd">References: </span>
-<span class="sd">----------------------------</span>
-<span class="sd">International Tables for Crystallography (2002).</span>
-<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th</span>
-<span class="sd">ed. Dordrecht: Kluwer Academic Publishers. Grosse-Kunstleve,</span>
-<span class="sd">R. W. (2001). Xtal System of Crystallographic Programs, Sys-</span>
-<span class="sd">tem Documentation. http://xtal.crystal.uwa.edu.au/man/xtal3.7-</span>
-<span class="sd">228.html (or follow links to D</span>
+<span class="sd">:References: International Tables for Crystallography (2002).</span>
+<span class="sd">             Volume A, Space-group symmetry, edited by Th. Hahn, 5th</span>
+<span class="sd">             ed. Dordrecht: Kluwer Academic Publishers. Grosse-Kunstleve,</span>
+<span class="sd">             R. W. (2001). Xtal System of Crystallographic Programs, Sys-</span>
+<span class="sd">             tem Documentation. http://xtal.crystal.uwa.edu.au/man/xtal3.7-</span>
+<span class="sd">             228.html (or follow links to D</span>
 
 <span class="sd">The data value must be one of the following:</span>
-<span class="sd">’001:P 1’, ’002:-P 1’, ... </span>
-<span class="sd">(full tuple stored in SpaceGroup.ACCESIBLE_REFERENCE_SETTING)</span>
+
+<span class="sd">    ’001:P 1’, ’002:-P 1’, ... </span>
+<span class="sd">    (full tuple stored in SpaceGroup.ACCESIBLE_REFERENCE_SETTING)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reference_setting&quot;</span><span class="p">)</span>
     <span class="nd">@reference_setting</span><span class="o">.</span><span class="n">setter</span>
@@ -738,25 +700,29 @@
 <span class="sd">matrix P combined with the origin shift vector p in the expression</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> (a&#39;, b&#39;, c&#39;) = (a, b, c) P + p.</span>
+
+<span class="sd">   (a&#39;, b&#39;, c&#39;) = (a, b, c) P + p.</span>
 
 <span class="sd">P is a post-multiplication matrix of a row (a,b,c) of column vec-</span>
 <span class="sd">tors. It is related to the inverse transformation (Q,q) by</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> P = Q^{−1},</span>
+
+<span class="sd">   P = Q^{−1},</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> p = Pq = − (Q^{−1}) q.</span>
+
+<span class="sd">   p = Pq = − (Q^{−1}) q.</span>
 
 <span class="sd">These transformations are applied as follows: atomic coordi-</span>
-<span class="sd">nates (x&#39;, y&#39;, z&#39;) = Q (x,y,z) + q, Miller indices </span>
-<span class="sd">(h&#39;, k&#39;, l&#39;) = (h, k, l) P, </span>
+<span class="sd">nates :math:`(x&#39;, y&#39;, z&#39;) = Q (x,y,z) + q`, Miller indices </span>
+<span class="sd">:math:`(h&#39;, k&#39;, l&#39;) = (h, k, l) P`, </span>
 <span class="sd">symmetry operations</span>
-<span class="sd">W&#39; = (Q,q) W (P,p), basis vectors</span>
+<span class="sd">:math:`W&#39; = (Q,q) W (P,p)`, basis vectors</span>
 
-<span class="sd">..math::</span>
-<span class="sd">(a&#39;, b&#39;, c&#39;) = (a,b,c) P + p.</span>
+<span class="sd">.. math::</span>
+
+<span class="sd">   (a&#39;, b&#39;, c&#39;) = (a,b,c) P + p.</span>
 
 <span class="sd">This item is given as a character string involving the characters</span>
 <span class="sd">a, b and c with commas separating the expressions for the a&#39;, b&#39;</span>
@@ -764,11 +730,9 @@
 <span class="sd">tions or real numbers. Multiplication is implicit, division must be</span>
 <span class="sd">explicit. White space within the string is optional.</span>
 
-<span class="sd">Examples: </span>
-<span class="sd">---------------</span>
-<span class="sd">‘-b+c, a+c, -a+b+c’ (R3:r to R3:h), </span>
-<span class="sd">‘a-1/4, b-1/4, c-1/4’ (Pnnn:1 to Pnnn:2), </span>
-<span class="sd">‘b-1/2, c-1/2, a-1/2’ (Bbab:1 toCcca:2). </span>
+<span class="sd">:Examples: - ‘-b+c, a+c, -a+b+c’ (R3:r to R3:h), </span>
+<span class="sd">           - ‘a-1/4, b-1/4, c-1/4’ (Pnnn:1 to Pnnn:2), </span>
+<span class="sd">           - ‘b-1/2, c-1/2, a-1/2’ (Bbab:1 toCcca:2). </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__transform_pp_abc&quot;</span><span class="p">)</span>
     <span class="nd">@transform_pp_abc</span><span class="o">.</span><span class="n">setter</span>
@@ -791,38 +755,41 @@
 <span class="sd">gin shift vector q in the expression</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> (x&#39;, y&#39;, z&#39;) = Q(x,y,z) + q.</span>
+<span class="sd">  </span>
+<span class="sd">   (x&#39;, y&#39;, z&#39;) = Q(x,y,z) + q.</span>
 
 <span class="sd">Q is a pre-multiplication matrix of the column vector (x,y,z). It is</span>
 <span class="sd">related to the inverse transformation (P,p) by</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> P = Q^{−1} ,</span>
+<span class="sd">   </span>
+<span class="sd">   P = Q^{−1} ,</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> p = Pq = − (Q^{−1}) q,</span>
+<span class="sd">   </span>
+<span class="sd">   p = Pq = − (Q^{−1}) q,</span>
 
 <span class="sd">where the P and Q transformations are applied as follows: atomic</span>
-<span class="sd">coordinates (x&#39;, y&#39;, z&#39;) = Q(x,y,z)+q, Miller indices </span>
-<span class="sd">(h&#39;, k&#39;, l&#39;) = (h,k,l)P, </span>
+<span class="sd">coordinates :math:`(x&#39;, y&#39;, z&#39;) = Q(x,y,z)+q`, Miller indices </span>
+<span class="sd">:math:`(h&#39;, k&#39;, l&#39;) = (h,k,l)P`, </span>
 <span class="sd">symmetry operations </span>
-<span class="sd">W&#39; = (Q, q) W (P, p), </span>
+<span class="sd">:math:`W&#39; = (Q, q) W (P, p)`, </span>
 <span class="sd">basis vectors</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> (a&#39;, b&#39;, c&#39;) = (a, b, c) P + p.</span>
+
+<span class="sd">   (a&#39;, b&#39;, c&#39;) = (a, b, c) P + p.</span>
 
 <span class="sd">This item is given as a character string involving the characters</span>
-<span class="sd">x, y and z with commas separating the expressions for the x&#39;, y&#39;</span>
-<span class="sd">and z&#39; components. The numeric values may be given as integers,</span>
+<span class="sd">math:`x`, :math:`y` and :math:`z` with commas separating the expressions </span>
+<span class="sd">for the :math:`x&#39;`, :math:`y&#39;`</span>
+<span class="sd">and :math:`z&#39;` components. The numeric values may be given as integers,</span>
 <span class="sd">fractions or real numbers. Multiplication is implicit, division must</span>
 <span class="sd">be explicit. White space within the string is optional.</span>
 
-<span class="sd">Examples: </span>
-<span class="sd">-------------</span>
-<span class="sd">‘-x/3+2y/3-z/3, -2x/3+y/3+z/3, x/3+y/3+z/3’ (R3:r to R3:h),</span>
-<span class="sd">‘x+1/4,y+1/4,z+1/4’ (Pnnn:1 to Pnnn:2), </span>
-<span class="sd">‘z+1/2,x+1/2,y+1/2’ (Bbab:1 to Ccca:2).</span>
+<span class="sd">:Examples: - ‘-x/3+2y/3-z/3, -2x/3+y/3+z/3, x/3+y/3+z/3’ (R3:r to R3:h),</span>
+<span class="sd">           - ‘x+1/4,y+1/4,z+1/4’ (Pnnn:1 to Pnnn:2), </span>
+<span class="sd">           - ‘z+1/2,x+1/2,y+1/2’ (Bbab:1 to Ccca:2).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__transform_qq_xyz&quot;</span><span class="p">)</span>
     <span class="nd">@transform_qq_xyz</span><span class="o">.</span><span class="n">setter</span>
@@ -1088,17 +1055,16 @@
 
 <div class="viewcode-block" id="SpaceGroup.calc_asymmetric_cell"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.SpaceGroup.calc_asymmetric_cell">[docs]</a>    <span class="k">def</span> <span class="nf">calc_asymmetric_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_a</span><span class="p">,</span> <span class="n">n_b</span><span class="p">,</span> <span class="n">n_c</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        give the numbers in asymmetric cell</span>
+<span class="sd">give the numbers in asymmetric cell</span>
 
-<span class="sd">        n_a is the number of points along a axis</span>
-<span class="sd">        n_b is the numper of points along b axis</span>
-<span class="sd">        n_c is the numper of points along c axis</span>
+<span class="sd"> :n_a: the number of points along a axis</span>
+<span class="sd"> :n_b: the numper of points along b axis</span>
+<span class="sd"> :n_c: the numper of points along c axis</span>
 
-<span class="sd">        na, n_b, nc should be divided on 24: 8 and 3</span>
+<span class="sd">na, n_b, nc should be divided on 24: 8 and 3</span>
 
-<span class="sd">        output: </span>
-<span class="sd">        l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)</span>
-<span class="sd">        l_symm contains a list of symmetry given as (n_symm, centr, n_orig)</span>
+<span class="sd">:output: - l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)</span>
+<span class="sd">         - l_symm contains a list of symmetry given as (n_symm, centr, n_orig)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">n_a_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n_a</span><span class="o">/</span><span class="mi">24</span><span class="p">))</span><span class="o">*</span><span class="mi">24</span>
@@ -1168,39 +1134,10 @@
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../index.html">cryspy</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html">CrysPy Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#corecif-classes">CoreCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#symcif-classes">symCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#magneticcif-classes">MagneticCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#additional-classes">Additional classes:</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -1211,29 +1148,26 @@
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2019, Iurii KIBALIN.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
   </body>
 </html>

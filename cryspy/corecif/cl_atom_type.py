@@ -1,7 +1,3 @@
-"""
-define classes AtomType, AtomTypeL
-"""
-
 __author__ = 'ikibalin'
 __version__ = "2019_12_05"
 import os
@@ -18,8 +14,7 @@ from cryspy.common.cl_fitable import Fitable
 
 class AtomType(ItemConstr):
     """
-AtomType
-============
+
 Data items in the ATOM_TYPE category record details about
 properties of the atoms that occupy the atom sites, such as the
 atomic scattering factors.
@@ -34,11 +29,9 @@ Description in cif file:
  _atom_type_scat_dispersion_imag    0.009
  _atom_type_scat_source             International_Tables_Vol_IV_Table_2.2B
 
-Reference: 
---------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_type.html>`_
-FIXME:
-replace attribute 'analytical_mass' by 'analytical_mass_%' as in CoreCIF
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_type.html>`_
+
+:FIXME: replace attribute 'analytical_mass' by 'analytical_mass_%' as in CoreCIF
     """
     MANDATORY_ATTRIBUTE = ("symbol")
     OPTIONAL_ATTRIBUTE = ("analytical_mass", "description", "number_in_cell", "oxidation_number", "radius_bond", "radius_contact", 
@@ -101,15 +94,11 @@ symbol. The code may be composed of any character except an
 underscore with the additional proviso that digits designate an
 oxidation state and must be followed by a + or - character.
 
-Examples:
--------------
-C, Cu2+, H(SDS), dummy, FeNi 
+:Examples: C, Cu2+, H(SDS), dummy, FeNi 
 
-Type: char
+:Type: char
 
-Reference:
--------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_type_symbol.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_type_symbol.html>`_
         """
         return getattr(self, "__symbol")
     @symbol.setter
@@ -147,19 +136,11 @@ most cases, this will be the element name and oxidation state of
 a single atom  species. For disordered or nonstoichiometric
 structures it will describe a combination of atom species.
 
-
-Examples:
-
-deuterium 
-
-0.34Fe+0.66Ni 
-
 Appears in list containing _atom_type_symbol 
-Type: char
 
-Reference:
--------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_type_description.html>`_
+:Type: char
+
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_type_description.html>`_
         """
         return getattr(self, "__description")
     @description.setter
@@ -177,11 +158,11 @@ Reference:
         """
 Total number of atoms of this atom type in the unit cell.
 
-
 Appears in list containing _atom_type_symbol 
+
 The permitted range is 0 -> infinity 
 
-Type: numb
+:Type: numb
         """
         return getattr(self, "__number_in_cell")
     @number_in_cell.setter
@@ -199,11 +180,11 @@ Type: numb
 Formal oxidation state of this atom type in the structure.
 
 Appears in list containing _atom_type_symbol 
+
 The permitted range is -8 -> 8 
 
-Enumeration default: 0 
-
-Type: numb
+:Default: 0 
+:Type: numb
         """
         return getattr(self, "__oxidation_number")
     @oxidation_number.setter
@@ -219,13 +200,13 @@ Type: numb
     def radius_bond(self):
         """
 The effective intra- and intermolecular bonding radii in
-   angstroms of this atom type.
+angstroms of this atom type.
 
 Appears in list containing _atom_type_symbol 
 
 The permitted range is 0.0 -> 5.0 
 
-Type: numb
+:Type: numb
         """
         return getattr(self, "__radius_bond")
     @radius_bond.setter
@@ -240,15 +221,14 @@ Type: numb
     @property
     def radius_contact(self):
         """
-The effective intra- and intermolecular bonding radii in
-   angstroms of this atom type.
+The effective intra- and intermolecular bonding radii in 
+angstroms of this atom type.
 
 Appears in list containing _atom_type_symbol 
+
 The permitted range is 0.0 -> 5.0 
 
-Type: numb
-
-Category: atom_type
+:Type: numb
         """
         return getattr(self, "__radius_contact")
     @radius_contact.setter
@@ -266,13 +246,14 @@ Category: atom_type
 The Cromer-Mann scattering-factor coefficients used to calculate
 the scattering factors for this atom type.
 
-Ref: International Tables for X-ray Crystallography (1974). 
-     Vol. IV, Table 2.2B
-or   International Tables for Crystallography (2004). Vol. C,
-     Tables 6.1.1.4 and 6.1.1.5
+:Ref: International Tables for X-ray Crystallography (1974). 
+      Vol. IV, Table 2.2B;
+      International Tables for Crystallography (2004). Vol. C,
+      Tables 6.1.1.4 and 6.1.1.5
 
 Appears in list containing _atom_type_symbol 
-Type: numb
+
+:Type: numb
         """
         return getattr(self, "__cromer_mann_a1")
     @cromer_mann_a1.setter
@@ -408,10 +389,11 @@ The imaginary and real components of the anomalous-dispersion
 scattering factor, f'' and f', in electrons for this atom type
 and the radiation given in _diffrn_radiation_wavelength.
 
-
 Appears in list containing _atom_type_symbol 
-Enumeration default: 0.0 
-Type: numb
+
+:Default: 0.0 
+
+:Type: numb
         """
         return getattr(self, "__scat_dispersion_real")
     @scat_dispersion_real.setter
@@ -430,10 +412,11 @@ The imaginary and real components of the anomalous-dispersion
 scattering factor, f'' and f', in electrons for this atom type
 and the radiation given in _diffrn_radiation_wavelength.
 
-
 Appears in list containing _atom_type_symbol 
-Enumeration default: 0.0 
-Type: numb
+
+:Default: 0.0 
+
+:Type: numb
         """
         return getattr(self, "__scat_dispersion_imag")
     @scat_dispersion_imag.setter
@@ -451,11 +434,11 @@ Type: numb
 Reference to source of real and imaginary dispersion
 corrections for scattering factors used for this atom type.
 
-Example:
-'International Tables Vol. IV Table 2.3.1' 
+:Example: 'International Tables Vol. IV Table 2.3.1' 
 
 Appears in list containing _atom_type_symbol 
-Type: char
+
+:Type: char
         """
         return getattr(self, "__dispersion_source")
     @dispersion_source.setter
@@ -476,11 +459,11 @@ experiment.
 
 
 Appears in list containing _atom_type_symbol 
-Enumeration default: 0.0 
-Type: numb
 
-FIXME: 
-now in 10**-12cm
+:Default: 0.0 
+:Type: numb
+
+:FIXME:  now in 10**-12cm
         """
         return getattr(self, "__scat_length_neutron")
     @scat_length_neutron.setter
@@ -498,11 +481,10 @@ now in 10**-12cm
 Reference to source of scattering factors or scattering lengths
 used for this atom type.
 
-Example:
-'International Tables Vol. IV Table 2.4.6B' 
-
 Appears in list containing _atom_type_symbol 
-Type: char
+
+:Example: 'International Tables Vol. IV Table 2.4.6B' 
+:Type: char
         """
         return getattr(self, "__scat_source")
     @scat_source.setter
@@ -524,7 +506,7 @@ recommended.
 
 Appears in list containing _atom_type_symbol 
 
-Type: char
+:Type: char
         """
         return getattr(self, "__scat_versus_stol_list")
     @scat_versus_stol_list.setter
@@ -551,8 +533,6 @@ Type: char
 
 class AtomTypeL(LoopConstr):
     """
-AtomTypeL
-============
 Data items in the ATOM_TYPE category record details about
 properties of the atoms that occupy the atom sites, such as the
 atomic scattering factors.
@@ -572,11 +552,10 @@ Description in cif file:
    O 0 12  .047  .032  International_Tables_Vol_IV_Table_2.2B
    N 0 4   .029  .018  International_Tables_Vol_IV_Table_2.2B
 
-Reference: 
---------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_type.html>`_
-FIXME:
-replace attribute 'analytical_mass' by 'analytical_mass_%' as in CoreCIF
+
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_type.html>`_
+
+:FIXME: replace attribute 'analytical_mass' by 'analytical_mass_%' as in CoreCIF
     """
     CATEGORY_KEY = ("symbol", )
     ITEM_CLASS = AtomType

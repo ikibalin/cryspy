@@ -4,8 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>&lt;no title&gt; &#8212; cryspy 0.2.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <title>SpaceGroupSymop &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
@@ -15,54 +15,85 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="next" title="SpaceGroupWyckoff" href="cryspy.symcif.space_group_wyckoff.html" />
+    <link rel="prev" title="SpaceGroup" href="cryspy.symcif.space_group.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
 
   </head><body>
-  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.space_group_wyckoff.html" title="SpaceGroupWyckoff"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.space_group.html" title="SpaceGroup"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.symcif.html" accesskey="U">Symmetry dictionary (symCIF)</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <span class="target" id="module-cryspy.symcif.cl_space_group_symop"></span><p>Defines SpaceGroupSymop and SpaceGroupSymopL classes.</p>
+  <div class="section" id="module-cryspy.symcif.cl_space_group_symop">
+<span id="spacegroupsymop"></span><h1>SpaceGroupSymop<a class="headerlink" href="#module-cryspy.symcif.cl_space_group_symop" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop">
 <em class="property">class </em><code class="sig-prename descclassname">cryspy.symcif.cl_space_group_symop.</code><code class="sig-name descname">SpaceGroupSymop</code><span class="sig-paren">(</span><em class="sig-param">id=None</em>, <em class="sig-param">operation_xyz=None</em>, <em class="sig-param">operation_description=None</em>, <em class="sig-param">generator_xyz=None</em>, <em class="sig-param">sg_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Contains information about the symmetry operations of the
 space group.</p>
-<p>_space_group_symop.id  1
-_space_group_symop.operation_xyz   x,y,z
-_space_group_symop.operation_description ‘identity mapping’</p>
-<ul class="simple">
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_space_group_symop</span><span class="o">.</span><span class="n">id</span>  <span class="mi">1</span>
+<span class="n">_space_group_symop</span><span class="o">.</span><span class="n">operation_xyz</span>   <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span>
+<span class="n">_space_group_symop</span><span class="o">.</span><span class="n">operation_description</span> <span class="s1">&#39;identity mapping&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Mandatory attributes</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>operation_xyz</p></li>
 </ul>
-<ul class="simple">
+</dd>
+<dt class="field-even">Optional attributes</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>id</p></li>
 <li><p>operation_description</p></li>
 <li><p>generator_xyz</p></li>
 <li><p>sg_id</p></li>
 </ul>
-<dl class="simple">
-<dt>Internal attributes (only for reading):</dt><dd><ul class="simple">
+</dd>
+<dt class="field-odd">Internal attributes</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>r, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33 – rotational matrix</p></li>
 <li><p>b, b_1, b_2, b_3 – translation vector</p></li>
 </ul>
 </dd>
-</dl>
-<ul class="simple">
+<dt class="field-even">Methods</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>get_symop_inversed(pcentr=numpy.zeros(3, dtype=float))</p></li>
 <li><p>get_symops_by_centring_type(centring_type)</p></li>
 <li><p>get_symops_by_generator_xyz(generator_xyz)</p></li>
 <li><p>get_coords_xyz_by_coord_xyz(coord_xyz)</p></li>
 </ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('r', 'b', 'r_11', 'r_12', 'r_13', 'r_21', 'r_22', 'r_23', 'r_31', 'r_32', 'r_33', 'b_1', 'b_2', 'b_3')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
@@ -117,22 +148,29 @@ the rotational part of the generator defined by the positions and
 signs of x, y and z, and w is a column of translations defined by
 the fractions, an equivalent position x ? is generated from a given
 position x by</p>
-<p>..math::
-x^{‘} = Wx + w</p>
+<div class="math notranslate nohighlight">
+\[x^{'} = W \cdot x + w\]</div>
 <p>When a list of symmetry generators is given, it is assumed that the
 completelist of symmetryoperationsofthespacegroup(including
 the identity operation) can be generated through repeated multipli-
-cation of the generators, that is, (W 3 ,w 3 ) is an operation of the
-space group if (W 2 ,w 2 ) and (W 1 ,w 1 ) [where (W 1 ,w 1 ) is applied
+cation of the generators, that is, <span class="math notranslate nohighlight">\((W_{3}, w_{3})\)</span> is an operation of the
+space group if <span class="math notranslate nohighlight">\((W_{2}, w_{2})\)</span> and <span class="math notranslate nohighlight">\((W_{1}, w_{1})\)</span>
+[where <span class="math notranslate nohighlight">\((W_{1}, w_{1})\)</span> is applied
 first] are either operations or generators and</p>
-<p>..math::
-W_{3} = W_{2}   imes  W_{1},</p>
-<p>..math::
-w_{3} = W_{2}   imes w_{1} + w_{2}</p>
-<p>International Tables for Crystallography (2002).
+<div class="math notranslate nohighlight">
+\[W_{3} = W_{2} \cdot  W_{1},\]</div>
+<div class="math notranslate nohighlight">
+\[w_{3} = W_{2} \cdot w_{1} + w_{2}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
 Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
 Dordrecht: Kluwer Academic Publishers.</p>
-<p>‘x,1/2-y,1/2+z’</p>
+</dd>
+<dt class="field-even">Example</dt>
+<dd class="field-even"><p>‘x,1/2-y,1/2+z’</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -178,16 +216,22 @@ the rotational part of the symmetry operation defined by the posi-
 tions and signs of x, y and z, and w is a column of translations
 defined by the fractions, an equivalent positionx is generated from
 a given position x by</p>
-<p>..math::
-x^{‘} = Wx + w</p>
+<div class="math notranslate nohighlight">
+\[x^{'} = W \cdot x + w\]</div>
 <p>When a list of symmetry operations is given, it is assumed that the
 list contains all the operations of the space group (including the
 identity operation) as given by the representatives of the general
 position in International Tables for Crystallography Volume A.</p>
-<p>International Tables for Crystallography (2002).
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
 Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
 Dordrecht: Kluwer Academic Publishers.</p>
-<p>‘x,1/2-y,1/2+z’</p>
+</dd>
+<dt class="field-even">Example</dt>
+<dd class="field-even"><p>‘x,1/2-y,1/2+z’</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -255,46 +299,41 @@ be identified with a particular space group</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>Contains information about the symmetry operations of the
 space group.</p>
-<blockquote>
-<div><p><a href="#id1"><span class="problematic" id="id2">loop_</span></a></p>
-</div></blockquote>
-<p>_space_group_symop.id
-_space_group_symop.operation_xyz
-_space_group_symop.operation_description</p>
-<blockquote>
-<div><p>1    x,y,z              ‘identity mapping’
-2    -x,-y,-z           ‘inversion’
-3    -x,1/2+y,1/2-z</p>
-<blockquote>
-<div><p>‘2-fold screw rotation with axis in (0,y,1/4)’</p>
-</div></blockquote>
-<dl class="simple">
-<dt>4    x,1/2-y,1/2+z</dt><dd><p>‘c glide reflection through the plane (x,1/4,y)’</p>
-</dd>
-</dl>
-</div></blockquote>
-<ul class="simple">
-<li><p>id</p></li>
-<li><p>operation_xyz</p></li>
-<li><p>operation_description</p></li>
-<li><p>generator_xyz</p></li>
-</ul>
-<blockquote>
-<div><ul class="simple">
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+<span class="n">_space_group_symop</span><span class="o">.</span><span class="n">id</span>
+<span class="n">_space_group_symop</span><span class="o">.</span><span class="n">operation_xyz</span>
+<span class="n">_space_group_symop</span><span class="o">.</span><span class="n">operation_description</span>
+  <span class="mi">1</span>    <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span>              <span class="s1">&#39;identity mapping&#39;</span>
+  <span class="mi">2</span>    <span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="o">-</span><span class="n">y</span><span class="p">,</span><span class="o">-</span><span class="n">z</span>           <span class="s1">&#39;inversion&#39;</span>
+  <span class="mi">3</span>    <span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">y</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">z</span>
+              <span class="s1">&#39;2-fold screw rotation with axis in (0,y,1/4)&#39;</span>
+  <span class="mi">4</span>    <span class="n">x</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">y</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="n">z</span>
+            <span class="s1">&#39;c glide reflection through the plane (x,1/4,y)&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Mandatory attributes</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>id (category key, 1st)</p></li>
 <li><p>operation_xyz</p></li>
 </ul>
-</div></blockquote>
-<ul class="simple">
+</dd>
+<dt class="field-even">Optional attributes</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>operation_description</p></li>
 <li><p>generator_xyz</p></li>
 <li><p>sg_id</p></li>
 </ul>
-<ul class="simple">
+</dd>
+<dt class="field-odd">Class methods</dt>
+<dd class="field-odd"><ul class="simple">
 <li><p>create_by_generators_xyz</p></li>
 <li><p>get_coords_xyz_by_coord_xyz</p></li>
 </ul>
-<p>reference: <a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html">https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html</a></p>
+</dd>
+</dl>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html">Reference.</a></p>
 <dl class="attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('id',)</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
@@ -318,40 +357,27 @@ _space_group_symop.operation_description</p>
 
 </dd></dl>
 
+</div>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">cryspy</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html">CrysPy Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#corecif-classes">CoreCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#symcif-classes">symCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#magneticcif-classes">MagneticCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cryspy.html#additional-classes">Additional classes:</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.symcif.space_group.html"
+                        title="previous chapter">SpaceGroup</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.symcif.space_group_wyckoff.html"
+                        title="next chapter">SpaceGroupWyckoff</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.symcif.space_group_symop.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -362,32 +388,33 @@ _space_group_symop.operation_description</p>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2019, Iurii KIBALIN.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/cryspy.symcif.space_group_symop.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.space_group_wyckoff.html" title="SpaceGroupWyckoff"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.space_group.html" title="SpaceGroup"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.symcif.html" >Symmetry dictionary (symCIF)</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
   </body>
 </html>

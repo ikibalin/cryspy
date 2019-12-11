@@ -1,6 +1,3 @@
-"""
-AtomSiteMoment, AtomSiteMomentL classes are defined. 
-"""
 __author__ = 'ikibalin'
 __version__ = "2019_12_03"
 

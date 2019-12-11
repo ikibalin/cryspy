@@ -1,6 +1,3 @@
-"""
-define classes ReflnSusceptibility, ReflnSusceptibilityL
-"""
 __author__ = 'ikibalin'
 __version__ = "2019_12_06"
 import os

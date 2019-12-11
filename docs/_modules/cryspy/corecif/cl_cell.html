@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <title>cryspy.corecif.cl_cell &#8212; cryspy 0.2.0 documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
@@ -15,28 +15,35 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-   
-  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
 
   </head><body>
-  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for cryspy.corecif.cl_cell</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">define classes to describe Cell</span>
-<span class="sd">=================================</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_12_03&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -56,16 +63,12 @@
 
 
 
-<div class="viewcode-block" id="Cell"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell">[docs]</a><span class="k">class</span> <span class="nc">Cell</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell">[docs]</a><span class="k">class</span> <span class="nc">Cell</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Cell:</span>
-<span class="sd">=======</span>
 <span class="sd">Data items in the Cell class record details about the</span>
 <span class="sd">crystallographic cell parameters and their measurement.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">-------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd">    _cell_length_a                     5.959(1)</span>
 <span class="sd">    _cell_length_b                     14.956(1)</span>
@@ -74,11 +77,10 @@
 <span class="sd">    _cell_angle_beta                   90</span>
 <span class="sd">    _cell_angle_gamma                  90</span>
 
-<span class="sd">FIXME:</span>
-<span class="sd">the following attributes are not introduced: </span>
-<span class="sd">measurement_pressure, measurement_radiation, measurement_reflns_used,</span>
-<span class="sd">measurement_temperature, measurement_theta_max, measurement_theta_min, </span>
-<span class="sd">measurement_wavelength, special_details.</span>
+<span class="sd">:FIXME: the following attributes are not introduced: </span>
+<span class="sd">        measurement_pressure, measurement_radiation, measurement_reflns_used,</span>
+<span class="sd">        measurement_temperature, measurement_theta_max, measurement_theta_min, </span>
+<span class="sd">        measurement_wavelength, special_details.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;length_a&quot;</span><span class="p">,</span> <span class="s2">&quot;length_b&quot;</span><span class="p">,</span> <span class="s2">&quot;length_c&quot;</span><span class="p">,</span> <span class="s2">&quot;angle_alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;angle_beta&quot;</span><span class="p">,</span> <span class="s2">&quot;angle_gamma&quot;</span><span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;reciprocal_length_a&quot;</span><span class="p">,</span> <span class="s2">&quot;reciprocal_length_b&quot;</span><span class="p">,</span> <span class="s2">&quot;reciprocal_length_c&quot;</span><span class="p">,</span> 
@@ -112,11 +114,10 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Unit-cell lengths in angstroms corresponding to the structure</span>
 <span class="sd">reported. </span>
+
 <span class="sd">The permitted range is 0.0 -&gt; infinity</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-----------</span>
-<span class="sd">`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span>
+<span class="sd">`Reference. https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__length_a&quot;</span><span class="p">)</span>
     <span class="nd">@length_a</span><span class="o">.</span><span class="n">setter</span>
@@ -519,7 +520,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Output: True if there is any refined parameter</span>
+<span class="sd">Output: True if there is any refined parameter</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
                    <span class="bp">self</span><span class="o">.</span><span class="n">length_b</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
@@ -529,9 +530,9 @@
                    <span class="bp">self</span><span class="o">.</span><span class="n">angle_gamma</span><span class="o">.</span><span class="n">refinement</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">res</span>
         
-<div class="viewcode-block" id="Cell.get_variables"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.get_variables"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Output: the list of the refined parameters</span>
+<span class="sd">Output: the list of the refined parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="p">)</span>
@@ -542,7 +543,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_gamma</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_gamma</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">l_variable</span></div>
     
-<div class="viewcode-block" id="Cell.estimate_type_cell"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.estimate_type_cell">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.estimate_type_cell"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.estimate_type_cell">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="mf">0.0001</span>
         <span class="n">flag_a_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_b</span><span class="p">),</span> <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">)</span>
         <span class="n">flag_a_c</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_c</span><span class="p">),</span> <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">)</span>
@@ -651,7 +652,7 @@
         <span class="k">return</span> <span class="n">flag</span>
 
 
-<div class="viewcode-block" id="Cell.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_cell</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Cell.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_cell</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__type_cell&quot;</span><span class="p">,</span> <span class="n">type_cell</span><span class="p">)</span>
         <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">apply_constraint_on_cell_by_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_cell</span><span class="p">)</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
@@ -661,7 +662,7 @@
 
 
 
-<div class="viewcode-block" id="Cell.calc_sthovl"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.calc_sthovl">[docs]</a>    <span class="k">def</span> <span class="nf">calc_sthovl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_hkl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.calc_sthovl"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_sthovl">[docs]</a>    <span class="k">def</span> <span class="nf">calc_sthovl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hkl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_hkl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculate sin(theta)/lambda for list of hkl reflections.</span>
 
@@ -708,7 +709,7 @@
         <span class="n">res</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">inv_d</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
-<div class="viewcode-block" id="Cell.calc_k_loc"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.calc_k_loc">[docs]</a>    <span class="k">def</span> <span class="nf">calc_k_loc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.calc_k_loc"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_k_loc">[docs]</a>    <span class="k">def</span> <span class="nf">calc_k_loc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate unity scattering vector.</span>
 
@@ -732,7 +733,7 @@
         
         <span class="k">return</span> <span class="n">k_x</span><span class="p">,</span> <span class="n">k_y</span><span class="p">,</span> <span class="n">k_z</span></div>
         
-<div class="viewcode-block" id="Cell.calc_m_t"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.calc_m_t">[docs]</a>    <span class="k">def</span> <span class="nf">calc_m_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.calc_m_t"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_m_t">[docs]</a>    <span class="k">def</span> <span class="nf">calc_m_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        define rotation matrix to have new z axis along kloc</span>
 <span class="sd">        Rotation matrix is defined by Euler angles</span>
@@ -788,7 +789,7 @@
         <span class="k">return</span> <span class="n">t_11</span><span class="p">,</span> <span class="n">t_12</span><span class="p">,</span> <span class="n">t_13</span><span class="p">,</span> <span class="n">t_21</span><span class="p">,</span> <span class="n">t_22</span><span class="p">,</span> <span class="n">t_23</span><span class="p">,</span> <span class="n">t_31</span><span class="p">,</span> <span class="n">t_32</span><span class="p">,</span> <span class="n">t_33</span> </div>
 
 
-<div class="viewcode-block" id="Cell.calc_hkl"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.calc_hkl">[docs]</a>    <span class="k">def</span> <span class="nf">calc_hkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group</span><span class="p">,</span> <span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.calc_hkl"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_hkl">[docs]</a>    <span class="k">def</span> <span class="nf">calc_hkl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group</span><span class="p">,</span> <span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        a list of reflections hkl for cell in the range sthovl_min, sthovl_max</span>
 <span class="sd">        taking into account the space group</span>
@@ -833,7 +834,7 @@
         <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mult</span></div>
 
 
-<div class="viewcode-block" id="Cell.calc_hkl_in_range"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.Cell.calc_hkl_in_range">[docs]</a>    <span class="k">def</span> <span class="nf">calc_hkl_in_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">):</span>
+<div class="viewcode-block" id="Cell.calc_hkl_in_range"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_hkl_in_range">[docs]</a>    <span class="k">def</span> <span class="nf">calc_hkl_in_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        give a list of reflections hkl for cell in the range sthovl_min, sthovl_max</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -865,39 +866,10 @@
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../../index.html">cryspy</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html">CrysPy Library</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#corecif-classes">CoreCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#symcif-classes">symCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#magneticcif-classes">MagneticCIF classes:</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cryspy.html#additional-classes">Additional classes:</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -908,29 +880,26 @@
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2019, Iurii KIBALIN.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
   </body>
 </html>

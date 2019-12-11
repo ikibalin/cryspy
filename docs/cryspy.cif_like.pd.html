@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pd &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Chi2" href="cryspy.cif_like.chi2.html" />
+    <link rel="prev" title="Crystal" href="cryspy.cif_like.crystal.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.chi2.html" title="Chi2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.crystal.html" title="Crystal"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.cif_like.cl_pd">
+<span id="pd"></span><h1>Pd<a class="headerlink" href="#module-cryspy.cif_like.cl_pd" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.cif_like.cl_pd.Pd">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_pd.</code><code class="sig-name descname">Pd</code><span class="sig-paren">(</span><em class="sig-param">background=None</em>, <em class="sig-param">resolution=None</em>, <em class="sig-param">meas=None</em>, <em class="sig-param">phase=None</em>, <em class="sig-param">diffrn_radiation=None</em>, <em class="sig-param">setup=None</em>, <em class="sig-param">range=None</em>, <em class="sig-param">chi2=None</em>, <em class="sig-param">extinction=None</em>, <em class="sig-param">exclude=None</em>, <em class="sig-param">asymmetry=None</em>, <em class="sig-param">peak=None</em>, <em class="sig-param">proc=None</em>, <em class="sig-param">data_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_data_constr.DataConstr</span></code></p>
+<p>Class to describe information about powder diffraction measurements</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_pnd</span>
+<span class="n">_setup_wavelength</span>     <span class="mf">0.840</span>
+<span class="n">_setup_field</span>          <span class="mf">1.000</span>
+<span class="n">_setup_offset_ttheta</span> <span class="o">-</span><span class="mf">0.385</span>
+
+<span class="n">_chi2_sum</span>  <span class="kc">True</span>
+<span class="n">_chi2_diff</span> <span class="kc">False</span>
+<span class="n">_chi2_up</span>   <span class="kc">False</span>
+<span class="n">_chi2_down</span> <span class="kc">False</span>
+
+<span class="n">_range_ttheta_min</span>     <span class="mf">4.000</span>
+<span class="n">_range_ttheta_max</span>    <span class="mf">80.000</span>
+
+<span class="n">loop_</span>
+<span class="n">_pd_background_ttheta</span>
+<span class="n">_pd_background_intensity</span>
+ <span class="mf">4.5</span> <span class="mf">256.0</span>
+<span class="mf">40.0</span> <span class="mf">158.0</span>
+<span class="mf">80.0</span>  <span class="mf">65.0</span>
+
+<span class="n">loop_</span>
+<span class="n">_pd_exclude_ttheta_min</span>
+<span class="n">_pd_exclude_ttheta_max</span>
+<span class="mf">0.0</span> <span class="mf">1.0</span>
+
+<span class="n">_pd_instr_reflex_asymmetry_p1</span> <span class="mf">0.0</span>
+<span class="n">_pd_instr_reflex_asymmetry_p2</span> <span class="mf">0.0</span>
+<span class="n">_pd_instr_reflex_asymmetry_p3</span> <span class="mf">0.0</span>
+<span class="n">_pd_instr_reflex_asymmetry_p4</span> <span class="mf">0.0</span>
+
+<span class="n">_diffrn_radiation_polarization</span> <span class="mf">0.0</span>
+<span class="n">_diffrn_radiation_efficiency</span>   <span class="mf">1.0</span>
+
+<span class="n">_pd_instr_resolution_u</span> <span class="mf">16.9776</span>
+<span class="n">_pd_instr_resolution_v</span> <span class="o">-</span><span class="mf">2.8357</span>
+<span class="n">_pd_instr_resolution_w</span>  <span class="mf">0.5763</span>
+<span class="n">_pd_instr_resolution_x</span>  <span class="mf">0.0</span>
+<span class="n">_pd_instr_resolution_y</span>  <span class="mf">0.0</span>
+
+<span class="n">loop_</span>
+<span class="n">_pd_phase_label</span>
+<span class="n">_pd_phase_scale</span>
+<span class="n">_pd_phase_igsize</span>
+<span class="n">Fe3O4</span> <span class="mf">0.02381</span> <span class="mf">0.0</span>
+
+<span class="n">loop_</span>
+<span class="n">_pd_meas_ttheta</span>
+<span class="n">_pd_meas_intensity_up</span>
+<span class="n">_pd_meas_intensity_up_sigma</span>
+<span class="n">_pd_meas_intensity_down</span>
+<span class="n">_pd_meas_intensity_down_sigma</span>
+<span class="mf">4.0</span> <span class="mf">465.80</span> <span class="mf">128.97</span> <span class="mf">301.88</span> <span class="mf">129.30</span>
+<span class="mf">4.2</span> <span class="mf">323.78</span> <span class="mf">118.22</span> <span class="mf">206.06</span> <span class="mf">120.00</span>
+<span class="mf">4.4</span> <span class="mf">307.14</span> <span class="mf">115.90</span> <span class="mf">230.47</span> <span class="mf">116.53</span>
+
+<span class="n">loop_</span>
+<span class="n">_pd_peak_index_h</span>
+<span class="n">_pd_peak_index_k</span>
+<span class="n">_pd_peak_index_l</span>
+<span class="n">_pd_peak_mult</span>
+<span class="n">_pd_peak_ttheta</span>
+<span class="n">_pd_peak_intensity_up</span>
+<span class="n">_pd_peak_intensity_down</span>
+<span class="n">_pd_peak_width_2theta</span>
+<span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span>  <span class="mi">8</span>  <span class="mf">9.748</span> <span class="mf">128.15576</span> <span class="mf">128.15576</span> <span class="mf">0.677</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span>  <span class="mi">6</span> <span class="mf">11.260</span>   <span class="mf">0.00000</span>   <span class="mf">0.00000</span> <span class="mf">0.680</span>
+<span class="mi">2</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">12</span> <span class="mf">15.950</span>  <span class="mf">94.21107</span>  <span class="mf">94.21107</span> <span class="mf">0.716</span>
+
+<span class="n">loop_</span>
+<span class="n">_pd_proc_ttheta</span>
+<span class="n">_pd_proc_ttheta_corrected</span>
+<span class="n">_pd_proc_intensity_up_net</span>
+<span class="n">_pd_proc_intensity_down_net</span>
+<span class="n">_pd_proc_intensity_up_total</span>
+<span class="n">_pd_proc_intensity_down_total</span>
+<span class="n">_pd_proc_intensity_bkg_calc</span>
+<span class="n">_pd_proc_intensity_up</span>
+<span class="n">_pd_proc_intensity_up_sigma</span>
+<span class="n">_pd_proc_intensity_down</span>
+<span class="n">_pd_proc_intensity_down_sigma</span>
+<span class="mf">4.000</span> <span class="mf">4.385</span> <span class="mf">0.00000</span> <span class="mf">0.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">465.80000</span> <span class="mf">128.97000</span> <span class="mf">301.88000</span> <span class="mf">129.30000</span>
+<span class="mf">4.200</span> <span class="mf">4.585</span> <span class="mf">0.00000</span> <span class="mf">0.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">323.78000</span> <span class="mf">118.22000</span> <span class="mf">206.06000</span> <span class="mf">120.00000</span>
+<span class="mf">4.400</span> <span class="mf">4.785</span> <span class="mf">0.00000</span> <span class="mf">0.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">307.14000</span> <span class="mf">115.90000</span> <span class="mf">230.47000</span> <span class="mf">116.53000</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_pd.Pd.INTERNAL_CLASSES">
+<code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_pd.Pd.MANDATORY_CLASSES">
+<code class="sig-name descname">MANDATORY_CLASSES</code><em class="property"> = (&lt;class 'cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_instr_resolution.PdInstrResolution'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_meas.PdMeasL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL'&gt;, &lt;class 'cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation'&gt;, &lt;class 'cryspy.cif_like.cl_setup.Setup'&gt;, &lt;class 'cryspy.cif_like.cl_range.Range'&gt;, &lt;class 'cryspy.cif_like.cl_chi2.Chi2'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.MANDATORY_CLASSES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_pd.Pd.OPTIONAL_CLASSES">
+<code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_extinction.Extinction'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_instr_reflex_asymmetry.PdInstrReflexAsymmetry'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_peak.PdPeakL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_proc.PdProcL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.asymmetry">
+<em class="property">property </em><code class="sig-name descname">asymmetry</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.asymmetry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.background">
+<em class="property">property </em><code class="sig-name descname">background</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.background" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.calc_chi_sq">
+<code class="sig-name descname">calc_chi_sq</code><span class="sig-paren">(</span><em class="sig-param">l_crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_chi_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_chi_sq" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate chi square</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.calc_iint">
+<code class="sig-name descname">calc_iint</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_iint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_iint" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate the integral intensity for h, k, l reflections</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.calc_profile">
+<code class="sig-name descname">calc_profile</code><span class="sig-paren">(</span><em class="sig-param">tth</em>, <em class="sig-param">l_crystal</em>, <em class="sig-param">l_peak_in=[]</em>, <em class="sig-param">l_refln_in=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate intensity for the given diffraction angle</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.calc_shape_profile">
+<code class="sig-name descname">calc_shape_profile</code><span class="sig-paren">(</span><em class="sig-param">tth</em>, <em class="sig-param">tth_hkl</em>, <em class="sig-param">i_g=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_shape_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_shape_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate profile in the range ttheta for reflections placed on
+ttheta_hkl with i_g parameter by default equal to zero</p>
+<p>tth, tth_hkl in degrees</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.chi2">
+<em class="property">property </em><code class="sig-name descname">chi2</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.chi2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.diffrn_radiation">
+<em class="property">property </em><code class="sig-name descname">diffrn_radiation</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.diffrn_radiation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.exclude">
+<em class="property">property </em><code class="sig-name descname">exclude</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.exclude" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.extinction">
+<em class="property">property </em><code class="sig-name descname">extinction</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.extinction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.meas">
+<em class="property">property </em><code class="sig-name descname">meas</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.meas" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.peak">
+<em class="property">property </em><code class="sig-name descname">peak</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.peak" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.phase">
+<em class="property">property </em><code class="sig-name descname">phase</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.phase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.proc">
+<em class="property">property </em><code class="sig-name descname">proc</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.proc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.range">
+<em class="property">property </em><code class="sig-name descname">range</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.resolution">
+<em class="property">property </em><code class="sig-name descname">resolution</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.resolution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_pd.Pd.setup">
+<em class="property">property </em><code class="sig-name descname">setup</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.cif_like.crystal.html"
+                        title="previous chapter">Crystal</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.cif_like.chi2.html"
+                        title="next chapter">Chi2</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.cif_like.pd.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.chi2.html" title="Chi2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.crystal.html" title="Crystal"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

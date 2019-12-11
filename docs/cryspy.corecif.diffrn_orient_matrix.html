@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>DiffrnOrientMatrix &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Magnetic CIF Dictionary" href="cryspy.magneticcif.html" />
+    <link rel="prev" title="Refln" href="cryspy.corecif.refln.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.magneticcif.html" title="Magnetic CIF Dictionary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.refln.html" title="Refln"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" accesskey="U">Core dictionary (coreCIF)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.corecif.cl_diffrn_orient_matrix">
+<span id="diffrnorientmatrix"></span><h1>DiffrnOrientMatrix<a class="headerlink" href="#module-cryspy.corecif.cl_diffrn_orient_matrix" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_diffrn_orient_matrix.</code><code class="sig-name descname">DiffrnOrientMatrix</code><span class="sig-paren">(</span><em class="sig-param">ub_11=None</em>, <em class="sig-param">ub_12=None</em>, <em class="sig-param">ub_13=None</em>, <em class="sig-param">ub_21=None</em>, <em class="sig-param">ub_22=None</em>, <em class="sig-param">ub_23=None</em>, <em class="sig-param">ub_31=None</em>, <em class="sig-param">ub_32=None</em>, <em class="sig-param">ub_33=None</em>, <em class="sig-param">id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_diffrn_orient_matrix.html#DiffrnOrientMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Data items in the DIFFRN_ORIENT_MATRIX category record details
+about the orientation matrix used in the measurement of the
+diffraction intensities.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_diffrn_orient_matrix_UB_11</span>           <span class="o">-</span><span class="mf">0.04170</span>
+<span class="n">_diffrn_orient_matrix_UB_12</span>           <span class="o">-</span><span class="mf">0.01429</span>
+<span class="n">_diffrn_orient_matrix_UB_13</span>           <span class="o">-</span><span class="mf">0.02226</span>
+<span class="n">_diffrn_orient_matrix_UB_21</span>           <span class="o">-</span><span class="mf">0.00380</span>
+<span class="n">_diffrn_orient_matrix_UB_22</span>           <span class="o">-</span><span class="mf">0.05578</span>
+<span class="n">_diffrn_orient_matrix_UB_23</span>           <span class="o">-</span><span class="mf">0.05048</span>
+<span class="n">_diffrn_orient_matrix_UB_31</span>            <span class="mf">0.00587</span>
+<span class="n">_diffrn_orient_matrix_UB_32</span>           <span class="o">-</span><span class="mf">0.13766</span>
+<span class="n">_diffrn_orient_matrix_UB_33</span>            <span class="mf">0.02277</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('u_11', 'u_12', 'u_13', 'u_21', 'u_22', 'u_23', 'u_31', 'u_32', 'u_33', 'cell')</em><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('ub_11', 'ub_12', 'ub_13', 'ub_21', 'ub_22', 'ub_23', 'ub_31', 'ub_32', 'ub_33')</em><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'type')</em><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'diffrn_orient_matrix'</em><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.calc_angle">
+<code class="sig-name descname">calc_angle</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">wavelength=1.4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_diffrn_orient_matrix.html#DiffrnOrientMatrix.calc_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.calc_angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.cell">
+<em class="property">property </em><code class="sig-name descname">cell</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.type">
+<em class="property">property </em><code class="sig-name descname">type</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the orientation matrix type and how it should
+be applied to define the orientation of the crystal precisely
+with respect to the diffractometer axes.</p>
+<p>Type: char</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u">
+<em class="property">property </em><code class="sig-name descname">u</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u" title="Permalink to this definition">¶</a></dt>
+<dd><p>The U matrix (orientation matrix)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_11">
+<em class="property">property </em><code class="sig-name descname">u_11</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_11" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_12">
+<em class="property">property </em><code class="sig-name descname">u_12</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_12" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_13">
+<em class="property">property </em><code class="sig-name descname">u_13</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_13" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_21">
+<em class="property">property </em><code class="sig-name descname">u_21</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_21" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_22">
+<em class="property">property </em><code class="sig-name descname">u_22</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_22" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_23">
+<em class="property">property </em><code class="sig-name descname">u_23</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_23" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_31">
+<em class="property">property </em><code class="sig-name descname">u_31</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_31" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_32">
+<em class="property">property </em><code class="sig-name descname">u_32</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_32" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_33">
+<em class="property">property </em><code class="sig-name descname">u_33</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.u_33" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_11">
+<em class="property">property </em><code class="sig-name descname">ub_11</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_11" title="Permalink to this definition">¶</a></dt>
+<dd><p>The elements of the diffractometer orientation matrix. These
+define the dimensions of the reciprocal cell and its orientation
+to the local diffractometer axes.</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_12">
+<em class="property">property </em><code class="sig-name descname">ub_12</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_12" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_13">
+<em class="property">property </em><code class="sig-name descname">ub_13</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_13" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_21">
+<em class="property">property </em><code class="sig-name descname">ub_21</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_21" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_22">
+<em class="property">property </em><code class="sig-name descname">ub_22</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_22" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_23">
+<em class="property">property </em><code class="sig-name descname">ub_23</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_23" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_31">
+<em class="property">property </em><code class="sig-name descname">ub_31</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_31" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_32">
+<em class="property">property </em><code class="sig-name descname">ub_32</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_32" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_33">
+<em class="property">property </em><code class="sig-name descname">ub_33</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_33" title="Permalink to this definition">¶</a></dt>
+<dd><p>See definition for <strong>_diffrn_orient_matrix.ub_11</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_ccsl">
+<em class="property">property </em><code class="sig-name descname">ub_ccsl</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_ccsl" title="Permalink to this definition">¶</a></dt>
+<dd><p>The UB matrix (CCSL)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_from">
+<em class="property">property </em><code class="sig-name descname">ub_from</code><a class="headerlink" href="#cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix.ub_from" title="Permalink to this definition">¶</a></dt>
+<dd><p>The UB matrix (from)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.corecif.refln.html"
+                        title="previous chapter">Refln</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.magneticcif.html"
+                        title="next chapter">Magnetic CIF Dictionary</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.corecif.diffrn_orient_matrix.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.magneticcif.html" title="Magnetic CIF Dictionary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.refln.html" title="Refln"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" >Core dictionary (coreCIF)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

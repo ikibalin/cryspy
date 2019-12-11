@@ -1,7 +1,3 @@
-"""
-define classes AtomSiteAniso, AtomSiteAnisoL
-"""
-
 __author__ = 'ikibalin'
 __version__ = "2019_12_05"
 import os

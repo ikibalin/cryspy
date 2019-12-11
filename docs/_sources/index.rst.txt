@@ -3,14 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to cryspy's documentation!
-==================================
+CrysPy documentation
+====================
+
+This is the documentation for CrysPy library.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
 
-   cryspy
+   m_tutorial
+   m_classes
 
 Indices and tables
 ==================

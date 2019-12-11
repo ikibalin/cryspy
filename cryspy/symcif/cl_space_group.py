@@ -1,8 +1,3 @@
-"""
-SpaceGroup class 
-===========================
-"""
-
 __author__ = 'ikibalin'
 __version__ = "2019_11_26"
 
@@ -23,9 +18,6 @@ from cryspy.symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWy
 
 class SpaceGroup(ItemConstr):
     """
-SpaceGroup
-============
-
 Contains all the data items that refer to the space group as a
 whole, such as its name, Laue group etc. 
 
@@ -44,12 +36,11 @@ symbols may refer to the same space-group type. A
 Hermann-Mauguin symbol contains information on the choice of
 the basis, but not on the choice of origin.
 
-Ref: International Tables for Crystallography (2002). Volume A,
-     Space-group symmetry, edited by Th. Hahn, 5th ed.
-     Dordrecht: Kluwer Academic Publishers.
+:Ref: International Tables for Crystallography (2002). Volume A,
+      Space-group symmetry, edited by Th. Hahn, 5th ed.
+      Dordrecht: Kluwer Academic Publishers.
 
-Description in cif file:
----------------------------
+Description in cif file::
 
     _space_group.id                    1
     _space_group.name_H-M_ref         'C 2/c'
@@ -62,47 +53,35 @@ Description in cif file:
     _space_group.centring_type         C
     _space_group.Patterson_name_H-M  'C 2/m'
 
-FIXME:: 
-all labels with sign '-' does not read now. 
-The sign '-' has to be suppressed.
-Example: '_space_group.name_H-M_ref' -> '_space_group.name_HM_ref'
+:FIXME: all labels with sign '-' does not read now. 
+        The sign '-' has to be suppressed.
 
-Mandatory attribute: 
----------------------
-- name_hm_alt
+        '_space_group.name_H-M_ref' -> '_space_group.name_HM_ref'
 
-Optional attribute: 
----------------------
-- it_number
-- it_coordinate_system_code
-- id
-- bravais_type
-- laue_class
-- patterson_name_hm
-- centring_type
-- crystal_system
-- name_hm_alt_description
-- name_hm_full
-- name_hm_ref
-- name_hall
-- name_hall_schoenflies
-- point_group_hm
-- reference_setting
-- transform_pp_abc
-- transform_qq_xyz
+:Mandatory attribute: no
 
-Class methods:
------------------
-- 
+:Optional attribute: - name_hm_alt
+                     - it_number
+                     - it_coordinate_system_code
+                     - id
+                     - bravais_type
+                     - laue_class
+                     - patterson_name_hm
+                     - centring_type
+                     - crystal_system
+                     - name_hm_alt_description
+                     - name_hm_full
+                     - name_hm_ref
+                     - name_hall
+                     - name_hall_schoenflies
+                     - point_group_hm
+                     - reference_setting
+                     - transform_pp_abc
+                     - transform_qq_xyz
 
+:Methods: get_symop
 
-Methods:
----------
-- get_symop
-
-
-Reference:
-`the page <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html>`_
+`Reference <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html>`_
     """
     MANDATORY_ATTRIBUTE = ()
     OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies",
@@ -184,11 +163,9 @@ ations or generators, or give the transformation that relates the
 setting to the reference setting defined in this dictionary under
 _space_group.reference_setting.
 
-Reference: 
------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
 
 (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_ALT)
         """
@@ -214,11 +191,9 @@ graphic space-group type) to which the space group belongs. This
 number defines the space-group type but not the coordinate system
 in which it is expressed.
 
-Reference: 
------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
 
 The permitted range is (1,230)
         """
@@ -246,18 +221,16 @@ interpretable and cannot be used to define the coordinate system.
 
 Use _space_group.transform_ * instead.
 
-Reference: 
------------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
 
 The data value must be one of the following:
 
-b1, b2, b3, -b1, -b2, -b3, c1, c2, c3, 
--c1, -c2, -c3, a1, a2, a3, -a1, -a2, -a3, 
-abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb, 
-2abc, 2ba-c, 2cab, 2-cba, 2bca, 2a-cb, 1, 2, h, r, 
+   b1, b2, b3, -b1, -b2, -b3, c1, c2, c3, 
+   -c1, -c2, -c3, a1, a2, a3, -a1, -a2, -a3, 
+   abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb, 
+   2abc, 2ba-c, 2cab, 2-cba, 2bca, 2a-cb, 1, 2, h, r, 
         """
         return getattr(self, "__it_coordinate_system_code")
     @it_coordinate_system_code.setter
@@ -275,8 +248,8 @@ abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb,
     def id(self) -> str:
         """
 This is an identifier needed if _space_group .* items are looped.
-TODO::
-looped _space_group is not introduced
+
+:TODO: looped _space_group is not introduced
         """
         return getattr(self, "__id")
     @id.setter
@@ -299,20 +272,18 @@ The setting-independent symbol mS replaces the setting-dependent
 symbols mB and mC, and the setting-independent symbol oS
 replaces the setting-dependent symbols oA, oB and oC.
 
-Reference: 
----------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,
-p. 15. Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,
+            p. 15. Dordrecht: Kluwer Academic Publishers.
 
 The data value must be one of the following:
------------------------------------------------
-aP
-mP mS
-oP oS oI oF
-tP tI
-hP hR
-cP cI cF
+
+    aP
+    mP mS
+    oP oS oI oF
+    tP tI
+    hP hR
+    cP cI cF
         """
         return getattr(self, "__bravais_type")
     @bravais_type.setter
@@ -335,8 +306,9 @@ the point group of the space group where a centre of inversion is
 added if not already present.
 
 The data value must be one of the following:
--1, 2/m, mmm, 4/m, 4/mmm, 
--3, -3m, 6/m, 6/mmm, m-3, m-3m
+
+    -1, 2/m, mmm, 4/m, 4/mmm, 
+    -3, -3m, 6/m, 6/mmm, m-3, m-3m
 """
         return getattr(self, "__laue_class")
     @laue_class.setter
@@ -362,18 +334,14 @@ is discouraged. Subscripts should appear without special symbols.
 Bars should be given as negative signs before the number to which
 they apply.
 
-Reference:
-------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,
-Table 2.2.5.1. Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,
+            Table 2.2.5.1. Dordrecht: Kluwer Academic Publishers.
 
-Examples:
-----------
-‘P -1’, ‘P 2/m’, ‘C 2/m’, ‘P m m m’, ‘C m m m’, ‘I m m m’, ‘F m m m’,
-‘P 4/m’, ‘I 4/m’, ‘P 4/m m m’, ‘I 4/m m m’, ‘P -3’, ‘R -3’, ‘P -3 m 1’,
-‘R -3 m’, ‘P -3 1 m’, ‘P 6/m’, ‘P 6/m m m’, ‘P m -3’, ‘I m -3’, ‘F m -3’,
-‘P m -3 m’, ‘I m -3 m’, ‘F m -3 m’.
+:Examples: ‘P -1’, ‘P 2/m’, ‘C 2/m’, ‘P m m m’, ‘C m m m’, ‘I m m m’, ‘F m m m’,
+           ‘P 4/m’, ‘I 4/m’, ‘P 4/m m m’, ‘I 4/m m m’, ‘P -3’, ‘R -3’, ‘P -3 m 1’,
+           ‘R -3 m’, ‘P -3 1 m’, ‘P 6/m’, ‘P 6/m m m’, ‘P m -3’, ‘I m -3’, ‘F m -3’,
+           ‘P m -3 m’, ‘I m -3 m’, ‘F m -3 m’.
         """
         return getattr(self, "__patterson_name_hm")
     @patterson_name_hm.setter
@@ -391,7 +359,7 @@ Symbol for the lattice centring. This symbol may be dependent on
 the coordinate system chosen.
 
 The data value must be one of the following:
-------------------------------------------------
+
     :"P": primitive no centring
     :"A": A-face centred (0, 1/2, 1/2)
     :"B": B-face centred (1/2, 0, 1/2)
@@ -422,9 +390,9 @@ groups (crystal system) to which the space group belongs. Note
 that crystals with the hR lattice type belong to the trigonal system.
 
 The data value must be one of the following:
-------------------------------------------------
-triclinic, monoclinic, orthorhombic, 
-tetragonal, trigonal, hexagonal, cubic   
+
+    triclinic, monoclinic, orthorhombic, 
+    tetragonal, trigonal, hexagonal, cubic   
     """
         return getattr(self, "__crystal_system")
     @crystal_system.setter
@@ -481,14 +449,7 @@ Reference: International Tables for Crystallography (2002).
 Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
 Dordrecht: Kluwer Academic Publishers.
 
-Related items: 
-------------------
-_space_group.name_H-M_ref (alternate),
-_space_group.name_H-M_alt (alternate) .
-
-Example: 
------------------
-‘P 21/n 21/m 21/a’ (full symbol for Pnma)
+:Example: ‘P 21/n 21/m 21/a’ (full symbol for Pnma)
         """
         return getattr(self, "__name_hm_full")
     @name_hm_full.setter
@@ -526,16 +487,14 @@ Mauguin symbol corresponding to the setting used. In the enumer-
 ation list below, each possible value is identified by space-group
 number and Schoenflies symbol.
 
-Reference: 
-------------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
 
 The data value must be one of the following:
--------------------------------------------------
-’P 1’, ’P 2’, ...
-(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_REF)
+
+    ’P 1’, ’P 2’, ...
+    (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_REF)
 
         """
         return getattr(self, "__name_hm_ref")
@@ -560,16 +519,13 @@ is separated by a space or an underscore character. The use of a
 space is strongly recommended. The underscore is only retained
 because it was used in old CIFs. It should not be used in new CIFs.
 
-References:
---------------
-Hall, S. R. (1981). Acta Cryst. A37, 517–525; erra-
-tum (1981), A37, 921. International Tables for Crystallography
-(2001). Volume B, Reciprocal space, edited by U. Shmueli, 2nd
-ed., Appendix 1.4.2. Dordrecht: Kluwer Academic Publishers.
+:References: Hall, S. R. (1981). Acta Cryst. A37, 517–525; erra-
+             tum (1981), A37, 921. International Tables for Crystallography
+             (2001). Volume B, Reciprocal space, edited by U. Shmueli, 2nd
+             ed., Appendix 1.4.2. Dordrecht: Kluwer Academic Publishers.
 
-Examples: 
-‘P 2c -2ac’, ‘-I 4bd 2ab 3’, ...
-(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HALL)
+:Examples: ‘P 2c -2ac’, ‘-I 4bd 2ab 3’, ...
+            (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HALL)
 
         """
         return getattr(self, "__name_hall")
@@ -595,16 +551,14 @@ space-group type independently of the coordinate system in which
 the space group is expressed. The symbol is given with a period,
 ‘.’, separating the Schoenflies point group and the superscript.
 
-Reference: 
------------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
-Dordrecht: Kluwer Academic Publishers.
+:Reference: International Tables for Crystallography (2002).
+            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+            Dordrecht: Kluwer Academic Publishers.
 
 The data value must be one of the following:
-------------------------------------------------
-C1.1, Ci.1, ...
-(full tuple stored in SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES)
+
+    C1.1, Ci.1, ...
+    (full tuple stored in SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES)
         """
         return getattr(self, "__name_schoenflies")
     @name_schoenflies.setter
@@ -626,9 +580,7 @@ class of space groups to which the space group belongs, and the
 geometric crystal class of point groups to which the point group of
 the space group belongs.
 
-Examples: 
----------------
-‘-4’, ‘4/m’. 
+:Examples: ‘-4’, ‘4/m’. 
         """
         return getattr(self, "__point_group_hm")
     @point_group_hm.setter
@@ -669,18 +621,17 @@ In the enumeration list below, each reference setting is identi-
 fied by Schoenfliessymbol and by the Hermann–Mauguinsymbol,
 augmented by :2 or :h suffixes as described above.
 
-References: 
-----------------------------
-International Tables for Crystallography (2002).
-Volume A, Space-group symmetry, edited by Th. Hahn, 5th
-ed. Dordrecht: Kluwer Academic Publishers. Grosse-Kunstleve,
-R. W. (2001). Xtal System of Crystallographic Programs, Sys-
-tem Documentation. http://xtal.crystal.uwa.edu.au/man/xtal3.7-
-228.html (or follow links to D
+:References: International Tables for Crystallography (2002).
+             Volume A, Space-group symmetry, edited by Th. Hahn, 5th
+             ed. Dordrecht: Kluwer Academic Publishers. Grosse-Kunstleve,
+             R. W. (2001). Xtal System of Crystallographic Programs, Sys-
+             tem Documentation. http://xtal.crystal.uwa.edu.au/man/xtal3.7-
+             228.html (or follow links to D
 
 The data value must be one of the following:
-’001:P 1’, ’002:-P 1’, ... 
-(full tuple stored in SpaceGroup.ACCESIBLE_REFERENCE_SETTING)
+
+    ’001:P 1’, ’002:-P 1’, ... 
+    (full tuple stored in SpaceGroup.ACCESIBLE_REFERENCE_SETTING)
         """
         return getattr(self, "__reference_setting")
     @reference_setting.setter
@@ -704,25 +655,29 @@ is given in Jones–Faithful notation corresponding to the rotational
 matrix P combined with the origin shift vector p in the expression
 
 .. math::
- (a', b', c') = (a, b, c) P + p.
+
+   (a', b', c') = (a, b, c) P + p.
 
 P is a post-multiplication matrix of a row (a,b,c) of column vec-
 tors. It is related to the inverse transformation (Q,q) by
 
 .. math::
- P = Q^{−1},
+
+   P = Q^{−1},
 
 .. math::
- p = Pq = − (Q^{−1}) q.
+
+   p = Pq = − (Q^{−1}) q.
 
 These transformations are applied as follows: atomic coordi-
-nates (x', y', z') = Q (x,y,z) + q, Miller indices 
-(h', k', l') = (h, k, l) P, 
+nates :math:`(x', y', z') = Q (x,y,z) + q`, Miller indices 
+:math:`(h', k', l') = (h, k, l) P`, 
 symmetry operations
-W' = (Q,q) W (P,p), basis vectors
+:math:`W' = (Q,q) W (P,p)`, basis vectors
 
-..math::
-(a', b', c') = (a,b,c) P + p.
+.. math::
+
+   (a', b', c') = (a,b,c) P + p.
 
 This item is given as a character string involving the characters
 a, b and c with commas separating the expressions for the a', b'
@@ -730,11 +685,9 @@ and c' vectors. The numeric values may be given as integers, frac-
 tions or real numbers. Multiplication is implicit, division must be
 explicit. White space within the string is optional.
 
-Examples: 
----------------
-‘-b+c, a+c, -a+b+c’ (R3:r to R3:h), 
-‘a-1/4, b-1/4, c-1/4’ (Pnnn:1 to Pnnn:2), 
-‘b-1/2, c-1/2, a-1/2’ (Bbab:1 toCcca:2). 
+:Examples: - ‘-b+c, a+c, -a+b+c’ (R3:r to R3:h), 
+           - ‘a-1/4, b-1/4, c-1/4’ (Pnnn:1 to Pnnn:2), 
+           - ‘b-1/2, c-1/2, a-1/2’ (Bbab:1 toCcca:2). 
         """
         return getattr(self, "__transform_pp_abc")
     @transform_pp_abc.setter
@@ -757,38 +710,41 @@ tion corresponds to the rotational matrix Q combined with the ori-
 gin shift vector q in the expression
 
 .. math::
- (x', y', z') = Q(x,y,z) + q.
+  
+   (x', y', z') = Q(x,y,z) + q.
 
 Q is a pre-multiplication matrix of the column vector (x,y,z). It is
 related to the inverse transformation (P,p) by
 
 .. math::
- P = Q^{−1} ,
+   
+   P = Q^{−1} ,
 
 .. math::
- p = Pq = − (Q^{−1}) q,
+   
+   p = Pq = − (Q^{−1}) q,
 
 where the P and Q transformations are applied as follows: atomic
-coordinates (x', y', z') = Q(x,y,z)+q, Miller indices 
-(h', k', l') = (h,k,l)P, 
+coordinates :math:`(x', y', z') = Q(x,y,z)+q`, Miller indices 
+:math:`(h', k', l') = (h,k,l)P`, 
 symmetry operations 
-W' = (Q, q) W (P, p), 
+:math:`W' = (Q, q) W (P, p)`, 
 basis vectors
 
 .. math::
- (a', b', c') = (a, b, c) P + p.
+
+   (a', b', c') = (a, b, c) P + p.
 
 This item is given as a character string involving the characters
-x, y and z with commas separating the expressions for the x', y'
-and z' components. The numeric values may be given as integers,
+math:`x`, :math:`y` and :math:`z` with commas separating the expressions 
+for the :math:`x'`, :math:`y'`
+and :math:`z'` components. The numeric values may be given as integers,
 fractions or real numbers. Multiplication is implicit, division must
 be explicit. White space within the string is optional.
 
-Examples: 
--------------
-‘-x/3+2y/3-z/3, -2x/3+y/3+z/3, x/3+y/3+z/3’ (R3:r to R3:h),
-‘x+1/4,y+1/4,z+1/4’ (Pnnn:1 to Pnnn:2), 
-‘z+1/2,x+1/2,y+1/2’ (Bbab:1 to Ccca:2).
+:Examples: - ‘-x/3+2y/3-z/3, -2x/3+y/3+z/3, x/3+y/3+z/3’ (R3:r to R3:h),
+           - ‘x+1/4,y+1/4,z+1/4’ (Pnnn:1 to Pnnn:2), 
+           - ‘z+1/2,x+1/2,y+1/2’ (Bbab:1 to Ccca:2).
         """
         return getattr(self, "__transform_qq_xyz")
     @transform_qq_xyz.setter
@@ -1054,17 +1010,16 @@ Examples:
 
     def calc_asymmetric_cell(self, n_a, n_b, n_c):
         """
-        give the numbers in asymmetric cell
+give the numbers in asymmetric cell
 
-        n_a is the number of points along a axis
-        n_b is the numper of points along b axis
-        n_c is the numper of points along c axis
+ :n_a: the number of points along a axis
+ :n_b: the numper of points along b axis
+ :n_c: the numper of points along c axis
 
-        na, n_b, nc should be divided on 24: 8 and 3
+na, n_b, nc should be divided on 24: 8 and 3
 
-        output: 
-        l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)
-        l_symm contains a list of symmetry given as (n_symm, centr, n_orig)
+:output: - l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)
+         - l_symm contains a list of symmetry given as (n_symm, centr, n_orig)
         """
 
         n_a_new = int(round(n_a/24))*24

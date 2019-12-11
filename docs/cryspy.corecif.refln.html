@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Refln &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.corecif.cl_refln">
+<span id="refln"></span><h1>Refln<a class="headerlink" href="#module-cryspy.corecif.cl_refln" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.corecif.cl_refln.Refln">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_refln.</code><code class="sig-name descname">Refln</code><span class="sig-paren">(</span><em class="sig-param">index_h=None</em>, <em class="sig-param">index_k=None</em>, <em class="sig-param">index_l=None</em>, <em class="sig-param">a_calc=None</em>, <em class="sig-param">a_meas=None</em>, <em class="sig-param">b_calc=None</em>, <em class="sig-param">b_meas=None</em>, <em class="sig-param">class_code=None</em>, <em class="sig-param">crystal_id=None</em>, <em class="sig-param">d_spacing=None</em>, <em class="sig-param">f_calc=None</em>, <em class="sig-param">f_meas=None</em>, <em class="sig-param">f_sigma=None</em>, <em class="sig-param">f_squared_calc=None</em>, <em class="sig-param">f_squared_meas=None</em>, <em class="sig-param">f_squared_sigma=None</em>, <em class="sig-param">include_status=None</em>, <em class="sig-param">intensity_calc=None</em>, <em class="sig-param">intensity_meas=None</em>, <em class="sig-param">intensity_sigma=None</em>, <em class="sig-param">mean_path_length_tbar=None</em>, <em class="sig-param">phase_calc=None</em>, <em class="sig-param">phase_meas=None</em>, <em class="sig-param">refinement_status=None</em>, <em class="sig-param">scale_group_code=None</em>, <em class="sig-param">sintlambda=None</em>, <em class="sig-param">symmetry_epsilon=None</em>, <em class="sig-param">symmetry_multiplicity=None</em>, <em class="sig-param">wavelength=None</em>, <em class="sig-param">wavelength_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_refln.html#Refln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Data items in the REFLN category record details about the
+reflections used to determine the ATOM_SITE data items.
+The REFLN data items refer to individual reflections and must
+be included in looped lists.</p>
+<p>The REFLNS data items specify the parameters that apply to all
+reflections. The REFLNS data items are not looped.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_refln_index_h</span>         <span class="mi">2</span>
+<span class="n">_refln_index_k</span>         <span class="mi">0</span>
+<span class="n">_refln_index_l</span>         <span class="mi">0</span>
+<span class="n">_refln_d_spacing</span>       <span class="mf">0.13</span>
+<span class="n">_refln_A_calc</span>          <span class="mf">2.1</span>
+<span class="n">_refln_B_calc</span>          <span class="mf">0.</span>
+<span class="n">_refln_chi_11_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_12_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_13_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_21_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_22_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_23_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_31_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_32_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_33_A_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_11_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_12_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_13_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_21_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_22_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_23_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_31_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_32_B_calc</span>   <span class="mf">0.</span>
+<span class="n">_refln_chi_33_B_calc</span>   <span class="mf">0.</span>
+</pre></div>
+</div>
+<p>Reference:
+<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">iucr.org</a></p>
+<p>FIXME:
+the attribute ‘sint/lambda’is replaced by ‘sintlambda’</p>
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.Refln.ACCESIBLE_INCLUDE_STATUS">
+<code class="sig-name descname">ACCESIBLE_INCLUDE_STATUS</code><em class="property"> = ('o', '&lt;', '-', 'x', 'h', 'r')</em><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.ACCESIBLE_INCLUDE_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.Refln.ACCESIBLE_REFINEMENT_STATUS">
+<code class="sig-name descname">ACCESIBLE_REFINEMENT_STATUS</code><em class="property"> = ('incl', 'excl', 'extn')</em><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.ACCESIBLE_REFINEMENT_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.Refln.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.Refln.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.Refln.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('a_calc', 'a_meas', 'b_calc', 'b_meas', 'class_code', 'crystal_id', 'd_spacing', 'f_calc', 'f_meas', 'f_sigma', 'f_squared_calc', 'f_squared_meas', 'f_squared_sigma', 'include_status', 'intensity_calc', 'intensity_meas', 'intensity_sigma', 'mean_path_length_tbar', 'phase_calc', 'phase_meas', 'refinement_status', 'scale_group_code', 'sintlambda', 'symmetry_epsilon', 'symmetry_multiplicity', 'wavelength', 'wavelength_id')</em><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.Refln.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'refln'</em><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.a_calc">
+<em class="property">property </em><code class="sig-name descname">a_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.a_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.a_meas">
+<em class="property">property </em><code class="sig-name descname">a_meas</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.a_meas" title="Permalink to this definition">¶</a></dt>
+<dd><p>The measured structure-factor component A
+(in electrons for X-ray diffraction).</p>
+<blockquote>
+<div><p>A =|F|cos(phase)</p>
+</div></blockquote>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.b_calc">
+<em class="property">property </em><code class="sig-name descname">b_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.b_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.b_meas">
+<em class="property">property </em><code class="sig-name descname">b_meas</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.b_meas" title="Permalink to this definition">¶</a></dt>
+<dd><p>The measured structure-factor component B
+(in electrons for X-ray diffraction).</p>
+<blockquote>
+<div><p>B =|F|sin(phase)</p>
+</div></blockquote>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.class_code">
+<em class="property">property </em><code class="sig-name descname">class_code</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.class_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>The code identifying the class to which this reflection has been
+assigned. This code must match a value of _reflns_class_code.
+Reflections may be grouped into classes for a variety of
+purposes. For example, for modulated structures each reflection
+class may be defined by the number m=sum|m~i~|, where the m~i~
+are the integer coefficients that, in addition to h,k,l, index
+the corresponding diffraction vector in the basis defined
+for the reciprocal lattice.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Must match data name_reflns_class_code</p>
+<p>Type: char</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.crystal_id">
+<em class="property">property </em><code class="sig-name descname">crystal_id</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.crystal_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code identifying each crystal if multiple crystals are used. Is
+used to link with _exptl_crystal_id in the _exptl_crystal_ list.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Must match data name_exptl_crystal_id</p>
+<p>Type: char</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.d_spacing">
+<em class="property">property </em><code class="sig-name descname">d_spacing</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.d_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>The d spacing in angstroms for this reflection. This is related
+to the (sin theta)/lambda value by the expression
+_refln_d_spacing = 2/(_refln_sint/lambda)</p>
+<p>Appears in list containing _refln_index_
+The permitted range is 0.0 -&gt; infinity</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.f_calc">
+<em class="property">property </em><code class="sig-name descname">f_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.f_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The calculated  of the structure factors (in electrons for
+X-ray diffraction).</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.f_meas">
+<em class="property">property </em><code class="sig-name descname">f_meas</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.f_meas" title="Permalink to this definition">¶</a></dt>
+<dd><p>The measured of the structure factors (in electrons for
+X-ray diffraction).</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.f_sigma">
+<em class="property">property </em><code class="sig-name descname">f_sigma</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.f_sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>The standard uncertainty (derived from
+measurement) of the structure factors (in electrons for
+X-ray diffraction).</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.f_squared_calc">
+<em class="property">property </em><code class="sig-name descname">f_squared_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.f_squared_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculated of the squared structure factors (in electrons
+squared for X-ray diffraction).</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.f_squared_meas">
+<em class="property">property </em><code class="sig-name descname">f_squared_meas</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.f_squared_meas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measured of the squared structure factors (in electrons
+squared for X-ray diffraction).</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.f_squared_sigma">
+<em class="property">property </em><code class="sig-name descname">f_squared_sigma</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.f_squared_sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimated standard uncertainty (derived
+from measurement) of the squared structure factors (in electrons
+squared for X-ray diffraction).</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_refln.html#Refln.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.include_status">
+<em class="property">property </em><code class="sig-name descname">include_status</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.include_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classification of a reflection indicating its status with
+respect to inclusion in the refinement and the calculation
+of R factors.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Related item: _refln_observed_status (alternate)</p>
+<p>The data value must be one of the following:</p>
+<p>o       (lower-case letter o for ‘observed’) satisfies _refine_ls_d_res_high satisfies _refine_ls_d_res_low exceeds _reflns_threshold_expression
+&lt;       satisfies _refine_ls_d_res_high satisfies _refine_ls_d_res_low does not exceed _reflns_threshold_expression
+-       systematically absent reflection
+x       unreliable measurement – not used
+h       does not satisfy _refine_ls_d_res_high
+l       does not satisfy _refine_ls_d_res_low</p>
+<p>Enumeration default: o
+Type: char</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.index_h">
+<em class="property">property </em><code class="sig-name descname">index_h</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.index_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller indices of the reflection. The values of the Miller
+indices in the REFLN category must correspond to the cell
+defined by the cell lengths and cell angles in the CELL category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.index_k">
+<em class="property">property </em><code class="sig-name descname">index_k</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.index_k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller indices of the reflection. The values of the Miller
+indices in the REFLN category must correspond to the cell
+defined by the cell lengths and cell angles in the CELL category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.index_l">
+<em class="property">property </em><code class="sig-name descname">index_l</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.index_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller indices of the reflection. The values of the Miller
+indices in the REFLN category must correspond to the cell
+defined by the cell lengths and cell angles in the CELL category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.intensity_calc">
+<em class="property">property </em><code class="sig-name descname">intensity_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.intensity_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The calculated of the intensity, all in the same arbitrary units
+as _refln_intensity_meas.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.intensity_meas">
+<em class="property">property </em><code class="sig-name descname">intensity_meas</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.intensity_meas" title="Permalink to this definition">¶</a></dt>
+<dd><p>The measured of the intensity, all in the same arbitrary units
+as _refln_intensity_meas.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.intensity_sigma">
+<em class="property">property </em><code class="sig-name descname">intensity_sigma</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.intensity_sigma" title="Permalink to this definition">¶</a></dt>
+<dd><p>The standard uncertainty (derived from
+measurement) of the intensity, all in the same arbitrary units
+as _refln_intensity_meas.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.mean_path_length_tbar">
+<em class="property">property </em><code class="sig-name descname">mean_path_length_tbar</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.mean_path_length_tbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean path length in millimetres through the crystal for this
+reflection.</p>
+<p>Appears in list containing _refln_index_
+The permitted range is 0.0 -&gt; infinity</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.phase_calc">
+<em class="property">property </em><code class="sig-name descname">phase_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.phase_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>The calculated structure-factor phase in degrees.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.phase_meas">
+<em class="property">property </em><code class="sig-name descname">phase_meas</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.phase_meas" title="Permalink to this definition">¶</a></dt>
+<dd><p>The measured structure-factor phase in degrees.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+<p>Category: refln</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.refinement_status">
+<em class="property">property </em><code class="sig-name descname">refinement_status</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.refinement_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Status of a reflection in the structure-refinement process.</p>
+<p>Appears in list containing _refln_index_
+The data value must be one of the following:</p>
+<p>incl    included in ls process</p>
+<p>excl    excluded from ls process</p>
+<p>extn    excluded due to extinction</p>
+<p>Enumeration default: incl</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.scale_group_code">
+<em class="property">property </em><code class="sig-name descname">scale_group_code</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.scale_group_code" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Code identifying the structure-factor scale. This code must</dt><dd><p>correspond to one of the _reflns_scale_group_code values.</p>
+</dd>
+</dl>
+<p>Examples:
+1, 2, 3, s1
+A, B, c1, c2, c3</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Must match data name_reflns_scale_group_code</p>
+<p>Type: char</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.sintlambda">
+<em class="property">property </em><code class="sig-name descname">sintlambda</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.sintlambda" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>The (sin theta)/lambda value in reciprocal angstroms for this</dt><dd><p>reflection.</p>
+</dd>
+</dl>
+<p>Appears in list containing _refln_index_
+The permitted range is 0.0 -&gt; infinity</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.symmetry_epsilon">
+<em class="property">property </em><code class="sig-name descname">symmetry_epsilon</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.symmetry_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd><p>The symmetry reinforcement factor corresponding to the number of
+times the reflection indices are generated identically from the
+space-group symmetry operations.</p>
+<p>Appears in list containing _refln_index_
+The permitted range is 1 -&gt; 48</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.symmetry_multiplicity">
+<em class="property">property </em><code class="sig-name descname">symmetry_multiplicity</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.symmetry_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of reflections symmetry-equivalent under the Laue
+symmetry to the present reflection. In the Laue symmetry, Friedel
+opposites (h k l and -h -k -l) are equivalent. Tables of
+symmetry-equivalent reflections are available in International
+Tables for Crystallography Volume A (2002), Chapter 10.1.</p>
+<p>Appears in list containing _refln_index_
+The permitted range is 1 -&gt; 48</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.wavelength">
+<em class="property">property </em><code class="sig-name descname">wavelength</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.wavelength" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mean wavelength in angstroms of the radiation used to measure
+this reflection. This is an important parameter for data
+collected using energy-dispersive detectors or the Laue method.</p>
+<p>Appears in list containing _refln_index_
+The permitted range is 0.0 -&gt; infinity</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_refln.Refln.wavelength_id">
+<em class="property">property </em><code class="sig-name descname">wavelength_id</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.wavelength_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Code identifying the wavelength in the _diffrn_radiation_ list.
+See _diffrn_radiation_wavelength_id.</p>
+<p>Appears in list containing _refln_index_</p>
+<p>Must match data name_diffrn_radiation_wavelength_id</p>
+<p>Type: char</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cryspy.corecif.cl_refln.ReflnL">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_refln.</code><code class="sig-name descname">ReflnL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_refln.html#ReflnL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_refln.ReflnL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
+<p>Data items in the REFLN category record details about the
+reflections used to determine the ATOM_SITE data items.
+The REFLN data items refer to individual reflections and must
+be included in looped lists.</p>
+<p>The REFLNS data items specify the parameters that apply to all
+reflections. The REFLNS data items are not looped.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+ <span class="n">_refln_index_h</span>
+ <span class="n">_refln_index_k</span>
+ <span class="n">_refln_index_l</span>
+ <span class="n">_refln_d_spacing</span>
+ <span class="n">_refln_A_calc</span>
+ <span class="n">_refln_B_calc</span>
+ <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mf">2.315</span> <span class="mf">3.25</span>  <span class="mf">1.232</span>
+ <span class="mi">2</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mf">4.213</span> <span class="mf">5.00</span> <span class="o">-</span><span class="mf">4.05</span>
+</pre></div>
+</div>
+<p>Reference:
+<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">iucr.org</a></p>
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.ReflnL.CATEGORY_KEY">
+<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.corecif.cl_refln.ReflnL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_refln.ReflnL.ITEM_CLASS">
+<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.corecif.cl_refln.ReflnL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#cryspy.corecif.cl_refln.Refln" title="cryspy.corecif.cl_refln.Refln"><code class="xref py py-class docutils literal notranslate"><span class="pre">Refln</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.corecif.refln.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>
