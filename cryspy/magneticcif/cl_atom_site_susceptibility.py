@@ -137,7 +137,6 @@ Type: float
         else:
             x_in = Fitable()
             flag = x_in.take_it(x)
-            print(flag, x_in)
         setattr(self, "__chi_11", x_in)
 
 

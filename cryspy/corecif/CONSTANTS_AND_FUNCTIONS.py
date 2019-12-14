@@ -79,7 +79,7 @@ def apply_constraint_on_cell_by_type_cell(cell, type_cell:str):
 
 def get_scat_length_neutron(type_n):
     """
-    Take scat_length_neutron
+Take scat_length_neutron
     """
     
     str_1 = type_n.strip().lower()
@@ -94,7 +94,7 @@ def get_scat_length_neutron(type_n):
             break
     if not(flag):
         res = 0.
-        warnings.warn(f"Can not find b_scat for '{type_n:}'.\n It is putted as 0.", UserWarning)
+        warnings.warn(f"Can not find b_scat for '{type_n:}'.\n It is putted as 0.", UserWarning, stacklevel=2)
     return res 
 
 

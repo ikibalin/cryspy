@@ -33,7 +33,7 @@ Description in cif file:
 
 :FIXME: replace attribute 'analytical_mass' by 'analytical_mass_%' as in CoreCIF
     """
-    MANDATORY_ATTRIBUTE = ("symbol")
+    MANDATORY_ATTRIBUTE = ("symbol", )
     OPTIONAL_ATTRIBUTE = ("analytical_mass", "description", "number_in_cell", "oxidation_number", "radius_bond", "radius_contact", 
                           "cromer_mann_a1", "cromer_mann_a2", "cromer_mann_a3", "cromer_mann_a4", 
                           "cromer_mann_b1", "cromer_mann_b2", "cromer_mann_b3", "cromer_mann_b4", "cromer_mann_c", 

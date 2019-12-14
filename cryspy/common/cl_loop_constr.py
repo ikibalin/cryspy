@@ -68,6 +68,14 @@ class LoopConstr(object):
         flag = flag_1 & flag_2
         return flag
 
+    @property
+    def form_object(self)->bool:
+        flag_1 = True
+        flag_2 = all([_obj.form_object for _obj in self.item if _obj.is_defined])
+        flag = flag_1 & flag_2
+        return flag
+
+
     @classmethod
     def from_cif(cls, string: str)->List:
         cif_data = Data()
@@ -158,6 +166,7 @@ class LoopConstr(object):
             flag = True
         if flag:
             self.__item = l_x
+            self.form_object
         else:
             print(f"One of the introduced object does not correspond to class {self.item_class:}")
 

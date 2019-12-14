@@ -1,4 +1,4 @@
-AtomtypeScat
+AtomTypeScat
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: cryspy.magneticcif.cl_atom_type_scat

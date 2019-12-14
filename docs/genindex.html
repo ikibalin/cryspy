@@ -54,6 +54,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -118,8 +119,6 @@
 </li>
       <li><a href="cryspy.corecif.atom_type.html#cryspy.corecif.cl_atom_type.AtomType.analytical_mass">analytical_mass() (cryspy.corecif.cl_atom_type.AtomType property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.angle_alpha">angle_alpha() (cryspy.corecif.cl_cell.Cell property)</a>
 </li>
       <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.angle_beta">angle_beta() (cryspy.corecif.cl_cell.Cell property)</a>
@@ -128,9 +127,13 @@
 </li>
       <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.apply_chi_iso_constraint">apply_chi_iso_constraint() (cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.apply_constraint">apply_constraint() (cryspy.cif_like.cl_crystal.Crystal method)</a>
 
       <ul>
+        <li><a href="cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.apply_constraint">(cryspy.corecif.cl_atom_site.AtomSite method)</a>
+</li>
         <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.apply_constraint">(cryspy.corecif.cl_cell.Cell method)</a>
 </li>
       </ul></li>
@@ -146,6 +149,16 @@
 </li>
       <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.atom_site">atom_site() (cryspy.cif_like.cl_crystal.Crystal property)</a>
 </li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.atom_site_aniso">atom_site_aniso() (cryspy.cif_like.cl_crystal.Crystal property)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.atom_site_scat">atom_site_scat() (cryspy.cif_like.cl_crystal.Crystal property)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.atom_site_susceptibility">atom_site_susceptibility() (cryspy.cif_like.cl_crystal.Crystal property)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.atom_type">atom_type() (cryspy.cif_like.cl_crystal.Crystal property)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.atom_type_scat">atom_type_scat() (cryspy.cif_like.cl_crystal.Crystal property)</a>
+</li>
       <li><a href="cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite">AtomSite (class in cryspy.corecif.cl_atom_site)</a>
 </li>
       <li><a href="cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso">AtomSiteAniso (class in cryspy.corecif.cl_atom_site_aniso)</a>
@@ -157,6 +170,10 @@
       <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment">AtomSiteMoment (class in cryspy.magneticcif.cl_atom_site_moment)</a>
 </li>
       <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL">AtomSiteMomentL (class in cryspy.magneticcif.cl_atom_site_moment)</a>
+</li>
+      <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat">AtomSiteScat (class in cryspy.magneticcif.cl_atom_site_scat)</a>
+</li>
+      <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL">AtomSiteScatL (class in cryspy.magneticcif.cl_atom_site_scat)</a>
 </li>
       <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility">AtomSiteSusceptibility (class in cryspy.magneticcif.cl_atom_site_susceptibility)</a>
 </li>
@@ -230,23 +247,39 @@
 </li>
       <li><a href="cryspy.cif_like.extinction.html#cryspy.cif_like.cl_extinction.Extinction.calc_extinction">calc_extinction() (cryspy.cif_like.cl_extinction.Extinction method)</a>
 </li>
-      <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_hkl">calc_hkl() (cryspy.corecif.cl_cell.Cell method)</a>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_hkl">calc_hkl() (cryspy.cif_like.cl_crystal.Crystal method)</a>
+
+      <ul>
+        <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_hkl">(cryspy.corecif.cl_cell.Cell method)</a>
 </li>
+      </ul></li>
       <li><a href="cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_hkl_equiv">calc_hkl_equiv() (cryspy.symcif.cl_space_group.SpaceGroup method)</a>
 </li>
-      <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_hkl_in_range">calc_hkl_in_range() (cryspy.corecif.cl_cell.Cell method)</a>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_hkl_in_range">calc_hkl_in_range() (cryspy.cif_like.cl_crystal.Crystal method)</a>
+
+      <ul>
+        <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_hkl_in_range">(cryspy.corecif.cl_cell.Cell method)</a>
 </li>
+      </ul></li>
       <li><a href="cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_iint">calc_iint() (cryspy.cif_like.cl_pd.Pd method)</a>
 </li>
       <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_k_loc">calc_k_loc() (cryspy.corecif.cl_cell.Cell method)</a>
 </li>
       <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_m_t">calc_m_t() (cryspy.corecif.cl_cell.Cell method)</a>
 </li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_magnetic_moments_with_field_loc">calc_magnetic_moments_with_field_loc() (cryspy.cif_like.cl_crystal.Crystal method)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_magnetization_ellipsoid">calc_magnetization_ellipsoid() (cryspy.cif_like.cl_crystal.Crystal method)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_main_axes_of_magnetization_ellipsoids">calc_main_axes_of_magnetization_ellipsoids() (cryspy.cif_like.cl_crystal.Crystal method)</a>
+</li>
       <li><a href="cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_profile">calc_profile() (cryspy.cif_like.cl_pd.Pd method)</a>
 </li>
       <li><a href="cryspy.pd1dcif_like.pd_instr_resolution.html#cryspy.pd1dcif_like.cl_pd_instr_resolution.PdInstrResolution.calc_resolution">calc_resolution() (cryspy.pd1dcif_like.cl_pd_instr_resolution.PdInstrResolution method)</a>
 </li>
       <li><a href="cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_rotated_matrix_for_position">calc_rotated_matrix_for_position() (cryspy.symcif.cl_space_group.SpaceGroup method)</a>
+</li>
+      <li><a href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_sf">calc_sf() (cryspy.cif_like.cl_crystal.Crystal method)</a>
 </li>
       <li><a href="cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_shape_profile">calc_shape_profile() (cryspy.cif_like.cl_pd.Pd method)</a>
 </li>
@@ -284,6 +317,8 @@
         <li><a href="cryspy.corecif.refln.html#cryspy.corecif.cl_refln.ReflnL.CATEGORY_KEY">(cryspy.corecif.cl_refln.ReflnL attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL.CATEGORY_KEY">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL attribute)</a>
+</li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.CATEGORY_KEY">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL.CATEGORY_KEY">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL attribute)</a>
 </li>
@@ -346,14 +381,14 @@
 </li>
       <li><a href="cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_31_calc">chi_31_calc() (cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_32_calc">chi_32_calc() (cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility property)</a>
 </li>
       <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.chi_33">chi_33() (cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility property)</a>
 </li>
       <li><a href="cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_33_calc">chi_33_calc() (cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.chi_type">chi_type() (cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility property)</a>
 </li>
       <li><a href="cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln.class_code">class_code() (cryspy.corecif.cl_refln.Refln property)</a>
@@ -437,6 +472,8 @@
       <li><a href="cryspy.magneticcif.html#module-cryspy.magneticcif">cryspy.magneticcif (module)</a>
 </li>
       <li><a href="cryspy.magneticcif.atom_site_moment.html#module-cryspy.magneticcif.cl_atom_site_moment">cryspy.magneticcif.cl_atom_site_moment (module)</a>
+</li>
+      <li><a href="cryspy.magneticcif.atom_site_scat.html#module-cryspy.magneticcif.cl_atom_site_scat">cryspy.magneticcif.cl_atom_site_scat (module)</a>
 </li>
       <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#module-cryspy.magneticcif.cl_atom_site_susceptibility">cryspy.magneticcif.cl_atom_site_susceptibility (module)</a>
 </li>
@@ -554,9 +591,11 @@
 </li>
       <li><a href="cryspy.cif_like.setup.html#cryspy.cif_like.cl_setup.Setup.field">field() (cryspy.cif_like.cl_setup.Setup property)</a>
 </li>
-      <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.form_object">form_object() (cryspy.corecif.cl_cell.Cell property)</a>
+      <li><a href="cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.form_object">form_object() (cryspy.corecif.cl_atom_site.AtomSite property)</a>
 
       <ul>
+        <li><a href="cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.form_object">(cryspy.corecif.cl_cell.Cell property)</a>
+</li>
         <li><a href="cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.form_object">(cryspy.symcif.cl_space_group.SpaceGroup property)</a>
 </li>
         <li><a href="cryspy.symcif.space_group_symop.html#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.form_object">(cryspy.symcif.cl_space_group_symop.SpaceGroupSymop property)</a>
@@ -628,6 +667,8 @@
         <li><a href="cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln.get_variables">(cryspy.corecif.cl_refln.Refln method)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.get_variables">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment method)</a>
+</li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.get_variables">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat method)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.get_variables">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility method)</a>
 </li>
@@ -785,6 +826,8 @@
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.INTERNAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment attribute)</a>
 </li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.INTERNAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat attribute)</a>
+</li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.INTERNAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.INTERNAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat attribute)</a>
@@ -851,6 +894,8 @@
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.is_variable">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment property)</a>
 </li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.is_variable">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat property)</a>
+</li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.is_variable">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility property)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.is_variable">(cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat property)</a>
@@ -889,6 +934,8 @@
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL.ITEM_CLASS">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL attribute)</a>
 </li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.ITEM_CLASS">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL attribute)</a>
+</li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL.ITEM_CLASS">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.ITEM_CLASS">(cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL attribute)</a>
@@ -915,6 +962,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.kappa">kappa() (cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -925,6 +980,8 @@
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.label">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment property)</a>
 </li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.label">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat property)</a>
+</li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.label">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility property)</a>
 </li>
         <li><a href="cryspy.pd1dcif_like.pd_phase.html#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.label">(cryspy.pd1dcif_like.cl_pd_phase.PdPhase property)</a>
@@ -932,7 +989,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.lande">lande() (cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat property)</a>
+      <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.lande">lande() (cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat property)</a>
 </li>
       <li><a href="cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.laue_class">laue_class() (cryspy.symcif.cl_space_group.SpaceGroup property)</a>
 </li>
@@ -980,6 +1037,8 @@
         <li><a href="cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln.MANDATORY_ATTRIBUTE">(cryspy.corecif.cl_refln.Refln attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.MANDATORY_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment attribute)</a>
+</li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.MANDATORY_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.MANDATORY_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility attribute)</a>
 </li>
@@ -1060,8 +1119,12 @@
 </li>
       <li><a href="cryspy.cif_like.extinction.html#cryspy.cif_like.cl_extinction.Extinction.mosaicity">mosaicity() (cryspy.cif_like.cl_extinction.Extinction property)</a>
 </li>
-      <li><a href="cryspy.symcif.space_group_wyckoff.html#cryspy.symcif.cl_space_group_wyckoff.SpaceGroupWyckoff.multiplicity">multiplicity() (cryspy.symcif.cl_space_group_wyckoff.SpaceGroupWyckoff property)</a>
+      <li><a href="cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.multiplicity">multiplicity() (cryspy.corecif.cl_atom_site.AtomSite property)</a>
+
+      <ul>
+        <li><a href="cryspy.symcif.space_group_wyckoff.html#cryspy.symcif.cl_space_group_wyckoff.SpaceGroupWyckoff.multiplicity">(cryspy.symcif.cl_space_group_wyckoff.SpaceGroupWyckoff property)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1189,6 +1252,8 @@
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.OPTIONAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment attribute)</a>
 </li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.OPTIONAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat attribute)</a>
+</li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.OPTIONAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.OPTIONAL_ATTRIBUTE">(cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat attribute)</a>
@@ -1284,10 +1349,10 @@
 </li>
       <li><a href="cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.point_group_hm">point_group_hm() (cryspy.symcif.cl_space_group.SpaceGroup property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cryspy.cif_like.diffrn_radiation.html#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.polarization">polarization() (cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="cryspy.cif_like.chi2.html#cryspy.cif_like.cl_chi2.Chi2.PREFIX">PREFIX (cryspy.cif_like.cl_chi2.Chi2 attribute)</a>
 
       <ul>
@@ -1312,6 +1377,8 @@
         <li><a href="cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln.PREFIX">(cryspy.corecif.cl_refln.Refln attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.PREFIX">(cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment attribute)</a>
+</li>
+        <li><a href="cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.PREFIX">(cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat attribute)</a>
 </li>
         <li><a href="cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.PREFIX">(cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility attribute)</a>
 </li>

@@ -54,19 +54,16 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+<span class="kn">import</span> <span class="nn">cryspy.corecif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span> 
 
 
-<div class="viewcode-block" id="AtomSite"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.AtomSite">[docs]</a><span class="k">class</span> <span class="nc">AtomSite</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+<div class="viewcode-block" id="AtomSite"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite">[docs]</a><span class="k">class</span> <span class="nc">AtomSite</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomSite:</span>
-<span class="sd">=========</span>
 <span class="sd">Data items in the ATOM_SITE category record details about</span>
 <span class="sd">the atom sites in a crystal structure, such as the positional</span>
 <span class="sd">coordinates.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">-------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> _atom_site_label            Fe3A</span>
 <span class="sd"> _atom_site_type_symbol      Fe </span>
@@ -77,42 +74,12 @@
 <span class="sd"> _atom_site_B_iso_or_equiv   0.0 </span>
 <span class="sd"> _atom_site_occupancy        1.0</span>
 
-<span class="sd">Mandatory attribute: </span>
-<span class="sd">---------------------</span>
-<span class="sd">- label</span>
-<span class="sd">- type_symbol</span>
-<span class="sd">- fract_x</span>
-<span class="sd">- fract_y</span>
-<span class="sd">- fract_z</span>
-
-<span class="sd">Optional attribute: </span>
-<span class="sd">---------------------</span>
-<span class="sd">- occupancy</span>
-<span class="sd">- adp_type</span>
-<span class="sd">- wyckoff_symbol</span>
-<span class="sd">- u_iso_or_equiv</span>
-<span class="sd">- u_equiv_geom_mean</span>
-<span class="sd">- b_iso_or_equiv</span>
-<span class="sd">- cartn_x</span>
-<span class="sd">- cartn_y</span>
-<span class="sd">- cartn_z</span>
-
-<span class="sd">Class methods:</span>
-<span class="sd">----------------</span>
-<span class="sd">- </span>
-
-<span class="sd">Methods:</span>
-<span class="sd">---------</span>
-<span class="sd">- get_symop</span>
-
-<span class="sd">Reference: </span>
-<span class="sd">-----------</span>
-<span class="sd">`the page &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;type_symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;fract_x&quot;</span><span class="p">,</span> <span class="s2">&quot;fract_y&quot;</span><span class="p">,</span> <span class="s2">&quot;fract_z&quot;</span><span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;occupancy&quot;</span><span class="p">,</span> <span class="s2">&quot;adp_type&quot;</span><span class="p">,</span> <span class="s2">&quot;wyckoff_symbol&quot;</span><span class="p">,</span> 
                           <span class="s2">&quot;u_iso_or_equiv&quot;</span><span class="p">,</span> <span class="s2">&quot;u_equiv_geom_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;b_iso_or_equiv&quot;</span><span class="p">,</span>
-                          <span class="s2">&quot;cartn_x&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_y&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_z&quot;</span><span class="p">)</span>
+                          <span class="s2">&quot;cartn_x&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_y&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_z&quot;</span><span class="p">,</span> <span class="s2">&quot;multiplicity&quot;</span><span class="p">)</span>
     <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;scat_length_neutron&quot;</span><span class="p">,</span> <span class="s2">&quot;atom_type_scat&quot;</span><span class="p">,</span> <span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">)</span>
     <span class="n">ACCESIBLE_ADP_TYPE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Uani&quot;</span><span class="p">,</span> <span class="s2">&quot;Uiso&quot;</span><span class="p">,</span> <span class="s2">&quot;Uovl&quot;</span><span class="p">,</span> <span class="s2">&quot;Umpe&quot;</span><span class="p">,</span> <span class="s2">&quot;Bani&quot;</span><span class="p">,</span> <span class="s2">&quot;Biso&quot;</span><span class="p">,</span> <span class="s2">&quot;Bovl&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;atom_site&quot;</span>
@@ -150,11 +117,9 @@
 <span class="sd">The _atom_site_label is a unique identifier for a particular site</span>
 <span class="sd">in the crystal. </span>
 
-<span class="sd">Type: char</span>
+<span class="sd">:Type: char</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-----------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">)</span>
     <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
@@ -172,11 +137,9 @@
 <span class="sd">occupying this site.</span>
 <span class="sd">This code must match a corresponding _atom_type_symbol. </span>
 
-<span class="sd">Type: char</span>
+<span class="sd">:Type: char</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__type_symbol&quot;</span><span class="p">)</span>
     <span class="nd">@type_symbol</span><span class="o">.</span><span class="n">setter</span>
@@ -192,11 +155,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Atom-site coordinates as fractions of the _cell_length_ values.</span>
 
-<span class="sd">Type: float</span>
+<span class="sd">:Type: float</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">----------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fract_x&quot;</span><span class="p">)</span>
     <span class="nd">@fract_x</span><span class="o">.</span><span class="n">setter</span>
@@ -213,12 +174,11 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fract_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Atom-site coordinates as fractions of the _cell_length_ values.</span>
+<span class="sd">Atom-site coordinates as fractions of the _cell_length_ values.</span>
 
-<span class="sd">        Type: float</span>
+<span class="sd">:Type: float</span>
 
-<span class="sd">        Reference: </span>
-<span class="sd">        `link &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fract_y&quot;</span><span class="p">)</span>
     <span class="nd">@fract_y</span><span class="o">.</span><span class="n">setter</span>
@@ -235,12 +195,11 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fract_z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Atom-site coordinates as fractions of the _cell_length_ values.</span>
+<span class="sd">Atom-site coordinates as fractions of the _cell_length_ values.</span>
 
-<span class="sd">        Type: float</span>
+<span class="sd">:Type: float</span>
 
-<span class="sd">        Reference: </span>
-<span class="sd">        `link &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fract_z&quot;</span><span class="p">)</span>
     <span class="nd">@fract_z</span><span class="o">.</span><span class="n">setter</span>
@@ -258,16 +217,15 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">adp_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A standard code used to describe the type of atomic displacement</span>
-<span class="sd">        parameters used for the site. </span>
+<span class="sd">A standard code used to describe the type of atomic displacement</span>
+<span class="sd">parameters used for the site. </span>
 
-<span class="sd">        The data value must be one of the following:</span>
-<span class="sd">        ----------------------------------------------</span>
-<span class="sd">        &quot;Uani&quot;, &quot;Uiso&quot;, &quot;Uovl&quot;, &quot;Umpe&quot;, &quot;Bani&quot;, &quot;Biso&quot;, &quot;Bovl&quot;</span>
+<span class="sd">The data value must be one of the following:</span>
 
-<span class="sd">        Reference: </span>
-<span class="sd">        -----------</span>
-<span class="sd">        `link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_adp_type.html`_</span>
+<span class="sd">&quot;Uani&quot;, &quot;Uiso&quot;, &quot;Uovl&quot;, &quot;Umpe&quot;, &quot;Bani&quot;, &quot;Biso&quot;, &quot;Bovl&quot;</span>
+
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_adp_type.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__adp_type&quot;</span><span class="p">)</span>
     <span class="nd">@adp_type</span><span class="o">.</span><span class="n">setter</span>
@@ -285,17 +243,14 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The fraction of the atom type present at this site.</span>
-<span class="sd">        The sum of the occupancies of all the atom types at this site</span>
-<span class="sd">        may not significantly exceed 1.0 unless it is a dummy site. The</span>
-<span class="sd">        value must lie in the 99.97% Gaussian confidence interval</span>
-<span class="sd">        -3u =&lt; x =&lt; 1 + 3u. The _enumeration_range of 0.0:1.0 is thus</span>
-<span class="sd">        correctly interpreted as meaning (0.0 - 3u) =&lt; x =&lt; (1.0 + 3u).</span>
+<span class="sd">The fraction of the atom type present at this site.</span>
+<span class="sd">The sum of the occupancies of all the atom types at this site</span>
+<span class="sd">may not significantly exceed 1.0 unless it is a dummy site. The</span>
+<span class="sd">value must lie in the 99.97% Gaussian confidence interval</span>
+<span class="sd">:math:`-3u =&lt; x =&lt; 1 + 3u`. The _enumeration_range of :math:`0.0:1.0` is thus</span>
+<span class="sd">correctly interpreted as meaning :math:`(0.0 - 3u) =&lt; x =&lt; (1.0 + 3u)`.</span>
 
-<span class="sd">        </span>
-<span class="sd">        Reference:</span>
-<span class="sd">        -------------</span>
-<span class="sd">        `link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_occupancy.html`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_occupancy.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__occupancy&quot;</span><span class="p">)</span>
     <span class="nd">@occupancy</span><span class="o">.</span><span class="n">setter</span>
@@ -312,8 +267,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">wyckoff_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The Wyckoff symbol (letter) as listed in the space-group tables of</span>
-<span class="sd">        International Tables for Crystallography Vol. A (2002).</span>
+<span class="sd">The Wyckoff symbol (letter) as listed in the space-group tables of</span>
+<span class="sd">International Tables for Crystallography Vol. A (2002).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wyckoff_symbol&quot;</span><span class="p">)</span>
     <span class="nd">@wyckoff_symbol</span><span class="o">.</span><span class="n">setter</span>
@@ -325,20 +280,33 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wyckoff_symbol&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__multiplicity&quot;</span><span class="p">)</span>
+    <span class="nd">@multiplicity</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__multiplicity&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">u_iso_or_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Isotropic atomic displacement parameter, or equivalent isotropic</span>
-<span class="sd">        atomic displacement parameter, U equiv , in ångströms squared, </span>
-<span class="sd">        calculated from anisotropic atomic displacement parameters.</span>
+<span class="sd">Isotropic atomic displacement parameter, or equivalent isotropic</span>
+<span class="sd">atomic displacement parameter, U equiv , in ångströms squared, </span>
+<span class="sd">calculated from anisotropic atomic displacement parameters.</span>
 
+<span class="sd">.. math::</span>
 
-<span class="sd">        U(equiv) = (1/3) sum~i~[sum~j~(U^ij^ a*~i~ a*~j~ a~i~ a~j~)]</span>
+<span class="sd">   U_{equiv} = (1/3) \\Sigma_{i}~[\\Sigma_{j} (U_{ij}  a^{*}_{i} a^{*}_{j} a_{i} a_{j})]</span>
 
-<span class="sd">        a     = the real-space cell lengths</span>
-<span class="sd">        a*    = the reciprocal-space cell lengths</span>
+<span class="sd">a     = the real-space cell lengths</span>
 
-<span class="sd">        Ref: Fischer, R. X. &amp; Tillmanns, E. (1988). Acta Cryst. C44,</span>
-<span class="sd">             775-776.</span>
+<span class="sd">a*    = the reciprocal-space cell lengths</span>
+
+<span class="sd">:Reference: Fischer, R. X. &amp; Tillmanns, E. (1988). Acta Cryst. C44,</span>
+<span class="sd">            775-776.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_iso_or_equiv&quot;</span><span class="p">)</span>
     <span class="nd">@u_iso_or_equiv</span><span class="o">.</span><span class="n">setter</span>
@@ -356,13 +324,15 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">u_equiv_geom_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Equivalent isotropic atomic displacement parameter, U equiv , in</span>
-<span class="sd">        angströms squared, calculated as the geometric mean of the</span>
-<span class="sd">        anisotropic atomic displacement parameters.</span>
+<span class="sd">Equivalent isotropic atomic displacement parameter, U equiv , in</span>
+<span class="sd">angströms squared, calculated as the geometric mean of the</span>
+<span class="sd">anisotropic atomic displacement parameters.</span>
 
-<span class="sd">        U_equiv = (U_i U_j U_k)**(1/3)</span>
+<span class="sd">.. math::</span>
 
-<span class="sd">        where U_n = the principal components of the orthogonalized U_ij.</span>
+<span class="sd">   U_{equiv} = (U_{i} U_{j} U_{k})^{1/3}</span>
+
+<span class="sd">where :math:`U_{n}` the principal components of the orthogonalized :math:`U_{ij}`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_equiv_geom_mean&quot;</span><span class="p">)</span>
     <span class="nd">@u_equiv_geom_mean</span><span class="o">.</span><span class="n">setter</span>
@@ -380,26 +350,28 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">b_iso_or_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Isotropic atomic displacement parameter, or equivalent isotropic</span>
-<span class="sd">        atomic displacement parameter, B(equiv), in angstroms squared,</span>
-<span class="sd">        calculated from anisotropic displacement components.</span>
+<span class="sd">Isotropic atomic displacement parameter, or equivalent isotropic</span>
+<span class="sd">atomic displacement parameter, B(equiv), in angstroms squared,</span>
+<span class="sd">calculated from anisotropic displacement components.</span>
 
-<span class="sd">        B(equiv) = (1/3) sum~i~[sum~j~(B^ij^ a*~i~ a*~j~ a~i~ a~j~)]</span>
+<span class="sd">.. math::</span>
 
-<span class="sd">        a     = the real-space cell lengths</span>
-<span class="sd">        a*    = the reciprocal-space cell lengths</span>
-<span class="sd">        B^ij^ = 8 pi^2^ U^ij^</span>
+<span class="sd">   B_{equiv} = (1/3) \\Sigma_{i}[\\Sigma_{j}(B_{ij} a^{*}_{i} a^{*}_{j} a_{i} a_{j})]</span>
 
-<span class="sd">        Ref: Fischer, R. X. &amp; Tillmanns, E. (1988). Acta Cryst. C44,</span>
-<span class="sd">             775-776.</span>
+<span class="sd">:math:`a`     = the real-space cell lengths</span>
+<span class="sd">:math:`a^{*}` = the reciprocal-space cell lengths</span>
 
-<span class="sd">        The IUCr Commission on Nomenclature recommends against the use</span>
-<span class="sd">        of B for reporting atomic displacement parameters. U, being</span>
-<span class="sd">        directly proportional to B, is preferred.</span>
+<span class="sd">.. math::</span>
 
-<span class="sd">        Reference:</span>
-<span class="sd">        ------------</span>
-<span class="sd">        `link &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_B_iso_or_equiv.html&gt;`_</span>
+<span class="sd">   B_{ij} = 8 \\pi^{2} U_{ij}</span>
+
+<span class="sd">:Ref: Fischer, R. X. &amp; Tillmanns, E. (1988). Acta Cryst. C44,</span>
+<span class="sd">      775-776.</span>
+
+<span class="sd">The IUCr Commission on Nomenclature recommends against the use</span>
+<span class="sd">of B for reporting atomic displacement parameters. U, being</span>
+<span class="sd">directly proportional to B, is preferred.</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_B_iso_or_equiv.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_iso_or_equiv&quot;</span><span class="p">)</span>
     <span class="nd">@b_iso_or_equiv</span><span class="o">.</span><span class="n">setter</span>
@@ -416,9 +388,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cartn_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The atom-site coordinates in angstroms specified according to a set</span>
-<span class="sd">        of orthogonal Cartesian axes related to the cell axes as specified by</span>
-<span class="sd">        the _atom_sites_Cartn_transform_axes description.</span>
+<span class="sd">The atom-site coordinates in angstroms specified according to a set</span>
+<span class="sd">of orthogonal Cartesian axes related to the cell axes as specified by</span>
+<span class="sd">the _atom_sites_Cartn_transform_axes description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_x&quot;</span><span class="p">)</span>
     <span class="nd">@cartn_x</span><span class="o">.</span><span class="n">setter</span>
@@ -435,9 +407,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cartn_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The atom-site coordinates in angstroms specified according to a set</span>
-<span class="sd">        of orthogonal Cartesian axes related to the cell axes as specified by</span>
-<span class="sd">        the _atom_sites_Cartn_transform_axes description.</span>
+<span class="sd">The atom-site coordinates in angstroms specified according to a set</span>
+<span class="sd">of orthogonal Cartesian axes related to the cell axes as specified by</span>
+<span class="sd">the _atom_sites_Cartn_transform_axes description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_y&quot;</span><span class="p">)</span>
     <span class="nd">@cartn_y</span><span class="o">.</span><span class="n">setter</span>
@@ -454,9 +426,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cartn_z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The atom-site coordinates in angstroms specified according to a set</span>
-<span class="sd">        of orthogonal Cartesian axes related to the cell axes as specified by</span>
-<span class="sd">        the _atom_sites_Cartn_transform_axes description.</span>
+<span class="sd">The atom-site coordinates in angstroms specified according to a set</span>
+<span class="sd">of orthogonal Cartesian axes related to the cell axes as specified by</span>
+<span class="sd">the _atom_sites_Cartn_transform_axes description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_z&quot;</span><span class="p">)</span>
     <span class="nd">@cartn_z</span><span class="o">.</span><span class="n">setter</span>
@@ -469,6 +441,10 @@
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
             <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_z&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scat_length_neutron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__scat_length_neutron&quot;</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -487,7 +463,7 @@
         <span class="k">return</span> <span class="n">res</span>
 
 
-<div class="viewcode-block" id="AtomSite.get_variables"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.AtomSite.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AtomSite.get_variables"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_x</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_x</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_y</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_y</span><span class="p">)</span>
@@ -498,40 +474,29 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occupancy</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">l_variable</span></div>
 
-
-    <span class="k">def</span> <span class="nf">_load_handbook_n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">f_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__f_dir_prog</span><span class="p">,</span> <span class="s2">&quot;tables&quot;</span><span class="p">,</span> <span class="s2">&quot;bscat.tab&quot;</span><span class="p">)</span>
-        <span class="n">fid</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
-        <span class="n">lcont</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="n">fid</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">lcont</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lcont</span> <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">))]</span>
-        <span class="n">ldcard</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lcont</span><span class="p">:</span>
-            <span class="n">lhelp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            
-            <span class="n">sline</span> <span class="o">=</span> <span class="n">lhelp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="s2">&quot;j&quot;</span><span class="p">)</span>
-            <span class="n">sline</span> <span class="o">=</span> <span class="n">sline</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">sline</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;j&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                    <span class="n">b_scat</span> <span class="o">=</span> <span class="mf">0.1</span><span class="o">*</span><span class="nb">complex</span><span class="p">(</span><span class="n">sline</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">b_scat</span> <span class="o">=</span> <span class="mf">0.1</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">sline</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">b_scat</span> <span class="o">=</span> <span class="mf">0.</span>
-            <span class="n">dcard</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type_n&quot;</span><span class="p">:</span> <span class="n">lhelp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;b_scat&quot;</span><span class="p">:</span> <span class="n">b_scat</span><span class="p">}</span>
-            <span class="n">ldcard</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dcard</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__handbook_nucl</span> <span class="o">=</span> <span class="n">ldcard</span>
-
-
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">scat_length_neutron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__scat_length_neutron</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">l_res</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_scat_length_neutron</span><span class="p">(</span><span class="n">type_symbol</span><span class="p">)</span> <span class="k">for</span> <span class="n">type_symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_symbol</span><span class="p">]</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__scat_length_neutron</span> <span class="o">=</span> <span class="n">l_res</span> 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__scat_length_neutron</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">res</span>
+    <span class="k">def</span> <span class="nf">form_object</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">multiplicity</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_symbol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">letter</span>
+
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">type_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_symbol</span>
+            <span class="n">scat_length_neutron</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_scat_length_neutron</span><span class="p">(</span><span class="n">type_n</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__scat_length_neutron&quot;</span><span class="p">,</span> <span class="n">scat_length_neutron</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">flag</span>
+
+<div class="viewcode-block" id="AtomSite.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_z</span><span class="p">)</span>
+        <span class="n">_id</span> <span class="o">=</span> <span class="n">space_group_wyckoff_l</span><span class="o">.</span><span class="n">get_id_for_fract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">[</span><span class="n">_id</span><span class="p">])</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+        <span class="k">return</span> <span class="n">flag</span></div>
 
 
     <span class="k">def</span> <span class="nf">_form_fract</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -541,7 +506,7 @@
         <span class="n">fract</span> <span class="o">=</span> <span class="kc">None</span>       
         <span class="k">return</span> <span class="n">fract</span>
 
-<div class="viewcode-block" id="AtomSite.calc_constr_number"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.AtomSite.calc_constr_number">[docs]</a>    <span class="k">def</span> <span class="nf">calc_constr_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
+<div class="viewcode-block" id="AtomSite.calc_constr_number"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.calc_constr_number">[docs]</a>    <span class="k">def</span> <span class="nf">calc_constr_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -628,17 +593,13 @@
 
 
 
-<div class="viewcode-block" id="AtomSiteL"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.AtomSiteL">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+<div class="viewcode-block" id="AtomSiteL"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSiteL">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomSiteL:</span>
-<span class="sd">============</span>
 <span class="sd">Data items in the ATOM_SITE category record details about</span>
 <span class="sd">the atom sites in a crystal structure, such as the positional</span>
 <span class="sd">coordinates.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">---------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> loop_                                     </span>
 <span class="sd"> _atom_site_label          </span>
@@ -653,37 +614,7 @@
 <span class="sd">  Fe3B   Fe  0.50000 0.50000 0.50000  Uani   0.0   1.0</span>
 <span class="sd">  O1     O   0.25521 0.25521 0.25521  Uiso   0.0   1.0</span>
 
-<span class="sd">Mandatory attribute: </span>
-<span class="sd">---------------------</span>
-<span class="sd">- label</span>
-<span class="sd">- type_symbol</span>
-<span class="sd">- fract_x</span>
-<span class="sd">- fract_y</span>
-<span class="sd">- fract_z</span>
-
-<span class="sd">Optional attribute: </span>
-<span class="sd">---------------------</span>
-<span class="sd">- occupancy</span>
-<span class="sd">- adp_type</span>
-<span class="sd">- wyckoff_symbol</span>
-<span class="sd">- u_iso_or_equiv</span>
-<span class="sd">- u_equiv_geom_mean</span>
-<span class="sd">- b_iso_or_equiv</span>
-<span class="sd">- cartn_x</span>
-<span class="sd">- cartn_y</span>
-<span class="sd">- cartn_z</span>
-
-<span class="sd">Class methods:</span>
-<span class="sd">-----------------</span>
-<span class="sd">- </span>
-
-<span class="sd">Methods:</span>
-<span class="sd">---------</span>
-<span class="sd">- get_symop</span>
-
-<span class="sd">Reference: </span>
-<span class="sd">-----------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_    </span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomSite</span>

@@ -56,7 +56,7 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
 <span class="kn">import</span> <span class="nn">cryspy.symcif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
 
-<div class="viewcode-block" id="SpaceGroupSymop"><a class="viewcode-back" href="../../../cryspy.html#cryspy.SpaceGroupSymop">[docs]</a><span class="k">class</span> <span class="nc">SpaceGroupSymop</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+<div class="viewcode-block" id="SpaceGroupSymop"><a class="viewcode-back" href="../../../cryspy.symcif.space_group_symop.html#cryspy.SpaceGroupSymop">[docs]</a><span class="k">class</span> <span class="nc">SpaceGroupSymop</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Contains information about the symmetry operations of the</span>
 <span class="sd">space group.</span>
@@ -345,7 +345,7 @@
         <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">operation_xyz</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_item</span><span class="o">.</span><span class="n">get_symops_by_generator_xyz</span><span class="p">(</span><span class="n">generator_xyz</span><span class="p">)]</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div></div>
 
-<div class="viewcode-block" id="SpaceGroupSymopL"><a class="viewcode-back" href="../../../cryspy.html#cryspy.SpaceGroupSymopL">[docs]</a><span class="k">class</span> <span class="nc">SpaceGroupSymopL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+<div class="viewcode-block" id="SpaceGroupSymopL"><a class="viewcode-back" href="../../../cryspy.symcif.space_group_symop.html#cryspy.SpaceGroupSymopL">[docs]</a><span class="k">class</span> <span class="nc">SpaceGroupSymopL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Contains information about the symmetry operations of the</span>
 <span class="sd">space group.</span>

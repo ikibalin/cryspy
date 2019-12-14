@@ -14,6 +14,7 @@ Magnetic CIF Dictionary
    cryspy.magneticcif.atom_site_moment
    cryspy.magneticcif.atom_site_susceptibility
    cryspy.magneticcif.atom_type_scat
+   cryspy.magneticcif.atom_site_scat
    cryspy.magneticcif.refln_susceptibility
    
    

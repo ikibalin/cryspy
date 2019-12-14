@@ -1,3 +1,31 @@
+#g=1+(J(J+1)-L(L+1)+S(S+1))/(2J(J+1))
+# shell  l
+# s 0
+# p 1
+# d 2
+# f 3 
+# g 4
+# h 6 
+# j = l-s, l+s
+loop_
+_atom_type_scat_symbol
+_atom_type_scat_l
+_atom_type_scat_s
+_atom_type_scat_j
+Ce3  3  0.5  2.5  
+Pr3  5  1.0  4.0  
+Nd3  6  1.5  4.5  
+Pm3  6  2.0  4.0  
+Sm3  5  2.5  2.5  
+Eu3  3  3.0  0.0  
+Gd3  0  3.5  3.5  
+Tb3  3  3.0  3.0  
+Dy3  5  2.5  7.5  
+Ho3  6  2.0  8.0  
+Er3  6  1.5  7.5  
+Tm3  5  1.0  6.0  
+Yb3  3  0.5  3.5  
+
 loop_
 _atom_type_scat_symbol
 _atom_type_scat_neutron_magnetic_j0_A1

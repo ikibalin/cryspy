@@ -1,7 +1,7 @@
-AtomTypeScat
+AtomSiteScat
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: cryspy.magneticcif.cl_atom_type_scat
+.. automodule:: cryspy.magneticcif.cl_atom_site_scat
    :members:
    :undoc-members:
    :show-inheritance:

@@ -36,7 +36,7 @@ Reference:
 -------------
 `iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
     """    
-    MANDATORY_ATTRIBUTE = ("label")
+    MANDATORY_ATTRIBUTE = ("label", )
     OPTIONAL_ATTRIBUTE = ("u_11", "u_22", "u_33", "u_12", "u_13", "u_23", 
                           "b_11", "b_22", "b_33", "b_12", "b_13", "b_23")
     INTERNAL_ATTRIBUTE = ()

@@ -9,19 +9,16 @@ from typing import List, Tuple
 from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
+import cryspy.corecif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS 
 
 
 class AtomSite(ItemConstr):
     """
-AtomSite:
-=========
 Data items in the ATOM_SITE category record details about
 the atom sites in a crystal structure, such as the positional
 coordinates.
 
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
  _atom_site_label            Fe3A
  _atom_site_type_symbol      Fe 
@@ -32,42 +29,12 @@ Description in cif file:
  _atom_site_B_iso_or_equiv   0.0 
  _atom_site_occupancy        1.0
 
-Mandatory attribute: 
----------------------
-- label
-- type_symbol
-- fract_x
-- fract_y
-- fract_z
-
-Optional attribute: 
----------------------
-- occupancy
-- adp_type
-- wyckoff_symbol
-- u_iso_or_equiv
-- u_equiv_geom_mean
-- b_iso_or_equiv
-- cartn_x
-- cartn_y
-- cartn_z
-
-Class methods:
-----------------
-- 
-
-Methods:
----------
-- get_symop
-
-Reference: 
------------
-`the page <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
     """    
     MANDATORY_ATTRIBUTE = ("label", "type_symbol", "fract_x", "fract_y", "fract_z")
     OPTIONAL_ATTRIBUTE = ("occupancy", "adp_type", "wyckoff_symbol", 
                           "u_iso_or_equiv", "u_equiv_geom_mean", "b_iso_or_equiv",
-                          "cartn_x", "cartn_y", "cartn_z")
+                          "cartn_x", "cartn_y", "cartn_z", "multiplicity")
     INTERNAL_ATTRIBUTE = ("scat_length_neutron", "atom_type_scat", "space_group_wyckoff")
     ACCESIBLE_ADP_TYPE = ("Uani", "Uiso", "Uovl", "Umpe", "Bani", "Biso", "Bovl")
     PREFIX = "atom_site"
@@ -105,11 +72,9 @@ Reference:
 The _atom_site_label is a unique identifier for a particular site
 in the crystal. 
 
-Type: char
+:Type: char
 
-Reference: 
------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html>`_
         """
         return getattr(self, "__label")
     @label.setter
@@ -127,11 +92,9 @@ A code to identify the atom species (singular or plural)
 occupying this site.
 This code must match a corresponding _atom_type_symbol. 
 
-Type: char
+:Type: char
 
-Reference: 
-------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_type_symbol.html>`_
         """
         return getattr(self, "__type_symbol")
     @type_symbol.setter
@@ -147,11 +110,9 @@ Reference:
         """
 Atom-site coordinates as fractions of the _cell_length_ values.
 
-Type: float
+:Type: float
 
-Reference: 
-----------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
         """
         return getattr(self, "__fract_x")
     @fract_x.setter
@@ -168,12 +129,11 @@ Reference:
     @property
     def fract_y(self):
         """
-        Atom-site coordinates as fractions of the _cell_length_ values.
+Atom-site coordinates as fractions of the _cell_length_ values.
 
-        Type: float
+:Type: float
 
-        Reference: 
-        `link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
         """
         return getattr(self, "__fract_y")
     @fract_y.setter
@@ -190,12 +150,11 @@ Reference:
     @property
     def fract_z(self):
         """
-        Atom-site coordinates as fractions of the _cell_length_ values.
+Atom-site coordinates as fractions of the _cell_length_ values.
 
-        Type: float
+:Type: float
 
-        Reference: 
-        `link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_fract_.html>`_
         """
         return getattr(self, "__fract_z")
     @fract_z.setter
@@ -213,16 +172,15 @@ Reference:
     @property
     def adp_type(self):
         """
-        A standard code used to describe the type of atomic displacement
-        parameters used for the site. 
+A standard code used to describe the type of atomic displacement
+parameters used for the site. 
 
-        The data value must be one of the following:
-        ----------------------------------------------
-        "Uani", "Uiso", "Uovl", "Umpe", "Bani", "Biso", "Bovl"
+The data value must be one of the following:
 
-        Reference: 
-        -----------
-        `link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_adp_type.html`_
+"Uani", "Uiso", "Uovl", "Umpe", "Bani", "Biso", "Bovl"
+
+
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_adp_type.html>`_
         """
         return getattr(self, "__adp_type")
     @adp_type.setter
@@ -240,17 +198,14 @@ Reference:
     @property
     def occupancy(self):
         """
-        The fraction of the atom type present at this site.
-        The sum of the occupancies of all the atom types at this site
-        may not significantly exceed 1.0 unless it is a dummy site. The
-        value must lie in the 99.97% Gaussian confidence interval
-        -3u =< x =< 1 + 3u. The _enumeration_range of 0.0:1.0 is thus
-        correctly interpreted as meaning (0.0 - 3u) =< x =< (1.0 + 3u).
+The fraction of the atom type present at this site.
+The sum of the occupancies of all the atom types at this site
+may not significantly exceed 1.0 unless it is a dummy site. The
+value must lie in the 99.97% Gaussian confidence interval
+:math:`-3u =< x =< 1 + 3u`. The _enumeration_range of :math:`0.0:1.0` is thus
+correctly interpreted as meaning :math:`(0.0 - 3u) =< x =< (1.0 + 3u)`.
 
-        
-        Reference:
-        -------------
-        `link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_occupancy.html`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_occupancy.html>`_
         """
         return getattr(self, "__occupancy")
     @occupancy.setter
@@ -267,8 +222,8 @@ Reference:
     @property
     def wyckoff_symbol(self):
         """
-        The Wyckoff symbol (letter) as listed in the space-group tables of
-        International Tables for Crystallography Vol. A (2002).
+The Wyckoff symbol (letter) as listed in the space-group tables of
+International Tables for Crystallography Vol. A (2002).
         """
         return getattr(self, "__wyckoff_symbol")
     @wyckoff_symbol.setter
@@ -280,20 +235,33 @@ Reference:
         setattr(self, "__wyckoff_symbol", x_in)
 
     @property
+    def multiplicity(self):
+        return getattr(self, "__multiplicity")
+    @multiplicity.setter
+    def multiplicity(self, x):
+        if x is None:
+            x_in = None
+        else: 
+            x_in = str(x)
+        setattr(self, "__multiplicity", x_in)
+
+    @property
     def u_iso_or_equiv(self):
         """
-        Isotropic atomic displacement parameter, or equivalent isotropic
-        atomic displacement parameter, U equiv , in ångströms squared, 
-        calculated from anisotropic atomic displacement parameters.
+Isotropic atomic displacement parameter, or equivalent isotropic
+atomic displacement parameter, U equiv , in ångströms squared, 
+calculated from anisotropic atomic displacement parameters.
 
+.. math::
 
-        U(equiv) = (1/3) sum~i~[sum~j~(U^ij^ a*~i~ a*~j~ a~i~ a~j~)]
+   U_{equiv} = (1/3) \\Sigma_{i}~[\\Sigma_{j} (U_{ij}  a^{*}_{i} a^{*}_{j} a_{i} a_{j})]
 
-        a     = the real-space cell lengths
-        a*    = the reciprocal-space cell lengths
+a     = the real-space cell lengths
 
-        Ref: Fischer, R. X. & Tillmanns, E. (1988). Acta Cryst. C44,
-             775-776.
+a*    = the reciprocal-space cell lengths
+
+:Reference: Fischer, R. X. & Tillmanns, E. (1988). Acta Cryst. C44,
+            775-776.
         """
         return getattr(self, "__u_iso_or_equiv")
     @u_iso_or_equiv.setter
@@ -311,13 +279,15 @@ Reference:
     @property
     def u_equiv_geom_mean(self):
         """
-        Equivalent isotropic atomic displacement parameter, U equiv , in
-        angströms squared, calculated as the geometric mean of the
-        anisotropic atomic displacement parameters.
+Equivalent isotropic atomic displacement parameter, U equiv , in
+angströms squared, calculated as the geometric mean of the
+anisotropic atomic displacement parameters.
 
-        U_equiv = (U_i U_j U_k)**(1/3)
+.. math::
 
-        where U_n = the principal components of the orthogonalized U_ij.
+   U_{equiv} = (U_{i} U_{j} U_{k})^{1/3}
+
+where :math:`U_{n}` the principal components of the orthogonalized :math:`U_{ij}`.
         """
         return getattr(self, "__u_equiv_geom_mean")
     @u_equiv_geom_mean.setter
@@ -335,26 +305,28 @@ Reference:
     @property
     def b_iso_or_equiv(self):
         """
-        Isotropic atomic displacement parameter, or equivalent isotropic
-        atomic displacement parameter, B(equiv), in angstroms squared,
-        calculated from anisotropic displacement components.
+Isotropic atomic displacement parameter, or equivalent isotropic
+atomic displacement parameter, B(equiv), in angstroms squared,
+calculated from anisotropic displacement components.
 
-        B(equiv) = (1/3) sum~i~[sum~j~(B^ij^ a*~i~ a*~j~ a~i~ a~j~)]
+.. math::
 
-        a     = the real-space cell lengths
-        a*    = the reciprocal-space cell lengths
-        B^ij^ = 8 pi^2^ U^ij^
+   B_{equiv} = (1/3) \\Sigma_{i}[\\Sigma_{j}(B_{ij} a^{*}_{i} a^{*}_{j} a_{i} a_{j})]
 
-        Ref: Fischer, R. X. & Tillmanns, E. (1988). Acta Cryst. C44,
-             775-776.
+:math:`a`     = the real-space cell lengths
+:math:`a^{*}` = the reciprocal-space cell lengths
 
-        The IUCr Commission on Nomenclature recommends against the use
-        of B for reporting atomic displacement parameters. U, being
-        directly proportional to B, is preferred.
+.. math::
 
-        Reference:
-        ------------
-        `link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_B_iso_or_equiv.html>`_
+   B_{ij} = 8 \\pi^{2} U_{ij}
+
+:Ref: Fischer, R. X. & Tillmanns, E. (1988). Acta Cryst. C44,
+      775-776.
+
+The IUCr Commission on Nomenclature recommends against the use
+of B for reporting atomic displacement parameters. U, being
+directly proportional to B, is preferred.
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_B_iso_or_equiv.html>`_
         """
         return getattr(self, "__b_iso_or_equiv")
     @b_iso_or_equiv.setter
@@ -371,9 +343,9 @@ Reference:
     @property
     def cartn_x(self):
         """
-        The atom-site coordinates in angstroms specified according to a set
-        of orthogonal Cartesian axes related to the cell axes as specified by
-        the _atom_sites_Cartn_transform_axes description.
+The atom-site coordinates in angstroms specified according to a set
+of orthogonal Cartesian axes related to the cell axes as specified by
+the _atom_sites_Cartn_transform_axes description.
         """
         return getattr(self, "__cartn_x")
     @cartn_x.setter
@@ -390,9 +362,9 @@ Reference:
     @property
     def cartn_y(self):
         """
-        The atom-site coordinates in angstroms specified according to a set
-        of orthogonal Cartesian axes related to the cell axes as specified by
-        the _atom_sites_Cartn_transform_axes description.
+The atom-site coordinates in angstroms specified according to a set
+of orthogonal Cartesian axes related to the cell axes as specified by
+the _atom_sites_Cartn_transform_axes description.
         """
         return getattr(self, "__cartn_y")
     @cartn_y.setter
@@ -409,9 +381,9 @@ Reference:
     @property
     def cartn_z(self):
         """
-        The atom-site coordinates in angstroms specified according to a set
-        of orthogonal Cartesian axes related to the cell axes as specified by
-        the _atom_sites_Cartn_transform_axes description.
+The atom-site coordinates in angstroms specified according to a set
+of orthogonal Cartesian axes related to the cell axes as specified by
+the _atom_sites_Cartn_transform_axes description.
         """
         return getattr(self, "__cartn_z")
     @cartn_z.setter
@@ -424,6 +396,10 @@ Reference:
             x_in = Fitable()
             flag = x_in.take_it(x)
         setattr(self, "__cartn_z", x_in)
+
+    @property
+    def scat_length_neutron(self):
+        return getattr(self, "__scat_length_neutron")
 
 
     def _show_message(self, s_out: str):
@@ -453,40 +429,29 @@ Reference:
         if self.occupancy.refinement: l_variable.append(self.occupancy)
         return l_variable
 
-
-    def _load_handbook_n(self):
-        f_name = os.path.join(self.__f_dir_prog, "tables", "bscat.tab")
-        fid = open(f_name, 'r')
-        lcont = fid.readlines()
-        fid.close()
-        lcont = [line for line in lcont if not(line.startswith("#"))]
-        ldcard = []
-        for line in lcont:
-            lhelp = line.strip().split()
-            
-            sline = lhelp[2].replace("i","j")
-            sline = sline.split("(")[0]
-            try:
-                if sline.rfind("j") != -1:
-                    b_scat = 0.1*complex(sline)
-                else:
-                    b_scat = 0.1*float(sline)
-            except:
-                b_scat = 0.
-            dcard = {"type_n": lhelp[0], "b_scat": b_scat}
-            ldcard.append(dcard)
-        self.__handbook_nucl = ldcard
-
-
     @property
-    def scat_length_neutron(self):
-        if self.__scat_length_neutron is None:
-            l_res = [self._get_scat_length_neutron(type_symbol) for type_symbol in self.type_symbol]
-            res = tuple(l_res)
-            self.__scat_length_neutron = l_res 
-        else:
-            res = tuple(self.__scat_length_neutron)
-        return res
+    def form_object(self) -> bool:
+        if self.is_defined_attribute("space_group_wyckoff"):
+            self.multiplicity = self.space_group_wyckoff.multiplicity
+            self.wyckoff_symbol = self.space_group_wyckoff.letter
+
+        flag = True
+        try:
+            type_n = self.type_symbol
+            scat_length_neutron = CONSTANTS_AND_FUNCTIONS.get_scat_length_neutron(type_n)
+            setattr(self, "__scat_length_neutron", scat_length_neutron)
+        except:
+            flag = False
+        return flag
+
+    def apply_constraint(self, space_group_wyckoff_l)->bool:
+        x,y,z = float(self.fract_x), float(self.fract_y), float(self.fract_z)
+        _id = space_group_wyckoff_l.get_id_for_fract(x, y, z)
+        setattr(self, "__space_group_wyckoff", space_group_wyckoff_l[_id])
+        flag = False
+        if self.is_defined:
+            flag = self.form_object
+        return flag
 
 
     def _form_fract(self):
@@ -585,15 +550,11 @@ Reference:
 
 class AtomSiteL(LoopConstr):
     """
-AtomSiteL:
-============
 Data items in the ATOM_SITE category record details about
 the atom sites in a crystal structure, such as the positional
 coordinates.
 
-Description in cif file:
----------------------------
-::
+Description in cif file::
 
  loop_                                     
  _atom_site_label          
@@ -608,37 +569,7 @@ Description in cif file:
   Fe3B   Fe  0.50000 0.50000 0.50000  Uani   0.0   1.0
   O1     O   0.25521 0.25521 0.25521  Uiso   0.0   1.0
 
-Mandatory attribute: 
----------------------
-- label
-- type_symbol
-- fract_x
-- fract_y
-- fract_z
-
-Optional attribute: 
----------------------
-- occupancy
-- adp_type
-- wyckoff_symbol
-- u_iso_or_equiv
-- u_equiv_geom_mean
-- b_iso_or_equiv
-- cartn_x
-- cartn_y
-- cartn_z
-
-Class methods:
------------------
-- 
-
-Methods:
----------
-- get_symop
-
-Reference: 
------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_    
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_    
     """
     CATEGORY_KEY = ("label", )
     ITEM_CLASS = AtomSite
