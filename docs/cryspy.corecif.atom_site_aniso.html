@@ -156,7 +156,13 @@ entered by row.</p>
 <dl class="method">
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta">
 <code class="sig-name descname">calc_beta</code><span class="sig-paren">(</span><em class="sig-param">cell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAniso.calc_beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculate beta_ij from U_ij</p>
+<dd><p>calculate <span class="math notranslate nohighlight">\(\beta_{ij}\)</span> from <span class="math notranslate nohighlight">\(U_{ij}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Out</dt>
+<dd class="field-odd"><p><span class="math notranslate nohighlight">\(\beta_{11}\)</span>, <span class="math notranslate nohighlight">\(\beta_{22}\)</span>, <span class="math notranslate nohighlight">\(\beta_{33}\)</span>,
+<span class="math notranslate nohighlight">\(\beta_{12}\)</span>, <span class="math notranslate nohighlight">\(\beta_{13}\)</span>, <span class="math notranslate nohighlight">\(\beta_{23}\)</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -240,6 +246,7 @@ entered by row.</p>
 the atom sites in a crystal structure, such as atomic displacement parameters.
 Data items in the ATOM_site_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
 <span class="n">_atom_site_aniso_label</span>
 <span class="n">_atom_site_aniso_U_11</span>
@@ -252,7 +259,7 @@ magnetic properties of the atoms that occupy the atom sites.</p>
  <span class="n">C2</span>   <span class="o">.</span><span class="mi">060</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">.</span><span class="mi">072</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">.</span><span class="mi">047</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="o">.</span><span class="mi">002</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>   <span class="o">.</span><span class="mi">013</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="o">-.</span><span class="mi">009</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html</a></p>
 <dl class="attribute">
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('label',)</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
@@ -262,6 +269,17 @@ magnetic properties of the atoms that occupy the atom sites.</p>
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso" title="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomSiteAniso</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta">
+<code class="sig-name descname">calc_beta</code><span class="sig-paren">(</span><em class="sig-param">cell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAnisoL.calc_beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate <span class="math notranslate nohighlight">\(\beta_{ij}\)</span> from <span class="math notranslate nohighlight">\(U_{ij}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Out</dt>
+<dd class="field-odd"><p>numpy array of beta (11, 22, 33, 12, 13, 23)</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

@@ -12,6 +12,7 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
+from .cl_atom_type_scat import AtomTypeScat, AtomTypeScatL
 
 class AtomSiteScat(ItemConstr):
     """
@@ -24,7 +25,7 @@ Description in cif::
     """
     MANDATORY_ATTRIBUTE = ("label", )
     OPTIONAL_ATTRIBUTE = ("lande", "kappa")
-    INTERNAL_ATTRIBUTE = ()
+    INTERNAL_ATTRIBUTE = ("atom_type_scat")
     PREFIX = "atom_site_scat"
     def __init__(self, label=None, lande=None, kappa=None):
         super(AtomSiteScat, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
@@ -88,6 +89,14 @@ kappa factor
             flag = x_in.take_it(x)
         setattr(self, "__kappa", x_in)
 
+
+    @property
+    def atom_type_scat(self):
+        """
+atom_type_scat
+        """
+        return getattr(self, "__atom_type_scat")
+
     def __repr__(self) -> str:
         ls_out = []
         ls_out.append("AtomSiteScat: ")
@@ -110,7 +119,16 @@ kappa factor
         if self.kappa.refinement: l_variable.append(self.kappa)
         return l_variable
 
+    def calc_form_factor(self, sthovl):
+        atom_type_scat = self.atom_type_scat
+        form_factor = atom_type_scat.calc_form_factor(sthovl, lande=self.lande, kappa=self.kappa)
+        return form_factor
 
+    def load_atom_type_scat_by_symbol(self, symbol:str):
+        flag = True
+        _a_t_s = AtomTypeScat.form_by_symbol(symbol)
+        setattr(self, "__atom_type_scat", _a_t_s)
+        return flag
 
 class AtomSiteScatL(LoopConstr):
     """
@@ -134,3 +152,11 @@ Description in cif::
         ls_out.append("AtomSiteScatL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    def calc_form_factor(self, sthovl):
+        form_factor = [_item.calc_form_factor(sthovl) for _item in self.item]
+        return numpy.array(list(zip(*form_factor)), dtype=float)
+    
+    def load_atom_type_scat_by_atom_site(self, atom_site):
+        flag = all([_item.load_atom_type_scat_by_symbol(atom_site[_item.label].type_symbol) for _item in self.item])
+        return flag

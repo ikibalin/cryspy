@@ -432,8 +432,9 @@ the _atom_sites_Cartn_transform_axes description.
     @property
     def form_object(self) -> bool:
         if self.is_defined_attribute("space_group_wyckoff"):
-            self.multiplicity = self.space_group_wyckoff.multiplicity
-            self.wyckoff_symbol = self.space_group_wyckoff.letter
+            _obj = getattr(self, "__space_group_wyckoff")
+            self.multiplicity = getattr(_obj, "__multiplicity")
+            self.wyckoff_symbol = getattr(_obj, "__letter")
 
         flag = True
         try:
@@ -582,3 +583,7 @@ Description in cif file::
         ls_out.append("AtomSiteL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    def apply_constraint(self, space_group_wyckoff_l)->bool:
+        flag = all([_item.apply_constraint(space_group_wyckoff_l) for _item in self.item])
+        return flag

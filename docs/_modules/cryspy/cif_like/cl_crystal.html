@@ -394,12 +394,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">space_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group</span>
+        <span class="n">reduced_space_group_symop</span> <span class="o">=</span> <span class="n">space_group</span><span class="o">.</span><span class="n">reduced_space_group_symop</span>
+        <span class="n">full_space_group_symop</span> <span class="o">=</span> <span class="n">space_group</span><span class="o">.</span><span class="n">full_space_group_symop</span>
+
         <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span>
         <span class="n">atom_site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_site</span>
         <span class="n">atom_site_aniso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_site_aniso</span>
         <span class="n">atom_site_scat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_site_scat</span>
         <span class="n">atom_site_susceptibility</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_site_susceptibility</span>
-
 
         <span class="n">occupancy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">occupancy</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">fract_x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -411,21 +413,36 @@
 
         <span class="n">scat_length_neutron</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">scat_length_neutron</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
 
+        <span class="n">r_11</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_11</span>
+        <span class="n">r_12</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_12</span>
+        <span class="n">r_13</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_13</span>
+        <span class="n">r_21</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_21</span>
+        <span class="n">r_22</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_22</span>
+        <span class="n">r_23</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_23</span>
+        <span class="n">r_31</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_31</span>
+        <span class="n">r_32</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_32</span>
+        <span class="n">r_33</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_33</span>
+        <span class="n">b_1</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">b_1</span>
+        <span class="n">b_2</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">b_2</span>
+        <span class="n">b_3</span> <span class="o">=</span> <span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">b_3</span>
 
-        <span class="n">fract</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">_form_fract</span><span class="p">()</span>
+        <span class="n">phase_3d</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">calc_phase_by_hkl_xyz_rb</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> 
+        <span class="n">r_11</span><span class="p">,</span> <span class="n">r_12</span><span class="p">,</span> <span class="n">r_13</span><span class="p">,</span> <span class="n">r_21</span><span class="p">,</span> <span class="n">r_22</span><span class="p">,</span> <span class="n">r_23</span><span class="p">,</span> <span class="n">r_31</span><span class="p">,</span> <span class="n">r_32</span><span class="p">,</span> <span class="n">r_33</span><span class="p">,</span> <span class="n">b_1</span><span class="p">,</span> <span class="n">b_2</span><span class="p">,</span> <span class="n">b_3</span><span class="p">)</span>
+
         <span class="n">flag_adp</span> <span class="o">=</span> <span class="n">atom_site_aniso</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">flag_magnetism</span> <span class="o">=</span> <span class="n">atom_site_magnetism_aniso</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">flag_adp</span><span class="p">:</span>
-            <span class="n">adp</span> <span class="o">=</span> <span class="n">atom_site_aniso</span><span class="o">.</span><span class="n">_form_adp</span><span class="p">(</span><span class="n">atom_site</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">flag_magnetism</span><span class="p">:</span>
             <span class="n">magnetism</span> <span class="o">=</span> <span class="n">atom_site_magnetism_aniso</span><span class="o">.</span><span class="n">_form_magnetism</span><span class="p">(</span><span class="n">atom_site</span><span class="p">,</span> <span class="n">atom_site_magnetism</span><span class="p">)</span>
 
 
-        
-
         <span class="n">phase_3d</span> <span class="o">=</span> <span class="n">fract</span><span class="o">.</span><span class="n">calc_phase</span><span class="p">(</span><span class="n">space_group</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span><span class="c1">#3d object</span>
         <span class="k">if</span> <span class="n">flag_adp</span><span class="p">:</span>
-            <span class="n">dwf_3d</span> <span class="o">=</span> <span class="n">adp</span><span class="o">.</span><span class="n">calc_dwf</span><span class="p">(</span><span class="n">space_group</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;b_iso_or_equiv&quot;</span><span class="p">):</span>
+                <span class="n">b_iso</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">b_iso_or_equiv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">b_iso</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">label</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">atom_site_aniso</span><span class="o">.</span><span class="n">calc_beta</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+            <span class="n">dwf_3d</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">calc_dwf</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">b_iso</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">r_11</span><span class="p">,</span> <span class="n">r_12</span><span class="p">,</span> <span class="n">r_13</span><span class="p">,</span> <span class="n">r_21</span><span class="p">,</span> <span class="n">r_22</span><span class="p">,</span> <span class="n">r_23</span><span class="p">,</span> <span class="n">r_31</span><span class="p">,</span> <span class="n">r_32</span><span class="p">,</span> <span class="n">r_33</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">dwf_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">phase_3d</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 

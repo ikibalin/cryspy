@@ -421,6 +421,26 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">l_variable</span></div>
 
+<div class="viewcode-block" id="AtomSiteAniso.calc_beta"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta">[docs]</a>    <span class="k">def</span> <span class="nf">calc_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.</span>
+
+<span class="sd">:Out:  :math:`\\beta_{11}`, :math:`\\beta_{22}`, :math:`\\beta_{33}`, </span>
+<span class="sd">       :math:`\\beta_{12}`, :math:`\\beta_{13}`, :math:`\\beta_{23}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ia</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ic</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_a</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_b</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_c</span>
+        <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="p">)</span>
+        <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">)</span>
+        <span class="n">beta_11</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_11</span><span class="o">*</span><span class="n">ia</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">beta_22</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_22</span><span class="o">*</span><span class="n">ib</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">beta_33</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_33</span><span class="o">*</span><span class="n">ic</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">beta_12</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_12</span><span class="o">*</span><span class="n">ia</span><span class="o">*</span><span class="n">ib</span>
+        <span class="n">beta_13</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_13</span><span class="o">*</span><span class="n">ia</span><span class="o">*</span><span class="n">ic</span>
+        <span class="n">beta_23</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_23</span><span class="o">*</span><span class="n">ib</span><span class="o">*</span><span class="n">ic</span>
+        <span class="k">return</span> <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span></div>
+
+
+
 <div class="viewcode-block" id="AtomSiteAniso.apply_space_group_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.apply_space_group_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_space_group_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</span>
@@ -607,22 +627,6 @@
                 <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="AtomSiteAniso.calc_beta"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta">[docs]</a>    <span class="k">def</span> <span class="nf">calc_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate beta_ij from U_ij</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ia</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ic</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_a</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_b</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_c</span>
-        <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="p">)</span>
-        <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">)</span>
-        <span class="n">beta_11</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_11</span><span class="o">*</span><span class="n">ia</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">beta_22</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_22</span><span class="o">*</span><span class="n">ib</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">beta_33</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_33</span><span class="o">*</span><span class="n">ic</span><span class="o">**</span><span class="mi">2</span>
-        <span class="n">beta_12</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_12</span><span class="o">*</span><span class="n">ia</span><span class="o">*</span><span class="n">ib</span>
-        <span class="n">beta_13</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_13</span><span class="o">*</span><span class="n">ia</span><span class="o">*</span><span class="n">ic</span>
-        <span class="n">beta_23</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_23</span><span class="o">*</span><span class="n">ib</span><span class="o">*</span><span class="n">ic</span>
-        <span class="k">return</span> <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span></div>
-
-
     <span class="k">def</span> <span class="nf">_form_adp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">):</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
         <span class="n">b_iso</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">b_iso</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -673,17 +677,12 @@
 
 <div class="viewcode-block" id="AtomSiteAnisoL"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteAnisoL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomSiteAnisoL</span>
-<span class="sd">=================</span>
-
 <span class="sd">Data items in the ATOM_SITE_ANISO category record details about</span>
 <span class="sd">the atom sites in a crystal structure, such as atomic displacement parameters.</span>
 <span class="sd">Data items in the ATOM_site_ANISO category record details about</span>
 <span class="sd">magnetic properties of the atoms that occupy the atom sites.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">--------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> loop_</span>
 <span class="sd"> _atom_site_aniso_label</span>
@@ -696,10 +695,7 @@
 <span class="sd">  O1   .071(1) .076(1) .0342(9) .008(1)   .0051(9) -.0030(9) </span>
 <span class="sd">  C2   .060(2) .072(2) .047(1)  .002(2)   .013(1)  -.009(1)  </span>
 
-
-<span class="sd">Reference: </span>
-<span class="sd">-------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomSiteAniso</span>
@@ -711,7 +707,19 @@
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteAnisoL: &quot;</span><span class="p">)</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AtomSiteAnisoL.calc_beta"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta">[docs]</a>    <span class="k">def</span> <span class="nf">calc_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.</span>
+
+<span class="sd">:Out: numpy array of beta (11, 22, 33, 12, 13, 23)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l_beta</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">:</span>
+            <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span> <span class="o">=</span> <span class="n">_item</span><span class="o">.</span><span class="n">calc_beta</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+            <span class="n">l_beta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_beta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

@@ -376,9 +376,29 @@ see help for b_11 parameter
         if self.u_23.refinement: l_variable.append(self.u_23)
         return l_variable
 
+    def calc_beta(self, cell):
+        """
+calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.
+
+:Out:  :math:`\\beta_{11}`, :math:`\\beta_{22}`, :math:`\\beta_{33}`, 
+       :math:`\\beta_{12}`, :math:`\\beta_{13}`, :math:`\\beta_{23}`
+        """
+        ia, ib, ic = cell.reciprocal_length_a, cell.reciprocal_length_b, cell.reciprocal_length_c
+        u_11, u_22, u_33 = float(self.u_11), float(self.u_22), float(self.u_33)
+        u_12, u_13, u_23 = float(self.u_12), float(self.u_13), float(self.u_23)
+        beta_11 = 2.*numpy.pi**2*u_11*ia**2
+        beta_22 = 2.*numpy.pi**2*u_22*ib**2
+        beta_33 = 2.*numpy.pi**2*u_33*ic**2
+        beta_12 = 2.*numpy.pi**2*u_12*ia*ib
+        beta_13 = 2.*numpy.pi**2*u_13*ia*ic
+        beta_23 = 2.*numpy.pi**2*u_23*ib*ic
+        return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
+
+
+
     def apply_space_group_constraint(self, atom_site, space_group):
         """
-        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
+According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
         l_numb = atom_site.calc_constr_number(space_group)
         label_aniso = self.label
@@ -562,22 +582,6 @@ see help for b_11 parameter
                 u_23.constraint_flag = True
 
 
-    def calc_beta(self, cell):
-        """
-        calculate beta_ij from U_ij
-        """
-        ia, ib, ic = cell.reciprocal_length_a, cell.reciprocal_length_b, cell.reciprocal_length_c
-        u_11, u_22, u_33 = float(self.u_11), float(self.u_22), float(self.u_33)
-        u_12, u_13, u_23 = float(self.u_12), float(self.u_13), float(self.u_23)
-        beta_11 = 2.*numpy.pi**2*u_11*ia**2
-        beta_22 = 2.*numpy.pi**2*u_22*ib**2
-        beta_33 = 2.*numpy.pi**2*u_33*ic**2
-        beta_12 = 2.*numpy.pi**2*u_12*ia*ib
-        beta_13 = 2.*numpy.pi**2*u_13*ia*ic
-        beta_23 = 2.*numpy.pi**2*u_23*ib*ic
-        return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
-
-
     def _form_adp(self, atom_site):
         label = numpy.array(atom_site.label, dtype=str)
         b_iso = numpy.array(atom_site.b_iso, dtype=float)
@@ -628,17 +632,12 @@ see help for b_11 parameter
 
 class AtomSiteAnisoL(LoopConstr):
     """
-AtomSiteAnisoL
-=================
-
 Data items in the ATOM_SITE_ANISO category record details about
 the atom sites in a crystal structure, such as atomic displacement parameters.
 Data items in the ATOM_site_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.
 
-Description in cif file:
---------------------------
-::
+Description in cif file::
 
  loop_
  _atom_site_aniso_label
@@ -651,10 +650,7 @@ Description in cif file:
   O1   .071(1) .076(1) .0342(9) .008(1)   .0051(9) -.0030(9) 
   C2   .060(2) .072(2) .047(1)  .002(2)   .013(1)  -.009(1)  
 
-
-Reference: 
--------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
     """    
     CATEGORY_KEY = ("label", )
     ITEM_CLASS = AtomSiteAniso
@@ -667,3 +663,15 @@ Reference:
         ls_out.append("AtomSiteAnisoL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    def calc_beta(self, cell):
+        """
+calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.
+
+:Out: numpy array of beta (11, 22, 33, 12, 13, 23)
+        """
+        l_beta = []
+        for _item in self.item:
+            beta_11, beta_22, beta_33, beta_12, beta_13, beta_23 = _item.calc_beta(cell)
+            l_beta.append((beta_11, beta_22, beta_33, beta_12, beta_13, beta_23))
+        return numpy.array(l_beta, dtype=float)

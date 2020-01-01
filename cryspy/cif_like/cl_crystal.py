@@ -13,7 +13,7 @@ from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
 
 from cryspy.symcif.cl_space_group import SpaceGroup
-import cryspy.corecif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
+import cryspy.cif_like.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from cryspy.corecif.cl_cell import Cell
 from cryspy.corecif.cl_atom_site import AtomSite, AtomSiteL
 from cryspy.corecif.cl_atom_type import AtomTypeL
@@ -21,6 +21,8 @@ from cryspy.corecif.cl_atom_site_aniso import AtomSiteAnisoL
 from cryspy.magneticcif.cl_atom_site_susceptibility import AtomSiteSusceptibilityL
 from cryspy.magneticcif.cl_atom_type_scat import AtomTypeScatL
 from cryspy.magneticcif.cl_atom_site_scat import AtomSiteScatL
+
+from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
 
 class Crystal(DataConstr):
     """
@@ -309,7 +311,7 @@ Description in cif file::
 
     def __repr__(self):
         ls_out = ["Crystal:"]
-        ls_out.appenf(f"{str(self):}")
+        ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
     def _show_message(self, s_out: str):
@@ -337,10 +339,221 @@ Output: the list of the refined parameters
         return l_variable
 
     def apply_constraint(self)->bool:
-        type_cell = self.space_group.type_cell
-        space_group_wyckoff = self.space_group.space_group_wyckoff
-        flag = self.cell.apply_constraint(type_cell)
+        space_group = self.space_group
+        space_group_wyckoff = space_group.space_group_wyckoff
+        cell = self.cell
+        flag_cell = cell.apply_constraint(space_group.bravais_type)
+        atom_site = self.atom_site
+        flag_atom_site = atom_site.apply_constraint(space_group_wyckoff)
+        atom_site_aniso = self.atom_site_aniso
+        if atom_site_aniso is not None:
+            pass
+            #atom_site_aniso.apply_space_group_constraint(atom_site, space_group)
+        #atom_site_magnetism_aniso = self.atom_site_magnetism_aniso
+        #if atom_site_magnetism_aniso is not None:
+        #    #pass
+        #    #atom_site_magnetism_aniso.apply_chi_iso_constraint(cell)
+        #    #atom_site_magnetism_aniso.apply_moment_iso_constraint(cell)
+        #    #atom_site_magnetism_aniso.apply_space_group_constraint(atom_site, space_group)
+        flag = all([flag_cell, flag_atom_site])
         return flag
+
+
+    def calc_f_nucl(self, h, k, l):
+        """
+calculate nuclear structure factor
+
+FIXME: introduce Debye-Waller factor
+        """
+        space_group = self.space_group
+        r_s_g_s = space_group.reduced_space_group_symop
+
+        cell = self.cell
+        atom_site = self.atom_site
+        atom_site_aniso = self.atom_site_aniso
+
+        occupancy = numpy.array(atom_site.occupancy, dtype=float)
+        x = numpy.array(atom_site.fract_x, dtype=float)
+        y = numpy.array(atom_site.fract_y, dtype=float)
+        z = numpy.array(atom_site.fract_z, dtype=float)
+
+        atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
+        scat_length_neutron = numpy.array(atom_site.scat_length_neutron, dtype=complex)
+
+        occ_mult = occupancy*atom_multiplicity 
+
+        r_11, r_12, r_13 = r_s_g_s.r_11, r_s_g_s.r_12, r_s_g_s.r_13
+        r_21, r_22, r_23 = r_s_g_s.r_21, r_s_g_s.r_22, r_s_g_s.r_23
+        r_31, r_32, r_33 = r_s_g_s.r_31, r_s_g_s.r_32, r_s_g_s.r_33
+        b_1, b_2, b_3 = r_s_g_s.b_1, r_s_g_s.b_2, r_s_g_s.b_3
+
+        phase_3d = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, 
+        r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)
+
+        flag_adp = atom_site_aniso is not None
+        flag_adp = False
+        if flag_adp:
+            if atom_site.is_defined_attribute("b_iso_or_equiv"):
+                b_iso = numpy.array(atom_site.b_iso_or_equiv, dtype=float) 
+            else:
+                b_iso = numpy.zeros(shape=(len(atom_site.label)), dtype=float)
+            beta = atom_site_aniso.calc_beta(cell)
+            dwf_3d = CONSTANTS_AND_FUNCTIONS.calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+        else:
+            dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
+
+        hh = phase_3d*dwf_3d
+        phase_2d = hh.sum(axis=2)#sum over symmetry
+
+        b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
+        occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
+
+        hh = phase_2d * b_scat_2d * occ_mult_2d
+        f_hkl_as = hh.sum(axis=1)*1./len(r_11)#nuclear structure factor in assymetric unit cell
+
+        f_nucl = space_group.calc_f_hkl_by_f_hkl_as(h, k, l, f_hkl_as)
+        return f_nucl
+
+
+    def calc_susceptibility_tensor(self, h, k, l):
+        """
+calculate susceptibility structure factor tensor
+
+FIXME: introduce Debye-Waller factor
+        """
+        space_group = self.space_group
+        r_s_g_s = space_group.reduced_space_group_symop
+
+        cell = self.cell
+        atom_site_scat = self.atom_site_scat
+        atom_site_susceptibility = self.atom_site_susceptibility
+
+        chi_11 = numpy.array(atom_site_susceptibility.chi_11, float)
+        chi_22 = numpy.array(atom_site_susceptibility.chi_22, float)
+        chi_33 = numpy.array(atom_site_susceptibility.chi_33, float)
+        chi_12 = numpy.array(atom_site_susceptibility.chi_12, float) 
+        chi_13 = numpy.array(atom_site_susceptibility.chi_13, float) 
+        chi_23 = numpy.array(atom_site_susceptibility.chi_23, float) 
+
+        chi_11[numpy.isnan(chi_11)] = 0.
+        chi_22[numpy.isnan(chi_22)] = 0.
+        chi_33[numpy.isnan(chi_33)] = 0.
+        chi_12[numpy.isnan(chi_12)] = 0.
+        chi_13[numpy.isnan(chi_13)] = 0.
+        chi_23[numpy.isnan(chi_23)] = 0.
+
+        moment_11 = numpy.array(atom_site_susceptibility.moment_11, float)
+        moment_22 = numpy.array(atom_site_susceptibility.moment_22, float)
+        moment_33 = numpy.array(atom_site_susceptibility.moment_33, float)
+        moment_12 = numpy.array(atom_site_susceptibility.moment_12, float) 
+        moment_13 = numpy.array(atom_site_susceptibility.moment_13, float) 
+        moment_23 = numpy.array(atom_site_susceptibility.moment_23, float) 
+
+        moment_11[numpy.isnan(moment_11)] = 0.
+        moment_22[numpy.isnan(moment_22)] = 0.
+        moment_33[numpy.isnan(moment_33)] = 0.
+        moment_12[numpy.isnan(moment_12)] = 0.
+        moment_13[numpy.isnan(moment_13)] = 0.
+        moment_23[numpy.isnan(moment_23)] = 0.
+
+        atom_site = self.atom_site
+        atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)
+
+        np_x_y_z_occ_mult = numpy.array([(atom_site[_item.label].fract_x, atom_site[_item.label].fract_y,
+                               atom_site[_item.label].fract_z, atom_site[_item.label].occupancy, 
+                               atom_site[_item.label].multiplicity)
+                               for _item in atom_site_susceptibility.item], 
+                               dtype = float)
+
+        atom_site_aniso = self.atom_site_aniso
+
+        x = np_x_y_z_occ_mult[:, 0]
+        y = np_x_y_z_occ_mult[:, 1]
+        z = np_x_y_z_occ_mult[:, 2]
+        occupancy = np_x_y_z_occ_mult[:, 3]
+        atom_multiplicity = np_x_y_z_occ_mult[:, 4]
+
+        occ_mult = occupancy*atom_multiplicity 
+
+        r_11, r_12, r_13 = r_s_g_s.r_11, r_s_g_s.r_12, r_s_g_s.r_13
+        r_21, r_22, r_23 = r_s_g_s.r_21, r_s_g_s.r_22, r_s_g_s.r_23
+        r_31, r_32, r_33 = r_s_g_s.r_31, r_s_g_s.r_32, r_s_g_s.r_33
+        b_1, b_2, b_3 = r_s_g_s.b_1, r_s_g_s.b_2, r_s_g_s.b_3
+
+        phase_3d = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, 
+        r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)
+
+        flag_adp = atom_site_aniso is not None
+        flag_adp = False
+        if flag_adp:
+            if atom_site.is_defined_attribute("b_iso_or_equiv"):
+                b_iso = numpy.array(atom_site.b_iso_or_equiv, dtype=float) 
+            else:
+                b_iso = numpy.zeros(shape=(len(atom_site.label)), dtype=float)
+            beta = atom_site_aniso.calc_beta(cell)
+            dwf_3d = CONSTANTS_AND_FUNCTIONS.calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+        else:
+            dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
+
+        hh = phase_3d*dwf_3d
+        phase_2d = hh.sum(axis=2)#sum over symmetry
+
+        #b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
+        sthovl = cell.calc_sthovl(h, k, l)
+        form_factor = atom_site_scat.calc_form_factor(sthovl)
+
+        #dimensions: hkl, magnetic atoms, reduced symmetry operators
+        ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
+        CONSTANTS_AND_FUNCTIONS.calc_form_factor_tensor_susceptibility(
+            chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, 
+            r_s_g_s, form_factor, cell, h, k, l)
+        
+        ffm_11, ffm_12, ffm_13, ffm_21, ffm_22, ffm_23, ffm_31, ffm_32, ffm_33 = \
+        CONSTANTS_AND_FUNCTIONS.calc_form_factor_tensor_susceptibility(
+            moment_11, moment_22, moment_33, moment_12, moment_13, moment_23, 
+            r_s_g_s, form_factor, cell, h, k, l)
+
+
+        occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
+
+        #dimensions: hkl, number of atoms, reduced symmetry operators, 18 elements of susceptribility tensor
+        hh = numpy.stack([ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33, 
+                           ffm_11, ffm_12, ffm_13, ffm_21, ffm_22, ffm_23, ffm_31, ffm_32, ffm_33], axis=-1)
+        b_scat_3d = hh
+
+        hh = phase_2d[:, :, numpy.newaxis, numpy.newaxis] * b_scat_3d * occ_mult_2d[:, :, numpy.newaxis, numpy.newaxis]
+        f_hkl_as_2d = (hh.sum(axis=2)*1./len(r_11)).sum(axis=1)#nuclear structure factor in assymetric unit cell
+
+        f_2d = space_group.calc_f_hkl_by_f_hkl_as(h, k, l, f_hkl_as_2d)
+        hh = 0.2695*f_2d
+        #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
+        #chi in 10-12 cm; chim in muB (it is why here 0.2695)
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
+                cell,
+                hh[:, 0], hh[:, 1], hh[:, 2],
+                hh[:, 3], hh[:, 4], hh[:, 5],
+                hh[:, 6], hh[:, 7], hh[:, 8])
+
+        sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33 = self._orto_matrix(
+                cell,
+                hh[:, 9], hh[:, 10], hh[:, 11], 
+                hh[:, 12], hh[:, 13], hh[:, 14], 
+                hh[:, 15], hh[:, 16], hh[:, 17])
+
+        item = [ReflnSusceptibility(index_h=_h, index_k=_k, index_l=_l, sintlambda=_s,
+                                    chi_11_calc = _s_11, chi_12_calc = _s_12, chi_13_calc = _s_13, 
+                                    chi_21_calc = _s_21, chi_22_calc = _s_22, chi_23_calc = _s_23, 
+                                    chi_31_calc = _s_31, chi_32_calc = _s_32, chi_33_calc = _s_33, 
+                                    moment_11_calc = _sm_11, moment_12_calc = _sm_12, moment_13_calc = _sm_13, 
+                                    moment_21_calc = _sm_21, moment_22_calc = _sm_22, moment_23_calc = _sm_23, 
+                                    moment_31_calc = _sm_31, moment_32_calc = _sm_32, moment_33_calc = _sm_33)
+        for _h, _k, _l, _s, _s_11, _s_12, _s_13, _s_21, _s_22, _s_23, _s_31, _s_32, _s_33, 
+            _sm_11, _sm_12, _sm_13, _sm_21, _sm_22, _sm_23, _sm_31, _sm_32, _sm_33 in zip(
+            h, k, l, sthovl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33,
+            sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33)    
+        ]
+        res = ReflnSusceptibilityL(item=item)
+        return res
 
 
     def calc_sf(self, h, k, l):
@@ -349,48 +562,98 @@ calculate nuclear structure factor and components of structure factor tensor
         """
 
         space_group = self.space_group
+        reduced_space_group_symop = space_group.reduced_space_group_symop
+        full_space_group_symop = space_group.full_space_group_symop
+
         cell = self.cell
         atom_site = self.atom_site
         atom_site_aniso = self.atom_site_aniso
         atom_site_scat = self.atom_site_scat
         atom_site_susceptibility = self.atom_site_susceptibility
 
-
         occupancy = numpy.array(atom_site.occupancy, dtype=float)
         x = numpy.array(atom_site.fract_x, dtype=float)
         y = numpy.array(atom_site.fract_y, dtype=float)
         z = numpy.array(atom_site.fract_z, dtype=float)
         atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
-
         occ_mult = occupancy*atom_multiplicity 
 
         scat_length_neutron = numpy.array(atom_site.scat_length_neutron, dtype=complex)
 
+        r_11 = reduced_space_group_symop.r_11
+        r_12 = reduced_space_group_symop.r_12
+        r_13 = reduced_space_group_symop.r_13
+        r_21 = reduced_space_group_symop.r_21
+        r_22 = reduced_space_group_symop.r_22
+        r_23 = reduced_space_group_symop.r_23
+        r_31 = reduced_space_group_symop.r_31
+        r_32 = reduced_space_group_symop.r_32
+        r_33 = reduced_space_group_symop.r_33
+        b_1 = reduced_space_group_symop.b_1
+        b_2 = reduced_space_group_symop.b_2
+        b_3 = reduced_space_group_symop.b_3
 
-        fract = atom_site._form_fract()
         flag_adp = atom_site_aniso is not None
-        flag_magnetism = atom_site_magnetism_aniso is not None
+        flag_adp = False
         if flag_adp:
-            adp = atom_site_aniso._form_adp(atom_site)
-        if flag_magnetism:
-            magnetism = atom_site_magnetism_aniso._form_magnetism(atom_site, atom_site_magnetism)
-
-
-        
-
-        phase_3d = fract.calc_phase(space_group, h, k, l)#3d object
-        if flag_adp:
-            dwf_3d = adp.calc_dwf(space_group, cell, h, k, l)
+            if atom_site.is_defined_attribute("b_iso_or_equiv"):
+                b_iso = numpy.array(atom_site.b_iso_or_equiv, dtype=float) 
+            else:
+                b_iso = numpy.zeros(shape=(len(atom_site.label)), dtype=float)
+            beta = atom_site_aniso.calc_beta(cell)
+            dwf_3d = CONSTANTS_AND_FUNCTIONS.calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
         else:
             dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
+            dwf_3d_mag = numpy.ones(phase_3d_mag.shape, dtype=float)
+
+
+
+        phase_3d = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, 
+        r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)
+
+        #phase_3d = fract.calc_phase(space_group, h, k, l)#3d object
+
+        flag_adp = atom_site_aniso is not None
+        flag_magnetism = atom_site_magnetism_aniso is not None
+        if flag_magnetism:
+            atom_site_items_mag  = [atom_site[_lab] for _lab in atom_site_susceptibility.label]
+            x_mag = numpy.array([_item.fract_x for _item in atom_site_items_mag], dtype=float)
+            y_mag = numpy.array([_item.fract_y for _item in atom_site_items_mag], dtype=float)
+            z_mag = numpy.array([_item.fract_z for _item in atom_site_items_mag], dtype=float)
+            occ_mult_mag = numpy.array([_item.occupancy*_item.multiplicity for _item in atom_site_items_mag], dtype=float)
+
+            phase_3d_mag = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, 
+            x_mag, y_mag, z_mag, 
+            r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)
+
+            magnetism = atom_site_magnetism_aniso._form_magnetism(atom_site, atom_site_magnetism)
+
+        flag_adp = False
+        if flag_adp:
+            if atom_site.is_defined_attribute("b_iso_or_equiv"):
+                b_iso = numpy.array(atom_site.b_iso_or_equiv, dtype=float) 
+            else:
+                b_iso = numpy.zeros(shape=(len(atom_site.label)), dtype=float)
+            beta = atom_site_aniso.calc_beta(cell)
+            dwf_3d = CONSTANTS_AND_FUNCTIONS.calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+        else:
+            dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
+            dwf_3d_mag = numpy.ones(phase_3d_mag.shape, dtype=float)
 
         hh = phase_3d*dwf_3d
 
+        hh_mag = phase_3d_mag*dwf_3d_mag
+
         if flag_magnetism:
             ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
-                   magnetism.calc_form_factor_tensor_susceptibility(space_group, cell, h, k, l)
+            CONSTANTS_AND_FUNCTIONS.calc_form_factor_tensor_susceptibility(
+                chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, 
+                reduced_space_group_symop, cell, h, k, l)
+
             ffm_11, ffm_12, ffm_13, ffm_21, ffm_22, ffm_23, ffm_31, ffm_32, ffm_33 = \
-                   magnetism.calc_form_factor_tensor_moment(space_group, cell, h, k, l)
+            CONSTANTS_AND_FUNCTIONS.calc_form_factor_tensor_susceptibility(
+                moment_11, moment_22, moment_33, moment_12, moment_13, moment_23, 
+                reduced_space_group_symop, cell, h, k, l)
         else:
             np_zeros = numpy.zeros(phase_3d.shape, dtype=float)
             ff_11, ff_12, ff_13 = np_zeros, np_zeros, np_zeros
@@ -402,30 +665,34 @@ calculate nuclear structure factor and components of structure factor tensor
 
 
         phase_2d = hh.sum(axis=2)
+        phase_2d_mag = hh_mag.sum(axis=2)
 
-        ft_11 = (ff_11*hh).sum(axis=2)
-        ft_12 = (ff_12*hh).sum(axis=2)
-        ft_13 = (ff_13*hh).sum(axis=2)
-        ft_21 = (ff_21*hh).sum(axis=2)
-        ft_22 = (ff_22*hh).sum(axis=2)
-        ft_23 = (ff_23*hh).sum(axis=2)
-        ft_31 = (ff_31*hh).sum(axis=2)
-        ft_32 = (ff_32*hh).sum(axis=2)
-        ft_33 = (ff_33*hh).sum(axis=2)
+        ft_11 = (ff_11*hh_mag).sum(axis=2)
+        ft_12 = (ff_12*hh_mag).sum(axis=2)
+        ft_13 = (ff_13*hh_mag).sum(axis=2)
+        ft_21 = (ff_21*hh_mag).sum(axis=2)
+        ft_22 = (ff_22*hh_mag).sum(axis=2)
+        ft_23 = (ff_23*hh_mag).sum(axis=2)
+        ft_31 = (ff_31*hh_mag).sum(axis=2)
+        ft_32 = (ff_32*hh_mag).sum(axis=2)
+        ft_33 = (ff_33*hh_mag).sum(axis=2)
 
-        ftm_11 = (ffm_11*hh).sum(axis=2)
-        ftm_12 = (ffm_12*hh).sum(axis=2)
-        ftm_13 = (ffm_13*hh).sum(axis=2)
-        ftm_21 = (ffm_21*hh).sum(axis=2)
-        ftm_22 = (ffm_22*hh).sum(axis=2)
-        ftm_23 = (ffm_23*hh).sum(axis=2)
-        ftm_31 = (ffm_31*hh).sum(axis=2)
-        ftm_32 = (ffm_32*hh).sum(axis=2)
-        ftm_33 = (ffm_33*hh).sum(axis=2)
+        ftm_11 = (ffm_11*hh_mag).sum(axis=2)
+        ftm_12 = (ffm_12*hh_mag).sum(axis=2)
+        ftm_13 = (ffm_13*hh_mag).sum(axis=2)
+        ftm_21 = (ffm_21*hh_mag).sum(axis=2)
+        ftm_22 = (ffm_22*hh_mag).sum(axis=2)
+        ftm_23 = (ffm_23*hh_mag).sum(axis=2)
+        ftm_31 = (ffm_31*hh_mag).sum(axis=2)
+        ftm_32 = (ffm_32*hh_mag).sum(axis=2)
+        ftm_33 = (ffm_33*hh_mag).sum(axis=2)
 
         b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
         occ_mult_2d = numpy.meshgrid(h, occ_mult, indexing="ij")[1]
-        
+        occ_mult_2d_mag = numpy.meshgrid(h, occ_mult_mag, indexing="ij")[1]
+
+
+
         l_el_symm = space_group.el_symm
         l_orig = space_group.orig
         centr = space_group.centr
@@ -576,25 +843,12 @@ output chiLOC = iBT CHI iB
         r21, r22, r23 = m_ibt_norm[1, 0], m_ibt_norm[1, 1], m_ibt_norm[1, 2]
         r31, r32, r33 = m_ibt_norm[2, 0], m_ibt_norm[2, 1], m_ibt_norm[2, 2]
         
-        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = calc_mRmCmRT(
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = CONSTANTS_AND_FUNCTIONS.calc_mRmCmRT(
                 r11, r12, r13, r21, r22, r23, r31, r32, r33,
                 l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
 
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
-    def apply_constraint(self):
-        space_group = self.space_group
-        cell = self.cell
-        cell.apply_constraint()
-        atom_site = self.atom_site
-        atom_site_aniso = self.atom_site_aniso
-        if atom_site_aniso is not None:
-            atom_site_aniso.apply_space_group_constraint(atom_site, space_group)
-        atom_site_magnetism_aniso = self.atom_site_magnetism_aniso
-        if atom_site_magnetism_aniso is not None:
-            atom_site_magnetism_aniso.apply_chi_iso_constraint(cell)
-            atom_site_magnetism_aniso.apply_moment_iso_constraint(cell)
-            atom_site_magnetism_aniso.apply_space_group_constraint(atom_site, space_group)
     
     def calc_hkl(self, sthol_min, sthovl_max):
         cell = self.cell

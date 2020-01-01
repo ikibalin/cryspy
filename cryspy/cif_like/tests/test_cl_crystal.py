@@ -32,7 +32,7 @@ data_Fe3O4
  loop_                                     
  _atom_type_scat_length_neutron
  _atom_type_symbol
-   0.945 Fe3+
+  0.945 Fe3+
   0.5803 O2-
  
  loop_
@@ -49,8 +49,9 @@ data_Fe3O4
  loop_
  _atom_site_scat_label
  _atom_site_scat_lande
- Fe3A 2.0 
- Fe3B 2.0 
+ _atom_site_scat_kappa
+ Fe3A 2.0 1.0
+ Fe3B 2.0 1.0
  
  loop_     
  _atom_site_susceptibility_label
@@ -101,3 +102,24 @@ def test_from_cif():
     assert _obj.space_group.it_number == 227
     assert _obj.is_defined
     
+def test_calc_f_nucl():
+    rel_tol, abs_tol =0.001, 0.01
+    _obj = Crystal.from_cif(STR_FROM_CIF_1)
+    _obj.apply_constraint()
+    h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
+    f_nucl = _obj.calc_f_nucl(h, k, l)
+    f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)
+    res = numpy.isclose(f_nucl, f_reference, rtol=rel_tol, atol=abs_tol)
+    assert all(res)
+
+def test_calc_susceptibility_tensor():
+    rel_tol, abs_tol =0.001, 0.01
+    _obj = Crystal.from_cif(STR_FROM_CIF_1)
+    _obj.apply_constraint()
+    h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
+    refln_suc = _obj.calc_susceptibility_tensor(h, k, l)
+    #print(refln_suc.to_cif())
+    assert True
+    #f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)
+    #res = numpy.isclose(f_nucl, f_reference, rtol=rel_tol, atol=abs_tol)
+    #assert all(res)    

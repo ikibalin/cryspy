@@ -71,10 +71,10 @@ This category is fully defined in the core CIF dictionary.</p>
 <span class="n">_atom_type_scat_neutron_magnetic_j0_D</span>   <span class="o">-</span><span class="mf">0.40685</span>
 </pre></div>
 </div>
-<p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">iucr.org</a></p>
+<p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">FIXME</dt>
-<dd class="field-odd"><p>attribute ‘symbol’ is not defined in Magneti CIF dictionary</p>
+<dd class="field-odd"><p>attribute ‘symbol’ is not defined in Magnetic CIF dictionary</p>
 </dd>
 </dl>
 <dl class="attribute">
@@ -98,6 +98,34 @@ This category is fully defined in the core CIF dictionary.</p>
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.calc_form_factor">
+<code class="sig-name descname">calc_form_factor</code><span class="sig-paren">(</span><em class="sig-param">sthovl</em>, <em class="sig-param">lande=2.0</em>, <em class="sig-param">kappa=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_type_scat.html#AtomTypeScat.calc_form_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.calc_form_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate magnetic form factor in frame of Spherical model (Int.Tabl.C.p.592)</p>
+<dl class="field-list simple">
+<dt class="field-odd">LFactor</dt>
+<dd class="field-odd"><p>is Lande factor</p>
+</dd>
+<dt class="field-even">Coeff0</dt>
+<dd class="field-even"><p>is a list [A,a,B,b,C,c,D] at n=0</p>
+</dd>
+<dt class="field-odd">Coeff2</dt>
+<dd class="field-odd"><p>is a list [A,a,B,b,C,c,D] at n=2</p>
+</dd>
+<dt class="field-even">Lsthovl</dt>
+<dd class="field-even"><p>is list <span class="math notranslate nohighlight">\(sin(\theta)/\lambda\)</span> in <span class="math notranslate nohighlight">\(\A^{-1}\)</span></p>
+</dd>
+</dl>
+<p>Calculation of magnetic form factor &lt;j0&gt;,&lt;j2&gt;,&lt;j4&gt;,&lt;j6&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Coeff</dt>
+<dd class="field-odd"><p>is a list [A,a,B,b,C,c,D] at n=0,2,4,6</p>
+</dd>
+</dl>
+<p>according <cite>&lt;https://journals.aps.org/prb/pdf/10.1103/PhysRevB.79.140405&gt;</cite>
+mismatch with international tables where (1.0-2.0/np_factor_lande)</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_type_scat.html#AtomTypeScat.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.get_variables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -114,12 +142,12 @@ This category is fully defined in the core CIF dictionary.</p>
 spherical Bessel functions over the electronic wave functions of unpaired
 electrons of the given atom type as a function of s = sin(θ)/λ.</p>
 <div class="math notranslate nohighlight">
-\[&lt;jn(s)&gt; = [A1 exp(−a2s2) + B1 exp(−b2s2) + C1 exp(−c2s2) + D] ×
-[1 if n = 0, s^{2} ifn = 2,4,6]\]</div>
-<p>The &lt;jn(s)&gt; are then combined to determine the spin and orbital contributions
+\[\left\langle j_{n}(s)\right\rangle = \left( A_{1} e^{−a_{2}s^{2}} + B_{1} e^{−b_{2}s^{2}} + C_{1} e^{−c_{2}s^{2}}  + D \right) \times
+\left[\left. 1 \right|_{n = 0} \vee \left.s^{2}\right|_{n = 2, 4, 6}\right]\]</div>
+<p>The <span class="math notranslate nohighlight">\(\left\langle j_{n}(s)\right\rangle\)</span> are then combined to determine the spin and orbital contributions
 to the magnetic form factor of the atom. The ‘e’ parameter is a measure of error
 in the approximation.</p>
-<p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">iucr.org</a></p>
+<p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -313,8 +341,7 @@ in the approximation.</p>
 <em class="property">property </em><code class="sig-name descname">neutron_magnetic_source</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.neutron_magnetic_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reference to the source of magnetic neutron scattering factors for
 a given atom type.</p>
-<p>Analogous tags: coreCIF: _atom_site.scat_source
-Example:
+<p>Example:
 ;
 International Tables for Crystallography (2006). Vol. C, Section 4.4.5.
 ;</p>
@@ -334,6 +361,7 @@ International Tables for Crystallography (2006). Vol. C, Section 4.4.5.
 <p>Data items in the ATOM_TYPE_SCAT category describe atomic
 scattering information used in crystallographic structure studies.
 This category is fully defined in the core CIF dictionary.</p>
+<p>Description in cif:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
 <span class="n">_atom_type_scat_symbol</span>
 <span class="n">_atom_type_scat_neutron_magnetic_j0_A1</span>
@@ -347,7 +375,7 @@ This category is fully defined in the core CIF dictionary.</p>
  <span class="n">N2</span>   <span class="mf">1.00581</span>  <span class="mf">13.37218</span> <span class="o">-</span><span class="mf">0.05868</span>  <span class="mf">0.07792</span> <span class="o">-</span><span class="mf">0.00444</span>  <span class="mf">0.01678</span>  <span class="mf">0.05146</span>
 </pre></div>
 </div>
-<p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">iucr.org</a></p>
+<p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf</a></p>
 <dl class="attribute">
 <dt id="cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('symbol',)</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
@@ -358,6 +386,11 @@ This category is fully defined in the core CIF dictionary.</p>
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat" title="cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomTypeScat</span></code></a></p>
 </dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.calc_form_factor">
+<code class="sig-name descname">calc_form_factor</code><span class="sig-paren">(</span><em class="sig-param">sthovl</em>, <em class="sig-param">l_lande: List</em>, <em class="sig-param">l_kappa: List</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_type_scat.html#AtomTypeScatL.calc_form_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.calc_form_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

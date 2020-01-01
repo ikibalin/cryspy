@@ -76,9 +76,9 @@
 <span class="sd"> _atom_type_scat_neutron_magnetic_j0_c2  -0.22968</span>
 <span class="sd"> _atom_type_scat_neutron_magnetic_j0_D   -0.40685</span>
 
-<span class="sd">`iucr.org &lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
 
-<span class="sd">:FIXME: attribute &#39;symbol&#39; is not defined in Magneti CIF dictionary</span>
+<span class="sd">:FIXME: attribute &#39;symbol&#39; is not defined in Magnetic CIF dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;neutron_magnetic_j0_a1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j0_a2&quot;</span><span class="p">,</span>
@@ -156,16 +156,15 @@
 <span class="sd">electrons of the given atom type as a function of s = sin(θ)/λ. </span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> &lt;jn(s)&gt; = [A1 exp(−a2s2) + B1 exp(−b2s2) + C1 exp(−c2s2) + D] ×</span>
-<span class="sd"> [1 if n = 0, s^{2} ifn = 2,4,6] </span>
 
-<span class="sd">The &lt;jn(s)&gt; are then combined to determine the spin and orbital contributions </span>
+<span class="sd">   \\left\\langle j_{n}(s)\\right\\rangle = \\left( A_{1} e^{−a_{2}s^{2}} + B_{1} e^{−b_{2}s^{2}} + C_{1} e^{−c_{2}s^{2}}  + D \\right) \\times</span>
+<span class="sd">   \\left[\\left. 1 \\right|_{n = 0} \\vee \\left.s^{2}\\right|_{n = 2, 4, 6}\\right] </span>
+
+<span class="sd">The :math:`\\left\\langle j_{n}(s)\\right\\rangle` are then combined to determine the spin and orbital contributions </span>
 <span class="sd">to the magnetic form factor of the atom. The ‘e’ parameter is a measure of error </span>
 <span class="sd">in the approximation.         </span>
 
-<span class="sd">Reference:</span>
-<span class="sd">---------------</span>
-<span class="sd">`iucr.org &lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_a1&quot;</span><span class="p">)</span>
     <span class="nd">@neutron_magnetic_j0_a1</span><span class="o">.</span><span class="n">setter</span>
@@ -631,7 +630,6 @@
 <span class="sd">Reference to the source of magnetic neutron scattering factors for </span>
 <span class="sd">a given atom type. </span>
 
-<span class="sd">Analogous tags: coreCIF: _atom_site.scat_source </span>
 <span class="sd">Example: </span>
 <span class="sd">;</span>
 <span class="sd">International Tables for Crystallography (2006). Vol. C, Section 4.4.5. </span>
@@ -662,23 +660,60 @@
 
 <div class="viewcode-block" id="AtomTypeScat.get_variables"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="n">l_variable</span></div></div>
+        <span class="k">return</span> <span class="n">l_variable</span></div>
 
+<div class="viewcode-block" id="AtomTypeScat.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">,</span> <span class="n">lande</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate magnetic form factor in frame of Spherical model (Int.Tabl.C.p.592)</span>
+
+<span class="sd">:LFactor:  is Lande factor</span>
+<span class="sd">:coeff0:   is a list [A,a,B,b,C,c,D] at n=0</span>
+<span class="sd">:coeff2:   is a list [A,a,B,b,C,c,D] at n=2</span>
+<span class="sd">:lsthovl:  is list :math:`sin(\\theta)/\\lambda` in :math:`\\A^{-1}`</span>
+
+<span class="sd">Calculation of magnetic form factor &lt;j0&gt;,&lt;j2&gt;,&lt;j4&gt;,&lt;j6&gt;</span>
+
+<span class="sd">:coeff: is a list [A,a,B,b,C,c,D] at n=0,2,4,6</span>
+
+<span class="sd">according `&lt;https://journals.aps.org/prb/pdf/10.1103/PhysRevB.79.140405&gt;`</span>
+<span class="sd">mismatch with international tables where (1.0-2.0/np_factor_lande)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#not sure about kappa, it is here just for test, by default it is 1.0</span>
+        <span class="n">j0_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_a1</span>
+        <span class="n">j0_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_a2</span>
+        <span class="n">j0_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_b1</span>
+        <span class="n">j0_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_b2</span>
+        <span class="n">j0_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_c1</span>
+        <span class="n">j0_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_c2</span>
+        <span class="n">j0_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_d</span>
+        <span class="n">j2_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_a1</span>
+        <span class="n">j2_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_a2</span>
+        <span class="n">j2_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_b1</span>
+        <span class="n">j2_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_b2</span>
+        <span class="n">j2_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_c1</span>
+        <span class="n">j2_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_c2</span>
+        <span class="n">j2_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_d</span>     
+    
+        <span class="n">_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">sthovl</span><span class="o">/</span><span class="n">kappa</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+    
+        <span class="n">j0_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">j0_A</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_a</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j0_B</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_b</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j0_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">np_j0_D</span><span class="p">)</span>
+        <span class="n">j2_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">j2_A</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_a</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j2_B</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_b</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j2_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">np_j2_D</span><span class="p">)</span><span class="o">*</span><span class="n">np_h</span>
+    
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="n">j0_av</span><span class="o">+</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">lande</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="o">*</span><span class="n">j2_av</span>
+        <span class="k">return</span> <span class="n">form_factor</span></div></div>
 
 
 <div class="viewcode-block" id="AtomTypeScatL"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL">[docs]</a><span class="k">class</span> <span class="nc">AtomTypeScatL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomTypeScatL</span>
-<span class="sd">====================</span>
-
-
 <span class="sd">Data items in the ATOM_TYPE_SCAT category describe atomic</span>
 <span class="sd">scattering information used in crystallographic structure studies.</span>
 <span class="sd">This category is fully defined in the core CIF dictionary.</span>
 
-<span class="sd">Description in cif:</span>
-<span class="sd">-----------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif::</span>
 
 <span class="sd"> loop_</span>
 <span class="sd"> _atom_type_scat_symbol</span>
@@ -692,9 +727,7 @@
 <span class="sd">  O2   0.99895  12.09652  0.28854  0.12914  0.11425 -0.22968 -0.40685 </span>
 <span class="sd">  N2   1.00581  13.37218 -0.05868  0.07792 -0.00444  0.01678  0.05146</span>
 
-<span class="sd">Reference:</span>
-<span class="sd">---------------</span>
-<span class="sd">`iucr.org &lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomTypeScat</span>
@@ -706,7 +739,12 @@
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomTypeScatL: &quot;</span><span class="p">)</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AtomTypeScatL.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">,</span> <span class="n">l_lande</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">l_kappa</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">lande</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span> 
+                       <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">lande</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">l_lande</span><span class="p">,</span> <span class="n">l_kappa</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">form_factor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>

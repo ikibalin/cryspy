@@ -1007,6 +1007,41 @@ be explicit. White space within the string is optional.
         o_1, o_2, o_3 = e_1[flag], e_2[flag], e_3[flag]
         return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3
 
+    def calc_f_hkl_by_f_hkl_as(self, h, k, l, f_hkl_as):
+        """
+Calculate the structure factor giving the structure factor 
+in asymmetric unit cell.
+        """
+        shift = CONSTANTS_AND_FUNCTIONS.get_shift_by_centring_type(self.centring_type)
+        centr = self.centrosymmetry
+
+        orig_x, orig_y, orig_z = zip(*shift)
+
+        #orig_x = [hh[0] for hh in shift]
+        #orig_y = [hh[1] for hh in shift]
+        #orig_z = [hh[2] for hh in shift]
+        
+        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
+        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
+        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
+
+        hh = (2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z)).astype(complex)
+        np_orig_as = numpy.exp(hh)
+        _hh = np_orig_as.sum(axis=1)
+        if len(f_hkl_as.shape)==2:
+           _hh = _hh[:, numpy.newaxis] 
+        f_hkl_1 = f_hkl_as*_hh*1./len(shift)
+
+        if (centr):
+            p_centr = self.pcentr
+            hh = (2.*2.*numpy.pi*1j* (h*p_centr[0]+k*p_centr[1]+l*p_centr[2])).astype(complex)
+            if len(f_hkl_as.shape)==2:
+                hh = hh[:, numpy.newaxis]
+            f_hkl = 0.5*(f_hkl_1+f_hkl_1.conjugate()*numpy.exp(hh))
+        else:
+            f_hkl = f_hkl_1
+        return f_hkl
+
 
     def calc_asymmetric_cell(self, n_a, n_b, n_c):
         """
