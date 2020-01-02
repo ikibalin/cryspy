@@ -41,7 +41,7 @@
           <a href="cryspy.corecif.atom_type.html" title="AtomType"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" accesskey="U">Core dictionary (coreCIF)</a> &#187;</li> 
       </ul>
     </div>  
@@ -63,34 +63,16 @@ The REFLN data items refer to individual reflections and must
 be included in looped lists.</p>
 <p>The REFLNS data items specify the parameters that apply to all
 reflections. The REFLNS data items are not looped.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_refln_index_h</span>         <span class="mi">2</span>
 <span class="n">_refln_index_k</span>         <span class="mi">0</span>
 <span class="n">_refln_index_l</span>         <span class="mi">0</span>
 <span class="n">_refln_d_spacing</span>       <span class="mf">0.13</span>
 <span class="n">_refln_A_calc</span>          <span class="mf">2.1</span>
 <span class="n">_refln_B_calc</span>          <span class="mf">0.</span>
-<span class="n">_refln_chi_11_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_12_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_13_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_21_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_22_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_23_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_31_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_32_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_33_A_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_11_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_12_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_13_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_21_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_22_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_23_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_31_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_32_B_calc</span>   <span class="mf">0.</span>
-<span class="n">_refln_chi_33_B_calc</span>   <span class="mf">0.</span>
 </pre></div>
 </div>
-<p>Reference:
-<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html</a></p>
 <p>FIXME:
 the attribute ‘sint/lambda’is replaced by ‘sintlambda’</p>
 <dl class="attribute">
@@ -126,7 +108,15 @@ the attribute ‘sint/lambda’is replaced by ‘sintlambda’</p>
 <dl class="method">
 <dt id="cryspy.corecif.cl_refln.Refln.a_calc">
 <em class="property">property </em><code class="sig-name descname">a_calc</code><a class="headerlink" href="#cryspy.corecif.cl_refln.Refln.a_calc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The calculated structure-factor component A
+(in electrons for X-ray diffraction).</p>
+<blockquote>
+<div><p>A =|F|cos(phase)</p>
+</div></blockquote>
+<p>Appears in list containing _refln_index_</p>
+<p>Type: numb</p>
+<p>Category: refln</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.corecif.cl_refln.Refln.a_meas">
@@ -454,6 +444,7 @@ The REFLN data items refer to individual reflections and must
 be included in looped lists.</p>
 <p>The REFLNS data items specify the parameters that apply to all
 reflections. The REFLNS data items are not looped.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
  <span class="n">_refln_index_h</span>
  <span class="n">_refln_index_k</span>
@@ -465,8 +456,7 @@ reflections. The REFLNS data items are not looped.</p>
  <span class="mi">2</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mf">4.213</span> <span class="mf">5.00</span> <span class="o">-</span><span class="mf">4.05</span>
 </pre></div>
 </div>
-<p>Reference:
-<a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html</a></p>
 <dl class="attribute">
 <dt id="cryspy.corecif.cl_refln.ReflnL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.corecif.cl_refln.ReflnL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
@@ -531,13 +521,13 @@ reflections. The REFLNS data items are not looped.</p>
           <a href="cryspy.corecif.atom_type.html" title="AtomType"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" >Core dictionary (coreCIF)</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

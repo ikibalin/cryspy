@@ -41,7 +41,7 @@
           <a href="cryspy.cif_like.diffrn_radiation.html" title="DiffrnRadiation"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -136,7 +136,7 @@ crystal structure.</p>
 
 <dl class="method">
 <dt id="cryspy.cif_like.cl_crystal.Crystal.apply_constraint">
-<code class="sig-name descname">apply_constraint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.apply_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.apply_constraint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">apply_constraint</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.apply_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.apply_constraint" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -183,10 +183,8 @@ crystal structure.</p>
 <dt id="cryspy.cif_like.cl_crystal.Crystal.calc_magnetic_moments_with_field_loc">
 <code class="sig-name descname">calc_magnetic_moments_with_field_loc</code><span class="sig-paren">(</span><em class="sig-param">field_abc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_magnetic_moments_with_field_loc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_magnetic_moments_with_field_loc" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">IMPORTANT</dt>
-<dd class="field-odd"><p></p></dd>
-<dt class="field-even">FIXME</dt>
-<dd class="field-even"><p>IN GENERAL CASE NOT CORRECT</p>
+<dt class="field-odd">FIXME</dt>
+<dd class="field-odd"><p>IN GENERAL CASE NOT CORRECT</p>
 </dd>
 </dl>
 </dd></dl>
@@ -203,9 +201,17 @@ crystal structure.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="cryspy.cif_like.cl_crystal.Crystal.calc_sf">
-<code class="sig-name descname">calc_sf</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_sf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_sf" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculate nuclear structure factor and components of structure factor tensor</p>
+<dt id="cryspy.cif_like.cl_crystal.Crystal.calc_refln">
+<code class="sig-name descname">calc_refln</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_refln"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_refln" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate nuclear structure factor</p>
+<p>FIXME: introduce Debye-Waller factor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility">
+<code class="sig-name descname">calc_refln_susceptibility</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_refln_susceptibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate susceptibility structure factor tensor</p>
+<p>FIXME: introduce Debye-Waller factor</p>
 </dd></dl>
 
 <dl class="method">
@@ -288,13 +294,13 @@ crystal structure.</p>
           <a href="cryspy.cif_like.diffrn_radiation.html" title="DiffrnRadiation"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

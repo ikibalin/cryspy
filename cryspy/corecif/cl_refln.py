@@ -12,8 +12,6 @@ from cryspy.common.cl_loop_constr import LoopConstr
 
 class Refln(ItemConstr):
     """
-Refln
-==============
 Data items in the REFLN category record details about the
 reflections used to determine the ATOM_SITE data items.
 The REFLN data items refer to individual reflections and must
@@ -22,9 +20,7 @@ be included in looped lists.
 The REFLNS data items specify the parameters that apply to all
 reflections. The REFLNS data items are not looped.
 
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
   _refln_index_h         2
   _refln_index_k         0
@@ -32,27 +28,8 @@ Description in cif file:
   _refln_d_spacing       0.13
   _refln_A_calc          2.1
   _refln_B_calc          0.
-  _refln_chi_11_A_calc   0.
-  _refln_chi_12_A_calc   0.
-  _refln_chi_13_A_calc   0.
-  _refln_chi_21_A_calc   0.
-  _refln_chi_22_A_calc   0.
-  _refln_chi_23_A_calc   0.
-  _refln_chi_31_A_calc   0.
-  _refln_chi_32_A_calc   0.
-  _refln_chi_33_A_calc   0.
-  _refln_chi_11_B_calc   0.
-  _refln_chi_12_B_calc   0.
-  _refln_chi_13_B_calc   0.
-  _refln_chi_21_B_calc   0.
-  _refln_chi_22_B_calc   0.
-  _refln_chi_23_B_calc   0.
-  _refln_chi_31_B_calc   0.
-  _refln_chi_32_B_calc   0.
-  _refln_chi_33_B_calc   0.
  
-Reference:
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_
 
 FIXME:
 the attribute 'sint/lambda'is replaced by 'sintlambda'
@@ -159,9 +136,6 @@ defined by the cell lengths and cell angles in the CELL category.
         setattr(self, "__index_l", x_in)
     @property
     def a_calc(self):
-        return getattr(self, "__a_calc")
-    @a_calc.setter
-    def a_calc(self, x):
         """
 The calculated structure-factor component A
 (in electrons for X-ray diffraction).
@@ -174,6 +148,9 @@ Type: numb
 
 Category: refln        
         """
+        return getattr(self, "__a_calc")
+    @a_calc.setter
+    def a_calc(self, x):
         if x is None:
             x_in = None
         else:
@@ -306,42 +283,6 @@ Type: numb
             x_in = float(x)
         setattr(self, "__d_spacing", x_in)
     @property
-    def f_calc(self):
-        """
-The calculated  of the structure factors (in electrons for
-X-ray diffraction).
-
-Appears in list containing _refln_index_
-
-Type: numb        
-        """
-        return getattr(self, "__f_calc")
-    @f_calc.setter
-    def f_calc(self, x):
-        if x is None:
-            x_in = None
-        else:
-            x_in = float(x)
-        setattr(self, "__f_calc", x_in)
-    @property
-    def f_meas(self):
-        """
-The measured of the structure factors (in electrons for
-X-ray diffraction).
-
-Appears in list containing _refln_index_
-
-Type: numb        
-        """
-        return getattr(self, "__f_meas")
-    @f_meas.setter
-    def f_meas(self, x):
-        if x is None:
-            x_in = None
-        else:
-            x_in = float(x)
-        setattr(self, "__f_meas", x_in)
-    @property
     def f_sigma(self):
         """
 The standard uncertainty (derived from
@@ -361,6 +302,48 @@ Type: numb
         else:
             x_in = float(x)
         setattr(self, "__f_sigma", x_in)
+    @property
+    def f_calc(self):
+        """
+The calculated  of the structure factors (in electrons for
+X-ray diffraction).
+
+Appears in list containing _refln_index_
+
+Type: numb        
+        """
+        return complex(getattr(self, "__a_calc"), getattr(self, "__b_calc"))
+    @f_calc.setter
+    def f_calc(self, x):
+        if x is None:
+            x_in_1 = None
+            x_in_2 = None
+        else:
+            x_in_1 = complex(x).real
+            x_in_2 = complex(x).imag
+        setattr(self, "__a_calc", x_in_1)
+        setattr(self, "__b_calc", x_in_2)
+    @property
+    def f_meas(self):
+        """
+The measured of the structure factors (in electrons for
+X-ray diffraction).
+
+Appears in list containing _refln_index_
+
+Type: numb        
+        """
+        return complex(getattr(self, "__a_meas"), getattr(self, "__b_meas"))
+    @f_meas.setter
+    def f_meas(self, x):
+        if x is None:
+            x_in_1 = None
+            x_in_2 = None
+        else:
+            x_in_1 = complex(x).real
+            x_in_2 = complex(x).imag
+        setattr(self, "__a_meas", x_in_1)
+        setattr(self, "__b_meas", x_in_2)        
     @property
     def f_squared_calc(self):
         """
@@ -736,8 +719,6 @@ Type: char
 
 class ReflnL(LoopConstr):
     """
-ReflnL
-==============
 Data items in the REFLN category record details about the
 reflections used to determine the ATOM_SITE data items.
 The REFLN data items refer to individual reflections and must
@@ -746,9 +727,7 @@ be included in looped lists.
 The REFLNS data items specify the parameters that apply to all
 reflections. The REFLNS data items are not looped.
 
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
  loop_
   _refln_index_h
@@ -760,8 +739,7 @@ Description in cif file:
   0 0 2 2.315 3.25  1.232
   2 2 0 4.213 5.00 -4.05
  
-Reference:
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_
     """
     CATEGORY_KEY = ("index_h", "index_k", "index_l")
     ITEM_CLASS = Refln

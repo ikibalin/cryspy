@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>RhoChi &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Scripts" href="cryspy.scripts.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.scripts.html" title="Scripts"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.scripts.html" accesskey="U">Scripts</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.scripts.cl_rhochi">
+<span id="rhochi"></span><h1>RhoChi<a class="headerlink" href="#module-cryspy.scripts.cl_rhochi" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.scripts.cl_rhochi.</code><code class="sig-name descname">RhoChi</code><span class="sig-paren">(</span><em class="sig-param">crystals=None</em>, <em class="sig-param">experiments=None</em>, <em class="sig-param">global_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_global_constr.GlobalConstr</span></code></p>
+<p>Class to describe RhoChi container</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">global_</span>
+
+<span class="n">data_Fe3O4</span>
+<span class="n">_cell_angle_alpha</span> <span class="mf">90.0</span>
+<span class="n">_cell_angle_beta</span> <span class="mf">90.0</span>
+<span class="n">_cell_angle_gamma</span> <span class="mf">90.0</span>
+<span class="n">_cell_length_a</span> <span class="mf">8.56212</span><span class="p">()</span>
+<span class="n">_cell_length_b</span> <span class="mf">8.56212</span>
+<span class="n">_cell_length_c</span> <span class="mf">8.56212</span>
+<span class="n">_space_group_it_coordinate_system_code</span> <span class="mi">2</span>
+<span class="n">_space_group_IT_number</span>    <span class="mi">227</span>
+
+<span class="n">loop_</span>
+<span class="n">_atom_site_adp_type</span>
+<span class="n">_atom_site_B_iso_or_equiv</span>
+<span class="n">_atom_site_fract_x</span>
+<span class="n">_atom_site_fract_y</span>
+<span class="n">_atom_site_fract_z</span>
+<span class="n">_atom_site_label</span>
+<span class="n">_atom_site_occupancy</span>
+<span class="n">_atom_site_type_symbol</span>
+ <span class="n">Uani</span> <span class="mf">0.0</span> <span class="mf">0.125</span> <span class="mf">0.125</span> <span class="mf">0.125</span> <span class="n">Fe3A</span> <span class="mf">1.0</span> <span class="n">Fe3</span><span class="o">+</span>
+ <span class="n">Uani</span> <span class="mf">0.0</span> <span class="mf">0.5</span> <span class="mf">0.5</span> <span class="mf">0.5</span> <span class="n">Fe3B</span> <span class="mf">1.0</span> <span class="n">Fe3</span><span class="o">+</span>
+ <span class="n">Uiso</span> <span class="mf">0.0</span> <span class="mf">0.25521</span> <span class="mf">0.25521</span> <span class="mf">0.25521</span> <span class="n">O1</span> <span class="mf">1.0</span> <span class="n">O2</span><span class="o">-</span>
+
+<span class="n">loop_</span>
+<span class="n">_atom_type_scat_length_neutron</span>
+<span class="n">_atom_type_symbol</span>
+  <span class="mf">0.945</span> <span class="n">Fe3</span><span class="o">+</span>
+ <span class="mf">0.5803</span> <span class="n">O2</span><span class="o">-</span>
+
+<span class="n">loop_</span>
+<span class="n">_atom_site_aniso_U_11</span>
+<span class="n">_atom_site_aniso_U_12</span>
+<span class="n">_atom_site_aniso_U_13</span>
+<span class="n">_atom_site_aniso_U_22</span>
+<span class="n">_atom_site_aniso_U_23</span>
+<span class="n">_atom_site_aniso_U_33</span>
+<span class="n">_atom_site_aniso_label</span>
+ <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="n">Fe3A</span>
+ <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="n">Fe3B</span>
+
+<span class="n">loop_</span>
+<span class="n">_atom_site_scat_label</span>
+<span class="n">_atom_site_scat_lande</span>
+<span class="n">Fe3A</span> <span class="mf">2.0</span>
+<span class="n">Fe3B</span> <span class="mf">2.0</span>
+
+<span class="n">loop_</span>
+<span class="n">_atom_site_susceptibility_label</span>
+<span class="n">_atom_site_susceptibility_chi_type</span>
+<span class="n">_atom_site_susceptibility_chi_11</span>
+<span class="n">_atom_site_susceptibility_chi_12</span>
+<span class="n">_atom_site_susceptibility_chi_13</span>
+<span class="n">_atom_site_susceptibility_chi_22</span>
+<span class="n">_atom_site_susceptibility_chi_23</span>
+<span class="n">_atom_site_susceptibility_chi_33</span>
+ <span class="n">Fe3A</span> <span class="n">Cani</span> <span class="o">-</span><span class="mf">3.468</span><span class="p">(</span><span class="mi">74</span><span class="p">)</span> <span class="mf">0.0</span> <span class="mf">0.0</span> <span class="o">-</span><span class="mf">3.468</span> <span class="mf">0.0</span> <span class="o">-</span><span class="mf">3.468</span>
+ <span class="n">Fe3B</span> <span class="n">Cani</span> <span class="mf">3.041</span>      <span class="mf">0.0</span> <span class="mf">0.0</span>  <span class="mf">3.041</span> <span class="mf">0.0</span>  <span class="mf">3.041</span>
+
+<span class="n">data_mono</span>
+<span class="n">_setup_wavelength</span>     <span class="mf">0.840</span>
+<span class="n">_setup_field</span>          <span class="mf">1.000</span>
+
+<span class="n">_diffrn_radiation_polarization</span> <span class="mf">1.0</span>
+<span class="n">_diffrn_radiation_efficiency</span>   <span class="mf">1.0</span>
+
+<span class="n">_extinction_mosaicity</span> <span class="mf">100.0</span>
+<span class="n">_extinction_radius</span>    <span class="mf">50.0</span>
+<span class="n">_extinction_model</span>     <span class="n">gauss</span>
+
+<span class="n">_diffrn_orient_matrix_UB_11</span> <span class="mf">6.59783</span>
+<span class="n">_diffrn_orient_matrix_UB_12</span> <span class="o">-</span><span class="mf">6.99807</span>
+<span class="n">_diffrn_orient_matrix_UB_13</span> <span class="mf">3.3663</span>
+<span class="n">_diffrn_orient_matrix_UB_21</span> <span class="mf">2.18396</span>
+<span class="n">_diffrn_orient_matrix_UB_22</span> <span class="o">-</span><span class="mf">2.60871</span>
+<span class="n">_diffrn_orient_matrix_UB_23</span> <span class="o">-</span><span class="mf">9.5302</span>
+<span class="n">_diffrn_orient_matrix_UB_31</span> <span class="mf">7.4657</span>
+<span class="n">_diffrn_orient_matrix_UB_32</span> <span class="mf">6.94702</span>
+<span class="n">_diffrn_orient_matrix_UB_33</span> <span class="o">-</span><span class="mf">0.18685</span>
+
+<span class="n">_phase_label</span>  <span class="n">Fe3O4</span>
+
+<span class="n">loop_</span>
+<span class="n">_diffrn_refln_index_h</span>
+<span class="n">_diffrn_refln_index_k</span>
+<span class="n">_diffrn_refln_index_l</span>
+<span class="n">_diffrn_refln_fr</span>
+<span class="n">_diffrn_refln_fr_sigma</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mi">8</span> <span class="mf">0.64545</span> <span class="mf">0.01329</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mi">6</span> <span class="mf">1.75682</span> <span class="mf">0.04540</span>
+<span class="mi">0</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mf">1.67974</span> <span class="mf">0.03711</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.INTERNAL_CLASSES">
+<code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.MANDATORY_CLASSES">
+<code class="sig-name descname">MANDATORY_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_crystal.Crystal'&gt;, &lt;class 'cryspy.cif_like.cl_diffrn.Diffrn'&gt;)</em><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.MANDATORY_CLASSES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.OPTIONAL_CLASSES">
+<code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.apply_constraint">
+<code class="sig-name descname">apply_constraint</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.apply_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.apply_constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.calc_chi_sq">
+<code class="sig-name descname">calc_chi_sq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.calc_chi_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.calc_chi_sq" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate the integral intensity for h, k, l reflections</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.crystals">
+<em class="property">property </em><code class="sig-name descname">crystals</code><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.crystals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.delete_crystals">
+<em class="property">property </em><code class="sig-name descname">delete_crystals</code><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.delete_crystals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.delete_experiments">
+<em class="property">property </em><code class="sig-name descname">delete_experiments</code><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.delete_experiments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.experiments">
+<em class="property">property </em><code class="sig-name descname">experiments</code><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.experiments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.read_file">
+<code class="sig-name descname">read_file</code><span class="sig-paren">(</span><em class="sig-param">f_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.read_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.read_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.refine">
+<code class="sig-name descname">refine</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.refine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.refine" title="Permalink to this definition">¶</a></dt>
+<dd><p>optimization</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.save_to_file">
+<code class="sig-name descname">save_to_file</code><span class="sig-paren">(</span><em class="sig-param">f_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.save_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.save_to_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.save_to_files">
+<code class="sig-name descname">save_to_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.save_to_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.save_to_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.scripts.html"
+                        title="previous chapter">Scripts</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.scripts.rhochi.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.scripts.html" title="Scripts"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.scripts.html" >Scripts</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+    </div>
+  </body>
+</html>

@@ -17,5 +17,7 @@ Unofficial core dictionary
    cryspy.cif_like.crystal
    cryspy.cif_like.pd
    cryspy.cif_like.chi2
+   cryspy.cif_like.phase
+   cryspy.cif_like.diffrn_refln
    cryspy.cif_like.range
    cryspy.cif_like.setup

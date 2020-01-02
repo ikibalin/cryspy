@@ -101,23 +101,24 @@ def test_from_cif():
     assert math.isclose(float(_obj.cell.length_a), 8.56212, rel_tol=rel_tol, abs_tol=abs_tol)
     assert _obj.space_group.it_number == 227
     assert _obj.is_defined
+    assert _obj.data_name == "Fe3O4"
     
-def test_calc_f_nucl():
+def test_calc_refln():
     rel_tol, abs_tol =0.001, 0.01
     _obj = Crystal.from_cif(STR_FROM_CIF_1)
     _obj.apply_constraint()
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
-    f_nucl = _obj.calc_f_nucl(h, k, l)
+    refln = _obj.calc_refln(h, k, l)
     f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)
-    res = numpy.isclose(f_nucl, f_reference, rtol=rel_tol, atol=abs_tol)
+    res = numpy.isclose(refln.f_calc, f_reference, rtol=rel_tol, atol=abs_tol)
     assert all(res)
 
-def test_calc_susceptibility_tensor():
+def test_calc_refln_susceptibility():
     rel_tol, abs_tol =0.001, 0.01
     _obj = Crystal.from_cif(STR_FROM_CIF_1)
     _obj.apply_constraint()
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
-    refln_suc = _obj.calc_susceptibility_tensor(h, k, l)
+    refln_suc = _obj.calc_refln_susceptibility(h, k, l)
     #print(refln_suc.to_cif())
     assert True
     #f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)

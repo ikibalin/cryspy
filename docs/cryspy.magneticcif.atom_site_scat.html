@@ -65,7 +65,7 @@
 </div>
 <dl class="attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.INTERNAL_ATTRIBUTE">
-<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = 'atom_type_scat'</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -81,6 +81,16 @@
 <dl class="attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'atom_site_scat'</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.atom_type_scat">
+<em class="property">property </em><code class="sig-name descname">atom_type_scat</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.atom_type_scat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.calc_form_factor">
+<code class="sig-name descname">calc_form_factor</code><span class="sig-paren">(</span><em class="sig-param">sthovl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScat.calc_form_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.calc_form_factor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -111,6 +121,11 @@
 form factor = &lt;j0&gt; + (2/L - 1) * &lt;j2&gt;</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.load_atom_type_scat_by_symbol">
+<code class="sig-name descname">load_atom_type_scat_by_symbol</code><span class="sig-paren">(</span><em class="sig-param">symbol: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScat.load_atom_type_scat_by_symbol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.load_atom_type_scat_by_symbol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -136,6 +151,16 @@ form factor = &lt;j0&gt; + (2/L - 1) * &lt;j2&gt;</p>
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat" title="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomSiteScat</span></code></a></p>
 </dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.calc_form_factor">
+<code class="sig-name descname">calc_form_factor</code><span class="sig-paren">(</span><em class="sig-param">sthovl</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScatL.calc_form_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.calc_form_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.load_atom_type_scat_by_atom_site">
+<code class="sig-name descname">load_atom_type_scat_by_atom_site</code><span class="sig-paren">(</span><em class="sig-param">atom_site</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScatL.load_atom_type_scat_by_atom_site"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.load_atom_type_scat_by_atom_site" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -196,7 +221,7 @@ form factor = &lt;j0&gt; + (2/L - 1) * &lt;j2&gt;</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

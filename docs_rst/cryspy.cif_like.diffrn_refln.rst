@@ -1,7 +1,7 @@
-PdPhase
+DiffrnRefln
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: cryspy.pd1dcif_like.cl_pd_phase
+.. automodule:: cryspy.cif_like.cl_diffrn_refln
    :members:
    :undoc-members:
    :show-inheritance:

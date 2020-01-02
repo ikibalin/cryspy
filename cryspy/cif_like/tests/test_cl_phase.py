@@ -2,20 +2,20 @@ import pytest
 import numpy
 from cryspy.common.cl_fitable import Fitable
 
-from cryspy.pd1dcif_like.cl_pd_phase import PdPhase, PdPhaseL
+from cryspy.cif_like.cl_phase import Phase, PhaseL
 
 STR_FROM_CIF_1 = """
 
  loop_
- _pd_phase_label
- _pd_phase_scale
- _pd_phase_igsize
+ _phase_label
+ _phase_scale
+ _phase_igsize
   Fe3O4 0.02381 0.0
 """
 
 def test_init():
     try:
-        _object = PdPhaseL()
+        _object = PhaseL()
         flag = True
     except:
         flag = False
@@ -23,7 +23,7 @@ def test_init():
 
 def test_to_cif():
     try:
-        _object = PdPhaseL()
+        _object = PhaseL()
         _str = _object.to_cif
         flag = True
     except:
@@ -32,7 +32,7 @@ def test_to_cif():
 
 def test_init_el():
     try:
-        _object = PdPhase()
+        _object = Phase()
         flag = True
     except:
         flag = False
@@ -40,7 +40,7 @@ def test_init_el():
 
 def test_to_cif_el():
     try:
-        _object = PdPhase()
+        _object = Phase()
         _str = _object.to_cif
         flag = True
     except:
@@ -49,7 +49,7 @@ def test_to_cif_el():
 
 
 def test_from_cif():
-    l_obj = PdPhaseL.from_cif(STR_FROM_CIF_1)
+    l_obj = PhaseL.from_cif(STR_FROM_CIF_1)
     assert len(l_obj) == 1
     _obj = l_obj[0]
     assert _obj.label == ["Fe3O4"]

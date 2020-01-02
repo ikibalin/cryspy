@@ -172,8 +172,8 @@
 <span class="sd">        f_sq in 10-12cm</span>
 <span class="sd">        extinction for spherical model</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaicity</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mosaicity</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
         <span class="n">kk</span> <span class="o">=</span> <span class="mf">1.</span>
         <span class="n">vol</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">volume</span>
@@ -271,7 +271,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

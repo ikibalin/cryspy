@@ -63,9 +63,9 @@
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_instr_resolution</span> <span class="k">import</span> <span class="n">PdInstrResolution</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_meas</span> <span class="k">import</span> <span class="n">PdMeas</span><span class="p">,</span> <span class="n">PdMeasL</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_peak</span> <span class="k">import</span> <span class="n">PdPeak</span><span class="p">,</span> <span class="n">PdPeakL</span>
-<span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_phase</span> <span class="k">import</span> <span class="n">PdPhase</span><span class="p">,</span> <span class="n">PdPhaseL</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_proc</span> <span class="k">import</span> <span class="n">PdProc</span><span class="p">,</span> <span class="n">PdProcL</span>
 
+<span class="kn">from</span> <span class="nn">.cl_phase</span> <span class="k">import</span> <span class="n">Phase</span><span class="p">,</span> <span class="n">PhaseL</span>
 <span class="kn">from</span> <span class="nn">.cl_diffrn_radiation</span> <span class="k">import</span> <span class="n">DiffrnRadiation</span>
 <span class="kn">from</span> <span class="nn">.cl_extinction</span> <span class="k">import</span> <span class="n">Extinction</span>
 <span class="kn">from</span> <span class="nn">.cl_setup</span> <span class="k">import</span> <span class="n">Setup</span>
@@ -118,9 +118,9 @@
 <span class="sd"> _pd_instr_resolution_y  0.0</span>
 <span class="sd"> </span>
 <span class="sd"> loop_</span>
-<span class="sd"> _pd_phase_label</span>
-<span class="sd"> _pd_phase_scale</span>
-<span class="sd"> _pd_phase_igsize</span>
+<span class="sd"> _phase_label</span>
+<span class="sd"> _phase_scale</span>
+<span class="sd"> _phase_igsize</span>
 <span class="sd"> Fe3O4 0.02381 0.0</span>
 <span class="sd"> </span>
 <span class="sd"> loop_</span>
@@ -162,7 +162,7 @@
 <span class="sd"> 4.200 4.585 0.00000 0.00000 256.00000 256.00000 256.00000 323.78000 118.22000 206.06000 120.00000</span>
 <span class="sd"> 4.400 4.785 0.00000 0.00000 256.00000 256.00000 256.00000 307.14000 115.90000 230.47000 116.53000</span>
 <span class="sd">     &quot;&quot;&quot;</span>
-    <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">PdBackgroundL</span><span class="p">,</span> <span class="n">PdInstrResolution</span><span class="p">,</span> <span class="n">PdMeasL</span><span class="p">,</span> <span class="n">PdPhaseL</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span>
+    <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">PdBackgroundL</span><span class="p">,</span> <span class="n">PdInstrResolution</span><span class="p">,</span> <span class="n">PdMeasL</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span>
                          <span class="n">Setup</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span> <span class="n">Chi2</span><span class="p">)</span>
     <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Extinction</span><span class="p">,</span> <span class="n">PdExcludeL</span><span class="p">,</span> <span class="n">PdInstrReflexAsymmetry</span><span class="p">,</span> <span class="n">PdPeakL</span><span class="p">,</span> <span class="n">PdProcL</span><span class="p">)</span>
     <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">()</span>
@@ -276,7 +276,7 @@
     <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">PdPhaseL</span><span class="p">]</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">PhaseL</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -285,10 +285,10 @@
     <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">PdPhaseL</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">):</span>
             <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">PdPhaseL</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">):</span>
                     <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -540,7 +540,7 @@
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pd:&quot;</span><span class="p">]</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">appenf</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
 
@@ -913,7 +913,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

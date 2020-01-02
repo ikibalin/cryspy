@@ -477,8 +477,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">form_object</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">multiplicity</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_symbol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">letter</span>
+            <span class="n">_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="s2">&quot;__multiplicity&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_symbol</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="s2">&quot;__letter&quot;</span><span class="p">)</span>
 
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
@@ -626,7 +627,11 @@
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteL: &quot;</span><span class="p">)</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AtomSiteL.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSiteL.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_constraint</span><span class="p">(</span><span class="n">space_group_wyckoff_l</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">flag</span></div></div>
 </pre></div>
 
           </div>
@@ -663,7 +668,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

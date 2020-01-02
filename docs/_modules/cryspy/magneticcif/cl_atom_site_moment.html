@@ -59,30 +59,22 @@
 
 <div class="viewcode-block" id="AtomSiteMoment"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteMoment</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomSiteMomentL</span>
-<span class="sd">===================</span>
 <span class="sd">This category provides a loop for presenting the magnetic moments </span>
 <span class="sd">of atoms in one of several coordinate systems. This is a child category </span>
 <span class="sd">of the AtomSite category, so that the magnetic moments can either be </span>
 <span class="sd">listed alongside the non-magnetic atom properties in the main AtomSite loop</span>
 <span class="sd">(not realized) or be listed in a separate loop (realized)</span>
 
-<span class="sd">Category key: </span>
-<span class="sd">--------------------</span>
-<span class="sd">atom_site_moment_label</span>
+<span class="sd">Category key: atom_site_moment_label</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">---------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> _atom_site_moment_label              Fe3A</span>
 <span class="sd"> _atom_site_moment_crystalaxis_x       4.8</span>
 <span class="sd"> _atom_site_moment_crystalaxis_y       0.0 </span>
 <span class="sd"> _atom_site_moment_crystalaxis_z       0.0</span>
 <span class="sd"> </span>
-<span class="sd"> Reference:</span>
-<span class="sd">---------------</span>
-<span class="sd">`iucr.org &lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;cartn_x&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_y&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_z&quot;</span><span class="p">,</span> 
@@ -504,21 +496,15 @@
 
 <div class="viewcode-block" id="AtomSiteMomentL"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_moment.html#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteMomentL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomSiteMomentL</span>
-<span class="sd">===================</span>
-<span class="sd">This category provides a loop for presenting the magnetic moments </span>
+<span class="sd">AtomSiteMomentL category provides a loop for presenting the magnetic moments </span>
 <span class="sd">of atoms in one of several coordinate systems. This is a child category </span>
 <span class="sd">of the AtomSite category, so that the magnetic moments can either be </span>
 <span class="sd">listed alongside the non-magnetic atom properties in the main AtomSite loop</span>
 <span class="sd">(not realized) or be listed in a separate loop (realized)</span>
 
-<span class="sd">Category key: </span>
-<span class="sd">--------------------</span>
-<span class="sd">atom_site_moment_label</span>
+<span class="sd">Category key: atom_site_moment_label</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">---------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> loop_                                     </span>
 <span class="sd"> _atom_site_moment_label</span>
@@ -528,9 +514,7 @@
 <span class="sd"> Fe3A 4.8  0.0  0.0</span>
 <span class="sd"> Fe3B 0.0 -4.5  0.0</span>
 <span class="sd"> </span>
-<span class="sd"> Reference:</span>
-<span class="sd">---------------</span>
-<span class="sd">`iucr.org &lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomSiteMoment</span>
@@ -579,7 +563,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

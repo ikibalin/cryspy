@@ -57,8 +57,6 @@
 
 <div class="viewcode-block" id="Refln"><a class="viewcode-back" href="../../../cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln">[docs]</a><span class="k">class</span> <span class="nc">Refln</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Refln</span>
-<span class="sd">==============</span>
 <span class="sd">Data items in the REFLN category record details about the</span>
 <span class="sd">reflections used to determine the ATOM_SITE data items.</span>
 <span class="sd">The REFLN data items refer to individual reflections and must</span>
@@ -67,9 +65,7 @@
 <span class="sd">The REFLNS data items specify the parameters that apply to all</span>
 <span class="sd">reflections. The REFLNS data items are not looped.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">-------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd">  _refln_index_h         2</span>
 <span class="sd">  _refln_index_k         0</span>
@@ -77,27 +73,8 @@
 <span class="sd">  _refln_d_spacing       0.13</span>
 <span class="sd">  _refln_A_calc          2.1</span>
 <span class="sd">  _refln_B_calc          0.</span>
-<span class="sd">  _refln_chi_11_A_calc   0.</span>
-<span class="sd">  _refln_chi_12_A_calc   0.</span>
-<span class="sd">  _refln_chi_13_A_calc   0.</span>
-<span class="sd">  _refln_chi_21_A_calc   0.</span>
-<span class="sd">  _refln_chi_22_A_calc   0.</span>
-<span class="sd">  _refln_chi_23_A_calc   0.</span>
-<span class="sd">  _refln_chi_31_A_calc   0.</span>
-<span class="sd">  _refln_chi_32_A_calc   0.</span>
-<span class="sd">  _refln_chi_33_A_calc   0.</span>
-<span class="sd">  _refln_chi_11_B_calc   0.</span>
-<span class="sd">  _refln_chi_12_B_calc   0.</span>
-<span class="sd">  _refln_chi_13_B_calc   0.</span>
-<span class="sd">  _refln_chi_21_B_calc   0.</span>
-<span class="sd">  _refln_chi_22_B_calc   0.</span>
-<span class="sd">  _refln_chi_23_B_calc   0.</span>
-<span class="sd">  _refln_chi_31_B_calc   0.</span>
-<span class="sd">  _refln_chi_32_B_calc   0.</span>
-<span class="sd">  _refln_chi_33_B_calc   0.</span>
 <span class="sd"> </span>
-<span class="sd">Reference:</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html&gt;`_</span>
 
 <span class="sd">FIXME:</span>
 <span class="sd">the attribute &#39;sint/lambda&#39;is replaced by &#39;sintlambda&#39;</span>
@@ -204,9 +181,6 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">a_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">)</span>
-    <span class="nd">@a_calc</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">a_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The calculated structure-factor component A</span>
 <span class="sd">(in electrons for X-ray diffraction).</span>
@@ -219,6 +193,9 @@
 
 <span class="sd">Category: refln        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@a_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
@@ -351,42 +328,6 @@
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__d_spacing&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">f_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The calculated  of the structure factors (in electrons for</span>
-<span class="sd">X-ray diffraction).</span>
-
-<span class="sd">Appears in list containing _refln_index_</span>
-
-<span class="sd">Type: numb        </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_calc&quot;</span><span class="p">)</span>
-    <span class="nd">@f_calc</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">f_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">f_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The measured of the structure factors (in electrons for</span>
-<span class="sd">X-ray diffraction).</span>
-
-<span class="sd">Appears in list containing _refln_index_</span>
-
-<span class="sd">Type: numb        </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_meas&quot;</span><span class="p">)</span>
-    <span class="nd">@f_meas</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">f_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_meas&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">f_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The standard uncertainty (derived from</span>
@@ -406,6 +347,48 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_sigma&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The calculated  of the structure factors (in electrons for</span>
+<span class="sd">X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">complex</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_calc&quot;</span><span class="p">))</span>
+    <span class="nd">@f_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">imag</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">,</span> <span class="n">x_in_1</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_calc&quot;</span><span class="p">,</span> <span class="n">x_in_2</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The measured of the structure factors (in electrons for</span>
+<span class="sd">X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">complex</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_meas&quot;</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_meas&quot;</span><span class="p">))</span>
+    <span class="nd">@f_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">imag</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_meas&quot;</span><span class="p">,</span> <span class="n">x_in_1</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_meas&quot;</span><span class="p">,</span> <span class="n">x_in_2</span><span class="p">)</span>        
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">f_squared_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -781,8 +764,6 @@
 
 <div class="viewcode-block" id="ReflnL"><a class="viewcode-back" href="../../../cryspy.corecif.refln.html#cryspy.corecif.cl_refln.ReflnL">[docs]</a><span class="k">class</span> <span class="nc">ReflnL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">ReflnL</span>
-<span class="sd">==============</span>
 <span class="sd">Data items in the REFLN category record details about the</span>
 <span class="sd">reflections used to determine the ATOM_SITE data items.</span>
 <span class="sd">The REFLN data items refer to individual reflections and must</span>
@@ -791,9 +772,7 @@
 <span class="sd">The REFLNS data items specify the parameters that apply to all</span>
 <span class="sd">reflections. The REFLNS data items are not looped.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">-------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> loop_</span>
 <span class="sd">  _refln_index_h</span>
@@ -805,8 +784,7 @@
 <span class="sd">  0 0 2 2.315 3.25  1.232</span>
 <span class="sd">  2 2 0 4.213 5.00 -4.05</span>
 <span class="sd"> </span>
-<span class="sd">Reference:</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">Refln</span>
@@ -855,7 +833,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

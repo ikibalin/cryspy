@@ -127,8 +127,8 @@ Output: the list of the refined parameters
         f_sq in 10-12cm
         extinction for spherical model
         """
-        r = 1.*self.radius
-        g = 1.*self.mosaicity
+        r = float(self.radius)
+        g = float(self.mosaicity)
         model = self.model
         kk = 1.
         vol = cell.volume

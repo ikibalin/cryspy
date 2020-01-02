@@ -10,22 +10,22 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
-class PdPhase(ItemConstr):
+class Phase(ItemConstr):
     """
-PdPhase describes ...
+Phase describes ...
 
 Description in cif file::
 
- _pd_phase_label  Fe3O4 
- _pd_phase_scale  0.02381 
- _pd_phase_igsize 0.0
+ _phase_label  Fe3O4 
+ _phase_scale  0.02381 
+ _phase_igsize 0.0
     """
-    MANDATORY_ATTRIBUTE = ("label", "scale")
-    OPTIONAL_ATTRIBUTE = ("igsize", )
+    MANDATORY_ATTRIBUTE = ("label", )
+    OPTIONAL_ATTRIBUTE = ("scale", "igsize")
     INTERNAL_ATTRIBUTE = ()
-    PREFIX = "pd_phase"
+    PREFIX = "phase"
     def __init__(self, label=None, scale=None, igsize=None):
-        super(PdPhase, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
+        super(Phase, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                       optional_attribute=self.OPTIONAL_ATTRIBUTE, 
                                       internal_attribute=self.INTERNAL_ATTRIBUTE,
                                       prefix=self.PREFIX)
@@ -75,7 +75,7 @@ Description in cif file::
 
     def __repr__(self):
         ls_out = []
-        ls_out.append(f"PdPhase:\n{str(self):}")
+        ls_out.append(f"Phase:\n{str(self):}")
         return "\n".join(ls_out)
             
     def _show_message(self, s_out: str):
@@ -101,26 +101,26 @@ Output: the list of the refined parameters
     
 
 
-class PdPhaseL(LoopConstr):
+class PhaseL(LoopConstr):
     """
-PdPhaseL describes ...
+PhaseL describes ...
 
 Description in cif file::
 
  loop_
- _pd_phase_label
- _pd_phase_scale
- _pd_phase_igsize
+ _phase_label
+ _phase_scale
+ _phase_igsize
   Fe3O4 0.02381 0.0
     """
     CATEGORY_KEY = ("label", )
-    ITEM_CLASS = PdPhase
+    ITEM_CLASS = Phase
     def __init__(self, item=[], loop_name=""):
-        super(PdPhaseL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+        super(PhaseL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
         self.item = item
 
     def __repr__(self) -> str:
         ls_out = []
-        ls_out.append("PdPhaseL: ")
+        ls_out.append("PhaseL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)

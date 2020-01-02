@@ -57,6 +57,8 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
 
+<span class="kn">import</span> <span class="nn">cryspy.magneticcif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
+
 
 <div class="viewcode-block" id="AtomTypeScat"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat">[docs]</a><span class="k">class</span> <span class="nc">AtomTypeScat</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -671,41 +673,54 @@
 <span class="sd">:coeff2:   is a list [A,a,B,b,C,c,D] at n=2</span>
 <span class="sd">:lsthovl:  is list :math:`sin(\\theta)/\\lambda` in :math:`\\A^{-1}`</span>
 
-<span class="sd">Calculation of magnetic form factor &lt;j0&gt;,&lt;j2&gt;,&lt;j4&gt;,&lt;j6&gt;</span>
+<span class="sd">Calculation of magnetic form factor &lt;j0&gt;, &lt;j2&gt;, &lt;j4&gt;, &lt;j6&gt;</span>
 
-<span class="sd">:coeff: is a list [A,a,B,b,C,c,D] at n=0,2,4,6</span>
+<span class="sd">:coeff: is a list [A, a, B, b, C, c, D] at n = 0, 2, 4, 6</span>
 
 <span class="sd">according `&lt;https://journals.aps.org/prb/pdf/10.1103/PhysRevB.79.140405&gt;`</span>
 <span class="sd">mismatch with international tables where (1.0-2.0/np_factor_lande)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#not sure about kappa, it is here just for test, by default it is 1.0</span>
-        <span class="n">j0_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_a1</span>
-        <span class="n">j0_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_a2</span>
-        <span class="n">j0_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_b1</span>
-        <span class="n">j0_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_b2</span>
-        <span class="n">j0_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_c1</span>
-        <span class="n">j0_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_c2</span>
-        <span class="n">j0_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j0_d</span>
-        <span class="n">j2_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_a1</span>
-        <span class="n">j2_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_a2</span>
-        <span class="n">j2_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_b1</span>
-        <span class="n">j2_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_b2</span>
-        <span class="n">j2_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_c1</span>
-        <span class="n">j2_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_c2</span>
-        <span class="n">j2_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nautron_magnetic_j2_d</span>     
+        <span class="n">j0_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_a1</span>
+        <span class="n">j0_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_a2</span>
+        <span class="n">j0_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_b1</span>
+        <span class="n">j0_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_b2</span>
+        <span class="n">j0_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_c1</span>
+        <span class="n">j0_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_c2</span>
+        <span class="n">j0_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_d</span>
+        <span class="n">j2_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_a1</span>
+        <span class="n">j2_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_a2</span>
+        <span class="n">j2_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_b1</span>
+        <span class="n">j2_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_b2</span>
+        <span class="n">j2_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_c1</span>
+        <span class="n">j2_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_c2</span>
+        <span class="n">j2_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_d</span>     
     
-        <span class="n">_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">sthovl</span><span class="o">/</span><span class="n">kappa</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">sthovl</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
     
         <span class="n">j0_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">j0_A</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_a</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
                  <span class="n">j0_B</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_b</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
-                 <span class="n">j0_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">np_j0_D</span><span class="p">)</span>
+                 <span class="n">j0_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">j0_D</span><span class="p">)</span>
         <span class="n">j2_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">j2_A</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_a</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
                  <span class="n">j2_B</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_b</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
-                 <span class="n">j2_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">np_j2_D</span><span class="p">)</span><span class="o">*</span><span class="n">np_h</span>
+                 <span class="n">j2_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">j2_D</span><span class="p">)</span><span class="o">*</span><span class="n">_h</span>
     
         <span class="n">form_factor</span> <span class="o">=</span> <span class="n">j0_av</span><span class="o">+</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">lande</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="o">*</span><span class="n">j2_av</span>
-        <span class="k">return</span> <span class="n">form_factor</span></div></div>
+        <span class="k">return</span> <span class="n">form_factor</span></div>
 
+<div class="viewcode-block" id="AtomTypeScat.form_by_symbol"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.form_by_symbol">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">form_by_symbol</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">j0_A1</span><span class="p">,</span> <span class="n">j0_a2</span><span class="p">,</span> <span class="n">j0_B1</span><span class="p">,</span> <span class="n">j0_b2</span><span class="p">,</span> <span class="n">j0_C1</span><span class="p">,</span> <span class="n">j0_c2</span><span class="p">,</span> <span class="n">j0_D</span><span class="p">,</span> <span class="n">j2_a2</span><span class="p">,</span> <span class="n">j2_A1</span><span class="p">,</span> <span class="n">j2_B1</span><span class="p">,</span> <span class="n">j2_b2</span><span class="p">,</span> <span class="n">j2_C1</span><span class="p">,</span> <span class="n">j2_c2</span><span class="p">,</span> <span class="n">j2_D</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_j0_j2_by_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">symbol</span><span class="p">,</span> 
+            <span class="n">neutron_magnetic_j0_a1</span><span class="o">=</span><span class="n">j0_A1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_a2</span><span class="o">=</span><span class="n">j0_a2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j0_b1</span><span class="o">=</span><span class="n">j0_B1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_b2</span><span class="o">=</span><span class="n">j0_b2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j0_c1</span><span class="o">=</span><span class="n">j0_C1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_c2</span><span class="o">=</span><span class="n">j0_c2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j0_d</span><span class="o">=</span><span class="n">j0_D</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_a1</span><span class="o">=</span><span class="n">j2_A1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_a2</span><span class="o">=</span><span class="n">j2_a2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_b1</span><span class="o">=</span><span class="n">j2_B1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_b2</span><span class="o">=</span><span class="n">j2_b2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_c1</span><span class="o">=</span><span class="n">j2_C1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_c2</span><span class="o">=</span><span class="n">j2_c2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_d</span><span class="o">=</span><span class="n">j2_D</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span></div></div>
 
 <div class="viewcode-block" id="AtomTypeScatL"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL">[docs]</a><span class="k">class</span> <span class="nc">AtomTypeScatL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -744,7 +759,16 @@
 <div class="viewcode-block" id="AtomTypeScatL.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">,</span> <span class="n">l_lande</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">l_kappa</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
         <span class="n">form_factor</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">lande</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span> 
                        <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">lande</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">l_lande</span><span class="p">,</span> <span class="n">l_kappa</span><span class="p">)]</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">form_factor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">form_factor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomTypeScatL.form_by_symbols"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.form_by_symbols">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">form_by_symbols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">symbols</span><span class="p">:</span><span class="n">List</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">item_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item_class</span><span class="o">.</span><span class="n">form_by_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">))</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span></div></div>
 </pre></div>
 
           </div>
@@ -781,7 +805,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

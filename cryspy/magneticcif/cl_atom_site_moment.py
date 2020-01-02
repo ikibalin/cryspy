@@ -14,30 +14,22 @@ from cryspy.common.cl_fitable import Fitable
 
 class AtomSiteMoment(ItemConstr):
     """
-AtomSiteMomentL
-===================
 This category provides a loop for presenting the magnetic moments 
 of atoms in one of several coordinate systems. This is a child category 
 of the AtomSite category, so that the magnetic moments can either be 
 listed alongside the non-magnetic atom properties in the main AtomSite loop
 (not realized) or be listed in a separate loop (realized)
 
-Category key: 
---------------------
-atom_site_moment_label
+Category key: atom_site_moment_label
 
-Description in cif file:
----------------------------
-::
+Description in cif file::
 
  _atom_site_moment_label              Fe3A
  _atom_site_moment_crystalaxis_x       4.8
  _atom_site_moment_crystalaxis_y       0.0 
  _atom_site_moment_crystalaxis_z       0.0
  
- Reference:
----------------
-`iucr.org <ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf>`_
+`<ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf>`_
     """    
     MANDATORY_ATTRIBUTE = ("label", )
     OPTIONAL_ATTRIBUTE = ("cartn_x", "cartn_y", "cartn_z", 
@@ -459,21 +451,15 @@ Examples:
 
 class AtomSiteMomentL(LoopConstr):
     """
-AtomSiteMomentL
-===================
-This category provides a loop for presenting the magnetic moments 
+AtomSiteMomentL category provides a loop for presenting the magnetic moments 
 of atoms in one of several coordinate systems. This is a child category 
 of the AtomSite category, so that the magnetic moments can either be 
 listed alongside the non-magnetic atom properties in the main AtomSite loop
 (not realized) or be listed in a separate loop (realized)
 
-Category key: 
---------------------
-atom_site_moment_label
+Category key: atom_site_moment_label
 
-Description in cif file:
----------------------------
-::
+Description in cif file::
 
  loop_                                     
  _atom_site_moment_label
@@ -483,9 +469,7 @@ Description in cif file:
  Fe3A 4.8  0.0  0.0
  Fe3B 0.0 -4.5  0.0
  
- Reference:
----------------
-`iucr.org <ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf>`_
+`<ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf>`_
     """    
     CATEGORY_KEY = ("label", )
     ITEM_CLASS = AtomSiteMoment

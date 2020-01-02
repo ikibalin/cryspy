@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.cif_like.cl_diffrn_refln &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.cif_like.cl_diffrn_refln</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2020_01_02&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+
+
+<div class="viewcode-block" id="DiffrnRefln"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn_refln.html#cryspy.cif_like.cl_diffrn_refln.DiffrnRefln">[docs]</a><span class="k">class</span> <span class="nc">DiffrnRefln</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the DIFFRN_REFLN category record details about</span>
+<span class="sd">the intensities measured in the diffraction experiment.</span>
+
+<span class="sd">The DIFFRN_REFLN data items refer to individual intensity</span>
+<span class="sd">measurements and must be included in looped lists.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> _diffrn_refln_index_h     0 </span>
+<span class="sd"> _diffrn_refln_index_k     0</span>
+<span class="sd"> _diffrn_refln_index_l     8</span>
+<span class="sd"> _diffrn_refln_fr          0.64545</span>
+<span class="sd"> _diffrn_refln_fr_sigma    0.01329</span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cdiffrn_refln.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;fr&quot;</span><span class="p">,</span> <span class="s2">&quot;fr_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_up_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_down_calc&quot;</span><span class="p">)</span> 
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;diffrn_refln&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">fr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fr_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intensity_up_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intensity_down_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DiffrnRefln</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span>
+                                          <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
+                                          <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">,</span>
+                                          <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">PREFIX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_h</span> <span class="o">=</span> <span class="n">index_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_k</span> <span class="o">=</span> <span class="n">index_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_l</span> <span class="o">=</span> <span class="n">index_l</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fr</span> <span class="o">=</span> <span class="n">fr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity_up_calc</span> <span class="o">=</span> <span class="n">intensity_up_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity_down_calc</span> <span class="o">=</span> <span class="n">intensity_down_calc</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miller indices of the reflection. The values of the Miller</span>
+<span class="sd">indices in the DIFFN_REFLN category must correspond to the cell</span>
+<span class="sd">defined by the cell lengths and cell angles in the CELL category.        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_h&quot;</span><span class="p">)</span>
+    <span class="nd">@index_h</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_h&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miller indices of the reflection. The values of the Miller</span>
+<span class="sd">indices in the DIFFN_REFLN category must correspond to the cell</span>
+<span class="sd">defined by the cell lengths and cell angles in the CELL category.        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_k&quot;</span><span class="p">)</span>
+    <span class="nd">@index_k</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_k&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miller indices of the reflection. The values of the Miller</span>
+<span class="sd">indices in the DIFFN_REFLN category must correspond to the cell</span>
+<span class="sd">defined by the cell lengths and cell angles in the CELL category.        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">)</span>
+    <span class="nd">@index_l</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Measured flip ratio</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fr&quot;</span><span class="p">)</span>
+    <span class="nd">@fr</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fr&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fr_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Error bar of measured flip ratio</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fr_sigma&quot;</span><span class="p">)</span>
+    <span class="nd">@fr_sigma</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fr_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fr_sigma&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fr_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculated flip ratio</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fr_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@fr_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fr_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fr_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intensity_up_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculated intensity up</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_up_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@intensity_up_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">intensity_up_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_up_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intensity_down_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculated intensity down</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@intensity_down_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">intensity_down_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DiffrnRefln:&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+
+
+    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+<div class="viewcode-block" id="DiffrnRefln.get_variables"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn_refln.html#cryspy.cif_like.cl_diffrn_refln.DiffrnRefln.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="DiffrnRefln.print_agreement_factor_exp"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn_refln.html#cryspy.cif_like.cl_diffrn_refln.DiffrnRefln.print_agreement_factor_exp">[docs]</a>    <span class="k">def</span> <span class="nf">print_agreement_factor_exp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_chi_sq_exp</span><span class="p">,</span> <span class="n">l_ag_f_exp</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">l_hkl</span> <span class="o">=</span> <span class="p">[(</span><span class="nb">int</span><span class="p">(</span><span class="n">_1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">_2</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">_3</span><span class="p">))</span><span class="k">for</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">_hkl</span><span class="p">,</span> <span class="n">_fr_1</span><span class="p">,</span> <span class="n">_fr_sigma_1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_hkl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fr_sigma</span><span class="p">):</span>
+            <span class="n">_mhkl</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">_hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">_hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">_hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">_mhkl</span> <span class="ow">in</span> <span class="n">l_hkl</span><span class="p">:</span>
+                <span class="n">ind_mhkl</span> <span class="o">=</span> <span class="n">l_hkl</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_mhkl</span><span class="p">)</span>
+                <span class="n">_fr_2</span><span class="p">,</span> <span class="n">_fr_sigma_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fr</span><span class="p">[</span><span class="n">ind_mhkl</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">fr_sigma</span><span class="p">[</span><span class="n">ind_mhkl</span><span class="p">]</span>
+                <span class="n">_fr_sigma</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="n">_fr_sigma_1</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">_fr_sigma_2</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span><span class="o">**</span><span class="mf">0.5</span>
+                <span class="n">_fr_average</span> <span class="o">=</span> <span class="p">(</span><span class="n">_fr_1</span><span class="o">*</span><span class="n">_fr_sigma_1</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">_fr_2</span><span class="o">*</span><span class="n">_fr_sigma_2</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">_fr_sigma</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">delta_fr</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">_fr_1</span><span class="o">-</span><span class="n">_fr_average</span><span class="p">)</span>
+                <span class="n">chi_sq_exp</span> <span class="o">=</span> <span class="p">(</span><span class="n">delta_fr</span><span class="o">/</span><span class="n">_fr_sigma_1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">l_chi_sq_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chi_sq_exp</span><span class="p">)</span>
+                <span class="n">ag_f_exp</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="n">_fr_1</span><span class="o">-</span><span class="n">_fr_average</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">_fr_1</span><span class="o">-</span><span class="mf">1.</span><span class="p">))</span>
+                <span class="n">l_ag_f_exp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ag_f_exp</span><span class="p">)</span>
+                <span class="c1">#print(&quot;hkl: {:4} {:4} {:4}&quot;.format(_hkl[0], _hkl[1], _hkl[2]))</span>
+                <span class="c1">#print(&quot;chi_sq_exp: {:.3f} &quot;.format(chi_sq_exp))</span>
+                <span class="c1">#print(&quot;ag_f_exp: {:.3f} &quot;.format(ag_f_exp))</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_friedel</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_chi_sq_exp</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;number of Friedel reflections is </span><span class="si">{:}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_friedel</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">n_friedel</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;agreement factor_exp/n is </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">l_ag_f_exp</span><span class="p">)</span><span class="o">/</span><span class="n">n_friedel</span><span class="p">))</span>
+            <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;chi_sq_exp/n is </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">l_chi_sq_exp</span><span class="p">)</span><span class="o">/</span><span class="n">n_friedel</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span> </div></div>
+
+
+<div class="viewcode-block" id="DiffrnReflnL"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn_refln.html#cryspy.cif_like.cl_diffrn_refln.DiffrnReflnL">[docs]</a><span class="k">class</span> <span class="nc">DiffrnReflnL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the DIFFRN_REFLN category record details about</span>
+<span class="sd">the intensities measured in the diffraction experiment.</span>
+
+<span class="sd">The DIFFRN_REFLN data items refer to individual intensity</span>
+<span class="sd">measurements and must be included in looped lists.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> loop_</span>
+<span class="sd"> _diffrn_refln_index_h</span>
+<span class="sd"> _diffrn_refln_index_k</span>
+<span class="sd"> _diffrn_refln_index_l</span>
+<span class="sd"> _diffrn_refln_fr</span>
+<span class="sd"> _diffrn_refln_fr_sigma</span>
+<span class="sd">     0    0    8   0.64545   0.01329 </span>
+<span class="sd">     2    0    6   1.75682   0.0454  </span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cdiffrn_refln.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">DiffrnRefln</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DiffrnReflnL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DiffrnReflnL: &quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+    </div>
+  </body>
+</html>

@@ -18,9 +18,9 @@ from cryspy.pd1dcif_like.cl_pd_instr_reflex_asymmetry import PdInstrReflexAsymme
 from cryspy.pd1dcif_like.cl_pd_instr_resolution import PdInstrResolution
 from cryspy.pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
 from cryspy.pd1dcif_like.cl_pd_peak import PdPeak, PdPeakL
-from cryspy.pd1dcif_like.cl_pd_phase import PdPhase, PdPhaseL
 from cryspy.pd1dcif_like.cl_pd_proc import PdProc, PdProcL
 
+from .cl_phase import Phase, PhaseL
 from .cl_diffrn_radiation import DiffrnRadiation
 from .cl_extinction import Extinction
 from .cl_setup import Setup
@@ -73,9 +73,9 @@ Description in cif file::
  _pd_instr_resolution_y  0.0
  
  loop_
- _pd_phase_label
- _pd_phase_scale
- _pd_phase_igsize
+ _phase_label
+ _phase_scale
+ _phase_igsize
  Fe3O4 0.02381 0.0
  
  loop_
@@ -117,7 +117,7 @@ Description in cif file::
  4.200 4.585 0.00000 0.00000 256.00000 256.00000 256.00000 323.78000 118.22000 206.06000 120.00000
  4.400 4.785 0.00000 0.00000 256.00000 256.00000 256.00000 307.14000 115.90000 230.47000 116.53000
      """
-    MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PdPhaseL, DiffrnRadiation,
+    MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PhaseL, DiffrnRadiation,
                          Setup, Range, Chi2)
     OPTIONAL_CLASSES = (Extinction, PdExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdProcL)
     INTERNAL_CLASSES = ()
@@ -231,7 +231,7 @@ Description in cif file::
     def phase(self):
         """
         """
-        l_res = self[PdPhaseL]
+        l_res = self[PhaseL]
         if len(l_res) >= 1:
             return l_res[0]
         else:
@@ -240,10 +240,10 @@ Description in cif file::
     def phase(self, x):
         if x is None:
             pass
-        elif isinstance(x, PdPhaseL):
+        elif isinstance(x, PhaseL):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, PdPhaseL):
+                if isinstance(_obj, PhaseL):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -495,7 +495,7 @@ Description in cif file::
 
     def __repr__(self):
         ls_out = ["Pd:"]
-        ls_out.appenf(f"{str(self):}")
+        ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
 

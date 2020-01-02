@@ -57,6 +57,7 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
 
+<span class="kn">from</span> <span class="nn">.cl_atom_type_scat</span> <span class="k">import</span> <span class="n">AtomTypeScat</span><span class="p">,</span> <span class="n">AtomTypeScatL</span>
 
 <div class="viewcode-block" id="AtomSiteScat"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteScat</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -69,7 +70,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;lande&quot;</span><span class="p">,</span> <span class="s2">&quot;kappa&quot;</span><span class="p">)</span>
-    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;atom_type_scat&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;atom_site_scat&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lande</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AtomSiteScat</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span> 
@@ -133,6 +134,14 @@
             <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__kappa&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">atom_type_scat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">atom_type_scat</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__atom_type_scat&quot;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteScat: &quot;</span><span class="p">)</span>
@@ -153,9 +162,18 @@
         <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lande</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lande</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">l_variable</span></div></div>
+        <span class="k">return</span> <span class="n">l_variable</span></div>
 
+<div class="viewcode-block" id="AtomSiteScat.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">):</span>
+        <span class="n">atom_type_scat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atom_type_scat</span>
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="n">atom_type_scat</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">,</span> <span class="n">lande</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lande</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">form_factor</span></div>
 
+<div class="viewcode-block" id="AtomSiteScat.load_atom_type_scat_by_symbol"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.load_atom_type_scat_by_symbol">[docs]</a>    <span class="k">def</span> <span class="nf">load_atom_type_scat_by_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">_a_t_s</span> <span class="o">=</span> <span class="n">AtomTypeScat</span><span class="o">.</span><span class="n">form_by_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__atom_type_scat&quot;</span><span class="p">,</span> <span class="n">_a_t_s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flag</span></div></div>
 
 <div class="viewcode-block" id="AtomSiteScatL"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteScatL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -178,7 +196,15 @@
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteScatL: &quot;</span><span class="p">)</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AtomSiteScatL.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">):</span>
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">form_factor</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="AtomSiteScatL.load_atom_type_scat_by_atom_site"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_scat.html#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL.load_atom_type_scat_by_atom_site">[docs]</a>    <span class="k">def</span> <span class="nf">load_atom_type_scat_by_atom_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">_item</span><span class="o">.</span><span class="n">load_atom_type_scat_by_symbol</span><span class="p">(</span><span class="n">atom_site</span><span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">type_symbol</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">flag</span></div></div>
 </pre></div>
 
           </div>
@@ -215,7 +241,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
     </div>
   </body>
 </html>

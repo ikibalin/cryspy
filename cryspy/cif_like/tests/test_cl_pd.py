@@ -46,9 +46,9 @@ STR_FROM_CIF_1 = """
  _pd_instr_resolution_y  0.0
  
  loop_
- _pd_phase_label
- _pd_phase_scale
- _pd_phase_igsize
+ _phase_label
+ _phase_scale
+ _phase_igsize
  Fe3O4 0.02381 0.0
  
  loop_
