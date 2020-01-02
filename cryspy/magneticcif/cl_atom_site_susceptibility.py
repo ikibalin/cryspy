@@ -402,19 +402,31 @@ Type: float
 
     def get_variables(self):
         l_variable = []
-        if self.chi_11.refinement: l_variable.append(self.chi_11)
-        if self.chi_22.refinement: l_variable.append(self.chi_22)
-        if self.chi_33.refinement: l_variable.append(self.chi_33)
-        if self.chi_12.refinement: l_variable.append(self.chi_12)
-        if self.chi_13.refinement: l_variable.append(self.chi_13)
-        if self.chi_23.refinement: l_variable.append(self.chi_23)
+        if self.chi_11 is not None:
+            if self.chi_11.refinement: l_variable.append(self.chi_11)
+        if self.chi_22 is not None:
+            if self.chi_22.refinement: l_variable.append(self.chi_22)
+        if self.chi_33 is not None:
+            if self.chi_33.refinement: l_variable.append(self.chi_33)
+        if self.chi_12 is not None:
+            if self.chi_12.refinement: l_variable.append(self.chi_12)
+        if self.chi_13 is not None:
+            if self.chi_13.refinement: l_variable.append(self.chi_13)
+        if self.chi_23 is not None:
+            if self.chi_23.refinement: l_variable.append(self.chi_23)
 
-        if self.moment_11.refinement: l_variable.append(self.moment_11)
-        if self.moment_22.refinement: l_variable.append(self.moment_22)
-        if self.moment_33.refinement: l_variable.append(self.moment_33)
-        if self.moment_12.refinement: l_variable.append(self.moment_12)
-        if self.moment_13.refinement: l_variable.append(self.moment_13)
-        if self.moment_23.refinement: l_variable.append(self.moment_23)
+        if self.moment_11 is not None:
+            if self.moment_11.refinement: l_variable.append(self.moment_11)
+        if self.moment_22 is not None:
+            if self.moment_22.refinement: l_variable.append(self.moment_22)
+        if self.moment_33 is not None:
+            if self.moment_33.refinement: l_variable.append(self.moment_33)
+        if self.moment_12 is not None:
+            if self.moment_12.refinement: l_variable.append(self.moment_12)
+        if self.moment_13 is not None:
+            if self.moment_13.refinement: l_variable.append(self.moment_13)
+        if self.moment_23 is not None:
+            if self.moment_23.refinement: l_variable.append(self.moment_23)
         return l_variable
 
 

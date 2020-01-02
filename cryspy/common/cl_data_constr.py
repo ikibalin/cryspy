@@ -89,7 +89,7 @@ class DataConstr(object):
                         mandatory_objs.extend(_obj_prefix)
                         flag = True
             if not(flag):
-                warnings.warn(f"unknown class type : '{_cls:}'", UserWarning)
+                #warnings.warn(f"unknown class type : '{_cls:}'", UserWarning, stacklevel=2)
                 break
         
         if not(flag):
@@ -111,7 +111,7 @@ class DataConstr(object):
                         _obj_prefix = _cls.from_cif(cif_string)
                         optional_objs.extend(_obj_prefix)
             else:
-                warnings.warn(f"unknown class type : '{_cls:}'", UserWarning)
+                warnings.warn(f"unknown class type : '{_cls:}'", UserWarning, stacklevel=2)
         data_name = cif_data.name
         _obj = cls(data_name=data_name)
         _obj.mandatory_objs = mandatory_objs
@@ -185,7 +185,21 @@ class DataConstr(object):
     @property
     def form_object(self):
         return True
-                    
+
+    @property
+    def is_variable(self) -> bool:
+        """
+Output: True if there is any refined parameter
+        """
+        return False
+
+    def get_variables(self) -> List:
+        """
+Output: the list of the refined parameters
+        """
+        return []
+
+
     #def __getattr__(self, attr):
     #    if attr in self.__mandatory_attribute:
     #        res = [getattr(_item, attr) for _item in self.__item]

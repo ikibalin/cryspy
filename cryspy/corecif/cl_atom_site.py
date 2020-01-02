@@ -408,9 +408,9 @@ the _atom_sites_Cartn_transform_axes description.
 
     @property
     def is_variable(self):
-        res = any([self.frac_x.refinement,
-                   self.frac_y.refinement,
-                   self.frac_z.refinement,
+        res = any([self.fract_x.refinement,
+                   self.fract_y.refinement,
+                   self.fract_z.refinement,
                    self.u_iso_or_equiv.refinement,
                    self.u_equiv_geom_mean.refinement,
                    self.b_iso_or_equiv.refinement,
@@ -420,12 +420,15 @@ the _atom_sites_Cartn_transform_axes description.
 
     def get_variables(self):
         l_variable = []
-        if self.frac_x.refinement: l_variable.append(self.frac_x)
-        if self.frac_y.refinement: l_variable.append(self.frac_y)
-        if self.frac_z.refinement: l_variable.append(self.frac_z)
-        if self.u_iso_or_equiv.refinement: l_variable.append(self.u_iso_or_equiv)
-        if self.u_equiv_geom_mean.refinement: l_variable.append(self.u_equiv_geom_mean)
-        if self.b_iso_or_equiv.refinement: l_variable.append(self.b_iso_or_equiv)
+        if self.fract_x.refinement: l_variable.append(self.fract_x)
+        if self.fract_y.refinement: l_variable.append(self.fract_y)
+        if self.fract_z.refinement: l_variable.append(self.fract_z)
+        if self.u_iso_or_equiv is not None:
+            if self.u_iso_or_equiv.refinement: l_variable.append(self.u_iso_or_equiv)
+        if self.u_equiv_geom_mean is not None:
+            if self.u_equiv_geom_mean.refinement: l_variable.append(self.u_equiv_geom_mean)
+        if self.b_iso_or_equiv is not None:
+            if self.b_iso_or_equiv.refinement: l_variable.append(self.b_iso_or_equiv)
         if self.occupancy.refinement: l_variable.append(self.occupancy)
         return l_variable
 

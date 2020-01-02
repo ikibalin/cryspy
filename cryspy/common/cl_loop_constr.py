@@ -168,7 +168,7 @@ class LoopConstr(object):
             self.__item = l_x
             self.form_object
         else:
-            print(f"One of the introduced object does not correspond to class {self.item_class:}")
+            warnings.warn(f"One of the introduced object does not correspond to class {self.item_class:}", UserWarning, stacklevel=2)
 
     def __getattr__(self, attr):
         if attr in self.__mandatory_attribute:
@@ -179,6 +179,21 @@ class LoopConstr(object):
             res = [getattr(_item, attr) for _item in self.__item]
         else:
             res = None
-            print(f"Attribute '{attr:}' is not defined")
+            warnings.warn(f"Attribute '{attr:}' is not defined", UserWarning, stacklevel=2)
         return res
 
+    @property
+    def is_variable(self) -> bool:
+        """
+Output: True if there is any refined parameter
+        """
+        return any([_item.is_variable for _item in self.__item])
+
+    def get_variables(self) -> List:
+        """
+Output: the list of the refined parameters
+        """
+        l_res = []
+        for _item in self.__item:
+            l_res.extend(_item.get_variables())
+        return l_res

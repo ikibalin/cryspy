@@ -1,6 +1,7 @@
 import warnings
 from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
+from cryspy.common.cl_data_constr import DataConstr
 from typing import List, Tuple
 from pycifstar import Global
 
@@ -53,7 +54,7 @@ Returns:
     A string in STAR/CIF format
         """
         ls_out = []
-        ls_out.append(f"global_{self.data_name:}\n")
+        ls_out.append(f"global_{self.global_name:}\n")
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.mandatory_objs])
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.optional_objs])
         return "\n".join(ls_out)
@@ -94,10 +95,10 @@ Returns:
                     cif_string = str(cif_data)
                     _obj_prefix = _cls.from_cif(cif_string)
                     if _obj_prefix is not None:
-                        mandatory_objs.extend(_obj_prefix)
+                        mandatory_objs.append(_obj_prefix)
                         flag = True
             if not(flag):
-                warnings.warn(f"unknown class type : '{_cls:}'", UserWarning)
+                #warnings.warn(f"unknown class type : '{_cls:}'", UserWarning, stacklevel=2)
                 break
         
         if not(flag):
@@ -123,9 +124,9 @@ Returns:
                     cif_string = str(cif_data)
                     _obj_prefix = _cls.from_cif(cif_string)
                     if _obj_prefix is not None:
-                        optional_objs.extend(_obj_prefix)
+                        optional_objs.append(_obj_prefix)
             else:
-                warnings.warn(f"unknown class type : '{_cls:}'", UserWarning)
+                warnings.warn(f"unknown class type : '{_cls:}'", UserWarning, stacklevel=2)
         global_name = cif_global.name
         _obj = cls(global_name=global_name)
         _obj.mandatory_objs = mandatory_objs
@@ -199,7 +200,21 @@ Returns:
     @property
     def form_object(self):
         return True
-                    
+
+    @property
+    def is_variable(self) -> bool:
+        """
+Output: True if there is any refined parameter
+        """
+        return False
+
+    def get_variables(self) -> List:
+        """
+Output: the list of the refined parameters
+        """
+        return []
+
+
     #def __getattr__(self, attr):
     #    if attr in self.__mandatory_attribute:
     #        res = [getattr(_item, attr) for _item in self.__item]

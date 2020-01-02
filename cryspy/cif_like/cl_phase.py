@@ -95,8 +95,10 @@ Output: True if there is any refined parameter
 Output: the list of the refined parameters
         """
         l_variable = []
-        if self.scale.refinement: l_variable.append(self.scale)
-        if self.igsize.refinement: l_variable.append(self.igsize)
+        if self.scale is not None:
+            if self.scale.refinement: l_variable.append(self.scale)
+        if self.igsize is not None:
+            if self.igsize.refinement: l_variable.append(self.igsize)
         return l_variable
     
 

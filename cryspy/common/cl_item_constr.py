@@ -176,6 +176,18 @@ class ItemConstr(object):
                 flag = False
         return flag
 
+    @property
+    def is_variable(self) -> bool:
+        """
+Output: True if there is any refined parameter
+        """
+        return False
+
+    def get_variables(self) -> List:
+        """
+Output: the list of the refined parameters
+        """
+        return []
 
     @classmethod
     def from_cif(cls, string: str):

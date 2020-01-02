@@ -100,5 +100,6 @@ Output: the list of the refined parameters
         """
         l_variable = []
         if self.wavelength.refinement: l_variable.append(self.wavelength)
-        if self.offset_ttheta.refinement: l_variable.append(self.offset_ttheta)
+        if self.offset_ttheta is not None:
+            if self.offset_ttheta.refinement: l_variable.append(self.offset_ttheta)
         return l_variable

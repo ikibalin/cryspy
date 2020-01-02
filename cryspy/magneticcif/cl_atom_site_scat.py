@@ -115,8 +115,10 @@ atom_type_scat
 
     def get_variables(self):
         l_variable = []
-        if self.lande.refinement: l_variable.append(self.lande)
-        if self.kappa.refinement: l_variable.append(self.kappa)
+        if self.lande is not None:
+            if self.lande.refinement: l_variable.append(self.lande)
+        if self.kappa is not None:
+            if self.kappa.refinement: l_variable.append(self.kappa)
         return l_variable
 
     def calc_form_factor(self, sthovl):
