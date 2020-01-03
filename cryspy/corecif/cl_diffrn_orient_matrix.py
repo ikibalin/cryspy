@@ -371,6 +371,13 @@ The U matrix (orientation matrix)
                                [ub_from[2, 0], ub_from[2, 1], ub_from[2, 2]]], dtype=float)
         self.ub_ccsl = ub_ccsl
 
+    @property
+    def form_object(self)->bool:
+        flag = False
+        if self.is_defined:
+            self.__recalc_u_cell
+            flag = True
+        return flag
 
     @property
     def __recalc_u_cell(self):
@@ -403,13 +410,20 @@ The U matrix (orientation matrix)
         a_3 = b_1*b_2*s_i_g/i_vol
         alpha, beta, gamma = numpy.arccos(c_a), numpy.arccos(c_b), numpy.arccos(c_g)
 
-        cell = self.cell
-        cell.a, cell.b, cell.c = a_1, a_2, a_3
-        cell.alpha, cell.beta, cell.gamma = float(alpha*180./numpy.pi), float(beta*180./numpy.pi), float(gamma*180./numpy.pi),
-
+        if self.cell is None:
+            cell = Cell(length_a=a_1, length_b=a_2, length_c=a_3,
+                        angle_alpha=float(alpha*180./numpy.pi),
+                        angle_beta=float(beta*180./numpy.pi),
+                        angle_gamma=float(gamma*180./numpy.pi))
+            setattr(self, "__cell", cell)
+        else:    
+            cell = self.cell
+            cell.length_a, cell.length_b, cell.length_c = a_1, a_2, a_3
+            cell.angle_alpha, cell.angle_beta, cell.angle_gamma = float(alpha*180./numpy.pi), float(beta*180./numpy.pi), float(gamma*180./numpy.pi),
+        cell.form_object
         m_ib = cell.m_ib
-        u = numpy.dot(ub_from, m_ib)
-        
+        u = numpy.dot(ub_from,  m_ib)
+
         setattr(self, "__u_11", float(u[0,0]))
         setattr(self, "__u_12", float(u[0,1]))
         setattr(self, "__u_13", float(u[0,2]))

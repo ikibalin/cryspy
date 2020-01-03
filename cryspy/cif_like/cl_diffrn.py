@@ -287,13 +287,12 @@ Calculate intensity for the given diffraction angle
             crystal = l_crystal[0]
             self.phase.label = crystal.label
         wavelength = float(self.setup.wavelength)
-        field_z = self.setup.wavelength
+        field_z = float(self.setup.field)
         diffrn_radiation = self.diffrn_radiation
         extinction = self.extinction
         orient_matrix = self.diffrn_orient_matrix
 
-        orientation = orient_matrix.u 
-        
+        orientation = orient_matrix.u       
         field_vec = numpy.array([0., 0., field_z], dtype=float)
 
         phi_d, chi_d, omega_d = 0., 0., 0.
@@ -313,27 +312,29 @@ Calculate intensity for the given diffraction angle
                              orientation)))
 
         field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
+        
         field_norm = ((field_loc**2).sum())**0.5
         
         p_u = float(diffrn_radiation.polarization)
         p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
         
         e_u_loc = field_loc/field_norm
-
+        
+        
         refln = crystal.calc_refln(h, k, l)
-        f_nucl  = refln.f_calc
+        f_nucl  =  numpy.array(refln.f_calc, dtype=complex)
 
         refln_s = crystal.calc_refln_susceptibility(h, k, l)
-        sft_11, sft_12, sft_13 = refln_s.chi_11_calc, refln_s.chi_12_calc, refln_s.chi_13_calc
-        sft_21, sft_22, sft_23 = refln_s.chi_21_calc, refln_s.chi_22_calc, refln_s.chi_23_calc
-        sft_31, sft_32, sft_33 = refln_s.chi_31_calc, refln_s.chi_32_calc, refln_s.chi_33_calc
-        sftm_11, sftm_12, sftm_13 = refln.moment_11_calc, refln.moment_12_calc, refln.moment_13_calc
-        sftm_21, sftm_22, sftm_23 = refln.moment_21_calc, refln.moment_22_calc, refln.moment_23_calc
-        sftm_31, sftm_32, sftm_33 = refln.moment_31_calc, refln.moment_32_calc, refln.moment_33_calc
-
+        sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
+        sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
+        sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)
+        sftm_11, sftm_12, sftm_13 = numpy.array(refln_s.moment_11_calc, dtype=complex), numpy.array(refln_s.moment_12_calc, dtype=complex), numpy.array(refln_s.moment_13_calc, dtype=complex)
+        sftm_21, sftm_22, sftm_23 = numpy.array(refln_s.moment_21_calc, dtype=complex), numpy.array(refln_s.moment_22_calc, dtype=complex), numpy.array(refln_s.moment_23_calc, dtype=complex)
+        sftm_31, sftm_32, sftm_33 = numpy.array(refln_s.moment_31_calc, dtype=complex), numpy.array(refln_s.moment_32_calc, dtype=complex), numpy.array(refln_s.moment_33_calc, dtype=complex)
 
         cell = crystal.cell
         k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
+        
         
         #not sure about e_u_loc at field < 0 
         mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + sft_13*field_loc[2] + sftm_11*e_u_loc[0] + sftm_12*e_u_loc[1] + sftm_13*e_u_loc[2]
@@ -394,22 +395,27 @@ Calculate intensity for the given diffraction angle
                     h1, k1, l1, i_u, i_d, f_r))
         """
             
-        return iint_u, iint_d, flip_ratio, refln
+        return iint_u, iint_d, flip_ratio, refln, refln_s
     
     def calc_chi_sq(self, l_crystal):
         """
 Calculate chi square
         """
-        h, k, l = self.diffrn_refln.index_h, self.diffrn_refln.index_k, self.diffrn_refln.index_l
+        np_h = numpy.array(self.diffrn_refln.index_h, dtype=int)
+        np_k = numpy.array(self.diffrn_refln.index_k, dtype=int)
+        np_l = numpy.array(self.diffrn_refln.index_l, dtype=int)
         fr_exp = self.diffrn_refln.fr
-        fr_sigma = diffrn_refln.fr_sigma
-        int_u_mod, int_d_mod, fr_mod, refln = self.calc_iint_u_d_flip_ratio(
-                                               h, k, l, l_crystal)
-        self.diffrn_refln.fr_calc = fr_mod
-        self.diffrn_refln.intensity_up_calc = int_u_mod
-        self.diffrn_refln.intensity_down_calc = int_d_mod
+        fr_sigma = self.diffrn_refln.fr_sigma
+        int_u_mod, int_d_mod, fr_mod, refln, refln_s = self.calc_iint_u_d_flip_ratio(
+                                               np_h, np_k, np_l, l_crystal)
+        
+        for _item, _1, _2, _3 in zip(self.diffrn_refln.item, fr_mod, int_u_mod, int_d_mod):
+            _item.fr_calc = _1
+            _item.intensity_up_calc = _2
+            _item.intensity_down_calc = _3
 
         self.refln = refln
+        self.refln_s = refln_s
 
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()

@@ -29,7 +29,7 @@ Description in cif file::
 `<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cdiffrn_refln.html>`_
     """
     MANDATORY_ATTRIBUTE = ("index_h", "index_k", "index_l")
-    OPTIONAL_ATTRIBUTE = ("fr", "fr_sigma", "intensity_up_calc", "intensity_down_calc") 
+    OPTIONAL_ATTRIBUTE = ("fr", "fr_sigma", "fr_calc", "intensity_up_calc", "intensity_down_calc") 
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "diffrn_refln"
     def __init__(self, index_h=None, index_k=None, index_l=None, 

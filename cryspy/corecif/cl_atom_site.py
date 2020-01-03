@@ -408,13 +408,14 @@ the _atom_sites_Cartn_transform_axes description.
 
     @property
     def is_variable(self):
-        res = any([self.fract_x.refinement,
+        _l = [self.fract_x.refinement,
                    self.fract_y.refinement,
-                   self.fract_z.refinement,
-                   self.u_iso_or_equiv.refinement,
-                   self.u_equiv_geom_mean.refinement,
-                   self.b_iso_or_equiv.refinement,
-                   self.occupancy.refinement])
+                   self.fract_z.refinement]
+        if self.u_iso_or_equiv is not None: _l.append(self.u_iso_or_equiv.refinement)
+        if self.u_equiv_geom_mean is not None: _l.append(self.u_equiv_geom_mean.refinement)
+        if self.b_iso_or_equiv is not None: _l.append(self.b_iso_or_equiv.refinement)
+        if self.occupancy is not None: _l.append(self.occupancy.refinement)
+        res = any(_l)
         return res
 
 

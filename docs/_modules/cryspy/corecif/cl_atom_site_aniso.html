@@ -57,17 +57,12 @@
 
 <div class="viewcode-block" id="AtomSiteAniso"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteAniso</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">AtomSiteAniso</span>
-<span class="sd">=================</span>
-
 <span class="sd">Data items in the ATOM_SITE_ANISO category record details about</span>
 <span class="sd">the atom sites in a crystal structure, such as atomic displacement parameters.</span>
 <span class="sd">Data items in the ATOM_site_ANISO category record details about</span>
 <span class="sd">magnetic properties of the atoms that occupy the atom sites.</span>
 
-<span class="sd">Description in cif file:</span>
-<span class="sd">--------------------------</span>
-<span class="sd">::</span>
+<span class="sd">Description in cif file::</span>
 
 <span class="sd"> _atom_site_aniso_label    O1</span>
 <span class="sd"> _atom_site_aniso_U_11     0.071(1)</span>
@@ -77,9 +72,7 @@
 <span class="sd"> _atom_site_aniso_U_13     0.0051(9) </span>
 <span class="sd"> _atom_site_aniso_U_23    -0.0030(9) </span>
 
-<span class="sd">Reference: </span>
-<span class="sd">-------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;u_11&quot;</span><span class="p">,</span> <span class="s2">&quot;u_22&quot;</span><span class="p">,</span> <span class="s2">&quot;u_33&quot;</span><span class="p">,</span> <span class="s2">&quot;u_12&quot;</span><span class="p">,</span> <span class="s2">&quot;u_13&quot;</span><span class="p">,</span> <span class="s2">&quot;u_23&quot;</span><span class="p">,</span> 
@@ -126,9 +119,7 @@
 
 <span class="sd">Type: char</span>
 
-<span class="sd">Reference: </span>
-<span class="sd">------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">)</span>
     <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
@@ -147,7 +138,8 @@
 <span class="sd">structure-factor term</span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> T = \\exp \\left[-2\\pi^2 \\Sigma_{i}\\Sigma_{j} \\left(U^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]</span>
+
+<span class="sd">   T = \\exp \\left[-2\\pi^2 \\Sigma_{i}\\Sigma_{j} \\left(U^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]</span>
 
 <span class="sd">- h is the Miller indices</span>
 <span class="sd">- a* is the reciprocal-space cell lengths</span>
@@ -159,9 +151,7 @@
 
 <span class="sd">Type: float</span>
 
-<span class="sd">Reference:</span>
-<span class="sd">--------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html&gt;`_</span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_11&quot;</span><span class="p">)</span>
     <span class="nd">@u_11</span><span class="o">.</span><span class="n">setter</span>
@@ -272,7 +262,8 @@
 <span class="sd">term </span>
 
 <span class="sd">.. math::</span>
-<span class="sd"> T = \\exp \\left[-\frac{1}{4} \\Sigma_{i}\\Sigma_{j} \\left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]</span>
+
+<span class="sd">   T = \\exp \\left[-\\frac{1}{4} \\Sigma_{i}\\Sigma_{j} \\left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]</span>
 
 <span class="sd">where h = the Miller indices and a∗ = the reciprocal-space cell</span>
 <span class="sd">lengths.</span>
@@ -293,9 +284,8 @@
 
 <span class="sd">Type: float</span>
 
-<span class="sd">Reference:</span>
-<span class="sd">--------------</span>
-<span class="sd">`iucr.org &lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html&gt;`_</span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_11&quot;</span><span class="p">)</span>
     <span class="nd">@b_11</span><span class="o">.</span><span class="n">setter</span>

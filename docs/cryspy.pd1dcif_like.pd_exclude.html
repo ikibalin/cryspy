@@ -16,7 +16,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="PdBackground" href="cryspy.pd1dcif_like.pd_background.html" />
-    <link rel="prev" title="PdPhase" href="cryspy.pd1dcif_like.pd_phase.html" />
+    <link rel="prev" title="PdInstrReflexAsymmetry" href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <!--[if lte IE 6]>
@@ -38,10 +38,10 @@
           <a href="cryspy.pd1dcif_like.pd_background.html" title="PdBackground"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="cryspy.pd1dcif_like.pd_phase.html" title="PdPhase"
+          <a href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html" title="PdInstrReflexAsymmetry"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" accesskey="U">Unofficial powder 1D dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -51,92 +51,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-cryspy.pd1dcif_like.cl_pd_exclude">
-<span id="pdexclude"></span><h1>PdExclude<a class="headerlink" href="#module-cryspy.pd1dcif_like.cl_pd_exclude" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_exclude.</code><code class="sig-name descname">PdExclude</code><span class="sig-paren">(</span><em class="sig-param">id=None</em>, <em class="sig-param">ttheta_min=None</em>, <em class="sig-param">ttheta_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_exclude.html#PdExclude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
-<p>Description in cif file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_exclude_id</span>            <span class="mi">1</span>
-<span class="n">_pd_exclude_ttheta_min</span>  <span class="mf">4.0</span>
-<span class="n">_pd_exclude_ttheta_max</span> <span class="mf">12.0</span>
-</pre></div>
-</div>
-<dl class="attribute">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.INTERNAL_ATTRIBUTE">
-<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.MANDATORY_ATTRIBUTE">
-<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('id', 'ttheta_min', 'ttheta_max')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.OPTIONAL_ATTRIBUTE">
-<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.PREFIX">
-<code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_exclude'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.PREFIX" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.get_variables">
-<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_exclude.html#PdExclude.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.get_variables" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.id">
-<em class="property">property </em><code class="sig-name descname">id</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.is_variable">
-<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.is_variable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.ttheta_max">
-<em class="property">property </em><code class="sig-name descname">ttheta_max</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.ttheta_max" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.ttheta_min">
-<em class="property">property </em><code class="sig-name descname">ttheta_min</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude.ttheta_min" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_exclude.</code><code class="sig-name descname">PdExcludeL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_exclude.html#PdExcludeL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
-<p>Description in cif file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
-<span class="n">_pd_exclude_id</span>
-<span class="n">_pd_exclude_ttheta_min</span>
-<span class="n">_pd_exclude_ttheta_max</span>
- <span class="mi">1</span>   <span class="mf">4.0</span>  <span class="mf">12.0</span>
- <span class="mi">2</span>  <span class="mf">30.0</span>  <span class="mf">45.0</span>
- <span class="mi">3</span>  <span class="mf">58.0</span>  <span class="mf">63.0</span>
-</pre></div>
-</div>
-<dl class="attribute">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL.CATEGORY_KEY">
-<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('id',)</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL.ITEM_CLASS">
-<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExcludeL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#cryspy.pd1dcif_like.cl_pd_exclude.PdExclude" title="cryspy.pd1dcif_like.cl_pd_exclude.PdExclude"><code class="xref py py-class docutils literal notranslate"><span class="pre">PdExclude</span></code></a></p>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="pdexclude">
+<h1>PdExclude<a class="headerlink" href="#pdexclude" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -146,8 +62,8 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="cryspy.pd1dcif_like.pd_phase.html"
-                        title="previous chapter">PdPhase</a></p>
+  <p class="topless"><a href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html"
+                        title="previous chapter">PdInstrReflexAsymmetry</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="cryspy.pd1dcif_like.pd_background.html"
                         title="next chapter">PdBackground</a></p>
@@ -185,10 +101,10 @@
           <a href="cryspy.pd1dcif_like.pd_background.html" title="PdBackground"
              >next</a> |</li>
         <li class="right" >
-          <a href="cryspy.pd1dcif_like.pd_phase.html" title="PdPhase"
+          <a href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html" title="PdInstrReflexAsymmetry"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" >Unofficial powder 1D dictionary</a> &#187;</li> 
       </ul>
     </div>

@@ -109,7 +109,7 @@ def test_calc_refln():
     _obj.apply_constraint()
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
     refln = _obj.calc_refln(h, k, l)
-    f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)
+    f_reference = numpy.array([3.125, -7.63948, -12.599], dtype=complex)
     res = numpy.isclose(refln.f_calc, f_reference, rtol=rel_tol, atol=abs_tol)
     assert all(res)
 

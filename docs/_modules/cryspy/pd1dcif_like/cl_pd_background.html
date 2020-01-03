@@ -116,7 +116,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Output: True if there is any refined parameter</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="o">.</span><span class="n">refinement</span><span class="p">])</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="o">.</span><span class="n">refinement</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">res</span>
     
 <div class="viewcode-block" id="PdBackground.get_variables"><a class="viewcode-back" href="../../../cryspy.pd1dcif_like.pd_background.html#cryspy.pd1dcif_like.cl_pd_background.PdBackground.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
@@ -125,18 +125,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intensity</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">l_variable</span></div>
+        <span class="k">return</span> <span class="n">l_variable</span></div></div>
 
-<div class="viewcode-block" id="PdBackground.interpolate_by_points"><a class="viewcode-back" href="../../../cryspy.pd1dcif_like.pd_background.html#cryspy.pd1dcif_like.cl_pd_background.PdBackground.interpolate_by_points">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate_by_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth</span><span class="p">):</span>
-        <span class="n">l_ttheta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ttheta</span>
-        <span class="n">l_intensity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span>
-        <span class="n">tth_b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_ttheta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="n">int_b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_intensity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ttheta</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">int_1d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">tth</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">int_1d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">tth</span><span class="p">,</span> <span class="n">tth_b</span><span class="p">,</span> <span class="n">int_b</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">int_1d</span></div></div>
+
 
 <div class="viewcode-block" id="PdBackgroundL"><a class="viewcode-back" href="../../../cryspy.pd1dcif_like.pd_background.html#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL">[docs]</a><span class="k">class</span> <span class="nc">PdBackgroundL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -159,7 +150,18 @@
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;PdBackgroundL: &quot;</span><span class="p">)</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="PdBackgroundL.interpolate_by_points"><a class="viewcode-back" href="../../../cryspy.pd1dcif_like.pd_background.html#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.interpolate_by_points">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate_by_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth</span><span class="p">):</span>
+        <span class="n">l_ttheta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ttheta</span>
+        <span class="n">l_intensity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intensity</span>
+        <span class="n">tth_b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_ttheta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">int_b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_intensity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ttheta</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">int_1d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">tth</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">int_1d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">tth</span><span class="p">,</span> <span class="n">tth_b</span><span class="p">,</span> <span class="n">int_b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">int_1d</span></div></div>
 </pre></div>
 
           </div>

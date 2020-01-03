@@ -18,6 +18,7 @@ import time
 
 from cryspy.cif_like.cl_crystal import Crystal
 from cryspy.cif_like.cl_diffrn import Diffrn
+from cryspy.cif_like.cl_pd import Pd
 
 
 
@@ -120,8 +121,8 @@ Description in cif file::
  2 0 6 1.75682 0.04540 
  0 2 6 1.67974 0.03711 
     """
-    MANDATORY_CLASSES = (Crystal, Diffrn)
-    OPTIONAL_CLASSES = ()
+    MANDATORY_CLASSES = (Crystal, )
+    OPTIONAL_CLASSES = (Diffrn, Pd)
     INTERNAL_CLASSES = ()
     def __init__(self, crystals=None, experiments=None,
                  global_name=""):
@@ -158,7 +159,7 @@ Description in cif file::
     def experiments(self):
         """
         """
-        l_res = self[Diffrn]
+        l_res = self[Diffrn]+self[Pd]
         if len(l_res) >= 1:
             return l_res
         else:
@@ -170,8 +171,8 @@ Description in cif file::
         if l_x is None:
             pass
         else:
-            l_x_in = [x for x in l_x if isinstance(x, Diffrn)]
-        self.mandatory_objs.extend(l_x_in)
+            l_x_in = [x for x in l_x if (isinstance(x, Diffrn) | isinstance(x, Pd))]
+        self.optional_objs.extend(l_x_in)
 
 
     @property
@@ -181,7 +182,7 @@ Description in cif file::
 
     @property
     def delete_experiments(self):
-        _h = [self.mandatory_objs.remove(obj) for obj in reversed(self.mandatory_objs) if isinstance(obj, Diffrn)]
+        _h = [self.optional_objs.remove(obj) for obj in reversed(self.mandatory_objs) if (isinstance(x, Diffrn) | isinstance(x, Pd))]
         return True
 
 
@@ -214,9 +215,14 @@ Output: the list of the refined parameters
         return l_variable
 
 
+    def apply_constraint(self):
+        res = all([crystal.apply_constraint() for crystal in self.crystals])
+        return res
+
+
     def calc_chi_sq(self):
         """
-        calculate the integral intensity for h, k, l reflections
+calculate the integral intensity for h, k, l reflections
         """
         self.apply_constraint()
             
@@ -231,11 +237,6 @@ Output: the list of the refined parameters
             n_res += n
         return chi_sq_res, n_res
     
-    def apply_constraint(self):
-        for crystal in self.crystals:
-            crystal.apply_constraint()
-
-
     def refine(self):
         """
         optimization

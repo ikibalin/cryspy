@@ -80,6 +80,12 @@ class Fitable(object):
             return False
         return True
 
+    @classmethod
+    def from_object(cls, val):
+        res = cls()
+        res.take_it(val)
+        return res
+
     def _show_message(self, s_out: str):
         print("***  Error ***")
         print(s_out)

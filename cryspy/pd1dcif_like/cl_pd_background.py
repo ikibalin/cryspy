@@ -71,7 +71,7 @@ Description in cif file::
         """
 Output: True if there is any refined parameter
         """
-        res = any([self.scale.refinement])
+        res = any([self.intensity.refinement])
         return res
     
     def get_variables(self) -> List:
@@ -82,16 +82,7 @@ Output: the list of the refined parameters
         if self.intensity.refinement: l_variable.append(self.intensity)
         return l_variable
 
-    def interpolate_by_points(self, tth):
-        l_ttheta = self.ttheta
-        l_intensity = self.intensity
-        tth_b = numpy.array(l_ttheta, dtype=float)
-        int_b = numpy.array(l_intensity, dtype=float)
-        if len(l_ttheta) == 0:
-            int_1d = numpy.zeros(tth.size, dtype=float)
-        else:
-            int_1d = numpy.interp(tth, tth_b, int_b)
-        return int_1d
+
 
 class PdBackgroundL(LoopConstr):
     """
@@ -115,3 +106,14 @@ Description in cif file::
         ls_out.append("PdBackgroundL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+        
+    def interpolate_by_points(self, tth):
+        l_ttheta = self.ttheta
+        l_intensity = self.intensity
+        tth_b = numpy.array(l_ttheta, dtype=float)
+        int_b = numpy.array(l_intensity, dtype=float)
+        if len(l_ttheta) == 0:
+            int_1d = numpy.zeros(tth.size, dtype=float)
+        else:
+            int_1d = numpy.interp(tth, tth_b, int_b)
+        return int_1d

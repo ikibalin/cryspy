@@ -12,17 +12,12 @@ from cryspy.common.cl_fitable import Fitable
 
 class AtomSiteAniso(ItemConstr):
     """
-AtomSiteAniso
-=================
-
 Data items in the ATOM_SITE_ANISO category record details about
 the atom sites in a crystal structure, such as atomic displacement parameters.
 Data items in the ATOM_site_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.
 
-Description in cif file:
---------------------------
-::
+Description in cif file::
 
  _atom_site_aniso_label    O1
  _atom_site_aniso_U_11     0.071(1)
@@ -32,9 +27,7 @@ Description in cif file:
  _atom_site_aniso_U_13     0.0051(9) 
  _atom_site_aniso_U_23    -0.0030(9) 
 
-Reference: 
--------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
     """    
     MANDATORY_ATTRIBUTE = ("label", )
     OPTIONAL_ATTRIBUTE = ("u_11", "u_22", "u_33", "u_12", "u_13", "u_23", 
@@ -81,9 +74,7 @@ _atom_site_label.
 
 Type: char
 
-Reference: 
-------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html>`_
         """
         return getattr(self, "__label")
     @label.setter
@@ -102,7 +93,8 @@ components in angstroms squared which appear in the
 structure-factor term
 
 .. math::
- T = \\exp \\left[-2\\pi^2 \\Sigma_{i}\\Sigma_{j} \\left(U^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]
+
+   T = \\exp \\left[-2\\pi^2 \\Sigma_{i}\\Sigma_{j} \\left(U^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]
 
 - h is the Miller indices
 - a* is the reciprocal-space cell lengths
@@ -114,9 +106,7 @@ Default: 0.
 
 Type: float
 
-Reference:
---------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html>`_
         """
         return getattr(self, "__u_11")
     @u_11.setter
@@ -227,7 +217,8 @@ nents in Angströms squared which appear in the structure-factor
 term 
 
 .. math::
- T = \\exp \\left[-\frac{1}{4} \\Sigma_{i}\\Sigma_{j} \\left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]
+
+   T = \\exp \\left[-\\frac{1}{4} \\Sigma_{i}\\Sigma_{j} \\left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]
 
 where h = the Miller indices and a∗ = the reciprocal-space cell
 lengths.
@@ -248,9 +239,8 @@ Default: 0.
 
 Type: float
 
-Reference:
---------------
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html>`_
+
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html>`_
         """
         return getattr(self, "__b_11")
     @b_11.setter

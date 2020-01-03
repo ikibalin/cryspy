@@ -634,9 +634,9 @@ f_print --- a flag to print output information in terminal
         cond_2 = hkl is not None
         cond_3 = l_hkl is not None
         if cond_1:
-            np_h = h # type: numpy.array or float
-            np_k = k # type: numpy.array or float
-            np_l = l # type: numpy.array or float
+            np_h = numpy.array(h, dtype=int) # type: numpy.array or float
+            np_k = numpy.array(k, dtype=int) # type: numpy.array or float
+            np_l = numpy.array(l, dtype=int) # type: numpy.array or float
         elif cond_2:
             np_h = hkl[0] # type: float
             np_k = hkl[1] # type: float
@@ -671,10 +671,13 @@ f_print --- a flag to print output information in terminal
         Keyword arguments:
         h, k, l -- Miller indices
         """
+        np_h = numpy.array(h, dtype=int)
+        np_k = numpy.array(k, dtype=int)
+        np_l = numpy.array(l, dtype=int)
         m_b = self.m_b
-        k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
-        k_y = m_b[1, 0]*h + m_b[1, 1]*k +m_b[1, 2]*l
-        k_z = m_b[2, 0]*h + m_b[2, 1]*k +m_b[2, 2]*l
+        k_x = m_b[0, 0]*np_h + m_b[0, 1]*np_k +m_b[0, 2]*np_l
+        k_y = m_b[1, 0]*np_h + m_b[1, 1]*np_k +m_b[1, 2]*np_l
+        k_z = m_b[2, 0]*np_h + m_b[2, 1]*np_k +m_b[2, 2]*np_l
         
         k_norm = (k_x**2 + k_y**2 + k_z**2)**0.5
         if not((type(h) is float)|(type(h) is int)|(type(h) is numpy.float64)):
@@ -746,8 +749,8 @@ f_print --- a flag to print output information in terminal
 
     def calc_hkl(self, space_group, sthovl_min, sthovl_max):
         """
-        a list of reflections hkl for cell in the range sthovl_min, sthovl_max
-        taking into account the space group
+A list of reflections hkl for cell in the range sthovl_min, sthovl_max
+taking into account the space group
         """
         if not(self.is_defined):
             warnings.warn("Object 'Cell' is not fully defined for calculations", UserWarning, stacklevel=2)
@@ -755,22 +758,27 @@ f_print --- a flag to print output information in terminal
         lhkl,lmult=[],[]
         l_hklres=[]
 
-        hmax = int(2.*self.a*sthovl_max)
-        kmax = int(2.*self.b*sthovl_max)
-        lmax = int(2.*self.c*sthovl_max)
+        hmax = int(2.*self.length_a*sthovl_max)
+        kmax = int(2.*self.length_b*sthovl_max)
+        lmax = int(2.*self.length_c*sthovl_max)
         hmin, kmin, lmin = -1*hmax, -1*kmax, -1*lmax
 
         hmin=0
+        shift = space_group.shift
+        r_s_g_s = space_group.reduced_space_group_symop
+        orig_x, orig_y, orig_z = zip(*shift)
+        np_orig_x, np_orig_y, np_orig_z = numpy.array(orig_x, dtype=float), numpy.array(orig_y, dtype=float), numpy.array(orig_z, dtype=float), 
         
-        l_orig = space_group.orig
-        l_symm = space_group.el_symm
+        r_11, r_12, r_13 = numpy.array(r_s_g_s.r_11, dtype=float), numpy.array(r_s_g_s.r_12, dtype=float), numpy.array(r_s_g_s.r_13, dtype=float)
+        r_21, r_22, r_23 = numpy.array(r_s_g_s.r_21, dtype=float), numpy.array(r_s_g_s.r_22, dtype=float), numpy.array(r_s_g_s.r_23, dtype=float)
+        r_31, r_32, r_33 = numpy.array(r_s_g_s.r_31, dtype=float), numpy.array(r_s_g_s.r_32, dtype=float), numpy.array(r_s_g_s.r_33, dtype=float)
         for h in range(hmin,hmax+1,1):
             for k in range(kmin,kmax+1,1):
                 for l in range(lmin,lmax+1,1):
-                    flag=(abs(sum([numpy.exp(2.*numpy.pi*1j*(orig[0]*h+orig[1]*k+orig[2]*l)) for orig in l_orig]))>0.00001)
+                    flag=(abs(sum(numpy.exp(2.*numpy.pi*1j*(np_orig_x*h+np_orig_y*k+np_orig_z*l))))>0.00001)
                     #flag=True
                     if (flag):
-                        lhkls=[(h*symm[1]+k*symm[5]+l*symm[9], h*symm[2]+k*symm[6]+l*symm[10], h*symm[3]+k*symm[7]+l*symm[11]) for symm in l_symm]
+                        lhkls = [(_1, _2, _3) for _1, _2, _3 in zip(h*r_11+k*r_21+l*r_31, h*r_12+k*r_22+l*r_32, h*r_13+k*r_23+l*r_33)]
                         lhkls.extend([(-hkl[0],-hkl[1],-hkl[2]) for hkl in lhkls])
                         lhkls.sort(key=lambda x:10000*x[0]+100*x[1]+x[2])
                         if (not(lhkls[-1] in lhkl)):
@@ -791,7 +799,7 @@ f_print --- a flag to print output information in terminal
 
     def calc_hkl_in_range(self, sthovl_min, sthovl_max):
         """
-        give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
+Give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
         """
         if not(self.is_defined):
             print("Object 'Cell' is not fully defined for calculations")

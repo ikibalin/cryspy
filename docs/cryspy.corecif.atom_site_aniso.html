@@ -41,7 +41,7 @@
           <a href="cryspy.corecif.atom_site.html" title="AtomSite"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" accesskey="U">Core dictionary (coreCIF)</a> &#187;</li> 
       </ul>
     </div>  
@@ -61,6 +61,7 @@
 the atom sites in a crystal structure, such as atomic displacement parameters.
 Data items in the ATOM_site_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_atom_site_aniso_label</span>    <span class="n">O1</span>
 <span class="n">_atom_site_aniso_U_11</span>     <span class="mf">0.071</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">_atom_site_aniso_U_22</span>     <span class="mf">0.076</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -70,7 +71,7 @@ magnetic properties of the atoms that occupy the atom sites.</p>
 <span class="n">_atom_site_aniso_U_23</span>    <span class="o">-</span><span class="mf">0.0030</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html</a></p>
 <dl class="attribute">
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
@@ -104,8 +105,7 @@ magnetic properties of the atoms that occupy the atom sites.</p>
 nents in Angströms squared which appear in the structure-factor
 term</p>
 <div class="math notranslate nohighlight">
-\[T = \exp \left[-\]</div>
-<p>rac{1}{4} Sigma_{i}Sigma_{j} left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} right) right]</p>
+\[T = \exp \left[-\frac{1}{4} \Sigma_{i}\Sigma_{j} \left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \right) \right]\]</div>
 <p>where h = the Miller indices and a∗ = the reciprocal-space cell
 lengths.</p>
 <p>The unique elements of the real symmetric matrix are entered by
@@ -120,7 +120,7 @@ being directly proportional to B, is preferred.</p>
 entered by row.</p>
 <p>Default: 0.</p>
 <p>Type: float</p>
-<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -168,12 +168,19 @@ entered by row.</p>
 <dl class="method">
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAniso.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.get_variables" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.is_variable">
 <em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.is_variable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.label">
@@ -184,7 +191,7 @@ _atom_site_label of the associated atom in the atom coordinate
 list and conform with the same rules described in
 _atom_site_label.</p>
 <p>Type: char</p>
-<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -203,7 +210,7 @@ structure-factor term</p>
 entered by row.</p>
 <p>Default: 0.</p>
 <p>Type: float</p>
-<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html">iucr.org</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -335,7 +342,7 @@ magnetic properties of the atoms that occupy the atom sites.</p>
           <a href="cryspy.corecif.atom_site.html" title="AtomSite"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" >Core dictionary (coreCIF)</a> &#187;</li> 
       </ul>
     </div>

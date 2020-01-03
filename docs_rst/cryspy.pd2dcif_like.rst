@@ -10,3 +10,4 @@ Unofficial powder 2D dictionary
    :maxdepth: 2
    :caption: For further information see:
    
+   cryspy.pd2dcif_like.pd2d_background

@@ -27,8 +27,8 @@ STR_FROM_CIF_1 = """
  80.0  65.0
  
  loop_
- _pd_exclude_ttheta_min
- _pd_exclude_ttheta_max
+ _exclude_ttheta_min
+ _exclude_ttheta_max
  0.0 1.0
  
  _pd_instr_reflex_asymmetry_p1 0.0

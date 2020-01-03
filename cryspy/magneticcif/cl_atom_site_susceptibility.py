@@ -385,18 +385,22 @@ Type: float
 
     @property
     def is_variable(self):
-        res = any([self.chi_11.refinement,
-                   self.chi_22.refinement,
-                   self.chi_33.refinement,
-                   self.chi_12.refinement,
-                   self.chi_13.refinement,
-                   self.chi_23.refinement,
-                   self.moment_11.refinement,
-                   self.moment_22.refinement,
-                   self.moment_33.refinement,
-                   self.moment_12.refinement,
-                   self.moment_13.refinement,
-                   self.moment_23.refinement,])
+        _l = []
+        if self.chi_11 is not None: _l.append(self.chi_11.refinement)
+        if self.chi_22 is not None: _l.append(self.chi_22.refinement)
+        if self.chi_33 is not None: _l.append(self.chi_33.refinement)
+        if self.chi_12 is not None: _l.append(self.chi_12.refinement)
+        if self.chi_13 is not None: _l.append(self.chi_13.refinement)
+        if self.chi_23 is not None: _l.append(self.chi_23.refinement)
+
+        if self.moment_11 is not None: _l.append(self.moment_11.refinement)
+        if self.moment_22 is not None: _l.append(self.moment_22.refinement)
+        if self.moment_33 is not None: _l.append(self.moment_33.refinement)
+        if self.moment_12 is not None: _l.append(self.moment_12.refinement)
+        if self.moment_13 is not None: _l.append(self.moment_13.refinement)
+        if self.moment_23 is not None: _l.append(self.moment_23.refinement)
+
+        res = any(_l)
         return res
 
 

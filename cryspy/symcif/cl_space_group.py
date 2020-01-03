@@ -942,7 +942,7 @@ be explicit. White space within the string is optional.
         
     def calc_hkl_equiv(self, h, k, l):
         """
-        give equivalent reflections of hkl and its multiplicity
+Give equivalent reflections of hkl and its multiplicity
         """
         r_11 = self.reduced_space_group_symop.r_11
         r_12 = self.reduced_space_group_symop.r_12
@@ -1007,12 +1007,17 @@ be explicit. White space within the string is optional.
         o_1, o_2, o_3 = e_1[flag], e_2[flag], e_3[flag]
         return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3
 
+    @property
+    def shift(self):
+        return CONSTANTS_AND_FUNCTIONS.get_shift_by_centring_type(self.centring_type)
+
     def calc_f_hkl_by_f_hkl_as(self, h, k, l, f_hkl_as):
         """
 Calculate the structure factor giving the structure factor 
 in asymmetric unit cell.
         """
-        shift = CONSTANTS_AND_FUNCTIONS.get_shift_by_centring_type(self.centring_type)
+        np_h, np_k, np_l = numpy.array(h), numpy.array(k), numpy.array(l)
+        shift = self.shift
         centr = self.centrosymmetry
 
         orig_x, orig_y, orig_z = zip(*shift)
@@ -1021,11 +1026,11 @@ in asymmetric unit cell.
         #orig_y = [hh[1] for hh in shift]
         #orig_z = [hh[2] for hh in shift]
         
-        np_h, np_orig_x = numpy.meshgrid(h, orig_x, indexing = "ij")
-        np_k, np_orig_y = numpy.meshgrid(k, orig_y, indexing = "ij")
-        np_l, np_orig_z = numpy.meshgrid(l, orig_z, indexing = "ij")
+        np_h_2d, np_orig_x_2d = numpy.meshgrid(h, orig_x, indexing = "ij")
+        np_k_2d, np_orig_y_2d = numpy.meshgrid(k, orig_y, indexing = "ij")
+        np_l_2d, np_orig_z_2d = numpy.meshgrid(l, orig_z, indexing = "ij")
 
-        hh = (2*numpy.pi*1j*(np_h*np_orig_x+np_k*np_orig_y+np_l*np_orig_z)).astype(complex)
+        hh = (2*numpy.pi*1j*(np_h_2d*np_orig_x_2d+np_k_2d*np_orig_y_2d+np_l_2d*np_orig_z_2d)).astype(complex)
         np_orig_as = numpy.exp(hh)
         _hh = np_orig_as.sum(axis=1)
         if len(f_hkl_as.shape)==2:
@@ -1034,10 +1039,11 @@ in asymmetric unit cell.
 
         if (centr):
             p_centr = self.pcentr
-            hh = (2.*2.*numpy.pi*1j* (h*p_centr[0]+k*p_centr[1]+l*p_centr[2])).astype(complex)
+            hh = (2.*2.*numpy.pi*1j* (np_h*p_centr[0]+np_k*p_centr[1]+np_l*p_centr[2])).astype(complex)
             if len(f_hkl_as.shape)==2:
                 hh = hh[:, numpy.newaxis]
             f_hkl = 0.5*(f_hkl_1+f_hkl_1.conjugate()*numpy.exp(hh))
+            
         else:
             f_hkl = f_hkl_1
         return f_hkl

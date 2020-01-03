@@ -41,7 +41,7 @@
           <a href="cryspy.cif_like.range.html" title="Range"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -55,13 +55,14 @@
 <span id="setup"></span><h1>Setup<a class="headerlink" href="#module-cryspy.cif_like.cl_setup" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="cryspy.cif_like.cl_setup.Setup">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_setup.</code><code class="sig-name descname">Setup</code><span class="sig-paren">(</span><em class="sig-param">wavelength=None</em>, <em class="sig-param">field=None</em>, <em class="sig-param">offset_ttheta=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_setup.html#Setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_setup.</code><code class="sig-name descname">Setup</code><span class="sig-paren">(</span><em class="sig-param">wavelength=None</em>, <em class="sig-param">field=None</em>, <em class="sig-param">offset_ttheta=None</em>, <em class="sig-param">offset_phi=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_setup.html#Setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Describe the setup.</p>
 <p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_setup_wavelength</span>   <span class="mf">0.84</span>
 <span class="n">_setup_field</span>        <span class="mf">1.00</span>
 <span class="n">_setup_offset_ttheta</span> <span class="o">-</span><span class="mf">0.385</span>
+<span class="n">_setup_offset_phi</span> <span class="o">-</span><span class="mf">0.385</span>
 </pre></div>
 </div>
 <dl class="attribute">
@@ -76,7 +77,7 @@
 
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_setup.Setup.OPTIONAL_ATTRIBUTE">
-<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('offset_ttheta',)</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('offset_ttheta', 'offset_phi')</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -105,6 +106,11 @@
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_setup.Setup.offset_phi">
+<em class="property">property </em><code class="sig-name descname">offset_phi</code><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.offset_phi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="cryspy.cif_like.cl_setup.Setup.offset_ttheta">
@@ -169,7 +175,7 @@
           <a href="cryspy.cif_like.range.html" title="Range"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>

@@ -186,18 +186,27 @@ class DataConstr(object):
     def form_object(self):
         return True
 
+
     @property
     def is_variable(self) -> bool:
         """
 Output: True if there is any refined parameter
         """
-        return False
-
+        res = any([_obj.is_variable for _obj in self.mandatory_objs] +
+                  [_obj.is_variable for _obj in self.optional_objs])
+        return res
+        
     def get_variables(self) -> List:
         """
 Output: the list of the refined parameters
         """
-        return []
+        l_variable = []
+        for _obj in self.mandatory_objs:
+            l_variable.extend(_obj.get_variables())
+        for _obj in self.optional_objs:
+            l_variable.extend(_obj.get_variables())
+        return l_variable
+       
 
 
     #def __getattr__(self, attr):

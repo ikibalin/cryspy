@@ -27,11 +27,11 @@ Description in cif::
     OPTIONAL_ATTRIBUTE = ("lande", "kappa")
     INTERNAL_ATTRIBUTE = ("atom_type_scat")
     PREFIX = "atom_site_scat"
-    def __init__(self, label=None, lande=None, kappa=None):
+    def __init__(self, label=None, lande=2.0, kappa=1.0):
         super(AtomSiteScat, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
-                                                optional_attribute=self.OPTIONAL_ATTRIBUTE, 
-                                                internal_attribute=self.INTERNAL_ATTRIBUTE,
-                                                prefix=self.PREFIX)
+                                           optional_attribute=self.OPTIONAL_ATTRIBUTE, 
+                                           internal_attribute=self.INTERNAL_ATTRIBUTE,
+                                           prefix=self.PREFIX)
 
         self.label = label 
         self.lande = lande

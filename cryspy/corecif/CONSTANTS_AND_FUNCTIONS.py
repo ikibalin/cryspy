@@ -88,7 +88,7 @@ Take scat_length_neutron
     flag = False
     for _1, _2 in zip(BSCAT["_atom_type_symbol"], BSCAT["_atom_type_cohb"]):
         if (_1.lower() == str_1):
-            res = complex(_2)
+            res = 0.1*complex(_2)#in 10**-12cm
             flag = True
         elif flag:
             break

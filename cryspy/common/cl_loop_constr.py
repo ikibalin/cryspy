@@ -182,6 +182,7 @@ class LoopConstr(object):
             warnings.warn(f"Attribute '{attr:}' is not defined", UserWarning, stacklevel=2)
         return res
 
+
     @property
     def is_variable(self) -> bool:
         """

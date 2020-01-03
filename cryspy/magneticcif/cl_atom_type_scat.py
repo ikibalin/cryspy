@@ -665,7 +665,7 @@ mismatch with international tables where (1.0-2.0/np_factor_lande)
 
     @classmethod
     def form_by_symbol(cls, symbol:str):
-        j0_A1, j0_a2, j0_B1, j0_b2, j0_C1, j0_c2, j0_D, j2_a2, j2_A1, j2_B1, j2_b2, j2_C1, j2_c2, j2_D = CONSTANTS_AND_FUNCTIONS.get_j0_j2_by_symbol(symbol)
+        j0_A1, j0_a2, j0_B1, j0_b2, j0_C1, j0_c2, j0_D, j2_A1, j2_a2, j2_B1, j2_b2, j2_C1, j2_c2, j2_D = CONSTANTS_AND_FUNCTIONS.get_j0_j2_by_symbol(symbol)
         item = cls(symbol=symbol, 
             neutron_magnetic_j0_a1=j0_A1, neutron_magnetic_j0_a2=j0_a2,
             neutron_magnetic_j0_b1=j0_B1, neutron_magnetic_j0_b2=j0_b2,

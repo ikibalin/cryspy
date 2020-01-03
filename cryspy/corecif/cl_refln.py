@@ -312,7 +312,12 @@ Appears in list containing _refln_index_
 
 Type: numb        
         """
-        return complex(getattr(self, "__a_calc"), getattr(self, "__b_calc"))
+        _1, _2 = getattr(self, "__a_calc"), getattr(self, "__b_calc")
+        if ((_1 is not None) & (_2 is not None)):
+            res = complex(_1, _2)
+        else:
+            res = None
+        return res
     @f_calc.setter
     def f_calc(self, x):
         if x is None:
@@ -333,7 +338,12 @@ Appears in list containing _refln_index_
 
 Type: numb        
         """
-        return complex(getattr(self, "__a_meas"), getattr(self, "__b_meas"))
+        _1, _2 = getattr(self, "__a_meas"), getattr(self, "__b_meas")
+        if ((_1 is not None) & (_2 is not None)):
+            res = complex(_1, _2)
+        else:
+            res = None
+        return res
     @f_meas.setter
     def f_meas(self, x):
         if x is None:

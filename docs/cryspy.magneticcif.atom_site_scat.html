@@ -41,7 +41,7 @@
           <a href="cryspy.magneticcif.atom_type_scat.html" title="AtomTypeScat"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.magneticcif.html" accesskey="U">Magnetic CIF Dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -55,7 +55,7 @@
 <span id="atomsitescat"></span><h1>AtomSiteScat<a class="headerlink" href="#module-cryspy.magneticcif.cl_atom_site_scat" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_atom_site_scat.</code><code class="sig-name descname">AtomSiteScat</code><span class="sig-paren">(</span><em class="sig-param">label=None</em>, <em class="sig-param">lande=None</em>, <em class="sig-param">kappa=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_atom_site_scat.</code><code class="sig-name descname">AtomSiteScat</code><span class="sig-paren">(</span><em class="sig-param">label=None</em>, <em class="sig-param">lande=2.0</em>, <em class="sig-param">kappa=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Description in cif:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_atom_site_scat_label</span>                         <span class="n">O2</span>
@@ -96,12 +96,19 @@
 <dl class="method">
 <dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_scat.html#AtomSiteScat.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.get_variables" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.is_variable">
 <em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.is_variable" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.magneticcif.cl_atom_site_scat.AtomSiteScat.kappa">
@@ -215,7 +222,7 @@ form factor = &lt;j0&gt; + (2/L - 1) * &lt;j2&gt;</p>
           <a href="cryspy.magneticcif.atom_type_scat.html" title="AtomTypeScat"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.magneticcif.html" >Magnetic CIF Dictionary</a> &#187;</li> 
       </ul>
     </div>

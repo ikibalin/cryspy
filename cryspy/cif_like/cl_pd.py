@@ -12,20 +12,23 @@ from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
 
+
 from cryspy.pd1dcif_like.cl_pd_background import PdBackground, PdBackgroundL
-from cryspy.pd1dcif_like.cl_pd_exclude import PdExclude, PdExcludeL
 from cryspy.pd1dcif_like.cl_pd_instr_reflex_asymmetry import PdInstrReflexAsymmetry
 from cryspy.pd1dcif_like.cl_pd_instr_resolution import PdInstrResolution
 from cryspy.pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
 from cryspy.pd1dcif_like.cl_pd_peak import PdPeak, PdPeakL
 from cryspy.pd1dcif_like.cl_pd_proc import PdProc, PdProcL
 
-from .cl_phase import Phase, PhaseL
-from .cl_diffrn_radiation import DiffrnRadiation
-from .cl_extinction import Extinction
-from .cl_setup import Setup
-from .cl_range import Range
-from .cl_chi2 import Chi2
+
+from cryspy.cif_like.cl_exclude import Exclude, ExcludeL
+import cryspy.cif_like.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
+from cryspy.cif_like.cl_phase import Phase, PhaseL
+from cryspy.cif_like.cl_diffrn_radiation import DiffrnRadiation
+from cryspy.cif_like.cl_extinction import Extinction
+from cryspy.cif_like.cl_setup import Setup
+from cryspy.cif_like.cl_range import Range
+from cryspy.cif_like.cl_chi2 import Chi2
 
 class Pd(DataConstr):
     """
@@ -54,8 +57,8 @@ Description in cif file::
  80.0  65.0
  
  loop_
- _pd_exclude_ttheta_min
- _pd_exclude_ttheta_max
+ _exclude_ttheta_min
+ _exclude_ttheta_max
  0.0 1.0
  
  _pd_instr_reflex_asymmetry_p1 0.0
@@ -119,7 +122,7 @@ Description in cif file::
      """
     MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PhaseL, DiffrnRadiation,
                          Setup, Range, Chi2)
-    OPTIONAL_CLASSES = (Extinction, PdExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdProcL)
+    OPTIONAL_CLASSES = (Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdProcL)
     INTERNAL_CLASSES = ()
     def __init__(self, background=None, resolution=None, meas=None, 
                  phase=None, diffrn_radiation=None,
@@ -391,7 +394,7 @@ Description in cif file::
     def exclude(self):
         """
         """
-        l_res = self[PdExcludeL]
+        l_res = self[ExcludeL]
         if len(l_res) >= 1:
             return l_res[0]
         else:
@@ -400,10 +403,10 @@ Description in cif file::
     def exclude(self, x):
         if x is None:
             pass
-        elif isinstance(x, PdExcludeL):
+        elif isinstance(x, ExcludeL):
             l_ind = []
             for _i, _obj in enumerate(self.optional_objs):
-                if isinstance(_obj, PdExcludeL):
+                if isinstance(_obj, ExcludeL):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.optional_objs.append(x)
@@ -502,41 +505,20 @@ Description in cif file::
     def _show_message(self, s_out: str):
         warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
     
-    @property
-    def is_variable(self) -> bool:
-        """
-Output: True if there is any refined parameter
-        """
-        res = any([_obj.is_variable for _obj in self.mandatory_objs] +
-                  [_obj.is_variable for _obj in self.optional_objs])
-        return res
-        
-    def get_variables(self) -> List:
-        """
-Output: the list of the refined parameters
-        """
-        l_variable = []
-        for _obj in self.mandatory_objs:
-            l_variable.extend(_obj.get_variables())
-        for _obj in self.optional_objs:
-            l_variable.extend(_obj.get_variables())
-        return l_variable
-
 
     def calc_profile(self, tth, l_crystal, l_peak_in=[], l_refln_in=[]):
         """
         calculate intensity for the given diffraction angle
         """
-        proc = PdProc() #it is output
-        proc.ttheta = tth
+        proc = PdProcL(item=[PdProc(ttheta=_tth) for _tth in tth]) #it is output
         
         background = self.background
         int_bkgd = background.interpolate_by_points(tth)
-        proc.bkg_calc = int_bkgd
+        
+        [setattr(_item, "intensity_bkg_calc", _int_bkg) for _item, _int_bkg in zip(proc.item, int_bkgd)]
 
-
-        wavelength = float(self.wavelength)
-        beam_polarization = self.beam_polarization
+        wavelength = float(self.setup.wavelength)
+        diffrn_radiation = self.diffrn_radiation
         
         tth_min = tth.min()
         tth_max = tth.max()+3. 
@@ -557,7 +539,7 @@ Output: the list of the refined parameters
         for phase_label, phase_scale, phase_igsize, peak_in, refln_in in zip(
                                  phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in):
             for i_crystal, crystal in enumerate(l_crystal):
-                if crystal.label == phase_label:
+                if crystal.data_name == phase_label:
                     ind_cry = i_crystal
                     break
             if ind_cry is None:
@@ -572,13 +554,14 @@ Output: the list of the refined parameters
             cell = crystal.cell
             space_group = crystal.space_group
             
-            peak = PdPeak()
             if peak_in is not None:
                 h, k, l, mult = peak_in.h, peak_in.k, peak_in.l, peak_in.mult 
             else:
                 h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
-            peak.h, peak.k, peak.l, peak.mult = h, k, l, mult
 
+            peak = PdPeakL(item=[PdPeak(index_h=_h, index_k=_k, index_l=_l, index_mult=_m) for _h, _k, _l, _m in zip(h, k, l, mult)])
+
+            
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
             if cond_1 & cond_2:
@@ -587,16 +570,19 @@ Output: the list of the refined parameters
                 np_iint_u, np_iint_d, refln = self.calc_iint(h, k, l, crystal)
 
             l_refln.append(refln)
-            peak.up, peak.down = np_iint_u, np_iint_d
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
             
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)
             tth_hkl = tth_hkl_rad*180./numpy.pi
-            peak.ttheta = tth_hkl
 
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(tth, tth_hkl, i_g)
-            peak.width_2theta = h_pv
+
+            for _item, _1, _2, _3, _4 in zip(peak.item, np_iint_u, np_iint_d, tth_hkl, h_pv):
+                setattr(_item, "intensity_up", _1) 
+                setattr(_item, "intensity_down", _2) 
+                setattr(_item, "ttheta", _3) 
+                setattr(_item, "widht_ttheta", _4)
             
             np_iint_u_2d = numpy.meshgrid(tth, np_iint_u*mult, indexing="ij")[1]
             np_iint_d_2d = numpy.meshgrid(tth, np_iint_d*mult, indexing="ij")[1]
@@ -607,11 +593,13 @@ Output: the list of the refined parameters
             res_u_1d += scale*res_u_2d.sum(axis=1) 
             res_d_1d += scale*res_d_2d.sum(axis=1) 
             l_peak.append(peak)
-        proc.ttheta_corrected = tth_zs
-        proc.up_net = res_u_1d
-        proc.down_net = res_d_1d
-        proc.up_total = res_u_1d+int_bkgd
-        proc.down_total = res_d_1d+int_bkgd
+
+        for _item, _1, _2, _3, _4, _5 in zip(proc.item, tth_zs, res_u_1d, res_d_1d, res_u_1d+int_bkgd, res_d_1d+int_bkgd):
+            setattr(_item, "ttheta_corrected", _1) 
+            setattr(_item, "intensity_up_net", _2) 
+            setattr(_item, "intensity_down_net", _3) 
+            setattr(_item, "intensity_up_total", _4)            
+            setattr(_item, "intensity_down_total", _5)
         return proc, l_peak, l_refln
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
@@ -637,22 +625,24 @@ Output: the list of the refined parameters
         """
         meas = self.meas
 
-        tth = meas.ttheta
-        int_u_exp = meas.up
-        sint_u_exp = meas.up_sigma
-        int_d_exp = meas.down
-        sint_d_exp = meas.down_sigma
+        tth = numpy.array(meas.ttheta, dtype=float)
+        int_u_exp = numpy.array(meas.intensity_up, dtype=float)
+        sint_u_exp = numpy.array(meas.intensity_up_sigma, dtype=float)
+        int_d_exp = numpy.array(meas.intensity_down, dtype=float)
+        sint_d_exp = numpy.array(meas.intensity_down_sigma, dtype=float)
 
-        if ((self.peaks is not None) & (self.reflns is not None)):
-            l_peak_in = self.peaks
-            l_refln_in = self.reflns
-        else:
-            l_peak_in, l_refln_in = [], [] 
+        #if ((self.peaks is not None) & (self.reflns is not None)):
+        #    l_peak_in = self.peaks
+        #    l_refln_in = self.reflns
+        #else:
+        l_peak_in, l_refln_in = [], [] 
 
+        range_min = numpy.array(self.range.ttheta_min, dtype=float)
+        range_max = numpy.array(self.range.ttheta_max, dtype=float)
 
         cond_in = numpy.ones(tth.shape, dtype=bool)
-        cond_in = numpy.logical_and(cond_in, tth >= self.range_min)
-        cond_in = numpy.logical_and(cond_in, tth <= self.range_max)
+        cond_in = numpy.logical_and(cond_in, tth >= range_min)
+        cond_in = numpy.logical_and(cond_in, tth <= range_max)
 
         tth_in = tth[cond_in]
         int_u_exp_in = int_u_exp[cond_in]
@@ -662,16 +652,17 @@ Output: the list of the refined parameters
         
         proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in, l_refln_in)
         
-        proc.up = int_u_exp_in
-        proc.up_sigma = sint_u_exp_in
-        proc.down = int_d_exp_in
-        proc.down_sigma = sint_d_exp_in
+        for _item, _1, _2, _3, _4 in zip(proc.item, int_u_exp_in, sint_u_exp_in, int_d_exp_in, sint_d_exp_in):
+            _item.intensity_up = _1
+            _item.intensity_up_sigma = _2
+            _item.intensity_down = _3
+            _item.intensity_down_sigma = _4
         self.proc = proc
         self.peaks = l_peak
         self.reflns = l_refln
 
-        int_u_mod = proc.up_total
-        int_d_mod = proc.down_total
+        int_u_mod = numpy.array([_item.intensity_up_total for _item in proc.item], dtype=float)
+        int_d_mod = numpy.array([_item.intensity_down_total for _item in proc.item], dtype=float)
 
         sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
 
@@ -686,10 +677,10 @@ Output: the list of the refined parameters
         cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
 
         #exclude region
-        exclude_2theta = self.exclude_2theta
-        if exclude_2theta is not None:
-            l_excl_tth_min = exclude_2theta.min
-            l_excl_tth_max = exclude_2theta.max
+        exclude = self.exclude
+        if exclude is not None:
+            l_excl_tth_min = exclude.ttheta_min
+            l_excl_tth_max = exclude.ttheta_max
             for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
                 cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min, tth_in > 1.*excl_tth_max)
                 cond_u = numpy.logical_and(cond_u, cond_1)
@@ -709,10 +700,10 @@ Output: the list of the refined parameters
         chi_sq_dif_val = (chi_sq_dif[cond_dif]).sum()
         n_dif = cond_dif.sum()
 
-        flag_u = self.chi2_up
-        flag_d = self.chi2_down
-        flag_sum = self.chi2_sum
-        flag_dif = self.chi2_diff
+        flag_u = self.chi2.up
+        flag_d = self.chi2.down
+        flag_sum = self.chi2.sum
+        flag_dif = self.chi2.diff
         
         chi_sq_val = (int(flag_u)*chi_sq_u_val + int(flag_d)*chi_sq_d_val + 
                   int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
@@ -727,20 +718,22 @@ Output: the list of the refined parameters
         """
         calculate the integral intensity for h, k, l reflections
         """
-        field = float(self.field)
-        beam_polarization = self.beam_polarization
-        p_u = float(beam_polarization.polarization)
-        p_d = (2.*float(beam_polarization.efficiency)-1)*p_u
+        field = float(self.setup.field)
+        diffrn_radiation = self.diffrn_radiation
+        p_u = float(diffrn_radiation.polarization)
+        p_d = (2.*float(diffrn_radiation.efficiency)-1)*p_u
 
-        refln = crystal.calc_sf(h, k, l)
+        refln = crystal.calc_refln(h, k, l)
+        refln_s = crystal.calc_refln_susceptibility(h, k, l)
 
-        f_nucl, sft_11, sft_12, sft_13 = refln.f_nucl, refln.sft_11, refln.sft_12, refln.sft_13
-        sft_21, sft_22, sft_23 = refln.sft_21, refln.sft_22, refln.sft_23
-        sft_31, sft_32, sft_33 = refln.sft_31, refln.sft_32, refln.sft_33
+        f_nucl = numpy.array(refln.f_calc, dtype=complex)
+        sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
+        sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
+        sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)
 
-        sftm_11, sftm_12, sftm_13 = refln.sftm_11, refln.sftm_12, refln.sftm_13
-        sftm_21, sftm_22, sftm_23 = refln.sftm_21, refln.sftm_22, refln.sftm_23
-        sftm_31, sftm_32, sftm_33 = refln.sftm_31, refln.sftm_32, refln.sftm_33
+        sftm_11, sftm_12, sftm_13 = numpy.array(refln_s.moment_11_calc, dtype=complex), numpy.array(refln_s.moment_12_calc, dtype=complex), numpy.array(refln_s.moment_13_calc, dtype=complex)
+        sftm_21, sftm_22, sftm_23 = numpy.array(refln_s.moment_21_calc, dtype=complex), numpy.array(refln_s.moment_22_calc, dtype=complex), numpy.array(refln_s.moment_23_calc, dtype=complex)
+        sftm_31, sftm_32, sftm_33 = numpy.array(refln_s.moment_31_calc, dtype=complex), numpy.array(refln_s.moment_32_calc, dtype=complex), numpy.array(refln_s.moment_33_calc, dtype=complex)
 
         _11, _12, _13 = sftm_11+field*sft_11, sftm_12+field*sft_12, sftm_13+field*sft_13
         _21, _22, _23 = sftm_21+field*sft_21, sftm_22+field*sft_22, sftm_23+field*sft_23
@@ -751,7 +744,7 @@ Output: the list of the refined parameters
         #k_loc = cell.calc_k_loc(h, k, l)
         t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 = cell.calc_m_t(h, k, l)
         
-        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(
+        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = CONSTANTS_AND_FUNCTIONS.calc_mRmCmRT(
                 t_11, t_21, t_31, t_12, t_22, t_32, t_13, t_23, t_33,
                 _11, _12, _13, _21, _22, _23, _31, _32, _33)
 
@@ -794,7 +787,7 @@ Output: the list of the refined parameters
         tth, tth_hkl in degrees
 
         """
-        zero_shift = float(self.offset)
+        zero_shift = float(self.setup.offset_ttheta)
         tth_zs = tth-zero_shift
 
         resolution = self.resolution
@@ -819,7 +812,10 @@ Output: the list of the refined parameters
         np_shape_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
 
         asymmetry = self.asymmetry
-        np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl)
+        if asymmetry is not None:
+            np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl)
+        else:
+            np_ass_2d = numpy.ones(shape=np_shape_2d.shape)
 
         #Lorentz factor
         tth_rad = tth_zs*numpy.pi/180.

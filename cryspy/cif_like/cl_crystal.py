@@ -317,26 +317,6 @@ Description in cif file::
     def _show_message(self, s_out: str):
         warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
 
-    
-    @property
-    def is_variable(self) -> bool:
-        """
-Output: True if there is any refined parameter
-        """
-        res = any([_obj.is_variable for _obj in self.mandatory_objs] +
-                  [_obj.is_variable for _obj in self.optional_objs])
-        return res
-        
-    def get_variables(self) -> List:
-        """
-Output: the list of the refined parameters
-        """
-        l_variable = []
-        for _obj in self.mandatory_objs:
-            l_variable.extend(_obj.get_variables())
-        for _obj in self.optional_objs:
-            l_variable.extend(_obj.get_variables())
-        return l_variable
 
     def apply_constraint(self)->bool:
         space_group = self.space_group
@@ -462,6 +442,7 @@ FIXME: introduce Debye-Waller factor
         atom_site = self.atom_site
         atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)
 
+
         np_x_y_z_occ_mult = numpy.array([(atom_site[_item.label].fract_x, atom_site[_item.label].fract_y,
                                atom_site[_item.label].fract_z, atom_site[_item.label].occupancy, 
                                atom_site[_item.label].multiplicity)
@@ -499,7 +480,8 @@ FIXME: introduce Debye-Waller factor
             dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
 
         hh = phase_3d*dwf_3d
-        phase_2d = hh.sum(axis=2)#sum over symmetry
+        
+        #phase_2d = hh.sum(axis=2)#sum over symmetry
 
         #b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
         sthovl = cell.calc_sthovl(h, k, l)
@@ -510,7 +492,7 @@ FIXME: introduce Debye-Waller factor
         CONSTANTS_AND_FUNCTIONS.calc_form_factor_tensor_susceptibility(
             chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, 
             r_s_g_s, form_factor, cell, h, k, l)
-        
+
         ffm_11, ffm_12, ffm_13, ffm_21, ffm_22, ffm_23, ffm_31, ffm_32, ffm_33 = \
         CONSTANTS_AND_FUNCTIONS.calc_form_factor_tensor_susceptibility(
             moment_11, moment_22, moment_33, moment_12, moment_13, moment_23, 
@@ -521,10 +503,11 @@ FIXME: introduce Debye-Waller factor
 
         #dimensions: hkl, number of atoms, reduced symmetry operators, 18 elements of susceptribility tensor
         hh = numpy.stack([ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33, 
-                           ffm_11, ffm_12, ffm_13, ffm_21, ffm_22, ffm_23, ffm_31, ffm_32, ffm_33], axis=-1)
-        b_scat_3d = hh
+                          ffm_11, ffm_12, ffm_13, ffm_21, ffm_22, ffm_23, ffm_31, ffm_32, ffm_33], axis=-1)
 
-        hh = phase_2d[:, :, numpy.newaxis, numpy.newaxis] * b_scat_3d * occ_mult_2d[:, :, numpy.newaxis, numpy.newaxis]
+        b_scat_4d = hh
+
+        hh = (phase_3d * dwf_3d * occ_mult_2d[:, :, numpy.newaxis])[:, :, :, numpy.newaxis] * b_scat_4d
         f_hkl_as_2d = (hh.sum(axis=2)*1./len(r_11)).sum(axis=1)#nuclear structure factor in assymetric unit cell
 
         f_2d = space_group.calc_f_hkl_by_f_hkl_as(h, k, l, f_hkl_as_2d)
