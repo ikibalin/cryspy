@@ -20,16 +20,11 @@ from cryspy.corecif.cl_cell import Cell
 
 class DiffrnOrientMatrix(ItemConstr):
     """
-DiffrnOrientMatrix:
-=======================
 Data items in the DIFFRN_ORIENT_MATRIX category record details
 about the orientation matrix used in the measurement of the
 diffraction intensities.
 
-
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
  _diffrn_orient_matrix_UB_11           -0.04170
  _diffrn_orient_matrix_UB_12           -0.01429

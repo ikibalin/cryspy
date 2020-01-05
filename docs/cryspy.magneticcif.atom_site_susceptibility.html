@@ -63,6 +63,7 @@ it is introduced an additional weak ferromagnetic moment tensor to refine data.<
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_atom_site_susceptibility_label</span>     <span class="n">Fe3A</span>
 <span class="n">_atom_site_susceptibility_chi_type</span>  <span class="n">Cani</span>
 <span class="n">_atom_site_susceptibility_chi_11</span>   <span class="o">-</span><span class="mf">3.468</span><span class="p">(</span><span class="mi">74</span><span class="p">)</span>
@@ -195,7 +196,10 @@ Type: float</p>
 <dt id="cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.chi_type">
 <em class="property">property </em><code class="sig-name descname">chi_type</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.chi_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Chi type.</p>
-<p>Ciso, Cani</p>
+<p>The data value must be one of the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ciso</span><span class="p">,</span> <span class="n">Cani</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -299,7 +303,10 @@ Type: float</p>
 <dt id="cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.moment_type">
 <em class="property">property </em><code class="sig-name descname">moment_type</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.moment_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Chi type.</p>
-<p>Miso, Mani</p>
+<p>The data value must be one of the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Miso</span><span class="p">,</span> <span class="n">Mani</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -310,6 +317,7 @@ Type: float</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.</p>
+<p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
 <span class="n">_atom_site_susceptibility_label</span>
 <span class="n">_atom_site_susceptibility_chi_type</span>
@@ -400,7 +408,7 @@ magnetic properties of the atoms that occupy the atom sites.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

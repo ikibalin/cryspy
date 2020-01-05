@@ -32,7 +32,7 @@ Description in cif file::
  _pd_proc_intensity_down         301.88
  _pd_proc_intensity_down_sigma   129.30
 
-`Reference. <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_proc.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_proc.html>`_
     """
     MANDATORY_ATTRIBUTE = ("ttheta", )
     OPTIONAL_ATTRIBUTE = ("ttheta_corrected", "d_spacing",

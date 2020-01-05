@@ -2,6 +2,8 @@ __author__ = 'ikibalin'
 __version__ = "2020_01_03"
 import os
 import numpy
+import scipy
+import scipy.interpolate
 
 import warnings
 from typing import List, Tuple

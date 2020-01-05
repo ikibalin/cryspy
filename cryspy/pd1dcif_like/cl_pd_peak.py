@@ -1,5 +1,5 @@
 __author__ = 'ikibalin'
-__version__ = "2019_12_11"
+__version__ = "2020_01_04"
 import os
 import numpy
 
@@ -34,7 +34,7 @@ Description in cif file::
  _pd_peak_intensity_down    90.0
  _pd_peak_width_ttheta       2.3
 
-`Reference. <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html>`_
     """
     MANDATORY_ATTRIBUTE = ("index_h", "index_k", "index_l")
     OPTIONAL_ATTRIBUTE = ("index_mult", "ttheta",
@@ -57,6 +57,9 @@ Description in cif file::
         self.intensity_up = intensity_up
         self.intensity_down = intensity_down
         self.width_ttheta = width_ttheta
+
+        if self.is_defined:
+            self.form_object
 
     @property
     def index_h(self):
@@ -150,18 +153,6 @@ Description in cif file::
         ls_out = []
         ls_out.append(f"PdPeak:\n{str(self):}")
         return "\n".join(ls_out)
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
-
-    @property
-    def is_variable(self) -> bool:
-        return False
-    
-    def get_variables(self) -> List:
-        return []
-
-
 
 
 

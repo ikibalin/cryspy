@@ -160,8 +160,8 @@ Output: the list of the refined parameters
     
     def _calc_tancos(self, th_hkl):
         """
-        tth_hkl in radianas
-        calculate tangenth (theta)
+tth_hkl in radianas
+calculate tangenth (theta)
         """
         self.__t_th = numpy.tan(th_hkl)
         self.__t_th_sq = self.__t_th**2
@@ -221,8 +221,8 @@ Output: the list of the refined parameters
     
     def calc_resolution(self, tth_hkl, i_g = 0.):
         """
-        Calculate parameters for tth
-        tth_hkl in degrees
+Calculate parameters for tth
+tth_hkl in degrees
         """
         self._calc_tancos(0.5*tth_hkl*numpy.pi/180.)
         self._calc_hg(i_g = i_g)

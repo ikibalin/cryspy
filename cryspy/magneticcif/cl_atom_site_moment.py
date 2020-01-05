@@ -372,7 +372,7 @@ Unlike the positional coordinates of an atom, its magnetic moment
 has no translational component to be represented.
 
 Examples: 
-------------
+
 ‘mx,my,mz’ (no symmetry restrictions), 
 ‘mx,-mx,0’ (y component equal and opposite to x component with z component zero), 
 ‘mx,0,mz’  (y component zero)

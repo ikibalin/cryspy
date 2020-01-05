@@ -12,16 +12,12 @@ from cryspy.common.cl_loop_constr import LoopConstr
 
 class ReflnSusceptibility(ItemConstr):
     """
-ReflnSusceptibility
-===================
 Data items in the REFLN_SUSCEPTIBILITY category record details about the
 susceptibility structure factor tensor and magnetization structure factor 
 tensor calculated for different reflections.
 
 
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
   _refln_susceptibility.index_h         2
   _refln_susceptibility.index_k         0
@@ -392,16 +388,12 @@ Type: numb
 
 class ReflnSusceptibilityL(LoopConstr):
     """
-ReflnSusceptibilityL
-=====================
 Data items in the REFLN_SUSCEPTIBILITY category record details about the
 susceptibility structure factor tensor and magnetization structure factor 
 tensor calculated for different reflections.
 
 
-Description in cif file:
--------------------------
-::
+Description in cif file::
 
  loop_
  _refln_susceptibility.index_h    
@@ -430,8 +422,8 @@ Description in cif file:
  2 0 0 4.52 0.123 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j  0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j
  0 2 0 4.52 0.123 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j  0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j
 
-Reference:
-`iucr.org <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_
+
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html>`_
     """
     CATEGORY_KEY = ("index_h", "index_k", "index_l")
     ITEM_CLASS = ReflnSusceptibility

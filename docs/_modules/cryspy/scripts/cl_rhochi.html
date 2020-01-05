@@ -64,6 +64,7 @@
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_crystal</span> <span class="k">import</span> <span class="n">Crystal</span>
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_diffrn</span> <span class="k">import</span> <span class="n">Diffrn</span>
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_pd</span> <span class="k">import</span> <span class="n">Pd</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_pd2d</span> <span class="k">import</span> <span class="n">Pd2d</span>
 
 
 
@@ -167,7 +168,7 @@
 <span class="sd"> 0 2 6 1.67974 0.03711 </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Crystal</span><span class="p">,</span> <span class="p">)</span>
-    <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Diffrn</span><span class="p">,</span> <span class="n">Pd</span><span class="p">)</span>
+    <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Diffrn</span><span class="p">,</span> <span class="n">Pd</span><span class="p">,</span> <span class="n">Pd2d</span><span class="p">)</span>
     <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">()</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crystals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">global_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
@@ -204,7 +205,7 @@
     <span class="k">def</span> <span class="nf">experiments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Diffrn</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="p">[</span><span class="n">Pd</span><span class="p">]</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Diffrn</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="p">[</span><span class="n">Pd</span><span class="p">]</span><span class="o">+</span><span class="bp">self</span><span class="p">[</span><span class="n">Pd2d</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">l_res</span>
         <span class="k">else</span><span class="p">:</span>
@@ -216,7 +217,8 @@
         <span class="k">if</span> <span class="n">l_x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">l_x_in</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l_x</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Diffrn</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd</span><span class="p">))]</span>
+            <span class="n">l_x_in</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l_x</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Diffrn</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd</span><span class="p">)</span>
+                                       <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd2d</span><span class="p">))]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">l_x_in</span><span class="p">)</span>
 
 
@@ -227,7 +229,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">delete_experiments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">_h</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Diffrn</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd</span><span class="p">))]</span>
+        <span class="n">_h</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span>
+                          <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Diffrn</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd</span><span class="p">)</span> <span class="o">|</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd2d</span><span class="p">))]</span>
         <span class="k">return</span> <span class="kc">True</span>
 
 
@@ -236,28 +239,6 @@
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***&quot;</span><span class="p">,</span> <span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Output: True if there is any refined parameter</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="n">_obj</span><span class="o">.</span><span class="n">is_variable</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">]</span> <span class="o">+</span>
-                  <span class="p">[</span><span class="n">_obj</span><span class="o">.</span><span class="n">is_variable</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">res</span>
-        
-<div class="viewcode-block" id="RhoChi.get_variables"><a class="viewcode-back" href="../../../cryspy.scripts.rhochi.html#cryspy.scripts.cl_rhochi.RhoChi.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Output: the list of the refined parameters</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">:</span>
-            <span class="n">l_variable</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj</span><span class="o">.</span><span class="n">get_variables</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">:</span>
-            <span class="n">l_variable</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj</span><span class="o">.</span><span class="n">get_variables</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">l_variable</span></div>
 
 
 <div class="viewcode-block" id="RhoChi.apply_constraint"><a class="viewcode-back" href="../../../cryspy.scripts.rhochi.html#cryspy.scripts.cl_rhochi.RhoChi.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -434,7 +415,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

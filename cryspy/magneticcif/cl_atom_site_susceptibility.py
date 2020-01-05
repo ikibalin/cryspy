@@ -25,9 +25,7 @@ class AtomSiteSusceptibility(ItemConstr):
 Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.
 
-Description in cif file:
-------------------------------
-::
+Description in cif file::
  
  _atom_site_susceptibility_label     Fe3A 
  _atom_site_susceptibility_chi_type  Cani 
@@ -104,9 +102,9 @@ Type: char
         """
 Chi type. 
 
-The data value must be one of the following:
-------------------------------------------------
-Ciso, Cani
+The data value must be one of the following::
+ 
+ Ciso, Cani
         """
         return getattr(self, "__chi_type")
     @chi_type.setter
@@ -245,9 +243,9 @@ Type: float
         """
 Chi type. 
 
-The data value must be one of the following:
-------------------------------------------------
-Miso, Mani
+The data value must be one of the following::
+ 
+ Miso, Mani
         """
         return getattr(self, "__moment_type")
     @moment_type.setter
@@ -888,15 +886,10 @@ Type: float
 
 class AtomSiteSusceptibilityL(LoopConstr):
     """
-AtomSiteSusceptibilityL
-===========================
-
 Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.
 
-Description in cif file:
--------------------------
-:: 
+Description in cif file::
 
  loop_  
  _atom_site_susceptibility_label

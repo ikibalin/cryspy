@@ -198,3 +198,6 @@ Output: the list of the refined parameters
         for _item in self.__item:
             l_res.extend(_item.get_variables())
         return l_res
+
+    def _show_message(self, s_out: str):
+        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)

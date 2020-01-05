@@ -19,6 +19,7 @@ import time
 from cryspy.cif_like.cl_crystal import Crystal
 from cryspy.cif_like.cl_diffrn import Diffrn
 from cryspy.cif_like.cl_pd import Pd
+from cryspy.cif_like.cl_pd2d import Pd2d
 
 
 
@@ -122,7 +123,7 @@ Description in cif file::
  0 2 6 1.67974 0.03711 
     """
     MANDATORY_CLASSES = (Crystal, )
-    OPTIONAL_CLASSES = (Diffrn, Pd)
+    OPTIONAL_CLASSES = (Diffrn, Pd, Pd2d)
     INTERNAL_CLASSES = ()
     def __init__(self, crystals=None, experiments=None,
                  global_name=""):
@@ -159,7 +160,7 @@ Description in cif file::
     def experiments(self):
         """
         """
-        l_res = self[Diffrn]+self[Pd]
+        l_res = self[Diffrn]+self[Pd]+self[Pd2d]
         if len(l_res) >= 1:
             return l_res
         else:
@@ -171,7 +172,8 @@ Description in cif file::
         if l_x is None:
             pass
         else:
-            l_x_in = [x for x in l_x if (isinstance(x, Diffrn) | isinstance(x, Pd))]
+            l_x_in = [x for x in l_x if (isinstance(x, Diffrn) | isinstance(x, Pd)
+                                       | isinstance(x, Pd2d))]
         self.optional_objs.extend(l_x_in)
 
 
@@ -182,7 +184,8 @@ Description in cif file::
 
     @property
     def delete_experiments(self):
-        _h = [self.optional_objs.remove(obj) for obj in reversed(self.mandatory_objs) if (isinstance(x, Diffrn) | isinstance(x, Pd))]
+        _h = [self.optional_objs.remove(obj) for obj in reversed(self.mandatory_objs) if (
+                          isinstance(x, Diffrn) | isinstance(x, Pd) | isinstance(x, Pd2d))]
         return True
 
 
@@ -191,28 +194,6 @@ Description in cif file::
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
-
-    @property
-    def is_variable(self) -> bool:
-        """
-Output: True if there is any refined parameter
-        """
-        res = any([_obj.is_variable for _obj in self.mandatory_objs] +
-                  [_obj.is_variable for _obj in self.optional_objs])
-        return res
-        
-    def get_variables(self) -> List:
-        """
-Output: the list of the refined parameters
-        """
-        l_variable = []
-        for _obj in self.mandatory_objs:
-            l_variable.extend(_obj.get_variables())
-        for _obj in self.optional_objs:
-            l_variable.extend(_obj.get_variables())
-        return l_variable
 
 
     def apply_constraint(self):

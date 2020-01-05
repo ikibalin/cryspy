@@ -1,6 +1,7 @@
 from pycifstar import Data
 from pycifstar.item import print_string
 from typing import List, Tuple
+import warnings
 
 def val_to_str(val):
     if isinstance(val, str):
@@ -222,3 +223,8 @@ Output: the list of the refined parameters
             if _item.is_defined:
                 _item.form_object
         return _item        
+
+    def _show_message(self, s_out: str):
+        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
+
+

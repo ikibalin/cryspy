@@ -208,6 +208,9 @@ Output: the list of the refined parameters
         return l_variable
        
 
+    def _show_message(self, s_out: str):
+        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
+
 
     #def __getattr__(self, attr):
     #    if attr in self.__mandatory_attribute:

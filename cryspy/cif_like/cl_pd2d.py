@@ -20,13 +20,14 @@ from cryspy.cif_like.cl_extinction import Extinction
 from cryspy.cif_like.cl_setup import Setup
 from cryspy.cif_like.cl_range import Range
 from cryspy.cif_like.cl_chi2 import Chi2
+from cryspy.cif_like.cl_texture import Texture
 
 
 from cryspy.pd2dcif_like.cl_pd2d_background import Pd2dBackground
 from cryspy.pd2dcif_like.cl_pd2d_instr_reflex_asymmetry import Pd2dInstrReflexAsymmetry
 from cryspy.pd2dcif_like.cl_pd2d_instr_resolution import Pd2dInstrResolution
 from cryspy.pd2dcif_like.cl_pd2d_meas import Pd2dMeas 
-from cryspy.pd2dcif_like.cl_pd2d_peak import Pd2dPeak, PdPeakL
+from cryspy.pd2dcif_like.cl_pd2d_peak import Pd2dPeak, Pd2dPeakL
 from cryspy.pd2dcif_like.cl_pd2d_proc import Pd2dProc
 
 
@@ -99,14 +100,14 @@ Description in cif file::
  ;
  ;
     """
-    MANDATORY_CLASSES = (Pd2dBackgroundL, Pd2dInstrResolution, Pd2dMeasL, PhaseL, DiffrnRadiation,
+    MANDATORY_CLASSES = (Pd2dBackground, Pd2dInstrResolution, Pd2dMeas, PhaseL, DiffrnRadiation,
                          Setup, Range, Chi2)
-    OPTIONAL_CLASSES = (Extinction, ExcludeL, Pd2dInstrReflexAsymmetry, Pd2dPeakL, Pd2dProcL)
+    OPTIONAL_CLASSES = (Extinction, ExcludeL, Pd2dInstrReflexAsymmetry, Pd2dPeakL, Pd2dProc, Texture)
     INTERNAL_CLASSES = ()
     def __init__(self, background=None, resolution=None, meas=None, 
                  phase=None, diffrn_radiation=None,
                  setup=None,  range=None, chi2=None,
-                 extinction=None,
+                 extinction=None, texture=None, 
                  exclude=None, asymmetry=None, peak=None, proc=None,
                  data_name=""):
         super(Pd2d, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
@@ -127,6 +128,7 @@ Description in cif file::
         self.asymmetry = asymmetry
         self.peak = peak
         self.proc = proc
+        self.texture = texture
 
         if self.is_defined:
             self.form_object
@@ -136,7 +138,7 @@ Description in cif file::
     def background(self):
         """
         """
-        l_res = self[Pd2dBackgroundL]
+        l_res = self[Pd2dBackground]
         if len(l_res) >= 1:
             return l_res[0]
         else:
@@ -145,10 +147,10 @@ Description in cif file::
     def background(self, x):
         if x is None:
             pass
-        elif isinstance(x, Pd2dBackgroundL):
+        elif isinstance(x, Pd2dBackground):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, Pd2dBackgroundL):
+                if isinstance(_obj, Pd2dBackground):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -188,7 +190,7 @@ Description in cif file::
     def meas(self):
         """
         """
-        l_res = self[PdMeasL]
+        l_res = self[Pd2dMeas]
         if len(l_res) >= 1:
             return l_res[0]
         else:
@@ -197,10 +199,10 @@ Description in cif file::
     def meas(self, x):
         if x is None:
             pass
-        elif isinstance(x, Pd2dMeasL):
+        elif isinstance(x, Pd2dMeas):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, Pd2dMeasL):
+                if isinstance(_obj, Pd2dMeas):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -448,7 +450,7 @@ Description in cif file::
     def proc(self):
         """
         """
-        l_res = self[Pd2dProcL]
+        l_res = self[Pd2dProc]
         if len(l_res) >= 1:
             return l_res[0]
         else:
@@ -457,10 +459,37 @@ Description in cif file::
     def proc(self, x):
         if x is None:
             pass
-        elif isinstance(x, Pd2dProcL):
+        elif isinstance(x, Pd2dProc):
             l_ind = []
             for _i, _obj in enumerate(self.optional_objs):
-                if isinstance(_obj, Pd2dProcL):
+                if isinstance(_obj, Pd2dProc):
+                    l_ind.append(_i)
+            if len(l_ind) == 0:
+                self.optional_objs.append(x)
+            else:
+                self.optional_objs[l_ind[0]] = x
+            if len(l_ind) > 1:
+                for _ind in l_ind.reverse():
+                    self.optional_objs.pop(_ind)
+
+
+    @property
+    def texture(self):
+        """
+        """
+        l_res = self[Texture]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
+    @texture.setter
+    def texture(self, x):
+        if x is None:
+            pass
+        elif isinstance(x, Texture):
+            l_ind = []
+            for _i, _obj in enumerate(self.optional_objs):
+                if isinstance(_obj, Texture):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.optional_objs.append(x)
@@ -471,14 +500,13 @@ Description in cif file::
                     self.optional_objs.pop(_ind)
 
     def __repr__(self):
-        ls_out = ["Pd:"]
+        ls_out = ["Pd2d:"]
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
-    
+    @property
+    def is_texture(self) -> bool:
+        return (self.texture is not None)
 
     @property
     def is_variable_offset(self):
@@ -494,22 +522,23 @@ Description in cif file::
         calculate intensity for the given diffraction angle
         """
         proc = Pd2dProc() #it is output
-        proc.ttheta = tth
-        proc.phi = phi
+        setattr(proc, "__ttheta", tth)
+        setattr(proc, "__phi", phi)
         
         background = self.background
         int_bkgd = background.interpolate_by_points(tth, phi)
-        proc.bkg_calc = int_bkgd
+        setattr(proc, "__intensity_bkg_calc", int_bkgd)
+
         tth_rad = tth*numpy.pi/180.
         phi_rad = phi*numpy.pi/180.
         cos_theta_1d = numpy.cos(0.5*tth_rad)
         sin_phi_1d = numpy.sin(phi_rad)
 
         wavelength = float(self.wavelength)
-        beam_polarization = self.beam_polarization
+        diffrn_radiation = self.diffrn_radiation
 
-        p_u = float(beam_polarization.polarization)
-        p_d = (2.*float(beam_polarization.efficiency)-1.)*p_u
+        p_u = float(diffrn_radiation.polarization)
+        p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
         
 
         tth_min = tth.min()
@@ -659,25 +688,27 @@ Description in cif file::
 
         tth = meas.ttheta
         phi = meas.phi
-        int_u_exp = meas.up
-        sint_u_exp = meas.up_sigma
-        int_d_exp = meas.down
-        sint_d_exp = meas.down_sigma
+        int_u_exp = meas.intensity_up
+        sint_u_exp = meas.intensity_up_sigma
+        int_d_exp = meas.intensity_down
+        sint_d_exp = meas.intensity_down_sigma
 
-        if ((self.peaks is not None) & (self.reflns is not None)):
-            l_peak_in = self.peaks
-            l_refln_in = self.reflns
-            l_dd_in = self.__dd
-        else:
-            l_peak_in, l_refln_in, l_dd_in = [], [], [] 
+        l_peak_in, l_refln_in, l_dd_in = [], [], [] 
+        #if ((self.peaks is not None) & (self.reflns is not None)):
+        #    l_peak_in = self.peaks
+        #    l_refln_in = self.reflns
+        #    l_dd_in = self.__dd
+        #else:
+        #    l_peak_in, l_refln_in, l_dd_in = [], [], [] 
 
+        exclude = self.exclude
         cond_tth_in = numpy.ones(tth.size, dtype=bool)
-        cond_tth_in = numpy.logical_and(cond_tth_in, tth >= self.ttheta_min)
-        cond_tth_in = numpy.logical_and(cond_tth_in, tth <= self.ttheta_max)
+        cond_tth_in = numpy.logical_and(cond_tth_in, tth >= exclude.ttheta_min)
+        cond_tth_in = numpy.logical_and(cond_tth_in, tth <= exclude.ttheta_max)
 
         cond_phi_in = numpy.ones(phi.size, dtype=bool)
-        cond_phi_in = numpy.logical_and(cond_phi_in, phi >= self.phi_min)
-        cond_phi_in = numpy.logical_and(cond_phi_in, phi <= self.phi_max)
+        cond_phi_in = numpy.logical_and(cond_phi_in, phi >= exclude.phi_min)
+        cond_phi_in = numpy.logical_and(cond_phi_in, phi <= exclude.phi_max)
 
         #cond_1_in, cond_2_in = numpy.meshgrid(cond_tth_in, cond_phi_in, indexing="ij")
         #cond_in = numpy.logical_and(cond_1_in, cond_2_in)
@@ -687,7 +718,6 @@ Description in cif file::
         sint_u_exp_in = sint_u_exp[cond_tth_in, :][:, cond_phi_in]
         int_d_exp_in = int_d_exp[cond_tth_in, :][:, cond_phi_in]
         sint_d_exp_in = sint_d_exp[cond_tth_in, :][:, cond_phi_in]
-
 
 
         proc, l_peak, l_refln, l_dd_out = self.calc_profile(tth_in, phi_in, l_crystal, l_peak_in, l_refln_in, l_dd_in)

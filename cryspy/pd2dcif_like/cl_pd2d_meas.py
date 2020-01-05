@@ -21,19 +21,31 @@ Description in cif file::
 
  _pd2d_meas_ttheta_phi_intensity_up
  ;
+      2    4.5     40.0     80.0
+ -3.000 -350.0   -350.0   -400.0
+ 41.000 -351.0   -350.0   -400.0
  ;
 
  _pd2d_meas_ttheta_phi_intensity_up_sigma
  ;
+      2    4.5     40.0     80.0
+ -3.000 -352.0   -350.0   -400.0
+ 41.000 -353.0   -350.0   -400.0
  ;
 
  _pd2d_meas_ttheta_phi_intensity_down
  ;
+      2    4.5     40.0     80.0
+ -3.000 -354.0   -350.0   -400.0
+ 41.000 -355.0   -350.0   -400.0
  ;
 
  _pd2d_meas_ttheta_phi_intensity_down_sigma
  ;
- ;
+      2    4.5     40.0     80.0
+ -3.000 -356.0   -350.0   -400.0
+ 41.000 -357.0   -350.0   -400.0
+ ; 
     """
     MANDATORY_ATTRIBUTE = ("ttheta_phi_intensity_up", "ttheta_phi_intensity_up_sigma", 
                            "ttheta_phi_intensity_down", "ttheta_phi_intensity_down_sigma")
@@ -137,12 +149,14 @@ Description in cif file::
         ls_out.append(f"Pd2dMeas:\n{str(self):}")
         return "\n".join(ls_out)
             
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
-
     @property
     def form_object(self) -> bool:
         flag = True
+        if any([self.ttheta_phi_intensity_up is None, 
+                self.ttheta_phi_intensity_up_sigma is None,
+                self.ttheta_phi_intensity_down is None, 
+                self.ttheta_phi_intensity_down_sigma is None]):
+            return False
         l_1 = (self.ttheta_phi_intensity_up).strip().split("\n")
         l_2 = (self.ttheta_phi_intensity_up_sigma).strip().split("\n")
         l_3 = (self.ttheta_phi_intensity_down).strip().split("\n")
@@ -183,38 +197,38 @@ Description in cif file::
             ll_intensity = self.intensity_up
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
-                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             setattr(self, "__ttheta_phi_intensity_up", "\n".join(ls_out))
 
     @property
     def form_ttheta_phi_intensity_up_sigma(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_up is not None)):
+        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_up_sigma is not None)):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_up_sigma
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
-                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             setattr(self, "__ttheta_phi_intensity_up_sigma", "\n".join(ls_out))
 
     @property
     def form_ttheta_phi_intensity_down(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_up is not None)):
+        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_down is not None)):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_down
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
-                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             setattr(self, "__ttheta_phi_intensity_down", "\n".join(ls_out))
 
     @property
     def form_ttheta_phi_intensity_down_sigma(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_up is not None)):
+        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_down_sigma is not None)):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_down_sigma
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
-                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_.print_with_sigma) for _ in l_intensity]))
+                ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             setattr(self, "__ttheta_phi_intensity_down_sigma", "\n".join(ls_out))

@@ -16,7 +16,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Setup" href="cryspy.cif_like.setup.html" />
-    <link rel="prev" title="DiffrnRefln" href="cryspy.cif_like.diffrn_refln.html" />
+    <link rel="prev" title="Exclude" href="cryspy.cif_like.exclude.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <!--[if lte IE 6]>
@@ -38,7 +38,7 @@
           <a href="cryspy.cif_like.setup.html" title="Setup"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="cryspy.cif_like.diffrn_refln.html" title="DiffrnRefln"
+          <a href="cryspy.cif_like.exclude.html" title="Exclude"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
@@ -55,7 +55,7 @@
 <span id="range"></span><h1>Range<a class="headerlink" href="#module-cryspy.cif_like.cl_range" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="cryspy.cif_like.cl_range.Range">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_range.</code><code class="sig-name descname">Range</code><span class="sig-paren">(</span><em class="sig-param">ttheta_min=None</em>, <em class="sig-param">ttheta_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_range.html#Range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_range.Range" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_range.</code><code class="sig-name descname">Range</code><span class="sig-paren">(</span><em class="sig-param">ttheta_min=None</em>, <em class="sig-param">ttheta_max=None</em>, <em class="sig-param">phi_min=None</em>, <em class="sig-param">phi_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_range.html#Range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_range.Range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Describe the range.</p>
 <p>Description in cif file:</p>
@@ -75,7 +75,7 @@
 
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_range.Range.OPTIONAL_ATTRIBUTE">
-<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('phi_min', 'phi_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -84,21 +84,14 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="cryspy.cif_like.cl_range.Range.get_variables">
-<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/cif_like/cl_range.html#Range.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.get_variables" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output: the list of the refined parameters</p>
-</dd></dl>
+<dt id="cryspy.cif_like.cl_range.Range.phi_max">
+<em class="property">property </em><code class="sig-name descname">phi_max</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.phi_max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
-<dt id="cryspy.cif_like.cl_range.Range.is_variable">
-<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.is_variable" title="Permalink to this definition">¶</a></dt>
-<dd><p>True if there is any refined parameter</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Output</p>
-</dd>
-</dl>
-</dd></dl>
+<dt id="cryspy.cif_like.cl_range.Range.phi_min">
+<em class="property">property </em><code class="sig-name descname">phi_min</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.phi_min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="cryspy.cif_like.cl_range.Range.ttheta_max">
@@ -121,8 +114,8 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="cryspy.cif_like.diffrn_refln.html"
-                        title="previous chapter">DiffrnRefln</a></p>
+  <p class="topless"><a href="cryspy.cif_like.exclude.html"
+                        title="previous chapter">Exclude</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="cryspy.cif_like.setup.html"
                         title="next chapter">Setup</a></p>
@@ -160,7 +153,7 @@
           <a href="cryspy.cif_like.setup.html" title="Setup"
              >next</a> |</li>
         <li class="right" >
-          <a href="cryspy.cif_like.diffrn_refln.html" title="DiffrnRefln"
+          <a href="cryspy.cif_like.exclude.html" title="Exclude"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
@@ -169,7 +162,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

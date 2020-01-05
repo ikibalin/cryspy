@@ -72,7 +72,7 @@ reported.
 
 The permitted range is 0.0 -> infinity
 
-`Reference. https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html>`_
         """
         return getattr(self, "__length_a")
     @length_a.setter
@@ -93,9 +93,7 @@ Unit-cell lengths in angstroms corresponding to the structure
 reported. 
 The permitted range is 0.0 -> infinity
 
-Reference: 
------------
-`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html>`_
         """
         return getattr(self, "__length_b")
     @length_b.setter
@@ -114,11 +112,10 @@ Reference:
         """
 Unit-cell lengths in angstroms corresponding to the structure
 reported. 
+
 The permitted range is 0.0 -> infinity
 
-Reference: 
------------
-`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_length_.html>`_
         """
         return getattr(self, "__length_c")
     @length_c.setter
@@ -137,11 +134,10 @@ Reference:
         """
 Unit-cell angles of the reported structure in degrees.
 The permitted range is 0.0 -> 180.0 
+
 Enumeration default: 90.0
 
-Reference:
-------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html>`_
         """
         return getattr(self, "__angle_alpha")
     @angle_alpha.setter
@@ -162,9 +158,7 @@ Unit-cell angles of the reported structure in degrees.
 The permitted range is 0.0 -> 180.0 
 Enumeration default: 90.0
 
-Reference:
-------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html>`_
         """
         return getattr(self, "__angle_beta")
     @angle_beta.setter
@@ -185,9 +179,7 @@ Unit-cell angles of the reported structure in degrees.
 The permitted range is 0.0 -> 180.0 
 Enumeration default: 90.0
 
-Reference:
-------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_angle_.html>`_
         """
         return getattr(self, "__angle_gamma")
     @angle_gamma.setter
@@ -208,9 +200,7 @@ The number of the formula units in the unit cell as specified
 by _chemical_formula_structural, _chemical_formula_moiety or
 _chemical_formula_sum.
 
-Reference:
-------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_formula_units_Z.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_formula_units_Z.html>`_
         """
         return getattr(self, "__formula_units_z")
     @formula_units_z.setter
@@ -227,13 +217,16 @@ Reference:
     def volume(self):
         """
 Cell volume V in angstroms cubed.
-V = a b c [1 - cos^2^(alpha) - cos^2^(beta) - cos^2^(gamma)
-       + 2 cos(alpha) cos(beta) cos(gamma) ] ^1/2^
+
+.. math::
+
+    V = a \\cdot b \\cdot c \\cdot \\sqrt{
+        1 - \\cos^{2} \\alpha - \\cos^{2} \\beta  - \\cos^{2} \\gamma 
+        + 2 \\cos \\alpha  \\cos \\beta  \\cos \\gamma  }
+
 The permitted range is 0.0 -> infinity
 
-Reference:
------------
-`link https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_volume.html`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_volume.html>`_
         """
         return getattr(self, "__volume")
 
@@ -244,9 +237,9 @@ Reference:
 The reciprocal-cell lengths in inverse angstroms.  These are
 related to the real cell by:
 
-recip-a = b*c*sin(alpha)/V
-recip-b = c*a*sin(beta)/V
-recip-c = a*b*sin(gamma)/V
+.. math::
+
+  a^{*} = b \\cdot c \\cdot \\sin(\\alpha) / V
 
 where V is the cell volume.
 
@@ -255,8 +248,7 @@ Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
 
 The permitted range is 0.0 -> infinity
 
-reference: 
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html>`_
         """
         return getattr(self, "__reciprocal_length_a")
     @property
@@ -265,9 +257,9 @@ reference:
 The reciprocal-cell lengths in inverse angstroms.  These are
 related to the real cell by:
 
-recip-a = b*c*sin(alpha)/V
-recip-b = c*a*sin(beta)/V
-recip-c = a*b*sin(gamma)/V
+.. math::
+
+  b^{*} = c \\cdot a \\cdot \\sin(\\beta) / V
 
 where V is the cell volume.
 
@@ -276,8 +268,7 @@ Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
 
 The permitted range is 0.0 -> infinity
 
-reference: 
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html>`_
         """
         return getattr(self, "__reciprocal_length_b")
     @property
@@ -286,9 +277,9 @@ reference:
 The reciprocal-cell lengths in inverse angstroms.  These are
 related to the real cell by:
 
-recip-a = b*c*sin(alpha)/V
-recip-b = c*a*sin(beta)/V
-recip-c = a*b*sin(gamma)/V
+.. math::
+
+  c^{*} = a \\cdot b \\cdot \\sin(\\gamma) / V
 
 where V is the cell volume.
 
@@ -297,8 +288,7 @@ Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
 
 The permitted range is 0.0 -> infinity
 
-reference: 
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_length_.html>`_
         """
         return getattr(self, "__reciprocal_length_c")
 
@@ -309,9 +299,9 @@ reference:
 The angles defining the reciprocal cell in degrees. These
 are related to those in the real cell by:
 
-cos(recip-alpha) = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
-cos(recip-beta)  = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
-cos(recip-gamma) = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]
+.. math::
+
+  \\cos(\\alpha^{*}) = \\frac{\\cos(\\beta)\\cos(\\gamma) - \\cos(\\alpha)}{\\sin(\\beta)\\sin(\\gamma)}
 
 Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
      New York: John Wiley & Sons Inc.
@@ -319,9 +309,7 @@ Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
 The permitted range is 0.0 -> 180.0 
 Enumeration default: 90.0
 
-Reference: 
------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html>`_
         """
         return getattr(self, "__reciprocal_angle_alpha")
 
@@ -332,9 +320,9 @@ Reference:
 The angles defining the reciprocal cell in degrees. These
 are related to those in the real cell by:
 
-cos(recip-alpha) = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
-cos(recip-beta)  = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
-cos(recip-gamma) = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]
+.. math::
+
+  \\cos(\\beta^{*})  = \\frac{\\cos(\\gamma)\\cos(\\alpha) - \\cos(\\beta)}{\\sin(\\gamma)\\sin(\\alpha)}
 
 Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
      New York: John Wiley & Sons Inc.
@@ -342,9 +330,7 @@ Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
 The permitted range is 0.0 -> 180.0 
 Enumeration default: 90.0
 
-Reference: 
------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html>`_
         """
         return getattr(self, "__reciprocal_angle_beta")
 
@@ -354,9 +340,9 @@ Reference:
 The angles defining the reciprocal cell in degrees. These
 are related to those in the real cell by:
 
-cos(recip-alpha) = [cos(beta)*cos(gamma) - cos(alpha)]/[sin(beta)*sin(gamma)]
-cos(recip-beta)  = [cos(gamma)*cos(alpha) - cos(beta)]/[sin(gamma)*sin(alpha)]
-cos(recip-gamma) = [cos(alpha)*cos(beta) - cos(gamma)]/[sin(alpha)*sin(beta)]
+.. math::
+
+  \\cos(\\gamma^{*}) = \\frac{\\cos(\\alpha)\\cos(\\beta) - \\cos(\\gamma)}{\\sin(\\alpha)\\sin(\\beta)}
 
 Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
      New York: John Wiley & Sons Inc.
@@ -364,9 +350,7 @@ Ref: Buerger, M. J. (1942). X-ray Crystallography, p. 360.
 The permitted range is 0.0 -> 180.0 
 Enumeration default: 90.0
 
-Reference: 
------------
-`link <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Icell_reciprocal_angle_.html>`_
         """
         return getattr(self, "__reciprocal_angle_gamma")
 
@@ -622,13 +606,17 @@ Output: the list of the refined parameters
 Calculate sin(theta)/lambda for list of hkl reflections.
 
 Keyword arguments:
---------------------
-h, k, l --- Miller indices (example: h=1, k=0, l=2)
+
+ - h, k, l --- Miller indices (example: h=1, k=0, l=2)
+
 or
-hkl --- a turple of Miller indices (example: hkl=(1, 0, 2))
+
+ - hkl --- a turple of Miller indices (example: hkl=(1, 0, 2))
+
 or
-l_hkl --- a list of turples of Miller indices (example: l_hkl=[(1, 0, 2), (1, 1, 3)])
-f_print --- a flag to print output information in terminal
+
+ - l_hkl --- a list of turples of Miller indices (example: l_hkl=[(1, 0, 2), (1, 1, 3)])
+ - f_print --- a flag to print output information in terminal
         """
         cond_1 = all([h is not None, k is not None, l is not None])
         cond_2 = hkl is not None
@@ -666,10 +654,11 @@ f_print --- a flag to print output information in terminal
 
     def calc_k_loc(self, h, k, l):
         """
-        Calculate unity scattering vector.
+Calculate unity scattering vector.
 
-        Keyword arguments:
-        h, k, l -- Miller indices
+Keyword arguments:
+
+h, k, l -- Miller indices
         """
         np_h = numpy.array(h, dtype=int)
         np_k = numpy.array(k, dtype=int)
@@ -693,8 +682,8 @@ f_print --- a flag to print output information in terminal
         
     def calc_m_t(self, h, k, l):
         """
-        define rotation matrix to have new z axis along kloc
-        Rotation matrix is defined by Euler angles
+Determine rotation matrix to have new z axis along kloc
+Rotation matrix is defined by Euler angles
         """
         m_b = self.m_b
         k_x = m_b[0, 0]*h + m_b[0, 1]*k +m_b[0, 2]*l
