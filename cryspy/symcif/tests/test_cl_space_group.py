@@ -62,3 +62,9 @@ def test_space_group_wyckoff():
     obj_2 = _obj.space_group_wyckoff
     assert obj_2.get_id_for_fract(0.75,0.75,0.5) == "5"
     assert obj_2.get_letter_for_fract(0.75,0.75,0.5) == "c"
+    x_s, y_s, z_s, mult = _obj.calc_xyz_mult(0,0,0)
+    assert x_s.size == 2
+    assert ((x_s[0] == 0.) & (x_s[1] == 0.))
+    assert ((y_s[0] == 0.) & (y_s[1] == 0.5))
+    assert ((z_s[0] == 0.) & (z_s[1] == 0.5))
+    assert mult == 4

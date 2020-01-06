@@ -534,7 +534,8 @@ Description in cif file::
         cos_theta_1d = numpy.cos(0.5*tth_rad)
         sin_phi_1d = numpy.sin(phi_rad)
 
-        wavelength = float(self.wavelength)
+        setup = self.setup
+        wavelength = float(setup.wavelength)
         diffrn_radiation = self.diffrn_radiation
 
         p_u = float(diffrn_radiation.polarization)
@@ -567,12 +568,11 @@ Description in cif file::
             phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in, l_dd_in):
             dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
-                if crystal.label == phase_label:
+                if crystal.data_name == phase_label:
                     ind_cry = i_crystal
                     break
             if ind_cry is None:
-                print("Crystal with name '{:}' is not found.".format(
-                        phase_label))
+                self._show_message(f"Crystal with name '{phase_label:}' is not found.")
                 return
             crystal = l_crystal[ind_cry]
             scale = float(phase_scale)
@@ -582,13 +582,12 @@ Description in cif file::
             cell = crystal.cell
             space_group = crystal.space_group
             
-            peak = Pd2dPeak()
             if peak_in is not None:
                 h, k, l, mult = peak_in.h, peak_in.k, peak_in.l, peak_in.mult
             else:
                 h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
-            peak.h, peak.k, peak.l, peak.mult = h, k, l, mult
 
+            peak = Pd2dPeakL(item=[Pd2dPeak(index_h=_h, index_k=_k, index_l=_l, index_mult=_m) for _h, _k, _l, _m in zip(h, k, l, mult)])
                 
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
@@ -598,15 +597,19 @@ Description in cif file::
                 refln = refln_in
             else:
                 f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin, refln = self.calc_for_iint(h, k, l, crystal)
+
             l_refln.append(refln)
 
-            peak.f_nucl_sq, peak.f_m_p_sin_sq = f_nucl_sq, f_m_p_sin_sq
-            peak.f_m_p_cos_sq, peak.cross_sin = f_m_p_cos_sq, cross_sin
+            for _item, _1, _2, _3, _4 in zip(peak.item, f_nucl_sq, f_m_p_sin_sq, f_m_p_cos_sq, cross_sin):
+                setattr(_item, "f_nucl_sq", _1) 
+                setattr(_item, "f_m_p_sin_sq", _2) 
+                setattr(_item, "f_m_p_cos_sq", _3) 
+                setattr(_item, "cross_sin", _4)
 
             cond_1 = dd_in is not None
             cond_2 = ((not(crystal.is_variable)) & 
-                      (not(beam_polarization.polarization.refinement)) & 
-                      (not(beam_polarization.efficiency.refinement)))
+                      (not(diffrn_radiation.polarization.refinement)) & 
+                      (not(diffrn_radiation.efficiency.refinement)))
             if cond_1 & cond_2:
                 iint_u_3d, iint_d_3d = dd_in["iint_u_3d"], dd_in["iint_d_3d"]
                 cos_theta_3d, sin_phi_3d = dd_in["cos_theta_3d"], dd_in["sin_phi_3d"]
@@ -631,14 +634,14 @@ Description in cif file::
             
             tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)
             tth_hkl = tth_hkl_rad*180./numpy.pi
-            peak.ttheta = tth_hkl
+
 
 
             cond_1 = dd_in is not None
             cond_2 = ((not(phase_igsize.refinement)) & 
                       (not(self.resolution.is_variable)) & 
                       (not(self.is_variable_offset)) &
-                      (not(self.wavelength.refinement)))
+                      (not(setup.wavelength.refinement)))
             if cond_1 & cond_2:
                 profile_3d, tth_zs, h_pv = dd_in["profile_3d"], dd_in["tth_zs"], dd_in["h_pv"]
             else:
@@ -646,7 +649,10 @@ Description in cif file::
             dd_out["profile_3d"] = profile_3d
             dd_out["tth_zs"] = tth_zs
             dd_out["h_pv"] = h_pv
-            peak.width_2theta = h_pv
+
+            for _item, _1, _2 in zip(peak.item, tth_hkl, h_pv):
+                setattr(_item, "ttheta", _1)
+                setattr(_item, "width_ttheta", _2)
             
             
             res_u_3d = profile_3d*iint_u_3d 
@@ -656,11 +662,13 @@ Description in cif file::
             res_d_2d += scale*res_d_3d.sum(axis=2) 
             l_peak.append(peak)
             l_dd_out.append(dd_out)
+
+
         proc.ttheta_corrected = tth_zs
-        proc.up_net = res_u_2d
-        proc.down_net = res_d_2d
-        proc.up_total = res_u_2d+int_bkgd
-        proc.down_total = res_d_2d+int_bkgd
+        setattr(proc, "__intensity_up_net", res_u_2d)
+        setattr(proc, "__intensity_down_net", res_d_2d)
+        setattr(proc, "__intensity_up_total", res_u_2d+int_bkgd)
+        setattr(proc, "__intensity_down_total", res_d_2d+int_bkgd)
         return proc, l_peak, l_refln, l_dd_out
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
@@ -701,14 +709,14 @@ Description in cif file::
         #else:
         #    l_peak_in, l_refln_in, l_dd_in = [], [], [] 
 
-        exclude = self.exclude
+        range_ = self.range
         cond_tth_in = numpy.ones(tth.size, dtype=bool)
-        cond_tth_in = numpy.logical_and(cond_tth_in, tth >= exclude.ttheta_min)
-        cond_tth_in = numpy.logical_and(cond_tth_in, tth <= exclude.ttheta_max)
+        cond_tth_in = numpy.logical_and(cond_tth_in, tth >= range_.ttheta_min)
+        cond_tth_in = numpy.logical_and(cond_tth_in, tth <= range_.ttheta_max)
 
         cond_phi_in = numpy.ones(phi.size, dtype=bool)
-        cond_phi_in = numpy.logical_and(cond_phi_in, phi >= exclude.phi_min)
-        cond_phi_in = numpy.logical_and(cond_phi_in, phi <= exclude.phi_max)
+        cond_phi_in = numpy.logical_and(cond_phi_in, phi >= range_.phi_min)
+        cond_phi_in = numpy.logical_and(cond_phi_in, phi <= range_.phi_max)
 
         #cond_1_in, cond_2_in = numpy.meshgrid(cond_tth_in, cond_phi_in, indexing="ij")
         #cond_in = numpy.logical_and(cond_1_in, cond_2_in)
@@ -721,17 +729,18 @@ Description in cif file::
 
 
         proc, l_peak, l_refln, l_dd_out = self.calc_profile(tth_in, phi_in, l_crystal, l_peak_in, l_refln_in, l_dd_in)
-        proc.up = int_u_exp_in
-        proc.up_sigma = sint_u_exp_in
-        proc.down = int_d_exp_in
-        proc.down_sigma = sint_d_exp_in
+        setattr(proc, "__intensity_up", int_u_exp_in)
+        setattr(proc, "__intensity_up_sigma", sint_u_exp_in)
+        setattr(proc, "__intensity_down", int_d_exp_in)
+        setattr(proc, "__intensity_down_sigma", sint_d_exp_in)
+
         self.proc = proc
         self.peaks = l_peak
         self.reflns = l_refln
         self.__dd = l_dd_out
 
-        int_u_mod = proc.up_total
-        int_d_mod = proc.down_total
+        int_u_mod = proc.intensity_up_total
+        int_d_mod = proc.intensity_down_total
 
         sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
 
@@ -773,11 +782,11 @@ Description in cif file::
 
         chi_sq_dif_val = (chi_sq_dif[cond_dif]).sum()
         n_dif = cond_dif.sum()
-
-        flag_u = self.chi2_up
-        flag_d = self.chi2_down
-        flag_sum = self.chi2_sum
-        flag_dif = self.chi2_diff
+        chi2 = self.chi2
+        flag_u = chi2.up
+        flag_d = chi2.down
+        flag_sum = chi2.sum
+        flag_dif = chi2.diff
         
         chi_sq_val = (int(flag_u)*chi_sq_u_val + int(flag_d)*chi_sq_d_val + 
                   int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
@@ -792,21 +801,23 @@ Description in cif file::
         """
         calculate the integral intensity for h, k, l reflections
         """
-        field = float(self.field)
-        beam_polarization = self.beam_polarization
-        p_u = float(beam_polarization.polarization)
-        p_d = (2.*float(beam_polarization.efficiency)-1)*p_u
+        setup = self.setup
+        field = float(setup.field)
+        diffrn_radiation = self.diffrn_radiation
+        p_u = float(diffrn_radiation.polarization)
+        p_d = (2.*float(diffrn_radiation.efficiency)-1)*p_u
 
-        refln = crystal.calc_sf(h, k, l)
+        refln = crystal.calc_refln(h, k, l)
+        refln_s = crystal.calc_refln_susceptibility(h, k, l)
 
-        f_nucl, sft_11, sft_12, sft_13 = refln.f_nucl, refln.sft_11, refln.sft_12, refln.sft_13
-        sft_21, sft_22, sft_23 = refln.sft_21, refln.sft_22, refln.sft_23
-        sft_31, sft_32, sft_33 = refln.sft_31, refln.sft_32, refln.sft_33
+        f_nucl = numpy.array(refln.f_calc, dtype=complex)
+        sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
+        sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
+        sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)
 
-
-        sftm_11, sftm_12, sftm_13 = refln.sftm_11, refln.sftm_12, refln.sftm_13
-        sftm_21, sftm_22, sftm_23 = refln.sftm_21, refln.sftm_22, refln.sftm_23
-        sftm_31, sftm_32, sftm_33 = refln.sftm_31, refln.sftm_32, refln.sftm_33
+        sftm_11, sftm_12, sftm_13 = numpy.array(refln_s.moment_11_calc, dtype=complex), numpy.array(refln_s.moment_12_calc, dtype=complex), numpy.array(refln_s.moment_13_calc, dtype=complex)
+        sftm_21, sftm_22, sftm_23 = numpy.array(refln_s.moment_21_calc, dtype=complex), numpy.array(refln_s.moment_22_calc, dtype=complex), numpy.array(refln_s.moment_23_calc, dtype=complex)
+        sftm_31, sftm_32, sftm_33 = numpy.array(refln_s.moment_31_calc, dtype=complex), numpy.array(refln_s.moment_32_calc, dtype=complex), numpy.array(refln_s.moment_33_calc, dtype=complex)
 
         _11, _12, _13 = sftm_11+field*sft_11, sftm_12+field*sft_12, sftm_13+field*sft_13
         _21, _22, _23 = sftm_21+field*sft_21, sftm_22+field*sft_22, sftm_23+field*sft_23
@@ -817,7 +828,7 @@ Description in cif file::
         #k_loc = cell.calc_k_loc(h, k, l)
         t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 = cell.calc_m_t(h, k, l)
         
-        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(
+        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = CONSTANTS_AND_FUNCTIONS.calc_mRmCmRT(
                 t_11, t_21, t_31, t_12, t_22, t_32, t_13, t_23, t_33,
                 _11, _12, _13, _21, _22, _23, _31, _32, _33)
 
@@ -858,7 +869,8 @@ Description in cif file::
         tth, phi, tth_hkl in degrees
 
         """
-        zero_shift = float(self.ttheta_offset)
+        setup = self.setup
+        zero_shift = float(setup.offset_ttheta)
         tth_zs = tth-zero_shift
 
         resolution = self.resolution

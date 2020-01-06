@@ -968,17 +968,16 @@ Give equivalent reflections of hkl and its multiplicity
 
     def calc_xyz_mult(self, x, y, z):
         """
-        give unique x,y,z elements and calculate multiplicity for given x,y,z fract
+give unique x,y,z elements and calculate multiplicity for given x,y,z fract
         """
-        _letter = self.space_group_wyckoff.get_letter_for_fract(x, y, z)
-        np_r = numpy.array(self.space_group_wyckoff[_letter].full_r, dtype=float)
-        np_b = numpy.array(self.space_group_wyckoff[_letter].full_b, dtype=float)
+        wyckoff = self.space_group_wyckoff.get_wyckoff_for_fract(x, y, z)
+        np_r = numpy.array(wyckoff.full_r, dtype=float)
+        np_b = numpy.array(wyckoff.full_b, dtype=float)
+        x_s = (np_r[:, 0, 0]*x + np_r[:, 0, 1]*x + np_r[:, 0, 2]*z + np_b[:, 0])%1
+        y_s = (np_r[:, 1, 0]*x + np_r[:, 1, 1]*x + np_r[:, 1, 2]*z + np_b[:, 1])%1
+        z_s = (np_r[:, 2, 0]*x + np_r[:, 2, 1]*x + np_r[:, 2, 2]*z + np_b[:, 2])%1
 
-        x_s = (np_r[0, 0, :]*x + np_r[0, 1, :]*x + np_r[0, 2, :]*z + np_b[0, :])%1
-        y_s = (np_r[1, 0, :]*x + np_r[1, 1, :]*x + np_r[1, 2, :]*z + np_b[1, :])%1
-        z_s = (np_r[2, 0, :]*x + np_r[2, 1, :]*x + np_r[2, 2, :]*z + np_b[2, :])%1
-
-        multiplicity = self.space_group_wyckoff[_letter].multiplicity
+        multiplicity = wyckoff.multiplicity
         return x_s, y_s, z_s, multiplicity
     
 

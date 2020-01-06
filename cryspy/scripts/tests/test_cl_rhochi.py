@@ -62,7 +62,7 @@ def test_from_cif_powder_2d():
     _obj = RhoChi.from_cif(STR_FROM_CIF_3)
     assert _obj.crystals[0].space_group.it_number == 227
     assert _obj.apply_constraint()
-#     chi_sq, n_res = _obj.calc_chi_sq()
-#    assert n_res == 381
-#    assert math.isclose(chi_sq, 1141.4532,rel_tol=rel_tol, abs_tol=abs_tol)
+    chi_sq, n_res = _obj.calc_chi_sq()
+    assert n_res == 25553
+    assert math.isclose(chi_sq, 55600.84, rel_tol=rel_tol, abs_tol=abs_tol)
     

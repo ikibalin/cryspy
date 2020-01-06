@@ -297,4 +297,7 @@ Description in cif file::
         res = self[_id].letter
         return res
 
+    def get_wyckoff_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5)->str:
+        _id = self.get_id_for_fract(fract_x, fract_y, fract_z)
+        return self[_id]
 
