@@ -50,7 +50,9 @@ The *CrysPy* library should be installed.
 
 Use the command-line to run the refinement in the folder which contents the data:
 
->>> python -m cryspy.run_rhochi
+>>> python -m cryspy file_name
+    
+where file_name is a .rcif file name
 
 Collaboration
 ---------------------------

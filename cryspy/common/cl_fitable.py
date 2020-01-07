@@ -188,8 +188,8 @@ class Fitable(object):
             if self.constraint != "":
                 ls_out.append("constraint: {:}".format(self.constraint))
         res = ls_out[0]
-        if len(ls_out) > 1:
-            res = "{:} ({:})".format(res, ", ".join(ls_out[1:]))            
+        #if len(ls_out) > 1:
+        #    res = "{:} ({:})".format(res, ", ".join(ls_out[1:]))            
         return res
     @property
     def print_with_sigma(self):

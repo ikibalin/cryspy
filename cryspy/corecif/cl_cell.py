@@ -38,14 +38,15 @@ Description in cif file::
         measurement_wavelength, special_details.
     """
     MANDATORY_ATTRIBUTE = ("length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma")
-    OPTIONAL_ATTRIBUTE = ("reciprocal_length_a", "reciprocal_length_b", "reciprocal_length_c", 
-                          "reciprocal_angle_alpha", "reciprocal_angle_beta", "reciprocal_angle_gamma",
-                          "volume", "formula_units_z")
+    OPTIONAL_ATTRIBUTE = ()
     INTERNAL_ATTRIBUTE = ("m_b", "m_ib", "m_ib_norm", "type_cell",
     "cos_a", "cos_b", "cos_g", "sin_a", "sin_b", "sin_g",
     "cos_a_sq", "cos_b_sq", "cos_g_sq", "sin_a_sq", "sin_b_sq", "sin_g_sq",
     "cos_ia", "cos_ib", "cos_ig", "sin_ia", "sin_ib", "sin_ig",
-    "cos_ia_sq", "cos_ib_sq", "cos_ig_sq", "sin_ia_sq", "sin_ib_sq", "sin_ig_sq")
+    "cos_ia_sq", "cos_ib_sq", "cos_ig_sq", "sin_ia_sq", "sin_ib_sq", "sin_ig_sq",
+    "reciprocal_length_a", "reciprocal_length_b", "reciprocal_length_c", 
+                          "reciprocal_angle_alpha", "reciprocal_angle_beta", "reciprocal_angle_gamma",
+                          "volume", "formula_units_z")
     PREFIX = "cell"
     def __init__(self, length_a=None, length_b=None, length_c=None, angle_alpha=None, angle_beta=None, 
     angle_gamma=None, formula_units_z=None):

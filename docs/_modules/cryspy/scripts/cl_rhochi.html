@@ -293,11 +293,11 @@
         <span class="n">chi_sq</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_chi_sq</span><span class="p">()</span>
 
         <span class="c1">#if self.ref[0].refin:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;starting chi_sq/n: </span><span class="si">{:.2f}</span><span class="s2"> (n = </span><span class="si">{:}</span><span class="s2">).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chi_sq</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="n">n</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">refinement started for parameters:&quot;</span><span class="p">)</span>
-        <span class="n">ls_out</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:12}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fitable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">12</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fitable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">&lt;=</span><span class="mi">12</span> 
-                           <span class="k">else</span> <span class="s2">&quot;</span><span class="si">{:12}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fitable</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="o">-</span><span class="mi">12</span><span class="p">:])</span> <span class="k">for</span> <span class="n">fitable</span> <span class="ow">in</span> <span class="n">l_fitable</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;       chi_sq&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+        <span class="c1">#print(&quot;starting chi_sq/n: {:.2f} (n = {:}).&quot;.format(chi_sq*1./n, int(n)))</span>
+        <span class="c1">#print(&quot;\nrefinement started for parameters:&quot;)</span>
+        <span class="c1">#ls_out = &quot; &quot;.join([&quot;{:12}&quot;.format(fitable.name.rjust(12)) if len(fitable.name)&lt;=12 </span>
+        <span class="c1">#                   else &quot;{:12}&quot;.format(fitable.name[-12:]) for fitable in l_fitable]) + &quot;       chi_sq&quot;</span>
+        <span class="c1">#print(ls_out)</span>
         <span class="n">aa</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        res, m_error, infodict, errmsg, ier = \</span>
@@ -310,15 +310,15 @@
         <span class="c1">#                              callback=self._f_callback, options = {&quot;fatol&quot;: 0.01*n})</span>
 
         <span class="n">bb</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;refinement complete, time </span><span class="si">{:.2f}</span><span class="s2"> sec.</span><span class="se">\n\n</span><span class="s2">final chi_sq/n: </span><span class="si">{:.2f}</span><span class="se">\n</span><span class="s2">started chi_sq/n: </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">bb</span><span class="o">-</span><span class="n">aa</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">fun</span><span class="p">,</span> <span class="n">chi_sq</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="n">n</span><span class="p">))</span>
+        <span class="c1">#print(&quot;refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}&quot;.format(bb-aa, res.fun, chi_sq*1./n))</span>
         
         <span class="n">hess_inv</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;hess_inv&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">hes_coeff_norm</span>
         <span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">hess_inv</span><span class="p">)</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span><span class="o">**</span><span class="mf">0.5</span>
         <span class="k">for</span> <span class="n">fitable</span><span class="p">,</span> <span class="n">_1</span>  <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_fitable</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
             <span class="n">fitable</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">_1</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;experiment  chi_sq_n&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_1</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiments</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:10}</span><span class="s2">: </span><span class="si">{:8.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_1</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">_1</span><span class="o">.</span><span class="n">chi_sq</span><span class="o">/</span><span class="n">_1</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+        <span class="c1">#print(&quot;experiment  chi_sq_n&quot;)</span>
+        <span class="c1">#for _1 in self.experiments:</span>
+        <span class="c1">#    print(&quot;{:10}: {:8.2f}&quot;.format(_1.label, _1.chi_sq/_1.n))</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
     
@@ -329,7 +329,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">res_fun</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">ls_out</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">{:12.1f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">res_fun</span><span class="o">.</span><span class="n">fun</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+        <span class="c1">#print(ls_out)</span>
   
 
 <div class="viewcode-block" id="RhoChi.read_file"><a class="viewcode-back" href="../../../cryspy.scripts.rhochi.html#cryspy.scripts.cl_rhochi.RhoChi.read_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_name</span><span class="p">):</span>

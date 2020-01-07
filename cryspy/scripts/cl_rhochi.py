@@ -248,11 +248,11 @@ calculate the integral intensity for h, k, l reflections
         chi_sq, n = self.calc_chi_sq()
 
         #if self.ref[0].refin:
-        print("starting chi_sq/n: {:.2f} (n = {:}).".format(chi_sq*1./n, int(n)))
-        print("\nrefinement started for parameters:")
-        ls_out = " ".join(["{:12}".format(fitable.name.rjust(12)) if len(fitable.name)<=12 
-                           else "{:12}".format(fitable.name[-12:]) for fitable in l_fitable]) + "       chi_sq"
-        print(ls_out)
+        #print("starting chi_sq/n: {:.2f} (n = {:}).".format(chi_sq*1./n, int(n)))
+        #print("\nrefinement started for parameters:")
+        #ls_out = " ".join(["{:12}".format(fitable.name.rjust(12)) if len(fitable.name)<=12 
+        #                   else "{:12}".format(fitable.name[-12:]) for fitable in l_fitable]) + "       chi_sq"
+        #print(ls_out)
         aa = time.time()
         """
         res, m_error, infodict, errmsg, ier = \
@@ -265,15 +265,15 @@ calculate the integral intensity for h, k, l reflections
         #                              callback=self._f_callback, options = {"fatol": 0.01*n})
 
         bb = time.time()
-        print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun, chi_sq*1./n))
+        #print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun, chi_sq*1./n))
         
         hess_inv = res["hess_inv"] * hes_coeff_norm
         sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
         for fitable, _1  in zip(l_fitable, sigma):
             fitable.sigma = _1
-        print("experiment  chi_sq_n")
-        for _1 in self.experiments:
-            print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))
+        #print("experiment  chi_sq_n")
+        #for _1 in self.experiments:
+        #    print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))
         return res
 
     
@@ -284,7 +284,7 @@ calculate the integral intensity for h, k, l reflections
         if len(arg) > 2:
             res_fun = arg[1]
             ls_out += " {:12.1f}".format(res_fun.fun)
-        print(ls_out)
+        #print(ls_out)
   
 
     def read_file(self, f_name):

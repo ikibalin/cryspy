@@ -1,14 +1,13 @@
 """
 To run rhochi refinement from a command-line::
 
-    python -m cryspy.run_rhochi
+    python -m cryspy file_name
+    
+where file_name is a rcif file name
 
-To create a template in the folder run from a command-line::
+To create a template in the folder type in a command-line::
 
-    python -m cryspy.rhochi_diffrn # template for single-crystal diffraction experiment
-    python -m cryspy.rhochi_pd # template for 1d powder diffraction experiment
-    python -m cryspy.rhochi_pd2d # template for 2d powder diffraction experiment
-    python -m cryspy.rhochi_pd2dt # template for 2d powder diffraction with one-axial texture model experiment
+    python -m cryspy
 """
 name = "cryspy"
 from .cif_like.cl_crystal import (

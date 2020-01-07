@@ -57,6 +57,7 @@ def test_from_cif_powder_1d():
     assert math.isclose(chi_sq, 1141.4532,rel_tol=rel_tol, abs_tol=abs_tol)
     
 
+
 def test_from_cif_powder_2d():
     rel_tol, abs_tol =0.001, 0.001
     _obj = RhoChi.from_cif(STR_FROM_CIF_3)
