@@ -300,7 +300,7 @@ calculate the integral intensity for h, k, l reflections
             self.save_to_files()
         else:
             with open(f_name, "w") as fid:
-                fid.write(self.to_cif)
+                fid.write(self.to_cif())
 
 
     def save_to_files(self):
@@ -315,7 +315,7 @@ calculate the integral intensity for h, k, l reflections
             ls_main.append(f"\n_add_url {experiment.label:}_data.rcif\n")
             ls_main.append(f"_add_url {experiment.label:}_calc.rcif\n")
         for crystal in self.crystals:
-            ls_main.append("\n"+crystal.to_cif)
+            ls_main.append("\n"+crystal.to_cif())
         for experiment in self.experiments:   
             ls_main.append("\ndata_{:}".format(experiment.label))
             ls_main.append(experiment.params_to_cif)
@@ -323,13 +323,13 @@ calculate the integral intensity for h, k, l reflections
             f_data = os.path.join(f_dir, "{:}_data.rcif".format(experiment.label))
             ls_data = []
             ls_data.append("\ndata_{:}".format(experiment.label))
-            ls_data.append(experiment.data_to_cif)
+            ls_data.append(experiment.data_to_cif())
             with open(f_data, 'w') as fid:
                 fid.write("\n".join(ls_data))
             f_calc = os.path.join(f_dir, "{:}_calc.rcif".format(experiment.label))
             ls_calc = []
             ls_calc.append("\ndata_{:}".format(experiment.label))
-            ls_calc.append(experiment.calc_to_cif)
+            ls_calc.append(experiment.calc_to_cif())
             with open(f_calc, 'w') as fid:
                 fid.write("\n".join(ls_calc))
         with open(f_main, 'w') as fid:
