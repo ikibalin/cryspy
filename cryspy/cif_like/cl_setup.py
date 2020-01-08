@@ -21,8 +21,8 @@ Description in cif file::
  _setup_offset_ttheta -0.385
  _setup_offset_phi -0.385
     """
-    MANDATORY_ATTRIBUTE = ("wavelength", "field")
-    OPTIONAL_ATTRIBUTE = ("offset_ttheta", "offset_phi")
+    MANDATORY_ATTRIBUTE = ("wavelength", )
+    OPTIONAL_ATTRIBUTE = ("field", "offset_ttheta", "offset_phi")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "setup"
     def __init__(self, wavelength=None, field=None, offset_ttheta=None, offset_phi=None):

@@ -205,3 +205,19 @@ Description in cif file::
         ls_out.append("PdMeasL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    @property
+    def is_polarized(self):
+        """
+True if polaraized data are defined
+
+and
+
+False for unpolaraized data
+        """
+        flag = False
+        if len(self.item) != 0:
+            if ((self.item[0].intensity_up is not None) &
+                (self.item[0].intensity_up is not None)):
+                flag = True
+        return flag

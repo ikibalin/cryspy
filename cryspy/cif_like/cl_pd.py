@@ -120,9 +120,9 @@ Description in cif file::
  4.200 4.585 0.00000 0.00000 256.00000 256.00000 256.00000 323.78000 118.22000 206.06000 120.00000
  4.400 4.785 0.00000 0.00000 256.00000 256.00000 256.00000 307.14000 115.90000 230.47000 116.53000
      """
-    MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PhaseL, DiffrnRadiation,
-                         Setup, Range, Chi2)
-    OPTIONAL_CLASSES = (Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdProcL)
+    MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PhaseL, 
+                         Setup)
+    OPTIONAL_CLASSES = (DiffrnRadiation, Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdProcL)
     INTERNAL_CLASSES = ()
     def __init__(self, background=None, resolution=None, meas=None, 
                  phase=None, diffrn_radiation=None,
@@ -508,17 +508,20 @@ Description in cif file::
 
     def calc_profile(self, tth, l_crystal, l_peak_in=[], l_refln_in=[]):
         """
-        calculate intensity for the given diffraction angle
+calculate intensity for the given diffraction angle
         """
         proc = PdProcL(item=[PdProc(ttheta=_tth) for _tth in tth]) #it is output
         
         background = self.background
-        int_bkgd = background.interpolate_by_points(tth)
+        if background is not None:
+            int_bkgd = background.interpolate_by_points(tth)
+        else:
+            int_bkgd = 0.*tth
         
         [setattr(_item, "intensity_bkg_calc", _int_bkg) for _item, _int_bkg in zip(proc.item, int_bkgd)]
 
         wavelength = float(self.setup.wavelength)
-        diffrn_radiation = self.diffrn_radiation
+
         
         tth_min = tth.min()
         tth_max = tth.max()+3. 
@@ -626,10 +629,16 @@ Description in cif file::
         meas = self.meas
 
         tth = numpy.array(meas.ttheta, dtype=float)
-        int_u_exp = numpy.array(meas.intensity_up, dtype=float)
-        sint_u_exp = numpy.array(meas.intensity_up_sigma, dtype=float)
-        int_d_exp = numpy.array(meas.intensity_down, dtype=float)
-        sint_d_exp = numpy.array(meas.intensity_down_sigma, dtype=float)
+        flag_polarized = meas.is_polarized
+       
+        if flag_polarized:
+            int_u_exp = numpy.array(meas.intensity_up, dtype=float)
+            sint_u_exp = numpy.array(meas.intensity_up_sigma, dtype=float)
+            int_d_exp = numpy.array(meas.intensity_down, dtype=float)
+            sint_d_exp = numpy.array(meas.intensity_down_sigma, dtype=float)
+        else:
+            int_exp = numpy.array(meas.intensity, dtype=float)
+            sint_exp = numpy.array(meas.intensity_sigma, dtype=float)
 
         #if ((self.peaks is not None) & (self.reflns is not None)):
         #    l_peak_in = self.peaks
@@ -637,26 +646,38 @@ Description in cif file::
         #else:
         l_peak_in, l_refln_in = [], [] 
 
-        range_min = numpy.array(self.range.ttheta_min, dtype=float)
-        range_max = numpy.array(self.range.ttheta_max, dtype=float)
-
+        range_ = self.range
         cond_in = numpy.ones(tth.shape, dtype=bool)
-        cond_in = numpy.logical_and(cond_in, tth >= range_min)
-        cond_in = numpy.logical_and(cond_in, tth <= range_max)
+        if range_ is not None:
+            range_min = numpy.array(range_.ttheta_min, dtype=float)
+            range_max = numpy.array(range_.ttheta_max, dtype=float)
+
+            cond_in = numpy.logical_and(cond_in, tth >= range_min)
+            cond_in = numpy.logical_and(cond_in, tth <= range_max)
 
         tth_in = tth[cond_in]
-        int_u_exp_in = int_u_exp[cond_in]
-        sint_u_exp_in = sint_u_exp[cond_in]
-        int_d_exp_in = int_d_exp[cond_in]
-        sint_d_exp_in = sint_d_exp[cond_in]
-        
+        if flag_polarized:
+            int_u_exp_in = int_u_exp[cond_in]
+            sint_u_exp_in = sint_u_exp[cond_in]
+            int_d_exp_in = int_d_exp[cond_in]
+            sint_d_exp_in = sint_d_exp[cond_in]
+        else:
+            int_exp_in = int_exp[cond_in]
+            sint_exp_in = sint_exp[cond_in]
+            
         proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in, l_refln_in)
         
-        for _item, _1, _2, _3, _4 in zip(proc.item, int_u_exp_in, sint_u_exp_in, int_d_exp_in, sint_d_exp_in):
-            _item.intensity_up = _1
-            _item.intensity_up_sigma = _2
-            _item.intensity_down = _3
-            _item.intensity_down_sigma = _4
+        if flag_polarized:
+            for _item, _1, _2, _3, _4 in zip(proc.item, int_u_exp_in, sint_u_exp_in, int_d_exp_in, sint_d_exp_in):
+                _item.intensity_up = _1
+                _item.intensity_up_sigma = _2
+                _item.intensity_down = _3
+                _item.intensity_down_sigma = _4
+        else:
+            for _item, _1, _2 in zip(proc.item, int_exp_in, sint_exp_in):
+                _item.intensity = _1
+                _item.intensity_sigma = _2
+
         self.proc = proc
         self.peaks = l_peak
         self.reflns = l_refln
@@ -664,51 +685,65 @@ Description in cif file::
         int_u_mod = numpy.array([_item.intensity_up_total for _item in proc.item], dtype=float)
         int_d_mod = numpy.array([_item.intensity_down_total for _item in proc.item], dtype=float)
 
-        sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
+        if flag_polarized:
+            sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
+            chi_sq_u = ((int_u_mod-int_u_exp_in)/sint_u_exp_in)**2
+            chi_sq_d = ((int_d_mod-int_d_exp_in)/sint_d_exp_in)**2
+            chi_sq_sum = ((int_u_mod+int_d_mod-int_u_exp_in-int_d_exp_in)/sint_sum_exp_in)**2
+            chi_sq_dif = ((int_u_mod-int_d_mod-int_u_exp_in+int_d_exp_in)/sint_sum_exp_in)**2
 
-        chi_sq_u = ((int_u_mod-int_u_exp_in)/sint_u_exp_in)**2
-        chi_sq_d = ((int_d_mod-int_d_exp_in)/sint_d_exp_in)**2
-        chi_sq_sum = ((int_u_mod+int_d_mod-int_u_exp_in-int_d_exp_in)/sint_sum_exp_in)**2
-        chi_sq_dif = ((int_u_mod-int_d_mod-int_u_exp_in+int_d_exp_in)/sint_sum_exp_in)**2
-
-        cond_u = numpy.logical_not(numpy.isnan(chi_sq_u))
-        cond_d = numpy.logical_not(numpy.isnan(chi_sq_d))
-        cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
-        cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
+            cond_u = numpy.logical_not(numpy.isnan(chi_sq_u))
+            cond_d = numpy.logical_not(numpy.isnan(chi_sq_d))
+            cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
+            cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
+        else:
+            chi_sq_sum = ((int_u_mod+int_d_mod-int_exp_in)/sint_exp_in)**2
+            cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
+            
 
         #exclude region
         exclude = self.exclude
         if exclude is not None:
             l_excl_tth_min = exclude.ttheta_min
             l_excl_tth_max = exclude.ttheta_max
-            for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
-                cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min, tth_in > 1.*excl_tth_max)
-                cond_u = numpy.logical_and(cond_u, cond_1)
-                cond_d = numpy.logical_and(cond_d, cond_1)
-                cond_sum = numpy.logical_and(cond_sum, cond_1)
+            if flag_polarized:
+                for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
+                    cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min, tth_in > 1.*excl_tth_max)
+                    cond_u = numpy.logical_and(cond_u, cond_1)
+                    cond_d = numpy.logical_and(cond_d, cond_1)
+                    cond_sum = numpy.logical_and(cond_sum, cond_1)
+            else:
+                for excl_tth_min, excl_tth_max in zip(l_excl_tth_min, l_excl_tth_max):
+                    cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min, tth_in > 1.*excl_tth_max)
+                    cond_sum = numpy.logical_and(cond_sum, cond_1)
             
-
-        chi_sq_u_val = (chi_sq_u[cond_u]).sum()
-        n_u = cond_u.sum()
-        
-        chi_sq_d_val = (chi_sq_d[cond_d]).sum()
-        n_d = cond_d.sum()
-
         chi_sq_sum_val = (chi_sq_sum[cond_sum]).sum()
         n_sum = cond_sum.sum()
 
-        chi_sq_dif_val = (chi_sq_dif[cond_dif]).sum()
-        n_dif = cond_dif.sum()
+        if flag_polarized:
 
-        flag_u = self.chi2.up
-        flag_d = self.chi2.down
-        flag_sum = self.chi2.sum
-        flag_dif = self.chi2.diff
+            chi_sq_u_val = (chi_sq_u[cond_u]).sum()
+            n_u = cond_u.sum()
+
+            chi_sq_d_val = (chi_sq_d[cond_d]).sum()
+            n_d = cond_d.sum()
+
+
+            chi_sq_dif_val = (chi_sq_dif[cond_dif]).sum()
+            n_dif = cond_dif.sum()
+
+            flag_u = self.chi2.up
+            flag_d = self.chi2.down
+            flag_sum = self.chi2.sum
+            flag_dif = self.chi2.diff
         
-        chi_sq_val = (int(flag_u)*chi_sq_u_val + int(flag_d)*chi_sq_d_val + 
-                  int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
-        n = (int(flag_u)*n_u + int(flag_d)*n_d + int(flag_sum)*n_sum + 
-             int(flag_dif)*n_dif)
+            chi_sq_val = (int(flag_u)*chi_sq_u_val + int(flag_d)*chi_sq_d_val + 
+                      int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
+            n = (int(flag_u)*n_u + int(flag_d)*n_d + int(flag_sum)*n_sum + 
+                 int(flag_dif)*n_dif)
+        else:
+            chi_sq_val = chi_sq_sum_val
+            n = n_sum
         #d_exp_out = {"chi_sq_val": chi_sq_val, "n": n}
         #d_exp_out.update(d_exp_prof_out)
         return chi_sq_val, n
@@ -718,15 +753,26 @@ Description in cif file::
         """
         calculate the integral intensity for h, k, l reflections
         """
-        field = float(self.setup.field)
+        field = self.setup.field
+        if field is None:
+            field = 0.
+        else:
+            field = float(field)
+
         diffrn_radiation = self.diffrn_radiation
-        p_u = float(diffrn_radiation.polarization)
-        p_d = (2.*float(diffrn_radiation.efficiency)-1)*p_u
+        if diffrn_radiation is not None:
+            p_u = float(diffrn_radiation.polarization)
+            p_d = (2.*float(diffrn_radiation.efficiency)-1)*p_u
+        else:
+            p_u = 0.0
+            p_d = 0.0
 
         refln = crystal.calc_refln(h, k, l)
+        f_nucl = numpy.array(refln.f_calc, dtype=complex)
+
+
         refln_s = crystal.calc_refln_susceptibility(h, k, l)
 
-        f_nucl = numpy.array(refln.f_calc, dtype=complex)
         sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
         sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
         sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)

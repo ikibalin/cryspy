@@ -410,6 +410,19 @@ FIXME: introduce Debye-Waller factor
         cell = self.cell
         atom_site_scat = self.atom_site_scat
         atom_site_susceptibility = self.atom_site_susceptibility
+        sthovl = cell.calc_sthovl(h, k, l)
+
+        if atom_site_susceptibility is None:
+            item = [ReflnSusceptibility(index_h=_h, index_k=_k, index_l=_l, sintlambda=_s,
+                                    chi_11_calc = 0., chi_12_calc = 0., chi_13_calc = 0., 
+                                    chi_21_calc = 0., chi_22_calc = 0., chi_23_calc = 0., 
+                                    chi_31_calc = 0., chi_32_calc = 0., chi_33_calc = 0., 
+                                    moment_11_calc = 0., moment_12_calc = 0., moment_13_calc = 0., 
+                                    moment_21_calc = 0., moment_22_calc = 0., moment_23_calc = 0., 
+                                    moment_31_calc = 0., moment_32_calc = 0., moment_33_calc = 0.)
+                for _h, _k, _l, _s in zip(h, k, l, sthovl)]
+            res = ReflnSusceptibilityL(item=item)
+            return res
 
         chi_11 = numpy.array(atom_site_susceptibility.chi_11, float)
         chi_22 = numpy.array(atom_site_susceptibility.chi_22, float)
@@ -484,7 +497,6 @@ FIXME: introduce Debye-Waller factor
         #phase_2d = hh.sum(axis=2)#sum over symmetry
 
         #b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
-        sthovl = cell.calc_sthovl(h, k, l)
         form_factor = atom_site_scat.calc_form_factor(sthovl)
 
         #dimensions: hkl, magnetic atoms, reduced symmetry operators
