@@ -973,12 +973,21 @@ give unique x,y,z elements and calculate multiplicity for given x,y,z fract
         wyckoff = self.space_group_wyckoff.get_wyckoff_for_fract(x, y, z)
         np_r = numpy.array(wyckoff.full_r, dtype=float)
         np_b = numpy.array(wyckoff.full_b, dtype=float)
-        x_s = (np_r[:, 0, 0]*x + np_r[:, 0, 1]*x + np_r[:, 0, 2]*z + np_b[:, 0])%1
-        y_s = (np_r[:, 1, 0]*x + np_r[:, 1, 1]*x + np_r[:, 1, 2]*z + np_b[:, 1])%1
-        z_s = (np_r[:, 2, 0]*x + np_r[:, 2, 1]*x + np_r[:, 2, 2]*z + np_b[:, 2])%1
+        x_s = (np_r[:, 0, 0]*x + np_r[:, 0, 1]*y + np_r[:, 0, 2]*z + np_b[:, 0])%1
+        y_s = (np_r[:, 1, 0]*x + np_r[:, 1, 1]*y + np_r[:, 1, 2]*z + np_b[:, 1])%1
+        z_s = (np_r[:, 2, 0]*x + np_r[:, 2, 1]*y + np_r[:, 2, 2]*z + np_b[:, 2])%1
 
+        l_shift = self.shift
+        l_x, l_y, l_z = [], [], []
+        for _shift in l_shift:
+            l_x.extend(numpy.mod(x_s+_shift[0],1))
+            l_y.extend(numpy.mod(y_s+_shift[1],1))
+            l_z.extend(numpy.mod(z_s+_shift[2],1))
         multiplicity = wyckoff.multiplicity
-        return x_s, y_s, z_s, multiplicity
+        x_out = numpy.array(l_x, dtype=float)
+        y_out = numpy.array(l_y, dtype=float)
+        z_out = numpy.array(l_z, dtype=float)
+        return x_out, y_out, z_out, multiplicity
     
 
     def calc_el_symm_for_xyz(self, x_in, y_in, z_in):

@@ -39,7 +39,7 @@ Description in cif file::
     """
     MANDATORY_ATTRIBUTE = ("length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma")
     OPTIONAL_ATTRIBUTE = ()
-    INTERNAL_ATTRIBUTE = ("m_b", "m_ib", "m_ib_norm", "type_cell",
+    INTERNAL_ATTRIBUTE = ("m_m", "m_b", "m_ib", "m_ib_norm", "type_cell",
     "cos_a", "cos_b", "cos_g", "sin_a", "sin_b", "sin_g",
     "cos_a_sq", "cos_b_sq", "cos_g_sq", "sin_a_sq", "sin_b_sq", "sin_g_sq",
     "cos_ia", "cos_ib", "cos_ig", "sin_ia", "sin_ib", "sin_ig",
@@ -358,21 +358,33 @@ Enumeration default: 90.0
     @property
     def m_b(self):
         """
-        B matrix
+B matrix defined 
+in Carthezian coordinate system where :math:`X` along axis :math:`a^{*}`,
+:math:`Z` alond axis :math:`c` and :math:`Y = Z \\times X`
+
         """
         return getattr(self, "__m_b")
     @property
     def m_ib(self):
         """
-        Inversed B matrix
+Inversed B matrix
         """
         return getattr(self, "__m_ib")
     @property
     def m_ib_norm(self):
         """
-        Normalized inversed B matrix
+Normalized inversed B matrix
         """
         return getattr(self, "__m_ib_norm")
+    @property
+    def m_m(self):
+        """
+M matrix defined 
+in Carthezian coordinate system where :math:`X` along axis :math:`a`,
+:math:`Z` alond axis :math:`c^{*}` and :math:`Y = Z \\times X`
+
+        """
+        return getattr(self, "__m_m")
 
     @property
     def type_cell(self):
@@ -589,6 +601,12 @@ Output: the list of the refined parameters
         m_ib_norm[1, :] /= b
         m_ib_norm[2, :] /= c
         setattr(self, "__m_ib_norm", m_ib_norm)
+
+        #M matrix (not sure)
+        m_m = numpy.array([[ a,   b*c_g,       c*c_b],
+                           [0.,   b*s_g, -c*s_b*c_ia],
+                           [0.,      0.,       1./ic]], dtype = float)
+        setattr(self, "__m_m", m_m)
         return flag
 
 
@@ -816,3 +834,46 @@ Give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
         sthovl = sthovl_3d[flag_12]
         arg_sort = numpy.argsort(sthovl)
         return h[arg_sort], k[arg_sort], l[arg_sort], mult[arg_sort] 
+        
+    def calc_position_by_coordinate(self, x ,y, z):
+        """
+Calculates position for coordinate :math:`(x,y,z)`
+in Carthezian coordinate system where :math:`X` along axis :math:`a`,
+:math:`Z` alond :math:`c^{*}` and :math:`Y = Z \\times X`
+
+
+        """
+        m_m = self.m_m
+        p_x = m_m[0, 0]*x + m_m[0, 1]*y + m_m[0, 2]*z
+        p_y = m_m[1, 0]*x + m_m[1, 1]*y + m_m[1, 2]*z
+        p_z = m_m[2, 0]*x + m_m[2, 1]*y + m_m[2, 2]*z
+        return p_x, p_y, p_z
+
+    def calc_length_sq(x, y, z):
+        """
+According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
+
+.. math::
+    t^{2} = x^{2} a^{2} + y^{2} b^{2} + z^{2} c^{2} 
+            + 2 x y a b \\cos \\gamma  + 2 x z a c \\cos \\beta  + 2 y z b c \\cos \\alpha 
+        """
+        a, b, c = float(self.length_a), float(self.length_b), float(self.length_c)
+        c_a, c_b, c_c = self.cos_a, self.cos_b, self.cos_g
+        t_sq = (x**2 * a**2 + y**2 * b**2 + z**2 * c**2 + 
+                2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
+        return t_sq
+
+    def calc_reciprocal_length_sq(h, k, l):
+        """
+According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
+
+.. math::
+    r^{*^{2}} = h^{2} a^{*^{2}} + k^{*^{2}} b^{*^{2}} + l^{2} c^{*^{2}} 
+            + 2 h k a^{*} b^{*} \\cos \\gamma  + 2 h l a^{*} c^{*} \\cos \\beta  + 2 k l b^{*} c^{*} \\cos \\alpha 
+        """
+        a, b, c = float(self.reciprocal_length_a), float(self.reciprocal_length_b), float(self.reciprocal_length_c)
+        c_a, c_b, c_c = self.cos_ia, self.cos_ib, self.cos_ig
+        x, y, z = h, k, l
+        t_sq = (x**2 * a**2 + y**2 * b**2 + z**2 * c**2 + 
+                2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
+        return t_sq
