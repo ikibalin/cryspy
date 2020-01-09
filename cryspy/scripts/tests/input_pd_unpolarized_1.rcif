@@ -41,11 +41,6 @@ _pd_background_intensity
 
 
 
-_extinction_mosaicity 0.5523
-_extinction_radius    77.7983
-_extinction_model     gauss
-
-
 _pd_instr_resolution_u 16.9776
 _pd_instr_resolution_v -2.8357
 _pd_instr_resolution_w  0.5763

@@ -70,9 +70,6 @@ _exclude_ttheta_max
 _diffrn_radiation_polarization -0.87
 _diffrn_radiation_efficiency    1.00
 
-_extinction_mosaicity 0.5523
-_extinction_radius    77.7983
-_extinction_model     gauss
 
 _diffrn_radiation_polarization 0.0
 _diffrn_radiation_efficiency   1.0
