@@ -222,14 +222,14 @@ calculate the integral intensity for h, k, l reflections
         """
         optimization
         """
+        flag = True
         self.apply_constraint()
         l_fitable = self.get_variables()
 
         if l_fitable == []:
-            self._show_message("Variables are not found")
             chi_sq, n = self.calc_chi_sq()
             self._show_message(f"chi_sq/n {chi_sq/n:.2f} (n = {int(n):}).")
-            return None
+            return flag
         
 
         val_0 = numpy.array([fitable.value for fitable in l_fitable], dtype=float)
@@ -274,7 +274,7 @@ calculate the integral intensity for h, k, l reflections
         #print("experiment  chi_sq_n")
         #for _1 in self.experiments:
         #    print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))
-        return res
+        return flag
 
     
     def _f_callback(self, *arg):

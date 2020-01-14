@@ -504,59 +504,73 @@ Type: float
         """
         according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
+        flag = True
         l_numb = atom_site.calc_constr_number(space_group)
         label_aniso = self.label
         label = atom_site.label
-        l_ind = [label.index(_1) for _1 in label_aniso]
-        
-        for index, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, moment_11, moment_22, moment_33, moment_12, moment_13, moment_23 in zip(l_ind, 
-           self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23,
-           self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23):
+        index = label.index(label_aniso)
+        chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 = self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23
+        moment_11, moment_22, moment_33, moment_12, moment_13, moment_23 = self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23
+        flag_chi = (self.chi_type is not None)
+        if flag_chi:
+            flag_chi = self.chi_type.lower().startswith("cani")
+        flag_moment = (self.moment_type is not None)
+        if flag_moment:
+            flag_moment = self.moment_type.lower().startswith("mani")
+        if flag_chi:
             chi_11.constraint_flag, chi_22.constraint_flag, chi_33.constraint_flag = False, False, False
             chi_12.constraint_flag, chi_13.constraint_flag, chi_23.constraint_flag = False, False, False
+        if flag_moment:
             moment_11.constraint_flag, moment_22.constraint_flag, moment_33.constraint_flag = False, False, False
             moment_12.constraint_flag, moment_13.constraint_flag, moment_23.constraint_flag = False, False, False
-            numb = l_numb[index]
-            if numb == 1:
+        numb = l_numb[index]
+        if numb == 1:
+            if flag_chi:
                 chi_12.value = 0.
                 chi_12.refinement = False
                 chi_12.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_12.value = 0.
                 moment_12.refinement = False
                 moment_12.constraint_flag = True
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 2:
+        elif numb == 2:
+            if flag_chi:
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+            if flag_moment:
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
                 moment_13.value = 0.
                 moment_13.refinement = False
                 moment_13.constraint_flag = True
-            elif numb == 3:
+        elif numb == 3:
+            if flag_chi:
                 chi_12.value = 0.
                 chi_12.refinement = False
                 chi_12.constraint_flag = True
                 chi_13.value = 0.
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+            if flag_moment:
                 moment_12.value = 0.
                 moment_12.refinement = False
                 moment_12.constraint_flag = True
                 moment_13.value = 0.
                 moment_13.refinement = False
                 moment_13.constraint_flag = True
-            elif numb == 4:
+        elif numb == 4:
+            if flag_chi:
                 chi_12.value = 0.
                 chi_12.refinement = False
                 chi_12.constraint_flag = True
@@ -566,6 +580,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_12.value = 0.
                 moment_12.refinement = False
                 moment_12.constraint_flag = True
@@ -575,7 +590,8 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 5:
+        elif numb == 5:
+            if flag_chi:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
@@ -585,6 +601,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
@@ -594,33 +611,38 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 6:
+        elif numb == 6:
+            if flag_chi:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
                 chi_23.value = chi_13.value 
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
                 moment_23.value = moment_13.value 
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 7:
+        elif numb == 7:
+            if flag_chi:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
                 chi_23.value = -1.*chi_13.value 
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
                 moment_23.value = -1.*moment_13.value 
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 8:
+        elif numb == 8:
+            if flag_chi:
                 chi_22.value = chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
@@ -633,6 +655,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
@@ -645,7 +668,8 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 9:
+        elif numb == 9:
+            if flag_chi:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
                 chi_33.constraint_flag = True
@@ -655,6 +679,7 @@ Type: float
                 chi_13.value = 0.
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+            if flag_moment:
                 moment_33.value = moment_22.value
                 moment_33.refinement = False
                 moment_33.constraint_flag = True
@@ -664,33 +689,38 @@ Type: float
                 moment_13.value = 0.
                 moment_13.refinement = False
                 moment_13.constraint_flag = True
-            elif numb == 10:
+        elif numb == 10:
+            if flag_chi:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
                 chi_33.constraint_flag = True
                 chi_13.value = 1.*chi_12.value 
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+            if flag_moment:
                 moment_33.value = moment_22.value
                 moment_33.refinement = False
                 moment_33.constraint_flag = True
                 moment_13.value = 1.*moment_12.value 
                 moment_13.refinement = False
                 moment_13.constraint_flag = True
-            elif numb == 11:
+        elif numb == 11:
+            if flag_chi:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
                 chi_33.constraint_flag = True
                 chi_13.value = -1.*chi_12.value 
                 chi_13.refinement = False
                 chi_13.constraint_flag = True
+            if flag_moment:
                 moment_33.value = moment_22.value
                 moment_33.refinement = False
                 moment_33.constraint_flag = True
                 moment_13.value = -1.*moment_12.value 
                 moment_13.refinement = False
                 moment_13.constraint_flag = True
-            elif numb == 12:
+        elif numb == 12:
+            if flag_chi:
                 chi_33.value = chi_22.value
                 chi_33.refinement = False
                 chi_33.constraint_flag = True
@@ -703,6 +733,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_33.value = moment_22.value
                 moment_33.refinement = False
                 moment_33.constraint_flag = True
@@ -715,20 +746,23 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 13:
+        elif numb == 13:
+            if flag_chi:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
                 chi_12.constraint_flag = True
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_12.value = 0.5*moment_22.value
                 moment_12.refinement = False
                 moment_12.constraint_flag = True
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 14:
+        elif numb == 14:
+            if flag_chi:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
                 chi_12.constraint_flag = True
@@ -738,6 +772,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_12.value = 0.5*moment_22.value
                 moment_12.refinement = False
                 moment_12.constraint_flag = True
@@ -747,20 +782,23 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 15:
+        elif numb == 15:
+            if flag_chi:
                 chi_12.value = 0.5*chi_22.value
                 chi_12.refinement = False
                 chi_12.constraint_flag = True
                 chi_23.value = 2.*chi_13.value
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_12.value = 0.5*moment_22.value
                 moment_12.refinement = False
                 moment_12.constraint_flag = True
                 moment_23.value = 2.*moment_13.value
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 16:
+        elif numb == 16:
+            if flag_chi:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
@@ -773,6 +811,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = 1.0*moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
@@ -785,7 +824,8 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 17:
+        elif numb == 17:
+            if flag_chi:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
@@ -801,6 +841,7 @@ Type: float
                 chi_23.value = 0.
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = 1.0*moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
@@ -816,7 +857,8 @@ Type: float
                 moment_23.value = 0.
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
-            elif numb == 18:
+        elif numb == 18:
+            if flag_chi:
                 chi_22.value = 1.0*chi_11.value
                 chi_22.refinement = False
                 chi_22.constraint_flag = True
@@ -829,6 +871,7 @@ Type: float
                 chi_23.value = 1.0*chi_12.value
                 chi_23.refinement = False
                 chi_23.constraint_flag = True
+            if flag_moment:
                 moment_22.value = 1.0*moment_11.value
                 moment_22.refinement = False
                 moment_22.constraint_flag = True
@@ -841,46 +884,52 @@ Type: float
                 moment_23.value = 1.0*moment_12.value
                 moment_23.refinement = False
                 moment_23.constraint_flag = True
+        return flag
 
 
     def apply_chi_iso_constraint(self, cell):
+        flag = True
         c_a = cell.cos_a
         s_ib = cell.sin_ib
         s_ig = cell.sin_ig
         c_ib = cell.cos_ib
         c_ig = cell.cos_ig
         #not sure, it is better to check
-
-        for chi_type, chi_11, chi_22, chi_33, chi_12, chi_13, chi_23 in zip(
-            self.chi_type, self.chi_11, self.chi_22, self.chi_33, self.chi_12, self.chi_13, self.chi_23):
-            if chi_type.lower().startswith("ciso"):
-                chi_22.value = chi_11.value
-                chi_33.value = chi_11.value
-                chi_12.value = chi_11.value*c_ig
-                chi_13.value = chi_11.value*c_ib
-                chi_23.value = chi_11.value*(c_ib*c_ig-s_ib*s_ig*c_a)
-                chi_22.refinement, chi_33.refinement, chi_12.refinement, chi_13.refinement, chi_23.refinement =False, False, False, False, False
-        return  
+        chi_type = self.chi_type
+        chi_11, chi_22, chi_33 = self.chi_11, self.chi_22, self.chi_33
+        chi_12, chi_13, chi_23 = self.chi_12, self.chi_13, self.chi_23
+        if chi_type is None:
+            return flag
+        if chi_type.lower().startswith("ciso"):
+            chi_22.value = chi_11.value
+            chi_33.value = chi_11.value
+            chi_12.value = chi_11.value*c_ig
+            chi_13.value = chi_11.value*c_ib
+            chi_23.value = chi_11.value*(c_ib*c_ig-s_ib*s_ig*c_a)
+            chi_22.refinement, chi_33.refinement, chi_12.refinement, chi_13.refinement, chi_23.refinement =False, False, False, False, False
+        return  flag
 
     def apply_moment_iso_constraint(self, cell):
+        flag = True
         c_a = cell.cos_a
         s_ib = cell.sin_ib
         s_ig = cell.sin_ig
         c_ib = cell.cos_ib
         c_ig = cell.cos_ig
         #not sure, it is better to check
-
-        for moment_type, moment_11, moment_22, moment_33, moment_12, moment_13, moment_23, moment_type, moment_11, moment_22, moment_33, moment_12, moment_13, moment_23 in zip(
-            self.moment_type, self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23,
-            self.moment_type, self.moment_11, self.moment_22, self.moment_33, self.moment_12, self.moment_13, self.moment_23):
-            if moment_type.lower().startswith("miso"):
-                moment_22.value = moment_11.value
-                moment_33.value = moment_11.value
-                moment_12.value = moment_11.value*c_ig
-                moment_13.value = moment_11.value*c_ib
-                moment_23.value = moment_11.value*(c_ib*c_ig-s_ib*s_ig*c_a)
-                moment_22.refinement, moment_33.refinement, moment_12.refinement, moment_13.refinement, moment_23.refinement =False, False, False, False, False
-        return  
+        moment_type = self.moment_type
+        moment_11, moment_22, moment_33 =  self.moment_11, self.moment_22, self.moment_33 
+        moment_12, moment_13, moment_23 =  self.moment_12, self.moment_13, self.moment_23
+        if moment_type is  None:
+            return flag
+        if moment_type.lower().startswith("miso"):
+            moment_22.value = moment_11.value
+            moment_33.value = moment_11.value
+            moment_12.value = moment_11.value*c_ig
+            moment_13.value = moment_11.value*c_ib
+            moment_23.value = moment_11.value*(c_ib*c_ig-s_ib*s_ig*c_a)
+            moment_22.refinement, moment_33.refinement, moment_12.refinement, moment_13.refinement, moment_23.refinement =False, False, False, False, False
+        return  flag
 
 
 
@@ -923,3 +972,14 @@ Description in cif file::
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
+
+    def apply_space_group_constraint(self, atom_site, space_group):
+        l_flag = [_item.apply_space_group_constraint(atom_site, space_group) for _item in self.item]
+        return all(l_flag)
+    def apply_chi_iso_constraint(self, cell):
+        l_flag = [_item.apply_chi_iso_constraint(cell) for _item in self.item]
+        return all(l_flag)
+
+    def apply_moment_iso_constraint(self, cell):
+        l_flag = [_item.apply_moment_iso_constraint(cell) for _item in self.item]
+        return all(l_flag)

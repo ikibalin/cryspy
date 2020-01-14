@@ -665,3 +665,5 @@ calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.
             beta_11, beta_22, beta_33, beta_12, beta_13, beta_23 = _item.calc_beta(cell)
             l_beta.append((beta_11, beta_22, beta_33, beta_12, beta_13, beta_23))
         return numpy.array(l_beta, dtype=float)
+
+            

@@ -62,8 +62,8 @@ data_Fe3O4
  _atom_site_susceptibility_chi_22
  _atom_site_susceptibility_chi_23
  _atom_site_susceptibility_chi_33
-  Fe3A Cani -3.468(74) 0.0 0.0 -3.468 0.0 -3.468
-  Fe3B Cani 3.041      0.0 0.0  3.041 0.0  3.041
+  Fe3A Cani -3.468(74) 0.0 0.0 -3.468() 0.0 -3.468
+  Fe3B Ciso 3.041      0.023 0.0  3.200 0.0  3.041
     """
 
 def test_init():
@@ -116,11 +116,17 @@ def test_calc_refln():
 def test_calc_refln_susceptibility():
     rel_tol, abs_tol =0.001, 0.01
     _obj = Crystal.from_cif(STR_FROM_CIF_1)
+    assert (_obj.atom_site_susceptibility["Fe3B"].chi_22.value == 3.20)
+    assert math.isclose(_obj.atom_site_susceptibility["Fe3B"].chi_12.value, 0.023, rel_tol=rel_tol, abs_tol=abs_tol)
+    assert _obj.atom_site_susceptibility["Fe3A"].chi_22.refinement 
     _obj.apply_constraint()
+    assert not(_obj.atom_site_susceptibility["Fe3A"].chi_22.refinement)
+    assert (_obj.atom_site_susceptibility["Fe3B"].chi_22.value == 3.041)
+    assert math.isclose(_obj.atom_site_susceptibility["Fe3B"].chi_12.value, 0., rel_tol=rel_tol, abs_tol=abs_tol)
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
     refln_suc = _obj.calc_refln_susceptibility(h, k, l)
-    #print(refln_suc.to_cif())
     assert True
     #f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)
     #res = numpy.isclose(f_nucl, f_reference, rtol=rel_tol, atol=abs_tol)
     #assert all(res)    
+

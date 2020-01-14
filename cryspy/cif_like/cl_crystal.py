@@ -329,13 +329,14 @@ Description in cif file::
         if atom_site_aniso is not None:
             pass
             #atom_site_aniso.apply_space_group_constraint(atom_site, space_group)
-        #atom_site_magnetism_aniso = self.atom_site_magnetism_aniso
-        #if atom_site_magnetism_aniso is not None:
-        #    #pass
-        #    #atom_site_magnetism_aniso.apply_chi_iso_constraint(cell)
-        #    #atom_site_magnetism_aniso.apply_moment_iso_constraint(cell)
-        #    #atom_site_magnetism_aniso.apply_space_group_constraint(atom_site, space_group)
-        flag = all([flag_cell, flag_atom_site])
+        flag_sucs_1, flag_sucs_2, flag_sucs_3 = True, True, True
+        atom_site_susceptibility = self.atom_site_susceptibility
+        if atom_site_susceptibility is not None:
+            flag_sucs_1 = atom_site_susceptibility.apply_chi_iso_constraint(cell)
+            flag_sucs_2 = atom_site_susceptibility.apply_moment_iso_constraint(cell)
+            flag_sucs_3 = atom_site_susceptibility.apply_space_group_constraint(atom_site, space_group)
+            
+        flag = all([flag_cell, flag_atom_site, flag_sucs_1, flag_sucs_2, flag_sucs_3])
         return flag
 
 
@@ -359,6 +360,7 @@ FIXME: introduce Debye-Waller factor
 
         atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
         scat_length_neutron = numpy.array(atom_site.scat_length_neutron, dtype=complex)
+        
 
         occ_mult = occupancy*atom_multiplicity 
 
@@ -393,6 +395,8 @@ FIXME: introduce Debye-Waller factor
 
         f_nucl = space_group.calc_f_hkl_by_f_hkl_as(h, k, l, f_hkl_as)
    
+        
+
         item=[Refln(index_h=_1, index_k=_2, index_l=_3, f_calc=_4) for _1, _2, _3, _4 in zip(h, k, l, f_nucl)]
         res = ReflnL(item=item)
         return res

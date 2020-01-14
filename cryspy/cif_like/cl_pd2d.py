@@ -615,6 +615,7 @@ Description in cif file::
                 cos_theta_3d, sin_phi_3d = dd_in["cos_theta_3d"], dd_in["sin_phi_3d"]
             else:                      
                 cos_theta_3d, sin_phi_3d, mult_f_n_3d = numpy.meshgrid(cos_theta_1d, sin_phi_1d, mult*f_nucl_sq, indexing="ij")
+
                 mult_f_m_c_3d = numpy.meshgrid(tth_rad, phi_rad, mult*f_m_p_cos_sq, indexing="ij")[2]
 
                 hh_u_s_3d = numpy.meshgrid(tth_rad, phi_rad, mult*(f_m_p_sin_sq+p_u*cross_sin), indexing="ij")[2]
@@ -622,7 +623,6 @@ Description in cif file::
 
                 c_a_sq_3d = (cos_theta_3d * sin_phi_3d)**2
                 s_a_sq_3d = 1.-c_a_sq_3d
-
                 iint_u_3d = (mult_f_n_3d + hh_u_s_3d*s_a_sq_3d + mult_f_m_c_3d*c_a_sq_3d)
                 iint_d_3d = (mult_f_n_3d + hh_d_s_3d*s_a_sq_3d + mult_f_m_c_3d*c_a_sq_3d)
             dd_out["cos_theta_3d"] = cos_theta_3d
@@ -653,7 +653,6 @@ Description in cif file::
             for _item, _1, _2 in zip(peak.item, tth_hkl, h_pv):
                 setattr(_item, "ttheta", _1)
                 setattr(_item, "width_ttheta", _2)
-            
             
             res_u_3d = profile_3d*iint_u_3d 
             res_d_3d = profile_3d*iint_d_3d 
@@ -749,6 +748,7 @@ Description in cif file::
         chi_sq_sum = ((int_u_mod+int_d_mod-int_u_exp_in-int_d_exp_in)/sint_sum_exp_in)**2
         chi_sq_dif = ((int_u_mod-int_d_mod-int_u_exp_in+int_d_exp_in)/sint_sum_exp_in)**2
 
+
         cond_u = numpy.logical_not(numpy.isnan(chi_sq_u))
         cond_d = numpy.logical_not(numpy.isnan(chi_sq_d))
         cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
@@ -808,6 +808,7 @@ Description in cif file::
         p_d = (2.*float(diffrn_radiation.efficiency)-1)*p_u
 
         refln = crystal.calc_refln(h, k, l)
+
         refln_s = crystal.calc_refln_susceptibility(h, k, l)
 
         f_nucl = numpy.array(refln.f_calc, dtype=complex)
