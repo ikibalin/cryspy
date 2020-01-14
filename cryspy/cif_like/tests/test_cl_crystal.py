@@ -25,9 +25,9 @@ data_Fe3O4
  _atom_site_label
  _atom_site_occupancy
  _atom_site_type_symbol
-  Uani 0.0 0.125 0.125 0.125 Fe3A 1.0 Fe3+
+  Uani 0.0 0.125() 0.125() 0.125() Fe3A 1.0 Fe3+
   Uani 0.0 0.5 0.5 0.5 Fe3B 1.0 Fe3+
-  Uiso 0.0 0.25521 0.25521 0.25521 O1 1.0 O2-
+  Uiso 0.0 0.25521() 0.25521() 0.25521() O1 1.0 O2-
  
  loop_                                     
  _atom_type_scat_length_neutron
@@ -121,12 +121,28 @@ def test_calc_refln_susceptibility():
     assert _obj.atom_site_susceptibility["Fe3A"].chi_22.refinement 
     assert _obj.atom_site_aniso["Fe3A"].u_22.refinement 
     assert (_obj.atom_site_aniso["Fe3A"].u_22.value == 2.0)
+    assert _obj.atom_site["Fe3A"].fract_x.refinement 
+    assert _obj.atom_site["Fe3A"].fract_y.refinement 
+    assert _obj.atom_site["Fe3A"].fract_z.refinement 
+    assert _obj.atom_site["O1"].fract_x.refinement 
+    assert _obj.atom_site["O1"].fract_y.refinement 
+    assert _obj.atom_site["O1"].fract_z.refinement 
+    
     _obj.apply_constraint()
     assert not(_obj.atom_site_aniso["Fe3A"].u_22.refinement) 
     assert (_obj.atom_site_aniso["Fe3A"].u_22.value == 0.0)
     assert not(_obj.atom_site_susceptibility["Fe3A"].chi_22.refinement)
     assert (_obj.atom_site_susceptibility["Fe3B"].chi_22.value == 3.041)
     assert math.isclose(_obj.atom_site_susceptibility["Fe3B"].chi_12.value, 0., rel_tol=rel_tol, abs_tol=abs_tol)
+    assert not(_obj.atom_site["Fe3A"].fract_x.refinement)
+    assert not(_obj.atom_site["Fe3A"].fract_y.refinement)
+    assert not(_obj.atom_site["Fe3A"].fract_z.refinement)
+    assert _obj.atom_site["O1"].fract_x.refinement
+    assert not(_obj.atom_site["O1"].fract_y.refinement)
+    assert not(_obj.atom_site["O1"].fract_z.refinement)
+
+
+
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
     refln_suc = _obj.calc_refln_susceptibility(h, k, l)
     assert True
