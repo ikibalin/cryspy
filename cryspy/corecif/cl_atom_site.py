@@ -450,16 +450,21 @@ the _atom_sites_Cartn_transform_axes description.
         return flag
 
     def apply_constraint(self, space_group_wyckoff_l)->bool:
-        x, y, z = float(self.fract_x), float(self.fract_y), float(self.fract_z)
+        fract_x, fract_y, fract_z = self.fract_x, self.fract_y, self.fract_z
+        fract_x.constraint_flag, fract_y.constraint_flag, fract_z.constraint_flag = False, False, False
+        x, y, z = float(fract_x), float(fract_y), float(fract_z)
         _id = space_group_wyckoff_l.get_id_for_fract(x, y, z)
         setattr(self, "__space_group_wyckoff", space_group_wyckoff_l[_id])
         r = space_group_wyckoff_l[_id].r
         if r[0, 0] == 0:
-            self.fract_x.refinement = False
+            fract_x.constraint_flag = True
+            fract_x.refinement = False
         if r[1, 1] == 0:
-            self.fract_y.refinement = False
+            fract_y.constraint_flag = True
+            fract_y.refinement = False
         if r[2, 2] == 0:
-            self.fract_z.refinement = False
+            fract_z.constraint_flag = True
+            fract_z.refinement = False
         flag = False
         if self.is_defined:
             flag = self.form_object
