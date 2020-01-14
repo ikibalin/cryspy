@@ -326,9 +326,9 @@ Description in cif file::
         atom_site = self.atom_site
         flag_atom_site = atom_site.apply_constraint(space_group_wyckoff)
         atom_site_aniso = self.atom_site_aniso
+        flag_adp = True
         if atom_site_aniso is not None:
-            pass
-            #atom_site_aniso.apply_space_group_constraint(atom_site, space_group)
+            flag_adp = atom_site_aniso.apply_space_group_constraint(atom_site, space_group)
         flag_sucs_1, flag_sucs_2, flag_sucs_3 = True, True, True
         atom_site_susceptibility = self.atom_site_susceptibility
         if atom_site_susceptibility is not None:
@@ -336,7 +336,7 @@ Description in cif file::
             flag_sucs_2 = atom_site_susceptibility.apply_moment_iso_constraint(cell)
             flag_sucs_3 = atom_site_susceptibility.apply_space_group_constraint(atom_site, space_group)
             
-        flag = all([flag_cell, flag_atom_site, flag_sucs_1, flag_sucs_2, flag_sucs_3])
+        flag = all([flag_cell, flag_atom_site, flag_adp, flag_sucs_1, flag_sucs_2, flag_sucs_3])
         return flag
 
 

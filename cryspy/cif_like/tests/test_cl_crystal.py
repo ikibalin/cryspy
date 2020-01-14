@@ -43,7 +43,7 @@ data_Fe3O4
  _atom_site_aniso_U_23
  _atom_site_aniso_U_33
  _atom_site_aniso_label
-  0.0 0.0 0.0 0.0 0.0 0.0 Fe3A
+  0.0() 0.0() 1.0() 2.0() 3.0() 4.0() Fe3A
   0.0 0.0 0.0 0.0 0.0 0.0 Fe3B
  
  loop_
@@ -119,7 +119,11 @@ def test_calc_refln_susceptibility():
     assert (_obj.atom_site_susceptibility["Fe3B"].chi_22.value == 3.20)
     assert math.isclose(_obj.atom_site_susceptibility["Fe3B"].chi_12.value, 0.023, rel_tol=rel_tol, abs_tol=abs_tol)
     assert _obj.atom_site_susceptibility["Fe3A"].chi_22.refinement 
+    assert _obj.atom_site_aniso["Fe3A"].u_22.refinement 
+    assert (_obj.atom_site_aniso["Fe3A"].u_22.value == 2.0)
     _obj.apply_constraint()
+    assert not(_obj.atom_site_aniso["Fe3A"].u_22.refinement) 
+    assert (_obj.atom_site_aniso["Fe3A"].u_22.value == 0.0)
     assert not(_obj.atom_site_susceptibility["Fe3A"].chi_22.refinement)
     assert (_obj.atom_site_susceptibility["Fe3B"].chi_22.value == 3.041)
     assert math.isclose(_obj.atom_site_susceptibility["Fe3B"].chi_12.value, 0., rel_tol=rel_tol, abs_tol=abs_tol)
