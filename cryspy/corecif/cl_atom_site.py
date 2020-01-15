@@ -401,6 +401,10 @@ the _atom_sites_Cartn_transform_axes description.
     def scat_length_neutron(self):
         return getattr(self, "__scat_length_neutron")
 
+    @property
+    def space_group_wyckoff(self):
+        return getattr(self, "__space_group_wyckoff")
+
 
     def _show_message(self, s_out: str):
         warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
@@ -436,10 +440,31 @@ the _atom_sites_Cartn_transform_axes description.
     @property
     def form_object(self) -> bool:
         if self.is_defined_attribute("space_group_wyckoff"):
-            _obj = getattr(self, "__space_group_wyckoff")
-            self.multiplicity = getattr(_obj, "__multiplicity")
-            self.wyckoff_symbol = getattr(_obj, "__letter")
+            space_group_wyckoff = getattr(self, "__space_group_wyckoff")
+            self.multiplicity = getattr(space_group_wyckoff, "__multiplicity")
+            self.wyckoff_symbol = getattr(space_group_wyckoff, "__letter")
 
+            fract_x, fract_y, fract_z = self.fract_x, self.fract_y, self.fract_z
+            fract_x.constraint_flag, fract_y.constraint_flag, fract_z.constraint_flag = False, False, False
+            xyz = numpy.array([fract_x, fract_y, fract_z], dtype=float)
+
+            r = space_group_wyckoff.r
+            b_float = space_group_wyckoff.b.astype(float)
+            r_float = r.astype(float)
+            if r[0, 0] == 0:
+                fract_x.constraint_flag = True
+                fract_x.refinement = False
+            if r[1, 1] == 0:
+                fract_y.constraint_flag = True
+                fract_y.refinement = False
+            if r[2, 2] == 0:
+                fract_z.constraint_flag = True
+                fract_z.refinement = False
+            
+            xyz_new = numpy.matmul(r_float, xyz) + b_float
+            fract_x.value = float(xyz_new[0]) 
+            fract_y.value = float(xyz_new[1]) 
+            fract_z.value = float(xyz_new[2])
         flag = True
         try:
             type_n = self.type_symbol
@@ -449,22 +474,20 @@ the _atom_sites_Cartn_transform_axes description.
             flag = False
         return flag
 
-    def apply_constraint(self, space_group_wyckoff_l)->bool:
+    def define_space_group_wyckoff(self, space_group_wyckoff_l)->bool:
+        flag = True
         fract_x, fract_y, fract_z = self.fract_x, self.fract_y, self.fract_z
-        fract_x.constraint_flag, fract_y.constraint_flag, fract_z.constraint_flag = False, False, False
         x, y, z = float(fract_x), float(fract_y), float(fract_z)
         _id = space_group_wyckoff_l.get_id_for_fract(x, y, z)
-        setattr(self, "__space_group_wyckoff", space_group_wyckoff_l[_id])
-        r = space_group_wyckoff_l[_id].r
-        if r[0, 0] == 0:
-            fract_x.constraint_flag = True
-            fract_x.refinement = False
-        if r[1, 1] == 0:
-            fract_y.constraint_flag = True
-            fract_y.refinement = False
-        if r[2, 2] == 0:
-            fract_z.constraint_flag = True
-            fract_z.refinement = False
+        space_group_wyckoff = space_group_wyckoff_l[_id]
+        setattr(self, "__space_group_wyckoff", space_group_wyckoff)
+        return flag
+
+    def apply_constraint(self, space_group_wyckoff_l)->bool:
+        space_group_wyckoff = self.space_group_wyckoff
+        if space_group_wyckoff is None:
+            self.define_space_group_wyckoff(space_group_wyckoff_l)
+            space_group_wyckoff = self.space_group_wyckoff
         flag = False
         if self.is_defined:
             flag = self.form_object

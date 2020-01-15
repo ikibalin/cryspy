@@ -141,7 +141,9 @@ def test_calc_refln_susceptibility():
     assert not(_obj.atom_site["O1"].fract_y.refinement)
     assert not(_obj.atom_site["O1"].fract_z.refinement)
 
-
+    _obj.atom_site["O1"].fract_x = 0.3
+    _obj.apply_constraint()
+    assert (math.isclose(_obj.atom_site["O1"].fract_y, 0.3, rel_tol=rel_tol, abs_tol=abs_tol))
 
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
     refln_suc = _obj.calc_refln_susceptibility(h, k, l)

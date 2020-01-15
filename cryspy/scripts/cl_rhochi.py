@@ -228,7 +228,7 @@ calculate the integral intensity for h, k, l reflections
 
         if l_fitable == []:
             chi_sq, n = self.calc_chi_sq()
-            self._show_message(f"chi_sq/n {chi_sq/n:.2f} (n = {int(n):}).")
+            #self._show_message(f"chi_sq/n {chi_sq/n:.2f} (n = {int(n):}).")
             return flag
         
 
