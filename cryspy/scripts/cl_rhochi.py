@@ -229,7 +229,8 @@ calculate the integral intensity for h, k, l reflections
         if l_fitable == []:
             chi_sq, n = self.calc_chi_sq()
             #self._show_message(f"chi_sq/n {chi_sq/n:.2f} (n = {int(n):}).")
-            return flag
+            _dict_out = {"flag": flag, "res":None, "chi_sq":chi_sq, "n":n}
+            return _dict_out
         
 
         val_0 = numpy.array([fitable.value for fitable in l_fitable], dtype=float)
@@ -260,7 +261,8 @@ calculate the integral intensity for h, k, l reflections
 
         """
         res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(coeff_norm, x), options = {"disp": True})
-
+        
+        _dict_out = {"flag": flag, "res":res}
         #res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
         #                              callback=self._f_callback, options = {"fatol": 0.01*n})
 
@@ -274,7 +276,7 @@ calculate the integral intensity for h, k, l reflections
         #print("experiment  chi_sq_n")
         #for _1 in self.experiments:
         #    print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))
-        return flag
+        return _dict_out
 
     
     def _f_callback(self, *arg):

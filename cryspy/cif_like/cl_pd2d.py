@@ -453,8 +453,6 @@ Description in cif file::
 
     @property
     def proc(self):
-        """
-        """
         l_res = self[Pd2dProc]
         if len(l_res) >= 1:
             return l_res[0]
