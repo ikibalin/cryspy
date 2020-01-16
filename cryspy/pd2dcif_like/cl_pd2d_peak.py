@@ -21,17 +21,20 @@ Description in cif file::
  _pd2d_peak_index_k           2
  _pd2d_peak_index_l           0
  _pd2d_peak_index_mult        4
- _pd2d_peak_ttheta           17.2
+ _pd2d_peak_2theta           17.2
  _pd2d_peak_f_nucl_sq       100.0
  _pd2d_peak_f_m_p_sin_sq    101.2
  _pd2d_peak_f_m_p_cos_sq     90.0
  _pd2d_peak_cross_sin        87.4
- _pd2d_peak_width_ttheta      2.3
+ _pd2d_peak_width_2theta      2.3
 
     """
     MANDATORY_ATTRIBUTE = ("index_h", "index_k", "index_l")
     OPTIONAL_ATTRIBUTE = ("index_mult", "ttheta",
                           "f_nucl_sq", "f_m_p_sin_sq", "f_m_p_cos_sq", "cross_sin", "width_ttheta")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("index_h", "index_k", "index_l")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("index_mult", "2theta",
+                          "f_nucl_sq", "f_m_p_sin_sq", "f_m_p_cos_sq", "cross_sin", "width_2theta")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "pd2d_peak"
     def __init__(self, index_h=None, index_k=None, index_l=None, index_mult=None, 

@@ -18,55 +18,55 @@ and application of correction terms.
 
 Description in cif file::
 
- _pd2d_proc_ttheta_phi_intensity_up_net
+ _pd2d_proc_2theta_phi_intensity_up_net
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_down_net
+ _pd2d_proc_2theta_phi_intensity_down_net
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_up_total
+ _pd2d_proc_2theta_phi_intensity_up_total
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_down_total
+ _pd2d_proc_2theta_phi_intensity_down_total
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_bkg_calc
+ _pd2d_proc_2theta_phi_intensity_bkg_calc
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_up
+ _pd2d_proc_2theta_phi_intensity_up
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_up_sigma
+ _pd2d_proc_2theta_phi_intensity_up_sigma
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_down
+ _pd2d_proc_2theta_phi_intensity_down
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
  41.000 -357.0   -350.0   -400.0
  ;
- _pd2d_proc_ttheta_phi_intensity_down_sigma
+ _pd2d_proc_2theta_phi_intensity_down_sigma
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
@@ -78,6 +78,11 @@ Description in cif file::
         "ttheta_phi_intensity_up", "ttheta_phi_intensity_up_sigma", "ttheta_phi_intensity_down",
         "ttheta_phi_intensity_down_sigma")
     OPTIONAL_ATTRIBUTE = ()
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta_phi_intensity_up_net", "2theta_phi_intensity_down_net",
+        "2theta_phi_intensity_up_total", "2theta_phi_intensity_down_total", "2theta_phi_intensity_bkg_calc",
+        "2theta_phi_intensity_up", "2theta_phi_intensity_up_sigma", "2theta_phi_intensity_down",
+        "2theta_phi_intensity_down_sigma")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ()
     INTERNAL_ATTRIBUTE = ("ttheta", "phi", "ttheta_corrected", "d_spacing",
                           "intensity_up_net", "intensity_down_net", "intensity_up_total", "intensity_down_total", 
                           "intensity_bkg_calc", "intensity_net", "intensity_total", 

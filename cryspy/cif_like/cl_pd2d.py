@@ -41,15 +41,15 @@ Description in cif file::
  data_powder2d
  _setup_wavelength     0.840
  _setup_field          1.000
- _setup_offset_ttheta -0.385
+ _setup_offset_2theta -0.385
  
  _chi2_sum  True
  _chi2_diff False
  _chi2_up   False
  _chi2_down False
  
- _range_ttheta_min     4.000
- _range_ttheta_max    80.000
+ _range_2theta_min     4.000
+ _range_2theta_max    80.000
  _range_phi_min       -2.000
  _range_phi_max       40.000
  
@@ -58,8 +58,8 @@ Description in cif file::
  ;
  
  loop_
- _exclude_ttheta_min
- _exclude_ttheta_max
+ _exclude_2theta_min
+ _exclude_2theta_max
  _exclude_phi_min
  _exclude_phi_max
  0.0 1.0 0. 1.0
@@ -129,6 +129,11 @@ Description in cif file::
         self.peak = peak
         self.proc = proc
         self.texture = texture
+
+        #FIXME: internal attributes
+        self.peaks = None
+        self.reflns = None
+        self.__dd = None
 
         if self.is_defined:
             self.form_object
@@ -517,7 +522,7 @@ Description in cif file::
         return res
 
 
-    def calc_profile(self, tth, phi, l_crystal, l_peak_in=[], l_refln_in=[], l_dd_in = []):
+    def calc_profile(self, tth, phi, l_crystal, l_peak_in=None, l_refln_in=None, l_dd_in = None):
         """
         calculate intensity for the given diffraction angle
         """
@@ -554,12 +559,22 @@ Description in cif file::
 
 
         phase = self.phase
-        if len(phase.label) != len(l_peak_in):
+        _h = len(phase.label)
+        if l_peak_in is None:
             l_peak_in = len(phase.label) * [None] 
-        if len(phase.label) != len(l_refln_in):
+        else:
+            if _h != len(l_peak_in):
+                l_peak_in = len(phase.label) * [None] 
+        if l_refln_in is None:
             l_refln_in = len(phase.label) * [None] 
-        if len(phase.label) != len(l_dd_in):
+        else:
+            if _h != len(l_refln_in):
+                l_refln_in = len(phase.label) * [None] 
+        if l_dd_in is None:
             l_dd_in = len(phase.label) * [None] 
+        else:
+            if _h != len(l_dd_in):
+                l_dd_in = len(phase.label) * [None] 
         
 
 
@@ -583,7 +598,10 @@ Description in cif file::
             space_group = crystal.space_group
             
             if peak_in is not None:
-                h, k, l, mult = peak_in.h, peak_in.k, peak_in.l, peak_in.mult
+                h = numpy.array(peak_in.index_h, dtype=int)
+                k = numpy.array(peak_in.index_k, dtype=int)
+                l = numpy.array(peak_in.index_l, dtype=int)
+                mult = numpy.array(peak_in.index_mult, dtype=int)
             else:
                 h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
 
@@ -591,7 +609,8 @@ Description in cif file::
                 
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
-            if cond_1 & cond_2:
+            
+            if (cond_1 & cond_2):
                 f_nucl_sq, f_m_p_sin_sq = peak_in.f_nucl_sq, peak_in.f_m_p_sin_sq
                 f_m_p_cos_sq, cross_sin = peak_in.f_m_p_cos_sq, peak_in.cross_sin 
                 refln = refln_in
@@ -631,11 +650,8 @@ Description in cif file::
             dd_out["iint_d_3d"] = iint_d_3d
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
-            
-            tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)
+            tth_hkl_rad = numpy.where(sthovl_hkl*wavelength < 1., 2.*numpy.arcsin(sthovl_hkl*wavelength), numpy.pi)
             tth_hkl = tth_hkl_rad*180./numpy.pi
-
-
 
             cond_1 = dd_in is not None
             cond_2 = ((not(phase_igsize.refinement)) & 
@@ -700,13 +716,12 @@ Description in cif file::
         int_d_exp = meas.intensity_down
         sint_d_exp = meas.intensity_down_sigma
 
-        l_peak_in, l_refln_in, l_dd_in = [], [], [] 
-        #if ((self.peaks is not None) & (self.reflns is not None)):
-        #    l_peak_in = self.peaks
-        #    l_refln_in = self.reflns
-        #    l_dd_in = self.__dd
-        #else:
-        #    l_peak_in, l_refln_in, l_dd_in = [], [], [] 
+        if ((self.peaks is not None) & (self.reflns is not None)):
+            l_peak_in = self.peaks
+            l_refln_in = self.reflns
+            l_dd_in = self.__dd
+        else:
+            l_peak_in, l_refln_in, l_dd_in = [], [], [] 
 
         range_ = self.range
         cond_tth_in = numpy.ones(tth.size, dtype=bool)
@@ -727,7 +742,7 @@ Description in cif file::
         sint_d_exp_in = sint_d_exp[cond_tth_in, :][:, cond_phi_in]
 
 
-        proc, l_peak, l_refln, l_dd_out = self.calc_profile(tth_in, phi_in, l_crystal, l_peak_in, l_refln_in, l_dd_in)
+        proc, l_peak, l_refln, l_dd_out = self.calc_profile(tth_in, phi_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_dd_in=l_dd_in)
         setattr(proc, "__intensity_up", int_u_exp_in)
         setattr(proc, "__intensity_up_sigma", sint_u_exp_in)
         setattr(proc, "__intensity_down", int_d_exp_in)
@@ -792,6 +807,7 @@ Description in cif file::
                   int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
         n = (int(flag_u)*n_u + int(flag_d)*n_d + int(flag_sum)*n_sum + 
              int(flag_dif)*n_dif)
+        #print(f"chi_sq_val/n: {chi_sq_val/n:.2f}           chi_sq_val: {chi_sq_val: .2f}")
         #d_exp_out = {"chi_sq_val": chi_sq_val, "n": n}
         #d_exp_out.update(d_exp_prof_out)
         return chi_sq_val, n
@@ -825,7 +841,6 @@ Description in cif file::
         _31, _32, _33 = sftm_31+field*sft_31, sftm_32+field*sft_32, sftm_33+field*sft_33
 
         cell = crystal.cell
-        
         #k_loc = cell.calc_k_loc(h, k, l)
         t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 = cell.calc_m_t(h, k, l)
         
@@ -911,4 +926,26 @@ Description in cif file::
         
         return profile_3d, tth_zs, h_pv
 
+
+    def params_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (Pd2dBackground, Pd2dInstrResolution, PhaseL, DiffrnRadiation, Setup, Range, Chi2,
+                 Extinction, ExcludeL, Pd2dInstrReflexAsymmetry, Pd2dPeakL, Texture)
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
+
+    def data_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (Pd2dMeas, )
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
+
+    def calc_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (Pd2dProc, )
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
 

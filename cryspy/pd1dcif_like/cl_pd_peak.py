@@ -29,16 +29,19 @@ Description in cif file::
  _pd_peak_index_k            2  
  _pd_peak_index_l            0  
  _pd_peak_index_mult         4  
- _pd_peak_ttheta            17.2
+ _pd_peak_2theta            17.2
  _pd_peak_intensity_up     100.0
  _pd_peak_intensity_down    90.0
- _pd_peak_width_ttheta       2.3
+ _pd_peak_width_2theta       2.3
 
 `<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html>`_
     """
     MANDATORY_ATTRIBUTE = ("index_h", "index_k", "index_l")
     OPTIONAL_ATTRIBUTE = ("index_mult", "ttheta",
                           "intensity_up", "intensity_down", "width_ttheta")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("index_h", "index_k", "index_l")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("index_mult", "2theta",
+                          "intensity_up", "intensity_down", "width_2theta")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "pd_peak"
     def __init__(self, index_h=None, index_k=None, index_l=None, index_mult=None, 

@@ -6,7 +6,7 @@ from cryspy.pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
 
 STR_FROM_CIF_1 = """
  loop_
- _pd_meas_ttheta
+ _pd_meas_2theta
  _pd_meas_intensity_up
  _pd_meas_intensity_up_sigma
  _pd_meas_intensity_down

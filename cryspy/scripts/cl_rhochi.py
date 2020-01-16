@@ -310,25 +310,25 @@ calculate the integral intensity for h, k, l reflections
             f_dir = os.path.dirname(self.file_input)
         f_main = os.path.join(f_dir, "main.rcif")
         ls_main = []
-        ls_main.append("global_{:}\n".format(self.label))
+        ls_main.append("global_{:}\n".format(self.global_name))
         for experiment in self.experiments:   
-            ls_main.append(f"\n_add_url {experiment.label:}_data.rcif\n")
-            ls_main.append(f"_add_url {experiment.label:}_calc.rcif\n")
+            ls_main.append(f"\n_add_url {experiment.data_name:}_data.rcif\n")
+            ls_main.append(f"_add_url {experiment.data_name:}_calc.rcif\n")
         for crystal in self.crystals:
             ls_main.append("\n"+crystal.to_cif())
         for experiment in self.experiments:   
-            ls_main.append("\ndata_{:}".format(experiment.label))
-            ls_main.append(experiment.params_to_cif)
+            ls_main.append("\ndata_{:}".format(experiment.data_name))
+            ls_main.append(experiment.params_to_cif())
 
-            f_data = os.path.join(f_dir, "{:}_data.rcif".format(experiment.label))
+            f_data = os.path.join(f_dir, "{:}_data.rcif".format(experiment.data_name))
             ls_data = []
-            ls_data.append("\ndata_{:}".format(experiment.label))
+            ls_data.append("\ndata_{:}".format(experiment.data_name))
             ls_data.append(experiment.data_to_cif())
             with open(f_data, 'w') as fid:
                 fid.write("\n".join(ls_data))
-            f_calc = os.path.join(f_dir, "{:}_calc.rcif".format(experiment.label))
+            f_calc = os.path.join(f_dir, "{:}_calc.rcif".format(experiment.data_name))
             ls_calc = []
-            ls_calc.append("\ndata_{:}".format(experiment.label))
+            ls_calc.append("\ndata_{:}".format(experiment.data_name))
             ls_calc.append(experiment.calc_to_cif())
             with open(f_calc, 'w') as fid:
                 fid.write("\n".join(ls_calc))

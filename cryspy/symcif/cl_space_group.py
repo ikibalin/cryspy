@@ -53,11 +53,6 @@ Description in cif file::
     _space_group.centring_type         C
     _space_group.Patterson_name_H-M  'C 2/m'
 
-:FIXME: all labels with sign '-' does not read now. 
-        The sign '-' has to be suppressed.
-
-        '_space_group.name_H-M_ref' -> '_space_group.name_HM_ref'
-
 :Mandatory attribute: no
 
 :Optional attribute: - name_hm_alt
@@ -87,6 +82,10 @@ Description in cif file::
     OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies",
      "it_number", "it_coordinate_system_code", "point_group_hm", "laue_class", "patterson_name_hm", 
     "centring_type", "bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ()
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("id", "name_H-M_alt", "name_H-M_alt_description", "name_H-M_full", "name_H-M_ref", "name_Hall", "name_Schoenflies",
+     "IT_number", "IT_coordinate_system_code", "point_group_H-M", "Laue_class", "Patterson_name_H-M", 
+    "centring_type", "Bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
     INTERNAL_ATTRIBUTE = ("centrosymmetry", "pcentr", "reduced_space_group_symop", "full_space_group_symop", "space_group_wyckoff")
     PREFIX = "space_group"
     ACCESIBLE_IT_NUMBER = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_IT_NUMBER

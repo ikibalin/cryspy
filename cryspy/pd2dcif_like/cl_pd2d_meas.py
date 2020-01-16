@@ -19,28 +19,28 @@ terms.
 
 Description in cif file::
 
- _pd2d_meas_ttheta_phi_intensity_up
+ _pd2d_meas_2theta_phi_intensity_up
  ;
       2    4.5     40.0     80.0
  -3.000 -350.0   -350.0   -400.0
  41.000 -351.0   -350.0   -400.0
  ;
 
- _pd2d_meas_ttheta_phi_intensity_up_sigma
+ _pd2d_meas_2theta_phi_intensity_up_sigma
  ;
       2    4.5     40.0     80.0
  -3.000 -352.0   -350.0   -400.0
  41.000 -353.0   -350.0   -400.0
  ;
 
- _pd2d_meas_ttheta_phi_intensity_down
+ _pd2d_meas_2theta_phi_intensity_down
  ;
       2    4.5     40.0     80.0
  -3.000 -354.0   -350.0   -400.0
  41.000 -355.0   -350.0   -400.0
  ;
 
- _pd2d_meas_ttheta_phi_intensity_down_sigma
+ _pd2d_meas_2theta_phi_intensity_down_sigma
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
@@ -50,6 +50,9 @@ Description in cif file::
     MANDATORY_ATTRIBUTE = ("ttheta_phi_intensity_up", "ttheta_phi_intensity_up_sigma", 
                            "ttheta_phi_intensity_down", "ttheta_phi_intensity_down_sigma")
     OPTIONAL_ATTRIBUTE = ()
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta_phi_intensity_up", "2theta_phi_intensity_up_sigma", 
+                           "2theta_phi_intensity_down", "2theta_phi_intensity_down_sigma")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ()
     INTERNAL_ATTRIBUTE = ("ttheta", "phi", "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma")
     PREFIX = "pd2d_meas"
     def __init__(self, ttheta_phi_intensity_up=None, ttheta_phi_intensity_up_sigma=None, 

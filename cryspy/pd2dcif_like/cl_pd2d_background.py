@@ -17,7 +17,7 @@ class Pd2dBackground(ItemConstr):
     """
 Description in cif file::
 
- _pd2d_background_ttheta_phi_intensity
+ _pd2d_background_2theta_phi_intensity
  ;
       2    4.5     40.0     80.0
  -3.000 -350.0   -350.0   -400.0
@@ -26,6 +26,8 @@ Description in cif file::
     """
     MANDATORY_ATTRIBUTE = ("ttheta_phi_intensity", )
     OPTIONAL_ATTRIBUTE = ()
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta_phi_intensity", )
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ()
     INTERNAL_ATTRIBUTE = ("ttheta", "phi", "intensity")
     PREFIX = "pd2d_background"
     def __init__(self, ttheta_phi_intensity=None):

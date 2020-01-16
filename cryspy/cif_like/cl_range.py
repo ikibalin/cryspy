@@ -16,11 +16,13 @@ Describe the range.
 
 Description in cif file::
 
- _range_ttheta_min     4.000
- _range_ttheta_max    80.000
+ _range_2theta_min     4.000
+ _range_2theta_max    80.000
     """
     MANDATORY_ATTRIBUTE = ("ttheta_min", "ttheta_max")
     OPTIONAL_ATTRIBUTE = ("phi_min", "phi_max")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta_min", "2theta_max")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("phi_min", "phi_max")    
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "range"
     def __init__(self, ttheta_min=None, ttheta_max=None, phi_min=None, phi_max=None):

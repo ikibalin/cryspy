@@ -421,3 +421,24 @@ Calculate chi square
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
         return chi_sq_val, n
+
+    def params_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (Setup, DiffrnRadiation, DiffrnOrientMatrix, Extinction, Phase)
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
+
+    def data_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (DiffrnReflnL, )
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
+
+    def calc_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (DiffrnReflnL, )
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)

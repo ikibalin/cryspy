@@ -40,6 +40,12 @@ Description in cif file::
                           "intensity_bkg_calc", "intensity_net", "intensity_total", 
                           "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
                           "intensity", "intensity_sigma")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta", )
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("2theta_corrected", "d_spacing",
+                          "intensity_up_net", "intensity_down_net", "intensity_up_total", "intensity_down_total", 
+                          "intensity_bkg_calc", "intensity_net", "intensity_total", 
+                          "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
+                          "intensity", "intensity_sigma")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "pd_proc"
     def __init__(self, ttheta=None, ttheta_corrected=None, d_spacing=None, intensity_up_net=None, 

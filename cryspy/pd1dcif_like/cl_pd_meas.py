@@ -35,7 +35,7 @@ should be recorded using _pd_meas_intensity_.
 
 Description in cif file::
 
- _pd_meas_ttheta                 4.00
+ _pd_meas_2theta                 4.00
  _pd_meas_intensity_up         465.80
  _pd_meas_intensity_up_sigma   128.97
  _pd_meas_intensity_down       301.88
@@ -45,6 +45,9 @@ Description in cif file::
     """
     MANDATORY_ATTRIBUTE = ("ttheta", )
     OPTIONAL_ATTRIBUTE = ("intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
+                          "intensity", "intensity_sigma")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta", )
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
                           "intensity", "intensity_sigma")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "pd_meas"

@@ -8,7 +8,7 @@ from cryspy.cif_like.cl_setup import Setup
 STR_FROM_CIF_1 = """
  _setup_wavelength   0.84
  _setup_field        1.00
- _setup_offset_ttheta -0.385
+ _setup_offset_2theta -0.385
     """
 
 def test_init():

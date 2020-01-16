@@ -64,22 +64,31 @@ Returns:
         """
         prefix = self.prefix
         ls_out = []
-        for _attr in self.__mandatory_attribute:
-            s_attr = f"__{_attr:}"
-            _val = getattr(self, s_attr)
+
+        mandatory_attribute = self.MANDATORY_ATTRIBUTE
+        optional_attribute = self.OPTIONAL_ATTRIBUTE
+        try:
+            related_cif_mandatory_attribute = self.RELATED_CIF_MANDATORY_ATTRIBUTE
+            related_cif_optional_attribute = self.RELATED_CIF_OPTIONAL_ATTRIBUTE
+        except:
+            related_cif_mandatory_attribute = mandatory_attribute
+            related_cif_optional_attribute = optional_attribute
+        for _attr, cif_attr in zip(mandatory_attribute, related_cif_mandatory_attribute):
+            #s_attr = f"__{_attr:}"
+            _val = getattr(self, _attr)
             if _val is not None:
                 s_val = val_to_str(_val)
-                ls_out.append(f"_{prefix:}{separator:}{_attr:} {s_val:}")
+                ls_out.append(f"_{prefix:}{separator:}{cif_attr:} {s_val:}")
             elif flag:
-                ls_out.append(f"_{prefix:}{separator:}{_attr:} .")
-        for _attr in self.__optional_attribute:
-            s_attr = f"__{_attr:}"
-            _val = getattr(self, s_attr)
+                ls_out.append(f"_{prefix:}{separator:}{cif_attr:} .")
+        for _attr, cif_attr in zip(optional_attribute, related_cif_optional_attribute):
+            #s_attr = f"__{_attr:}"
+            _val = getattr(self, _attr)
             if _val is not None:
                 s_val = val_to_str(_val)
-                ls_out.append(f"_{prefix:}{separator:}{_attr:} {s_val:}")
+                ls_out.append(f"_{prefix:}{separator:}{cif_attr:} {s_val:}")
             elif flag:
-                ls_out.append(f"_{prefix:}{separator:}{_attr:} .")
+                ls_out.append(f"_{prefix:}{separator:}{cif_attr:} .")
         return "\n".join(ls_out)
     def print_attribute(self, l_attr=()) -> str:
         """
@@ -196,25 +205,32 @@ Output: the list of the refined parameters
         flag = cif_data.take_from_string(string)
         mandatory_attribute = cls.MANDATORY_ATTRIBUTE
         optional_attribute = cls.OPTIONAL_ATTRIBUTE
+        try:
+            related_cif_mandatory_attribute = cls.RELATED_CIF_MANDATORY_ATTRIBUTE
+            related_cif_optional_attribute = cls.RELATED_CIF_OPTIONAL_ATTRIBUTE
+        except:
+            related_cif_mandatory_attribute = mandatory_attribute
+            related_cif_optional_attribute = optional_attribute
         prefix = cls.PREFIX
         separator = "_"
-        flag = all([cif_data.is_value("_"+prefix+separator+_attr) for _attr in mandatory_attribute])
+        flag = all([cif_data.is_value("_"+prefix+separator+_attr) for _attr in related_cif_mandatory_attribute])
         if not (flag):
             separator = "."
-            flag = all([cif_data.is_value("_"+prefix+separator+_attr) for _attr in mandatory_attribute])
+            flag = all([cif_data.is_value("_"+prefix+separator+_attr) for _attr in related_cif_mandatory_attribute])
         if flag:
             l_attr = list(mandatory_attribute)+list(optional_attribute)
+            l_cif_attr = list(related_cif_mandatory_attribute)+list(related_cif_optional_attribute)
             separator = "_"
-            flag_2 = any([cif_data.is_value("_"+prefix+separator+_attr) for _attr in l_attr])
+            flag_2 = any([cif_data.is_value("_"+prefix+separator+_attr) for _attr in l_cif_attr])
             if not(flag_2):
                 separator = "."
-                flag_2 = any([cif_data.is_value("_"+prefix+separator+_attr) for _attr in l_attr])
+                flag_2 = any([cif_data.is_value("_"+prefix+separator+_attr) for _attr in l_cif_attr])
             if flag_2:
                 _item = cls()
-                for _attr in l_attr:
-                    _attr_full = "_"+prefix+separator+_attr
-                    if cif_data.is_value(_attr_full):
-                        setattr(_item, _attr, cif_data[_attr_full].value)
+                for _attr, _cif_attr in zip(l_attr, l_cif_attr):
+                    _cif_attr_full = "_"+prefix+separator+_cif_attr
+                    if cif_data.is_value(_cif_attr_full):
+                        setattr(_item, _attr, cif_data[_cif_attr_full].value)
             else:
                 _item = None
         else:

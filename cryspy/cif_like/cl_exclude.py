@@ -22,6 +22,8 @@ Description in cif file::
     """
     MANDATORY_ATTRIBUTE = ("ttheta_min", "ttheta_max")
     OPTIONAL_ATTRIBUTE = ("id", "phi_min", "phi_max")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta_min", "2theta_max")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("id", "phi_min", "phi_max")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "exclude"
     def __init__(self, id=None, ttheta_min=None, ttheta_max=None, phi_min=None, phi_max=None):

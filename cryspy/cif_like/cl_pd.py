@@ -39,26 +39,26 @@ Description in cif file::
  data_pnd
  _setup_wavelength     0.840
  _setup_field          1.000
- _setup_offset_ttheta -0.385
+ _setup_offset_2theta -0.385
  
  _chi2_sum  True
  _chi2_diff False
  _chi2_up   False
  _chi2_down False
  
- _range_ttheta_min     4.000
- _range_ttheta_max    80.000
+ _range_2theta_min     4.000
+ _range_2theta_max    80.000
  
  loop_
- _pd_background_ttheta
+ _pd_background_2theta
  _pd_background_intensity
   4.5 256.0
  40.0 158.0
  80.0  65.0
  
  loop_
- _exclude_ttheta_min
- _exclude_ttheta_max
+ _exclude_2theta_min
+ _exclude_2theta_max
  0.0 1.0
  
  _pd_instr_reflex_asymmetry_p1 0.0
@@ -82,7 +82,7 @@ Description in cif file::
  Fe3O4 0.02381 0.0
  
  loop_
- _pd_meas_ttheta
+ _pd_meas_2theta
  _pd_meas_intensity_up
  _pd_meas_intensity_up_sigma
  _pd_meas_intensity_down
@@ -105,8 +105,8 @@ Description in cif file::
  2 2 0 12 15.950  94.21107  94.21107 0.716
  
  loop_
- _pd_proc_ttheta
- _pd_proc_ttheta_corrected
+ _pd_proc_2theta
+ _pd_proc_2theta_corrected
  _pd_proc_intensity_up_net
  _pd_proc_intensity_down_net
  _pd_proc_intensity_up_total
@@ -148,6 +148,11 @@ Description in cif file::
         self.asymmetry = asymmetry
         self.peak = peak
         self.proc = proc
+        
+        #FIXME: internal attributes
+        self.peaks = None
+        self.reflns = None
+
 
         if self.is_defined:
             self.form_object
@@ -506,7 +511,7 @@ Description in cif file::
         warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
     
 
-    def calc_profile(self, tth, l_crystal, l_peak_in=[], l_refln_in=[]):
+    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None):
         """
 calculate intensity for the given diffraction angle
         """
@@ -534,10 +539,17 @@ calculate intensity for the given diffraction angle
         res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
 
         phase = self.phase
-        if len(phase.label) != len(l_peak_in):
+        _h = len(phase.label)
+        if l_peak_in is None:
             l_peak_in = len(phase.label)*[None]
-        if len(phase.label) != len(l_refln_in):
+        else:
+            if _h != len(l_peak_in):
+                l_peak_in = len(phase.label)*[None]
+        if l_refln_in is None:
             l_refln_in = len(phase.label)*[None]
+        else:
+            if len(phase.label) != len(l_refln_in):
+                l_refln_in = len(phase.label)*[None]
         l_peak, l_refln = [], []
         for phase_label, phase_scale, phase_igsize, peak_in, refln_in in zip(
                                  phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in):
@@ -558,7 +570,10 @@ calculate intensity for the given diffraction angle
             space_group = crystal.space_group
             
             if peak_in is not None:
-                h, k, l, mult = peak_in.h, peak_in.k, peak_in.l, peak_in.mult 
+                h = numpy.array(peak_in.index_h, dtype=int)
+                k = numpy.array(peak_in.index_k, dtype=int)
+                l = numpy.array(peak_in.index_l, dtype=int)
+                mult = numpy.array(peak_in.index_mult, dtype=int)
             else:
                 h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
 
@@ -568,15 +583,15 @@ calculate intensity for the given diffraction angle
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
             if cond_1 & cond_2:
-                np_iint_u, np_iint_d, refln = peak_in.up, peak_in.down, refln_in
+                np_iint_u, np_iint_d, refln = peak_in.intensity_up, peak_in.intensity_down, refln_in
             else:   
                 np_iint_u, np_iint_d, refln = self.calc_iint(h, k, l, crystal)
 
             l_refln.append(refln)
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
-            
-            tth_hkl_rad = 2.*numpy.arcsin(sthovl_hkl*wavelength)
+
+            tth_hkl_rad = numpy.where(sthovl_hkl*wavelength < 1., 2.*numpy.arcsin(sthovl_hkl*wavelength), numpy.pi)
             tth_hkl = tth_hkl_rad*180./numpy.pi
 
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(tth, tth_hkl, i_g)
@@ -624,7 +639,7 @@ calculate intensity for the given diffraction angle
 
     def calc_chi_sq(self, l_crystal):
         """
-        calculate chi square
+calculate chi square
         """
         meas = self.meas
 
@@ -640,11 +655,11 @@ calculate intensity for the given diffraction angle
             int_exp = numpy.array(meas.intensity, dtype=float)
             sint_exp = numpy.array(meas.intensity_sigma, dtype=float)
 
-        #if ((self.peaks is not None) & (self.reflns is not None)):
-        #    l_peak_in = self.peaks
-        #    l_refln_in = self.reflns
-        #else:
-        l_peak_in, l_refln_in = [], [] 
+        if ((self.peaks is not None) & (self.reflns is not None)):
+            l_peak_in = self.peaks
+            l_refln_in = self.reflns
+        else:
+            l_peak_in, l_refln_in = [], [] 
 
         range_ = self.range
         cond_in = numpy.ones(tth.shape, dtype=bool)
@@ -679,6 +694,7 @@ calculate intensity for the given diffraction angle
                 _item.intensity_sigma = _2
 
         self.proc = proc
+        
         self.peaks = l_peak
         self.reflns = l_refln
 
@@ -746,6 +762,7 @@ calculate intensity for the given diffraction angle
             n = n_sum
         #d_exp_out = {"chi_sq_val": chi_sq_val, "n": n}
         #d_exp_out.update(d_exp_prof_out)
+        #print(f"chi_sq_val/n: {chi_sq_val/n:.2f} , chi_sq_val: {chi_sq_val:.2f}")
         return chi_sq_val, n
 
 
@@ -873,4 +890,24 @@ calculate intensity for the given diffraction angle
         
         return profile_2d, tth_zs, h_pv
 
+    def params_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (PdBackgroundL, PdInstrResolution, PhaseL, Setup, DiffrnRadiation, 
+                 Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL)
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
 
+    def data_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (PdMeasL, )
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)
+
+    def calc_to_cif(self, separator="_", flag=False) -> str: 
+        ls_out = []
+        l_cls = (PdProcL, )
+        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        return "\n".join(ls_out)

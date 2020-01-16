@@ -14,11 +14,13 @@ class PdBackground(ItemConstr):
     """
 Description in cif file::
 
- _pd_background_ttheta       4.5
+ _pd_background_2theta       4.5
  _pd_background_intensity  256.0
     """
     MANDATORY_ATTRIBUTE = ("ttheta", "intensity")
     OPTIONAL_ATTRIBUTE = ()
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta", "intensity")
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ()
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "pd_background"
     def __init__(self, ttheta=None, intensity=None):

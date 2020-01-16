@@ -6,7 +6,7 @@ from cryspy.pd1dcif_like.cl_pd_background import PdBackground, PdBackgroundL
 
 STR_FROM_CIF_1 = """
  loop_
- _pd_background_ttheta
+ _pd_background_2theta
  _pd_background_intensity
   4.5  256.0
   40.0  158.0

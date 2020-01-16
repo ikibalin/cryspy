@@ -18,11 +18,13 @@ Description in cif file::
 
  _setup_wavelength   0.84
  _setup_field        1.00
- _setup_offset_ttheta -0.385
+ _setup_offset_2theta -0.385
  _setup_offset_phi -0.385
     """
     MANDATORY_ATTRIBUTE = ("wavelength", )
     OPTIONAL_ATTRIBUTE = ("field", "offset_ttheta", "offset_phi")
+    RELATED_CIF_MANDATORY_ATTRIBUTE = ("wavelength", )
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("field", "offset_2theta", "offset_phi")
     INTERNAL_ATTRIBUTE = ()
     PREFIX = "setup"
     def __init__(self, wavelength=None, field=None, offset_ttheta=None, offset_phi=None):

@@ -8,7 +8,7 @@ _cell_length_a 8.56212
 _cell_length_b 8.56212
 _cell_length_c 8.56212
 _space_group_it_coordinate_system_code 2  
-_space_group_name_HM_ref    "F d -3 m"
+_space_group_name_H-M_ref    "F d -3 m"
 
 loop_                                     
 _atom_site_label
@@ -26,14 +26,14 @@ _atom_site_occupancy
 
 data_pd
 _setup_wavelength      0.84
-_setup_offset_ttheta -0.385404
+_setup_offset_2theta -0.385404
 
 
-_range_ttheta_min     4.000
-_range_ttheta_max    80.000
+_range_2theta_min     4.000
+_range_2theta_max    80.000
 
 loop_
-_pd_background_ttheta
+_pd_background_2theta
 _pd_background_intensity
  4.5 256.0
 40.0 158.0
@@ -54,7 +54,7 @@ _phase_igsize
 Fe3O4 0.02381 0.0
 
 loop_
-_pd_meas_ttheta
+_pd_meas_2theta
 _pd_meas_intensity
 _pd_meas_intensity_sigma
  4.0 465.8 128.97

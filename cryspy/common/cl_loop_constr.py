@@ -13,6 +13,12 @@ class LoopConstr(object):
         self.__mandatory_attribute = item_class.MANDATORY_ATTRIBUTE
         self.__optional_attribute = item_class.OPTIONAL_ATTRIBUTE
         self.__internal_attribute = item_class.INTERNAL_ATTRIBUTE
+        try:
+            self.__related_cif_mandatory_attribute = item_class.RELATED_CIF_MANDATORY_ATTRIBUTE
+            self.__related_cif_optional_attribute = item_class.RELATED_CIF_OPTIONAL_ATTRIBUTE
+        except:
+            self.__related_cif_mandatory_attribute = item_class.MANDATORY_ATTRIBUTE
+            self.__related_cif_optional_attribute = item_class.OPTIONAL_ATTRIBUTE
         self.__loop_name = ""
 
         self.loop_name = loop_name
@@ -52,11 +58,13 @@ class LoopConstr(object):
             prefix = f"_{prefix:}"
         ls_out = []
         l_attr_print = list(self.__mandatory_attribute)+list(self.__optional_attribute)
+        l_cif_attr = list(self.__related_cif_mandatory_attribute)+list(self.__related_cif_optional_attribute)
         if not(flag):
             l_flag = [all([_item.is_defined_attribute(_attr) for _item in self.item]) for _attr in l_attr_print]
             l_attr_print = [_ for _, _flag in zip(l_attr_print, l_flag) if _flag]
+            l_cif_attr = [_ for _, _flag in zip(l_cif_attr, l_flag) if _flag]
         ls_out.append(f"loop_{self.loop_name}")
-        ls_out.append("\n".join([f"{prefix:}{separator:}{_attr:}" for _attr in l_attr_print]))
+        ls_out.append("\n".join([f"{prefix:}{separator:}{_attr:}" for _attr in l_cif_attr]))
         for _item in self.item:
             ls_out.append(_item.print_attribute(l_attr_print))
         return "\n".join(ls_out)
@@ -81,6 +89,12 @@ class LoopConstr(object):
         cif_data = Data()
         flag = cif_data.take_from_string(string)
         _item_class = cls.ITEM_CLASS
+        l_attr = list(_item_class.MANDATORY_ATTRIBUTE) + list(_item_class.OPTIONAL_ATTRIBUTE)
+        try:
+            l_cif_attr = list(_item_class.RELATED_CIF_MANDATORY_ATTRIBUTE) + list(_item_class.RELATED_CIF_OPTIONAL_ATTRIBUTE)
+        except:
+            l_cif_attr = l_attr
+        l_cif_attr = [_.lower() for _ in l_cif_attr]
         prefix = _item_class.PREFIX
         l_obj = []
         for cif_loop in cif_data.loops:
@@ -94,15 +108,19 @@ class LoopConstr(object):
                 _obj = cls(loop_name=loop_name)
                 _i = 0
                 for _name, _name_short in zip(l_name, l_name_short):
+                    if _name_short.lower() in l_cif_attr:
+                        _name_short_obj = l_attr[l_cif_attr.index(_name_short)]
+                    else:
+                        _name_short_obj = _name_short.lower()
                     if _i == 0:
                         item = []
                         for _val in cif_loop[_name]:
                             _item = _item_class()
-                            setattr(_item, _name_short, _val)
+                            setattr(_item, _name_short_obj, _val)
                             item.append(_item)
                     else:
                         for _val, _item in zip(cif_loop[_name], item):
-                            setattr(_item, _name_short, _val)
+                            setattr(_item, _name_short_obj, _val)
                     _i += 1
                 _obj.item = item
                 l_obj.append(_obj)

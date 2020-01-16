@@ -240,6 +240,19 @@ See definition for **_diffrn_orient_matrix.ub_11**
             flag = x_in.take_it(x)
         setattr(self, "__ub_33", x_in)
 
+
+    @property
+    def id(self):
+        return getattr(self, "__id")
+    @id.setter
+    def id(self, x):
+        if x is None:
+            x_in = None
+        else:
+            x_in = str(x)
+        setattr(self, "__id", x_in)
+
+
     @property
     def u_11(self):
         return getattr(self, "__u_11")

@@ -9,7 +9,7 @@ STR_FROM_CIF_1 = """
  data_pnd
  _setup_wavelength     0.840
  _setup_field          1.000
- _setup_offset_ttheta -0.385
+ _setup_offset_2theta -0.385
  
  _chi2_sum  True
  _chi2_diff False
@@ -27,8 +27,8 @@ STR_FROM_CIF_1 = """
  80.0  65.0
  
  loop_
- _exclude_ttheta_min
- _exclude_ttheta_max
+ _exclude_2theta_min
+ _exclude_2theta_max
  0.0 1.0
  
  _pd_instr_reflex_asymmetry_p1 0.0

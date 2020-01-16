@@ -42,15 +42,15 @@ class DataConstr(object):
 
     def to_cif(self, separator="_", flag=False) -> str: 
         """
-        Print information about object in string in STAR format
+Print information about object in string in STAR format
 
-        Args:
-            prefix: prefix in front of label of attribute
-            separator: separator between prefix and attribute ("_" or ".")
-            flag: for undefined attribute "." will be printed
+Args:
+    prefix: prefix in front of label of attribute
+    separator: separator between prefix and attribute ("_" or ".")
+    flag: for undefined attribute "." will be printed
 
-        Returns:
-            A string in STAR/CIF format
+Returns:
+    A string in STAR/CIF format
         """
         ls_out = []
         ls_out.append(f"data_{self.data_name:}\n")

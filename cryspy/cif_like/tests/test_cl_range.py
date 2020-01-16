@@ -6,8 +6,8 @@ from cryspy.common.cl_fitable import Fitable
 from cryspy.cif_like.cl_range import Range
 
 STR_FROM_CIF_1 = """
- _range_ttheta_min     4.000
- _range_ttheta_max    80.000
+ _range_2theta_min     4.000
+ _range_2theta_max    80.000
     """
 
 def test_init():

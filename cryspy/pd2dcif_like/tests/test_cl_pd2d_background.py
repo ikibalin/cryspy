@@ -5,7 +5,7 @@ from cryspy.common.cl_fitable import Fitable
 from cryspy.pd2dcif_like.cl_pd2d_background import Pd2dBackground
 
 STR_FROM_CIF_1 = """
- _pd2d_background_ttheta_phi_intensity
+ _pd2d_background_2theta_phi_intensity
 ;
       2    4.5     40.0     80.0
  -3.000 -350.0()   -350.0   -400.0

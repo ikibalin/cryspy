@@ -5,28 +5,28 @@ from cryspy.common.cl_fitable import Fitable
 from cryspy.pd2dcif_like.cl_pd2d_meas import Pd2dMeas
 
 STR_FROM_CIF_1 = """
- _pd2d_meas_ttheta_phi_intensity_up
+ _pd2d_meas_2theta_phi_intensity_up
  ;
       2    4.5     40.0     80.0
  -3.000 -350.0   -350.0   -400.0
  41.000 -351.0   -350.0   -400.0
  ;
 
- _pd2d_meas_ttheta_phi_intensity_up_sigma
+ _pd2d_meas_2theta_phi_intensity_up_sigma
  ;
       2    4.5     40.0     80.0
  -3.000 -352.0   -350.0   -400.0
  41.000 -353.0   -350.0   -400.0
  ;
 
- _pd2d_meas_ttheta_phi_intensity_down
+ _pd2d_meas_2theta_phi_intensity_down
  ;
       2    4.5     40.0     80.0
  -3.000 -354.0   -350.0   -400.0
  41.000 -355.0   -350.0   -400.0
  ;
 
- _pd2d_meas_ttheta_phi_intensity_down_sigma
+ _pd2d_meas_2theta_phi_intensity_down_sigma
  ;
       2    4.5     40.0     80.0
  -3.000 -356.0   -350.0   -400.0
