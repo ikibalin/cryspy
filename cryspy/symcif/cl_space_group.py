@@ -79,12 +79,12 @@ Description in cif file::
 `Reference <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html>`_
     """
     MANDATORY_ATTRIBUTE = ()
-    OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "name_hm_full", "name_hm_ref", "name_hall", "name_schoenflies",
-     "it_number", "it_coordinate_system_code", "point_group_hm", "laue_class", "patterson_name_hm", 
+    OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "it_number", "name_hm_ref", "it_coordinate_system_code", "name_hm_full", "name_hall", "name_schoenflies",
+     "point_group_hm", "laue_class", "patterson_name_hm", 
     "centring_type", "bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
     RELATED_CIF_MANDATORY_ATTRIBUTE = ()
-    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("id", "name_H-M_alt", "name_H-M_alt_description", "name_H-M_full", "name_H-M_ref", "name_Hall", "name_Schoenflies",
-     "IT_number", "IT_coordinate_system_code", "point_group_H-M", "Laue_class", "Patterson_name_H-M", 
+    RELATED_CIF_OPTIONAL_ATTRIBUTE = ("id", "name_H-M_alt", "name_H-M_alt_description", "IT_number", "name_H-M_ref", "IT_coordinate_system_code", "name_H-M_full", "name_Hall", "name_Schoenflies",
+     "point_group_H-M", "Laue_class", "Patterson_name_H-M", 
     "centring_type", "Bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
     INTERNAL_ATTRIBUTE = ("centrosymmetry", "pcentr", "reduced_space_group_symop", "full_space_group_symop", "space_group_wyckoff")
     PREFIX = "space_group"
@@ -989,7 +989,35 @@ give unique x,y,z elements and calculate multiplicity for given x,y,z fract
         return x_out, y_out, z_out, multiplicity
     
 
+    def calc_symop_for_xyz(self, x_in, y_in, z_in):
+        x, y, z = x_in%1., y_in%1., z_in%1.
+
+        symop = self.full_space_group_symop
+        e_11, e_12, e_13, e_1 = numpy.array(symop.r_11, dtype=float), numpy.array(symop.r_12, dtype=float), numpy.array(symop.r_13, dtype=float), numpy.array(symop.b_1, dtype=float) 
+        e_21, e_22, e_23, e_2 = numpy.array(symop.r_21, dtype=float), numpy.array(symop.r_22, dtype=float), numpy.array(symop.r_23, dtype=float), numpy.array(symop.b_2, dtype=float) 
+        e_31, e_32, e_33, e_3 = numpy.array(symop.r_31, dtype=float), numpy.array(symop.r_32, dtype=float), numpy.array(symop.r_33, dtype=float), numpy.array(symop.b_3, dtype=float) 
+        
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+            
+        xyz_s = numpy.vstack([x_s, y_s, z_s])
+        
+        xyz_s_un, unique_inverse = numpy.unique(xyz_s, return_inverse=True, axis=1)
+        x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
+        ind = (numpy.where((x-x_s)**2+(y-y_s)**2+(z-z_s)**2 < 0.00001))[0][0]
+
+        flag = unique_inverse == ind
+
+        item_out = [_item for _item, _flag in zip(symop.item, flag) if _flag]
+        symop_out = SpaceGroupSymopL(item=item_out)
+        return symop_out
+
+
     def calc_el_symm_for_xyz(self, x_in, y_in, z_in):
+        """
+FIXME: should be deleted
+        """
         x, y, z = x_in%1., y_in%1., z_in%1.
 
         symop = self.full_space_group_symop
