@@ -610,7 +610,7 @@ output chiLOC = iBT CHI iB
 Magnetization ellipsoids are given in the same coordinate system as U_ij (anisotropic Debye-Waller factor)
         """
         cell = self.cell
-        a_s_m_a = self.atom_site_magnetism_aniso
+        a_s_m_a = self.atom_site_susceptibility
         m_ib_norm = cell.m_ib_norm
         m_ibt_norm = numpy.transpose(m_ib_norm)
         l_res = []
@@ -628,7 +628,7 @@ Magnetization ellipsoids are given in the same coordinate system as U_ij (anisot
     
     def calc_main_axes_of_magnetization_ellipsoids(self):
         cell = self.cell
-        a_s_m_a = self.atom_site_magnetism_aniso
+        a_s_m_a = self.atom_site_susceptibility
         m_ib_norm = cell.m_ib_norm
         m_ibt_norm = numpy.transpose(m_ib_norm)
         ll_moments = []
@@ -656,7 +656,7 @@ Magnetization ellipsoids are given in the same coordinate system as U_ij (anisot
         spgr = self.space_group
         
         a_s = self.atom_site
-        a_s_m_a = self.atom_site_magnetism_aniso
+        a_s_m_a = self.atom_site_susceptibility
         l_lab_out, l_xyz_out, l_moment_out = [], [], []
         for _l, _11, _22, _33, _12, _13, _23 in zip(a_s_m_a.label,
                 a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
@@ -664,8 +664,7 @@ Magnetization ellipsoids are given in the same coordinate system as U_ij (anisot
             m_chi = numpy.array([[_11, _12, _13],
                                  [_12, _22, _23],
                                  [_13, _23, _33]], dtype=float)
-            _ind = a_s.label.index(_l)
-            x, y, z = float(a_s.x[_ind]), float(a_s.y[_ind]), float(a_s.z[_ind])
+            x, y, z = float(a_s[_l].fract_x), float(a_s[_l].fract_y), float(a_s[_l].fract_z)
             l_out = spgr.calc_rotated_matrix_for_position(m_chi, x, y, z)
             for _i_out, _out in enumerate(l_out):
                 _xyz = _out[0]

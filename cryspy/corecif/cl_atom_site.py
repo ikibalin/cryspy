@@ -461,7 +461,7 @@ the _atom_sites_Cartn_transform_axes description.
                 fract_z.constraint_flag = True
                 fract_z.refinement = False
             
-            xyz_new = numpy.matmul(r_float, xyz) + b_float
+            xyz_new = space_group_wyckoff.give_default_xyz(xyz)
             fract_x.value = float(xyz_new[0]) 
             fract_y.value = float(xyz_new[1]) 
             fract_z.value = float(xyz_new[2])

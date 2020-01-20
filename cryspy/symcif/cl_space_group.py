@@ -1132,10 +1132,10 @@ na, n_b, nc should be divided on 24: 8 and 3
     def calc_rotated_matrix_for_position(self, m_chi, x, y, z):
 
         symop = self.full_space_group_symop
-        e_11, e_12, e_13, e_1 = symop.r_11, symop.r_12, symop.r_13, symop.b_1 
-        e_21, e_22, e_23, e_2 = symop.r_21, symop.r_22, symop.r_23, symop.b_2 
-        e_31, e_32, e_33, e_3 = symop.r_31, symop.r_32, symop.r_33, symop.b_3 
-
+        e_11, e_12, e_13, e_1 = numpy.array(symop.r_11, dtype=float), numpy.array(symop.r_12, dtype=float), numpy.array(symop.r_13, dtype=float), numpy.array(symop.b_1, dtype=float) 
+        e_21, e_22, e_23, e_2 = numpy.array(symop.r_21, dtype=float), numpy.array(symop.r_22, dtype=float), numpy.array(symop.r_23, dtype=float), numpy.array(symop.b_2, dtype=float) 
+        e_31, e_32, e_33, e_3 = numpy.array(symop.r_31, dtype=float), numpy.array(symop.r_32, dtype=float), numpy.array(symop.r_33, dtype=float), numpy.array(symop.b_3, dtype=float) 
+        
         x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
         y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
         z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)

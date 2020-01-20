@@ -19,6 +19,9 @@ from .cl_extinction import Extinction
 from .cl_setup import Setup
 from .cl_phase import Phase
 
+from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
+from cryspy.corecif.cl_refln import Refln, ReflnL
+
 
 class Diffrn(DataConstr):
     """
@@ -61,7 +64,7 @@ Description in cif file::
     """
     MANDATORY_CLASSES = (Setup, DiffrnRadiation, DiffrnOrientMatrix, DiffrnReflnL)
     OPTIONAL_CLASSES = (Extinction, Phase)
-    INTERNAL_CLASSES = ()
+    INTERNAL_CLASSES = (ReflnL, ReflnSusceptibilityL)
     def __init__(self, setup=None, diffrn_radiation=None, diffrn_orient_matrix=None, 
                  diffrn_refln=None, extinction=None, phase=None,
                  data_name=""):
@@ -79,8 +82,8 @@ Description in cif file::
         self.phase = phase
 
         #FIXME: internal attributes:
-        self.reflns = None
-        self.refln_ss = None
+        #self.reflns = None
+        #self.refln_ss = None
 
         if self.is_defined:
             self.form_object
@@ -244,6 +247,19 @@ Description in cif file::
                 for _ind in l_ind.reverse():
                     self.optional_objs.pop(_ind)
 
+    @property
+    def refln(self):
+        l_res = self[ReflnL]
+        return l_res
+
+    @property
+    def refln_susceptibility(self):
+        l_res = self[ReflnSusceptibilityL]
+        return l_res
+
+
+
+
     def __repr__(self):
         ls_out = ["Diffrn:"]
         ls_out.append(f"{str(self):}")
@@ -400,8 +416,8 @@ Calculate intensity for the given diffraction angle
         """
         refln.loop_name = crystal.data_name
         refln_s.loop_name = crystal.data_name
-        self.reflns = [refln]
-        self.refln_ss = [refln_s]
+        l_internal_objs = [refln, refln_s]
+        setattr(self, "__internal_objs", l_internal_objs)
 
         return iint_u, iint_d, flip_ratio, refln, refln_s
     
@@ -448,11 +464,12 @@ Calculate chi square
 
     def calc_to_cif(self, separator="_", flag=False) -> str: 
         ls_out = []
-        l_cls = ( )
-        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        l_cls = (ReflnL, ReflnSusceptibilityL)
+        l_obj = [_obj for _obj in (self.internal_objs) if type(_obj) in l_cls]
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
-        if self.reflns is not None:
-            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])
-        if self.refln_ss is not None:
-            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
+
+        #if self.reflns is not None:
+        #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])
+        #if self.refln_ss is not None:
+        #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
         return "\n".join(ls_out)
