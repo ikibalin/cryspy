@@ -152,6 +152,7 @@ Description in cif file::
         #FIXME: internal attributes
         self.peaks = None
         self.reflns = None
+        self.refln_ss = None
 
 
         if self.is_defined:
@@ -910,4 +911,9 @@ calculate chi square
         l_cls = (PdProcL, )
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        if self.reflns is not None:
+            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])
+        if self.refln_ss is not None:
+            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
+
         return "\n".join(ls_out)

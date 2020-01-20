@@ -78,6 +78,10 @@ Description in cif file::
         self.extinction = extinction
         self.phase = phase
 
+        #FIXME: internal attributes:
+        self.reflns = None
+        self.refln_ss = None
+
         if self.is_defined:
             self.form_object
         
@@ -124,7 +128,7 @@ Description in cif file::
         elif isinstance(x, DiffrnRadiation):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, Setup):
+                if isinstance(_obj, DiffrnRadiation):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -150,7 +154,7 @@ Description in cif file::
         elif isinstance(x, DiffrnOrientMatrix):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, Setup):
+                if isinstance(_obj, DiffrnOrientMatrix):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -176,7 +180,7 @@ Description in cif file::
         elif isinstance(x, DiffrnReflnL):
             l_ind = []
             for _i, _obj in enumerate(self.mandatory_objs):
-                if isinstance(_obj, Setup):
+                if isinstance(_obj, DiffrnReflnL):
                     l_ind.append(_i)
             if len(l_ind) == 0:
                 self.mandatory_objs.append(x)
@@ -394,28 +398,33 @@ Calculate intensity for the given diffraction angle
             print("{:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}".format(
                     h1, k1, l1, i_u, i_d, f_r))
         """
-            
+        refln.loop_name = crystal.data_name
+        refln_s.loop_name = crystal.data_name
+        self.reflns = [refln]
+        self.refln_ss = [refln_s]
+
         return iint_u, iint_d, flip_ratio, refln, refln_s
     
     def calc_chi_sq(self, l_crystal):
         """
 Calculate chi square
         """
-        np_h = numpy.array(self.diffrn_refln.index_h, dtype=int)
-        np_k = numpy.array(self.diffrn_refln.index_k, dtype=int)
-        np_l = numpy.array(self.diffrn_refln.index_l, dtype=int)
-        fr_exp = self.diffrn_refln.fr
-        fr_sigma = self.diffrn_refln.fr_sigma
+        diffrn_refln = self.diffrn_refln
+        np_h = numpy.array(diffrn_refln.index_h, dtype=int)
+        np_k = numpy.array(diffrn_refln.index_k, dtype=int)
+        np_l = numpy.array(diffrn_refln.index_l, dtype=int)
+        fr_exp = diffrn_refln.fr
+        fr_sigma = diffrn_refln.fr_sigma
         int_u_mod, int_d_mod, fr_mod, refln, refln_s = self.calc_iint_u_d_flip_ratio(
                                                np_h, np_k, np_l, l_crystal)
         
-        for _item, _1, _2, _3 in zip(self.diffrn_refln.item, fr_mod, int_u_mod, int_d_mod):
+        for _item, _1, _2, _3 in zip(diffrn_refln.item, fr_mod, int_u_mod, int_d_mod):
             _item.fr_calc = _1
             _item.intensity_up_calc = _2
             _item.intensity_down_calc = _3
 
-        self.refln = refln
-        self.refln_s = refln_s
+        #self.refln = refln
+        #self.refln_s = refln_s
 
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
@@ -434,11 +443,16 @@ Calculate chi square
         l_cls = (DiffrnReflnL, )
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+            
         return "\n".join(ls_out)
 
     def calc_to_cif(self, separator="_", flag=False) -> str: 
         ls_out = []
-        l_cls = (DiffrnReflnL, )
+        l_cls = ( )
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        if self.reflns is not None:
+            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])
+        if self.refln_ss is not None:
+            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
         return "\n".join(ls_out)
