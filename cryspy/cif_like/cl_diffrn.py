@@ -11,7 +11,11 @@ from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
 
+from cryspy.corecif.cl_refln import Refln, ReflnL
 from cryspy.corecif.cl_diffrn_orient_matrix import DiffrnOrientMatrix
+from cryspy.corecif.cl_refine_ls import RefineLs
+
+from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
 
 from .cl_diffrn_refln import DiffrnRefln, DiffrnReflnL
 from .cl_diffrn_radiation import DiffrnRadiation
@@ -19,8 +23,7 @@ from .cl_extinction import Extinction
 from .cl_setup import Setup
 from .cl_phase import Phase
 
-from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
-from cryspy.corecif.cl_refln import Refln, ReflnL
+
 
 
 class Diffrn(DataConstr):
@@ -64,7 +67,7 @@ Description in cif file::
     """
     MANDATORY_CLASSES = (Setup, DiffrnRadiation, DiffrnOrientMatrix, DiffrnReflnL)
     OPTIONAL_CLASSES = (Extinction, Phase)
-    INTERNAL_CLASSES = (ReflnL, ReflnSusceptibilityL)
+    INTERNAL_CLASSES = (RefineLs, ReflnL, ReflnSusceptibilityL)
     def __init__(self, setup=None, diffrn_radiation=None, diffrn_orient_matrix=None, 
                  diffrn_refln=None, extinction=None, phase=None,
                  data_name=""):
@@ -91,8 +94,6 @@ Description in cif file::
 
     @property
     def setup(self):
-        """
-        """
         l_res = self[Setup]
         if len(l_res) >= 1:
             return l_res[0]
@@ -117,8 +118,6 @@ Description in cif file::
 
     @property
     def diffrn_radiation(self):
-        """
-        """
         l_res = self[DiffrnRadiation]
         if len(l_res) >= 1:
             return l_res[0]
@@ -143,8 +142,6 @@ Description in cif file::
 
     @property
     def diffrn_orient_matrix(self):
-        """
-        """
         l_res = self[DiffrnOrientMatrix]
         if len(l_res) >= 1:
             return l_res[0]
@@ -169,8 +166,6 @@ Description in cif file::
 
     @property
     def diffrn_refln(self):
-        """
-        """
         l_res = self[DiffrnReflnL]
         if len(l_res) >= 1:
             return l_res[0]
@@ -196,8 +191,6 @@ Description in cif file::
 
     @property
     def extinction(self):
-        """
-        """
         l_res = self[Extinction]
         if len(l_res) >= 1:
             return l_res[0]
@@ -223,8 +216,6 @@ Description in cif file::
 
     @property
     def phase(self):
-        """
-        """
         l_res = self[Phase]
         if len(l_res) >= 1:
             return l_res[0]
@@ -246,6 +237,15 @@ Description in cif file::
             if len(l_ind) > 1:
                 for _ind in l_ind.reverse():
                     self.optional_objs.pop(_ind)
+
+
+    @property
+    def refine_ls(self):
+        l_res = self[RefineLs]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
 
     @property
     def refln(self):
@@ -445,6 +445,9 @@ Calculate chi square
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
+
+        refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
+        self.internal_objs.append(refine_ls)
         return chi_sq_val, n
 
     def params_to_cif(self, separator="_", flag=False) -> str: 
@@ -464,9 +467,10 @@ Calculate chi square
 
     def calc_to_cif(self, separator="_", flag=False) -> str: 
         ls_out = []
-        l_cls = (ReflnL, ReflnSusceptibilityL)
-        l_obj = [_obj for _obj in (self.internal_objs) if type(_obj) in l_cls]
-        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        l_cls = (RefineLs, ReflnL, ReflnSusceptibilityL)
+        for _cls in l_cls:
+            l_obj = [_obj for _obj in (self.internal_objs) if isinstance(_obj, _cls)]
+            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
 
         #if self.reflns is not None:
         #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])

@@ -13,6 +13,11 @@ from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
 
 
+from cryspy.corecif.cl_refln import Refln, ReflnL
+from cryspy.corecif.cl_refine_ls import RefineLs
+
+from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
+
 from cryspy.pd1dcif_like.cl_pd_background import PdBackground, PdBackgroundL
 from cryspy.pd1dcif_like.cl_pd_instr_reflex_asymmetry import PdInstrReflexAsymmetry
 from cryspy.pd1dcif_like.cl_pd_instr_resolution import PdInstrResolution
@@ -122,13 +127,13 @@ Description in cif file::
      """
     MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PhaseL, 
                          Setup)
-    OPTIONAL_CLASSES = (DiffrnRadiation, Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdProcL)
-    INTERNAL_CLASSES = ()
+    OPTIONAL_CLASSES = (DiffrnRadiation, Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry)
+    INTERNAL_CLASSES = (RefineLs, ReflnL, ReflnSusceptibilityL, PdPeakL, PdProcL)
     def __init__(self, background=None, resolution=None, meas=None, 
                  phase=None, diffrn_radiation=None,
                  setup=None,  range=None, chi2=None,
                  extinction=None,
-                 exclude=None, asymmetry=None, peak=None, proc=None,
+                 exclude=None, asymmetry=None, 
                  data_name=""):
         super(Pd, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
                                  optional_classes=self.OPTIONAL_CLASSES,
@@ -146,13 +151,11 @@ Description in cif file::
         self.extinction = extinction
         self.exclude = exclude
         self.asymmetry = asymmetry
-        self.peak = peak
-        self.proc = proc
         
         #FIXME: internal attributes
-        self.peaks = None
-        self.reflns = None
-        self.refln_ss = None
+        #self.peaks = None
+        #self.reflns = None
+        #self.refln_ss = None
 
 
         if self.is_defined:
@@ -452,55 +455,35 @@ Description in cif file::
 
     @property
     def peak(self):
-        """
-        """
         l_res = self[PdPeakL]
-        if len(l_res) >= 1:
-            return l_res[0]
-        else:
-            return None
-    @peak.setter
-    def peak(self, x):
-        if x is None:
-            pass
-        elif isinstance(x, PdPeakL):
-            l_ind = []
-            for _i, _obj in enumerate(self.optional_objs):
-                if isinstance(_obj, PdPeakL):
-                    l_ind.append(_i)
-            if len(l_ind) == 0:
-                self.optional_objs.append(x)
-            else:
-                self.optional_objs[l_ind[0]] = x
-            if len(l_ind) > 1:
-                for _ind in l_ind.reverse():
-                    self.optional_objs.pop(_ind)
+        return l_res
 
     @property
     def proc(self):
-        """
-        """
         l_res = self[PdProcL]
         if len(l_res) >= 1:
             return l_res[0]
         else:
             return None
-    @proc.setter
-    def proc(self, x):
-        if x is None:
-            pass
-        elif isinstance(x, PdProcL):
-            l_ind = []
-            for _i, _obj in enumerate(self.optional_objs):
-                if isinstance(_obj, PdProcL):
-                    l_ind.append(_i)
-            if len(l_ind) == 0:
-                self.optional_objs.append(x)
-            else:
-                self.optional_objs[l_ind[0]] = x
-            if len(l_ind) > 1:
-                for _ind in l_ind.reverse():
-                    self.optional_objs.pop(_ind)
+
+    @property
+    def refine_ls(self):
+        l_res = self[RefineLs]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
+
+    @property
+    def refln(self):
+        l_res = self[ReflnL]
+        return l_res
+
+    @property
+    def refln_susceptibility(self):
+        l_res = self[ReflnSusceptibilityL]
+        return l_res
+
 
     def __repr__(self):
         ls_out = ["Pd:"]
@@ -508,11 +491,7 @@ Description in cif file::
         return "\n".join(ls_out)
 
 
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
-    
-
-    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None):
+    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None):
         """
 calculate intensity for the given diffraction angle
         """
@@ -551,9 +530,15 @@ calculate intensity for the given diffraction angle
         else:
             if len(phase.label) != len(l_refln_in):
                 l_refln_in = len(phase.label)*[None]
-        l_peak, l_refln = [], []
-        for phase_label, phase_scale, phase_igsize, peak_in, refln_in in zip(
-                                 phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in):
+        if l_refln_susceptibility_in is None:
+            l_refln_susceptibility_in = len(phase.label) * [None] 
+        else:
+            if _h != len(l_refln_susceptibility_in):
+                l_refln_susceptibility_in = len(phase.label) * [None] 
+
+        l_peak, l_refln, l_refln_s = [], [], []
+        for phase_label, phase_scale, phase_igsize, peak_in, refln_in, refln_susceptibility_in in zip(
+                                 phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in, l_refln_susceptibility_in):
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name == phase_label:
                     ind_cry = i_crystal
@@ -585,10 +570,14 @@ calculate intensity for the given diffraction angle
             cond_2 = (peak_in is not None) & (refln_in is not None)
             if cond_1 & cond_2:
                 np_iint_u, np_iint_d, refln = peak_in.intensity_up, peak_in.intensity_down, refln_in
+                refln_s = refln_susceptibility_in
             else:   
-                np_iint_u, np_iint_d, refln = self.calc_iint(h, k, l, crystal)
+                np_iint_u, np_iint_d, refln, refln_s = self.calc_iint(h, k, l, crystal)
+                refln.loop_name = phase_label
+                refln_s.loop_name = phase_label
 
             l_refln.append(refln)
+            l_refln_s.append(refln_s)
 
             sthovl_hkl = cell.calc_sthovl(h, k, l)
 
@@ -619,6 +608,10 @@ calculate intensity for the given diffraction angle
             setattr(_item, "intensity_down_net", _3) 
             setattr(_item, "intensity_up_total", _4)            
             setattr(_item, "intensity_down_total", _5)
+        
+        l_internal_objs = l_refln + l_refln_s + l_peak
+        l_internal_objs.append(proc)
+        setattr(self, "__internal_objs", l_internal_objs)
         return proc, l_peak, l_refln
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
@@ -656,11 +649,16 @@ calculate chi square
             int_exp = numpy.array(meas.intensity, dtype=float)
             sint_exp = numpy.array(meas.intensity_sigma, dtype=float)
 
-        if ((self.peaks is not None) & (self.reflns is not None)):
-            l_peak_in = self.peaks
-            l_refln_in = self.reflns
+        #if ((self.peaks is not None) & (self.reflns is not None)):
+        #    l_peak_in = self.peaks
+        #    l_refln_in = self.reflns
+        if ((len(self.peak)!=0) & (len(self.refln) != 0) & (len(self.refln_susceptibility) != 0)):
+            l_peak_in = self.peak
+            l_refln_in = self.refln
+            l_refln_susceptibility_in = self.refln_susceptibility
         else:
             l_peak_in, l_refln_in = [], [] 
+            l_refln_susceptibility_in = []
 
         range_ = self.range
         cond_in = numpy.ones(tth.shape, dtype=bool)
@@ -681,23 +679,20 @@ calculate chi square
             int_exp_in = int_exp[cond_in]
             sint_exp_in = sint_exp[cond_in]
             
-        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in, l_refln_in)
+        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_refln_susceptibility_in=l_refln_susceptibility_in)
         
         if flag_polarized:
-            for _item, _1, _2, _3, _4 in zip(proc.item, int_u_exp_in, sint_u_exp_in, int_d_exp_in, sint_d_exp_in):
+            for _item, _1, _2, _3, _4 in zip(self.proc.item, int_u_exp_in, sint_u_exp_in, int_d_exp_in, sint_d_exp_in):
                 _item.intensity_up = _1
                 _item.intensity_up_sigma = _2
                 _item.intensity_down = _3
                 _item.intensity_down_sigma = _4
         else:
-            for _item, _1, _2 in zip(proc.item, int_exp_in, sint_exp_in):
+            for _item, _1, _2 in zip(self.proc.item, int_exp_in, sint_exp_in):
                 _item.intensity = _1
                 _item.intensity_sigma = _2
 
-        self.proc = proc
         
-        self.peaks = l_peak
-        self.reflns = l_refln
 
         int_u_mod = numpy.array([_item.intensity_up_total for _item in proc.item], dtype=float)
         int_d_mod = numpy.array([_item.intensity_down_total for _item in proc.item], dtype=float)
@@ -764,6 +759,9 @@ calculate chi square
         #d_exp_out = {"chi_sq_val": chi_sq_val, "n": n}
         #d_exp_out.update(d_exp_prof_out)
         #print(f"chi_sq_val/n: {chi_sq_val/n:.2f} , chi_sq_val: {chi_sq_val:.2f}")
+
+        refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
+        self.internal_objs.append(refine_ls)          
         return chi_sq_val, n
 
 
@@ -824,7 +822,7 @@ calculate chi square
         #d_info_out = {"iint_u": iint_u, "iint_d": iint_d}   
         #d_info_out.update(d_info_cry)
         
-        return iint_u, iint_d, refln
+        return iint_u, iint_d, refln, refln_s
 
     def _gauss_pd(self, tth_2d):
         """
@@ -907,13 +905,20 @@ calculate chi square
         return "\n".join(ls_out)
 
     def calc_to_cif(self, separator="_", flag=False) -> str: 
+
         ls_out = []
-        l_cls = (PdProcL, )
-        l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
-        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
-        if self.reflns is not None:
-            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])
-        if self.refln_ss is not None:
-            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
+        l_cls = (RefineLs, ReflnL, ReflnSusceptibilityL, PdPeakL, PdProcL)
+        for _cls in l_cls:
+            l_obj = [_obj for _obj in (self.optional_objs+self.internal_objs) if isinstance(_obj, _cls)]
+            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+
+        #ls_out = []
+        #l_cls = (PdProcL, )
+        #l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
+        #ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        #if self.reflns is not None:
+        #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.reflns])
+        #if self.refln_ss is not None:
+        #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
 
         return "\n".join(ls_out)
