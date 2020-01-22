@@ -812,9 +812,9 @@ Give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
         if not(self.is_defined):
             print("Object 'Cell' is not fully defined for calculations")
             return None
-        h_max = int(2.*self.a*sthovl_max)
-        k_max = int(2.*self.b*sthovl_max)
-        l_max = int(2.*self.c*sthovl_max)
+        h_max = int(2.*self.length_a*sthovl_max)
+        k_max = int(2.*self.length_b*sthovl_max)
+        l_max = int(2.*self.length_c*sthovl_max)
         h_min, k_min, l_min = -1*h_max, -1*k_max, -1*l_max
 
         np_h = numpy.array(range(h_min, h_max+1, 1), dtype=int)

@@ -2,6 +2,7 @@ __author__ = 'ikibalin'
 __version__ = "2019_09_15"
 import os
 import numpy
+
 from pycifstar import Global
 
 import warnings
@@ -220,9 +221,15 @@ calculate the integral intensity for h, k, l reflections
     
     def refine(self):
         """
-        optimization
+Minimization procedure
         """
         flag = True
+
+        for _obj in self.crystals:
+            _obj.remove_internal_objs
+        for _obj in self.experiments:
+            _obj.remove_internal_objs
+
         self.apply_constraint()
         l_fitable = self.get_variables()
 
@@ -288,6 +295,7 @@ calculate the integral intensity for h, k, l reflections
             ls_out += " {:12.1f}".format(res_fun.fun)
         #print(ls_out)
   
+
 
     def read_file(self, f_name):
         self.file_input = f_name

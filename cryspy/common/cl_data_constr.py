@@ -164,6 +164,12 @@ Returns:
     def internal_objs(self) -> str:
         return getattr(self, "__internal_objs")
 
+    @property
+    def remove_internal_objs(self):
+        l_objs = self.internal_objs
+        for _objs in l_objs:
+            l_objs.remove(_objs)
+
     def is_class(self,  _cls) -> bool:
         flag = any([isinstance(_obj, _cls) for _obj in 
                   (self.mandatory_objs + self.optional_objs + self.internal_objs)])

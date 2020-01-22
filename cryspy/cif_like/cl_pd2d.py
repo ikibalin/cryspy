@@ -36,6 +36,16 @@ from cryspy.pd2dcif_like.cl_pd2d_peak import Pd2dPeak, Pd2dPeakL
 from cryspy.pd2dcif_like.cl_pd2d_proc import Pd2dProc
 
 
+def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
+    q_1_x, q_1_y, q_1_z = cell.calc_k_loc(h_1,k_1,l_1)
+    q_2_x, q_2_y, q_2_z = cell.calc_k_loc(h_2,k_2,l_2)
+    q_1_sq = q_1_x*q_1_x + q_1_y*q_1_y + q_1_z*q_1_z
+    q_2_sq = q_2_x*q_2_x + q_2_y*q_2_y + q_2_z*q_2_z
+    q_12 = q_1_x*q_2_x + q_1_y*q_2_y + q_1_z*q_2_z
+    res = q_12/(q_1_sq*q_2_sq)**0.5
+    res[res>1.] = 1.
+    return res
+
 
 class Pd2d(DataConstr):
     """
@@ -526,6 +536,10 @@ Description in cif file::
         setup = self.setup
         wavelength = float(setup.wavelength)
         diffrn_radiation = self.diffrn_radiation
+        if setup.offset_phi is not None:
+            phi_0 = float(setup.offset_phi)
+            phi_rad = (phi-phi_0)*numpy.pi/180.
+            sin_phi_1d = numpy.sin(phi_rad)
 
         p_u = float(diffrn_radiation.polarization)
         p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
@@ -541,6 +555,10 @@ Description in cif file::
         res_u_2d = numpy.zeros((tth.shape[0],phi.shape[0]), dtype=float)
         res_d_2d = numpy.zeros((tth.shape[0],phi.shape[0]), dtype=float)
 
+        texture = self.texture 
+        if texture is not None:
+            h_ax, k_ax, l_ax = float(texture.h_ax), float(texture.k_ax), float(texture.l_ax)
+            g_1, g_2 = float(texture.g_1), float(texture.g_2)
 
         phase = self.phase
         _h = len(phase.label)
@@ -593,7 +611,10 @@ Description in cif file::
                 l = numpy.array(peak_in.index_l, dtype=int)
                 mult = numpy.array(peak_in.index_mult, dtype=int)
             else:
-                h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
+                if texture is None:
+                    h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
+                else:
+                    h, k, l, mult = cell.calc_hkl_in_range(sthovl_min, sthovl_max)
 
             peak = Pd2dPeakL(item=[Pd2dPeak(index_h=_h, index_k=_k, index_l=_l, index_mult=_m) for _h, _k, _l, _m in zip(h, k, l, mult)])
                 
@@ -662,7 +683,37 @@ Description in cif file::
             for _item, _1, _2 in zip(peak.item, tth_hkl, h_pv):
                 setattr(_item, "ttheta", _1)
                 setattr(_item, "width_ttheta", _2)
-            
+
+            #texture
+            if texture is not None:
+                cond_1 = dd_in is not None
+                cond_2 = ((not(setup.offset_phi.refinement)))
+                if cond_1 & cond_2:
+                    cos_alpha_ang_3d, sin_alpha_ang_3d = dd_in["cos_alpha_ang_3d"], dd_in["sin_alpha_ang_3d"]
+                else:
+                    cos_alpha_ang_3d = cos_theta_3d * sin_phi_3d  
+                    sin_alpha_ang_3d = numpy.sqrt(1.-cos_alpha_ang_3d**2)
+                dd_out["cos_alpha_ang_3d"], dd_out["sin_alpha_ang_3d"] = cos_alpha_ang_3d, sin_alpha_ang_3d
+
+                cond_2 = (cond_2 & (not(texture.is_variable)) & (not(cell.is_variable)))
+                if cond_1 & cond_2:
+                    texture_3d = dd_in["texture_3d"]
+                else:
+                    cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax, h, k, l)
+                    c_help = 1.-cos_alpha_ax**2
+                    c_help[c_help<0.] = 0.
+                    sin_alpha_ax = numpy.sqrt(c_help)
+                    cos_alpha_ax_3d = numpy.meshgrid(tth, phi, cos_alpha_ax, indexing="ij")[2]
+                    sin_alpha_ax_3d = numpy.meshgrid(tth, phi, sin_alpha_ax, indexing="ij")[2]
+                    cos_alpha_3d = cos_alpha_ax_3d*cos_alpha_ang_3d+sin_alpha_ax_3d*sin_alpha_ang_3d
+                    texture_3d = g_2 + (1.-g_2)*(1./g_1 +
+                                       (g_1**2-1./g_1)*cos_alpha_3d**2)**(-1.5)
+                dd_out["texture_3d"] = texture_3d
+
+                profile_3d = profile_3d*texture_3d
+
+
+
             res_u_3d = profile_3d*iint_u_3d 
             res_d_3d = profile_3d*iint_d_3d 
 
