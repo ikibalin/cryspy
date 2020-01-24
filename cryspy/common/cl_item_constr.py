@@ -158,9 +158,9 @@ Returns:
         return flag
 
     def is_attribute(self, attr:str) -> bool:
-        flag_1 = self.is_attribute_mandatory
-        flag_2 = self.is_attribute_optional
-        flag_3 = self.is_attribute_internal
+        flag_1 = self.is_attribute_mandatory(attr)
+        flag_2 = self.is_attribute_optional(attr)
+        flag_3 = self.is_attribute_internal(attr)
         return (flag_1 | flag_2 | flag_3)
 
     @property
