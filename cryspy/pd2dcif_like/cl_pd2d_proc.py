@@ -10,6 +10,7 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
+from cryspy.pd2dcif_like.FUNCTIONS import recal_int_to_gammanu_grid, tthphi_to_gammanu
 
 class Pd2dProc(ItemConstr):
     """
@@ -456,3 +457,41 @@ Description in cif file::
             for phi, l_intensity in zip(self.phi, ll_intensity):
                 ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             setattr(self, "__ttheta_phi_intensity_down_sigma", "\n".join(ls_out))
+
+    def recalc_to_gamma_nu_grid(self):
+        l_tth_grid = numpy.array(self.ttheta)*numpy.pi/180.
+        l_phi_grid = numpy.array(self.phi)*numpy.pi/180.
+        int_u = numpy.array(self.intensity_up, dtype=float).transpose()
+        int_d = numpy.array(self.intensity_down, dtype=float).transpose()
+        int_sum = int_u + int_d
+        int_diff = int_u - int_d
+
+        int_u_m = numpy.array(self.intensity_up_total, dtype=float).transpose()
+        int_d_m = numpy.array(self.intensity_down_total, dtype=float).transpose()
+        int_sum_m = int_u_m + int_d_m
+        int_diff_m = int_u_m - int_d_m
+
+        min_tth, max_tth = min(l_tth_grid), max(l_tth_grid)
+        min_phi, max_phi = min(l_phi_grid), max(l_phi_grid)
+        
+        min_gamma, max_gamma = min_tth, max_tth
+        num_gamma = len(l_tth_grid)
+
+        min_nu, max_nu = -10.*numpy.pi/180., 15.*numpy.pi/180.
+        num_nu = len(l_phi_grid)
+
+        l_gamma_grid = numpy.linspace(min_gamma, max_gamma, num=num_gamma)
+        l_nu_grid = numpy.linspace(min_nu, max_nu, num=num_nu)
+
+        int_u_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_u, l_gamma_grid, l_nu_grid), dtype=float)
+        int_d_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_d, l_gamma_grid, l_nu_grid), dtype=float)
+        int_sum_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_sum, l_gamma_grid, l_nu_grid), dtype=float)
+        int_diff_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_diff, l_gamma_grid, l_nu_grid), dtype=float)
+
+        int_u_m_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_u_m, l_gamma_grid, l_nu_grid), dtype=float)
+        int_d_m_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_d_m, l_gamma_grid, l_nu_grid), dtype=float)
+        int_sum_m_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_sum_m, l_gamma_grid, l_nu_grid), dtype=float)
+        int_diff_m_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_diff_m, l_gamma_grid, l_nu_grid), dtype=float)
+
+        return l_gamma_grid*180./numpy.pi, l_nu_grid*180./numpy.pi, [int_u_out, int_d_out, int_sum_out, int_diff_out, int_u_m_out, int_d_m_out, int_sum_m_out, int_diff_m_out]
+        

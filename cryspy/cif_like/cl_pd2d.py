@@ -753,7 +753,7 @@ Description in cif file::
 
     def calc_chi_sq(self, l_crystal):
         """
-        calculate chi square
+Calculate chi square
         """
         meas = self.meas
 
@@ -874,7 +874,7 @@ Description in cif file::
 
     def calc_for_iint(self, h, k, l, crystal):
         """
-        calculate the integral intensity for h, k, l reflections
+Calculate the integral intensity for h, k, l reflections
         """
         setup = self.setup
         field = float(setup.field)
