@@ -186,7 +186,7 @@ Description in cif file::
     @property
     def delete_experiments(self):
         _h = [self.optional_objs.remove(obj) for obj in reversed(self.mandatory_objs) if (
-                          isinstance(x, Diffrn) | isinstance(x, Pd) | isinstance(x, Pd2d))]
+                  isinstance(obj, Diffrn) | isinstance(obj, Pd) | isinstance(obj, Pd2d))]
         return True
 
 

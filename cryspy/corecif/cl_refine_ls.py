@@ -142,7 +142,7 @@ in the least-squares refinement.
 
 .. math::
 
-    S = \sqrt{\\frac{\\sum{w \cdot (Y_{obs}-Y_{calc})^{2}}}{N_{ref}-N_{param}}}
+    S = \\sqrt{\\frac{\\sum{w \\cdot (Y_{obs}-Y_{calc})^{2}}}{N_{ref}-N_{param}}}
 
 Y(obs) 
     the observed coefficients (see _refine_ls_structure_factor_coef)
