@@ -1021,3 +1021,9 @@ Calculate the integral intensity for h, k, l reflections
 
         return "\n".join(ls_out)
 
+    @property
+    def remove_internal_objs(self):
+        l_objs = self.internal_objs
+        for _objs in l_objs:
+            l_objs.remove(_objs)
+        self.__dd = None            

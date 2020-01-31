@@ -218,17 +218,21 @@ calculate the integral intensity for h, k, l reflections
             chi_sq_res += chi_sq
             n_res += n
         return chi_sq_res, n_res
-    
+
+    @property    
+    def remove_internal_objs(self):
+        for _obj in self.crystals:
+            _obj.remove_internal_objs
+        for _obj in self.experiments:
+            _obj.remove_internal_objs
+
     def refine(self):
         """
 Minimization procedure
         """
         flag = True
-
-        for _obj in self.crystals:
-            _obj.remove_internal_objs
-        for _obj in self.experiments:
-            _obj.remove_internal_objs
+        
+        self.remove_internal_objs
 
         self.apply_constraint()
         l_fitable = self.get_variables()
@@ -247,13 +251,20 @@ Minimization procedure
         coeff_norm = numpy.where(val_0 == 0., 1., val_0)/numpy.where(param_0==0., 1., param_0)
         hes_coeff_norm = numpy.matmul(coeff_norm[:, numpy.newaxis], coeff_norm[numpy.newaxis, :])
 
+        chi_sq, n = self.calc_chi_sq()
+
         def tempfunc(l_param):
             for fitable, param, _1 in zip(l_fitable, l_param, coeff_norm):
                 fitable.value = param*_1
             chi_sq, n_points = self.calc_chi_sq()
-            return (chi_sq*1./float(n_points))
+            if n_points < n:
+                res_out = 1.0e+308
+            else:
+                res_out = (chi_sq*1./float(n_points))
+            #print("l_param: ", l_param)
+            #print("chi_sq/n_points: ", res_out)
+            return res_out
 
-        chi_sq, n = self.calc_chi_sq()
 
         #if self.ref[0].refin:
         #print("starting chi_sq/n: {:.2f} (n = {:}).".format(chi_sq*1./n, int(n)))
