@@ -98,12 +98,19 @@ symmetry: x,y,z
 symmetry: -x,1/2+y,1/2-z
 
 14 P12(1)/n        Monoclinic
-choice: 1
+choice: 2
 centr: true
 pcentr: 0, 0, 0
 symmetry: x,y,z
 symmetry: 1/2-x,1/2+y,1/2-z
 
+
+14 P12(1)/a        Monoclinic
+choice: 3
+centr: true
+pcentr: 0, 0, 0
+symmetry: x,y,z
+symmetry: 1/2-x,1/2+y,-z
 
 15 C2/c            Monoclinic
 choice: 1
