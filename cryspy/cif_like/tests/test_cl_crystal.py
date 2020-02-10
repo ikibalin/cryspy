@@ -29,6 +29,15 @@ data_Fe3O4
   Uani 0.0 0.5 0.5 0.5 Fe3B 1.0 Fe3+
   Uiso 0.0 0.25521() 0.25521() 0.25521() O1 1.0 O2-
  
+ loop_
+ _atom_local_axes_atom_label
+ _atom_local_axes_atom0
+ _atom_local_axes_ax1
+ _atom_local_axes_atom1
+ _atom_local_axes_atom2
+ _atom_local_axes_ax2
+   Fe3A  Fe3B     Z  Fe3A    O1     X
+
  loop_                                     
  _atom_type_scat_length_neutron
  _atom_type_symbol
@@ -148,6 +157,8 @@ def test_calc_refln_susceptibility():
     h, k, l = numpy.array([1, 2, 3], dtype=int), numpy.array([1, 2, 1], dtype=int), numpy.array([1, 0, 1], dtype=int)
     refln_suc = _obj.calc_refln_susceptibility(h, k, l)
     assert True
+
+    assert _obj.atom_local_axes["Fe3A"].ax1 == "Z"
     #f_reference = numpy.array([31.25, -76.3948, -125.99], dtype=complex)
     #res = numpy.isclose(f_nucl, f_reference, rtol=rel_tol, atol=abs_tol)
     #assert all(res)    

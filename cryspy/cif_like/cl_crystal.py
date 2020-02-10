@@ -23,6 +23,8 @@ from cryspy.magneticcif.cl_atom_site_susceptibility import AtomSiteSusceptibilit
 from cryspy.magneticcif.cl_atom_type_scat import AtomTypeScatL
 from cryspy.magneticcif.cl_atom_site_scat import AtomSiteScatL
 from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
+from cryspy.rhocif.cl_atom_local_axes import AtomLocalAxes, AtomLocalAxesL
+
 
 class Crystal(DataConstr):
     """
@@ -90,11 +92,11 @@ Description in cif file::
   Fe3B Cani 3.041      0.0 0.0  3.041 0.0  3.041
     """
     MANDATORY_CLASSES = (SpaceGroup, Cell, AtomSiteL)
-    OPTIONAL_CLASSES = (AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteScatL, AtomTypeScatL)
+    OPTIONAL_CLASSES = (AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteScatL, AtomTypeScatL, AtomLocalAxesL)
     INTERNAL_CLASSES = ()
     def __init__(self, cell=None, atom_site=None, 
                  space_group=None, atom_type=None, atom_site_aniso=None, atom_site_susceptibility=None, 
-                 atom_site_scat=None, atom_type_scat=None,  
+                 atom_site_scat=None, atom_type_scat=None,  atom_local_axes=None,
                  data_name=""):
         super(Crystal, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
                                       optional_classes=self.OPTIONAL_CLASSES,
@@ -109,6 +111,7 @@ Description in cif file::
         self.atom_site_susceptibility = atom_site_susceptibility
         self.atom_site_scat = atom_site_scat
         self.atom_type_scat = atom_type_scat
+        self.atom_local_axes = atom_local_axes
 
         if self.is_defined:
             self.form_object
@@ -307,6 +310,32 @@ Description in cif file::
             if len(l_ind) > 1:
                 for _ind in l_ind.reverse():
                     self.optional_objs.pop(_ind)
+
+
+    @property
+    def atom_local_axes(self):
+        l_res = self[AtomLocalAxesL]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
+    @atom_local_axes.setter
+    def atom_local_axes(self, x):
+        if x is None:
+            pass
+        elif isinstance(x, AtomLocalAxesL):
+            l_ind = []
+            for _i, _obj in enumerate(self.optional_objs):
+                if isinstance(_obj, AtomLocalAxesL):
+                    l_ind.append(_i)
+            if len(l_ind) == 0:
+                self.optional_objs.append(x)
+            else:
+                self.optional_objs[l_ind[0]] = x
+            if len(l_ind) > 1:
+                for _ind in l_ind.reverse():
+                    self.optional_objs.pop(_ind)
+
 
 
     def __repr__(self):
