@@ -8,11 +8,15 @@ from pycifstar import Global
 
 class GlobalConstr(object):
     def __init__(self, global_name="",
-                 mandatory_classes = (),
-                 optional_classes = (),
-                 internal_classes = ()):
+                 mandatory_classes = None,
+                 optional_classes = None,
+                 internal_classes = None):
         super(GlobalConstr, self).__init__()
         setattr(self, "__global_name", global_name)
+        if mandatory_classes is None: mandatory_classes = []
+        if optional_classes is None: optional_classes = []
+        if internal_classes is None: internal_classes = []
+
         setattr(self, "__mandatory_classes", mandatory_classes)
         setattr(self, "__optional_classes", optional_classes)
         setattr(self, "__internal_classes", internal_classes)
