@@ -333,7 +333,7 @@ Minimization procedure
         ls_main = []
         ls_main.append("global_{:}\n".format(self.global_name))
         for experiment in self.experiments:   
-            ls_main.append(f"\n_add_url {experiment.data_name:}_data.rcif\n")
+            ls_main.append(f"_add_url {experiment.data_name:}_data.rcif\n")
             ls_main.append(f"_add_url {experiment.data_name:}_calc.rcif\n")
         for crystal in self.crystals:
             ls_main.append("\n"+crystal.to_cif())

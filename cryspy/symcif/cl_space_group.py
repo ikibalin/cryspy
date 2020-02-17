@@ -76,7 +76,7 @@ Description in cif file::
 
 :Methods: get_symop
 
-`Reference <https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html>`_
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html>`_
     """
     MANDATORY_ATTRIBUTE = ()
     OPTIONAL_ATTRIBUTE = ("id", "name_hm_alt", "name_hm_alt_description", "it_number", "name_hm_ref", "it_coordinate_system_code", "name_hm_full", "name_hall", "name_schoenflies",
@@ -86,7 +86,8 @@ Description in cif file::
     RELATED_CIF_OPTIONAL_ATTRIBUTE = ("id", "name_H-M_alt", "name_H-M_alt_description", "IT_number", "name_H-M_ref", "IT_coordinate_system_code", "name_H-M_full", "name_Hall", "name_Schoenflies",
      "point_group_H-M", "Laue_class", "Patterson_name_H-M", 
     "centring_type", "Bravais_type", "crystal_system", "reference_setting", "transform_pp_abc", "transform_qq_xyz")
-    INTERNAL_ATTRIBUTE = ("centrosymmetry", "pcentr", "reduced_space_group_symop", "full_space_group_symop", "space_group_wyckoff")
+    INTERNAL_ATTRIBUTE = ("centrosymmetry", "pcentr", "reduced_space_group_symop", "full_space_group_symop", "space_group_wyckoff",
+                          "shift")
     PREFIX = "space_group"
     ACCESIBLE_IT_NUMBER = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_IT_NUMBER
     ACCESIBLE_BRAVAIS_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_BRAVAIS_TYPE
@@ -774,7 +775,9 @@ be explicit. White space within the string is optional.
     def space_group_wyckoff(self):
         return getattr(self, "__space_group_wyckoff")
 
-
+    @property
+    def shift(self):
+        return getattr(self, "__shift")
 
     @property
     def is_defined(self)->bool:
@@ -783,6 +786,7 @@ be explicit. White space within the string is optional.
     @property
     def form_object(self)->bool:
         flag = self.form_object_by_it_number_it_coordinate_system_code()
+        setattr(self, "__shift", CONSTANTS_AND_FUNCTIONS.get_shift_by_centring_type(self.centring_type))
         return flag
 
     def define_it_number_and_it_coordinate_system_code(self):
@@ -1042,9 +1046,6 @@ FIXME: should be deleted
         o_1, o_2, o_3 = e_1[flag], e_2[flag], e_3[flag]
         return o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3
 
-    @property
-    def shift(self):
-        return CONSTANTS_AND_FUNCTIONS.get_shift_by_centring_type(self.centring_type)
 
     def calc_f_hkl_by_f_hkl_as(self, h, k, l, f_hkl_as):
         """

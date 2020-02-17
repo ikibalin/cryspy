@@ -84,11 +84,10 @@ Description in cif file::
         "2theta_phi_intensity_up", "2theta_phi_intensity_up_sigma", "2theta_phi_intensity_down",
         "2theta_phi_intensity_down_sigma")
     RELATED_CIF_OPTIONAL_ATTRIBUTE = ()
-    INTERNAL_ATTRIBUTE = ("ttheta", "phi", "ttheta_corrected", "d_spacing",
+    INTERNAL_ATTRIBUTE = ("ttheta", "phi",  
                           "intensity_up_net", "intensity_down_net", "intensity_up_total", "intensity_down_total", 
-                          "intensity_bkg_calc", "intensity_net", "intensity_total", 
-                          "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
-                          "intensity", "intensity_sigma")
+                          "intensity_bkg_calc",  
+                          "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma")
     PREFIX = "pd2d_proc"
     def __init__(self, ttheta_phi_intensity_up_net=None, ttheta_phi_intensity_down_net=None, 
                  ttheta_phi_intensity_up_total=None, ttheta_phi_intensity_down_total=None, 
