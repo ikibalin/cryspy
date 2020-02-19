@@ -35,7 +35,7 @@ Description in cif file::
     OPTIONAL_ATTRIBUTE = ("occupancy", "adp_type", "wyckoff_symbol", 
                           "u_iso_or_equiv", "u_equiv_geom_mean", "b_iso_or_equiv",
                           "cartn_x", "cartn_y", "cartn_z", "multiplicity")
-    INTERNAL_ATTRIBUTE = ("scat_length_neutron", "atom_type_scat", "space_group_wyckoff")
+    INTERNAL_ATTRIBUTE = ("scat_length_neutron", "space_group_wyckoff")
     ACCESIBLE_ADP_TYPE = ("Uani", "Uiso", "Uovl", "Umpe", "Bani", "Biso", "Bovl")
     PREFIX = "atom_site"
 
