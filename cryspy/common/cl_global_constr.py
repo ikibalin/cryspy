@@ -59,8 +59,10 @@ Returns:
         """
         ls_out = []
         ls_out.append(f"global_{self.global_name:}\n")
-        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.mandatory_objs])
-        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.optional_objs])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.mandatory_objs if not(isinstance(_, DataConstr))])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.optional_objs if not(isinstance(_, DataConstr))])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.mandatory_objs if isinstance(_, DataConstr)])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.optional_objs if isinstance(_, DataConstr)])
         return "\n".join(ls_out)
 
     @classmethod
