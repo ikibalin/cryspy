@@ -392,11 +392,20 @@ FIXME: introduce Debye-Waller factor
         
 
         occ_mult = occupancy*atom_multiplicity 
+        
+        r_11 = numpy.array(r_s_g_s.r_11, dtype=float)
+        r_12 = numpy.array(r_s_g_s.r_12, dtype=float)
+        r_13 = numpy.array(r_s_g_s.r_13, dtype=float)
+        r_21 = numpy.array(r_s_g_s.r_21, dtype=float)
+        r_22 = numpy.array(r_s_g_s.r_22, dtype=float)
+        r_23 = numpy.array(r_s_g_s.r_23, dtype=float)
+        r_31 = numpy.array(r_s_g_s.r_31, dtype=float)
+        r_32 = numpy.array(r_s_g_s.r_32, dtype=float)
+        r_33 = numpy.array(r_s_g_s.r_33, dtype=float)
+        b_1 = numpy.array(r_s_g_s.b_1, dtype=float)
+        b_2 = numpy.array(r_s_g_s.b_2, dtype=float)
+        b_3 = numpy.array(r_s_g_s.b_3, dtype=float)
 
-        r_11, r_12, r_13 = r_s_g_s.r_11, r_s_g_s.r_12, r_s_g_s.r_13
-        r_21, r_22, r_23 = r_s_g_s.r_21, r_s_g_s.r_22, r_s_g_s.r_23
-        r_31, r_32, r_33 = r_s_g_s.r_31, r_s_g_s.r_32, r_s_g_s.r_33
-        b_1, b_2, b_3 = r_s_g_s.b_1, r_s_g_s.b_2, r_s_g_s.b_3
 
         phase_3d = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, 
         r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)
@@ -505,10 +514,19 @@ FIXME: introduce Debye-Waller factor
 
         occ_mult = occupancy*atom_multiplicity 
 
-        r_11, r_12, r_13 = r_s_g_s.r_11, r_s_g_s.r_12, r_s_g_s.r_13
-        r_21, r_22, r_23 = r_s_g_s.r_21, r_s_g_s.r_22, r_s_g_s.r_23
-        r_31, r_32, r_33 = r_s_g_s.r_31, r_s_g_s.r_32, r_s_g_s.r_33
-        b_1, b_2, b_3 = r_s_g_s.b_1, r_s_g_s.b_2, r_s_g_s.b_3
+        r_11 = numpy.array(r_s_g_s.r_11, dtype=float)
+        r_12 = numpy.array(r_s_g_s.r_12, dtype=float)
+        r_13 = numpy.array(r_s_g_s.r_13, dtype=float)
+        r_21 = numpy.array(r_s_g_s.r_21, dtype=float)
+        r_22 = numpy.array(r_s_g_s.r_22, dtype=float)
+        r_23 = numpy.array(r_s_g_s.r_23, dtype=float)
+        r_31 = numpy.array(r_s_g_s.r_31, dtype=float)
+        r_32 = numpy.array(r_s_g_s.r_32, dtype=float)
+        r_33 = numpy.array(r_s_g_s.r_33, dtype=float)
+        b_1 = numpy.array(r_s_g_s.b_1, dtype=float)
+        b_2 = numpy.array(r_s_g_s.b_2, dtype=float)
+        b_3 = numpy.array(r_s_g_s.b_3, dtype=float)
+
 
         phase_3d = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, 
         r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)

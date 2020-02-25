@@ -121,12 +121,16 @@ in 3 dimension (hkl, atoms, symmetry elements)
     ff = numpy.array(form_factor, dtype=float)
     sthovl = cell.calc_sthovl(h, k, l)
     #dimension (hkl, atoms)
-    
-    r_11, r_12 = space_group_symop.r_11, space_group_symop.r_12
-    r_13, r_21 = space_group_symop.r_13, space_group_symop.r_21
-    r_22, r_23 = space_group_symop.r_22, space_group_symop.r_23
-    r_31, r_32 = space_group_symop.r_31, space_group_symop.r_32
-    r_33 = space_group_symop.r_33
+
+    r_11 = numpy.array(space_group_symop.r_11, dtype=float)
+    r_12 = numpy.array(space_group_symop.r_12, dtype=float)
+    r_13 = numpy.array(space_group_symop.r_13, dtype=float)
+    r_21 = numpy.array(space_group_symop.r_21, dtype=float)
+    r_22 = numpy.array(space_group_symop.r_22, dtype=float)
+    r_23 = numpy.array(space_group_symop.r_23, dtype=float)
+    r_31 = numpy.array(space_group_symop.r_31, dtype=float)
+    r_32 = numpy.array(space_group_symop.r_32, dtype=float)
+    r_33 = numpy.array(space_group_symop.r_33, dtype=float)
     
     chi_21, chi_31, chi_32 = chi_12, chi_13, chi_23 
     

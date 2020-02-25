@@ -35,7 +35,7 @@ Description in cif file::
     OPTIONAL_ATTRIBUTE = ("occupancy", "adp_type", "wyckoff_symbol", 
                           "u_iso_or_equiv", "u_equiv_geom_mean", "b_iso_or_equiv",
                           "cartn_x", "cartn_y", "cartn_z", "multiplicity")
-    INTERNAL_ATTRIBUTE = ("scat_length_neutron", "space_group_wyckoff")
+    INTERNAL_ATTRIBUTE = ("scat_length_neutron", "space_group_wyckoff", "constr_number")
     ACCESIBLE_ADP_TYPE = ("Uani", "Uiso", "Uovl", "Umpe", "Bani", "Biso", "Bovl")
     PREFIX = "atom_site"
 
@@ -404,6 +404,10 @@ the _atom_sites_Cartn_transform_axes description.
     @property
     def space_group_wyckoff(self):
         return getattr(self, "__space_group_wyckoff")
+    
+    @property
+    def constr_number(self):
+        return getattr(self, "__constr_number")
 
 
     def _show_message(self, s_out: str):
@@ -505,6 +509,8 @@ the _atom_sites_Cartn_transform_axes description.
         """
         according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
+        if self.constr_number is not None:
+            return self.constr_number 
         x, y, z = float(self.fract_x), float(self.fract_y), float(self.fract_z)
         o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 = space_group.calc_el_symm_for_xyz(x,y,z)
         b_11, b_22, b_33, b_12, b_13, b_23 = 107, 181, 41, 7, 19, 1
@@ -572,6 +578,7 @@ the _atom_sites_Cartn_transform_axes description.
             numb = 15
         else:
             numb = 0 #no constraint
+        setattr(self, "__constr_number", numb)
         return numb
 
 

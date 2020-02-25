@@ -849,7 +849,7 @@ in Carthezian coordinate system where :math:`X` along axis :math:`a`,
         p_z = m_m[2, 0]*x + m_m[2, 1]*y + m_m[2, 2]*z
         return p_x, p_y, p_z
 
-    def calc_length_sq(x, y, z):
+    def calc_length_sq(self, x, y, z):
         """
 According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
 
@@ -858,12 +858,12 @@ According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
             + 2 x y a b \\cos \\gamma  + 2 x z a c \\cos \\beta  + 2 y z b c \\cos \\alpha 
         """
         a, b, c = float(self.length_a), float(self.length_b), float(self.length_c)
-        c_a, c_b, c_c = self.cos_a, self.cos_b, self.cos_g
+        c_a, c_b, c_g = self.cos_a, self.cos_b, self.cos_g
         t_sq = (x**2 * a**2 + y**2 * b**2 + z**2 * c**2 + 
                 2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
         return t_sq
 
-    def calc_reciprocal_length_sq(h, k, l):
+    def calc_reciprocal_length_sq(self, h, k, l):
         """
 According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
 
@@ -872,7 +872,7 @@ According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
             + 2 h k a^{*} b^{*} \\cos \\gamma  + 2 h l a^{*} c^{*} \\cos \\beta  + 2 k l b^{*} c^{*} \\cos \\alpha 
         """
         a, b, c = float(self.reciprocal_length_a), float(self.reciprocal_length_b), float(self.reciprocal_length_c)
-        c_a, c_b, c_c = self.cos_ia, self.cos_ib, self.cos_ig
+        c_a, c_b, c_g = self.cos_ia, self.cos_ib, self.cos_ig
         x, y, z = h, k, l
         t_sq = (x**2 * a**2 + y**2 * b**2 + z**2 * c**2 + 
                 2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)

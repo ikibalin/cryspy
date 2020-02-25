@@ -253,15 +253,15 @@ identified with a particular space group.
         return any(flag)
 
     def give_default_xyz(self, xyz):
-        one_pm_1 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_2 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_3 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_4 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_5 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=Fraction)
-        one_pm_6 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=Fraction)
-        one_pm_7 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=Fraction)
-        one_pm_8 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=Fraction)
-        zeros = numpy.array([Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)], dtype=Fraction)
+        one_pm_1 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=int)
+        one_pm_2 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=int)
+        one_pm_3 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=int)
+        one_pm_4 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=int)
+        one_pm_5 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=int)
+        one_pm_6 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=int)
+        one_pm_7 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=int)
+        one_pm_8 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=int)
+        zeros = numpy.array([Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)], dtype=int)
         flag_1 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_1*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
         flag_2 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_2*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
         flag_3 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_3*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]

@@ -1052,11 +1052,11 @@ FIXME: should be deleted
 Calculate the structure factor giving the structure factor 
 in asymmetric unit cell.
         """
-        np_h, np_k, np_l = numpy.array(h), numpy.array(k), numpy.array(l)
-        shift = self.shift
+        np_h, np_k, np_l = numpy.array(h, dtype=float), numpy.array(k, dtype=float), numpy.array(l, dtype=float)
+        shift = numpy.array(self.shift, dtype=float)
         centr = self.centrosymmetry
 
-        orig_x, orig_y, orig_z = zip(*shift)
+        orig_x, orig_y, orig_z = shift[:, 0], shift[:, 1], shift[:, 2]
 
         #orig_x = [hh[0] for hh in shift]
         #orig_y = [hh[1] for hh in shift]
@@ -1074,7 +1074,7 @@ in asymmetric unit cell.
         f_hkl_1 = f_hkl_as*_hh*1./len(shift)
 
         if (centr):
-            p_centr = self.pcentr
+            p_centr = numpy.array(self.pcentr, dtype=float)
             hh = (2.*2.*numpy.pi*1j* (np_h*p_centr[0]+np_k*p_centr[1]+np_l*p_centr[2])).astype(complex)
             if len(f_hkl_as.shape)==2:
                 hh = hh[:, numpy.newaxis]
