@@ -24,6 +24,8 @@ Data items in the DIFFRN_ORIENT_MATRIX category record details
 about the orientation matrix used in the measurement of the
 diffraction intensities.
 
+By default the UB matrix are given in ccsl notation
+
 Description in cif file::
 
  _diffrn_orient_matrix_UB_11           -0.04170
@@ -36,6 +38,8 @@ Description in cif file::
  _diffrn_orient_matrix_UB_32           -0.13766
  _diffrn_orient_matrix_UB_33            0.02277
 
+
+`<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cdiffrn_orient_matrix.html>`_
     """
     MANDATORY_ATTRIBUTE = ("ub_11", "ub_12", "ub_13", "ub_21", "ub_22", "ub_23",
                            "ub_31", "ub_32", "ub_33")
@@ -43,7 +47,10 @@ Description in cif file::
     INTERNAL_ATTRIBUTE = ("u_11", "u_12", "u_13", "u_21", "u_22", "u_23",
                           "u_31", "u_32", "u_33", "cell")
     PREFIX = "diffrn_orient_matrix"
-    def __init__(self,  ub_11=None, ub_12=None, ub_13=None, ub_21=None, ub_22=None, ub_23=None, ub_31=None, ub_32=None, ub_33=None,
+    def __init__(self,  ub_11=None, ub_12=None, ub_13=None, 
+                        ub_21=None, ub_22=None, ub_23=None, 
+                        ub_31=None, ub_32=None, ub_33=None,
+                        type=None,
                         id=None):
         super(DiffrnOrientMatrix, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
                                                  optional_attribute=self.OPTIONAL_ATTRIBUTE, 
@@ -58,6 +65,7 @@ Description in cif file::
         self.ub_31 = ub_31
         self.ub_32 = ub_32
         self.ub_33 = ub_33
+        self.type = type
 
         if self.is_defined:
             self.form_object
@@ -69,6 +77,8 @@ Description in cif file::
 A description of the orientation matrix type and how it should
 be applied to define the orientation of the crystal precisely
 with respect to the diffractometer axes.
+
+By defailt it is ccsl notation
 
 Type: char        
         """
@@ -252,9 +262,34 @@ See definition for **_diffrn_orient_matrix.ub_11**
             x_in = str(x)
         setattr(self, "__id", x_in)
 
+    def get_notation(self):
+        s_type = self.type
+        if s_type is None:
+            return "ccsl"
+        s_type = s_type.lower()
+        if "ccsl" in s_type:
+            return "CCSL"
+        elif "6t2" in s_type:
+            return "6T2@LLB"
+        elif "5c1" in s_type:
+            return "5C1@LLB"
+        elif "businglevy" in s_type:
+            return "BusingLevy"
+        elif "-yxz" in s_type:
+            return "-YXZ"
+        elif "x-yz" in s_type:
+            return "X-YZ"
+        elif "xyz" in s_type:
+            return "XYZ"
+        return "CCSL"
 
     @property
     def u_11(self):
+        """
+The elements of the orientation matrix in CCSL notation.
+
+Type: numb        
+        """
         return getattr(self, "__u_11")
     @property
     def u_12(self):
@@ -287,16 +322,16 @@ See definition for **_diffrn_orient_matrix.ub_11**
 
 
     @property
-    def ub_ccsl(self):
+    def ub(self):
         """
-        The UB matrix (CCSL)
+The UB matrix in the notation defined by type
         """
         ub = numpy.array([[self.ub_11, self.ub_12, self.ub_13], 
                           [self.ub_21, self.ub_22, self.ub_23], 
                           [self.ub_31, self.ub_32, self.ub_33]], dtype=float)
         return ub
-    @ub_ccsl.setter
-    def ub_ccsl(self, x):
+    @ub.setter
+    def ub(self, x):
         if isinstance(x, numpy.ndarray):
             x_in = x
         else:
@@ -316,84 +351,30 @@ See definition for **_diffrn_orient_matrix.ub_11**
             self.ub_31 = float(x_in[2,0])
             self.ub_32 = float(x_in[2,1])
             self.ub_33 = float(x_in[2,2])
-            self.__recalc_u_cell
+            self.form_object
         else:
-                self._show_message("The UB matrix should be numpy.ndarray with size(3x3)")
-                return
-
-    @property
-    def ub_from(self):
-        """
-        The UB matrix (from) 
-        """
-        #not sure it should be checked
-        ub = numpy.array([[-1.*self.ub_21, -1.*self.ub_22, -1.*self.ub_23], 
-                          [self.ub_11, self.ub_12, self.ub_13], 
-                          [self.ub_31, self.ub_32, self.ub_33]], dtype=float)
-        return ub
-    @ub_from.setter
-    def ub_from(self, x):
-        self.__from_ub_from_to_ub_ccsl(x)
+            self._show_message("The UB matrix should be numpy.ndarray with size(3x3)")
 
     @property
     def u(self):
         """
-The U matrix (orientation matrix) 
+The U matrix (orientation matrix) in CCSL notation
         """
         #not sure it should be checked
         u = numpy.array([[self.u_11, self.u_12, self.u_13], 
                          [self.u_21, self.u_22, self.u_23], 
                          [self.u_31, self.u_32, self.u_33]], dtype=float)
         return u
-    @u.setter
-    def u(self, x):
-        if isinstance(x, numpy.ndarray):
-            x_in = x
-        else:
-            try:
-                x_in = numpy.array(x, dtype=float)
-            except:
-                warnings.warn("The U matrix should be numpy.ndarray with size(3x3)", UserWarning, stacklevel=2)
-                return
-        flag = x_in.shape == (3,3)
-        if flag:
-            setattr(self, "__u_11", float(x_in[0,0]))
-            setattr(self, "__u_12", float(x_in[0,1]))
-            setattr(self, "__u_13", float(x_in[0,2]))
-            setattr(self, "__u_21", float(x_in[1,0]))
-            setattr(self, "__u_22", float(x_in[1,1]))
-            setattr(self, "__u_23", float(x_in[1,2]))
-            setattr(self, "__u_31", float(x_in[2,0]))
-            setattr(self, "__u_32", float(x_in[2,1]))
-            setattr(self, "__u_33", float(x_in[2,2]))
-            self.__recalc_ub
-        else:
-                warnings.warn("The U matrix should be numpy.ndarray with size(3x3)", UserWarning, stacklevel=2)
-                return
 
-
-
-    def __from_ub_from_to_ub_ccsl(self, ub_from):
-        ub_ccsl = numpy.array([[ub_from[1, 0], ub_from[1, 1], ub_from[1, 2]],
-                               [-1.*ub_from[0, 0], -1.*ub_from[0, 1], -1.*ub_from[0, 2]],
-                               [ub_from[2, 0], ub_from[2, 1], ub_from[2, 2]]], dtype=float)
-        self.ub_ccsl = ub_ccsl
-
-    @property
-    def form_object(self)->bool:
-        flag = False
-        if self.is_defined:
-            self.__recalc_u_cell
-            flag = True
-        return flag
 
     @property
     def __recalc_u_cell(self):
-        ub_from = self.ub_from
-    
-        v_b_1 = ub_from[:, 0]
-        v_b_2 = ub_from[:, 1]
-        v_b_3 = ub_from[:, 2]
+
+        ub_ccsl = self.calc_ub_ccsl()
+
+        v_b_1 = ub_ccsl[:, 0]
+        v_b_2 = ub_ccsl[:, 1]
+        v_b_3 = ub_ccsl[:, 2]
 
         b_1 = float(numpy.sqrt(((v_b_1*v_b_1).sum())))
         b_2 = float(numpy.sqrt(((v_b_2*v_b_2).sum())))
@@ -430,47 +411,123 @@ The U matrix (orientation matrix)
             cell.angle_alpha, cell.angle_beta, cell.angle_gamma = float(alpha*180./numpy.pi), float(beta*180./numpy.pi), float(gamma*180./numpy.pi),
         cell.form_object
         m_ib = cell.m_ib
-        u = numpy.dot(ub_from,  m_ib)
+        u_ccsl = numpy.dot(ub_ccsl,  m_ib)
 
-        setattr(self, "__u_11", float(u[0,0]))
-        setattr(self, "__u_12", float(u[0,1]))
-        setattr(self, "__u_13", float(u[0,2]))
-        setattr(self, "__u_21", float(u[1,0]))
-        setattr(self, "__u_22", float(u[1,1]))
-        setattr(self, "__u_23", float(u[1,2]))
-        setattr(self, "__u_31", float(u[2,0]))
-        setattr(self, "__u_32", float(u[2,1]))
-        setattr(self, "__u_33", float(u[2,2]))
+        setattr(self, "__u_11", float(u_ccsl[0,0]))
+        setattr(self, "__u_12", float(u_ccsl[0,1]))
+        setattr(self, "__u_13", float(u_ccsl[0,2]))
+        setattr(self, "__u_21", float(u_ccsl[1,0]))
+        setattr(self, "__u_22", float(u_ccsl[1,1]))
+        setattr(self, "__u_23", float(u_ccsl[1,2]))
+        setattr(self, "__u_31", float(u_ccsl[2,0]))
+        setattr(self, "__u_32", float(u_ccsl[2,1]))
+        setattr(self, "__u_33", float(u_ccsl[2,2]))
+
+
+    def calc_ub_ccsl(self):
+        """
+Calculate UB Matrix in CCSL notation 
+based on the given UB matrix with defined type variable
+        """
+        s_notation = self.get_notation()
+        a1, a2, a3 = float(self.ub_11), float(self.ub_12), float(self.ub_13)
+        b1, b2, b3 = float(self.ub_21), float(self.ub_22), float(self.ub_23)
+        c1, c2, c3 = float(self.ub_31), float(self.ub_32), float(self.ub_33)
+
+        ub_ccsl = numpy.array([[ a1, a2, a3], 
+                               [ b1, b2, b3], 
+                               [ c1, c2, c3]], dtype=float)
+        if s_notation in ["XYZ", "6T2@LLB"]:
+            ub_ccsl = numpy.array([[ a1, a2, a3], 
+                                   [ b1, b2, b3], 
+                                   [ c1, c2, c3]], dtype=float)
+        elif s_notation in ["-YXZ", "5C1@LLB"]:
+            ub_ccsl = numpy.array([[-b1,-b2,-b3],
+                                   [ a1, a2, a3],
+                                   [ c1, c2, c3]], dtype=float) 
+            #ub_ccsl = numpy.array([[-b1,-b2,-b3],
+            #                       [ a1, a2, a3],
+            #                       [ c1, c2, c3]], dtype=float)
+        elif s_notation in ["Y-XZ", "BusingLevy"]:
+            ub_ccsl = numpy.array([[ b1, b2, b3], 
+                                   [-a1,-a2,-a3], 
+                                   [ c1, c2, c3]], dtype=float)
+        return ub_ccsl
+
+    def calc_matrix_from_ccsl(self, matrix_ccsl):
+        """
+Calculate UB Matrix (or U Matrix) in the notation defined by type variable
+based on the UB Matrix (or U Matrix) in CCSL notation
+        """
+        s_notation = self.get_notation()
+        a1, a2, a3 = float(matrix_ccsl[0, 0]), float(matrix_ccsl[0, 1]), float(matrix_ccsl[0, 2])
+        b1, b2, b3 = float(matrix_ccsl[1, 0]), float(matrix_ccsl[1, 1]), float(matrix_ccsl[1, 2])
+        c1, c2, c3 = float(matrix_ccsl[2, 0]), float(matrix_ccsl[2, 1]), float(matrix_ccsl[2, 2])
+
+        # the matrices are the same as in self.calc_ub_ccsl()
+        # because Op. x Op. = 1
+        ub = numpy.array([[ a1, a2, a3], 
+                          [ b1, b2, b3], 
+                          [ c1, c2, c3]], dtype=float)
+        if s_notation == "6T2@LLB":
+            ub = numpy.array([[ a1, a2, a3], 
+                              [ b1, b2, b3], 
+                              [ c1, c2, c3]], dtype=float)
+        elif s_notation == "5C1@LLB":
+            ub = numpy.array([[-b1,-b2,-b3],
+                              [ a1, a2, a3],
+                              [ c1, c2, c3]], dtype=float) 
+            #ub = numpy.array([[-b1,-b2,-b3],
+            #                  [ a1, a2, a3],
+            #                  [ c1, c2, c3]], dtype=float) 
+        elif s_notation == "BusingLevy":
+            ub = numpy.array([[ b1, b2, b3], 
+                              [-a1,-a2,-a3], 
+                              [ c1, c2, c3]], dtype=float)
+        return ub
+
+    @classmethod
+    def calc_ub(cls, u, type="CCSL", abc_angles=(6.8, 6.8, 6.8, 90., 90., 90.)):
+        """
+Calculate UB matrix by U matrix 
+given in the notation defined by type
+variable and cell parameters (a, b, c, alpha, beta, gamma)
+        """
+        (a, b, c, al, be, ga) = abc_angles[:6]
+        cell = Cell(length_a=a, length_b=b, length_c=c, angle_alpha=al, angle_beta=be, angle_gamma=ga)
+
+        obj = cls(type=type)
+        
+        u_ccsl = obj.calc_matrix_from_ccsl(u) #in general case it should not be correct as Op. x Op.^-1 != 1
+        ub_ccsl = numpy.dot(u_ccsl, m_b)
+        ub = obj.calc_matrix_from_ccsl(ub_ccsl)
+
+        obj.ub_11 = ub[0, 0]
+        obj.ub_12 = ub[0, 1]
+        obj.ub_13 = ub[0, 2]
+        obj.ub_21 = ub[1, 0]
+        obj.ub_22 = ub[1, 1]
+        obj.ub_23 = ub[1, 2]
+        obj.ub_31 = ub[2, 0]
+        obj.ub_32 = ub[2, 1]
+        obj.ub_33 = ub[2, 2]
+        obj.form_object()
+        return obj
 
     @property
-    def __recalc_ub(self):
-        u = self.u
-        cell = self.cell
-        m_b = cell.m_b
-        ub_from = numpy.dot(u, m_b)
-        ub_ccsl = numpy.array([[ub_from[1, 0], ub_from[1, 1], ub_from[1, 2]],
-                       [-1.*ub_from[0, 0], -1.*ub_from[0, 1], -1.*ub_from[0, 2]],
-                       [ub_from[2, 0], ub_from[2, 1], ub_from[2, 2]]], dtype=float)
+    def form_object(self)->bool:
+        flag = False
+        if self.is_defined:
+            self.__recalc_u_cell
+            flag = True
+        return flag
 
-        self.ub_11 = ub_ccsl[0, 0]
-        self.ub_12 = ub_ccsl[0, 1]
-        self.ub_13 = ub_ccsl[0, 2]
-        self.ub_21 = ub_ccsl[1, 0]
-        self.ub_22 = ub_ccsl[1, 1]
-        self.ub_23 = ub_ccsl[1, 2]
-        self.ub_31 = ub_ccsl[2, 0]
-        self.ub_32 = ub_ccsl[2, 1]
-        self.ub_33 = ub_ccsl[2, 2]
 
 
     def __repr__(self):
         ls_out = ["OrientMatrix:"]
         ls_out.append(str(self))
         return "\n".join(ls_out)
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
-
 
     #def read_ubfrom(self, f_name="ubfrom.raf"):
     #    fid = open(f_name)
@@ -484,13 +541,18 @@ The U matrix (orientation matrix)
     #    self.__wavelength = wavelength
     #    
     #    self.ub_from = ub_from
+    #def __from_ub_from_to_ub_ccsl(self, ub_from):
+    #    ub_ccsl = numpy.array([[ub_from[1, 0], ub_from[1, 1], ub_from[1, 2]],
+    #                           [-1.*ub_from[0, 0], -1.*ub_from[0, 1], -1.*ub_from[0, 2]],
+    #                           [ub_from[2, 0], ub_from[2, 1], ub_from[2, 2]]], dtype=float)
+    #    self.ub_ccsl = ub_ccsl
 
     def calc_angle(self, h, k, l, wavelength=1.4):
-        ub_from = self.ub_from
-        q_ub = numpy.dot(ub_from, [h, k, l])
+        ub = self.ub
+        q_ub = numpy.dot(ub, [h, k, l])
         q = numpy.linalg.norm(q_ub)
-        gamma_0 = self.gamma_0
-        nu_0 = self.nu_0
+        gamma_0 = 0.
+        nu_0 = 0.
 
         q_final = [- q**2 * wavelength / 2.0, 0, q_ub[2]]
         q_y2 = q**2 - q_final[0]**2 - q_final[2]**2
@@ -508,3 +570,20 @@ The U matrix (orientation matrix)
             phi = (numpy.arctan2(q_final[1], q_final[0]) -numpy.arctan2(q_ub[1], q_ub[0]))/numpy.pi*180
             [phi, gamma, nu] = [phi if phi > 0. else phi + 360., gamma if gamma > 0. else gamma + 360., nu]
             print("gamma is {:7.3f}   nu is {:7.3f}   phi is {:7.3f}".format(gamma, nu, phi))
+            return gamma, nu, phi
+
+#
+#    @property
+#    def ub_from(self):
+#        """
+#        The UB matrix (from) 
+#        """
+#        #not sure it should be checked
+#        ub = numpy.array([[-1.*self.ub_21, -1.*self.ub_22, -1.*self.ub_23], 
+#                          [self.ub_11, self.ub_12, self.ub_13], 
+#                          [self.ub_31, self.ub_32, self.ub_33]], dtype=float)
+#        return ub
+#    @ub_from.setter
+#    def ub_from(self, x):
+#        self.__from_ub_from_to_ub_ccsl(x)
+#

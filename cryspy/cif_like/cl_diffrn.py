@@ -333,6 +333,7 @@ Calculate intensity for the given diffraction angle
 
         field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
         
+        
         field_norm = ((field_loc**2).sum())**0.5
         
         p_u = float(diffrn_radiation.polarization)
