@@ -227,6 +227,7 @@ identified with a particular space group.
 
 
     def is_valid_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5) -> bool:
+        fract_x, fract_y, fract_z = float(fract_x), float(fract_y), float(fract_z)
         flag = True
         nval = int(tol**-1)
         xyz = numpy.array([Fraction(fract_x).limit_denominator(nval), 
