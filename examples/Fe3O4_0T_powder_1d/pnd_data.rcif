@@ -2,7 +2,7 @@
 data_pnd
 
 loop_
-_pd_meas_angle_2theta
+_pd_meas_2theta
 _pd_meas_intensity_up
 _pd_meas_intensity_up_sigma
 _pd_meas_intensity_down
