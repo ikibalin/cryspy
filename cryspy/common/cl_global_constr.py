@@ -26,9 +26,7 @@ class GlobalConstr(object):
         setattr(self, "__internal_objs", [])
 
     def __repr__(self) -> str:
-        ls_out = []
-        ls_out.append("GlobalConstr: ")
-        ls_out.append(f"{str(self):}")
+        ls_out = [f"{type(self).__name__:}: ", f"{str(self):}"]
         return "\n".join(ls_out)
 
     def __str__(self) -> str:

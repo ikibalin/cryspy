@@ -578,14 +578,12 @@ FIXME: introduce Debye-Waller factor
         #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
         #chi in 10-12 cm; chim in muB (it is why here 0.2695)
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
-                cell,
                 hh[:, 0], hh[:, 1], hh[:, 2],
                 hh[:, 3], hh[:, 4], hh[:, 5],
                 hh[:, 6], hh[:, 7], hh[:, 8])
 
         sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33 = self._orto_matrix(
-                cell,
-                hh[:, 9], hh[:, 10], hh[:, 11], 
+                hh[:, 9], hh[:, 10], hh[:, 11],
                 hh[:, 12], hh[:, 13], hh[:, 14], 
                 hh[:, 15], hh[:, 16], hh[:, 17])
 
@@ -605,7 +603,7 @@ FIXME: introduce Debye-Waller factor
         return res
 
 
-    def _orto_matrix(self, cell, l_11, l_12, l_13, l_21, l_22, l_23, l_31, 
+    def _orto_matrix(self, l_11, l_12, l_13, l_21, l_22, l_23, l_31,
                      l_32, l_33):
         """
 rewrite matrix l_ij defined in coordinate (ia, ib, ic) to matrix s_ij, 
@@ -627,6 +625,7 @@ ia, ib, ic is inversed unit cell parameters (it can be estimated from matrix mat
 
 output chiLOC = iBT CHI iB
         """
+        cell = self.cell
         m_ib_norm = cell.m_ib_norm
         m_ibt_norm = m_ib_norm.transpose()
         
@@ -684,7 +683,7 @@ Magnetization ellipsoids are given in the same coordinate system as U_ij (anisot
                 a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
                 a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
 
-            s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(cell, _11, _12, _13, _12, _22, _23, _13, _23, _33)
+            s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(_11, _12, _13, _12, _22, _23, _13, _23, _33)
             m_chi_norm = numpy.array([[s_11, s_12, s_13],
                                       [s_12, s_22, s_23],
                                       [s_13, s_23, s_33]], dtype=float)

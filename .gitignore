@@ -7,3 +7,4 @@ rhochi.egg-info
 build/*
 dist/*
 cryspy.egg-info/*
+.idea/*
