@@ -38,7 +38,7 @@ Description in cif file::
     """
     MANDATORY_ATTRIBUTE = ("coord_xyz", )
     OPTIONAL_ATTRIBUTE = ("id", "letter", "multiplicity", "site_symmetry")
-    INTERNAL_ATTRIBUTE = ("full_coord_xyz", "r", "b", "full_r", "full_b")
+    INTERNAL_ATTRIBUTE = ("full_coord_xyz", "r", "b", "full_r", "full_b", "it_coord_xyz", "centring_type")
     PREFIX = "space_group_Wyckoff"
     def __init__(self, id=None, coord_xyz=None, letter=None, multiplicity=None, site_symmetry=None):
         super(SpaceGroupWyckoff, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
@@ -192,6 +192,20 @@ identified with a particular space group.
 
 
     @property
+    def it_coord_xyz(self):
+        return getattr(self, "__it_coord_xyz")
+
+    def set_it_coord_xyz(self, it_coord_xyz):
+        setattr(self, "__it_coord_xyz", it_coord_xyz)
+
+    @property
+    def centring_type(self):
+        return getattr(self, "__centring_type")
+
+    def set_centring_type(self, centring_type):
+        setattr(self, "__centring_type", centring_type)
+
+    @property
     def r(self):
         return getattr(self, "__r")
     @property
@@ -214,15 +228,27 @@ identified with a particular space group.
         r, b = CONSTANTS_AND_FUNCTIONS.transform_string_to_r_b(coord_xyz, labels=("x", "y", "z"))
         setattr(self, "__r", r)
         setattr(self, "__b", b)
-        full_coord_xyz = self.full_coord_xyz
-        if full_coord_xyz is not None:
+
+        it_coord_xyz = self.it_coord_xyz
+        centring_type = self.centring_type
+        shift = CONSTANTS_AND_FUNCTIONS.get_shift_by_centring_type(centring_type)
+
+        if it_coord_xyz is not None:
             full_r, full_b = [], []
-            for _coord_xyz in full_coord_xyz:
+            full_coord_xyz = []
+            for _coord_xyz in it_coord_xyz:
                 r, b = CONSTANTS_AND_FUNCTIONS.transform_string_to_r_b(_coord_xyz, labels=("x", "y", "z"))
-                full_r.append(r)
-                full_b.append(b)
+
+                for _shift in shift:
+                    b_new = numpy.mod(b + numpy.array(_shift, dtype=Fraction), 1)
+                    _symop = CONSTANTS_AND_FUNCTIONS.transform_r_b_to_string(r, b_new, labels=("x", "y", "z"))
+                    full_coord_xyz.append(_symop)
+                    full_r.append(r)
+                    full_b.append(b_new)
+
             setattr(self, "__full_r", full_r)
             setattr(self, "__full_b", full_b)
+            setattr(self, "__full_coord_xyz", full_coord_xyz)
         return flag
 
 

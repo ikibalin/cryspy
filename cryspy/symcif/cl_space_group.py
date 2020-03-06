@@ -925,7 +925,8 @@ be explicit. White space within the string is optional.
         for _1, _2, _3, _4 in zip(_multiplicity, _letter, _site_symmetry, _l_coords_xyz_2):
             _i_numb += 1
             _item = SpaceGroupWyckoff(id=f"{_i_numb:}", multiplicity=_1, coord_xyz=_4[0], letter=_2, site_symmetry=_3)
-            setattr(_item, "__full_coord_xyz", _4)
+            _item.set_it_coord_xyz(_4)
+            _item.set_centring_type(centring_type)
             _item.form_object
             item.append(_item)
         space_group_wyckoff = SpaceGroupWyckoffL(item=item)
@@ -972,6 +973,9 @@ Give equivalent reflections of hkl and its multiplicity
     def calc_xyz_mult(self, x, y, z):
         """
 give unique x,y,z elements and calculate multiplicity for given x,y,z fract
+
+FIXME: space_group_wyckoff does not give correct wyckoff position for all coordinates
+       For atom (0., 0.125, 0.625) at IT 227  it gives  multiplicity 192 instead of 48
         """
         wyckoff = self.space_group_wyckoff.get_wyckoff_for_fract(x, y, z)
         np_r = numpy.array(wyckoff.full_r, dtype=float)
