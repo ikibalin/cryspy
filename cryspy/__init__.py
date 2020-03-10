@@ -10,6 +10,7 @@ To create a template in the folder type in a command-line::
     python -m cryspy
 """
 name = "cryspy"
+__version__ = '0.2.0'
 from .cif_like.cl_crystal import (
     Crystal, 
     Cell, 
