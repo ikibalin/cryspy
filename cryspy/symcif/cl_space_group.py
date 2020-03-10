@@ -973,9 +973,6 @@ Give equivalent reflections of hkl and its multiplicity
     def calc_xyz_mult(self, x, y, z):
         """
 give unique x,y,z elements and calculate multiplicity for given x,y,z fract
-
-FIXME: space_group_wyckoff does not give correct wyckoff position for all coordinates
-       For atom (0., 0.125, 0.625) at IT 227  it gives  multiplicity 192 instead of 48
         """
         wyckoff = self.space_group_wyckoff.get_wyckoff_for_fract(x, y, z)
         np_r = numpy.array(wyckoff.full_r, dtype=float)
@@ -984,17 +981,18 @@ FIXME: space_group_wyckoff does not give correct wyckoff position for all coordi
         y_s = (np_r[:, 1, 0]*x + np_r[:, 1, 1]*y + np_r[:, 1, 2]*z + np_b[:, 1])%1
         z_s = (np_r[:, 2, 0]*x + np_r[:, 2, 1]*y + np_r[:, 2, 2]*z + np_b[:, 2])%1
 
-        l_shift = self.shift
-        l_x, l_y, l_z = [], [], []
-        for _shift in l_shift:
-            l_x.extend(numpy.mod(x_s+_shift[0],1))
-            l_y.extend(numpy.mod(y_s+_shift[1],1))
-            l_z.extend(numpy.mod(z_s+_shift[2],1))
+        #l_shift = self.shift
+        #l_x, l_y, l_z = [], [], []
+        #for _shift in l_shift:
+        #    l_x.extend(numpy.mod(x_s+_shift[0],1))
+        #    l_y.extend(numpy.mod(y_s+_shift[1],1))
+        #    l_z.extend(numpy.mod(z_s+_shift[2],1))
         multiplicity = wyckoff.multiplicity
-        x_out = numpy.array(l_x, dtype=float)
-        y_out = numpy.array(l_y, dtype=float)
-        z_out = numpy.array(l_z, dtype=float)
-        return x_out, y_out, z_out, multiplicity
+        #x_out = numpy.array(l_x, dtype=float)
+        #y_out = numpy.array(l_y, dtype=float)
+        #z_out = numpy.array(l_z, dtype=float)
+
+        return x_s, y_s, z_s, multiplicity
     
 
     def calc_symop_for_xyz(self, x_in, y_in, z_in):

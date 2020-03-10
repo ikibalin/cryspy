@@ -6,7 +6,6 @@ import numpy
 from fractions import Fraction
 from pycifstar import Global
 
-
 import cryspy.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from typing import List, Tuple
 from cryspy.common.cl_item_constr import ItemConstr
@@ -36,13 +35,14 @@ Description in cif file::
 
 `Reference: <https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_Wyckoff.html>`_
     """
-    MANDATORY_ATTRIBUTE = ("coord_xyz", )
+    MANDATORY_ATTRIBUTE = ("coord_xyz",)
     OPTIONAL_ATTRIBUTE = ("id", "letter", "multiplicity", "site_symmetry")
     INTERNAL_ATTRIBUTE = ("full_coord_xyz", "r", "b", "full_r", "full_b", "it_coord_xyz", "centring_type")
     PREFIX = "space_group_Wyckoff"
+
     def __init__(self, id=None, coord_xyz=None, letter=None, multiplicity=None, site_symmetry=None):
-        super(SpaceGroupWyckoff, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
-                                                optional_attribute=self.OPTIONAL_ATTRIBUTE, 
+        super(SpaceGroupWyckoff, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE,
+                                                optional_attribute=self.OPTIONAL_ATTRIBUTE,
                                                 internal_attribute=self.INTERNAL_ATTRIBUTE,
                                                 prefix=self.PREFIX)
 
@@ -61,6 +61,7 @@ An arbitrary identifier that is unique to a particular Wyckoff posi-
 tion.
         """
         return getattr(self, "__id")
+
     @id.setter
     def id(self, x):
         if x is None:
@@ -68,7 +69,6 @@ tion.
         else:
             x_in = str(x)
         setattr(self, "__id", x_in)
-
 
     @property
     def coord_xyz(self) -> str:
@@ -84,6 +84,7 @@ Where no value is given, the assumed value is 'x,y,z'.
 :Example: 'x,1/2,0' (coordinates of Wyckoff site with 2.. symmetry)
         """
         return getattr(self, "__coord_xyz")
+
     @coord_xyz.setter
     def coord_xyz(self, x):
         if x is None:
@@ -95,7 +96,6 @@ Where no value is given, the assumed value is 'x,y,z'.
     @property
     def full_coord_xyz(self) -> List[str]:
         return getattr(self, "__full_coord_xyz")
-    
 
     @property
     def letter(self) -> str:
@@ -115,6 +115,7 @@ The data value must be one of the following:
     y z 
         """
         return getattr(self, "__letter")
+
     @letter.setter
     def letter(self, x):
         if x is None:
@@ -122,7 +123,6 @@ The data value must be one of the following:
         else:
             x_in = str(x)
         setattr(self, "__letter", x_in)
-
 
     @property
     def multiplicity(self) -> int:
@@ -136,6 +136,7 @@ tional unit cell.
             Dordrecht: Kluwer Academic Publishers.
         """
         return getattr(self, "__multiplicity")
+
     @multiplicity.setter
     def multiplicity(self, x):
         if x is None:
@@ -143,7 +144,6 @@ tional unit cell.
         else:
             x_in = int(x)
         setattr(self, "__multiplicity", x_in)
-
 
     @property
     def site_symmetry(self) -> str:
@@ -166,6 +166,7 @@ A, Section 2.2.12).
               along one of the 100 directions.).
         """
         return getattr(self, "__site_symmetry")
+
     @site_symmetry.setter
     def site_symmetry(self, x):
         if x is None:
@@ -174,7 +175,6 @@ A, Section 2.2.12).
             x_in = str(x)
         setattr(self, "__site_symmetry", x_in)
 
-    
     @property
     def sg_id(self):
         """
@@ -182,6 +182,7 @@ A child of _space_group.id allowing the Wyckoff position to be
 identified with a particular space group.
         """
         return getattr(self, "__sg_id")
+
     @sg_id.setter
     def sg_id(self, x):
         if x is None:
@@ -189,7 +190,6 @@ identified with a particular space group.
         else:
             x_in = int(x)
         setattr(self, "__sg_id", x_in)
-
 
     @property
     def it_coord_xyz(self):
@@ -208,6 +208,7 @@ identified with a particular space group.
     @property
     def r(self):
         return getattr(self, "__r")
+
     @property
     def b(self):
         return getattr(self, "__b")
@@ -215,12 +216,13 @@ identified with a particular space group.
     @property
     def full_r(self):
         return getattr(self, "__full_r")
+
     @property
     def full_b(self):
         return getattr(self, "__full_b")
 
     @property
-    def form_object(self)->bool:
+    def form_object(self) -> bool:
         flag = True
         coord_xyz = self.coord_xyz
         if coord_xyz is None:
@@ -251,73 +253,71 @@ identified with a particular space group.
             setattr(self, "__full_coord_xyz", full_coord_xyz)
         return flag
 
-
-    def is_valid_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5) -> bool:
+    def is_valid_for_fract(self, fract_x: float, fract_y: float, fract_z: float, tol=10 ** -5) -> bool:
         fract_x, fract_y, fract_z = float(fract_x), float(fract_y), float(fract_z)
-        flag = True
-        nval = int(tol**-1)
-        xyz = numpy.array([Fraction(fract_x).limit_denominator(nval), 
-                           Fraction(fract_y).limit_denominator(nval), 
-                           Fraction(fract_z).limit_denominator(nval)], dtype=Fraction)
-        one_pm_1 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_2 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_3 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_4 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=Fraction)
-        one_pm_5 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=Fraction)
-        one_pm_6 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=Fraction)
-        one_pm_7 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=Fraction)
-        one_pm_8 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=Fraction)
-        zeros = numpy.array([Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)], dtype=Fraction)
-        flag_1 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_1*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_2 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_2*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_3 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_3*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_4 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_4*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_5 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_5*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_6 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_6*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_7 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_7*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_8 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_8*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag = [any(flag_1), any(flag_2), any(flag_3), any(flag_4), any(flag_5), any(flag_6), any(flag_7), any(flag_8)]
-        return any(flag)
+        nval = int(tol ** -1)
+        flag_res = False
+        for r, b in zip(self.full_r, self.full_b):
+            flag_res = CONSTANTS_AND_FUNCTIONS.is_good_for_mask(r, b, Fraction(fract_x).limit_denominator(nval),
+                                                                Fraction(fract_y).limit_denominator(nval),
+                                                                Fraction(fract_z).limit_denominator(nval))
+            if flag_res:
+                break
+        return flag_res
 
-    def give_default_xyz(self, xyz):
-        one_pm_1 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=int)
-        one_pm_2 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(1, 1)],dtype=int)
-        one_pm_3 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=int)
-        one_pm_4 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(1, 1)],dtype=int)
-        one_pm_5 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=int)
-        one_pm_6 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(-1, 1)],dtype=int)
-        one_pm_7 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=int)
-        one_pm_8 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(-1, 1)],dtype=int)
+    def give_default_xyz(self, xyz_0):
+        one_pm_1 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(1, 1)], dtype=int)
+        one_pm_2 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(1, 1)], dtype=int)
+        one_pm_3 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(1, 1)], dtype=int)
+        one_pm_4 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(1, 1)], dtype=int)
+        one_pm_5 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(-1, 1)], dtype=int)
+        one_pm_6 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(-1, 1)], dtype=int)
+        one_pm_7 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(-1, 1)], dtype=int)
+        one_pm_8 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(-1, 1)], dtype=int)
         zeros = numpy.array([Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)], dtype=int)
-        flag_1 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_1*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_2 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_2*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_3 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_3*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_4 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_4*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_5 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_5*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_6 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_6*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_7 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_7*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
-        flag_8 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_8*xyz) + b - xyz)%1) for r, b in zip(self.full_r, self.full_b)]
+        l_ind = [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
         b_float = self.b.astype(float)
-        r_float = self.r.astype(float)        
-        if any(flag_1):
-            _h = (one_pm_1*xyz).astype(float)
-        elif any(flag_2):
-            _h = (one_pm_2*xyz).astype(float)
-        elif any(flag_3):
-            _h = (one_pm_3*xyz).astype(float)
-        elif any(flag_4):
-            _h = (one_pm_4*xyz).astype(float)
-        elif any(flag_5):
-            _h = (one_pm_5*xyz).astype(float)
-        elif any(flag_6):
-            _h = (one_pm_6*xyz).astype(float)
-        elif any(flag_7):
-            _h = (one_pm_7*xyz).astype(float)
-        elif any(flag_8):
-            _h = (one_pm_8*xyz).astype(float)
-        else:#not sure about this condition, but may be it is needed when x,y,z are refined 
-            _h = (one_pm_1*xyz).astype(float)
-        xyz_new = (numpy.matmul(r_float, _h) + b_float)%1
+        r_float = self.r.astype(float)
+        _h = None
+        for _ind in l_ind:
+            xyz = numpy.array([xyz_0[_ind[0]], xyz_0[_ind[1]], xyz_0[_ind[2]]], dtype=Fraction)
+            flag_1 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_1 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_2 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_2 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_3 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_3 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_4 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_4 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_5 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_5 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_6 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_6 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_7 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_7 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            flag_8 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_8 * xyz) + b - xyz) % 1) for
+                      r, b in zip(self.full_r, self.full_b)]
+            if any(flag_1):
+                _h = (one_pm_1 * xyz).astype(float)
+            elif any(flag_2):
+                _h = (one_pm_2 * xyz).astype(float)
+            elif any(flag_3):
+                _h = (one_pm_3 * xyz).astype(float)
+            elif any(flag_4):
+                _h = (one_pm_4 * xyz).astype(float)
+            elif any(flag_5):
+                _h = (one_pm_5 * xyz).astype(float)
+            elif any(flag_6):
+                _h = (one_pm_6 * xyz).astype(float)
+            elif any(flag_7):
+                _h = (one_pm_7 * xyz).astype(float)
+            elif any(flag_8):
+                _h = (one_pm_8 * xyz).astype(float)
+            if _h is not None:
+                break
+        if _h is None:  # not sure about this condition, but may be it is needed when x,y,z are refined
+            _h = (one_pm_1 * xyz_0).astype(float)
+        xyz_new = (numpy.matmul(r_float, _h) + b_float) % 1
         return xyz_new
 
 
@@ -361,26 +361,28 @@ Description in cif file::
 
 `Reference: <https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_Wyckoff.html>`_
     """
-    CATEGORY_KEY = ("id", )
+    CATEGORY_KEY = ("id",)
     ITEM_CLASS = SpaceGroupWyckoff
-    def __init__(self, item = [], loop_name=""):
-        super(SpaceGroupWyckoffL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+
+    def __init__(self, item=[], loop_name=""):
+        super(SpaceGroupWyckoffL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS,
+                                                 loop_name=loop_name)
         self.item = item
 
-    def get_id_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5)->str:
+    def get_id_for_fract(self, fract_x: float, fract_y: float, fract_z: float, tol=10 ** -5) -> str:
         l_res = []
         for _item in self.item:
             if _item.is_valid_for_fract(fract_x, fract_y, fract_z, tol):
                 l_res.append((_item.id, _item.multiplicity))
-        out = sorted(l_res, key=lambda x: x[1])   # sort by multiplicity
+        out = sorted(l_res, key=lambda x: x[1])  # sort by multiplicity
+
         return out[0][0]
 
-    def get_letter_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5)->str:
+    def get_letter_for_fract(self, fract_x: float, fract_y: float, fract_z: float, tol=10 ** -5) -> str:
         _id = self.get_id_for_fract(fract_x, fract_y, fract_z)
         res = self[_id].letter
         return res
 
-    def get_wyckoff_for_fract(self, fract_x:float, fract_y:float, fract_z:float, tol=10**-5)->str:
+    def get_wyckoff_for_fract(self, fract_x: float, fract_y: float, fract_z: float, tol=10 ** -5) -> str:
         _id = self.get_id_for_fract(fract_x, fract_y, fract_z)
         return self[_id]
-
