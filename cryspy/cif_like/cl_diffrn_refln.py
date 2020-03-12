@@ -226,8 +226,53 @@ Description in cif file::
                 # print("ag_f_exp: {:.3f} ".format(ag_f_exp))
         ls_out = []
         n_friedel = len(l_chi_sq_exp)
-        ls_out.append("number of Friedel reflections is {:}".format(n_friedel))
+        ls_out.append(f"Total number of Friedel reflections is {n_friedel:}.")
         if n_friedel != 0:
-            ls_out.append("agreement factor_exp/n is {:.3f}".format(sum(l_ag_f_exp) / n_friedel))
-            ls_out.append("chi_sq_exp/n is {:.3f}".format(sum(l_chi_sq_exp) / n_friedel))
+            ls_out.append(f"  (|FR_exp-FR_av.|/|FR_sigma|)^2  is {sum(l_chi_sq_exp) / n_friedel:.2f}")
+            ls_out.append(f"   |FR_exp-FR_av.|/|FR_exp-1| per reflection is {(100*sum(l_ag_f_exp)/n_friedel):.2f}% ")
+
+        return "\n".join(ls_out)
+
+    def print_chi_sq_exp(self):
+        ls_out = []
+        l_hkl = [(_1, _2, _3) for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)]
+        l_fr, l_fr_sigma, l_fr_calc = self.fr, self.fr_sigma, self.fr_calc
+        if (l_fr is None) & (l_fr_sigma is None) & (l_fr_calc is None):
+            return "\n".join(ls_out)
+        n = len(l_fr)
+        n_1s, n_2s, n_3s = 0, 0, 0
+        l_chi_sq, l_worsest, l_af_f, l_af_r = [], [], [], []
+        for _hkl, _fr, _fr_sigma, _fr_calc in zip(l_hkl, l_fr, l_fr_sigma, l_fr_calc):
+            _diff = abs(float(_fr-_fr_calc)/float(_fr_sigma))
+            l_chi_sq.append(_diff**2)
+            l_af_f.append(abs(float(_fr - _fr_calc) / float(_fr)))
+            if _fr != 1.:
+                l_af_r.append(abs(float(_fr-_fr_calc)/float(_fr-1)))
+            if _diff <= 1.:
+                n_1s +=1
+            elif _diff <= 2.:
+                n_2s += 1
+            elif _diff <= 3.:
+                n_3s += 1
+            else:
+                l_worsest.append((_hkl, _fr, _fr_sigma, _fr_calc, _diff))
+        ls_out.append(f"Total number of reflections is {n:}.")
+        ls_out.append(f"  (|FR_exp-FR_mod|/|FR_sigma|)^2 per reflection is {sum(l_chi_sq)/float(n):.2f}")
+        ls_out.append(f"   |FR_exp-FR_mod|/|FR_exp|      per reflection is {100*sum(l_af_f) / float(n):.2f}%")
+        ls_out.append(f"   |FR_exp-FR_mod|/|FR_exp-1|    per reflection is {100*sum(l_af_r) / float(n):.2f}%")
+        ls_out.append(f"           (reflections with FR_exp = 1 are excluded)")
+        n_worsest = len(l_worsest)
+        ls_out.append(f"\nReflections in range  ")
+        ls_out.append(f" (N-1)*FR_sigma < |FR_exp - FR_mod| < N*FR_sigma: ")
+        ls_out.append(f"      N = 1: {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, 3 sigma rule) ")
+        ls_out.append(f"      N = 2: {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, 3 sigma rule)")
+        ls_out.append(f"      N = 3: {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, 3 sigma rule)")
+        ls_out.append(f"      N > 3: {n_worsest:}/{n:} ={100 * float(n_worsest) / float(n):5.1f}% ({2*(0.1):4.1f}%, 3 sigma rule)")
+        l_worsest.sort(key=lambda x: x[4], reverse=True)
+        if len(l_worsest) > 1:
+            if n_worsest > 10: n_worsest = 10
+            ls_out.append("\nThe ten worsest reflections:")
+            ls_out.append("  h  k  l       FR FR_sigma  FR_calc  diff")
+            for (_hkl, _fr, _fr_sigma, _fr_calc, _diff) in l_worsest[:n_worsest]:
+                ls_out.append(f"{_hkl[0]:3}{_hkl[1]:3}{_hkl[2]:3}{_fr:9.5f}{_fr_sigma:9.5f}{_fr_calc:9.5f}{_diff:6.1f}")
         return "\n".join(ls_out)
