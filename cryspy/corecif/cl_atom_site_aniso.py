@@ -57,11 +57,6 @@ Description in cif file::
         self.b_33 = b_33
         if self.is_defined:
             self.form_object
-        
-    def __repr__(self):
-        ls_out = ["AtomSiteAniso:"]
-        ls_out.append(str(self))
-        return "\n".join(ls_out)        
 
     @property
     def label(self):
@@ -648,12 +643,6 @@ Description in cif file::
     def __init__(self, item=[], loop_name=""):
         super(AtomSiteAnisoL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
         self.item = item
-
-    def __repr__(self) -> str:
-        ls_out = []
-        ls_out.append("AtomSiteAnisoL: ")
-        ls_out.append(f"{str(self):}")
-        return "\n".join(ls_out)
 
     def calc_beta(self, cell):
         """

@@ -14,8 +14,8 @@ _cell_angle_alpha 90.0
 _cell_angle_beta 90.0
 _cell_angle_gamma 90.0
 
-_space_group_name_H-M_alt P12(1)/n
-_space_group_it_coordinate_system_code 1
+_space_group_name_H-M_alt "P 1 21/n 1" 
+_space_group_it_coordinate_system_code b2
 
 
 loop_
@@ -25,100 +25,105 @@ _atom_site_fract_x
 _atom_site_fract_y
 _atom_site_fract_z
 _atom_site_adp_type
-_atom_site_B_iso_or_equiv
+_atom_site_U_iso_or_equiv
 _atom_site_occupancy
 _atom_site_multiplicity
-Co1 Co3- 0.776245 0.242943 0.51325 uiso 0.394784176044 1.0 4
-Cl1 Cl 0.930669 0.188867 0.626753 uiso 0.63165468167 1.0 4
-Cl2 Cl 0.852068 0.241653 0.365593 uiso 0.63165468167 1.0 4
-S_2 S 0.717292 0.416565 0.555126 uiso 0.552697846461 1.0 4
-S_1 S 0.58385 0.14003 0.531707 uiso 0.552697846461 1.0 4
-N_3 N 0.74983 0.585887 0.447295 uiso 0.552697846461 1.0 4
-N_4 N 0.619924 0.453406 0.37656 uiso 0.552697846461 1.0 4
-N_1 N 0.584242 0.009899 0.678659 uiso 0.63165468167 1.0 4
-N_2 N 0.73966 0.968955 0.566973 uiso 0.552697846461 1.0 4
-C_2 C 0.693993 0.48916 0.452064 uiso 0.473741011252 1.0 4
-C_5 C 0.523593 0.367125 0.382871 uiso 0.710611516878 1.0 4
-C_7 C 0.832797 0.913342 0.633569 uiso 0.868525187296 1.0 4
-C_6 C 0.85771 0.620329 0.514693 uiso 0.868525187296 1.0 4
-C_1 C 0.641452 0.031943 0.596569 uiso 0.473741011252 1.0 4
-C_4 C 0.511849 0.090774 0.729791 uiso 0.868525187296 1.0 4
-C_10 C 0.684653 0.672021 0.39266 uiso 0.789568352087 1.0 4
-C_8 C 0.563264 0.901817 0.711382 uiso 0.868525187296 1.0 4
-C_9 C 0.650556 0.481538 0.279511 uiso 0.789568352087 1.0 4
-C_3 C 0.783367 0.973035 0.470006 uiso 0.789568352087 1.0 4
-H_5A H 0.571527 0.294205 0.364604 uiso 1.02643885771 1.0 4
-H_5B H 0.437527 0.381133 0.33457 uiso 1.02643885771 1.0 4
-H_5C H 0.490313 0.362075 0.454107 uiso 1.02643885771 1.0 4
-H_7A H 0.819441 0.941605 0.704344 uiso 1.34226619855 1.0 4
-H_7B H 0.935596 0.927416 0.615018 uiso 1.34226619855 1.0 4
-H_7C H 0.811847 0.830096 0.630324 uiso 1.34226619855 1.0 4
-H_6A H 0.81401 0.64974 0.577758 uiso 1.26330936334 1.0 4
-H_6B H 0.91543 0.681928 0.483262 uiso 1.26330936334 1.0 4
-H_6C H 0.923268 0.55476 0.532781 uiso 1.26330936334 1.0 4
-H_4A H 0.565214 0.164549 0.726153 uiso 1.26330936334 1.0 4
-H_4B H 0.506037 0.067706 0.802818 uiso 1.26330936334 1.0 4
-H_4C H 0.411023 0.099786 0.698052 uiso 1.26330936334 1.0 4
-H_10A H 0.74474 0.691502 0.333671 uiso 1.18435252813 1.0 4
-H_10B H 0.676289 0.740113 0.437475 uiso 1.18435252813 1.0 4
-H_10C H 0.585042 0.647717 0.366773 uiso 1.18435252813 1.0 4
-H_8A H 0.457057 0.889105 0.720903 uiso 1.26330936334 1.0 4
-H_8B H 0.619644 0.88964 0.777782 uiso 1.26330936334 1.0 4
-H_8C H 0.597673 0.847111 0.659547 uiso 1.26330936334 1.0 4
-H_9A H 0.745448 0.52337 0.280184 uiso 1.18435252813 1.0 4
-H_9B H 0.571095 0.530977 0.249052 uiso 1.18435252813 1.0 4
-H_9C H 0.657805 0.410994 0.237702 uiso 1.18435252813 1.0 4
-H_3A H 0.860526 0.032408 0.464846 uiso 1.26330936334 1.0 4
-H_3B H 0.69817 0.992213 0.422471 uiso 1.26330936334 1.0 4
-H_3C H 0.823732 0.897537 0.451039 uiso 1.26330936334 1.0 4
+Co1 Co3- 0.776245 0.242943 0.51325 Uiso 0.394784176044 1.0 4
+Cl1 Cl 0.930669 0.188867 0.626753 Uiso 0.63165468167 1.0 4
+Cl2 Cl 0.852068 0.241653 0.365593 Uiso 0.63165468167 1.0 4
+S_2 S 0.717292 0.416565 0.555126 Uiso 0.552697846461 1.0 4
+S_1 S 0.58385 0.14003 0.531707 Uiso 0.552697846461 1.0 4
+N_3 N 0.74983 0.585887 0.447295 Uiso 0.552697846461 1.0 4
+N_4 N 0.619924 0.453406 0.37656 Uiso 0.552697846461 1.0 4
+N_1 N 0.584242 0.009899 0.678659 Uiso 0.63165468167 1.0 4
+N_2 N 0.73966 0.968955 0.566973 Uiso 0.552697846461 1.0 4
+C_2 C 0.693993 0.48916 0.452064 Uiso 0.473741011252 1.0 4
+C_5 C 0.523593 0.367125 0.382871 Uiso 0.710611516878 1.0 4
+C_7 C 0.832797 0.913342 0.633569 Uiso 0.868525187296 1.0 4
+C_6 C 0.85771 0.620329 0.514693 Uiso 0.868525187296 1.0 4
+C_1 C 0.641452 0.031943 0.596569 Uiso 0.473741011252 1.0 4
+C_4 C 0.511849 0.090774 0.729791 Uiso 0.868525187296 1.0 4
+C_10 C 0.684653 0.672021 0.39266 Uiso 0.789568352087 1.0 4
+C_8 C 0.563264 0.901817 0.711382 Uiso 0.868525187296 1.0 4
+C_9 C 0.650556 0.481538 0.279511 Uiso 0.789568352087 1.0 4
+C_3 C 0.783367 0.973035 0.470006 Uiso 0.789568352087 1.0 4
+H_5A H 0.571527 0.294205 0.364604 Uiso 1.02643885771 1.0 4
+H_5B H 0.437527 0.381133 0.33457 Uiso 1.02643885771 1.0 4
+H_5C H 0.490313 0.362075 0.454107 Uiso 1.02643885771 1.0 4
+H_7A H 0.819441 0.941605 0.704344 Uiso 1.34226619855 1.0 4
+H_7B H 0.935596 0.927416 0.615018 Uiso 1.34226619855 1.0 4
+H_7C H 0.811847 0.830096 0.630324 Uiso 1.34226619855 1.0 4
+H_6A H 0.81401 0.64974 0.577758 Uiso 1.26330936334 1.0 4
+H_6B H 0.91543 0.681928 0.483262 Uiso 1.26330936334 1.0 4
+H_6C H 0.923268 0.55476 0.532781 Uiso 1.26330936334 1.0 4
+H_4A H 0.565214 0.164549 0.726153 Uiso 1.26330936334 1.0 4
+H_4B H 0.506037 0.067706 0.802818 Uiso 1.26330936334 1.0 4
+H_4C H 0.411023 0.099786 0.698052 Uiso 1.26330936334 1.0 4
+H_10A H 0.74474 0.691502 0.333671 Uiso 1.18435252813 1.0 4
+H_10B H 0.676289 0.740113 0.437475 Uiso 1.18435252813 1.0 4
+H_10C H 0.585042 0.647717 0.366773 Uiso 1.18435252813 1.0 4
+H_8A H 0.457057 0.889105 0.720903 Uiso 1.26330936334 1.0 4
+H_8B H 0.619644 0.88964 0.777782 Uiso 1.26330936334 1.0 4
+H_8C H 0.597673 0.847111 0.659547 Uiso 1.26330936334 1.0 4
+H_9A H 0.745448 0.52337 0.280184 Uiso 1.18435252813 1.0 4
+H_9B H 0.571095 0.530977 0.249052 Uiso 1.18435252813 1.0 4
+H_9C H 0.657805 0.410994 0.237702 Uiso 1.18435252813 1.0 4
+H_3A H 0.860526 0.032408 0.464846 Uiso 1.26330936334 1.0 4
+H_3B H 0.69817 0.992213 0.422471 Uiso 1.26330936334 1.0 4
+H_3C H 0.823732 0.897537 0.451039 Uiso 1.26330936334 1.0 4
 
 
 loop_
-_atom_site_magnetism_label
-_atom_site_magnetism_lande
-_atom_site_magnetism_kappa
+_atom_site_scat_label
+_atom_site_scat_lande
+_atom_site_scat_kappa
 Co1 2.0 1.0
 
 loop_
-_atom_site_magnetism_aniso_label
-_atom_site_magnetism_aniso_chi_type
-_atom_site_magnetism_aniso_chi_11
-_atom_site_magnetism_aniso_chi_22
-_atom_site_magnetism_aniso_chi_33
-_atom_site_magnetism_aniso_chi_12
-_atom_site_magnetism_aniso_chi_13
-_atom_site_magnetism_aniso_chi_23
-_atom_site_magnetism_aniso_moment_type
-_atom_site_magnetism_aniso_moment_11
-_atom_site_magnetism_aniso_moment_22
-_atom_site_magnetism_aniso_moment_33
-_atom_site_magnetism_aniso_moment_12
-_atom_site_magnetism_aniso_moment_13
-_atom_site_magnetism_aniso_moment_23
-Co1 cani 1.93 2.29 2.68 -0.00081 0.08 -1.35 mani 0.0 0.0 0.0 0.0 0.0 0.0
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+_atom_site_susceptibility_moment_type
+_atom_site_susceptibility_moment_11
+_atom_site_susceptibility_moment_22
+_atom_site_susceptibility_moment_33
+_atom_site_susceptibility_moment_12
+_atom_site_susceptibility_moment_13
+_atom_site_susceptibility_moment_23
+Co1 Cani 1.93 2.29 2.68 -0.00081 0.08 -1.35 Mani 0.0 0.0 0.0 0.0 0.0 0.0
 
 
 data_exp
-_diffrn_radiation_wavelength 1.4
-_diffrn_ambient_field 1.0
 
-_pd2d_chi2_sum True
-_pd2d_chi2_diff True
-_pd2d_chi2_up False
-_pd2d_chi2_down False
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+_extinction_model gauss
 
-_pd2d_2theta_range_min 10.000
-_pd2d_2theta_range_max 20.000
+_setup_wavelength 1.4
+_setup_field 1.0
+_setup_offset_2theta 0.260928
+_setup_offset_phi -1.461
 
-_pd2d_phi_range_min 0.000
-_pd2d_phi_range_max 20.000
-_pd2d_calib_2theta_offset 0.260928
-_pd2d_calib_phi_offset -1.461
-_2dpdt_texture_g_1 0.1239
-_2dpdt_texture_g_2 0.94211
-_2dpdt_texture_h_ax -0.66119
-_2dpdt_texture_k_ax -0.0541
-_2dpdt_texture_l_ax 3.0613
+_chi2_sum True
+_chi2_diff True
+_chi2_up False
+_chi2_down False
+
+_range_2theta_min 10.000
+_range_2theta_max 20.000
+_range_phi_min 0.000
+_range_phi_max 20.000
+
+_texture_g_1 0.1239
+_texture_g_2 0.94211
+_texture_h_ax -0.66119
+_texture_k_ax -0.0541
+_texture_l_ax 3.0613
 
 _pd2d_background_2theta_phi_intensity
 ;
@@ -128,10 +133,10 @@ _pd2d_background_2theta_phi_intensity
 ;
 
 loop_
-_pd2d_exclude_2theta_min
-_pd2d_exclude_2theta_max
-_pd2d_exclude_phi_min
-_pd2d_exclude_phi_max
+_exclude_2theta_min
+_exclude_2theta_max
+_exclude_phi_min
+_exclude_phi_max
 0.0 1.0 0.0 0.1
 
 _pd2d_instr_reflex_asymmetry_p1 0.0
@@ -149,7 +154,7 @@ _pd2d_instr_resolution_x 0.0
 _pd2d_instr_resolution_y 0.0
 
 loop_
-_pd2d_phase_label
-_pd2d_phase_scale
-_pd2d_phase_igsize
+_phase_label
+_phase_scale
+_phase_igsize
 COTMTU  0.0001(90) 0.0

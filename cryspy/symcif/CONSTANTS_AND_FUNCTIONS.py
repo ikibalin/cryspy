@@ -30,8 +30,9 @@ get_name_hall_by_it_number(it_number:int)->str
 
 
 """
-import os
-import numpy
+
+import os 
+from numpy import array, transpose, zeros
 import warnings
 from fractions import Fraction
 from typing import List, Tuple
@@ -1253,13 +1254,13 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number: i
     for _el_card in EL_CARDS:
         if ((_el_card["it_number"] == it_number) & (_el_card["choice"][0] == choice)):
             symop = tuple(_el_card["symmetry"])
-            p_centr = numpy.array([Fraction(_).limit_denominator(10) for _ in _el_card["pcentr"][0].split(",")],
-                                  dtype=Fraction)
+            p_centr = array([Fraction(_).limit_denominator(10) for _ in _el_card["pcentr"][0].split(",")],
+                             dtype=Fraction)
             break
     _s_name, _choice = get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number,
                                                                                           it_coordinate_system_code)
     Q, p = transform_string_to_r_b(_s_name, ("a", "b", "c"))
-    P = numpy.transpose(Q)
+    P = transpose(Q)
     q = -1 * mult_matrix_vector(Q, p)
     p_centr_new = p_centr + q
     symop_2 = [transform_symop_operation_xyz_by_pp_abc(_symop, P, p) for _symop in symop]
@@ -1279,12 +1280,12 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number: i
 
 
 def transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz: str, P, p) -> str:
-    Q = numpy.transpose(P)  # TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
+    Q = transpose(P)  # TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
     q = -1 * mult_matrix_vector(Q, p)
 
     r_xyz, b_xyz = transform_string_to_r_b(symop_operation_xyz, ("x", "y", "z"))
-    b_new = numpy.zeros(shape=(3), dtype=float)
-    r_new = numpy.zeros(shape=(3, 3), dtype=float)
+    b_new = zeros(shape=(3), dtype=float)
+    r_new = zeros(shape=(3, 3), dtype=float)
     QW = mult_matrixes(Q, r_xyz)
     QWP = mult_matrixes(QW, P)
     QWp = mult_matrix_vector(QW, p)
@@ -1296,19 +1297,28 @@ def transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz: str, P, p) -> s
 
 
 def transform_symop_operation_xyz_by_Qq_xyz(symop_operation_xyz: str, Q, q) -> str:
-    P = numpy.transpose(q)  # TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
+    P = transpose(q)  # TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
     p = -1 * mult_matrix_vector(P, q)
     _s = transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz, P, p)
     return _s
 
 
 def mult_matrix_vector(a, v):
-    b = 0. * v
-    for _i in range(3):
-        b[_i] = sum(a[_i, :] * v[:])
+    cond_1 = isinstance(v[0], Fraction)
+    cond_2 = isinstance(a[0, 0], Fraction)
+    if (cond_1 & cond_2):
+        p_0 = a[0, 0]*v[0] + a[0, 1]*v[1] + a[0, 2]*v[2]
+        p_1 = a[1, 0]*v[0] + a[1, 1]*v[1] + a[1, 2]*v[2]
+        p_2 = a[2, 0]*v[0] + a[2, 1]*v[1] + a[2, 2]*v[2]
+        b = array([p_0, p_1, p_2], dtype=Fraction)
+    else:
+        p_0 = float(a[0, 0])*float(v[0]) + float(a[0, 1])*float(v[1]) + float(a[0, 2])*float(v[2])
+        p_1 = float(a[1, 0])*float(v[0]) + float(a[1, 1])*float(v[1]) + float(a[1, 2])*float(v[2])
+        p_2 = float(a[2, 0])*float(v[0]) + float(a[2, 1])*float(v[1]) + float(a[2, 2])*float(v[2])
+        b = array([p_0, p_1, p_2], dtype=float)
     return b
 
-
+ 
 def mult_matrixes(a, b):
     c = 0. * a
     for _i in range(3):
@@ -1400,8 +1410,8 @@ def transform_string_to_r_b(name: str, labels=("x", "y", "z")) -> Tuple:
         coefficients, offset = transform_string_to_digits(_name, labels)
         rij.append(coefficients)
         bi.append(offset)
-    res_rij = numpy.array(rij, dtype=object)
-    res_bi = numpy.array(bi, dtype=object)
+    res_rij = array(rij, dtype=object)
+    res_bi = array(bi, dtype=object)
     return res_rij, res_bi
 
 
@@ -1547,7 +1557,7 @@ def is_solution_a_b(ll_a, l_b):
 
 
 def is_good_for_mask(r, b, fract_x, fract_y, fract_z):
-    b_1 = numpy.array([(fract_x - b[0]) % 1, (fract_y - b[1]) % 1, (fract_z - b[2]) % 1], dtype=Fraction)
+    b_1 = array([(fract_x - b[0]) % 1, (fract_y - b[1]) % 1, (fract_z - b[2]) % 1], dtype=Fraction)
     flag_1 = is_solution_a_b(r, b_1)
     return flag_1
 

@@ -266,57 +266,122 @@ identified with a particular space group.
         return flag_res
 
     def give_default_xyz(self, xyz_0):
-        one_pm_1 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(1, 1)], dtype=int)
-        one_pm_2 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(1, 1)], dtype=int)
-        one_pm_3 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(1, 1)], dtype=int)
-        one_pm_4 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(1, 1)], dtype=int)
-        one_pm_5 = numpy.array([Fraction(1, 1), Fraction(1, 1), Fraction(-1, 1)], dtype=int)
-        one_pm_6 = numpy.array([Fraction(-1, 1), Fraction(1, 1), Fraction(-1, 1)], dtype=int)
-        one_pm_7 = numpy.array([Fraction(1, 1), Fraction(-1, 1), Fraction(-1, 1)], dtype=int)
-        one_pm_8 = numpy.array([Fraction(-1, 1), Fraction(-1, 1), Fraction(-1, 1)], dtype=int)
-        zeros = numpy.array([Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)], dtype=int)
-        l_ind = [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
+        one_pm_1 = numpy.array([ 1, 1, 1], dtype=int)
+        one_pm_2 = numpy.array([-1, 1, 1], dtype=int)
+        one_pm_3 = numpy.array([ 1,-1, 1], dtype=int)
+        one_pm_4 = numpy.array([ 1, 1,-1], dtype=int)
+        one_pm_5 = numpy.array([ 1,-1,-1], dtype=int)
+        one_pm_6 = numpy.array([-1, 1,-1], dtype=int)
+        one_pm_7 = numpy.array([-1,-1, 1], dtype=int)
+        one_pm_8 = numpy.array([-1,-1,-1], dtype=int)
+
         b_float = self.b.astype(float)
         r_float = self.r.astype(float)
         _h = None
+        np_r = numpy.array(self.full_r, dtype=Fraction)
+        np_b = numpy.array(self.full_b, dtype=Fraction)
+        np_b_x = np_b[:, 0]
+        np_b_y = np_b[:, 1]
+        np_b_z = np_b[:, 2]
+
+        np_r_11, np_r_12, np_r_13 = np_r[:, 0, 0], np_r[:, 0, 1], np_r[:, 0, 2]
+        np_r_21, np_r_22, np_r_23 = np_r[:, 1, 0], np_r[:, 1, 1], np_r[:, 1, 2]
+        np_r_31, np_r_32, np_r_33 = np_r[:, 2, 0], np_r[:, 2, 1], np_r[:, 2, 2]
+        nval = 10**5
+        x_0 = Fraction(xyz_0[0]).limit_denominator(nval)
+        y_0 = Fraction(xyz_0[1]).limit_denominator(nval)
+        z_0 = Fraction(xyz_0[2]).limit_denominator(nval)
+        l_ind = [(x_0, y_0, z_0), (x_0, z_0, y_0), (y_0, x_0, z_0), (y_0, z_0, x_0), (z_0, x_0, y_0), (z_0, y_0, x_0)]
         for _ind in l_ind:
-            xyz = numpy.array([xyz_0[_ind[0]], xyz_0[_ind[1]], xyz_0[_ind[2]]], dtype=Fraction)
-            flag_1 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_1 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_2 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_2 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_3 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_3 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_4 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_4 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_5 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_5 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_6 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_6 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_7 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_7 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            flag_8 = [all(zeros == (CONSTANTS_AND_FUNCTIONS.mult_matrix_vector(r, one_pm_8 * xyz) + b - xyz) % 1) for
-                      r, b in zip(self.full_r, self.full_b)]
-            if any(flag_1):
-                _h = (one_pm_1 * xyz).astype(float)
-            elif any(flag_2):
-                _h = (one_pm_2 * xyz).astype(float)
-            elif any(flag_3):
-                _h = (one_pm_3 * xyz).astype(float)
-            elif any(flag_4):
-                _h = (one_pm_4 * xyz).astype(float)
-            elif any(flag_5):
-                _h = (one_pm_5 * xyz).astype(float)
-            elif any(flag_6):
-                _h = (one_pm_6 * xyz).astype(float)
-            elif any(flag_7):
-                _h = (one_pm_7 * xyz).astype(float)
-            elif any(flag_8):
-                _h = (one_pm_8 * xyz).astype(float)
+            x_fr, y_fr, z_fr = _ind[0], _ind[1], _ind[2]
+            r_31_x, r_12_y, r_13_z = np_r_31*x_fr, np_r_12*y_fr, np_r_13*z_fr
+            r_11_x, r_22_y, r_23_z = np_r_11*x_fr, np_r_22*y_fr, np_r_23*z_fr
+            r_21_x, r_32_y, r_33_z = np_r_21*x_fr, np_r_32*y_fr, np_r_33*z_fr
+
+            val_0 = (r_11_x + r_12_y + r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (r_21_x + r_22_y + r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (r_31_x + r_32_y + r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_1 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (-r_11_x + r_12_y + r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (-r_21_x + r_22_y + r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (-r_31_x + r_32_y + r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_2 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (r_11_x - r_12_y + r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (r_21_x - r_22_y + r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (r_31_x - r_32_y + r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_3 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (r_11_x + r_12_y - r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (r_21_x + r_22_y - r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (r_31_x + r_32_y - r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_4 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (r_11_x - r_12_y - r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (r_21_x - r_22_y - r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (r_31_x - r_32_y - r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_5 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (-r_11_x + r_12_y - r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (-r_21_x + r_22_y - r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (-r_31_x + r_32_y - r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_6 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (-r_11_x - r_12_y + r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (-r_21_x - r_22_y + r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (-r_31_x - r_32_y + r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_7 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            val_0 = (-r_11_x - r_12_y - r_13_z + np_b_x-x_0).astype(float)
+            val_1 = (-r_21_x - r_22_y - r_23_z + np_b_y-y_0).astype(float)
+            val_2 = (-r_31_x - r_32_y - r_33_z + np_b_z-z_0).astype(float)
+            flag_2d_0 = numpy.isclose(numpy.mod(val_0, 1), 0.)
+            flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
+            flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
+            flag_8 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+
+            if flag_1:
+                _h = numpy.array([float(x_fr), float(y_fr), float(z_fr)], dtype=float)
+            elif flag_2:
+                _h = numpy.array([-float(x_fr), float(y_fr), float(z_fr)], dtype=float)
+            elif flag_3:
+                _h = numpy.array([float(x_fr), -float(y_fr), float(z_fr)], dtype=float)
+            elif flag_4:
+                _h = numpy.array([float(x_fr), float(y_fr), -float(z_fr)], dtype=float)
+            elif flag_5:
+                _h = numpy.array([float(x_fr), -float(y_fr), -float(z_fr)], dtype=float)
+            elif flag_6:
+                _h = numpy.array([-float(x_fr), float(y_fr), -float(z_fr)], dtype=float)
+            elif flag_7:
+                _h = numpy.array([-float(x_fr), -float(y_fr), float(z_fr)], dtype=float)
+            elif flag_8:
+                _h = numpy.array([-float(x_fr), -float(y_fr), -float(z_fr)], dtype=float)
             if _h is not None:
                 break
         if _h is None:  # not sure about this condition, but may be it is needed when x,y,z are refined
-            _h = (one_pm_1 * xyz_0).astype(float)
+            _h = numpy.array([float(x_0), float(y_0), float(z_0)], dtype=float)
         xyz_new = (numpy.matmul(r_float, _h) + b_float) % 1
         return xyz_new
 

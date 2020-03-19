@@ -368,6 +368,49 @@ Description in cif file::
         flag = all([flag_cell, flag_atom_site, flag_adp, flag_sucs_1, flag_sucs_2, flag_sucs_3])
         return flag
 
+    def calc_b_iso_beta(self):
+        """
+Calculate b_iso and beta_ij based on atom_site and atom_sites 
+for each atom defined in atom_site
+        """
+        a_s = self.atom_site
+        a_s_a = self.atom_site_aniso
+        l_b_iso, l_beta = [], []
+        coeff = float(8.*numpy.pi**2)
+        cell = self.cell
+        for item_a_s in a_s.item:
+            label_atom = item_a_s.label
+            adp_type = item_a_s.adp_type
+            b_iso = 0.
+            beta = (0., 0., 0., 0., 0., 0.)
+            if adp_type == "Uiso":
+                u_iso = float(item_a_s.u_iso_or_equiv)
+                b_iso = float(8.*numpy.pi**2*u_iso)
+            elif adp_type == "Biso":
+                b_iso = float(item_a_s.b_iso_or_equiv)
+            elif adp_type == "Uovl":
+                #FIXME: correct it
+                u_iso = float(item_a_s.u_iso_or_equiv)
+                b_iso = coeff*u_iso
+            elif adp_type == "Umpe":
+                #FIXME: correct it
+                u_iso = float(item_a_s.u_iso_or_equiv)
+                b_iso = float(8.*numpy.pi**2*u_iso)
+            elif adp_type == "Uani":
+                item_a_s_a = a_s_a[label_atom]
+                beta = item_a_s_a.calc_beta(cell)
+            elif adp_type == "Bovl":
+                #FIXME: correct it
+                b_iso = float(item_a_s.b_iso_or_equiv)
+            elif adp_type == "Bani":
+                item_a_s_a = a_s_a[label_atom]
+                beta  = (float(item_a_s_a.b_11), float(item_a_s_a.b_22), float(item_a_s_a.b_33),
+                         float(item_a_s_a.b_12), float(item_a_s_a.b_13), float(item_a_s_a.b_23))
+            l_b_iso.append(b_iso) 
+            l_beta.append(beta)
+        np_b_iso = numpy.array(l_b_iso, dtype=float)
+        np_beta = numpy.array(l_beta, dtype=float)
+        return np_b_iso, np_beta
 
     def calc_refln(self, h, k, l):
         """
@@ -410,17 +453,9 @@ FIXME: introduce Debye-Waller factor
         phase_3d = CONSTANTS_AND_FUNCTIONS.calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, 
         r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3)
 
-        flag_adp = atom_site_aniso is not None
-        flag_adp = False
-        if flag_adp:
-            if atom_site.is_defined_attribute("b_iso_or_equiv"):
-                b_iso = numpy.array(atom_site.b_iso_or_equiv, dtype=float) 
-            else:
-                b_iso = numpy.zeros(shape=(len(atom_site.label)), dtype=float)
-            beta = atom_site_aniso.calc_beta(cell)
-            dwf_3d = CONSTANTS_AND_FUNCTIONS.calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
-        else:
-            dwf_3d = numpy.ones(phase_3d.shape, dtype=float)
+        b_iso, beta = self.calc_b_iso_beta()
+        dwf_3d = CONSTANTS_AND_FUNCTIONS.calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+
 
         hh = phase_3d*dwf_3d
         phase_2d = hh.sum(axis=2)#sum over symmetry

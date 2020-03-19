@@ -464,11 +464,6 @@ in Carthezian coordinate system where :math:`X` along axis :math:`a`,
     def sin_ig_sq(self):
         return getattr(self, "__sin_ig_sq")
 
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
-
-    
     @property
     def is_variable(self):
         """

@@ -18,7 +18,7 @@ data_Fe3O4
  
  loop_                                     
  _atom_site_adp_type
- _atom_site_B_iso_or_equiv
+ _atom_site_u_iso_or_equiv
  _atom_site_fract_x
  _atom_site_fract_y
  _atom_site_fract_z
@@ -163,3 +163,5 @@ def test_calc_refln_susceptibility():
     #res = numpy.isclose(f_nucl, f_reference, rtol=rel_tol, atol=abs_tol)
     #assert all(res)    
 
+    b_iso, beta = _obj.calc_b_iso_beta()
+    
