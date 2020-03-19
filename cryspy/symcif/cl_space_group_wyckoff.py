@@ -305,6 +305,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_1 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_1:
+                _h = numpy.array([float(x_fr), float(y_fr), float(z_fr)], dtype=float)
+                break
 
             val_0 = (-r_11_x + r_12_y + r_13_z + np_b_x-x_0).astype(float)
             val_1 = (-r_21_x + r_22_y + r_23_z + np_b_y-y_0).astype(float)
@@ -313,6 +316,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_2 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_2:
+                _h = numpy.array([-float(x_fr), float(y_fr), float(z_fr)], dtype=float)
+                break
 
             val_0 = (r_11_x - r_12_y + r_13_z + np_b_x-x_0).astype(float)
             val_1 = (r_21_x - r_22_y + r_23_z + np_b_y-y_0).astype(float)
@@ -321,6 +327,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_3 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_3:
+                _h = numpy.array([float(x_fr), -float(y_fr), float(z_fr)], dtype=float)
+                break
 
             val_0 = (r_11_x + r_12_y - r_13_z + np_b_x-x_0).astype(float)
             val_1 = (r_21_x + r_22_y - r_23_z + np_b_y-y_0).astype(float)
@@ -329,6 +338,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_4 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_4:
+                _h = numpy.array([float(x_fr), float(y_fr), -float(z_fr)], dtype=float)
+                break
 
             val_0 = (r_11_x - r_12_y - r_13_z + np_b_x-x_0).astype(float)
             val_1 = (r_21_x - r_22_y - r_23_z + np_b_y-y_0).astype(float)
@@ -337,6 +349,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_5 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_5:
+                _h = numpy.array([float(x_fr), -float(y_fr), -float(z_fr)], dtype=float)
+                break
 
             val_0 = (-r_11_x + r_12_y - r_13_z + np_b_x-x_0).astype(float)
             val_1 = (-r_21_x + r_22_y - r_23_z + np_b_y-y_0).astype(float)
@@ -345,6 +360,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_6 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_6:
+                _h = numpy.array([-float(x_fr), float(y_fr), -float(z_fr)], dtype=float)
+                break
 
             val_0 = (-r_11_x - r_12_y + r_13_z + np_b_x-x_0).astype(float)
             val_1 = (-r_21_x - r_22_y + r_23_z + np_b_y-y_0).astype(float)
@@ -353,6 +371,9 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_7 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
+            if flag_7:
+                _h = numpy.array([-float(x_fr), -float(y_fr), float(z_fr)], dtype=float)
+                break
 
             val_0 = (-r_11_x - r_12_y - r_13_z + np_b_x-x_0).astype(float)
             val_1 = (-r_21_x - r_22_y - r_23_z + np_b_y-y_0).astype(float)
@@ -361,24 +382,8 @@ identified with a particular space group.
             flag_2d_1 = numpy.isclose(numpy.mod(val_1, 1), 0.)
             flag_2d_2 = numpy.isclose(numpy.mod(val_2, 1), 0.)
             flag_8 = numpy.any(flag_2d_0*flag_2d_1*flag_2d_2, axis=0)
-
-            if flag_1:
-                _h = numpy.array([float(x_fr), float(y_fr), float(z_fr)], dtype=float)
-            elif flag_2:
-                _h = numpy.array([-float(x_fr), float(y_fr), float(z_fr)], dtype=float)
-            elif flag_3:
-                _h = numpy.array([float(x_fr), -float(y_fr), float(z_fr)], dtype=float)
-            elif flag_4:
-                _h = numpy.array([float(x_fr), float(y_fr), -float(z_fr)], dtype=float)
-            elif flag_5:
-                _h = numpy.array([float(x_fr), -float(y_fr), -float(z_fr)], dtype=float)
-            elif flag_6:
-                _h = numpy.array([-float(x_fr), float(y_fr), -float(z_fr)], dtype=float)
-            elif flag_7:
-                _h = numpy.array([-float(x_fr), -float(y_fr), float(z_fr)], dtype=float)
-            elif flag_8:
+            if flag_8:
                 _h = numpy.array([-float(x_fr), -float(y_fr), -float(z_fr)], dtype=float)
-            if _h is not None:
                 break
         if _h is None:  # not sure about this condition, but may be it is needed when x,y,z are refined
             _h = numpy.array([float(x_0), float(y_0), float(z_0)], dtype=float)
