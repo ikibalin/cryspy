@@ -40,7 +40,7 @@ Description in cif file::
         return getattr(self, "__ttheta")
     @ttheta.setter
     def ttheta(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -51,7 +51,7 @@ Description in cif file::
         return getattr(self, "__intensity")
     @intensity.setter
     def intensity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

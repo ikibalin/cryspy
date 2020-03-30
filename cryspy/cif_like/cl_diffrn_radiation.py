@@ -45,7 +45,7 @@ The permitted range is -1.0 -> 1.0
         return getattr(self, "__polarization")
     @polarization.setter
     def polarization(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -64,7 +64,7 @@ The permitted range is -1.0 -> 1.0
         return getattr(self, "__efficiency")
     @efficiency.setter
     def efficiency(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

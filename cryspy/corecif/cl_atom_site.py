@@ -79,7 +79,7 @@ in the crystal.
         return getattr(self, "__label")
     @label.setter
     def label(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -99,7 +99,7 @@ This code must match a corresponding _atom_type_symbol.
         return getattr(self, "__type_symbol")
     @type_symbol.setter
     def type_symbol(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -117,7 +117,7 @@ Atom-site coordinates as fractions of the _cell_length_ values.
         return getattr(self, "__fract_x")
     @fract_x.setter
     def fract_x(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -138,7 +138,7 @@ Atom-site coordinates as fractions of the _cell_length_ values.
         return getattr(self, "__fract_y")
     @fract_y.setter
     def fract_y(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -159,7 +159,7 @@ Atom-site coordinates as fractions of the _cell_length_ values.
         return getattr(self, "__fract_z")
     @fract_z.setter
     def fract_z(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -185,7 +185,7 @@ The data value must be one of the following:
         return getattr(self, "__adp_type")
     @adp_type.setter
     def adp_type(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             if not(x in self.ACCESIBLE_ADP_TYPE):
@@ -210,7 +210,7 @@ correctly interpreted as meaning :math:`(0.0 - 3u) =< x =< (1.0 + 3u)`.
         return getattr(self, "__occupancy")
     @occupancy.setter
     def occupancy(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -228,7 +228,7 @@ International Tables for Crystallography Vol. A (2002).
         return getattr(self, "__wyckoff_symbol")
     @wyckoff_symbol.setter
     def wyckoff_symbol(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else: 
             x_in = str(x)
@@ -239,7 +239,7 @@ International Tables for Crystallography Vol. A (2002).
         return getattr(self, "__multiplicity")
     @multiplicity.setter
     def multiplicity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else: 
             x_in = str(x)
@@ -266,7 +266,7 @@ a*    = the reciprocal-space cell lengths
         return getattr(self, "__u_iso_or_equiv")
     @u_iso_or_equiv.setter
     def u_iso_or_equiv(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -292,7 +292,7 @@ where :math:`U_{n}` the principal components of the orthogonalized :math:`U_{ij}
         return getattr(self, "__u_equiv_geom_mean")
     @u_equiv_geom_mean.setter
     def u_equiv_geom_mean(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -331,7 +331,7 @@ directly proportional to B, is preferred.
         return getattr(self, "__b_iso_or_equiv")
     @b_iso_or_equiv.setter
     def b_iso_or_equiv(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -350,7 +350,7 @@ the _atom_sites_Cartn_transform_axes description.
         return getattr(self, "__cartn_x")
     @cartn_x.setter
     def cartn_x(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -369,7 +369,7 @@ the _atom_sites_Cartn_transform_axes description.
         return getattr(self, "__cartn_y")
     @cartn_y.setter
     def cartn_y(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -388,7 +388,7 @@ the _atom_sites_Cartn_transform_axes description.
         return getattr(self, "__cartn_z")
     @cartn_z.setter
     def cartn_z(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -408,10 +408,6 @@ the _atom_sites_Cartn_transform_axes description.
     @property
     def constr_number(self):
         return getattr(self, "__constr_number")
-
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
 
 
     @property

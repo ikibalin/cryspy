@@ -61,7 +61,7 @@ defined by the cell lengths and cell angles in the CELL category.
 
     @index_h.setter
     def index_h(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -78,7 +78,7 @@ defined by the cell lengths and cell angles in the CELL category.
 
     @index_k.setter
     def index_k(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -95,7 +95,7 @@ defined by the cell lengths and cell angles in the CELL category.
 
     @index_l.setter
     def index_l(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -110,7 +110,7 @@ Measured flip ratio
 
     @fr.setter
     def fr(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -125,7 +125,7 @@ Error bar of measured flip ratio
 
     @fr_sigma.setter
     def fr_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -140,7 +140,7 @@ Calculated flip ratio
 
     @fr_calc.setter
     def fr_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -155,7 +155,7 @@ Calculated intensity up
 
     @intensity_up_calc.setter
     def intensity_up_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -170,7 +170,7 @@ Calculated intensity down
 
     @intensity_down_calc.setter
     def intensity_down_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)

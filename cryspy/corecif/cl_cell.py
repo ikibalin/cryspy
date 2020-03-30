@@ -78,7 +78,7 @@ The permitted range is 0.0 -> infinity
         return getattr(self, "__length_a")
     @length_a.setter
     def length_a(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -99,7 +99,7 @@ The permitted range is 0.0 -> infinity
         return getattr(self, "__length_b")
     @length_b.setter
     def length_b(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -121,7 +121,7 @@ The permitted range is 0.0 -> infinity
         return getattr(self, "__length_c")
     @length_c.setter
     def length_c(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -143,7 +143,7 @@ Enumeration default: 90.0
         return getattr(self, "__angle_alpha")
     @angle_alpha.setter
     def angle_alpha(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -164,7 +164,7 @@ Enumeration default: 90.0
         return getattr(self, "__angle_beta")
     @angle_beta.setter
     def angle_beta(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -185,7 +185,7 @@ Enumeration default: 90.0
         return getattr(self, "__angle_gamma")
     @angle_gamma.setter
     def angle_gamma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -206,7 +206,7 @@ _chemical_formula_sum.
         return getattr(self, "__formula_units_z")
     @formula_units_z.setter
     def formula_units_z(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)

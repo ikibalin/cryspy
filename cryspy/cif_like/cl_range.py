@@ -44,7 +44,7 @@ Description in cif file::
         return getattr(self, "__ttheta_min")
     @ttheta_min.setter
     def ttheta_min(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -55,7 +55,7 @@ Description in cif file::
         return getattr(self, "__ttheta_max")
     @ttheta_max.setter
     def ttheta_max(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -66,7 +66,7 @@ Description in cif file::
         return getattr(self, "__phi_min")
     @phi_min.setter
     def phi_min(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -77,7 +77,7 @@ Description in cif file::
         return getattr(self, "__phi_max")
     @phi_max.setter
     def phi_max(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)

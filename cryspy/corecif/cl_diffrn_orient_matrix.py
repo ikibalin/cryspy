@@ -85,7 +85,7 @@ Type: char
         return getattr(self, "__type")
     @type.setter
     def type(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -104,7 +104,7 @@ Type: numb
         return getattr(self, "__ub_11")
     @ub_11.setter
     def ub_11(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -122,7 +122,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_12")
     @ub_12.setter
     def ub_12(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -139,7 +139,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_13")
     @ub_13.setter
     def ub_13(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -156,7 +156,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_21")
     @ub_21.setter
     def ub_21(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -173,7 +173,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_22")
     @ub_22.setter
     def ub_22(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -190,7 +190,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_23")
     @ub_23.setter
     def ub_23(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -207,7 +207,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_31")
     @ub_31.setter
     def ub_31(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -224,7 +224,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_32")
     @ub_32.setter
     def ub_32(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -241,7 +241,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__ub_33")
     @ub_33.setter
     def ub_33(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -256,7 +256,7 @@ See definition for **_diffrn_orient_matrix.ub_11**
         return getattr(self, "__id")
     @id.setter
     def id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

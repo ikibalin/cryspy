@@ -98,7 +98,7 @@ Description in cif::
         return getattr(self, "__symbol")
     @symbol.setter
     def symbol(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -126,7 +126,7 @@ in the approximation.
         return getattr(self, "__neutron_magnetic_j0_a1")
     @neutron_magnetic_j0_a1.setter
     def neutron_magnetic_j0_a1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -141,7 +141,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_a2")
     @neutron_magnetic_j0_a2.setter
     def neutron_magnetic_j0_a2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -155,7 +155,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_b1")
     @neutron_magnetic_j0_b1.setter
     def neutron_magnetic_j0_b1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -169,7 +169,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_b2")
     @neutron_magnetic_j0_b2.setter
     def neutron_magnetic_j0_b2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -184,7 +184,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_c1")
     @neutron_magnetic_j0_c1.setter
     def neutron_magnetic_j0_c1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -198,7 +198,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_c2")
     @neutron_magnetic_j0_c2.setter
     def neutron_magnetic_j0_c2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -212,7 +212,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_d")
     @neutron_magnetic_j0_d.setter
     def neutron_magnetic_j0_d(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -226,7 +226,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j0_e")
     @neutron_magnetic_j0_e.setter
     def neutron_magnetic_j0_e(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -241,7 +241,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_a1")
     @neutron_magnetic_j2_a1.setter
     def neutron_magnetic_j2_a1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -256,7 +256,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_a2")
     @neutron_magnetic_j2_a2.setter
     def neutron_magnetic_j2_a2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -270,7 +270,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_b1")
     @neutron_magnetic_j2_b1.setter
     def neutron_magnetic_j2_b1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -284,7 +284,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_b2")
     @neutron_magnetic_j2_b2.setter
     def neutron_magnetic_j2_b2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -299,7 +299,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_c1")
     @neutron_magnetic_j2_c1.setter
     def neutron_magnetic_j2_c1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -313,7 +313,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_c2")
     @neutron_magnetic_j2_c2.setter
     def neutron_magnetic_j2_c2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -327,7 +327,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_d")
     @neutron_magnetic_j2_d.setter
     def neutron_magnetic_j2_d(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -341,7 +341,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j2_e")
     @neutron_magnetic_j2_e.setter
     def neutron_magnetic_j2_e(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -357,7 +357,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_a1")
     @neutron_magnetic_j4_a1.setter
     def neutron_magnetic_j4_a1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -372,7 +372,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_a2")
     @neutron_magnetic_j4_a2.setter
     def neutron_magnetic_j4_a2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -386,7 +386,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_b1")
     @neutron_magnetic_j4_b1.setter
     def neutron_magnetic_j4_b1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -400,7 +400,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_b2")
     @neutron_magnetic_j4_b2.setter
     def neutron_magnetic_j4_b2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -415,7 +415,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_c1")
     @neutron_magnetic_j4_c1.setter
     def neutron_magnetic_j4_c1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -429,7 +429,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_c2")
     @neutron_magnetic_j4_c2.setter
     def neutron_magnetic_j4_c2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -443,7 +443,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_d")
     @neutron_magnetic_j4_d.setter
     def neutron_magnetic_j4_d(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -457,7 +457,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j4_e")
     @neutron_magnetic_j4_e.setter
     def neutron_magnetic_j4_e(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -474,7 +474,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_a1")
     @neutron_magnetic_j6_a1.setter
     def neutron_magnetic_j6_a1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -489,7 +489,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_a2")
     @neutron_magnetic_j6_a2.setter
     def neutron_magnetic_j6_a2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -503,7 +503,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_b1")
     @neutron_magnetic_j6_b1.setter
     def neutron_magnetic_j6_b1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -517,7 +517,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_b2")
     @neutron_magnetic_j6_b2.setter
     def neutron_magnetic_j6_b2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -532,7 +532,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_c1")
     @neutron_magnetic_j6_c1.setter
     def neutron_magnetic_j6_c1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -546,7 +546,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_c2")
     @neutron_magnetic_j6_c2.setter
     def neutron_magnetic_j6_c2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -560,7 +560,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_d")
     @neutron_magnetic_j6_d.setter
     def neutron_magnetic_j6_d(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -574,7 +574,7 @@ see documentation for neutron_magnetic_j0_a1
         return getattr(self, "__neutron_magnetic_j6_e")
     @neutron_magnetic_j6_e.setter
     def neutron_magnetic_j6_e(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -595,7 +595,7 @@ International Tables for Crystallography (2006). Vol. C, Section 4.4.5.
         return getattr(self, "__neutron_magnetic_source")
     @neutron_magnetic_source.setter
     def neutron_magnetic_source(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

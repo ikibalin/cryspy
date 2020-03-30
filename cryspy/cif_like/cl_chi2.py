@@ -44,7 +44,7 @@ Description in cif file::
         return getattr(self, "__sum")
     @sum.setter
     def sum(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = (str(x).strip().lower() == "true")
@@ -55,7 +55,7 @@ Description in cif file::
         return getattr(self, "__diff")
     @diff.setter
     def diff(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = (str(x).strip().lower() == "true")
@@ -66,7 +66,7 @@ Description in cif file::
         return getattr(self, "__up")
     @up.setter
     def up(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = (str(x).strip().lower() == "true")
@@ -77,7 +77,7 @@ Description in cif file::
         return getattr(self, "__down")
     @down.setter
     def down(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = (str(x).strip().lower() == "true")

@@ -66,7 +66,7 @@ Description in cif file::
         return getattr(self, "__index_h")
     @index_h.setter
     def index_h(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -77,7 +77,7 @@ Description in cif file::
         return getattr(self, "__index_k")
     @index_k.setter
     def index_k(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -88,7 +88,7 @@ Description in cif file::
         return getattr(self, "__index_l")
     @index_l.setter
     def index_l(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -99,7 +99,7 @@ Description in cif file::
         return getattr(self, "__index_mult")
     @index_mult.setter
     def index_mult(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -110,7 +110,7 @@ Description in cif file::
         return getattr(self, "__ttheta")
     @ttheta.setter
     def ttheta(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -121,7 +121,7 @@ Description in cif file::
         return getattr(self, "__f_nucl_sq")
     @f_nucl_sq.setter
     def f_nucl_sq(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -132,7 +132,7 @@ Description in cif file::
         return getattr(self, "__f_m_p_sin_sq")
     @f_m_p_sin_sq.setter
     def f_m_p_sin_sq(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -144,7 +144,7 @@ Description in cif file::
         return getattr(self, "__f_m_p_cos_sq")
     @f_m_p_cos_sq.setter
     def f_m_p_cos_sq(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -155,7 +155,7 @@ Description in cif file::
         return getattr(self, "__cross_sin")
     @cross_sin.setter
     def cross_sin(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -167,7 +167,7 @@ Description in cif file::
         return getattr(self, "__width_ttheta")
     @width_ttheta.setter
     def width_ttheta(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)

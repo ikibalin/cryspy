@@ -74,7 +74,7 @@ Type: char
         return getattr(self, "__label")
     @label.setter
     def label(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -106,7 +106,7 @@ Type: float
         return getattr(self, "__u_11")
     @u_11.setter
     def u_11(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -124,7 +124,7 @@ see help for u_11 parameter
         return getattr(self, "__u_22")
     @u_22.setter
     def u_22(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -141,7 +141,7 @@ see help for u_11 parameter
         return getattr(self, "__u_33")
     @u_33.setter
     def u_33(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -158,7 +158,7 @@ see help for u_11 parameter
         return getattr(self, "__u_12")
     @u_12.setter
     def u_12(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -175,7 +175,7 @@ see help for u_11 parameter
         return getattr(self, "__u_13")
     @u_13.setter
     def u_13(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -192,7 +192,7 @@ see help for u_23 parameter
         return getattr(self, "__u_23")
     @u_23.setter
     def u_23(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -240,7 +240,7 @@ Type: float
         return getattr(self, "__b_11")
     @b_11.setter
     def b_11(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -258,7 +258,7 @@ see help for b_11 parameter
         return getattr(self, "__b_22")
     @b_22.setter
     def b_22(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -275,7 +275,7 @@ see help for b_11 parameter
         return getattr(self, "__b_33")
     @b_33.setter
     def b_33(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -292,7 +292,7 @@ see help for b_11 parameter
         return getattr(self, "__b_12")
     @b_12.setter
     def b_12(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -309,7 +309,7 @@ see help for b_11 parameter
         return getattr(self, "__b_13")
     @b_13.setter
     def b_13(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -326,7 +326,7 @@ see help for b_11 parameter
         return getattr(self, "__b_23")
     @b_23.setter
     def b_23(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

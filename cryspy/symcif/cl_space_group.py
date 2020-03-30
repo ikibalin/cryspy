@@ -172,7 +172,7 @@ _space_group.reference_setting.
         return getattr(self, "__name_hm_alt")
     @name_hm_alt.setter
     def name_hm_alt(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -201,7 +201,7 @@ The permitted range is (1,230)
     @it_number.setter
     def it_number(self, x):
 
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -235,7 +235,7 @@ The data value must be one of the following:
         return getattr(self, "__it_coordinate_system_code")
     @it_coordinate_system_code.setter
     def it_coordinate_system_code(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             if not(x in self.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE):
@@ -254,7 +254,7 @@ This is an identifier needed if _space_group .* items are looped.
         return getattr(self, "__id")
     @id.setter
     def id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -288,7 +288,7 @@ The data value must be one of the following:
         return getattr(self, "__bravais_type")
     @bravais_type.setter
     def bravais_type(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = "".join(str(x).strip().split())
@@ -313,7 +313,7 @@ The data value must be one of the following:
         return getattr(self, "__laue_class")
     @laue_class.setter
     def laue_class(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -346,7 +346,7 @@ they apply.
         return getattr(self, "__patterson_name_hm")
     @patterson_name_hm.setter
     def patterson_name_hm(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x).strip()
@@ -373,7 +373,7 @@ The data value must be one of the following:
         return getattr(self, "__centring_type")
     @centring_type.setter
     def centring_type(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -397,7 +397,7 @@ The data value must be one of the following:
         return getattr(self, "__crystal_system")
     @crystal_system.setter
     def crystal_system(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -415,7 +415,7 @@ group.name_H-M_alt
         return getattr(self, "__name_hm_alt_description")
     @name_hm_alt_description.setter
     def name_hm_alt_description(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -454,7 +454,7 @@ Dordrecht: Kluwer Academic Publishers.
         return getattr(self, "__name_hm_full")
     @name_hm_full.setter
     def name_hm_full(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -500,7 +500,7 @@ The data value must be one of the following:
         return getattr(self, "__name_hm_ref")
     @name_hm_ref.setter
     def name_hm_ref(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -531,7 +531,7 @@ because it was used in old CIFs. It should not be used in new CIFs.
         return getattr(self, "__name_hall")
     @name_hall.setter
     def name_hall(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -563,7 +563,7 @@ The data value must be one of the following:
         return getattr(self, "__name_schoenflies")
     @name_schoenflies.setter
     def name_schoenflies(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -585,7 +585,7 @@ the space group belongs.
         return getattr(self, "__point_group_hm")
     @point_group_hm.setter
     def point_group_hm(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -636,7 +636,7 @@ The data value must be one of the following:
         return getattr(self, "__reference_setting")
     @reference_setting.setter
     def reference_setting(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -692,7 +692,7 @@ explicit. White space within the string is optional.
         return getattr(self, "__transform_pp_abc")
     @transform_pp_abc.setter
     def transform_pp_abc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -749,7 +749,7 @@ be explicit. White space within the string is optional.
         return getattr(self, "__transform_qq_xyz")
     @transform_qq_xyz.setter
     def transform_qq_xyz(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

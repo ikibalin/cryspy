@@ -47,7 +47,7 @@ The domain radius in angstrem
         return getattr(self, "__radius")
     @radius.setter
     def radius(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -64,7 +64,7 @@ The domains' mosaicity in angstrem
         return getattr(self, "__mosaicity")
     @mosaicity.setter
     def mosaicity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -85,7 +85,7 @@ The model of extinction.
         return getattr(self, "__model")
     @model.setter
     def model(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

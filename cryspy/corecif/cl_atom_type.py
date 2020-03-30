@@ -103,7 +103,7 @@ oxidation state and must be followed by a + or - character.
         return getattr(self, "__symbol")
     @symbol.setter
     def symbol(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -121,7 +121,7 @@ The permitted range is 0.0 → 100.0.
         return getattr(self, "__analytical_mass")
     @analytical_mass.setter
     def analytical_mass(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -145,7 +145,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__description")
     @description.setter
     def description(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -167,7 +167,7 @@ The permitted range is 0 -> infinity
         return getattr(self, "__number_in_cell")
     @number_in_cell.setter
     def number_in_cell(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -189,7 +189,7 @@ The permitted range is -8 -> 8
         return getattr(self, "__oxidation_number")
     @oxidation_number.setter
     def oxidation_number(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -211,7 +211,7 @@ The permitted range is 0.0 -> 5.0
         return getattr(self, "__radius_bond")
     @radius_bond.setter
     def radius_bond(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -233,7 +233,7 @@ The permitted range is 0.0 -> 5.0
         return getattr(self, "__radius_contact")
     @radius_contact.setter
     def radius_contact(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -258,7 +258,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__cromer_mann_a1")
     @cromer_mann_a1.setter
     def cromer_mann_a1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -273,7 +273,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_a2")
     @cromer_mann_a2.setter
     def cromer_mann_a2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -287,7 +287,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_a3")
     @cromer_mann_a3.setter
     def cromer_mann_a3(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -302,7 +302,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_a4")
     @cromer_mann_a4.setter
     def cromer_mann_a4(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -317,7 +317,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_b1")
     @cromer_mann_b1.setter
     def cromer_mann_b1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -331,7 +331,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_b2")
     @cromer_mann_b2.setter
     def cromer_mann_b2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -345,7 +345,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_b3")
     @cromer_mann_b3.setter
     def cromer_mann_b3(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -360,7 +360,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_b4")
     @cromer_mann_b4.setter
     def cromer_mann_b4(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -375,7 +375,7 @@ see documentation for cromer_mann_a1
         return getattr(self, "__cromer_mann_c")
     @cromer_mann_c.setter
     def cromer_mann_c(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -398,7 +398,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__scat_dispersion_real")
     @scat_dispersion_real.setter
     def scat_dispersion_real(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -421,7 +421,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__scat_dispersion_imag")
     @scat_dispersion_imag.setter
     def scat_dispersion_imag(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -443,7 +443,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__dispersion_source")
     @dispersion_source.setter
     def dispersion_source(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -468,7 +468,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__scat_length_neutron")
     @scat_length_neutron.setter
     def scat_length_neutron(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -489,7 +489,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__scat_source")
     @scat_source.setter
     def scat_source(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -511,7 +511,7 @@ Appears in list containing _atom_type_symbol
         return getattr(self, "__scat_versus_stol_list")
     @scat_versus_stol_list.setter
     def scat_versus_stol_list(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

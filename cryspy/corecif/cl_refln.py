@@ -99,7 +99,7 @@ defined by the cell lengths and cell angles in the CELL category.
         return getattr(self, "__index_h")
     @index_h.setter
     def index_h(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -114,7 +114,7 @@ defined by the cell lengths and cell angles in the CELL category.
         return getattr(self, "__index_k")
     @index_k.setter
     def index_k(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -129,7 +129,7 @@ defined by the cell lengths and cell angles in the CELL category.
         return getattr(self, "__index_l")
     @index_l.setter
     def index_l(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -151,7 +151,7 @@ Category: refln
         return getattr(self, "__a_calc")
     @a_calc.setter
     def a_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -171,7 +171,7 @@ Type: numb
         return getattr(self, "__a_meas")
     @a_meas.setter
     def a_meas(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -191,7 +191,7 @@ Appears in list containing _refln_index_
 
 Type: numb        
         """
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -211,7 +211,7 @@ Type: numb
         return getattr(self, "__b_meas")
     @b_meas.setter
     def b_meas(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -237,7 +237,7 @@ Type: char
         return getattr(self, "__class_code")
     @class_code.setter
     def class_code(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -257,7 +257,7 @@ Type: char
         return getattr(self, "__crystal_id")
     @crystal_id.setter
     def crystal_id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -277,7 +277,7 @@ Type: numb
         return getattr(self, "__d_spacing")
     @d_spacing.setter
     def d_spacing(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -297,7 +297,7 @@ Type: numb
         return getattr(self, "__f_sigma")
     @f_sigma.setter
     def f_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -320,7 +320,7 @@ Type: numb
         return res
     @f_calc.setter
     def f_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in_1 = None
             x_in_2 = None
         else:
@@ -346,7 +346,7 @@ Type: numb
         return res
     @f_meas.setter
     def f_meas(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in_1 = None
             x_in_2 = None
         else:
@@ -367,7 +367,7 @@ Type: numb
         return getattr(self, "__f_squared_calc")
     @f_squared_calc.setter
     def f_squared_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -385,7 +385,7 @@ Type: numb
         return getattr(self, "__f_squared_meas")
     @f_squared_meas.setter
     def f_squared_meas(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -404,7 +404,7 @@ Type: numb
         return getattr(self, "__f_squared_sigma")
     @f_squared_sigma.setter
     def f_squared_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -436,7 +436,7 @@ Type: char
         return getattr(self, "__include_status")
     @include_status.setter
     def include_status(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -457,7 +457,7 @@ Type: numb
         return getattr(self, "__intensity_calc")
     @intensity_calc.setter
     def intensity_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -475,7 +475,7 @@ Type: numb
         return getattr(self, "__intensity_meas")
     @intensity_meas.setter
     def intensity_meas(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -494,7 +494,7 @@ Type: numb
         return getattr(self, "__intensity_sigma")
     @intensity_sigma.setter
     def intensity_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -513,7 +513,7 @@ Type: numb
         return getattr(self, "__mean_path_length_tbar")
     @mean_path_length_tbar.setter
     def mean_path_length_tbar(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -530,7 +530,7 @@ Type: numb
         return getattr(self, "__phase_calc")
     @phase_calc.setter
     def phase_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -550,7 +550,7 @@ Category: refln
         return getattr(self, "__phase_meas")
     @phase_meas.setter
     def phase_meas(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -574,7 +574,7 @@ Enumeration default: incl
         return getattr(self, "__refinement_status")
     @refinement_status.setter
     def refinement_status(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -602,7 +602,7 @@ Type: char
         return getattr(self, "__scale_group_code")
     @scale_group_code.setter
     def scale_group_code(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -621,7 +621,7 @@ Type: numb
         return getattr(self, "__sintlambda")
     @sintlambda.setter
     def sintlambda(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -641,7 +641,7 @@ Type: numb
         return getattr(self, "__symmetry_epsilon")
     @symmetry_epsilon.setter
     def symmetry_epsilon(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -663,7 +663,7 @@ Type: numb
         return getattr(self, "__symmetry_multiplicity")
     @symmetry_multiplicity.setter
     def symmetry_multiplicity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -683,7 +683,7 @@ Type: numb
         return getattr(self, "__wavelength")
     @wavelength.setter
     def wavelength(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -703,7 +703,7 @@ Type: char
         return getattr(self, "__wavelength_id")
     @wavelength_id.setter
     def wavelength_id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

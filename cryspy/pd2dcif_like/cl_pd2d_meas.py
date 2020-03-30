@@ -78,7 +78,7 @@ Description in cif file::
         return getattr(self, "__ttheta_phi_intensity_up")
     @ttheta_phi_intensity_up.setter
     def ttheta_phi_intensity_up(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -92,7 +92,7 @@ Description in cif file::
         return getattr(self, "__ttheta_phi_intensity_up_sigma")
     @ttheta_phi_intensity_up_sigma.setter
     def ttheta_phi_intensity_up_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -106,7 +106,7 @@ Description in cif file::
         return getattr(self, "__ttheta_phi_intensity_down")
     @ttheta_phi_intensity_down.setter
     def ttheta_phi_intensity_down(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -120,7 +120,7 @@ Description in cif file::
         return getattr(self, "__ttheta_phi_intensity_down_sigma")
     @ttheta_phi_intensity_down_sigma.setter
     def ttheta_phi_intensity_down_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

@@ -64,7 +64,7 @@ tion in the list.
         return getattr(self, "__id")
     @id.setter
     def id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -99,7 +99,7 @@ position in International Tables for Crystallography Volume A.
         return getattr(self, "__operation_xyz")
     @operation_xyz.setter
     def operation_xyz(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = "".join(str(x).split())
@@ -114,7 +114,7 @@ the space group
         return getattr(self, "__operation_description")
     @operation_description.setter
     def operation_description(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -159,7 +159,7 @@ first] are either operations or generators and
         return getattr(self, "__generator_xyz")
     @generator_xyz.setter
     def generator_xyz(self, x) -> str:
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = "".join(str(x).split())
@@ -175,7 +175,7 @@ be identified with a particular space group
 
     @sg_id.setter
     def sg_id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)

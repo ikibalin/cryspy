@@ -79,7 +79,7 @@ Type: char
         return getattr(self, "__label")
     @label.setter
     def label(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -99,7 +99,7 @@ Type: float
         return getattr(self, "__cartn_x")
     @cartn_x.setter
     def cartn_x(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -122,7 +122,7 @@ Type: float
         return getattr(self, "__cartn_y")
     @cartn_y.setter
     def cartn_y(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -146,7 +146,7 @@ Type: float
         return getattr(self, "__cartn_z")
     @cartn_z.setter
     def cartn_z(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -173,7 +173,7 @@ Type: float
         return getattr(self, "__crystalaxis_x")
     @crystalaxis_x.setter
     def crystalaxis_x(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -200,7 +200,7 @@ Type: float
         return getattr(self, "__crystalaxis_y")
     @crystalaxis_y.setter
     def crystalaxis_y(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -226,7 +226,7 @@ Type: float
         return getattr(self, "__crystalaxis_z")
     @crystalaxis_z.setter
     def crystalaxis_z(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -252,7 +252,7 @@ n abbreviation for ‘no’
         return getattr(self, "__modulation_flag")
     @modulation_flag.setter
     def modulation_flag(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -282,7 +282,7 @@ The data value must be one of the following:
         return getattr(self, "__refinement_flags_magnetic")
     @refinement_flags_magnetic.setter
     def refinement_flags_magnetic(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -306,7 +306,7 @@ axis starting from the +x side of the x–z plane.
         return getattr(self, "__spherical_azimuthal")
     @spherical_azimuthal.setter
     def spherical_azimuthal(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -329,7 +329,7 @@ axes where x||a and z||c∗ with y completing a right-hand set
         return getattr(self, "__spherical_modulus")
     @spherical_modulus.setter
     def spherical_modulus(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -353,7 +353,7 @@ polar angle is measured relative to the +z axis
         return getattr(self, "__spherical_polar")
     @spherical_polar.setter
     def spherical_polar(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -380,16 +380,11 @@ Examples:
         return getattr(self, "__symmform")
     @symmform.setter
     def symmform(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
         setattr(self, "__symmform", x_in)
-
-
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
 
 
     @property

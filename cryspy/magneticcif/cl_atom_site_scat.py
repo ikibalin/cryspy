@@ -45,7 +45,7 @@ Description in cif::
         return getattr(self, "__label")
     @label.setter
     def label(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -62,7 +62,7 @@ form factor = <j0> + (2/L - 1) * <j2>
         return getattr(self, "__lande")
     @lande.setter
     def lande(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -80,7 +80,7 @@ kappa factor
         return getattr(self, "__kappa")
     @kappa.setter
     def kappa(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

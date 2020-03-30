@@ -63,7 +63,7 @@ least-squares refinement calculation.
         return getattr(self, "__number_reflns")
     @number_reflns.setter
     def number_reflns(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -87,7 +87,7 @@ difficult to assess.
         return getattr(self, "__number_parameters")
     @number_parameters.setter
     def number_parameters(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -107,7 +107,7 @@ dependencies.
         return getattr(self, "__number_restraints")
     @number_restraints.setter
     def number_restraints(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -125,7 +125,7 @@ other constraint process (e.g. rigid-body refinement).
         return getattr(self, "__number_constraints")
     @number_constraints.setter
     def number_constraints(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -168,7 +168,7 @@ Nparam
         return getattr(self, "__goodness_of_fit_all")
     @goodness_of_fit_all.setter
     def goodness_of_fit_all(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -197,7 +197,7 @@ Enumeration default: sigma
         return getattr(self, "__weighting_scheme")
     @weighting_scheme.setter
     def weighting_scheme(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

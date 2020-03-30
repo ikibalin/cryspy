@@ -92,7 +92,7 @@ defined by the cell lengths and cell angles in the CELL category.
         return getattr(self, "__index_h")
     @index_h.setter
     def index_h(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -107,7 +107,7 @@ defined by the cell lengths and cell angles in the CELL category.
         return getattr(self, "__index_k")
     @index_k.setter
     def index_k(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -122,7 +122,7 @@ defined by the cell lengths and cell angles in the CELL category.
         return getattr(self, "__index_l")
     @index_l.setter
     def index_l(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -143,7 +143,7 @@ Type: numb
         return getattr(self, "__d_spacing")
     @d_spacing.setter
     def d_spacing(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -162,7 +162,7 @@ Type: numb
         return getattr(self, "__sintlambda")
     @sintlambda.setter
     def sintlambda(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -174,7 +174,7 @@ Type: numb
         return getattr(self, "__chi_11_calc")
     @chi_11_calc.setter
     def chi_11_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -185,7 +185,7 @@ Type: numb
         return getattr(self, "__chi_12_calc")
     @chi_12_calc.setter
     def chi_12_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -196,7 +196,7 @@ Type: numb
         return getattr(self, "__chi_13_calc")
     @chi_13_calc.setter
     def chi_13_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -207,7 +207,7 @@ Type: numb
         return getattr(self, "__chi_21_calc")
     @chi_21_calc.setter
     def chi_21_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -218,7 +218,7 @@ Type: numb
         return getattr(self, "__chi_22_calc")
     @chi_22_calc.setter
     def chi_22_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -229,7 +229,7 @@ Type: numb
         return getattr(self, "__chi_23_calc")
     @chi_23_calc.setter
     def chi_23_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -240,7 +240,7 @@ Type: numb
         return getattr(self, "__chi_31_calc")
     @chi_31_calc.setter
     def chi_31_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -251,7 +251,7 @@ Type: numb
         return getattr(self, "__chi_32_calc")
     @chi_32_calc.setter
     def chi_32_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -262,7 +262,7 @@ Type: numb
         return getattr(self, "__chi_33_calc")
     @chi_33_calc.setter
     def chi_33_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -273,7 +273,7 @@ Type: numb
         return getattr(self, "__moment_11_calc")
     @moment_11_calc.setter
     def moment_11_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -284,7 +284,7 @@ Type: numb
         return getattr(self, "__moment_12_calc")
     @moment_12_calc.setter
     def moment_12_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -295,7 +295,7 @@ Type: numb
         return getattr(self, "__moment_13_calc")
     @moment_13_calc.setter
     def moment_13_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -306,7 +306,7 @@ Type: numb
         return getattr(self, "__moment_21_calc")
     @moment_21_calc.setter
     def moment_21_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -317,7 +317,7 @@ Type: numb
         return getattr(self, "__moment_22_calc")
     @moment_22_calc.setter
     def moment_22_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -328,7 +328,7 @@ Type: numb
         return getattr(self, "__moment_23_calc")
     @moment_23_calc.setter
     def moment_23_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -339,7 +339,7 @@ Type: numb
         return getattr(self, "__moment_31_calc")
     @moment_31_calc.setter
     def moment_31_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -350,7 +350,7 @@ Type: numb
         return getattr(self, "__moment_32_calc")
     @moment_32_calc.setter
     def moment_32_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)
@@ -361,7 +361,7 @@ Type: numb
         return getattr(self, "__moment_33_calc")
     @moment_33_calc.setter
     def moment_33_calc(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = complex(x)

@@ -46,7 +46,7 @@ Description in cif file::
         return getattr(self, "__g_1")
     @g_1.setter
     def g_1(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -61,7 +61,7 @@ Description in cif file::
         return getattr(self, "__g_2")
     @g_2.setter
     def g_2(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -75,7 +75,7 @@ Description in cif file::
         return getattr(self, "__h_ax")
     @h_ax.setter
     def h_ax(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -89,7 +89,7 @@ Description in cif file::
         return getattr(self, "__k_ax")
     @k_ax.setter
     def k_ax(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -103,7 +103,7 @@ Description in cif file::
         return getattr(self, "__l_ax")
     @l_ax.setter
     def l_ax(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

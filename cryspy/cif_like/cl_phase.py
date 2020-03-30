@@ -39,7 +39,7 @@ Description in cif file::
         return getattr(self, "__label")
     @label.setter
     def label(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -50,7 +50,7 @@ Description in cif file::
         return getattr(self, "__scale")
     @scale.setter
     def scale(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -64,7 +64,7 @@ Description in cif file::
         return getattr(self, "__igsize")
     @igsize.setter
     def igsize(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

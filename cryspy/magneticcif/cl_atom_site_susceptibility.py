@@ -89,7 +89,7 @@ Type: char
         return getattr(self, "__label")
     @label.setter
     def label(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -109,7 +109,7 @@ The data value must be one of the following::
         return getattr(self, "__chi_type")
     @chi_type.setter
     def chi_type(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -128,7 +128,7 @@ Type: float
         return getattr(self, "__chi_11")
     @chi_11.setter
     def chi_11(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -148,7 +148,7 @@ Type: float
         return getattr(self, "__chi_22")
     @chi_22.setter
     def chi_22(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -167,7 +167,7 @@ Type: float
         return getattr(self, "__chi_33")
     @chi_33.setter
     def chi_33(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -187,7 +187,7 @@ Type: float
         return getattr(self, "__chi_12")
     @chi_12.setter
     def chi_12(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -206,7 +206,7 @@ Type: float
         return getattr(self, "__chi_13")
     @chi_13.setter
     def chi_13(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -225,7 +225,7 @@ Type: float
         return getattr(self, "__chi_23")
     @chi_23.setter
     def chi_23(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -250,7 +250,7 @@ The data value must be one of the following::
         return getattr(self, "__moment_type")
     @moment_type.setter
     def moment_type(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -269,7 +269,7 @@ Type: float
         return getattr(self, "__moment_11")
     @moment_11.setter
     def moment_11(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -289,7 +289,7 @@ Type: float
         return getattr(self, "__moment_22")
     @moment_22.setter
     def moment_22(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -308,7 +308,7 @@ Type: float
         return getattr(self, "__moment_33")
     @moment_33.setter
     def moment_33(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -328,7 +328,7 @@ Type: float
         return getattr(self, "__moment_12")
     @moment_12.setter
     def moment_12(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -347,7 +347,7 @@ Type: float
         return getattr(self, "__moment_13")
     @moment_13.setter
     def moment_13(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -366,7 +366,7 @@ Type: float
         return getattr(self, "__moment_23")
     @moment_23.setter
     def moment_23(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x

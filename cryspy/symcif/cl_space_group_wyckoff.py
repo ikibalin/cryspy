@@ -64,7 +64,7 @@ tion.
 
     @id.setter
     def id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -87,7 +87,7 @@ Where no value is given, the assumed value is 'x,y,z'.
 
     @coord_xyz.setter
     def coord_xyz(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -118,7 +118,7 @@ The data value must be one of the following:
 
     @letter.setter
     def letter(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -139,7 +139,7 @@ tional unit cell.
 
     @multiplicity.setter
     def multiplicity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)
@@ -169,7 +169,7 @@ A, Section 2.2.12).
 
     @site_symmetry.setter
     def site_symmetry(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)
@@ -185,7 +185,7 @@ identified with a particular space group.
 
     @sg_id.setter
     def sg_id(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = int(x)

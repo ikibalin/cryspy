@@ -74,7 +74,7 @@ Description in cif file::
         return getattr(self, "__ttheta")
     @ttheta.setter
     def ttheta(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -85,7 +85,7 @@ Description in cif file::
         return getattr(self, "__intensity_up")
     @intensity_up.setter
     def intensity_up(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -96,7 +96,7 @@ Description in cif file::
         return getattr(self, "__intensity_up_sigma")
     @intensity_up_sigma.setter
     def intensity_up_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -107,7 +107,7 @@ Description in cif file::
         return getattr(self, "__intensity_down")
     @intensity_down.setter
     def intensity_down(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -118,7 +118,7 @@ Description in cif file::
         return getattr(self, "__intensity_down_sigma")
     @intensity_down_sigma.setter
     def intensity_down_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -129,7 +129,7 @@ Description in cif file::
         return getattr(self, "__intensity")
     @intensity.setter
     def intensity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)
@@ -140,7 +140,7 @@ Description in cif file::
         return getattr(self, "__intensity_sigma")
     @intensity_sigma.setter
     def intensity_sigma(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = float(x)

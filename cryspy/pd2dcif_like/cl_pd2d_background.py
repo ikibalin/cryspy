@@ -47,7 +47,7 @@ Description in cif file::
         return getattr(self, "__ttheta_phi_intensity")
     @ttheta_phi_intensity.setter
     def ttheta_phi_intensity(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         else:
             x_in = str(x)

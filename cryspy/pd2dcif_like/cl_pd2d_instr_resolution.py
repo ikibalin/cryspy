@@ -61,7 +61,7 @@ Description in cif file::
         return getattr(self, "__u")
     @u.setter
     def u(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -75,7 +75,7 @@ Description in cif file::
         return getattr(self, "__v")
     @v.setter
     def v(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -89,7 +89,7 @@ Description in cif file::
         return getattr(self, "__w")
     @w.setter
     def w(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -103,7 +103,7 @@ Description in cif file::
         return getattr(self, "__x")
     @x.setter
     def x(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
@@ -117,7 +117,7 @@ Description in cif file::
         return getattr(self, "__y")
     @y.setter
     def y(self, x):
-        if x is None:
+        if ((x is None) | (x == ".")):
             x_in = None
         elif isinstance(x, Fitable):
             x_in = x
