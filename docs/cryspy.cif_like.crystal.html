@@ -55,7 +55,7 @@
 <span id="crystal"></span><h1>Crystal<a class="headerlink" href="#module-cryspy.cif_like.cl_crystal" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="cryspy.cif_like.cl_crystal.Crystal">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_crystal.</code><code class="sig-name descname">Crystal</code><span class="sig-paren">(</span><em class="sig-param">cell=None</em>, <em class="sig-param">atom_site=None</em>, <em class="sig-param">space_group=None</em>, <em class="sig-param">atom_type=None</em>, <em class="sig-param">atom_site_aniso=None</em>, <em class="sig-param">atom_site_susceptibility=None</em>, <em class="sig-param">atom_site_scat=None</em>, <em class="sig-param">atom_type_scat=None</em>, <em class="sig-param">data_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_crystal.</code><code class="sig-name descname">Crystal</code><span class="sig-paren">(</span><em class="sig-param">cell=None</em>, <em class="sig-param">atom_site=None</em>, <em class="sig-param">space_group=None</em>, <em class="sig-param">atom_type=None</em>, <em class="sig-param">atom_site_aniso=None</em>, <em class="sig-param">atom_site_susceptibility=None</em>, <em class="sig-param">atom_site_scat=None</em>, <em class="sig-param">atom_type_scat=None</em>, <em class="sig-param">atom_local_axes=None</em>, <em class="sig-param">data_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_data_constr.DataConstr</span></code></p>
 <p>Data items in the CRYSTAL category record details about
 crystal structure.</p>
@@ -131,12 +131,17 @@ crystal structure.</p>
 
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_crystal.Crystal.OPTIONAL_CLASSES">
-<code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.corecif.cl_atom_type.AtomTypeL'&gt;, &lt;class 'cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL'&gt;, &lt;class 'cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL'&gt;, &lt;class 'cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL'&gt;, &lt;class 'cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.corecif.cl_atom_type.AtomTypeL'&gt;, &lt;class 'cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL'&gt;, &lt;class 'cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL'&gt;, &lt;class 'cryspy.magneticcif.cl_atom_site_scat.AtomSiteScatL'&gt;, &lt;class 'cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL'&gt;, &lt;class 'cryspy.rhocif.cl_atom_local_axes.AtomLocalAxesL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="cryspy.cif_like.cl_crystal.Crystal.apply_constraint">
 <code class="sig-name descname">apply_constraint</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.apply_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.apply_constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_crystal.Crystal.atom_local_axes">
+<em class="property">property </em><code class="sig-name descname">atom_local_axes</code><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.atom_local_axes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -168,6 +173,13 @@ crystal structure.</p>
 <dt id="cryspy.cif_like.cl_crystal.Crystal.atom_type_scat">
 <em class="property">property </em><code class="sig-name descname">atom_type_scat</code><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.atom_type_scat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_crystal.Crystal.calc_b_iso_beta">
+<code class="sig-name descname">calc_b_iso_beta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_b_iso_beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_b_iso_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate b_iso and beta_ij based on atom_site and atom_sites
+for each atom defined in atom_site</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.cif_like.cl_crystal.Crystal.calc_hkl">
@@ -283,7 +295,7 @@ crystal structure.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

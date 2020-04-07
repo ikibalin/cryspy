@@ -102,11 +102,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">b_33</span> <span class="o">=</span> <span class="n">b_33</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
-        
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AtomSiteAniso:&quot;</span><span class="p">]</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>        
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -124,7 +119,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">)</span>
     <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -156,7 +151,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_11&quot;</span><span class="p">)</span>
     <span class="nd">@u_11</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -174,7 +169,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_22&quot;</span><span class="p">)</span>
     <span class="nd">@u_22</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_22</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -191,7 +186,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_33&quot;</span><span class="p">)</span>
     <span class="nd">@u_33</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_33</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -208,7 +203,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_12&quot;</span><span class="p">)</span>
     <span class="nd">@u_12</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_12</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -225,7 +220,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_13&quot;</span><span class="p">)</span>
     <span class="nd">@u_13</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -242,7 +237,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_23&quot;</span><span class="p">)</span>
     <span class="nd">@u_23</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_23</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -290,7 +285,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_11&quot;</span><span class="p">)</span>
     <span class="nd">@b_11</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -308,7 +303,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_22&quot;</span><span class="p">)</span>
     <span class="nd">@b_22</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_22</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -325,7 +320,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_33&quot;</span><span class="p">)</span>
     <span class="nd">@b_33</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_33</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -342,7 +337,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_12&quot;</span><span class="p">)</span>
     <span class="nd">@b_12</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_12</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -359,7 +354,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_13&quot;</span><span class="p">)</span>
     <span class="nd">@b_13</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -376,7 +371,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_23&quot;</span><span class="p">)</span>
     <span class="nd">@b_23</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_23</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -429,193 +424,194 @@
         <span class="n">beta_23</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_23</span><span class="o">*</span><span class="n">ib</span><span class="o">*</span><span class="n">ic</span>
         <span class="k">return</span> <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span></div>
 
-
-
 <div class="viewcode-block" id="AtomSiteAniso.apply_space_group_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.apply_space_group_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_space_group_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">l_numb</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">calc_constr_number</span><span class="p">(</span><span class="n">space_group</span><span class="p">)</span>
         <span class="n">label_aniso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">label</span>
-        <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_1</span> <span class="ow">in</span> <span class="n">label_aniso</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span><span class="p">,</span> <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="p">,</span> 
-                                                                    <span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">):</span>
-            <span class="n">u_11</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-            <span class="n">numb</span> <span class="o">=</span> <span class="n">l_numb</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> 
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">u_13</span><span class="o">.</span><span class="n">value</span> 
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span> 
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span> 
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">14</span><span class="p">:</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">15</span><span class="p">:</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">u_13</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">17</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">18</span><span class="p">:</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label_aniso</span><span class="p">)</span>
+        <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_33</span>
+        <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span>
 
+        <span class="n">u_11</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="n">numb</span> <span class="o">=</span> <span class="n">l_numb</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">u_13</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">14</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">15</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">u_13</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">17</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">18</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span></div>
 
     <span class="k">def</span> <span class="nf">_form_adp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">):</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
@@ -693,12 +689,6 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">AtomSiteAnisoL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteAnisoL: &quot;</span><span class="p">)</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
-
 <div class="viewcode-block" id="AtomSiteAnisoL.calc_beta"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta">[docs]</a>    <span class="k">def</span> <span class="nf">calc_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.</span>
@@ -709,7 +699,11 @@
         <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">:</span>
             <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span> <span class="o">=</span> <span class="n">_item</span><span class="o">.</span><span class="n">calc_beta</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
             <span class="n">l_beta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_beta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_beta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomSiteAnisoL.apply_space_group_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.apply_space_group_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_space_group_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
+        <span class="n">l_flag</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_space_group_constraint</span><span class="p">(</span><span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">l_flag</span><span class="p">)</span>            </div></div>
 </pre></div>
 
           </div>
@@ -746,7 +740,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

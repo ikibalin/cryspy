@@ -95,7 +95,7 @@
 </div>
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.INTERNAL_CLASSES">
-<code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.corecif.cl_refine_ls.RefineLs'&gt;, &lt;class 'cryspy.corecif.cl_refln.ReflnL'&gt;, &lt;class 'cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -119,6 +119,16 @@
 <code class="sig-name descname">calc_iint_u_d_flip_ratio</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">l_crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_iint_u_d_flip_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate intensity for the given diffraction angle</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.calc_to_cif">
+<code class="sig-name descname">calc_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_to_cif" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.data_to_cif">
+<code class="sig-name descname">data_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.data_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.data_to_cif" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.diffrn_orient_matrix">
@@ -158,8 +168,28 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.params_to_cif">
+<code class="sig-name descname">params_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.params_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.params_to_cif" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.phase">
 <em class="property">property </em><code class="sig-name descname">phase</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.phase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.refine_ls">
+<em class="property">property </em><code class="sig-name descname">refine_ls</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.refine_ls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.refln">
+<em class="property">property </em><code class="sig-name descname">refln</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.refln" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.refln_susceptibility">
+<em class="property">property </em><code class="sig-name descname">refln_susceptibility</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.refln_susceptibility" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -226,7 +256,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

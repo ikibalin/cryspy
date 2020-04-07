@@ -58,7 +58,7 @@
 <em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_background.</code><code class="sig-name descname">PdBackground</code><span class="sig-paren">(</span><em class="sig-param">ttheta=None</em>, <em class="sig-param">intensity=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Description in cif file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_background_ttheta</span>       <span class="mf">4.5</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_background_2theta</span>       <span class="mf">4.5</span>
 <span class="n">_pd_background_intensity</span>  <span class="mf">256.0</span>
 </pre></div>
 </div>
@@ -80,6 +80,16 @@
 <dl class="attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_background'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('2theta', 'intensity')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -199,7 +209,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

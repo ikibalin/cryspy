@@ -71,10 +71,10 @@ and intensity will have been previously applied.</p>
 <span class="n">_pd_peak_index_k</span>            <span class="mi">2</span>
 <span class="n">_pd_peak_index_l</span>            <span class="mi">0</span>
 <span class="n">_pd_peak_index_mult</span>         <span class="mi">4</span>
-<span class="n">_pd_peak_ttheta</span>            <span class="mf">17.2</span>
+<span class="n">_pd_peak_2theta</span>            <span class="mf">17.2</span>
 <span class="n">_pd_peak_intensity_up</span>     <span class="mf">100.0</span>
 <span class="n">_pd_peak_intensity_down</span>    <span class="mf">90.0</span>
-<span class="n">_pd_peak_width_ttheta</span>       <span class="mf">2.3</span>
+<span class="n">_pd_peak_width_2theta</span>       <span class="mf">2.3</span>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html</a></p>
@@ -96,6 +96,16 @@ and intensity will have been previously applied.</p>
 <dl class="attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_peak'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', '2theta', 'intensity_up', 'intensity_down', 'width_2theta')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -237,7 +247,7 @@ and intensity will have been previously applied.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

@@ -80,7 +80,7 @@
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;occupancy&quot;</span><span class="p">,</span> <span class="s2">&quot;adp_type&quot;</span><span class="p">,</span> <span class="s2">&quot;wyckoff_symbol&quot;</span><span class="p">,</span> 
                           <span class="s2">&quot;u_iso_or_equiv&quot;</span><span class="p">,</span> <span class="s2">&quot;u_equiv_geom_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;b_iso_or_equiv&quot;</span><span class="p">,</span>
                           <span class="s2">&quot;cartn_x&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_y&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_z&quot;</span><span class="p">,</span> <span class="s2">&quot;multiplicity&quot;</span><span class="p">)</span>
-    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;scat_length_neutron&quot;</span><span class="p">,</span> <span class="s2">&quot;atom_type_scat&quot;</span><span class="p">,</span> <span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;scat_length_neutron&quot;</span><span class="p">,</span> <span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">,</span> <span class="s2">&quot;constr_number&quot;</span><span class="p">)</span>
     <span class="n">ACCESIBLE_ADP_TYPE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Uani&quot;</span><span class="p">,</span> <span class="s2">&quot;Uiso&quot;</span><span class="p">,</span> <span class="s2">&quot;Uovl&quot;</span><span class="p">,</span> <span class="s2">&quot;Umpe&quot;</span><span class="p">,</span> <span class="s2">&quot;Bani&quot;</span><span class="p">,</span> <span class="s2">&quot;Biso&quot;</span><span class="p">,</span> <span class="s2">&quot;Bovl&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;atom_site&quot;</span>
 
@@ -124,7 +124,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">)</span>
     <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -144,7 +144,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__type_symbol&quot;</span><span class="p">)</span>
     <span class="nd">@type_symbol</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">type_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -162,7 +162,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fract_x&quot;</span><span class="p">)</span>
     <span class="nd">@fract_x</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">fract_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -183,7 +183,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fract_y&quot;</span><span class="p">)</span>
     <span class="nd">@fract_y</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">fract_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -204,7 +204,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__fract_z&quot;</span><span class="p">)</span>
     <span class="nd">@fract_z</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">fract_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -230,7 +230,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__adp_type&quot;</span><span class="p">)</span>
     <span class="nd">@adp_type</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">adp_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_ADP_TYPE</span><span class="p">):</span>
@@ -255,7 +255,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__occupancy&quot;</span><span class="p">)</span>
     <span class="nd">@occupancy</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">occupancy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -273,7 +273,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wyckoff_symbol&quot;</span><span class="p">)</span>
     <span class="nd">@wyckoff_symbol</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">wyckoff_symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span> 
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -284,7 +284,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__multiplicity&quot;</span><span class="p">)</span>
     <span class="nd">@multiplicity</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span> 
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -311,7 +311,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_iso_or_equiv&quot;</span><span class="p">)</span>
     <span class="nd">@u_iso_or_equiv</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_iso_or_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -337,7 +337,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_equiv_geom_mean&quot;</span><span class="p">)</span>
     <span class="nd">@u_equiv_geom_mean</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">u_equiv_geom_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -376,7 +376,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_iso_or_equiv&quot;</span><span class="p">)</span>
     <span class="nd">@b_iso_or_equiv</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">b_iso_or_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -395,7 +395,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_x&quot;</span><span class="p">)</span>
     <span class="nd">@cartn_x</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">cartn_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -414,7 +414,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_y&quot;</span><span class="p">)</span>
     <span class="nd">@cartn_y</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">cartn_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -433,7 +433,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cartn_z&quot;</span><span class="p">)</span>
     <span class="nd">@cartn_z</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">cartn_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -446,9 +446,13 @@
     <span class="k">def</span> <span class="nf">scat_length_neutron</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__scat_length_neutron&quot;</span><span class="p">)</span>
 
-
-    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">space_group_wyckoff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">constr_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__constr_number&quot;</span><span class="p">)</span>
 
 
     <span class="nd">@property</span>
@@ -481,10 +485,31 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">form_object</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">):</span>
-            <span class="n">_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="s2">&quot;__multiplicity&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_symbol</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="s2">&quot;__letter&quot;</span><span class="p">)</span>
+            <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">space_group_wyckoff</span><span class="p">,</span> <span class="s2">&quot;__multiplicity&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wyckoff_symbol</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">space_group_wyckoff</span><span class="p">,</span> <span class="s2">&quot;__letter&quot;</span><span class="p">)</span>
 
+            <span class="n">fract_x</span><span class="p">,</span> <span class="n">fract_y</span><span class="p">,</span> <span class="n">fract_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fract_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fract_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fract_z</span>
+            <span class="n">fract_x</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">fract_y</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">fract_z</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">fract_x</span><span class="p">,</span> <span class="n">fract_y</span><span class="p">,</span> <span class="n">fract_z</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+            <span class="n">r</span> <span class="o">=</span> <span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">r</span>
+            <span class="n">b_float</span> <span class="o">=</span> <span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">r_float</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">fract_x</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">fract_x</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">fract_y</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">fract_y</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">fract_z</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">fract_z</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="n">xyz_new</span> <span class="o">=</span> <span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">give_default_xyz</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+            <span class="n">fract_x</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xyz_new</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+            <span class="n">fract_y</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xyz_new</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> 
+            <span class="n">fract_z</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xyz_new</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">type_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_symbol</span>
@@ -494,10 +519,20 @@
             <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">flag</span>
 
-<div class="viewcode-block" id="AtomSite.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
-        <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_z</span><span class="p">)</span>
+<div class="viewcode-block" id="AtomSite.define_space_group_wyckoff"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.define_space_group_wyckoff">[docs]</a>    <span class="k">def</span> <span class="nf">define_space_group_wyckoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">fract_x</span><span class="p">,</span> <span class="n">fract_y</span><span class="p">,</span> <span class="n">fract_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fract_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fract_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fract_z</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fract_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">fract_y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">fract_z</span><span class="p">)</span>
         <span class="n">_id</span> <span class="o">=</span> <span class="n">space_group_wyckoff_l</span><span class="o">.</span><span class="n">get_id_for_fract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">[</span><span class="n">_id</span><span class="p">])</span>
+        <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="n">space_group_wyckoff_l</span><span class="p">[</span><span class="n">_id</span><span class="p">]</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">,</span> <span class="n">space_group_wyckoff</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+<div class="viewcode-block" id="AtomSite.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSite.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span>
+        <span class="k">if</span> <span class="n">space_group_wyckoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">define_space_group_wyckoff</span><span class="p">(</span><span class="n">space_group_wyckoff_l</span><span class="p">)</span>
+            <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
             <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
@@ -515,86 +550,77 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l_numb</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">):</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">_1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">_2</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">_3</span><span class="p">)</span>
-            <span class="n">o_11</span><span class="p">,</span> <span class="n">o_12</span><span class="p">,</span> <span class="n">o_13</span><span class="p">,</span> <span class="n">o_21</span><span class="p">,</span> <span class="n">o_22</span><span class="p">,</span> <span class="n">o_23</span><span class="p">,</span> <span class="n">o_31</span><span class="p">,</span> <span class="n">o_32</span><span class="p">,</span> <span class="n">o_33</span><span class="p">,</span> <span class="n">o_3</span><span class="p">,</span> <span class="n">o_2</span><span class="p">,</span> <span class="n">o_3</span> <span class="o">=</span> <span class="n">space_group</span><span class="o">.</span><span class="n">calc_el_symm_for_xyz</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
-
-            <span class="n">b_11</span><span class="p">,</span> <span class="n">b_22</span><span class="p">,</span> <span class="n">b_33</span><span class="p">,</span> <span class="n">b_12</span><span class="p">,</span> <span class="n">b_13</span><span class="p">,</span> <span class="n">b_23</span> <span class="o">=</span> <span class="mi">107</span><span class="p">,</span> <span class="mi">181</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">1</span>
-
-            <span class="n">i_11</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_11</span><span class="o">*</span><span class="n">o_11</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_12</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_13</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
-                    <span class="n">o_11</span><span class="o">*</span><span class="n">o_12</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_11</span><span class="o">*</span><span class="n">o_13</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_13</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
-                    <span class="n">o_12</span><span class="o">*</span><span class="n">o_11</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_11</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_12</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span>
-
-            <span class="n">i_22</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_21</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
-                    <span class="n">o_21</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_21</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
-                    <span class="n">o_22</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span>
-
-            <span class="n">i_33</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_31</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_32</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_33</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
-                    <span class="n">o_31</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_31</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_32</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
-                    <span class="n">o_32</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_33</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_33</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span> 
-
-            <span class="n">i_12</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_11</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
-                    <span class="n">o_11</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_11</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
-                    <span class="n">o_12</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span> 
-
-            <span class="n">i_13</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_11</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
-                    <span class="n">o_11</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_11</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
-                    <span class="n">o_12</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span>
-
-            <span class="n">i_23</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_21</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
-                    <span class="n">o_21</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_21</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
-                    <span class="n">o_22</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span> 
-
-            <span class="n">r_11</span><span class="p">,</span> <span class="n">r_22</span><span class="p">,</span> <span class="n">r_33</span><span class="p">,</span> <span class="n">r_12</span><span class="p">,</span> <span class="n">r_13</span><span class="p">,</span> <span class="n">r_23</span> <span class="o">=</span> <span class="n">i_11</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_22</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_33</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_12</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_13</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_23</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">r_13</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">r_23</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">r_12</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">r_11</span> <span class="o">==</span> <span class="n">r_22</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
-                                <span class="n">numb</span> <span class="o">=</span> <span class="mi">17</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="n">numb</span> <span class="o">=</span> <span class="mi">8</span>
-                        <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
-                            <span class="n">numb</span> <span class="o">=</span> <span class="mi">12</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constr_number</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constr_number</span> 
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fract_z</span><span class="p">)</span>
+        <span class="n">o_11</span><span class="p">,</span> <span class="n">o_12</span><span class="p">,</span> <span class="n">o_13</span><span class="p">,</span> <span class="n">o_21</span><span class="p">,</span> <span class="n">o_22</span><span class="p">,</span> <span class="n">o_23</span><span class="p">,</span> <span class="n">o_31</span><span class="p">,</span> <span class="n">o_32</span><span class="p">,</span> <span class="n">o_33</span><span class="p">,</span> <span class="n">o_3</span><span class="p">,</span> <span class="n">o_2</span><span class="p">,</span> <span class="n">o_3</span> <span class="o">=</span> <span class="n">space_group</span><span class="o">.</span><span class="n">calc_el_symm_for_xyz</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">b_11</span><span class="p">,</span> <span class="n">b_22</span><span class="p">,</span> <span class="n">b_33</span><span class="p">,</span> <span class="n">b_12</span><span class="p">,</span> <span class="n">b_13</span><span class="p">,</span> <span class="n">b_23</span> <span class="o">=</span> <span class="mi">107</span><span class="p">,</span> <span class="mi">181</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="n">i_11</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_11</span><span class="o">*</span><span class="n">o_11</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_12</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_13</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
+                <span class="n">o_11</span><span class="o">*</span><span class="n">o_12</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_11</span><span class="o">*</span><span class="n">o_13</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_13</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
+                <span class="n">o_12</span><span class="o">*</span><span class="n">o_11</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_11</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_12</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span>
+        <span class="n">i_22</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_21</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
+                <span class="n">o_21</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_21</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
+                <span class="n">o_22</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span>
+        <span class="n">i_33</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_31</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_32</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_33</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
+                <span class="n">o_31</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_31</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_32</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
+                <span class="n">o_32</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_33</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_33</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span> 
+        <span class="n">i_12</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_11</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
+                <span class="n">o_11</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_11</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_23</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
+                <span class="n">o_12</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_21</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_22</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span> 
+        <span class="n">i_13</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_11</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
+                <span class="n">o_11</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_11</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_12</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
+                <span class="n">o_12</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_13</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span>
+        <span class="n">i_23</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_21</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_11</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_22</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_33</span> <span class="o">+</span> 
+                <span class="n">o_21</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_21</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_22</span><span class="o">*</span><span class="n">o_33</span><span class="o">*</span><span class="n">b_23</span> <span class="o">+</span> 
+                <span class="n">o_22</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_12</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_31</span><span class="o">*</span><span class="n">b_13</span> <span class="o">+</span> <span class="n">o_23</span><span class="o">*</span><span class="n">o_32</span><span class="o">*</span><span class="n">b_23</span><span class="p">)</span> 
+        <span class="n">r_11</span><span class="p">,</span> <span class="n">r_22</span><span class="p">,</span> <span class="n">r_33</span><span class="p">,</span> <span class="n">r_12</span><span class="p">,</span> <span class="n">r_13</span><span class="p">,</span> <span class="n">r_23</span> <span class="o">=</span> <span class="n">i_11</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_22</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_33</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_12</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_13</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">i_23</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">r_13</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r_23</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">r_12</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">r_11</span> <span class="o">==</span> <span class="n">r_22</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
+                            <span class="n">numb</span> <span class="o">=</span> <span class="mi">17</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">numb</span> <span class="o">=</span> <span class="mi">4</span>
-                    <span class="k">elif</span> <span class="n">r_11</span> <span class="o">==</span> <span class="n">r_22</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
-                            <span class="n">numb</span> <span class="o">=</span> <span class="mi">16</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">numb</span> <span class="o">=</span> <span class="mi">5</span>
-                    <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
-                        <span class="n">numb</span> <span class="o">=</span> <span class="mi">14</span>
+                            <span class="n">numb</span> <span class="o">=</span> <span class="mi">8</span>
+                    <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
+                        <span class="n">numb</span> <span class="o">=</span> <span class="mi">12</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">numb</span> <span class="o">=</span> <span class="mi">2</span>
-                <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
-                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">9</span>
+                        <span class="n">numb</span> <span class="o">=</span> <span class="mi">4</span>
+                <span class="k">elif</span> <span class="n">r_11</span> <span class="o">==</span> <span class="n">r_22</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
+                        <span class="n">numb</span> <span class="o">=</span> <span class="mi">16</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">numb</span> <span class="o">=</span> <span class="mi">5</span>
+                <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
+                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">14</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="k">elif</span> <span class="n">r_23</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
-                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">13</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">r_23</span> <span class="o">==</span> <span class="n">r_13</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
-                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">18</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">6</span>
-            <span class="k">elif</span> <span class="n">r_12</span> <span class="o">==</span> <span class="n">r_13</span><span class="p">:</span>
-                <span class="n">numb</span> <span class="o">=</span> <span class="mi">10</span>
-            <span class="k">elif</span> <span class="n">r_11</span> <span class="o">==</span> <span class="mi">22</span><span class="p">:</span>
-                <span class="n">numb</span> <span class="o">=</span> <span class="mi">7</span>
+                    <span class="n">numb</span> <span class="o">=</span> <span class="mi">2</span>
             <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
-                <span class="n">numb</span> <span class="o">=</span> <span class="mi">11</span>
-            <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
-                <span class="n">numb</span> <span class="o">=</span> <span class="mi">15</span>
+                <span class="n">numb</span> <span class="o">=</span> <span class="mi">9</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">numb</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#no constraint</span>
-            <span class="n">l_numb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numb</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">l_numb</span></div></div>
+                <span class="n">numb</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">elif</span> <span class="n">r_23</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
+                <span class="n">numb</span> <span class="o">=</span> <span class="mi">13</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">numb</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">r_23</span> <span class="o">==</span> <span class="n">r_13</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
+                <span class="n">numb</span> <span class="o">=</span> <span class="mi">18</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">numb</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="k">elif</span> <span class="n">r_12</span> <span class="o">==</span> <span class="n">r_13</span><span class="p">:</span>
+            <span class="n">numb</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">elif</span> <span class="n">r_11</span> <span class="o">==</span> <span class="mi">22</span><span class="p">:</span>
+            <span class="n">numb</span> <span class="o">=</span> <span class="mi">7</span>
+        <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="n">r_33</span><span class="p">:</span>
+            <span class="n">numb</span> <span class="o">=</span> <span class="mi">11</span>
+        <span class="k">elif</span> <span class="n">r_22</span> <span class="o">==</span> <span class="mi">2</span><span class="o">*</span><span class="n">r_12</span><span class="p">:</span>
+            <span class="n">numb</span> <span class="o">=</span> <span class="mi">15</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">numb</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#no constraint</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__constr_number&quot;</span><span class="p">,</span> <span class="n">numb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">numb</span></div></div>
 
 
 
@@ -635,7 +661,11 @@
 
 <div class="viewcode-block" id="AtomSiteL.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSiteL.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_constraint</span><span class="p">(</span><span class="n">space_group_wyckoff_l</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">flag</span></div></div>
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+<div class="viewcode-block" id="AtomSiteL.calc_constr_number"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSiteL.calc_constr_number">[docs]</a>    <span class="k">def</span> <span class="nf">calc_constr_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
+        <span class="n">l_numb</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">calc_constr_number</span><span class="p">(</span><span class="n">space_group</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l_numb</span></div></div>
 </pre></div>
 
           </div>
@@ -672,7 +702,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

@@ -61,7 +61,7 @@
 <p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_setup_wavelength</span>   <span class="mf">0.84</span>
 <span class="n">_setup_field</span>        <span class="mf">1.00</span>
-<span class="n">_setup_offset_ttheta</span> <span class="o">-</span><span class="mf">0.385</span>
+<span class="n">_setup_offset_2theta</span> <span class="o">-</span><span class="mf">0.385</span>
 <span class="n">_setup_offset_phi</span> <span class="o">-</span><span class="mf">0.385</span>
 </pre></div>
 </div>
@@ -72,17 +72,27 @@
 
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_setup.Setup.MANDATORY_ATTRIBUTE">
-<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('wavelength', 'field')</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('wavelength',)</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_setup.Setup.OPTIONAL_ATTRIBUTE">
-<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('offset_ttheta', 'offset_phi')</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('field', 'offset_ttheta', 'offset_phi')</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_setup.Setup.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'setup'</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_setup.Setup.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('wavelength',)</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_setup.Setup.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('field', 'offset_2theta', 'offset_phi')</em><a class="headerlink" href="#cryspy.cif_like.cl_setup.Setup.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -181,7 +191,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

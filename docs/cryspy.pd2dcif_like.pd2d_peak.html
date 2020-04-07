@@ -64,12 +64,12 @@ measured or, if present, the processed diffractogram.</p>
 <span class="n">_pd2d_peak_index_k</span>           <span class="mi">2</span>
 <span class="n">_pd2d_peak_index_l</span>           <span class="mi">0</span>
 <span class="n">_pd2d_peak_index_mult</span>        <span class="mi">4</span>
-<span class="n">_pd2d_peak_ttheta</span>           <span class="mf">17.2</span>
+<span class="n">_pd2d_peak_2theta</span>           <span class="mf">17.2</span>
 <span class="n">_pd2d_peak_f_nucl_sq</span>       <span class="mf">100.0</span>
 <span class="n">_pd2d_peak_f_m_p_sin_sq</span>    <span class="mf">101.2</span>
 <span class="n">_pd2d_peak_f_m_p_cos_sq</span>     <span class="mf">90.0</span>
 <span class="n">_pd2d_peak_cross_sin</span>        <span class="mf">87.4</span>
-<span class="n">_pd2d_peak_width_ttheta</span>      <span class="mf">2.3</span>
+<span class="n">_pd2d_peak_width_2theta</span>      <span class="mf">2.3</span>
 </pre></div>
 </div>
 <dl class="attribute">
@@ -90,6 +90,16 @@ measured or, if present, the processed diffractogram.</p>
 <dl class="attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd2d_peak'</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', '2theta', 'f_nucl_sq', 'f_m_p_sin_sq', 'f_m_p_cos_sq', 'cross_sin', 'width_2theta')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -243,7 +253,7 @@ and intensity will have been previously applied.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

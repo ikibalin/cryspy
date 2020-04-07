@@ -134,7 +134,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">)</span>
     <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -154,7 +154,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_type&quot;</span><span class="p">)</span>
     <span class="nd">@chi_type</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -173,7 +173,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_11&quot;</span><span class="p">)</span>
     <span class="nd">@chi_11</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -193,7 +193,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_22&quot;</span><span class="p">)</span>
     <span class="nd">@chi_22</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_22</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -212,7 +212,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_33&quot;</span><span class="p">)</span>
     <span class="nd">@chi_33</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_33</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -232,7 +232,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_12&quot;</span><span class="p">)</span>
     <span class="nd">@chi_12</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_12</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -251,7 +251,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_13&quot;</span><span class="p">)</span>
     <span class="nd">@chi_13</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -270,7 +270,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__chi_23&quot;</span><span class="p">)</span>
     <span class="nd">@chi_23</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">chi_23</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -295,7 +295,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_type&quot;</span><span class="p">)</span>
     <span class="nd">@moment_type</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -314,7 +314,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_11&quot;</span><span class="p">)</span>
     <span class="nd">@moment_11</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -334,7 +334,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_22&quot;</span><span class="p">)</span>
     <span class="nd">@moment_22</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_22</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -353,7 +353,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_33&quot;</span><span class="p">)</span>
     <span class="nd">@moment_33</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_33</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -373,7 +373,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_12&quot;</span><span class="p">)</span>
     <span class="nd">@moment_12</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_12</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -392,7 +392,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_13&quot;</span><span class="p">)</span>
     <span class="nd">@moment_13</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -411,7 +411,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_23&quot;</span><span class="p">)</span>
     <span class="nd">@moment_23</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">moment_23</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
@@ -549,59 +549,73 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        according to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">l_numb</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">calc_constr_number</span><span class="p">(</span><span class="n">space_group</span><span class="p">)</span>
         <span class="n">label_aniso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
         <span class="n">label</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">label</span>
-        <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">_1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_1</span> <span class="ow">in</span> <span class="n">label_aniso</span><span class="p">]</span>
-        
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">chi_11</span><span class="p">,</span> <span class="n">chi_22</span><span class="p">,</span> <span class="n">chi_33</span><span class="p">,</span> <span class="n">chi_12</span><span class="p">,</span> <span class="n">chi_13</span><span class="p">,</span> <span class="n">chi_23</span><span class="p">,</span> <span class="n">moment_11</span><span class="p">,</span> <span class="n">moment_22</span><span class="p">,</span> <span class="n">moment_33</span><span class="p">,</span> <span class="n">moment_12</span><span class="p">,</span> <span class="n">moment_13</span><span class="p">,</span> <span class="n">moment_23</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_ind</span><span class="p">,</span> 
-           <span class="bp">self</span><span class="o">.</span><span class="n">chi_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_23</span><span class="p">,</span>
-           <span class="bp">self</span><span class="o">.</span><span class="n">moment_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_23</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label_aniso</span><span class="p">)</span>
+        <span class="n">chi_11</span><span class="p">,</span> <span class="n">chi_22</span><span class="p">,</span> <span class="n">chi_33</span><span class="p">,</span> <span class="n">chi_12</span><span class="p">,</span> <span class="n">chi_13</span><span class="p">,</span> <span class="n">chi_23</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_23</span>
+        <span class="n">moment_11</span><span class="p">,</span> <span class="n">moment_22</span><span class="p">,</span> <span class="n">moment_33</span><span class="p">,</span> <span class="n">moment_12</span><span class="p">,</span> <span class="n">moment_13</span><span class="p">,</span> <span class="n">moment_23</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_23</span>
+        <span class="n">flag_chi</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
+            <span class="n">flag_chi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;cani&quot;</span><span class="p">)</span>
+        <span class="n">flag_moment</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
+            <span class="n">flag_moment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mani&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
             <span class="n">chi_11</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">chi_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
             <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">chi_13</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
             <span class="n">moment_11</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">moment_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
             <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-            <span class="n">numb</span> <span class="o">=</span> <span class="n">l_numb</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">numb</span> <span class="o">=</span> <span class="n">l_numb</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -611,6 +625,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -620,7 +635,8 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -630,6 +646,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -639,33 +656,38 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -678,6 +700,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -690,7 +713,8 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -700,6 +724,7 @@
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -709,33 +734,38 @@
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> 
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -748,6 +778,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -760,20 +791,23 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">14</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">14</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -783,6 +817,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -792,20 +827,23 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">15</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">15</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">chi_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">chi_13</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">moment_22</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">moment_13</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -818,6 +856,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -830,7 +869,8 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">17</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">17</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -846,6 +886,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -861,7 +902,8 @@
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">18</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">18</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag_chi</span><span class="p">:</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -874,6 +916,7 @@
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">chi_12</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">chi_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">flag_moment</span><span class="p">:</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">moment_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -885,47 +928,53 @@
                 <span class="n">moment_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">moment_12</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+                <span class="n">moment_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">flag</span></div>
 
 
 <div class="viewcode-block" id="AtomSiteSusceptibility.apply_chi_iso_constraint"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.apply_chi_iso_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_chi_iso_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">c_a</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">cos_a</span>
         <span class="n">s_ib</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">sin_ib</span>
         <span class="n">s_ig</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">sin_ig</span>
         <span class="n">c_ib</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">cos_ib</span>
         <span class="n">c_ig</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">cos_ig</span>
         <span class="c1">#not sure, it is better to check</span>
-
-        <span class="k">for</span> <span class="n">chi_type</span><span class="p">,</span> <span class="n">chi_11</span><span class="p">,</span> <span class="n">chi_22</span><span class="p">,</span> <span class="n">chi_33</span><span class="p">,</span> <span class="n">chi_12</span><span class="p">,</span> <span class="n">chi_13</span><span class="p">,</span> <span class="n">chi_23</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">chi_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_23</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">chi_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ciso&quot;</span><span class="p">):</span>
-                <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">chi_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ig</span>
-                <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ib</span>
-                <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="n">c_ib</span><span class="o">*</span><span class="n">c_ig</span><span class="o">-</span><span class="n">s_ib</span><span class="o">*</span><span class="n">s_ig</span><span class="o">*</span><span class="n">c_a</span><span class="p">)</span>
-                <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_33</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-        <span class="k">return</span>  </div>
+        <span class="n">chi_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_type</span>
+        <span class="n">chi_11</span><span class="p">,</span> <span class="n">chi_22</span><span class="p">,</span> <span class="n">chi_33</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_33</span>
+        <span class="n">chi_12</span><span class="p">,</span> <span class="n">chi_13</span><span class="p">,</span> <span class="n">chi_23</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi_23</span>
+        <span class="k">if</span> <span class="n">chi_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flag</span>
+        <span class="k">if</span> <span class="n">chi_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ciso&quot;</span><span class="p">):</span>
+            <span class="n">chi_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">chi_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">chi_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ig</span>
+            <span class="n">chi_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ib</span>
+            <span class="n">chi_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">chi_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="n">c_ib</span><span class="o">*</span><span class="n">c_ig</span><span class="o">-</span><span class="n">s_ib</span><span class="o">*</span><span class="n">s_ig</span><span class="o">*</span><span class="n">c_a</span><span class="p">)</span>
+            <span class="n">chi_22</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_33</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_12</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_13</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">chi_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="k">return</span>  <span class="n">flag</span></div>
 
 <div class="viewcode-block" id="AtomSiteSusceptibility.apply_moment_iso_constraint"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibility.apply_moment_iso_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_moment_iso_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">c_a</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">cos_a</span>
         <span class="n">s_ib</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">sin_ib</span>
         <span class="n">s_ig</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">sin_ig</span>
         <span class="n">c_ib</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">cos_ib</span>
         <span class="n">c_ig</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">cos_ig</span>
         <span class="c1">#not sure, it is better to check</span>
-
-        <span class="k">for</span> <span class="n">moment_type</span><span class="p">,</span> <span class="n">moment_11</span><span class="p">,</span> <span class="n">moment_22</span><span class="p">,</span> <span class="n">moment_33</span><span class="p">,</span> <span class="n">moment_12</span><span class="p">,</span> <span class="n">moment_13</span><span class="p">,</span> <span class="n">moment_23</span><span class="p">,</span> <span class="n">moment_type</span><span class="p">,</span> <span class="n">moment_11</span><span class="p">,</span> <span class="n">moment_22</span><span class="p">,</span> <span class="n">moment_33</span><span class="p">,</span> <span class="n">moment_12</span><span class="p">,</span> <span class="n">moment_13</span><span class="p">,</span> <span class="n">moment_23</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">moment_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_23</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">moment_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_33</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_23</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">moment_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;miso&quot;</span><span class="p">):</span>
-                <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">moment_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ig</span>
-                <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ib</span>
-                <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="n">c_ib</span><span class="o">*</span><span class="n">c_ig</span><span class="o">-</span><span class="n">s_ib</span><span class="o">*</span><span class="n">s_ig</span><span class="o">*</span><span class="n">c_a</span><span class="p">)</span>
-                <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_33</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-        <span class="k">return</span>  </div></div>
+        <span class="n">moment_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_type</span>
+        <span class="n">moment_11</span><span class="p">,</span> <span class="n">moment_22</span><span class="p">,</span> <span class="n">moment_33</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">moment_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_33</span> 
+        <span class="n">moment_12</span><span class="p">,</span> <span class="n">moment_13</span><span class="p">,</span> <span class="n">moment_23</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">moment_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">moment_23</span>
+        <span class="k">if</span> <span class="n">moment_type</span> <span class="ow">is</span>  <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flag</span>
+        <span class="k">if</span> <span class="n">moment_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;miso&quot;</span><span class="p">):</span>
+            <span class="n">moment_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">moment_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">moment_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ig</span>
+            <span class="n">moment_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">c_ib</span>
+            <span class="n">moment_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">moment_11</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="n">c_ib</span><span class="o">*</span><span class="n">c_ig</span><span class="o">-</span><span class="n">s_ib</span><span class="o">*</span><span class="n">s_ig</span><span class="o">*</span><span class="n">c_a</span><span class="p">)</span>
+            <span class="n">moment_22</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_33</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_12</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_13</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span> <span class="n">moment_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="k">return</span>  <span class="n">flag</span></div></div>
 
 
 
@@ -966,8 +1015,19 @@
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteSusceptibilityL: &quot;</span><span class="p">)</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
+
+<div class="viewcode-block" id="AtomSiteSusceptibilityL.apply_space_group_constraint"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL.apply_space_group_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_space_group_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
+        <span class="n">l_flag</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_space_group_constraint</span><span class="p">(</span><span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">l_flag</span><span class="p">)</span></div>
+<div class="viewcode-block" id="AtomSiteSusceptibilityL.apply_chi_iso_constraint"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL.apply_chi_iso_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_chi_iso_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="n">l_flag</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_chi_iso_constraint</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">l_flag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomSiteSusceptibilityL.apply_moment_iso_constraint"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_site_susceptibility.html#cryspy.magneticcif.cl_atom_site_susceptibility.AtomSiteSusceptibilityL.apply_moment_iso_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_moment_iso_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="n">l_flag</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_moment_iso_constraint</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">l_flag</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -1004,7 +1064,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

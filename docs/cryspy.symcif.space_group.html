@@ -92,17 +92,12 @@ Dordrecht: Kluwer Academic Publishers.</p>
 <span class="n">_space_group</span><span class="o">.</span><span class="n">Patterson_name_H</span><span class="o">-</span><span class="n">M</span>  <span class="s1">&#39;C 2/m&#39;</span>
 </pre></div>
 </div>
-<dl class="field-list">
-<dt class="field-odd">FIXME</dt>
-<dd class="field-odd"><p>all labels with sign ‘-‘ does not read now.
-The sign ‘-‘ has to be suppressed.</p>
-<p>‘_space_group.name_H-M_ref’ -&gt; ‘_space_group.name_HM_ref’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Mandatory attribute</dt>
+<dd class="field-odd"><p>no</p>
 </dd>
-<dt class="field-even">Mandatory attribute</dt>
-<dd class="field-even"><p>no</p>
-</dd>
-<dt class="field-odd">Optional attribute</dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Optional attribute</dt>
+<dd class="field-even"><ul class="simple">
 <li><p>name_hm_alt</p></li>
 <li><p>it_number</p></li>
 <li><p>it_coordinate_system_code</p></li>
@@ -123,11 +118,11 @@ The sign ‘-‘ has to be suppressed.</p>
 <li><p>transform_qq_xyz</p></li>
 </ul>
 </dd>
-<dt class="field-even">Methods</dt>
-<dd class="field-even"><p>get_symop</p>
+<dt class="field-odd">Methods</dt>
+<dd class="field-odd"><p>get_symop</p>
 </dd>
 </dl>
-<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html">Reference</a></p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html</a></p>
 <dl class="attribute">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_BRAVAIS_TYPE">
 <code class="sig-name descname">ACCESIBLE_BRAVAIS_TYPE</code><em class="property"> = frozenset({'aP', 'cF', 'cI', 'cP', 'hP', 'hR', 'mP', 'mS', 'oF', 'oI', 'oP', 'oS', 'tI', 'tP'})</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_BRAVAIS_TYPE" title="Permalink to this definition">¶</a></dt>
@@ -185,7 +180,7 @@ The sign ‘-‘ has to be suppressed.</p>
 
 <dl class="attribute">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.INTERNAL_ATTRIBUTE">
-<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('centrosymmetry', 'pcentr', 'reduced_space_group_symop', 'full_space_group_symop', 'space_group_wyckoff')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('centrosymmetry', 'pcentr', 'reduced_space_group_symop', 'full_space_group_symop', 'space_group_wyckoff', 'shift')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -195,12 +190,22 @@ The sign ‘-‘ has to be suppressed.</p>
 
 <dl class="attribute">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.OPTIONAL_ATTRIBUTE">
-<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'name_hm_alt', 'name_hm_alt_description', 'name_hm_full', 'name_hm_ref', 'name_hall', 'name_schoenflies', 'it_number', 'it_coordinate_system_code', 'point_group_hm', 'laue_class', 'patterson_name_hm', 'centring_type', 'bravais_type', 'crystal_system', 'reference_setting', 'transform_pp_abc', 'transform_qq_xyz')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'name_hm_alt', 'name_hm_alt_description', 'it_number', 'name_hm_ref', 'it_coordinate_system_code', 'name_hm_full', 'name_hall', 'name_schoenflies', 'point_group_hm', 'laue_class', 'patterson_name_hm', 'centring_type', 'bravais_type', 'crystal_system', 'reference_setting', 'transform_pp_abc', 'transform_qq_xyz')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'space_group'</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'name_H-M_alt', 'name_H-M_alt_description', 'IT_number', 'name_H-M_ref', 'IT_coordinate_system_code', 'name_H-M_full', 'name_Hall', 'name_Schoenflies', 'point_group_H-M', 'Laue_class', 'Patterson_name_H-M', 'centring_type', 'Bravais_type', 'crystal_system', 'reference_setting', 'transform_pp_abc', 'transform_qq_xyz')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -262,7 +267,8 @@ cP cI cF</p>
 <dl class="method">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_el_symm_for_xyz">
 <code class="sig-name descname">calc_el_symm_for_xyz</code><span class="sig-paren">(</span><em class="sig-param">x_in</em>, <em class="sig-param">y_in</em>, <em class="sig-param">z_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_el_symm_for_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_el_symm_for_xyz" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>FIXME: should be deleted</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_f_hkl_by_f_hkl_as">
@@ -280,6 +286,11 @@ in asymmetric unit cell.</p>
 <dl class="method">
 <dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_rotated_matrix_for_position">
 <code class="sig-name descname">calc_rotated_matrix_for_position</code><span class="sig-paren">(</span><em class="sig-param">m_chi</em>, <em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_rotated_matrix_for_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_rotated_matrix_for_position" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_symop_for_xyz">
+<code class="sig-name descname">calc_symop_for_xyz</code><span class="sig-paren">(</span><em class="sig-param">x_in</em>, <em class="sig-param">y_in</em>, <em class="sig-param">z_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_symop_for_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_symop_for_xyz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -865,7 +876,7 @@ be explicit. White space within the string is optional.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

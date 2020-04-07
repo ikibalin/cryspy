@@ -55,6 +55,8 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
 
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.FUNCTIONS</span> <span class="k">import</span> <span class="n">recal_int_to_gammanu_grid</span><span class="p">,</span> <span class="n">tthphi_to_gammanu</span>
+
 <div class="viewcode-block" id="Pd2dMeas"><a class="viewcode-back" href="../../../cryspy.pd2dcif_like.pd2d_meas.html#cryspy.pd2dcif_like.cl_pd2d_meas.Pd2dMeas">[docs]</a><span class="k">class</span> <span class="nc">Pd2dMeas</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This section contains the measured diffractogram and information</span>
@@ -64,28 +66,28 @@
 
 <span class="sd">Description in cif file::</span>
 
-<span class="sd"> _pd2d_meas_ttheta_phi_intensity_up</span>
+<span class="sd"> _pd2d_meas_2theta_phi_intensity_up</span>
 <span class="sd"> ;</span>
 <span class="sd">      2    4.5     40.0     80.0</span>
 <span class="sd"> -3.000 -350.0   -350.0   -400.0</span>
 <span class="sd"> 41.000 -351.0   -350.0   -400.0</span>
 <span class="sd"> ;</span>
 
-<span class="sd"> _pd2d_meas_ttheta_phi_intensity_up_sigma</span>
+<span class="sd"> _pd2d_meas_2theta_phi_intensity_up_sigma</span>
 <span class="sd"> ;</span>
 <span class="sd">      2    4.5     40.0     80.0</span>
 <span class="sd"> -3.000 -352.0   -350.0   -400.0</span>
 <span class="sd"> 41.000 -353.0   -350.0   -400.0</span>
 <span class="sd"> ;</span>
 
-<span class="sd"> _pd2d_meas_ttheta_phi_intensity_down</span>
+<span class="sd"> _pd2d_meas_2theta_phi_intensity_down</span>
 <span class="sd"> ;</span>
 <span class="sd">      2    4.5     40.0     80.0</span>
 <span class="sd"> -3.000 -354.0   -350.0   -400.0</span>
 <span class="sd"> 41.000 -355.0   -350.0   -400.0</span>
 <span class="sd"> ;</span>
 
-<span class="sd"> _pd2d_meas_ttheta_phi_intensity_down_sigma</span>
+<span class="sd"> _pd2d_meas_2theta_phi_intensity_down_sigma</span>
 <span class="sd"> ;</span>
 <span class="sd">      2    4.5     40.0     80.0</span>
 <span class="sd"> -3.000 -356.0   -350.0   -400.0</span>
@@ -95,6 +97,9 @@
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ttheta_phi_intensity_up&quot;</span><span class="p">,</span> <span class="s2">&quot;ttheta_phi_intensity_up_sigma&quot;</span><span class="p">,</span> 
                            <span class="s2">&quot;ttheta_phi_intensity_down&quot;</span><span class="p">,</span> <span class="s2">&quot;ttheta_phi_intensity_down_sigma&quot;</span><span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">RELATED_CIF_MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;2theta_phi_intensity_up&quot;</span><span class="p">,</span> <span class="s2">&quot;2theta_phi_intensity_up_sigma&quot;</span><span class="p">,</span> 
+                           <span class="s2">&quot;2theta_phi_intensity_down&quot;</span><span class="p">,</span> <span class="s2">&quot;2theta_phi_intensity_down_sigma&quot;</span><span class="p">)</span>
+    <span class="n">RELATED_CIF_OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ttheta&quot;</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_up&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_up_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_down&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_down_sigma&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;pd2d_meas&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_up</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_up_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
@@ -118,7 +123,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta_phi_intensity_up&quot;</span><span class="p">)</span>
     <span class="nd">@ttheta_phi_intensity_up</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">ttheta_phi_intensity_up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -132,7 +137,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta_phi_intensity_up_sigma&quot;</span><span class="p">)</span>
     <span class="nd">@ttheta_phi_intensity_up_sigma</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">ttheta_phi_intensity_up_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -146,7 +151,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta_phi_intensity_down&quot;</span><span class="p">)</span>
     <span class="nd">@ttheta_phi_intensity_down</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">ttheta_phi_intensity_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -160,7 +165,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta_phi_intensity_down_sigma&quot;</span><span class="p">)</span>
     <span class="nd">@ttheta_phi_intensity_down_sigma</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">ttheta_phi_intensity_down_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -276,7 +281,35 @@
             <span class="n">ll_intensity</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ll_intensity</span><span class="p">[</span><span class="n">_2</span><span class="p">][</span><span class="n">_1</span><span class="p">]</span> <span class="k">for</span> <span class="n">_2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ll_intensity</span><span class="p">))]</span> <span class="k">for</span> <span class="n">_1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ll_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
             <span class="k">for</span> <span class="n">phi</span><span class="p">,</span> <span class="n">l_intensity</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">,</span> <span class="n">ll_intensity</span><span class="p">):</span>
                 <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:12.2f}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{:12}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_intensity</span><span class="p">]))</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta_phi_intensity_down_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">))</span></div>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta_phi_intensity_down_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Pd2dMeas.recalc_to_gamma_nu_grid"><a class="viewcode-back" href="../../../cryspy.pd2dcif_like.pd2d_meas.html#cryspy.pd2dcif_like.cl_pd2d_meas.Pd2dMeas.recalc_to_gamma_nu_grid">[docs]</a>    <span class="k">def</span> <span class="nf">recalc_to_gamma_nu_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_tth_grid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ttheta</span><span class="p">)</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span>
+        <span class="n">l_phi_grid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span>
+        <span class="n">int_u</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intensity_up</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">int_d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intensity_down</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="n">int_sum</span> <span class="o">=</span> <span class="n">int_u</span> <span class="o">+</span> <span class="n">int_d</span>
+        <span class="n">int_diff</span> <span class="o">=</span> <span class="n">int_u</span> <span class="o">-</span> <span class="n">int_d</span>
+
+        <span class="n">min_tth</span><span class="p">,</span> <span class="n">max_tth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">)</span>
+        <span class="n">min_phi</span><span class="p">,</span> <span class="n">max_phi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">l_phi_grid</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">l_phi_grid</span><span class="p">)</span>
+        
+        <span class="n">min_gamma</span><span class="p">,</span> <span class="n">max_gamma</span> <span class="o">=</span> <span class="n">min_tth</span><span class="p">,</span> <span class="n">max_tth</span>
+        <span class="n">num_gamma</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">)</span>
+
+        <span class="n">min_nu</span><span class="p">,</span> <span class="n">max_nu</span> <span class="o">=</span> <span class="o">-</span><span class="mf">10.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span><span class="p">,</span> <span class="mf">15.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span>
+        <span class="n">num_nu</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_phi_grid</span><span class="p">)</span>
+
+        <span class="n">l_gamma_grid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_gamma</span><span class="p">,</span> <span class="n">max_gamma</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_gamma</span><span class="p">)</span>
+        <span class="n">l_nu_grid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_nu</span><span class="p">,</span> <span class="n">max_nu</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">num_nu</span><span class="p">)</span>
+
+        <span class="n">int_u_out</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recal_int_to_gammanu_grid</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">,</span> <span class="n">l_phi_grid</span><span class="p">,</span> <span class="n">int_u</span><span class="p">,</span> <span class="n">l_gamma_grid</span><span class="p">,</span> <span class="n">l_nu_grid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">int_d_out</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recal_int_to_gammanu_grid</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">,</span> <span class="n">l_phi_grid</span><span class="p">,</span> <span class="n">int_d</span><span class="p">,</span> <span class="n">l_gamma_grid</span><span class="p">,</span> <span class="n">l_nu_grid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">int_sum_out</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recal_int_to_gammanu_grid</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">,</span> <span class="n">l_phi_grid</span><span class="p">,</span> <span class="n">int_sum</span><span class="p">,</span> <span class="n">l_gamma_grid</span><span class="p">,</span> <span class="n">l_nu_grid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">int_diff_out</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recal_int_to_gammanu_grid</span><span class="p">(</span><span class="n">l_tth_grid</span><span class="p">,</span> <span class="n">l_phi_grid</span><span class="p">,</span> <span class="n">int_diff</span><span class="p">,</span> <span class="n">l_gamma_grid</span><span class="p">,</span> <span class="n">l_nu_grid</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">l_gamma_grid</span><span class="o">*</span><span class="mf">180.</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">l_nu_grid</span><span class="o">*</span><span class="mf">180.</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="p">[</span><span class="n">int_u_out</span><span class="p">,</span> <span class="n">int_d_out</span><span class="p">,</span> <span class="n">int_sum_out</span><span class="p">,</span> <span class="n">int_diff_out</span><span class="p">]</span></div></div>
+        
 </pre></div>
 
           </div>
@@ -313,7 +346,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

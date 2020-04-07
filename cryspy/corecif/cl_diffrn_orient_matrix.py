@@ -548,6 +548,14 @@ variable and cell parameters (a, b, c, alpha, beta, gamma)
     #    self.ub_ccsl = ub_ccsl
 
     def calc_angle(self, h, k, l, wavelength=1.4):
+        """
+Calculates scattering angles for given reflection hkl 
+
+Output:
+    gamma  is the azimuthal angle (degrees) 
+    nu is the elevation angle in the laboratory coordinate system (xyz), where x||k_i, z||H. (degrees) 
+    phi is ... (degrees)
+        """
         ub = self.ub
         q_ub = numpy.dot(ub, [h, k, l])
         q = numpy.linalg.norm(q_ub)

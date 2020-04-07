@@ -57,6 +57,10 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_data_constr</span> <span class="k">import</span> <span class="n">DataConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
 
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refln</span> <span class="k">import</span> <span class="n">Refln</span><span class="p">,</span> <span class="n">ReflnL</span>
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refine_ls</span> <span class="k">import</span> <span class="n">RefineLs</span>
+<span class="kn">from</span> <span class="nn">cryspy.magneticcif.cl_refln_susceptibility</span> <span class="k">import</span> <span class="n">ReflnSusceptibility</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span>
+
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_exclude</span> <span class="k">import</span> <span class="n">Exclude</span><span class="p">,</span> <span class="n">ExcludeL</span>
 <span class="kn">import</span> <span class="nn">cryspy.cif_like.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_phase</span> <span class="k">import</span> <span class="n">Phase</span><span class="p">,</span> <span class="n">PhaseL</span>
@@ -68,6 +72,7 @@
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_texture</span> <span class="k">import</span> <span class="n">Texture</span>
 
 
+
 <span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_background</span> <span class="k">import</span> <span class="n">Pd2dBackground</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_instr_reflex_asymmetry</span> <span class="k">import</span> <span class="n">Pd2dInstrReflexAsymmetry</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_instr_resolution</span> <span class="k">import</span> <span class="n">Pd2dInstrResolution</span>
@@ -75,6 +80,16 @@
 <span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_peak</span> <span class="k">import</span> <span class="n">Pd2dPeak</span><span class="p">,</span> <span class="n">Pd2dPeakL</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_proc</span> <span class="k">import</span> <span class="n">Pd2dProc</span>
 
+
+<div class="viewcode-block" id="calc_cos_ang"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.calc_cos_ang">[docs]</a><span class="k">def</span> <span class="nf">calc_cos_ang</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h_1</span><span class="p">,</span> <span class="n">k_1</span><span class="p">,</span> <span class="n">l_1</span><span class="p">,</span> <span class="n">h_2</span><span class="p">,</span> <span class="n">k_2</span><span class="p">,</span> <span class="n">l_2</span><span class="p">):</span>
+    <span class="n">q_1_x</span><span class="p">,</span> <span class="n">q_1_y</span><span class="p">,</span> <span class="n">q_1_z</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_k_loc</span><span class="p">(</span><span class="n">h_1</span><span class="p">,</span><span class="n">k_1</span><span class="p">,</span><span class="n">l_1</span><span class="p">)</span>
+    <span class="n">q_2_x</span><span class="p">,</span> <span class="n">q_2_y</span><span class="p">,</span> <span class="n">q_2_z</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_k_loc</span><span class="p">(</span><span class="n">h_2</span><span class="p">,</span><span class="n">k_2</span><span class="p">,</span><span class="n">l_2</span><span class="p">)</span>
+    <span class="n">q_1_sq</span> <span class="o">=</span> <span class="n">q_1_x</span><span class="o">*</span><span class="n">q_1_x</span> <span class="o">+</span> <span class="n">q_1_y</span><span class="o">*</span><span class="n">q_1_y</span> <span class="o">+</span> <span class="n">q_1_z</span><span class="o">*</span><span class="n">q_1_z</span>
+    <span class="n">q_2_sq</span> <span class="o">=</span> <span class="n">q_2_x</span><span class="o">*</span><span class="n">q_2_x</span> <span class="o">+</span> <span class="n">q_2_y</span><span class="o">*</span><span class="n">q_2_y</span> <span class="o">+</span> <span class="n">q_2_z</span><span class="o">*</span><span class="n">q_2_z</span>
+    <span class="n">q_12</span> <span class="o">=</span> <span class="n">q_1_x</span><span class="o">*</span><span class="n">q_2_x</span> <span class="o">+</span> <span class="n">q_1_y</span><span class="o">*</span><span class="n">q_2_y</span> <span class="o">+</span> <span class="n">q_1_z</span><span class="o">*</span><span class="n">q_2_z</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">q_12</span><span class="o">/</span><span class="p">(</span><span class="n">q_1_sq</span><span class="o">*</span><span class="n">q_2_sq</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+    <span class="n">res</span><span class="p">[</span><span class="n">res</span><span class="o">&gt;</span><span class="mf">1.</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="k">return</span> <span class="n">res</span></div>
 
 
 <div class="viewcode-block" id="Pd2d"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d">[docs]</a><span class="k">class</span> <span class="nc">Pd2d</span><span class="p">(</span><span class="n">DataConstr</span><span class="p">):</span>
@@ -86,15 +101,15 @@
 <span class="sd"> data_powder2d</span>
 <span class="sd"> _setup_wavelength     0.840</span>
 <span class="sd"> _setup_field          1.000</span>
-<span class="sd"> _setup_offset_ttheta -0.385</span>
+<span class="sd"> _setup_offset_2theta -0.385</span>
 <span class="sd"> </span>
 <span class="sd"> _chi2_sum  True</span>
 <span class="sd"> _chi2_diff False</span>
 <span class="sd"> _chi2_up   False</span>
 <span class="sd"> _chi2_down False</span>
 <span class="sd"> </span>
-<span class="sd"> _range_ttheta_min     4.000</span>
-<span class="sd"> _range_ttheta_max    80.000</span>
+<span class="sd"> _range_2theta_min     4.000</span>
+<span class="sd"> _range_2theta_max    80.000</span>
 <span class="sd"> _range_phi_min       -2.000</span>
 <span class="sd"> _range_phi_max       40.000</span>
 <span class="sd"> </span>
@@ -103,8 +118,8 @@
 <span class="sd"> ;</span>
 <span class="sd"> </span>
 <span class="sd"> loop_</span>
-<span class="sd"> _exclude_ttheta_min</span>
-<span class="sd"> _exclude_ttheta_max</span>
+<span class="sd"> _exclude_2theta_min</span>
+<span class="sd"> _exclude_2theta_max</span>
 <span class="sd"> _exclude_phi_min</span>
 <span class="sd"> _exclude_phi_max</span>
 <span class="sd"> 0.0 1.0 0. 1.0</span>
@@ -147,13 +162,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pd2dBackground</span><span class="p">,</span> <span class="n">Pd2dInstrResolution</span><span class="p">,</span> <span class="n">Pd2dMeas</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span>
                          <span class="n">Setup</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span> <span class="n">Chi2</span><span class="p">)</span>
-    <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Extinction</span><span class="p">,</span> <span class="n">ExcludeL</span><span class="p">,</span> <span class="n">Pd2dInstrReflexAsymmetry</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">,</span> <span class="n">Pd2dProc</span><span class="p">,</span> <span class="n">Texture</span><span class="p">)</span>
-    <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Extinction</span><span class="p">,</span> <span class="n">ExcludeL</span><span class="p">,</span> <span class="n">Pd2dInstrReflexAsymmetry</span><span class="p">,</span> <span class="n">Texture</span><span class="p">)</span>
+    <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">RefineLs</span><span class="p">,</span> <span class="n">ReflnL</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">,</span> <span class="n">Pd2dProc</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">diffrn_radiation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">setup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="nb">range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">extinction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">texture</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-                 <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asymmetry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peak</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asymmetry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">data_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Pd2d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_CLASSES</span><span class="p">,</span>
                                    <span class="n">optional_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_CLASSES</span><span class="p">,</span>
@@ -171,9 +186,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">extinction</span> <span class="o">=</span> <span class="n">extinction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">exclude</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">asymmetry</span> <span class="o">=</span> <span class="n">asymmetry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peak</span> <span class="o">=</span> <span class="n">peak</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="n">proc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">texture</span> <span class="o">=</span> <span class="n">texture</span>
+
+        <span class="c1">#FIXME: internal attributes</span>
+        <span class="c1">#self.peaks = None</span>
+        <span class="c1">#self.reflns = None</span>
+        <span class="c1">#self.refln_ss = None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dd</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
@@ -466,59 +485,6 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">peak</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Pd2dPeakL</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-    <span class="nd">@peak</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">peak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">):</span>
-            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">):</span>
-                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Pd2dProc</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-    <span class="nd">@proc</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">proc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Pd2dProc</span><span class="p">):</span>
-            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">Pd2dProc</span><span class="p">):</span>
-                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
-
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">texture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -544,6 +510,39 @@
                 <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Pd2dPeakL</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l_res</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">proc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Pd2dProc</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refine_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">RefineLs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refln</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">ReflnL</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l_res</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refln_susceptibility</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">ReflnSusceptibilityL</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l_res</span>
+
+
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pd2d:&quot;</span><span class="p">]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
@@ -562,7 +561,7 @@
         <span class="k">return</span> <span class="n">res</span>
 
 
-<div class="viewcode-block" id="Pd2d.calc_profile"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_profile">[docs]</a>    <span class="k">def</span> <span class="nf">calc_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="p">[],</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="p">[],</span> <span class="n">l_dd_in</span> <span class="o">=</span> <span class="p">[]):</span>
+<div class="viewcode-block" id="Pd2d.calc_profile"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_profile">[docs]</a>    <span class="k">def</span> <span class="nf">calc_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_dd_in</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        calculate intensity for the given diffraction angle</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -582,6 +581,10 @@
         <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup</span>
         <span class="n">wavelength</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">wavelength</span><span class="p">)</span>
         <span class="n">diffrn_radiation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_radiation</span>
+        <span class="k">if</span> <span class="n">setup</span><span class="o">.</span><span class="n">offset_phi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">phi_0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">offset_phi</span><span class="p">)</span>
+            <span class="n">phi_rad</span> <span class="o">=</span> <span class="p">(</span><span class="n">phi</span><span class="o">-</span><span class="n">phi_0</span><span class="p">)</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span>
+            <span class="n">sin_phi_1d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi_rad</span><span class="p">)</span>
 
         <span class="n">p_u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">diffrn_radiation</span><span class="o">.</span><span class="n">polarization</span><span class="p">)</span>
         <span class="n">p_d</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">diffrn_radiation</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span><span class="o">*</span><span class="n">p_u</span>
@@ -597,20 +600,40 @@
         <span class="n">res_u_2d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tth</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">phi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">res_d_2d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">tth</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">phi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
+        <span class="n">texture</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture</span> 
+        <span class="k">if</span> <span class="n">texture</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">h_ax</span><span class="p">,</span> <span class="n">k_ax</span><span class="p">,</span> <span class="n">l_ax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">h_ax</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">k_ax</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">l_ax</span><span class="p">)</span>
+            <span class="n">g_1</span><span class="p">,</span> <span class="n">g_2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">g_1</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">g_2</span><span class="p">)</span>
 
         <span class="n">phase</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_peak_in</span><span class="p">):</span>
+        <span class="n">_h</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l_peak_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">l_peak_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_refln_in</span><span class="p">):</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_h</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_peak_in</span><span class="p">):</span>
+                <span class="n">l_peak_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
+        <span class="k">if</span> <span class="n">l_refln_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">l_refln_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_dd_in</span><span class="p">):</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_h</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_refln_in</span><span class="p">):</span>
+                <span class="n">l_refln_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
+        <span class="k">if</span> <span class="n">l_refln_susceptibility_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">l_refln_susceptibility_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_h</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_refln_susceptibility_in</span><span class="p">):</span>
+                <span class="n">l_refln_susceptibility_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
+        <span class="k">if</span> <span class="n">l_dd_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">l_dd_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_h</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_dd_in</span><span class="p">):</span>
+                <span class="n">l_dd_in</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> 
         
 
 
-        <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_refln</span><span class="p">,</span> <span class="n">l_dd_out</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">phase_label</span><span class="p">,</span> <span class="n">phase_scale</span><span class="p">,</span> <span class="n">phase_igsize</span><span class="p">,</span> <span class="n">peak_in</span><span class="p">,</span> <span class="n">refln_in</span><span class="p">,</span> <span class="n">dd_in</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-            <span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">phase</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="n">phase</span><span class="o">.</span><span class="n">igsize</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_dd_in</span><span class="p">):</span>
+        <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_dd_out</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">l_refln</span><span class="p">,</span> <span class="n">l_refln_s</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">phase_label</span><span class="p">,</span> <span class="n">phase_scale</span><span class="p">,</span> <span class="n">phase_igsize</span><span class="p">,</span> <span class="n">peak_in</span><span class="p">,</span> <span class="n">refln_in</span><span class="p">,</span> <span class="n">refln_susceptibility_in</span><span class="p">,</span> <span class="n">dd_in</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">phase</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="n">phase</span><span class="o">.</span><span class="n">igsize</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="p">,</span> <span class="n">l_dd_in</span><span class="p">):</span>
             <span class="n">dd_out</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">i_crystal</span><span class="p">,</span> <span class="n">crystal</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">l_crystal</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">crystal</span><span class="o">.</span><span class="n">data_name</span> <span class="o">==</span> <span class="n">phase_label</span><span class="p">:</span>
@@ -628,22 +651,32 @@
             <span class="n">space_group</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">space_group</span>
             
             <span class="k">if</span> <span class="n">peak_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mult</span> <span class="o">=</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">l</span><span class="p">,</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">mult</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peak_in</span><span class="o">.</span><span class="n">index_h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peak_in</span><span class="o">.</span><span class="n">index_k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peak_in</span><span class="o">.</span><span class="n">index_l</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">mult</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peak_in</span><span class="o">.</span><span class="n">index_mult</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mult</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_hkl</span><span class="p">(</span><span class="n">space_group</span><span class="p">,</span> <span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">texture</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mult</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_hkl</span><span class="p">(</span><span class="n">space_group</span><span class="p">,</span> <span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mult</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_hkl_in_range</span><span class="p">(</span><span class="n">sthovl_min</span><span class="p">,</span> <span class="n">sthovl_max</span><span class="p">)</span>
 
             <span class="n">peak</span> <span class="o">=</span> <span class="n">Pd2dPeakL</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="p">[</span><span class="n">Pd2dPeak</span><span class="p">(</span><span class="n">index_h</span><span class="o">=</span><span class="n">_h</span><span class="p">,</span> <span class="n">index_k</span><span class="o">=</span><span class="n">_k</span><span class="p">,</span> <span class="n">index_l</span><span class="o">=</span><span class="n">_l</span><span class="p">,</span> <span class="n">index_mult</span><span class="o">=</span><span class="n">_m</span><span class="p">)</span> <span class="k">for</span> <span class="n">_h</span><span class="p">,</span> <span class="n">_k</span><span class="p">,</span> <span class="n">_l</span><span class="p">,</span> <span class="n">_m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">mult</span><span class="p">)])</span>
                 
             <span class="n">cond_1</span> <span class="o">=</span> <span class="ow">not</span><span class="p">(</span><span class="n">crystal</span><span class="o">.</span><span class="n">is_variable</span><span class="p">)</span>
             <span class="n">cond_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">peak_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">refln_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">cond_1</span> <span class="o">&amp;</span> <span class="n">cond_2</span><span class="p">:</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">cond_1</span> <span class="o">&amp;</span> <span class="n">cond_2</span><span class="p">):</span>
                 <span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span> <span class="o">=</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">f_m_p_sin_sq</span>
                 <span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">cross_sin</span> <span class="o">=</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">peak_in</span><span class="o">.</span><span class="n">cross_sin</span> 
                 <span class="n">refln</span> <span class="o">=</span> <span class="n">refln_in</span>
+                <span class="n">refln_s</span> <span class="o">=</span> <span class="n">refln_susceptibility_in</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span><span class="p">,</span> <span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">cross_sin</span><span class="p">,</span> <span class="n">refln</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_for_iint</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">crystal</span><span class="p">)</span>
-
+                <span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span><span class="p">,</span> <span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">cross_sin</span><span class="p">,</span> <span class="n">refln</span><span class="p">,</span> <span class="n">refln_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_for_iint</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">crystal</span><span class="p">)</span>
+                <span class="n">refln</span><span class="o">.</span><span class="n">loop_name</span> <span class="o">=</span> <span class="n">phase_label</span>
+                <span class="n">refln_s</span><span class="o">.</span><span class="n">loop_name</span> <span class="o">=</span> <span class="n">phase_label</span>
             <span class="n">l_refln</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refln</span><span class="p">)</span>
+            <span class="n">l_refln_s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refln_s</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span><span class="p">,</span> <span class="n">_4</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">peak</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span><span class="p">,</span> <span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">cross_sin</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">_item</span><span class="p">,</span> <span class="s2">&quot;f_nucl_sq&quot;</span><span class="p">,</span> <span class="n">_1</span><span class="p">)</span> 
@@ -660,6 +693,7 @@
                 <span class="n">cos_theta_3d</span><span class="p">,</span> <span class="n">sin_phi_3d</span> <span class="o">=</span> <span class="n">dd_in</span><span class="p">[</span><span class="s2">&quot;cos_theta_3d&quot;</span><span class="p">],</span> <span class="n">dd_in</span><span class="p">[</span><span class="s2">&quot;sin_phi_3d&quot;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>                      
                 <span class="n">cos_theta_3d</span><span class="p">,</span> <span class="n">sin_phi_3d</span><span class="p">,</span> <span class="n">mult_f_n_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">cos_theta_1d</span><span class="p">,</span> <span class="n">sin_phi_1d</span><span class="p">,</span> <span class="n">mult</span><span class="o">*</span><span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+
                 <span class="n">mult_f_m_c_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">tth_rad</span><span class="p">,</span> <span class="n">phi_rad</span><span class="p">,</span> <span class="n">mult</span><span class="o">*</span><span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
 
                 <span class="n">hh_u_s_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">tth_rad</span><span class="p">,</span> <span class="n">phi_rad</span><span class="p">,</span> <span class="n">mult</span><span class="o">*</span><span class="p">(</span><span class="n">f_m_p_sin_sq</span><span class="o">+</span><span class="n">p_u</span><span class="o">*</span><span class="n">cross_sin</span><span class="p">),</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
@@ -667,7 +701,6 @@
 
                 <span class="n">c_a_sq_3d</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos_theta_3d</span> <span class="o">*</span> <span class="n">sin_phi_3d</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
                 <span class="n">s_a_sq_3d</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">c_a_sq_3d</span>
-
                 <span class="n">iint_u_3d</span> <span class="o">=</span> <span class="p">(</span><span class="n">mult_f_n_3d</span> <span class="o">+</span> <span class="n">hh_u_s_3d</span><span class="o">*</span><span class="n">s_a_sq_3d</span> <span class="o">+</span> <span class="n">mult_f_m_c_3d</span><span class="o">*</span><span class="n">c_a_sq_3d</span><span class="p">)</span>
                 <span class="n">iint_d_3d</span> <span class="o">=</span> <span class="p">(</span><span class="n">mult_f_n_3d</span> <span class="o">+</span> <span class="n">hh_d_s_3d</span><span class="o">*</span><span class="n">s_a_sq_3d</span> <span class="o">+</span> <span class="n">mult_f_m_c_3d</span><span class="o">*</span><span class="n">c_a_sq_3d</span><span class="p">)</span>
             <span class="n">dd_out</span><span class="p">[</span><span class="s2">&quot;cos_theta_3d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_theta_3d</span>
@@ -676,11 +709,8 @@
             <span class="n">dd_out</span><span class="p">[</span><span class="s2">&quot;iint_d_3d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iint_d_3d</span>
 
             <span class="n">sthovl_hkl</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_sthovl</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
-            
-            <span class="n">tth_hkl_rad</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">sthovl_hkl</span><span class="o">*</span><span class="n">wavelength</span><span class="p">)</span>
+            <span class="n">tth_hkl_rad</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sthovl_hkl</span><span class="o">*</span><span class="n">wavelength</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="n">sthovl_hkl</span><span class="o">*</span><span class="n">wavelength</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
             <span class="n">tth_hkl</span> <span class="o">=</span> <span class="n">tth_hkl_rad</span><span class="o">*</span><span class="mf">180.</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
-
-
 
             <span class="n">cond_1</span> <span class="o">=</span> <span class="n">dd_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">cond_2</span> <span class="o">=</span> <span class="p">((</span><span class="ow">not</span><span class="p">(</span><span class="n">phase_igsize</span><span class="o">.</span><span class="n">refinement</span><span class="p">))</span> <span class="o">&amp;</span> 
@@ -698,8 +728,37 @@
             <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">peak</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">tth_hkl</span><span class="p">,</span> <span class="n">h_pv</span><span class="p">):</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">_item</span><span class="p">,</span> <span class="s2">&quot;ttheta&quot;</span><span class="p">,</span> <span class="n">_1</span><span class="p">)</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">_item</span><span class="p">,</span> <span class="s2">&quot;width_ttheta&quot;</span><span class="p">,</span> <span class="n">_2</span><span class="p">)</span>
-            
-            
+
+            <span class="c1">#texture</span>
+            <span class="k">if</span> <span class="n">texture</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cond_1</span> <span class="o">=</span> <span class="n">dd_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">cond_2</span> <span class="o">=</span> <span class="p">((</span><span class="ow">not</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">offset_phi</span><span class="o">.</span><span class="n">refinement</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">cond_1</span> <span class="o">&amp;</span> <span class="n">cond_2</span><span class="p">:</span>
+                    <span class="n">cos_alpha_ang_3d</span><span class="p">,</span> <span class="n">sin_alpha_ang_3d</span> <span class="o">=</span> <span class="n">dd_in</span><span class="p">[</span><span class="s2">&quot;cos_alpha_ang_3d&quot;</span><span class="p">],</span> <span class="n">dd_in</span><span class="p">[</span><span class="s2">&quot;sin_alpha_ang_3d&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cos_alpha_ang_3d</span> <span class="o">=</span> <span class="n">cos_theta_3d</span> <span class="o">*</span> <span class="n">sin_phi_3d</span>  
+                    <span class="n">sin_alpha_ang_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">cos_alpha_ang_3d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">dd_out</span><span class="p">[</span><span class="s2">&quot;cos_alpha_ang_3d&quot;</span><span class="p">],</span> <span class="n">dd_out</span><span class="p">[</span><span class="s2">&quot;sin_alpha_ang_3d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_alpha_ang_3d</span><span class="p">,</span> <span class="n">sin_alpha_ang_3d</span>
+
+                <span class="n">cond_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">cond_2</span> <span class="o">&amp;</span> <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">texture</span><span class="o">.</span><span class="n">is_variable</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">is_variable</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">cond_1</span> <span class="o">&amp;</span> <span class="n">cond_2</span><span class="p">:</span>
+                    <span class="n">texture_3d</span> <span class="o">=</span> <span class="n">dd_in</span><span class="p">[</span><span class="s2">&quot;texture_3d&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cos_alpha_ax</span> <span class="o">=</span> <span class="n">calc_cos_ang</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h_ax</span><span class="p">,</span> <span class="n">k_ax</span><span class="p">,</span> <span class="n">l_ax</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+                    <span class="n">c_help</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">cos_alpha_ax</span><span class="o">**</span><span class="mi">2</span>
+                    <span class="n">c_help</span><span class="p">[</span><span class="n">c_help</span><span class="o">&lt;</span><span class="mf">0.</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+                    <span class="n">sin_alpha_ax</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c_help</span><span class="p">)</span>
+                    <span class="n">cos_alpha_ax_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">tth</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">cos_alpha_ax</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">sin_alpha_ax_3d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">tth</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">sin_alpha_ax</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">cos_alpha_3d</span> <span class="o">=</span> <span class="n">cos_alpha_ax_3d</span><span class="o">*</span><span class="n">cos_alpha_ang_3d</span><span class="o">+</span><span class="n">sin_alpha_ax_3d</span><span class="o">*</span><span class="n">sin_alpha_ang_3d</span>
+                    <span class="n">texture_3d</span> <span class="o">=</span> <span class="n">g_2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">g_2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">g_1</span> <span class="o">+</span>
+                                       <span class="p">(</span><span class="n">g_1</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="n">g_1</span><span class="p">)</span><span class="o">*</span><span class="n">cos_alpha_3d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">)</span>
+                <span class="n">dd_out</span><span class="p">[</span><span class="s2">&quot;texture_3d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">texture_3d</span>
+
+                <span class="n">profile_3d</span> <span class="o">=</span> <span class="n">profile_3d</span><span class="o">*</span><span class="n">texture_3d</span>
+
+
+
             <span class="n">res_u_3d</span> <span class="o">=</span> <span class="n">profile_3d</span><span class="o">*</span><span class="n">iint_u_3d</span> 
             <span class="n">res_d_3d</span> <span class="o">=</span> <span class="n">profile_3d</span><span class="o">*</span><span class="n">iint_d_3d</span> 
 
@@ -714,6 +773,10 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_net&quot;</span><span class="p">,</span> <span class="n">res_d_2d</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_up_total&quot;</span><span class="p">,</span> <span class="n">res_u_2d</span><span class="o">+</span><span class="n">int_bkgd</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_total&quot;</span><span class="p">,</span> <span class="n">res_d_2d</span><span class="o">+</span><span class="n">int_bkgd</span><span class="p">)</span>
+        <span class="n">l_internal_objs</span> <span class="o">=</span> <span class="n">l_refln</span> <span class="o">+</span> <span class="n">l_refln_s</span> <span class="o">+</span> <span class="n">l_peak</span>
+        <span class="n">l_internal_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__internal_objs&quot;</span><span class="p">,</span> <span class="n">l_internal_objs</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">proc</span><span class="p">,</span> <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_refln</span><span class="p">,</span> <span class="n">l_dd_out</span></div>
     <span class="c1">#def calc_y_mod(self, l_crystal, d_prof_in={}):</span>
     <span class="c1">#    &quot;&quot;&quot;</span>
@@ -735,7 +798,7 @@
 
 <div class="viewcode-block" id="Pd2d.calc_chi_sq"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_chi_sq">[docs]</a>    <span class="k">def</span> <span class="nf">calc_chi_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate chi square</span>
+<span class="sd">Calculate chi square</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">meas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meas</span>
 
@@ -746,13 +809,18 @@
         <span class="n">int_d_exp</span> <span class="o">=</span> <span class="n">meas</span><span class="o">.</span><span class="n">intensity_down</span>
         <span class="n">sint_d_exp</span> <span class="o">=</span> <span class="n">meas</span><span class="o">.</span><span class="n">intensity_down_sigma</span>
 
-        <span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_dd_in</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span> 
         <span class="c1">#if ((self.peaks is not None) &amp; (self.reflns is not None)):</span>
         <span class="c1">#    l_peak_in = self.peaks</span>
         <span class="c1">#    l_refln_in = self.reflns</span>
         <span class="c1">#    l_dd_in = self.__dd</span>
-        <span class="c1">#else:</span>
-        <span class="c1">#    l_peak_in, l_refln_in, l_dd_in = [], [], [] </span>
+        <span class="k">if</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peak</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refln</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refln_susceptibility</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">l_peak_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak</span>
+            <span class="n">l_refln_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refln</span>
+            <span class="n">l_refln_susceptibility_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refln_susceptibility</span>
+            <span class="n">l_dd_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dd</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_dd_in</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span> 
+            <span class="n">l_refln_susceptibility_in</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">range_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span>
         <span class="n">cond_tth_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">tth</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
@@ -773,15 +841,17 @@
         <span class="n">sint_d_exp_in</span> <span class="o">=</span> <span class="n">sint_d_exp</span><span class="p">[</span><span class="n">cond_tth_in</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">cond_phi_in</span><span class="p">]</span>
 
 
-        <span class="n">proc</span><span class="p">,</span> <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_refln</span><span class="p">,</span> <span class="n">l_dd_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_profile</span><span class="p">(</span><span class="n">tth_in</span><span class="p">,</span> <span class="n">phi_in</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_dd_in</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_up&quot;</span><span class="p">,</span> <span class="n">int_u_exp_in</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_up_sigma&quot;</span><span class="p">,</span> <span class="n">sint_u_exp_in</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_down&quot;</span><span class="p">,</span> <span class="n">int_d_exp_in</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_sigma&quot;</span><span class="p">,</span> <span class="n">sint_d_exp_in</span><span class="p">)</span>
+        <span class="n">proc</span><span class="p">,</span> <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_refln</span><span class="p">,</span> <span class="n">l_dd_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_profile</span><span class="p">(</span><span class="n">tth_in</span><span class="p">,</span> <span class="n">phi_in</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> 
+                                                     <span class="n">l_peak_in</span><span class="o">=</span><span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="n">l_refln_in</span><span class="p">,</span> 
+                                                     <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="n">l_refln_susceptibility_in</span><span class="p">,</span> <span class="n">l_dd_in</span><span class="o">=</span><span class="n">l_dd_in</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_up&quot;</span><span class="p">,</span> <span class="n">int_u_exp_in</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_up_sigma&quot;</span><span class="p">,</span> <span class="n">sint_u_exp_in</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_down&quot;</span><span class="p">,</span> <span class="n">int_d_exp_in</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_sigma&quot;</span><span class="p">,</span> <span class="n">sint_d_exp_in</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="n">proc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peaks</span> <span class="o">=</span> <span class="n">l_peak</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reflns</span> <span class="o">=</span> <span class="n">l_refln</span>
+        <span class="c1">#self.proc = proc</span>
+        <span class="c1">#self.peaks = l_peak</span>
+        <span class="c1">#self.reflns = l_refln</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dd</span> <span class="o">=</span> <span class="n">l_dd_out</span>
 
         <span class="n">int_u_mod</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">intensity_up_total</span>
@@ -793,6 +863,7 @@
         <span class="n">chi_sq_d</span> <span class="o">=</span> <span class="p">((</span><span class="n">int_d_mod</span><span class="o">-</span><span class="n">int_d_exp_in</span><span class="p">)</span><span class="o">/</span><span class="n">sint_d_exp_in</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">chi_sq_sum</span> <span class="o">=</span> <span class="p">((</span><span class="n">int_u_mod</span><span class="o">+</span><span class="n">int_d_mod</span><span class="o">-</span><span class="n">int_u_exp_in</span><span class="o">-</span><span class="n">int_d_exp_in</span><span class="p">)</span><span class="o">/</span><span class="n">sint_sum_exp_in</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">chi_sq_dif</span> <span class="o">=</span> <span class="p">((</span><span class="n">int_u_mod</span><span class="o">-</span><span class="n">int_d_mod</span><span class="o">-</span><span class="n">int_u_exp_in</span><span class="o">+</span><span class="n">int_d_exp_in</span><span class="p">)</span><span class="o">/</span><span class="n">sint_sum_exp_in</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
 
         <span class="n">cond_u</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">chi_sq_u</span><span class="p">))</span>
         <span class="n">cond_d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">chi_sq_d</span><span class="p">))</span>
@@ -837,14 +908,18 @@
                   <span class="nb">int</span><span class="p">(</span><span class="n">flag_sum</span><span class="p">)</span><span class="o">*</span><span class="n">chi_sq_sum_val</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">flag_dif</span><span class="p">)</span><span class="o">*</span><span class="n">chi_sq_dif_val</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">flag_u</span><span class="p">)</span><span class="o">*</span><span class="n">n_u</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">flag_d</span><span class="p">)</span><span class="o">*</span><span class="n">n_d</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">flag_sum</span><span class="p">)</span><span class="o">*</span><span class="n">n_sum</span> <span class="o">+</span> 
              <span class="nb">int</span><span class="p">(</span><span class="n">flag_dif</span><span class="p">)</span><span class="o">*</span><span class="n">n_dif</span><span class="p">)</span>
+        <span class="c1">#print(f&quot;chi_sq_val/n: {chi_sq_val/n:.2f}           chi_sq_val: {chi_sq_val: .2f}&quot;)</span>
         <span class="c1">#d_exp_out = {&quot;chi_sq_val&quot;: chi_sq_val, &quot;n&quot;: n}</span>
         <span class="c1">#d_exp_out.update(d_exp_prof_out)</span>
+
+        <span class="n">refine_ls</span> <span class="o">=</span> <span class="n">RefineLs</span><span class="p">(</span><span class="n">number_reflns</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">goodness_of_fit_all</span><span class="o">=</span><span class="n">chi_sq_val</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">weighting_scheme</span><span class="o">=</span><span class="s2">&quot;sigma&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refine_ls</span><span class="p">)</span>  
         <span class="k">return</span> <span class="n">chi_sq_val</span><span class="p">,</span> <span class="n">n</span></div>
 
 
 <div class="viewcode-block" id="Pd2d.calc_for_iint"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_for_iint">[docs]</a>    <span class="k">def</span> <span class="nf">calc_for_iint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">crystal</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        calculate the integral intensity for h, k, l reflections</span>
+<span class="sd">Calculate the integral intensity for h, k, l reflections</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">setup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup</span>
         <span class="n">field</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
@@ -853,6 +928,7 @@
         <span class="n">p_d</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">diffrn_radiation</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">p_u</span>
 
         <span class="n">refln</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">calc_refln</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+
         <span class="n">refln_s</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">calc_refln_susceptibility</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
 
         <span class="n">f_nucl</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln</span><span class="o">.</span><span class="n">f_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
@@ -869,7 +945,6 @@
         <span class="n">_31</span><span class="p">,</span> <span class="n">_32</span><span class="p">,</span> <span class="n">_33</span> <span class="o">=</span> <span class="n">sftm_31</span><span class="o">+</span><span class="n">field</span><span class="o">*</span><span class="n">sft_31</span><span class="p">,</span> <span class="n">sftm_32</span><span class="o">+</span><span class="n">field</span><span class="o">*</span><span class="n">sft_32</span><span class="p">,</span> <span class="n">sftm_33</span><span class="o">+</span><span class="n">field</span><span class="o">*</span><span class="n">sft_33</span>
 
         <span class="n">cell</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">cell</span>
-        
         <span class="c1">#k_loc = cell.calc_k_loc(h, k, l)</span>
         <span class="n">t_11</span><span class="p">,</span> <span class="n">t_12</span><span class="p">,</span> <span class="n">t_13</span><span class="p">,</span> <span class="n">t_21</span><span class="p">,</span> <span class="n">t_22</span><span class="p">,</span> <span class="n">t_23</span><span class="p">,</span> <span class="n">t_31</span><span class="p">,</span> <span class="n">t_32</span><span class="p">,</span> <span class="n">t_33</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_m_t</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
         
@@ -887,7 +962,7 @@
         <span class="n">f_m_p_field</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">th_11</span><span class="o">+</span><span class="n">th_22</span><span class="p">)</span> 
         <span class="n">cross_sin</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="p">(</span><span class="n">f_nucl</span><span class="o">.</span><span class="n">real</span><span class="o">*</span><span class="n">f_m_p_field</span><span class="o">.</span><span class="n">real</span><span class="o">+</span><span class="n">f_nucl</span><span class="o">.</span><span class="n">imag</span><span class="o">*</span><span class="n">f_m_p_field</span><span class="o">.</span><span class="n">imag</span><span class="p">)</span>
         
-        <span class="k">return</span> <span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span><span class="p">,</span> <span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">cross_sin</span><span class="p">,</span> <span class="n">refln</span></div>
+        <span class="k">return</span> <span class="n">f_nucl_sq</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span><span class="p">,</span> <span class="n">f_m_p_cos_sq</span><span class="p">,</span> <span class="n">cross_sin</span><span class="p">,</span> <span class="n">refln</span><span class="p">,</span> <span class="n">refln_s</span></div>
 
     <span class="k">def</span> <span class="nf">_gauss_pd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth_2d</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -953,9 +1028,50 @@
         
         <span class="n">profile_3d</span> <span class="o">=</span> <span class="n">np_shape_3d</span><span class="o">*</span><span class="n">np_ass_3d</span><span class="o">*</span><span class="n">np_lor_3d</span>
         
-        <span class="k">return</span> <span class="n">profile_3d</span><span class="p">,</span> <span class="n">tth_zs</span><span class="p">,</span> <span class="n">h_pv</span></div></div>
+        <span class="k">return</span> <span class="n">profile_3d</span><span class="p">,</span> <span class="n">tth_zs</span><span class="p">,</span> <span class="n">h_pv</span></div>
 
 
+<div class="viewcode-block" id="Pd2d.params_to_cif"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.params_to_cif">[docs]</a>    <span class="k">def</span> <span class="nf">params_to_cif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">l_cls</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pd2dBackground</span><span class="p">,</span> <span class="n">Pd2dInstrResolution</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span> <span class="n">Setup</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span> <span class="n">Chi2</span><span class="p">,</span>
+                 <span class="n">Extinction</span><span class="p">,</span> <span class="n">ExcludeL</span><span class="p">,</span> <span class="n">Pd2dInstrReflexAsymmetry</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">,</span> <span class="n">Texture</span><span class="p">)</span>
+        <span class="n">l_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">_obj</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">_obj</span><span class="p">)</span> <span class="ow">in</span> <span class="n">l_cls</span><span class="p">]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">to_cif</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_obj</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pd2d.data_to_cif"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.data_to_cif">[docs]</a>    <span class="k">def</span> <span class="nf">data_to_cif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">l_cls</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pd2dMeas</span><span class="p">,</span> <span class="p">)</span>
+        <span class="n">l_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">_obj</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">_obj</span><span class="p">)</span> <span class="ow">in</span> <span class="n">l_cls</span><span class="p">]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">to_cif</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_obj</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pd2d.calc_to_cif"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_to_cif">[docs]</a>    <span class="k">def</span> <span class="nf">calc_to_cif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">l_cls</span> <span class="o">=</span> <span class="p">(</span><span class="n">RefineLs</span><span class="p">,</span> <span class="n">ReflnL</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">,</span> <span class="n">Pd2dProc</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_cls</span> <span class="ow">in</span> <span class="n">l_cls</span><span class="p">:</span>
+            <span class="n">l_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">_obj</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_objs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">_cls</span><span class="p">)]</span>
+            <span class="n">ls_out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">to_cif</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_obj</span><span class="p">])</span>
+
+
+        <span class="c1">#ls_out = []</span>
+        <span class="c1">#l_cls = (Pd2dProc, )</span>
+        <span class="c1">#l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]</span>
+        <span class="c1">#ls_out.extend([_.to_cif(separator=separator, flag=flag)+&quot;\n&quot; for _ in l_obj])</span>
+        <span class="c1">#if self.reflns is not None:</span>
+        <span class="c1">#    ls_out.extend([_.to_cif(separator=separator, flag=flag)+&quot;\n&quot; for _ in self.reflns])</span>
+        <span class="c1">#if self.refln_ss is not None:</span>
+        <span class="c1">#    ls_out.extend([_.to_cif(separator=separator, flag=flag)+&quot;\n&quot; for _ in self.refln_ss])</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">remove_internal_objs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">internal_objs</span>
+        <span class="k">for</span> <span class="n">_objs</span> <span class="ow">in</span> <span class="n">l_objs</span><span class="p">:</span>
+            <span class="n">l_objs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">_objs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dd</span> <span class="o">=</span> <span class="kc">None</span>            </div>
 </pre></div>
 
           </div>
@@ -992,7 +1108,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

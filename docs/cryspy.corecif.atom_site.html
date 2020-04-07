@@ -79,7 +79,7 @@ coordinates.</p>
 
 <dl class="attribute">
 <dt id="cryspy.corecif.cl_atom_site.AtomSite.INTERNAL_ATTRIBUTE">
-<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('scat_length_neutron', 'atom_type_scat', 'space_group_wyckoff')</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSite.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('scat_length_neutron', 'space_group_wyckoff', 'constr_number')</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSite.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -165,6 +165,16 @@ the _atom_sites_Cartn_transform_axes description.</p>
 of orthogonal Cartesian axes related to the cell axes as specified by
 the _atom_sites_Cartn_transform_axes description.</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site.AtomSite.constr_number">
+<em class="property">property </em><code class="sig-name descname">constr_number</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSite.constr_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site.AtomSite.define_space_group_wyckoff">
+<code class="sig-name descname">define_space_group_wyckoff</code><span class="sig-paren">(</span><em class="sig-param">space_group_wyckoff_l</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site.html#AtomSite.define_space_group_wyckoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSite.define_space_group_wyckoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="cryspy.corecif.cl_atom_site.AtomSite.form_object">
@@ -260,6 +270,11 @@ correctly interpreted as meaning <span class="math notranslate nohighlight">\((0
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="cryspy.corecif.cl_atom_site.AtomSite.space_group_wyckoff">
+<em class="property">property </em><code class="sig-name descname">space_group_wyckoff</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSite.space_group_wyckoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="cryspy.corecif.cl_atom_site.AtomSite.type_symbol">
 <em class="property">property </em><code class="sig-name descname">type_symbol</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSite.type_symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>A code to identify the atom species (singular or plural)
@@ -350,6 +365,11 @@ coordinates.</p>
 <code class="sig-name descname">apply_constraint</code><span class="sig-paren">(</span><em class="sig-param">space_group_wyckoff_l</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site.html#AtomSiteL.apply_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSiteL.apply_constraint" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site.AtomSiteL.calc_constr_number">
+<code class="sig-name descname">calc_constr_number</code><span class="sig-paren">(</span><em class="sig-param">space_group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site.html#AtomSiteL.calc_constr_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site.AtomSiteL.calc_constr_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -409,7 +429,7 @@ coordinates.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

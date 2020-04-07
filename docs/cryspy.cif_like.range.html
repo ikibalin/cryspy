@@ -59,8 +59,8 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Describe the range.</p>
 <p>Description in cif file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_range_ttheta_min</span>     <span class="mf">4.000</span>
-<span class="n">_range_ttheta_max</span>    <span class="mf">80.000</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_range_2theta_min</span>     <span class="mf">4.000</span>
+<span class="n">_range_2theta_max</span>    <span class="mf">80.000</span>
 </pre></div>
 </div>
 <dl class="attribute">
@@ -81,6 +81,16 @@
 <dl class="attribute">
 <dt id="cryspy.cif_like.cl_range.Range.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'range'</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_range.Range.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('2theta_min', '2theta_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_range.Range.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('phi_min', 'phi_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -162,7 +172,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>

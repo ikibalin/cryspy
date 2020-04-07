@@ -59,6 +59,12 @@ The permitted range is -1.0 -> 1.0
         """
 The efficiency of the efficiency. 
 
+    Polarization of the incident beam for spin up mode is 
+        p_u = diffrn_radiation_polarization
+
+    Polarization of the incident beam for spin down mode is 
+        p_d = p_u * (2*diffrn_radiation_efficiency-1.)
+
 The permitted range is -1.0 -> 1.0
         """
         return getattr(self, "__efficiency")

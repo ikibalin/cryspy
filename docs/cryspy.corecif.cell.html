@@ -78,7 +78,7 @@ measurement_wavelength, special_details.</p>
 </dl>
 <dl class="attribute">
 <dt id="cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE">
-<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('m_b', 'm_ib', 'm_ib_norm', 'type_cell', 'cos_a', 'cos_b', 'cos_g', 'sin_a', 'sin_b', 'sin_g', 'cos_a_sq', 'cos_b_sq', 'cos_g_sq', 'sin_a_sq', 'sin_b_sq', 'sin_g_sq', 'cos_ia', 'cos_ib', 'cos_ig', 'sin_ia', 'sin_ib', 'sin_ig', 'cos_ia_sq', 'cos_ib_sq', 'cos_ig_sq', 'sin_ia_sq', 'sin_ib_sq', 'sin_ig_sq', 'reciprocal_length_a', 'reciprocal_length_b', 'reciprocal_length_c', 'reciprocal_angle_alpha', 'reciprocal_angle_beta', 'reciprocal_angle_gamma', 'volume', 'formula_units_z')</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('m_m', 'm_b', 'm_ib', 'm_ib_norm', 'type_cell', 'cos_a', 'cos_b', 'cos_g', 'sin_a', 'sin_b', 'sin_g', 'cos_a_sq', 'cos_b_sq', 'cos_g_sq', 'sin_a_sq', 'sin_b_sq', 'sin_g_sq', 'cos_ia', 'cos_ib', 'cos_ig', 'sin_ia', 'sin_ib', 'sin_ig', 'cos_ia_sq', 'cos_ib_sq', 'cos_ig_sq', 'sin_ia_sq', 'sin_ib_sq', 'sin_ig_sq', 'reciprocal_length_a', 'reciprocal_length_b', 'reciprocal_length_c', 'reciprocal_angle_alpha', 'reciprocal_angle_beta', 'reciprocal_angle_gamma', 'volume', 'formula_units_z')</em><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -150,10 +150,36 @@ taking into account the space group</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_length_sq">
+<code class="sig-name descname">calc_length_sq</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_length_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_length_sq" title="Permalink to this definition">¶</a></dt>
+<dd><p>According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes</p>
+<div class="math notranslate nohighlight">
+\[t^{2} = x^{2} a^{2} + y^{2} b^{2} + z^{2} c^{2}
+        + 2 x y a b \cos \gamma  + 2 x z a c \cos \beta  + 2 y z b c \cos \alpha\]</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="cryspy.corecif.cl_cell.Cell.calc_m_t">
 <code class="sig-name descname">calc_m_t</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_m_t"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_m_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine rotation matrix to have new z axis along kloc
 Rotation matrix is defined by Euler angles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_position_by_coordinate">
+<code class="sig-name descname">calc_position_by_coordinate</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_position_by_coordinate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_position_by_coordinate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates position for coordinate <span class="math notranslate nohighlight">\((x,y,z)\)</span>
+in Carthezian coordinate system where <span class="math notranslate nohighlight">\(X\)</span> along axis <span class="math notranslate nohighlight">\(a\)</span>,
+<span class="math notranslate nohighlight">\(Z\)</span> alond <span class="math notranslate nohighlight">\(c^{*}\)</span> and <span class="math notranslate nohighlight">\(Y = Z \times X\)</span></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.calc_reciprocal_length_sq">
+<code class="sig-name descname">calc_reciprocal_length_sq</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.calc_reciprocal_length_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.calc_reciprocal_length_sq" title="Permalink to this definition">¶</a></dt>
+<dd><p>According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes</p>
+<div class="math notranslate nohighlight">
+\[r^{*^{2}} = h^{2} a^{*^{2}} + k^{*^{2}} b^{*^{2}} + l^{2} c^{*^{2}}
+        + 2 h k a^{*} b^{*} \cos \gamma  + 2 h l a^{*} c^{*} \cos \beta  + 2 k l b^{*} c^{*} \cos \alpha\]</div>
 </dd></dl>
 
 <dl class="method">
@@ -306,7 +332,9 @@ reported.</p>
 <dl class="method">
 <dt id="cryspy.corecif.cl_cell.Cell.m_b">
 <em class="property">property </em><code class="sig-name descname">m_b</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.m_b" title="Permalink to this definition">¶</a></dt>
-<dd><p>B matrix</p>
+<dd><p>B matrix defined
+in Carthezian coordinate system where <span class="math notranslate nohighlight">\(X\)</span> along axis <span class="math notranslate nohighlight">\(a^{*}\)</span>,
+<span class="math notranslate nohighlight">\(Z\)</span> alond axis <span class="math notranslate nohighlight">\(c\)</span> and <span class="math notranslate nohighlight">\(Y = Z \times X\)</span></p>
 </dd></dl>
 
 <dl class="method">
@@ -319,6 +347,14 @@ reported.</p>
 <dt id="cryspy.corecif.cl_cell.Cell.m_ib_norm">
 <em class="property">property </em><code class="sig-name descname">m_ib_norm</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.m_ib_norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalized inversed B matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_cell.Cell.m_m">
+<em class="property">property </em><code class="sig-name descname">m_m</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.m_m" title="Permalink to this definition">¶</a></dt>
+<dd><p>M matrix defined
+in Carthezian coordinate system where <span class="math notranslate nohighlight">\(X\)</span> along axis <span class="math notranslate nohighlight">\(a\)</span>,
+<span class="math notranslate nohighlight">\(Z\)</span> alond axis <span class="math notranslate nohighlight">\(c^{*}\)</span> and <span class="math notranslate nohighlight">\(Y = Z \times X\)</span></p>
 </dd></dl>
 
 <dl class="method">
@@ -553,7 +589,7 @@ related to the real cell by:</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
     </div>
   </body>
 </html>
