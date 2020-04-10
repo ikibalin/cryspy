@@ -1360,7 +1360,10 @@ def transform_string_to_digits(name: str, labels: Tuple[str]):
 
 
 def transform_fraction_with_label_to_string(number: Fraction, label: str) -> str:
-    val = Fraction(number).limit_denominator(10)
+    if isinstance(number, Fraction):
+        val = number
+    else:
+        val = Fraction(number).limit_denominator(10)
     if val == Fraction(0, 1):
         res = ""
     elif val == Fraction(1, 1):
@@ -1377,6 +1380,21 @@ def transform_fraction_with_label_to_string(number: Fraction, label: str) -> str
 
 
 def transform_digits_to_string(labels: Tuple[str], coefficients, offset: Fraction) -> str:
+    """
+Form a string from digits.
+
+Keyword arguments: 
+
+    labels: the tuple of lablels (ex.: ('x', 'y', 'z') or ('a', 'b', 'c')))
+    coefficients: the parameters in front of label (ex.: (1.0, 0.5, 0.0))
+    offset: the number (ex.: 2/3)
+
+Output arguments is string.
+
+Example:
+>>> transform_digits_to_string(('x', 'y', 'z'), (1.0, 0.5, 0.0), 0.6666667)
+x+1/2y+2/3
+    """
     l_res = []
     for _coefficient, _label in zip(coefficients, labels):
         _name = transform_fraction_with_label_to_string(_coefficient, _label)

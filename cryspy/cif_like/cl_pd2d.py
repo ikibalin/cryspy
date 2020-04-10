@@ -751,9 +751,19 @@ Description in cif file::
     #    int_u_mod, int_d_mod, d_exp_prof_out = self.calc_profile(tth, l_crystal, d_prof_in)
     #    return int_u_mod, int_d_mod, d_exp_prof_out
 
-    def calc_chi_sq(self, l_crystal):
+    def calc_chi_sq(self, l_crystal, flag_internal=True):
         """
 Calculate chi square
+
+Keyword arguments:
+
+    l_crystal: a list of Crystal objects of cryspy library
+    flag_internal: a flag to calculate internal objects (default is True)
+
+Output arguments:
+
+    chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
+    n: number of measured reflections
         """
         meas = self.meas
 

@@ -668,11 +668,15 @@ or
 
     def calc_k_loc(self, h, k, l):
         """
-Calculate unity scattering vector.
+Calculate unity scattering vector in Cartesian coordinate system (x||a*, z||c)
 
 Keyword arguments:
 
-h, k, l -- Miller indices
+    h, k, l: Miller indices
+
+Output arguments:
+
+    k_x, k_y, k_z: 1D numpy array of x, y, z components of unity scattering vector 
         """
         np_h = numpy.array(h, dtype=int)
         np_k = numpy.array(k, dtype=int)

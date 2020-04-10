@@ -199,9 +199,36 @@ Description in cif file::
     """
     CATEGORY_KEY = ("ttheta", )
     ITEM_CLASS = PdMeas
+    INTERNAL_ATTRIBUTE = ("numpy_ttheta", 
+                          "numpy_intensity_up", "numpy_intensity_up_sigma", 
+                          "numpy_intensity_down", "numpy_intensity_down_sigma", 
+                          "numpy_intensity", "numpy_intensity_sigma")
+
     def __init__(self, item=[], loop_name=""):
-        super(PdMeasL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+        super(PdMeasL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name,
+        internal_attribute=self.INTERNAL_ATTRIBUTE)
         self.item = item
+
+    def get_numpy_ttheta(self):
+        return getattr(self, "__numpy_ttheta")
+
+    def get_numpy_intensity_up(self):
+        return getattr(self, "__numpy_intensity_up")
+
+    def get_numpy_intensity_up_sigma(self):
+        return getattr(self, "__numpy_intensity_up_sigma")
+
+    def get_numpy_intensity_down(self):
+        return getattr(self, "__numpy_intensity_down")
+
+    def get_numpy_intensity_down_sigma(self):
+        return getattr(self, "__numpy_intensity_down_sigma")
+
+    def get_numpy_intensity(self):
+        return getattr(self, "__numpy_intensity")
+
+    def get_numpy_intensity_sigma(self):
+        return getattr(self, "__numpy_intensity_sigma")
 
     def __repr__(self) -> str:
         ls_out = []
@@ -224,3 +251,85 @@ False for unpolaraized data
                 (self.item[0].intensity_up is not None)):
                 flag = True
         return flag
+
+
+    def transform_items_to_numpy_arrays(self):
+        """
+Transform items to numpy arrays (to speed up the calculations):
+
+    numpy_ttheta: 1D numpy array of ttheta, dtype=float
+    numpy_intensity: 1D numpy array of intensity, dtype=float
+    numpy_intensity_sigma: 1D numpy array of intensity_sigma, dtype=float
+
+Only for polarized data:
+
+    numpy_intensity_up: 1D numpy array of intensity_up, dtype=float
+    numpy_intensity_up_sigma: 1D numpy array of intensity_up_sigma, dtype=float
+    numpy_intensity_down: 1D numpy array of intensity_down, dtype=float
+    numpy_intensity_down_sigma: 1D numpy array of intensity_down_sigma, dtype=float
+        """
+
+        numpy_ttheta = numpy.array(self.ttheta, dtype=float)
+        setattr(self, "__numpy_ttheta", numpy_ttheta)
+
+        if self.is_polarized:
+            numpy_intensity_up = numpy.array(self.intensity_up, dtype=float)
+            setattr(self, "__numpy_intensity_up", numpy_intensity_up)
+            numpy_intensity_up_sigma = numpy.array(self.intensity_up_sigma, dtype=float)
+            setattr(self, "__numpy_intensity_up_sigma", numpy_intensity_up_sigma)
+            numpy_intensity_down = numpy.array(self.intensity_down, dtype=float)
+            setattr(self, "__numpy_intensity_down", numpy_intensity_down)
+            numpy_intensity_down_sigma = numpy.array(self.intensity_down_sigma, dtype=float)
+            setattr(self, "__numpy_intensity_down_sigma", numpy_intensity_down_sigma)
+            numpy_intensity = numpy_intensity_up + numpy_intensity_down 
+            numpy_intensity_sigma = numpy.sqrt(numpy.square(numpy_intensity_up_sigma) + 
+                                               numpy.square(numpy_intensity_down_sigma)) 
+            setattr(self, "__numpy_intensity", numpy_intensity)
+            setattr(self, "__numpy_intensity_sigma", numpy_intensity_sigma)
+        else:
+            numpy_intensity = numpy.array(self.intensity, dtype=float)
+            setattr(self, "__numpy_intensity", numpy_intensity)
+            numpy_intensity_sigma = numpy.array(self.intensity_sigma, dtype=float)
+            setattr(self, "__numpy_intensity_sigma", numpy_intensity_sigma)
+            
+    def transform_numpy_arrays_to_items(self):
+        """
+Transform data from numpy arrays to items:
+
+    numpy_ttheta: 1D numpy array of ttheta, dtype=float
+    numpy_intensity: 1D numpy array of intensity, dtype=float
+    numpy_intensity_sigma: 1D numpy array of intensity_sigma, dtype=float
+
+Only for polarized data:
+
+    numpy_intensity_up: 1D numpy array of intensity_up, dtype=float
+    numpy_intensity_up_sigma: 1D numpy array of intensity_up_sigma, dtype=float
+    numpy_intensity_down: 1D numpy array of intensity_down, dtype=float
+    numpy_intensity_down_sigma: 1D numpy array of intensity_down_sigma, dtype=float
+        """
+        numpy_ttheta = getattr(self, "__numpy_ttheta")
+        numpy_intensity = getattr(self, "__numpy_intensity")
+        numpy_intensity_sigma = getattr(self, "__numpy_intensity_sigma")
+        if self.is_polarized:
+            numpy_intensity_up = getattr(self, "__numpy_intensity_up")
+            numpy_intensity_up_sigma = getattr(self, "__numpy_intensity_up_sigma")
+            numpy_intensity_down = getattr(self, "__numpy_intensity_down")
+            numpy_intensity_down_sigma = getattr(self, "__numpy_intensity_down_sigma")
+            for _item, _tth, _int, _int_s, _int_u, _int_u_s, _int_d, _int_d_s in zip(self.item, numpy_ttheta, 
+                                                 numpy_intensity, numpy_intensity_sigma, 
+                                                 numpy_intensity_up, numpy_intensity_up_sigma,
+                                                 numpy_intensity_down, numpy_intensity_down_sigma):
+                _item.ttheta = _tth
+                _item.intensity = _int
+                _item.intensity_sigma = _int_s
+                _item.intensity_up = _int_u
+                _item.intensity_up_sigma = _int_u_s
+                _item.intensity_down = _int_d
+                _item.intensity_down_sigma = _int_d_s
+
+        else:
+            for _item, _tth, _int, _int_s in zip(self.item, numpy_ttheta, numpy_intensity, numpy_intensity_sigma):
+                _item.ttheta = _tth
+                _item.intensity = _int
+                _item.intensity_sigma = _int_s
+

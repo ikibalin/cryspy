@@ -491,22 +491,39 @@ Description in cif file::
         return "\n".join(ls_out)
 
 
-    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None):
+    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None, flag_internal=True):
         """
-calculate intensity for the given diffraction angle
+Calculate intensity for the given diffraction angles.
+
+Keyword arguments:
+
+    tth: 1D numpy array of 2theta in degrees
+    l_crystal: a list of Crystal objects of cryspy library
+    l_peak_in: precalculated data about integrated intensities (used to speed up the calculations)
+    l_refln_in: precalculated data about nuclear structure factors (used to speed up the calculations)
+    l_refln_susceptibility_in: precalculated data about  (used to speed up the calculations)
+    flag_internal: a flag to calculate or to use internal objects. 
+                   It should be True if user call the function.
+                   It's True by default.
+
+Output arguments:
+
+    proc: output profile
+    l_peak: data about peaks
+    l_refln: data about nuclear structure factor
         """
-        proc = PdProcL(item=[PdProc(ttheta=_tth) for _tth in tth]) #it is output
+        proc = PdProcL()
+        proc.set_numpy_ttheta(tth)
         
         background = self.background
         if background is not None:
             int_bkgd = background.interpolate_by_points(tth)
         else:
             int_bkgd = 0.*tth
-        
-        [setattr(_item, "intensity_bkg_calc", _int_bkg) for _item, _int_bkg in zip(proc.item, int_bkgd)]
+
+        proc.set_numpy_intensity_bkg_calc(int_bkgd)
 
         wavelength = float(self.setup.wavelength)
-
         
         tth_min = tth.min()
         tth_max = tth.max()+3. 
@@ -556,23 +573,27 @@ calculate intensity for the given diffraction angle
             space_group = crystal.space_group
             
             if peak_in is not None:
-                h = numpy.array(peak_in.index_h, dtype=int)
-                k = numpy.array(peak_in.index_k, dtype=int)
-                l = numpy.array(peak_in.index_l, dtype=int)
-                mult = numpy.array(peak_in.index_mult, dtype=int)
+                h = peak_in.get_numpy_index_h()
+                k = peak_in.get_numpy_index_k()
+                l = peak_in.get_numpy_index_l()
+                mult = peak_in.get_numpy_index_mult()
             else:
                 h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
 
-            peak = PdPeakL(item=[PdPeak(index_h=_h, index_k=_k, index_l=_l, index_mult=_m) for _h, _k, _l, _m in zip(h, k, l, mult)])
-
+            peak = PdPeakL()
+            peak.set_numpy_index_h(h)
+            peak.set_numpy_index_k(k)
+            peak.set_numpy_index_l(l)
+            peak.set_numpy_index_mult(mult)
             
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
             if cond_1 & cond_2:
-                np_iint_u, np_iint_d, refln = peak_in.intensity_up, peak_in.intensity_down, refln_in
+                np_iint_u, np_iint_d = peak_in.get_numpy_intensity_up(), peak_in.get_numpy_intensity_down()
+                refln = refln_in
                 refln_s = refln_susceptibility_in
             else:   
-                np_iint_u, np_iint_d, refln, refln_s = self.calc_iint(h, k, l, crystal)
+                np_iint_u, np_iint_d, refln, refln_s = self.calc_iint(h, k, l, crystal, flag_internal=flag_internal)
                 refln.loop_name = phase_label
                 refln_s.loop_name = phase_label
 
@@ -586,11 +607,11 @@ calculate intensity for the given diffraction angle
 
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(tth, tth_hkl, i_g)
 
-            for _item, _1, _2, _3, _4 in zip(peak.item, np_iint_u, np_iint_d, tth_hkl, h_pv):
-                setattr(_item, "intensity_up", _1) 
-                setattr(_item, "intensity_down", _2) 
-                setattr(_item, "ttheta", _3) 
-                setattr(_item, "widht_ttheta", _4)
+            peak.set_numpy_intensity_up(np_iint_u)
+            peak.set_numpy_intensity_up(np_iint_d)
+            peak.set_numpy_intensity_up(tth_hkl)
+            peak.set_numpy_intensity_up(h_pv)
+
             
             np_iint_u_2d = numpy.meshgrid(tth, np_iint_u*mult, indexing="ij")[1]
             np_iint_d_2d = numpy.meshgrid(tth, np_iint_d*mult, indexing="ij")[1]
@@ -600,18 +621,26 @@ calculate intensity for the given diffraction angle
 
             res_u_1d += scale*res_u_2d.sum(axis=1) 
             res_d_1d += scale*res_d_2d.sum(axis=1) 
+
+            if flag_internal:
+                peak.transform_numpy_arrays_to_items()
             l_peak.append(peak)
 
-        for _item, _1, _2, _3, _4, _5 in zip(proc.item, tth_zs, res_u_1d, res_d_1d, res_u_1d+int_bkgd, res_d_1d+int_bkgd):
-            setattr(_item, "ttheta_corrected", _1) 
-            setattr(_item, "intensity_up_net", _2) 
-            setattr(_item, "intensity_down_net", _3) 
-            setattr(_item, "intensity_up_total", _4)            
-            setattr(_item, "intensity_down_total", _5)
+        proc.set_numpy_ttheta_corrected(tth_zs)
+        proc.set_numpy_intensity_up_net(res_u_1d)
+        proc.set_numpy_intensity_down_net(res_d_1d)
+        proc.set_numpy_intensity_net(res_u_1d+res_d_1d)
+        proc.set_numpy_intensity_up_total(res_u_1d+int_bkgd)
+        proc.set_numpy_intensity_down_total(res_d_1d+int_bkgd)
+        proc.set_numpy_intensity_total(res_u_1d+res_d_1d+int_bkgd+int_bkgd)
+
+        if flag_internal:
+            proc.transform_numpy_arrays_to_items()
         
         l_internal_objs = l_refln + l_refln_s + l_peak
         l_internal_objs.append(proc)
         setattr(self, "__internal_objs", l_internal_objs)
+
         return proc, l_peak, l_refln
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
@@ -631,23 +660,37 @@ calculate intensity for the given diffraction angle
     #    int_u_mod, int_d_mod, d_exp_prof_out = self.calc_profile(tth, l_crystal, d_prof_in)
     #    return int_u_mod, int_d_mod, d_exp_prof_out
 
-    def calc_chi_sq(self, l_crystal):
+    def calc_chi_sq(self, l_crystal, flag_internal=True):
         """
-calculate chi square
-        """
-        meas = self.meas
+Calculate chi square
 
-        tth = numpy.array(meas.ttheta, dtype=float)
+Keyword arguments:
+
+    l_crystal: a list of Crystal objects of cryspy library
+    flag_internal: a flag to calculate or to use internal objects. 
+                   It should be True if user call the function.
+                   It's True by default.
+
+Output arguments:
+
+    chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
+    n: number of measured reflections
+        """
+
+        meas = self.meas
         flag_polarized = meas.is_polarized
-       
+        if flag_internal:
+            meas.transform_items_to_numpy_arrays()
+        
+        tth = meas.get_numpy_ttheta()
         if flag_polarized:
-            int_u_exp = numpy.array(meas.intensity_up, dtype=float)
-            sint_u_exp = numpy.array(meas.intensity_up_sigma, dtype=float)
-            int_d_exp = numpy.array(meas.intensity_down, dtype=float)
-            sint_d_exp = numpy.array(meas.intensity_down_sigma, dtype=float)
+            int_u_exp = meas.get_numpy_intensity_up()
+            sint_u_exp = meas.get_numpy_intensity_up_sigma()
+            int_d_exp = meas.get_numpy_intensity_down()
+            sint_d_exp = meas.get_numpy_intensity_down_sigma()
         else:
-            int_exp = numpy.array(meas.intensity, dtype=float)
-            sint_exp = numpy.array(meas.intensity_sigma, dtype=float)
+            int_exp = meas.get_numpy_intensity()
+            sint_exp = meas.get_numpy_intensity_sigma()
 
         #if ((self.peaks is not None) & (self.reflns is not None)):
         #    l_peak_in = self.peaks
@@ -679,23 +722,24 @@ calculate chi square
             int_exp_in = int_exp[cond_in]
             sint_exp_in = sint_exp[cond_in]
             
-        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_refln_susceptibility_in=l_refln_susceptibility_in)
-        
+        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_refln_susceptibility_in=l_refln_susceptibility_in, flag_internal=flag_internal)
+
+
         if flag_polarized:
-            for _item, _1, _2, _3, _4 in zip(self.proc.item, int_u_exp_in, sint_u_exp_in, int_d_exp_in, sint_d_exp_in):
-                _item.intensity_up = _1
-                _item.intensity_up_sigma = _2
-                _item.intensity_down = _3
-                _item.intensity_down_sigma = _4
+            proc.set_numpy_intensity_up(int_u_exp_in)
+            proc.set_numpy_intensity_up_sigma(sint_u_exp_in)
+            proc.set_numpy_intensity_down(int_d_exp_in)
+            proc.set_numpy_intensity_down_sigma(sint_d_exp_in)
+            proc.set_numpy_intensity(int_u_exp_in+int_d_exp_in)
+            proc.set_numpy_intensity_sigma(numpy.sqrt(numpy.square(sint_u_exp_in) + numpy.square(sint_d_exp_in)))
         else:
-            for _item, _1, _2 in zip(self.proc.item, int_exp_in, sint_exp_in):
-                _item.intensity = _1
-                _item.intensity_sigma = _2
+            proc.set_numpy_intensity(int_exp_in)
+            proc.set_numpy_intensity_sigma(sint_exp_in)
 
-        
 
-        int_u_mod = numpy.array([_item.intensity_up_total for _item in proc.item], dtype=float)
-        int_d_mod = numpy.array([_item.intensity_down_total for _item in proc.item], dtype=float)
+        int_u_mod = proc.get_numpy_intensity_up_total()
+        int_d_mod = proc.get_numpy_intensity_down_total()
+
 
         if flag_polarized:
             sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
@@ -711,7 +755,6 @@ calculate chi square
         else:
             chi_sq_sum = ((int_u_mod+int_d_mod-int_exp_in)/sint_exp_in)**2
             cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
-            
 
         #exclude region
         exclude = self.exclude
@@ -744,10 +787,12 @@ calculate chi square
             chi_sq_dif_val = (chi_sq_dif[cond_dif]).sum()
             n_dif = cond_dif.sum()
 
-            flag_u = self.chi2.up
-            flag_d = self.chi2.down
-            flag_sum = self.chi2.sum
-            flag_dif = self.chi2.diff
+            chi2 = self.chi2
+
+            flag_u = chi2.up
+            flag_d = chi2.down
+            flag_sum = chi2.sum
+            flag_dif = chi2.diff
         
             chi_sq_val = (int(flag_u)*chi_sq_u_val + int(flag_d)*chi_sq_d_val + 
                       int(flag_sum)*chi_sq_sum_val + int(flag_dif)*chi_sq_dif_val)
@@ -760,14 +805,32 @@ calculate chi square
         #d_exp_out.update(d_exp_prof_out)
         #print(f"chi_sq_val/n: {chi_sq_val/n:.2f} , chi_sq_val: {chi_sq_val:.2f}")
 
-        refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
-        self.internal_objs.append(refine_ls)          
+        if flag_internal:
+            refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
+            self.internal_objs.append(refine_ls)
+        if flag_internal:
+            proc.transform_numpy_arrays_to_items()
         return chi_sq_val, n
 
 
-    def calc_iint(self, h, k, l, crystal):
+    def calc_iint(self, h, k, l, crystal, flag_internal=True):
         """
-        calculate the integral intensity for h, k, l reflections
+Calculate the integrated intensity for h, k, l reflections.
+
+Keyword arguments:
+
+    h, k, l: 1D numpy array of Miller indexes, dtype = int32
+    l_crystal: a list of Crystal objects of cryspy library
+    flag_internal: a flag to calculate or to use internal objects. 
+                   It should be True if user call the function.
+                   It's True by default.
+
+Output arguments:
+
+    iint_u: 1D numpy array of integrated intensity up, dtype = float
+    iint_d: 1D numpy array of integrated intensity up, dtype = float
+    refln: ReflnL object of cryspy library (nuclear structure factor)
+    refln_s: ReflnSusceptibilityL object of cryspy library (nuclear structure factor)
         """
         field = self.setup.field
         if field is None:
@@ -783,19 +846,18 @@ calculate chi square
             p_u = 0.0
             p_d = 0.0
 
-        refln = crystal.calc_refln(h, k, l)
-        f_nucl = numpy.array(refln.f_calc, dtype=complex)
+        refln = crystal.calc_refln(h, k, l, flag_internal=flag_internal)
+        f_nucl = refln.get_numpy_f_calc()
 
+        refln_s = crystal.calc_refln_susceptibility(h, k, l, flag_internal=flag_internal)
 
-        refln_s = crystal.calc_refln_susceptibility(h, k, l)
+        sft_11, sft_12, sft_13 = refln_s.get_numpy_chi_11_calc(), refln_s.get_numpy_chi_12_calc(), refln_s.get_numpy_chi_13_calc()
+        sft_21, sft_22, sft_23 = refln_s.get_numpy_chi_21_calc(), refln_s.get_numpy_chi_22_calc(), refln_s.get_numpy_chi_23_calc()
+        sft_31, sft_32, sft_33 = refln_s.get_numpy_chi_31_calc(), refln_s.get_numpy_chi_32_calc(), refln_s.get_numpy_chi_33_calc()
 
-        sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
-        sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
-        sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)
-
-        sftm_11, sftm_12, sftm_13 = numpy.array(refln_s.moment_11_calc, dtype=complex), numpy.array(refln_s.moment_12_calc, dtype=complex), numpy.array(refln_s.moment_13_calc, dtype=complex)
-        sftm_21, sftm_22, sftm_23 = numpy.array(refln_s.moment_21_calc, dtype=complex), numpy.array(refln_s.moment_22_calc, dtype=complex), numpy.array(refln_s.moment_23_calc, dtype=complex)
-        sftm_31, sftm_32, sftm_33 = numpy.array(refln_s.moment_31_calc, dtype=complex), numpy.array(refln_s.moment_32_calc, dtype=complex), numpy.array(refln_s.moment_33_calc, dtype=complex)
+        sftm_11, sftm_12, sftm_13 = refln_s.get_numpy_moment_11_calc(), refln_s.get_numpy_moment_12_calc(), refln_s.get_numpy_moment_13_calc()
+        sftm_21, sftm_22, sftm_23 = refln_s.get_numpy_moment_21_calc(), refln_s.get_numpy_moment_22_calc(), refln_s.get_numpy_moment_23_calc()
+        sftm_31, sftm_32, sftm_33 = refln_s.get_numpy_moment_31_calc(), refln_s.get_numpy_moment_32_calc(), refln_s.get_numpy_moment_33_calc()
 
         _11, _12, _13 = sftm_11+field*sft_11, sftm_12+field*sft_12, sftm_13+field*sft_13
         _21, _22, _23 = sftm_21+field*sft_21, sftm_22+field*sft_22, sftm_23+field*sft_23
@@ -821,7 +883,6 @@ calculate chi square
 
         #d_info_out = {"iint_u": iint_u, "iint_d": iint_d}   
         #d_info_out.update(d_info_cry)
-        
         return iint_u, iint_d, refln, refln_s
 
     def _gauss_pd(self, tth_2d):
@@ -922,3 +983,4 @@ calculate chi square
         #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
 
         return "\n".join(ls_out)
+

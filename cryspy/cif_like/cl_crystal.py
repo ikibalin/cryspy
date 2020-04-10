@@ -412,11 +412,23 @@ for each atom defined in atom_site
         np_beta = numpy.array(l_beta, dtype=float)
         return np_b_iso, np_beta
 
-    def calc_refln(self, h, k, l):
+    def calc_f_nucl(self, h, k, l):
         """
-calculate nuclear structure factor
+Calculate nuclear structure factor
 
-FIXME: introduce Debye-Waller factor
+Keyword arguments: 
+
+    h, k, l: 1D numpy array of Miller indexes
+
+Output: 
+
+    f_nucl: 1D numpy array of Nuclear structure factor
+
+Example:
+
+>>> import numpy as np
+>>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int), np.array([1,0],dtype=int)
+>>> f_nucl = crystal.calc_f_nucl(h, k, l)
         """
         space_group = self.space_group
         r_s_g_s = space_group.reduced_space_group_symop
@@ -467,19 +479,62 @@ FIXME: introduce Debye-Waller factor
         f_hkl_as = hh.sum(axis=1)*1./len(r_11)#nuclear structure factor in assymetric unit cell
 
         f_nucl = space_group.calc_f_hkl_by_f_hkl_as(h, k, l, f_hkl_as)
-   
+        return f_nucl
+ 
         
+    def calc_refln(self, h, k, l, flag_internal=True):
+        """
+Calculate Refln cryspy object where nuclear structure factor is stored.
 
-        item=[Refln(index_h=_1, index_k=_2, index_l=_3, f_calc=_4) for _1, _2, _3, _4 in zip(h, k, l, f_nucl)]
-        res = ReflnL(item=item)
+Keyword arguments: 
+
+    h, k, l: 1D numpy array of Miller indexes
+    flag_internal: a flag to calculate or to use internal objects. 
+                   It should be True if user call the function.
+                   It's True by default.
+
+Output: 
+
+    refln: object cryspy.Refln
+
+Example:
+
+>>> import numpy as np
+>>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int), np.array([1,0],dtype=int)
+>>> refln = crystal.calc_refln(h, k, l)
+>>> print(refln.to_cif())
+        """
+        f_nucl = self.calc_f_nucl(h, k, l)
+        res = ReflnL()
+        res.set_numpy_index_h(h)
+        res.set_numpy_index_k(k)
+        res.set_numpy_index_l(l)
+        res.set_numpy_f_calc(f_nucl)
+        if flag_internal:
+            res.transform_numpy_arrays_to_items()
         return res
 
 
-    def calc_refln_susceptibility(self, h, k, l):
+    def calc_susceptibility_moment_tensor(self, h, k, l):
         """
-calculate susceptibility structure factor tensor
+Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)
 
-FIXME: introduce Debye-Waller factor
+Keyword arguments: 
+
+    h, k, l: 1D numpy array of Miller indexes
+
+Output: 
+
+    CHI_11, CHI_12, CHI_13, CHI_21, CHI_22, CHI_23, CHI_31, CHI_32, CHI_33: 1D numpy array of susceptibility tensor
+    M_11, M_12, M_13, M_21, M_22, M_23, M_31, M_32, M_33: 1D numpy array of moment tensor
+
+Example:
+
+>>> import numpy as np
+>>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int), np.array([1,0],dtype=int)
+>>> CHI_M = crystal.calc_susceptibility_moment_tensor(h, k, l)
+>>> CHI_11, CHI_12, CHI_13, CHI_21, CHI_22, CHI_23, CHI_31, CHI_32, CHI_33 = CHI_M[:9]
+>>> M_11, M_12, M_13, M_21, M_22, M_23, M_31, M_32, M_33 = CHI_M[9:]
         """
         space_group = self.space_group
         r_s_g_s = space_group.reduced_space_group_symop
@@ -490,16 +545,13 @@ FIXME: introduce Debye-Waller factor
         sthovl = cell.calc_sthovl(h, k, l)
 
         if atom_site_susceptibility is None:
-            item = [ReflnSusceptibility(index_h=_h, index_k=_k, index_l=_l, sintlambda=_s,
-                                    chi_11_calc = 0., chi_12_calc = 0., chi_13_calc = 0., 
-                                    chi_21_calc = 0., chi_22_calc = 0., chi_23_calc = 0., 
-                                    chi_31_calc = 0., chi_32_calc = 0., chi_33_calc = 0., 
-                                    moment_11_calc = 0., moment_12_calc = 0., moment_13_calc = 0., 
-                                    moment_21_calc = 0., moment_22_calc = 0., moment_23_calc = 0., 
-                                    moment_31_calc = 0., moment_32_calc = 0., moment_33_calc = 0.)
-                for _h, _k, _l, _s in zip(h, k, l, sthovl)]
-            res = ReflnSusceptibilityL(item=item)
-            return res
+            s_11, s_12, s_13 = numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float)
+            s_21, s_22, s_23 = numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float)
+            s_31, s_32, s_33 = numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float)
+            sm_11, sm_12, sm_13 = numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float)
+            sm_21, sm_22, sm_23 = numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float)
+            sm_31, sm_32, sm_33 = numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float), numpy.zeros(len(h), dtype=float)
+            return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33
 
         chi_11 = numpy.array(atom_site_susceptibility.chi_11, float)
         chi_22 = numpy.array(atom_site_susceptibility.chi_22, float)
@@ -622,21 +674,58 @@ FIXME: introduce Debye-Waller factor
                 hh[:, 12], hh[:, 13], hh[:, 14], 
                 hh[:, 15], hh[:, 16], hh[:, 17])
 
-        item = [ReflnSusceptibility(index_h=_h, index_k=_k, index_l=_l, sintlambda=_s,
-                                    chi_11_calc = _s_11, chi_12_calc = _s_12, chi_13_calc = _s_13, 
-                                    chi_21_calc = _s_21, chi_22_calc = _s_22, chi_23_calc = _s_23, 
-                                    chi_31_calc = _s_31, chi_32_calc = _s_32, chi_33_calc = _s_33, 
-                                    moment_11_calc = _sm_11, moment_12_calc = _sm_12, moment_13_calc = _sm_13, 
-                                    moment_21_calc = _sm_21, moment_22_calc = _sm_22, moment_23_calc = _sm_23, 
-                                    moment_31_calc = _sm_31, moment_32_calc = _sm_32, moment_33_calc = _sm_33)
-        for _h, _k, _l, _s, _s_11, _s_12, _s_13, _s_21, _s_22, _s_23, _s_31, _s_32, _s_33, 
-            _sm_11, _sm_12, _sm_13, _sm_21, _sm_22, _sm_23, _sm_31, _sm_32, _sm_33 in zip(
-            h, k, l, sthovl, s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33,
-            sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33)    
-        ]
-        res = ReflnSusceptibilityL(item=item)
-        return res
+        return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33
 
+
+
+    def calc_refln_susceptibility(self, h, k, l, flag_internal=True):
+        """
+Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)
+
+Keyword arguments: 
+
+    h, k, l: 1D numpy array of Miller indexes
+
+Output: 
+
+    ReflnSusceptibilityL object of cryspy
+    
+Example:
+
+>>> import numpy as np
+>>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int), np.array([1,0],dtype=int)
+>>> refln_suscept = crystal.calc_refln_susceptibility(h, k, l)
+        """
+        CHI_M = self.calc_susceptibility_moment_tensor(h, k, l)
+
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = CHI_M[:9]
+        sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33 = CHI_M[9:]
+
+        res = ReflnSusceptibilityL()
+        res.set_numpy_index_h(h)
+        res.set_numpy_index_k(k)
+        res.set_numpy_index_l(l)
+        res.set_numpy_chi_11_calc(s_11)
+        res.set_numpy_chi_12_calc(s_12)
+        res.set_numpy_chi_13_calc(s_13)
+        res.set_numpy_chi_21_calc(s_21)
+        res.set_numpy_chi_22_calc(s_22)
+        res.set_numpy_chi_23_calc(s_23)
+        res.set_numpy_chi_31_calc(s_31)
+        res.set_numpy_chi_32_calc(s_32)
+        res.set_numpy_chi_33_calc(s_33)
+        res.set_numpy_moment_11_calc(sm_11)
+        res.set_numpy_moment_12_calc(sm_12)
+        res.set_numpy_moment_13_calc(sm_13)
+        res.set_numpy_moment_21_calc(sm_21)
+        res.set_numpy_moment_22_calc(sm_22)
+        res.set_numpy_moment_23_calc(sm_23)
+        res.set_numpy_moment_31_calc(sm_31)
+        res.set_numpy_moment_32_calc(sm_32)
+        res.set_numpy_moment_33_calc(sm_33)
+        if flag_internal:
+            res.transform_numpy_arrays_to_items()
+        return res
 
     def _orto_matrix(self, l_11, l_12, l_13, l_21, l_22, l_23, l_31,
                      l_32, l_33):

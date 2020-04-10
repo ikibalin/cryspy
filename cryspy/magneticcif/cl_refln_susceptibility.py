@@ -427,8 +427,16 @@ Description in cif file::
     """
     CATEGORY_KEY = ("index_h", "index_k", "index_l")
     ITEM_CLASS = ReflnSusceptibility
+    INTERNAL_ATTRIBUTE = ("numpy_index_h", "numpy_index_k", "numpy_index_k", "numpy_sintlambda",
+                          "numpy_chi_11_calc", "numpy_chi_12_calc", "numpy_chi_13_calc", 
+                          "numpy_chi_21_calc", "numpy_chi_22_calc", "numpy_chi_23_calc", 
+                          "numpy_chi_31_calc", "numpy_chi_32_calc", "numpy_chi_33_calc", 
+                          "numpy_moment_11_calc", "numpy_moment_12_calc", "numpy_moment_13_calc", 
+                          "numpy_moment_21_calc", "numpy_moment_22_calc", "numpy_moment_23_calc", 
+                          "numpy_moment_31_calc", "numpy_moment_32_calc", "numpy_moment_33_calc")
     def __init__(self, item=[], loop_name=""):
-        super(ReflnSusceptibilityL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+        super(ReflnSusceptibilityL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, 
+                                                   loop_name=loop_name, internal_attribute=self.INTERNAL_ATTRIBUTE)
         self.item = item
 
     def __repr__(self) -> str:
@@ -436,3 +444,303 @@ Description in cif file::
         ls_out.append("ReflnSusceptibilityL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    def get_numpy_index_h(self):
+        return getattr(self, "__numpy_index_h")
+
+    def set_numpy_index_h(self, x):
+        setattr(self, "__numpy_index_h", x)
+
+    def get_numpy_index_k(self):
+        return getattr(self, "__numpy_index_k")
+
+    def set_numpy_index_k(self, x):
+        setattr(self, "__numpy_index_k", x)
+
+    def get_numpy_index_l(self):
+        return getattr(self, "__numpy_index_l")
+
+    def set_numpy_index_l(self, x):
+        setattr(self, "__numpy_index_l", x)
+
+    def get_numpy_sintlambda(self):
+        return getattr(self, "__numpy_sintlambda")
+
+    def set_numpy_sintlambda(self, x):
+        setattr(self, "__numpy_sintlambda", x)
+
+    def get_numpy_chi_11_calc(self):
+        return getattr(self, "__numpy_chi_11_calc")
+
+    def set_numpy_chi_11_calc(self, x):
+        setattr(self, "__numpy_chi_11_calc", x)
+
+    def get_numpy_chi_12_calc(self):
+        return getattr(self, "__numpy_chi_12_calc")
+
+    def set_numpy_chi_12_calc(self, x):
+        setattr(self, "__numpy_chi_12_calc", x)
+
+    def get_numpy_chi_13_calc(self):
+        return getattr(self, "__numpy_chi_13_calc")
+
+    def set_numpy_chi_13_calc(self, x):
+        setattr(self, "__numpy_chi_13_calc", x)
+
+    def get_numpy_chi_21_calc(self):
+        return getattr(self, "__numpy_chi_21_calc")
+
+    def set_numpy_chi_21_calc(self, x):
+        setattr(self, "__numpy_chi_21_calc", x)
+
+    def get_numpy_chi_22_calc(self):
+        return getattr(self, "__numpy_chi_22_calc")
+
+    def set_numpy_chi_22_calc(self, x):
+        setattr(self, "__numpy_chi_22_calc", x)
+
+    def get_numpy_chi_23_calc(self):
+        return getattr(self, "__numpy_chi_23_calc")
+
+    def set_numpy_chi_23_calc(self, x):
+        setattr(self, "__numpy_chi_23_calc", x)
+
+    def get_numpy_chi_31_calc(self):
+        return getattr(self, "__numpy_chi_31_calc")
+
+    def set_numpy_chi_31_calc(self, x):
+        setattr(self, "__numpy_chi_31_calc", x)
+
+    def get_numpy_chi_32_calc(self):
+        return getattr(self, "__numpy_chi_32_calc")
+
+    def set_numpy_chi_32_calc(self, x):
+        setattr(self, "__numpy_chi_32_calc", x)
+
+    def get_numpy_chi_33_calc(self):
+        return getattr(self, "__numpy_chi_33_calc")
+
+    def set_numpy_chi_33_calc(self, x):
+        setattr(self, "__numpy_chi_33_calc", x)
+
+    def get_numpy_moment_11_calc(self):
+        return getattr(self, "__numpy_moment_11_calc")
+
+    def set_numpy_moment_11_calc(self, x):
+        setattr(self, "__numpy_moment_11_calc", x)
+
+    def get_numpy_moment_12_calc(self):
+        return getattr(self, "__numpy_moment_12_calc")
+
+    def set_numpy_moment_12_calc(self, x):
+        setattr(self, "__numpy_moment_12_calc", x)
+
+    def get_numpy_moment_13_calc(self):
+        return getattr(self, "__numpy_moment_13_calc")
+
+    def set_numpy_moment_13_calc(self, x):
+        setattr(self, "__numpy_moment_13_calc", x)
+
+    def get_numpy_moment_21_calc(self):
+        return getattr(self, "__numpy_moment_21_calc")
+
+    def set_numpy_moment_21_calc(self, x):
+        setattr(self, "__numpy_moment_21_calc", x)
+
+    def get_numpy_moment_22_calc(self):
+        return getattr(self, "__numpy_moment_22_calc")
+
+    def set_numpy_moment_22_calc(self, x):
+        setattr(self, "__numpy_moment_22_calc", x)
+
+    def get_numpy_moment_23_calc(self):
+        return getattr(self, "__numpy_moment_23_calc")
+
+    def set_numpy_moment_23_calc(self, x):
+        setattr(self, "__numpy_moment_23_calc", x)
+
+    def get_numpy_moment_31_calc(self):
+        return getattr(self, "__numpy_moment_31_calc")
+
+    def set_numpy_moment_31_calc(self, x):
+        setattr(self, "__numpy_moment_31_calc", x)
+
+    def get_numpy_moment_32_calc(self):
+        return getattr(self, "__numpy_moment_32_calc")
+
+    def set_numpy_moment_32_calc(self, x):
+        setattr(self, "__numpy_moment_32_calc", x)
+
+    def get_numpy_moment_33_calc(self):
+        return getattr(self, "__numpy_moment_33_calc")
+
+    def set_numpy_moment_33_calc(self, x):
+        setattr(self, "__numpy_moment_33_calc", x)
+
+    def transform_items_to_numpy_arrays(self):
+        """
+Transform items to numpy arrays (to speed up the calculations):
+
+    numpy_index_h: 1D numpy array of index_h, dtype=int32
+    numpy_index_k: 1D numpy array of index_k, dtype=int32
+    numpy_index_l: 1D numpy array of index_l, dtype=int32
+    numpy_sintlambda: 1D numpy array of sintlambda, dtype=float
+    numpy_chi_11_calc: 1D numpy array of chi_11_calc, dtype=complex
+    numpy_chi_12_calc: 1D numpy array of chi_12_calc, dtype=complex
+    numpy_chi_13_calc: 1D numpy array of chi_13_calc, dtype=complex
+    numpy_chi_21_calc: 1D numpy array of chi_21_calc, dtype=complex
+    numpy_chi_22_calc: 1D numpy array of chi_22_calc, dtype=complex
+    numpy_chi_23_calc: 1D numpy array of chi_23_calc, dtype=complex
+    numpy_chi_31_calc: 1D numpy array of chi_31_calc, dtype=complex
+    numpy_chi_32_calc: 1D numpy array of chi_32_calc, dtype=complex
+    numpy_chi_33_calc: 1D numpy array of chi_33_calc, dtype=complex
+    numpy_moment_11_calc: 1D numpy array of moment_11_calc, dtype=complex
+    numpy_moment_12_calc: 1D numpy array of moment_12_calc, dtype=complex
+    numpy_moment_13_calc: 1D numpy array of moment_13_calc, dtype=complex
+    numpy_moment_21_calc: 1D numpy array of moment_21_calc, dtype=complex
+    numpy_moment_22_calc: 1D numpy array of moment_22_calc, dtype=complex
+    numpy_moment_23_calc: 1D numpy array of moment_23_calc, dtype=complex
+    numpy_moment_31_calc: 1D numpy array of moment_31_calc, dtype=complex
+    numpy_moment_32_calc: 1D numpy array of moment_32_calc, dtype=complex
+    numpy_moment_33_calc: 1D numpy array of moment_33_calc, dtype=complex
+        """
+
+        setattr(self, "__numpy_index_h", numpy.array(self.index_h, dtype=int))
+        setattr(self, "__numpy_index_k", numpy.array(self.index_k, dtype=int))
+        setattr(self, "__numpy_index_l", numpy.array(self.index_l, dtype=int))
+        setattr(self, "__numpy_sintlambda", numpy.array(self.sintlambda, dtype=float))
+        setattr(self, "__numpy_chi_11_calc", numpy.array(self.chi_11_calc, dtype=complex))
+        setattr(self, "__numpy_chi_12_calc", numpy.array(self.chi_12_calc, dtype=complex))
+        setattr(self, "__numpy_chi_13_calc", numpy.array(self.chi_13_calc, dtype=complex))
+        setattr(self, "__numpy_chi_21_calc", numpy.array(self.chi_21_calc, dtype=complex))
+        setattr(self, "__numpy_chi_22_calc", numpy.array(self.chi_22_calc, dtype=complex))
+        setattr(self, "__numpy_chi_23_calc", numpy.array(self.chi_23_calc, dtype=complex))
+        setattr(self, "__numpy_chi_31_calc", numpy.array(self.chi_31_calc, dtype=complex))
+        setattr(self, "__numpy_chi_32_calc", numpy.array(self.chi_32_calc, dtype=complex))
+        setattr(self, "__numpy_chi_33_calc", numpy.array(self.chi_33_calc, dtype=complex))
+        setattr(self, "__numpy_moment_11_calc", numpy.array(self.moment_11_calc, dtype=complex))
+        setattr(self, "__numpy_moment_12_calc", numpy.array(self.moment_12_calc, dtype=complex))
+        setattr(self, "__numpy_moment_13_calc", numpy.array(self.moment_13_calc, dtype=complex))
+        setattr(self, "__numpy_moment_21_calc", numpy.array(self.moment_21_calc, dtype=complex))
+        setattr(self, "__numpy_moment_22_calc", numpy.array(self.moment_22_calc, dtype=complex))
+        setattr(self, "__numpy_moment_23_calc", numpy.array(self.moment_23_calc, dtype=complex))
+        setattr(self, "__numpy_moment_31_calc", numpy.array(self.moment_31_calc, dtype=complex))
+        setattr(self, "__numpy_moment_32_calc", numpy.array(self.moment_32_calc, dtype=complex))
+        setattr(self, "__numpy_moment_33_calc", numpy.array(self.moment_33_calc, dtype=complex))
+
+    def transform_numpy_arrays_to_items(self):
+        """
+Transform data from numpy arrays to items:
+
+    numpy_index_h: 1D numpy array of index_h, dtype=int32
+    numpy_index_k: 1D numpy array of index_k, dtype=int32
+    numpy_index_l: 1D numpy array of index_l, dtype=int32
+    numpy_sintlambda: 1D numpy array of sintlambda, dtype=float
+    numpy_chi_11_calc: 1D numpy array of chi_11_calc, dtype=complex
+    numpy_chi_12_calc: 1D numpy array of chi_12_calc, dtype=complex
+    numpy_chi_13_calc: 1D numpy array of chi_13_calc, dtype=complex
+    numpy_chi_21_calc: 1D numpy array of chi_21_calc, dtype=complex
+    numpy_chi_22_calc: 1D numpy array of chi_22_calc, dtype=complex
+    numpy_chi_23_calc: 1D numpy array of chi_23_calc, dtype=complex
+    numpy_chi_31_calc: 1D numpy array of chi_31_calc, dtype=complex
+    numpy_chi_32_calc: 1D numpy array of chi_32_calc, dtype=complex
+    numpy_chi_33_calc: 1D numpy array of chi_33_calc, dtype=complex
+    numpy_moment_11_calc: 1D numpy array of moment_11_calc, dtype=complex
+    numpy_moment_12_calc: 1D numpy array of moment_12_calc, dtype=complex
+    numpy_moment_13_calc: 1D numpy array of moment_13_calc, dtype=complex
+    numpy_moment_21_calc: 1D numpy array of moment_21_calc, dtype=complex
+    numpy_moment_22_calc: 1D numpy array of moment_22_calc, dtype=complex
+    numpy_moment_23_calc: 1D numpy array of moment_23_calc, dtype=complex
+    numpy_moment_31_calc: 1D numpy array of moment_31_calc, dtype=complex
+    numpy_moment_32_calc: 1D numpy array of moment_32_calc, dtype=complex
+    numpy_moment_33_calc: 1D numpy array of moment_33_calc, dtype=complex
+        """
+        numpy_index_h = getattr(self, "__numpy_index_h")
+        if numpy_index_h is None: return
+        l_item = [ReflnSusceptibility(index_h=_val) for _val in numpy_index_h]
+
+        np_val = getattr(self, "__numpy_index_k")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.index_k = val
+        np_val = getattr(self, "__numpy_index_l")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.index_l = val
+        np_val = getattr(self, "__numpy_sintlambda")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.sintlambda = val
+        np_val = getattr(self, "__numpy_chi_11_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_11_calc = val
+        np_val = getattr(self, "__numpy_chi_12_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_12_calc = val
+        np_val = getattr(self, "__numpy_chi_13_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_13_calc = val
+        np_val = getattr(self, "__numpy_chi_21_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_21_calc = val
+        np_val = getattr(self, "__numpy_chi_22_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_22_calc = val
+        np_val = getattr(self, "__numpy_chi_23_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_23_calc = val
+        np_val = getattr(self, "__numpy_chi_31_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_31_calc = val
+        np_val = getattr(self, "__numpy_chi_32_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_32_calc = val
+        np_val = getattr(self, "__numpy_chi_33_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.chi_33_calc = val
+        np_val = getattr(self, "__numpy_moment_11_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_11_calc = val
+        np_val = getattr(self, "__numpy_moment_12_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_12_calc = val
+        np_val = getattr(self, "__numpy_moment_13_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_13_calc = val
+        np_val = getattr(self, "__numpy_moment_21_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_21_calc = val
+        np_val = getattr(self, "__numpy_moment_22_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_22_calc = val
+        np_val = getattr(self, "__numpy_moment_23_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_23_calc = val
+        np_val = getattr(self, "__numpy_moment_31_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_31_calc = val
+        np_val = getattr(self, "__numpy_moment_32_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_32_calc = val
+        np_val = getattr(self, "__numpy_moment_33_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.moment_33_calc = val
+        self.item = l_item

@@ -753,8 +753,11 @@ Description in cif file::
     """
     CATEGORY_KEY = ("index_h", "index_k", "index_l")
     ITEM_CLASS = Refln
+    INTERNAL_ATTRIBUTE = ("numpy_index_h", "numpy_index_k",
+                          "numpy_index_k", "numpy_f_calc")
     def __init__(self, item=[], loop_name=""):
-        super(ReflnL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+        super(ReflnL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name,
+                                     internal_attribute=self.INTERNAL_ATTRIBUTE)
         self.item = item
 
     def __repr__(self) -> str:
@@ -762,3 +765,76 @@ Description in cif file::
         ls_out.append("ReflnL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    def get_numpy_index_h(self):
+        return getattr(self, "__numpy_index_h")
+
+    def set_numpy_index_h(self, x):
+        setattr(self, "__numpy_index_h", x)
+
+    def get_numpy_index_k(self):
+        return getattr(self, "__numpy_index_k")
+
+    def set_numpy_index_k(self, x):
+        setattr(self, "__numpy_index_k", x)
+
+    def get_numpy_index_l(self):
+        return getattr(self, "__numpy_index_l")
+
+    def set_numpy_index_l(self, x):
+        setattr(self, "__numpy_index_l", x)
+
+    def get_numpy_f_calc(self):
+        return getattr(self, "__numpy_f_calc")
+
+    def set_numpy_f_calc(self, x):
+        setattr(self, "__numpy_f_calc", x)
+
+    def transform_items_to_numpy_arrays(self):
+        """
+Transform items to numpy arrays (to speed up the calculations):
+
+    numpy_index_h: 1D numpy array of index_h, dtype=int32
+    numpy_index_k: 1D numpy array of index_k, dtype=int32
+    numpy_index_l: 1D numpy array of index_l, dtype=int32
+    numpy_f_calc: 1D numpy array of f_calc, dtype=complex
+        """
+
+        numpy_index_h = numpy.array(self.index_h, dtype=int)
+        setattr(self, "__numpy_index_h", numpy_index_h)
+        numpy_index_k = numpy.array(self.index_k, dtype=int)
+        setattr(self, "__numpy_index_k", numpy_index_k)
+        numpy_index_l = numpy.array(self.index_l, dtype=int)
+        setattr(self, "__numpy_index_l", numpy_index_l)
+        l_f_calc = [complex(_1, _2) for _1, _2 in zip(self.a_calc, self.b_calc)]
+        numpy_f_calc = numpy.array(l_f_calc, dtype=complex)
+        setattr(self, "__numpy_f_calc", numpy_f_calc)
+
+    def transform_numpy_arrays_to_items(self):
+        """
+Transform data from numpy arrays to items:
+
+    numpy_index_h: 1D numpy array of index_h, dtype=int32
+    numpy_index_k: 1D numpy array of index_k, dtype=int32
+    numpy_index_l: 1D numpy array of index_l, dtype=int32
+    numpy_f_calc: 1D numpy array of f_calc, dtype=complex
+        """
+        numpy_index_h = getattr(self, "__numpy_index_h")
+        if numpy_index_h is None: return
+        l_item = [Refln(index_h=_val) for _val in numpy_index_h]
+
+        np_val = getattr(self, "__numpy_index_k")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.index_k = val
+        np_val = getattr(self, "__numpy_index_l")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.index_l = val
+        np_val = getattr(self, "__numpy_f_calc")
+        if np_val is not None: 
+            for _item, val in zip(l_item, np_val):
+                _item.a_calc = val.real
+                _item.b_calc = val.imag
+
+        self.item = l_item

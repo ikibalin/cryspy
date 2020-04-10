@@ -202,9 +202,18 @@ Description in cif file::
         return res
 
 
-    def calc_chi_sq(self):
+    def calc_chi_sq(self, flag_internal=True):
         """
-calculate the integral intensity for h, k, l reflections
+Calculate chi square
+
+Keyword arguments:
+
+    flag_internal: a flag to calculate internal objects (default is True)
+
+Output arguments:
+
+    chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
+    n: number of measured reflections
         """
         self.apply_constraint()
             
@@ -212,7 +221,7 @@ calculate the integral intensity for h, k, l reflections
 
         chi_sq_res, n_res = 0., 0.
         for experiment in self.experiments:
-            chi_sq, n = experiment.calc_chi_sq(l_crystal)
+            chi_sq, n = experiment.calc_chi_sq(l_crystal, flag_internal=flag_internal)
             experiment.chi_sq = chi_sq
             experiment.n = n
             chi_sq_res += chi_sq
@@ -251,12 +260,12 @@ Minimization procedure
         coeff_norm = numpy.where(val_0 == 0., 1., val_0)/numpy.where(param_0==0., 1., param_0)
         hes_coeff_norm = numpy.matmul(coeff_norm[:, numpy.newaxis], coeff_norm[numpy.newaxis, :])
 
-        chi_sq, n = self.calc_chi_sq()
+        chi_sq, n = self.calc_chi_sq(flag_internal=True)
 
         def tempfunc(l_param):
             for fitable, param, _1 in zip(l_fitable, l_param, coeff_norm):
                 fitable.value = param*_1
-            chi_sq, n_points = self.calc_chi_sq()
+            chi_sq, n_points = self.calc_chi_sq(flag_internal=False)
             if n_points < n:
                 res_out = 1.0e+308
             else:
@@ -278,6 +287,7 @@ Minimization procedure
             scipy.optimize.leastsq(tempfunc, param_0, full_output=1)
 
         """
+
         res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(coeff_norm, x), options = {"disp": True})
         
         _dict_out = {"flag": flag, "res":res}
@@ -291,6 +301,8 @@ Minimization procedure
         sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
         for fitable, _1  in zip(l_fitable, sigma):
             fitable.sigma = _1
+
+        chi_sq, n = self.calc_chi_sq(flag_internal=True)
         #print("experiment  chi_sq_n")
         #for _1 in self.experiments:
         #    print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))

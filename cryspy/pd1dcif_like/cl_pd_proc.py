@@ -300,8 +300,17 @@ Description in cif file::
     """
     CATEGORY_KEY = ("ttheta", )
     ITEM_CLASS = PdProc
+    INTERNAL_ATTRIBUTE = ("numpy_ttheta", "numpy_ttheta_corrected", 
+                          "numpy_intensity_up_net", "numpy_intensity_down_net", 
+                          "numpy_intensity_up_total", "numpy_intensity_down_total", 
+                          "numpy_intensity_bkg_calc", 
+                          "numpy_intensity_net", "numpy_intensity_total", 
+                          "numpy_intensity_up", "numpy_intensity_up_sigma", 
+                          "numpy_intensity_down", "numpy_intensity_down_sigma", 
+                          "numpy_intensity", "numpy_intensity_sigma")
     def __init__(self, item=[], loop_name=""):
-        super(PdProcL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+        super(PdProcL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name,
+                                      internal_attribute=self.INTERNAL_ATTRIBUTE)
         self.item = item
 
     def __repr__(self) -> str:
@@ -309,3 +318,222 @@ Description in cif file::
         ls_out.append("PdProcL: ")
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
+
+    def get_numpy_ttheta(self):
+        return getattr(self, "__numpy_ttheta")
+
+    def set_numpy_ttheta(self, x):
+        setattr(self, "__numpy_ttheta", x)
+
+    def get_numpy_ttheta_corrected(self):
+        return getattr(self, "__numpy_ttheta_corrected")
+
+    def set_numpy_ttheta_corrected(self, x):
+        setattr(self, "__numpy_ttheta_corrected", x)
+
+    def get_numpy_intensity_up_net(self):
+        return getattr(self, "__numpy_intensity_up_net")
+
+    def set_numpy_intensity_up_net(self, x):
+        setattr(self, "__numpy_intensity_up_net", x)
+
+    def get_numpy_intensity_down_net(self):
+        return getattr(self, "__numpy_intensity_down_net")
+
+    def set_numpy_intensity_down_net(self, x):
+        setattr(self, "__numpy_intensity_down_net", x)
+
+    def get_numpy_intensity_up_total(self):
+        return getattr(self, "__numpy_intensity_up_total")
+
+    def set_numpy_intensity_up_total(self, x):
+        setattr(self, "__numpy_intensity_up_total", x)
+
+    def get_numpy_intensity_down_total(self):
+        return getattr(self, "__numpy_intensity_down_total")
+
+    def set_numpy_intensity_down_total(self, x):
+        setattr(self, "__numpy_intensity_down_total", x)
+
+    def get_numpy_intensity_bkg_calc(self):
+        return getattr(self, "__numpy_intensity_bkg_calc")
+
+    def set_numpy_intensity_bkg_calc(self, x):
+        setattr(self, "__numpy_intensity_bkg_calc", x)
+
+    def get_numpy_intensity_net(self):
+        return getattr(self, "__numpy_intensity_net")
+
+    def set_numpy_intensity_net(self, x):
+        setattr(self, "__numpy_intensity_net", x)
+
+    def get_numpy_intensity_total(self):
+        return getattr(self, "__numpy_intensity_total")
+
+    def set_numpy_intensity_total(self, x):
+        setattr(self, "__numpy_intensity_total", x)
+
+    def get_numpy_intensity_up(self):
+        return getattr(self, "__numpy_intensity_up")
+
+    def set_numpy_intensity_up(self, x):
+        setattr(self, "__numpy_intensity_up", x)
+
+    def get_numpy_intensity_up_sigma(self):
+        return getattr(self, "__numpy_intensity_up_sigma")
+
+    def set_numpy_intensity_up_sigma(self, x):
+        setattr(self, "__numpy_intensity_up_sigma", x)
+
+    def get_numpy_intensity_down(self):
+        return getattr(self, "__numpy_intensity_down")
+
+    def set_numpy_intensity_down(self, x):
+        setattr(self, "__numpy_intensity_down", x)
+
+    def get_numpy_intensity_down_sigma(self):
+        return getattr(self, "__numpy_intensity_down_sigma")
+
+    def set_numpy_intensity_down_sigma(self, x):
+        setattr(self, "__numpy_intensity_down_sigma", x)
+
+    def get_numpy_intensity(self):
+        return getattr(self, "__numpy_intensity")
+
+    def set_numpy_intensity(self, x):
+        setattr(self, "__numpy_intensity", x)
+
+    def get_numpy_intensity_sigma(self):
+        return getattr(self, "__numpy_intensity_sigma")
+
+    def set_numpy_intensity_sigma(self, x):
+        setattr(self, "__numpy_intensity_sigma", x)
+
+    def transform_items_to_numpy_arrays(self):
+        """
+Transform items to numpy arrays (to speed up the calculations):
+
+    numpy_ttheta: 1D numpy array of ttheta, dtype=float
+    numpy_ttheta_corrected: 1D numpy array of ttheta_corrected, dtype=float 
+    numpy_intensity_up_net: 1D numpy array of intensity_up_net, dtype=float
+    numpy_intensity_down_net: 1D numpy array of intensity_down_net, dtype=float
+    numpy_intensity_up_total: 1D numpy array of intensity_up_total, dtype=float
+    numpy_intensity_down_total 1D numpy array of intensity_down_total, dtype=floatl: 1D numpy array of , dtype=float
+    numpy_intensity_bkg_calc 1D numpy array of intensity_bkg_calc, dtype=float_calc: 1D numpy array of , dtype=float
+    numpy_intensity_up: 1D numpy array of intensity_up, dtype=float
+    numpy_intensity_up_sigma: 1D numpy array of intensity_up_sigma, dtype=float
+    numpy_intensity_down: 1D numpy array of intensity_down, dtype=float
+    numpy_intensity_down_sigma: 1D numpy array of intensity_down_sigma, dtype=float
+    numpy_intensity: 1D numpy array of intensity, dtype=float
+    numpy_intensity_sigma: 1D numpy array of intensity_sigma, dtype=float
+        """
+
+        numpy_ttheta = numpy.array(self.ttheta, dtype=float)
+        setattr(self, "__numpy_ttheta", numpy_ttheta)
+        numpy_ttheta_corrected = numpy.array(self.ttheta_corrected, dtype=float)
+        setattr(self, "__numpy_ttheta_corrected", numpy_ttheta_corrected)
+        numpy_intensity_up_net = numpy.array(self.intensity_up_net, dtype=float)
+        setattr(self, "__numpy_intensity_up_net", numpy_intensity_up_net)
+        numpy_intensity_down_net = numpy.array(self.intensity_down_net, dtype=float)
+        setattr(self, "__numpy_intensity_down_net", numpy_intensity_down_net)
+        numpy_intensity_up_total = numpy.array(self.intensity_up_total, dtype=float)
+        setattr(self, "__numpy_intensity_up_total", numpy_intensity_up_total)
+        numpy_intensity_down_total = numpy.array(self.intensity_down_total, dtype=float)
+        setattr(self, "__numpy_intensity_down_total", numpy_intensity_down_total)
+        numpy_intensity_bkg_calc = numpy.array(self.intensity_bkg_calc, dtype=float)
+        setattr(self, "__numpy_intensity_bkg_calc", numpy_intensity_bkg_calc)
+        numpy_intensity_net = numpy.array(self.intensity_net, dtype=float)
+        setattr(self, "__numpy_intensity_net", numpy_intensity_net)
+        numpy_intensity_total = numpy.array(self.intensity_total, dtype=float)
+        setattr(self, "__numpy_intensity_total", numpy_intensity_total)
+        numpy_intensity_up = numpy.array(self.intensity_up, dtype=float)
+        setattr(self, "__numpy_intensity_up", numpy_intensity_up)
+        numpy_intensity_up_sigma = numpy.array(self.intensity_up_sigma, dtype=float)
+        setattr(self, "__numpy_intensity_up_sigma", numpy_intensity_up_sigma)
+        numpy_intensity_down = numpy.array(self.intensity_down, dtype=float)
+        setattr(self, "__numpy_intensity_down", numpy_intensity_down)
+        numpy_intensity_down_sigma = numpy.array(self.intensity_down_sigma, dtype=float)
+        setattr(self, "__numpy_intensity_down_sigma", numpy_intensity_down_sigma)
+        numpy_intensity = numpy.array(self.intensity, dtype=float)
+        setattr(self, "__numpy_intensity", numpy_intensity)
+        numpy_intensity_sigma = numpy.array(self.intensity_sigma, dtype=float)
+        setattr(self, "__numpy_intensity_sigma", numpy_intensity_sigma)
+
+    def transform_numpy_arrays_to_items(self):
+        """
+Transform data from numpy arrays to items:
+
+    numpy_ttheta: 1D numpy array of ttheta, dtype=float
+    numpy_ttheta_corrected: 1D numpy array of ttheta_corrected, dtype=float 
+    numpy_intensity_up_net: 1D numpy array of intensity_up_net, dtype=float
+    numpy_intensity_down_net: 1D numpy array of intensity_down_net, dtype=float
+    numpy_intensity_up_total: 1D numpy array of intensity_up_total, dtype=float
+    numpy_intensity_down_total 1D numpy array of intensity_down_total, dtype=floatl: 1D numpy array of , dtype=float
+    numpy_intensity_bkg_calc 1D numpy array of intensity_bkg_calc, dtype=float_calc: 1D numpy array of , dtype=float
+    numpy_intensity_up: 1D numpy array of intensity_up, dtype=float
+    numpy_intensity_up_sigma: 1D numpy array of intensity_up_sigma, dtype=float
+    numpy_intensity_down: 1D numpy array of intensity_down, dtype=float
+    numpy_intensity_down_sigma: 1D numpy array of intensity_down_sigma, dtype=float
+    numpy_intensity: 1D numpy array of intensity, dtype=float
+    numpy_intensity_sigma: 1D numpy array of intensity_sigma, dtype=float
+        """
+        numpy_ttheta = getattr(self, "__numpy_ttheta")
+        if numpy_ttheta is None: return
+        l_item = [PdProc(ttheta=_val) for _val in numpy_ttheta]
+        numpy_ttheta_corrected = getattr(self, "__numpy_ttheta_corrected")
+        if numpy_ttheta_corrected is not None: 
+            for _item, val in zip(l_item, numpy_ttheta_corrected):
+                _item.ttheta_corrected = val
+        numpy_intensity_up_net = getattr(self, "__numpy_intensity_up_net")
+        if numpy_intensity_up_net is not None: 
+            for _item, val in zip(l_item, numpy_intensity_up_net):
+                _item.intensity_up_net = val
+        numpy_intensity_down_net = getattr(self, "__numpy_intensity_down_net")
+        if numpy_intensity_down_net is not None: 
+            for _item, val in zip(l_item, numpy_intensity_down_net):
+                _item.intensity_down_net = val
+        numpy_intensity_up_total = getattr(self, "__numpy_intensity_up_total")
+        if numpy_intensity_up_total is not None: 
+            for _item, val in zip(l_item, numpy_intensity_up_total):
+                _item.intensity_up_total = val
+        numpy_intensity_down_total = getattr(self, "__numpy_intensity_down_total")
+        if numpy_intensity_down_total is not None: 
+            for _item, val in zip(l_item, numpy_intensity_down_total):
+                _item.intensity_down_total = val
+        numpy_intensity_bkg_calc = getattr(self, "__numpy_intensity_bkg_calc")
+        if numpy_intensity_bkg_calc is not None: 
+            for _item, val in zip(l_item, numpy_intensity_bkg_calc):
+                _item.intensity_bkg_calc = val
+        numpy_intensity_net = getattr(self, "__numpy_intensity_net")
+        if numpy_intensity_net is not None: 
+            for _item, val in zip(l_item, numpy_intensity_net):
+                _item.intensity_net = val
+        numpy_intensity_total = getattr(self, "__numpy_intensity_total")
+        if numpy_intensity_total is not None: 
+            for _item, val in zip(l_item, numpy_intensity_total):
+                _item.intensity_total = val
+        numpy_intensity_up = getattr(self, "__numpy_intensity_up")
+        if numpy_intensity_up is not None: 
+            for _item, val in zip(l_item, numpy_intensity_up):
+                _item.intensity_up = val
+        numpy_intensity_up_sigma = getattr(self, "__numpy_intensity_up_sigma")
+        if numpy_intensity_up_sigma is not None: 
+            for _item, val in zip(l_item, numpy_intensity_up_sigma):
+                _item.intensity_up_sigma = val
+        numpy_intensity_down = getattr(self, "__numpy_intensity_down")
+        if numpy_intensity_down is not None: 
+            for _item, val in zip(l_item, numpy_intensity_down):
+                _item.intensity_down = val
+        numpy_intensity_down_sigma = getattr(self, "__numpy_intensity_down_sigma")
+        if numpy_intensity_down_sigma is not None: 
+            for _item, val in zip(l_item, numpy_intensity_down_sigma):
+                _item.intensity_down_sigma = val
+        numpy_intensity = getattr(self, "__numpy_intensity")
+        if numpy_intensity is not None: 
+            for _item, val in zip(l_item, numpy_intensity):
+                _item.intensity = val
+        numpy_intensity_sigma = getattr(self, "__numpy_intensity_sigma")
+        if numpy_intensity_sigma is not None: 
+            for _item, val in zip(l_item, numpy_intensity_sigma):
+                _item.intensity_sigma = val
+        self.item = l_item

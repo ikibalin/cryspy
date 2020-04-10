@@ -290,9 +290,14 @@ Output: the list of the refined parameters
 
 
 
-    def calc_iint_u_d_flip_ratio(self, h, k, l, l_crystal):
+    def calc_iint_u_d_flip_ratio(self, h, k, l, l_crystal, flag_internal=True):
         """
 Calculate intensity for the given diffraction angle
+
+Keyword arguments:
+
+    h, k, l: 1D numpy array of Miller indexes
+
         """
         l_label = [_.data_name for _ in l_crystal]
         if self.phase.label in l_label:
@@ -341,17 +346,25 @@ Calculate intensity for the given diffraction angle
         
         e_u_loc = field_loc/field_norm
         
+        if flag_internal:
+            refln = crystal.calc_refln(h, k, l)
+            f_nucl  =  numpy.array(refln.f_calc, dtype=complex)
+        else:
+            f_nucl = crystal.calc_f_nucl(h, k, l) 
         
-        refln = crystal.calc_refln(h, k, l)
-        f_nucl  =  numpy.array(refln.f_calc, dtype=complex)
 
-        refln_s = crystal.calc_refln_susceptibility(h, k, l)
-        sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
-        sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
-        sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)
-        sftm_11, sftm_12, sftm_13 = numpy.array(refln_s.moment_11_calc, dtype=complex), numpy.array(refln_s.moment_12_calc, dtype=complex), numpy.array(refln_s.moment_13_calc, dtype=complex)
-        sftm_21, sftm_22, sftm_23 = numpy.array(refln_s.moment_21_calc, dtype=complex), numpy.array(refln_s.moment_22_calc, dtype=complex), numpy.array(refln_s.moment_23_calc, dtype=complex)
-        sftm_31, sftm_32, sftm_33 = numpy.array(refln_s.moment_31_calc, dtype=complex), numpy.array(refln_s.moment_32_calc, dtype=complex), numpy.array(refln_s.moment_33_calc, dtype=complex)
+        if flag_internal:
+            refln_s = crystal.calc_refln_susceptibility(h, k, l)
+            sft_11, sft_12, sft_13 = numpy.array(refln_s.chi_11_calc, dtype=complex), numpy.array(refln_s.chi_12_calc, dtype=complex), numpy.array(refln_s.chi_13_calc, dtype=complex)
+            sft_21, sft_22, sft_23 = numpy.array(refln_s.chi_21_calc, dtype=complex), numpy.array(refln_s.chi_22_calc, dtype=complex), numpy.array(refln_s.chi_23_calc, dtype=complex)
+            sft_31, sft_32, sft_33 = numpy.array(refln_s.chi_31_calc, dtype=complex), numpy.array(refln_s.chi_32_calc, dtype=complex), numpy.array(refln_s.chi_33_calc, dtype=complex)
+            sftm_11, sftm_12, sftm_13 = numpy.array(refln_s.moment_11_calc, dtype=complex), numpy.array(refln_s.moment_12_calc, dtype=complex), numpy.array(refln_s.moment_13_calc, dtype=complex)
+            sftm_21, sftm_22, sftm_23 = numpy.array(refln_s.moment_21_calc, dtype=complex), numpy.array(refln_s.moment_22_calc, dtype=complex), numpy.array(refln_s.moment_23_calc, dtype=complex)
+            sftm_31, sftm_32, sftm_33 = numpy.array(refln_s.moment_31_calc, dtype=complex), numpy.array(refln_s.moment_32_calc, dtype=complex), numpy.array(refln_s.moment_33_calc, dtype=complex)
+        else:
+            chi_m = crystal.calc_susceptibility_moment_tensor(h, k, l) 
+            sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = chi_m[:9]
+            sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, sftm_33 = chi_m[9:] 
 
         cell = crystal.cell
         k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
@@ -415,16 +428,28 @@ Calculate intensity for the given diffraction angle
             print("{:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}".format(
                     h1, k1, l1, i_u, i_d, f_r))
         """
-        refln.loop_name = crystal.data_name
-        refln_s.loop_name = crystal.data_name
-        l_internal_objs = [refln, refln_s]
-        setattr(self, "__internal_objs", l_internal_objs)
+        
+        if flag_internal:
+            refln.loop_name = crystal.data_name
+            refln_s.loop_name = crystal.data_name
+            l_internal_objs = [refln, refln_s]
+            setattr(self, "__internal_objs", l_internal_objs)
 
-        return iint_u, iint_d, flip_ratio, refln, refln_s
+        return iint_u, iint_d, flip_ratio
     
-    def calc_chi_sq(self, l_crystal):
+    def calc_chi_sq(self, l_crystal: list, flag_internal=True):
         """
 Calculate chi square
+
+Keyword arguments:
+
+    l_crystal: a list of Crystal objects of cryspy library
+    flag_internal: a flag to calculate internal objects (default is True)
+
+Output arguments:
+
+    chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
+    n: number of measured reflections
         """
         diffrn_refln = self.diffrn_refln
         np_h = numpy.array(diffrn_refln.index_h, dtype=int)
@@ -432,13 +457,16 @@ Calculate chi square
         np_l = numpy.array(diffrn_refln.index_l, dtype=int)
         fr_exp = diffrn_refln.fr
         fr_sigma = diffrn_refln.fr_sigma
-        int_u_mod, int_d_mod, fr_mod, refln, refln_s = self.calc_iint_u_d_flip_ratio(
-                                               np_h, np_k, np_l, l_crystal)
+        int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
+                                               np_h, np_k, np_l, l_crystal, flag_internal=flag_internal)
         
-        for _item, _1, _2, _3 in zip(diffrn_refln.item, fr_mod, int_u_mod, int_d_mod):
-            _item.fr_calc = _1
-            _item.intensity_up_calc = _2
-            _item.intensity_down_calc = _3
+        if flag_internal:
+            for _obj in self.internal_objs:
+                if isinstance(_obj, ReflnL):
+                    for _item, _1, _2, _3 in zip(_obj.item, fr_mod, int_u_mod, int_d_mod):
+                        _item.fr_calc = _1
+                        _item.intensity_up_calc = _2
+                        _item.intensity_down_calc = _3
 
         #self.refln = refln
         #self.refln_s = refln_s
@@ -447,8 +475,9 @@ Calculate chi square
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
 
-        refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
-        self.internal_objs.append(refine_ls)
+        if flag_internal:
+            refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
+            self.internal_objs.append(refine_ls)
         return chi_sq_val, n
 
     def params_to_cif(self, separator="_", flag=False) -> str: 
