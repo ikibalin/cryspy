@@ -581,10 +581,6 @@ Output arguments:
                 h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
 
             peak = PdPeakL()
-            peak.set_numpy_index_h(h)
-            peak.set_numpy_index_k(k)
-            peak.set_numpy_index_l(l)
-            peak.set_numpy_index_mult(mult)
             
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
@@ -607,10 +603,14 @@ Output arguments:
 
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(tth, tth_hkl, i_g)
 
+            peak.set_numpy_index_h(h)
+            peak.set_numpy_index_k(k)
+            peak.set_numpy_index_l(l)
+            peak.set_numpy_index_mult(mult)
             peak.set_numpy_intensity_up(np_iint_u)
-            peak.set_numpy_intensity_up(np_iint_d)
-            peak.set_numpy_intensity_up(tth_hkl)
-            peak.set_numpy_intensity_up(h_pv)
+            peak.set_numpy_intensity_down(np_iint_d)
+            peak.set_numpy_ttheta(tth_hkl)
+            peak.set_numpy_width_ttheta(h_pv)
 
             
             np_iint_u_2d = numpy.meshgrid(tth, np_iint_u*mult, indexing="ij")[1]
