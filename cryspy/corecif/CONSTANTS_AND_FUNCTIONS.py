@@ -20,7 +20,7 @@ F_BSCAT = os.path.join(os.path.dirname(__file__), "bscat.tab")
 BSCAT = pycifstar.to_loop(F_BSCAT)
 
 
-def apply_constraint_on_cell_by_type_cell(cell, type_cell:str):
+def apply_constraint_on_cell_by_type_cell(cell, type_cell:str, it_coordinate_system_code:str):
     length_a, length_b, length_c = cell.length_a, cell.length_b, cell.length_c
     angle_alpha, angle_beta, angle_gamma = cell.angle_alpha, cell.angle_beta, cell.angle_gamma
     if length_a is None: 
@@ -58,14 +58,21 @@ def apply_constraint_on_cell_by_type_cell(cell, type_cell:str):
         angle_beta.value, angle_beta.refinement, angle_beta.constraint_flag = 90., False, True
         angle_gamma.value, angle_gamma.refinement, angle_gamma.constraint_flag = 90., False, True
     elif (type_cell == "hR"):
-        length_b.value, length_b.sigma = length_a.value, length_a.sigma
-        length_b.refinement, length_b.constraint_flag = False, True
-        length_c.value, length_c.sigma = length_a.value, length_a.sigma
-        length_c.refinement, length_c.constraint_flag = False, True
-        angle_beta.value, angle_beta.sigma = angle_alpha.value, angle_alpha.sigma
-        angle_beta.refinement, angle_beta.constraint_flag = False, True
-        angle_gamma.value, angle_gamma.sigma = angle_alpha.value, angle_alpha.sigma
-        angle_gamma.refinement, angle_gamma.constraint_flag = False, True
+        if it_coordinate_system_code.lower() == "h":
+            length_b.value, length_b.sigma = length_a.value, length_a.sigma
+            length_b.refinement, length_b.constraint_flag = False, True
+            angle_alpha.value, angle_alpha.refinement, angle_alpha.constraint_flag = 90., False, True
+            angle_beta.value, angle_beta.refinement, angle_beta.constraint_flag = 90., False, True
+            angle_gamma.value, angle_gamma.refinement, angle_gamma.constraint_flag = 120., False, True
+        else:
+            length_b.value, length_b.sigma = length_a.value, length_a.sigma
+            length_b.refinement, length_b.constraint_flag = False, True
+            length_c.value, length_c.sigma = length_a.value, length_a.sigma
+            length_c.refinement, length_c.constraint_flag = False, True
+            angle_beta.value, angle_beta.sigma = angle_alpha.value, angle_alpha.sigma
+            angle_beta.refinement, angle_beta.constraint_flag = False, True
+            angle_gamma.value, angle_gamma.sigma = angle_alpha.value, angle_alpha.sigma
+            angle_gamma.refinement, angle_gamma.constraint_flag = False, True
     elif type_cell.startswith("c"):
         length_b.value, length_b.sigma = length_a.value, length_a.sigma
         length_b.refinement, length_b.constraint_flag = False, True

@@ -93,7 +93,7 @@ Description in cif file::
     ACCESIBLE_BRAVAIS_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_BRAVAIS_TYPE
     ACCESIBLE_IT_COORDINATE_SYSTEM_CODE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE
     ACCESIBLE_LAUE_CLASS = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_LAUE_CLASS
-    ACCESIBLE_CENTERING_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_CENTERING_TYPE
+    ACCESIBLE_CENTRING_TYPE = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_CENTRING_TYPE
     ACCESIBLE_CRYSTAL_SYSTEM = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_CRYSTAL_SYSTEM
     ACCESIBLE_NAME_HM_REF = CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HM_SHORT
     ACCESIBLE_NAME_HM_ALT = frozenset(set(CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HM_FULL).union(set(CONSTANTS_AND_FUNCTIONS.ACCESIBLE_NAME_HM_EXTENDED)))
@@ -377,7 +377,7 @@ The data value must be one of the following:
             x_in = None
         else:
             x_in = str(x)
-            if not(x_in in self.ACCESIBLE_CENTERING_TYPE):
+            if not(x_in in self.ACCESIBLE_CENTRING_TYPE):
                 warnings.warn(f"centring_type '{x_in:}' is not supported", UserWarning, stacklevel=2)
                 x_in = None            
         setattr(self, "__centring_type", x_in)
@@ -825,6 +825,9 @@ be explicit. White space within the string is optional.
         return flag
 
     def form_object_by_it_number_it_coordinate_system_code(self):
+        """
+        TODO: Solve the problem with centring_type for hexagonal systems (Ex.: 166 spcace group)
+        """
         bravais_type, laue_class, patterson_name_hm, centring_type, crystal_system = None, None, None, None, None
         name_hm_extended, name_hm_full, name_hm_short = None, None, None
         name_hall, name_schoenflies, point_group_hm = None, None, None

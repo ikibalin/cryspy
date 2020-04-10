@@ -46,7 +46,7 @@ Description in cif file::
     "cos_ia_sq", "cos_ib_sq", "cos_ig_sq", "sin_ia_sq", "sin_ib_sq", "sin_ig_sq",
     "reciprocal_length_a", "reciprocal_length_b", "reciprocal_length_c", 
                           "reciprocal_angle_alpha", "reciprocal_angle_beta", "reciprocal_angle_gamma",
-                          "volume", "formula_units_z")
+                          "volume", "formula_units_z", "it_coordinate_system_code")
     PREFIX = "cell"
     def __init__(self, length_a=None, length_b=None, length_c=None, angle_alpha=None, angle_beta=None, 
     angle_gamma=None, formula_units_z=None):
@@ -391,6 +391,10 @@ in Carthezian coordinate system where :math:`X` along axis :math:`a`,
         return getattr(self, "__type_cell")
 
     @property
+    def it_coordinate_system_code(self):
+        return getattr(self, "__it_coordinate_system_code")
+
+    @property
     def cos_a(self):
         return getattr(self, "__cos_a")
     @property
@@ -500,10 +504,13 @@ Output: the list of the refined parameters
         flag_alpha_90 = math.isclose(float(self.angle_alpha), 90., rel_tol=rel_tol, abs_tol=abs_tol)
         flag_beta_90 = math.isclose(float(self.angle_beta), 90., rel_tol=rel_tol, abs_tol=abs_tol)
         flag_gamma_90 = math.isclose(float(self.angle_gamma), 90., rel_tol=rel_tol, abs_tol=abs_tol)
+        flag_gamma_120 = math.isclose(float(self.angle_gamma), 120., rel_tol=rel_tol, abs_tol=abs_tol)
 
         if all([flag_a_b, flag_a_c, flag_alpha_90, flag_beta_90, flag_gamma_90]):
             type_cell = "cP"
         elif all([flag_a_b, flag_a_c, flag_alpha_beta, flag_alpha_gamma, not(flag_alpha_90)]):
+            type_cell = "hR"
+        elif all([flag_a_b, flag_alpha_90, flag_beta_90, flag_gamma_120]):
             type_cell = "hR"
         elif all([flag_a_b, not(flag_a_c), flag_alpha_90, flag_beta_90, flag_gamma_90]):
             type_cell = "hP"
@@ -518,7 +525,7 @@ Output: the list of the refined parameters
     @property
     def form_object(self):
         if self.is_defined_attribute("type_cell"):
-            CONSTANTS_AND_FUNCTIONS.apply_constraint_on_cell_by_type_cell(self, self.type_cell)
+            CONSTANTS_AND_FUNCTIONS.apply_constraint_on_cell_by_type_cell(self, self.type_cell, self.it_coordinate_system_code)
         flag = True
         rad=numpy.pi/180.
 
@@ -605,9 +612,10 @@ Output: the list of the refined parameters
         return flag
 
 
-    def apply_constraint(self, type_cell:str)->bool:
+    def apply_constraint(self, type_cell:str, it_coordinate_system_code:str)->bool:
         setattr(self, "__type_cell", type_cell)
-        CONSTANTS_AND_FUNCTIONS.apply_constraint_on_cell_by_type_cell(self, self.type_cell)
+        setattr(self, "__it_coordinate_system_code", it_coordinate_system_code)
+        CONSTANTS_AND_FUNCTIONS.apply_constraint_on_cell_by_type_cell(self, self.type_cell, self.it_coordinate_system_code)
         flag = False
         if self.is_defined:
             flag = self.form_object

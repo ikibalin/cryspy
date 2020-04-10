@@ -351,7 +351,7 @@ Description in cif file::
         space_group = self.space_group
         space_group_wyckoff = space_group.space_group_wyckoff
         cell = self.cell
-        flag_cell = cell.apply_constraint(space_group.bravais_type)
+        flag_cell = cell.apply_constraint(space_group.bravais_type, space_group.it_coordinate_system_code)
         atom_site = self.atom_site
         flag_atom_site = atom_site.apply_constraint(space_group_wyckoff)
         atom_site_aniso = self.atom_site_aniso

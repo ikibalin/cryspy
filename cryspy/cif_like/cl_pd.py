@@ -695,7 +695,8 @@ Output arguments:
         #if ((self.peaks is not None) & (self.reflns is not None)):
         #    l_peak_in = self.peaks
         #    l_refln_in = self.reflns
-        if ((len(self.peak)!=0) & (len(self.refln) != 0) & (len(self.refln_susceptibility) != 0)):
+        if ((len(self.peak)!=0) & (len(self.refln) != 0) & (len(self.refln_susceptibility) != 0) & 
+            (not(flag_internal))):
             l_peak_in = self.peak
             l_refln_in = self.refln
             l_refln_susceptibility_in = self.refln_susceptibility

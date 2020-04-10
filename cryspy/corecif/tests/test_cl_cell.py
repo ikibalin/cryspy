@@ -37,6 +37,6 @@ def test_from_cif():
     _obj = Cell.from_cif(STR_FROM_CIF_1)
     assert math.isclose(float(_obj.length_a), 5.959, rel_tol =0.001, abs_tol=0.001)
     cell=Cell(9.)
-    cell.apply_constraint("cP")
+    cell.apply_constraint("cP", "")
     assert math.isclose(float(cell.length_b), 9.000, rel_tol =0.001, abs_tol=0.001)
     

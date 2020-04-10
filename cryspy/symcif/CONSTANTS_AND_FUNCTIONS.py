@@ -4,7 +4,7 @@ List of constants:
 ACCESIBLE_BRAVAIS_TYPE
 ACCESIBLE_IT_COORDINATE_SYSTEM_CODE
 ACCESIBLE_LAUE_CLASS
-ACCESIBLE_CENTERING_TYPE
+ACCESIBLE_CENTRING_TYPE
 ACCESIBLE_CRYSTAL_SYSTEM
 ACCESIBLE_NAME_HM_SHORT
 ACCESIBLE_NAME_SCHOENFLIES
@@ -13,10 +13,10 @@ ACCESIBLE_REFERENCE_SETTING
 
 DEFAULT_REFERENCE_TABLE_IT_NUMBER_NAME_HALL_NAME_SCHOENFLIES_NAME_HM_SHORT_REFERENCE_SETTING_IT_COORDINATE_SYSTEM_CODE
 
-D_CENTERING_TYPE_SHIFT - accessible list and shift
+D_CENTRING_TYPE_SHIFT - accessible list and shift
 D_CRYSTAL_FAMILY_DESCRIPTION - accessible list and description
 D_BRAVAIS_TYPE_CELL_CONSTRAINT_MODE_ABC - accessible list and description constraint_mode_abc
-T_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM - relation between bravais_type, centring_type, crystal_system
+T_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM - relation between bravais_type, centring_type, crystal_system
 List of functions:
 -------------------
 get_crystal_system_by_it_number(it_number:int)->str
@@ -272,7 +272,7 @@ def get_it_coordinate_system_codes_by_crystal_system(crystal_system: str) -> str
 
 ACCESIBLE_LAUE_CLASS = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
 
-ACCESIBLE_CENTERING_TYPE = ("P", "A", "B", "C", "F", "I", "R", "Rrev", "H")
+ACCESIBLE_CENTRING_TYPE = ("P", "A", "B", "C", "F", "I", "R", "Rrev", "H")
 
 ACCESIBLE_NAME_HM_SHORT = ("P 1", "P -1", "P 2", "P 21", "C 2", "P m", "P c", "C m", "C c", "P 2/m", "P 21/m", "C 2/m",
                            "P 2/c", "P 21/c", "C 2/c", "P 2 2 2", "P 2 2 21", "P 21 21 2", "P 21 21 21", "C 2 2 21",
@@ -904,7 +904,7 @@ REFERENCE_TABLE_CENTRING_TYPE_SHIFT = (
            (Fraction(1, 3), Fraction(2, 3), Fraction(0, 3))))
 )
 
-ACCESIBLE_CENTERING_TYPE = frozenset([_[0] for _ in REFERENCE_TABLE_CENTRING_TYPE_SHIFT])
+ACCESIBLE_CENTRING_TYPE = frozenset([_[0] for _ in REFERENCE_TABLE_CENTRING_TYPE_SHIFT])
 
 
 def get_shift_by_centring_type(centring_type: str):
@@ -918,7 +918,7 @@ def get_shift_by_centring_type(centring_type: str):
 
 def get_centring_type_by_name_hm_extended(hm_extended: str) -> str:
     centring_type = hm_extended[0]  # it is not correct for Rrev
-    if not (centring_type in ACCESIBLE_CENTERING_TYPE):
+    if not (centring_type in ACCESIBLE_CENTRING_TYPE):
         centring_type = None
     return centring_type
 
@@ -956,7 +956,7 @@ def get_patterson_name_hm_by_lattice_type_laue_class(lattice_type: str, laue_cla
     return patterson_name_hm
 
 
-REFERENCE_TABLE_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM = (
+REFERENCE_TABLE_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM = (
     ("aP", "P", "triclinic"),
     ("mP", "P", "monoclinic"),
     ("mS", "A", "monoclinic"),
@@ -979,13 +979,13 @@ REFERENCE_TABLE_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM = (
     ("cF", "F", "cubic")
 )
 
-ACCESIBLE_BRAVAIS_TYPE = frozenset([_[0] for _ in REFERENCE_TABLE_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM])
-ACCESIBLE_CRYSTAL_SYSTEM = frozenset([_[2] for _ in REFERENCE_TABLE_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM])
+ACCESIBLE_BRAVAIS_TYPE = frozenset([_[0] for _ in REFERENCE_TABLE_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM])
+ACCESIBLE_CRYSTAL_SYSTEM = frozenset([_[2] for _ in REFERENCE_TABLE_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM])
 
 
 def get_bravais_type_by_centring_type_crystal_system(centring_type: str, crystal_system: str) -> str:
     bravais_type = None
-    for _bravais_type, _centring_type, _crystal_system in REFERENCE_TABLE_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM:
+    for _bravais_type, _centring_type, _crystal_system in REFERENCE_TABLE_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM:
         if ((_centring_type == centring_type) & (_crystal_system == crystal_system)):
             bravais_type = _bravais_type
     return bravais_type
@@ -1232,6 +1232,10 @@ def separate_notation_it_coordinate_system_code(name: str):
 
 
 def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number: int, it_coordinate_system_code: str):
+    """
+    TODO: HOW it works for 166 space group
+    crystal system should be trigonal or hexagonal
+    """
     crystal_system = get_crystal_system_by_it_number(it_number)
     if it_coordinate_system_code is None:
         choice = "1"
@@ -1242,10 +1246,11 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number: i
     elif "1" in it_coordinate_system_code:
         choice = "1"
     elif "h" in it_coordinate_system_code:
-        if crystal_system.startswith("trigonal"):
-            choice = "2"
-        else:  # hexagonal
-            choice = "1"
+        #TODO: IT SHOULD BE CHECKED
+        #if crystal_system.startswith("trigonal"):
+        #    choice = "2"
+        #else:  # hexagonal
+        choice = "1"
     elif "r" in it_coordinate_system_code:
         choice = "1"
     else:
@@ -1647,7 +1652,7 @@ if __name__ == "__main__":
         if patterson_name_hm is not None: print(
             f"Patterson name H-M: ".rjust(width_left) + f"\"{patterson_name_hm:}\"".ljust(width_right))
         if centring_type is not None: print(
-            f"Centering type: ".rjust(width_left) + f"\"{centring_type:}\"".ljust(width_right))
+            f"Centring type: ".rjust(width_left) + f"\"{centring_type:}\"".ljust(width_right))
         if bravais_type is not None: print(
             f"Bravais type: ".rjust(width_left) + f"\"{bravais_type:}\"".ljust(width_right))
         if crystal_system is not None: print(
@@ -1721,8 +1726,8 @@ if __name__ == "__main__":
     print_long_list(ACCESIBLE_LAUE_CLASS)
     print("\nACCESIBLE_IT_COORDINATE_SYSTEM_CODE: ")
     print_long_list(ACCESIBLE_IT_COORDINATE_SYSTEM_CODE)
-    print("\nACCESIBLE_CENTERING_TYPE: ")
-    print_long_list(ACCESIBLE_CENTERING_TYPE)
+    print("\nACCESIBLE_CENTRING_TYPE: ")
+    print_long_list(ACCESIBLE_CENTRING_TYPE)
     print("\nACCESIBLE_CRYSTAL_SYSTEM: ")
     print_long_list(ACCESIBLE_CRYSTAL_SYSTEM)
     print("\nACCESIBLE_NAME_HM_SHORT: ")
@@ -1744,12 +1749,12 @@ if __name__ == "__main__":
     print_long_list(REFERENCE_TABLE_ORTHORHOMBIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED)
     
 
-    print("\nD_CENTERING_TYPE_SHIFT: ")
-    print(D_CENTERING_TYPE_SHIFT)
+    print("\nD_CENTRING_TYPE_SHIFT: ")
+    print(D_CENTRING_TYPE_SHIFT)
     print("\nD_CRYSTAL_FAMILY_DESCRIPTION: ")
     print(D_CRYSTAL_FAMILY_DESCRIPTION)
     print("\nD_BRAVAIS_TYPE_CELL_CONSTRAINT_MODE_ABC: ")
     print(D_BRAVAIS_TYPE_CELL_CONSTRAINT_MODE_ABC)
-    print("\nT_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM: ")
-    print_long_list(T_BRAVAIS_TYPE_CENTERING_TYPE_CRYSTAL_SYSTEM)
+    print("\nT_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM: ")
+    print_long_list(T_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM)
     """
