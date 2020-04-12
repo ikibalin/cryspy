@@ -609,7 +609,7 @@ Output arguments:
             peak.set_numpy_index_mult(mult)
             peak.set_numpy_intensity_up(np_iint_u)
             peak.set_numpy_intensity_down(np_iint_d)
-            peak.set_numpy_ttheta(tth_hkl)
+            peak.set_numpy_ttheta(tth_hkl+self.setup.offset_ttheta)
             peak.set_numpy_width_ttheta(h_pv)
 
             
