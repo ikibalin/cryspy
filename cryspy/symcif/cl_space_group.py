@@ -967,6 +967,7 @@ Give equivalent reflections of hkl and its multiplicity
         
         hkl_s = numpy.vstack([h_s, k_s, l_s])
         hkl_s = numpy.hstack([hkl_s,-1*hkl_s])
+        hkl_s = hkl_s.astype(int)
         hkl_s_un = numpy.unique(hkl_s, axis=1)
         multiplicity = int(round(hkl_s.shape[1]*1./hkl_s_un.shape[1]))
         h_s, k_s, l_s = hkl_s_un[0, :], hkl_s_un[1, :], hkl_s_un[2, :]

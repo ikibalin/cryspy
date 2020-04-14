@@ -512,6 +512,8 @@ Output arguments:
     l_peak: data about peaks
     l_refln: data about nuclear structure factor
         """
+        flag_polarized = self.meas.is_polarized
+
         proc = PdProcL()
         proc.set_numpy_ttheta(tth)
         
@@ -630,9 +632,14 @@ Output arguments:
         proc.set_numpy_intensity_up_net(res_u_1d)
         proc.set_numpy_intensity_down_net(res_d_1d)
         proc.set_numpy_intensity_net(res_u_1d+res_d_1d)
-        proc.set_numpy_intensity_up_total(res_u_1d+int_bkgd)
-        proc.set_numpy_intensity_down_total(res_d_1d+int_bkgd)
-        proc.set_numpy_intensity_total(res_u_1d+res_d_1d+int_bkgd+int_bkgd)
+        if flag_polarized:
+            proc.set_numpy_intensity_up_total(res_u_1d+int_bkgd)
+            proc.set_numpy_intensity_down_total(res_d_1d+int_bkgd)
+            proc.set_numpy_intensity_total(res_u_1d+res_d_1d+int_bkgd+int_bkgd)
+        else:
+            proc.set_numpy_intensity_up_total(res_u_1d+0.5*int_bkgd)
+            proc.set_numpy_intensity_down_total(res_d_1d+0.5*int_bkgd)
+            proc.set_numpy_intensity_total(res_u_1d+res_d_1d+int_bkgd)
 
         if flag_internal:
             proc.transform_numpy_arrays_to_items()

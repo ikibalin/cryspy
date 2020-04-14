@@ -3,7 +3,7 @@ __version__ = "2019_09_15"
 import os
 import numpy
 
-from pycifstar import Global
+from pycifstar import Global, to_global
 
 import warnings
 from typing import List, Tuple
