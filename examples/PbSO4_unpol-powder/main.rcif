@@ -1,0 +1,65 @@
+global_
+
+_add_url pd_data.rcif
+_add_url pd_calc.rcif
+
+data_PbSO4
+
+_space_group_IT_number 62
+_space_group_IT_coordinate_system_code abc
+
+_cell_length_a      8.7()
+_cell_length_b      5.396823()
+_cell_length_c      6.958096()
+_cell_angle_alpha  90.0
+_cell_angle_beta   90.0
+_cell_angle_gamma  90.0
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_occupancy
+Pb  Pb  0.18724  0.25000    0.16615  Uiso  0.0000  1.0
+S   S   0.06434  0.25000    0.68261  Uiso  0.0000  1.0
+O1  O   0.90790  0.25000    0.59598  Uiso  0.0000  1.0
+O2  O   0.19260  0.25000    0.54171  Uiso  0.0000  1.0
+O3  O   0.08043  0.02893    0.80734  Uiso  0.0000  1.0
+
+data_pd
+
+_setup_wavelength      1.912
+_setup_offset_2theta  -0.13846()
+
+_pd_instr_resolution_u  0.122083
+_pd_instr_resolution_v -0.335931
+_pd_instr_resolution_w  0.283817
+_pd_instr_resolution_x  0.0
+_pd_instr_resolution_y  0.148719
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+ 10.0000       209.6
+ 15.0000       197.7
+ 20.0000       193.0
+ 25.0000       193.1
+ 30.0000       188.2
+ 35.0000       182.9
+ 45.0000       191.2
+ 50.0000       190.0
+ 55.0000       176.2
+ 60.0000       201.4
+ 65.0000       200.5
+ 70.0000       207.6
+ 77.0000       195.0
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+PbSO4 1.28() 0.0
