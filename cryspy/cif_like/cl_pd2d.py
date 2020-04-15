@@ -778,7 +778,8 @@ Output arguments:
         #    l_peak_in = self.peaks
         #    l_refln_in = self.reflns
         #    l_dd_in = self.__dd
-        if ((len(self.peak)!=0) & (len(self.refln) != 0) & (len(self.refln_susceptibility) != 0)):
+        if (((len(self.peak)!=0) & (len(self.refln) != 0) & (len(self.refln_susceptibility) != 0)) &  
+            (not(flag_internal))):
             l_peak_in = self.peak
             l_refln_in = self.refln
             l_refln_susceptibility_in = self.refln_susceptibility
