@@ -125,8 +125,8 @@ Description in cif file::
  4.200 4.585 0.00000 0.00000 256.00000 256.00000 256.00000 323.78000 118.22000 206.06000 120.00000
  4.400 4.785 0.00000 0.00000 256.00000 256.00000 256.00000 307.14000 115.90000 230.47000 116.53000
      """
-    MANDATORY_CLASSES = (PdBackgroundL, PdInstrResolution, PdMeasL, PhaseL, 
-                         Setup)
+    MANDATORY_CLASSES = (PdInstrResolution, PhaseL, 
+                         Setup, PdBackgroundL, PdMeasL)
     OPTIONAL_CLASSES = (DiffrnRadiation, Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry)
     INTERNAL_CLASSES = (RefineLs, ReflnL, ReflnSusceptibilityL, PdPeakL, PdProcL)
     def __init__(self, background=None, resolution=None, meas=None, 
@@ -632,6 +632,7 @@ Output arguments:
         proc.set_numpy_intensity_up_net(res_u_1d)
         proc.set_numpy_intensity_down_net(res_d_1d)
         proc.set_numpy_intensity_net(res_u_1d+res_d_1d)
+        proc.set_numpy_intensity_diff_total(res_u_1d-res_d_1d)
         if flag_polarized:
             proc.set_numpy_intensity_up_total(res_u_1d+int_bkgd)
             proc.set_numpy_intensity_down_total(res_d_1d+int_bkgd)
@@ -960,8 +961,8 @@ Output arguments:
 
     def params_to_cif(self, separator="_", flag=False) -> str: 
         ls_out = []
-        l_cls = (PdBackgroundL, PdInstrResolution, PhaseL, Setup, DiffrnRadiation, 
-                 Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL)
+        l_cls = (PdInstrResolution, PhaseL, Setup, DiffrnRadiation, 
+                 Chi2, Range, Extinction, ExcludeL, PdInstrReflexAsymmetry, PdPeakL, PdBackgroundL)
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
         ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
         return "\n".join(ls_out)
@@ -992,3 +993,22 @@ Output arguments:
 
         return "\n".join(ls_out)
 
+    def to_cif(self, separator="_", flag=False) -> str: 
+        """
+Redefined method of DataConstr.
+Print information about object in string in STAR format
+
+Args:
+    prefix: prefix in front of label of attribute
+    separator: separator between prefix and attribute ("_" or ".")
+    flag: for undefined attribute "." will be printed
+
+Returns:
+    A string in STAR/CIF format
+        """
+        ls_out = []
+        ls_out.append(f"data_{self.data_name:}\n")
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.optional_objs])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.mandatory_objs])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.internal_objs])
+        return "\n".join(ls_out)

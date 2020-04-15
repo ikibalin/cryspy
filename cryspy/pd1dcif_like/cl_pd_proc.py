@@ -37,13 +37,13 @@ Description in cif file::
     MANDATORY_ATTRIBUTE = ("ttheta", )
     OPTIONAL_ATTRIBUTE = ("ttheta_corrected", "d_spacing",
                           "intensity_up_net", "intensity_down_net", "intensity_up_total", "intensity_down_total", 
-                          "intensity_bkg_calc", "intensity_net", "intensity_total", 
+                          "intensity_bkg_calc", "intensity_net", "intensity_total", "intensity_diff_total", 
                           "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
                           "intensity", "intensity_sigma")
     RELATED_CIF_MANDATORY_ATTRIBUTE = ("2theta", )
     RELATED_CIF_OPTIONAL_ATTRIBUTE = ("2theta_corrected", "d_spacing",
                           "intensity_up_net", "intensity_down_net", "intensity_up_total", "intensity_down_total", 
-                          "intensity_bkg_calc", "intensity_net", "intensity_total", 
+                          "intensity_bkg_calc", "intensity_net", "intensity_total", "intensity_diff_total", 
                           "intensity_up", "intensity_up_sigma", "intensity_down", "intensity_down_sigma", 
                           "intensity", "intensity_sigma")
     INTERNAL_ATTRIBUTE = ()
@@ -51,7 +51,7 @@ Description in cif file::
     def __init__(self, ttheta=None, ttheta_corrected=None, d_spacing=None, intensity_up_net=None, 
                  intensity_up_total=None,
                  intensity_down_net=None, intensity_down_total=None, intensity_bkg_calc=None, 
-                 intensity_net=None, intensity_total=None,
+                 intensity_net=None, intensity_total=None, intensity_diff_total=None,
                  intensity_up=None, intensity_up_sigma=None, 
                  intensity_down=None, intensity_down_sigma=None, intensity=None, intensity_sigma=None):
         super(PdProc, self).__init__(mandatory_attribute=self.MANDATORY_ATTRIBUTE, 
@@ -69,6 +69,7 @@ Description in cif file::
         self.intensity_up_total = intensity_up_total
         self.intensity_down_total = intensity_down_total
         self.intensity_total = intensity_total
+        self.intensity_diff_total = intensity_diff_total
         self.intensity_bkg_calc = intensity_bkg_calc
         self.intensity_up = intensity_up
         self.intensity_up_sigma = intensity_up_sigma
@@ -178,6 +179,17 @@ Description in cif file::
         else:
             x_in = float(x)
         setattr(self, "__intensity_total", x_in)
+
+    @property
+    def intensity_diff_total(self):
+        return getattr(self, "__intensity_diff_total")
+    @intensity_diff_total.setter
+    def intensity_diff_total(self, x):
+        if ((x is None) | (x == ".")):
+            x_in = None
+        else:
+            x_in = float(x)
+        setattr(self, "__intensity_diff_total", x_in)
 
     @property
     def intensity_bkg_calc(self):
@@ -304,7 +316,7 @@ Description in cif file::
                           "numpy_intensity_up_net", "numpy_intensity_down_net", 
                           "numpy_intensity_up_total", "numpy_intensity_down_total", 
                           "numpy_intensity_bkg_calc", 
-                          "numpy_intensity_net", "numpy_intensity_total", 
+                          "numpy_intensity_net", "numpy_intensity_total", "numpy_intensity_diff_total", 
                           "numpy_intensity_up", "numpy_intensity_up_sigma", 
                           "numpy_intensity_down", "numpy_intensity_down_sigma", 
                           "numpy_intensity", "numpy_intensity_sigma")
@@ -373,6 +385,12 @@ Description in cif file::
     def set_numpy_intensity_total(self, x):
         setattr(self, "__numpy_intensity_total", x)
 
+    def get_numpy_intensity_diff_total(self):
+        return getattr(self, "__numpy_intensity_diff_total")
+
+    def set_numpy_intensity_diff_total(self, x):
+        setattr(self, "__numpy_intensity_diff_total", x)
+
     def get_numpy_intensity_up(self):
         return getattr(self, "__numpy_intensity_up")
 
@@ -419,6 +437,8 @@ Transform items to numpy arrays (to speed up the calculations):
     numpy_intensity_down_net: 1D numpy array of intensity_down_net, dtype=float
     numpy_intensity_up_total: 1D numpy array of intensity_up_total, dtype=float
     numpy_intensity_down_total 1D numpy array of intensity_down_total, dtype=floatl: 1D numpy array of , dtype=float
+    numpy_intensity_total 1D numpy array of intensity_total, dtype=floatl: 1D numpy array of , dtype=float
+    numpy_intensity_diff_total 1D numpy array of intensity_diff_total, dtype=floatl: 1D numpy array of , dtype=float
     numpy_intensity_bkg_calc 1D numpy array of intensity_bkg_calc, dtype=float_calc: 1D numpy array of , dtype=float
     numpy_intensity_up: 1D numpy array of intensity_up, dtype=float
     numpy_intensity_up_sigma: 1D numpy array of intensity_up_sigma, dtype=float
@@ -446,6 +466,8 @@ Transform items to numpy arrays (to speed up the calculations):
         setattr(self, "__numpy_intensity_net", numpy_intensity_net)
         numpy_intensity_total = numpy.array(self.intensity_total, dtype=float)
         setattr(self, "__numpy_intensity_total", numpy_intensity_total)
+        numpy_intensity_diff_total = numpy.array(self.intensity_diff_total, dtype=float)
+        setattr(self, "__numpy_intensity_diff_total", numpy_intensity_diff_total)
         numpy_intensity_up = numpy.array(self.intensity_up, dtype=float)
         setattr(self, "__numpy_intensity_up", numpy_intensity_up)
         numpy_intensity_up_sigma = numpy.array(self.intensity_up_sigma, dtype=float)
@@ -469,6 +491,8 @@ Transform data from numpy arrays to items:
     numpy_intensity_down_net: 1D numpy array of intensity_down_net, dtype=float
     numpy_intensity_up_total: 1D numpy array of intensity_up_total, dtype=float
     numpy_intensity_down_total 1D numpy array of intensity_down_total, dtype=floatl: 1D numpy array of , dtype=float
+    numpy_intensity_total 1D numpy array of intensity_total, dtype=floatl: 1D numpy array of , dtype=float
+    numpy_intensity_diff_total 1D numpy array of intensity_diff_total, dtype=floatl: 1D numpy array of , dtype=float
     numpy_intensity_bkg_calc 1D numpy array of intensity_bkg_calc, dtype=float_calc: 1D numpy array of , dtype=float
     numpy_intensity_up: 1D numpy array of intensity_up, dtype=float
     numpy_intensity_up_sigma: 1D numpy array of intensity_up_sigma, dtype=float
@@ -512,6 +536,10 @@ Transform data from numpy arrays to items:
         if numpy_intensity_total is not None: 
             for _item, val in zip(l_item, numpy_intensity_total):
                 _item.intensity_total = val
+        numpy_intensity_diff_total = getattr(self, "__numpy_intensity_diff_total")
+        if numpy_intensity_diff_total is not None: 
+            for _item, val in zip(l_item, numpy_intensity_diff_total):
+                _item.intensity_diff_total = val
         numpy_intensity_up = getattr(self, "__numpy_intensity_up")
         if numpy_intensity_up is not None: 
             for _item, val in zip(l_item, numpy_intensity_up):
