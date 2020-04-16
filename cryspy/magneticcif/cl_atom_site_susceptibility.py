@@ -375,12 +375,6 @@ Type: float
             flag = x_in.take_it(x)
         setattr(self, "__moment_23", x_in)
 
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
-
-
-
     @property
     def is_variable(self):
         _l = []

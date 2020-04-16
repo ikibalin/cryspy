@@ -410,7 +410,8 @@ The U matrix (orientation matrix) in CCSL notation
             cell.length_a, cell.length_b, cell.length_c = a_1, a_2, a_3
             cell.angle_alpha, cell.angle_beta, cell.angle_gamma = float(alpha*180./numpy.pi), float(beta*180./numpy.pi), float(gamma*180./numpy.pi),
         cell.form_object
-        m_ib = cell.m_ib
+        m_b = cell.m_b
+        m_ib = numpy.linalg.inv(m_b)
         u_ccsl = numpy.dot(ub_ccsl,  m_ib)
 
         setattr(self, "__u_11", float(u_ccsl[0,0]))

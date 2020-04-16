@@ -39,7 +39,7 @@ Description in cif file::
     """
     MANDATORY_ATTRIBUTE = ("length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma")
     OPTIONAL_ATTRIBUTE = ()
-    INTERNAL_ATTRIBUTE = ("m_m", "m_b", "m_ib", "m_ib_norm", "type_cell",
+    INTERNAL_ATTRIBUTE = ("m_g", "m_g_reciprocal", "m_b", "m_b_norm", "m_m", "m_m_norm", "type_cell",
     "cos_a", "cos_b", "cos_g", "sin_a", "sin_b", "sin_g",
     "cos_a_sq", "cos_b_sq", "cos_g_sq", "sin_a_sq", "sin_b_sq", "sin_g_sq",
     "cos_ia", "cos_ib", "cos_ig", "sin_ia", "sin_ib", "sin_ig",
@@ -355,36 +355,83 @@ Enumeration default: 90.0
         """
         return getattr(self, "__reciprocal_angle_gamma")
 
+
+    @property
+    def m_g(self):
+        """
+Metrix tensor g for unit cell (a, b, c)
+
+G = [[          a*a, a*b*cos gamma,  a*c*cos beta],
+     [a*b*cos gamma,           b*b, b*c*cos alpha],
+     [ a*c*cos beta, b*c*cos alpha,           c*c]]
+        """
+        return getattr(self, "__m_g")
+
+    @property
+    def m_g_reciprocal(self):
+        """
+Metrix tensor g for reciprocal unit cell (ia, ib, ic)
+
+G = [[           ia*ia, ia*ib*cos igamma,  ia*ic*cos ibeta],
+     [ia*ib*cos igamma,            ib*ib, ib*ic*cos ialpha],
+     [ ia*ic*cos ibeta, ib*ic*cos ialpha,            ic*ic]]
+        """
+        return getattr(self, "__m_g_reciprocal")
+
     @property
     def m_b(self):
         """
-B matrix defined 
-in Carthezian coordinate system where :math:`X` along axis :math:`a^{*}`,
-:math:`Z` alond axis :math:`c` and :math:`Y = Z \\times X`
+Matrix B used to recalculate coordinates  from reciprocal space (b1, b2, b3) 
+to Cartesian one (x||a*, z||c). See Busing-Levy paper.
 
+x_cart = B * x_reciprocal
+
+B = [[b1, b2 cos beta3,             b3 cos beta2],
+     [ 0, b2 sin beta3, -b3 sin beta2 cos alpha1],
+     [ 0,            0,                     1/a3]]
         """
         return getattr(self, "__m_b")
+
     @property
-    def m_ib(self):
+    def m_b_norm(self):
         """
-Inversed B matrix
+Matrix nB  used to recalculate coordinates  from reciprocal space (b1/|b1|, b2/|b2|, b3/|b3|) 
+to Cartesian one (x||a*, z||c).
+
+x_cart = nB * x_reciprocal_norm
+
+nB = [[ 1, cos beta3,              cos beta2],
+      [ 0, sin beta3, - sin beta2 cos alpha1],
+      [ 0,         0, (1 - cos**2 alpha1 - cos**2 alpha2 - cos**2 alpha3 + 2 cos alpha1 cos alpha2 cos alpha3)**0.5/sin(alpha3)]]
         """
-        return getattr(self, "__m_ib")
-    @property
-    def m_ib_norm(self):
-        """
-Normalized inversed B matrix
-        """
-        return getattr(self, "__m_ib_norm")
+        return getattr(self, "__m_b_norm")
+
     @property
     def m_m(self):
         """
-M matrix defined 
-in Carthezian coordinate system where :math:`X` along axis :math:`a`,
-:math:`Z` alond axis :math:`c^{*}` and :math:`Y = Z \\times X`
+Matrix M  used to recalculate coordinates  from direct space (a1, a2, a3) 
+to Cartesian one (x||a*, z||c).
 
+x_cart = M * x_direct
+
+M = [[                    1/b1,             0,  0],
+     [-a1 sin alpha2 cos beta3, a2 sin alpha1,  0],
+     [           a1 cos alpha2, a2 cos alpha1, a3]]
         """
         return getattr(self, "__m_m")
+    @property
+    def m_m_norm(self):
+        """
+Matrix M  used to recalculate coordinates  from direct space (a1/|a1|, a2/|a2|, a3/|a3|) 
+to Cartesian one (x||a*, z||c).
+
+x_cart = nM * x_direct
+
+nM = [[(1 - cos**2 alpha1 - cos**2 alpha2 - cos**2 alpha3 + 2 cos alpha1 cos alpha2 cos alpha3)**0.5/sin(alpha1),  0,  0],
+     [  (cos alpha3 - cos alpha1 cos alpha2) / sin alpha1, sin alpha1,  0],
+     [                                         cos alpha2, cos alpha1,  1]]
+        """
+        return getattr(self, "__m_m_norm")
 
     @property
     def type_cell(self):
@@ -553,9 +600,24 @@ Output: the list of the refined parameters
 
         a, b, c = float(self.length_a), float(self.length_b), float(self.length_c)
 
-        vol = a*b*c*(1.-c_a_sq-c_b_sq-c_g_sq+2.*c_a*c_b*c_g)**0.5
+        v_sqrt = (1.-c_a_sq-c_b_sq-c_g_sq+2.*c_a*c_b*c_g)**0.5
+        vol = a*b*c*v_sqrt
         setattr(self, "__volume", vol)
-    
+
+        #G matrix
+        m_g = numpy.array([[    a*a, a*b*c_g, a*c*c_b],
+                           [a*b*c_g,     b*b, b*c*c_a],
+                           [a*c*c_b, b*c*c_a,     c*c]], dtype = float)
+        setattr(self, "__m_g", m_g)
+
+
+        #nM matrix
+        m_m_norm = numpy.array([[       v_sqrt/s_a,  0,      0],
+                                [(c_g-c_a*c_b)/s_a,  s_a,    0],
+                                [              c_b,  c_a,    1]], dtype = float)
+        setattr(self, "__m_m_norm", m_m_norm)
+
+
         irad = 180./numpy.pi
         ialpha = numpy.arccos((c_b*c_g-c_a)/(s_b*s_g))*irad
         ibeta = numpy.arccos((c_g*c_a-c_b)/(s_g*s_a))*irad
@@ -568,7 +630,6 @@ Output: the list of the refined parameters
         setattr(self, "__reciprocal_angle_alpha", ialpha)
         setattr(self, "__reciprocal_angle_beta", ibeta)
         setattr(self, "__reciprocal_angle_gamma", igamma)
-
         
         c_ia, c_ib, c_ig = numpy.cos(ialpha*rad), numpy.cos(ibeta*rad), numpy.cos(igamma*rad)
         s_ia, s_ib, s_ig = numpy.sin(ialpha*rad), numpy.sin(ibeta*rad), numpy.sin(igamma*rad)
@@ -588,27 +649,30 @@ Output: the list of the refined parameters
         setattr(self, "__sin_ib_sq", s_ib_sq)
         setattr(self, "__sin_ig_sq", s_ig_sq)
 
+        #G matrix for reciprocal unit cell
+        m_g_reciprocal = numpy.array([[     ia*ia, ia*ib*c_ig, ia*ic*c_ib],
+                                      [ia*ib*c_ig,      ib*ib, ib*ic*c_ia],
+                                      [ia*ic*c_ib, ib*ic*c_ia,      ic*ic]], dtype = float)
+        setattr(self, "__m_g_reciprocal", m_g_reciprocal)
+
+        #nB matrix
+        m_b_norm = numpy.array([[ 1,  c_ig,       c_ib],
+                                [ 0,  s_ig,  -s_ib*c_a],
+                                [ 0,     0, v_sqrt/s_g]], dtype = float)
+        setattr(self, "__m_b_norm", m_b_norm)
+
         #B matrix
         m_b = numpy.array([[ia,  ib*c_ig,      ic*c_ib],
                            [0.,  ib*s_ig, -ic*s_ib*c_a],
                            [0.,       0.,         1./c]], dtype = float)
         setattr(self, "__m_b", m_b)
 
-        #inversed B matrix
-        m_ib = numpy.linalg.inv(m_b)
-        setattr(self, "__m_ib", m_ib)
-
-        m_ib_norm = numpy.copy(m_ib)
-        m_ib_norm[0, :] /= a
-        m_ib_norm[1, :] /= b
-        m_ib_norm[2, :] /= c
-        setattr(self, "__m_ib_norm", m_ib_norm)
-
-        #M matrix (not sure)
-        m_m = numpy.array([[ a,   b*c_g,       c*c_b],
-                           [0.,   b*s_g, -c*s_b*c_ia],
-                           [0.,      0.,       1./ic]], dtype = float)
+        #M matrix
+        m_m = numpy.array([[        1./ia,     0,  0],
+                           [-1*a*s_b*c_ig, b*s_a,  0],
+                           [        a*c_b, b*c_a,  c]], dtype = float)
         setattr(self, "__m_m", m_m)
+
         return flag
 
 
@@ -845,10 +909,7 @@ Give a list of reflections hkl for cell in the range sthovl_min, sthovl_max
     def calc_position_by_coordinate(self, x ,y, z):
         """
 Calculates position for coordinate :math:`(x,y,z)`
-in Carthezian coordinate system where :math:`X` along axis :math:`a`,
-:math:`Z` alond :math:`c^{*}` and :math:`Y = Z \\times X`
-
-
+in Carthezian coordinate system in which (x||a*, z||c)
         """
         m_m = self.m_m
         p_x = m_m[0, 0]*x + m_m[0, 1]*y + m_m[0, 2]*z

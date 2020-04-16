@@ -730,32 +730,16 @@ Example:
     def _orto_matrix(self, l_11, l_12, l_13, l_21, l_22, l_23, l_31,
                      l_32, l_33):
         """
-rewrite matrix l_ij defined in coordinate (ia, ib, ic) to matrix s_ij, 
-which is denined in Chartesian coordinate system, such as:
-x||ia, y in blane (ia, ib), z perpendicular to that plane.
-...
+matrix l_ij is defined in coordinate system (a, b, c)
 
-...
-representation of chi in crystallographic coordinate system defined as x||a*, z||c, y= [z x] (right handed)
-expressions are taken from international tables
-matrix_ib is inversed matrix B
-
-ia, ib, ic is inversed unit cell parameters (it can be estimated from matrix matrix_ib)
-
-.. math::
-
-    X = B x, x = iB X
-    xT*CHI*x = XT iBT CHI iB X
-
-output chiLOC = iBT CHI iB
+outut matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)
         """
         cell = self.cell
-        m_ib_norm = cell.m_ib_norm
-        m_ibt_norm = m_ib_norm.transpose()
+        m_m_norm = cell.m_m_norm
         
-        r11, r12, r13 = m_ibt_norm[0, 0], m_ibt_norm[0, 1], m_ibt_norm[0, 2]
-        r21, r22, r23 = m_ibt_norm[1, 0], m_ibt_norm[1, 1], m_ibt_norm[1, 2]
-        r31, r32, r33 = m_ibt_norm[2, 0], m_ibt_norm[2, 1], m_ibt_norm[2, 2]
+        r11, r12, r13 = m_m_norm[0, 0], m_m_norm[0, 1], m_m_norm[0, 2]
+        r21, r22, r23 = m_m_norm[1, 0], m_m_norm[1, 1], m_m_norm[1, 2]
+        r31, r32, r33 = m_m_norm[2, 0], m_m_norm[2, 1], m_m_norm[2, 2]
         
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = CONSTANTS_AND_FUNCTIONS.calc_mRmCmRT(
                 r11, r12, r13, r21, r22, r23, r31, r32, r33,
@@ -778,53 +762,64 @@ output chiLOC = iBT CHI iB
     def calc_magnetization_ellipsoid(self):
         """
 Magnetization ellipsoids are given in the same coordinate system as U_ij (anisotropic Debye-Waller factor)
+
+Negtive eigenvalues of ellipsoid are replaced by positive.
         """
         cell = self.cell
         a_s_m_a = self.atom_site_susceptibility
-        m_ib_norm = cell.m_ib_norm
-        m_ibt_norm = numpy.transpose(m_ib_norm)
+        m_m_norm = cell.m_m_norm
+        m_im_norm = numpy.linalg.inv(m_m_norm)
         l_res = []
         for _l, _11, _22, _33, _12, _13, _23 in zip(a_s_m_a.label,
                 a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
                 a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
-            m_chi = numpy.array([[_11, _12, _13],
-                                 [_12, _22, _23],
-                                 [_13, _23, _33]], dtype=float)
-            _m1 = numpy.matmul(m_chi, m_ib_norm)
-            _m2 = numpy.matmul(m_ibt_norm, m_chi)
-            _m_u = numpy.matmul(_m1, _m2)
-            l_res.append(_m_u)
+            m_chi_loc = numpy.array([[_11, _12, _13],
+                                     [_12, _22, _23],
+                                     [_13, _23, _33]], dtype=float)
+            m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc), m_m_norm.transpose())
+            val, vec = numpy.linalg.eig(m_chi_orto)
+            D = numpy.diag(numpy.abs(val))#only positive eigenvalues
+            R = numpy.array(vec).transpose()
+            chi_as_u_orto = numpy.matmul(R.transpose(), numpy.matmul(D, R))
+            chi_as_u_loc = numpy.matmul(numpy.matmul(m_im_norm, chi_as_u_orto), m_im_norm.transpose())
+            l_res.append(chi_as_u_loc)
         return l_res
     
     def calc_main_axes_of_magnetization_ellipsoids(self):
         cell = self.cell
         a_s_m_a = self.atom_site_susceptibility
-        m_ib_norm = cell.m_ib_norm
-        m_ibt_norm = numpy.transpose(m_ib_norm)
+        m_m_norm = cell.m_m_norm
         ll_moments = []
         ll_directions = []
         for _l, _11, _22, _33, _12, _13, _23 in zip(a_s_m_a.label,
                 a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33, 
                 a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
 
-            s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(_11, _12, _13, _12, _22, _23, _13, _23, _33)
-            m_chi_norm = numpy.array([[s_11, s_12, s_13],
-                                      [s_12, s_22, s_23],
-                                      [s_13, s_23, s_33]], dtype=float)
-            eig, mat = numpy.linalg.eig(m_chi_norm)
-            l_moments = list(eig)
-            l_directions = [mat[:,0], mat[:,1], mat[:,2]]
+            m_chi_loc = numpy.array([[_11, _12, _13],
+                                     [_12, _22, _23],
+                                     [_13, _23, _33]], dtype=float)
+            m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc), m_m_norm.transpose())
+
+            val, vec = numpy.linalg.eig(m_chi_orto)
+            l_moments = list(val)
+            l_directions = [vec[:,0], vec[:,1], vec[:,2]]
             ll_moments.append(l_moments)
             ll_directions.append(l_directions)
         return ll_moments, ll_directions
     
     def calc_magnetic_moments_with_field_loc(self, field_abc):
         """
-:FIXME: IN GENERAL CASE NOT CORRECT
+Calculates the orientation of magetic moment for atoms at applied magnetic field.
+
+The input magnetic field should be given in normalized unit cell (a/|a|, b/|b|, c/|c|)
+The output magnetic moment are given in normalized unit cell (a/|a|, b/|b|, c/|c|)
         """
         np_field = numpy.array(field_abc, dtype=float)
         spgr = self.space_group
-        
+
+        cell = self.cell
+        m_m_norm = cell.m_m_norm
+        m_mt_norm_m_norm_field = numpy.matmul(numpy.matmul(m_m_norm.transpose(), m_m_norm), np_field)
         a_s = self.atom_site
         a_s_m_a = self.atom_site_susceptibility
         l_lab_out, l_xyz_out, l_moment_out = [], [], []
@@ -839,7 +834,8 @@ Magnetization ellipsoids are given in the same coordinate system as U_ij (anisot
             for _i_out, _out in enumerate(l_out):
                 _xyz = _out[0]
                 _chi = _out[1]
-                _moment = numpy.matmul(_chi, np_field)
+                _moment = numpy.matmul(_chi, m_mt_norm_m_norm_field)
+
                 l_lab_out.append(f"{_l:}_{_i_out+1:}")
                 l_xyz_out.append(_xyz)
                 l_moment_out.append(_moment)
