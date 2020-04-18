@@ -932,6 +932,9 @@ class AtomSiteSusceptibilityL(LoopConstr):
 Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
 magnetic properties of the atoms that occupy the atom sites.
 
+The unit of susceptibility tensor is Bohr magneton per Tesla. 
+The unit of moment tensor is Bohr magnethon.
+
 Description in cif file::
 
  loop_  

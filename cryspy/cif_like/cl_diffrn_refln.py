@@ -206,7 +206,11 @@ Description in cif file::
                                            loop_name=loop_name)
         self.item = item
 
-    def print_agreement_factor_exp(self):
+    def report_agreement_factor_exp(self):
+        """
+Make a report about experimental agreement factor in string format
+        """
+
         l_chi_sq_exp, l_ag_f_exp = [], []
         l_hkl = [(int(_1), int(_2), int(_3)) for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)]
         for _hkl, _fr_1, _fr_sigma_1 in zip(l_hkl, self.fr, self.fr_sigma):
@@ -233,7 +237,10 @@ Description in cif file::
 
         return "\n".join(ls_out)
 
-    def print_chi_sq_exp(self):
+    def report_chi_sq_exp(self):
+        """
+Make a report about experimental chi_sq in string format
+        """
         ls_out = []
         l_hkl = [(_1, _2, _3) for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)]
         l_fr, l_fr_sigma, l_fr_calc = self.fr, self.fr_sigma, self.fr_calc
@@ -264,10 +271,10 @@ Description in cif file::
         n_worsest = len(l_worsest)
         ls_out.append(f"\nReflections in range  ")
         ls_out.append(f" (N-1)*FR_sigma < |FR_exp - FR_mod| < N*FR_sigma: ")
-        ls_out.append(f"      N = 1: {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, 3 sigma rule) ")
-        ls_out.append(f"      N = 2: {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, 3 sigma rule)")
-        ls_out.append(f"      N = 3: {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, 3 sigma rule)")
-        ls_out.append(f"      N > 3: {n_worsest:}/{n:} ={100 * float(n_worsest) / float(n):5.1f}% ({2*(0.1):4.1f}%, 3 sigma rule)")
+        ls_out.append(f"      N = 1: {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, three sigma rule) ")
+        ls_out.append(f"      N = 2: {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, three sigma rule)")
+        ls_out.append(f"      N = 3: {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, three sigma rule)")
+        ls_out.append(f"      N > 3: {n_worsest:}/{n:} ={100 * float(n_worsest) / float(n):5.1f}% ({2*(0.1):4.1f}%, three sigma rule)")
         l_worsest.sort(key=lambda x: x[4], reverse=True)
         if len(l_worsest) > 1:
             if n_worsest > 10: n_worsest = 10

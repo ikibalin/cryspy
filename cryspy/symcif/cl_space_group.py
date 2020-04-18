@@ -1169,3 +1169,63 @@ na, n_b, nc should be divided on 24: 8 and 3
             matrix_chi_rot = numpy.matmul(r_chi, matrix_rt)
             l_res.append((_xyz, matrix_chi_rot))
         return l_res
+
+    def report_space_group(self):
+        """
+Make a report about space group in string format.
+        """
+        ls_out = []
+        ls_out.append("Space group:")
+
+        width_left, width_right = 30, 40
+        ls_out.append(f"IT_number: ".rjust(width_left) + f"{self.it_number:}".ljust(width_right))
+        ls_out.append(
+            "Name H-M alt: ".rjust(width_left) + f"\"{self.name_hm_alt:}\"".ljust(width_right))
+        ls_out.append(
+            f"Name H-M full: ".rjust(width_left) + f"\"{self.name_hm_full:}\"".ljust(width_right))
+        ls_out.append(
+            f"Name H-M ref: ".rjust(width_left) + f"\"{self.name_hm_ref:}\"".ljust(width_right))
+        ls_out.append(f"Name Hall short: ".rjust(width_left) + f"\"{self.name_hall:}\"".ljust(width_right))
+        ls_out.append(
+            f"Name Schoenflies: ".rjust(width_left) + f"\"{self.name_schoenflies:}\"".ljust(width_right))
+        ls_out.append(f"IT_coordinate_system_code: ".rjust(width_left) + f"\"{self.it_coordinate_system_code:}\"".ljust(width_right))
+        ls_out.append("")
+        ls_out.append(
+            f"Point group H-M: ".rjust(width_left) + f"\"{self.point_group_hm:}\"".ljust(width_right))
+        ls_out.append(f"Laue class: ".rjust(width_left) + f"\"{self.laue_class:}\"".ljust(width_right))
+        ls_out.append(
+            f"Patterson name H-M: ".rjust(width_left) + f"\"{self.patterson_name_hm:}\"".ljust(width_right))
+        ls_out.append(
+            f"Centring type: ".rjust(width_left) + f"\"{self.centring_type:}\"".ljust(width_right))
+        ls_out.append(
+            f"Bravais type: ".rjust(width_left) + f"\"{self.bravais_type:}\"".ljust(width_right))
+        ls_out.append(
+            f"Crystal system: ".rjust(width_left) + f"\"{self.crystal_system:}\"".ljust(width_right))
+        ls_out.append("")
+        ls_out.append(
+            f"Centrosymmetry: ".rjust(width_left) + f"{'Yes' if self.centrosymmetry else 'No':}".ljust(width_right))
+    
+        #if generators != (): print(
+        #    f"Generators: ".rjust(width_left) + ", ".join([f"\"{_}\"" for _ in generators]).ljust(width_right))
+
+        #if symop is not None:
+        #    print("Symop: ")  # pcentr
+        #    print_long_list([f"\"{_:}\"" for _ in symop])
+        s_g_w = self.space_group_wyckoff
+        ls_out.append("\nSpecial position:")
+        for _1, _2, _3, _4 in zip(s_g_w.multiplicity, s_g_w.letter, s_g_w.site_symmetry, s_g_w.coord_xyz):
+            ls_out.append(f"{_4.rjust(12):12} {_1:3} {_2.rjust(3):3} {_3.rjust(7):7}")
+
+        r_s_g_s = self.reduced_space_group_symop
+        ls_out.append("\nReduced space group symop:")
+        line = []
+        for _i,  _1 in enumerate(r_s_g_s.operation_xyz):
+            line.append(f" {_1.rjust(12):12}")
+            if _i % 3 == 2:
+                ls_out.append(" ".join(line))
+                line = []
+        shift  = self.shift
+        ls_out.append("\nShift::") 
+        for _pos in shift:
+            ls_out.append(f"{float(_pos[0]):9.5f} {float(_pos[1]):9.5f} {float(_pos[2]):9.5f}")
+        return "\n".join(ls_out)

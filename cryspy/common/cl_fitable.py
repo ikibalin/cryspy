@@ -32,6 +32,10 @@ class Fitable(object):
         self.minimal = minimal
         self.maximal = maximal
 
+    #FIXME incorrect format for Fitable
+    def __format__(self, par):
+        return str(self)
+
     def take_it(self, object_):
         """
         Try to convert some objects to Fitable attributes
@@ -63,13 +67,25 @@ class Fitable(object):
         elif isinstance(object_, str):
             string = object_
             ind_1 = string.find("(")
+            s_sigma = ""
             if ind_1 != -1:
                 self.refinement = True
+                ind_2 = string.find(")")
+                if ind_2 > ind_1:
+                    s_sigma = string[(ind_1+1):ind_2]
+                    if not(s_sigma.isdigit()):
+                        s_sigma = ""
             else:
                 self.refinement = False
             str_1 = string.split("(")[0]
             try:
                 self.value = float(str_1)
+                if s_sigma != "":
+                    s_h = "".join(["0" if _h.isdigit() else _h for _h in str_1[:-len(s_sigma)]])
+                    try:
+                        self.sigma = abs(float(s_h+s_sigma))
+                    except:
+                        pass
             except:
                 self._show_message("Can not convert string to float")
                 return False

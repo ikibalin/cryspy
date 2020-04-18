@@ -945,3 +945,34 @@ According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
         t_sq = (x**2 * a**2 + y**2 * b**2 + z**2 * c**2 + 
                 2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
         return t_sq
+
+    def report_cell(self):
+        """
+Make a report about cell object in string format
+        """
+        ls_out = []
+        ls_out.append("Unit cell (Ang.):")
+        ls_out.append(f"{float(self.length_a):9.5f} {float(self.length_b):9.5f} {float(self.length_c):9.5f}")
+        ls_out.append(f"{float(self.angle_alpha):9.3f} {float(self.angle_beta):9.3f} {float(self.angle_gamma):9.3f}")
+        ls_out.append(f"Volume: {self.volume: 9.2f} Ang.**3")
+
+        ls_out.append("\nReciprocal unit cell (1/Ang.):")
+        ls_out.append(f"{float(self.reciprocal_length_a):9.5f} {float(self.reciprocal_length_b):9.5f} {float(self.reciprocal_length_c):9.5f}")
+        ls_out.append(f"{float(self.reciprocal_angle_alpha):9.3f} {float(self.reciprocal_angle_beta):9.3f} {float(self.reciprocal_angle_gamma):9.3f}")
+
+        ls_out.append("\nB matrix (x||a*, z||c):")
+        ls_out.append(f"{self.m_b[0, 0]: 10.5f}{self.m_b[0, 1]: 10.5f}{self.m_b[0, 2]: 10.5f}")
+        ls_out.append(f"{self.m_b[1, 0]: 10.5f}{self.m_b[1, 1]: 10.5f}{self.m_b[1, 2]: 10.5f}")
+        ls_out.append(f"{self.m_b[2, 0]: 10.5f}{self.m_b[2, 1]: 10.5f}{self.m_b[2, 2]: 10.5f}")
+
+        ls_out.append("\nMetric tensor for unit cell:")
+        ls_out.append(f"{self.m_g[0, 0]: 10.5f}{self.m_g[0, 1]: 10.5f}{self.m_g[0, 2]: 10.5f}")
+        ls_out.append(f"{self.m_g[1, 0]: 10.5f}{self.m_g[1, 1]: 10.5f}{self.m_g[1, 2]: 10.5f}")
+        ls_out.append(f"{self.m_g[2, 0]: 10.5f}{self.m_g[2, 1]: 10.5f}{self.m_g[2, 2]: 10.5f}")
+
+        ls_out.append("\nMetric tensor for reciprocal unit cell:")
+        ls_out.append(f"{self.m_g_reciprocal[0, 0]: 10.5f}{self.m_g_reciprocal[0, 1]: 10.5f}{self.m_g_reciprocal[0, 2]: 10.5f}")
+        ls_out.append(f"{self.m_g_reciprocal[1, 0]: 10.5f}{self.m_g_reciprocal[1, 1]: 10.5f}{self.m_g_reciprocal[1, 2]: 10.5f}")
+        ls_out.append(f"{self.m_g_reciprocal[2, 0]: 10.5f}{self.m_g_reciprocal[2, 1]: 10.5f}{self.m_g_reciprocal[2, 2]: 10.5f}")
+
+        return "\n".join(ls_out)
