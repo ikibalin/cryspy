@@ -288,7 +288,7 @@ Minimization procedure
 
         """
 
-        res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', disp=False, callback=lambda x : self._f_callback(coeff_norm, x), options = {"disp": disp})
+        res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(coeff_norm, x), options = {"disp": disp})
         
         _dict_out = {"flag": flag, "res":res}
         #res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
