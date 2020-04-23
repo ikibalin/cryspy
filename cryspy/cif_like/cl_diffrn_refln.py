@@ -2,6 +2,7 @@ __author__ = 'ikibalin'
 __version__ = "2020_01_02"
 
 import os
+import math
 import numpy
 from pycifstar import Global
 
@@ -223,7 +224,10 @@ Make a report about experimental agreement factor in string format
                 delta_fr = abs(_fr_1 - _fr_average)
                 chi_sq_exp = (delta_fr / _fr_sigma_1) ** 2
                 l_chi_sq_exp.append(chi_sq_exp)
-                ag_f_exp = abs((_fr_1 - _fr_average) / (_fr_1 - 1.))
+                if math.isclose(_fr_1-1., 0):
+                    ag_f_exp = abs((_fr_1 - _fr_average) / (_fr_1 - 1.+_fr_sigma_1))
+                else:
+                    ag_f_exp = abs((_fr_1 - _fr_average) / (_fr_1 - 1.))
                 l_ag_f_exp.append(ag_f_exp)
                 # print("hkl: {:4} {:4} {:4}".format(_hkl[0], _hkl[1], _hkl[2]))
                 # print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))

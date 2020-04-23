@@ -270,53 +270,45 @@ Minimization procedure
                 res_out = 1.0e+308
             else:
                 res_out = (chi_sq*1./float(n_points))
-            #print("l_param: ", l_param)
-            #print("chi_sq/n_points: ", res_out)
             return res_out
 
 
-        #if self.ref[0].refin:
-        #print("starting chi_sq/n: {:.2f} (n = {:}).".format(chi_sq*1./n, int(n)))
-        #print("\nrefinement started for parameters:")
-        #ls_out = " ".join(["{:12}".format(fitable.name.rjust(12)) if len(fitable.name)<=12 
-        #                   else "{:12}".format(fitable.name[-12:]) for fitable in l_fitable]) + "       chi_sq"
-        #print(ls_out)
-        aa = time.time()
-        """
-        res, m_error, infodict, errmsg, ier = \
-            scipy.optimize.leastsq(tempfunc, param_0, full_output=1)
 
-        """
-
-        res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(coeff_norm, x), options = {"disp": disp})
+        res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(disp, coeff_norm, x), options = {"disp": disp})
         
         _dict_out = {"flag": flag, "res":res}
         #res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
         #                              callback=self._f_callback, options = {"fatol": 0.01*n})
 
-        bb = time.time()
-        #print("refinement complete, time {:.2f} sec.\n\nfinal chi_sq/n: {:.2f}\nstarted chi_sq/n: {:.2f}".format(bb-aa, res.fun, chi_sq*1./n))
-        
+
         hess_inv = res["hess_inv"] * hes_coeff_norm
         sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
         for fitable, _1  in zip(l_fitable, sigma):
             fitable.sigma = _1
 
+        """
+        res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20, 
+                                          disp=disp)
+        _dict_out = {"flag": flag, "res":res}
+
+        """
+
         chi_sq, n = self.calc_chi_sq(flag_internal=True)
-        #print("experiment  chi_sq_n")
-        #for _1 in self.experiments:
-        #    print("{:10}: {:8.2f}".format(_1.label, _1.chi_sq/_1.n))
+
         return _dict_out
 
     
     def _f_callback(self, *arg):
-        coeff_norm = arg[0]
-        res_x = arg[1]
+        disp = arg[0]
+        coeff_norm = arg[1]
+        res_x = arg[2]
         ls_out = " ".join(["{:12.5f}".format(_1*_2) for _1, _2 in zip(res_x, coeff_norm)])
-        if len(arg) > 2:
-            res_fun = arg[1]
-            ls_out += " {:12.1f}".format(res_fun.fun)
-        #print(ls_out)
+        #if len(arg) > 3:
+        #    res_fun = arg[1]
+        #    ls_out += " {:12.1f}".format(res_fun.fun)
+        if disp:
+            print(ls_out)
+
   
 
 

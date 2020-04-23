@@ -461,6 +461,10 @@ Output arguments:
                                                np_h, np_k, np_l, l_crystal, flag_internal=flag_internal)
         
         if flag_internal:
+            for _fr_mod, _int_u_mod, _int_d_mod, _item in zip(fr_mod, int_u_mod, int_d_mod, diffrn_refln.item):
+                _item.fr_calc = _fr_mod 
+                _item._intensity_up_calc = _int_u_mod 
+                _item._intensity_down_calc = _int_d_mod 
             for _obj in self.internal_objs:
                 if isinstance(_obj, ReflnL):
                     for _item, _1, _2, _3 in zip(_obj.item, fr_mod, int_u_mod, int_d_mod):
