@@ -282,9 +282,13 @@ Minimization procedure
 
 
         hess_inv = res["hess_inv"] * hes_coeff_norm
+        l_param = res["x"]
         sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
-        for fitable, _1  in zip(l_fitable, sigma):
+        for fitable, _1, param, coeff  in zip(l_fitable, sigma, l_param, coeff_norm):
             fitable.sigma = _1
+            fitable.value = param*coeff
+
+
 
         """
         res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20, 
