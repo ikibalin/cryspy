@@ -23,8 +23,8 @@ _space_group_Bravais_type cF
 _space_group_crystal_system cubic
 
 _cell_length_a  8.45420(55)
-_cell_length_b  8.45420(20)
-_cell_length_c  8.45420(20)
+_cell_length_b  8.45420(55)
+_cell_length_c  8.45420(55)
 _cell_angle_alpha 90.0
 _cell_angle_beta 90.0
 _cell_angle_gamma 90.0
@@ -64,8 +64,8 @@ _atom_site_susceptibility_chi_33
 _atom_site_susceptibility_chi_12
 _atom_site_susceptibility_chi_13
 _atom_site_susceptibility_chi_23
-Fe3A Cani  -3.9731(88) -3.973089520379854 -3.973089520379854 0.0 0.0 0.0
-Fe3B Cani  3.6833(72) 3.683369549420029 3.683369549420029 0.0 0.0 0.0
+Fe3A Cani  -3.9731(88) -3.9731 -3.9731 0.0 0.0 0.0
+Fe3B Cani  3.6833(72) 3.6833 3.6833 0.0 0.0 0.0
 
 loop_
 _atom_site_scat_label
@@ -76,14 +76,6 @@ Fe3B 2.0 1.0
 
 
 data_pnd
-loop_
-_pd_background_2theta
-_pd_background_intensity
-4.5 256.0
-40.0  255.03(42)
-65.0  387.12(65)
-80.0  278(6)
-
 _pd_instr_resolution_u 16.9776
 _pd_instr_resolution_v  -0.593(22)
 _pd_instr_resolution_w 0.576309204074
@@ -94,11 +86,19 @@ loop_
 _phase_label
 _phase_scale
 _phase_igsize
-Fe3O4  0.17487(37) 0.0
+Fe3O4  0.34974(74) 0.0
 
 _setup_wavelength 2.4
 _setup_field 1.0
 _setup_offset_2theta  -0.4008(27)
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+4.5 256.0
+40.0  255.03(42)
+65.0  387.12(65)
+80.0  278(6)
 
 _diffrn_radiation_polarization  0.6539(22)
 _diffrn_radiation_efficiency 1.0

@@ -621,8 +621,9 @@ Output arguments:
             res_u_2d = profile_2d*np_iint_u_2d 
             res_d_2d = profile_2d*np_iint_d_2d 
 
-            res_u_1d += scale*res_u_2d.sum(axis=1) 
-            res_d_1d += scale*res_d_2d.sum(axis=1) 
+            # 0.5 to have the same meaning for scale factor as in FullProf
+            res_u_1d += 0.5*scale*res_u_2d.sum(axis=1) 
+            res_d_1d += 0.5*scale*res_d_2d.sum(axis=1) 
 
             if flag_internal:
                 peak.transform_numpy_arrays_to_items()

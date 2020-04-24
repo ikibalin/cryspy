@@ -54,7 +54,7 @@ _atom_site_susceptibility_chi_33
 _atom_site_susceptibility_chi_12
 _atom_site_susceptibility_chi_13
 _atom_site_susceptibility_chi_23
-Ho1 Cani  3.281(18) 3.280765794757956 3.280765794757956  3.712(16) 3.7121691223129147 3.7121691223129147
+Ho1 Cani  3.281(18) 3.281 3.281  3.712(16) 3.712 3.712
 
 loop_
 _atom_site_scat_label
@@ -74,7 +74,7 @@ loop_
 _phase_label
 _phase_scale
 _phase_igsize
-phase1  0.012339(39) 0.0
+phase1  0.024678(78) 0.0
 
 _setup_wavelength 0.84
 _setup_field 1.0

@@ -57,7 +57,7 @@ loop_
 _phase_label
 _phase_scale
 _phase_igsize
-phase1 0.013423 0.0
+phase1 0.02684 0.0
 
 _setup_wavelength 2.4
 _setup_offset_2theta -0.0772

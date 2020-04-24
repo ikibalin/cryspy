@@ -712,13 +712,12 @@ Description in cif file::
 
                 profile_3d = profile_3d*texture_3d
 
-
-
             res_u_3d = profile_3d*iint_u_3d 
             res_d_3d = profile_3d*iint_d_3d 
 
-            res_u_2d += scale*res_u_3d.sum(axis=2) 
-            res_d_2d += scale*res_d_3d.sum(axis=2) 
+            # 0.5 to have the same meaning for scale factor as in FullProf
+            res_u_2d += 0.5*scale*res_u_3d.sum(axis=2) 
+            res_d_2d += 0.5*scale*res_d_3d.sum(axis=2) 
             l_peak.append(peak)
             l_dd_out.append(dd_out)
 
