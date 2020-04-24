@@ -7,20 +7,8 @@ _add_url pnd_calc.rcif
 
 data_Fe3O4
 
-_space_group_name_H-M_alt 'F 41/d -3 2/m'
-_space_group_name_H-M_alt_description 'The extended international Hermann-Mauguin space-group symbol.'
-_space_group_IT_number 227
 _space_group_name_H-M_ref 'F d -3 m'
 _space_group_IT_coordinate_system_code 2
-_space_group_name_H-M_full 'F 41/d -3 2/m'
-_space_group_name_Hall '-F 4vw 2vw 3'
-_space_group_name_Schoenflies Oh.7
-_space_group_point_group_H-M m-3m
-_space_group_Laue_class m-3m
-_space_group_Patterson_name_H-M 'F m -3 m'
-_space_group_centring_type F
-_space_group_Bravais_type cF
-_space_group_crystal_system cubic
 
 _cell_length_a  8.56(16)
 _cell_length_b  8.56(16)

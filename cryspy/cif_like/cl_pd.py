@@ -994,7 +994,7 @@ Output arguments:
 
         return "\n".join(ls_out)
 
-    def to_cif(self, separator="_", flag=False) -> str: 
+    def to_cif(self, separator="_", flag=False, flag_minimal=True) -> str: 
         """
 Redefined method of DataConstr.
 Print information about object in string in STAR format
@@ -1003,6 +1003,7 @@ Args:
     prefix: prefix in front of label of attribute
     separator: separator between prefix and attribute ("_" or ".")
     flag: for undefined attribute "." will be printed
+    flag_minimal if it's True the minimal set of object will be printed
 
 Returns:
     A string in STAR/CIF format

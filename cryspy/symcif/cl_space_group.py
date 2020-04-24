@@ -9,7 +9,7 @@ from pycifstar import Global
 import warnings
 
 from typing import List, Tuple
-from cryspy.common.cl_item_constr import ItemConstr
+from cryspy.common.cl_item_constr import ItemConstr, val_to_str
 
 import cryspy.symcif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from cryspy.symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
@@ -1229,3 +1229,34 @@ Make a report about space group in string format.
         for _pos in shift:
             ls_out.append(f"{float(_pos[0]):9.5f} {float(_pos[1]):9.5f} {float(_pos[2]):9.5f}")
         return "\n".join(ls_out)
+
+    def to_cif(self, separator="_", flag=False, flag_minimal=True) -> str:
+        """
+Print information about object in string in STAR format
+
+Args:
+    prefix is a prefix in front of label of attribute
+    separator is a separator between prefix and attribute ("_" or ".")
+    flag if it's True the value "." will be printed for undefined attributes
+    flag_minimal if it's True the minimal set of object will be printed
+
+Returns:
+    A string in STAR/CIF format
+        """
+        if flag_minimal:
+            ls_out = []
+            prefix = self.prefix
+            attributes = ["name_hm_ref", "it_coordinate_system_code"] 
+            related_attributes = ["name_H-M_ref", "IT_coordinate_system_code"]
+            for _attr, cif_attr in zip(attributes, related_attributes):
+                _val = getattr(self, _attr)
+                if _val is not None:
+                    s_val = val_to_str(_val)
+                    ls_out.append(f"_{prefix:}{separator:}{cif_attr:} {s_val:}")
+                elif flag:
+                    ls_out.append(f"_{prefix:}{separator:}{cif_attr:} .")
+            s_out = "\n".join(ls_out)
+        else:
+            s_out = super(SpaceGroup, self).to_cif(separator="_", flag=False, flag_minimal=flag_minimal)
+        return s_out
+

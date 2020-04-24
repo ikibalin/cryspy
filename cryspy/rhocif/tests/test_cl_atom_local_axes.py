@@ -26,7 +26,7 @@ def test_init():
 def test_to_cif():
     try:
         _object = AtomLocalAxesL()
-        _str = _object.to_cif
+        _str = _object.to_cif()
         flag = True
     except:
         flag = False

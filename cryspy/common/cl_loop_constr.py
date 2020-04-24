@@ -52,14 +52,15 @@ class LoopConstr(object):
 
         return "\n".join(ls_out)
 
-    def to_cif(self, separator="_", flag=False) -> str:
+    def to_cif(self, separator="_", flag=False, flag_minimal=True) -> str:
         """
 Print information about object in string in STAR format
 
 Args:
-    prefix: prefix in front of label of attribute
-    separator: separator between prefix and attribute ("_" or ".")
-    flag: for undefined attribute "." will be printed
+    prefix is a prefix in front of label of attribute
+    separator is a separator between prefix and attribute ("_" or ".")
+    flag if it's True the value "." will be printed for undefined attributes
+    flag_minimal if it's True the minimal set of object will be printed
 
 Returns:
     A string in STAR/CIF format
