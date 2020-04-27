@@ -24,6 +24,9 @@ from cryspy.magneticcif.cl_atom_type_scat import AtomTypeScatL
 from cryspy.magneticcif.cl_atom_site_scat import AtomSiteScatL
 from cryspy.magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
 from cryspy.rhocif.cl_atom_local_axes import AtomLocalAxes, AtomLocalAxesL
+from cryspy.rhocif.cl_atom_electron_configuration import AtomElectronConfiguration, AtomElectronConfigurationL
+
+
 
 def calc_m_sigma(np_M, np_sigma):
     """
@@ -107,11 +110,12 @@ Description in cif file::
   Fe3B Cani 3.041      0.0 0.0  3.041 0.0  3.041
     """
     MANDATORY_CLASSES = (SpaceGroup, Cell, AtomSiteL)
-    OPTIONAL_CLASSES = (AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteScatL, AtomTypeScatL, AtomLocalAxesL)
+    OPTIONAL_CLASSES = (AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteScatL, AtomTypeScatL, 
+                        AtomLocalAxesL, AtomElectronConfigurationL)
     INTERNAL_CLASSES = ()
     def __init__(self, cell=None, atom_site=None, 
                  space_group=None, atom_type=None, atom_site_aniso=None, atom_site_susceptibility=None, 
-                 atom_site_scat=None, atom_type_scat=None,  atom_local_axes=None,
+                 atom_site_scat=None, atom_type_scat=None,  atom_local_axes=None, atom_electron_configuration=None,
                  data_name=""):
         super(Crystal, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
                                       optional_classes=self.OPTIONAL_CLASSES,
@@ -352,14 +356,29 @@ Description in cif file::
                     self.optional_objs.pop(_ind)
 
 
-
-    def __repr__(self):
-        ls_out = ["Crystal:"]
-        ls_out.append(f"{str(self):}")
-        return "\n".join(ls_out)
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
+    @property
+    def atom_electron_configuration(self):
+        l_res = self[AtomElectronConfigurationL]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
+    @atom_electron_configuration.setter
+    def atom_electron_configuration(self, x):
+        if x is None:
+            pass
+        elif isinstance(x, AtomElectronConfigurationL):
+            l_ind = []
+            for _i, _obj in enumerate(self.optional_objs):
+                if isinstance(_obj, AtomElectronConfigurationL):
+                    l_ind.append(_i)
+            if len(l_ind) == 0:
+                self.optional_objs.append(x)
+            else:
+                self.optional_objs[l_ind[0]] = x
+            if len(l_ind) > 1:
+                for _ind in l_ind.reverse():
+                    self.optional_objs.pop(_ind)
 
 
     def apply_constraint(self)->bool:

@@ -56,8 +56,22 @@ Returns:
         """
         ls_out = []
         ls_out.append(f"data_{self.data_name:}\n")
-        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in self.mandatory_objs])
-        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in self.optional_objs])
+        l_obj = self.mandatory_objs + self.optional_objs
+        l_s_item_const = [_obj.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n"
+                             for _obj in l_obj if isinstance(_obj, ItemConstr)]
+        l_s_loop_const = [_obj.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n"
+                             for _obj in l_obj if isinstance(_obj, LoopConstr)]
+        if l_s_loop_const != []:
+            n_max_loop = max([len(_) for _ in l_s_loop_const])
+            if n_max_loop < 1000:
+                n_max_loop = 1000
+        else:
+            n_max_loop = 10000
+        l_n_max_item = [len(_) for _ in l_s_item_const]
+
+        ls_out.extend([_1 for _1, _2 in zip(l_s_item_const, l_n_max_item) if _2 <= n_max_loop])
+        ls_out.extend([_ for _ in l_s_loop_const])
+        ls_out.extend([_1 for _1, _2 in zip(l_s_item_const, l_n_max_item) if _2 > n_max_loop])
         return "\n".join(ls_out)
 
     @classmethod

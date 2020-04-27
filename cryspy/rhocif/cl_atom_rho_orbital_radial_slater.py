@@ -3,7 +3,7 @@ __version__ = "2020_04_24"
 import os
 import math
 import numpy
-from pycifstar import Global
+from pycifstar import Global, to_data
 
 import warnings
 from typing import List, Tuple
@@ -347,4 +347,23 @@ Example:
                 coeff[_j, _i] = float(getattr(_item, _attr))
             norm_density += normalized_rho[:, numpy.newaxis] * (coeff[:, _i])[numpy.newaxis, :]
         return norm_density
+
+    def take_objects_for_atom_type(self, atom_type: str) -> list:
+        cls = type(self)
+        l_arors = []
+        f_dir = os.path.dirname(__file__)
+        f_name = os.path.join(f_dir, "library.rcif")
+
+        obj_rcif = to_data(f_name)
+        s_atom_type = ("".join([_ for _ in atom_type if _.isalpha()])).lower()
+        for loop in obj_rcif.loops:
+            l_loop_rcif = cls.from_cif(str(loop))
+            if l_loop_rcif is not None:
+                loop_rcif = l_loop_rcif[0]
+                s_loop_name = loop_rcif.loop_name
+                s_atom_type_loop = (s_loop_name.split("_")[0]).lower()
+                if s_atom_type_loop == s_atom_type:
+                    l_arors.append(loop_rcif)
+        return l_arors
+
 

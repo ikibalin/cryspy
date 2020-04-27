@@ -115,8 +115,8 @@ Description in cif file::
  ;
  ;
     """
-    MANDATORY_CLASSES = (Pd2dBackground, Pd2dInstrResolution, Pd2dMeas, PhaseL, DiffrnRadiation,
-                         Setup, Range, Chi2)
+    MANDATORY_CLASSES = (Pd2dInstrResolution, PhaseL, DiffrnRadiation,
+                         Setup, Range, Chi2, Pd2dBackground, Pd2dMeas)
     OPTIONAL_CLASSES = (Extinction, ExcludeL, Pd2dInstrReflexAsymmetry, Texture)
     INTERNAL_CLASSES = (RefineLs, ReflnL, ReflnSusceptibilityL, Pd2dPeakL, Pd2dProc)
     def __init__(self, background=None, resolution=None, meas=None, 

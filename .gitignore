@@ -10,3 +10,5 @@ cryspy.egg-info/*
 .idea/*
 .pytest_cache/*
 .vscode/*
+.vs/*
+TestResults/*

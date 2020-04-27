@@ -61,4 +61,8 @@ from .pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
 from .pd1dcif_like.cl_pd_peak import PdPeak, PdPeakL
 from .pd1dcif_like.cl_pd_proc import PdProc, PdProcL
 
+from .rhocif.cl_atom_local_axes import AtomLocalAxes, AtomLocalAxesL
+from .rhocif.cl_atom_rho_orbital_radial_slater import AtomRhoOrbitalRadialSlater, AtomRhoOrbitalRadialSlaterL
+from .rhocif.cl_atom_electron_configuration import AtomElectronConfiguration, AtomElectronConfigurationL
+
 from .scripts.cl_rhochi import RhoChi
