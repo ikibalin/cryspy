@@ -960,28 +960,37 @@ Output arguments:
         
         return profile_2d, tth_zs, h_pv
 
-    def params_to_cif(self, separator="_", flag=False) -> str: 
+    def params_to_cif(self, separator="_", flag=False, flag_minimal=True) -> str: 
         ls_out = []
         l_cls = (Setup, PdInstrResolution, DiffrnRadiation, 
                  Chi2, Range, Extinction, PdInstrReflexAsymmetry, PhaseL, ExcludeL, PdPeakL, PdBackgroundL)
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
-        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        l_item_const = [_obj for _obj in l_obj if isinstance(_obj, ItemConstr)]
+        l_loop_const = [_obj for _obj in l_obj if isinstance(_obj, LoopConstr)]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_item_const])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_loop_const])
         return "\n".join(ls_out)
 
-    def data_to_cif(self, separator="_", flag=False) -> str: 
+    def data_to_cif(self, separator="_", flag=False, flag_minimal=True) -> str: 
         ls_out = []
         l_cls = (PdMeasL, )
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
-        ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+        l_item_const = [_obj for _obj in l_obj if isinstance(_obj, ItemConstr)]
+        l_loop_const = [_obj for _obj in l_obj if isinstance(_obj, LoopConstr)]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_item_const])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_loop_const])
         return "\n".join(ls_out)
 
-    def calc_to_cif(self, separator="_", flag=False) -> str: 
+    def calc_to_cif(self, separator="_", flag=False, flag_minimal=True) -> str: 
 
         ls_out = []
         l_cls = (RefineLs, ReflnL, ReflnSusceptibilityL, PdPeakL, PdProcL)
         for _cls in l_cls:
             l_obj = [_obj for _obj in (self.optional_objs+self.internal_objs) if isinstance(_obj, _cls)]
-            ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in l_obj])
+            l_item_const = [_obj for _obj in l_obj if isinstance(_obj, ItemConstr)]
+            l_loop_const = [_obj for _obj in l_obj if isinstance(_obj, LoopConstr)]
+            ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_item_const])
+            ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_loop_const])
 
         #ls_out = []
         #l_cls = (PdProcL, )

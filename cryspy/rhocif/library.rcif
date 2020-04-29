@@ -143,3 +143,13 @@ _atom_rho_orbital_radial_slater_coeff_3d
  3 4.40390 .25284
  3 3.42000 .17865
  3 1.10460 .14505
+
+loop_Ho_d
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_3d
+3 5.0445061101038  81.8805178440314  
+3 7.1517413382757  48.1052954856514  
+3 6.3376922943279 -98.0597800751393  
+3 3.3829108331679  24.1709177375473  
+3 3.8464960317679 -56.0734049990489  

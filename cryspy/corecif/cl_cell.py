@@ -917,6 +917,19 @@ in Carthezian coordinate system in which (x||a*, z||c)
         p_z = m_m[2, 0]*x + m_m[2, 1]*y + m_m[2, 2]*z
         return p_x, p_y, p_z
 
+    def calc_coordinate_by_position(self, p_x, p_y, p_z):
+        """
+Calculates coordinate :math:`(x,y,z)` for  position defined
+in Carthezian coordinate system in which (x||a*, z||c)
+        """
+        m_m = self.m_m
+        m_im = numpy.linalg.inv(m_m)
+        x = m_im[0, 0]*p_x + m_im[0, 1]*p_y + m_im[0, 2]*p_z
+        y = m_im[1, 0]*p_x + m_im[1, 1]*p_y + m_im[1, 2]*p_z
+        z = m_im[2, 0]*p_x + m_im[2, 1]*p_y + m_im[2, 2]*p_z
+        return x, y, z
+
+
     def calc_length_sq(self, x, y, z):
         """
 According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes

@@ -124,16 +124,21 @@ Returns:
                         _name_short_obj = l_attr[l_cif_attr.index(_name_short)]
                     else:
                         _name_short_obj = _name_short.lower()
-                    if _i == 0:
-                        item = []
-                        for _val in cif_loop[_name]:
-                            _item = _item_class()
-                            setattr(_item, _name_short_obj, _val)
-                            item.append(_item)
+
+                    if _name_short_obj in l_attr:
+                        if _i == 0:
+                            item = []
+                            for _val in cif_loop[_name]:
+                                _item = _item_class()
+                                setattr(_item, _name_short_obj, _val)
+                                item.append(_item)
+                        else:
+                            for _val, _item in zip(cif_loop[_name], item):
+                                setattr(_item, _name_short_obj, _val)
+                        _i += 1
                     else:
-                        for _val, _item in zip(cif_loop[_name], item):
-                            setattr(_item, _name_short_obj, _val)
-                    _i += 1
+                        pass
+
                 _obj.item = item
                 l_obj.append(_obj)
         return l_obj

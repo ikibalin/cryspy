@@ -32,9 +32,9 @@ Description in cif file::
 `<https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html>`_
     """    
     MANDATORY_ATTRIBUTE = ("label", "type_symbol", "fract_x", "fract_y", "fract_z")
-    OPTIONAL_ATTRIBUTE = ("occupancy", "adp_type", "wyckoff_symbol", 
-                          "u_iso_or_equiv", "u_equiv_geom_mean", "b_iso_or_equiv",
-                          "cartn_x", "cartn_y", "cartn_z", "multiplicity")
+    OPTIONAL_ATTRIBUTE = ("occupancy", "adp_type",  "u_iso_or_equiv", "u_equiv_geom_mean", 
+                          "b_iso_or_equiv",
+                          "multiplicity", "wyckoff_symbol", "cartn_x", "cartn_y", "cartn_z")
     INTERNAL_ATTRIBUTE = ("scat_length_neutron", "space_group_wyckoff", "constr_number")
     ACCESIBLE_ADP_TYPE = ("Uani", "Uiso", "Uovl", "Umpe", "Bani", "Biso", "Bovl")
     PREFIX = "atom_site"
