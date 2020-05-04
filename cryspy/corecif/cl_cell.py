@@ -944,6 +944,25 @@ According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
                 2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
         return t_sq
 
+    def closest_distance_between_fractions(self, fract_1: numpy.ndarray, fract_2: numpy.ndarray) -> numpy.ndarray:
+        """
+Give closest distance between two fractions
+        """
+        if len(fract_1.shape) == 1:
+            fract_1_p = fract_1.reshape(fract_1.size, 1)
+        else:
+            fract_1_p = fract_1
+        if len(fract_2.shape) == 1:
+            fract_2_p = fract_2.reshape(fract_2.size, 1)
+        else:
+            fract_2_p = fract_2
+        fract_1_p, fract_2_p = numpy.mod(fract_1_p, 1.), numpy.mod(fract_2_p, 1.)
+        _diff_fract = numpy.abs(fract_1_p - fract_2_p)
+        _diff_closest = numpy.where(_diff_fract < 0.5, _diff_fract, 1.0-_diff_fract)
+        _diff_pos = self.calc_position_by_coordinate(_diff_closest[0, :], _diff_closest[1, :], _diff_closest[2, :])
+        distance = numpy.sqrt((numpy.square(_diff_pos)).sum(axis=0))
+        return distance
+
     def calc_reciprocal_length_sq(self, h, k, l):
         """
 According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes

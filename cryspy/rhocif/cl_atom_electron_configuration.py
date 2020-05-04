@@ -132,7 +132,7 @@ Co2 "1s2 2s2 2p6 3s2 3p6" .
  O3 "1s2" "2s 2p"
 
     """
-    CATEGORY_KEY = ()
+    CATEGORY_KEY = ("label", )
     ITEM_CLASS = AtomElectronConfiguration
     def __init__(self, item=[], loop_name=""):
         super(AtomElectronConfigurationL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)

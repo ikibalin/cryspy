@@ -540,7 +540,7 @@ Example:
 
         def tempfunc(param):
             for _1, _2 in zip(fitable, param):
-                _1.value = _2 
+                _1.value = abs(_2)# only positive coefficients
             j0 = self.calc_jl_by_radial_density(sthovl, 0, shell, kappa)[0]
             chi_sq = (numpy.square(ff - j0)).sum()
             return chi_sq
@@ -551,4 +551,7 @@ Example:
         res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, 
                                           T=0.1, stepsize=0.1, interval=20, 
                                           disp=True)
+        for _1, _2 in zip(fitable, res.x):
+            _1.value = abs(_2)# only positive coefficients, found minima
+
         return res
