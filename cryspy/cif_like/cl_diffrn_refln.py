@@ -213,8 +213,24 @@ Make a report about experimental agreement factor in string format
         """
 
         l_chi_sq_exp, l_ag_f_exp = [], []
+        l_diff = []
+        n_3s, n_2s, n_1s, n_0s = 0, 0, 0, 0
         l_hkl = [(int(_1), int(_2), int(_3)) for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)]
         for _hkl, _fr_1, _fr_sigma_1 in zip(l_hkl, self.fr, self.fr_sigma):
+            _diff = abs(_fr_1-1.)/float(_fr_sigma_1)
+            if _diff >= 3.:
+                n_3s +=1
+            elif _diff >= 2.:
+                n_2s += 1
+            elif _diff >= 1.:
+                n_1s += 1
+            else: 
+                n_0s += 1
+            if _fr_1 <= 1.:
+                l_diff.append(1./_fr_1-1.)
+            else:
+                l_diff.append(_fr_1-1.)
+
             _mhkl = (-1 * _hkl[0], -1 * _hkl[1], -1 * _hkl[2])
             if _mhkl in l_hkl:
                 ind_mhkl = l_hkl.index(_mhkl)
@@ -233,6 +249,18 @@ Make a report about experimental agreement factor in string format
                 # print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))
                 # print("ag_f_exp: {:.3f} ".format(ag_f_exp))
         ls_out = []
+        n = n_0s + n_1s + n_2s + n_3s
+        ls_out.append(f"\n Number of measured reflections: {n:4}")
+        ls_out.append(f"      range of h is {min([_[0] for _ in l_hkl]):3},{max([_[0] for _ in l_hkl]):3} ")
+        ls_out.append(f"               k is {min([_[1] for _ in l_hkl]):3},{max([_[1] for _ in l_hkl]):3} ")
+        ls_out.append(f"               l is {min([_[2] for _ in l_hkl]):3},{max([_[2] for _ in l_hkl]):3} ")
+        ls_out.append(f" max(FR_exp - 1) is {max(l_diff):5.3f} ")
+        ls_out.append(f" N+1 > |FR_exp - 1|/FR_sigma > N: ")
+        ls_out.append(f" |FR_exp - 1|/FR_sigma < 1: {n_0s:4}, {100*float(n_0s)/float(n):5.1f}%  ")
+        ls_out.append(f"                     N = 1: {n_1s:4}, {100*float(n_1s)/float(n):5.1f}%  ")
+        ls_out.append(f"                     N = 2: {n_2s:4}, {100 * float(n_2s) / float(n):5.1f}% ")
+        ls_out.append(f" |FR_exp - 1|/FR_sigma > 3: {n_3s:4}, {100 * float(n_3s) / float(n):5.1f}% ")
+
         n_friedel = len(l_chi_sq_exp)
         ls_out.append(f"Total number of Friedel reflections is {n_friedel:}.")
         if n_friedel != 0:

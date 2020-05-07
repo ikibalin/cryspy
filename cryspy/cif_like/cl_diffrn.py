@@ -392,27 +392,20 @@ Keyword arguments:
         fm_sq = f_nucl_sq + mag_p_sq - fnp
         fpm_sq = mag_p_sq - mag_p_e_u_sq
 
-        #extinction correction     
-        yp = extinction.calc_extinction(cell, h, k, l, fp_sq, wavelength)
-        ym = extinction.calc_extinction(cell, h, k, l, fm_sq, wavelength)
-        ypm = extinction.calc_extinction(cell, h, k, l, fpm_sq, wavelength)
-
+        #extinction correction  
+        if extinction is not None:   
+            yp = extinction.calc_extinction(cell, h, k, l, fp_sq, wavelength)
+            ym = extinction.calc_extinction(cell, h, k, l, fm_sq, wavelength)
+            ypm = extinction.calc_extinction(cell, h, k, l, fpm_sq, wavelength)
+        else:
+            yp = 1. + 0.*f_nucl_sq
+            ym = yp 
+            ypm = yp 
         pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
         ppmin= 0.5*((1-p_d)*yp+(1+p_d)*ym)
         pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
         pmmin= 0.5*((1-p_d)*yp-(1+p_d)*ym)
-        """
-        print("   h   k   l  f_nucl f_m_p_sq   f_np  fpm_sq")
-        for h1, k1, l1, f_n_sq, f_m_sq, f_np, f_pm_sq in zip(h, k, l, f_nucl_sq, mag_p_e_u_sq, fnp, fpm_sq):
-            print(" {:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f} {:7.3f}".format(
-                    h1, k1, l1, f_n_sq, f_m_sq, f_np, f_pm_sq))
 
-        print("   h   k   l      yp      ym     ypm      pppl   ppmin    pmpl   pmmin")
-        for h1, k1, l1, y_p, y_m, y_pm, p_ppl, p_pmin, p_mpl, p_mmin in zip(
-                h, k, l, yp, ym, ypm, pppl, ppmin, pmpl, pmmin):
-            print(" {:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}   {:7.3f} {:7.3f} {:7.3f} {:7.3f}".format(
-                    h1, k1, l1, y_p, y_m, y_pm, p_ppl, p_pmin, p_mpl, p_mmin))
-        """
         #integral intensities and flipping ratios
         iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
         iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq

@@ -99,8 +99,6 @@ The model of extinction.
         ls_out.append(f"Extinction:\n{str(self):}")
         return "\n".join(ls_out)
 
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***\n"+s_out, UserWarning, stacklevel=2)
         
     @property
     def is_variable(self) -> bool:
