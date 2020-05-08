@@ -1,27 +1,28 @@
 CrysPy
 ====================
 
-CrysPy_ is a crystallographic library for neutron data analysis. Based on the library *CrysPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments performed with single crystals as well as with powder magnetic compounds. A console version is given together with a simple GUI viewer.
+CrysPy_ is a crystallographic library for neutron data analysis. 
+Based on the library *CrysPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments 
+performed with single crystals as well as with powder magnetic compounds. 
+A console version is given together with a simple GUI_editor.
 
-.. image:: cryspy/scripts/rhochi/f_icon/smm.PNG
+.. image:: cryspy/logo.png
 
-+--------+-----------------+
-| Folder | Description     |
-+========+=================+
-| cryspy | cryspy library  |
-+--------+-----------------+
-| rhochi | RhoChi script   |
-+--------+-----------------+
-| example| examples        |
-+--------+-----------------+
-| docs   | documentation   |
-+--------+-----------------+
++----------+------------------------+
+| Folder   | Description            |
++==========+========================+
+| cryspy   | cryspy library         |
++----------+------------------------+
+| examples | examples               |
++----------+------------------------+
+| docs     | html documentation     |
++----------+------------------------+
 
 
 Main Features
 ------------------------
-- Analysis of the polarized neutron scattering on crystals by the library *CryPy*;
-- Diffraction data refinement for single crystals or powder by *RhoChi*;
+- Analysis of the polarized neutron scattering on crystals by the library *CrysPy*;
+- Diffraction data refinement for single crystals or powders by *RhoChi*;
 
 Installation and Requirements of *CrysPy*
 ------------------------------------------
@@ -30,18 +31,13 @@ CrysPy_ is developed and tested using Python 3.7 and depends on:
 
 - *numpy*
 - *scipy*
-- *matplotlib*
-- *pyqt5*.
+- *matplotlib* (for cryspy_editor)
+- *pyqt5* (for cryspy_editor).
 
 It can be installed by
 
->>> python -m pip install cryspy  # as root (in Windows OS)
-
-
-Or if you have downloaded a source tarball you can install CrysPy_ by doing the following:
-
->>> python setup.py develop # as root
-
+>>> python -m pip install cryspy  # cryspy library
+>>> python -m pip install cryspy_editor  # simple gui editor of cryspy library
 
 
 Run *RhoChi*
@@ -50,9 +46,21 @@ Run *RhoChi*
 
 The *CrysPy* library should be installed. 
 
-Use the command-line to run the refinement in the folder which contents the data:
+Use the command-line to run the refinement given in file "main.rcif":
 
->>> python -m cryspy.run_rhochi
+>>> python -m cryspy 
+
+or 
+
+>>> python -m cryspy input.rcif output.rcif
+
+If the cryspy_editor is installed use the command-line to run simple GUI of *CrysPy* library:
+
+>>> python -m cryspy_editor
+
+or 
+
+>>> python -m cryspy_editor main.rcif
 
 Collaboration
 ---------------------------

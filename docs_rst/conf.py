@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'cryspy'
-copyright = '2019, Iurii KIBALIN'
+copyright = '2020, Iurii KIBALIN'
 author = 'Iurii KIBALIN'
 
 # The full version, including alpha/beta/rc tags
