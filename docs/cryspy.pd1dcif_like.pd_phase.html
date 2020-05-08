@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>PdPhase &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PdExclude" href="cryspy.pd1dcif_like.pd_exclude.html" />
+    <link rel="prev" title="PdInstrReflexAsymmetry" href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_exclude.html" title="PdExclude"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html" title="PdInstrReflexAsymmetry"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" accesskey="U">Unofficial powder 1D dictionary</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.pd1dcif_like.cl_pd_phase">
+<span id="pdphase"></span><h1>PdPhase<a class="headerlink" href="#module-cryspy.pd1dcif_like.cl_pd_phase" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_phase.</code><code class="sig-name descname">PdPhase</code><span class="sig-paren">(</span><em class="sig-param">label=None</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">igsize=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_phase.html#PdPhase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>PdPhase describes …</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_phase_label</span>  <span class="n">Fe3O4</span>
+<span class="n">_pd_phase_scale</span>  <span class="mf">0.02381</span>
+<span class="n">_pd_phase_igsize</span> <span class="mf">0.0</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('label', 'scale')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('igsize',)</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_phase'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_phase.html#PdPhase.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.igsize">
+<em class="property">property </em><code class="sig-name descname">igsize</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.igsize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.label">
+<em class="property">property </em><code class="sig-name descname">label</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhase.scale">
+<em class="property">property </em><code class="sig-name descname">scale</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase.scale" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_phase.</code><code class="sig-name descname">PdPhaseL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_phase.html#PdPhaseL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
+<p>PdPhaseL describes …</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+<span class="n">_pd_phase_label</span>
+<span class="n">_pd_phase_scale</span>
+<span class="n">_pd_phase_igsize</span>
+ <span class="n">Fe3O4</span> <span class="mf">0.02381</span> <span class="mf">0.0</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL.CATEGORY_KEY">
+<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('label',)</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL.ITEM_CLASS">
+<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhaseL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#cryspy.pd1dcif_like.cl_pd_phase.PdPhase" title="cryspy.pd1dcif_like.cl_pd_phase.PdPhase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PdPhase</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html"
+                        title="previous chapter">PdInstrReflexAsymmetry</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.pd1dcif_like.pd_exclude.html"
+                        title="next chapter">PdExclude</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.pd1dcif_like.pd_phase.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_exclude.html" title="PdExclude"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html" title="PdInstrReflexAsymmetry"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >The classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" >Unofficial powder 1D dictionary</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+    </div>
+  </body>
+</html>

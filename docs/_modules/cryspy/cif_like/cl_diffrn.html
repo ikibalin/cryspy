@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.cif_like.cl_diffrn &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.cif_like.cl_diffrn</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2020_01_02&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_data_constr</span> <span class="k">import</span> <span class="n">DataConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refln</span> <span class="k">import</span> <span class="n">Refln</span><span class="p">,</span> <span class="n">ReflnL</span>
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_diffrn_orient_matrix</span> <span class="k">import</span> <span class="n">DiffrnOrientMatrix</span>
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refine_ls</span> <span class="k">import</span> <span class="n">RefineLs</span>
+
+<span class="kn">from</span> <span class="nn">cryspy.magneticcif.cl_refln_susceptibility</span> <span class="k">import</span> <span class="n">ReflnSusceptibility</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span>
+
+<span class="kn">from</span> <span class="nn">.cl_diffrn_refln</span> <span class="k">import</span> <span class="n">DiffrnRefln</span><span class="p">,</span> <span class="n">DiffrnReflnL</span>
+<span class="kn">from</span> <span class="nn">.cl_diffrn_radiation</span> <span class="k">import</span> <span class="n">DiffrnRadiation</span>
+<span class="kn">from</span> <span class="nn">.cl_extinction</span> <span class="k">import</span> <span class="n">Extinction</span>
+<span class="kn">from</span> <span class="nn">.cl_setup</span> <span class="k">import</span> <span class="n">Setup</span>
+<span class="kn">from</span> <span class="nn">.cl_phase</span> <span class="k">import</span> <span class="n">Phase</span>
+
+
+
+
+<div class="viewcode-block" id="Diffrn"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn">[docs]</a><span class="k">class</span> <span class="nc">Diffrn</span><span class="p">(</span><span class="n">DataConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Class to describe information about single diffraction measurements</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> data_mono</span>
+<span class="sd"> _setup_wavelength     0.840</span>
+<span class="sd"> _setup_field          1.000</span>
+<span class="sd"> </span>
+<span class="sd"> _diffrn_radiation_polarization 1.0</span>
+<span class="sd"> _diffrn_radiation_efficiency   1.0</span>
+
+<span class="sd"> _extinction_mosaicity 100.0</span>
+<span class="sd"> _extinction_radius    50.0</span>
+<span class="sd"> _extinction_model     gauss</span>
+
+<span class="sd"> _diffrn_orient_matrix_UB_11 6.59783</span>
+<span class="sd"> _diffrn_orient_matrix_UB_12 -6.99807</span>
+<span class="sd"> _diffrn_orient_matrix_UB_13 3.3663</span>
+<span class="sd"> _diffrn_orient_matrix_UB_21 2.18396</span>
+<span class="sd"> _diffrn_orient_matrix_UB_22 -2.60871</span>
+<span class="sd"> _diffrn_orient_matrix_UB_23 -9.5302</span>
+<span class="sd"> _diffrn_orient_matrix_UB_31 7.4657</span>
+<span class="sd"> _diffrn_orient_matrix_UB_32 6.94702</span>
+<span class="sd"> _diffrn_orient_matrix_UB_33 -0.18685</span>
+
+<span class="sd"> _phase_label  Fe3O4</span>
+
+<span class="sd"> loop_</span>
+<span class="sd"> _diffrn_refln_index_h</span>
+<span class="sd"> _diffrn_refln_index_k</span>
+<span class="sd"> _diffrn_refln_index_l</span>
+<span class="sd"> _diffrn_refln_fr</span>
+<span class="sd"> _diffrn_refln_fr_sigma</span>
+<span class="sd"> 0 0 8 0.64545 0.01329 </span>
+<span class="sd"> 2 0 6 1.75682 0.04540 </span>
+<span class="sd"> 0 2 6 1.67974 0.03711 </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Setup</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span> <span class="n">DiffrnOrientMatrix</span><span class="p">,</span> <span class="n">DiffrnReflnL</span><span class="p">)</span>
+    <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Extinction</span><span class="p">,</span> <span class="n">Phase</span><span class="p">)</span>
+    <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">RefineLs</span><span class="p">,</span> <span class="n">ReflnL</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">diffrn_radiation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">diffrn_orient_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">diffrn_refln</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extinction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">data_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Diffrn</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_CLASSES</span><span class="p">,</span>
+                                     <span class="n">optional_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_CLASSES</span><span class="p">,</span>
+                                     <span class="n">internal_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_CLASSES</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_name</span> <span class="o">=</span> <span class="n">data_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span> <span class="o">=</span> <span class="n">setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_radiation</span> <span class="o">=</span> <span class="n">diffrn_radiation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_orient_matrix</span> <span class="o">=</span> <span class="n">diffrn_orient_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_refln</span> <span class="o">=</span> <span class="n">diffrn_refln</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extinction</span> <span class="o">=</span> <span class="n">extinction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
+
+        <span class="c1">#FIXME: internal attributes:</span>
+        <span class="c1">#self.reflns = None</span>
+        <span class="c1">#self.refln_ss = None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+        
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Setup</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="nd">@setup</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Setup</span><span class="p">):</span>
+            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">Setup</span><span class="p">):</span>
+                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">diffrn_radiation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">DiffrnRadiation</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="nd">@diffrn_radiation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">diffrn_radiation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">):</span>
+            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">):</span>
+                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">diffrn_orient_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">DiffrnOrientMatrix</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="nd">@diffrn_orient_matrix</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">diffrn_orient_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">DiffrnOrientMatrix</span><span class="p">):</span>
+            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">DiffrnOrientMatrix</span><span class="p">):</span>
+                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">diffrn_refln</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">DiffrnReflnL</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="nd">@diffrn_refln</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">diffrn_refln</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">DiffrnReflnL</span><span class="p">):</span>
+            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">DiffrnReflnL</span><span class="p">):</span>
+                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extinction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Extinction</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="nd">@extinction</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">extinction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Extinction</span><span class="p">):</span>
+            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">Extinction</span><span class="p">):</span>
+                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">Phase</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="nd">@phase</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Phase</span><span class="p">):</span>
+            <span class="n">l_ind</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">Phase</span><span class="p">):</span>
+                    <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">[</span><span class="n">l_ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_ind</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_ind</span> <span class="ow">in</span> <span class="n">l_ind</span><span class="o">.</span><span class="n">reverse</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refine_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">RefineLs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l_res</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refln</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">ReflnL</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l_res</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refln_susceptibility</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">ReflnSusceptibilityL</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">l_res</span>
+
+
+
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Diffrn:&quot;</span><span class="p">]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***&quot;</span><span class="p">,</span> <span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Output: True if there is any refined parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="n">_obj</span><span class="o">.</span><span class="n">is_variable</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">]</span> <span class="o">+</span>
+                  <span class="p">[</span><span class="n">_obj</span><span class="o">.</span><span class="n">is_variable</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">res</span>
+        
+<div class="viewcode-block" id="Diffrn.get_variables"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Output: the list of the refined parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span><span class="p">:</span>
+            <span class="n">l_variable</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj</span><span class="o">.</span><span class="n">get_variables</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">:</span>
+            <span class="n">l_variable</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj</span><span class="o">.</span><span class="n">get_variables</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">l_variable</span></div>
+
+
+
+<div class="viewcode-block" id="Diffrn.calc_iint_u_d_flip_ratio"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio">[docs]</a>    <span class="k">def</span> <span class="nf">calc_iint_u_d_flip_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate intensity for the given diffraction angle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l_label</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span><span class="o">.</span><span class="n">data_name</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_crystal</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">l_label</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">l_label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">crystal</span> <span class="o">=</span> <span class="n">l_crystal</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_name</span> <span class="ow">in</span> <span class="n">l_label</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">Phase</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_name</span><span class="p">)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">l_label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_name</span><span class="p">)</span>
+            <span class="n">crystal</span> <span class="o">=</span> <span class="n">l_crystal</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_show_message</span><span class="p">(</span><span class="s2">&quot;Crystal not found.</span><span class="se">\n</span><span class="s2">The first one is taken.&quot;</span><span class="p">)</span>
+            <span class="n">crystal</span> <span class="o">=</span> <span class="n">l_crystal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">label</span>
+        <span class="n">wavelength</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">wavelength</span><span class="p">)</span>
+        <span class="n">field_z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">diffrn_radiation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_radiation</span>
+        <span class="n">extinction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extinction</span>
+        <span class="n">orient_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_orient_matrix</span>
+
+        <span class="n">orientation</span> <span class="o">=</span> <span class="n">orient_matrix</span><span class="o">.</span><span class="n">u</span>       
+        <span class="n">field_vec</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">field_z</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">phi_d</span><span class="p">,</span> <span class="n">chi_d</span><span class="p">,</span> <span class="n">omega_d</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+        <span class="n">m_phi_d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi_d</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi_d</span><span class="p">),</span> <span class="mf">0.</span><span class="p">],</span>
+                               <span class="p">[</span><span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi_d</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi_d</span><span class="p">),</span> <span class="mf">0.</span><span class="p">],</span>
+                               <span class="p">[</span>               <span class="mf">0.</span><span class="p">,</span>               <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">m_omega_d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">omega_d</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">omega_d</span><span class="p">),</span> <span class="mf">0.</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">omega_d</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">omega_d</span><span class="p">),</span> <span class="mf">0.</span><span class="p">],</span>
+                                 <span class="p">[</span>                 <span class="mf">0.</span><span class="p">,</span>                 <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">m_chi_d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">chi_d</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">chi_d</span><span class="p">)],</span>
+                               <span class="p">[</span>               <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span>               <span class="mf">0.</span><span class="p">],</span>
+                               <span class="p">[</span><span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">chi_d</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">chi_d</span><span class="p">)]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        
+        <span class="n">m_u_d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">m_omega_d</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">m_chi_d</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">m_phi_d</span><span class="p">,</span> 
+                             <span class="n">orientation</span><span class="p">)))</span>
+
+        <span class="n">field_loc</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">m_u_d</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">field_vec</span><span class="p">)</span>
+        
+        
+        <span class="n">field_norm</span> <span class="o">=</span> <span class="p">((</span><span class="n">field_loc</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">**</span><span class="mf">0.5</span>
+        
+        <span class="n">p_u</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">diffrn_radiation</span><span class="o">.</span><span class="n">polarization</span><span class="p">)</span>
+        <span class="n">p_d</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="nb">float</span><span class="p">(</span><span class="n">diffrn_radiation</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span><span class="o">*</span><span class="n">p_u</span>
+        
+        <span class="n">e_u_loc</span> <span class="o">=</span> <span class="n">field_loc</span><span class="o">/</span><span class="n">field_norm</span>
+        
+        
+        <span class="n">refln</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">calc_refln</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="n">f_nucl</span>  <span class="o">=</span>  <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln</span><span class="o">.</span><span class="n">f_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="n">refln_s</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">calc_refln_susceptibility</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="n">sft_11</span><span class="p">,</span> <span class="n">sft_12</span><span class="p">,</span> <span class="n">sft_13</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_11_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_12_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_13_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">sft_21</span><span class="p">,</span> <span class="n">sft_22</span><span class="p">,</span> <span class="n">sft_23</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_21_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_22_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_23_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">sft_31</span><span class="p">,</span> <span class="n">sft_32</span><span class="p">,</span> <span class="n">sft_33</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_31_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_32_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">chi_33_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">sftm_11</span><span class="p">,</span> <span class="n">sftm_12</span><span class="p">,</span> <span class="n">sftm_13</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_11_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_12_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_13_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">sftm_21</span><span class="p">,</span> <span class="n">sftm_22</span><span class="p">,</span> <span class="n">sftm_23</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_21_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_22_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_23_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">sftm_31</span><span class="p">,</span> <span class="n">sftm_32</span><span class="p">,</span> <span class="n">sftm_33</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_31_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_32_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">refln_s</span><span class="o">.</span><span class="n">moment_33_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">cell</span>
+        <span class="n">k_1</span><span class="p">,</span> <span class="n">k_2</span><span class="p">,</span> <span class="n">k_3</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_k_loc</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        
+        
+        <span class="c1">#not sure about e_u_loc at field &lt; 0 </span>
+        <span class="n">mag_1</span> <span class="o">=</span> <span class="n">sft_11</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sft_12</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sft_13</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_11</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_12</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_13</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">mag_2</span> <span class="o">=</span> <span class="n">sft_21</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sft_22</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sft_23</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_21</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_22</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_23</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">mag_3</span> <span class="o">=</span> <span class="n">sft_31</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sft_32</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sft_33</span><span class="o">*</span><span class="n">field_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_31</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_32</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sftm_33</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        
+        <span class="c1">#vector product k x mag x k        </span>
+        <span class="n">mag_p_1</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_3</span><span class="o">*</span><span class="n">mag_1</span> <span class="o">-</span> <span class="n">k_1</span><span class="o">*</span><span class="n">mag_3</span><span class="p">)</span><span class="o">*</span><span class="n">k_3</span> <span class="o">-</span> <span class="p">(</span><span class="n">k_1</span><span class="o">*</span><span class="n">mag_2</span> <span class="o">-</span> <span class="n">k_2</span><span class="o">*</span><span class="n">mag_1</span><span class="p">)</span><span class="o">*</span><span class="n">k_2</span>
+        <span class="n">mag_p_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_1</span><span class="o">*</span><span class="n">mag_2</span> <span class="o">-</span> <span class="n">k_2</span><span class="o">*</span><span class="n">mag_1</span><span class="p">)</span><span class="o">*</span><span class="n">k_1</span> <span class="o">-</span> <span class="p">(</span><span class="n">k_2</span><span class="o">*</span><span class="n">mag_3</span> <span class="o">-</span> <span class="n">k_3</span><span class="o">*</span><span class="n">mag_2</span><span class="p">)</span><span class="o">*</span><span class="n">k_3</span>
+        <span class="n">mag_p_3</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_2</span><span class="o">*</span><span class="n">mag_3</span> <span class="o">-</span> <span class="n">k_3</span><span class="o">*</span><span class="n">mag_2</span><span class="p">)</span><span class="o">*</span><span class="n">k_2</span> <span class="o">-</span> <span class="p">(</span><span class="n">k_3</span><span class="o">*</span><span class="n">mag_1</span> <span class="o">-</span> <span class="n">k_1</span><span class="o">*</span><span class="n">mag_3</span><span class="p">)</span><span class="o">*</span><span class="n">k_1</span>
+        
+        <span class="n">mag_p_sq</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mag_p_1</span><span class="o">*</span><span class="n">mag_p_1</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span> <span class="o">+</span> <span class="n">mag_p_2</span><span class="o">*</span><span class="n">mag_p_2</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span> <span class="o">+</span> 
+                       <span class="n">mag_p_3</span><span class="o">*</span><span class="n">mag_p_3</span><span class="o">.</span><span class="n">conjugate</span><span class="p">())</span>
+        
+        <span class="n">mag_p_e_u</span> <span class="o">=</span> <span class="n">mag_p_1</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">mag_p_2</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">mag_p_3</span><span class="o">*</span><span class="n">e_u_loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        
+        <span class="n">f_nucl_sq</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">f_nucl</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">mag_p_e_u_sq</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mag_p_e_u</span><span class="o">*</span><span class="n">mag_p_e_u</span><span class="o">.</span><span class="n">conjugate</span><span class="p">())</span>
+        <span class="n">fnp</span> <span class="o">=</span> <span class="p">(</span><span class="n">mag_p_e_u</span><span class="o">*</span><span class="n">f_nucl</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span><span class="o">+</span><span class="n">mag_p_e_u</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span><span class="o">*</span><span class="n">f_nucl</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+        <span class="n">fp_sq</span> <span class="o">=</span> <span class="n">f_nucl_sq</span> <span class="o">+</span> <span class="n">mag_p_sq</span> <span class="o">+</span> <span class="n">fnp</span>
+        <span class="n">fm_sq</span> <span class="o">=</span> <span class="n">f_nucl_sq</span> <span class="o">+</span> <span class="n">mag_p_sq</span> <span class="o">-</span> <span class="n">fnp</span>
+        <span class="n">fpm_sq</span> <span class="o">=</span> <span class="n">mag_p_sq</span> <span class="o">-</span> <span class="n">mag_p_e_u_sq</span>
+
+        <span class="c1">#extinction correction     </span>
+        <span class="n">yp</span> <span class="o">=</span> <span class="n">extinction</span><span class="o">.</span><span class="n">calc_extinction</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fp_sq</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+        <span class="n">ym</span> <span class="o">=</span> <span class="n">extinction</span><span class="o">.</span><span class="n">calc_extinction</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fm_sq</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+        <span class="n">ypm</span> <span class="o">=</span> <span class="n">extinction</span><span class="o">.</span><span class="n">calc_extinction</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">fpm_sq</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+
+        <span class="n">pppl</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="mi">1</span><span class="o">+</span><span class="n">p_u</span><span class="p">)</span><span class="o">*</span><span class="n">yp</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p_u</span><span class="p">)</span><span class="o">*</span><span class="n">ym</span><span class="p">)</span>
+        <span class="n">ppmin</span><span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">p_d</span><span class="p">)</span><span class="o">*</span><span class="n">yp</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">p_d</span><span class="p">)</span><span class="o">*</span><span class="n">ym</span><span class="p">)</span>
+        <span class="n">pmpl</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="mi">1</span><span class="o">+</span><span class="n">p_u</span><span class="p">)</span><span class="o">*</span><span class="n">yp</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p_u</span><span class="p">)</span><span class="o">*</span><span class="n">ym</span><span class="p">)</span>
+        <span class="n">pmmin</span><span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">p_d</span><span class="p">)</span><span class="o">*</span><span class="n">yp</span><span class="o">-</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">p_d</span><span class="p">)</span><span class="o">*</span><span class="n">ym</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        print(&quot;   h   k   l  f_nucl f_m_p_sq   f_np  fpm_sq&quot;)</span>
+<span class="sd">        for h1, k1, l1, f_n_sq, f_m_sq, f_np, f_pm_sq in zip(h, k, l, f_nucl_sq, mag_p_e_u_sq, fnp, fpm_sq):</span>
+<span class="sd">            print(&quot; {:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f} {:7.3f}&quot;.format(</span>
+<span class="sd">                    h1, k1, l1, f_n_sq, f_m_sq, f_np, f_pm_sq))</span>
+
+<span class="sd">        print(&quot;   h   k   l      yp      ym     ypm      pppl   ppmin    pmpl   pmmin&quot;)</span>
+<span class="sd">        for h1, k1, l1, y_p, y_m, y_pm, p_ppl, p_pmin, p_mpl, p_mmin in zip(</span>
+<span class="sd">                h, k, l, yp, ym, ypm, pppl, ppmin, pmpl, pmmin):</span>
+<span class="sd">            print(&quot; {:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}   {:7.3f} {:7.3f} {:7.3f} {:7.3f}&quot;.format(</span>
+<span class="sd">                    h1, k1, l1, y_p, y_m, y_pm, p_ppl, p_pmin, p_mpl, p_mmin))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#integral intensities and flipping ratios</span>
+        <span class="n">iint_u</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_nucl_sq</span><span class="o">+</span><span class="n">mag_p_e_u_sq</span><span class="p">)</span><span class="o">*</span><span class="n">pppl</span> <span class="o">+</span> <span class="n">pmpl</span><span class="o">*</span><span class="n">fnp</span> <span class="o">+</span> <span class="n">ypm</span><span class="o">*</span><span class="n">fpm_sq</span>
+        <span class="n">iint_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">f_nucl_sq</span><span class="o">+</span><span class="n">mag_p_e_u_sq</span><span class="p">)</span><span class="o">*</span><span class="n">ppmin</span> <span class="o">+</span> <span class="n">pmmin</span><span class="o">*</span><span class="n">fnp</span> <span class="o">+</span> <span class="n">ypm</span><span class="o">*</span><span class="n">fpm_sq</span>
+
+        <span class="n">flip_ratio</span> <span class="o">=</span> <span class="n">iint_u</span><span class="o">/</span><span class="n">iint_d</span>
+        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        d_info_out = {&quot;iint_u&quot;: iint_u, &quot;iint_d&quot;: iint_d, </span>
+<span class="sd">                      &quot;flip_ratio&quot;: flip_ratio}</span>
+<span class="sd">        d_info_out.update(d_info_sf)      </span>
+<span class="sd">        print(&quot;   h   k   l  iint_u  iint_d flip_ratio&quot;)</span>
+<span class="sd">        for h1, k1, l1, i_u, i_d, f_r in zip(h, k, l, iint_u, iint_d, flip_ratio):</span>
+<span class="sd">            print(&quot;{:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}&quot;.format(</span>
+<span class="sd">                    h1, k1, l1, i_u, i_d, f_r))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">refln</span><span class="o">.</span><span class="n">loop_name</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">data_name</span>
+        <span class="n">refln_s</span><span class="o">.</span><span class="n">loop_name</span> <span class="o">=</span> <span class="n">crystal</span><span class="o">.</span><span class="n">data_name</span>
+        <span class="n">l_internal_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">refln</span><span class="p">,</span> <span class="n">refln_s</span><span class="p">]</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__internal_objs&quot;</span><span class="p">,</span> <span class="n">l_internal_objs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">iint_u</span><span class="p">,</span> <span class="n">iint_d</span><span class="p">,</span> <span class="n">flip_ratio</span><span class="p">,</span> <span class="n">refln</span><span class="p">,</span> <span class="n">refln_s</span></div>
+    
+<div class="viewcode-block" id="Diffrn.calc_chi_sq"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn.calc_chi_sq">[docs]</a>    <span class="k">def</span> <span class="nf">calc_chi_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate chi square</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diffrn_refln</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffrn_refln</span>
+        <span class="n">np_h</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffrn_refln</span><span class="o">.</span><span class="n">index_h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">np_k</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffrn_refln</span><span class="o">.</span><span class="n">index_k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">np_l</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffrn_refln</span><span class="o">.</span><span class="n">index_l</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">fr_exp</span> <span class="o">=</span> <span class="n">diffrn_refln</span><span class="o">.</span><span class="n">fr</span>
+        <span class="n">fr_sigma</span> <span class="o">=</span> <span class="n">diffrn_refln</span><span class="o">.</span><span class="n">fr_sigma</span>
+        <span class="n">int_u_mod</span><span class="p">,</span> <span class="n">int_d_mod</span><span class="p">,</span> <span class="n">fr_mod</span><span class="p">,</span> <span class="n">refln</span><span class="p">,</span> <span class="n">refln_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_iint_u_d_flip_ratio</span><span class="p">(</span>
+                                               <span class="n">np_h</span><span class="p">,</span> <span class="n">np_k</span><span class="p">,</span> <span class="n">np_l</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">diffrn_refln</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">fr_mod</span><span class="p">,</span> <span class="n">int_u_mod</span><span class="p">,</span> <span class="n">int_d_mod</span><span class="p">):</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">fr_calc</span> <span class="o">=</span> <span class="n">_1</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">intensity_up_calc</span> <span class="o">=</span> <span class="n">_2</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">intensity_down_calc</span> <span class="o">=</span> <span class="n">_3</span>
+
+        <span class="c1">#self.refln = refln</span>
+        <span class="c1">#self.refln_s = refln_s</span>
+
+        <span class="n">chi_sq</span> <span class="o">=</span> <span class="p">((</span><span class="n">fr_mod</span><span class="o">-</span><span class="n">fr_exp</span><span class="p">)</span><span class="o">/</span><span class="n">fr_sigma</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">chi_sq_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_sq</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">chi_sq</span><span class="p">))])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">chi_sq</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">refine_ls</span> <span class="o">=</span> <span class="n">RefineLs</span><span class="p">(</span><span class="n">number_reflns</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">goodness_of_fit_all</span><span class="o">=</span><span class="n">chi_sq_val</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">weighting_scheme</span><span class="o">=</span><span class="s2">&quot;sigma&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">refine_ls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chi_sq_val</span><span class="p">,</span> <span class="n">n</span></div>
+
+<div class="viewcode-block" id="Diffrn.params_to_cif"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn.params_to_cif">[docs]</a>    <span class="k">def</span> <span class="nf">params_to_cif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">l_cls</span> <span class="o">=</span> <span class="p">(</span><span class="n">Setup</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span> <span class="n">DiffrnOrientMatrix</span><span class="p">,</span> <span class="n">Extinction</span><span class="p">,</span> <span class="n">Phase</span><span class="p">)</span>
+        <span class="n">l_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">_obj</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">_obj</span><span class="p">)</span> <span class="ow">in</span> <span class="n">l_cls</span><span class="p">]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">to_cif</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_obj</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Diffrn.data_to_cif"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn.data_to_cif">[docs]</a>    <span class="k">def</span> <span class="nf">data_to_cif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">l_cls</span> <span class="o">=</span> <span class="p">(</span><span class="n">DiffrnReflnL</span><span class="p">,</span> <span class="p">)</span>
+        <span class="n">l_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">_obj</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mandatory_objs</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_objs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">_obj</span><span class="p">)</span> <span class="ow">in</span> <span class="n">l_cls</span><span class="p">]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">to_cif</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_obj</span><span class="p">])</span>
+            
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Diffrn.calc_to_cif"><a class="viewcode-back" href="../../../cryspy.cif_like.diffrn.html#cryspy.cif_like.cl_diffrn.Diffrn.calc_to_cif">[docs]</a>    <span class="k">def</span> <span class="nf">calc_to_cif</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> 
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">l_cls</span> <span class="o">=</span> <span class="p">(</span><span class="n">RefineLs</span><span class="p">,</span> <span class="n">ReflnL</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_cls</span> <span class="ow">in</span> <span class="n">l_cls</span><span class="p">:</span>
+            <span class="n">l_obj</span> <span class="o">=</span> <span class="p">[</span><span class="n">_obj</span> <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">internal_objs</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_obj</span><span class="p">,</span> <span class="n">_cls</span><span class="p">)]</span>
+            <span class="n">ls_out</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">_</span><span class="o">.</span><span class="n">to_cif</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="n">separator</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">l_obj</span><span class="p">])</span>
+
+        <span class="c1">#if self.reflns is not None:</span>
+        <span class="c1">#    ls_out.extend([_.to_cif(separator=separator, flag=flag)+&quot;\n&quot; for _ in self.reflns])</span>
+        <span class="c1">#if self.refln_ss is not None:</span>
+        <span class="c1">#    ls_out.extend([_.to_cif(separator=separator, flag=flag)+&quot;\n&quot; for _ in self.refln_ss])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>ReflnSusceptibility &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Unofficial core dictionary" href="cryspy.cif_like.html" />
+    <link rel="prev" title="AtomSiteScat" href="cryspy.magneticcif.atom_site_scat.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.html" title="Unofficial core dictionary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.magneticcif.atom_site_scat.html" title="AtomSiteScat"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.magneticcif.html" accesskey="U">Magnetic CIF Dictionary</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.magneticcif.cl_refln_susceptibility">
+<span id="reflnsusceptibility"></span><h1>ReflnSusceptibility<a class="headerlink" href="#module-cryspy.magneticcif.cl_refln_susceptibility" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_refln_susceptibility.</code><code class="sig-name descname">ReflnSusceptibility</code><span class="sig-paren">(</span><em class="sig-param">index_h=None</em>, <em class="sig-param">index_k=None</em>, <em class="sig-param">index_l=None</em>, <em class="sig-param">sintlambda=None</em>, <em class="sig-param">d_spacing=None</em>, <em class="sig-param">chi_11_calc=None</em>, <em class="sig-param">chi_12_calc=None</em>, <em class="sig-param">chi_13_calc=None</em>, <em class="sig-param">chi_21_calc=None</em>, <em class="sig-param">chi_22_calc=None</em>, <em class="sig-param">chi_23_calc=None</em>, <em class="sig-param">chi_31_calc=None</em>, <em class="sig-param">chi_32_calc=None</em>, <em class="sig-param">chi_33_calc=None</em>, <em class="sig-param">moment_11_calc=None</em>, <em class="sig-param">moment_12_calc=None</em>, <em class="sig-param">moment_13_calc=None</em>, <em class="sig-param">moment_21_calc=None</em>, <em class="sig-param">moment_22_calc=None</em>, <em class="sig-param">moment_23_calc=None</em>, <em class="sig-param">moment_31_calc=None</em>, <em class="sig-param">moment_32_calc=None</em>, <em class="sig-param">moment_33_calc=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_refln_susceptibility.html#ReflnSusceptibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Data items in the REFLN_SUSCEPTIBILITY category record details about the
+susceptibility structure factor tensor and magnetization structure factor
+tensor calculated for different reflections.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">index_h</span>         <span class="mi">2</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">index_k</span>         <span class="mi">0</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">index_l</span>         <span class="mi">0</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">d_spacing</span>       <span class="mf">4.5540</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">sintlambda</span>      <span class="mf">0.1235</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_11_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_12_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_13_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_21_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_22_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_23_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_31_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_32_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_33_calc</span>      <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_11_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_12_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_13_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_21_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_22_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_23_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_31_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_32_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_33_calc</span>   <span class="mf">0.</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+</pre></div>
+</div>
+<p>FIXME:
+the attribute ‘sint/lambda’is replaced by ‘sintlambda’</p>
+<dl class="attribute">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('sintlambda', 'd_spacing', 'chi_11_calc', 'chi_12_calc', 'chi_13_calc', 'chi_21_calc', 'chi_22_calc', 'chi_23_calc', 'chi_31_calc', 'chi_32_calc', 'chi_33_calc', 'moment_11_calc', 'moment_12_calc', 'moment_13_calc', 'moment_21_calc', 'moment_22_calc', 'moment_23_calc', 'moment_31_calc', 'moment_32_calc', 'moment_33_calc')</em><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'refln_susceptibility'</em><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_11_calc">
+<em class="property">property </em><code class="sig-name descname">chi_11_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_11_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_12_calc">
+<em class="property">property </em><code class="sig-name descname">chi_12_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_12_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_13_calc">
+<em class="property">property </em><code class="sig-name descname">chi_13_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_13_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_21_calc">
+<em class="property">property </em><code class="sig-name descname">chi_21_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_21_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_22_calc">
+<em class="property">property </em><code class="sig-name descname">chi_22_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_22_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_23_calc">
+<em class="property">property </em><code class="sig-name descname">chi_23_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_23_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_31_calc">
+<em class="property">property </em><code class="sig-name descname">chi_31_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_31_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_32_calc">
+<em class="property">property </em><code class="sig-name descname">chi_32_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_32_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_33_calc">
+<em class="property">property </em><code class="sig-name descname">chi_33_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.chi_33_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.d_spacing">
+<em class="property">property </em><code class="sig-name descname">d_spacing</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.d_spacing" title="Permalink to this definition">¶</a></dt>
+<dd><p>The d spacing in angstroms for this reflection. This is related
+to the (sin theta)/lambda value by the expression
+_refln_susceptibility_d_spacing = 2/(_refln_sintlambda)</p>
+<p>Appears in list containing _refln_index_
+The permitted range is 0.0 -&gt; infinity</p>
+<p>Type: numb</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_refln_susceptibility.html#ReflnSusceptibility.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.index_h">
+<em class="property">property </em><code class="sig-name descname">index_h</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.index_h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller indices of the reflection. The values of the Miller
+indices in the REFLN category must correspond to the cell
+defined by the cell lengths and cell angles in the CELL category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.index_k">
+<em class="property">property </em><code class="sig-name descname">index_k</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.index_k" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller indices of the reflection. The values of the Miller
+indices in the REFLN category must correspond to the cell
+defined by the cell lengths and cell angles in the CELL category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.index_l">
+<em class="property">property </em><code class="sig-name descname">index_l</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.index_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Miller indices of the reflection. The values of the Miller
+indices in the REFLN category must correspond to the cell
+defined by the cell lengths and cell angles in the CELL category.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_11_calc">
+<em class="property">property </em><code class="sig-name descname">moment_11_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_11_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_12_calc">
+<em class="property">property </em><code class="sig-name descname">moment_12_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_12_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_13_calc">
+<em class="property">property </em><code class="sig-name descname">moment_13_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_13_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_21_calc">
+<em class="property">property </em><code class="sig-name descname">moment_21_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_21_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_22_calc">
+<em class="property">property </em><code class="sig-name descname">moment_22_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_22_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_23_calc">
+<em class="property">property </em><code class="sig-name descname">moment_23_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_23_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_31_calc">
+<em class="property">property </em><code class="sig-name descname">moment_31_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_31_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_32_calc">
+<em class="property">property </em><code class="sig-name descname">moment_32_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_32_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_33_calc">
+<em class="property">property </em><code class="sig-name descname">moment_33_calc</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.moment_33_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.sintlambda">
+<em class="property">property </em><code class="sig-name descname">sintlambda</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility.sintlambda" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>The (sin theta)/lambda value in reciprocal angstroms for this</dt><dd><p>reflection.</p>
+</dd>
+</dl>
+<p>Appears in list containing _refln_index_
+The permitted range is 0.0 -&gt; infinity</p>
+<p>Type: numb</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_refln_susceptibility.</code><code class="sig-name descname">ReflnSusceptibilityL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_refln_susceptibility.html#ReflnSusceptibilityL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
+<p>Data items in the REFLN_SUSCEPTIBILITY category record details about the
+susceptibility structure factor tensor and magnetization structure factor
+tensor calculated for different reflections.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">index_h</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">index_k</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">index_l</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">d_spacing</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">sintlambda</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_11_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_12_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_13_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_21_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_22_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_23_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_31_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_32_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">chi_33_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_11_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_12_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_13_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_21_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_22_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_23_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_31_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_32_calc</span>
+<span class="n">_refln_susceptibility</span><span class="o">.</span><span class="n">moment_33_calc</span>
+<span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mf">4.52</span> <span class="mf">0.123</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>  <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+<span class="mi">0</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mf">4.52</span> <span class="mf">0.123</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>  <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span> <span class="mi">0</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html</a></p>
+<dl class="attribute">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.CATEGORY_KEY">
+<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.ITEM_CLASS">
+<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility" title="cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReflnSusceptibility</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.magneticcif.atom_site_scat.html"
+                        title="previous chapter">AtomSiteScat</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.cif_like.html"
+                        title="next chapter">Unofficial core dictionary</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.magneticcif.refln_susceptibility.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.html" title="Unofficial core dictionary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.magneticcif.atom_site_scat.html" title="AtomSiteScat"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.magneticcif.html" >Magnetic CIF Dictionary</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

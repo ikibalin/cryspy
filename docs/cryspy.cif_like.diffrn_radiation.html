@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>DiffrnRadiation &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Crystal" href="cryspy.cif_like.crystal.html" />
+    <link rel="prev" title="Extinction" href="cryspy.cif_like.extinction.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.crystal.html" title="Crystal"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.extinction.html" title="Extinction"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.cif_like.cl_diffrn_radiation">
+<span id="diffrnradiation"></span><h1>DiffrnRadiation<a class="headerlink" href="#module-cryspy.cif_like.cl_diffrn_radiation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_diffrn_radiation.</code><code class="sig-name descname">DiffrnRadiation</code><span class="sig-paren">(</span><em class="sig-param">polarization=None</em>, <em class="sig-param">efficiency=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn_radiation.html#DiffrnRadiation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Describe the beam polarization.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_diffrn_radiation_efficiency</span>    <span class="mf">1.0</span>
+<span class="n">_diffrn_radiation_polarization</span> <span class="o">-</span><span class="mf">0.87</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('polarization', 'efficiency')</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'diffrn_radiation'</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.efficiency">
+<em class="property">property </em><code class="sig-name descname">efficiency</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>The efficiency of the efficiency.</p>
+<p>The permitted range is -1.0 -&gt; 1.0</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn_radiation.html#DiffrnRadiation.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.polarization">
+<em class="property">property </em><code class="sig-name descname">polarization</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation.polarization" title="Permalink to this definition">¶</a></dt>
+<dd><p>The polarization of the incident beam.</p>
+<p>The permitted range is -1.0 -&gt; 1.0</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.cif_like.extinction.html"
+                        title="previous chapter">Extinction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.cif_like.crystal.html"
+                        title="next chapter">Crystal</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.cif_like.diffrn_radiation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.crystal.html" title="Crystal"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.cif_like.extinction.html" title="Extinction"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>
