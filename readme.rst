@@ -7,6 +7,10 @@ performed with single crystals as well as with powder magnetic compounds.
 A console version is given together with a simple GUI_editor.
 
 .. image:: cryspy/logo.png
+   :height: 100px
+   :width: 100px
+   :alt: logo
+   :align: right
 
 +----------+------------------------+
 | Folder   | Description            |
