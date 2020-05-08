@@ -3,11 +3,12 @@
 *.bkg
 *.json
 *.pyc
-rhochi/setup.dat
-todo.md
-mem
 rhochi.egg-info
 build/*
 dist/*
 cryspy.egg-info/*
-cryspy/scripts/rhochi/setup.dat
+.idea/*
+.pytest_cache/*
+.vscode/*
+.vs/*
+TestResults/*

@@ -1,0 +1,746 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.corecif.cl_atom_site_aniso &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.corecif.cl_atom_site_aniso</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_12_05&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+
+<div class="viewcode-block" id="AtomSiteAniso"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteAniso</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the ATOM_SITE_ANISO category record details about</span>
+<span class="sd">the atom sites in a crystal structure, such as atomic displacement parameters.</span>
+<span class="sd">Data items in the ATOM_site_ANISO category record details about</span>
+<span class="sd">magnetic properties of the atoms that occupy the atom sites.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> _atom_site_aniso_label    O1</span>
+<span class="sd"> _atom_site_aniso_U_11     0.071(1)</span>
+<span class="sd"> _atom_site_aniso_U_22     0.076(1)</span>
+<span class="sd"> _atom_site_aniso_U_33     0.0342(9)</span>
+<span class="sd"> _atom_site_aniso_U_12     0.008(1)</span>
+<span class="sd"> _atom_site_aniso_U_13     0.0051(9) </span>
+<span class="sd"> _atom_site_aniso_U_23    -0.0030(9) </span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;u_11&quot;</span><span class="p">,</span> <span class="s2">&quot;u_22&quot;</span><span class="p">,</span> <span class="s2">&quot;u_33&quot;</span><span class="p">,</span> <span class="s2">&quot;u_12&quot;</span><span class="p">,</span> <span class="s2">&quot;u_13&quot;</span><span class="p">,</span> <span class="s2">&quot;u_23&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;b_11&quot;</span><span class="p">,</span> <span class="s2">&quot;b_22&quot;</span><span class="p">,</span> <span class="s2">&quot;b_33&quot;</span><span class="p">,</span> <span class="s2">&quot;b_12&quot;</span><span class="p">,</span> <span class="s2">&quot;b_13&quot;</span><span class="p">,</span> <span class="s2">&quot;b_23&quot;</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;atom_site_aniso&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">u_11</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_22</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_33</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_12</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_13</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_23</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">b_11</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_22</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_33</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_12</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_13</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_23</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">AtomSiteAniso</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span> 
+                                            <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
+                                            <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">,</span>
+                                            <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">PREFIX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_11</span> <span class="o">=</span> <span class="n">u_11</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_12</span> <span class="o">=</span> <span class="n">u_12</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_13</span> <span class="o">=</span> <span class="n">u_13</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_22</span> <span class="o">=</span> <span class="n">u_22</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span> <span class="o">=</span> <span class="n">u_23</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_33</span> <span class="o">=</span> <span class="n">u_33</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_11</span> <span class="o">=</span> <span class="n">b_11</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_12</span> <span class="o">=</span> <span class="n">b_12</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_13</span> <span class="o">=</span> <span class="n">b_13</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_22</span> <span class="o">=</span> <span class="n">b_22</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_23</span> <span class="o">=</span> <span class="n">b_23</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_33</span> <span class="o">=</span> <span class="n">b_33</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Anisotropic atomic displacement parameters are looped in</span>
+<span class="sd">a separate list. This code must match the</span>
+<span class="sd">_atom_site_label of the associated atom in the atom coordinate</span>
+<span class="sd">list and conform with the same rules described in</span>
+<span class="sd">_atom_site_label.</span>
+
+<span class="sd">Type: char</span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">)</span>
+    <span class="nd">@label</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__label&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">u_11</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">These are the standard anisotropic atomic displacement</span>
+<span class="sd">components in angstroms squared which appear in the</span>
+<span class="sd">structure-factor term</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   T = \\exp \\left[-2\\pi^2 \\Sigma_{i}\\Sigma_{j} \\left(U^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]</span>
+
+<span class="sd">- h is the Miller indices</span>
+<span class="sd">- a* is the reciprocal-space cell lengths</span>
+
+<span class="sd">The unique elements of the real symmetric matrix are</span>
+<span class="sd">entered by row.</span>
+
+<span class="sd">Default: 0.</span>
+
+<span class="sd">Type: float</span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_11&quot;</span><span class="p">)</span>
+    <span class="nd">@u_11</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">u_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_11&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">u_22</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for u_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_22&quot;</span><span class="p">)</span>
+    <span class="nd">@u_22</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">u_22</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_22&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">u_33</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for u_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_33&quot;</span><span class="p">)</span>
+    <span class="nd">@u_33</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">u_33</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_33&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">u_12</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for u_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_12&quot;</span><span class="p">)</span>
+    <span class="nd">@u_12</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">u_12</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_12&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">u_13</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for u_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_13&quot;</span><span class="p">)</span>
+    <span class="nd">@u_13</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">u_13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_13&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">u_23</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for u_23 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_23&quot;</span><span class="p">)</span>
+    <span class="nd">@u_23</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">u_23</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__u_23&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_11</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">These are the standard anisotropic atomic displacement compo-</span>
+<span class="sd">nents in Angströms squared which appear in the structure-factor</span>
+<span class="sd">term </span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   T = \\exp \\left[-\\frac{1}{4} \\Sigma_{i}\\Sigma_{j} \\left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \\right) \\right]</span>
+
+<span class="sd">where h = the Miller indices and a∗ = the reciprocal-space cell</span>
+<span class="sd">lengths.</span>
+
+<span class="sd">The unique elements of the real symmetric matrix are entered by</span>
+<span class="sd">row.The IUCr Commission on Nomenclature recommends against</span>
+<span class="sd">the use of B for reporting atomic displacement parameters. U,</span>
+<span class="sd">being directly proportional to B, is preferred.</span>
+
+
+<span class="sd">- h is the Miller indices</span>
+<span class="sd">- a* is the reciprocal-space cell lengths</span>
+
+<span class="sd">The unique elements of the real symmetric matrix are</span>
+<span class="sd">entered by row.</span>
+
+<span class="sd">Default: 0.</span>
+
+<span class="sd">Type: float</span>
+
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_11&quot;</span><span class="p">)</span>
+    <span class="nd">@b_11</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_11</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_11&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_22</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for b_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_22&quot;</span><span class="p">)</span>
+    <span class="nd">@b_22</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_22</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_22&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_33</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for b_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_33&quot;</span><span class="p">)</span>
+    <span class="nd">@b_33</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_33</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_33&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_12</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for b_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_12&quot;</span><span class="p">)</span>
+    <span class="nd">@b_12</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_12</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_12&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_13</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for b_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_13&quot;</span><span class="p">)</span>
+    <span class="nd">@b_13</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_13</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_13&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_23</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see help for b_11 parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_23&quot;</span><span class="p">)</span>
+    <span class="nd">@b_23</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_23</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Fitable</span><span class="p">):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="n">Fitable</span><span class="p">()</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">.</span><span class="n">take_it</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_23&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span><span class="p">,</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+
+<div class="viewcode-block" id="AtomSiteAniso.get_variables"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span><span class="p">:</span> <span class="n">l_variable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">l_variable</span></div>
+
+<div class="viewcode-block" id="AtomSiteAniso.calc_beta"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta">[docs]</a>    <span class="k">def</span> <span class="nf">calc_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.</span>
+
+<span class="sd">:Out:  :math:`\\beta_{11}`, :math:`\\beta_{22}`, :math:`\\beta_{33}`, </span>
+<span class="sd">       :math:`\\beta_{12}`, :math:`\\beta_{13}`, :math:`\\beta_{23}`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ia</span><span class="p">,</span> <span class="n">ib</span><span class="p">,</span> <span class="n">ic</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_a</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_b</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_c</span>
+        <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="p">)</span>
+        <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">)</span>
+        <span class="n">beta_11</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_11</span><span class="o">*</span><span class="n">ia</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">beta_22</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_22</span><span class="o">*</span><span class="n">ib</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">beta_33</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_33</span><span class="o">*</span><span class="n">ic</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">beta_12</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_12</span><span class="o">*</span><span class="n">ia</span><span class="o">*</span><span class="n">ib</span>
+        <span class="n">beta_13</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_13</span><span class="o">*</span><span class="n">ia</span><span class="o">*</span><span class="n">ic</span>
+        <span class="n">beta_23</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">u_23</span><span class="o">*</span><span class="n">ib</span><span class="o">*</span><span class="n">ic</span>
+        <span class="k">return</span> <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span></div>
+
+<div class="viewcode-block" id="AtomSiteAniso.apply_space_group_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.apply_space_group_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_space_group_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">l_numb</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">calc_constr_number</span><span class="p">(</span><span class="n">space_group</span><span class="p">)</span>
+        <span class="n">label_aniso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">atom_site</span><span class="o">.</span><span class="n">label</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label_aniso</span><span class="p">)</span>
+        <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_33</span>
+        <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_23</span>
+
+        <span class="n">u_11</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span><span class="p">,</span> <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="n">numb</span> <span class="o">=</span> <span class="n">l_numb</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">u_13</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span> 
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">13</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">14</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">15</span><span class="p">:</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_22</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">*</span><span class="n">u_13</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">16</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">17</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_12</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">numb</span> <span class="o">==</span> <span class="mi">18</span><span class="p">:</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_22</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_11</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_33</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_13</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">u_12</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">refinement</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">u_23</span><span class="o">.</span><span class="n">constraint_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+    <span class="k">def</span> <span class="nf">_form_adp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">):</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">b_iso</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">b_iso</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">adp_type</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">atom_site</span><span class="o">.</span><span class="n">adp_type</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="n">b_iso_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">b_iso</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">b_iso_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uiso&quot;</span><span class="p">,</span> <span class="n">b_iso</span><span class="p">,</span> <span class="n">b_iso_in</span><span class="p">)</span>
+        <span class="n">label_aniso</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">label_aniso</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">label</span><span class="p">))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_show_message</span><span class="p">(</span><span class="s2">&quot;Unknown &#39;aniso_label&#39;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        
+        <span class="n">u_11</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_22</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_22</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_33</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_33</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_12</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_13</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_13</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_23</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_23</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+
+        <span class="n">np_index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">label</span><span class="o">==</span><span class="n">hh</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">hh</span> <span class="ow">in</span> <span class="n">label_aniso</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">u_11_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_22_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_33_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_12_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_13_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_23_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">u_11_in</span><span class="p">[</span><span class="n">np_index</span><span class="p">],</span> <span class="n">u_22_in</span><span class="p">[</span><span class="n">np_index</span><span class="p">],</span> <span class="n">u_33_in</span><span class="p">[</span><span class="n">np_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_11</span><span class="p">,</span> <span class="n">u_22</span><span class="p">,</span> <span class="n">u_33</span>
+        <span class="n">u_12_in</span><span class="p">[</span><span class="n">np_index</span><span class="p">],</span> <span class="n">u_13_in</span><span class="p">[</span><span class="n">np_index</span><span class="p">],</span> <span class="n">u_23_in</span><span class="p">[</span><span class="n">np_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">u_12</span><span class="p">,</span> <span class="n">u_13</span><span class="p">,</span> <span class="n">u_23</span>
+
+        <span class="n">np_zeros</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">u_11_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uani&quot;</span><span class="p">,</span> <span class="n">u_11_in</span><span class="p">,</span> <span class="n">np_zeros</span><span class="p">)</span>
+        <span class="n">u_22_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uani&quot;</span><span class="p">,</span> <span class="n">u_22_in</span><span class="p">,</span> <span class="n">np_zeros</span><span class="p">)</span>
+        <span class="n">u_33_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uani&quot;</span><span class="p">,</span> <span class="n">u_33_in</span><span class="p">,</span> <span class="n">np_zeros</span><span class="p">)</span>
+        <span class="n">u_12_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uani&quot;</span><span class="p">,</span> <span class="n">u_12_in</span><span class="p">,</span> <span class="n">np_zeros</span><span class="p">)</span>
+        <span class="n">u_13_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uani&quot;</span><span class="p">,</span> <span class="n">u_13_in</span><span class="p">,</span> <span class="n">np_zeros</span><span class="p">)</span>
+        <span class="n">u_23_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adp_type</span><span class="o">==</span><span class="s2">&quot;uani&quot;</span><span class="p">,</span> <span class="n">u_23_in</span><span class="p">,</span> <span class="n">np_zeros</span><span class="p">)</span>
+
+        <span class="n">adp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#adp = ADP(u_11=u_11_in, u_22=u_22_in, u_33=u_33_in, </span>
+        <span class="c1">#          u_12=u_12_in, u_13=u_13_in, u_23=u_23_in, </span>
+        <span class="c1">#          b_iso=b_iso_in)</span>
+        <span class="k">return</span> <span class="n">adp</span></div>
+
+
+
+<div class="viewcode-block" id="AtomSiteAnisoL"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL">[docs]</a><span class="k">class</span> <span class="nc">AtomSiteAnisoL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the ATOM_SITE_ANISO category record details about</span>
+<span class="sd">the atom sites in a crystal structure, such as atomic displacement parameters.</span>
+<span class="sd">Data items in the ATOM_site_ANISO category record details about</span>
+<span class="sd">magnetic properties of the atoms that occupy the atom sites.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> loop_</span>
+<span class="sd"> _atom_site_aniso_label</span>
+<span class="sd"> _atom_site_aniso_U_11</span>
+<span class="sd"> _atom_site_aniso_U_22</span>
+<span class="sd"> _atom_site_aniso_U_33</span>
+<span class="sd"> _atom_site_aniso_U_12</span>
+<span class="sd"> _atom_site_aniso_U_13</span>
+<span class="sd"> _atom_site_aniso_U_23</span>
+<span class="sd">  O1   .071(1) .076(1) .0342(9) .008(1)   .0051(9) -.0030(9) </span>
+<span class="sd">  C2   .060(2) .072(2) .047(1)  .002(2)   .013(1)  -.009(1)  </span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomSiteAniso</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AtomSiteAnisoL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
+
+<div class="viewcode-block" id="AtomSiteAnisoL.calc_beta"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta">[docs]</a>    <span class="k">def</span> <span class="nf">calc_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">calculate :math:`\\beta_{ij}` from :math:`U_{ij}`.</span>
+
+<span class="sd">:Out: numpy array of beta (11, 22, 33, 12, 13, 23)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l_beta</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">:</span>
+            <span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span> <span class="o">=</span> <span class="n">_item</span><span class="o">.</span><span class="n">calc_beta</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+            <span class="n">l_beta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">beta_11</span><span class="p">,</span> <span class="n">beta_22</span><span class="p">,</span> <span class="n">beta_33</span><span class="p">,</span> <span class="n">beta_12</span><span class="p">,</span> <span class="n">beta_13</span><span class="p">,</span> <span class="n">beta_23</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l_beta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomSiteAnisoL.apply_space_group_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site_aniso.html#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.apply_space_group_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_space_group_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">):</span>
+        <span class="n">l_flag</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">apply_space_group_constraint</span><span class="p">(</span><span class="n">atom_site</span><span class="p">,</span> <span class="n">space_group</span><span class="p">)</span> <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">l_flag</span><span class="p">)</span>            </div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

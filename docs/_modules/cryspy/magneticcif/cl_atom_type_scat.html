@@ -1,0 +1,811 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.magneticcif.cl_atom_type_scat &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.magneticcif.cl_atom_type_scat</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_12_03&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+
+<span class="kn">import</span> <span class="nn">cryspy.magneticcif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
+
+
+<div class="viewcode-block" id="AtomTypeScat"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat">[docs]</a><span class="k">class</span> <span class="nc">AtomTypeScat</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the ATOM_TYPE_SCAT category describe atomic</span>
+<span class="sd">scattering information used in crystallographic structure studies.</span>
+<span class="sd">This category is fully defined in the core CIF dictionary.</span>
+
+
+<span class="sd">Description in cif::</span>
+
+<span class="sd"> _atom_type_scat_symbol                        O2</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_A1   0.99895</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_a2  12.09652</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_B1   0.28854</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_b2   0.12914</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_C1   0.11425</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_c2  -0.22968</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_D   -0.40685</span>
+
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+
+<span class="sd">:FIXME: attribute &#39;symbol&#39; is not defined in Magnetic CIF dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;neutron_magnetic_j0_a1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j0_a2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j0_b1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j0_b2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j0_c1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j0_c2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j0_d&quot;</span><span class="p">,</span>  <span class="s2">&quot;neutron_magnetic_j0_e&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j2_a1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j2_a2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j2_b1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j2_b2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j2_c1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j2_c2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j2_d&quot;</span><span class="p">,</span>  <span class="s2">&quot;neutron_magnetic_j2_e&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j4_a1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j4_a2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j4_b1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j4_b2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j4_c1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j4_c2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j4_d&quot;</span><span class="p">,</span>  <span class="s2">&quot;neutron_magnetic_j4_e&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j6_a1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j6_a2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j6_b1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j6_b2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j6_c1&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_j6_c2&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;neutron_magnetic_j6_d&quot;</span><span class="p">,</span>  <span class="s2">&quot;neutron_magnetic_j6_e&quot;</span><span class="p">,</span> <span class="s2">&quot;neutron_magnetic_source&quot;</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;atom_type_scat&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_a1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_a2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j0_b1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_b2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_c1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_c2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j0_d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_a1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_a2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j2_b1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_b2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_c1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_c2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j2_d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_a1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_a2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j4_b1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_b2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_c1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_c2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j4_d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_a1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_a2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j6_b1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_b2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_c1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_c2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">neutron_magnetic_j6_d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_e</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">neutron_magnetic_source</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AtomTypeScat</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span> 
+                                                <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
+                                                <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">,</span>
+                                                <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">PREFIX</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_source</span> <span class="o">=</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">neutron_magnetic_source</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_a1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_a2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j0_a1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_a2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_b1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_b2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j0_b1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_b2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_c1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_c2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j0_c1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_c2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_e</span> <span class="o">=</span> <span class="n">neutron_magnetic_j0_d</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_e</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_a1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_a2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j2_a1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_a2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_b1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_b2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j2_b1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_b2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_c1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_c2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j2_c1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_c2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_e</span> <span class="o">=</span> <span class="n">neutron_magnetic_j2_d</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_e</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_a1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_a2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j4_a1</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_a2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_b1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_b2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j4_b1</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_b2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_c1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_c2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j4_c1</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_c2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j4_e</span> <span class="o">=</span> <span class="n">neutron_magnetic_j4_d</span><span class="p">,</span> <span class="n">neutron_magnetic_j4_e</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_a1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_a2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j6_a1</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_a2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_b1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_b2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j6_b1</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_b2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_c1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_c2</span> <span class="o">=</span> <span class="n">neutron_magnetic_j6_c1</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_c2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_d</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j6_e</span> <span class="o">=</span> <span class="n">neutron_magnetic_j6_d</span><span class="p">,</span> <span class="n">neutron_magnetic_j6_e</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__symbol&quot;</span><span class="p">)</span>
+    <span class="nd">@symbol</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">symbol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__symbol&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">First, the parameters are used directly to approximate spatial averages of </span>
+<span class="sd">spherical Bessel functions over the electronic wave functions of unpaired </span>
+<span class="sd">electrons of the given atom type as a function of s = sin(θ)/λ. </span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   \\left\\langle j_{n}(s)\\right\\rangle = \\left( A_{1} e^{−a_{2}s^{2}} + B_{1} e^{−b_{2}s^{2}} + C_{1} e^{−c_{2}s^{2}}  + D \\right) \\times</span>
+<span class="sd">   \\left[\\left. 1 \\right|_{n = 0} \\vee \\left.s^{2}\\right|_{n = 2, 4, 6}\\right] </span>
+
+<span class="sd">The :math:`\\left\\langle j_{n}(s)\\right\\rangle` are then combined to determine the spin and orbital contributions </span>
+<span class="sd">to the magnetic form factor of the atom. The ‘e’ parameter is a measure of error </span>
+<span class="sd">in the approximation.         </span>
+
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_a1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_a1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_a1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_a2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_a2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_a2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_b1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_b1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_b1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_b2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_b2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_b2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_c1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_c1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_c1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_c2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_c2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_c2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_d&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_d</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_d&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_e&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j0_e</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j0_e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j0_e&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_a1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_a1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_a1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_a2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_a2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_a2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_b1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_b1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_b1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_b2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_b2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_b2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_c1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_c1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_c1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_c2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_c2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_c2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_d&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_d</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_d&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_e&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j2_e</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j2_e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j2_e&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_a1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_a1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_a1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_a2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_a2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_a2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_b1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_b1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_b1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_b2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_b2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_b2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_c1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_c1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_c1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_c2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_c2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_c2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_d&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_d</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_d&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_e&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j4_e</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j4_e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j4_e&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_a1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_a1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_a1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_a1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_a2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_a2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_a2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_a2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_b1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_b1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_b1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_b1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_b2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_b2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_b2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_b2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_c1&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_c1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_c1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_c1&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_c2&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_c2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_c2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_c2&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_d&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_d</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_d&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">see documentation for neutron_magnetic_j0_a1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_e&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_j6_e</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_j6_e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_j6_e&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_source</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Reference to the source of magnetic neutron scattering factors for </span>
+<span class="sd">a given atom type. </span>
+
+<span class="sd">Example: </span>
+<span class="sd">;</span>
+<span class="sd">International Tables for Crystallography (2006). Vol. C, Section 4.4.5. </span>
+<span class="sd">;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_source&quot;</span><span class="p">)</span>
+    <span class="nd">@neutron_magnetic_source</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">neutron_magnetic_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__neutron_magnetic_source&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomTypeScat: &quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">any</span><span class="p">([])</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+<div class="viewcode-block" id="AtomTypeScat.get_variables"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">l_variable</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">l_variable</span></div>
+
+<div class="viewcode-block" id="AtomTypeScat.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">,</span> <span class="n">lande</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">kappa</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate magnetic form factor in frame of Spherical model (Int.Tabl.C.p.592)</span>
+
+<span class="sd">:LFactor:  is Lande factor</span>
+<span class="sd">:coeff0:   is a list [A,a,B,b,C,c,D] at n=0</span>
+<span class="sd">:coeff2:   is a list [A,a,B,b,C,c,D] at n=2</span>
+<span class="sd">:lsthovl:  is list :math:`sin(\\theta)/\\lambda` in :math:`\\A^{-1}`</span>
+
+<span class="sd">Calculation of magnetic form factor &lt;j0&gt;, &lt;j2&gt;, &lt;j4&gt;, &lt;j6&gt;</span>
+
+<span class="sd">:coeff: is a list [A, a, B, b, C, c, D] at n = 0, 2, 4, 6</span>
+
+<span class="sd">according `&lt;https://journals.aps.org/prb/pdf/10.1103/PhysRevB.79.140405&gt;`</span>
+<span class="sd">mismatch with international tables where (1.0-2.0/np_factor_lande)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#not sure about kappa, it is here just for test, by default it is 1.0</span>
+        <span class="n">j0_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_a1</span>
+        <span class="n">j0_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_a2</span>
+        <span class="n">j0_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_b1</span>
+        <span class="n">j0_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_b2</span>
+        <span class="n">j0_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_c1</span>
+        <span class="n">j0_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_c2</span>
+        <span class="n">j0_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j0_d</span>
+        <span class="n">j2_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_a1</span>
+        <span class="n">j2_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_a2</span>
+        <span class="n">j2_B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_b1</span>
+        <span class="n">j2_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_b2</span>
+        <span class="n">j2_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_c1</span>
+        <span class="n">j2_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_c2</span>
+        <span class="n">j2_D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">neutron_magnetic_j2_d</span>     
+    
+        <span class="n">_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">sthovl</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+    
+        <span class="n">j0_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">j0_A</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_a</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j0_B</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_b</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j0_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j0_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">j0_D</span><span class="p">)</span>
+        <span class="n">j2_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">j2_A</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_a</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j2_B</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_b</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span>
+                 <span class="n">j2_C</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">j2_c</span><span class="o">*</span><span class="n">_h</span><span class="p">)</span><span class="o">+</span><span class="n">j2_D</span><span class="p">)</span><span class="o">*</span><span class="n">_h</span>
+    
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="n">j0_av</span><span class="o">+</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">lande</span><span class="p">)</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="o">*</span><span class="n">j2_av</span>
+        <span class="k">return</span> <span class="n">form_factor</span></div>
+
+<div class="viewcode-block" id="AtomTypeScat.form_by_symbol"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScat.form_by_symbol">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">form_by_symbol</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">j0_A1</span><span class="p">,</span> <span class="n">j0_a2</span><span class="p">,</span> <span class="n">j0_B1</span><span class="p">,</span> <span class="n">j0_b2</span><span class="p">,</span> <span class="n">j0_C1</span><span class="p">,</span> <span class="n">j0_c2</span><span class="p">,</span> <span class="n">j0_D</span><span class="p">,</span> <span class="n">j2_A1</span><span class="p">,</span> <span class="n">j2_a2</span><span class="p">,</span> <span class="n">j2_B1</span><span class="p">,</span> <span class="n">j2_b2</span><span class="p">,</span> <span class="n">j2_C1</span><span class="p">,</span> <span class="n">j2_c2</span><span class="p">,</span> <span class="n">j2_D</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_j0_j2_by_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">symbol</span><span class="p">,</span> 
+            <span class="n">neutron_magnetic_j0_a1</span><span class="o">=</span><span class="n">j0_A1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_a2</span><span class="o">=</span><span class="n">j0_a2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j0_b1</span><span class="o">=</span><span class="n">j0_B1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_b2</span><span class="o">=</span><span class="n">j0_b2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j0_c1</span><span class="o">=</span><span class="n">j0_C1</span><span class="p">,</span> <span class="n">neutron_magnetic_j0_c2</span><span class="o">=</span><span class="n">j0_c2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j0_d</span><span class="o">=</span><span class="n">j0_D</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_a1</span><span class="o">=</span><span class="n">j2_A1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_a2</span><span class="o">=</span><span class="n">j2_a2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_b1</span><span class="o">=</span><span class="n">j2_B1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_b2</span><span class="o">=</span><span class="n">j2_b2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_c1</span><span class="o">=</span><span class="n">j2_C1</span><span class="p">,</span> <span class="n">neutron_magnetic_j2_c2</span><span class="o">=</span><span class="n">j2_c2</span><span class="p">,</span>
+            <span class="n">neutron_magnetic_j2_d</span><span class="o">=</span><span class="n">j2_D</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span></div></div>
+
+<div class="viewcode-block" id="AtomTypeScatL"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL">[docs]</a><span class="k">class</span> <span class="nc">AtomTypeScatL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the ATOM_TYPE_SCAT category describe atomic</span>
+<span class="sd">scattering information used in crystallographic structure studies.</span>
+<span class="sd">This category is fully defined in the core CIF dictionary.</span>
+
+<span class="sd">Description in cif::</span>
+
+<span class="sd"> loop_</span>
+<span class="sd"> _atom_type_scat_symbol</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_A1</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_a2</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_B1</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_b2</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_C1</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_c2</span>
+<span class="sd"> _atom_type_scat_neutron_magnetic_j0_D</span>
+<span class="sd">  O2   0.99895  12.09652  0.28854  0.12914  0.11425 -0.22968 -0.40685 </span>
+<span class="sd">  N2   1.00581  13.37218 -0.05868  0.07792 -0.00444  0.01678  0.05146</span>
+
+<span class="sd">`&lt;ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;symbol&quot;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomTypeScat</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AtomTypeScatL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomTypeScatL: &quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AtomTypeScatL.calc_form_factor"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.calc_form_factor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_form_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">,</span> <span class="n">l_lande</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">l_kappa</span><span class="p">:</span> <span class="n">List</span><span class="p">):</span>
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">lande</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">kappa</span><span class="p">))</span> 
+                       <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">lande</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">l_lande</span><span class="p">,</span> <span class="n">l_kappa</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">form_factor</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomTypeScatL.form_by_symbols"><a class="viewcode-back" href="../../../cryspy.magneticcif.atom_type_scat.html#cryspy.magneticcif.cl_atom_type_scat.AtomTypeScatL.form_by_symbols">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">form_by_symbols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">symbols</span><span class="p">:</span><span class="n">List</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">item_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item_class</span><span class="o">.</span><span class="n">form_by_symbol</span><span class="p">(</span><span class="n">symbol</span><span class="p">))</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

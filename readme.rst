@@ -54,10 +54,6 @@ Use the command-line to run the refinement in the folder which contents the data
 
 >>> python -m cryspy.run_rhochi
 
-Or use a  simple viewer (GUI):
-
->>> python -m cryspy.gui_rhochi
-
 Collaboration
 ---------------------------
 

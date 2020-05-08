@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>AtomSiteAniso &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="AtomType" href="cryspy.corecif.atom_type.html" />
+    <link rel="prev" title="AtomSite" href="cryspy.corecif.atom_site.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.atom_type.html" title="AtomType"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.atom_site.html" title="AtomSite"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" accesskey="U">Core dictionary (coreCIF)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.corecif.cl_atom_site_aniso">
+<span id="atomsiteaniso"></span><h1>AtomSiteAniso<a class="headerlink" href="#module-cryspy.corecif.cl_atom_site_aniso" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_atom_site_aniso.</code><code class="sig-name descname">AtomSiteAniso</code><span class="sig-paren">(</span><em class="sig-param">label=None</em>, <em class="sig-param">u_11=None</em>, <em class="sig-param">u_22=None</em>, <em class="sig-param">u_33=None</em>, <em class="sig-param">u_12=None</em>, <em class="sig-param">u_13=None</em>, <em class="sig-param">u_23=None</em>, <em class="sig-param">b_11=None</em>, <em class="sig-param">b_22=None</em>, <em class="sig-param">b_33=None</em>, <em class="sig-param">b_12=None</em>, <em class="sig-param">b_13=None</em>, <em class="sig-param">b_23=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAniso"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Data items in the ATOM_SITE_ANISO category record details about
+the atom sites in a crystal structure, such as atomic displacement parameters.
+Data items in the ATOM_site_ANISO category record details about
+magnetic properties of the atoms that occupy the atom sites.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_atom_site_aniso_label</span>    <span class="n">O1</span>
+<span class="n">_atom_site_aniso_U_11</span>     <span class="mf">0.071</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_atom_site_aniso_U_22</span>     <span class="mf">0.076</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_atom_site_aniso_U_33</span>     <span class="mf">0.0342</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">_atom_site_aniso_U_12</span>     <span class="mf">0.008</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_atom_site_aniso_U_13</span>     <span class="mf">0.0051</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">_atom_site_aniso_U_23</span>    <span class="o">-</span><span class="mf">0.0030</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html</a></p>
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('label',)</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('u_11', 'u_22', 'u_33', 'u_12', 'u_13', 'u_23', 'b_11', 'b_22', 'b_33', 'b_12', 'b_13', 'b_23')</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'atom_site_aniso'</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.apply_space_group_constraint">
+<code class="sig-name descname">apply_space_group_constraint</code><span class="sig-paren">(</span><em class="sig-param">atom_site</em>, <em class="sig-param">space_group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAniso.apply_space_group_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.apply_space_group_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_11">
+<em class="property">property </em><code class="sig-name descname">b_11</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_11" title="Permalink to this definition">¶</a></dt>
+<dd><p>These are the standard anisotropic atomic displacement compo-
+nents in Angströms squared which appear in the structure-factor
+term</p>
+<div class="math notranslate nohighlight">
+\[T = \exp \left[-\frac{1}{4} \Sigma_{i}\Sigma_{j} \left(B^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \right) \right]\]</div>
+<p>where h = the Miller indices and a∗ = the reciprocal-space cell
+lengths.</p>
+<p>The unique elements of the real symmetric matrix are entered by
+row.The IUCr Commission on Nomenclature recommends against
+the use of B for reporting atomic displacement parameters. U,
+being directly proportional to B, is preferred.</p>
+<ul class="simple">
+<li><p>h is the Miller indices</p></li>
+<li><p>a* is the reciprocal-space cell lengths</p></li>
+</ul>
+<p>The unique elements of the real symmetric matrix are
+entered by row.</p>
+<p>Default: 0.</p>
+<p>Type: float</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_B_.html</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_12">
+<em class="property">property </em><code class="sig-name descname">b_12</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_12" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for b_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_13">
+<em class="property">property </em><code class="sig-name descname">b_13</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_13" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for b_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_22">
+<em class="property">property </em><code class="sig-name descname">b_22</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_22" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for b_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_23">
+<em class="property">property </em><code class="sig-name descname">b_23</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_23" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for b_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_33">
+<em class="property">property </em><code class="sig-name descname">b_33</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.b_33" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for b_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta">
+<code class="sig-name descname">calc_beta</code><span class="sig-paren">(</span><em class="sig-param">cell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAniso.calc_beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.calc_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate <span class="math notranslate nohighlight">\(\beta_{ij}\)</span> from <span class="math notranslate nohighlight">\(U_{ij}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Out</dt>
+<dd class="field-odd"><p><span class="math notranslate nohighlight">\(\beta_{11}\)</span>, <span class="math notranslate nohighlight">\(\beta_{22}\)</span>, <span class="math notranslate nohighlight">\(\beta_{33}\)</span>,
+<span class="math notranslate nohighlight">\(\beta_{12}\)</span>, <span class="math notranslate nohighlight">\(\beta_{13}\)</span>, <span class="math notranslate nohighlight">\(\beta_{23}\)</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.get_variables">
+<code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAniso.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.get_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output: the list of the refined parameters</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.is_variable">
+<em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.is_variable" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is any refined parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.label">
+<em class="property">property </em><code class="sig-name descname">label</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Anisotropic atomic displacement parameters are looped in
+a separate list. This code must match the
+_atom_site_label of the associated atom in the atom coordinate
+list and conform with the same rules described in
+_atom_site_label.</p>
+<p>Type: char</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_label.html</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_11">
+<em class="property">property </em><code class="sig-name descname">u_11</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_11" title="Permalink to this definition">¶</a></dt>
+<dd><p>These are the standard anisotropic atomic displacement
+components in angstroms squared which appear in the
+structure-factor term</p>
+<div class="math notranslate nohighlight">
+\[T = \exp \left[-2\pi^2 \Sigma_{i}\Sigma_{j} \left(U^{ij} h_{i} h_{j} a^{*}_{i}  a^{*}_{j} \right) \right]\]</div>
+<ul class="simple">
+<li><p>h is the Miller indices</p></li>
+<li><p>a* is the reciprocal-space cell lengths</p></li>
+</ul>
+<p>The unique elements of the real symmetric matrix are
+entered by row.</p>
+<p>Default: 0.</p>
+<p>Type: float</p>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_aniso_U_.html</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_12">
+<em class="property">property </em><code class="sig-name descname">u_12</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_12" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for u_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_13">
+<em class="property">property </em><code class="sig-name descname">u_13</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_13" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for u_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_22">
+<em class="property">property </em><code class="sig-name descname">u_22</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_22" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for u_11 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_23">
+<em class="property">property </em><code class="sig-name descname">u_23</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_23" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for u_23 parameter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_33">
+<em class="property">property </em><code class="sig-name descname">u_33</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso.u_33" title="Permalink to this definition">¶</a></dt>
+<dd><p>see help for u_11 parameter</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_atom_site_aniso.</code><code class="sig-name descname">AtomSiteAnisoL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAnisoL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
+<p>Data items in the ATOM_SITE_ANISO category record details about
+the atom sites in a crystal structure, such as atomic displacement parameters.
+Data items in the ATOM_site_ANISO category record details about
+magnetic properties of the atoms that occupy the atom sites.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+<span class="n">_atom_site_aniso_label</span>
+<span class="n">_atom_site_aniso_U_11</span>
+<span class="n">_atom_site_aniso_U_22</span>
+<span class="n">_atom_site_aniso_U_33</span>
+<span class="n">_atom_site_aniso_U_12</span>
+<span class="n">_atom_site_aniso_U_13</span>
+<span class="n">_atom_site_aniso_U_23</span>
+ <span class="n">O1</span>   <span class="o">.</span><span class="mi">071</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">.</span><span class="mi">076</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">.</span><span class="mi">0342</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span> <span class="o">.</span><span class="mi">008</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   <span class="o">.</span><span class="mi">0051</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span> <span class="o">-.</span><span class="mi">0030</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+ <span class="n">C2</span>   <span class="o">.</span><span class="mi">060</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">.</span><span class="mi">072</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">.</span><span class="mi">047</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="o">.</span><span class="mi">002</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>   <span class="o">.</span><span class="mi">013</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="o">-.</span><span class="mi">009</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html</a></p>
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.CATEGORY_KEY">
+<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('label',)</em><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.ITEM_CLASS">
+<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso" title="cryspy.corecif.cl_atom_site_aniso.AtomSiteAniso"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomSiteAniso</span></code></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.apply_space_group_constraint">
+<code class="sig-name descname">apply_space_group_constraint</code><span class="sig-paren">(</span><em class="sig-param">atom_site</em>, <em class="sig-param">space_group</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAnisoL.apply_space_group_constraint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.apply_space_group_constraint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta">
+<code class="sig-name descname">calc_beta</code><span class="sig-paren">(</span><em class="sig-param">cell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_site_aniso.html#AtomSiteAnisoL.calc_beta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_site_aniso.AtomSiteAnisoL.calc_beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate <span class="math notranslate nohighlight">\(\beta_{ij}\)</span> from <span class="math notranslate nohighlight">\(U_{ij}\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Out</dt>
+<dd class="field-odd"><p>numpy array of beta (11, 22, 33, 12, 13, 23)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.corecif.atom_site.html"
+                        title="previous chapter">AtomSite</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.corecif.atom_type.html"
+                        title="next chapter">AtomType</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.corecif.atom_site_aniso.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.atom_type.html" title="AtomType"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.corecif.atom_site.html" title="AtomSite"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" >Core dictionary (coreCIF)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

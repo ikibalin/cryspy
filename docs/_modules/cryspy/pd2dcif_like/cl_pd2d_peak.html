@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.pd2dcif_like.cl_pd2d_peak &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.pd2dcif_like.cl_pd2d_peak</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2020_01_04&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+
+<div class="viewcode-block" id="Pd2dPeak"><a class="viewcode-back" href="../../../cryspy.pd2dcif_like.pd2d_peak.html#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak">[docs]</a><span class="k">class</span> <span class="nc">Pd2dPeak</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This section contains peak information extracted from the</span>
+<span class="sd">measured or, if present, the processed diffractogram. </span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> _pd2d_peak_index_h           2</span>
+<span class="sd"> _pd2d_peak_index_k           2</span>
+<span class="sd"> _pd2d_peak_index_l           0</span>
+<span class="sd"> _pd2d_peak_index_mult        4</span>
+<span class="sd"> _pd2d_peak_2theta           17.2</span>
+<span class="sd"> _pd2d_peak_f_nucl_sq       100.0</span>
+<span class="sd"> _pd2d_peak_f_m_p_sin_sq    101.2</span>
+<span class="sd"> _pd2d_peak_f_m_p_cos_sq     90.0</span>
+<span class="sd"> _pd2d_peak_cross_sin        87.4</span>
+<span class="sd"> _pd2d_peak_width_2theta      2.3</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_mult&quot;</span><span class="p">,</span> <span class="s2">&quot;ttheta&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;f_nucl_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;f_m_p_sin_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;f_m_p_cos_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;cross_sin&quot;</span><span class="p">,</span> <span class="s2">&quot;width_ttheta&quot;</span><span class="p">)</span>
+    <span class="n">RELATED_CIF_MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">RELATED_CIF_OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_mult&quot;</span><span class="p">,</span> <span class="s2">&quot;2theta&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;f_nucl_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;f_m_p_sin_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;f_m_p_cos_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;cross_sin&quot;</span><span class="p">,</span> <span class="s2">&quot;width_2theta&quot;</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;pd2d_peak&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_mult</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">ttheta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_nucl_sq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_m_p_sin_sq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_m_p_cos_sq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">cross_sin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">width_ttheta</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Pd2dPeak</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span> 
+                                       <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
+                                       <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">,</span>
+                                       <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">PREFIX</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_h</span> <span class="o">=</span> <span class="n">index_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_k</span> <span class="o">=</span> <span class="n">index_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_l</span> <span class="o">=</span> <span class="n">index_l</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_mult</span> <span class="o">=</span> <span class="n">index_mult</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ttheta</span> <span class="o">=</span> <span class="n">ttheta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_nucl_sq</span> <span class="o">=</span> <span class="n">f_nucl_sq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_m_p_sin_sq</span> <span class="o">=</span> <span class="n">f_m_p_sin_sq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_m_p_cos_sq</span> <span class="o">=</span> <span class="n">f_m_p_cos_sq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cross_sin</span> <span class="o">=</span> <span class="n">cross_sin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width_ttheta</span> <span class="o">=</span> <span class="n">width_ttheta</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_h&quot;</span><span class="p">)</span>
+    <span class="nd">@index_h</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_h&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_k&quot;</span><span class="p">)</span>
+    <span class="nd">@index_k</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_k&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">)</span>
+    <span class="nd">@index_l</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_mult</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_mult&quot;</span><span class="p">)</span>
+    <span class="nd">@index_mult</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_mult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_mult&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ttheta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta&quot;</span><span class="p">)</span>
+    <span class="nd">@ttheta</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ttheta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__ttheta&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_nucl_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_nucl_sq&quot;</span><span class="p">)</span>
+    <span class="nd">@f_nucl_sq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_nucl_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_nucl_sq&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_m_p_sin_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_m_p_sin_sq&quot;</span><span class="p">)</span>
+    <span class="nd">@f_m_p_sin_sq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_m_p_sin_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_m_p_sin_sq&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_m_p_cos_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_m_p_cos_sq&quot;</span><span class="p">)</span>
+    <span class="nd">@f_m_p_cos_sq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_m_p_cos_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_m_p_cos_sq&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cross_sin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cross_sin&quot;</span><span class="p">)</span>
+    <span class="nd">@cross_sin</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cross_sin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__cross_sin&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">width_ttheta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__width_ttheta&quot;</span><span class="p">)</span>
+    <span class="nd">@width_ttheta</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">width_ttheta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__width_ttheta&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Pd2dPeak:</span><span class="se">\n</span><span class="s2">{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Pd2dPeakL"><a class="viewcode-back" href="../../../cryspy.pd2dcif_like.pd2d_peak.html#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL">[docs]</a><span class="k">class</span> <span class="nc">Pd2dPeakL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This section contains peak information extracted from the</span>
+<span class="sd">measured or, if present, the processed diffractogram. Each</span>
+<span class="sd">peak in this table will have a unique label (see _pd_peak_id).</span>
+<span class="sd">The reflections and phases associated with each peak will be</span>
+<span class="sd">specified in other sections (see the _pd_refln_ and</span>
+<span class="sd">_pd_phase_ sections).</span>
+
+<span class="sd">Note that peak positions are customarily determined from the</span>
+<span class="sd">processed diffractogram and thus corrections for position</span>
+<span class="sd">and intensity will have been previously applied.</span>
+
+<span class="sd">Description in cif file::</span>
+
+
+<span class="sd"> loop_</span>
+<span class="sd"> _pd2d_peak_index_h</span>
+<span class="sd"> _pd2d_peak_index_k</span>
+<span class="sd"> _pd2d_peak_index_l</span>
+<span class="sd"> _pd2d_peak_index_mult</span>
+<span class="sd"> _pd2d_peak_ttheta</span>
+<span class="sd"> _pd2d_peak_f_nucl_sq</span>
+<span class="sd"> _pd2d_peak_f_m_p_sin_sq</span>
+<span class="sd"> _pd2d_peak_f_m_p_cos_sq</span>
+<span class="sd"> _pd2d_peak_cross_sin</span>
+<span class="sd"> _pd2d_peak_width_ttheta</span>
+<span class="sd">  2  2  0  4 17.2 100.0 101.2   90.0  87.4 2.3</span>
+<span class="sd">  2  1  3  2 19.1  78.6 101.0   92.0  82.7 5.7</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">Pd2dPeak</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Pd2dPeakL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Pd2dPeakL: &quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

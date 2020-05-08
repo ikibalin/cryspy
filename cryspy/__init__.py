@@ -1,133 +1,68 @@
 """
-CrysPy
-======
+To run rhochi refinement from a command-line::
 
-To run rhochi refinement from a command-line:
->>> python -m cryspy.run_rhochi
-
-To create a template in the folder run from a command-line:
->>> python -m cryspy.rhochi_diffrn # template for single-crystal diffraction experiment
->>> python -m cryspy.rhochi_pd # template for 1d powder diffraction experiment
->>> python -m cryspy.rhochi_pd2d # template for 2d powder diffraction experiment
->>> python -m cryspy.rhochi_pd2dt # template for 2d powder diffraction with one-axial texture model experiment
-
-Objects to describe crystal structure
----------------------------------------
-- Crystal
-    the main object to describe crystal structure
-    - SpaceGroup
-    - Cell
-    - AtomType
-    - AtomSite
-    - AtomSiteMagnetism
-    - AtomSiteMagnetismAniso
-    - AtomSiteAniso
-
-Objects to describe experiments
----------------------------------------
-- BeamPolarization
-    common object for all polaraized neutron diffraction experiments
-- Diffrn
-    the main object to describe single crystal diffraction experiment
-    - OrientMatrix 
-    - Extinction 
-    - DiffrnRefln 
-- Pd
-    the main object to describe 1d polaraized neutrhon powder diffraction experiment
-    - PdMeas
-        measurements
-    - PdBackground
-    - PdExclude2Theta
-    - PdInstrReflexAsymmetry
-    - PdInstrResolution
-    - PdPhase
-    - PdPeak
-    - PdProc
-- Pd2d
-    the main object to describe 2d polaraized neutrhon powder diffraction experiment
-    - Pd2dMeas
-        measurements
-    - Pd2dBackground
-    - Pd2dExclude2Theta
-    - Pd2dInstrReflexAsymmetry
-    - Pd2dInstrResolution
-    - Pd2dPhase
-    - Pd2dPeak
-    - Pd2dProc
-- Pd2dt
-    the main object to describe 2d polaraized neutrhon powder diffraction experiment in case of one-axial texture
+    python -m cryspy file_name
     
-Use help function to get information for each of them:
->>> import cryspy
->>> help(cryspy.Cell)
-    class Cell(builtins.object)
-     |  Cell(a=1.0, b=1.0, c=1.0, alpha=90.0, beta=90.0, gamma=90.0, bravais_lattice='triclinic')
-     |
-     |  Data items in the Cell class record details about the
-     |  crystallographic cell parameters and their measurement.
-     ...
-     
-Specify the input parameters of the object to get detailed description
->>> help(cryspy.Cell.bravais_lattice)
+where file_name is a rcif file name
+
+To create a template in the folder type in a command-line::
+
+    python -m cryspy
 """
 name = "cryspy"
+__version__ = '0.2.0'
 
-from .f_common.cl_fitable import Fitable
+from .common.cl_global_constr import GlobalConstr
+from .common.cl_data_constr import DataConstr
+from .common.cl_loop_constr import LoopConstr
+from .common.cl_item_constr import ItemConstr
+from .common.cl_fitable import Fitable
 
-from .scripts.rhochi.cl_rhochi import RhoChi, rhochi_refinement, rhochi_read_file
+from .cif_like.cl_crystal import Crystal
+from .cif_like.cl_pd import Pd
+from .cif_like.cl_pd2d import Pd2d
+from .cif_like.cl_diffrn import Diffrn
 
+from .pd2dcif_like.cl_pd2d_meas import Pd2dMeas
+from .pd2dcif_like.cl_pd2d_proc import Pd2dProc
 
-from .f_crystal import (
-    SpaceGroup,
-    Cell,
-    AtomType,
-    AtomSite,
-    Crystal,
-    calc_mRmCmRT,
-    AtomSiteMagnetism,
-    AtomSiteMagnetismAniso,
-    AtomSiteAniso,
-    AtomSiteMoment
-    )
+from .cif_like.cl_chi2 import Chi2 
+from .cif_like.cl_diffrn_radiation import DiffrnRadiation 
+from .cif_like.cl_extinction import Extinction 
+from .cif_like.cl_range import Range 
+from .cif_like.cl_setup import Setup 
+from .cif_like.cl_texture import Texture 
+from .cif_like.cl_diffrn_refln import DiffrnRefln, DiffrnReflnL 
+from .cif_like.cl_exclude import Exclude, ExcludeL 
+from .cif_like.cl_phase import Phase, PhaseL 
 
-from .f_experiment import (
-    BeamPolarization,
-    OrientMatrix,
-    Extinction,
-    DiffrnRefln, 
-    Diffrn,
-    PdBackground,
-    PdExclude2Theta,
-    PdInstrReflexAsymmetry,
-    PdInstrResolution,
-    PdMeas,
-    PdPeak,
-    PdPhase,
-    PdProc,
-    Pd,
-    Pd2dBackground,
-    Pd2dExclude,
-    Pd2dInstrReflexAsymmetry,
-    Pd2dInstrResolution,
-    Pd2dMeas,
-    Pd2dPhase,
-    Pd2dPeak,
-    Pd2dProc,
-    Pd2d,
-    Pd2dt
-    )
+from .corecif.cl_atom_site import AtomSite, AtomSiteL
+from .corecif.cl_atom_site_aniso import AtomSiteAniso, AtomSiteAnisoL
+from .corecif.cl_atom_type import AtomType, AtomTypeL
+from .corecif.cl_cell import Cell
+from .corecif.cl_diffrn_orient_matrix import DiffrnOrientMatrix
+from .corecif.cl_refine_ls import RefineLs
+from .corecif.cl_refln import Refln, ReflnL
 
-#from .scripts.rhochi.rhochi_viewer import main as rhochi_gui
+from .magneticcif.cl_atom_site_moment import AtomSiteMoment, AtomSiteMomentL
+from .magneticcif.cl_atom_site_scat import AtomSiteScat, AtomSiteScatL
+from .magneticcif.cl_atom_site_susceptibility import AtomSiteSusceptibility, AtomSiteSusceptibilityL
+from .magneticcif.cl_atom_type_scat import AtomTypeScat, AtomTypeScatL
+from .magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
 
-def crystal_from_file(f_name):
-    rhochi = RhoChi()
-    with open(f_name, 'r') as fid:
-        string = fid.read()
-    rhochi.from_cif(string)
-    if len(rhochi.crystals) != 0:
-        crystal = rhochi.crystals[0]
-    else:
-        crystal = Crystal()
-        print("Information about crystal is not found in the file: '{:}'".format(f_name))
-    return crystal
+from .symcif.cl_space_group import SpaceGroup
+from .symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
+from .symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
 
+from .pd1dcif_like.cl_pd_background import PdBackground, PdBackgroundL
+from .pd1dcif_like.cl_pd_instr_reflex_asymmetry import PdInstrReflexAsymmetry
+from .pd1dcif_like.cl_pd_instr_resolution import PdInstrResolution
+from .pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
+from .pd1dcif_like.cl_pd_peak import PdPeak, PdPeakL
+from .pd1dcif_like.cl_pd_proc import PdProc, PdProcL
+
+from .rhocif.cl_atom_local_axes import AtomLocalAxes, AtomLocalAxesL
+from .rhocif.cl_atom_rho_orbital_radial_slater import AtomRhoOrbitalRadialSlater, AtomRhoOrbitalRadialSlaterL
+from .rhocif.cl_atom_electron_configuration import AtomElectronConfiguration, AtomElectronConfigurationL
+
+from .scripts.cl_rhochi import RhoChi

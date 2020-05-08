@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>PdPeak &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Unofficial powder 2D dictionary" href="cryspy.pd2dcif_like.html" />
+    <link rel="prev" title="PdProc" href="cryspy.pd1dcif_like.pd_proc.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd2dcif_like.html" title="Unofficial powder 2D dictionary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_proc.html" title="PdProc"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" accesskey="U">Unofficial powder 1D dictionary</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.pd1dcif_like.cl_pd_peak">
+<span id="pdpeak"></span><h1>PdPeak<a class="headerlink" href="#module-cryspy.pd1dcif_like.cl_pd_peak" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_peak.</code><code class="sig-name descname">PdPeak</code><span class="sig-paren">(</span><em class="sig-param">index_h=None</em>, <em class="sig-param">index_k=None</em>, <em class="sig-param">index_l=None</em>, <em class="sig-param">index_mult=None</em>, <em class="sig-param">ttheta=None</em>, <em class="sig-param">intensity_up=None</em>, <em class="sig-param">intensity_down=None</em>, <em class="sig-param">width_ttheta=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>This section contains peak information extracted from the
+measured or, if present, the processed diffractogram. Each
+peak in this table will have a unique label (see _pd_peak_id).
+The reflections and phases associated with each peak will be
+specified in other sections (see the _pd_refln_ and
+_pd_phase_ sections).</p>
+<p>Note that peak positions are customarily determined from the
+processed diffractogram and thus corrections for position
+and intensity will have been previously applied.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_peak_index_h</span>            <span class="mi">2</span>
+<span class="n">_pd_peak_index_k</span>            <span class="mi">2</span>
+<span class="n">_pd_peak_index_l</span>            <span class="mi">0</span>
+<span class="n">_pd_peak_index_mult</span>         <span class="mi">4</span>
+<span class="n">_pd_peak_2theta</span>            <span class="mf">17.2</span>
+<span class="n">_pd_peak_intensity_up</span>     <span class="mf">100.0</span>
+<span class="n">_pd_peak_intensity_down</span>    <span class="mf">90.0</span>
+<span class="n">_pd_peak_width_2theta</span>       <span class="mf">2.3</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html</a></p>
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', 'ttheta', 'intensity_up', 'intensity_down', 'width_ttheta')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_peak'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', '2theta', 'intensity_up', 'intensity_down', 'width_2theta')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_h">
+<em class="property">property </em><code class="sig-name descname">index_h</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_k">
+<em class="property">property </em><code class="sig-name descname">index_k</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_k" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_l">
+<em class="property">property </em><code class="sig-name descname">index_l</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_mult">
+<em class="property">property </em><code class="sig-name descname">index_mult</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_mult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_down">
+<em class="property">property </em><code class="sig-name descname">intensity_down</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_up">
+<em class="property">property </em><code class="sig-name descname">intensity_up</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.ttheta">
+<em class="property">property </em><code class="sig-name descname">ttheta</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.width_ttheta">
+<em class="property">property </em><code class="sig-name descname">width_ttheta</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.width_ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_peak.</code><code class="sig-name descname">PdPeakL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
+<p>This section contains peak information extracted from the
+measured or, if present, the processed diffractogram. Each
+peak in this table will have a unique label (see _pd_peak_id).
+The reflections and phases associated with each peak will be
+specified in other sections (see the _pd_refln_ and
+_pd_phase_ sections).</p>
+<p>Note that peak positions are customarily determined from the
+processed diffractogram and thus corrections for position
+and intensity will have been previously applied.</p>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
+<span class="n">_pd_peak_index_h</span>
+<span class="n">_pd_peak_index_k</span>
+<span class="n">_pd_peak_index_l</span>
+<span class="n">_pd_peak_index_mult</span>
+<span class="n">_pd_peak_2theta</span>
+<span class="n">_pd_peak_intensity_up</span>
+<span class="n">_pd_peak_intensity_down</span>
+<span class="n">_pd_peak_width_2theta</span>
+ <span class="mi">2</span>  <span class="mi">2</span>  <span class="mi">0</span>  <span class="mi">4</span> <span class="mf">17.2</span> <span class="mf">100.0</span>  <span class="mf">90.0</span>  <span class="mf">2.3</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html">Reference.</a></p>
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.CATEGORY_KEY">
+<code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.ITEM_CLASS">
+<code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak" title="cryspy.pd1dcif_like.cl_pd_peak.PdPeak"><code class="xref py py-class docutils literal notranslate"><span class="pre">PdPeak</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.pd1dcif_like.pd_proc.html"
+                        title="previous chapter">PdProc</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.pd2dcif_like.html"
+                        title="next chapter">Unofficial powder 2D dictionary</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.pd1dcif_like.pd_peak.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd2dcif_like.html" title="Unofficial powder 2D dictionary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.pd1dcif_like.pd_proc.html" title="PdProc"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.pd1dcif_like.html" >Unofficial powder 1D dictionary</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

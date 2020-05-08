@@ -1,0 +1,1252 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.symcif.cl_space_group &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.symcif.cl_space_group</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_11_26&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+
+<span class="kn">import</span> <span class="nn">cryspy.symcif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
+<span class="kn">from</span> <span class="nn">cryspy.symcif.cl_space_group_symop</span> <span class="k">import</span> <span class="n">SpaceGroupSymop</span><span class="p">,</span> <span class="n">SpaceGroupSymopL</span>
+<span class="kn">from</span> <span class="nn">cryspy.symcif.cl_space_group_wyckoff</span> <span class="k">import</span> <span class="n">SpaceGroupWyckoff</span><span class="p">,</span> <span class="n">SpaceGroupWyckoffL</span>
+
+
+<div class="viewcode-block" id="SpaceGroup"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup">[docs]</a><span class="k">class</span> <span class="nc">SpaceGroup</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Contains all the data items that refer to the space group as a</span>
+<span class="sd">whole, such as its name, Laue group etc. </span>
+
+<span class="sd">Space-group types are identified by their number as listed in</span>
+<span class="sd">International Tables for Crystallography Volume A, or by their</span>
+<span class="sd">Schoenflies symbol. Specific settings of the space groups can</span>
+<span class="sd">be identified by their Hall symbol, by specifying their</span>
+<span class="sd">symmetry operations or generators, or by giving the</span>
+<span class="sd">transformation that relates the specific setting to the</span>
+<span class="sd">reference setting based on International Tables Volume A and</span>
+<span class="sd">stored in this dictionary.</span>
+
+<span class="sd">The commonly used Hermann-Mauguin symbol determines the</span>
+<span class="sd">space-group type uniquely but several different Hermann-Mauguin</span>
+<span class="sd">symbols may refer to the same space-group type. A</span>
+<span class="sd">Hermann-Mauguin symbol contains information on the choice of</span>
+<span class="sd">the basis, but not on the choice of origin.</span>
+
+<span class="sd">:Ref: International Tables for Crystallography (2002). Volume A,</span>
+<span class="sd">      Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">      Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd">    _space_group.id                    1</span>
+<span class="sd">    _space_group.name_H-M_ref         &#39;C 2/c&#39;</span>
+<span class="sd">    _space_group.name_Schoenflies      C2h.6</span>
+<span class="sd">    _space_group.IT_number             15</span>
+<span class="sd">    _space_group.name_Hall           &#39;-C 2yc&#39;</span>
+<span class="sd">    _space_group.Bravais_type          mS</span>
+<span class="sd">    _space_group.Laue_class            2/m</span>
+<span class="sd">    _space_group.crystal_system        monoclinic</span>
+<span class="sd">    _space_group.centring_type         C</span>
+<span class="sd">    _space_group.Patterson_name_H-M  &#39;C 2/m&#39;</span>
+
+<span class="sd">:Mandatory attribute: no</span>
+
+<span class="sd">:Optional attribute: - name_hm_alt</span>
+<span class="sd">                     - it_number</span>
+<span class="sd">                     - it_coordinate_system_code</span>
+<span class="sd">                     - id</span>
+<span class="sd">                     - bravais_type</span>
+<span class="sd">                     - laue_class</span>
+<span class="sd">                     - patterson_name_hm</span>
+<span class="sd">                     - centring_type</span>
+<span class="sd">                     - crystal_system</span>
+<span class="sd">                     - name_hm_alt_description</span>
+<span class="sd">                     - name_hm_full</span>
+<span class="sd">                     - name_hm_ref</span>
+<span class="sd">                     - name_hall</span>
+<span class="sd">                     - name_hall_schoenflies</span>
+<span class="sd">                     - point_group_hm</span>
+<span class="sd">                     - reference_setting</span>
+<span class="sd">                     - transform_pp_abc</span>
+<span class="sd">                     - transform_qq_xyz</span>
+
+<span class="sd">:Methods: get_symop</span>
+
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_alt&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_alt_description&quot;</span><span class="p">,</span> <span class="s2">&quot;it_number&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_ref&quot;</span><span class="p">,</span> <span class="s2">&quot;it_coordinate_system_code&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hm_full&quot;</span><span class="p">,</span> <span class="s2">&quot;name_hall&quot;</span><span class="p">,</span> <span class="s2">&quot;name_schoenflies&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;point_group_hm&quot;</span><span class="p">,</span> <span class="s2">&quot;laue_class&quot;</span><span class="p">,</span> <span class="s2">&quot;patterson_name_hm&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;centring_type&quot;</span><span class="p">,</span> <span class="s2">&quot;bravais_type&quot;</span><span class="p">,</span> <span class="s2">&quot;crystal_system&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_setting&quot;</span><span class="p">,</span> <span class="s2">&quot;transform_pp_abc&quot;</span><span class="p">,</span> <span class="s2">&quot;transform_qq_xyz&quot;</span><span class="p">)</span>
+    <span class="n">RELATED_CIF_MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">RELATED_CIF_OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name_H-M_alt&quot;</span><span class="p">,</span> <span class="s2">&quot;name_H-M_alt_description&quot;</span><span class="p">,</span> <span class="s2">&quot;IT_number&quot;</span><span class="p">,</span> <span class="s2">&quot;name_H-M_ref&quot;</span><span class="p">,</span> <span class="s2">&quot;IT_coordinate_system_code&quot;</span><span class="p">,</span> <span class="s2">&quot;name_H-M_full&quot;</span><span class="p">,</span> <span class="s2">&quot;name_Hall&quot;</span><span class="p">,</span> <span class="s2">&quot;name_Schoenflies&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;point_group_H-M&quot;</span><span class="p">,</span> <span class="s2">&quot;Laue_class&quot;</span><span class="p">,</span> <span class="s2">&quot;Patterson_name_H-M&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;centring_type&quot;</span><span class="p">,</span> <span class="s2">&quot;Bravais_type&quot;</span><span class="p">,</span> <span class="s2">&quot;crystal_system&quot;</span><span class="p">,</span> <span class="s2">&quot;reference_setting&quot;</span><span class="p">,</span> <span class="s2">&quot;transform_pp_abc&quot;</span><span class="p">,</span> <span class="s2">&quot;transform_qq_xyz&quot;</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;centrosymmetry&quot;</span><span class="p">,</span> <span class="s2">&quot;pcentr&quot;</span><span class="p">,</span> <span class="s2">&quot;reduced_space_group_symop&quot;</span><span class="p">,</span> <span class="s2">&quot;full_space_group_symop&quot;</span><span class="p">,</span> <span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;shift&quot;</span><span class="p">)</span>
+    <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;space_group&quot;</span>
+    <span class="n">ACCESIBLE_IT_NUMBER</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_IT_NUMBER</span>
+    <span class="n">ACCESIBLE_BRAVAIS_TYPE</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_BRAVAIS_TYPE</span>
+    <span class="n">ACCESIBLE_IT_COORDINATE_SYSTEM_CODE</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_IT_COORDINATE_SYSTEM_CODE</span>
+    <span class="n">ACCESIBLE_LAUE_CLASS</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_LAUE_CLASS</span>
+    <span class="n">ACCESIBLE_CENTERING_TYPE</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_CENTERING_TYPE</span>
+    <span class="n">ACCESIBLE_CRYSTAL_SYSTEM</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_CRYSTAL_SYSTEM</span>
+    <span class="n">ACCESIBLE_NAME_HM_REF</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HM_SHORT</span>
+    <span class="n">ACCESIBLE_NAME_HM_ALT</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HM_FULL</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HM_EXTENDED</span><span class="p">)))</span>
+    <span class="n">ACCESIBLE_NAME_SCHOENFLIES</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_SCHOENFLIES</span>
+    <span class="n">ACCESIBLE_NAME_HALL</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HALL_SHORT</span>
+    <span class="n">ACCESIBLE_REFERENCE_SETTING</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">ACCESIBLE_REFERENCE_SETTING</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name_hm_alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">it_number</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">it_coordinate_system_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bravais_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">laue_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">patterson_name_hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">centring_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">crystal_system</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_hm_alt_description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="n">name_hm_full</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_hm_ref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_hall</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_schoenflies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">point_group_hm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">reference_setting</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transform_pp_abc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transform_qq_xyz</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="nb">super</span><span class="p">(</span><span class="n">SpaceGroup</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span> 
+                                         <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
+                                         <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">,</span>
+                                         <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">PREFIX</span><span class="p">)</span>
+
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_hm_alt</span> <span class="o">=</span> <span class="n">name_hm_alt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it_number</span> <span class="o">=</span> <span class="n">it_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="n">it_coordinate_system_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bravais_type</span> <span class="o">=</span> <span class="n">bravais_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">laue_class</span> <span class="o">=</span> <span class="n">laue_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterson_name_hm</span> <span class="o">=</span> <span class="n">patterson_name_hm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centring_type</span> <span class="o">=</span> <span class="n">centring_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crystal_system</span> <span class="o">=</span> <span class="n">crystal_system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_hm_alt_description</span> <span class="o">=</span> <span class="n">name_hm_alt_description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_hm_full</span> <span class="o">=</span> <span class="n">name_hm_full</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_hm_ref</span> <span class="o">=</span> <span class="n">name_hm_ref</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_hall</span> <span class="o">=</span> <span class="n">name_hall</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_schoenflies</span> <span class="o">=</span> <span class="n">name_schoenflies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_group_hm</span> <span class="o">=</span> <span class="n">point_group_hm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_setting</span> <span class="o">=</span> <span class="n">reference_setting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform_pp_abc</span> <span class="o">=</span> <span class="n">transform_pp_abc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform_qq_xyz</span> <span class="o">=</span> <span class="n">transform_qq_xyz</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name_hm_alt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">_space_group.name_H-M_alt allows for an alternative Hermann–</span>
+<span class="sd">Mauguin symbol to be given. The way in which this item is used</span>
+<span class="sd">is determined by the user and should be described in the item</span>
+<span class="sd">_space_group.name_H-M_alt_description. It may, for exam-</span>
+<span class="sd">ple, be used to give one of the extended Hermann–Mauguin</span>
+<span class="sd">symbols given in Table 4.3.2.1 of International Tables for</span>
+<span class="sd">Crystallography Volume A (2002) or a full Hermann–Mauguin</span>
+<span class="sd">symbol for an unconventional setting. Each component of the</span>
+<span class="sd">space-group name is separated by a space or an underscore</span>
+<span class="sd">character. The use of a space is strongly recommended. The</span>
+<span class="sd">underscore is only retained because it was used in older CIFs.</span>
+<span class="sd">It should not be used in new CIFs. Subscripts should appear</span>
+<span class="sd">without special symbols. Bars should be given as negative</span>
+<span class="sd">signs before the numbers to which they apply. The commonly</span>
+<span class="sd">used Hermann–Mauguin symbol determines the space-group</span>
+<span class="sd">type uniquely, but a given space-group type may be described</span>
+<span class="sd">by more than one Hermann–Mauguin symbol. The space-</span>
+<span class="sd">group type is best described using _space_group.IT_number or</span>
+<span class="sd">_space_group.name_Schoenflies . The Hermann–Mauguin sym-</span>
+<span class="sd">bol may contain information on the choice of basis but does not</span>
+<span class="sd">contain information on the choice of origin. To define the setting</span>
+<span class="sd">uniquely, use _space_group.name_Hall , list the symmetry oper-</span>
+<span class="sd">ations or generators, or give the transformation that relates the</span>
+<span class="sd">setting to the reference setting defined in this dictionary under</span>
+<span class="sd">_space_group.reference_setting.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_ALT)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_alt&quot;</span><span class="p">)</span>
+    <span class="nd">@name_hm_alt</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name_hm_alt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HM_ALT</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;name_hm_alt type &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_alt&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">it_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The number as assigned in International Tables for Crystal-</span>
+<span class="sd">lography Volume A, specifying the proper affine class (i.e. the</span>
+<span class="sd">orientation-preserving affine class) of space groups (crystallo-</span>
+<span class="sd">graphic space-group type) to which the space group belongs. This</span>
+<span class="sd">number defines the space-group type but not the coordinate system</span>
+<span class="sd">in which it is expressed.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">The permitted range is (1,230)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_number&quot;</span><span class="p">)</span>
+    <span class="nd">@it_number</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">it_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">((</span><span class="n">x_in</span> <span class="o">&gt;=</span><span class="mi">1</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">x_in</span> <span class="o">&lt;=</span><span class="mi">230</span><span class="p">)):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;it_number &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>              
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_number&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">it_coordinate_system_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A qualifier taken from the enumeration list identifying which set-</span>
+<span class="sd">ting in International Tables for Crystallography Volume A (2002)</span>
+<span class="sd">(IT) is used. See IT Table 4.3.2.1, Section 2.2.16, Table 2.2.16.1,</span>
+<span class="sd">Section 2.2.16.1 and Fig. 2.2.6.4. This item is not computer-</span>
+<span class="sd">interpretable and cannot be used to define the coordinate system.</span>
+
+<span class="sd">Use _space_group.transform_ * instead.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">   b1, b2, b3, -b1, -b2, -b3, c1, c2, c3, </span>
+<span class="sd">   -c1, -c2, -c3, a1, a2, a3, -a1, -a2, -a3, </span>
+<span class="sd">   abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb, </span>
+<span class="sd">   2abc, 2ba-c, 2cab, 2-cba, 2bca, 2a-cb, 1, 2, h, r, </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_coordinate_system_code&quot;</span><span class="p">)</span>
+    <span class="nd">@it_coordinate_system_code</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">it_coordinate_system_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_IT_COORDINATE_SYSTEM_CODE</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;it_coordinate_system_code &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_coordinate_system_code&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This is an identifier needed if _space_group .* items are looped.</span>
+
+<span class="sd">:TODO: looped _space_group is not introduced</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__id&quot;</span><span class="p">)</span>
+    <span class="nd">@id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__id&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bravais_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The symbol denoting the lattice type (Bravais type) to which the</span>
+<span class="sd">translational subgroup (vector lattice) of the space group belongs.</span>
+<span class="sd">It consists of a lower-case letter indicating the crystal system</span>
+<span class="sd">followed by an upper-case letter indicating the lattice centring.</span>
+
+<span class="sd">The setting-independent symbol mS replaces the setting-dependent</span>
+<span class="sd">symbols mB and mC, and the setting-independent symbol oS</span>
+<span class="sd">replaces the setting-dependent symbols oA, oB and oC.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,</span>
+<span class="sd">            p. 15. Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    aP</span>
+<span class="sd">    mP mS</span>
+<span class="sd">    oP oS oI oF</span>
+<span class="sd">    tP tI</span>
+<span class="sd">    hP hR</span>
+<span class="sd">    cP cI cF</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__bravais_type&quot;</span><span class="p">)</span>
+    <span class="nd">@bravais_type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bravais_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_BRAVAIS_TYPE</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;bravais_type &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__bravais_type&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">laue_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Hermann–Mauguin symbol of the geometric crystal class of</span>
+<span class="sd">the point group of the space group where a centre of inversion is</span>
+<span class="sd">added if not already present.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    -1, 2/m, mmm, 4/m, 4/mmm, </span>
+<span class="sd">    -3, -3m, 6/m, 6/mmm, m-3, m-3m</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__laue_class&quot;</span><span class="p">)</span>
+    <span class="nd">@laue_class</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">laue_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_LAUE_CLASS</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;laue_class &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__laue_class&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">patterson_name_hm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Hermann–Mauguin symbol of the type of that centrosym-</span>
+<span class="sd">metric symmorphic space group to which the Patterson function</span>
+<span class="sd">belongs; see Table 2.2.5.1 in International Tables for Crystallog-</span>
+<span class="sd">raphy Volume A (2002). A space separates each symbol referring</span>
+<span class="sd">to different axes. Underscores may replace the spaces, but this use</span>
+<span class="sd">is discouraged. Subscripts should appear without special symbols.</span>
+<span class="sd">Bars should be given as negative signs before the number to which</span>
+<span class="sd">they apply.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,</span>
+<span class="sd">            Table 2.2.5.1. Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">:Examples: ‘P -1’, ‘P 2/m’, ‘C 2/m’, ‘P m m m’, ‘C m m m’, ‘I m m m’, ‘F m m m’,</span>
+<span class="sd">           ‘P 4/m’, ‘I 4/m’, ‘P 4/m m m’, ‘I 4/m m m’, ‘P -3’, ‘R -3’, ‘P -3 m 1’,</span>
+<span class="sd">           ‘R -3 m’, ‘P -3 1 m’, ‘P 6/m’, ‘P 6/m m m’, ‘P m -3’, ‘I m -3’, ‘F m -3’,</span>
+<span class="sd">           ‘P m -3 m’, ‘I m -3 m’, ‘F m -3 m’.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__patterson_name_hm&quot;</span><span class="p">)</span>
+    <span class="nd">@patterson_name_hm</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">patterson_name_hm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__patterson_name_hm&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centring_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Symbol for the lattice centring. This symbol may be dependent on</span>
+<span class="sd">the coordinate system chosen.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    :&quot;P&quot;: primitive no centring</span>
+<span class="sd">    :&quot;A&quot;: A-face centred (0, 1/2, 1/2)</span>
+<span class="sd">    :&quot;B&quot;: B-face centred (1/2, 0, 1/2)</span>
+<span class="sd">    :&quot;C&quot;: C-face centred (1/2, 1/2, 0)</span>
+<span class="sd">    :&quot;F&quot;: all faces centred (0, 1/2, 1/2), (1/2, 0, 1/2), (1/2, 1/2, 0)</span>
+<span class="sd">    :&quot;I&quot;: body centred (1/2, 1/2, 1/2)</span>
+<span class="sd">    :&quot;R&quot;: rhombohedral obverse centred (2/3, 1/3, 1/3), (1/3, 2/3, 2/3)</span>
+<span class="sd">    :&quot;Rrev&quot;: rhombohedral reverse centred (1/3, 2/3, 1/3), (2/3, 1/3, 2/3)</span>
+<span class="sd">    :&quot;H&quot;: hexagonal centred (2/3, 1/3, 0), (1/3, 2/3, 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__centring_type&quot;</span><span class="p">)</span>
+    <span class="nd">@centring_type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">centring_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_CENTERING_TYPE</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;centring_type &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__centring_type&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The name of the system of geometric crystal classes of space</span>
+<span class="sd">groups (crystal system) to which the space group belongs. Note</span>
+<span class="sd">that crystals with the hR lattice type belong to the trigonal system.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    triclinic, monoclinic, orthorhombic, </span>
+<span class="sd">    tetragonal, trigonal, hexagonal, cubic   </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__crystal_system&quot;</span><span class="p">)</span>
+    <span class="nd">@crystal_system</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">crystal_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_CRYSTAL_SYSTEM</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;crystal_system &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__crystal_system&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name_hm_alt_description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A free-text description of the code appearing in _space_</span>
+<span class="sd">group.name_H-M_alt</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_alt_description&quot;</span><span class="p">)</span>
+    <span class="nd">@name_hm_alt_description</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name_hm_alt_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_alt_description&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name_hm_full</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The full international Hermann–Mauguin space-group symbol as</span>
+<span class="sd">defined in Section 2.2.3 and given as the second item of the sec-</span>
+<span class="sd">ondlineof eachof the space-grouptablesof Part 7of International</span>
+<span class="sd">Tables for Crystallography Volume A (2002). Each component of</span>
+<span class="sd">the space-group name is separated by a space or an underscore</span>
+<span class="sd">character. The use of a space is strongly recommended. The under-</span>
+<span class="sd">score is only retained because it was used in old CIFs. It should</span>
+<span class="sd">not be used in new CIFs. Subscripts should appear without special</span>
+<span class="sd">symbols. Bars should be given as negative signs before the num-</span>
+<span class="sd">bers to which they apply. The commonly used Hermann–Mauguin</span>
+<span class="sd">symbol determines the space-group type uniquely but a given</span>
+<span class="sd">space-group type may be described by more than one Hermann–</span>
+<span class="sd">Mauguin symbol. The space-group type is best described using</span>
+<span class="sd">_space_group.IT_number or _space_group.name_Schoenflies .</span>
+<span class="sd">The full international Hermann–Mauguin symbol contains infor-</span>
+<span class="sd">mation about the choice of basis for monoclinic and orthorhombic</span>
+<span class="sd">space groups but does not give information about the choice of ori-</span>
+<span class="sd">gin. To define the setting uniquely use _space_group.name_Hall ,</span>
+<span class="sd">list the symmetry operations or generators, or give the transforma-</span>
+<span class="sd">tion relating the setting used to the reference setting defined in this</span>
+<span class="sd">dictionary under _space_group.reference_setting .</span>
+<span class="sd">Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">:Example: ‘P 21/n 21/m 21/a’ (full symbol for Pnma)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_full&quot;</span><span class="p">)</span>
+    <span class="nd">@name_hm_full</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name_hm_full</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_full&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name_hm_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The short international Hermann–Mauguin space-group sym-</span>
+<span class="sd">bol as defined in Section 2.2.3 and given as the first item of</span>
+<span class="sd">each space-group table in Part 7 of International Tables for</span>
+<span class="sd">Crystallography Volume A (2002). Each component of the space-</span>
+<span class="sd">group name is separated by a space or an underscore charac-</span>
+<span class="sd">ter. The use of a space is strongly recommended. The under-</span>
+<span class="sd">score is only retained because it was used in old CIFs. It</span>
+<span class="sd">should not be used in new CIFs. Subscripts should appear with-</span>
+<span class="sd">out special symbols. Bars should be given as negative signs</span>
+<span class="sd">before the numbers to which they apply. The short international</span>
+<span class="sd">Hermann–Mauguin symbol determines the space-group type</span>
+<span class="sd">uniquely. However, the space-group type is better described using</span>
+<span class="sd">_space_group.IT_number or _space_group.name_Schoenflies .</span>
+<span class="sd">The short international Hermann–Mauguin symbol contains</span>
+<span class="sd">no information on the choice of basis or origin. To define</span>
+<span class="sd">the setting uniquely use _space_group.name_Hall , list the</span>
+<span class="sd">symmetry operations or generators, or give the transforma-</span>
+<span class="sd">tion that relates the setting to the reference setting defined</span>
+<span class="sd">in this dictionary under _space_group.reference_setting .</span>
+<span class="sd">_space_group.name_H-M_alt may be used to give the Hermann–</span>
+<span class="sd">Mauguin symbol corresponding to the setting used. In the enumer-</span>
+<span class="sd">ation list below, each possible value is identified by space-group</span>
+<span class="sd">number and Schoenflies symbol.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    ’P 1’, ’P 2’, ...</span>
+<span class="sd">    (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_REF)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_ref&quot;</span><span class="p">)</span>
+    <span class="nd">@name_hm_ref</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name_hm_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HM_REF</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;name_hm_ref &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hm_ref&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name_hall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Space-group symbol defined by Hall. _space_group.name_Hall</span>
+<span class="sd">uniquely defines the space group and its reference to a particu-</span>
+<span class="sd">lar coordinate system. Each component of the space-group name</span>
+<span class="sd">is separated by a space or an underscore character. The use of a</span>
+<span class="sd">space is strongly recommended. The underscore is only retained</span>
+<span class="sd">because it was used in old CIFs. It should not be used in new CIFs.</span>
+
+<span class="sd">:References: Hall, S. R. (1981). Acta Cryst. A37, 517–525; erra-</span>
+<span class="sd">             tum (1981), A37, 921. International Tables for Crystallography</span>
+<span class="sd">             (2001). Volume B, Reciprocal space, edited by U. Shmueli, 2nd</span>
+<span class="sd">             ed., Appendix 1.4.2. Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">:Examples: ‘P 2c -2ac’, ‘-I 4bd 2ab 3’, ...</span>
+<span class="sd">            (full tuple stored in SpaceGroup.ACCESIBLE_NAME_HALL)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hall&quot;</span><span class="p">)</span>
+    <span class="nd">@name_hall</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name_hall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_HALL</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;name_hall &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_hall&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name_schoenflies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Schoenflies symbol as listed in International Tables for</span>
+<span class="sd">Crystallography Volume A denoting the proper affine class (i.e.</span>
+<span class="sd">orientation-preserving affine class) of space groups (space-group</span>
+<span class="sd">type) to which the space group belongs. This symbol defines the</span>
+<span class="sd">space-group type independently of the coordinate system in which</span>
+<span class="sd">the space group is expressed. The symbol is given with a period,</span>
+<span class="sd">‘.’, separating the Schoenflies point group and the superscript.</span>
+
+<span class="sd">:Reference: International Tables for Crystallography (2002).</span>
+<span class="sd">            Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.</span>
+<span class="sd">            Dordrecht: Kluwer Academic Publishers.</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    C1.1, Ci.1, ...</span>
+<span class="sd">    (full tuple stored in SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_schoenflies&quot;</span><span class="p">)</span>
+    <span class="nd">@name_schoenflies</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">name_schoenflies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_NAME_SCHOENFLIES</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;name_schoenflies &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__name_schoenflies&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">point_group_hm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Hermann–Mauguin symbol denoting the geometric crystal</span>
+<span class="sd">class of space groups to which the space group belongs, and the</span>
+<span class="sd">geometric crystal class of point groups to which the point group of</span>
+<span class="sd">the space group belongs.</span>
+
+<span class="sd">:Examples: ‘-4’, ‘4/m’. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__point_group_hm&quot;</span><span class="p">)</span>
+    <span class="nd">@point_group_hm</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">point_group_hm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__point_group_hm&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reference_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The reference setting of a given space group is the setting chosen</span>
+<span class="sd">by the International Union of Crystallography as a unique setting</span>
+<span class="sd">to which other settings can be referred using the transformation</span>
+<span class="sd">matrix column pair given in _space_group.transform_Pp_abc</span>
+<span class="sd">and _space_group.transform_Qq_xyz . The settings are given</span>
+<span class="sd">in the enumeration list in the form ‘ _space_group.IT_number:</span>
+<span class="sd">_space_group.name_Hall ’. The space-group number defines the</span>
+<span class="sd">space-group type and the Hall symbol specifies the symmetry gen-</span>
+<span class="sd">erators referred to the reference coordinate system. The 230 refer-</span>
+<span class="sd">ence settings chosen are identical to the settings listed in Inter-</span>
+<span class="sd">national Tables for Crystallography Volume A (2002). For the</span>
+<span class="sd">space groups where more than one setting is given in Interna-</span>
+<span class="sd">tional Tables, the following choices have been made. For mono-</span>
+<span class="sd">clinic space groups: unique axis b and cell choice 1. For space</span>
+<span class="sd">groups with two origins: origin choice 2 (origin at inversion cen-</span>
+<span class="sd">tre, indicated by adding :2 to the Hermann–Mauguin symbol in</span>
+<span class="sd">the enumeration list). For rhombohedral space groups: hexago-</span>
+<span class="sd">nal axes (indicated by adding :h to the Hermann–Mauguin sym-</span>
+<span class="sd">bol in the enumeration list). Based on the symmetry table of</span>
+<span class="sd">R. W. Grosse-Kunstleve, ETH, Zurich. The enumeration list may</span>
+<span class="sd">be extracted from the dictionary and stored as a separate CIF that</span>
+<span class="sd">can be referred to as required.</span>
+
+<span class="sd">In the enumeration list below, each reference setting is identi-</span>
+<span class="sd">fied by Schoenfliessymbol and by the Hermann–Mauguinsymbol,</span>
+<span class="sd">augmented by :2 or :h suffixes as described above.</span>
+
+<span class="sd">:References: International Tables for Crystallography (2002).</span>
+<span class="sd">             Volume A, Space-group symmetry, edited by Th. Hahn, 5th</span>
+<span class="sd">             ed. Dordrecht: Kluwer Academic Publishers. Grosse-Kunstleve,</span>
+<span class="sd">             R. W. (2001). Xtal System of Crystallographic Programs, Sys-</span>
+<span class="sd">             tem Documentation. http://xtal.crystal.uwa.edu.au/man/xtal3.7-</span>
+<span class="sd">             228.html (or follow links to D</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">    ’001:P 1’, ’002:-P 1’, ... </span>
+<span class="sd">    (full tuple stored in SpaceGroup.ACCESIBLE_REFERENCE_SETTING)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reference_setting&quot;</span><span class="p">)</span>
+    <span class="nd">@reference_setting</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">reference_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_REFERENCE_SETTING</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;reference_setting &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reference_setting&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transform_pp_abc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This item specifies the transformation (P,p) of the basis vectors</span>
+<span class="sd">from the setting used in the CIF (a,b,c) to the reference setting</span>
+<span class="sd">given in _space_group.reference_setting (a&#39; ,b&#39; ,c&#39;). The value</span>
+<span class="sd">is given in Jones–Faithful notation corresponding to the rotational</span>
+<span class="sd">matrix P combined with the origin shift vector p in the expression</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   (a&#39;, b&#39;, c&#39;) = (a, b, c) P + p.</span>
+
+<span class="sd">P is a post-multiplication matrix of a row (a,b,c) of column vec-</span>
+<span class="sd">tors. It is related to the inverse transformation (Q,q) by</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   P = Q^{−1},</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   p = Pq = − (Q^{−1}) q.</span>
+
+<span class="sd">These transformations are applied as follows: atomic coordi-</span>
+<span class="sd">nates :math:`(x&#39;, y&#39;, z&#39;) = Q (x,y,z) + q`, Miller indices </span>
+<span class="sd">:math:`(h&#39;, k&#39;, l&#39;) = (h, k, l) P`, </span>
+<span class="sd">symmetry operations</span>
+<span class="sd">:math:`W&#39; = (Q,q) W (P,p)`, basis vectors</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   (a&#39;, b&#39;, c&#39;) = (a,b,c) P + p.</span>
+
+<span class="sd">This item is given as a character string involving the characters</span>
+<span class="sd">a, b and c with commas separating the expressions for the a&#39;, b&#39;</span>
+<span class="sd">and c&#39; vectors. The numeric values may be given as integers, frac-</span>
+<span class="sd">tions or real numbers. Multiplication is implicit, division must be</span>
+<span class="sd">explicit. White space within the string is optional.</span>
+
+<span class="sd">:Examples: - ‘-b+c, a+c, -a+b+c’ (R3:r to R3:h), </span>
+<span class="sd">           - ‘a-1/4, b-1/4, c-1/4’ (Pnnn:1 to Pnnn:2), </span>
+<span class="sd">           - ‘b-1/2, c-1/2, a-1/2’ (Bbab:1 toCcca:2). </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__transform_pp_abc&quot;</span><span class="p">)</span>
+    <span class="nd">@transform_pp_abc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">transform_pp_abc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__transform_pp_abc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transform_qq_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This item specifies the transformation (Q,q) of the atomic</span>
+<span class="sd">coordinates from the setting used in the CIF [(x, y, z) referred</span>
+<span class="sd">to the basis vectors (a, b, c)] to the reference setting given</span>
+<span class="sd">in _space_group.reference_setting [(x&#39;, y&#39;, z&#39;) referred to the</span>
+<span class="sd">basis vectors (a&#39;, b&#39;, c&#39;)]. The value given in Jones–Faithful nota-</span>
+<span class="sd">tion corresponds to the rotational matrix Q combined with the ori-</span>
+<span class="sd">gin shift vector q in the expression</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">  </span>
+<span class="sd">   (x&#39;, y&#39;, z&#39;) = Q(x,y,z) + q.</span>
+
+<span class="sd">Q is a pre-multiplication matrix of the column vector (x,y,z). It is</span>
+<span class="sd">related to the inverse transformation (P,p) by</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   </span>
+<span class="sd">   P = Q^{−1} ,</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">   </span>
+<span class="sd">   p = Pq = − (Q^{−1}) q,</span>
+
+<span class="sd">where the P and Q transformations are applied as follows: atomic</span>
+<span class="sd">coordinates :math:`(x&#39;, y&#39;, z&#39;) = Q(x,y,z)+q`, Miller indices </span>
+<span class="sd">:math:`(h&#39;, k&#39;, l&#39;) = (h,k,l)P`, </span>
+<span class="sd">symmetry operations </span>
+<span class="sd">:math:`W&#39; = (Q, q) W (P, p)`, </span>
+<span class="sd">basis vectors</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   (a&#39;, b&#39;, c&#39;) = (a, b, c) P + p.</span>
+
+<span class="sd">This item is given as a character string involving the characters</span>
+<span class="sd">math:`x`, :math:`y` and :math:`z` with commas separating the expressions </span>
+<span class="sd">for the :math:`x&#39;`, :math:`y&#39;`</span>
+<span class="sd">and :math:`z&#39;` components. The numeric values may be given as integers,</span>
+<span class="sd">fractions or real numbers. Multiplication is implicit, division must</span>
+<span class="sd">be explicit. White space within the string is optional.</span>
+
+<span class="sd">:Examples: - ‘-x/3+2y/3-z/3, -2x/3+y/3+z/3, x/3+y/3+z/3’ (R3:r to R3:h),</span>
+<span class="sd">           - ‘x+1/4,y+1/4,z+1/4’ (Pnnn:1 to Pnnn:2), </span>
+<span class="sd">           - ‘z+1/2,x+1/2,y+1/2’ (Bbab:1 to Ccca:2).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__transform_qq_xyz&quot;</span><span class="p">)</span>
+    <span class="nd">@transform_qq_xyz</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">transform_qq_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__transform_qq_xyz&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centrosymmetry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__centrosymmetry&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pcentr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__pcentr&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reduced_space_group_symop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reduced_space_group_symop&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">full_space_group_symop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__full_space_group_symop&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">space_group_wyckoff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__shift&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">define_it_number_and_it_coordinate_system_code</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">flag</span> 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">form_object</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_object_by_it_number_it_coordinate_system_code</span><span class="p">()</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__shift&quot;</span><span class="p">,</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_shift_by_centring_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centring_type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">flag</span>
+
+<div class="viewcode-block" id="SpaceGroup.define_it_number_and_it_coordinate_system_code"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.define_it_number_and_it_coordinate_system_code">[docs]</a>    <span class="k">def</span> <span class="nf">define_it_number_and_it_coordinate_system_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;it_number&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;it_coordinate_system_code&quot;</span><span class="p">)):</span>
+            <span class="n">it_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_number</span>
+            <span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;name_hm_alt&quot;</span><span class="p">):</span>
+            <span class="n">_res</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_type_hm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_hm_alt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;extended&quot;</span> <span class="ow">in</span> <span class="n">_res</span><span class="p">:</span>
+                <span class="n">it_number</span><span class="p">,</span> <span class="n">it_coordinate_system_codes</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_number_it_coordinate_system_codes_by_name_hm_extended</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_hm_alt</span><span class="p">)</span>
+                <span class="k">if</span>  <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">it_coordinate_system_code</span> <span class="ow">in</span> <span class="n">it_coordinate_system_codes</span><span class="p">)):</span>
+                    <span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">auto_choose_it_coordinate_system_code</span><span class="p">(</span><span class="n">it_number</span><span class="p">,</span> <span class="n">it_coordinate_system_codes</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;full&quot;</span> <span class="ow">in</span> <span class="n">_res</span><span class="p">:</span>
+                <span class="n">it_number</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_number_by_name_hm_full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_hm_alt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;name_hm_ref&quot;</span><span class="p">):</span>
+            <span class="n">it_number</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_number_by_name_hm_short</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_hm_ref</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;name_hall&quot;</span><span class="p">):</span>
+            <span class="n">it_number</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_number_by_name_hall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_hall</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;it_number&quot;</span><span class="p">):</span>
+            <span class="n">it_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_number</span>
+            <span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;name_schoenflies&quot;</span><span class="p">):</span>
+            <span class="n">it_number</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_number_by_name_schoenflies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_schoenflies</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">it_coordinate_system_codes</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_coordinate_system_codes_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;it_number&quot;</span><span class="p">,</span> <span class="n">it_number</span><span class="p">)</span>
+            <span class="k">if</span>  <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">it_coordinate_system_code</span> <span class="ow">in</span> <span class="n">it_coordinate_system_codes</span><span class="p">)):</span>
+                <span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">auto_choose_it_coordinate_system_code</span><span class="p">(</span><span class="n">it_number</span><span class="p">,</span> <span class="n">it_coordinate_system_codes</span><span class="p">)</span>
+            
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;it_coordinate_system_code&quot;</span><span class="p">,</span> <span class="n">it_coordinate_system_code</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+<div class="viewcode-block" id="SpaceGroup.form_object_by_it_number_it_coordinate_system_code"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.form_object_by_it_number_it_coordinate_system_code">[docs]</a>    <span class="k">def</span> <span class="nf">form_object_by_it_number_it_coordinate_system_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">bravais_type</span><span class="p">,</span> <span class="n">laue_class</span><span class="p">,</span> <span class="n">patterson_name_hm</span><span class="p">,</span> <span class="n">centring_type</span><span class="p">,</span> <span class="n">crystal_system</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">name_hm_extended</span><span class="p">,</span> <span class="n">name_hm_full</span><span class="p">,</span> <span class="n">name_hm_short</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">name_hall</span><span class="p">,</span> <span class="n">name_schoenflies</span><span class="p">,</span> <span class="n">point_group_hm</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">pcentr</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">reduced_space_group_symop</span><span class="p">,</span> <span class="n">full_space_group_symop</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">lattice_type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">generators</span> <span class="o">=</span> <span class="p">()</span>        
+        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">define_it_number_and_it_coordinate_system_code</span><span class="p">()</span>
+        <span class="n">it_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_number</span>
+        <span class="n">it_c_s_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span>
+        <span class="n">crystal_system</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_crystal_system_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+        <span class="n">name_hm_extended</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_name_hm_extended_by_it_number_it_coordinate_system_code</span><span class="p">(</span><span class="n">it_number</span><span class="p">,</span> <span class="n">it_c_s_c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">name_hm_extended</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span> 
+            <span class="n">centring_type</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_centring_type_by_name_hm_extended</span><span class="p">(</span><span class="n">name_hm_extended</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">centring_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">crystal_system</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span> 
+            <span class="n">bravais_type</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_bravais_type_by_centring_type_crystal_system</span><span class="p">(</span><span class="n">centring_type</span><span class="p">,</span> <span class="n">crystal_system</span><span class="p">)</span>              
+        <span class="n">name_hm_short</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_name_hm_short_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">name_hm_short</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">lattice_type</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_lattice_type_by_name_hm_short</span><span class="p">(</span><span class="n">name_hm_short</span><span class="p">)</span>
+        <span class="n">name_hm_full</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_name_hm_full_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+        <span class="n">name_hall</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_name_hall_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_hall</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">centrosymmetry</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_centrosymmetry_by_name_hall</span><span class="p">(</span><span class="n">name_hall</span><span class="p">)</span>
+        <span class="n">name_schoenflies</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_name_schoenflies_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_schoenflies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">laue_class</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_laue_class_by_name_schoenflies</span><span class="p">(</span><span class="n">name_schoenflies</span><span class="p">)</span>
+            <span class="n">point_group_hm</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_point_group_hm_short_by_name_schoenflies</span><span class="p">(</span><span class="n">name_schoenflies</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">point_group_hm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">generators</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_generators_by_point_group_hm</span><span class="p">(</span><span class="n">point_group_hm</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">lattice_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">laue_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+                <span class="n">patterson_name_hm</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_patterson_name_hm_by_lattice_type_laue_class</span><span class="p">(</span><span class="n">lattice_type</span><span class="p">,</span> <span class="n">laue_class</span><span class="p">)</span>
+
+        <span class="n">pcentr</span><span class="p">,</span> <span class="n">reduced_space_group_symop</span><span class="p">,</span> <span class="n">full_space_group_symop</span><span class="p">,</span> <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_reduced_full_space_group_symop_space_group_wyckoff</span><span class="p">(</span><span class="n">it_number</span><span class="p">,</span> <span class="n">it_c_s_c</span><span class="p">,</span> <span class="n">centrosymmetry</span><span class="p">,</span> <span class="n">centring_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pcentr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__pcentr&quot;</span><span class="p">,</span> <span class="n">pcentr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reduced_space_group_symop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reduced_space_group_symop&quot;</span><span class="p">,</span> <span class="n">reduced_space_group_symop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">full_space_group_symop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__full_space_group_symop&quot;</span><span class="p">,</span> <span class="n">full_space_group_symop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">space_group_wyckoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__space_group_wyckoff&quot;</span><span class="p">,</span> <span class="n">space_group_wyckoff</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">centrosymmetry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__centrosymmetry&quot;</span><span class="p">,</span> <span class="n">centrosymmetry</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_hm_extended</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name_hm_alt&quot;</span><span class="p">,</span> <span class="n">name_hm_extended</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name_hm_alt_description&quot;</span><span class="p">,</span> <span class="s2">&quot;The extended international Hermann-Mauguin space-group symbol.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_hm_full</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name_hm_full&quot;</span><span class="p">,</span> <span class="n">name_hm_full</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_hm_short</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name_hm_ref&quot;</span><span class="p">,</span> <span class="n">name_hm_short</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_hall</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name_hall&quot;</span><span class="p">,</span> <span class="n">name_hall</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_schoenflies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;name_schoenflies&quot;</span><span class="p">,</span> <span class="n">name_schoenflies</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">point_group_hm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;point_group_hm&quot;</span><span class="p">,</span> <span class="n">point_group_hm</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">laue_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;laue_class&quot;</span><span class="p">,</span> <span class="n">laue_class</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">patterson_name_hm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;patterson_name_hm&quot;</span><span class="p">,</span> <span class="n">patterson_name_hm</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">centring_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;centring_type&quot;</span><span class="p">,</span> <span class="n">centring_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bravais_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;bravais_type&quot;</span><span class="p">,</span> <span class="n">bravais_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">crystal_system</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;crystal_system&quot;</span><span class="p">,</span> <span class="n">crystal_system</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flag</span></div>
+
+<div class="viewcode-block" id="SpaceGroup.form_reduced_full_space_group_symop_space_group_wyckoff"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.form_reduced_full_space_group_symop_space_group_wyckoff">[docs]</a>    <span class="k">def</span> <span class="nf">form_reduced_full_space_group_symop_space_group_wyckoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">it_number</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">it_coordinate_system_code</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">centrosymmetry</span><span class="p">:</span><span class="nb">bool</span><span class="p">,</span> <span class="n">centring_type</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="n">pcentr</span><span class="p">,</span> <span class="n">reduced_space_group_symop</span><span class="p">,</span> <span class="n">full_space_group_symop</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">symop</span><span class="p">,</span> <span class="n">pcentr</span><span class="p">,</span> <span class="n">_multiplicity</span><span class="p">,</span> <span class="n">_letter</span><span class="p">,</span> <span class="n">_site_symmetry</span><span class="p">,</span> <span class="n">_l_coords_xyz_2</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2</span><span class="p">(</span><span class="n">it_number</span><span class="p">,</span> <span class="n">it_coordinate_system_code</span><span class="p">)</span>
+        <span class="n">item_reduced</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_i_symop</span><span class="p">,</span> <span class="n">_symop</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">symop</span><span class="p">):</span>
+            <span class="n">_item</span> <span class="o">=</span> <span class="n">SpaceGroupSymop</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;{_i_symop+1:}&quot;</span><span class="p">,</span> <span class="n">operation_xyz</span><span class="o">=</span><span class="n">_symop</span><span class="p">,</span> <span class="n">operation_description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;reduced&quot;</span><span class="p">,</span><span class="n">sg_id</span><span class="o">=</span><span class="n">it_number</span><span class="p">)</span>
+            <span class="n">item_reduced</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_item</span><span class="p">)</span>
+        <span class="n">reduced_space_group_symop</span> <span class="o">=</span> <span class="n">SpaceGroupSymopL</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="n">item_reduced</span><span class="p">)</span>
+
+        <span class="n">item_full</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="n">item_reduced</span><span class="p">:</span>
+            <span class="n">_symop</span> <span class="o">=</span> <span class="n">_item</span><span class="o">.</span><span class="n">operation_xyz</span>
+            <span class="n">_item_full</span> <span class="o">=</span> <span class="n">SpaceGroupSymop</span><span class="p">(</span><span class="n">operation_xyz</span><span class="o">=</span><span class="n">_symop</span><span class="p">)</span>
+            <span class="n">item_full</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_item_full</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">centrosymmetry</span><span class="p">:</span>
+            <span class="n">item_add</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="n">item_full</span><span class="p">:</span>
+                <span class="n">_item_add</span> <span class="o">=</span> <span class="n">_item</span><span class="o">.</span><span class="n">get_symop_inversed</span><span class="p">(</span><span class="n">pcentr</span><span class="p">)</span>
+                <span class="n">item_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_item_add</span><span class="p">)</span>
+            <span class="n">item_full</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item_add</span><span class="p">)</span>
+        <span class="n">item_new</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="n">item_full</span><span class="p">:</span>
+            <span class="n">_items_new</span> <span class="o">=</span> <span class="n">_item</span><span class="o">.</span><span class="n">get_symops_by_centring_type</span><span class="p">(</span><span class="n">centring_type</span><span class="p">)</span>
+            <span class="n">item_new</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_items_new</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">_item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">item_new</span><span class="p">):</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;{_i+1:}&quot;</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">sg_id</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{it_number:}</span><span class="s2">&quot;</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">operation_description</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span>
+        <span class="n">full_space_group_symop</span> <span class="o">=</span>  <span class="n">SpaceGroupSymopL</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="n">item_new</span><span class="p">)</span>
+
+        <span class="n">_i_numb</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span><span class="p">,</span> <span class="n">_4</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">_multiplicity</span><span class="p">,</span> <span class="n">_letter</span><span class="p">,</span> <span class="n">_site_symmetry</span><span class="p">,</span> <span class="n">_l_coords_xyz_2</span><span class="p">):</span>
+            <span class="n">_i_numb</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">_item</span> <span class="o">=</span> <span class="n">SpaceGroupWyckoff</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{_i_numb:}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="n">_1</span><span class="p">,</span> <span class="n">coord_xyz</span><span class="o">=</span><span class="n">_4</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">letter</span><span class="o">=</span><span class="n">_2</span><span class="p">,</span> <span class="n">site_symmetry</span><span class="o">=</span><span class="n">_3</span><span class="p">)</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">set_it_coord_xyz</span><span class="p">(</span><span class="n">_4</span><span class="p">)</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">set_centring_type</span><span class="p">(</span><span class="n">centring_type</span><span class="p">)</span>
+            <span class="n">_item</span><span class="o">.</span><span class="n">form_object</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_item</span><span class="p">)</span>
+        <span class="n">space_group_wyckoff</span> <span class="o">=</span> <span class="n">SpaceGroupWyckoffL</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pcentr</span><span class="p">,</span> <span class="n">reduced_space_group_symop</span><span class="p">,</span> <span class="n">full_space_group_symop</span><span class="p">,</span> <span class="n">space_group_wyckoff</span></div>
+
+<div class="viewcode-block" id="SpaceGroup.get_it_coordinate_system_codes_by_it_number"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.get_it_coordinate_system_codes_by_it_number">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_it_coordinate_system_codes_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_coordinate_system_codes_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpaceGroup.get_default_it_coordinate_system_code_by_it_number"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.get_default_it_coordinate_system_code_by_it_number">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_default_it_coordinate_system_code_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_default_it_coordinate_system_code_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span></div>
+        
+    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        
+        
+<div class="viewcode-block" id="SpaceGroup.calc_hkl_equiv"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_hkl_equiv">[docs]</a>    <span class="k">def</span> <span class="nf">calc_hkl_equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Give equivalent reflections of hkl and its multiplicity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">r_11</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_11</span>
+        <span class="n">r_12</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_12</span>
+        <span class="n">r_13</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_13</span>
+        <span class="n">r_21</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_21</span>
+        <span class="n">r_22</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_22</span>
+        <span class="n">r_23</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_23</span>
+        <span class="n">r_31</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_31</span>
+        <span class="n">r_32</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_32</span>
+        <span class="n">r_33</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduced_space_group_symop</span><span class="o">.</span><span class="n">r_33</span>
+
+        <span class="n">h_s</span> <span class="o">=</span> <span class="n">r_11</span><span class="o">*</span><span class="n">h</span> <span class="o">+</span> <span class="n">r_21</span><span class="o">*</span><span class="n">k</span> <span class="o">+</span> <span class="n">r_31</span><span class="o">*</span><span class="n">l</span> 
+        <span class="n">k_s</span> <span class="o">=</span> <span class="n">r_12</span><span class="o">*</span><span class="n">h</span> <span class="o">+</span> <span class="n">r_22</span><span class="o">*</span><span class="n">k</span> <span class="o">+</span> <span class="n">r_32</span><span class="o">*</span><span class="n">l</span> 
+        <span class="n">l_s</span> <span class="o">=</span> <span class="n">r_13</span><span class="o">*</span><span class="n">h</span> <span class="o">+</span> <span class="n">r_23</span><span class="o">*</span><span class="n">k</span> <span class="o">+</span> <span class="n">r_33</span><span class="o">*</span><span class="n">l</span> 
+        
+        <span class="n">hkl_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">h_s</span><span class="p">,</span> <span class="n">k_s</span><span class="p">,</span> <span class="n">l_s</span><span class="p">])</span>
+        <span class="n">hkl_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">hkl_s</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">hkl_s</span><span class="p">])</span>
+        <span class="n">hkl_s_un</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">hkl_s</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">multiplicity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">hkl_s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="n">hkl_s_un</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">h_s</span><span class="p">,</span> <span class="n">k_s</span><span class="p">,</span> <span class="n">l_s</span> <span class="o">=</span> <span class="n">hkl_s_un</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">hkl_s_un</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">hkl_s_un</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">h_s</span><span class="p">,</span> <span class="n">k_s</span><span class="p">,</span> <span class="n">l_s</span><span class="p">,</span> <span class="n">multiplicity</span></div>
+
+
+<div class="viewcode-block" id="SpaceGroup.calc_xyz_mult"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_xyz_mult">[docs]</a>    <span class="k">def</span> <span class="nf">calc_xyz_mult</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">give unique x,y,z elements and calculate multiplicity for given x,y,z fract</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wyckoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space_group_wyckoff</span><span class="o">.</span><span class="n">get_wyckoff_for_fract</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="n">np_r</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wyckoff</span><span class="o">.</span><span class="n">full_r</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">np_b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wyckoff</span><span class="o">.</span><span class="n">full_b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">x_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">np_r</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">np_r</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">np_r</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">np_b</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">%</span><span class="mi">1</span>
+        <span class="n">y_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">np_r</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">np_r</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">np_r</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">np_b</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span><span class="o">%</span><span class="mi">1</span>
+        <span class="n">z_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">np_r</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">np_r</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">np_r</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">np_b</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span><span class="o">%</span><span class="mi">1</span>
+
+        <span class="c1">#l_shift = self.shift</span>
+        <span class="c1">#l_x, l_y, l_z = [], [], []</span>
+        <span class="c1">#for _shift in l_shift:</span>
+        <span class="c1">#    l_x.extend(numpy.mod(x_s+_shift[0],1))</span>
+        <span class="c1">#    l_y.extend(numpy.mod(y_s+_shift[1],1))</span>
+        <span class="c1">#    l_z.extend(numpy.mod(z_s+_shift[2],1))</span>
+        <span class="n">multiplicity</span> <span class="o">=</span> <span class="n">wyckoff</span><span class="o">.</span><span class="n">multiplicity</span>
+        <span class="c1">#x_out = numpy.array(l_x, dtype=float)</span>
+        <span class="c1">#y_out = numpy.array(l_y, dtype=float)</span>
+        <span class="c1">#z_out = numpy.array(l_z, dtype=float)</span>
+
+        <span class="k">return</span> <span class="n">x_s</span><span class="p">,</span> <span class="n">y_s</span><span class="p">,</span> <span class="n">z_s</span><span class="p">,</span> <span class="n">multiplicity</span></div>
+    
+
+<div class="viewcode-block" id="SpaceGroup.calc_symop_for_xyz"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_symop_for_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">calc_symop_for_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">,</span> <span class="n">y_in</span><span class="p">,</span> <span class="n">z_in</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">%</span><span class="mf">1.</span><span class="p">,</span> <span class="n">y_in</span><span class="o">%</span><span class="mf">1.</span><span class="p">,</span> <span class="n">z_in</span><span class="o">%</span><span class="mf">1.</span>
+
+        <span class="n">symop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_space_group_symop</span>
+        <span class="n">e_11</span><span class="p">,</span> <span class="n">e_12</span><span class="p">,</span> <span class="n">e_13</span><span class="p">,</span> <span class="n">e_1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_13</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        <span class="n">e_21</span><span class="p">,</span> <span class="n">e_22</span><span class="p">,</span> <span class="n">e_23</span><span class="p">,</span> <span class="n">e_2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_21</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_22</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_23</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        <span class="n">e_31</span><span class="p">,</span> <span class="n">e_32</span><span class="p">,</span> <span class="n">e_33</span><span class="p">,</span> <span class="n">e_3</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_31</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_32</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_33</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        
+        <span class="n">x_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_11</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_12</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_13</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">y_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_21</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_22</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_23</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">z_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_31</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_32</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_33</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+            
+        <span class="n">xyz_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x_s</span><span class="p">,</span> <span class="n">y_s</span><span class="p">,</span> <span class="n">z_s</span><span class="p">])</span>
+        
+        <span class="n">xyz_s_un</span><span class="p">,</span> <span class="n">unique_inverse</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">xyz_s</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x_s</span><span class="p">,</span> <span class="n">y_s</span><span class="p">,</span> <span class="n">z_s</span> <span class="o">=</span> <span class="n">xyz_s_un</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xyz_s_un</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xyz_s_un</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">x_s</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">y_s</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">z</span><span class="o">-</span><span class="n">z_s</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;</span> <span class="mf">0.00001</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">unique_inverse</span> <span class="o">==</span> <span class="n">ind</span>
+
+        <span class="n">item_out</span> <span class="o">=</span> <span class="p">[</span><span class="n">_item</span> <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">_flag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">item</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span> <span class="k">if</span> <span class="n">_flag</span><span class="p">]</span>
+        <span class="n">symop_out</span> <span class="o">=</span> <span class="n">SpaceGroupSymopL</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="n">item_out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">symop_out</span></div>
+
+
+<div class="viewcode-block" id="SpaceGroup.calc_el_symm_for_xyz"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_el_symm_for_xyz">[docs]</a>    <span class="k">def</span> <span class="nf">calc_el_symm_for_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_in</span><span class="p">,</span> <span class="n">y_in</span><span class="p">,</span> <span class="n">z_in</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">FIXME: should be deleted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">x_in</span><span class="o">%</span><span class="mf">1.</span><span class="p">,</span> <span class="n">y_in</span><span class="o">%</span><span class="mf">1.</span><span class="p">,</span> <span class="n">z_in</span><span class="o">%</span><span class="mf">1.</span>
+
+        <span class="n">symop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_space_group_symop</span>
+        <span class="n">e_11</span><span class="p">,</span> <span class="n">e_12</span><span class="p">,</span> <span class="n">e_13</span><span class="p">,</span> <span class="n">e_1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_13</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        <span class="n">e_21</span><span class="p">,</span> <span class="n">e_22</span><span class="p">,</span> <span class="n">e_23</span><span class="p">,</span> <span class="n">e_2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_21</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_22</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_23</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        <span class="n">e_31</span><span class="p">,</span> <span class="n">e_32</span><span class="p">,</span> <span class="n">e_33</span><span class="p">,</span> <span class="n">e_3</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_31</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_32</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_33</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        
+        <span class="n">x_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_11</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_12</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_13</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">y_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_21</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_22</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_23</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">z_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_31</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_32</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_33</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+            
+        <span class="n">xyz_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x_s</span><span class="p">,</span> <span class="n">y_s</span><span class="p">,</span> <span class="n">z_s</span><span class="p">])</span>
+        
+        <span class="n">xyz_s_un</span><span class="p">,</span> <span class="n">unique_inverse</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">xyz_s</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">x_s</span><span class="p">,</span> <span class="n">y_s</span><span class="p">,</span> <span class="n">z_s</span> <span class="o">=</span> <span class="n">xyz_s_un</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xyz_s_un</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">xyz_s_un</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">x_s</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">y_s</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">z</span><span class="o">-</span><span class="n">z_s</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">&lt;</span> <span class="mf">0.00001</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">unique_inverse</span> <span class="o">==</span> <span class="n">ind</span>
+        <span class="n">o_11</span><span class="p">,</span> <span class="n">o_12</span><span class="p">,</span> <span class="n">o_13</span> <span class="o">=</span> <span class="n">e_11</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_12</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_13</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span>
+        <span class="n">o_21</span><span class="p">,</span> <span class="n">o_22</span><span class="p">,</span> <span class="n">o_23</span> <span class="o">=</span> <span class="n">e_21</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_22</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_23</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span>
+        <span class="n">o_31</span><span class="p">,</span> <span class="n">o_32</span><span class="p">,</span> <span class="n">o_33</span> <span class="o">=</span> <span class="n">e_31</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_32</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_33</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span>
+        <span class="n">o_1</span><span class="p">,</span> <span class="n">o_2</span><span class="p">,</span> <span class="n">o_3</span> <span class="o">=</span> <span class="n">e_1</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_2</span><span class="p">[</span><span class="n">flag</span><span class="p">],</span> <span class="n">e_3</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">o_11</span><span class="p">,</span> <span class="n">o_12</span><span class="p">,</span> <span class="n">o_13</span><span class="p">,</span> <span class="n">o_21</span><span class="p">,</span> <span class="n">o_22</span><span class="p">,</span> <span class="n">o_23</span><span class="p">,</span> <span class="n">o_31</span><span class="p">,</span> <span class="n">o_32</span><span class="p">,</span> <span class="n">o_33</span><span class="p">,</span> <span class="n">o_1</span><span class="p">,</span> <span class="n">o_2</span><span class="p">,</span> <span class="n">o_3</span></div>
+
+
+<div class="viewcode-block" id="SpaceGroup.calc_f_hkl_by_f_hkl_as"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_f_hkl_by_f_hkl_as">[docs]</a>    <span class="k">def</span> <span class="nf">calc_f_hkl_by_f_hkl_as</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">f_hkl_as</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate the structure factor giving the structure factor </span>
+<span class="sd">in asymmetric unit cell.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">np_h</span><span class="p">,</span> <span class="n">np_k</span><span class="p">,</span> <span class="n">np_l</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shift</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">centr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">centrosymmetry</span>
+
+        <span class="n">orig_x</span><span class="p">,</span> <span class="n">orig_y</span><span class="p">,</span> <span class="n">orig_z</span> <span class="o">=</span> <span class="n">shift</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">shift</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">shift</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1">#orig_x = [hh[0] for hh in shift]</span>
+        <span class="c1">#orig_y = [hh[1] for hh in shift]</span>
+        <span class="c1">#orig_z = [hh[2] for hh in shift]</span>
+        
+        <span class="n">np_h_2d</span><span class="p">,</span> <span class="n">np_orig_x_2d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">orig_x</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+        <span class="n">np_k_2d</span><span class="p">,</span> <span class="n">np_orig_y_2d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">orig_y</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+        <span class="n">np_l_2d</span><span class="p">,</span> <span class="n">np_orig_z_2d</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">orig_z</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+
+        <span class="n">hh</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">np_h_2d</span><span class="o">*</span><span class="n">np_orig_x_2d</span><span class="o">+</span><span class="n">np_k_2d</span><span class="o">*</span><span class="n">np_orig_y_2d</span><span class="o">+</span><span class="n">np_l_2d</span><span class="o">*</span><span class="n">np_orig_z_2d</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">np_orig_as</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span>
+        <span class="n">_hh</span> <span class="o">=</span> <span class="n">np_orig_as</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">f_hkl_as</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+           <span class="n">_hh</span> <span class="o">=</span> <span class="n">_hh</span><span class="p">[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> 
+        <span class="n">f_hkl_1</span> <span class="o">=</span> <span class="n">f_hkl_as</span><span class="o">*</span><span class="n">_hh</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">centr</span><span class="p">):</span>
+            <span class="n">p_centr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pcentr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">hh</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="mf">2.</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span> <span class="p">(</span><span class="n">np_h</span><span class="o">*</span><span class="n">p_centr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">np_k</span><span class="o">*</span><span class="n">p_centr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">np_l</span><span class="o">*</span><span class="n">p_centr</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">complex</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">f_hkl_as</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">hh</span> <span class="o">=</span> <span class="n">hh</span><span class="p">[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+            <span class="n">f_hkl</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">f_hkl_1</span><span class="o">+</span><span class="n">f_hkl_1</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">hh</span><span class="p">))</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f_hkl</span> <span class="o">=</span> <span class="n">f_hkl_1</span>
+        <span class="k">return</span> <span class="n">f_hkl</span></div>
+
+
+<div class="viewcode-block" id="SpaceGroup.calc_asymmetric_cell"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_asymmetric_cell">[docs]</a>    <span class="k">def</span> <span class="nf">calc_asymmetric_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_a</span><span class="p">,</span> <span class="n">n_b</span><span class="p">,</span> <span class="n">n_c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">give the numbers in asymmetric cell</span>
+
+<span class="sd"> :n_a: the number of points along a axis</span>
+<span class="sd"> :n_b: the numper of points along b axis</span>
+<span class="sd"> :n_c: the numper of points along c axis</span>
+
+<span class="sd">na, n_b, nc should be divided on 24: 8 and 3</span>
+
+<span class="sd">:output: - l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)</span>
+<span class="sd">         - l_symm contains a list of symmetry given as (n_symm, centr, n_orig)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">n_a_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n_a</span><span class="o">/</span><span class="mi">24</span><span class="p">))</span><span class="o">*</span><span class="mi">24</span>
+        <span class="n">n_b_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n_b</span><span class="o">/</span><span class="mi">24</span><span class="p">))</span><span class="o">*</span><span class="mi">24</span>
+        <span class="n">n_c_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n_c</span><span class="o">/</span><span class="mi">24</span><span class="p">))</span><span class="o">*</span><span class="mi">24</span>
+
+        <span class="c1">#print(&quot;na: {:}, n_b: {:}, n_c: {:}&quot;.format(n_a_new, n_b_new, n_c_new))</span>
+
+        <span class="n">l_el_symm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_symm</span>
+        <span class="n">f_centr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">centr</span>
+        <span class="n">p_centr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_centr</span>
+        <span class="n">l_orig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">orig</span>
+        <span class="n">l_coord</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="n">spgr_choice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgr_choice</span> 
+        <span class="n">spgr_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgr_name</span> 
+        <span class="n">spgr_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spgr_number</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">spgr_number</span><span class="o">==</span><span class="mi">227</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">spgr_choice</span><span class="o">==</span><span class="s2">&quot;2&quot;</span><span class="p">):</span>
+            <span class="n">n_a_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">n_a</span><span class="o">/</span><span class="mi">8</span><span class="p">))</span><span class="o">*</span><span class="mi">8</span>
+            <span class="k">for</span> <span class="n">n_x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_a_new</span><span class="o">//</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">n_a_new</span><span class="o">//</span><span class="mi">8</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">n_y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_a_new</span><span class="o">//</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">n_z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">n_a_new</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">cond_1</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_y</span> <span class="o">&lt;</span> <span class="nb">min</span><span class="p">([</span><span class="n">n_a_new</span><span class="o">//</span><span class="mi">4</span><span class="o">-</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_x</span><span class="p">]))</span>
+                        <span class="n">cond_2</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_z</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">n_y</span><span class="o">-</span><span class="n">n_a_new</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+                        <span class="n">cond_3</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_z</span> <span class="o">&lt;=</span> <span class="n">n_y</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">cond_1</span> <span class="o">&amp;</span> <span class="n">cond_2</span> <span class="o">&amp;</span> <span class="n">cond_3</span><span class="p">):</span>
+                            <span class="n">coord_x</span><span class="p">,</span> <span class="n">coord_y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_a_new</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_y</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_a_new</span><span class="p">)</span>
+                            <span class="n">coord_z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_z</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_a_new</span><span class="p">)</span>
+                            <span class="c1">#print(&quot; {:3} {:3} {:3}&quot;.format(n_x, n_y, n_z), &quot; &quot;, &quot; {:6.3f} {:6.3f} {:6.3f}&quot;.format(coord_x, coord_y, coord_z))</span>
+                            <span class="n">l_coord</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">coord_x</span><span class="p">,</span> <span class="n">coord_y</span><span class="p">,</span> <span class="n">coord_z</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">l_coord</span></div>
+    
+<div class="viewcode-block" id="SpaceGroup.calc_rotated_matrix_for_position"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.calc_rotated_matrix_for_position">[docs]</a>    <span class="k">def</span> <span class="nf">calc_rotated_matrix_for_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m_chi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+
+        <span class="n">symop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_space_group_symop</span>
+        <span class="n">e_11</span><span class="p">,</span> <span class="n">e_12</span><span class="p">,</span> <span class="n">e_13</span><span class="p">,</span> <span class="n">e_1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_12</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_13</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        <span class="n">e_21</span><span class="p">,</span> <span class="n">e_22</span><span class="p">,</span> <span class="n">e_23</span><span class="p">,</span> <span class="n">e_2</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_21</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_22</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_23</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        <span class="n">e_31</span><span class="p">,</span> <span class="n">e_32</span><span class="p">,</span> <span class="n">e_33</span><span class="p">,</span> <span class="n">e_3</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_31</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_32</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">r_33</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">symop</span><span class="o">.</span><span class="n">b_3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> 
+        
+        <span class="n">x_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_11</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_12</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_13</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">y_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_21</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_22</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_23</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">z_s</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">e_31</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">e_32</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">e_33</span><span class="o">*</span><span class="n">z</span> <span class="o">+</span> <span class="n">e_3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="c1">#o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3 = self.calc_el_symm_for_xyz(x, y, z)</span>
+        <span class="c1">#np_x, np_y, np_z, mult = self.calc_xyz_mult(x, y, z)</span>
+        
+        <span class="n">l_ind</span><span class="p">,</span> <span class="n">l_xyz</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">_ind</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">_x</span><span class="p">,</span> <span class="n">_y</span><span class="p">,</span> <span class="n">_z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x_s</span><span class="p">,</span> <span class="n">y_s</span><span class="p">,</span> <span class="n">z_s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">_x</span><span class="p">,</span> <span class="n">_y</span><span class="p">,</span> <span class="n">_z</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">l_xyz</span><span class="p">:</span>
+                <span class="n">l_ind</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ind</span><span class="p">)</span>
+                <span class="n">l_xyz</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">_x</span><span class="p">,</span> <span class="n">_y</span><span class="p">,</span> <span class="n">_z</span><span class="p">))</span>
+            <span class="n">_ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">l_res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_ind</span><span class="p">,</span> <span class="n">_xyz</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_ind</span><span class="p">,</span> <span class="n">l_xyz</span><span class="p">):</span>
+            <span class="n">_11</span><span class="p">,</span> <span class="n">_12</span><span class="p">,</span> <span class="n">_13</span> <span class="o">=</span> <span class="n">e_11</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_12</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_13</span><span class="p">[</span><span class="n">_ind</span><span class="p">]</span>
+            <span class="n">_21</span><span class="p">,</span> <span class="n">_22</span><span class="p">,</span> <span class="n">_23</span> <span class="o">=</span> <span class="n">e_21</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_22</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_23</span><span class="p">[</span><span class="n">_ind</span><span class="p">]</span>
+            <span class="n">_31</span><span class="p">,</span> <span class="n">_32</span><span class="p">,</span> <span class="n">_33</span> <span class="o">=</span> <span class="n">e_31</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_32</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_33</span><span class="p">[</span><span class="n">_ind</span><span class="p">]</span>
+            <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span> <span class="o">=</span> <span class="n">e_1</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_2</span><span class="p">[</span><span class="n">_ind</span><span class="p">],</span> <span class="n">e_3</span><span class="p">[</span><span class="n">_ind</span><span class="p">]</span>
+            <span class="n">matrix_r</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">_11</span><span class="p">,</span> <span class="n">_12</span><span class="p">,</span> <span class="n">_13</span><span class="p">],</span> <span class="p">[</span><span class="n">_21</span><span class="p">,</span> <span class="n">_22</span><span class="p">,</span> <span class="n">_23</span><span class="p">],</span> 
+                               <span class="p">[</span><span class="n">_31</span><span class="p">,</span> <span class="n">_32</span><span class="p">,</span> <span class="n">_33</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">matrix_rt</span> <span class="o">=</span> <span class="n">matrix_r</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+            <span class="n">r_chi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">matrix_r</span><span class="p">,</span> <span class="n">m_chi</span><span class="p">)</span>
+            <span class="n">matrix_chi_rot</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">r_chi</span><span class="p">,</span> <span class="n">matrix_rt</span><span class="p">)</span>
+            <span class="n">l_res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">_xyz</span><span class="p">,</span> <span class="n">matrix_chi_rot</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">l_res</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

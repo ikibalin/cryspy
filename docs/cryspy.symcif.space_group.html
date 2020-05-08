@@ -1,0 +1,882 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>SpaceGroup &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SpaceGroupSymop" href="cryspy.symcif.space_group_symop.html" />
+    <link rel="prev" title="Symmetry dictionary (symCIF)" href="cryspy.symcif.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.space_group_symop.html" title="SpaceGroupSymop"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.html" title="Symmetry dictionary (symCIF)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.symcif.html" accesskey="U">Symmetry dictionary (symCIF)</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-cryspy.symcif.cl_space_group">
+<span id="spacegroup"></span><h1>SpaceGroup<a class="headerlink" href="#module-cryspy.symcif.cl_space_group" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup">
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.symcif.cl_space_group.</code><code class="sig-name descname">SpaceGroup</code><span class="sig-paren">(</span><em class="sig-param">name_hm_alt=None</em>, <em class="sig-param">it_number=None</em>, <em class="sig-param">it_coordinate_system_code=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">bravais_type=None</em>, <em class="sig-param">laue_class=None</em>, <em class="sig-param">patterson_name_hm=None</em>, <em class="sig-param">centring_type=None</em>, <em class="sig-param">crystal_system=None</em>, <em class="sig-param">name_hm_alt_description=None</em>, <em class="sig-param">name_hm_full=None</em>, <em class="sig-param">name_hm_ref=None</em>, <em class="sig-param">name_hall=None</em>, <em class="sig-param">name_schoenflies=None</em>, <em class="sig-param">point_group_hm=None</em>, <em class="sig-param">reference_setting=None</em>, <em class="sig-param">transform_pp_abc=None</em>, <em class="sig-param">transform_qq_xyz=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
+<p>Contains all the data items that refer to the space group as a
+whole, such as its name, Laue group etc.</p>
+<p>Space-group types are identified by their number as listed in
+International Tables for Crystallography Volume A, or by their
+Schoenflies symbol. Specific settings of the space groups can
+be identified by their Hall symbol, by specifying their
+symmetry operations or generators, or by giving the
+transformation that relates the specific setting to the
+reference setting based on International Tables Volume A and
+stored in this dictionary.</p>
+<p>The commonly used Hermann-Mauguin symbol determines the
+space-group type uniquely but several different Hermann-Mauguin
+symbols may refer to the same space-group type. A
+Hermann-Mauguin symbol contains information on the choice of
+the basis, but not on the choice of origin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ref</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002). Volume A,
+Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>Description in cif file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_space_group</span><span class="o">.</span><span class="n">id</span>                    <span class="mi">1</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">name_H</span><span class="o">-</span><span class="n">M_ref</span>         <span class="s1">&#39;C 2/c&#39;</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">name_Schoenflies</span>      <span class="n">C2h</span><span class="o">.</span><span class="mi">6</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">IT_number</span>             <span class="mi">15</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">name_Hall</span>           <span class="s1">&#39;-C 2yc&#39;</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">Bravais_type</span>          <span class="n">mS</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">Laue_class</span>            <span class="mi">2</span><span class="o">/</span><span class="n">m</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">crystal_system</span>        <span class="n">monoclinic</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">centring_type</span>         <span class="n">C</span>
+<span class="n">_space_group</span><span class="o">.</span><span class="n">Patterson_name_H</span><span class="o">-</span><span class="n">M</span>  <span class="s1">&#39;C 2/m&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Mandatory attribute</dt>
+<dd class="field-odd"><p>no</p>
+</dd>
+<dt class="field-even">Optional attribute</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>name_hm_alt</p></li>
+<li><p>it_number</p></li>
+<li><p>it_coordinate_system_code</p></li>
+<li><p>id</p></li>
+<li><p>bravais_type</p></li>
+<li><p>laue_class</p></li>
+<li><p>patterson_name_hm</p></li>
+<li><p>centring_type</p></li>
+<li><p>crystal_system</p></li>
+<li><p>name_hm_alt_description</p></li>
+<li><p>name_hm_full</p></li>
+<li><p>name_hm_ref</p></li>
+<li><p>name_hall</p></li>
+<li><p>name_hall_schoenflies</p></li>
+<li><p>point_group_hm</p></li>
+<li><p>reference_setting</p></li>
+<li><p>transform_pp_abc</p></li>
+<li><p>transform_qq_xyz</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Methods</dt>
+<dd class="field-odd"><p>get_symop</p>
+</dd>
+</dl>
+<p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Cspace_group.html</a></p>
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_BRAVAIS_TYPE">
+<code class="sig-name descname">ACCESIBLE_BRAVAIS_TYPE</code><em class="property"> = frozenset({'aP', 'cF', 'cI', 'cP', 'hP', 'hR', 'mP', 'mS', 'oF', 'oI', 'oP', 'oS', 'tI', 'tP'})</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_BRAVAIS_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_CENTERING_TYPE">
+<code class="sig-name descname">ACCESIBLE_CENTERING_TYPE</code><em class="property"> = frozenset({'A', 'B', 'C', 'F', 'H', 'I', 'P', 'R', 'Rrev'})</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_CENTERING_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_CRYSTAL_SYSTEM">
+<code class="sig-name descname">ACCESIBLE_CRYSTAL_SYSTEM</code><em class="property"> = frozenset({'cubic', 'hexagonal', 'monoclinic', 'orthorhombic', 'tetragonal', 'triclinic', 'trigonal'})</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_CRYSTAL_SYSTEM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE">
+<code class="sig-name descname">ACCESIBLE_IT_COORDINATE_SYSTEM_CODE</code><em class="property"> = ('b1', 'b2', 'b3', '-b1', '-b2', '-b3', 'c1', 'c2', 'c3', '-c1', '-c2', '-c3', 'a1', 'a2', 'a3', '-a1', '-a2', '-a3', 'abc', 'ba-c', 'cab', '-cba', 'bca', 'a-cb', '1abc', '1ba-c', '1cab', '1-cba', '1bca', '1a-cb', '2abc', '2ba-c', '2cab', '2-cba', '2bca', '2a-cb', '1', '2', 'h', 'r')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_IT_COORDINATE_SYSTEM_CODE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_IT_NUMBER">
+<code class="sig-name descname">ACCESIBLE_IT_NUMBER</code><em class="property"> = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230)</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_IT_NUMBER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_LAUE_CLASS">
+<code class="sig-name descname">ACCESIBLE_LAUE_CLASS</code><em class="property"> = ('-1', '2/m', 'mmm', '4/m', '4/mmm', '-3', '-3m', '6/m', '6/mmm', 'm-3', 'm-3m')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_LAUE_CLASS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_HALL">
+<code class="sig-name descname">ACCESIBLE_NAME_HALL</code><em class="property"> = ('P 1', '-P 1', 'P 2y', 'P 2yb', 'C 2y', 'P -2y', 'P -2yc', 'C -2y', 'C -2yc', '-P 2y', '-P 2yb', '-C 2y', '-P 2yc', '-P 2ybc', '-C 2yc', 'P 2 2', 'P 2c 2', 'P 2 2ab', 'P 2ac 2ab', 'C 2c 2', 'C 2 2', 'F 2 2', 'I 2 2', 'I 2b 2c', 'P 2 -2', 'P 2c -2', 'P 2 -2c', 'P 2 -2a', 'P 2c -2ac', 'P 2 -2bc', 'P 2ac -2', 'P 2 -2ab', 'P 2c -2n', 'P 2 -2n', 'C 2 -2', 'C 2c -2', 'C 2 -2c', 'A 2 -2', 'A 2 -2b', 'A 2 -2a', 'A 2 -2ab', 'F 2 -2', 'F 2 -2d', 'I 2 -2', 'I 2 -2c', 'I 2 -2a', '-P 2 2', '-P 2ab 2bc', '-P 2 2c', '-P 2ab 2b', '-P 2a 2a', '-P 2a 2bc', '-P 2ac 2', '-P 2a 2ac', '-P 2 2ab', '-P 2ab 2ac', '-P 2c 2b', '-P 2 2n', '-P 2ab 2a', '-P 2n 2ab', '-P 2ac 2ab', '-P 2ac 2n', '-C 2c 2', '-C 2ac 2', '-C 2 2', '-C 2 2c', '-C 2a 2', '-C 2a 2ac', '-F 2 2', '-F 2uv 2vw', '-I 2 2', '-I 2 2c', '-I 2b 2c', '-I 2b 2', 'P 4', 'P 4w', 'P 4c', 'P 4cw', 'I 4', 'I 4bw', 'P -4', 'I -4', '-P 4', '-P 4c', '-P 4a', '-P 4bc', '-I 4', '-I 4ad', 'P 4 2', 'P 4ab 2ab', 'P 4w 2c', 'P 4abw 2nw', 'P 4c 2', 'P 4n 2n', 'P 4cw 2c', 'P 4nw 2abw', 'I 4 2', 'I 4bw 2bw', 'P 4 -2', 'P 4 -2ab', 'P 4c -2c', 'P 4n -2n', 'P 4 -2c', 'P 4 -2n', 'P 4c -2', 'P 4c -2ab', 'I 4 -2', 'I 4 -2c', 'I 4bw -2', 'I 4bw -2c', 'P -4 2', 'P -4 2c', 'P -4 2ab', 'P -4 2n', 'P -4 -2', 'P -4 -2c', 'P -4 -2ab', 'P -4 -2n', 'I -4 -2', 'I -4 -2c', 'I -4 2', 'I -4 2bw', '-P 4 2', '-P 4 2c', '-P 4a 2b', '-P 4a 2bc', '-P 4 2ab', '-P 4 2n', '-P 4a 2a', '-P 4a 2ac', '-P 4c 2', '-P 4c 2c', '-P 4ac 2b', '-P 4ac 2bc', '-P 4c 2ab', '-P 4n 2n', '-P 4ac 2a', '-P 4ac 2ac', '-I 4 2', '-I 4 2c', '-I 4bd 2', '-I 4bd 2c', 'P 3', 'P 31', 'P 32', 'R 3', '-P 3', '-R 3', 'P 3 2', 'P 3 2&quot;', 'P 31 2 (0 0 4)', 'P 31 2&quot;', 'P 32 2 (0 0 2)', 'P 32 2&quot;', 'R 3 2&quot;', 'P 3 -2&quot;', 'P 3 -2', 'P 3 -2&quot;c', 'P 3 -2c', 'R 3 -2&quot;', 'R 3 -2&quot;c', '-P 3 2', '-P 3 2c', '-P 3 2&quot;', '-P 3 2&quot;c', '-R 3 2&quot;', '-R 3 2&quot;c', 'P 6', 'P 61', 'P 65', 'P 62', 'P 64', 'P 6c', 'P -6', '-P 6', '-P 6c', 'P 6 2', 'P 61 2 (0 0 5)', 'P 65 2 (0 0 1)', 'P 62 2 (0 0 4)', 'P 64 2 (0 0 2)', 'P 6c 2c', 'P 6 -2', 'P 6 -2c', 'P 6c -2', 'P 6c -2c', 'P -6 2', 'P -6c 2', 'P -6 -2', 'P -6c -2c', '-P 6 2', '-P 6 2c', '-P 6c 2', '-P 6c 2c', 'P 2 2 3', 'F 2 2 3', 'I 2 2 3', 'P 2ac 2ab 3', 'I 2b 2c 3', '-P 2 2 3', '-P 2ab 2bc 3', '-F 2 2 3', '-F 2uv 2vw 3', '-I 2 2 3', '-P 2ac 2ab 3', '-I 2b 2c 3', 'P 4 2 3', 'P 4n 2 3', 'F 4 2 3', 'F 4d 2 3', 'I 4 2 3', 'P 4acd 2ab 3', 'P 4bd 2ab 3', 'I 4bd 2c 3', 'P -4 2 3', 'F -4 2 3', 'I -4 2 3', 'P -4n 2 3', 'F -4a 2 3', 'I -4bd 2c 3', '-P 4 2 3', '-P 4a 2bc 3', '-P 4n 2 3', '-P 4bc 2bc 3', '-F 4 2 3', '-F 4a 2 3', '-F 4vw 2vw 3', '-F 4ud 2vw 3', '-I 4 2 3', '-I 4bd 2c 3')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_HALL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_HM_ALT">
+<code class="sig-name descname">ACCESIBLE_NAME_HM_ALT</code><em class="property"> = frozenset({'A 1 1 2', 'A 1 1 2/a', 'A 1 1 2/m', 'A 1 1 2/n', 'A 1 1 a', 'A 1 1 m', 'A 1 1 n', 'A 1 2 1', 'A 1 2/a 1', 'A 1 2/m 1', 'A 1 2/n 1', 'A 1 a 1', 'A 1 m 1', 'A 1 n 1', 'A 2 2 2', 'A 2 a a', 'A 2 m m', 'A 21 2 2', 'A 21 a m', 'A 21 m a', 'A e 2 a', 'A e 2 m', 'A e a 2', 'A e a a', 'A e a m', 'A e m 2', 'A e m a', 'A e m m', 'A m 2 a', 'A m 2 m', 'A m a 2', 'A m a a', 'A m a m', 'A m m 2', 'A m m a', 'A m m m', 'B 1 1 2', 'B 1 1 2/b', 'B 1 1 2/m', 'B 1 1 2/n', 'B 1 1 b', 'B 1 1 m', 'B 1 1 n', 'B 2 1 1', 'B 2 2 2', 'B 2 21 2', 'B 2 e b', 'B 2 e m', 'B 2 m b', 'B 2 m m', 'B 2/b 1 1', 'B 2/m 1 1', 'B 2/n 1 1', 'B b 1 1', 'B b 2 b', 'B b 21 m', 'B b e 2', 'B b e b', 'B b e m', 'B b m 2', 'B b m b', 'B b m m', 'B m 1 1', 'B m 2 m', 'B m 21 b', 'B m e 2', 'B m e b', 'B m e m', 'B m m 2', 'B m m b', 'B m m m', 'B n 1 1', 'C 1 2 1', 'C 1 2/c 1', 'C 1 2/m 1', 'C 1 2/n 1', 'C 1 c 1', 'C 1 m 1', 'C 1 n 1', 'C 2 1 1', 'C 2 2 2', 'C 2 2 21', 'C 2 c e', 'C 2 c m', 'C 2 m e', 'C 2 m m', 'C 2/c 1 1', 'C 2/c 2/c 2/e', 'C 2/c 2/c 2/m', 'C 2/m 1 1', 'C 2/m 2/c 21/e', 'C 2/m 2/c 21/m', 'C 2/m 2/m 2/e', 'C 2/m 2/m 2/m', 'C 2/n 1 1', 'C c 1 1', 'C c 2 e', 'C c 2 m', 'C c c 2', 'C c c e', 'C c c m', 'C c m 21', 'C c m e', 'C c m m', 'C m 1 1', 'C m 2 e', 'C m 2 m', 'C m c 21', 'C m c e', 'C m c m', 'C m m 2', 'C m m e', 'C m m m', 'C n 1 1', 'F -4 3 c', 'F -4 3 m', 'F 2 2 2', 'F 2 3', 'F 2 d d', 'F 2 m m', 'F 2/d -3', 'F 2/d 2/d 2/d', 'F 2/m -3', 'F 2/m 2/m 2/m', 'F 23', 'F 4 3 2', 'F 4/m -3 2/c', 'F 4/m -3 2/m', 'F 41 3 2', 'F 41/d -3 2/c', 'F 41/d -3 2/m', 'F 41/d -3 2/n', 'F d 2 d', 'F d d 2', 'F d d d', 'F m 2 m', 'F m m 2', 'F m m m', 'I -4', 'I -4 2 d', 'I -4 2 m', 'I -4 3 d', 'I -4 3 m', 'I -4 c 2', 'I -4 m 2', 'I 1 1 2', 'I 1 1 2/a', 'I 1 1 2/b', 'I 1 1 2/m', 'I 1 1 a', 'I 1 1 b', 'I 1 1 m', 'I 1 2 1', 'I 1 2/a 1', 'I 1 2/c 1', 'I 1 2/m 1', 'I 1 a 1', 'I 1 c 1', 'I 1 m 1', 'I 2 1 1', 'I 2 2 2', 'I 2 3', 'I 2 c b', 'I 2 c m', 'I 2 m b', 'I 2 m m', 'I 2/b 1 1', 'I 2/b 2/a 2/m', 'I 2/c 1 1', 'I 2/m -3', 'I 2/m 1 1', 'I 2/m 2/m 2/m', 'I 21 21 21', 'I 21 3', 'I 21/a -3', 'I 21/b 21/c 21/a', 'I 21/m 21/m 21/a', 'I 23', 'I 4', 'I 4 2 2', 'I 4 3 2', 'I 4 c e', 'I 4 c m', 'I 4 m m', 'I 4/m', 'I 4/m -3 2/m', 'I 4/m 2/c 2/m', 'I 4/m 21/m 2/m', 'I 41', 'I 41 2 2', 'I 41 3 2', 'I 41 c d', 'I 41 m d', 'I 41/a', 'I 41/a -3 2/d', 'I 41/a 2/c 2/d', 'I 41/a 2/m 2/d', 'I b 1 1', 'I b a 2', 'I b a m', 'I b c a', 'I b m 2', 'I b m m', 'I c 1 1', 'I c 2 a', 'I c 2 m', 'I c a b', 'I c m a', 'I c m m', 'I m 1 1', 'I m 2 a', 'I m 2 m', 'I m a 2', 'I m a m', 'I m c b', 'I m c m', 'I m m 2', 'I m m a', 'I m m b', 'I m m m', 'P -1', 'P -3', 'P -3 1 2/c', 'P -3 1 2/m', 'P -3 2/c 1', 'P -3 2/m 1', 'P -4', 'P -4 2 c', 'P -4 2 m', 'P -4 21 c', 'P -4 21 m', 'P -4 3 m', 'P -4 3 n', 'P -4 b 2', 'P -4 c 2', 'P -4 m 2', 'P -4 n 2', 'P -6', 'P -6 2 c', 'P -6 2 m', 'P -6 c 2', 'P -6 m 2', 'P 1', 'P 1 1 2', 'P 1 1 2/a', 'P 1 1 2/b', 'P 1 1 2/m', 'P 1 1 2/n', 'P 1 1 21', 'P 1 1 21/a', 'P 1 1 21/b', 'P 1 1 21/m', 'P 1 1 21/n', 'P 1 1 a', 'P 1 1 b', 'P 1 1 m', 'P 1 1 n', 'P 1 2 1', 'P 1 2/a 1', 'P 1 2/c 1', 'P 1 2/m 1', 'P 1 2/n 1', 'P 1 21 1', 'P 1 21/a 1', 'P 1 21/c 1', 'P 1 21/m 1', 'P 1 21/n 1', 'P 1 a 1', 'P 1 c 1', 'P 1 m 1', 'P 1 n 1', 'P 2 1 1', 'P 2 2 2', 'P 2 2 21', 'P 2 21 2', 'P 2 21 21', 'P 2 a a', 'P 2 a n', 'P 2 c b', 'P 2 c m', 'P 2 m b', 'P 2 m m', 'P 2 n a', 'P 2 n n', 'P 2/b 1 1', 'P 2/b 2/a 2/n', 'P 2/b 21/c 21/m', 'P 2/c 1 1', 'P 2/c 2/c 2/m', 'P 2/m -3', 'P 2/m 1 1', 'P 2/m 2/m 2/m', 'P 2/m 2/n 21/a', 'P 2/n -3', 'P 2/n 1 1', 'P 2/n 2/n 2/n', 'P 2/n 21/n 2/a', 'P 21 1 1', 'P 21 2 2', 'P 21 2 21', 'P 21 21 2', 'P 21 21 21', 'P 21 3', 'P 21 a b', 'P 21 a m', 'P 21 c a', 'P 21 c n', 'P 21 m a', 'P 21 m n', 'P 21 n b', 'P 21 n m', 'P 21/a -3', 'P 21/b 1 1', 'P 21/b 2/c 21/n', 'P 21/b 21/a 2/m', 'P 21/b 21/c 21/a', 'P 21/c 1 1', 'P 21/c 2/c 2/a', 'P 21/c 21/c 2/n', 'P 21/m 1 1', 'P 21/m 2/m 2/a', 'P 21/m 21/m 2/n', 'P 21/n 1 1', 'P 21/n 21/m 21/a', 'P 21/n 21/n 2/m', 'P 23', 'P 3', 'P 3 1 2', 'P 3 1 c', 'P 3 1 m', 'P 3 2 1', 'P 3 c 1', 'P 3 m 1', 'P 31', 'P 31 1 2', 'P 31 2 1', 'P 32', 'P 32 1 2', 'P 32 2 1', 'P 4', 'P 4 2 2', 'P 4 21 2', 'P 4 3 2', 'P 4 b m', 'P 4 c c', 'P 4 m m', 'P 4 n c', 'P 4/m', 'P 4/m -3 2/m', 'P 4/m 2/c 2/c', 'P 4/m 2/m 2/m', 'P 4/m 21/b 2/m', 'P 4/m 21/n 2/c', 'P 4/n', 'P 4/n -3 2/n', 'P 4/n 2/b 2/m', 'P 4/n 2/n 2/c', 'P 4/n 21/c 2/c', 'P 4/n 21/m 2/m', 'P 41', 'P 41 2 2', 'P 41 21 2', 'P 41 3 2', 'P 42', 'P 42 2 2', 'P 42 21 2', 'P 42 3 2', 'P 42 b c', 'P 42 c m', 'P 42 m c', 'P 42 n m', 'P 42/m', 'P 42/m -3 2/n', 'P 42/m 2/c 2/m', 'P 42/m 2/m 2/c', 'P 42/m 21/b 2/c', 'P 42/m 21/n 2/m', 'P 42/n', 'P 42/n -3 2/m', 'P 42/n 2/b 2/c', 'P 42/n 2/n 2/m', 'P 42/n 21/c 2/m', 'P 42/n 21/m 2/c', 'P 43', 'P 43 2 2', 'P 43 21 2', 'P 43 3 2', 'P 6', 'P 6 2 2', 'P 6 c c', 'P 6 m m', 'P 6/m ', 'P 6/m 2/c 2/c', 'P 6/m 2/m 2/m', 'P 61', 'P 61 2 2', 'P 62', 'P 62 2 2', 'P 63', 'P 63 2 2', 'P 63 c m', 'P 63 m c', 'P 63/m', 'P 63/m 2/c 2/m', 'P 63/m 2/m 2/c', 'P 64', 'P 64 2 2', 'P 65', 'P 65 2 2', 'P b 1 1', 'P b 2 b', 'P b 2 n', 'P b 21 a', 'P b 21 m', 'P b a 2', 'P b a a', 'P b a b', 'P b a m', 'P b a n', 'P b c 21', 'P b c a', 'P b c b', 'P b c m', 'P b c n', 'P b m 2', 'P b m a', 'P b m b', 'P b m m', 'P b m n', 'P b n 21', 'P b n a', 'P b n b', 'P b n m', 'P b n n', 'P c 1 1', 'P c 2 a', 'P c 2 m', 'P c 21 b', 'P c 21 n', 'P c a 21', 'P c a a', 'P c a b', 'P c a m', 'P c a n', 'P c c 2', 'P c c a', 'P c c b', 'P c c m', 'P c c n', 'P c m 21', 'P c m a', 'P c m b', 'P c m m', 'P c m n', 'P c n 2', 'P c n a', 'P c n b', 'P c n m', 'P c n n', 'P m 1 1', 'P m 2 a', 'P m 2 m', 'P m 21 b', 'P m 21 n', 'P m a 2', 'P m a a', 'P m a b', 'P m a m', 'P m a n', 'P m c 21', 'P m c a', 'P m c b', 'P m c m', 'P m c n', 'P m m 2', 'P m m a', 'P m m b', 'P m m m', 'P m m n', 'P m n 21', 'P m n a', 'P m n b', 'P m n m', 'P m n n', 'P n 1 1', 'P n 2 b', 'P n 2 n', 'P n 21 a', 'P n 21 m', 'P n a 21', 'P n a a', 'P n a b', 'P n a m', 'P n a n', 'P n c 2', 'P n c a', 'P n c b', 'P n c m', 'P n c n', 'P n m 21', 'P n m a', 'P n m b', 'P n m m', 'P n m n', 'P n n 2', 'P n n a', 'P n n b', 'P n n m', 'P n n n', 'R -3', 'R -3 2/c', 'R -3 2/m', 'R 3', 'R 3 2', 'R 3 c', 'R 3 m'})</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_HM_ALT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_HM_REF">
+<code class="sig-name descname">ACCESIBLE_NAME_HM_REF</code><em class="property"> = ('P 1', 'P -1', 'P 2', 'P 21', 'C 2', 'P m', 'P c', 'C m', 'C c', 'P 2/m', 'P 21/m', 'C 2/m', 'P 2/c', 'P 21/c', 'C 2/c', 'P 2 2 2', 'P 2 2 21', 'P 21 21 2', 'P 21 21 21', 'C 2 2 21', 'C 2 2 2', 'F 2 2 2', 'I 2 2 2', 'I 21 21 21', 'P m m 2', 'P m c 21', 'P c c 2', 'P m a 2', 'P c a 21', 'P n c 2', 'P m n 21', 'P b a 2', 'P n a 21', 'P n n 2', 'C m m 2', 'C m c 21', 'C c c 2', 'A m m 2', 'A e m 2', 'A m a 2', 'A e a 2', 'F m m 2', 'F d d 2', 'I m m 2', 'I b a 2', 'I m a 2', 'P m m m', 'P n n n', 'P c c m', 'P b a n', 'P m m a', 'P n n a', 'P m n a', 'P c c a', 'P b a m', 'P c c n', 'P b c m', 'P n n m', 'P m m n', 'P b c n', 'P b c a', 'P n m a', 'C m c m', 'C m c e', 'C m m m', 'C c c m', 'C m m e', 'C c c e', 'F m m m', 'F d d d', 'I m m m', 'I b a m', 'I b c a', 'I m m a', 'P 4', 'P 41', 'P 42', 'P 43', 'I 4', 'I 41', 'P -4', 'I -4', 'P 4/m', 'P 42/m', 'P 4/n', 'P 42/n', 'I 4/m', 'I 41/a', 'P 4 2 2', 'P 4 21 2', 'P 41 2 2', 'P 41 21 2', 'P 42 2 2', 'P 42 21 2', 'P 43 2 2', 'P 43 21 2', 'I 4 2 2', 'I 41 2 2', 'P 4 m m', 'P 4 b m', 'P 42 c m', 'P 42 n m', 'P 4 c c', 'P 4 n c', 'P 42 m c', 'P 42 b c', 'I 4 m m', 'I 4 c m', 'I 41 m d', 'I 41 c d', 'P -4 2 m', 'P -4 2 c', 'P -4 21 m', 'P -4 21 c', 'P -4 m 2', 'P -4 c 2', 'P -4 b 2', 'P -4 n 2', 'I -4 m 2', 'I -4 c 2', 'I -4 2 m', 'I -4 2 d', 'P 4/m m m', 'P 4/m c c', 'P 4/n b m', 'P 4/n n c', 'P 4/m b m', 'P 4/m n c', 'P 4/n m m', 'P 4/n c c', 'P 42/m m c', 'P 42/m c m', 'P 42/n b c', 'P 42/n n m', 'P 42/m b c', 'P 42/m n m', 'P 42/n m c', 'P 42/n c m', 'I 4/m m m', 'I 4/m c m', 'I 41/a m d', 'I 41/a c d', 'P 3', 'P 31', 'P 32', 'R 3', 'P -3', 'R -3', 'P 3 1 2', 'P 3 2 1', 'P 31 1 2', 'P 31 2 1', 'P 32 1 2', 'P 32 2 1', 'R 3 2', 'P 3 m 1', 'P 3 1 m', 'P 3 c 1', 'P 3 1 c', 'R 3 m', 'R 3 c', 'P -3 1 m', 'P -3 1 c', 'P -3 m 1', 'P -3 c 1', 'R -3 m', 'R -3 c', 'P 6', 'P 61', 'P 65', 'P 62', 'P 64', 'P 63', 'P -6', 'P 6/m ', 'P 63/m', 'P 6 2 2', 'P 61 2 2', 'P 65 2 2', 'P 62 2 2', 'P 64 2 2', 'P 63 2 2', 'P 6 m m', 'P 6 c c', 'P 63 c m', 'P 63 m c', 'P -6 m 2', 'P -6 c 2', 'P -6 2 m', 'P -6 2 c', 'P 6/m m m', 'P 6/m c c', 'P 63/m c m', 'P 63/m m c', 'P 2 3', 'F 2 3', 'I 2 3', 'P 21 3', 'I 21 3', 'P m -3', 'P n -3', 'F m -3', 'F d -3', 'I m -3', 'P a -3', 'I a -3', 'P 4 3 2', 'P 42 3 2', 'F 4 3 2', 'F 41 3 2', 'I 4 3 2', 'P 43 3 2', 'P 41 3 2', 'I 41 3 2', 'P -4 3 m', 'F -4 3 m', 'I -4 3 m', 'P -4 3 n', 'F -4 3 c', 'I -4 3 d', 'P m -3 m', 'P n -3 n', 'P m -3 n', 'P n -3 m', 'F m -3 m', 'F m -3 c', 'F d -3 m', 'F d -3 c', 'I m -3 m', 'I a -3 d')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_HM_REF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES">
+<code class="sig-name descname">ACCESIBLE_NAME_SCHOENFLIES</code><em class="property"> = ('C1.1', 'Ci.1', 'C2.1', 'C2.2', 'C2.3', 'Cs.1', 'Cs.2', 'Cs.3', 'Cs.4', 'C2h.1', 'C2h.2', 'C2h.3', 'C2h.4', 'C2h.5', 'C2h.6', 'D2.1', 'D2.2', 'D2.3', 'D2.4', 'D2.5', 'D2.6', 'D2.7', 'D2.8', 'D2.9', 'C2v.1', 'C2v.2', 'C2v.3', 'C2v.4', 'C2v.5', 'C2v.6', 'C2v.7', 'C2v.8', 'C2v.9', 'C2v.10', 'C2v.11', 'C2v.12', 'C2v.13', 'C2v.14', 'C2v.15', 'C2v.16', 'C2v.17', 'C2v.18', 'C2v.19', 'C2v.20', 'C2v.21', 'C2v.22', 'D2h.1', 'D2h.2', 'D2h.3', 'D2h.4', 'D2h.5', 'D2h.6', 'D2h.7', 'D2h.8', 'D2h.9', 'D2h.10', 'D2h.11', 'D2h.12', 'D2h.13', 'D2h.14', 'D2h.15', 'D2h.16', 'D2h.17', 'D2h.18', 'D2h.19', 'D2h.20', 'D2h.21', 'D2h.22', 'D2h.23', 'D2h.24', 'D2h.25', 'D2h.26', 'D2h.27', 'D2h.28', 'C4.1', 'C4.2', 'C4.3', 'C4.4', 'C4.5', 'C4.6', 'S4.1', 'S4.2', 'C4h.1', 'C4h.2', 'C4h.3', 'C4h.4', 'C4h.5', 'C4h.6', 'D4.1', 'D4.2', 'D4.3', 'D4.4', 'D4.5', 'D4.6', 'D4.7', 'D4.8', 'D4.9', 'D4.10', 'C4v.1', 'C4v.2', 'C4v.3', 'C4v.4', 'C4v.5', 'C4v.6', 'C4v.7', 'C4v.8', 'C4v.9', 'C4v.10', 'C4v.11', 'C4v.12', 'D2d.1', 'D2d.2', 'D2d.3', 'D2d.4', 'D2d.5', 'D2d.6', 'D2d.7', 'D2d.8', 'D2d.9', 'D2d.10', 'D2d.11', 'D2d.12', 'D4h.1', 'D4h.2', 'D4h.3', 'D4h.4', 'D4h.5', 'D4h.6', 'D4h.7', 'D4h.8', 'D4h.9', 'D4h.10', 'D4h.11', 'D4h.12', 'D4h.13', 'D4h.14', 'D4h.15', 'D4h.16', 'D4h.17', 'D4h.18', 'D4h.19', 'D4h.20', 'C3.1', 'C3.2', 'C3.3', 'C3.4', 'C3i.1', 'C3i.2', 'D3.1', 'D3.2', 'D3.3', 'D3.4', 'D3.5', 'D3.6', 'D3.7', 'C3v.1', 'C3v.2', 'C3v.3', 'C3v.4', 'C3v.5', 'C3v.6', 'D3d.1', 'D3d.2', 'D3d.3', 'D3d.4', 'D3d.5', 'D3d.6', 'C6.1', 'C6.2', 'C6.3', 'C6.4', 'C6.5', 'C6.6', 'C3h.1', 'C6h.1', 'C6h.2', 'D6.1', 'D6.2', 'D6.3', 'D6.4', 'D6.5', 'D6.6', 'C6v.1', 'C6v.2', 'C6v.3', 'C6v.4', 'D3h.1', 'D3h.2', 'D3h.3', 'D3h.4', 'D6h.1', 'D6h.2', 'D6h.3', 'D6h.4', 'T.1', 'T.2', 'T.3', 'T.4', 'T.5', 'Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'O.1', 'O.2', 'O.3', 'O.4', 'O.5', 'O.6', 'O.7', 'O.8', 'Td.1', 'Td.2', 'Td.3', 'Td.4', 'Td.5', 'Td.6', 'Oh.1', 'Oh.2', 'Oh.3', 'Oh.4', 'Oh.5', 'Oh.6', 'Oh.7', 'Oh.8', 'Oh.9', 'Oh.10')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_REFERENCE_SETTING">
+<code class="sig-name descname">ACCESIBLE_REFERENCE_SETTING</code><em class="property"> = ('001: P 1', '002: -P 1', '003: P 2y', '004: P 2yb', '005: C 2y', '006: P -2y', '007: P -2yc', '008: C -2y', '009: C -2yc', '010: -P 2y', '011: -P 2yb', '012: -C 2y', '013: -P 2yc', '014: -P 2ybc', '015: -C 2yc', '016: P 2 2', '017: P 2c 2', '018: P 2 2ab', '019: P 2ac 2ab', '020: C 2c 2', '021: C 2 2', '022: F 2 2', '023: I 2 2', '024: I 2b 2c', '025: P 2 -2', '026: P 2c -2', '027: P 2 -2c', '028: P 2 -2a', '029: P 2c -2ac', '030: P 2 -2bc', '031: P 2ac -2', '032: P 2 -2ab', '033: P 2c -2n', '034: P 2 -2n', '035: C 2 -2', '036: C 2c -2', '037: C 2 -2c', '038: A 2 -2', '039: A 2 -2b', '040: A 2 -2a', '041: A 2 -2ab', '042: F 2 -2', '043: F 2 -2d', '044: I 2 -2', '045: I 2 -2c', '046: I 2 -2a', '047: -P 2 2', '048: -P 2ab 2bc', '049: -P 2 2c', '050: -P 2ab 2b', '051: -P 2a 2a', '052: -P 2a 2bc', '053: -P 2ac 2', '054: -P 2a 2ac', '055: -P 2 2ab', '056: -P 2ab 2ac', '057: -P 2c 2b', '058: -P 2 2n', '059: -P 2ab 2a', '060: -P 2n 2ab', '061: -P 2ac 2ab', '062: -P 2ac 2n', '063: -C 2c 2', '064: -C 2ac 2', '065: -C 2 2', '066: -C 2 2c', '067: -C 2a 2', '068: -C 2a 2ac', '069: -F 2 2', '070: -F 2uv 2vw', '071: -I 2 2', '072: -I 2 2c', '073: -I 2b 2c', '074: -I 2b 2', '075: P 4', '076: P 4w', '077: P 4c', '078: P 4cw', '079: I 4', '080: I 4bw', '081: P -4', '082: I -4', '083: -P 4', '084: -P 4c', '085: -P 4a', '086: -P 4bc', '087: -I 4', '088: -I 4ad', '089: P 4 2', '090: P 4ab 2ab', '091: P 4w 2c', '092: P 4abw 2nw', '093: P 4c 2', '094: P 4n 2n', '095: P 4cw 2c', '096: P 4nw 2abw', '097: I 4 2', '098: I 4bw 2bw', '099: P 4 -2', '100: P 4 -2ab', '101: P 4c -2c', '102: P 4n -2n', '103: P 4 -2c', '104: P 4 -2n', '105: P 4c -2', '106: P 4c -2ab', '107: I 4 -2', '108: I 4 -2c', '109: I 4bw -2', '110: I 4bw -2c', '111: P -4 2', '112: P -4 2c', '113: P -4 2ab', '114: P -4 2n', '115: P -4 -2', '116: P -4 -2c', '117: P -4 -2ab', '118: P -4 -2n', '119: I -4 -2', '120: I -4 -2c', '121: I -4 2', '122: I -4 2bw', '123: -P 4 2', '124: -P 4 2c', '125: -P 4a 2b', '126: -P 4a 2bc', '127: -P 4 2ab', '128: -P 4 2n', '129: -P 4a 2a', '130: -P 4a 2ac', '131: -P 4c 2', '132: -P 4c 2c', '133: -P 4ac 2b', '134: -P 4ac 2bc', '135: -P 4c 2ab', '136: -P 4n 2n', '137: -P 4ac 2a', '138: -P 4ac 2ac', '139: -I 4 2', '140: -I 4 2c', '141: -I 4bd 2', '142: -I 4bd 2c', '143: P 3', '144: P 31', '145: P 32', '146: R 3', '147: -P 3', '148: -R 3', '149: P 3 2', '150: P 3 2&quot;', '151: P 31 2 (0 0 4)', '152: P 31 2&quot;', '153: P 32 2 (0 0 2)', '154: P 32 2&quot;', '155: R 3 2&quot;', '156: P 3 -2&quot;', '157: P 3 -2', '158: P 3 -2&quot;c', '159: P 3 -2c', '160: R 3 -2&quot;', '161: R 3 -2&quot;c', '162: -P 3 2', '163: -P 3 2c', '164: -P 3 2&quot;', '165: -P 3 2&quot;c', '166: -R 3 2&quot;', '167: -R 3 2&quot;c', '168: P 6', '169: P 61', '170: P 65', '171: P 62', '172: P 64', '173: P 6c', '174: P -6', '175: -P 6', '176: -P 6c', '177: P 6 2', '178: P 61 2 (0 0 5)', '179: P 65 2 (0 0 1)', '180: P 62 2 (0 0 4)', '181: P 64 2 (0 0 2)', '182: P 6c 2c', '183: P 6 -2', '184: P 6 -2c', '185: P 6c -2', '186: P 6c -2c', '187: P -6 2', '188: P -6c 2', '189: P -6 -2', '190: P -6c -2c', '191: -P 6 2', '192: -P 6 2c', '193: -P 6c 2', '194: -P 6c 2c', '195: P 2 2 3', '196: F 2 2 3', '197: I 2 2 3', '198: P 2ac 2ab 3', '199: I 2b 2c 3', '200: -P 2 2 3', '201: -P 2ab 2bc 3', '202: -F 2 2 3', '203: -F 2uv 2vw 3', '204: -I 2 2 3', '205: -P 2ac 2ab 3', '206: -I 2b 2c 3', '207: P 4 2 3', '208: P 4n 2 3', '209: F 4 2 3', '210: F 4d 2 3', '211: I 4 2 3', '212: P 4acd 2ab 3', '213: P 4bd 2ab 3', '214: I 4bd 2c 3', '215: P -4 2 3', '216: F -4 2 3', '217: I -4 2 3', '218: P -4n 2 3', '219: F -4a 2 3', '220: I -4bd 2c 3', '221: -P 4 2 3', '222: -P 4a 2bc 3', '223: -P 4n 2 3', '224: -P 4bc 2bc 3', '225: -F 4 2 3', '226: -F 4a 2 3', '227: -F 4vw 2vw 3', '228: -F 4ud 2vw 3', '229: -I 4 2 3', '230: -I 4bd 2c 3')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.ACCESIBLE_REFERENCE_SETTING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('centrosymmetry', 'pcentr', 'reduced_space_group_symop', 'full_space_group_symop', 'space_group_wyckoff', 'shift')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'name_hm_alt', 'name_hm_alt_description', 'it_number', 'name_hm_ref', 'it_coordinate_system_code', 'name_hm_full', 'name_hall', 'name_schoenflies', 'point_group_hm', 'laue_class', 'patterson_name_hm', 'centring_type', 'bravais_type', 'crystal_system', 'reference_setting', 'transform_pp_abc', 'transform_qq_xyz')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.PREFIX">
+<code class="sig-name descname">PREFIX</code><em class="property"> = 'space_group'</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_MANDATORY_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_OPTIONAL_ATTRIBUTE">
+<code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'name_H-M_alt', 'name_H-M_alt_description', 'IT_number', 'name_H-M_ref', 'IT_coordinate_system_code', 'name_H-M_full', 'name_Hall', 'name_Schoenflies', 'point_group_H-M', 'Laue_class', 'Patterson_name_H-M', 'centring_type', 'Bravais_type', 'crystal_system', 'reference_setting', 'transform_pp_abc', 'transform_qq_xyz')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.bravais_type">
+<em class="property">property </em><code class="sig-name descname">bravais_type</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.bravais_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>The symbol denoting the lattice type (Bravais type) to which the
+translational subgroup (vector lattice) of the space group belongs.
+It consists of a lower-case letter indicating the crystal system
+followed by an upper-case letter indicating the lattice centring.</p>
+<p>The setting-independent symbol mS replaces the setting-dependent
+symbols mB and mC, and the setting-independent symbol oS
+replaces the setting-dependent symbols oA, oB and oC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,
+p. 15. Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>aP
+mP mS
+oP oS oI oF
+tP tI
+hP hR
+cP cI cF</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_asymmetric_cell">
+<code class="sig-name descname">calc_asymmetric_cell</code><span class="sig-paren">(</span><em class="sig-param">n_a</em>, <em class="sig-param">n_b</em>, <em class="sig-param">n_c</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_asymmetric_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_asymmetric_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>give the numbers in asymmetric cell</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">n_a</dt>
+<dd class="field-odd"><p>the number of points along a axis</p>
+</dd>
+<dt class="field-even">n_b</dt>
+<dd class="field-even"><p>the numper of points along b axis</p>
+</dd>
+<dt class="field-odd">n_c</dt>
+<dd class="field-odd"><p>the numper of points along c axis</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>na, n_b, nc should be divided on 24: 8 and 3</p>
+<dl class="field-list simple">
+<dt class="field-odd">Output</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>l_coord is a list of coordinates in asymmetric cell (frac_x = n_x/n_a and so on)</p></li>
+<li><p>l_symm contains a list of symmetry given as (n_symm, centr, n_orig)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_el_symm_for_xyz">
+<code class="sig-name descname">calc_el_symm_for_xyz</code><span class="sig-paren">(</span><em class="sig-param">x_in</em>, <em class="sig-param">y_in</em>, <em class="sig-param">z_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_el_symm_for_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_el_symm_for_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>FIXME: should be deleted</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_f_hkl_by_f_hkl_as">
+<code class="sig-name descname">calc_f_hkl_by_f_hkl_as</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">f_hkl_as</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_f_hkl_by_f_hkl_as"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_f_hkl_by_f_hkl_as" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the structure factor giving the structure factor
+in asymmetric unit cell.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_hkl_equiv">
+<code class="sig-name descname">calc_hkl_equiv</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_hkl_equiv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_hkl_equiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give equivalent reflections of hkl and its multiplicity</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_rotated_matrix_for_position">
+<code class="sig-name descname">calc_rotated_matrix_for_position</code><span class="sig-paren">(</span><em class="sig-param">m_chi</em>, <em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_rotated_matrix_for_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_rotated_matrix_for_position" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_symop_for_xyz">
+<code class="sig-name descname">calc_symop_for_xyz</code><span class="sig-paren">(</span><em class="sig-param">x_in</em>, <em class="sig-param">y_in</em>, <em class="sig-param">z_in</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_symop_for_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_symop_for_xyz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.calc_xyz_mult">
+<code class="sig-name descname">calc_xyz_mult</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.calc_xyz_mult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.calc_xyz_mult" title="Permalink to this definition">¶</a></dt>
+<dd><p>give unique x,y,z elements and calculate multiplicity for given x,y,z fract</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.centring_type">
+<em class="property">property </em><code class="sig-name descname">centring_type</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.centring_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbol for the lattice centring. This symbol may be dependent on
+the coordinate system chosen.</p>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">“P”</dt>
+<dd class="field-odd"><p>primitive no centring</p>
+</dd>
+<dt class="field-even">“A”</dt>
+<dd class="field-even"><p>A-face centred (0, 1/2, 1/2)</p>
+</dd>
+<dt class="field-odd">“B”</dt>
+<dd class="field-odd"><p>B-face centred (1/2, 0, 1/2)</p>
+</dd>
+<dt class="field-even">“C”</dt>
+<dd class="field-even"><p>C-face centred (1/2, 1/2, 0)</p>
+</dd>
+<dt class="field-odd">“F”</dt>
+<dd class="field-odd"><p>all faces centred (0, 1/2, 1/2), (1/2, 0, 1/2), (1/2, 1/2, 0)</p>
+</dd>
+<dt class="field-even">“I”</dt>
+<dd class="field-even"><p>body centred (1/2, 1/2, 1/2)</p>
+</dd>
+<dt class="field-odd">“R”</dt>
+<dd class="field-odd"><p>rhombohedral obverse centred (2/3, 1/3, 1/3), (1/3, 2/3, 2/3)</p>
+</dd>
+<dt class="field-even">“Rrev”</dt>
+<dd class="field-even"><p>rhombohedral reverse centred (1/3, 2/3, 1/3), (2/3, 1/3, 2/3)</p>
+</dd>
+<dt class="field-odd">“H”</dt>
+<dd class="field-odd"><p>hexagonal centred (2/3, 1/3, 0), (1/3, 2/3, 0)</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.centrosymmetry">
+<em class="property">property </em><code class="sig-name descname">centrosymmetry</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.centrosymmetry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.crystal_system">
+<em class="property">property </em><code class="sig-name descname">crystal_system</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.crystal_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the system of geometric crystal classes of space
+groups (crystal system) to which the space group belongs. Note
+that crystals with the hR lattice type belong to the trigonal system.</p>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>triclinic, monoclinic, orthorhombic,
+tetragonal, trigonal, hexagonal, cubic</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.define_it_number_and_it_coordinate_system_code">
+<code class="sig-name descname">define_it_number_and_it_coordinate_system_code</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.define_it_number_and_it_coordinate_system_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.define_it_number_and_it_coordinate_system_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.form_object">
+<em class="property">property </em><code class="sig-name descname">form_object</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.form_object" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.form_object_by_it_number_it_coordinate_system_code">
+<code class="sig-name descname">form_object_by_it_number_it_coordinate_system_code</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.form_object_by_it_number_it_coordinate_system_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.form_object_by_it_number_it_coordinate_system_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.form_reduced_full_space_group_symop_space_group_wyckoff">
+<code class="sig-name descname">form_reduced_full_space_group_symop_space_group_wyckoff</code><span class="sig-paren">(</span><em class="sig-param">it_number: int</em>, <em class="sig-param">it_coordinate_system_code: str</em>, <em class="sig-param">centrosymmetry: bool</em>, <em class="sig-param">centring_type: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.form_reduced_full_space_group_symop_space_group_wyckoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.form_reduced_full_space_group_symop_space_group_wyckoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.full_space_group_symop">
+<em class="property">property </em><code class="sig-name descname">full_space_group_symop</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.full_space_group_symop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.get_default_it_coordinate_system_code_by_it_number">
+<em class="property">static </em><code class="sig-name descname">get_default_it_coordinate_system_code_by_it_number</code><span class="sig-paren">(</span><em class="sig-param">it_number: int</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.get_default_it_coordinate_system_code_by_it_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.get_default_it_coordinate_system_code_by_it_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.get_it_coordinate_system_codes_by_it_number">
+<em class="property">static </em><code class="sig-name descname">get_it_coordinate_system_codes_by_it_number</code><span class="sig-paren">(</span><em class="sig-param">it_number: int</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group.html#SpaceGroup.get_it_coordinate_system_codes_by_it_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.get_it_coordinate_system_codes_by_it_number" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.id">
+<em class="property">property </em><code class="sig-name descname">id</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an identifier needed if _space_group .* items are looped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">TODO</dt>
+<dd class="field-odd"><p>looped _space_group is not introduced</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.is_defined">
+<em class="property">property </em><code class="sig-name descname">is_defined</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.is_defined" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.it_coordinate_system_code">
+<em class="property">property </em><code class="sig-name descname">it_coordinate_system_code</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.it_coordinate_system_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>A qualifier taken from the enumeration list identifying which set-
+ting in International Tables for Crystallography Volume A (2002)
+(IT) is used. See IT Table 4.3.2.1, Section 2.2.16, Table 2.2.16.1,
+Section 2.2.16.1 and Fig. 2.2.6.4. This item is not computer-
+interpretable and cannot be used to define the coordinate system.</p>
+<p>Use _space_group.transform_ * instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>b1, b2, b3, -b1, -b2, -b3, c1, c2, c3,
+-c1, -c2, -c3, a1, a2, a3, -a1, -a2, -a3,
+abc, ba-c, cab, -cba, bca, a-cb, 1abc, 1ba-c, 1cab, 1-cba, 1bca, 1a-cb,
+2abc, 2ba-c, 2cab, 2-cba, 2bca, 2a-cb, 1, 2, h, r,</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.it_number">
+<em class="property">property </em><code class="sig-name descname">it_number</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.it_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number as assigned in International Tables for Crystal-
+lography Volume A, specifying the proper affine class (i.e. the
+orientation-preserving affine class) of space groups (crystallo-
+graphic space-group type) to which the space group belongs. This
+number defines the space-group type but not the coordinate system
+in which it is expressed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>The permitted range is (1,230)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.laue_class">
+<em class="property">property </em><code class="sig-name descname">laue_class</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.laue_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Hermann–Mauguin symbol of the geometric crystal class of
+the point group of the space group where a centre of inversion is
+added if not already present.</p>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>-1, 2/m, mmm, 4/m, 4/mmm,
+-3, -3m, 6/m, 6/mmm, m-3, m-3m</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.name_hall">
+<em class="property">property </em><code class="sig-name descname">name_hall</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.name_hall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Space-group symbol defined by Hall. _space_group.name_Hall
+uniquely defines the space group and its reference to a particu-
+lar coordinate system. Each component of the space-group name
+is separated by a space or an underscore character. The use of a
+space is strongly recommended. The underscore is only retained
+because it was used in old CIFs. It should not be used in new CIFs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><p>Hall, S. R. (1981). Acta Cryst. A37, 517–525; erra-
+tum (1981), A37, 921. International Tables for Crystallography
+(2001). Volume B, Reciprocal space, edited by U. Shmueli, 2nd
+ed., Appendix 1.4.2. Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+<dt class="field-even">Examples</dt>
+<dd class="field-even"><p>‘P 2c -2ac’, ‘-I 4bd 2ab 3’, …
+(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HALL)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.name_hm_alt">
+<em class="property">property </em><code class="sig-name descname">name_hm_alt</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.name_hm_alt" title="Permalink to this definition">¶</a></dt>
+<dd><p>_space_group.name_H-M_alt allows for an alternative Hermann–
+Mauguin symbol to be given. The way in which this item is used
+is determined by the user and should be described in the item
+_space_group.name_H-M_alt_description. It may, for exam-
+ple, be used to give one of the extended Hermann–Mauguin
+symbols given in Table 4.3.2.1 of International Tables for
+Crystallography Volume A (2002) or a full Hermann–Mauguin
+symbol for an unconventional setting. Each component of the
+space-group name is separated by a space or an underscore
+character. The use of a space is strongly recommended. The
+underscore is only retained because it was used in older CIFs.
+It should not be used in new CIFs. Subscripts should appear
+without special symbols. Bars should be given as negative
+signs before the numbers to which they apply. The commonly
+used Hermann–Mauguin symbol determines the space-group
+type uniquely, but a given space-group type may be described
+by more than one Hermann–Mauguin symbol. The space-
+group type is best described using _space_group.IT_number or
+_space_group.name_Schoenflies . The Hermann–Mauguin sym-
+bol may contain information on the choice of basis but does not
+contain information on the choice of origin. To define the setting
+uniquely, use _space_group.name_Hall , list the symmetry oper-
+ations or generators, or give the transformation that relates the
+setting to the reference setting defined in this dictionary under
+_space_group.reference_setting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_ALT)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.name_hm_alt_description">
+<em class="property">property </em><code class="sig-name descname">name_hm_alt_description</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.name_hm_alt_description" title="Permalink to this definition">¶</a></dt>
+<dd><p>A free-text description of the code appearing in _space_
+group.name_H-M_alt</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.name_hm_full">
+<em class="property">property </em><code class="sig-name descname">name_hm_full</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.name_hm_full" title="Permalink to this definition">¶</a></dt>
+<dd><p>The full international Hermann–Mauguin space-group symbol as
+defined in Section 2.2.3 and given as the second item of the sec-
+ondlineof eachof the space-grouptablesof Part 7of International
+Tables for Crystallography Volume A (2002). Each component of
+the space-group name is separated by a space or an underscore
+character. The use of a space is strongly recommended. The under-
+score is only retained because it was used in old CIFs. It should
+not be used in new CIFs. Subscripts should appear without special
+symbols. Bars should be given as negative signs before the num-
+bers to which they apply. The commonly used Hermann–Mauguin
+symbol determines the space-group type uniquely but a given
+space-group type may be described by more than one Hermann–
+Mauguin symbol. The space-group type is best described using
+_space_group.IT_number or _space_group.name_Schoenflies .
+The full international Hermann–Mauguin symbol contains infor-
+mation about the choice of basis for monoclinic and orthorhombic
+space groups but does not give information about the choice of ori-
+gin. To define the setting uniquely use _space_group.name_Hall ,
+list the symmetry operations or generators, or give the transforma-
+tion relating the setting used to the reference setting defined in this
+dictionary under _space_group.reference_setting .
+Reference: International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p>‘P 21/n 21/m 21/a’ (full symbol for Pnma)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.name_hm_ref">
+<em class="property">property </em><code class="sig-name descname">name_hm_ref</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.name_hm_ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>The short international Hermann–Mauguin space-group sym-
+bol as defined in Section 2.2.3 and given as the first item of
+each space-group table in Part 7 of International Tables for
+Crystallography Volume A (2002). Each component of the space-
+group name is separated by a space or an underscore charac-
+ter. The use of a space is strongly recommended. The under-
+score is only retained because it was used in old CIFs. It
+should not be used in new CIFs. Subscripts should appear with-
+out special symbols. Bars should be given as negative signs
+before the numbers to which they apply. The short international
+Hermann–Mauguin symbol determines the space-group type
+uniquely. However, the space-group type is better described using
+_space_group.IT_number or _space_group.name_Schoenflies .
+The short international Hermann–Mauguin symbol contains
+no information on the choice of basis or origin. To define
+the setting uniquely use _space_group.name_Hall , list the
+symmetry operations or generators, or give the transforma-
+tion that relates the setting to the reference setting defined
+in this dictionary under _space_group.reference_setting .
+_space_group.name_H-M_alt may be used to give the Hermann–
+Mauguin symbol corresponding to the setting used. In the enumer-
+ation list below, each possible value is identified by space-group
+number and Schoenflies symbol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>’P 1’, ’P 2’, …
+(full tuple stored in SpaceGroup.ACCESIBLE_NAME_HM_REF)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.name_schoenflies">
+<em class="property">property </em><code class="sig-name descname">name_schoenflies</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.name_schoenflies" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Schoenflies symbol as listed in International Tables for
+Crystallography Volume A denoting the proper affine class (i.e.
+orientation-preserving affine class) of space groups (space-group
+type) to which the space group belongs. This symbol defines the
+space-group type independently of the coordinate system in which
+the space group is expressed. The symbol is given with a period,
+‘.’, separating the Schoenflies point group and the superscript.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.
+Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+</dl>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>C1.1, Ci.1, …
+(full tuple stored in SpaceGroup.ACCESIBLE_NAME_SCHOENFLIES)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.patterson_name_hm">
+<em class="property">property </em><code class="sig-name descname">patterson_name_hm</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.patterson_name_hm" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Hermann–Mauguin symbol of the type of that centrosym-
+metric symmorphic space group to which the Patterson function
+belongs; see Table 2.2.5.1 in International Tables for Crystallog-
+raphy Volume A (2002). A space separates each symbol referring
+to different axes. Underscores may replace the spaces, but this use
+is discouraged. Subscripts should appear without special symbols.
+Bars should be given as negative signs before the number to which
+they apply.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Reference</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th ed.,
+Table 2.2.5.1. Dordrecht: Kluwer Academic Publishers.</p>
+</dd>
+<dt class="field-even">Examples</dt>
+<dd class="field-even"><p>‘P -1’, ‘P 2/m’, ‘C 2/m’, ‘P m m m’, ‘C m m m’, ‘I m m m’, ‘F m m m’,
+‘P 4/m’, ‘I 4/m’, ‘P 4/m m m’, ‘I 4/m m m’, ‘P -3’, ‘R -3’, ‘P -3 m 1’,
+‘R -3 m’, ‘P -3 1 m’, ‘P 6/m’, ‘P 6/m m m’, ‘P m -3’, ‘I m -3’, ‘F m -3’,
+‘P m -3 m’, ‘I m -3 m’, ‘F m -3 m’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.pcentr">
+<em class="property">property </em><code class="sig-name descname">pcentr</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.pcentr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.point_group_hm">
+<em class="property">property </em><code class="sig-name descname">point_group_hm</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.point_group_hm" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Hermann–Mauguin symbol denoting the geometric crystal
+class of space groups to which the space group belongs, and the
+geometric crystal class of point groups to which the point group of
+the space group belongs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Examples</dt>
+<dd class="field-odd"><p>‘-4’, ‘4/m’.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.reduced_space_group_symop">
+<em class="property">property </em><code class="sig-name descname">reduced_space_group_symop</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.reduced_space_group_symop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.reference_setting">
+<em class="property">property </em><code class="sig-name descname">reference_setting</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.reference_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reference setting of a given space group is the setting chosen
+by the International Union of Crystallography as a unique setting
+to which other settings can be referred using the transformation
+matrix column pair given in _space_group.transform_Pp_abc
+and _space_group.transform_Qq_xyz . The settings are given
+in the enumeration list in the form ‘ _space_group.IT_number:
+_space_group.name_Hall ’. The space-group number defines the
+space-group type and the Hall symbol specifies the symmetry gen-
+erators referred to the reference coordinate system. The 230 refer-
+ence settings chosen are identical to the settings listed in Inter-
+national Tables for Crystallography Volume A (2002). For the
+space groups where more than one setting is given in Interna-
+tional Tables, the following choices have been made. For mono-
+clinic space groups: unique axis b and cell choice 1. For space
+groups with two origins: origin choice 2 (origin at inversion cen-
+tre, indicated by adding :2 to the Hermann–Mauguin symbol in
+the enumeration list). For rhombohedral space groups: hexago-
+nal axes (indicated by adding :h to the Hermann–Mauguin sym-
+bol in the enumeration list). Based on the symmetry table of
+R. W. Grosse-Kunstleve, ETH, Zurich. The enumeration list may
+be extracted from the dictionary and stored as a separate CIF that
+can be referred to as required.</p>
+<p>In the enumeration list below, each reference setting is identi-
+fied by Schoenfliessymbol and by the Hermann–Mauguinsymbol,
+augmented by :2 or :h suffixes as described above.</p>
+<dl class="field-list simple">
+<dt class="field-odd">References</dt>
+<dd class="field-odd"><p>International Tables for Crystallography (2002).
+Volume A, Space-group symmetry, edited by Th. Hahn, 5th
+ed. Dordrecht: Kluwer Academic Publishers. Grosse-Kunstleve,
+R. W. (2001). Xtal System of Crystallographic Programs, Sys-
+tem Documentation. <a class="reference external" href="http://xtal.crystal.uwa.edu.au/man/xtal3.7">http://xtal.crystal.uwa.edu.au/man/xtal3.7</a>-
+228.html (or follow links to D</p>
+</dd>
+</dl>
+<p>The data value must be one of the following:</p>
+<blockquote>
+<div><p>’001:P 1’, ’002:-P 1’, …
+(full tuple stored in SpaceGroup.ACCESIBLE_REFERENCE_SETTING)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.shift">
+<em class="property">property </em><code class="sig-name descname">shift</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.shift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.space_group_wyckoff">
+<em class="property">property </em><code class="sig-name descname">space_group_wyckoff</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.space_group_wyckoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.transform_pp_abc">
+<em class="property">property </em><code class="sig-name descname">transform_pp_abc</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.transform_pp_abc" title="Permalink to this definition">¶</a></dt>
+<dd><p>This item specifies the transformation (P,p) of the basis vectors
+from the setting used in the CIF (a,b,c) to the reference setting
+given in _space_group.reference_setting (a’ ,b’ ,c’). The value
+is given in Jones–Faithful notation corresponding to the rotational
+matrix P combined with the origin shift vector p in the expression</p>
+<div class="math notranslate nohighlight">
+\[(a', b', c') = (a, b, c) P + p.\]</div>
+<p>P is a post-multiplication matrix of a row (a,b,c) of column vec-
+tors. It is related to the inverse transformation (Q,q) by</p>
+<div class="math notranslate nohighlight">
+\[P = Q^{−1},\]</div>
+<div class="math notranslate nohighlight">
+\[p = Pq = − (Q^{−1}) q.\]</div>
+<p>These transformations are applied as follows: atomic coordi-
+nates <span class="math notranslate nohighlight">\((x', y', z') = Q (x,y,z) + q\)</span>, Miller indices
+<span class="math notranslate nohighlight">\((h', k', l') = (h, k, l) P\)</span>,
+symmetry operations
+<span class="math notranslate nohighlight">\(W' = (Q,q) W (P,p)\)</span>, basis vectors</p>
+<div class="math notranslate nohighlight">
+\[(a', b', c') = (a,b,c) P + p.\]</div>
+<p>This item is given as a character string involving the characters
+a, b and c with commas separating the expressions for the a’, b’
+and c’ vectors. The numeric values may be given as integers, frac-
+tions or real numbers. Multiplication is implicit, division must be
+explicit. White space within the string is optional.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Examples</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>‘-b+c, a+c, -a+b+c’ (R3:r to R3:h),</p></li>
+<li><p>‘a-1/4, b-1/4, c-1/4’ (Pnnn:1 to Pnnn:2),</p></li>
+<li><p>‘b-1/2, c-1/2, a-1/2’ (Bbab:1 toCcca:2).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="cryspy.symcif.cl_space_group.SpaceGroup.transform_qq_xyz">
+<em class="property">property </em><code class="sig-name descname">transform_qq_xyz</code><a class="headerlink" href="#cryspy.symcif.cl_space_group.SpaceGroup.transform_qq_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>This item specifies the transformation (Q,q) of the atomic
+coordinates from the setting used in the CIF [(x, y, z) referred
+to the basis vectors (a, b, c)] to the reference setting given
+in _space_group.reference_setting [(x’, y’, z’) referred to the
+basis vectors (a’, b’, c’)]. The value given in Jones–Faithful nota-
+tion corresponds to the rotational matrix Q combined with the ori-
+gin shift vector q in the expression</p>
+<div class="math notranslate nohighlight">
+\[(x', y', z') = Q(x,y,z) + q.\]</div>
+<p>Q is a pre-multiplication matrix of the column vector (x,y,z). It is
+related to the inverse transformation (P,p) by</p>
+<div class="math notranslate nohighlight">
+\[P = Q^{−1} ,\]</div>
+<div class="math notranslate nohighlight">
+\[p = Pq = − (Q^{−1}) q,\]</div>
+<p>where the P and Q transformations are applied as follows: atomic
+coordinates <span class="math notranslate nohighlight">\((x', y', z') = Q(x,y,z)+q\)</span>, Miller indices
+<span class="math notranslate nohighlight">\((h', k', l') = (h,k,l)P\)</span>,
+symmetry operations
+<span class="math notranslate nohighlight">\(W' = (Q, q) W (P, p)\)</span>,
+basis vectors</p>
+<div class="math notranslate nohighlight">
+\[(a', b', c') = (a, b, c) P + p.\]</div>
+<p>This item is given as a character string involving the characters
+math:<cite>x</cite>, <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> with commas separating the expressions
+for the <span class="math notranslate nohighlight">\(x'\)</span>, <span class="math notranslate nohighlight">\(y'\)</span>
+and <span class="math notranslate nohighlight">\(z'\)</span> components. The numeric values may be given as integers,
+fractions or real numbers. Multiplication is implicit, division must
+be explicit. White space within the string is optional.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Examples</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p>‘-x/3+2y/3-z/3, -2x/3+y/3+z/3, x/3+y/3+z/3’ (R3:r to R3:h),</p></li>
+<li><p>‘x+1/4,y+1/4,z+1/4’ (Pnnn:1 to Pnnn:2),</p></li>
+<li><p>‘z+1/2,x+1/2,y+1/2’ (Bbab:1 to Ccca:2).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cryspy.symcif.html"
+                        title="previous chapter">Symmetry dictionary (symCIF)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cryspy.symcif.space_group_symop.html"
+                        title="next chapter">SpaceGroupSymop</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cryspy.symcif.space_group.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.space_group_symop.html" title="SpaceGroupSymop"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cryspy.symcif.html" title="Symmetry dictionary (symCIF)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="cryspy.symcif.html" >Symmetry dictionary (symCIF)</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,849 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>cryspy.corecif.cl_refln &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cryspy.corecif.cl_refln</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;ikibalin&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_12_06&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+
+
+<div class="viewcode-block" id="Refln"><a class="viewcode-back" href="../../../cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln">[docs]</a><span class="k">class</span> <span class="nc">Refln</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the REFLN category record details about the</span>
+<span class="sd">reflections used to determine the ATOM_SITE data items.</span>
+<span class="sd">The REFLN data items refer to individual reflections and must</span>
+<span class="sd">be included in looped lists.</span>
+
+<span class="sd">The REFLNS data items specify the parameters that apply to all</span>
+<span class="sd">reflections. The REFLNS data items are not looped.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd">  _refln_index_h         2</span>
+<span class="sd">  _refln_index_k         0</span>
+<span class="sd">  _refln_index_l         0</span>
+<span class="sd">  _refln_d_spacing       0.13</span>
+<span class="sd">  _refln_A_calc          2.1</span>
+<span class="sd">  _refln_B_calc          0.</span>
+<span class="sd"> </span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html&gt;`_</span>
+
+<span class="sd">FIXME:</span>
+<span class="sd">the attribute &#39;sint/lambda&#39;is replaced by &#39;sintlambda&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;a_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;a_meas&quot;</span><span class="p">,</span> <span class="s2">&quot;b_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;b_meas&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;class_code&quot;</span><span class="p">,</span> <span class="s2">&quot;crystal_id&quot;</span><span class="p">,</span> <span class="s2">&quot;d_spacing&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;f_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;f_meas&quot;</span><span class="p">,</span> <span class="s2">&quot;f_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;f_squared_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;f_squared_meas&quot;</span><span class="p">,</span> <span class="s2">&quot;f_squared_sigma&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;include_status&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_meas&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;mean_path_length_tbar&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;phase_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;phase_meas&quot;</span><span class="p">,</span> <span class="s2">&quot;refinement_status&quot;</span><span class="p">,</span> <span class="s2">&quot;scale_group_code&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;sintlambda&quot;</span><span class="p">,</span> <span class="s2">&quot;symmetry_epsilon&quot;</span><span class="p">,</span> <span class="s2">&quot;symmetry_multiplicity&quot;</span><span class="p">,</span> <span class="s2">&quot;wavelength&quot;</span><span class="p">,</span> <span class="s2">&quot;wavelength_id&quot;</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">ACCESIBLE_INCLUDE_STATUS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">ACCESIBLE_REFINEMENT_STATUS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;incl&quot;</span><span class="p">,</span> <span class="s2">&quot;excl&quot;</span><span class="p">,</span> <span class="s2">&quot;extn&quot;</span><span class="p">)</span>
+    <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;refln&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="n">a_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a_meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">class_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">crystal_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">d_spacing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">f_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_squared_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_squared_meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_squared_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intensity_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intensity_meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intensity_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mean_path_length_tbar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">phase_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">phase_meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">refinement_status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale_group_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">sintlambda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetry_epsilon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetry_multiplicity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wavelength_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Refln</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span>
+                                    <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
+                                    <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">,</span>
+                                    <span class="n">prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">PREFIX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_h</span> <span class="o">=</span> <span class="n">index_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_k</span> <span class="o">=</span> <span class="n">index_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_l</span> <span class="o">=</span> <span class="n">index_l</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_calc</span> <span class="o">=</span> <span class="n">a_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_meas</span> <span class="o">=</span> <span class="n">a_meas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_calc</span> <span class="o">=</span> <span class="n">b_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_meas</span> <span class="o">=</span> <span class="n">b_meas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">class_code</span> <span class="o">=</span> <span class="n">class_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crystal_id</span> <span class="o">=</span> <span class="n">crystal_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_spacing</span> <span class="o">=</span> <span class="n">d_spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_calc</span> <span class="o">=</span> <span class="n">f_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_meas</span> <span class="o">=</span> <span class="n">f_meas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_sigma</span> <span class="o">=</span> <span class="n">f_sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_squared_calc</span> <span class="o">=</span> <span class="n">f_squared_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_squared_meas</span> <span class="o">=</span> <span class="n">f_squared_meas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_squared_sigma</span> <span class="o">=</span> <span class="n">f_squared_sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_status</span> <span class="o">=</span> <span class="n">include_status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity_calc</span> <span class="o">=</span> <span class="n">intensity_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity_meas</span> <span class="o">=</span> <span class="n">intensity_meas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intensity_sigma</span> <span class="o">=</span> <span class="n">intensity_sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_path_length_tbar</span> <span class="o">=</span> <span class="n">mean_path_length_tbar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_calc</span> <span class="o">=</span> <span class="n">phase_calc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase_meas</span> <span class="o">=</span> <span class="n">phase_meas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refinement_status</span> <span class="o">=</span> <span class="n">refinement_status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_group_code</span> <span class="o">=</span> <span class="n">scale_group_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sintlambda</span> <span class="o">=</span> <span class="n">sintlambda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_epsilon</span> <span class="o">=</span> <span class="n">symmetry_epsilon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symmetry_multiplicity</span> <span class="o">=</span> <span class="n">symmetry_multiplicity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wavelength</span> <span class="o">=</span> <span class="n">wavelength</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wavelength_id</span> <span class="o">=</span> <span class="n">wavelength_id</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miller indices of the reflection. The values of the Miller</span>
+<span class="sd">indices in the REFLN category must correspond to the cell</span>
+<span class="sd">defined by the cell lengths and cell angles in the CELL category.        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_h&quot;</span><span class="p">)</span>
+    <span class="nd">@index_h</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_h&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miller indices of the reflection. The values of the Miller</span>
+<span class="sd">indices in the REFLN category must correspond to the cell</span>
+<span class="sd">defined by the cell lengths and cell angles in the CELL category.        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_k&quot;</span><span class="p">)</span>
+    <span class="nd">@index_k</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_k&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Miller indices of the reflection. The values of the Miller</span>
+<span class="sd">indices in the REFLN category must correspond to the cell</span>
+<span class="sd">defined by the cell lengths and cell angles in the CELL category.        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">)</span>
+    <span class="nd">@index_l</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__index_l&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The calculated structure-factor component A</span>
+<span class="sd">(in electrons for X-ray diffraction).</span>
+
+<span class="sd">   A =|F|cos(phase)</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb</span>
+
+<span class="sd">Category: refln        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@a_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The measured structure-factor component A</span>
+<span class="sd">(in electrons for X-ray diffraction).</span>
+
+<span class="sd">   A =|F|cos(phase)</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_meas&quot;</span><span class="p">)</span>
+    <span class="nd">@a_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_meas&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@b_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The calculated structure-factor component B</span>
+<span class="sd">(in electrons for X-ray diffraction).</span>
+
+<span class="sd">   B =|F|sin(phase)</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The measured structure-factor component B</span>
+<span class="sd">(in electrons for X-ray diffraction).</span>
+
+<span class="sd">   B =|F|sin(phase)</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_meas&quot;</span><span class="p">)</span>
+    <span class="nd">@b_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_meas&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">class_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The code identifying the class to which this reflection has been</span>
+<span class="sd">assigned. This code must match a value of _reflns_class_code.</span>
+<span class="sd">Reflections may be grouped into classes for a variety of</span>
+<span class="sd">purposes. For example, for modulated structures each reflection</span>
+<span class="sd">class may be defined by the number m=sum|m~i~|, where the m~i~</span>
+<span class="sd">are the integer coefficients that, in addition to h,k,l, index</span>
+<span class="sd">the corresponding diffraction vector in the basis defined</span>
+<span class="sd">for the reciprocal lattice.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Must match data name_reflns_class_code</span>
+
+<span class="sd">Type: char        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__class_code&quot;</span><span class="p">)</span>
+    <span class="nd">@class_code</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">class_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__class_code&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">crystal_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Code identifying each crystal if multiple crystals are used. Is</span>
+<span class="sd">used to link with _exptl_crystal_id in the _exptl_crystal_ list.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Must match data name_exptl_crystal_id</span>
+
+<span class="sd">Type: char        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__crystal_id&quot;</span><span class="p">)</span>
+    <span class="nd">@crystal_id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">crystal_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__crystal_id&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">d_spacing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The d spacing in angstroms for this reflection. This is related</span>
+<span class="sd">to the (sin theta)/lambda value by the expression</span>
+<span class="sd">_refln_d_spacing = 2/(_refln_sint/lambda)</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The permitted range is 0.0 -&gt; infinity</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__d_spacing&quot;</span><span class="p">)</span>
+    <span class="nd">@d_spacing</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">d_spacing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__d_spacing&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The standard uncertainty (derived from</span>
+<span class="sd">measurement) of the structure factors (in electrons for</span>
+<span class="sd">X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_sigma&quot;</span><span class="p">)</span>
+    <span class="nd">@f_sigma</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_sigma&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The calculated  of the structure factors (in electrons for</span>
+<span class="sd">X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">_1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">_2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">res</span>
+    <span class="nd">@f_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">imag</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_calc&quot;</span><span class="p">,</span> <span class="n">x_in_1</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_calc&quot;</span><span class="p">,</span> <span class="n">x_in_2</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The measured of the structure factors (in electrons for</span>
+<span class="sd">X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_meas&quot;</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_meas&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">_1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">_2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">res</span>
+    <span class="nd">@f_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in_1</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">real</span>
+            <span class="n">x_in_2</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">imag</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__a_meas&quot;</span><span class="p">,</span> <span class="n">x_in_1</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__b_meas&quot;</span><span class="p">,</span> <span class="n">x_in_2</span><span class="p">)</span>        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_squared_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculated of the squared structure factors (in electrons</span>
+<span class="sd">squared for X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_squared_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@f_squared_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_squared_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_squared_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_squared_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Measured of the squared structure factors (in electrons</span>
+<span class="sd">squared for X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_squared_meas&quot;</span><span class="p">)</span>
+    <span class="nd">@f_squared_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_squared_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_squared_meas&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f_squared_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Estimated standard uncertainty (derived</span>
+<span class="sd">from measurement) of the squared structure factors (in electrons</span>
+<span class="sd">squared for X-ray diffraction).</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_squared_sigma&quot;</span><span class="p">)</span>
+    <span class="nd">@f_squared_sigma</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f_squared_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__f_squared_sigma&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">include_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classification of a reflection indicating its status with</span>
+<span class="sd">respect to inclusion in the refinement and the calculation</span>
+<span class="sd">of R factors.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Related item: _refln_observed_status (alternate)</span>
+
+<span class="sd">The data value must be one of the following:</span>
+
+
+<span class="sd">o	(lower-case letter o for &#39;observed&#39;) satisfies _refine_ls_d_res_high satisfies _refine_ls_d_res_low exceeds _reflns_threshold_expression</span>
+<span class="sd">&lt;	satisfies _refine_ls_d_res_high satisfies _refine_ls_d_res_low does not exceed _reflns_threshold_expression</span>
+<span class="sd">-	systematically absent reflection</span>
+<span class="sd">x	unreliable measurement -- not used</span>
+<span class="sd">h	does not satisfy _refine_ls_d_res_high</span>
+<span class="sd">l	does not satisfy _refine_ls_d_res_low</span>
+
+<span class="sd">Enumeration default: o</span>
+<span class="sd">Type: char        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__include_status&quot;</span><span class="p">)</span>
+    <span class="nd">@include_status</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">include_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_INCLUDE_STATUS</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;include_status &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__include_status&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intensity_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The calculated of the intensity, all in the same arbitrary units</span>
+<span class="sd">as _refln_intensity_meas.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@intensity_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">intensity_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intensity_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The measured of the intensity, all in the same arbitrary units</span>
+<span class="sd">as _refln_intensity_meas.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_meas&quot;</span><span class="p">)</span>
+    <span class="nd">@intensity_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">intensity_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_meas&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intensity_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The standard uncertainty (derived from</span>
+<span class="sd">measurement) of the intensity, all in the same arbitrary units</span>
+<span class="sd">as _refln_intensity_meas.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_sigma&quot;</span><span class="p">)</span>
+    <span class="nd">@intensity_sigma</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">intensity_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_sigma&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mean_path_length_tbar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Mean path length in millimetres through the crystal for this</span>
+<span class="sd">reflection.</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The permitted range is 0.0 -&gt; infinity</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__mean_path_length_tbar&quot;</span><span class="p">)</span>
+    <span class="nd">@mean_path_length_tbar</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">mean_path_length_tbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__mean_path_length_tbar&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The calculated structure-factor phase in degrees.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__phase_calc&quot;</span><span class="p">)</span>
+    <span class="nd">@phase_calc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__phase_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">phase_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The measured structure-factor phase in degrees.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Type: numb</span>
+
+<span class="sd">Category: refln</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__phase_meas&quot;</span><span class="p">)</span>
+    <span class="nd">@phase_meas</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">phase_meas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__phase_meas&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">refinement_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Status of a reflection in the structure-refinement process.</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The data value must be one of the following:</span>
+
+<span class="sd">incl	included in ls process</span>
+
+<span class="sd">excl	excluded from ls process</span>
+
+<span class="sd">extn	excluded due to extinction</span>
+
+<span class="sd">Enumeration default: incl        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__refinement_status&quot;</span><span class="p">)</span>
+    <span class="nd">@refinement_status</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">refinement_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x_in</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_REFINEMENT_STATUS</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;refinement_status &#39;</span><span class="si">{x_in:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>                    
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__refinement_status&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scale_group_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Code identifying the structure-factor scale. This code must</span>
+<span class="sd">   correspond to one of the _reflns_scale_group_code values.</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">1, 2, 3, s1</span>
+<span class="sd">A, B, c1, c2, c3</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Must match data name_reflns_scale_group_code</span>
+
+<span class="sd">Type: char        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__scale_group_code&quot;</span><span class="p">)</span>
+    <span class="nd">@scale_group_code</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">scale_group_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__scale_group_code&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sintlambda</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The (sin theta)/lambda value in reciprocal angstroms for this</span>
+<span class="sd">   reflection.</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The permitted range is 0.0 -&gt; infinity</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__sintlambda&quot;</span><span class="p">)</span>
+    <span class="nd">@sintlambda</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sintlambda</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__sintlambda&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symmetry_epsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The symmetry reinforcement factor corresponding to the number of</span>
+<span class="sd">times the reflection indices are generated identically from the</span>
+<span class="sd">space-group symmetry operations.</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The permitted range is 1 -&gt; 48</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__symmetry_epsilon&quot;</span><span class="p">)</span>
+    <span class="nd">@symmetry_epsilon</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">symmetry_epsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__symmetry_epsilon&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">symmetry_multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The number of reflections symmetry-equivalent under the Laue</span>
+<span class="sd">symmetry to the present reflection. In the Laue symmetry, Friedel</span>
+<span class="sd">opposites (h k l and -h -k -l) are equivalent. Tables of</span>
+<span class="sd">symmetry-equivalent reflections are available in International</span>
+<span class="sd">Tables for Crystallography Volume A (2002), Chapter 10.1.</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The permitted range is 1 -&gt; 48</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__symmetry_multiplicity&quot;</span><span class="p">)</span>
+    <span class="nd">@symmetry_multiplicity</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">symmetry_multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__symmetry_multiplicity&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The mean wavelength in angstroms of the radiation used to measure</span>
+<span class="sd">this reflection. This is an important parameter for data</span>
+<span class="sd">collected using energy-dispersive detectors or the Laue method.</span>
+
+<span class="sd">Appears in list containing _refln_index_ </span>
+<span class="sd">The permitted range is 0.0 -&gt; infinity</span>
+
+<span class="sd">Type: numb        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wavelength&quot;</span><span class="p">)</span>
+    <span class="nd">@wavelength</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wavelength</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wavelength&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wavelength_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Code identifying the wavelength in the _diffrn_radiation_ list.</span>
+<span class="sd">See _diffrn_radiation_wavelength_id.</span>
+
+<span class="sd">Appears in list containing _refln_index_</span>
+
+<span class="sd">Must match data name_diffrn_radiation_wavelength_id</span>
+
+<span class="sd">Type: char        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wavelength_id&quot;</span><span class="p">)</span>
+    <span class="nd">@wavelength_id</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wavelength_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">)):</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__wavelength_id&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Refln:&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_show_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_out</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;***  Error ***</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">s_out</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+<div class="viewcode-block" id="Refln.get_variables"><a class="viewcode-back" href="../../../cryspy.corecif.refln.html#cryspy.corecif.cl_refln.Refln.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div></div>
+
+
+<div class="viewcode-block" id="ReflnL"><a class="viewcode-back" href="../../../cryspy.corecif.refln.html#cryspy.corecif.cl_refln.ReflnL">[docs]</a><span class="k">class</span> <span class="nc">ReflnL</span><span class="p">(</span><span class="n">LoopConstr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Data items in the REFLN category record details about the</span>
+<span class="sd">reflections used to determine the ATOM_SITE data items.</span>
+<span class="sd">The REFLN data items refer to individual reflections and must</span>
+<span class="sd">be included in looped lists.</span>
+
+<span class="sd">The REFLNS data items specify the parameters that apply to all</span>
+<span class="sd">reflections. The REFLNS data items are not looped.</span>
+
+<span class="sd">Description in cif file::</span>
+
+<span class="sd"> loop_</span>
+<span class="sd">  _refln_index_h</span>
+<span class="sd">  _refln_index_k</span>
+<span class="sd">  _refln_index_l</span>
+<span class="sd">  _refln_d_spacing</span>
+<span class="sd">  _refln_A_calc</span>
+<span class="sd">  _refln_B_calc</span>
+<span class="sd">  0 0 2 2.315 3.25  1.232</span>
+<span class="sd">  2 2 0 4.213 5.00 -4.05</span>
+<span class="sd"> </span>
+<span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Crefln.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
+    <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">Refln</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ReflnL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ReflnL: &quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">cryspy 0.2.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+    </div>
+  </body>
+</html>
