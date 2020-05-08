@@ -1,21 +1,21 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>CrysPy documentation &#8212; cryspy 0.2.0 documentation</title>
+    <title>CrysPy &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The CrysPy tutorial" href="m_tutorial.html" />
+    <link rel="next" title="Getting started with CrysPy" href="m_intro.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <!--[if lte IE 6]>
@@ -34,7 +34,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="m_tutorial.html" title="The CrysPy tutorial"
+          <a href="m_intro.html" title="Getting started with CrysPy"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">cryspy 0.2.0 documentation</a> &#187;</li> 
       </ul>
@@ -45,20 +45,27 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="cryspy-documentation">
-<h1>CrysPy documentation<a class="headerlink" href="#cryspy-documentation" title="Permalink to this headline">¶</a></h1>
-<p>This is the documentation for CrysPy library.</p>
+  <div class="section" id="cryspy">
+<h1>CrysPy<a class="headerlink" href="#cryspy" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="#cryspy">CrysPy</a> is a crystallographic library for neutron data analysis.
+It allows to refine polarized neutron diffraction experiments
+performed with single crystals as well as with powder magnetic compounds.
+A console version is given together with a simple GUI_editor.</p>
+<p>The <em>CrysPy</em> package is Free software.
+The software and this document are works in progress. If you are interested in participating
+in this effort please use the <a class="reference external" href="https://github.com/ikibalin/cryspy">CrysPy GitHub repository</a>.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="m_tutorial.html">The CrysPy tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="m_tutorial.html#main-features">Main Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_tutorial.html#installation-and-requirements-of-cryspy">Installation and Requirements of <em>CrysPy</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_tutorial.html#run-rhochi">Run <em>RhoChi</em></a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_tutorial.html#collaboration">Collaboration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_tutorial.html#copyright-and-license">Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="m_intro.html">Getting started with CrysPy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="m_installation.html">Downloading and Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#downloads">Downloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#development-version">Development Version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#testing">Testing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="m_classes.html">Classes</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="m_classes.html">Built-in classes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="cryspy.corecif.html">Core dictionary (coreCIF)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.cell.html">Cell</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.atom_site.html">AtomSite</a></li>
@@ -142,13 +149,13 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">CrysPy documentation</a></li>
+<li><a class="reference internal" href="#">CrysPy</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="m_tutorial.html"
-                        title="next chapter">The CrysPy tutorial</a></p>
+  <p class="topless"><a href="m_intro.html"
+                        title="next chapter">Getting started with CrysPy</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -165,7 +172,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -180,14 +187,14 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="m_tutorial.html" title="The CrysPy tutorial"
+          <a href="m_intro.html" title="Getting started with CrysPy"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">cryspy 0.2.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

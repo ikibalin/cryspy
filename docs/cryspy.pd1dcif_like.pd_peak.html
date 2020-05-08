@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>PdPeak &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Unofficial powder 2D dictionary" href="cryspy.pd2dcif_like.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.pd1dcif_like.cl_pd_peak">
 <span id="pdpeak"></span><h1>PdPeak<a class="headerlink" href="#module-cryspy.pd1dcif_like.cl_pd_peak" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_peak.</code><code class="sig-name descname">PdPeak</code><span class="sig-paren">(</span><em class="sig-param">index_h=None</em>, <em class="sig-param">index_k=None</em>, <em class="sig-param">index_l=None</em>, <em class="sig-param">index_mult=None</em>, <em class="sig-param">ttheta=None</em>, <em class="sig-param">intensity_up=None</em>, <em class="sig-param">intensity_down=None</em>, <em class="sig-param">width_ttheta=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_peak.</code><code class="sig-name descname">PdPeak</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index_h</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">index_k</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">index_l</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">index_mult</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">intensity_up</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">intensity_down</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">width_ttheta</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>This section contains peak information extracted from the
 measured or, if present, the processed diffractogram. Each
@@ -78,81 +78,81 @@ and intensity will have been previously applied.</p>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html</a></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', 'ttheta', 'intensity_up', 'intensity_down', 'width_ttheta')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_peak'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', '2theta', 'intensity_up', 'intensity_down', 'width_2theta')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_h">
 <em class="property">property </em><code class="sig-name descname">index_h</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_h" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_k">
 <em class="property">property </em><code class="sig-name descname">index_k</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_k" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_l">
 <em class="property">property </em><code class="sig-name descname">index_l</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_l" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_mult">
 <em class="property">property </em><code class="sig-name descname">index_mult</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.index_mult" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_down">
 <em class="property">property </em><code class="sig-name descname">intensity_down</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_down" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_up">
 <em class="property">property </em><code class="sig-name descname">intensity_up</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.intensity_up" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.ttheta">
 <em class="property">property </em><code class="sig-name descname">ttheta</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.ttheta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeak.width_ttheta">
 <em class="property">property </em><code class="sig-name descname">width_ttheta</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak.width_ttheta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_peak.</code><code class="sig-name descname">PdPeakL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_peak.</code><code class="sig-name descname">PdPeakL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">loop_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>This section contains peak information extracted from the
 measured or, if present, the processed diffractogram. Each
@@ -177,15 +177,132 @@ and intensity will have been previously applied.</p>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_pd.dic/Cpd_peak.html">Reference.</a></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.INTERNAL_ATTRIBUTE">
+<code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('numpy_index_h', 'numpy_index_k', 'numpy_index_l', 'numpy_index_mult', 'numpy_ttheta', 'numpy_intensity_up', 'numpy_intensity_down', 'numpy_width_ttheta')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeak" title="cryspy.pd1dcif_like.cl_pd_peak.PdPeak"><code class="xref py py-class docutils literal notranslate"><span class="pre">PdPeak</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_h">
+<code class="sig-name descname">get_numpy_index_h</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_index_h"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_k">
+<code class="sig-name descname">get_numpy_index_k</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_index_k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_k" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_l">
+<code class="sig-name descname">get_numpy_index_l</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_index_l"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_mult">
+<code class="sig-name descname">get_numpy_index_mult</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_index_mult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_index_mult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_intensity_down">
+<code class="sig-name descname">get_numpy_intensity_down</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_intensity_down"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_intensity_down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_intensity_up">
+<code class="sig-name descname">get_numpy_intensity_up</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_intensity_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_intensity_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_ttheta">
+<code class="sig-name descname">get_numpy_ttheta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_ttheta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_width_ttheta">
+<code class="sig-name descname">get_numpy_width_ttheta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.get_numpy_width_ttheta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.get_numpy_width_ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_h">
+<code class="sig-name descname">set_numpy_index_h</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_index_h"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_h" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_k">
+<code class="sig-name descname">set_numpy_index_k</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_index_k"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_k" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_l">
+<code class="sig-name descname">set_numpy_index_l</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_index_l"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_mult">
+<code class="sig-name descname">set_numpy_index_mult</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_index_mult"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_index_mult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_intensity_down">
+<code class="sig-name descname">set_numpy_intensity_down</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_intensity_down"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_intensity_down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_intensity_up">
+<code class="sig-name descname">set_numpy_intensity_up</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_intensity_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_intensity_up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_ttheta">
+<code class="sig-name descname">set_numpy_ttheta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_ttheta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_width_ttheta">
+<code class="sig-name descname">set_numpy_width_ttheta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.set_numpy_width_ttheta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.set_numpy_width_ttheta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.transform_items_to_numpy_arrays">
+<code class="sig-name descname">transform_items_to_numpy_arrays</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.transform_items_to_numpy_arrays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.transform_items_to_numpy_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform items to numpy arrays (to speed up the calculations):</p>
+<blockquote>
+<div><p>numpy_index_h: 1D numpy array of ttheta, dtype=int
+numpy_index_k: 1D numpy array of ttheta, dtype=int
+numpy_index_l: 1D numpy array of ttheta, dtype=int
+numpy_index_mult: 1D numpy array of ttheta, dtype=int
+numpy_ttheta: 1D numpy array of ttheta, dtype=float
+numpy_intensity_up: 1D numpy array of ttheta, dtype=float
+numpy_intensity_down: 1D numpy array of ttheta, dtype=float
+numpy_width_ttheta: 1D numpy array of ttheta, dtype=float</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.transform_numpy_arrays_to_items">
+<code class="sig-name descname">transform_numpy_arrays_to_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_peak.html#PdPeakL.transform_numpy_arrays_to_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_peak.PdPeakL.transform_numpy_arrays_to_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform data from numpy arrays to items:</p>
+<blockquote>
+<div><p>numpy_index_h: 1D numpy array of ttheta, dtype=int
+numpy_index_k: 1D numpy array of ttheta, dtype=int
+numpy_index_l: 1D numpy array of ttheta, dtype=int
+numpy_index_mult: 1D numpy array of ttheta, dtype=int
+numpy_ttheta: 1D numpy array of ttheta, dtype=float
+numpy_intensity_up: 1D numpy array of ttheta, dtype=float
+numpy_intensity_down: 1D numpy array of ttheta, dtype=float
+numpy_width_ttheta: 1D numpy array of ttheta, dtype=float</p>
+</div></blockquote>
 </dd></dl>
 
 </dd></dl>
@@ -220,7 +337,7 @@ and intensity will have been previously applied.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -246,8 +363,8 @@ and intensity will have been previously applied.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

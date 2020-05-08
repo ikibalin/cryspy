@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>SpaceGroupSymop &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="SpaceGroupWyckoff" href="cryspy.symcif.space_group_wyckoff.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.symcif.cl_space_group_symop">
 <span id="spacegroupsymop"></span><h1>SpaceGroupSymop<a class="headerlink" href="#module-cryspy.symcif.cl_space_group_symop" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.symcif.cl_space_group_symop.</code><code class="sig-name descname">SpaceGroupSymop</code><span class="sig-paren">(</span><em class="sig-param">id=None</em>, <em class="sig-param">operation_xyz=None</em>, <em class="sig-param">operation_description=None</em>, <em class="sig-param">generator_xyz=None</em>, <em class="sig-param">sg_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.symcif.cl_space_group_symop.</code><code class="sig-name descname">SpaceGroupSymop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operation_xyz</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operation_description</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">generator_xyz</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sg_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Contains information about the symmetry operations of the
 space group.</p>
@@ -94,52 +94,52 @@ space group.</p>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('r', 'b', 'r_11', 'r_12', 'r_13', 'r_21', 'r_22', 'r_23', 'r_31', 'r_32', 'r_33', 'b_1', 'b_2', 'b_3')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('operation_xyz',)</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('id', 'operation_description', 'generator_xyz', 'sg_id')</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'space_group_symop'</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b">
 <em class="property">property </em><code class="sig-name descname">b</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b_1">
 <em class="property">property </em><code class="sig-name descname">b_1</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b_1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b_2">
 <em class="property">property </em><code class="sig-name descname">b_2</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b_2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b_3">
 <em class="property">property </em><code class="sig-name descname">b_3</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.b_3" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.form_object">
 <em class="property">property </em><code class="sig-name descname">form_object</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.form_object" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.generator_xyz">
 <em class="property">property </em><code class="sig-name descname">generator_xyz</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.generator_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>A parsable string giving one of the symmetry generators of the
@@ -173,41 +173,41 @@ Dordrecht: Kluwer Academic Publishers.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_coords_xyz_by_coord_xyz">
-<code class="sig-name descname">get_coords_xyz_by_coord_xyz</code><span class="sig-paren">(</span><em class="sig-param">coord_xyz: str</em><span class="sig-paren">)</span> &#x2192; Tuple<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_coords_xyz_by_coord_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_coords_xyz_by_coord_xyz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_coords_xyz_by_coord_xyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord_xyz</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_coords_xyz_by_coord_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_coords_xyz_by_coord_xyz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symop_inversed">
-<code class="sig-name descname">get_symop_inversed</code><span class="sig-paren">(</span><em class="sig-param">pcentr=array([0.</em>, <em class="sig-param">0.</em>, <em class="sig-param">0.])</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_symop_inversed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symop_inversed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_symop_inversed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pcentr</span><span class="o">=</span><span class="default_value">array([0.0, 0.0, 0.0])</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_symop_inversed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symop_inversed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symops_by_centring_type">
-<code class="sig-name descname">get_symops_by_centring_type</code><span class="sig-paren">(</span><em class="sig-param">centring_type: str</em><span class="sig-paren">)</span> &#x2192; Tuple[str]<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_symops_by_centring_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symops_by_centring_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_symops_by_centring_type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">centring_type</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_symops_by_centring_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symops_by_centring_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symops_by_generator_xyz">
-<code class="sig-name descname">get_symops_by_generator_xyz</code><span class="sig-paren">(</span><em class="sig-param">generator_xyz: str</em><span class="sig-paren">)</span> &#x2192; Tuple[str]<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_symops_by_generator_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symops_by_generator_xyz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_symops_by_generator_xyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">generator_xyz</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>str<span class="p">]</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymop.get_symops_by_generator_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.get_symops_by_generator_xyz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.id">
 <em class="property">property </em><code class="sig-name descname">id</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.id" title="Permalink to this definition">¶</a></dt>
 <dd><p>An arbitrary identifier that uniquely labels each symmetry opera-
 tion in the list.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.operation_description">
 <em class="property">property </em><code class="sig-name descname">operation_description</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.operation_description" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional text description of a particular symmetry operation of
 the space group</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.operation_xyz">
 <em class="property">property </em><code class="sig-name descname">operation_xyz</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.operation_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>A parsable string giving one of the symmetry operations of the
@@ -234,57 +234,57 @@ Dordrecht: Kluwer Academic Publishers.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r">
 <em class="property">property </em><code class="sig-name descname">r</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_11">
 <em class="property">property </em><code class="sig-name descname">r_11</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_11" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_12">
 <em class="property">property </em><code class="sig-name descname">r_12</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_12" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_13">
 <em class="property">property </em><code class="sig-name descname">r_13</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_13" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_21">
 <em class="property">property </em><code class="sig-name descname">r_21</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_21" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_22">
 <em class="property">property </em><code class="sig-name descname">r_22</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_22" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_23">
 <em class="property">property </em><code class="sig-name descname">r_23</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_23" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_31">
 <em class="property">property </em><code class="sig-name descname">r_31</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_31" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_32">
 <em class="property">property </em><code class="sig-name descname">r_32</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_32" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_33">
 <em class="property">property </em><code class="sig-name descname">r_33</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.r_33" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.sg_id">
 <em class="property">property </em><code class="sig-name descname">sg_id</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop.sg_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>A child of _space_group.id allowing the symmetry operation to
@@ -293,9 +293,9 @@ be identified with a particular space group</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.symcif.cl_space_group_symop.</code><code class="sig-name descname">SpaceGroupSymopL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymopL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.symcif.cl_space_group_symop.</code><code class="sig-name descname">SpaceGroupSymopL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">loop_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymopL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>Contains information about the symmetry operations of the
 space group.</p>
@@ -334,25 +334,25 @@ space group.</p>
 </dd>
 </dl>
 <p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html">Reference.</a></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('id',)</em><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymop" title="cryspy.symcif.cl_space_group_symop.SpaceGroupSymop"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceGroupSymop</span></code></a></p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.create_by_generators_xyz">
-<em class="property">classmethod </em><code class="sig-name descname">create_by_generators_xyz</code><span class="sig-paren">(</span><em class="sig-param">generators_xyz: List</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymopL.create_by_generators_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.create_by_generators_xyz" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">create_by_generators_xyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">generators_xyz</span><span class="p">:</span> <span class="n">List</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymopL.create_by_generators_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.create_by_generators_xyz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.get_coords_xyz_by_coord_xyz">
-<code class="sig-name descname">get_coords_xyz_by_coord_xyz</code><span class="sig-paren">(</span><em class="sig-param">coord_xyz: str</em><span class="sig-paren">)</span> &#x2192; Tuple<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymopL.get_coords_xyz_by_coord_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.get_coords_xyz_by_coord_xyz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_coords_xyz_by_coord_xyz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord_xyz</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple<a class="reference internal" href="_modules/cryspy/symcif/cl_space_group_symop.html#SpaceGroupSymopL.get_coords_xyz_by_coord_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.symcif.cl_space_group_symop.SpaceGroupSymopL.get_coords_xyz_by_coord_xyz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -387,7 +387,7 @@ space group.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -413,8 +413,8 @@ space group.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

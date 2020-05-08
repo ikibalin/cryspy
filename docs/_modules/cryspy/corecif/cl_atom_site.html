@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>cryspy.corecif.cl_atom_site &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,13 +47,13 @@
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_12_05&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="kn">import</span> <span class="n">Global</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="kn">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="kn">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="kn">import</span> <span class="n">Fitable</span>
 <span class="kn">import</span> <span class="nn">cryspy.corecif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span> 
 
 
@@ -77,14 +77,14 @@
 <span class="sd">`&lt;https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Catom_site.html&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;type_symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;fract_x&quot;</span><span class="p">,</span> <span class="s2">&quot;fract_y&quot;</span><span class="p">,</span> <span class="s2">&quot;fract_z&quot;</span><span class="p">)</span>
-    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;occupancy&quot;</span><span class="p">,</span> <span class="s2">&quot;adp_type&quot;</span><span class="p">,</span> <span class="s2">&quot;wyckoff_symbol&quot;</span><span class="p">,</span> 
-                          <span class="s2">&quot;u_iso_or_equiv&quot;</span><span class="p">,</span> <span class="s2">&quot;u_equiv_geom_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;b_iso_or_equiv&quot;</span><span class="p">,</span>
-                          <span class="s2">&quot;cartn_x&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_y&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_z&quot;</span><span class="p">,</span> <span class="s2">&quot;multiplicity&quot;</span><span class="p">)</span>
+    <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;occupancy&quot;</span><span class="p">,</span> <span class="s2">&quot;adp_type&quot;</span><span class="p">,</span>  <span class="s2">&quot;u_iso_or_equiv&quot;</span><span class="p">,</span> <span class="s2">&quot;u_equiv_geom_mean&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;b_iso_or_equiv&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;multiplicity&quot;</span><span class="p">,</span> <span class="s2">&quot;wyckoff_symbol&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_x&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_y&quot;</span><span class="p">,</span> <span class="s2">&quot;cartn_z&quot;</span><span class="p">)</span>
     <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;scat_length_neutron&quot;</span><span class="p">,</span> <span class="s2">&quot;space_group_wyckoff&quot;</span><span class="p">,</span> <span class="s2">&quot;constr_number&quot;</span><span class="p">)</span>
     <span class="n">ACCESIBLE_ADP_TYPE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Uani&quot;</span><span class="p">,</span> <span class="s2">&quot;Uiso&quot;</span><span class="p">,</span> <span class="s2">&quot;Uovl&quot;</span><span class="p">,</span> <span class="s2">&quot;Umpe&quot;</span><span class="p">,</span> <span class="s2">&quot;Bani&quot;</span><span class="p">,</span> <span class="s2">&quot;Biso&quot;</span><span class="p">,</span> <span class="s2">&quot;Bovl&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;atom_site&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">type_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fract_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fract_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fract_z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">type_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fract_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fract_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fract_z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
     <span class="n">occupancy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adp_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wyckoff_symbol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
     <span class="n">u_iso_or_equiv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">u_equiv_geom_mean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">b_iso_or_equiv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
     <span class="n">cartn_x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cartn_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cartn_z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -234,7 +234,7 @@
             <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACCESIBLE_ADP_TYPE</span><span class="p">):</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;adp_type &#39;</span><span class="si">{x:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;adp_type &#39;</span><span class="si">{</span><span class="n">x</span><span class="si">:}</span><span class="s2">&#39; is not supported&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
                 <span class="n">x_in</span> <span class="o">=</span> <span class="kc">None</span>            
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">x_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -649,14 +649,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">AtomSite</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AtomSiteL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;AtomSiteL: &quot;</span><span class="p">)</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">:}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AtomSiteL.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.atom_site.html#cryspy.corecif.cl_atom_site.AtomSiteL.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space_group_wyckoff_l</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
@@ -682,7 +682,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -701,8 +701,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

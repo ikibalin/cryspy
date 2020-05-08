@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>AtomSiteMoment &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="AtomSiteSusceptibility" href="cryspy.magneticcif.atom_site_susceptibility.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.magneticcif.cl_atom_site_moment">
 <span id="atomsitemoment"></span><h1>AtomSiteMoment<a class="headerlink" href="#module-cryspy.magneticcif.cl_atom_site_moment" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_atom_site_moment.</code><code class="sig-name descname">AtomSiteMoment</code><span class="sig-paren">(</span><em class="sig-param">label=None</em>, <em class="sig-param">cartn_x=None</em>, <em class="sig-param">cartn_y=None</em>, <em class="sig-param">cartn_z=None</em>, <em class="sig-param">crystalaxis_x=None</em>, <em class="sig-param">crystalaxis_y=None</em>, <em class="sig-param">crystalaxis_z=None</em>, <em class="sig-param">modulation_flag=None</em>, <em class="sig-param">refinement_flags_magnetic=None</em>, <em class="sig-param">spherical_azimuthal=None</em>, <em class="sig-param">spherical_modulus=None</em>, <em class="sig-param">spherical_polar=None</em>, <em class="sig-param">symmform=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMoment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_atom_site_moment.</code><code class="sig-name descname">AtomSiteMoment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cartn_x</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cartn_y</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cartn_z</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">crystalaxis_x</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">crystalaxis_y</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">crystalaxis_z</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modulation_flag</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">refinement_flags_magnetic</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spherical_azimuthal</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spherical_modulus</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">spherical_polar</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">symmform</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMoment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>This category provides a loop for presenting the magnetic moments
 of atoms in one of several coordinate systems. This is a child category
@@ -71,44 +71,44 @@ listed alongside the non-magnetic atom properties in the main AtomSite loop
 </pre></div>
 </div>
 <p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf</a></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.ACCESIBLE_MODULATION_FLAG">
 <code class="sig-name descname">ACCESIBLE_MODULATION_FLAG</code><em class="property"> = ('yes', 'y', 'no', 'n')</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.ACCESIBLE_MODULATION_FLAG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.ACCESIBLE_REFINEMENT_FLAGS_MAGNETIC">
 <code class="sig-name descname">ACCESIBLE_REFINEMENT_FLAGS_MAGNETIC</code><em class="property"> = ('.', 'S', 'M', 'A', 'SM', 'SA', 'MA', 'SMA')</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.ACCESIBLE_REFINEMENT_FLAGS_MAGNETIC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('label',)</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('cartn_x', 'cartn_y', 'cartn_z', 'crystalaxis_x', 'crystalaxis_y', 'crystalaxis_z', 'modulation_flag', 'refinement_flags_magnetic', 'spherical_azimuthal', 'spherical_modulus', 'spherical_polar', 'symmform')</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'atom_site_moment'</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.calc_zeeman">
-<code class="sig-name descname">calc_zeeman</code><span class="sig-paren">(</span><em class="sig-param">field_cryst</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMoment.calc_zeeman"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.calc_zeeman" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_zeeman</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field_cryst</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMoment.calc_zeeman"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.calc_zeeman" title="Permalink to this definition">¶</a></dt>
 <dd><p>!!! It is valid only for cubic crystals
 moment*sin(moment^field) at angle decreesing</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.cartn_x">
 <em class="property">property </em><code class="sig-name descname">cartn_x</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.cartn_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>The atom-site magnetic moment vector specified according to a set
@@ -118,7 +118,7 @@ ing a right-hand set.</p>
 <p>Type: float</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.cartn_y">
 <em class="property">property </em><code class="sig-name descname">cartn_y</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.cartn_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>The atom-site magnetic moment vector specified according to a set
@@ -128,7 +128,7 @@ ing a right-hand set.</p>
 <p>Type: float</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.cartn_z">
 <em class="property">property </em><code class="sig-name descname">cartn_z</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.cartn_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>The atom-site magnetic moment vector specified according to a set
@@ -138,7 +138,7 @@ ing a right-hand set.</p>
 <p>Type: float</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.crystalaxis_x">
 <em class="property">property </em><code class="sig-name descname">crystalaxis_x</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.crystalaxis_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>The atom-site magnetic moment vector specified as a
@@ -150,7 +150,7 @@ jected onto the unit-cell axes.</p>
 <p>Type: float</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.crystalaxis_y">
 <em class="property">property </em><code class="sig-name descname">crystalaxis_y</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.crystalaxis_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>The atom-site magnetic moment vector specified as a
@@ -162,7 +162,7 @@ jected onto the unit-cell axes.</p>
 <p>Type: float</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.crystalaxis_z">
 <em class="property">property </em><code class="sig-name descname">crystalaxis_z</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.crystalaxis_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>The atom-site magnetic moment vector specified as a
@@ -174,13 +174,13 @@ jected onto the unit-cell axes.</p>
 <p>Type: float</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMoment.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.get_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output: the list of the refined parameters</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.is_variable">
 <em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.is_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if there is any refined parameter</p>
@@ -191,14 +191,14 @@ jected onto the unit-cell axes.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.label">
 <em class="property">property </em><code class="sig-name descname">label</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.label" title="Permalink to this definition">¶</a></dt>
 <dd><p>This label in a unique identifier for a particular site in the asymmetric unit of the crystal unit cell
 Type: char</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.modulation_flag">
 <em class="property">property </em><code class="sig-name descname">modulation_flag</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.modulation_flag" title="Permalink to this definition">¶</a></dt>
 <dd><p>A code that signals whether the structural model includes the mod-
@@ -210,12 +210,12 @@ no no magnetic modulation
 n abbreviation for ‘no’</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.moment">
 <em class="property">property </em><code class="sig-name descname">moment</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.moment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.refinement_flags_magnetic">
 <em class="property">property </em><code class="sig-name descname">refinement_flags_magnetic</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.refinement_flags_magnetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>The constraints/restraints placed on the magnetic moment during
@@ -251,7 +251,7 @@ model refinement.</p>
 </div></blockquote>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.spherical_azimuthal">
 <em class="property">property </em><code class="sig-name descname">spherical_azimuthal</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.spherical_azimuthal" title="Permalink to this definition">¶</a></dt>
 <dd><p>The azimuthal angle of the atom-site magnetic moment vector
@@ -262,7 +262,7 @@ axis starting from the +x side of the x–z plane.</p>
 <p>(Real: radians)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.spherical_modulus">
 <em class="property">property </em><code class="sig-name descname">spherical_modulus</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.spherical_modulus" title="Permalink to this definition">¶</a></dt>
 <dd><p>The modulus of the atom-site magnetic moment vector specified
@@ -271,7 +271,7 @@ axes where x||a and z||c∗ with y completing a right-hand set</p>
 <p>(Real: <span class="math notranslate nohighlight">\(\mu_{B}\)</span>)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.spherical_polar">
 <em class="property">property </em><code class="sig-name descname">spherical_polar</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.spherical_polar" title="Permalink to this definition">¶</a></dt>
 <dd><p>The polar angle of the atom-site magnetic moment vector specified
@@ -281,7 +281,7 @@ polar angle is measured relative to the +z axis</p>
 <p>(Real: radians)</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.symmform">
 <em class="property">property </em><code class="sig-name descname">symmform</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment.symmform" title="Permalink to this definition">¶</a></dt>
 <dd><p>A symbolic expression that indicates the symmetry-restricted form
@@ -296,9 +296,9 @@ has no translational component to be represented.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_atom_site_moment.</code><code class="sig-name descname">AtomSiteMomentL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMomentL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.magneticcif.cl_atom_site_moment.</code><code class="sig-name descname">AtomSiteMomentL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">loop_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/magneticcif/cl_atom_site_moment.html#AtomSiteMomentL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>AtomSiteMomentL category provides a loop for presenting the magnetic moments
 of atoms in one of several coordinate systems. This is a child category
@@ -317,12 +317,12 @@ listed alongside the non-magnetic atom properties in the main AtomSite loop
 </pre></div>
 </div>
 <p><a class="reference external" href="ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf">ftp://ftp.iucr.org/cifdics/cif_mag_0.9.7.dic.pdf</a></p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('label',)</em><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMomentL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment" title="cryspy.magneticcif.cl_atom_site_moment.AtomSiteMoment"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomSiteMoment</span></code></a></p>
@@ -360,7 +360,7 @@ listed alongside the non-magnetic atom properties in the main AtomSite loop
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -386,8 +386,8 @@ listed alongside the non-magnetic atom properties in the main AtomSite loop
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

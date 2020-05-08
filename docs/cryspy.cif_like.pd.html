@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Pd &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Pd2d" href="cryspy.cif_like.pd2d.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.cif_like.cl_pd">
 <span id="pd"></span><h1>Pd<a class="headerlink" href="#module-cryspy.cif_like.cl_pd" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.cif_like.cl_pd.Pd">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_pd.</code><code class="sig-name descname">Pd</code><span class="sig-paren">(</span><em class="sig-param">background=None</em>, <em class="sig-param">resolution=None</em>, <em class="sig-param">meas=None</em>, <em class="sig-param">phase=None</em>, <em class="sig-param">diffrn_radiation=None</em>, <em class="sig-param">setup=None</em>, <em class="sig-param">range=None</em>, <em class="sig-param">chi2=None</em>, <em class="sig-param">extinction=None</em>, <em class="sig-param">exclude=None</em>, <em class="sig-param">asymmetry=None</em>, <em class="sig-param">data_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_pd.</code><code class="sig-name descname">Pd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">background</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resolution</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">meas</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">diffrn_radiation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">setup</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">range</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">chi2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extinction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">asymmetry</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_data_constr.DataConstr</span></code></p>
 <p>Class to describe information about powder diffraction measurements</p>
 <p>Description in cif file:</p>
@@ -144,141 +144,214 @@
 <span class="mf">4.400</span> <span class="mf">4.785</span> <span class="mf">0.00000</span> <span class="mf">0.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">256.00000</span> <span class="mf">307.14000</span> <span class="mf">115.90000</span> <span class="mf">230.47000</span> <span class="mf">116.53000</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_pd.Pd.INTERNAL_CLASSES">
 <code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.corecif.cl_refine_ls.RefineLs'&gt;, &lt;class 'cryspy.corecif.cl_refln.ReflnL'&gt;, &lt;class 'cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_peak.PdPeakL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_proc.PdProcL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_pd.Pd.MANDATORY_CLASSES">
-<code class="sig-name descname">MANDATORY_CLASSES</code><em class="property"> = (&lt;class 'cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_instr_resolution.PdInstrResolution'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_meas.PdMeasL'&gt;, &lt;class 'cryspy.cif_like.cl_phase.PhaseL'&gt;, &lt;class 'cryspy.cif_like.cl_setup.Setup'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.MANDATORY_CLASSES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MANDATORY_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_setup.Setup'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_instr_resolution.PdInstrResolution'&gt;, &lt;class 'cryspy.cif_like.cl_phase.PhaseL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_meas.PdMeasL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.MANDATORY_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_pd.Pd.OPTIONAL_CLASSES">
-<code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation'&gt;, &lt;class 'cryspy.cif_like.cl_chi2.Chi2'&gt;, &lt;class 'cryspy.cif_like.cl_range.Range'&gt;, &lt;class 'cryspy.cif_like.cl_extinction.Extinction'&gt;, &lt;class 'cryspy.cif_like.cl_exclude.ExcludeL'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_instr_reflex_asymmetry.PdInstrReflexAsymmetry'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation'&gt;, &lt;class 'cryspy.cif_like.cl_chi2.Chi2'&gt;, &lt;class 'cryspy.cif_like.cl_range.Range'&gt;, &lt;class 'cryspy.cif_like.cl_extinction.Extinction'&gt;, &lt;class 'cryspy.pd1dcif_like.cl_pd_instr_reflex_asymmetry.PdInstrReflexAsymmetry'&gt;, &lt;class 'cryspy.cif_like.cl_exclude.ExcludeL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.asymmetry">
 <em class="property">property </em><code class="sig-name descname">asymmetry</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.asymmetry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.background">
 <em class="property">property </em><code class="sig-name descname">background</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.background" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_chi_sq">
-<code class="sig-name descname">calc_chi_sq</code><span class="sig-paren">(</span><em class="sig-param">l_crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_chi_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_chi_sq" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculate chi square</p>
+<code class="sig-name descname">calc_chi_sq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l_crystal</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_chi_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_chi_sq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate chi square</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l_crystal</strong> – a list of Crystal objects of cryspy library</p></li>
+<li><p><strong>flag_internal</strong> – a flag to calculate or to use internal objects.
+It should be True if user call the function.
+It’s True by default.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Output arguments:</p>
+<blockquote>
+<div><p>chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
+n: number of measured reflections</p>
+</div></blockquote>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_iint">
-<code class="sig-name descname">calc_iint</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_iint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_iint" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculate the integral intensity for h, k, l reflections</p>
+<code class="sig-name descname">calc_iint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">crystal</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_iint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_iint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the integrated intensity for h, k, l reflections.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong><strong>, </strong><strong>l</strong> (<em>h</em><em>,</em>) – 1D numpy array of Miller indexes, dtype = int32</p></li>
+<li><p><strong>l_crystal</strong> – a list of Crystal objects of cryspy library</p></li>
+<li><p><strong>flag_internal</strong> – a flag to calculate or to use internal objects.
+It should be True if user call the function.
+It’s True by default.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Output arguments:</p>
+<blockquote>
+<div><p>iint_u: 1D numpy array of integrated intensity up, dtype = float
+iint_d: 1D numpy array of integrated intensity up, dtype = float
+refln: ReflnL object of cryspy library (nuclear structure factor)
+refln_s: ReflnSusceptibilityL object of cryspy library (nuclear structure factor)</p>
+</div></blockquote>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_profile">
-<code class="sig-name descname">calc_profile</code><span class="sig-paren">(</span><em class="sig-param">tth</em>, <em class="sig-param">l_crystal</em>, <em class="sig-param">l_peak_in=None</em>, <em class="sig-param">l_refln_in=None</em>, <em class="sig-param">l_refln_susceptibility_in=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_profile" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculate intensity for the given diffraction angle</p>
+<code class="sig-name descname">calc_profile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tth</span></em>, <em class="sig-param"><span class="n">l_crystal</span></em>, <em class="sig-param"><span class="n">l_peak_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">l_refln_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate intensity for the given diffraction angles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tth</strong> – 1D numpy array of 2theta in degrees</p></li>
+<li><p><strong>l_crystal</strong> – a list of Crystal objects of cryspy library</p></li>
+<li><p><strong>l_peak_in</strong> – precalculated data about integrated intensities (used to speed up the calculations)</p></li>
+<li><p><strong>l_refln_in</strong> – precalculated data about nuclear structure factors (used to speed up the calculations)</p></li>
+<li><p><strong>l_refln_susceptibility_in</strong> – precalculated data about  (used to speed up the calculations)</p></li>
+<li><p><strong>flag_internal</strong> – a flag to calculate or to use internal objects.
+It should be True if user call the function.
+It’s True by default.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Output arguments:</p>
+<blockquote>
+<div><p>proc: output profile
+l_peak: data about peaks
+l_refln: data about nuclear structure factor</p>
+</div></blockquote>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_shape_profile">
-<code class="sig-name descname">calc_shape_profile</code><span class="sig-paren">(</span><em class="sig-param">tth</em>, <em class="sig-param">tth_hkl</em>, <em class="sig-param">i_g=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_shape_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_shape_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_shape_profile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tth</span></em>, <em class="sig-param"><span class="n">tth_hkl</span></em>, <em class="sig-param"><span class="n">i_g</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_shape_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_shape_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>calculate profile in the range ttheta for reflections placed on
 ttheta_hkl with i_g parameter by default equal to zero</p>
 <p>tth, tth_hkl in degrees</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_to_cif">
-<code class="sig-name descname">calc_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_to_cif" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">flag_minimal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_to_cif" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.chi2">
 <em class="property">property </em><code class="sig-name descname">chi2</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.chi2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.data_to_cif">
-<code class="sig-name descname">data_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.data_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.data_to_cif" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data_to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">flag_minimal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.data_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.data_to_cif" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.diffrn_radiation">
 <em class="property">property </em><code class="sig-name descname">diffrn_radiation</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.diffrn_radiation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.exclude">
 <em class="property">property </em><code class="sig-name descname">exclude</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.exclude" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.extinction">
 <em class="property">property </em><code class="sig-name descname">extinction</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.extinction" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.meas">
 <em class="property">property </em><code class="sig-name descname">meas</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.meas" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.params_to_cif">
-<code class="sig-name descname">params_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.params_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.params_to_cif" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">params_to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">flag_minimal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.params_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.params_to_cif" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.peak">
 <em class="property">property </em><code class="sig-name descname">peak</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.peak" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.phase">
 <em class="property">property </em><code class="sig-name descname">phase</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.phase" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.proc">
 <em class="property">property </em><code class="sig-name descname">proc</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.proc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.range">
 <em class="property">property </em><code class="sig-name descname">range</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.range" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.refine_ls">
 <em class="property">property </em><code class="sig-name descname">refine_ls</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.refine_ls" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.refln">
 <em class="property">property </em><code class="sig-name descname">refln</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.refln" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.refln_susceptibility">
 <em class="property">property </em><code class="sig-name descname">refln_susceptibility</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.refln_susceptibility" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.resolution">
 <em class="property">property </em><code class="sig-name descname">resolution</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.resolution" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.setup">
 <em class="property">property </em><code class="sig-name descname">setup</code><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.setup" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.cif_like.cl_pd.Pd.to_cif">
+<code class="sig-name descname">to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">flag_minimal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.to_cif" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redefined method of DataConstr.
+Print information about object in string in STAR format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefix</strong> – prefix in front of label of attribute</p></li>
+<li><p><strong>separator</strong> – separator between prefix and attribute (“_” or “.”)</p></li>
+<li><p><strong>flag</strong> – for undefined attribute “.” will be printed</p></li>
+<li><p><strong>if it's True the minimal set of object will be printed</strong> (<em>flag_minimal</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string in STAR/CIF format</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -312,7 +385,7 @@ ttheta_hkl with i_g parameter by default equal to zero</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -338,8 +411,8 @@ ttheta_hkl with i_g parameter by default equal to zero</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

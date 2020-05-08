@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Pd2dPeak &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Scripts" href="cryspy.scripts.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.pd2dcif_like.cl_pd2d_peak">
 <span id="pd2dpeak"></span><h1>Pd2dPeak<a class="headerlink" href="#module-cryspy.pd2dcif_like.cl_pd2d_peak" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd2dcif_like.cl_pd2d_peak.</code><code class="sig-name descname">Pd2dPeak</code><span class="sig-paren">(</span><em class="sig-param">index_h=None</em>, <em class="sig-param">index_k=None</em>, <em class="sig-param">index_l=None</em>, <em class="sig-param">index_mult=None</em>, <em class="sig-param">ttheta=None</em>, <em class="sig-param">f_nucl_sq=None</em>, <em class="sig-param">f_m_p_sin_sq=None</em>, <em class="sig-param">f_m_p_cos_sq=None</em>, <em class="sig-param">cross_sin=None</em>, <em class="sig-param">width_ttheta=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_peak.html#Pd2dPeak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd2dcif_like.cl_pd2d_peak.</code><code class="sig-name descname">Pd2dPeak</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index_h</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">index_k</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">index_l</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">index_mult</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_nucl_sq</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_m_p_sin_sq</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">f_m_p_cos_sq</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cross_sin</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">width_ttheta</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_peak.html#Pd2dPeak"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>This section contains peak information extracted from the
 measured or, if present, the processed diffractogram.</p>
@@ -72,91 +72,91 @@ measured or, if present, the processed diffractogram.</p>
 <span class="n">_pd2d_peak_width_2theta</span>      <span class="mf">2.3</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', 'ttheta', 'f_nucl_sq', 'f_m_p_sin_sq', 'f_m_p_cos_sq', 'cross_sin', 'width_ttheta')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd2d_peak'</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('index_mult', '2theta', 'f_nucl_sq', 'f_m_p_sin_sq', 'f_m_p_cos_sq', 'cross_sin', 'width_2theta')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.cross_sin">
 <em class="property">property </em><code class="sig-name descname">cross_sin</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.cross_sin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.f_m_p_cos_sq">
 <em class="property">property </em><code class="sig-name descname">f_m_p_cos_sq</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.f_m_p_cos_sq" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.f_m_p_sin_sq">
 <em class="property">property </em><code class="sig-name descname">f_m_p_sin_sq</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.f_m_p_sin_sq" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.f_nucl_sq">
 <em class="property">property </em><code class="sig-name descname">f_nucl_sq</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.f_nucl_sq" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_h">
 <em class="property">property </em><code class="sig-name descname">index_h</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_h" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_k">
 <em class="property">property </em><code class="sig-name descname">index_k</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_k" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_l">
 <em class="property">property </em><code class="sig-name descname">index_l</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_l" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_mult">
 <em class="property">property </em><code class="sig-name descname">index_mult</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.index_mult" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.ttheta">
 <em class="property">property </em><code class="sig-name descname">ttheta</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.ttheta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.width_ttheta">
 <em class="property">property </em><code class="sig-name descname">width_ttheta</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak.width_ttheta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd2dcif_like.cl_pd2d_peak.</code><code class="sig-name descname">Pd2dPeakL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_peak.html#Pd2dPeakL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd2dcif_like.cl_pd2d_peak.</code><code class="sig-name descname">Pd2dPeakL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">loop_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_peak.html#Pd2dPeakL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>This section contains peak information extracted from the
 measured or, if present, the processed diffractogram. Each
@@ -183,12 +183,12 @@ and intensity will have been previously applied.</p>
  <span class="mi">2</span>  <span class="mi">1</span>  <span class="mi">3</span>  <span class="mi">2</span> <span class="mf">19.1</span>  <span class="mf">78.6</span> <span class="mf">101.0</span>   <span class="mf">92.0</span>  <span class="mf">82.7</span> <span class="mf">5.7</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('index_h', 'index_k', 'index_l')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeakL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak" title="cryspy.pd2dcif_like.cl_pd2d_peak.Pd2dPeak"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pd2dPeak</span></code></a></p>
@@ -226,7 +226,7 @@ and intensity will have been previously applied.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -252,8 +252,8 @@ and intensity will have been previously applied.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

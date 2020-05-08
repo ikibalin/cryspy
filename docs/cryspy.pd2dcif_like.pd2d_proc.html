@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Pd2dProc &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Pd2dBackground" href="cryspy.pd2dcif_like.pd2d_background.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.pd2dcif_like.cl_pd2d_proc">
 <span id="pd2dproc"></span><h1>Pd2dProc<a class="headerlink" href="#module-cryspy.pd2dcif_like.cl_pd2d_proc" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd2dcif_like.cl_pd2d_proc.</code><code class="sig-name descname">Pd2dProc</code><span class="sig-paren">(</span><em class="sig-param">ttheta_phi_intensity_up_net=None</em>, <em class="sig-param">ttheta_phi_intensity_down_net=None</em>, <em class="sig-param">ttheta_phi_intensity_up_total=None</em>, <em class="sig-param">ttheta_phi_intensity_down_total=None</em>, <em class="sig-param">ttheta_phi_intensity_bkg_calc=None</em>, <em class="sig-param">ttheta_phi_intensity_up=None</em>, <em class="sig-param">ttheta_phi_intensity_up_sigma=None</em>, <em class="sig-param">ttheta_phi_intensity_down=None</em>, <em class="sig-param">ttheta_phi_intensity_down_sigma=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_proc.html#Pd2dProc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd2dcif_like.cl_pd2d_proc.</code><code class="sig-name descname">Pd2dProc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ttheta_phi_intensity_up_net</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_down_net</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_up_total</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_down_total</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_bkg_calc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_up</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_up_sigma</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_down</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_phi_intensity_down_sigma</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_proc.html#Pd2dProc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>This section contains the diffraction data set after processing
 and application of correction terms.</p>
@@ -116,187 +116,187 @@ and application of correction terms.</p>
 <span class="p">;</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ('ttheta', 'phi', 'intensity_up_net', 'intensity_down_net', 'intensity_up_total', 'intensity_down_total', 'intensity_bkg_calc', 'intensity_up', 'intensity_up_sigma', 'intensity_down', 'intensity_down_sigma')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('ttheta_phi_intensity_up_net', 'ttheta_phi_intensity_down_net', 'ttheta_phi_intensity_up_total', 'ttheta_phi_intensity_down_total', 'ttheta_phi_intensity_bkg_calc', 'ttheta_phi_intensity_up', 'ttheta_phi_intensity_up_sigma', 'ttheta_phi_intensity_down', 'ttheta_phi_intensity_down_sigma')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd2d_proc'</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.RELATED_CIF_MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('2theta_phi_intensity_up_net', '2theta_phi_intensity_down_net', '2theta_phi_intensity_up_total', '2theta_phi_intensity_down_total', '2theta_phi_intensity_bkg_calc', '2theta_phi_intensity_up', '2theta_phi_intensity_up_sigma', '2theta_phi_intensity_down', '2theta_phi_intensity_down_sigma')</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.RELATED_CIF_OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_object">
 <em class="property">property </em><code class="sig-name descname">form_object</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_object" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_bkg_calc">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_bkg_calc</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_bkg_calc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_down</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down_net">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_down_net</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down_net" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down_sigma">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_down_sigma</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down_sigma" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down_total">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_down_total</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_down_total" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_up</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up_net">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_up_net</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up_net" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up_sigma">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_up_sigma</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up_sigma" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up_total">
 <em class="property">property </em><code class="sig-name descname">form_ttheta_phi_intensity_up_total</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.form_ttheta_phi_intensity_up_total" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_bkg_calc">
 <em class="property">property </em><code class="sig-name descname">intensity_bkg_calc</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_bkg_calc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down">
 <em class="property">property </em><code class="sig-name descname">intensity_down</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down_net">
 <em class="property">property </em><code class="sig-name descname">intensity_down_net</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down_net" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down_sigma">
 <em class="property">property </em><code class="sig-name descname">intensity_down_sigma</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down_sigma" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down_total">
 <em class="property">property </em><code class="sig-name descname">intensity_down_total</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_down_total" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up">
 <em class="property">property </em><code class="sig-name descname">intensity_up</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up_net">
 <em class="property">property </em><code class="sig-name descname">intensity_up_net</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up_net" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up_sigma">
 <em class="property">property </em><code class="sig-name descname">intensity_up_sigma</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up_sigma" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up_total">
 <em class="property">property </em><code class="sig-name descname">intensity_up_total</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.intensity_up_total" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.phi">
 <em class="property">property </em><code class="sig-name descname">phi</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.phi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.recalc_to_gamma_nu_grid">
 <code class="sig-name descname">recalc_to_gamma_nu_grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd2dcif_like/cl_pd2d_proc.html#Pd2dProc.recalc_to_gamma_nu_grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.recalc_to_gamma_nu_grid" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta">
 <em class="property">property </em><code class="sig-name descname">ttheta</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_bkg_calc">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_bkg_calc</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_bkg_calc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_down</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down_net">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_down_net</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down_net" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down_sigma">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_down_sigma</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down_sigma" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down_total">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_down_total</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_down_total" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_up</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up_net">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_up_net</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up_net" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up_sigma">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_up_sigma</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up_sigma" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up_total">
 <em class="property">property </em><code class="sig-name descname">ttheta_phi_intensity_up_total</code><a class="headerlink" href="#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc.ttheta_phi_intensity_up_total" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -333,7 +333,7 @@ and application of correction terms.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -359,8 +359,8 @@ and application of correction terms.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

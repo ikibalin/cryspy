@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>AtomType &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Refln" href="cryspy.corecif.refln.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.corecif.cl_atom_type">
 <span id="atomtype"></span><h1>AtomType<a class="headerlink" href="#module-cryspy.corecif.cl_atom_type" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.corecif.cl_atom_type.AtomType">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_atom_type.</code><code class="sig-name descname">AtomType</code><span class="sig-paren">(</span><em class="sig-param">symbol=None</em>, <em class="sig-param">analytical_mass=None</em>, <em class="sig-param">description=None</em>, <em class="sig-param">number_in_cell=None</em>, <em class="sig-param">oxidation_number=None</em>, <em class="sig-param">radius_bond=None</em>, <em class="sig-param">radius_contact=None</em>, <em class="sig-param">cromer_mann_a1=None</em>, <em class="sig-param">cromer_mann_a2=None</em>, <em class="sig-param">cromer_mann_a3=None</em>, <em class="sig-param">cromer_mann_a4=None</em>, <em class="sig-param">cromer_mann_b1=None</em>, <em class="sig-param">cromer_mann_b2=None</em>, <em class="sig-param">cromer_mann_b3=None</em>, <em class="sig-param">cromer_mann_b4=None</em>, <em class="sig-param">cromer_mann_c=None</em>, <em class="sig-param">scat_dispersion_real=None</em>, <em class="sig-param">scat_dispersion_imag=None</em>, <em class="sig-param">dispersion_source=None</em>, <em class="sig-param">scat_length_neutron=None</em>, <em class="sig-param">scat_source=None</em>, <em class="sig-param">scat_versus_stol_list=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_type.html#AtomType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_atom_type.</code><code class="sig-name descname">AtomType</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">symbol</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">analytical_mass</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">number_in_cell</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">oxidation_number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius_bond</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius_contact</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_a1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_a2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_a3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_a4</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_b1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_b2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_b3</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_b4</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cromer_mann_c</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scat_dispersion_real</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scat_dispersion_imag</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dispersion_source</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scat_length_neutron</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scat_source</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scat_versus_stol_list</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_type.html#AtomType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Data items in the ATOM_TYPE category record details about
 properties of the atoms that occupy the atom sites, such as the
@@ -75,27 +75,27 @@ atomic scattering factors.</p>
 <dd class="field-odd"><p>replace attribute ‘analytical_mass’ by ‘analytical_mass_%’ as in CoreCIF</p>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('symbol',)</em><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('analytical_mass', 'description', 'number_in_cell', 'oxidation_number', 'radius_bond', 'radius_contact', 'cromer_mann_a1', 'cromer_mann_a2', 'cromer_mann_a3', 'cromer_mann_a4', 'cromer_mann_b1', 'cromer_mann_b2', 'cromer_mann_b3', 'cromer_mann_b4', 'cromer_mann_c', 'scat_dispersion_real', 'scat_dispersion_imag', 'dispersion_source', 'scat_length_neutron', 'scat_source', 'scat_versus_stol_list')</em><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'atom_type'</em><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.analytical_mass">
 <em class="property">property </em><code class="sig-name descname">analytical_mass</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.analytical_mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mass percentage of this atom type derived from chemical analysis.
@@ -103,7 +103,7 @@ Appears in list containing _atom_type_symbol.</p>
 <p>The permitted range is 0.0 → 100.0.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a1">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_a1</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Cromer-Mann scattering-factor coefficients used to calculate
@@ -124,55 +124,55 @@ Tables 6.1.1.4 and 6.1.1.5</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a2">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_a2</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a2" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a3">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_a3</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a3" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a4">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_a4</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_a4" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b1">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_b1</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b1" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b2">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_b2</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b2" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b3">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_b3</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b3" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b4">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_b4</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_b4" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.cromer_mann_c">
 <em class="property">property </em><code class="sig-name descname">cromer_mann_c</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.cromer_mann_c" title="Permalink to this definition">¶</a></dt>
 <dd><p>see documentation for cromer_mann_a1</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.description">
 <em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>A description of the atom(s) designated by this atom type. In
@@ -188,7 +188,7 @@ structures it will describe a combination of atom species.</p>
 <p><a class="reference external" href="https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_type_description.html">https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_type_description.html</a></p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.dispersion_source">
 <em class="property">property </em><code class="sig-name descname">dispersion_source</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.dispersion_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reference to source of real and imaginary dispersion
@@ -206,13 +206,13 @@ corrections for scattering factors used for this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_type.html#AtomType.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.get_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output: the list of the refined parameters</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.is_variable">
 <em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.is_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if there is any refined parameter</p>
@@ -223,7 +223,7 @@ corrections for scattering factors used for this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.number_in_cell">
 <em class="property">property </em><code class="sig-name descname">number_in_cell</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.number_in_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total number of atoms of this atom type in the unit cell.</p>
@@ -236,7 +236,7 @@ corrections for scattering factors used for this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.oxidation_number">
 <em class="property">property </em><code class="sig-name descname">oxidation_number</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.oxidation_number" title="Permalink to this definition">¶</a></dt>
 <dd><p>Formal oxidation state of this atom type in the structure.</p>
@@ -252,7 +252,7 @@ corrections for scattering factors used for this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.radius_bond">
 <em class="property">property </em><code class="sig-name descname">radius_bond</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.radius_bond" title="Permalink to this definition">¶</a></dt>
 <dd><p>The effective intra- and intermolecular bonding radii in
@@ -266,7 +266,7 @@ angstroms of this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.radius_contact">
 <em class="property">property </em><code class="sig-name descname">radius_contact</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.radius_contact" title="Permalink to this definition">¶</a></dt>
 <dd><p>The effective intra- and intermolecular bonding radii in
@@ -280,7 +280,7 @@ angstroms of this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.scat_dispersion_imag">
 <em class="property">property </em><code class="sig-name descname">scat_dispersion_imag</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.scat_dispersion_imag" title="Permalink to this definition">¶</a></dt>
 <dd><p>The imaginary and real components of the anomalous-dispersion
@@ -297,7 +297,7 @@ and the radiation given in _diffrn_radiation_wavelength.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.scat_dispersion_real">
 <em class="property">property </em><code class="sig-name descname">scat_dispersion_real</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.scat_dispersion_real" title="Permalink to this definition">¶</a></dt>
 <dd><p>The imaginary and real components of the anomalous-dispersion
@@ -314,7 +314,7 @@ and the radiation given in _diffrn_radiation_wavelength.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.scat_length_neutron">
 <em class="property">property </em><code class="sig-name descname">scat_length_neutron</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.scat_length_neutron" title="Permalink to this definition">¶</a></dt>
 <dd><p>The bound coherent scattering length in femtometres for the
@@ -334,7 +334,7 @@ experiment.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.scat_source">
 <em class="property">property </em><code class="sig-name descname">scat_source</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.scat_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reference to source of scattering factors or scattering lengths
@@ -350,7 +350,7 @@ used for this atom type.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.scat_versus_stol_list">
 <em class="property">property </em><code class="sig-name descname">scat_versus_stol_list</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.scat_versus_stol_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>A table of scattering factors as a function of sin theta over
@@ -365,7 +365,7 @@ recommended.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.corecif.cl_atom_type.AtomType.symbol">
 <em class="property">property </em><code class="sig-name descname">symbol</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomType.symbol" title="Permalink to this definition">¶</a></dt>
 <dd><p>The code used to identify the atom species (singular or plural)
@@ -386,9 +386,9 @@ oxidation state and must be followed by a + or - character.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.corecif.cl_atom_type.AtomTypeL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_atom_type.</code><code class="sig-name descname">AtomTypeL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_type.html#AtomTypeL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomTypeL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.corecif.cl_atom_type.</code><code class="sig-name descname">AtomTypeL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">loop_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_atom_type.html#AtomTypeL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomTypeL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>Data items in the ATOM_TYPE category record details about
 properties of the atoms that occupy the atom sites, such as the
@@ -413,12 +413,12 @@ atomic scattering factors.</p>
 <dd class="field-odd"><p>replace attribute ‘analytical_mass’ by ‘analytical_mass_%’ as in CoreCIF</p>
 </dd>
 </dl>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.corecif.cl_atom_type.AtomTypeL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('symbol',)</em><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomTypeL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.corecif.cl_atom_type.AtomTypeL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.corecif.cl_atom_type.AtomTypeL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.corecif.cl_atom_type.AtomType" title="cryspy.corecif.cl_atom_type.AtomType"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomType</span></code></a></p>
@@ -456,7 +456,7 @@ atomic scattering factors.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -482,8 +482,8 @@ atomic scattering factors.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>cryspy.cif_like.cl_pd2d &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -48,37 +48,37 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="kn">import</span> <span class="n">Global</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_data_constr</span> <span class="k">import</span> <span class="n">DataConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="kn">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="kn">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_data_constr</span> <span class="kn">import</span> <span class="n">DataConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="kn">import</span> <span class="n">Fitable</span>
 
-<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refln</span> <span class="k">import</span> <span class="n">Refln</span><span class="p">,</span> <span class="n">ReflnL</span>
-<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refine_ls</span> <span class="k">import</span> <span class="n">RefineLs</span>
-<span class="kn">from</span> <span class="nn">cryspy.magneticcif.cl_refln_susceptibility</span> <span class="k">import</span> <span class="n">ReflnSusceptibility</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span>
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refln</span> <span class="kn">import</span> <span class="n">Refln</span><span class="p">,</span> <span class="n">ReflnL</span>
+<span class="kn">from</span> <span class="nn">cryspy.corecif.cl_refine_ls</span> <span class="kn">import</span> <span class="n">RefineLs</span>
+<span class="kn">from</span> <span class="nn">cryspy.magneticcif.cl_refln_susceptibility</span> <span class="kn">import</span> <span class="n">ReflnSusceptibility</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span>
 
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_exclude</span> <span class="k">import</span> <span class="n">Exclude</span><span class="p">,</span> <span class="n">ExcludeL</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_exclude</span> <span class="kn">import</span> <span class="n">Exclude</span><span class="p">,</span> <span class="n">ExcludeL</span>
 <span class="kn">import</span> <span class="nn">cryspy.cif_like.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_phase</span> <span class="k">import</span> <span class="n">Phase</span><span class="p">,</span> <span class="n">PhaseL</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_diffrn_radiation</span> <span class="k">import</span> <span class="n">DiffrnRadiation</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_extinction</span> <span class="k">import</span> <span class="n">Extinction</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_setup</span> <span class="k">import</span> <span class="n">Setup</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_range</span> <span class="k">import</span> <span class="n">Range</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_chi2</span> <span class="k">import</span> <span class="n">Chi2</span>
-<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_texture</span> <span class="k">import</span> <span class="n">Texture</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_phase</span> <span class="kn">import</span> <span class="n">Phase</span><span class="p">,</span> <span class="n">PhaseL</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_diffrn_radiation</span> <span class="kn">import</span> <span class="n">DiffrnRadiation</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_extinction</span> <span class="kn">import</span> <span class="n">Extinction</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_setup</span> <span class="kn">import</span> <span class="n">Setup</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_range</span> <span class="kn">import</span> <span class="n">Range</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_chi2</span> <span class="kn">import</span> <span class="n">Chi2</span>
+<span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_texture</span> <span class="kn">import</span> <span class="n">Texture</span>
 
 
 
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_background</span> <span class="k">import</span> <span class="n">Pd2dBackground</span>
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_instr_reflex_asymmetry</span> <span class="k">import</span> <span class="n">Pd2dInstrReflexAsymmetry</span>
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_instr_resolution</span> <span class="k">import</span> <span class="n">Pd2dInstrResolution</span>
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_meas</span> <span class="k">import</span> <span class="n">Pd2dMeas</span> 
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_peak</span> <span class="k">import</span> <span class="n">Pd2dPeak</span><span class="p">,</span> <span class="n">Pd2dPeakL</span>
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_proc</span> <span class="k">import</span> <span class="n">Pd2dProc</span>
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_background</span> <span class="kn">import</span> <span class="n">Pd2dBackground</span>
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_instr_reflex_asymmetry</span> <span class="kn">import</span> <span class="n">Pd2dInstrReflexAsymmetry</span>
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_instr_resolution</span> <span class="kn">import</span> <span class="n">Pd2dInstrResolution</span>
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_meas</span> <span class="kn">import</span> <span class="n">Pd2dMeas</span> 
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_peak</span> <span class="kn">import</span> <span class="n">Pd2dPeak</span><span class="p">,</span> <span class="n">Pd2dPeakL</span>
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.cl_pd2d_proc</span> <span class="kn">import</span> <span class="n">Pd2dProc</span>
 
 
 <div class="viewcode-block" id="calc_cos_ang"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.calc_cos_ang">[docs]</a><span class="k">def</span> <span class="nf">calc_cos_ang</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">h_1</span><span class="p">,</span> <span class="n">k_1</span><span class="p">,</span> <span class="n">l_1</span><span class="p">,</span> <span class="n">h_2</span><span class="p">,</span> <span class="n">k_2</span><span class="p">,</span> <span class="n">l_2</span><span class="p">):</span>
@@ -160,11 +160,11 @@
 <span class="sd"> ;</span>
 <span class="sd"> ;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pd2dBackground</span><span class="p">,</span> <span class="n">Pd2dInstrResolution</span><span class="p">,</span> <span class="n">Pd2dMeas</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span>
-                         <span class="n">Setup</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span> <span class="n">Chi2</span><span class="p">)</span>
+    <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pd2dInstrResolution</span><span class="p">,</span> <span class="n">PhaseL</span><span class="p">,</span> <span class="n">DiffrnRadiation</span><span class="p">,</span>
+                         <span class="n">Setup</span><span class="p">,</span> <span class="n">Range</span><span class="p">,</span> <span class="n">Chi2</span><span class="p">,</span> <span class="n">Pd2dBackground</span><span class="p">,</span> <span class="n">Pd2dMeas</span><span class="p">)</span>
     <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Extinction</span><span class="p">,</span> <span class="n">ExcludeL</span><span class="p">,</span> <span class="n">Pd2dInstrReflexAsymmetry</span><span class="p">,</span> <span class="n">Texture</span><span class="p">)</span>
     <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">RefineLs</span><span class="p">,</span> <span class="n">ReflnL</span><span class="p">,</span> <span class="n">ReflnSusceptibilityL</span><span class="p">,</span> <span class="n">Pd2dPeakL</span><span class="p">,</span> <span class="n">Pd2dProc</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">phase</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">diffrn_radiation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">setup</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="nb">range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">extinction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">texture</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
@@ -543,9 +543,9 @@
         <span class="k">return</span> <span class="n">l_res</span>
 
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pd2d:&quot;</span><span class="p">]</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">:}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -640,7 +640,7 @@
                     <span class="n">ind_cry</span> <span class="o">=</span> <span class="n">i_crystal</span>
                     <span class="k">break</span>
             <span class="k">if</span> <span class="n">ind_cry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_show_message</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Crystal with name &#39;</span><span class="si">{phase_label:}</span><span class="s2">&#39; is not found.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_show_message</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Crystal with name &#39;</span><span class="si">{</span><span class="n">phase_label</span><span class="si">:}</span><span class="s2">&#39; is not found.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="n">crystal</span> <span class="o">=</span> <span class="n">l_crystal</span><span class="p">[</span><span class="n">ind_cry</span><span class="p">]</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">phase_scale</span><span class="p">)</span>
@@ -757,13 +757,12 @@
 
                 <span class="n">profile_3d</span> <span class="o">=</span> <span class="n">profile_3d</span><span class="o">*</span><span class="n">texture_3d</span>
 
-
-
             <span class="n">res_u_3d</span> <span class="o">=</span> <span class="n">profile_3d</span><span class="o">*</span><span class="n">iint_u_3d</span> 
             <span class="n">res_d_3d</span> <span class="o">=</span> <span class="n">profile_3d</span><span class="o">*</span><span class="n">iint_d_3d</span> 
 
-            <span class="n">res_u_2d</span> <span class="o">+=</span> <span class="n">scale</span><span class="o">*</span><span class="n">res_u_3d</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> 
-            <span class="n">res_d_2d</span> <span class="o">+=</span> <span class="n">scale</span><span class="o">*</span><span class="n">res_d_3d</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> 
+            <span class="c1"># 0.5 to have the same meaning for scale factor as in FullProf</span>
+            <span class="n">res_u_2d</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">scale</span><span class="o">*</span><span class="n">res_u_3d</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> 
+            <span class="n">res_d_2d</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">scale</span><span class="o">*</span><span class="n">res_d_3d</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> 
             <span class="n">l_peak</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">peak</span><span class="p">)</span>
             <span class="n">l_dd_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dd_out</span><span class="p">)</span>
 
@@ -796,9 +795,19 @@
     <span class="c1">#    int_u_mod, int_d_mod, d_exp_prof_out = self.calc_profile(tth, l_crystal, d_prof_in)</span>
     <span class="c1">#    return int_u_mod, int_d_mod, d_exp_prof_out</span>
 
-<div class="viewcode-block" id="Pd2d.calc_chi_sq"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_chi_sq">[docs]</a>    <span class="k">def</span> <span class="nf">calc_chi_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">):</span>
+<div class="viewcode-block" id="Pd2d.calc_chi_sq"><a class="viewcode-back" href="../../../cryspy.cif_like.pd2d.html#cryspy.cif_like.cl_pd2d.Pd2d.calc_chi_sq">[docs]</a>    <span class="k">def</span> <span class="nf">calc_chi_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculate chi square</span>
+
+<span class="sd">Keyword arguments:</span>
+
+<span class="sd">    l_crystal: a list of Crystal objects of cryspy library</span>
+<span class="sd">    flag_internal: a flag to calculate internal objects (default is True)</span>
+
+<span class="sd">Output arguments:</span>
+
+<span class="sd">    chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)</span>
+<span class="sd">    n: number of measured reflections</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">meas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meas</span>
 
@@ -813,7 +822,8 @@
         <span class="c1">#    l_peak_in = self.peaks</span>
         <span class="c1">#    l_refln_in = self.reflns</span>
         <span class="c1">#    l_dd_in = self.__dd</span>
-        <span class="k">if</span> <span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peak</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refln</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refln_susceptibility</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="p">(((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peak</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refln</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refln_susceptibility</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&amp;</span>  
+            <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">flag_internal</span><span class="p">))):</span>
             <span class="n">l_peak_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak</span>
             <span class="n">l_refln_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refln</span>
             <span class="n">l_refln_susceptibility_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refln_susceptibility</span>
@@ -1088,7 +1098,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1107,8 +1117,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

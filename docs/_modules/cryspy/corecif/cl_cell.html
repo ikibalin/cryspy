@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>cryspy.corecif.cl_cell &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -49,17 +49,17 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="kn">import</span> <span class="n">Global</span>
 
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="kn">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="kn">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="kn">import</span> <span class="n">Fitable</span>
 
 
 <span class="kn">import</span> <span class="nn">cryspy.corecif.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
-<span class="kn">from</span> <span class="nn">cryspy.symcif.cl_space_group</span> <span class="k">import</span> <span class="n">SpaceGroup</span>
+<span class="kn">from</span> <span class="nn">cryspy.symcif.cl_space_group</span> <span class="kn">import</span> <span class="n">SpaceGroup</span>
 
 
 
@@ -84,16 +84,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">MANDATORY_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;length_a&quot;</span><span class="p">,</span> <span class="s2">&quot;length_b&quot;</span><span class="p">,</span> <span class="s2">&quot;length_c&quot;</span><span class="p">,</span> <span class="s2">&quot;angle_alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;angle_beta&quot;</span><span class="p">,</span> <span class="s2">&quot;angle_gamma&quot;</span><span class="p">)</span>
     <span class="n">OPTIONAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;m_m&quot;</span><span class="p">,</span> <span class="s2">&quot;m_b&quot;</span><span class="p">,</span> <span class="s2">&quot;m_ib&quot;</span><span class="p">,</span> <span class="s2">&quot;m_ib_norm&quot;</span><span class="p">,</span> <span class="s2">&quot;type_cell&quot;</span><span class="p">,</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;m_g&quot;</span><span class="p">,</span> <span class="s2">&quot;m_g_reciprocal&quot;</span><span class="p">,</span> <span class="s2">&quot;m_b&quot;</span><span class="p">,</span> <span class="s2">&quot;m_b_norm&quot;</span><span class="p">,</span> <span class="s2">&quot;m_m&quot;</span><span class="p">,</span> <span class="s2">&quot;m_m_norm&quot;</span><span class="p">,</span> <span class="s2">&quot;type_cell&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cos_a&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_b&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_g&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_a&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_b&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_g&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cos_a_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_b_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_g_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_a_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_b_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_g_sq&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cos_ia&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_ib&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_ig&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_ia&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_ib&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_ig&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cos_ia_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_ib_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;cos_ig_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_ia_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_ib_sq&quot;</span><span class="p">,</span> <span class="s2">&quot;sin_ig_sq&quot;</span><span class="p">,</span>
     <span class="s2">&quot;reciprocal_length_a&quot;</span><span class="p">,</span> <span class="s2">&quot;reciprocal_length_b&quot;</span><span class="p">,</span> <span class="s2">&quot;reciprocal_length_c&quot;</span><span class="p">,</span> 
                           <span class="s2">&quot;reciprocal_angle_alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;reciprocal_angle_beta&quot;</span><span class="p">,</span> <span class="s2">&quot;reciprocal_angle_gamma&quot;</span><span class="p">,</span>
-                          <span class="s2">&quot;volume&quot;</span><span class="p">,</span> <span class="s2">&quot;formula_units_z&quot;</span><span class="p">)</span>
+                          <span class="s2">&quot;volume&quot;</span><span class="p">,</span> <span class="s2">&quot;formula_units_z&quot;</span><span class="p">,</span> <span class="s2">&quot;it_coordinate_system_code&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;cell&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length_a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length_c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angle_alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angle_beta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length_a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length_b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length_c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angle_alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angle_beta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
     <span class="n">angle_gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formula_units_z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Cell</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_ATTRIBUTE</span><span class="p">,</span> 
                                    <span class="n">optional_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">OPTIONAL_ATTRIBUTE</span><span class="p">,</span> 
@@ -400,40 +400,91 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reciprocal_angle_gamma&quot;</span><span class="p">)</span>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">m_g</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Metrix tensor g for unit cell (a, b, c)</span>
+
+<span class="sd">G = [[          a*a, a*b*cos gamma,  a*c*cos beta],</span>
+<span class="sd">     [a*b*cos gamma,           b*b, b*c*cos alpha],</span>
+<span class="sd">     [ a*c*cos beta, b*c*cos alpha,           c*c]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_g&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">m_g_reciprocal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Metrix tensor g for reciprocal unit cell (ia, ib, ic)</span>
+
+<span class="sd">G = [[           ia*ia, ia*ib*cos igamma,  ia*ic*cos ibeta],</span>
+<span class="sd">     [ia*ib*cos igamma,            ib*ib, ib*ic*cos ialpha],</span>
+<span class="sd">     [ ia*ic*cos ibeta, ib*ic*cos ialpha,            ic*ic]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_g_reciprocal&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">m_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">B matrix defined </span>
-<span class="sd">in Carthezian coordinate system where :math:`X` along axis :math:`a^{*}`,</span>
-<span class="sd">:math:`Z` alond axis :math:`c` and :math:`Y = Z \\times X`</span>
+<span class="sd">Matrix B used to recalculate coordinates  from reciprocal space (b1, b2, b3) </span>
+<span class="sd">to Cartesian one (x||a*, z||c). See Busing-Levy paper.</span>
 
+<span class="sd">x_cart = B * x_reciprocal</span>
+
+<span class="sd">B = [[b1, b2 cos beta3,             b3 cos beta2],</span>
+<span class="sd">     [ 0, b2 sin beta3, -b3 sin beta2 cos alpha1],</span>
+<span class="sd">     [ 0,            0,                     1/a3]]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_b&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">m_ib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">m_b_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Inversed B matrix</span>
+<span class="sd">Matrix nB  used to recalculate coordinates  from reciprocal space (b1/|b1|, b2/|b2|, b3/|b3|) </span>
+<span class="sd">to Cartesian one (x||a*, z||c).</span>
+
+<span class="sd">x_cart = nB * x_reciprocal_norm</span>
+
+<span class="sd">nB = [[ 1, cos beta3,              cos beta2],</span>
+<span class="sd">      [ 0, sin beta3, - sin beta2 cos alpha1],</span>
+<span class="sd">      [ 0,         0, (1 - cos**2 alpha1 - cos**2 alpha2 - cos**2 alpha3 + 2 cos alpha1 cos alpha2 cos alpha3)**0.5/sin(alpha3)]]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_ib&quot;</span><span class="p">)</span>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">m_ib_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Normalized inversed B matrix</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_ib_norm&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_b_norm&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">m_m</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">M matrix defined </span>
-<span class="sd">in Carthezian coordinate system where :math:`X` along axis :math:`a`,</span>
-<span class="sd">:math:`Z` alond axis :math:`c^{*}` and :math:`Y = Z \\times X`</span>
+<span class="sd">Matrix M  used to recalculate coordinates  from direct space (a1, a2, a3) </span>
+<span class="sd">to Cartesian one (x||a*, z||c).</span>
 
+<span class="sd">x_cart = M * x_direct</span>
+
+<span class="sd">M = [[                    1/b1,             0,  0],</span>
+<span class="sd">     [-a1 sin alpha2 cos beta3, a2 sin alpha1,  0],</span>
+<span class="sd">     [           a1 cos alpha2, a2 cos alpha1, a3]]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_m&quot;</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">m_m_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Matrix M  used to recalculate coordinates  from direct space (a1/|a1|, a2/|a2|, a3/|a3|) </span>
+<span class="sd">to Cartesian one (x||a*, z||c).</span>
+
+<span class="sd">x_cart = nM * x_direct</span>
+
+<span class="sd">nM = [[(1 - cos**2 alpha1 - cos**2 alpha2 - cos**2 alpha3 + 2 cos alpha1 cos alpha2 cos alpha3)**0.5/sin(alpha1),  0,  0],</span>
+<span class="sd">     [  (cos alpha3 - cos alpha1 cos alpha2) / sin alpha1, sin alpha1,  0],</span>
+<span class="sd">     [                                         cos alpha2, cos alpha1,  1]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_m_norm&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__type_cell&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">it_coordinate_system_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_coordinate_system_code&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cos_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -545,10 +596,13 @@
         <span class="n">flag_alpha_90</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_alpha</span><span class="p">),</span> <span class="mf">90.</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">)</span>
         <span class="n">flag_beta_90</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_beta</span><span class="p">),</span> <span class="mf">90.</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">)</span>
         <span class="n">flag_gamma_90</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_gamma</span><span class="p">),</span> <span class="mf">90.</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">)</span>
+        <span class="n">flag_gamma_120</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_gamma</span><span class="p">),</span> <span class="mf">120.</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="n">rel_tol</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">abs_tol</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">flag_a_b</span><span class="p">,</span> <span class="n">flag_a_c</span><span class="p">,</span> <span class="n">flag_alpha_90</span><span class="p">,</span> <span class="n">flag_beta_90</span><span class="p">,</span> <span class="n">flag_gamma_90</span><span class="p">]):</span>
             <span class="n">type_cell</span> <span class="o">=</span> <span class="s2">&quot;cP&quot;</span>
         <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="n">flag_a_b</span><span class="p">,</span> <span class="n">flag_a_c</span><span class="p">,</span> <span class="n">flag_alpha_beta</span><span class="p">,</span> <span class="n">flag_alpha_gamma</span><span class="p">,</span> <span class="ow">not</span><span class="p">(</span><span class="n">flag_alpha_90</span><span class="p">)]):</span>
+            <span class="n">type_cell</span> <span class="o">=</span> <span class="s2">&quot;hR&quot;</span>
+        <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="n">flag_a_b</span><span class="p">,</span> <span class="n">flag_alpha_90</span><span class="p">,</span> <span class="n">flag_beta_90</span><span class="p">,</span> <span class="n">flag_gamma_120</span><span class="p">]):</span>
             <span class="n">type_cell</span> <span class="o">=</span> <span class="s2">&quot;hR&quot;</span>
         <span class="k">elif</span> <span class="nb">all</span><span class="p">([</span><span class="n">flag_a_b</span><span class="p">,</span> <span class="ow">not</span><span class="p">(</span><span class="n">flag_a_c</span><span class="p">),</span> <span class="n">flag_alpha_90</span><span class="p">,</span> <span class="n">flag_beta_90</span><span class="p">,</span> <span class="n">flag_gamma_90</span><span class="p">]):</span>
             <span class="n">type_cell</span> <span class="o">=</span> <span class="s2">&quot;hP&quot;</span>
@@ -563,7 +617,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">form_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined_attribute</span><span class="p">(</span><span class="s2">&quot;type_cell&quot;</span><span class="p">):</span>
-            <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">apply_constraint_on_cell_by_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_cell</span><span class="p">)</span>
+            <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">apply_constraint_on_cell_by_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_cell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span><span class="p">)</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">rad</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span>
 
@@ -591,9 +645,24 @@
 
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_b</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_c</span><span class="p">)</span>
 
-        <span class="n">vol</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">c_a_sq</span><span class="o">-</span><span class="n">c_b_sq</span><span class="o">-</span><span class="n">c_g_sq</span><span class="o">+</span><span class="mf">2.</span><span class="o">*</span><span class="n">c_a</span><span class="o">*</span><span class="n">c_b</span><span class="o">*</span><span class="n">c_g</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+        <span class="n">v_sqrt</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">c_a_sq</span><span class="o">-</span><span class="n">c_b_sq</span><span class="o">-</span><span class="n">c_g_sq</span><span class="o">+</span><span class="mf">2.</span><span class="o">*</span><span class="n">c_a</span><span class="o">*</span><span class="n">c_b</span><span class="o">*</span><span class="n">c_g</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">v_sqrt</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__volume&quot;</span><span class="p">,</span> <span class="n">vol</span><span class="p">)</span>
-    
+
+        <span class="c1">#G matrix</span>
+        <span class="n">m_g</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span>    <span class="n">a</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c_g</span><span class="p">,</span> <span class="n">a</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_b</span><span class="p">],</span>
+                           <span class="p">[</span><span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c_g</span><span class="p">,</span>     <span class="n">b</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_a</span><span class="p">],</span>
+                           <span class="p">[</span><span class="n">a</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_b</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_a</span><span class="p">,</span>     <span class="n">c</span><span class="o">*</span><span class="n">c</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_g&quot;</span><span class="p">,</span> <span class="n">m_g</span><span class="p">)</span>
+
+
+        <span class="c1">#nM matrix</span>
+        <span class="n">m_m_norm</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span>       <span class="n">v_sqrt</span><span class="o">/</span><span class="n">s_a</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>      <span class="mi">0</span><span class="p">],</span>
+                                <span class="p">[(</span><span class="n">c_g</span><span class="o">-</span><span class="n">c_a</span><span class="o">*</span><span class="n">c_b</span><span class="p">)</span><span class="o">/</span><span class="n">s_a</span><span class="p">,</span>  <span class="n">s_a</span><span class="p">,</span>    <span class="mi">0</span><span class="p">],</span>
+                                <span class="p">[</span>              <span class="n">c_b</span><span class="p">,</span>  <span class="n">c_a</span><span class="p">,</span>    <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_m_norm&quot;</span><span class="p">,</span> <span class="n">m_m_norm</span><span class="p">)</span>
+
+
         <span class="n">irad</span> <span class="o">=</span> <span class="mf">180.</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
         <span class="n">ialpha</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arccos</span><span class="p">((</span><span class="n">c_b</span><span class="o">*</span><span class="n">c_g</span><span class="o">-</span><span class="n">c_a</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">s_b</span><span class="o">*</span><span class="n">s_g</span><span class="p">))</span><span class="o">*</span><span class="n">irad</span>
         <span class="n">ibeta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arccos</span><span class="p">((</span><span class="n">c_g</span><span class="o">*</span><span class="n">c_a</span><span class="o">-</span><span class="n">c_b</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">s_g</span><span class="o">*</span><span class="n">s_a</span><span class="p">))</span><span class="o">*</span><span class="n">irad</span>
@@ -606,7 +675,6 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reciprocal_angle_alpha&quot;</span><span class="p">,</span> <span class="n">ialpha</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reciprocal_angle_beta&quot;</span><span class="p">,</span> <span class="n">ibeta</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__reciprocal_angle_gamma&quot;</span><span class="p">,</span> <span class="n">igamma</span><span class="p">)</span>
-
         
         <span class="n">c_ia</span><span class="p">,</span> <span class="n">c_ib</span><span class="p">,</span> <span class="n">c_ig</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ialpha</span><span class="o">*</span><span class="n">rad</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ibeta</span><span class="o">*</span><span class="n">rad</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">igamma</span><span class="o">*</span><span class="n">rad</span><span class="p">)</span>
         <span class="n">s_ia</span><span class="p">,</span> <span class="n">s_ib</span><span class="p">,</span> <span class="n">s_ig</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ialpha</span><span class="o">*</span><span class="n">rad</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ibeta</span><span class="o">*</span><span class="n">rad</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">igamma</span><span class="o">*</span><span class="n">rad</span><span class="p">)</span>
@@ -626,33 +694,37 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__sin_ib_sq&quot;</span><span class="p">,</span> <span class="n">s_ib_sq</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__sin_ig_sq&quot;</span><span class="p">,</span> <span class="n">s_ig_sq</span><span class="p">)</span>
 
+        <span class="c1">#G matrix for reciprocal unit cell</span>
+        <span class="n">m_g_reciprocal</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span>     <span class="n">ia</span><span class="o">*</span><span class="n">ia</span><span class="p">,</span> <span class="n">ia</span><span class="o">*</span><span class="n">ib</span><span class="o">*</span><span class="n">c_ig</span><span class="p">,</span> <span class="n">ia</span><span class="o">*</span><span class="n">ic</span><span class="o">*</span><span class="n">c_ib</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="n">ia</span><span class="o">*</span><span class="n">ib</span><span class="o">*</span><span class="n">c_ig</span><span class="p">,</span>      <span class="n">ib</span><span class="o">*</span><span class="n">ib</span><span class="p">,</span> <span class="n">ib</span><span class="o">*</span><span class="n">ic</span><span class="o">*</span><span class="n">c_ia</span><span class="p">],</span>
+                                      <span class="p">[</span><span class="n">ia</span><span class="o">*</span><span class="n">ic</span><span class="o">*</span><span class="n">c_ib</span><span class="p">,</span> <span class="n">ib</span><span class="o">*</span><span class="n">ic</span><span class="o">*</span><span class="n">c_ia</span><span class="p">,</span>      <span class="n">ic</span><span class="o">*</span><span class="n">ic</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_g_reciprocal&quot;</span><span class="p">,</span> <span class="n">m_g_reciprocal</span><span class="p">)</span>
+
+        <span class="c1">#nB matrix</span>
+        <span class="n">m_b_norm</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="mi">1</span><span class="p">,</span>  <span class="n">c_ig</span><span class="p">,</span>       <span class="n">c_ib</span><span class="p">],</span>
+                                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">s_ig</span><span class="p">,</span>  <span class="o">-</span><span class="n">s_ib</span><span class="o">*</span><span class="n">c_a</span><span class="p">],</span>
+                                <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span> <span class="n">v_sqrt</span><span class="o">/</span><span class="n">s_g</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_b_norm&quot;</span><span class="p">,</span> <span class="n">m_b_norm</span><span class="p">)</span>
+
         <span class="c1">#B matrix</span>
         <span class="n">m_b</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">ia</span><span class="p">,</span>  <span class="n">ib</span><span class="o">*</span><span class="n">c_ig</span><span class="p">,</span>      <span class="n">ic</span><span class="o">*</span><span class="n">c_ib</span><span class="p">],</span>
                            <span class="p">[</span><span class="mf">0.</span><span class="p">,</span>  <span class="n">ib</span><span class="o">*</span><span class="n">s_ig</span><span class="p">,</span> <span class="o">-</span><span class="n">ic</span><span class="o">*</span><span class="n">s_ib</span><span class="o">*</span><span class="n">c_a</span><span class="p">],</span>
                            <span class="p">[</span><span class="mf">0.</span><span class="p">,</span>       <span class="mf">0.</span><span class="p">,</span>         <span class="mf">1.</span><span class="o">/</span><span class="n">c</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_b&quot;</span><span class="p">,</span> <span class="n">m_b</span><span class="p">)</span>
 
-        <span class="c1">#inversed B matrix</span>
-        <span class="n">m_ib</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m_b</span><span class="p">)</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_ib&quot;</span><span class="p">,</span> <span class="n">m_ib</span><span class="p">)</span>
-
-        <span class="n">m_ib_norm</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">m_ib</span><span class="p">)</span>
-        <span class="n">m_ib_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/=</span> <span class="n">a</span>
-        <span class="n">m_ib_norm</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/=</span> <span class="n">b</span>
-        <span class="n">m_ib_norm</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/=</span> <span class="n">c</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_ib_norm&quot;</span><span class="p">,</span> <span class="n">m_ib_norm</span><span class="p">)</span>
-
-        <span class="c1">#M matrix (not sure)</span>
-        <span class="n">m_m</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span> <span class="n">a</span><span class="p">,</span>   <span class="n">b</span><span class="o">*</span><span class="n">c_g</span><span class="p">,</span>       <span class="n">c</span><span class="o">*</span><span class="n">c_b</span><span class="p">],</span>
-                           <span class="p">[</span><span class="mf">0.</span><span class="p">,</span>   <span class="n">b</span><span class="o">*</span><span class="n">s_g</span><span class="p">,</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="n">s_b</span><span class="o">*</span><span class="n">c_ia</span><span class="p">],</span>
-                           <span class="p">[</span><span class="mf">0.</span><span class="p">,</span>      <span class="mf">0.</span><span class="p">,</span>       <span class="mf">1.</span><span class="o">/</span><span class="n">ic</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="c1">#M matrix</span>
+        <span class="n">m_m</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span>        <span class="mf">1.</span><span class="o">/</span><span class="n">ia</span><span class="p">,</span>     <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                           <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">s_b</span><span class="o">*</span><span class="n">c_ig</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">s_a</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span>
+                           <span class="p">[</span>        <span class="n">a</span><span class="o">*</span><span class="n">c_b</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">c_a</span><span class="p">,</span>  <span class="n">c</span><span class="p">]],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__m_m&quot;</span><span class="p">,</span> <span class="n">m_m</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">flag</span>
 
 
-<div class="viewcode-block" id="Cell.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_cell</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Cell.apply_constraint"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.apply_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">apply_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_cell</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">it_coordinate_system_code</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__type_cell&quot;</span><span class="p">,</span> <span class="n">type_cell</span><span class="p">)</span>
-        <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">apply_constraint_on_cell_by_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_cell</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__it_coordinate_system_code&quot;</span><span class="p">,</span> <span class="n">it_coordinate_system_code</span><span class="p">)</span>
+        <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">apply_constraint_on_cell_by_type_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_cell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">it_coordinate_system_code</span><span class="p">)</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
             <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
@@ -713,11 +785,15 @@
 
 <div class="viewcode-block" id="Cell.calc_k_loc"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_k_loc">[docs]</a>    <span class="k">def</span> <span class="nf">calc_k_loc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Calculate unity scattering vector.</span>
+<span class="sd">Calculate unity scattering vector in Cartesian coordinate system (x||a*, z||c)</span>
 
 <span class="sd">Keyword arguments:</span>
 
-<span class="sd">h, k, l -- Miller indices</span>
+<span class="sd">    h, k, l: Miller indices</span>
+
+<span class="sd">Output arguments:</span>
+
+<span class="sd">    k_x, k_y, k_z: 1D numpy array of x, y, z components of unity scattering vector </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">np_h</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">np_k</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -878,16 +954,26 @@
 <div class="viewcode-block" id="Cell.calc_position_by_coordinate"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_position_by_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">calc_position_by_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span> <span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculates position for coordinate :math:`(x,y,z)`</span>
-<span class="sd">in Carthezian coordinate system where :math:`X` along axis :math:`a`,</span>
-<span class="sd">:math:`Z` alond :math:`c^{*}` and :math:`Y = Z \\times X`</span>
-
-
+<span class="sd">in Carthezian coordinate system in which (x||a*, z||c)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">m_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_m</span>
         <span class="n">p_x</span> <span class="o">=</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">z</span>
         <span class="n">p_y</span> <span class="o">=</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">z</span>
         <span class="n">p_z</span> <span class="o">=</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">m_m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">z</span>
         <span class="k">return</span> <span class="n">p_x</span><span class="p">,</span> <span class="n">p_y</span><span class="p">,</span> <span class="n">p_z</span></div>
+
+<div class="viewcode-block" id="Cell.calc_coordinate_by_position"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_coordinate_by_position">[docs]</a>    <span class="k">def</span> <span class="nf">calc_coordinate_by_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p_x</span><span class="p">,</span> <span class="n">p_y</span><span class="p">,</span> <span class="n">p_z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculates coordinate :math:`(x,y,z)` for  position defined</span>
+<span class="sd">in Carthezian coordinate system in which (x||a*, z||c)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_m</span>
+        <span class="n">m_im</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m_m</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">p_x</span> <span class="o">+</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p_y</span> <span class="o">+</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p_z</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">p_x</span> <span class="o">+</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p_y</span> <span class="o">+</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p_z</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">p_x</span> <span class="o">+</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p_y</span> <span class="o">+</span> <span class="n">m_im</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p_z</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span></div>
+
 
 <div class="viewcode-block" id="Cell.calc_length_sq"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_length_sq">[docs]</a>    <span class="k">def</span> <span class="nf">calc_length_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -903,6 +989,25 @@
                 <span class="mf">2.</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c_g</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">z</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_b</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="n">z</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_a</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">t_sq</span></div>
 
+<div class="viewcode-block" id="Cell.closest_distance_between_fractions"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.closest_distance_between_fractions">[docs]</a>    <span class="k">def</span> <span class="nf">closest_distance_between_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fract_1</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fract_2</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Give closest distance between two fractions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fract_1</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fract_1_p</span> <span class="o">=</span> <span class="n">fract_1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">fract_1</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fract_1_p</span> <span class="o">=</span> <span class="n">fract_1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fract_2</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fract_2_p</span> <span class="o">=</span> <span class="n">fract_2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">fract_2</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fract_2_p</span> <span class="o">=</span> <span class="n">fract_2</span>
+        <span class="n">fract_1_p</span><span class="p">,</span> <span class="n">fract_2_p</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fract_1_p</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fract_2_p</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="n">_diff_fract</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fract_1_p</span> <span class="o">-</span> <span class="n">fract_2_p</span><span class="p">)</span>
+        <span class="n">_diff_closest</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">_diff_fract</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">_diff_fract</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">_diff_fract</span><span class="p">)</span>
+        <span class="n">_diff_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_position_by_coordinate</span><span class="p">(</span><span class="n">_diff_closest</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">_diff_closest</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">_diff_closest</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">numpy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">_diff_pos</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">distance</span></div>
+
 <div class="viewcode-block" id="Cell.calc_reciprocal_length_sq"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.calc_reciprocal_length_sq">[docs]</a>    <span class="k">def</span> <span class="nf">calc_reciprocal_length_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes</span>
@@ -916,7 +1021,38 @@
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span>
         <span class="n">t_sq</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">z</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> 
                 <span class="mf">2.</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c_g</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">z</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_b</span> <span class="o">+</span> <span class="mf">2.</span><span class="o">*</span><span class="n">y</span><span class="o">*</span><span class="n">z</span><span class="o">*</span><span class="n">b</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="n">c_a</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">t_sq</span></div></div>
+        <span class="k">return</span> <span class="n">t_sq</span></div>
+
+<div class="viewcode-block" id="Cell.report_cell"><a class="viewcode-back" href="../../../cryspy.corecif.cell.html#cryspy.corecif.cl_cell.Cell.report_cell">[docs]</a>    <span class="k">def</span> <span class="nf">report_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Make a report about cell object in string format</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Unit cell (Ang.):&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_a</span><span class="p">)</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_b</span><span class="p">)</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length_c</span><span class="p">)</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_alpha</span><span class="p">)</span><span class="si">:</span><span class="s2">9.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_beta</span><span class="p">)</span><span class="si">:</span><span class="s2">9.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_gamma</span><span class="p">)</span><span class="si">:</span><span class="s2">9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Volume: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="si">:</span><span class="s2"> 9.2f</span><span class="si">}</span><span class="s2"> Ang.**3&quot;</span><span class="p">)</span>
+
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Reciprocal unit cell (1/Ang.):&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_length_a</span><span class="p">)</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_length_b</span><span class="p">)</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_length_c</span><span class="p">)</span><span class="si">:</span><span class="s2">9.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_angle_alpha</span><span class="p">)</span><span class="si">:</span><span class="s2">9.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_angle_beta</span><span class="p">)</span><span class="si">:</span><span class="s2">9.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_angle_gamma</span><span class="p">)</span><span class="si">:</span><span class="s2">9.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">B matrix (x||a*, z||c):&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_b</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metric tensor for unit cell:&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Metric tensor for reciprocal unit cell:&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">m_g_reciprocal</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2"> 10.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -933,7 +1069,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -952,8 +1088,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

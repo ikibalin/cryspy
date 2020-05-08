@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>cryspy.magneticcif.cl_refln_susceptibility &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -47,12 +47,12 @@
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;2019_12_06&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="k">import</span> <span class="n">Global</span>
+<span class="kn">from</span> <span class="nn">pycifstar</span> <span class="kn">import</span> <span class="n">Global</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="kn">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="kn">import</span> <span class="n">LoopConstr</span>
 
 
 <div class="viewcode-block" id="ReflnSusceptibility"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibility">[docs]</a><span class="k">class</span> <span class="nc">ReflnSusceptibility</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
@@ -102,7 +102,7 @@
                           <span class="s2">&quot;moment_31_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;moment_32_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;moment_33_calc&quot;</span><span class="p">)</span>
     <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;refln_susceptibility&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sintlambda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">d_spacing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_l</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sintlambda</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">d_spacing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">chi_11_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi_12_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi_13_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">chi_21_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi_22_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi_23_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">chi_31_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi_32_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chi_33_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
@@ -413,10 +413,10 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__moment_33_calc&quot;</span><span class="p">,</span> <span class="n">x_in</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ReflnSusceptibility:&quot;</span><span class="p">)</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">:}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
 
@@ -472,15 +472,323 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CATEGORY_KEY</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;index_l&quot;</span><span class="p">)</span>
     <span class="n">ITEM_CLASS</span> <span class="o">=</span> <span class="n">ReflnSusceptibility</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ReflnSusceptibilityL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">)</span>
+    <span class="n">INTERNAL_ATTRIBUTE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;numpy_index_h&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_index_k&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_sintlambda&quot;</span><span class="p">,</span>
+                          <span class="s2">&quot;numpy_chi_11_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_chi_12_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_chi_13_calc&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;numpy_chi_21_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_chi_22_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_chi_23_calc&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;numpy_chi_31_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_chi_32_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_chi_33_calc&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;numpy_moment_11_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_moment_12_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_moment_13_calc&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;numpy_moment_21_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_moment_22_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_moment_23_calc&quot;</span><span class="p">,</span> 
+                          <span class="s2">&quot;numpy_moment_31_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_moment_32_calc&quot;</span><span class="p">,</span> <span class="s2">&quot;numpy_moment_33_calc&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="o">=</span><span class="p">[],</span> <span class="n">loop_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ReflnSusceptibilityL</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">category_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CATEGORY_KEY</span><span class="p">,</span> <span class="n">item_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ITEM_CLASS</span><span class="p">,</span> 
+                                                   <span class="n">loop_name</span><span class="o">=</span><span class="n">loop_name</span><span class="p">,</span> <span class="n">internal_attribute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">INTERNAL_ATTRIBUTE</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">item</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ReflnSusceptibilityL: &quot;</span><span class="p">)</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{str(self):}&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span></div>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">:}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_index_h"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_index_h">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_h&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_index_h"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_index_h">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_index_h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_h&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_index_k"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_index_k">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_k&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_index_k"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_index_k">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_index_k</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_k&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_index_l"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_index_l">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_l&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_index_l"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_index_l">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_index_l</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_l&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_sintlambda"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_sintlambda">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_sintlambda</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_sintlambda&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_sintlambda"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_sintlambda">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_sintlambda</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_sintlambda&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_11_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_11_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_11_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_11_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_11_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_11_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_11_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_11_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_12_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_12_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_12_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_12_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_12_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_12_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_12_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_12_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_13_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_13_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_13_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_13_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_13_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_13_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_13_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_13_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_21_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_21_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_21_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_21_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_21_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_21_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_21_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_21_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_22_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_22_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_22_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_22_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_22_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_22_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_22_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_22_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_23_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_23_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_23_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_23_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_23_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_23_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_23_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_23_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_31_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_31_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_31_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_31_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_31_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_31_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_31_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_31_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_32_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_32_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_32_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_32_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_32_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_32_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_32_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_32_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_chi_33_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_chi_33_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_chi_33_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_33_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_chi_33_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_chi_33_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_chi_33_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_33_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_11_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_11_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_11_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_11_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_11_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_11_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_11_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_11_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_12_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_12_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_12_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_12_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_12_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_12_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_12_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_12_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_13_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_13_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_13_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_13_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_13_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_13_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_13_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_13_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_21_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_21_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_21_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_21_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_21_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_21_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_21_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_21_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_22_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_22_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_22_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_22_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_22_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_22_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_22_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_22_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_23_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_23_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_23_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_23_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_23_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_23_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_23_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_23_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_31_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_31_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_31_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_31_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_31_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_31_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_31_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_31_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_32_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_32_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_32_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_32_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_32_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_32_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_32_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_32_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.get_numpy_moment_33_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.get_numpy_moment_33_calc">[docs]</a>    <span class="k">def</span> <span class="nf">get_numpy_moment_33_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_33_calc&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.set_numpy_moment_33_calc"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.set_numpy_moment_33_calc">[docs]</a>    <span class="k">def</span> <span class="nf">set_numpy_moment_33_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_33_calc&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.transform_items_to_numpy_arrays"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.transform_items_to_numpy_arrays">[docs]</a>    <span class="k">def</span> <span class="nf">transform_items_to_numpy_arrays</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Transform items to numpy arrays (to speed up the calculations):</span>
+
+<span class="sd">    numpy_index_h: 1D numpy array of index_h, dtype=int32</span>
+<span class="sd">    numpy_index_k: 1D numpy array of index_k, dtype=int32</span>
+<span class="sd">    numpy_index_l: 1D numpy array of index_l, dtype=int32</span>
+<span class="sd">    numpy_sintlambda: 1D numpy array of sintlambda, dtype=float</span>
+<span class="sd">    numpy_chi_11_calc: 1D numpy array of chi_11_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_12_calc: 1D numpy array of chi_12_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_13_calc: 1D numpy array of chi_13_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_21_calc: 1D numpy array of chi_21_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_22_calc: 1D numpy array of chi_22_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_23_calc: 1D numpy array of chi_23_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_31_calc: 1D numpy array of chi_31_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_32_calc: 1D numpy array of chi_32_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_33_calc: 1D numpy array of chi_33_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_11_calc: 1D numpy array of moment_11_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_12_calc: 1D numpy array of moment_12_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_13_calc: 1D numpy array of moment_13_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_21_calc: 1D numpy array of moment_21_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_22_calc: 1D numpy array of moment_22_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_23_calc: 1D numpy array of moment_23_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_31_calc: 1D numpy array of moment_31_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_32_calc: 1D numpy array of moment_32_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_33_calc: 1D numpy array of moment_33_calc, dtype=complex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_h&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_k&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_l&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_l</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_sintlambda&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sintlambda</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_11_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_11_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_12_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_12_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_13_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_13_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_21_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_21_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_22_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_22_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_23_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_23_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_31_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_31_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_32_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_32_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_33_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chi_33_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_11_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_11_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_12_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_12_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_13_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_13_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_21_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_21_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_22_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_22_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_23_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_23_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_31_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_31_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_32_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_32_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_33_calc&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">moment_33_calc</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ReflnSusceptibilityL.transform_numpy_arrays_to_items"><a class="viewcode-back" href="../../../cryspy.magneticcif.refln_susceptibility.html#cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL.transform_numpy_arrays_to_items">[docs]</a>    <span class="k">def</span> <span class="nf">transform_numpy_arrays_to_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Transform data from numpy arrays to items:</span>
+
+<span class="sd">    numpy_index_h: 1D numpy array of index_h, dtype=int32</span>
+<span class="sd">    numpy_index_k: 1D numpy array of index_k, dtype=int32</span>
+<span class="sd">    numpy_index_l: 1D numpy array of index_l, dtype=int32</span>
+<span class="sd">    numpy_sintlambda: 1D numpy array of sintlambda, dtype=float</span>
+<span class="sd">    numpy_chi_11_calc: 1D numpy array of chi_11_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_12_calc: 1D numpy array of chi_12_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_13_calc: 1D numpy array of chi_13_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_21_calc: 1D numpy array of chi_21_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_22_calc: 1D numpy array of chi_22_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_23_calc: 1D numpy array of chi_23_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_31_calc: 1D numpy array of chi_31_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_32_calc: 1D numpy array of chi_32_calc, dtype=complex</span>
+<span class="sd">    numpy_chi_33_calc: 1D numpy array of chi_33_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_11_calc: 1D numpy array of moment_11_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_12_calc: 1D numpy array of moment_12_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_13_calc: 1D numpy array of moment_13_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_21_calc: 1D numpy array of moment_21_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_22_calc: 1D numpy array of moment_22_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_23_calc: 1D numpy array of moment_23_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_31_calc: 1D numpy array of moment_31_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_32_calc: 1D numpy array of moment_32_calc, dtype=complex</span>
+<span class="sd">    numpy_moment_33_calc: 1D numpy array of moment_33_calc, dtype=complex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numpy_index_h</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_h&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">numpy_index_h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span>
+        <span class="n">l_item</span> <span class="o">=</span> <span class="p">[</span><span class="n">ReflnSusceptibility</span><span class="p">(</span><span class="n">index_h</span><span class="o">=</span><span class="n">_val</span><span class="p">)</span> <span class="k">for</span> <span class="n">_val</span> <span class="ow">in</span> <span class="n">numpy_index_h</span><span class="p">]</span>
+
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_k&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">index_k</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_index_l&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">index_l</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_sintlambda&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">sintlambda</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_11_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_11_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_12_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_12_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_13_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_13_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_21_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_21_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_22_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_22_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_23_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_23_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_31_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_31_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_32_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_32_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_chi_33_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">chi_33_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_11_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_11_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_12_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_12_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_13_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_13_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_21_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_21_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_22_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_22_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_23_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_23_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_31_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_31_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_32_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_32_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">np_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__numpy_moment_33_calc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">_item</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_item</span><span class="p">,</span> <span class="n">np_val</span><span class="p">):</span>
+                <span class="n">_item</span><span class="o">.</span><span class="n">moment_33_calc</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item</span> <span class="o">=</span> <span class="n">l_item</span></div></div>
 </pre></div>
 
           </div>
@@ -497,7 +805,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -516,8 +824,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

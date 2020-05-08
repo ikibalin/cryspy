@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>cryspy.pd2dcif_like.cl_pd2d_proc &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../../_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -49,13 +49,13 @@
 <span class="kn">import</span> <span class="nn">numpy</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="k">import</span> <span class="n">ItemConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="k">import</span> <span class="n">LoopConstr</span>
-<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="k">import</span> <span class="n">Fitable</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_item_constr</span> <span class="kn">import</span> <span class="n">ItemConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_loop_constr</span> <span class="kn">import</span> <span class="n">LoopConstr</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="kn">import</span> <span class="n">Fitable</span>
 
-<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.FUNCTIONS</span> <span class="k">import</span> <span class="n">recal_int_to_gammanu_grid</span><span class="p">,</span> <span class="n">tthphi_to_gammanu</span>
+<span class="kn">from</span> <span class="nn">cryspy.pd2dcif_like.FUNCTIONS</span> <span class="kn">import</span> <span class="n">recal_int_to_gammanu_grid</span><span class="p">,</span> <span class="n">tthphi_to_gammanu</span>
 
 <div class="viewcode-block" id="Pd2dProc"><a class="viewcode-back" href="../../../cryspy.pd2dcif_like.pd2d_proc.html#cryspy.pd2dcif_like.cl_pd2d_proc.Pd2dProc">[docs]</a><span class="k">class</span> <span class="nc">Pd2dProc</span><span class="p">(</span><span class="n">ItemConstr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -134,7 +134,7 @@
                           <span class="s2">&quot;intensity_bkg_calc&quot;</span><span class="p">,</span>  
                           <span class="s2">&quot;intensity_up&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_up_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_down&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity_down_sigma&quot;</span><span class="p">)</span>
     <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;pd2d_proc&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_up_net</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_down_net</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_up_net</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_down_net</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">ttheta_phi_intensity_up_total</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_down_total</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">ttheta_phi_intensity_bkg_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_up</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
                  <span class="n">ttheta_phi_intensity_up_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ttheta_phi_intensity_down</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
@@ -322,9 +322,9 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;__intensity_down_sigma&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Pd2dProc:</span><span class="se">\n</span><span class="s2">{str(self):}&quot;</span><span class="p">)</span>
+        <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pd2dProc:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">:}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
 
@@ -555,7 +555,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -574,8 +574,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

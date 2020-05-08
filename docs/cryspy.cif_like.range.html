@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Range &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Setup" href="cryspy.cif_like.setup.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.cif_like.cl_range">
 <span id="range"></span><h1>Range<a class="headerlink" href="#module-cryspy.cif_like.cl_range" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.cif_like.cl_range.Range">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_range.</code><code class="sig-name descname">Range</code><span class="sig-paren">(</span><em class="sig-param">ttheta_min=None</em>, <em class="sig-param">ttheta_max=None</em>, <em class="sig-param">phi_min=None</em>, <em class="sig-param">phi_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_range.html#Range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_range.Range" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_range.</code><code class="sig-name descname">Range</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ttheta_min</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ttheta_max</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phi_min</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phi_max</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_range.html#Range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_range.Range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Describe the range.</p>
 <p>Description in cif file:</p>
@@ -63,52 +63,52 @@
 <span class="n">_range_2theta_max</span>    <span class="mf">80.000</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_range.Range.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_range.Range.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('ttheta_min', 'ttheta_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_range.Range.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ('phi_min', 'phi_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_range.Range.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'range'</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_range.Range.RELATED_CIF_MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('2theta_min', '2theta_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_range.Range.RELATED_CIF_OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ('phi_min', 'phi_max')</em><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_range.Range.phi_max">
 <em class="property">property </em><code class="sig-name descname">phi_max</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.phi_max" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_range.Range.phi_min">
 <em class="property">property </em><code class="sig-name descname">phi_min</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.phi_min" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_range.Range.ttheta_max">
 <em class="property">property </em><code class="sig-name descname">ttheta_max</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.ttheta_max" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_range.Range.ttheta_min">
 <em class="property">property </em><code class="sig-name descname">ttheta_min</code><a class="headerlink" href="#cryspy.cif_like.cl_range.Range.ttheta_min" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -145,7 +145,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -171,8 +171,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

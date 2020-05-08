@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>Diffrn &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Pd" href="cryspy.cif_like.pd.html" />
@@ -53,9 +53,9 @@
             
   <div class="section" id="module-cryspy.cif_like.cl_diffrn">
 <span id="diffrn"></span><h1>Diffrn<a class="headerlink" href="#module-cryspy.cif_like.cl_diffrn" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_diffrn.</code><code class="sig-name descname">Diffrn</code><span class="sig-paren">(</span><em class="sig-param">setup=None</em>, <em class="sig-param">diffrn_radiation=None</em>, <em class="sig-param">diffrn_orient_matrix=None</em>, <em class="sig-param">diffrn_refln=None</em>, <em class="sig-param">extinction=None</em>, <em class="sig-param">phase=None</em>, <em class="sig-param">data_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.cif_like.cl_diffrn.</code><code class="sig-name descname">Diffrn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">setup</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">diffrn_radiation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">diffrn_orient_matrix</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">diffrn_refln</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extinction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">phase</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_data_constr.DataConstr</span></code></p>
 <p>Class to describe information about single diffraction measurements</p>
 <p>Description in cif file:</p>
@@ -93,70 +93,88 @@
 <span class="mi">0</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mf">1.67974</span> <span class="mf">0.03711</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.INTERNAL_CLASSES">
 <code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.corecif.cl_refine_ls.RefineLs'&gt;, &lt;class 'cryspy.corecif.cl_refln.ReflnL'&gt;, &lt;class 'cryspy.magneticcif.cl_refln_susceptibility.ReflnSusceptibilityL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.MANDATORY_CLASSES">
 <code class="sig-name descname">MANDATORY_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_setup.Setup'&gt;, &lt;class 'cryspy.cif_like.cl_diffrn_radiation.DiffrnRadiation'&gt;, &lt;class 'cryspy.corecif.cl_diffrn_orient_matrix.DiffrnOrientMatrix'&gt;, &lt;class 'cryspy.cif_like.cl_diffrn_refln.DiffrnReflnL'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.MANDATORY_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.OPTIONAL_CLASSES">
 <code class="sig-name descname">OPTIONAL_CLASSES</code><em class="property"> = (&lt;class 'cryspy.cif_like.cl_extinction.Extinction'&gt;, &lt;class 'cryspy.cif_like.cl_phase.Phase'&gt;)</em><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.OPTIONAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.calc_chi_sq">
-<code class="sig-name descname">calc_chi_sq</code><span class="sig-paren">(</span><em class="sig-param">l_crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_chi_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_chi_sq" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_chi_sq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l_crystal</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_chi_sq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_chi_sq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate chi square</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l_crystal</strong> – a list of Crystal objects of cryspy library</p></li>
+<li><p><strong>flag_internal</strong> – a flag to calculate internal objects (default is True)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Output arguments:</p>
+<blockquote>
+<div><p>chi_sq_val: chi square of flip ratio (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
+n: number of measured reflections</p>
+</div></blockquote>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio">
-<code class="sig-name descname">calc_iint_u_d_flip_ratio</code><span class="sig-paren">(</span><em class="sig-param">h</em>, <em class="sig-param">k</em>, <em class="sig-param">l</em>, <em class="sig-param">l_crystal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_iint_u_d_flip_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_iint_u_d_flip_ratio</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">l_crystal</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_iint_u_d_flip_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate intensity for the given diffraction angle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Keyword Arguments</dt>
+<dd class="field-odd"><p><strong>k</strong><strong>, </strong><strong>l</strong> (<em>h</em><em>,</em>) – 1D numpy array of Miller indexes</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.calc_to_cif">
-<code class="sig-name descname">calc_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_to_cif" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_to_cif" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.data_to_cif">
-<code class="sig-name descname">data_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.data_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.data_to_cif" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data_to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.data_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.data_to_cif" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.diffrn_orient_matrix">
 <em class="property">property </em><code class="sig-name descname">diffrn_orient_matrix</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.diffrn_orient_matrix" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.diffrn_radiation">
 <em class="property">property </em><code class="sig-name descname">diffrn_radiation</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.diffrn_radiation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.diffrn_refln">
 <em class="property">property </em><code class="sig-name descname">diffrn_refln</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.diffrn_refln" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.extinction">
 <em class="property">property </em><code class="sig-name descname">extinction</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.extinction" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.get_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output: the list of the refined parameters</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.is_variable">
 <em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.is_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if there is any refined parameter</p>
@@ -167,32 +185,32 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.params_to_cif">
-<code class="sig-name descname">params_to_cif</code><span class="sig-paren">(</span><em class="sig-param">separator='_'</em>, <em class="sig-param">flag=False</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.params_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.params_to_cif" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">params_to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.params_to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.params_to_cif" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.phase">
 <em class="property">property </em><code class="sig-name descname">phase</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.phase" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.refine_ls">
 <em class="property">property </em><code class="sig-name descname">refine_ls</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.refine_ls" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.refln">
 <em class="property">property </em><code class="sig-name descname">refln</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.refln" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.refln_susceptibility">
 <em class="property">property </em><code class="sig-name descname">refln_susceptibility</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.refln_susceptibility" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.setup">
 <em class="property">property </em><code class="sig-name descname">setup</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.setup" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -229,7 +247,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -255,8 +273,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

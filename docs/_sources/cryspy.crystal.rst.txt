@@ -1,8 +1,0 @@
-Crystal
-~~~~~~~~~~
-
-.. automodule:: cryspy.cl_crystal
-   :members:
-   :undoc-members:
-   :show-inheritance:
-

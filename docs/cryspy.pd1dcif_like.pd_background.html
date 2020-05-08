@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
     <title>PdBackground &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="PdMeas" href="cryspy.pd1dcif_like.pd_meas.html" />
@@ -53,57 +53,57 @@
             
   <div class="section" id="module-cryspy.pd1dcif_like.cl_pd_background">
 <span id="pdbackground"></span><h1>PdBackground<a class="headerlink" href="#module-cryspy.pd1dcif_like.cl_pd_background" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_background.</code><code class="sig-name descname">PdBackground</code><span class="sig-paren">(</span><em class="sig-param">ttheta=None</em>, <em class="sig-param">intensity=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_background.</code><code class="sig-name descname">PdBackground</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ttheta</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">intensity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_item_constr.ItemConstr</span></code></p>
 <p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_pd_background_2theta</span>       <span class="mf">4.5</span>
 <span class="n">_pd_background_intensity</span>  <span class="mf">256.0</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.INTERNAL_ATTRIBUTE">
 <code class="sig-name descname">INTERNAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.INTERNAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">MANDATORY_ATTRIBUTE</code><em class="property"> = ('ttheta', 'intensity')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.PREFIX">
 <code class="sig-name descname">PREFIX</code><em class="property"> = 'pd_background'</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.PREFIX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_MANDATORY_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_MANDATORY_ATTRIBUTE</code><em class="property"> = ('2theta', 'intensity')</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_MANDATORY_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_OPTIONAL_ATTRIBUTE">
 <code class="sig-name descname">RELATED_CIF_OPTIONAL_ATTRIBUTE</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.RELATED_CIF_OPTIONAL_ATTRIBUTE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackground.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.get_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Output: the list of the refined parameters</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.intensity">
 <em class="property">property </em><code class="sig-name descname">intensity</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.intensity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.is_variable">
 <em class="property">property </em><code class="sig-name descname">is_variable</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.is_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if there is any refined parameter</p>
@@ -114,16 +114,16 @@
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackground.ttheta">
 <em class="property">property </em><code class="sig-name descname">ttheta</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground.ttheta" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL">
-<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_background.</code><code class="sig-name descname">PdBackgroundL</code><span class="sig-paren">(</span><em class="sig-param">item=[]</em>, <em class="sig-param">loop_name=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackgroundL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">cryspy.pd1dcif_like.cl_pd_background.</code><code class="sig-name descname">PdBackgroundL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">loop_name</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackgroundL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cryspy.common.cl_loop_constr.LoopConstr</span></code></p>
 <p>Description in cif file:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loop_</span>
@@ -134,20 +134,20 @@
  <span class="mf">80.0</span>  <span class="mf">65.0</span>
 </pre></div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.CATEGORY_KEY">
 <code class="sig-name descname">CATEGORY_KEY</code><em class="property"> = ('ttheta',)</em><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.CATEGORY_KEY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.ITEM_CLASS">
 <code class="sig-name descname">ITEM_CLASS</code><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.ITEM_CLASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackground" title="cryspy.pd1dcif_like.cl_pd_background.PdBackground"><code class="xref py py-class docutils literal notranslate"><span class="pre">PdBackground</span></code></a></p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.interpolate_by_points">
-<code class="sig-name descname">interpolate_by_points</code><span class="sig-paren">(</span><em class="sig-param">tth</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackgroundL.interpolate_by_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.interpolate_by_points" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">interpolate_by_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tth</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/pd1dcif_like/cl_pd_background.html#PdBackgroundL.interpolate_by_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.pd1dcif_like.cl_pd_background.PdBackgroundL.interpolate_by_points" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -182,7 +182,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -208,8 +208,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2019, Iurii KIBALIN.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.0.
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>
