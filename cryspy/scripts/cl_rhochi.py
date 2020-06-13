@@ -12,6 +12,7 @@ from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_global_constr import GlobalConstr
 from cryspy.common.cl_fitable import Fitable
+from cryspy.common.error_simplex import error_estimation_simplex
 
 import scipy.optimize
 import time
@@ -126,6 +127,8 @@ Description in cif file::
     MANDATORY_CLASSES = (Crystal, )
     OPTIONAL_CLASSES = (Diffrn, Pd, Pd2d)
     INTERNAL_CLASSES = ()
+    F_ICON = os.path.join(os.path.dirname(__file__), "logo_RhoChi.png")
+
     def __init__(self, crystals=None, experiments=None,
                  global_name=""):
         super(RhoChi, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
@@ -235,9 +238,14 @@ Output arguments:
         for _obj in self.experiments:
             _obj.remove_internal_objs
 
-    def refine(self, disp=False):
+    def refine(self, disp:bool=False, optimization_method:str="BFGS"):
         """
 Minimization procedure
+
+Accesible parameters for optimization_method:
+ - "BFGS" (default)
+ - "simplex"
+ - "basinhopping"
         """
         flag = True
         
@@ -272,30 +280,46 @@ Minimization procedure
                 res_out = (chi_sq*1./float(n_points))
             return res_out
 
+        if optimization_method == "basinhopping":
+            #basinhopping
+            res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20, 
+                                              disp=disp)
+            _dict_out = {"flag": flag, "res":res}
+        elif optimization_method == "simplex":
+            #simplex
+            res = scipy.optimize.minimize(tempfunc, param_0, method='Nelder-Mead', 
+                                          callback=lambda x : self._f_callback(disp, coeff_norm, x), options = {"fatol": 0.01*n})
+    
+            m_error, dist_hh = error_estimation_simplex(res["final_simplex"][0], res["final_simplex"][1], tempfunc)
+    
+            l_sigma = []
+            for i, val_2 in zip(range(m_error.shape[0]), dist_hh):
+                #slightly change definition, instead of (n-k) here is n
+                error = (abs(m_error[i,i])*1./n)**0.5
+                if m_error[i,i] < 0.:
+                    print(50*"*"+"\nError is incorrect\n(negative diagonal elements of Hessian)\n"+50*"*")
+                if val_2 > error:
+                    print(50*"*"+"\nErrors is incorrect\n(minimum is not found)\n"+50*"*")
+    
+                l_sigma.append(max(error,val_2))
+    
+            for variable, sigma, _param in zip(l_fitable, l_sigma, coeff_norm):
+                variable.sigma = sigma*_param
+            
+            _dict_out = {"flag": flag, "res":res}
+        else:
+            #BFGS
+            res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(disp, coeff_norm, x), options = {"disp": disp})
 
+            _dict_out = {"flag": flag, "res":res}
 
-        res = scipy.optimize.minimize(tempfunc, param_0, method='BFGS', callback=lambda x : self._f_callback(disp, coeff_norm, x), options = {"disp": disp})
-        
-        _dict_out = {"flag": flag, "res":res}
-        #res = scipy.optimize.minimize(tempfunc, l_param_0, method='Nelder-Mead', 
-        #                              callback=self._f_callback, options = {"fatol": 0.01*n})
+            hess_inv = res["hess_inv"] * hes_coeff_norm
+            l_param = res["x"]
+            sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
+            for fitable, _1, param, coeff  in zip(l_fitable, sigma, l_param, coeff_norm):
+                fitable.sigma = _1
+                fitable.value = param*coeff
 
-
-        hess_inv = res["hess_inv"] * hes_coeff_norm
-        l_param = res["x"]
-        sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
-        for fitable, _1, param, coeff  in zip(l_fitable, sigma, l_param, coeff_norm):
-            fitable.sigma = _1
-            fitable.value = param*coeff
-
-
-
-        """
-        res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20, 
-                                          disp=disp)
-        _dict_out = {"flag": flag, "res":res}
-
-        """
 
         chi_sq, n = self.calc_chi_sq(flag_internal=True)
 
