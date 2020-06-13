@@ -205,6 +205,7 @@ def get_default_it_coordinate_system_code_by_it_number(it_number: int) -> str:
 
 def get_it_coordinate_system_codes_by_it_number(it_number: int) -> str:
     crystal_system = get_crystal_system_by_it_number(it_number)
+
     if crystal_system is "triclinic":
         it_coordinate_system_codes = ()
     elif crystal_system is "monoclinic":
@@ -475,6 +476,10 @@ def get_name_hall_by_it_number(it_number: int) -> str:
         name = None
     return name
 
+#FIXME it should be checked
+REFERENCE_TABLE_TRICLINIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED = (
+    (1, None, "P 1 1 1"), (2, None, "P 1 1 1")
+)
 
 # from IT A Table 4.3.2.1
 REFERENCE_TABLE_MONOCLINIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED = (
@@ -735,6 +740,7 @@ REFERENCE_TABLE_CUBIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED = (
 )
 
 REFERENCE_TABLE_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED = (
+            REFERENCE_TABLE_TRICLINIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED+
             REFERENCE_TABLE_MONOCLINIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED +
             REFERENCE_TABLE_ORTHORHOMBIC_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED +
             REFERENCE_TABLE_TETRAGONAL_IT_COORDINATE_SYSTEM_CODE_NAME_HM_EXTENDED +
@@ -1443,7 +1449,7 @@ def transform_r_b_to_string(r, b, labels=("x", "y", "z")) -> str:
     return ",".join(l_res)
 
 
-def auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes):
+def auto_choose_it_coordinate_system_code(it_number:int, it_coordinate_system_codes:list)->str:
     if len(it_coordinate_system_codes) == 0:
         it_coordinate_system_code = None
     elif len(it_coordinate_system_codes) > 1:

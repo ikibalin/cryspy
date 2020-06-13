@@ -814,9 +814,9 @@ be explicit. White space within the string is optional.
             it_number = CONSTANTS_AND_FUNCTIONS.get_it_number_by_name_schoenflies(self.name_schoenflies)
         else:
             flag = False
-
         if flag:
             it_coordinate_system_codes = CONSTANTS_AND_FUNCTIONS.get_it_coordinate_system_codes_by_it_number(it_number)
+
             setattr(self, "it_number", it_number)
             if  (not(it_coordinate_system_code in it_coordinate_system_codes)):
                 it_coordinate_system_code = CONSTANTS_AND_FUNCTIONS.auto_choose_it_coordinate_system_code(it_number, it_coordinate_system_codes)
@@ -1170,10 +1170,14 @@ na, n_b, nc should be divided on 24: 8 and 3
             l_res.append((_xyz, matrix_chi_rot))
         return l_res
 
-    def report_space_group(self):
+    def report_space_group(self) -> str:
         """
 Make a report about space group in string format.
         """
+        if self.is_defined:
+            self.form_object
+        else:
+            return ""
         ls_out = []
         ls_out.append("Space group:")
 

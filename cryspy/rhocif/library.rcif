@@ -154,6 +154,16 @@ _atom_rho_orbital_radial_slater_coeff_3d
 3 3.064857926104585  0.437614856376907 
 3 2021.058442377555  0.218288221696065 
 
+# from McPhase Ho.sipf
+loop_Ho_f
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_4f
+4 13.919 0.177290559386034
+4  7.772 0.454471952813441
+4  5.181 0.343943917117718
+4  2.853 0.225424644664609
+
 loop_Tb_d
 _atom_rho_orbital_radial_slater_n0
 _atom_rho_orbital_radial_slater_zeta0
@@ -161,6 +171,16 @@ _atom_rho_orbital_radial_slater_coeff_3d
 3 6.9465949115401715  0.5869437331402764 
 3 3.0996359762079786  0.5226753101485244 
 3 36.160214452534916  0.1111212893413683 
+
+# from McPhase Tb.sipf
+loop_Tb_f
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_4f
+4 13.007 0.188150965365704
+4  7.286 0.449589938335744
+4  4.857 0.356405755173116
+4  2.671 0.20250560215024
 
 loop_Yb_d
 _atom_rho_orbital_radial_slater_n0
@@ -170,6 +190,16 @@ _atom_rho_orbital_radial_slater_coeff_3d
 3 2.72240626385350  0.3153135022367752 
 3 2357.52675705132  0.2813115272696384 
 
+# from McPhase Yb.sipf
+loop_Yb_f
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_4f
+4 15.287 0.162683803029317
+4  8.501 0.460984640946505
+4  5.667 0.328904192062457
+4  3.126 0.252636356733435
+
 loop_Er_d
 _atom_rho_orbital_radial_slater_n0
 _atom_rho_orbital_radial_slater_zeta0
@@ -178,3 +208,12 @@ _atom_rho_orbital_radial_slater_coeff_3d
 3    7.3379991433784815  0.70234640022347 
 3 1785.967428584807      0.23892326543653 
 
+# from McPhase Er.sipf
+loop_Er_f
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_4f
+4 14.375 0.172203659991519
+4  8.015 0.4567471996121
+4  5.343 0.338448007647751
+4  2.944 0.235406228519368
