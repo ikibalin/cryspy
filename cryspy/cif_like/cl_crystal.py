@@ -549,13 +549,14 @@ Example:
         return res
 
 
-    def calc_susceptibility_moment_tensor(self, h, k, l):
+    def calc_susceptibility_moment_tensor(self, h, k, l, flag_only_orbital=False):
         """
 Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)
 
 Keyword arguments: 
 
     h, k, l: 1D numpy array of Miller indexes
+    flag_only_orbital default is False. When only orbital form-factor should be used put True
 
 Output: 
 
@@ -669,7 +670,7 @@ Example:
         #phase_2d = hh.sum(axis=2)#sum over symmetry
 
         #b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
-        form_factor = atom_site_scat.calc_form_factor(sthovl)
+        form_factor = atom_site_scat.calc_form_factor(sthovl, flag_only_orbital=flag_only_orbital)
 
         #dimensions: hkl, magnetic atoms, reduced symmetry operators
         ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
@@ -712,7 +713,7 @@ Example:
 
 
 
-    def calc_refln_susceptibility(self, h, k, l, flag_internal=True):
+    def calc_refln_susceptibility(self, h, k, l, flag_internal=True, flag_only_orbital=False):
         """
 Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)
 
@@ -730,7 +731,7 @@ Example:
 >>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int), np.array([1,0],dtype=int)
 >>> refln_suscept = crystal.calc_refln_susceptibility(h, k, l)
         """
-        CHI_M = self.calc_susceptibility_moment_tensor(h, k, l)
+        CHI_M = self.calc_susceptibility_moment_tensor(h, k, l, flag_only_orbital=flag_only_orbital)
 
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = CHI_M[:9]
         sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33 = CHI_M[9:]
@@ -766,19 +767,10 @@ Example:
         """
 matrix l_ij is defined in coordinate system (a, b, c)
 
-outut matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)
+output matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)
         """
         cell = self.cell
-        m_m_norm = cell.m_m_norm
-        
-        r11, r12, r13 = m_m_norm[0, 0], m_m_norm[0, 1], m_m_norm[0, 2]
-        r21, r22, r23 = m_m_norm[1, 0], m_m_norm[1, 1], m_m_norm[1, 2]
-        r31, r32, r33 = m_m_norm[2, 0], m_m_norm[2, 1], m_m_norm[2, 2]
-        
-        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = CONSTANTS_AND_FUNCTIONS.calc_mRmCmRT(
-                r11, r12, r13, r21, r22, r23, r31, r32, r33,
-                l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
-
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = cell.ortogonalize_matrix(l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
     
