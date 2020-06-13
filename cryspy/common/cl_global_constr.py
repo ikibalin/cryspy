@@ -7,6 +7,8 @@ from pycifstar import Global
 
 
 class GlobalConstr(object):
+    F_ICON = None
+    
     def __init__(self, global_name="",
                  mandatory_classes = None,
                  optional_classes = None,
@@ -24,6 +26,7 @@ class GlobalConstr(object):
         setattr(self, "__mandatory_objs", [])
         setattr(self, "__optional_objs", [])
         setattr(self, "__internal_objs", [])
+        
 
     def __repr__(self) -> str:
         ls_out = [f"{type(self).__name__:}: ", f"{str(self):}"]
