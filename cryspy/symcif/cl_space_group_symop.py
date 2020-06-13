@@ -366,3 +366,15 @@ Description in cif file::
             res.extend(_item.get_coords_xyz_by_coord_xyz(coord_xyz))
         return tuple(frozenset(res))
 
+    def get_symop_for_x1_x2(self, fract_xyz_1: numpy.ndarray, fract_xyz_2: numpy.ndarray):
+        np_fract_xyz_1 = numpy.array(fract_xyz_1, dtype=float)
+        np_fract_xyz_2 = numpy.array(fract_xyz_2, dtype=float)
+        res = SpaceGroupSymopL(item=[])
+        l_item = []
+        for item_s_g_s in self.item:
+            m_r = numpy.array(item_s_g_s.r, dtype=float)
+            v_b = numpy.array(item_s_g_s.b, dtype=float)
+            if numpy.allclose(numpy.mod(numpy.dot(m_r, np_fract_xyz_1) + v_b, 1), numpy.mod(np_fract_xyz_2, 1)):
+                l_item.append(item_s_g_s)
+        res.item = l_item
+        return res 
