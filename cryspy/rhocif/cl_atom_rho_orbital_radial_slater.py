@@ -16,16 +16,16 @@ from cryspy.magneticcif.cl_atom_type_scat import AtomTypeScat
 import scipy.optimize
 
 
-def transs(lmax, nn, zeta, sthovl):
+def transs(lmax:int, nn:int, zeta:float, sthovl: numpy.ndarray):
     """ 
 Calculate integral( r**nn * exp(-zeta r) * j_l(Qr) r**2 dr) / Q**l 
-for givel l
+for given l
 
 Q = 4 pi sint / lambda
     """
     Q = 4. * math.pi * sthovl
     a = [0.*Q for h in range(17)]
-    ff = [0.*Q for h in range(lmax+1)]
+    ff = numpy.zeros(shape=(sthovl.size, lmax+1), dtype=float)
     d = Q**2+zeta**2
     a[0] = 0.0*Q
     a[1] = 1./d
@@ -42,24 +42,22 @@ Q = 4 pi sint / lambda
             i2 = nx+1
             i3 = i2+1
             a[i3-1] = (tz*nx*a[i2-1] - (nx+l)*(nx-ll)*a[i1-1]) * 1./d
-        ff[ll-1]=a[i3-1]
+        ff[:, ll-1]=a[i3-1]
     return ff
 
 def calc_GCF(ln1: list, ldzeta1: list, lcoeff1: list, kappa1: float, 
              ln2: list, ldzeta2: list, lcoeff2: list, kappa2: float, 
              sthovl: float, lmax: float):
-    GCF = [0. for hh in range(lmax+1)]
+    GCF = numpy.zeros(shape=(sthovl.size, lmax+1), dtype=float)
     for n1, dzeta1, coeff1 in zip(ln1, ldzeta1, lcoeff1):
+        zetaA1 = dzeta1*kappa1/0.529177 #transformation from atomic units to inverse angstrems
+        Norm1 = math.sqrt(((2.*zetaA1)**(2*n1+1))/math.factorial(2*n1))
         for n2, dzeta2, coeff2 in zip(ln2, ldzeta2, lcoeff2):
-            dzetakappa1 = dzeta1*kappa1
-            dzetakappa2 = dzeta2*kappa2
-            zetaA1 = dzetakappa1/0.529177 #transformation from atomic units to inverse angstrems
-            zetaA2 = dzetakappa2/0.529177 #transformation from atomic units to inverse angstrems
-            Norm1 = ((2*zetaA1)**(n1+0.5))/math.sqrt(math.factorial(2*n1))
-            Norm2 = ((2*zetaA2)**(n2+0.5))/math.sqrt(math.factorial(2*n2))
+            zetaA2 = dzeta2*kappa2/0.529177 #transformation from atomic units to inverse angstrems
+            Norm2 = math.sqrt(((2.*zetaA2)**(2*n2+1))/math.factorial(2*n2))
+
             nn, zeta = (n1+n2), (zetaA1+zetaA2)
-            GCFhelp = [Norm1*Norm2*hh for hh in transs(lmax, nn, zeta, sthovl)]
-            GCF = [hh1+coeff1*coeff2*hh2 for hh1, hh2 in zip(GCF, GCFhelp)]
+            GCF += coeff1*coeff2*Norm1*Norm2*transs(lmax, nn, zeta, sthovl)
     return GCF
 
 class AtomRhoOrbitalRadialSlater(ItemConstr):
@@ -344,11 +342,11 @@ To transform it in inverse angstrems use:
             flag = x_in.take_it(x)
         setattr(self, "__coeff_5f", x_in)
 
-    def calc_normalized_rho(self, radius: numpy.array, kappa=1.) -> numpy.array:
+    def calc_normalized_rho(self, radius: numpy.array, kappa:float=1.) -> numpy.array:
         """
 Gives normalized Slatter type function at given radius and defined n0 and zeta0:
     
-    R = ((2*zeta0)**(n0+0.5)/(2*n0)!)*r**(n0-1)*exp(-zeta0*r) 
+    R = ((2*zeta0)**(n0+0.5)/((2*n0)!)**0.5)*r**(n0-1)*exp(-zeta0*r) 
     (see Clementi_1974)
 
 Input arguments:
@@ -371,6 +369,21 @@ Example:
         coeff_norm=((2.*zeta_ang)**(float(n0)+0.5))/math.sqrt(math.factorial(2*n0))
         norm_density = coeff_norm*(radius**(n0-1))*numpy.exp(-zeta_ang*radius)
         return norm_density
+
+    def calc_jl(self, sthovl: numpy.array, l_max:int, kappa:float=1.) -> numpy.array:
+        """
+Calculate jl for l from 0 until l_max of atomic orbital
+        """
+        zeta0 = self.zeta0
+        n0 = self.n0
+        zeta_ang = kappa*zeta0/0.52918
+        coeff_norm=((2.*zeta_ang)**(float(n0)+0.5))/math.sqrt(math.factorial(2*n0))
+        nn, zeta = (n0+n0), (zeta_ang+zeta_ang)
+        q = 4.*numpy.pi*sthovl
+        q_2d, l_2d = numpy.meshgrid(q, range(l_max+1), indexing="ij")
+        ql_2d = numpy.power(q_2d, l_2d)
+        jl = ql_2d*coeff_norm*coeff_norm*transs(l_max, nn, zeta, sthovl)
+        return jl
 
     @property
     def is_variable(self):
@@ -516,6 +529,13 @@ Example:
         return l_arors
 
     def calc_jl_by_radial_density(self, sthovl, lmax: int, shell: str, kappa=1.):
+        """
+Calculate <j_l> for given sthovl, l and shell
+
+.. math::
+    
+    <j_l> = sum_{n, dzeta} integral_{0}^{infinity} R^{2}(n, dzeta, r) j_l(r*s) dr
+        """
         n0 = numpy.array(self.n0, dtype=int)
         zeta0 = numpy.array(self.zeta0, dtype=float)
         coeff_h = getattr(self, f"coeff_{shell:}")
@@ -524,9 +544,17 @@ Example:
 
         if any([_ is None for _ in coeff]): return None
         
-        jl = calc_GCF(n0, zeta0, coeff, kappa, 
-                      n0, zeta0, coeff, kappa, 
-                      sthovl, lmax)
+        np_q = 4*numpy.pi * sthovl
+        np_q = 2*sthovl
+        
+        np_l = numpy.array(range(lmax+1), dtype=int)
+        np_q_2d, np_l_2d = numpy.meshgrid(np_q, np_l, indexing="ij")
+        np_ql_2d = numpy.power(np_q_2d, np_l_2d)
+
+
+        jl = np_ql_2d * calc_GCF(n0, zeta0, coeff, kappa, 
+                                 n0, zeta0, coeff, kappa, 
+                                 sthovl, lmax)
         return jl
 
     def refine_coefficients_by_jl(self, atom_type: str, shell: str, 
