@@ -66,3 +66,33 @@ from .rhocif.cl_atom_rho_orbital_radial_slater import AtomRhoOrbitalRadialSlater
 from .rhocif.cl_atom_electron_configuration import AtomElectronConfiguration, AtomElectronConfigurationL
 
 from .scripts.cl_rhochi import RhoChi
+
+
+from .symcif.CONSTANTS_AND_FUNCTIONS import transform_r_b_to_string, transform_string_to_r_b
+
+
+L_FUNCTION = [transform_r_b_to_string, transform_string_to_r_b]
+
+L_ITEM_CONSTR_CLASS = [PdInstrResolution, PdInstrReflexAsymmetry,
+                       PdProc, PdPeak, PdMeas, PdBackground,
+                       SpaceGroup, SpaceGroupSymop, SpaceGroupWyckoff,
+                       AtomSiteMoment, AtomSiteScat, AtomSiteSusceptibility,
+                       AtomTypeScat, ReflnSusceptibility,
+                       Pd2dMeas, Pd2dProc,
+                       Chi2, DiffrnRadiation, 
+                       Extinction, Range, Setup,
+                       Texture, AtomSite, AtomSiteAniso, AtomType,
+                       Cell, DiffrnOrientMatrix,
+                       RefineLs, DiffrnRefln, Exclude, Phase,
+                       AtomLocalAxes, AtomRhoOrbitalRadialSlater, AtomElectronConfiguration]
+L_LOOP_CONSTR_CLASS = [PdProcL, PdPeakL, PdMeasL, PdBackgroundL, SpaceGroupSymopL, SpaceGroupWyckoffL, 
+                       AtomSiteMomentL, AtomSiteScatL, AtomSiteSusceptibilityL,
+                       AtomTypeScatL, ReflnSusceptibilityL, 
+                       DiffrnReflnL, ExcludeL, 
+                       PhaseL, AtomSiteL, AtomSiteAnisoL,
+                       AtomTypeL,ReflnL,
+                       AtomLocalAxesL, AtomRhoOrbitalRadialSlaterL, AtomElectronConfigurationL]
+
+L_DATA_CONSTR_CLASS = [Crystal, Pd, Pd2d, Diffrn]
+
+L_GLOBAL_CONSTR_CLASS = [RhoChi]
