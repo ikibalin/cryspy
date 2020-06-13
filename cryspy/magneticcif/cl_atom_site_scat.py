@@ -121,9 +121,10 @@ atom_type_scat
             if self.kappa.refinement: l_variable.append(self.kappa)
         return l_variable
 
-    def calc_form_factor(self, sthovl):
+    def calc_form_factor(self, sthovl, flag_only_orbital=False):
         atom_type_scat = self.atom_type_scat
-        form_factor = atom_type_scat.calc_form_factor(sthovl, lande=self.lande, kappa=self.kappa)
+        form_factor = atom_type_scat.calc_form_factor(sthovl, lande=self.lande, kappa=self.kappa, 
+                                                      flag_only_orbital=flag_only_orbital)
         return form_factor
 
     def load_atom_type_scat_by_symbol(self, symbol:str):
@@ -155,8 +156,8 @@ Description in cif::
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
-    def calc_form_factor(self, sthovl):
-        form_factor = [_item.calc_form_factor(sthovl) for _item in self.item]
+    def calc_form_factor(self, sthovl, flag_only_orbital=False):
+        form_factor = [_item.calc_form_factor(sthovl, flag_only_orbital=flag_only_orbital) for _item in self.item]
         return numpy.array(list(zip(*form_factor)), dtype=float)
     
     def load_atom_type_scat_by_atom_site(self, atom_site):

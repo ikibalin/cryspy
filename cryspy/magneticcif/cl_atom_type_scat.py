@@ -7,7 +7,7 @@ import numpy
 from pycifstar import Global
 
 
-from typing import List, Tuple
+from typing import List, Tuple, NoReturn
 from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
@@ -619,13 +619,11 @@ International Tables for Crystallography (2006). Vol. C, Section 4.4.5.
         l_variable = []
         return l_variable
 
-    def calc_form_factor(self, sthovl, lande=2., kappa=1.):
+    def calc_form_factor(self, sthovl, lande=2., kappa=1., flag_only_orbital=False):
         """
 Calculate magnetic form factor in frame of Spherical model (Int.Tabl.C.p.592)
 
 :LFactor:  is Lande factor
-:coeff0:   is a list [A,a,B,b,C,c,D] at n=0
-:coeff2:   is a list [A,a,B,b,C,c,D] at n=2
 :lsthovl:  is list :math:`sin(\\theta)/\\lambda` in :math:`\\A^{-1}`
 
 Calculation of magnetic form factor <j0>, <j2>, <j4>, <j6>
@@ -636,6 +634,17 @@ according `<https://journals.aps.org/prb/pdf/10.1103/PhysRevB.79.140405>`
 mismatch with international tables where (1.0-2.0/np_factor_lande)
         """
         #not sure about kappa, it is here just for test, by default it is 1.0
+        j0_av = self.calc_j0(sthovl, kappa=kappa)    
+        j2_av = self.calc_j2(sthovl, kappa=kappa)    
+
+        if flag_only_orbital:
+            form_factor = (2.0/float(lande)-1.0)*j2_av
+        else:
+            form_factor = j0_av+(2.0/float(lande)-1.0)*j2_av
+        return form_factor
+
+
+    def calc_j0(self, sthovl, kappa:float=1):
         j0_A = self.neutron_magnetic_j0_a1
         j0_a = self.neutron_magnetic_j0_a2
         j0_B = self.neutron_magnetic_j0_b1
@@ -643,6 +652,13 @@ mismatch with international tables where (1.0-2.0/np_factor_lande)
         j0_C = self.neutron_magnetic_j0_c1
         j0_c = self.neutron_magnetic_j0_c2
         j0_D = self.neutron_magnetic_j0_d
+        _h = (sthovl/float(kappa))**2
+        j0_av = (j0_A*numpy.exp(-j0_a*_h)+
+                 j0_B*numpy.exp(-j0_b*_h)+
+                 j0_C*numpy.exp(-j0_c*_h)+j0_D)
+        return j0_av
+
+    def calc_j2(self, sthovl, kappa:float=1):
         j2_A = self.neutron_magnetic_j2_a1
         j2_a = self.neutron_magnetic_j2_a2
         j2_B = self.neutron_magnetic_j2_b1
@@ -650,18 +666,32 @@ mismatch with international tables where (1.0-2.0/np_factor_lande)
         j2_C = self.neutron_magnetic_j2_c1
         j2_c = self.neutron_magnetic_j2_c2
         j2_D = self.neutron_magnetic_j2_d     
-    
         _h = (sthovl/float(kappa))**2
-    
-        j0_av = (j0_A*numpy.exp(-j0_a*_h)+
-                 j0_B*numpy.exp(-j0_b*_h)+
-                 j0_C*numpy.exp(-j0_c*_h)+j0_D)
         j2_av = (j2_A*numpy.exp(-j2_a*_h)+
                  j2_B*numpy.exp(-j2_b*_h)+
                  j2_C*numpy.exp(-j2_c*_h)+j2_D)*_h
-    
-        form_factor = j0_av+(2.0/float(lande)-1.0)*j2_av
-        return form_factor
+        return j2_av
+
+    def load_by_symbol(self, symbol:str=None) -> NoReturn:
+        if symbol is None:
+            symbol = self.symbol
+        else:
+            self.symbol = symbol
+        j0_A1, j0_a2, j0_B1, j0_b2, j0_C1, j0_c2, j0_D, j2_A1, j2_a2, j2_B1, j2_b2, j2_C1, j2_c2, j2_D = CONSTANTS_AND_FUNCTIONS.get_j0_j2_by_symbol(symbol)
+        self.neutron_magnetic_j0_a1 = j0_A1 
+        self.neutron_magnetic_j0_a2 = j0_a2
+        self.neutron_magnetic_j0_b1 = j0_B1 
+        self.neutron_magnetic_j0_b2 = j0_b2
+        self.neutron_magnetic_j0_c1 = j0_C1 
+        self.neutron_magnetic_j0_c2 = j0_c2
+        self.neutron_magnetic_j0_d = j0_D
+        self.neutron_magnetic_j2_a1 = j2_A1 
+        self.neutron_magnetic_j2_a2 = j2_a2
+        self.neutron_magnetic_j2_b1 = j2_B1 
+        self.neutron_magnetic_j2_b2 = j2_b2
+        self.neutron_magnetic_j2_c1 = j2_C1 
+        self.neutron_magnetic_j2_c2 = j2_c2
+        self.neutron_magnetic_j2_d = j2_D
 
     @classmethod
     def form_by_symbol(cls, symbol:str):
@@ -711,8 +741,8 @@ Description in cif::
         ls_out.append(f"{str(self):}")
         return "\n".join(ls_out)
 
-    def calc_form_factor(self, sthovl, l_lande: List, l_kappa: List):
-        form_factor = [_item.calc_form_factor(sthovl, float(lande), float(kappa)) 
+    def calc_form_factor(self, sthovl, l_lande: List, l_kappa: List, flag_only_orbital=False):
+        form_factor = [_item.calc_form_factor(sthovl, float(lande), float(kappa), flag_only_orbital=flag_only_orbital) 
                        for _item, lande, kappa in zip(self.item, l_lande, l_kappa)]
         return numpy.array(form_factor, dtype=float)
 

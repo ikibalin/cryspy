@@ -223,6 +223,10 @@ calculate tangenth (theta)
         """
 Calculate parameters for tth
 tth_hkl in degrees
+
+Output values:
+
+h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
         """
         self._calc_tancos(0.5*tth_hkl*numpy.pi/180.)
         self._calc_hg(i_g = i_g)
