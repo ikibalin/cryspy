@@ -3,6 +3,8 @@ __version__ = "2019_12_11"
 import os
 import math
 import numpy
+from typing import NoReturn, List
+
 from pycifstar import Global
 
 import warnings
@@ -24,7 +26,7 @@ from cryspy.pd1dcif_like.cl_pd_instr_resolution import PdInstrResolution
 from cryspy.pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
 from cryspy.pd1dcif_like.cl_pd_peak import PdPeak, PdPeakL
 from cryspy.pd1dcif_like.cl_pd_proc import PdProc, PdProcL
-
+from cryspy import Crystal
 
 from cryspy.cif_like.cl_exclude import Exclude, ExcludeL
 import cryspy.cif_like.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
@@ -491,7 +493,8 @@ Description in cif file::
         return "\n".join(ls_out)
 
 
-    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None, flag_internal=True):
+    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None, 
+                     flag_internal:bool=True, flag_polarized:bool=True):
         """
 Calculate intensity for the given diffraction angles.
 
@@ -512,7 +515,6 @@ Output arguments:
     l_peak: data about peaks
     l_refln: data about nuclear structure factor
         """
-        flag_polarized = self.meas.is_polarized
 
         proc = PdProcL()
         proc.set_numpy_ttheta(tth)
@@ -732,7 +734,8 @@ Output arguments:
             int_exp_in = int_exp[cond_in]
             sint_exp_in = sint_exp[cond_in]
             
-        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_refln_susceptibility_in=l_refln_susceptibility_in, flag_internal=flag_internal)
+        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_refln_susceptibility_in=l_refln_susceptibility_in, 
+                                                  flag_internal=flag_internal, flag_polarized=meas.is_polarized)
 
 
         if flag_polarized:
@@ -822,8 +825,18 @@ Output arguments:
             proc.transform_numpy_arrays_to_items()
         return chi_sq_val, n
 
+    def simulation(self, l_crystal:List[Crystal], ttheta_start:float=4., ttheta_end:float=120., ttheta_step:float=0.1, 
+                   flag_polarized:bool=True) -> NoReturn:
+        n_points = int(round((ttheta_end-ttheta_start)/ttheta_step))
+        tth_in = numpy.linspace(ttheta_start, ttheta_end, n_points)
+        if isinstance(l_crystal, Crystal):
+            l_crystal = [l_crystal]
+        self.calc_profile(tth_in, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None, 
+                          flag_internal=True, flag_polarized=flag_polarized)
+        return
 
-    def calc_iint(self, h, k, l, crystal, flag_internal=True):
+
+    def calc_iint(self, h, k, l, crystal:Crystal, flag_internal=True):
         """
 Calculate the integrated intensity for h, k, l reflections.
 
