@@ -581,6 +581,17 @@ Output:
             print("gamma is {:7.3f}   nu is {:7.3f}   phi is {:7.3f}".format(gamma, nu, phi))
             return gamma, nu, phi
 
+
+    def calc_q2(self, h:numpy.ndarray, k:numpy.ndarray, l:numpy.ndarray, cell:Cell) -> numpy.ndarray:
+        """
+Calculate q2 = (sin \alpha)^2
+
+\alpha is angle between magnetic field and scattering vector (?)
+        """
+        k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
+        h_1_loc, h_2_loc, h_3_loc = float(self.u_31), float(self.u_32), float(self.u_33)
+        res = 1.-(k_1*h_1_loc + k_2*h_2_loc + k_3*h_3_loc)**2
+        return res
 #
 #    @property
 #    def ub_from(self):
