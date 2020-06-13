@@ -5,6 +5,7 @@ import os
 import math
 import numpy
 from pycifstar import Global
+from cryspy.corecif.cl_cell import Cell
 
 import warnings
 from typing import List, Tuple
@@ -269,7 +270,7 @@ Make a report about experimental agreement factor in string format
 
         return "\n".join(ls_out)
 
-    def report_chi_sq_exp(self):
+    def report_chi_sq_exp(self, cell:Cell=None) -> str:
         """
 Make a report about experimental chi_sq in string format
         """
@@ -314,4 +315,24 @@ Make a report about experimental chi_sq in string format
             ls_out.append("  h  k  l       FR FR_sigma  FR_calc  diff")
             for (_hkl, _fr, _fr_sigma, _fr_calc, _diff) in l_worsest[:n_worsest]:
                 ls_out.append(f"{_hkl[0]:3}{_hkl[1]:3}{_hkl[2]:3}{_fr:9.5f}{_fr_sigma:9.5f}{_fr_calc:9.5f}{_diff:6.1f}")
+        if cell is not None:
+            np_h = numpy.array(self.index_h, dtype=int)
+            np_k = numpy.array(self.index_k, dtype=int)
+            np_l = numpy.array(self.index_l, dtype=int)
+            np_sthovl = cell.calc_sthovl(h=np_h, k=np_k, l=np_l)
+            np_fr, np_fr_sigma = numpy.array(l_fr, dtype=float), numpy.array(l_fr_sigma, dtype=float) 
+            np_fr_calc = numpy.array(l_fr_calc, dtype=float)
+            np_diff = numpy.abs((np_fr-np_fr_calc)/np_fr_sigma)
+            n_bins = 10
+            np_val, np_sthovl_bins = numpy.histogram(np_sthovl, bins=n_bins)
+            ls_out.append(f"\nDistribution of reflection in sin(theta)/lambda range")
+            ls_out.append(f"sthovl_1 sthovl_2 <Exp-Mod/Sigma> n_points")
+            for _1, _2, _3 in zip(np_sthovl_bins[:-1], np_sthovl_bins[1:], np_val):
+                np_flag = numpy.logical_and(np_sthovl >= _1, np_sthovl < _2) 
+                res = np_diff[np_flag]
+                if res.size == 0:
+                    ls_out.append(f"{_1:8.3f} {_2:8.3f}:       None          0")
+                else:
+                    ls_out.append(f"{_1:8.3f} {_2:8.3f}:    {np_diff[np_flag].mean():7.3f} {_3:10}")
+            n_vals = numpy.histogram(np_sthovl, bins=n_bins)
         return "\n".join(ls_out)
