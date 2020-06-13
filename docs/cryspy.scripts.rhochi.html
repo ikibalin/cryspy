@@ -15,6 +15,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Other" href="m_other.html" />
     <link rel="prev" title="Scripts" href="cryspy.scripts.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -34,10 +35,13 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="m_other.html" title="Other"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="cryspy.scripts.html" title="Scripts"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.scripts.html" accesskey="U">Scripts</a> &#187;</li> 
       </ul>
     </div>  
@@ -150,6 +154,11 @@
 </pre></div>
 </div>
 <dl class="py attribute">
+<dt id="cryspy.scripts.cl_rhochi.RhoChi.F_ICON">
+<code class="sig-name descname">F_ICON</code><em class="property"> = '..\\cryspy\\scripts\\logo_RhoChi.png'</em><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.F_ICON" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt id="cryspy.scripts.cl_rhochi.RhoChi.INTERNAL_CLASSES">
 <code class="sig-name descname">INTERNAL_CLASSES</code><em class="property"> = ()</em><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.INTERNAL_CLASSES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -212,8 +221,16 @@ n: number of measured reflections</p>
 
 <dl class="py method">
 <dt id="cryspy.scripts.cl_rhochi.RhoChi.refine">
-<code class="sig-name descname">refine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disp</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.refine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.refine" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">refine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disp</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">optimization_method</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'BFGS'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/scripts/cl_rhochi.html#RhoChi.refine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.scripts.cl_rhochi.RhoChi.refine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Minimization procedure</p>
+<dl class="simple">
+<dt>Accesible parameters for optimization_method:</dt><dd><ul class="simple">
+<li><p>“BFGS” (default)</p></li>
+<li><p>“simplex”</p></li>
+<li><p>“basinhopping”</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -244,6 +261,9 @@ n: number of measured reflections</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="cryspy.scripts.html"
                         title="previous chapter">Scripts</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="m_other.html"
+                        title="next chapter">Other</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -275,10 +295,13 @@ n: number of measured reflections</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="m_other.html" title="Other"
+             >next</a> |</li>
+        <li class="right" >
           <a href="cryspy.scripts.html" title="Scripts"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.scripts.html" >Scripts</a> &#187;</li> 
       </ul>
     </div>

@@ -1,4 +1,4 @@
-Unofficial core dictionary
+Core dictionary
 ---------------------------
 
 .. automodule:: cryspy.cif_like

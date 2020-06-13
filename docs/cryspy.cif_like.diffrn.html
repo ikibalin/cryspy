@@ -41,7 +41,7 @@
           <a href="cryspy.cif_like.texture.html" title="Texture"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -128,12 +128,31 @@ n: number of measured reflections</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.calc_fm_perp_loc">
+<code class="sig-name descname">calc_fm_perp_loc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">cell</span></em>, <em class="sig-param"><span class="n">sft_11</span></em>, <em class="sig-param"><span class="n">sft_12</span></em>, <em class="sig-param"><span class="n">sft_13</span></em>, <em class="sig-param"><span class="n">sft_21</span></em>, <em class="sig-param"><span class="n">sft_22</span></em>, <em class="sig-param"><span class="n">sft_23</span></em>, <em class="sig-param"><span class="n">sft_31</span></em>, <em class="sig-param"><span class="n">sft_32</span></em>, <em class="sig-param"><span class="n">sft_33</span></em>, <em class="sig-param"><span class="n">sftm_11</span></em>, <em class="sig-param"><span class="n">sftm_12</span></em>, <em class="sig-param"><span class="n">sftm_13</span></em>, <em class="sig-param"><span class="n">sftm_21</span></em>, <em class="sig-param"><span class="n">sftm_22</span></em>, <em class="sig-param"><span class="n">sftm_23</span></em>, <em class="sig-param"><span class="n">sftm_31</span></em>, <em class="sig-param"><span class="n">sftm_32</span></em>, <em class="sig-param"><span class="n">sftm_33</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_fm_perp_loc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_fm_perp_loc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the component of magnetic structure factor perpendicular to hkl.</p>
+<p>Output:
+x, y and z coordinates of FM_perp</p>
+<p>Cartezian coordinate system is defined such way that
+(x||a*), (z||c).</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio">
 <code class="sig-name descname">calc_iint_u_d_flip_ratio</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">l_crystal</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.calc_iint_u_d_flip_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.calc_iint_u_d_flip_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate intensity for the given diffraction angle</p>
 <dl class="field-list simple">
 <dt class="field-odd">Keyword Arguments</dt>
-<dd class="field-odd"><p><strong>k</strong><strong>, </strong><strong>l</strong> (<em>h</em><em>,</em>) – 1D numpy array of Miller indexes</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong><strong>, </strong><strong>l</strong> (<em>h</em><em>,</em>) – 1D numpy array of Miller indexes</p></li>
+<li><p><strong>l_crystal</strong> – list of crystal structures</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Output:</dt><dd><p>iint_u: intensity up (without scale factor)
+iint_d: intensity down (without scale factor)
+flip_ratio: flip ratio (intensity_up/intensity_down)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -162,6 +181,13 @@ n: number of measured reflections</p>
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.diffrn_refln">
 <em class="property">property </em><code class="sig-name descname">diffrn_refln</code><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.diffrn_refln" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt id="cryspy.cif_like.cl_diffrn.Diffrn.estimate_FM">
+<code class="sig-name descname">estimate_FM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crystal</span><span class="p">:</span> <span class="n"><a class="reference internal" href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal" title="cryspy.cif_like.cl_crystal.Crystal">cryspy.cif_like.cl_crystal.Crystal</a></span></em>, <em class="sig-param"><span class="n">maxAbsFM</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">5</span></em>, <em class="sig-param"><span class="n">deltaFM</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.001</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#Diffrn.estimate_FM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.Diffrn.estimate_FM" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method calculates magnetic structure factors (only real part) from flipping ratios based on give crystal structure.
+The crystal structure should be centrosymmetrical</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="cryspy.cif_like.cl_diffrn.Diffrn.extinction">
@@ -217,6 +243,24 @@ n: number of measured reflections</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt id="cryspy.cif_like.cl_diffrn.bisect">
+<code class="sig-prename descclassname">cryspy.cif_like.cl_diffrn.</code><code class="sig-name descname">bisect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">x1</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">x2</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">switch</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="n">epsilon</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1e-12</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#bisect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.bisect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="cryspy.cif_like.cl_diffrn.calcroots">
+<code class="sig-prename descclassname">cryspy.cif_like.cl_diffrn.</code><code class="sig-name descname">calcroots</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">a</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">b</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">eps</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#calcroots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.calcroots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all roots of function f in range [a,b].
+Roots should not be close than eps
+Give also estimation of mistake if mistake of zero is defined</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="cryspy.cif_like.cl_diffrn.rootsearch">
+<code class="sig-prename descclassname">cryspy.cif_like.cl_diffrn.</code><code class="sig-name descname">rootsearch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">a</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">b</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">dx</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_diffrn.html#rootsearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_diffrn.rootsearch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
@@ -268,7 +312,7 @@ n: number of measured reflections</p>
           <a href="cryspy.cif_like.texture.html" title="Texture"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>

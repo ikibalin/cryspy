@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Usage in python scripts &#8212; cryspy 0.2.0 documentation</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview of CrysPy Editor (GUI)" href="m_starting.html" />
+    <link rel="prev" title="Installation" href="m_installation.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="m_starting.html" title="Overview of CrysPy Editor (GUI)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="m_installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="usage-in-python-scripts">
+<h1>Usage in python scripts<a class="headerlink" href="#usage-in-python-scripts" title="Permalink to this headline">¶</a></h1>
+<p>There are several ways to use <strong>CrysPy</strong> library.</p>
+<p>The <a class="reference external" href="https://jupyter.org/">Jupyter Notebook</a> is an open-source
+web application
+that allows you to create and share documents that contain
+live code, equations, visualizations and narrative text.
+It becames a popular instrument for the data analysis.
+In the next sections the restricted number of example shows the general methods which allows you
+to create and to manipulate with given objects.</p>
+<div class="section" id="initialization">
+<h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<p>The given below python script demonstrate the application of
+the library to main manipulation with the objects:
+<strong>(i)</strong> direct creating of the object; <strong>(ii)</strong> import object into string;
+<strong>(iii)</strong> access to the object attributes; <strong>(iv)</strong> methods of the object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">cryspy</span>
+
+<span class="c1"># creating of the object by defined class</span>
+<span class="n">cell</span> <span class="o">=</span> <span class="n">cryspy</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="n">length_a</span><span class="o">=</span><span class="mf">8.3</span><span class="p">,</span>
+                   <span class="n">length_b</span><span class="o">=</span><span class="mf">8.3</span><span class="p">,</span>
+                   <span class="n">length_c</span><span class="o">=</span><span class="mf">8.3</span><span class="p">,</span>
+                   <span class="n">angle_alpha</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>
+                   <span class="n">angle_beta</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>
+                   <span class="n">angle_gamma</span><span class="o">=</span><span class="mf">90.</span><span class="p">)</span>
+
+<span class="c1"># import to string</span>
+<span class="n">str_cell</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">to_cif</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">str_cell</span><span class="p">)</span>
+
+<span class="c1"># or</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+
+<span class="c1"># the object cell has such internal attributes as</span>
+<span class="c1"># volume of unit cell, reciprocal space, B matrix</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;volume: &quot;</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reciprocal_length_a: &quot;</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_length_a</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reciprocal_angle_alpha: &quot;</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">reciprocal_angle_alpha</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;matrix_B: &quot;</span><span class="p">,</span> <span class="n">cell</span><span class="o">.</span><span class="n">m_B</span><span class="p">)</span>
+
+<span class="c1"># to create object from string use the class method &#39;from_cif&#39;</span>
+<span class="n">new_cell</span> <span class="o">=</span> <span class="n">cryspy</span><span class="o">.</span><span class="n">Cell</span><span class="o">.</span><span class="n">from_cif</span><span class="p">(</span><span class="n">str_cell</span><span class="p">)</span>
+
+<span class="c1"># cell object has predefined methods</span>
+<span class="n">str_report</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">report_cell</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">str_report</span><span class="p">)</span>
+<span class="n">np_h</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">np_k</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">np_l</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">sthovl</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">calc_sthovl</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">np_h</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">np_k</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">np_l</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sin(theta)/lambda for reflections [(2,0,0), (2,2,0), (1,1,1)]&quot;</span><span class="p">,</span> <span class="n">sthovl</span><span class="p">)</span>
+
+<span class="c1"># the full list of predefined methods can be easily found in CrysPy editor software</span>
+<span class="c1"># or in help</span>
+<span class="n">help</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+
+<span class="c1"># all classes and functions defined in library are given in several lists:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">L_ITEM_CONSTR_CLASS</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">L_LOOP_CONSTR_CLASS</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">L_DATA_CONSTR_CLASS</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">L_GLOBAL_CONSTR_CLASS</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">L_FUNCTION</span><span class="p">)</span>
+
+<span class="c1"># for each of them you can get help</span>
+<span class="n">help</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">L_ITEM_CONSTR_CLASS</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># another example with SpaceGroup</span>
+<span class="n">space_group</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">SpaceGroup</span><span class="p">(</span><span class="n">it_number</span> <span class="o">=</span> <span class="mi">87</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">space_group</span><span class="o">.</span><span class="n">to_cif</span><span class="p">())</span>
+
+<span class="c1"># elements of symmetry and wyckoff position for given space group</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">space_group</span><span class="o">.</span><span class="n">space_group_wyckoff</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">space_group</span><span class="o">.</span><span class="n">full_space_group_symop</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">space_group</span><span class="o">.</span><span class="n">report_space_group</span><span class="p">())</span>
+
+<span class="c1"># another example with AtomSite</span>
+<span class="n">atom_fe</span> <span class="o">=</span> <span class="n">cryspy</span><span class="o">.</span><span class="n">AtomSite</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Fe&quot;</span><span class="p">,</span> <span class="n">symbol_type</span> <span class="o">=</span> <span class="s2">&quot;Fe3+&quot;</span><span class="p">,</span>
+                   <span class="n">fract_x</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">fract_y</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">fract_z</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                   <span class="n">occupancy</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">adp_type</span><span class="o">=</span><span class="s2">&quot;Uiso&quot;</span><span class="p">,</span> <span class="n">u_iso_or_equiv</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+
+<span class="n">atom_o</span> <span class="o">=</span> <span class="n">cryspy</span><span class="o">.</span><span class="n">AtomSite</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">symbol_type</span> <span class="o">=</span> <span class="s2">&quot;O2-&quot;</span><span class="p">,</span>
+                   <span class="n">fract_x</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">fract_y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fract_z</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                   <span class="n">occupancy</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">adp_type</span><span class="o">=</span><span class="s2">&quot;Uiso&quot;</span><span class="p">,</span> <span class="n">u_iso_or_equiv</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+
+<span class="n">atom_site_loop</span> <span class="o">=</span> <span class="n">AtomSiteL</span><span class="p">(</span><span class="n">item</span><span class="o">=</span><span class="p">[</span><span class="n">atom_fe</span><span class="p">,</span> <span class="n">atom_o</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">atom_site_loop</span><span class="o">.</span><span class="n">to_cif</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nuclear-structure-factor-calculations">
+<h2>Nuclear structure factor calculations<a class="headerlink" href="#nuclear-structure-factor-calculations" title="Permalink to this headline">¶</a></h2>
+<p>The crystal structure are described as a container of corresponding objects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cryspy</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="n">data_name</span><span class="o">=</span><span class="s2">&quot;magnetit&quot;</span><span class="p">,</span>
+            <span class="n">cell</span><span class="o">=</span><span class="n">cell</span><span class="p">,</span>
+            <span class="n">space_group</span><span class="o">=</span><span class="n">space_group</span><span class="p">,</span>
+            <span class="n">atom_site</span><span class="o">=</span><span class="n">atom_site_loop</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">cryspy</span><span class="o">.</span><span class="n">to_cif</span><span class="p">())</span>
+
+<span class="c1"># calculation of nuclear structure factor</span>
+<span class="n">refln_obj</span> <span class="o">=</span> <span class="n">cryspy</span><span class="o">.</span><span class="n">calc_refln</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">np_h</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">np_k</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">np_l</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">refln_obj</span><span class="o">.</span><span class="n">to_cif</span><span class="p">())</span>
+
+<span class="c1"># or</span>
+<span class="n">np_fn</span> <span class="o">=</span> <span class="n">cryspy</span><span class="o">.</span><span class="n">calc_f_nucl</span><span class="p">(</span><span class="n">np_h</span><span class="p">,</span> <span class="n">np_k</span><span class="p">,</span> <span class="n">np_l</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;numpy array of nuclear structure factor&quot;</span><span class="p">,</span> <span class="n">np_fn</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="susceptibility-approach">
+<h2>Susceptibility approach<a class="headerlink" href="#susceptibility-approach" title="Permalink to this headline">¶</a></h2>
+<p>in progress</p>
+</div>
+<div class="section" id="polarized-neutron-diffraction-on-single-crystal">
+<h2>Polarized neutron diffraction on single crystal<a class="headerlink" href="#polarized-neutron-diffraction-on-single-crystal" title="Permalink to this headline">¶</a></h2>
+<p>in progress</p>
+</div>
+<div class="section" id="d-polarized-neutron-powder-diffraction">
+<h2>1D polarized neutron powder diffraction<a class="headerlink" href="#d-polarized-neutron-powder-diffraction" title="Permalink to this headline">¶</a></h2>
+<p>in progress</p>
+</div>
+<div class="section" id="id1">
+<h2>2D polarized neutron powder diffraction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>in progress</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Usage in python scripts</a><ul>
+<li><a class="reference internal" href="#initialization">Initialization</a></li>
+<li><a class="reference internal" href="#nuclear-structure-factor-calculations">Nuclear structure factor calculations</a></li>
+<li><a class="reference internal" href="#susceptibility-approach">Susceptibility approach</a></li>
+<li><a class="reference internal" href="#polarized-neutron-diffraction-on-single-crystal">Polarized neutron diffraction on single crystal</a></li>
+<li><a class="reference internal" href="#d-polarized-neutron-powder-diffraction">1D polarized neutron powder diffraction</a></li>
+<li><a class="reference internal" href="#id1">2D polarized neutron powder diffraction</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="m_installation.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="m_starting.html"
+                        title="next chapter">Overview of <strong>CrysPy Editor</strong> (GUI)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/m_usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="m_starting.html" title="Overview of CrysPy Editor (GUI)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="m_installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Iurii KIBALIN.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

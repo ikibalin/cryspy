@@ -48,6 +48,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">List</span>
+
 <span class="kn">from</span> <span class="nn">pycifstar</span> <span class="kn">import</span> <span class="n">Global</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -69,7 +71,7 @@
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_meas</span> <span class="kn">import</span> <span class="n">PdMeas</span><span class="p">,</span> <span class="n">PdMeasL</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_peak</span> <span class="kn">import</span> <span class="n">PdPeak</span><span class="p">,</span> <span class="n">PdPeakL</span>
 <span class="kn">from</span> <span class="nn">cryspy.pd1dcif_like.cl_pd_proc</span> <span class="kn">import</span> <span class="n">PdProc</span><span class="p">,</span> <span class="n">PdProcL</span>
-
+<span class="kn">from</span> <span class="nn">cryspy</span> <span class="kn">import</span> <span class="n">Crystal</span>
 
 <span class="kn">from</span> <span class="nn">cryspy.cif_like.cl_exclude</span> <span class="kn">import</span> <span class="n">Exclude</span><span class="p">,</span> <span class="n">ExcludeL</span>
 <span class="kn">import</span> <span class="nn">cryspy.cif_like.CONSTANTS_AND_FUNCTIONS</span> <span class="k">as</span> <span class="nn">CONSTANTS_AND_FUNCTIONS</span>
@@ -536,7 +538,8 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ls_out</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Pd.calc_profile"><a class="viewcode-back" href="../../../cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_profile">[docs]</a>    <span class="k">def</span> <span class="nf">calc_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Pd.calc_profile"><a class="viewcode-back" href="../../../cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_profile">[docs]</a>    <span class="k">def</span> <span class="nf">calc_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tth</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                     <span class="n">flag_internal</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">flag_polarized</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculate intensity for the given diffraction angles.</span>
 
@@ -557,7 +560,6 @@
 <span class="sd">    l_peak: data about peaks</span>
 <span class="sd">    l_refln: data about nuclear structure factor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">flag_polarized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">is_polarized</span>
 
         <span class="n">proc</span> <span class="o">=</span> <span class="n">PdProcL</span><span class="p">()</span>
         <span class="n">proc</span><span class="o">.</span><span class="n">set_numpy_ttheta</span><span class="p">(</span><span class="n">tth</span><span class="p">)</span>
@@ -777,7 +779,8 @@
             <span class="n">int_exp_in</span> <span class="o">=</span> <span class="n">int_exp</span><span class="p">[</span><span class="n">cond_in</span><span class="p">]</span>
             <span class="n">sint_exp_in</span> <span class="o">=</span> <span class="n">sint_exp</span><span class="p">[</span><span class="n">cond_in</span><span class="p">]</span>
             
-        <span class="n">proc</span><span class="p">,</span> <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_refln</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_profile</span><span class="p">(</span><span class="n">tth_in</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="n">l_refln_susceptibility_in</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="n">flag_internal</span><span class="p">)</span>
+        <span class="n">proc</span><span class="p">,</span> <span class="n">l_peak</span><span class="p">,</span> <span class="n">l_refln</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_profile</span><span class="p">(</span><span class="n">tth_in</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="n">l_peak_in</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="n">l_refln_in</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="n">l_refln_susceptibility_in</span><span class="p">,</span> 
+                                                  <span class="n">flag_internal</span><span class="o">=</span><span class="n">flag_internal</span><span class="p">,</span> <span class="n">flag_polarized</span><span class="o">=</span><span class="n">meas</span><span class="o">.</span><span class="n">is_polarized</span><span class="p">)</span>
 
 
         <span class="k">if</span> <span class="n">flag_polarized</span><span class="p">:</span>
@@ -867,8 +870,18 @@
             <span class="n">proc</span><span class="o">.</span><span class="n">transform_numpy_arrays_to_items</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">chi_sq_val</span><span class="p">,</span> <span class="n">n</span></div>
 
+<div class="viewcode-block" id="Pd.simulation"><a class="viewcode-back" href="../../../cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.simulation">[docs]</a>    <span class="k">def</span> <span class="nf">simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">Crystal</span><span class="p">],</span> <span class="n">ttheta_start</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">ttheta_end</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">120.</span><span class="p">,</span> <span class="n">ttheta_step</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> 
+                   <span class="n">flag_polarized</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+        <span class="n">n_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">ttheta_end</span><span class="o">-</span><span class="n">ttheta_start</span><span class="p">)</span><span class="o">/</span><span class="n">ttheta_step</span><span class="p">))</span>
+        <span class="n">tth_in</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ttheta_start</span><span class="p">,</span> <span class="n">ttheta_end</span><span class="p">,</span> <span class="n">n_points</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l_crystal</span><span class="p">,</span> <span class="n">Crystal</span><span class="p">):</span>
+            <span class="n">l_crystal</span> <span class="o">=</span> <span class="p">[</span><span class="n">l_crystal</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_profile</span><span class="p">(</span><span class="n">tth_in</span><span class="p">,</span> <span class="n">l_crystal</span><span class="p">,</span> <span class="n">l_peak_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                          <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">flag_polarized</span><span class="o">=</span><span class="n">flag_polarized</span><span class="p">)</span>
+        <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Pd.calc_iint"><a class="viewcode-back" href="../../../cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_iint">[docs]</a>    <span class="k">def</span> <span class="nf">calc_iint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">crystal</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Pd.calc_iint"><a class="viewcode-back" href="../../../cryspy.cif_like.pd.html#cryspy.cif_like.cl_pd.Pd.calc_iint">[docs]</a>    <span class="k">def</span> <span class="nf">calc_iint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">crystal</span><span class="p">:</span><span class="n">Crystal</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculate the integrated intensity for h, k, l reflections.</span>
 

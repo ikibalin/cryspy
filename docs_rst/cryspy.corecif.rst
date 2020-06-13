@@ -1,4 +1,4 @@
-Core dictionary (coreCIF)
+coreCIF dictionary
 --------------------------
 
 

@@ -1,23 +1,29 @@
-CrysPy
-====================
-
 .. _CrysPy GitHub repository : https://github.com/ikibalin/cryspy
 
-CrysPy_ is a crystallographic library for neutron data analysis. 
+.. image:: logo_page.jpg
+   :scale: 60 %
+   :alt: logo
+   :align: center
+
+
+**CrysPy** is a crystallographic library for neutron data analysis. 
 It allows to refine polarized neutron diffraction experiments 
 performed with single crystals as well as with powder magnetic compounds. 
-A console version is given together with a simple GUI_editor.
-
-The *CrysPy* package is Free software. 
-The software and this document are works in progress. If you are interested in participating 
-in this effort please use the `CrysPy GitHub repository`_.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
-   m_intro
    m_installation
+   m_scripts
+   m_editor
+   m_soft
    m_classes
+   m_info
+   m_last
+
+Feel free to ask questions on an open `issue <https://github.com/ikibalin/cryspy/issues>`_ 
+on `GitHub page <https://github.com/ikibalin/cryspy>`_  
+or directly writing to me: iurii.kibalin@cea.fr.
 
 Indices and tables
 ==================

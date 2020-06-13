@@ -41,7 +41,7 @@
           <a href="cryspy.cif_like.diffrn_radiation.html" title="DiffrnRadiation"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -287,7 +287,7 @@ It’s True by default.</p></li>
 
 <dl class="py method">
 <dt id="cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility">
-<code class="sig-name descname">calc_refln_susceptibility</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_refln_susceptibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_refln_susceptibility</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">flag_only_orbital</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_refln_susceptibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Keyword Arguments</dt>
@@ -308,11 +308,14 @@ It’s True by default.</p></li>
 
 <dl class="py method">
 <dt id="cryspy.cif_like.cl_crystal.Crystal.calc_susceptibility_moment_tensor">
-<code class="sig-name descname">calc_susceptibility_moment_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_susceptibility_moment_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_susceptibility_moment_tensor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_susceptibility_moment_tensor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">flag_only_orbital</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_crystal.html#Crystal.calc_susceptibility_moment_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_crystal.Crystal.calc_susceptibility_moment_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Keyword Arguments</dt>
-<dd class="field-odd"><p><strong>k</strong><strong>, </strong><strong>l</strong> (<em>h</em><em>,</em>) – 1D numpy array of Miller indexes</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong><strong>, </strong><strong>l</strong> (<em>h</em><em>,</em>) – 1D numpy array of Miller indexes</p></li>
+<li><p><strong>default is False. When only orbital form-factor should be used put True</strong> (<em>flag_only_orbital</em>) – </p></li>
+</ul>
 </dd>
 </dl>
 <p>Output:</p>
@@ -410,7 +413,7 @@ and calc_magnetization_ellipsoid method of the crystal object.</p>
           <a href="cryspy.cif_like.diffrn_radiation.html" title="DiffrnRadiation"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>

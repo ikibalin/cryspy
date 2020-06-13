@@ -594,13 +594,14 @@
         <span class="k">return</span> <span class="n">res</span></div>
 
 
-<div class="viewcode-block" id="Crystal.calc_susceptibility_moment_tensor"><a class="viewcode-back" href="../../../cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_susceptibility_moment_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_susceptibility_moment_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+<div class="viewcode-block" id="Crystal.calc_susceptibility_moment_tensor"><a class="viewcode-back" href="../../../cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_susceptibility_moment_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">calc_susceptibility_moment_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">flag_only_orbital</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)</span>
 
 <span class="sd">Keyword arguments: </span>
 
 <span class="sd">    h, k, l: 1D numpy array of Miller indexes</span>
+<span class="sd">    flag_only_orbital default is False. When only orbital form-factor should be used put True</span>
 
 <span class="sd">Output: </span>
 
@@ -714,7 +715,7 @@
         <span class="c1">#phase_2d = hh.sum(axis=2)#sum over symmetry</span>
 
         <span class="c1">#b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing=&quot;ij&quot;)[1]</span>
-        <span class="n">form_factor</span> <span class="o">=</span> <span class="n">atom_site_scat</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">)</span>
+        <span class="n">form_factor</span> <span class="o">=</span> <span class="n">atom_site_scat</span><span class="o">.</span><span class="n">calc_form_factor</span><span class="p">(</span><span class="n">sthovl</span><span class="p">,</span> <span class="n">flag_only_orbital</span><span class="o">=</span><span class="n">flag_only_orbital</span><span class="p">)</span>
 
         <span class="c1">#dimensions: hkl, magnetic atoms, reduced symmetry operators</span>
         <span class="n">ff_11</span><span class="p">,</span> <span class="n">ff_12</span><span class="p">,</span> <span class="n">ff_13</span><span class="p">,</span> <span class="n">ff_21</span><span class="p">,</span> <span class="n">ff_22</span><span class="p">,</span> <span class="n">ff_23</span><span class="p">,</span> <span class="n">ff_31</span><span class="p">,</span> <span class="n">ff_32</span><span class="p">,</span> <span class="n">ff_33</span> <span class="o">=</span> \
@@ -757,7 +758,7 @@
 
 
 
-<div class="viewcode-block" id="Crystal.calc_refln_susceptibility"><a class="viewcode-back" href="../../../cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility">[docs]</a>    <span class="k">def</span> <span class="nf">calc_refln_susceptibility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Crystal.calc_refln_susceptibility"><a class="viewcode-back" href="../../../cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal.calc_refln_susceptibility">[docs]</a>    <span class="k">def</span> <span class="nf">calc_refln_susceptibility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">flag_only_orbital</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Calculate susceptibility tensor and moment tensor in Cartesian orthogonal system (x||a*, z||c)</span>
 
@@ -775,7 +776,7 @@
 <span class="sd">&gt;&gt;&gt; h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int), np.array([1,0],dtype=int)</span>
 <span class="sd">&gt;&gt;&gt; refln_suscept = crystal.calc_refln_susceptibility(h, k, l)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">CHI_M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_susceptibility_moment_tensor</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="n">CHI_M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_susceptibility_moment_tensor</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">flag_only_orbital</span><span class="o">=</span><span class="n">flag_only_orbital</span><span class="p">)</span>
 
         <span class="n">s_11</span><span class="p">,</span> <span class="n">s_12</span><span class="p">,</span> <span class="n">s_13</span><span class="p">,</span> <span class="n">s_21</span><span class="p">,</span> <span class="n">s_22</span><span class="p">,</span> <span class="n">s_23</span><span class="p">,</span> <span class="n">s_31</span><span class="p">,</span> <span class="n">s_32</span><span class="p">,</span> <span class="n">s_33</span> <span class="o">=</span> <span class="n">CHI_M</span><span class="p">[:</span><span class="mi">9</span><span class="p">]</span>
         <span class="n">sm_11</span><span class="p">,</span> <span class="n">sm_12</span><span class="p">,</span> <span class="n">sm_13</span><span class="p">,</span> <span class="n">sm_21</span><span class="p">,</span> <span class="n">sm_22</span><span class="p">,</span> <span class="n">sm_23</span><span class="p">,</span> <span class="n">sm_31</span><span class="p">,</span> <span class="n">sm_32</span><span class="p">,</span> <span class="n">sm_33</span> <span class="o">=</span> <span class="n">CHI_M</span><span class="p">[</span><span class="mi">9</span><span class="p">:]</span>
@@ -811,19 +812,10 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">matrix l_ij is defined in coordinate system (a, b, c)</span>
 
-<span class="sd">outut matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)</span>
+<span class="sd">output matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span>
-        <span class="n">m_m_norm</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">m_m_norm</span>
-        
-        <span class="n">r11</span><span class="p">,</span> <span class="n">r12</span><span class="p">,</span> <span class="n">r13</span> <span class="o">=</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-        <span class="n">r21</span><span class="p">,</span> <span class="n">r22</span><span class="p">,</span> <span class="n">r23</span> <span class="o">=</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-        <span class="n">r31</span><span class="p">,</span> <span class="n">r32</span><span class="p">,</span> <span class="n">r33</span> <span class="o">=</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">m_m_norm</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-        
-        <span class="n">s_11</span><span class="p">,</span> <span class="n">s_12</span><span class="p">,</span> <span class="n">s_13</span><span class="p">,</span> <span class="n">s_21</span><span class="p">,</span> <span class="n">s_22</span><span class="p">,</span> <span class="n">s_23</span><span class="p">,</span> <span class="n">s_31</span><span class="p">,</span> <span class="n">s_32</span><span class="p">,</span> <span class="n">s_33</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">calc_mRmCmRT</span><span class="p">(</span>
-                <span class="n">r11</span><span class="p">,</span> <span class="n">r12</span><span class="p">,</span> <span class="n">r13</span><span class="p">,</span> <span class="n">r21</span><span class="p">,</span> <span class="n">r22</span><span class="p">,</span> <span class="n">r23</span><span class="p">,</span> <span class="n">r31</span><span class="p">,</span> <span class="n">r32</span><span class="p">,</span> <span class="n">r33</span><span class="p">,</span>
-                <span class="n">l_11</span><span class="p">,</span> <span class="n">l_12</span><span class="p">,</span> <span class="n">l_13</span><span class="p">,</span> <span class="n">l_21</span><span class="p">,</span> <span class="n">l_22</span><span class="p">,</span> <span class="n">l_23</span><span class="p">,</span> <span class="n">l_31</span><span class="p">,</span> <span class="n">l_32</span><span class="p">,</span> <span class="n">l_33</span><span class="p">)</span>        
-
+        <span class="n">s_11</span><span class="p">,</span> <span class="n">s_12</span><span class="p">,</span> <span class="n">s_13</span><span class="p">,</span> <span class="n">s_21</span><span class="p">,</span> <span class="n">s_22</span><span class="p">,</span> <span class="n">s_23</span><span class="p">,</span> <span class="n">s_31</span><span class="p">,</span> <span class="n">s_32</span><span class="p">,</span> <span class="n">s_33</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">ortogonalize_matrix</span><span class="p">(</span><span class="n">l_11</span><span class="p">,</span> <span class="n">l_12</span><span class="p">,</span> <span class="n">l_13</span><span class="p">,</span> <span class="n">l_21</span><span class="p">,</span> <span class="n">l_22</span><span class="p">,</span> <span class="n">l_23</span><span class="p">,</span> <span class="n">l_31</span><span class="p">,</span> <span class="n">l_32</span><span class="p">,</span> <span class="n">l_33</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s_11</span><span class="p">,</span> <span class="n">s_12</span><span class="p">,</span> <span class="n">s_13</span><span class="p">,</span> <span class="n">s_21</span><span class="p">,</span> <span class="n">s_22</span><span class="p">,</span> <span class="n">s_23</span><span class="p">,</span> <span class="n">s_31</span><span class="p">,</span> <span class="n">s_32</span><span class="p">,</span> <span class="n">s_33</span>
 
     

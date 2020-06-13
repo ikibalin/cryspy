@@ -1,4 +1,4 @@
-Symmetry dictionary (symCIF)
+symCIF dictionary
 -----------------------------
 
 .. automodule:: cryspy.symcif

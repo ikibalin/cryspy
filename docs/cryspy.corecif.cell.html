@@ -41,7 +41,7 @@
           <a href="cryspy.corecif.html" title="Core dictionary (coreCIF)"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" accesskey="U">Core dictionary (coreCIF)</a> &#187;</li> 
       </ul>
     </div>  
@@ -223,6 +223,7 @@ in Carthezian coordinate system in which (x||a*, z||c)</p>
 <dt id="cryspy.corecif.cl_cell.Cell.closest_distance_between_fractions">
 <code class="sig-name descname">closest_distance_between_fractions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fract_1</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">fract_2</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.closest_distance_between_fractions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.closest_distance_between_fractions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Give closest distance between two fractions</p>
+<p>The shape of input arrays [3, n]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -428,6 +429,13 @@ to Cartesian one (x||a*, z||c).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="cryspy.corecif.cl_cell.Cell.ortogonalize_matrix">
+<code class="sig-name descname">ortogonalize_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l_11</span></em>, <em class="sig-param"><span class="n">l_12</span></em>, <em class="sig-param"><span class="n">l_13</span></em>, <em class="sig-param"><span class="n">l_21</span></em>, <em class="sig-param"><span class="n">l_22</span></em>, <em class="sig-param"><span class="n">l_23</span></em>, <em class="sig-param"><span class="n">l_31</span></em>, <em class="sig-param"><span class="n">l_32</span></em>, <em class="sig-param"><span class="n">l_33</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.ortogonalize_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.ortogonalize_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>matrix l_ij is defined in coordinate system (a, b, c)</p>
+<p>output matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="cryspy.corecif.cl_cell.Cell.reciprocal_angle_alpha">
 <em class="property">property </em><code class="sig-name descname">reciprocal_angle_alpha</code><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.reciprocal_angle_alpha" title="Permalink to this definition">¶</a></dt>
 <dd><p>The angles defining the reciprocal cell in degrees. These
@@ -525,7 +533,7 @@ related to the real cell by:</p>
 
 <dl class="py method">
 <dt id="cryspy.corecif.cl_cell.Cell.report_cell">
-<code class="sig-name descname">report_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.report_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.report_cell" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">report_cell</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/corecif/cl_cell.html#Cell.report_cell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.corecif.cl_cell.Cell.report_cell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a report about cell object in string format</p>
 </dd></dl>
 
@@ -659,7 +667,7 @@ related to the real cell by:</p>
           <a href="cryspy.corecif.html" title="Core dictionary (coreCIF)"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.corecif.html" >Core dictionary (coreCIF)</a> &#187;</li> 
       </ul>
     </div>

@@ -1,4 +1,4 @@
-Unofficial powder 2D dictionary
+Powder 2D dictionary
 --------------------------------
 
 .. automodule:: cryspy.pd2dcif_like

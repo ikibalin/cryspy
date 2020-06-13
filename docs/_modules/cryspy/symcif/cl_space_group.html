@@ -859,9 +859,9 @@
             <span class="n">it_number</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_number_by_name_schoenflies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_schoenflies</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
-
         <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
             <span class="n">it_coordinate_system_codes</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">get_it_coordinate_system_codes_by_it_number</span><span class="p">(</span><span class="n">it_number</span><span class="p">)</span>
+
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;it_number&quot;</span><span class="p">,</span> <span class="n">it_number</span><span class="p">)</span>
             <span class="k">if</span>  <span class="p">(</span><span class="ow">not</span><span class="p">(</span><span class="n">it_coordinate_system_code</span> <span class="ow">in</span> <span class="n">it_coordinate_system_codes</span><span class="p">)):</span>
                 <span class="n">it_coordinate_system_code</span> <span class="o">=</span> <span class="n">CONSTANTS_AND_FUNCTIONS</span><span class="o">.</span><span class="n">auto_choose_it_coordinate_system_code</span><span class="p">(</span><span class="n">it_number</span><span class="p">,</span> <span class="n">it_coordinate_system_codes</span><span class="p">)</span>
@@ -1215,10 +1215,14 @@
             <span class="n">l_res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">_xyz</span><span class="p">,</span> <span class="n">matrix_chi_rot</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">l_res</span></div>
 
-<div class="viewcode-block" id="SpaceGroup.report_space_group"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.report_space_group">[docs]</a>    <span class="k">def</span> <span class="nf">report_space_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SpaceGroup.report_space_group"><a class="viewcode-back" href="../../../cryspy.symcif.space_group.html#cryspy.symcif.cl_space_group.SpaceGroup.report_space_group">[docs]</a>    <span class="k">def</span> <span class="nf">report_space_group</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Make a report about space group in string format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_object</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
         <span class="n">ls_out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ls_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Space group:&quot;</span><span class="p">)</span>
 

@@ -1,23 +1,16 @@
-CrysPy
-====================
+.. image:: docs_rst/logo_page.jpg
+   :scale: 60 %
+   :alt: logo
+   :align: center
 
-CrysPy_ is a crystallographic library for neutron data analysis. 
+**CrysPy** is a crystallographic library for neutron data analysis. 
 Based on the library *CrysPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments 
 performed with single crystals as well as with powder magnetic compounds. 
-A console version is given together with a simple GUI_editor.
 
-.. image:: cryspy/welcome.png
-   :height: 100 px
-   :width: 100 px
-   :scale: 20 %
-   :alt: logo
-   :align: right
-
-   
 +----------+------------------------+
 | Folder   | Description            |
 +==========+========================+
-| cryspy   | cryspy library         |
+| cryspy   | CrysPy library         |
 +----------+------------------------+
 | examples | examples               |
 +----------+------------------------+
@@ -29,58 +22,17 @@ Main Features
 ------------------------
 - Analysis of the polarized neutron scattering on crystals by the library *CrysPy*;
 - Diffraction data refinement for single crystals or powders by *RhoChi*;
-
-Installation and Requirements of *CrysPy*
-------------------------------------------
-
-CrysPy_ is developed and tested using Python 3.7 and depends on:
-
-- *numpy*
-- *scipy*
-- *matplotlib* (for cryspy_editor)
-- *pyqt5* (for cryspy_editor).
-
-It can be installed by
-
->>> python -m pip install cryspy  # cryspy library
->>> python -m pip install cryspy_editor  # simple gui editor of cryspy library
+- Free distributed software. 
 
 
-Run *RhoChi*
-------------------------------------------
-
-
-The *CrysPy* library should be installed. 
-
-Use the command-line to run the refinement given in file "main.rcif":
-
->>> python -m cryspy 
-
-or 
-
->>> python -m cryspy input.rcif output.rcif
-
-If the cryspy_editor is installed use the command-line to run simple GUI of *CrysPy* library:
-
->>> python -m cryspy_editor
-
-or 
-
->>> python -m cryspy_editor main.rcif
-
-Collaboration
----------------------------
-
-Any third-party scripts based on the library *CrysPy* can be added.
-
-If you have any suggestions, bug reports or annoyances please report them to our issue tracker at CrysPy_.
+For more information please see `documentation site <https://ikibalin.github.io/cryspy/>`_.
 
 Copyright and License
 -------------------------------
 
 MIT License
 
-Copyright (c) 2018-2019 Iurii Kibalin
+Copyright (c) 2018-2020 Iurii Kibalin
 https://github.com/ikibalin/cryspy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -101,4 +53,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-.. _CrysPy: https://github.com/ikibalin/cryspy"GitHub link on CrysPy"

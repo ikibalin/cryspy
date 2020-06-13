@@ -41,7 +41,7 @@
           <a href="cryspy.cif_like.diffrn.html" title="Diffrn"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" accesskey="U">Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>  
@@ -192,7 +192,7 @@ n: number of measured reflections</p>
 
 <dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_iint">
-<code class="sig-name descname">calc_iint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">crystal</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_iint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_iint" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_iint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">l</span></em>, <em class="sig-param"><span class="n">crystal</span><span class="p">:</span> <span class="n"><a class="reference internal" href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal" title="cryspy.cif_like.cl_crystal.Crystal">cryspy.cif_like.cl_crystal.Crystal</a></span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_iint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_iint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the integrated intensity for h, k, l reflections.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Keyword Arguments</dt>
@@ -216,7 +216,7 @@ refln_s: ReflnSusceptibilityL object of cryspy library (nuclear structure factor
 
 <dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.calc_profile">
-<code class="sig-name descname">calc_profile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tth</span></em>, <em class="sig-param"><span class="n">l_crystal</span></em>, <em class="sig-param"><span class="n">l_peak_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">l_refln_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">calc_profile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tth</span></em>, <em class="sig-param"><span class="n">l_crystal</span></em>, <em class="sig-param"><span class="n">l_peak_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">l_refln_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">l_refln_susceptibility_in</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flag_internal</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em>, <em class="sig-param"><span class="n">flag_polarized</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.calc_profile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.calc_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate intensity for the given diffraction angles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Keyword Arguments</dt>
@@ -334,6 +334,11 @@ ttheta_hkl with i_g parameter by default equal to zero</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="cryspy.cif_like.cl_pd.Pd.simulation">
+<code class="sig-name descname">simulation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">l_crystal</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="cryspy.cif_like.crystal.html#cryspy.cif_like.cl_crystal.Crystal" title="cryspy.cif_like.cl_crystal.Crystal">cryspy.cif_like.cl_crystal.Crystal</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">ttheta_start</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">4.0</span></em>, <em class="sig-param"><span class="n">ttheta_end</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">120.0</span></em>, <em class="sig-param"><span class="n">ttheta_step</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">flag_polarized</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.simulation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="cryspy.cif_like.cl_pd.Pd.to_cif">
 <code class="sig-name descname">to_cif</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">separator</span><span class="o">=</span><span class="default_value">'_'</span></em>, <em class="sig-param"><span class="n">flag</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">flag_minimal</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/cryspy/cif_like/cl_pd.html#Pd.to_cif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cryspy.cif_like.cl_pd.Pd.to_cif" title="Permalink to this definition">¶</a></dt>
 <dd><p>Redefined method of DataConstr.
@@ -406,7 +411,7 @@ Print information about object in string in STAR format</p>
           <a href="cryspy.cif_like.diffrn.html" title="Diffrn"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">cryspy 0.2.0 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="m_classes.html" >Classes</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="m_classes.html" >Built-in classes</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="cryspy.cif_like.html" >Unofficial core dictionary</a> &#187;</li> 
       </ul>
     </div>

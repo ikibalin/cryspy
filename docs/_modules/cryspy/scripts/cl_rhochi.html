@@ -57,6 +57,7 @@
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_data_constr</span> <span class="kn">import</span> <span class="n">DataConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_global_constr</span> <span class="kn">import</span> <span class="n">GlobalConstr</span>
 <span class="kn">from</span> <span class="nn">cryspy.common.cl_fitable</span> <span class="kn">import</span> <span class="n">Fitable</span>
+<span class="kn">from</span> <span class="nn">cryspy.common.error_simplex</span> <span class="kn">import</span> <span class="n">error_estimation_simplex</span>
 
 <span class="kn">import</span> <span class="nn">scipy.optimize</span>
 <span class="kn">import</span> <span class="nn">time</span>
@@ -171,6 +172,8 @@
     <span class="n">MANDATORY_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Crystal</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">OPTIONAL_CLASSES</span> <span class="o">=</span> <span class="p">(</span><span class="n">Diffrn</span><span class="p">,</span> <span class="n">Pd</span><span class="p">,</span> <span class="n">Pd2d</span><span class="p">)</span>
     <span class="n">INTERNAL_CLASSES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">F_ICON</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;logo_RhoChi.png&quot;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crystals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">experiments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">global_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">RhoChi</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mandatory_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MANDATORY_CLASSES</span><span class="p">,</span>
@@ -280,9 +283,14 @@
         <span class="k">for</span> <span class="n">_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiments</span><span class="p">:</span>
             <span class="n">_obj</span><span class="o">.</span><span class="n">remove_internal_objs</span>
 
-<div class="viewcode-block" id="RhoChi.refine"><a class="viewcode-back" href="../../../cryspy.scripts.rhochi.html#cryspy.scripts.cl_rhochi.RhoChi.refine">[docs]</a>    <span class="k">def</span> <span class="nf">refine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="RhoChi.refine"><a class="viewcode-back" href="../../../cryspy.scripts.rhochi.html#cryspy.scripts.cl_rhochi.RhoChi.refine">[docs]</a>    <span class="k">def</span> <span class="nf">refine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disp</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">optimization_method</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s2">&quot;BFGS&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Minimization procedure</span>
+
+<span class="sd">Accesible parameters for optimization_method:</span>
+<span class="sd"> - &quot;BFGS&quot; (default)</span>
+<span class="sd"> - &quot;simplex&quot;</span>
+<span class="sd"> - &quot;basinhopping&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
         
@@ -317,30 +325,46 @@
                 <span class="n">res_out</span> <span class="o">=</span> <span class="p">(</span><span class="n">chi_sq</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_points</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">res_out</span>
 
+        <span class="k">if</span> <span class="n">optimization_method</span> <span class="o">==</span> <span class="s2">&quot;basinhopping&quot;</span><span class="p">:</span>
+            <span class="c1">#basinhopping</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">basinhopping</span><span class="p">(</span><span class="n">tempfunc</span><span class="p">,</span> <span class="n">param_0</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">stepsize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> 
+                                              <span class="n">disp</span><span class="o">=</span><span class="n">disp</span><span class="p">)</span>
+            <span class="n">_dict_out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="n">flag</span><span class="p">,</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span><span class="n">res</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="n">optimization_method</span> <span class="o">==</span> <span class="s2">&quot;simplex&quot;</span><span class="p">:</span>
+            <span class="c1">#simplex</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">tempfunc</span><span class="p">,</span> <span class="n">param_0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Nelder-Mead&#39;</span><span class="p">,</span> 
+                                          <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f_callback</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">coeff_norm</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fatol&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">n</span><span class="p">})</span>
+    
+            <span class="n">m_error</span><span class="p">,</span> <span class="n">dist_hh</span> <span class="o">=</span> <span class="n">error_estimation_simplex</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;final_simplex&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;final_simplex&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">tempfunc</span><span class="p">)</span>
+    
+            <span class="n">l_sigma</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val_2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m_error</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dist_hh</span><span class="p">):</span>
+                <span class="c1">#slightly change definition, instead of (n-k) here is n</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">m_error</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="n">n</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span>
+                <span class="k">if</span> <span class="n">m_error</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="mi">50</span><span class="o">*</span><span class="s2">&quot;*&quot;</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Error is incorrect</span><span class="se">\n</span><span class="s2">(negative diagonal elements of Hessian)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="mi">50</span><span class="o">*</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val_2</span> <span class="o">&gt;</span> <span class="n">error</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="mi">50</span><span class="o">*</span><span class="s2">&quot;*&quot;</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Errors is incorrect</span><span class="se">\n</span><span class="s2">(minimum is not found)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span><span class="mi">50</span><span class="o">*</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+    
+                <span class="n">l_sigma</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="n">val_2</span><span class="p">))</span>
+    
+            <span class="k">for</span> <span class="n">variable</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">_param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_fitable</span><span class="p">,</span> <span class="n">l_sigma</span><span class="p">,</span> <span class="n">coeff_norm</span><span class="p">):</span>
+                <span class="n">variable</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span><span class="o">*</span><span class="n">_param</span>
+            
+            <span class="n">_dict_out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="n">flag</span><span class="p">,</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span><span class="n">res</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#BFGS</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">tempfunc</span><span class="p">,</span> <span class="n">param_0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;BFGS&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f_callback</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">coeff_norm</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="n">disp</span><span class="p">})</span>
 
+            <span class="n">_dict_out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="n">flag</span><span class="p">,</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span><span class="n">res</span><span class="p">}</span>
 
-        <span class="n">res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">tempfunc</span><span class="p">,</span> <span class="n">param_0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;BFGS&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_f_callback</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">coeff_norm</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="n">disp</span><span class="p">})</span>
-        
-        <span class="n">_dict_out</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;flag&quot;</span><span class="p">:</span> <span class="n">flag</span><span class="p">,</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span><span class="n">res</span><span class="p">}</span>
-        <span class="c1">#res = scipy.optimize.minimize(tempfunc, l_param_0, method=&#39;Nelder-Mead&#39;, </span>
-        <span class="c1">#                              callback=self._f_callback, options = {&quot;fatol&quot;: 0.01*n})</span>
+            <span class="n">hess_inv</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;hess_inv&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">hes_coeff_norm</span>
+            <span class="n">l_param</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">hess_inv</span><span class="p">)</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="k">for</span> <span class="n">fitable</span><span class="p">,</span> <span class="n">_1</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">coeff</span>  <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_fitable</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">l_param</span><span class="p">,</span> <span class="n">coeff_norm</span><span class="p">):</span>
+                <span class="n">fitable</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">_1</span>
+                <span class="n">fitable</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="o">*</span><span class="n">coeff</span>
 
-
-        <span class="n">hess_inv</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;hess_inv&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">hes_coeff_norm</span>
-        <span class="n">l_param</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
-        <span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">hess_inv</span><span class="p">)</span><span class="o">*</span><span class="mf">1.</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span><span class="o">**</span><span class="mf">0.5</span>
-        <span class="k">for</span> <span class="n">fitable</span><span class="p">,</span> <span class="n">_1</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">coeff</span>  <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l_fitable</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">l_param</span><span class="p">,</span> <span class="n">coeff_norm</span><span class="p">):</span>
-            <span class="n">fitable</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">_1</span>
-            <span class="n">fitable</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">param</span><span class="o">*</span><span class="n">coeff</span>
-
-
-
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20, </span>
-<span class="sd">                                          disp=disp)</span>
-<span class="sd">        _dict_out = {&quot;flag&quot;: flag, &quot;res&quot;:res}</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">chi_sq</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_chi_sq</span><span class="p">(</span><span class="n">flag_internal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 

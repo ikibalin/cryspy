@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>CrysPy &#8212; cryspy 0.2.0 documentation</title>
+    <title>Indices and tables &#8212; cryspy 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting started with CrysPy" href="m_intro.html" />
+    <link rel="next" title="Installation" href="m_installation.html" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
 <!--[if lte IE 6]>
@@ -34,7 +34,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="m_intro.html" title="Getting started with CrysPy"
+          <a href="m_installation.html" title="Installation"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">cryspy 0.2.0 documentation</a> &#187;</li> 
       </ul>
@@ -45,93 +45,61 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="cryspy">
-<h1>CrysPy<a class="headerlink" href="#cryspy" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference internal" href="#cryspy">CrysPy</a> is a crystallographic library for neutron data analysis.
+  <a class="reference internal image-reference" href="_images/logo_page.jpg"><img alt="logo" class="align-center" src="_images/logo_page.jpg" style="width: 826.8px; height: 239.39999999999998px;" /></a>
+<p><strong>CrysPy</strong> is a crystallographic library for neutron data analysis.
 It allows to refine polarized neutron diffraction experiments
-performed with single crystals as well as with powder magnetic compounds.
-A console version is given together with a simple GUI_editor.</p>
-<p>The <em>CrysPy</em> package is Free software.
-The software and this document are works in progress. If you are interested in participating
-in this effort please use the <a class="reference external" href="https://github.com/ikibalin/cryspy">CrysPy GitHub repository</a>.</p>
+performed with single crystals as well as with powder magnetic compounds.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="m_intro.html">Getting started with CrysPy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="m_installation.html">Downloading and Installation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="m_installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="m_installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_installation.html#downloads">Downloads</a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_installation.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_installation.html#development-version">Development Version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="m_installation.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#id1">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_installation.html#checking">Checking</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="m_scripts.html">Usage in python scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="m_scripts.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_scripts.html#nuclear-structure-factor-calculations">Nuclear structure factor calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_scripts.html#susceptibility-approach">Susceptibility approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_scripts.html#polarized-neutron-diffraction-on-single-crystal">Polarized neutron diffraction on single crystal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_scripts.html#d-polarized-neutron-powder-diffraction">1D polarized neutron powder diffraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_scripts.html#id1">2D polarized neutron powder diffraction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="m_editor.html">Usage in <strong>CrysPy Editor</strong> (GUI)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="m_editor.html#main-manipulations">Main manipulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_editor.html#extension-of-the-library-by-own-code">Extension of the library by own code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="m_soft.html">Third party software</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="m_soft.html#easydiffraction"><strong>easyDiffraction</strong></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="m_classes.html">Built-in classes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.corecif.html">Core dictionary (coreCIF)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.cell.html">Cell</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.atom_site.html">AtomSite</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.atom_site_aniso.html">AtomSiteAniso</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.atom_type.html">AtomType</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.refln.html">Refln</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.corecif.diffrn_orient_matrix.html">DiffrnOrientMatrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.corecif.html">coreCIF dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.symcif.html">symCIF dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.magneticcif.html">Magnetic CIF Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.cif_like.html">Core dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.pd1dcif_like.html">Powder 1D dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.pd2dcif_like.html">Powder 2D dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cryspy.scripts.html">Scripts</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.symcif.html">Symmetry dictionary (symCIF)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.symcif.space_group.html">SpaceGroup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.symcif.space_group_symop.html">SpaceGroupSymop</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.symcif.space_group_wyckoff.html">SpaceGroupWyckoff</a></li>
+<li class="toctree-l1"><a class="reference internal" href="m_info.html">Info</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="m_info.html#susceptibility-ellipsoid">Susceptibility ellipsoid</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.magneticcif.html">Magnetic CIF Dictionary</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.magneticcif.atom_site_moment.html">AtomSiteMoment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.magneticcif.atom_site_susceptibility.html">AtomSiteSusceptibility</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.magneticcif.atom_type_scat.html">AtomTypeScat</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.magneticcif.atom_site_scat.html">AtomSiteScat</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.magneticcif.refln_susceptibility.html">ReflnSusceptibility</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.cif_like.html">Unofficial core dictionary</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.extinction.html">Extinction</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.diffrn_radiation.html">DiffrnRadiation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.crystal.html">Crystal</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.chi2.html">Chi2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.phase.html">Phase</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.diffrn_refln.html">DiffrnRefln</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.exclude.html">Exclude</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.range.html">Range</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.setup.html">Setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.texture.html">Texture</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.diffrn.html">Diffrn</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.pd.html">Pd</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.cif_like.pd2d.html">Pd2d</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.pd1dcif_like.html">Unofficial powder 1D dictionary</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd1dcif_like.pd_instr_resolution.html">PdInstrResolution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd1dcif_like.pd_instr_reflex_asymmetry.html">PdInstrReflexAsymmetry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd1dcif_like.pd_background.html">PdBackground</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd1dcif_like.pd_meas.html">PdMeas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd1dcif_like.pd_proc.html">PdProc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd1dcif_like.pd_peak.html">PdPeak</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.pd2dcif_like.html">Unofficial powder 2D dictionary</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd2dcif_like.pd2d_meas.html">Pd2dMeas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd2dcif_like.pd2d_proc.html">Pd2dProc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd2dcif_like.pd2d_background.html">Pd2dBackground</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd2dcif_like.pd2d_instr_reflex_asymmetry.html">Pd2dInstrReflexAsymmetry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd2dcif_like.pd2d_instr_resolution.html">Pd2dInstrResolution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.pd2dcif_like.pd2d_peak.html">Pd2dPeak</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="cryspy.scripts.html">Scripts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cryspy.scripts.rhochi.html">RhoChi</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="m_last.html">Contributing to the library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="m_last.html#general-guidelines">General Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_last.html#developer-faq">Developer FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="m_last.html#copyright-and-license">Copyright and License</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</div>
+<p>Feel free to ask questions on an open <a class="reference external" href="https://github.com/ikibalin/cryspy/issues">issue</a>
+on <a class="reference external" href="https://github.com/ikibalin/cryspy">GitHub page</a>
+or directly writing to me: <a class="reference external" href="mailto:iurii&#46;kibalin&#37;&#52;&#48;cea&#46;fr">iurii<span>&#46;</span>kibalin<span>&#64;</span>cea<span>&#46;</span>fr</a>.</p>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
@@ -147,15 +115,9 @@ in this effort please use the <a class="reference external" href="https://github
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">CrysPy</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
   <h4>Next topic</h4>
-  <p class="topless"><a href="m_intro.html"
-                        title="next chapter">Getting started with CrysPy</a></p>
+  <p class="topless"><a href="m_installation.html"
+                        title="next chapter">Installation</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -187,7 +149,7 @@ in this effort please use the <a class="reference external" href="https://github
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="m_intro.html" title="Getting started with CrysPy"
+          <a href="m_installation.html" title="Installation"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">cryspy 0.2.0 documentation</a> &#187;</li> 
       </ul>
