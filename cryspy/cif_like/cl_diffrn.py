@@ -1,7 +1,11 @@
 __author__ = 'ikibalin'
 __version__ = "2020_01_02"
 import os
+import math
 import numpy
+import scipy
+import scipy.misc
+
 from pycifstar import Global
 
 import warnings
@@ -10,6 +14,7 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
+from cryspy.cif_like.cl_crystal import Crystal
 
 from cryspy.corecif.cl_refln import Refln, ReflnL
 from cryspy.corecif.cl_diffrn_orient_matrix import DiffrnOrientMatrix
@@ -258,16 +263,6 @@ Description in cif file::
         return l_res
 
 
-
-
-    def __repr__(self):
-        ls_out = ["Diffrn:"]
-        ls_out.append(f"{str(self):}")
-        return "\n".join(ls_out)
-
-    def _show_message(self, s_out: str):
-        warnings.warn("***  Error ***", s_out, UserWarning, stacklevel=2)
-
     @property
     def is_variable(self) -> bool:
         """
@@ -297,6 +292,12 @@ Calculate intensity for the given diffraction angle
 Keyword arguments:
 
     h, k, l: 1D numpy array of Miller indexes
+    l_crystal: list of crystal structures
+
+Output:
+    iint_u: intensity up (without scale factor) 
+    iint_d: intensity down (without scale factor)
+    flip_ratio: flip ratio (intensity_up/intensity_down)
 
         """
         l_label = [_.data_name for _ in l_crystal]
@@ -320,6 +321,7 @@ Keyword arguments:
         orientation = orient_matrix.u       
         field_vec = numpy.array([0., 0., field_z], dtype=float)
 
+
         phi_d, chi_d, omega_d = 0., 0., 0.
         m_phi_d = numpy.array([[ numpy.cos(phi_d), numpy.sin(phi_d), 0.],
                                [-numpy.sin(phi_d), numpy.cos(phi_d), 0.],
@@ -335,16 +337,10 @@ Keyword arguments:
         
         m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(m_phi_d, 
                              orientation)))
-
-        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
-        
-        
-        field_norm = ((field_loc**2).sum())**0.5
         
         p_u = float(diffrn_radiation.polarization)
         p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
         
-        e_u_loc = field_loc/field_norm
         
         if flag_internal:
             refln = crystal.calc_refln(h, k, l)
@@ -367,19 +363,15 @@ Keyword arguments:
             sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, sftm_33 = chi_m[9:] 
 
         cell = crystal.cell
-        k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
-        
-        
-        #not sure about e_u_loc at field < 0 
-        mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + sft_13*field_loc[2] + sftm_11*e_u_loc[0] + sftm_12*e_u_loc[1] + sftm_13*e_u_loc[2]
-        mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + sft_23*field_loc[2] + sftm_21*e_u_loc[0] + sftm_22*e_u_loc[1] + sftm_23*e_u_loc[2]
-        mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + sft_33*field_loc[2] + sftm_31*e_u_loc[0] + sftm_32*e_u_loc[1] + sftm_33*e_u_loc[2]
-        
-        #vector product k x mag x k        
-        mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
-        mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
-        mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1
-        
+
+        mag_p_1, mag_p_2, mag_p_3 = self.calc_fm_perp_loc(h, k, l, cell, 
+                                                          sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33, 
+                                                          sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, sftm_33)
+
+        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
+        field_norm = ((field_loc**2).sum())**0.5
+        e_u_loc = field_loc/field_norm
+
         mag_p_sq = abs(mag_p_1*mag_p_1.conjugate() + mag_p_2*mag_p_2.conjugate() + 
                        mag_p_3*mag_p_3.conjugate())
         
@@ -430,6 +422,61 @@ Keyword arguments:
 
         return iint_u, iint_d, flip_ratio
     
+    def calc_fm_perp_loc(self, h, k, l, cell, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33,
+                                     sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, sftm_33):
+        """
+Calculate the component of magnetic structure factor perpendicular to hkl.
+
+Output:
+x, y and z coordinates of FM_perp
+
+Cartezian coordinate system is defined such way that
+(x||a*), (z||c).
+        """
+        field_z = float(self.setup.field)
+        orient_matrix = self.diffrn_orient_matrix
+
+        orientation = orient_matrix.u       
+        field_vec = numpy.array([0., 0., field_z], dtype=float)
+
+        phi_d, chi_d, omega_d = 0., 0., 0.
+        m_phi_d = numpy.array([[ numpy.cos(phi_d), numpy.sin(phi_d), 0.],
+                               [-numpy.sin(phi_d), numpy.cos(phi_d), 0.],
+                               [               0.,               0., 1.]], dtype=float)
+
+        m_omega_d = numpy.array([[ numpy.cos(omega_d), numpy.sin(omega_d), 0.],
+                                 [-numpy.sin(omega_d), numpy.cos(omega_d), 0.],
+                                 [                 0.,                 0., 1.]], dtype=float)
+
+        m_chi_d = numpy.array([[ numpy.cos(chi_d), 0., numpy.sin(chi_d)],
+                               [               0., 1.,               0.],
+                               [-numpy.sin(chi_d), 0., numpy.cos(chi_d)]], dtype=float)
+        
+        m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(m_phi_d, 
+                             orientation)))
+
+
+        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
+        field_norm = ((field_loc**2).sum())**0.5
+        e_u_loc = field_loc/field_norm
+        
+        k_1, k_2, k_3 = cell.calc_k_loc(h, k, l)
+        
+        
+        #not sure about e_u_loc at field < 0 
+        mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + sft_13*field_loc[2] + sftm_11*e_u_loc[0] + sftm_12*e_u_loc[1] + sftm_13*e_u_loc[2]
+        mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + sft_23*field_loc[2] + sftm_21*e_u_loc[0] + sftm_22*e_u_loc[1] + sftm_23*e_u_loc[2]
+        mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + sft_33*field_loc[2] + sftm_31*e_u_loc[0] + sftm_32*e_u_loc[1] + sftm_33*e_u_loc[2]
+        
+        #vector product k x mag x k        
+        mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
+        mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
+        mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1
+
+        return mag_p_1, mag_p_2, mag_p_3
+
+ 
+
     def calc_chi_sq(self, l_crystal: list, flag_internal=True):
         """
 Calculate chi square
@@ -504,3 +551,178 @@ Output arguments:
         #if self.refln_ss is not None:
         #    ls_out.extend([_.to_cif(separator=separator, flag=flag)+"\n" for _ in self.refln_ss])
         return "\n".join(ls_out)
+
+
+    def estimate_FM(self, crystal: Crystal, maxAbsFM:float=5, deltaFM:float=0.001):
+        """
+The method calculates magnetic structure factors (only real part) from flipping ratios based on give crystal structure.
+The crystal structure should be centrosymmetrical 
+        """
+        flag_internal = True
+
+        wavelength = float(self.setup.wavelength)
+        field_z = float(self.setup.field)
+        diffrn_radiation = self.diffrn_radiation
+        extinction = self.extinction
+        orient_matrix = self.diffrn_orient_matrix
+
+        orientation = orient_matrix.u       
+        field_vec = numpy.array([0., 0., field_z], dtype=float)
+
+        phi_d, chi_d, omega_d = 0., 0., 0.
+        m_phi_d = numpy.array([[ numpy.cos(phi_d), numpy.sin(phi_d), 0.],
+                               [-numpy.sin(phi_d), numpy.cos(phi_d), 0.],
+                               [               0.,               0., 1.]], dtype=float)
+
+        m_omega_d = numpy.array([[ numpy.cos(omega_d), numpy.sin(omega_d), 0.],
+                                 [-numpy.sin(omega_d), numpy.cos(omega_d), 0.],
+                                 [                 0.,                 0., 1.]], dtype=float)
+
+        m_chi_d = numpy.array([[ numpy.cos(chi_d), 0., numpy.sin(chi_d)],
+                               [               0., 1.,               0.],
+                               [-numpy.sin(chi_d), 0., numpy.cos(chi_d)]], dtype=float)
+        
+        m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(m_phi_d, 
+                             orientation)))
+
+        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
+        
+        
+        field_norm = ((field_loc**2).sum())**0.5
+        
+        p_u = float(diffrn_radiation.polarization)
+        p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
+        
+        e_u_loc = field_loc/field_norm
+
+        index_h = numpy.array(self.diffrn_refln.index_h, dtype=int)
+        index_k = numpy.array(self.diffrn_refln.index_k, dtype=int)
+        index_l = numpy.array(self.diffrn_refln.index_l, dtype=int)
+        fr_exp = numpy.array(self.diffrn_refln.fr, dtype=float)
+        fr_sigma = numpy.array(self.diffrn_refln.fr_sigma, dtype=float)
+
+
+        if flag_internal:
+            refln = crystal.calc_refln(index_h, index_k, index_l)
+            f_nucl  =  numpy.array(refln.f_calc, dtype=complex)
+        else:
+            f_nucl = crystal.calc_f_nucl(index_h, index_k, index_l) 
+        
+        cell = crystal.cell
+        k_1, k_2, k_3 = cell.calc_k_loc(index_h, index_k, index_l)
+
+        
+        k_e_up_loc = k_1*e_u_loc[0]+k_2*e_u_loc[1]+k_3*e_u_loc[2]
+
+        f_nucl_sq = abs(f_nucl)**2
+        def function_to_find_fm(f_mag):
+            mag_p_sq = numpy.square(f_mag*0.2695)*(1-numpy.square(k_e_up_loc))
+            mag_p_e_u = f_mag*0.2695 * (1-numpy.square(k_e_up_loc))
+            mag_p_e_u_sq = numpy.square(mag_p_e_u)
+
+            fnp = (mag_p_e_u*f_nucl.conjugate()+mag_p_e_u.conjugate()*f_nucl).real
+            fp_sq = f_nucl_sq + mag_p_sq + fnp
+            fm_sq = f_nucl_sq + mag_p_sq - fnp
+            fpm_sq = mag_p_sq - mag_p_e_u_sq
+
+            #extinction correction  
+            if extinction is not None:   
+                yp = extinction.calc_extinction(cell, index_h, index_k, index_l, fp_sq, wavelength)
+                ym = extinction.calc_extinction(cell, index_h, index_k, index_l, fm_sq, wavelength)
+                ypm = extinction.calc_extinction(cell, index_h, index_k, index_l, fpm_sq, wavelength)
+            else:
+                yp = 1. + 0.*f_nucl_sq
+                ym = yp 
+                ypm = yp 
+
+            pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
+            ppmin= 0.5*((1-p_d)*yp+(1+p_d)*ym)
+            pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
+            pmmin= 0.5*((1-p_d)*yp-(1+p_d)*ym)
+
+            #integral intensities and flipping ratios
+            iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
+            iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
+
+            flip_ratio = iint_u/iint_d
+            return flip_ratio
+
+        lFMans,lFMansMin=[],[]
+        lFMansMin_sigma=[]
+        for _ind in range(fr_exp.size):
+            f = lambda x: (function_to_find_fm(x)[_ind]-fr_exp[_ind])
+            FMans = calcroots(f, -1*maxAbsFM-deltaFM, maxAbsFM+deltaFM)
+            lFMans.append(FMans)
+            if len(FMans) == 0:
+                lFMansMin.append(None)
+                lFMansMin_sigma.append(None)
+            else:
+                FMans_min = min(FMans)
+                lFMansMin.append(FMans_min)
+                der1 = scipy.misc.derivative(f, FMans_min, 0.1, 1)
+                f_mag_sigma = abs(fr_sigma[_ind] / der1)
+                lFMansMin_sigma.append(f_mag_sigma)
+
+        res = numpy.array(list(zip(index_h, index_k, index_l, lFMansMin, lFMansMin_sigma)), 
+              dtype=[('index_h', 'i4'), ('index_k', 'i4'), ('index_l', 'i4'), ('f_mag', '<f8'), ('f_mag_sigma', '<f8')])
+
+        return res
+    
+def rootsearch(f, a:float, b:float, dx:float):
+    x1 = a; f1 = f(a)
+    x2 = a + dx; f2 = f(x2)
+    if (x2>b):
+        x2 = b; f2 = f(x2)
+    while f1*f2 > 0.0:
+        if x1 >= b:
+            return None,None
+        x1 = x2; f1 = f2
+        x2 = x1 + dx; f2 = f(x2)
+        if (x2>b):
+            x2 = b; f2 = f(x2)
+    return x1,x2
+
+def bisect(f,x1:float,x2:float,switch:int=0,epsilon:float=1.0e-12):
+    f1 = f(x1)
+    if f1 == 0.0:
+        return x1
+    f2 = f(x2)
+    if f2 == 0.0:
+        return x2
+    if f1*f2 > 0.0:
+        print('Root is not bracketed')
+        return None
+    n = int(math.ceil(math.log(abs(x2 - x1)/epsilon)/math.log(2.0)))
+    for i in range(n):
+        x3 = 0.5*(x1 + x2); f3 = f(x3)
+        if (switch == 1) and (abs(f3) >abs(f1)) and (abs(f3) > abs(f2)):
+            return None
+        if f3 == 0.0:
+            return x3
+        if f2*f3 < 0.0:
+            x1 = x3
+            f1 = f3
+        else:
+            x2 =x3
+            f2 = f3
+    return (x1 + x2)/2.0        
+
+def calcroots(f, a:float, b:float, eps:float=0):
+    """
+Find all roots of function f in range [a,b].
+Roots should not be close than eps
+Give also estimation of mistake if mistake of zero is defined
+    """
+    if (eps==0):
+        eps=abs(b-a)*1./100
+    l_res=[]
+    x1, x2 = rootsearch(f,a,b,eps)
+    while x1 != None:
+        a2 = x2
+        root = bisect(f,x1,x2,1)
+        if root != None:
+            pass
+            #res.append( (round(root,-int(math.log(eps, 10)))))
+            l_res.append(root)
+        x1,x2 = rootsearch(f,a2,b,eps)
+    return l_res
