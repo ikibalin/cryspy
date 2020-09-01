@@ -77,7 +77,8 @@ from .common.functions import calc_rotation_matrix_ij_by_euler_angles, calc_rota
     calc_vector_product, scalar_product,\
     tri_linear_interpolation, calc_mRmCmRT,\
     calc_phase_3d, calc_moment_2d_by_susceptibility, ortogonalize_matrix,\
-    tri_linear_interpolation 
+    tri_linear_interpolation, transform_string_to_r_b, calc_chi_sq,\
+    calc_inverse_matrix_ij
 
 L_FUNCTION = [transform_r_b_to_string, transform_string_to_r_b]
 

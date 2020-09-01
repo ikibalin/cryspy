@@ -138,7 +138,7 @@ Output: the list of the refined parameters
         """ 
         return 2.*(2.*tth**2-3.)* self._func_fa(tth)
         
-    def calc_asymmetry(self, tth, tth_hkl):
+    def calc_asymmetry(self, tth, tth_hkl, fwhm):
         """
         Calculate asymmetry coefficients for  on the given list ttheta for 
         bragg reflections flaced on the position ttheta_hkl
@@ -151,16 +151,18 @@ Output: the list of the refined parameters
         np_one = numpy.ones(tth_2d.shape, dtype = float)
         val_1, val_2 = np_zero, np_zero
         
+        z_2d = (tth_2d - tth_hkl_2d)/fwhm[numpy.newaxis, :]
+        
         
         p1, p2 = float(self.p1), float(self.p2)
         p3, p4 = float(self.p3), float(self.p4)
         flag_1, flag_2 = False, False
         if ((p1!= 0.)|(p3!= 0.)):
             flag_1 = True
-            fa = self._func_fa(tth)
+            fa = self._func_fa(z_2d)
         if ((p2!= 0.)|(p4!= 0.)):
             flag_2 = True
-            fb = self._func_fb(tth)
+            fb = self._func_fb(z_2d)
             
         flag_3, flag_4 = False, False
         if ((p1!= 0.)|(p2!= 0.)):
@@ -172,8 +174,7 @@ Output: the list of the refined parameters
                 flag_3 = True
             if flag_3:
                 c1 = 1./numpy.tanh(0.5*tth_hkl)
-                c1_2d = numpy.meshgrid(tth, c1, indexing="ij")[1]
-                val_1 *= c1_2d
+                val_1 *= c1[numpy.newaxis, :]
 
         if ((p3!= 0.)|(p4!= 0.)):
             if flag_1:
@@ -184,8 +185,7 @@ Output: the list of the refined parameters
                 flag_4 = True
             if flag_4:
                 c2 = 1./numpy.tanh(tth_hkl)
-                c2_2d = numpy.meshgrid(tth, c2, indexing="ij")[1]
-                val_2 *= c2_2d
+                val_2 *= c2[numpy.newaxis, :]
 
         asymmetry_2d = np_one+val_1+val_2
         return asymmetry_2d

@@ -93,7 +93,7 @@ Returns:
                 ls_out.append(f"_{prefix:}{separator:}{cif_attr:} .")
         return "\n".join(ls_out)
 
-    def print_attribute(self, l_attr=()) -> str:
+    def print_attribute(self, l_attr=(), delimiter:str=" ") -> str:
         """
         Save attributes in one string
         Args:
@@ -110,7 +110,7 @@ Returns:
                 ls_out.append(f"{s_val:}")
             else:
                 ls_out.append(f".")
-        return " ".join(ls_out)
+        return (f"{delimiter:}").join(ls_out)
 
     @property
     def mandatory_attribute(self) -> Tuple[str]:

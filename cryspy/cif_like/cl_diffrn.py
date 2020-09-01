@@ -14,6 +14,8 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
+from cryspy.common.functions import scalar_product
+
 from cryspy.cif_like.cl_crystal import Crystal
 
 from cryspy.corecif.cl_refln import Refln, ReflnL
@@ -34,6 +36,19 @@ from .cl_phase import Phase
 class Diffrn(DataConstr):
     """
 Class to describe information about single diffraction measurements
+
+Methods:
+
+    - calc_iint_u_d_flip_ratio
+    - calc_fr
+    - calc_fm_perp_loc
+    - calc_chi_sq
+    - params_to_cif
+    - data_to_cif
+    - calc_to_cif
+    - estimate_FM
+
+
 
 Description in cif file::
 
@@ -421,6 +436,131 @@ Output:
             setattr(self, "__internal_objs", l_internal_objs)
 
         return iint_u, iint_d, flip_ratio
+    
+    
+    def calc_fr(self, cell, f_nucl, f_m_perp, delta_f_nucl=None, 
+        delta_f_m_perp=None):
+        """
+        Calculate flip ratio by given nuclear structure factor and 
+        perpendicular component of magnetic structure factor 
+        (in 10**-12 cm)
+        cell (only for extinction correction)
+        f_nucl [hkl]
+        f_m_perp [hkl]
+        delta_f_nucl [hkl, parameters]
+        delta_f_m_perp [hkl, parameters]
+        """
+        f_n_sq = (f_nucl * f_nucl.conjugate()).real
+        f_m_p_x, f_m_p_y, f_m_p_z = f_m_perp
+        delta_f_m_p_x, delta_f_m_p_y, delta_f_m_p_z = delta_f_m_perp
+        
+        f_m_p_sq = (f_m_p_x*f_m_p_x.conjugate() + 
+                    f_m_p_y*f_m_p_y.conjugate() + 
+                    f_m_p_z*f_m_p_z.conjugate()).real
+
+        diffrn_radiation = self.diffrn_radiation
+        diffrn_orient_matrix = self.diffrn_orient_matrix
+        e_up = diffrn_orient_matrix.calc_e_up()
+        p_u = float(diffrn_radiation.polarization)
+        p_d = (2. * float(diffrn_radiation.efficiency) - 1.) * p_u
+
+        f_m_p_vert = scalar_product(f_m_perp, e_up)
+        
+        if delta_f_m_perp is not None:
+            delta_f_m_p_vert = scalar_product(delta_f_m_perp, e_up)
+            
+        two_f_nucl_f_m_p_vert = (f_nucl * f_m_p_vert.conjugate() + 
+                                 f_m_p_vert * f_nucl.conjugate()).real 
+
+        delta_two_f_nucl_f_m_p_vert = (
+            f_nucl[:, numpy.newaxis]*delta_f_m_p_vert.conjugate() +
+            delta_f_m_p_vert*f_nucl.conjugate()[:, numpy.newaxis]).real
+
+        extinction = self.extinction
+        diffrn_refln = self.diffrn_refln
+        h = numpy.array(diffrn_refln.index_h, dtype=int)
+        k = numpy.array(diffrn_refln.index_k, dtype=int)
+        l = numpy.array(diffrn_refln.index_l, dtype=int)
+
+        setup = self.setup
+        wavelength = setup.wavelength
+
+        delta_f_m_p_sq = 2.*(
+         numpy.real(f_m_p_x)[:,numpy.newaxis]*numpy.real(delta_f_m_p_x)+
+         numpy.imag(f_m_p_x)[:,numpy.newaxis]*numpy.imag(delta_f_m_p_x)+
+         numpy.real(f_m_p_y)[:,numpy.newaxis]*numpy.real(delta_f_m_p_y)+
+         numpy.imag(f_m_p_y)[:,numpy.newaxis]*numpy.imag(delta_f_m_p_y)+
+         numpy.real(f_m_p_z)[:,numpy.newaxis]*numpy.real(delta_f_m_p_z)+
+         numpy.imag(f_m_p_z)[:,numpy.newaxis]*numpy.imag(delta_f_m_p_z))
+
+
+        # extinction correction
+        f_m_p_vert_sq = (f_m_p_vert * f_m_p_vert.conjugate()).real
+        delta_f_m_p_vert_sq = 2.*(
+         numpy.real(f_m_p_vert)[:,numpy.newaxis]*numpy.real(delta_f_m_p_vert)+
+         numpy.imag(f_m_p_vert)[:,numpy.newaxis]*numpy.imag(delta_f_m_p_vert)) 
+
+        fnp = two_f_nucl_f_m_p_vert
+        fp_sq = f_n_sq + f_m_p_sq + two_f_nucl_f_m_p_vert
+        fm_sq = f_n_sq + f_m_p_sq - two_f_nucl_f_m_p_vert
+        fpm_sq = f_m_p_sq - f_m_p_vert_sq
+
+        delta_fnp = delta_two_f_nucl_f_m_p_vert
+        delta_fp_sq = delta_f_m_p_sq + delta_two_f_nucl_f_m_p_vert 
+        delta_fm_sq = delta_f_m_p_sq - delta_two_f_nucl_f_m_p_vert 
+        delta_fpm_sq = delta_f_m_p_sq - delta_f_m_p_vert_sq 
+        
+        if extinction is not None:
+            yp, delta_yp = extinction.calc_extinction(cell, h, k, l, 
+                        fp_sq, wavelength, flag_derivative_f_sq=True)
+            ym, delta_ym = extinction.calc_extinction(cell, h, k, l, 
+                        fm_sq, wavelength, flag_derivative_f_sq=True)
+            ypm, delta_ypm = extinction.calc_extinction(cell, h, k, l, 
+                        fpm_sq, wavelength, flag_derivative_f_sq=True)
+        else:
+            yp = numpy.ones(shape=fp_sq.shape, dtype=float), 
+            delta_yp = numpy.zeros(shape=fp_sq.shape, dtype=float)
+            ym = numpy.ones(shape=fp_sq.shape, dtype=float)
+            delta_ym = numpy.zeros(shape=fp_sq.shape, dtype=float)
+            ypm = numpy.ones(shape=fp_sq.shape, dtype=float)
+            delta_ypm = numpy.zeros(shape=fp_sq.shape, dtype=float)
+
+        pppl = 0.5 * ((1 + p_u) * yp + (1 - p_u) * ym)
+        ppmin = 0.5 * ((1 - p_d) * yp + (1 + p_d) * ym)
+        pmpl = 0.5 * ((1 + p_u) * yp - (1 - p_u) * ym)
+        pmmin = 0.5 * ((1 - p_d) * yp - (1 + p_d) * ym)
+
+        delta_pppl = 0.5*((1+p_u)*delta_yp[:,numpy.newaxis]*delta_fp_sq+\
+                     (1-p_u)*delta_ym[:,numpy.newaxis] * delta_fm_sq)
+        delta_ppmin = 0.5*((1-p_d)*delta_yp[:,numpy.newaxis]*delta_fp_sq+\
+                     (1+p_d)*delta_ym[:,numpy.newaxis]*delta_fm_sq)
+        delta_pmpl = 0.5*((1+p_u)*delta_yp[:,numpy.newaxis]*delta_fp_sq-\
+                     (1-p_u)*delta_ym[:,numpy.newaxis]*delta_fm_sq)
+        delta_pmmin = 0.5*((1-p_d)*delta_yp[:,numpy.newaxis]*delta_fp_sq-\
+                     (1+p_d)*delta_ym[:,numpy.newaxis]*delta_fm_sq)
+
+        iint_u = (f_n_sq+f_m_p_vert_sq)*pppl+pmpl*fnp+ypm*fpm_sq
+        iint_d = (f_n_sq+f_m_p_vert_sq)*ppmin+pmmin*fnp+ypm*fpm_sq
+
+        delta_iint_u = (((f_n_sq + f_m_p_vert_sq)[:, numpy.newaxis] * delta_pppl + delta_pmpl * fnp[:,
+                           numpy.newaxis] + (delta_ypm * fpm_sq)[:,numpy.newaxis] * delta_fpm_sq) +
+                           (delta_f_m_p_vert_sq) * pppl[:, numpy.newaxis] +
+                           pmpl[:, numpy.newaxis] * delta_fnp +
+                           ypm[:, numpy.newaxis] * delta_fpm_sq)
+                       
+        delta_iint_d = (((f_n_sq + f_m_p_vert_sq)[:, numpy.newaxis] * delta_ppmin + delta_pmmin * fnp[:,
+                                numpy.newaxis] + (delta_ypm * fpm_sq)[:,numpy.newaxis] * delta_fpm_sq) +
+                           (delta_f_m_p_vert_sq) * ppmin[:, numpy.newaxis] +
+                           pmmin[:, numpy.newaxis] * delta_fnp +
+                           ypm[:, numpy.newaxis] * delta_fpm_sq)
+
+        f_r_m = iint_u/iint_d
+
+        delta_f_r_m = (iint_d[:,numpy.newaxis]*delta_iint_u - 
+                       iint_u[:,numpy.newaxis]*delta_iint_d) / \
+                       (iint_d**2)[:,numpy.newaxis]
+                                                                                                  
+        return f_r_m, delta_f_r_m
     
     def calc_fm_perp_loc(self, h, k, l, cell, sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33,
                                      sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, sftm_33):

@@ -117,8 +117,8 @@ in 3 dimension (hkl, atoms, symmetry elements)
     c32, r32 = numpy.meshgrid(chi_32, r_32, indexing="ij")
     
     rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33 = calc_mRmCmRT(
-            r11, r12, r13, r21, r22, r23, r31, r32, r33,
-            c11, c12, c13, c21, c22, c23, c31, c32, c33)        
+            (r11, r12, r13, r21, r22, r23, r31, r32, r33),
+            (c11, c12, c13, c21, c22, c23, c31, c32, c33))        
 
     #dimension (hkl, atoms, symmetry)
     fft_11 = ff[:,:,numpy.newaxis]*rcrt_11[numpy.newaxis, :,:]
@@ -136,5 +136,4 @@ in 3 dimension (hkl, atoms, symmetry elements)
     #ortogonalization should be done
     
     return fft_11, fft_12, fft_13, fft_21, fft_22, fft_23, fft_31, fft_32, fft_33
-
 

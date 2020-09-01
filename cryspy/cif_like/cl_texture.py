@@ -10,6 +10,18 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
+
+
+def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
+    q_1_x, q_1_y, q_1_z = cell.calc_k_loc(h_1,k_1,l_1)
+    q_2_x, q_2_y, q_2_z = cell.calc_k_loc(h_2,k_2,l_2)
+    q_1_sq = q_1_x*q_1_x + q_1_y*q_1_y + q_1_z*q_1_z
+    q_2_sq = q_2_x*q_2_x + q_2_y*q_2_y + q_2_z*q_2_z
+    q_12 = q_1_x*q_2_x + q_1_y*q_2_y + q_1_z*q_2_z
+    res = q_12/(q_1_sq*q_2_sq)**0.5
+    res[res>1.] = 1.
+    return res
+
 class Texture(ItemConstr):
     """
 Describe the setup.

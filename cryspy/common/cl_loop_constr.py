@@ -1,6 +1,6 @@
 import warnings
 from cryspy.common.cl_item_constr import ItemConstr
-from typing import List, Tuple
+from typing import List, Tuple, NoReturn
 from pycifstar import Data
 
 
@@ -81,6 +81,22 @@ Returns:
             ls_out.append(_item.print_attribute(l_attr_print))
         return "\n".join(ls_out)
 
+    def save_to_csv(self, file_name:str="output.csv", delimiter:str=";") -> NoReturn:
+        """
+        Save information into csv file.
+        """
+        l_attr_print = list(self.__mandatory_attribute) + list(self.__optional_attribute)
+        l_cif_attr = list(self.__related_cif_mandatory_attribute) + list(self.__related_cif_optional_attribute)
+        l_flag = [all([_item.is_defined_attribute(_attr) for _item in self.item]) for _attr in l_attr_print]
+        l_attr_print = [_ for _, _flag in zip(l_attr_print, l_flag) if _flag]
+        l_cif_attr = [_ for _, _flag in zip(l_cif_attr, l_flag) if _flag]
+        ls_out = [(f"{delimiter:}").join([f"{_attr:}" for _attr in l_cif_attr])]
+        for _item in self.item:
+            ls_out.append(_item.print_attribute(l_attr_print, delimiter=delimiter))
+        s_cont = "\n".join(ls_out)
+        with open(file_name, "w") as fid:
+            fid.write(s_cont)
+        
     @property
     def is_defined(self) -> bool:
         flag_1 = True

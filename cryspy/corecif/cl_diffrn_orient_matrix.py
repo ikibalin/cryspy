@@ -14,6 +14,8 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
+from cryspy.common.functions import calc_product_matrices, \
+                                    calc_product_matrix_vector
 
 from cryspy.corecif.cl_cell import Cell
 
@@ -523,30 +525,36 @@ variable and cell parameters (a, b, c, alpha, beta, gamma)
             flag = True
         return flag
 
+    def calc_e_up(self, phi=0., omega=0., chi=0.):
+        """
+        phi, omega, chi = angles of detector in radians.
+        
+        They are zeros by defaults. 
+        """
+        orientation_ij = (self.u_11, self.u_12, self.u_13,
+                          self.u_21, self.u_22, self.u_23,
+                          self.u_31, self.u_32, self.u_33) 
+                          
+        phi_ij = ( numpy.cos(phi), numpy.sin(phi),    0.*phi,
+                  -numpy.sin(phi), numpy.cos(phi),    0.*phi,
+                           0.*phi,         0.*phi, 0.*phi+1.)
+
+        omega_ij = ( numpy.cos(omega), numpy.sin(omega),    0.*omega,
+                    -numpy.sin(omega), numpy.cos(omega),    0.*omega,
+                             0.*omega,         0.*omega, 0.*omega+1.)
 
 
-    def __repr__(self):
-        ls_out = ["OrientMatrix:"]
-        ls_out.append(str(self))
-        return "\n".join(ls_out)
-
-    #def read_ubfrom(self, f_name="ubfrom.raf"):
-    #    fid = open(f_name)
-    #    l_cont = fid.readlines()
-    #    fid.close()
-    #    wavelength = float(l_cont[0])
-    #    ub_from = numpy.array([[float(hh_2) for hh_2 in hh_1.strip().split()] for hh_1 in l_cont[1:4]], dtype=float)
-    #    gamma_0, nu_0 = [float(hh) for hh in l_cont[4].strip().split()]
-    #    self.__gamma_0 = gamma_0
-    #    self.__nu_0 = nu_0
-    #    self.__wavelength = wavelength
-    #    
-    #    self.ub_from = ub_from
-    #def __from_ub_from_to_ub_ccsl(self, ub_from):
-    #    ub_ccsl = numpy.array([[ub_from[1, 0], ub_from[1, 1], ub_from[1, 2]],
-    #                           [-1.*ub_from[0, 0], -1.*ub_from[0, 1], -1.*ub_from[0, 2]],
-    #                           [ub_from[2, 0], ub_from[2, 1], ub_from[2, 2]]], dtype=float)
-    #    self.ub_ccsl = ub_ccsl
+        chi_ij = ( numpy.cos(chi),    0.*chi, numpy.sin(chi),
+                           0.*chi, 0.*chi+1.,         0.*chi,
+                  -numpy.sin(chi),    0.*chi, numpy.cos(chi))
+        
+        u_11, u_12, u_13, u_21, u_22, u_23, u_31, u_32, u_33 = \
+                   calc_product_matrices(omega_ij, chi_ij, phi_ij, 
+                                         orientation_ij)
+        ut_ij = (u_11, u_21, u_31, u_12, u_22, u_32, u_13, u_23, u_33)
+        e_up_1, e_up_2, e_up_3 = calc_product_matrix_vector(ut_ij, 
+                                                           (0., 0., 1.))
+        return e_up_1, e_up_2, e_up_3
 
     def calc_angle(self, h, k, l, wavelength=1.4):
         """

@@ -36,6 +36,8 @@ from cryspy.cif_like.cl_setup import Setup
 from cryspy.cif_like.cl_range import Range
 from cryspy.cif_like.cl_chi2 import Chi2
 
+from cryspy.cif_like.cl_texture import Texture, calc_cos_ang
+
 class Pd(DataConstr):
     """
 Class to describe information about powder diffraction measurements
@@ -128,13 +130,14 @@ Description in cif file::
      """
     MANDATORY_CLASSES = (Setup, PdInstrResolution, PhaseL, 
                          PdBackgroundL, PdMeasL)
-    OPTIONAL_CLASSES = (DiffrnRadiation, Chi2, Range, Extinction, PdInstrReflexAsymmetry, ExcludeL)
-    INTERNAL_CLASSES = (RefineLs, ReflnL, ReflnSusceptibilityL, PdPeakL, PdProcL)
+    OPTIONAL_CLASSES = (DiffrnRadiation, Chi2, Range, Extinction,
+                        PdInstrReflexAsymmetry, Texture, ExcludeL, 
+                        PdProcL, PdPeakL, RefineLs, ReflnL, ReflnSusceptibilityL)
+    INTERNAL_CLASSES = ()
     def __init__(self, background=None, resolution=None, meas=None, 
                  phase=None, diffrn_radiation=None,
                  setup=None,  range=None, chi2=None,
-                 extinction=None,
-                 exclude=None, asymmetry=None, 
+                 extinction=None, asymmetry=None, texture=None, exclude=None,
                  data_name=""):
         super(Pd, self).__init__(mandatory_classes=self.MANDATORY_CLASSES,
                                  optional_classes=self.OPTIONAL_CLASSES,
@@ -151,6 +154,7 @@ Description in cif file::
         self.chi2 = chi2
         self.extinction = extinction
         self.exclude = exclude
+        self.texture = texture
         self.asymmetry = asymmetry
         
         #FIXME: internal attributes
@@ -158,9 +162,16 @@ Description in cif file::
         #self.reflns = None
         #self.refln_ss = None
 
+        self.__dd = None
 
         if self.is_defined:
             self.form_object
+
+    def delete_precalculations(self):
+        llist = getattr(self, "__optional_objs")
+        for obj in llist[::-1]:
+            if isinstance(obj, (PdProcL, PdPeakL, RefineLs, ReflnL, ReflnSusceptibilityL)):
+                llist.remove(obj)
 
     @property
     def background(self):
@@ -455,6 +466,32 @@ Description in cif file::
 
 
     @property
+    def texture(self):
+        """
+        """
+        l_res = self[Texture]
+        if len(l_res) >= 1:
+            return l_res[0]
+        else:
+            return None
+    @texture.setter
+    def texture(self, x):
+        if x is None:
+            pass
+        elif isinstance(x, Texture):
+            l_ind = []
+            for _i, _obj in enumerate(self.optional_objs):
+                if isinstance(_obj, Texture):
+                    l_ind.append(_i)
+            if len(l_ind) == 0:
+                self.optional_objs.append(x)
+            else:
+                self.optional_objs[l_ind[0]] = x
+            if len(l_ind) > 1:
+                for _ind in l_ind.reverse():
+                    self.optional_objs.pop(_ind)
+
+    @property
     def peak(self):
         l_res = self[PdPeakL]
         return l_res
@@ -486,13 +523,11 @@ Description in cif file::
         return l_res
 
 
-    def __repr__(self):
-        ls_out = ["Pd:"]
-        ls_out.append(f"{str(self):}")
-        return "\n".join(ls_out)
 
 
-    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None, 
+
+    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None,
+                     l_refln_susceptibility_in=None, l_dd_in=None,
                      flag_internal:bool=True, flag_polarized:bool=True):
         """
 Calculate intensity for the given diffraction angles.
@@ -535,6 +570,12 @@ Output arguments:
         sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wavelength
         sthovl_max = numpy.sin(0.5*tth_max*numpy.pi/180.)/wavelength
 
+        texture = self.texture
+        if texture is not None:
+            h_ax, k_ax, l_ax = float(texture.h_ax), float(texture.k_ax),\
+                float(texture.l_ax)
+            g_1, g_2 = float(texture.g_1), float(texture.g_2)
+
         res_u_1d = numpy.zeros(tth.shape[0], dtype=float)
         res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
 
@@ -556,9 +597,19 @@ Output arguments:
             if _h != len(l_refln_susceptibility_in):
                 l_refln_susceptibility_in = len(phase.label) * [None] 
 
+        if l_dd_in is None:
+            l_dd_in = len(phase.label) * [None] 
+        else:
+            if _h != len(l_dd_in):
+                l_dd_in = len(phase.label) * [None] 
+                
+        l_dd_out = []
         l_peak, l_refln, l_refln_s = [], [], []
-        for phase_label, phase_scale, phase_igsize, peak_in, refln_in, refln_susceptibility_in in zip(
-                                 phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in, l_refln_susceptibility_in):
+        for phase_label, phase_scale, phase_igsize, peak_in, refln_in, \
+            refln_susceptibility_in, dd_in in zip(phase.label, phase.scale,
+                phase.igsize, l_peak_in, l_refln_in, l_refln_susceptibility_in,
+                l_dd_in):
+            dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name == phase_label:
                     ind_cry = i_crystal
@@ -581,9 +632,14 @@ Output arguments:
                 l = peak_in.get_numpy_index_l()
                 mult = peak_in.get_numpy_index_mult()
             else:
-                h, k, l, mult = cell.calc_hkl(space_group, sthovl_min, sthovl_max)
+                if texture is None:
+                    h, k, l, mult = cell.calc_hkl(space_group, sthovl_min,
+                                                  sthovl_max)
+                else:
+                    h, k, l, mult = cell.calc_hkl_in_range(sthovl_min,
+                                                           sthovl_max)
 
-            peak = PdPeakL()
+            peak = PdPeakL(loop_name=phase_label)
             
             cond_1 = not(crystal.is_variable)
             cond_2 = (peak_in is not None) & (refln_in is not None)
@@ -615,10 +671,31 @@ Output arguments:
             peak.set_numpy_ttheta(tth_hkl+self.setup.offset_ttheta)
             peak.set_numpy_width_ttheta(h_pv)
 
-            
+                
             np_iint_u_2d = numpy.meshgrid(tth, np_iint_u*mult, indexing="ij")[1]
             np_iint_d_2d = numpy.meshgrid(tth, np_iint_d*mult, indexing="ij")[1]
-            
+
+            #texture
+            if texture is not None:
+                cond_1 = dd_in is not None
+                cond_2 = ((not(texture.is_variable)) & (not(cell.is_variable)))
+                if cond_1 & cond_2:
+                    texture_2d = dd_in["texture_2d"]
+                else:
+                    cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax, h, k, l)
+                    c_help = 1.-cos_alpha_ax**2
+                    c_help[c_help<0.] = 0.
+                    sin_alpha_ax = numpy.sqrt(c_help)
+                    cos_alpha_ax_2d = numpy.meshgrid(tth, cos_alpha_ax, indexing="ij")[1]
+                    sin_alpha_ax_2d = numpy.meshgrid(tth, sin_alpha_ax, indexing="ij")[1]
+                    # cos_alpha_2d = cos_alpha_ax_2d*cos_alpha_ang_2d+sin_alpha_ax_2d*sin_alpha_ang_2d 
+                    cos_alpha_2d = cos_alpha_ax_2d*1.+sin_alpha_ax_2d*0. #cos_alpha_ang_2d, sin_alpha_ang_2d
+                    texture_2d = g_2 + (1.-g_2)*(1./g_1 +
+                                       (g_1**2-1./g_1)*cos_alpha_2d**2)**(-1.5)
+
+                dd_out["texture_2d"] = texture_2d
+                profile_2d = profile_2d*texture_2d
+                
             res_u_2d = profile_2d*np_iint_u_2d 
             res_d_2d = profile_2d*np_iint_d_2d 
 
@@ -629,6 +706,7 @@ Output arguments:
             if flag_internal:
                 peak.transform_numpy_arrays_to_items()
             l_peak.append(peak)
+            l_dd_out.append(dd_out)
 
         proc.set_numpy_ttheta_corrected(tth_zs)
         proc.set_numpy_intensity_up_net(res_u_1d)
@@ -645,13 +723,14 @@ Output arguments:
             proc.set_numpy_intensity_total(res_u_1d+res_d_1d+int_bkgd)
 
         if flag_internal:
+            self.delete_precalculations()
             proc.transform_numpy_arrays_to_items()
-        
-        l_internal_objs = l_refln + l_refln_s + l_peak
-        l_internal_objs.append(proc)
-        setattr(self, "__internal_objs", l_internal_objs)
+            l_calc_objs = l_refln + l_refln_s + l_peak
+            l_calc_objs.append(proc)
+            self.optional_objs.extend(l_calc_objs)
+            #setattr(self, "__internal_objs", l_internal_objs)
 
-        return proc, l_peak, l_refln
+        return proc, l_peak, l_refln, l_dd_out
     #def calc_y_mod(self, l_crystal, d_prof_in={}):
     #    """
     #    calculate model diffraction profiles up and down if observed data is defined
@@ -710,9 +789,11 @@ Output arguments:
             l_peak_in = self.peak
             l_refln_in = self.refln
             l_refln_susceptibility_in = self.refln_susceptibility
+            l_dd_in = self.__dd
         else:
             l_peak_in, l_refln_in = [], [] 
             l_refln_susceptibility_in = []
+            l_dd_in = []
 
         range_ = self.range
         cond_in = numpy.ones(tth.shape, dtype=bool)
@@ -733,10 +814,14 @@ Output arguments:
             int_exp_in = int_exp[cond_in]
             sint_exp_in = sint_exp[cond_in]
             
-        proc, l_peak, l_refln = self.calc_profile(tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in, l_refln_susceptibility_in=l_refln_susceptibility_in, 
-                                                  flag_internal=flag_internal, flag_polarized=meas.is_polarized)
+        proc, l_peak, l_refln, l_dd_out = self.calc_profile(tth_in, l_crystal,
+            l_peak_in=l_peak_in, l_refln_in=l_refln_in,
+            l_refln_susceptibility_in=l_refln_susceptibility_in,
+            l_dd_in=l_dd_in, flag_internal=flag_internal,
+            flag_polarized=meas.is_polarized)
 
-
+        self.__dd = l_dd_out
+        
         if flag_polarized:
             proc.set_numpy_intensity_up(int_u_exp_in)
             proc.set_numpy_intensity_up_sigma(sint_u_exp_in)
@@ -819,23 +904,24 @@ Output arguments:
 
         if flag_internal:
             refine_ls = RefineLs(number_reflns=n, goodness_of_fit_all=chi_sq_val/float(n), weighting_scheme="sigma")
-            self.internal_objs.append(refine_ls)
-        if flag_internal:
+            self.optional_objs.append(refine_ls)
             proc.transform_numpy_arrays_to_items()
         return chi_sq_val, n
 
-    def simulation(self, l_crystal:List[Crystal], ttheta_start:float=4., ttheta_end:float=120., ttheta_step:float=0.1, 
+    def simulation(self, l_crystal:List[Crystal], ttheta_start:float=4.,
+                   ttheta_end:float=120., ttheta_step:float=0.1,
                    flag_polarized:bool=True) -> NoReturn:
         n_points = int(round((ttheta_end-ttheta_start)/ttheta_step))
         tth_in = numpy.linspace(ttheta_start, ttheta_end, n_points)
         if isinstance(l_crystal, Crystal):
             l_crystal = [l_crystal]
-        self.calc_profile(tth_in, l_crystal, l_peak_in=None, l_refln_in=None, l_refln_susceptibility_in=None, 
+        self.calc_profile(tth_in, l_crystal, l_peak_in=None, l_refln_in=None,
+                          l_refln_susceptibility_in=None, l_dd_in=None,
                           flag_internal=True, flag_polarized=flag_polarized)
         return
 
 
-    def calc_iint(self, h, k, l, crystal:Crystal, flag_internal=True):
+    def calc_iint(self, h, k, l, crystal:Crystal, flag_internal:bool=True):
         """
 Calculate the integrated intensity for h, k, l reflections.
 
@@ -889,8 +975,10 @@ Output arguments:
         
         #k_loc = cell.calc_k_loc(h, k, l)
         t_ij = cell.calc_m_t(h, k, l)
-        
-        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(t_ij, _ij)
+        t_tr_ij = (t_ij[0], t_ij[3], t_ij[6],
+                   t_ij[1], t_ij[4], t_ij[7],
+                   t_ij[2], t_ij[5], t_ij[8])
+        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(t_tr_ij, _ij)
 
         #fm_p_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
         #fm_p_field = field*0.5*(th_11+th_22) 
@@ -956,7 +1044,7 @@ Output arguments:
 
         asymmetry = self.asymmetry
         if asymmetry is not None:
-            np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl)
+            np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl, h_pv)
         else:
             np_ass_2d = numpy.ones(shape=np_shape_2d.shape)
 
@@ -973,7 +1061,8 @@ Output arguments:
     def params_to_cif(self, separator="_", flag=False, flag_minimal=True) -> str: 
         ls_out = []
         l_cls = (Setup, PdInstrResolution, DiffrnRadiation, 
-                 Chi2, Range, Extinction, PdInstrReflexAsymmetry, PhaseL, ExcludeL, PdPeakL, PdBackgroundL)
+                 Chi2, Range, Extinction, PdInstrReflexAsymmetry, Texture,
+                 PhaseL, ExcludeL, PdBackgroundL)
         l_obj = [_obj for _obj in (self.mandatory_objs + self.optional_objs) if type(_obj) in l_cls]
         l_item_const = [_obj for _obj in l_obj if isinstance(_obj, ItemConstr)]
         l_loop_const = [_obj for _obj in l_obj if isinstance(_obj, LoopConstr)]
@@ -995,12 +1084,12 @@ Output arguments:
 
         ls_out = []
         l_cls = (RefineLs, ReflnL, ReflnSusceptibilityL, PdPeakL, PdProcL)
-        for _cls in l_cls:
-            l_obj = [_obj for _obj in (self.optional_objs+self.internal_objs) if isinstance(_obj, _cls)]
-            l_item_const = [_obj for _obj in l_obj if isinstance(_obj, ItemConstr)]
-            l_loop_const = [_obj for _obj in l_obj if isinstance(_obj, LoopConstr)]
-            ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_item_const])
-            ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_loop_const])
+            
+        l_obj = [_obj for _obj in (self.optional_objs+self.internal_objs) if isinstance(_obj, l_cls)]
+        l_item_const = [_obj for _obj in l_obj if isinstance(_obj, ItemConstr)]
+        l_loop_const = [_obj for _obj in l_obj if isinstance(_obj, LoopConstr)]
+        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_item_const])
+        ls_out.extend([_.to_cif(separator=separator, flag=flag, flag_minimal=flag_minimal)+"\n" for _ in l_loop_const])
 
         #ls_out = []
         #l_cls = (PdProcL, )

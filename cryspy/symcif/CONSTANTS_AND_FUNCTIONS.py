@@ -35,6 +35,8 @@ import os
 from numpy import array, transpose, zeros
 import warnings
 from fractions import Fraction
+from cryspy.common.functions import transform_string_to_r_b, transform_r_b_to_string
+
 from typing import List, Tuple
 
 F_ITABLES = os.path.join(os.path.dirname(__file__), "itables.txt")
@@ -1337,116 +1339,6 @@ def mult_matrixes(a, b):
             c[_i, _j] = sum(a[_i, :] * b[:, _j])
     return c
 
-
-def transform_string_to_digits(name: str, labels: Tuple[str]):
-    """
-    Multiplication has to be implicit, division must be explicit.
-    White space within the string is optional 
-
-    Example: 
-    transform_string_to_digits('-a+2x/7-0.7t+4', ('a', 'x', 't')) = 
-    = (Fraction(-1,1),fraction(2,7),Fraction(-7,10)), Fraction(4,1)
-    """
-    coefficients = []
-    offset = Fraction(0, 1).limit_denominator(10)
-    l_name = name.strip().replace(" ", "").replace("+", " +").replace("-", " -").split()
-    for _label in labels:
-        res = Fraction(0, 1).limit_denominator(10)
-        for _name in l_name:
-            if _label in _name:
-                s_1 = _name.replace(_label, "").replace("+/", "+1/").replace("-/", "-1/")
-                if s_1 == "": s_1 = "1"
-                if s_1.startswith("/"): s_1 = "1" + s_1
-                if s_1.endswith("+"): s_1 = s_1 + "1"
-                if s_1.endswith("-"): s_1 = s_1 + "1"
-                res += Fraction(s_1).limit_denominator(10)
-        coefficients.append(res)
-    res = Fraction(0, 1).limit_denominator(10)
-    for _name in l_name:
-        flag = all([not (_label in _name) for _label in labels])
-        if flag:
-            res += Fraction(_name).limit_denominator(10)
-    offset = res
-    return coefficients, offset
-
-
-def transform_fraction_with_label_to_string(number: Fraction, label: str) -> str:
-    if isinstance(number, Fraction):
-        val = number
-    else:
-        val = Fraction(number).limit_denominator(10)
-    if val == Fraction(0, 1):
-        res = ""
-    elif val == Fraction(1, 1):
-        res = f"{label:}"
-    elif val == Fraction(-1, 1):
-        res = f"-{label:}"
-    elif val.denominator == 1:
-        res = f"{val.numerator}{label:}"
-    elif val.numerator == 1:
-        res = f"{label:}/{val.denominator}"
-    else:
-        res = f"{val.numerator}{label:}/{val.denominator}"
-    return res
-
-
-def transform_digits_to_string(labels: Tuple[str], coefficients, offset: Fraction) -> str:
-    """
-Form a string from digits.
-
-Keyword arguments: 
-
-    labels: the tuple of lablels (ex.: ('x', 'y', 'z') or ('a', 'b', 'c')))
-    coefficients: the parameters in front of label (ex.: (1.0, 0.5, 0.0))
-    offset: the number (ex.: 2/3)
-
-Output arguments is string.
-
-Example:
->>> transform_digits_to_string(('x', 'y', 'z'), (1.0, 0.5, 0.0), 0.6666667)
-x+1/2y+2/3
-    """
-    l_res = []
-    for _coefficient, _label in zip(coefficients, labels):
-        _name = transform_fraction_with_label_to_string(_coefficient, _label)
-        if _name == "":
-            pass
-        elif _name.startswith("-"):
-            l_res.append(_name)
-        elif l_res == []:
-            l_res.append(_name)
-        else:
-            l_res.append(f"+{_name:}")
-    _name = str(Fraction(offset).limit_denominator(10))
-    if _name == "0":
-        if l_res == []:
-            l_res.append(_name)
-    elif ((l_res == []) | (_name.startswith("-"))):
-        l_res.append(_name)
-    else:
-        l_res.append(f"+{_name:}")
-    return "".join(l_res)
-
-
-def transform_string_to_r_b(name: str, labels=("x", "y", "z")) -> Tuple:
-    """
-    transform string to rotation part and offset: 
-    x,y,-z   ->   0.0 1 0 0  0.0 0 1 0  0.0 0 0 -1
-    """
-    l_name = "".join(name.strip().split()).lstrip("(").rstrip(")").split(",")
-    rij, bi = [], []
-    for _name in l_name:
-        coefficients, offset = transform_string_to_digits(_name, labels)
-        rij.append(coefficients)
-        bi.append(offset)
-    res_rij = array(rij, dtype=object)
-    res_bi = array(bi, dtype=object)
-    return res_rij, res_bi
-
-
-def transform_r_b_to_string(r, b, labels=("x", "y", "z")) -> str:
-    l_res = [transform_digits_to_string(labels, _ri, _bi) for _ri, _bi in zip(r, b)]
-    return ",".join(l_res)
 
 
 def auto_choose_it_coordinate_system_code(it_number:int, it_coordinate_system_codes:list)->str:

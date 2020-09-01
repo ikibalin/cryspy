@@ -300,73 +300,125 @@ be identified with a particular space group
         res = [_.operation_xyz for _ in _item.get_symops_by_generator_xyz(generator_xyz)]
         return tuple(res)
 
+
 class SpaceGroupSymopL(LoopConstr):
     """
-Contains information about the symmetry operations of the
-space group.
+    Contains information about the symmetry operations of the space group.
 
-Description in cif file::
+    Description in cif file::
 
- loop_
- _space_group_symop.id
- _space_group_symop.operation_xyz
- _space_group_symop.operation_description
-   1    x,y,z              'identity mapping'
-   2    -x,-y,-z           'inversion'
-   3    -x,1/2+y,1/2-z
+    loop_
+    _space_group_symop.id
+    _space_group_symop.operation_xyz
+    _space_group_symop.operation_description
+    1    x,y,z              'identity mapping'
+    2    -x,-y,-z           'inversion'
+    3    -x,1/2+y,1/2-z
                '2-fold screw rotation with axis in (0,y,1/4)'
-   4    x,1/2-y,1/2+z
+    4    x,1/2-y,1/2+z
              'c glide reflection through the plane (x,1/4,y)'
 
-:Mandatory attributes: - id (category key, 1st)
+     :Mandatory attributes: - id (category key, 1st)
                        - operation_xyz
 
-:Optional attributes: - operation_description
+    :Optional attributes: - operation_description
                       - generator_xyz
                       - sg_id
 
 
-:Class methods: - create_by_generators_xyz
+    :Class methods: - create_by_generators_xyz
                 - get_coords_xyz_by_coord_xyz
 
-`Reference. <https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html>`_
+    `Reference. <https://www.iucr.org/__data/iucr/cifdic_html/2/cif_sym.dic/Cspace_group_symop.html>`_
+
     """
+
     CATEGORY_KEY = ("id", )
     ITEM_CLASS = SpaceGroupSymop
-    def __init__(self, item = [], loop_name=""):
-        super(SpaceGroupSymopL, self).__init__(category_key=self.CATEGORY_KEY, item_class=self.ITEM_CLASS, loop_name=loop_name)
+
+    def __init__(self, item=[], loop_name=""):
+        super(SpaceGroupSymopL, self).__init__(category_key=self.CATEGORY_KEY,
+                                               item_class=self.ITEM_CLASS,
+                                               loop_name=loop_name)
         self.item = item
 
     @classmethod
-    def create_by_generators_xyz(cls, generators_xyz:List):
+    def create_by_generators_xyz(cls, generators_xyz: List):
+        """
+        Create list of symmetry operators by generators.
+
+        Parameters
+        ----------
+        cls : TYPE
+            DESCRIPTION.
+        generators_xyz : List
+            DESCRIPTION.
+
+        Returns
+        -------
+        _obj : TYPE
+            DESCRIPTION.
+
+        """
         _item = SpaceGroupSymop(operation_xyz="x,y,z")
         items_1 = [_item]
         for generator_xyz in generators_xyz:
             items_2 = []
             for _item in items_1:
-                items_2.extend(_item.get_symops_by_generator_xyz(generator_xyz))
+                items_2.extend(_item.get_symops_by_generator_xyz(
+                    generator_xyz))
             items_1 = items_2
         symop = []
-        item_uniq=[]
+        item_uniq = []
         _i = 0
         for _item in items_1:
             if not(_item.operation_xyz in symop):
                 _i += 1
                 symop.append(_item.operation_xyz)
-                _item.id=f"{_i:}"
+                _item.id = f"{_i:}"
                 item_uniq.append(_item)
         _obj = cls(item=item_uniq)
         return _obj
 
+    def get_coords_xyz_by_coord_xyz(self, coord_xyz: str) -> Tuple:
+        """
+        Calculate new fraction for given fraction.
 
-    def get_coords_xyz_by_coord_xyz(self, coord_xyz:str)->Tuple:
+        Parameters
+        ----------
+        coord_xyz : str
+            DESCRIPTION.
+
+        Returns
+        -------
+        Tuple
+            DESCRIPTION.
+
+        """
         item = self.item
         res = []
         for _item in item:
             res.extend(_item.get_coords_xyz_by_coord_xyz(coord_xyz))
         return tuple(frozenset(res))
 
-    def get_symop_for_x1_x2(self, fract_xyz_1: numpy.ndarray, fract_xyz_2: numpy.ndarray):
+    def get_symop_for_x1_x2(self, fract_xyz_1: numpy.ndarray,
+                            fract_xyz_2: numpy.ndarray):
+        """
+        Calculate symmetry operators transforming one fraction to another.
+
+        Parameters
+        ----------
+        fract_xyz_1 : numpy.ndarray
+            DESCRIPTION.
+        fract_xyz_2 : numpy.ndarray
+            DESCRIPTION.
+
+        Returns
+        -------
+        res : TYPE
+            DESCRIPTION.
+
+        """
         np_fract_xyz_1 = numpy.array(fract_xyz_1, dtype=float)
         np_fract_xyz_2 = numpy.array(fract_xyz_2, dtype=float)
         res = SpaceGroupSymopL(item=[])
@@ -374,7 +426,8 @@ Description in cif file::
         for item_s_g_s in self.item:
             m_r = numpy.array(item_s_g_s.r, dtype=float)
             v_b = numpy.array(item_s_g_s.b, dtype=float)
-            if numpy.allclose(numpy.mod(numpy.dot(m_r, np_fract_xyz_1) + v_b, 1), numpy.mod(np_fract_xyz_2, 1)):
+            if numpy.allclose(numpy.mod(numpy.dot(m_r, np_fract_xyz_1)+v_b, 1),
+                              numpy.mod(np_fract_xyz_2, 1)):
                 l_item.append(item_s_g_s)
         res.item = l_item
-        return res 
+        return res

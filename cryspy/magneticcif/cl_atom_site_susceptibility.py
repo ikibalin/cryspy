@@ -935,6 +935,11 @@ magnetic properties of the atoms that occupy the atom sites.
 The unit of susceptibility tensor is Bohr magneton per Tesla. 
 The unit of moment tensor is Bohr magnethon.
 
+Methods:
+    - apply_space_group_constraint
+    - apply_chi_iso_constraint
+    - apply_moment_iso_constraint
+
 Description in cif file::
 
  loop_  

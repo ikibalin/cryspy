@@ -25,6 +25,23 @@ class Cell(ItemConstr):
 Data items in the Cell class record details about the
 crystallographic cell parameters and their measurement.
 
+Methods:
+
+    - estimate_type_cell
+    - calc_sthovl
+    - calc_k_loc
+    - calc_m_t
+    - calc_hkl
+    - calc_hkl_in_range
+    - calc_position_by_coordinate
+    - calc_coordinate_by_position
+    - calc_length_sq
+    - closest_distance_between_fractions
+    - calc_reciprocal_length_sq
+    - ortogonalize_matrix
+    - report_cell
+
+
 Description in cif file::
 
     _cell_length_a                     5.959(1)

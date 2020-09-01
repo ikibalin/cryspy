@@ -1,4 +1,152 @@
+"""
+Functions:
+    - calc_chi_sq
+    - transform_string_to_r_b
+    - transform_string_to_digits
+    - transform_fraction_with_label_to_string
+    - transform_digits_to_string
+    - transform_r_b_to_string
+    - calc_mRmCmRT
+    - calc_rotation_matrix_ij_by_euler_angles
+    - calc_euler_angles_by_rotation_matrix_ij
+    - calc_determinant_matrix_ij
+    - calc_inverse_matrix_ij
+    - calc_rotation_matrix_ij_around_axis
+    - calc_product_matrices
+    - calc_product_matrix_vector
+    - calc_vector_angle
+    - calc_vector_product
+    - scalar_product
+    - calc_rotation_matrix_by_two_vectors
+    - tri_linear_interpolation
+    - ortogonalize_matrix
+    - calc_moment_2d_by_susceptibility
+    - calc_phase_3d
+"""
 import numpy
+from fractions import Fraction
+from typing import Tuple
+
+def calc_chi_sq(y_exp, y_error, y_model, der_y=None):
+    y_diff = (y_exp - y_model)/y_error
+    chi_sq = (numpy.square(numpy.abs(y_diff))).sum()
+    if der_y is not None:
+        der_chi_sq = (-2.*(y_diff/y_error)[:, numpy.newaxis]*der_y).sum(axis=0)
+    else:
+        der_chi_sq = None
+    return chi_sq, der_chi_sq
+
+def transform_string_to_r_b(name: str, labels=("x", "y", "z")) -> Tuple:
+    """
+    transform string to rotation part and offset: 
+    x,y,-z   ->   0.0 1 0 0  0.0 0 1 0  0.0 0 0 -1
+    """
+    l_name = "".join(name.strip().split()).lstrip("(").rstrip(")").split(",")
+    rij, bi = [], []
+    for _name in l_name:
+        coefficients, offset = transform_string_to_digits(_name, labels)
+        rij.append(coefficients)
+        bi.append(offset)
+    res_rij = numpy.array(rij, dtype=object)
+    res_bi = numpy.array(bi, dtype=object)
+    return res_rij, res_bi
+
+
+
+def transform_string_to_digits(name: str, labels: Tuple[str]):
+    """
+    Multiplication has to be implicit, division must be explicit.
+    White space within the string is optional 
+
+    Example: 
+    transform_string_to_digits('-a+2x/7-0.7t+4', ('a', 'x', 't')) = 
+    = (Fraction(-1,1),fraction(2,7),Fraction(-7,10)), Fraction(4,1)
+    """
+    coefficients = []
+    offset = Fraction(0, 1).limit_denominator(10)
+    l_name = name.strip().replace(" ", "").replace("+", " +").replace("-", " -").split()
+    for _label in labels:
+        res = Fraction(0, 1).limit_denominator(10)
+        for _name in l_name:
+            if _label in _name:
+                s_1 = _name.replace(_label, "").replace("+/", "+1/").replace("-/", "-1/")
+                if s_1 == "": s_1 = "1"
+                if s_1.startswith("/"): s_1 = "1" + s_1
+                if s_1.endswith("+"): s_1 = s_1 + "1"
+                if s_1.endswith("-"): s_1 = s_1 + "1"
+                res += Fraction(s_1).limit_denominator(10)
+        coefficients.append(res)
+    res = Fraction(0, 1).limit_denominator(10)
+    for _name in l_name:
+        flag = all([not (_label in _name) for _label in labels])
+        if flag:
+            res += Fraction(_name).limit_denominator(10)
+    offset = res
+    return coefficients, offset
+
+
+def transform_fraction_with_label_to_string(number: Fraction, label: str) -> str:
+    if isinstance(number, Fraction):
+        val = number
+    else:
+        val = Fraction(number).limit_denominator(10)
+    if val == Fraction(0, 1):
+        res = ""
+    elif val == Fraction(1, 1):
+        res = f"{label:}"
+    elif val == Fraction(-1, 1):
+        res = f"-{label:}"
+    elif val.denominator == 1:
+        res = f"{val.numerator}{label:}"
+    elif val.numerator == 1:
+        res = f"{label:}/{val.denominator}"
+    else:
+        res = f"{val.numerator}{label:}/{val.denominator}"
+    return res
+
+
+def transform_digits_to_string(labels: Tuple[str], coefficients, offset: Fraction) -> str:
+    """
+Form a string from digits.
+
+Keyword arguments: 
+
+    labels: the tuple of lablels (ex.: ('x', 'y', 'z') or ('a', 'b', 'c')))
+    coefficients: the parameters in front of label (ex.: (1.0, 0.5, 0.0))
+    offset: the number (ex.: 2/3)
+
+Output arguments is string.
+
+Example:
+>>> transform_digits_to_string(('x', 'y', 'z'), (1.0, 0.5, 0.0), 0.6666667)
+x+1/2y+2/3
+    """
+    l_res = []
+    for _coefficient, _label in zip(coefficients, labels):
+        _name = transform_fraction_with_label_to_string(_coefficient, _label)
+        if _name == "":
+            pass
+        elif _name.startswith("-"):
+            l_res.append(_name)
+        elif l_res == []:
+            l_res.append(_name)
+        else:
+            l_res.append(f"+{_name:}")
+    _name = str(Fraction(offset).limit_denominator(10))
+    if _name == "0":
+        if l_res == []:
+            l_res.append(_name)
+    elif ((l_res == []) | (_name.startswith("-"))):
+        l_res.append(_name)
+    else:
+        l_res.append(f"+{_name:}")
+    return "".join(l_res)
+
+
+def transform_r_b_to_string(r, b, labels=("x", "y", "z")) -> str:
+    l_res = [transform_digits_to_string(labels, _ri, _bi) for _ri, _bi in zip(r, b)]
+    return ",".join(l_res)
+
 
 def calc_mRmCmRT(r_ij, c_ij):
     """
@@ -8,31 +156,34 @@ def calc_mRmCmRT(r_ij, c_ij):
     c_ij: c11, c12, c13, c21, c22, c23, c31, c32, c33 
     """
     r11, r12, r13, r21, r22, r23, r31, r32, r33 = r_ij
-    c11, c12, c13, c21, c22, c23, c31, c32, c33 = c_ij
-    rc_11 = r11*c11+r12*c21+r13*c31
-    rc_12 = r11*c12+r12*c22+r13*c32
-    rc_13 = r11*c13+r12*c23+r13*c33
-    
-    rc_21 = r21*c11+r22*c21+r23*c31
-    rc_22 = r21*c12+r22*c22+r23*c32
-    rc_23 = r21*c13+r22*c23+r23*c33
-    
-    rc_31 = r31*c11+r32*c21+r33*c31
-    rc_32 = r31*c12+r32*c22+r33*c32
-    rc_33 = r31*c13+r32*c23+r33*c33
-
-    #dimension (atoms, symmetry)
-    rcrt_11 = (rc_11*r11+rc_12*r12+rc_13*r13)
-    rcrt_12 = (rc_11*r21+rc_12*r22+rc_13*r23)
-    rcrt_13 = (rc_11*r31+rc_12*r32+rc_13*r33)
-
-    rcrt_21 = (rc_21*r11+rc_22*r12+rc_23*r13)
-    rcrt_22 = (rc_21*r21+rc_22*r22+rc_23*r23)
-    rcrt_23 = (rc_21*r31+rc_22*r32+rc_23*r33)
-
-    rcrt_31 = (rc_31*r11+rc_32*r12+rc_33*r13)
-    rcrt_32 = (rc_31*r21+rc_32*r22+rc_33*r23)
-    rcrt_33 = (rc_31*r31+rc_32*r32+rc_33*r33)
+    # c11, c12, c13, c21, c22, c23, c31, c32, c33 = c_ij
+    rt_ij = r11, r21, r31, r12, r22, r32, r13, r23, r33
+    rcrt_ij = calc_product_matrices(r_ij, c_ij, rt_ij)
+    rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33 = rcrt_ij
+    # rc_11 = r11*c11+r12*c21+r13*c31
+    # rc_12 = r11*c12+r12*c22+r13*c32
+    # rc_13 = r11*c13+r12*c23+r13*c33
+    # 
+    # rc_21 = r21*c11+r22*c21+r23*c31
+    # rc_22 = r21*c12+r22*c22+r23*c32
+    # rc_23 = r21*c13+r22*c23+r23*c33
+    # 
+    # rc_31 = r31*c11+r32*c21+r33*c31
+    # rc_32 = r31*c12+r32*c22+r33*c32
+    # rc_33 = r31*c13+r32*c23+r33*c33
+    # 
+    # #dimension (atoms, symmetry)
+    # rcrt_11 = (rc_11*r11+rc_12*r12+rc_13*r13)
+    # rcrt_12 = (rc_11*r21+rc_12*r22+rc_13*r23)
+    # rcrt_13 = (rc_11*r31+rc_12*r32+rc_13*r33)
+    # 
+    # rcrt_21 = (rc_21*r11+rc_22*r12+rc_23*r13)
+    # rcrt_22 = (rc_21*r21+rc_22*r22+rc_23*r23)
+    # rcrt_23 = (rc_21*r31+rc_22*r32+rc_23*r33)
+    # 
+    # rcrt_31 = (rc_31*r11+rc_32*r12+rc_33*r13)
+    # rcrt_32 = (rc_31*r21+rc_32*r22+rc_33*r23)
+    # rcrt_33 = (rc_31*r31+rc_32*r32+rc_33*r33)
     return rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33
 
 
@@ -234,23 +385,27 @@ Calculate rotation matrix by two vectors
 
 
 def tri_linear_interpolation(ind_xyz, den_3d):
-    ind_x, ind_y, ind_z = ind_xyz[:, 0], ind_xyz[:, 1], ind_xyz[:, 2]
+    (ind_x, ind_y, ind_z) = ind_xyz
     (n_x, n_y, n_z) = den_3d.shape 
-    ind_x0 = (floor(ind_x)).astype(int)
+    ind_x0 = (numpy.floor(ind_x)).astype(int)
     ind_x1 = ind_x0+1
-    ind_y0 = (floor(ind_y)).astype(int)
+    ind_y0 = (numpy.floor(ind_y)).astype(int)
     ind_y1 = ind_y0+1
-    ind_z0 = (floor(ind_z)).astype(int)
+    ind_z0 = (numpy.floor(ind_z)).astype(int)
     ind_z1 = ind_z0+1
 
     xd = (ind_x-ind_x0)/(ind_x1-ind_x0)
     yd = (ind_y-ind_y0)/(ind_y1-ind_y0)
     zd = (ind_z-ind_z0)/(ind_z1-ind_z0)
 
-    Vx0y0z0, Vx1y0z0 = den_3d[mod(ind_x0, n_x), mod(ind_y0, n_y), mod(ind_z0, n_z)], den_3d[mod(ind_x1, n_x), mod(ind_y0, n_y), mod(ind_z0, n_z)]
-    Vx0y0z1, Vx1y0z1 = den_3d[mod(ind_x0, n_x), mod(ind_y0, n_y), mod(ind_z1, n_z)], den_3d[mod(ind_x1, n_x), mod(ind_y0, n_y), mod(ind_z1, n_z)]
-    Vx0y1z0, Vx1y1z0 = den_3d[mod(ind_x0, n_x), mod(ind_y1, n_y), mod(ind_z0, n_z)], den_3d[mod(ind_x1, n_x), mod(ind_y1, n_y), mod(ind_z0, n_z)]
-    Vx0y1z1, Vx1y1z1 = den_3d[mod(ind_x0, n_x), mod(ind_y1, n_y), mod(ind_z1, n_z)], den_3d[mod(ind_x1, n_x), mod(ind_y1, n_y), mod(ind_z1, n_z)]
+    Vx0y0z0 = den_3d[numpy.mod(ind_x0, n_x), numpy.mod(ind_y0, n_y), numpy.mod(ind_z0, n_z)] 
+    Vx1y0z0 = den_3d[numpy.mod(ind_x1, n_x), numpy.mod(ind_y0, n_y), numpy.mod(ind_z0, n_z)]
+    Vx0y0z1 = den_3d[numpy.mod(ind_x0, n_x), numpy.mod(ind_y0, n_y), numpy.mod(ind_z1, n_z)] 
+    Vx1y0z1 = den_3d[numpy.mod(ind_x1, n_x), numpy.mod(ind_y0, n_y), numpy.mod(ind_z1, n_z)]
+    Vx0y1z0 = den_3d[numpy.mod(ind_x0, n_x), numpy.mod(ind_y1, n_y), numpy.mod(ind_z0, n_z)] 
+    Vx1y1z0 = den_3d[numpy.mod(ind_x1, n_x), numpy.mod(ind_y1, n_y), numpy.mod(ind_z0, n_z)]
+    Vx0y1z1 = den_3d[numpy.mod(ind_x0, n_x), numpy.mod(ind_y1, n_y), numpy.mod(ind_z1, n_z)] 
+    Vx1y1z1 = den_3d[numpy.mod(ind_x1, n_x), numpy.mod(ind_y1, n_y), numpy.mod(ind_z1, n_z)]
 
     c00 = Vx0y0z0*(1.-xd) + Vx1y0z0*xd
     c01 = Vx0y0z1*(1.-xd) + Vx1y0z1*xd

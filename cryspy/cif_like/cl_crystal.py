@@ -49,7 +49,20 @@ class Crystal(DataConstr):
 Data items in the CRYSTAL category record details about
 crystal structure.
 
-Description in cif file::
+Methods:
+    - calc_b_iso_beta
+    - calc_f_nucl
+    - calc_susceptibility_moment_tensor
+    - calc_magnetic_moments_with_field_loc
+    - report_main_axes_of_magnetization_ellipsoids
+    - calc_main_axes_of_magnetization_ellipsoids
+    - calc_magnetization_ellipsoid
+    - calc_hkl_in_range
+    - calc_hkl
+    - calc_refln_susceptibility
+    - calc_refln
+   
+De ription in cif file::
 
  data_Fe3O4             
  _cell_angle_alpha 90.0                    

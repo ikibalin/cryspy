@@ -242,7 +242,7 @@ International Tables for Crystallography Vol. A (2002).
         if ((x is None) | (x == ".")):
             x_in = None
         else: 
-            x_in = str(x)
+            x_in = int(x)
         setattr(self, "__multiplicity", x_in)
 
     @property
