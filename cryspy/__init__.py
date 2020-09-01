@@ -1,107 +1,177 @@
+#!/usr/bin/env python
 """
-To run rhochi refinement from a command-line::
+Crystallographic library for polarized neutron diffraction.
 
-    python -m cryspy file_name
-    
-where file_name is a rcif file name
+Content
+-------
+    Section A: Base functions
+    =========================
+        1. Algebra
+        ~~~~~~~~~~
+            - calc_scalar_product_by_vectors
+            - calc_scalar_product_by_complex_vectors
+            - calc_modulus_sq_by_complex_vector
+            - tri_linear_interpolation
+        2. Crystallography base
+        ~~~~~~~~~~~~~~~~~~~~~~~
+            - calc_volume_uc_by_abc_cosines
+            - calc_volume_uc_by_abc_angles
+            - calc_inverse_d_by_hkl_abc_cosines
+            - calc_inverse_d_by_hkl_abc_angles
+            - calc_sthovl_by_hkl_abc_cosines
+            - calc_sthovl_by_hkl_abc_angles
+            - calc_phase_3d
+            - calc_moment_2d_by_susceptibility
+            - ortogonalize_matrix
+        3. Extinction
+        ~~~~~~~~~~~~~
+            - calc_extinction
+            - calc_extinction_2
+        4. Flip ratio
+        ~~~~~~~~~~~~~
+            - calc_f_plus_sq
+            - calc_f_minus_sq
+            - calc_flip_ratio
+    Section B: Parent classes
+    =========================
+        1. Internal classes (not for user)
+            - ItemN, LoopN, DataN, GlobalN
+    Section C: Item/Loop classes
+    ============================
+        1. Classes to describe crystal strucutres
+            - unit_cell: Cell, CellL
+        2. Classes to describe experiments
+    Section D: Functions operating with item, loop
+    ==============================================
+        1.
 
-To create a template in the folder type in a command-line::
+    Section E: Data classes
+    =======================
+        1.
 
-    python -m cryspy
+    Section F: Functions operating with Data classes
+    ================================================
+        1.
+
+    Section G: Global classes
+    =========================
+        1.
+
+    Section H: Functions operating with Global classes
+    ==================================================
+        1. str_to_globaln, file_to_globaln, str_to_items
 """
+__author__ = 'Iurii KIBALIN'
+__copyright__   = "Copyright 2020, "
+__credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
+__license__ = "GPL"
+__version__ = "0.4.0"
+__maintainer__ = "Iurii KIBALIN"
+__email__ = "iurii.kibalin@cea.fr"
+__status__ = "Development"
+__date__ = "01.09.2020"
 name = "cryspy"
-__version__ = '0.2.0'
 
-from .common.cl_global_constr import GlobalConstr
-from .common.cl_data_constr import DataConstr
-from .common.cl_loop_constr import LoopConstr
-from .common.cl_item_constr import ItemConstr
-from .common.cl_fitable import Fitable
+from .A_functions_base.function_1_algebra import \
+    calc_scalar_product_by_vectors,\
+    calc_scalar_product_by_complex_vectors,\
+    calc_modulus_sq_by_complex_vector,\
+    tri_linear_interpolation
 
-from .cif_like.cl_crystal import Crystal
-from .cif_like.cl_pd import Pd
-from .cif_like.cl_pd2d import Pd2d
-from .cif_like.cl_diffrn import Diffrn
-
-from .pd2dcif_like.cl_pd2d_meas import Pd2dMeas
-from .pd2dcif_like.cl_pd2d_proc import Pd2dProc
-
-from .cif_like.cl_chi2 import Chi2 
-from .cif_like.cl_diffrn_radiation import DiffrnRadiation 
-from .cif_like.cl_extinction import Extinction 
-from .cif_like.cl_range import Range 
-from .cif_like.cl_setup import Setup 
-from .cif_like.cl_texture import Texture 
-from .cif_like.cl_diffrn_refln import DiffrnRefln, DiffrnReflnL 
-from .cif_like.cl_exclude import Exclude, ExcludeL 
-from .cif_like.cl_phase import Phase, PhaseL 
-
-from .corecif.cl_atom_site import AtomSite, AtomSiteL
-from .corecif.cl_atom_site_aniso import AtomSiteAniso, AtomSiteAnisoL
-from .corecif.cl_atom_type import AtomType, AtomTypeL
-from .corecif.cl_cell import Cell
-from .corecif.cl_diffrn_orient_matrix import DiffrnOrientMatrix
-from .corecif.cl_refine_ls import RefineLs
-from .corecif.cl_refln import Refln, ReflnL
-
-from .magneticcif.cl_atom_site_moment import AtomSiteMoment, AtomSiteMomentL
-from .magneticcif.cl_atom_site_scat import AtomSiteScat, AtomSiteScatL
-from .magneticcif.cl_atom_site_susceptibility import AtomSiteSusceptibility, AtomSiteSusceptibilityL
-from .magneticcif.cl_atom_type_scat import AtomTypeScat, AtomTypeScatL
-from .magneticcif.cl_refln_susceptibility import ReflnSusceptibility, ReflnSusceptibilityL
-
-from .symcif.cl_space_group import SpaceGroup
-from .symcif.cl_space_group_symop import SpaceGroupSymop, SpaceGroupSymopL
-from .symcif.cl_space_group_wyckoff import SpaceGroupWyckoff, SpaceGroupWyckoffL
-
-from .pd1dcif_like.cl_pd_background import PdBackground, PdBackgroundL
-from .pd1dcif_like.cl_pd_instr_reflex_asymmetry import PdInstrReflexAsymmetry
-from .pd1dcif_like.cl_pd_instr_resolution import PdInstrResolution
-from .pd1dcif_like.cl_pd_meas import PdMeas, PdMeasL
-from .pd1dcif_like.cl_pd_peak import PdPeak, PdPeakL
-from .pd1dcif_like.cl_pd_proc import PdProc, PdProcL
-
-from .rhocif.cl_atom_local_axes import AtomLocalAxes, AtomLocalAxesL
-from .rhocif.cl_atom_rho_orbital_radial_slater import AtomRhoOrbitalRadialSlater, AtomRhoOrbitalRadialSlaterL
-from .rhocif.cl_atom_electron_configuration import AtomElectronConfiguration, AtomElectronConfigurationL
-
-from .scripts.cl_rhochi import RhoChi
+from .A_functions_base.function_1_strings import value_error_to_string
 
 
-from .symcif.CONSTANTS_AND_FUNCTIONS import transform_r_b_to_string, transform_string_to_r_b
+from .A_functions_base.function_2_crystallography_base import \
+    calc_volume_uc_by_abc_cosines,\
+    calc_volume_uc_by_abc_angles,\
+    calc_inverse_d_by_hkl_abc_cosines,\
+    calc_inverse_d_by_hkl_abc_angles,\
+    calc_sthovl_by_hkl_abc_cosines,\
+    calc_sthovl_by_hkl_abc_angles,\
+    calc_phase_3d,\
+    calc_moment_2d_by_susceptibility,\
+    ortogonalize_matrix
 
-from .common.functions import calc_rotation_matrix_ij_by_euler_angles, calc_rotation_matrix_ij_by_euler_angles,\
-    calc_euler_angles_by_rotation_matrix_ij,\
-    calc_determinant_matrix_ij, calc_rotation_matrix_by_two_vectors, calc_rotation_matrix_ij_around_axis,\
-    calc_product_matrices, calc_product_matrix_vector, calc_vector_angle, \
-    calc_vector_product, scalar_product,\
-    tri_linear_interpolation, calc_mRmCmRT,\
-    calc_phase_3d, calc_moment_2d_by_susceptibility, ortogonalize_matrix,\
-    tri_linear_interpolation, transform_string_to_r_b, calc_chi_sq,\
-    calc_inverse_matrix_ij
+from .A_functions_base.function_3_extinction import \
+    calc_extinction,\
+    calc_extinction_2
+    
+from .A_functions_base.function_4_flip_ratio import \
+    calc_f_plus_sq, calc_f_minus_sq, calc_flip_ratio
 
-L_FUNCTION = [transform_r_b_to_string, transform_string_to_r_b]
+from cryspy.B_parent_classes.cl_1_item import ItemN
+from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-L_ITEM_CONSTR_CLASS = [PdInstrResolution, PdInstrReflexAsymmetry,
-                       PdProc, PdPeak, PdMeas, PdBackground,
-                       SpaceGroup, SpaceGroupSymop, SpaceGroupWyckoff,
-                       AtomSiteMoment, AtomSiteScat, AtomSiteSusceptibility,
-                       AtomTypeScat, ReflnSusceptibility,
-                       Pd2dMeas, Pd2dProc,
-                       Chi2, DiffrnRadiation, 
-                       Extinction, Range, Setup,
-                       Texture, AtomSite, AtomSiteAniso, AtomType,
-                       Cell, DiffrnOrientMatrix,
-                       RefineLs, DiffrnRefln, Exclude, Phase,
-                       AtomLocalAxes, AtomRhoOrbitalRadialSlater, AtomElectronConfiguration]
-L_LOOP_CONSTR_CLASS = [PdProcL, PdPeakL, PdMeasL, PdBackgroundL, SpaceGroupSymopL, SpaceGroupWyckoffL, 
-                       AtomSiteMomentL, AtomSiteScatL, AtomSiteSusceptibilityL,
-                       AtomTypeScatL, ReflnSusceptibilityL, 
-                       DiffrnReflnL, ExcludeL, 
-                       PhaseL, AtomSiteL, AtomSiteAnisoL,
-                       AtomTypeL,ReflnL,
-                       AtomLocalAxesL, AtomRhoOrbitalRadialSlaterL, AtomElectronConfigurationL]
+from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+from cryspy.C_item_loop_classes.cl_1_cell import Cell, CellL
+from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, \
+    AtomSiteL
+from cryspy.C_item_loop_classes.cl_1_atom_type import AtomType, \
+    AtomTypeL
+from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
+    AtomSiteAniso, AtomSiteAnisoL
+from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
+from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
+    AtomSiteSusceptibility, AtomSiteSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
+    AtomTypeScat, AtomTypeScatL
+from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
+    AtomSiteScat, AtomSiteScatL
+from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
+    ReflnSusceptibility, ReflnSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
+    AtomLocalAxes, AtomLocalAxesL
+from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
+    import AtomElectronConfiguration, AtomElectronConfigurationL
 
-L_DATA_CONSTR_CLASS = [Crystal, Pd, Pd2d, Diffrn]
+from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
+from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
+    DiffrnRadiation, DiffrnRadiationL
+from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
+    DiffrnOrientMatrix, DiffrnOrientMatrixL
+from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
+    DiffrnReflnL
+from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
+    ExtinctionL
+from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
+from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
+from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
+    ReflnSusceptibility, ReflnSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs, \
+    RefineLsL
+from cryspy.C_item_loop_classes.cl_1_pd_background import \
+    PdBackground, PdBackgroundL
+from cryspy.C_item_loop_classes.cl_1_pd_instr_reflex_asymmetry import \
+    PdInstrReflexAsymmetry, PdInstrReflexAsymmetryL
+from cryspy.C_item_loop_classes.cl_1_pd_instr_resolution import \
+    PdInstrResolution, PdInstrResolutionL
+from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeas, PdMeasL
+from cryspy.C_item_loop_classes.cl_1_pd_proc import PdProc, PdProcL
+from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeak, PdPeakL
+from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
+from cryspy.C_item_loop_classes.cl_1_range import Range, RangeL
+from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
+from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
+from cryspy.C_item_loop_classes.cl_1_pd2d_background import \
+    Pd2dBackground
+from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
+    Pd2dInstrReflexAsymmetry, Pd2dInstrReflexAsymmetryL
+from cryspy.C_item_loop_classes.cl_1_pd2d_instr_resolution import \
+    Pd2dInstrResolution, Pd2dInstrResolutionL
+from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
+from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
+from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
+    Pd2dPeakL
 
-L_GLOBAL_CONSTR_CLASS = [RhoChi]
+from cryspy.E_data_classes.cl_1_crystal import Crystal
+from cryspy.E_data_classes.cl_2_diffrn import Diffrn
+from cryspy.E_data_classes.cl_2_pd import Pd
+from cryspy.E_data_classes.cl_2_pd2d import Pd2d
+
+from cryspy.G_global_classes.cl_1_rhochi import RhoChi
+
+from cryspy.H_functions_global.function_1_cryspy_objects import \
+    str_to_globaln, file_to_globaln, str_to_items
+
