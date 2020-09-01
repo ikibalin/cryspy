@@ -70,6 +70,14 @@ from .scripts.cl_rhochi import RhoChi
 
 from .symcif.CONSTANTS_AND_FUNCTIONS import transform_r_b_to_string, transform_string_to_r_b
 
+from .common.functions import calc_rotation_matrix_ij_by_euler_angles, calc_rotation_matrix_ij_by_euler_angles,\
+    calc_euler_angles_by_rotation_matrix_ij,\
+    calc_determinant_matrix_ij, calc_rotation_matrix_by_two_vectors, calc_rotation_matrix_ij_around_axis,\
+    calc_product_matrices, calc_product_matrix_vector, calc_vector_angle, \
+    calc_vector_product, scalar_product,\
+    tri_linear_interpolation, calc_mRmCmRT,\
+    calc_phase_3d, calc_moment_2d_by_susceptibility, ortogonalize_matrix,\
+    tri_linear_interpolation 
 
 L_FUNCTION = [transform_r_b_to_string, transform_string_to_r_b]
 

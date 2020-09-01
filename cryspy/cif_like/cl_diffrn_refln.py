@@ -46,6 +46,7 @@ Description in cif file::
         self.index_k = index_k
         self.index_l = index_l
         self.fr = fr
+        self.fr_sigma = fr_sigma
         self.intensity_up_calc = intensity_up_calc
         self.intensity_down_calc = intensity_down_calc
 

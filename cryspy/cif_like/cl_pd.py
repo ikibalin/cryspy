@@ -14,7 +14,7 @@ from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_data_constr import DataConstr
 from cryspy.common.cl_fitable import Fitable
 
-
+from cryspy.common.functions import calc_mRmCmRT
 from cryspy.corecif.cl_refln import Refln, ReflnL
 from cryspy.corecif.cl_refine_ls import RefineLs
 
@@ -29,7 +29,6 @@ from cryspy.pd1dcif_like.cl_pd_proc import PdProc, PdProcL
 from cryspy import Crystal
 
 from cryspy.cif_like.cl_exclude import Exclude, ExcludeL
-import cryspy.cif_like.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from cryspy.cif_like.cl_phase import Phase, PhaseL
 from cryspy.cif_like.cl_diffrn_radiation import DiffrnRadiation
 from cryspy.cif_like.cl_extinction import Extinction
@@ -885,15 +884,13 @@ Output arguments:
         _11, _12, _13 = sftm_11+field*sft_11, sftm_12+field*sft_12, sftm_13+field*sft_13
         _21, _22, _23 = sftm_21+field*sft_21, sftm_22+field*sft_22, sftm_23+field*sft_23
         _31, _32, _33 = sftm_31+field*sft_31, sftm_32+field*sft_32, sftm_33+field*sft_33
-
+        _ij = (_11, _12, _13, _21, _22, _23, _31, _32, _33)
         cell = crystal.cell
         
         #k_loc = cell.calc_k_loc(h, k, l)
-        t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33 = cell.calc_m_t(h, k, l)
+        t_ij = cell.calc_m_t(h, k, l)
         
-        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = CONSTANTS_AND_FUNCTIONS.calc_mRmCmRT(
-                t_11, t_21, t_31, t_12, t_22, t_32, t_13, t_23, t_33,
-                _11, _12, _13, _21, _22, _23, _31, _32, _33)
+        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = calc_mRmCmRT(t_ij, _ij)
 
         #fm_p_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+th_22*th_22.conjugate())+th_12*th_12.conjugate())
         #fm_p_field = field*0.5*(th_11+th_22) 

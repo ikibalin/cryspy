@@ -12,6 +12,7 @@ from cryspy.common.cl_item_constr import ItemConstr
 from cryspy.common.cl_loop_constr import LoopConstr
 from cryspy.common.cl_fitable import Fitable
 
+from cryspy.common.functions import ortogonalize_matrix
 
 import cryspy.corecif.CONSTANTS_AND_FUNCTIONS as CONSTANTS_AND_FUNCTIONS
 from cryspy.symcif.cl_space_group import SpaceGroup
@@ -981,23 +982,20 @@ According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
                 2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
         return t_sq
 
-    def ortogonalize_matrix(self, l_11, l_12, l_13, l_21, l_22, l_23, l_31,
-                     l_32, l_33):
+    def ortogonalize_matrix(self, m_ij):
         """
 matrix l_ij is defined in coordinate system (a, b, c)
 
 output matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)
         """
         m_m_norm = self.m_m_norm
-        
-        r11, r12, r13 = m_m_norm[0, 0], m_m_norm[0, 1], m_m_norm[0, 2]
-        r21, r22, r23 = m_m_norm[1, 0], m_m_norm[1, 1], m_m_norm[1, 2]
-        r31, r32, r33 = m_m_norm[2, 0], m_m_norm[2, 1], m_m_norm[2, 2]
-        
-        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = CONSTANTS_AND_FUNCTIONS_cif_like.calc_mRmCmRT(
-                r11, r12, r13, r21, r22, r23, r31, r32, r33,
-                l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)        
 
+        m_norm_ij = (m_m_norm[0, 0], m_m_norm[0, 1], m_m_norm[0, 2],
+                     m_m_norm[1, 0], m_m_norm[1, 1], m_m_norm[1, 2],
+                     m_m_norm[2, 0], m_m_norm[2, 1], m_m_norm[2, 2])
+        
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = ortogonalize_matrix(m_ij, m_norm_ij)
+        
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
 

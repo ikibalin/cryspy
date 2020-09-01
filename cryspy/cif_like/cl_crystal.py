@@ -700,14 +700,14 @@ Example:
         #sft_ij form the structure factor tensor in local coordinate system (ia, ib, ic)
         #chi in 10-12 cm; chim in muB (it is why here 0.2695)
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = self._orto_matrix(
-                hh[:, 0], hh[:, 1], hh[:, 2],
+                (hh[:, 0], hh[:, 1], hh[:, 2],
                 hh[:, 3], hh[:, 4], hh[:, 5],
-                hh[:, 6], hh[:, 7], hh[:, 8])
+                hh[:, 6], hh[:, 7], hh[:, 8]))
 
         sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33 = self._orto_matrix(
-                hh[:, 9], hh[:, 10], hh[:, 11],
+                (hh[:, 9], hh[:, 10], hh[:, 11],
                 hh[:, 12], hh[:, 13], hh[:, 14], 
-                hh[:, 15], hh[:, 16], hh[:, 17])
+                hh[:, 15], hh[:, 16], hh[:, 17]))
 
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33
 
@@ -762,15 +762,14 @@ Example:
             res.transform_numpy_arrays_to_items()
         return res
 
-    def _orto_matrix(self, l_11, l_12, l_13, l_21, l_22, l_23, l_31,
-                     l_32, l_33):
+    def _orto_matrix(self, l_ij):
         """
 matrix l_ij is defined in coordinate system (a, b, c)
-
+l_ij: = l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33
 output matrix s_ij is defined in Cartezian coordinate system defined as x||a*, z||c, y= [z x] (right handed)
         """
         cell = self.cell
-        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = cell.ortogonalize_matrix(l_11, l_12, l_13, l_21, l_22, l_23, l_31, l_32, l_33)
+        s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = cell.ortogonalize_matrix(l_ij)
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
     

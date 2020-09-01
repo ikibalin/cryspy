@@ -1,33 +1,5 @@
 import numpy 
-
-def calc_mRmCmRT(r11, r12, r13, r21, r22, r23, r31, r32, r33,
-                 c11, c12, c13, c21, c22, c23, c31, c32, c33):
-    """
-    calculate matrix multiplication R*C*RT, when matrices are expressed through 
-    its component and can be expressed as nD-array
-    """
-    rc_11, rc_12 = r11*c11+r12*c21+r13*c31, r11*c12+r12*c22+r13*c32
-    rc_13 = r11*c13+r12*c23+r13*c33
-    rc_21, rc_22 = r21*c11+r22*c21+r23*c31, r21*c12+r22*c22+r23*c32
-    rc_23 = r21*c13+r22*c23+r23*c33
-    rc_31, rc_32 = r31*c11+r32*c21+r33*c31, r31*c12+r32*c22+r33*c32
-    rc_33 = r31*c13+r32*c23+r33*c33
-
-    #dimension (atoms, symmetry)
-    rcrt_11 = (rc_11*r11+rc_12*r12+rc_13*r13)
-    rcrt_12 = (rc_11*r21+rc_12*r22+rc_13*r23)
-    rcrt_13 = (rc_11*r31+rc_12*r32+rc_13*r33)
-
-    rcrt_21 = (rc_21*r11+rc_22*r12+rc_23*r13)
-    rcrt_22 = (rc_21*r21+rc_22*r22+rc_23*r23)
-    rcrt_23 = (rc_21*r31+rc_22*r32+rc_23*r33)
-
-    rcrt_31 = (rc_31*r11+rc_32*r12+rc_33*r13)
-    rcrt_32 = (rc_31*r21+rc_32*r22+rc_33*r23)
-    rcrt_33 = (rc_31*r31+rc_32*r32+rc_33*r33)
-    return rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, rcrt_33
-
-
+from cryspy.common.functions import calc_mRmCmRT
 
 def calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3):
     np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")

@@ -568,7 +568,7 @@ Output:
         flag_hh_2 = True
 
         if q_y2<0:
-            print("Angles are not found.")
+            #print("Angles are not found.")
             flag_hh_2 = False
         if flag_hh_2:
             q_final[1] = numpy.sqrt(q_y2)
@@ -578,7 +578,7 @@ Output:
             gamma = numpy.arctan2(k_f[1],k_f[0])/numpy.pi*180. - gamma_0
             phi = (numpy.arctan2(q_final[1], q_final[0]) -numpy.arctan2(q_ub[1], q_ub[0]))/numpy.pi*180
             [phi, gamma, nu] = [phi if phi > 0. else phi + 360., gamma if gamma > 0. else gamma + 360., nu]
-            print("gamma is {:7.3f}   nu is {:7.3f}   phi is {:7.3f}".format(gamma, nu, phi))
+            #print("gamma is {:7.3f}   nu is {:7.3f}   phi is {:7.3f}".format(gamma, nu, phi))
             return gamma, nu, phi
 
 
