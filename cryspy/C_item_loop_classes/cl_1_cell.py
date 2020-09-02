@@ -127,11 +127,13 @@ class Cell(ItemN):
         self.__dict__['angle_alpha_constraint'] = cell_constr[3]
         self.__dict__['angle_beta_constraint'] = cell_constr[4]
         self.__dict__['angle_gamma_constraint'] = cell_constr[5]
-        return 
+        self.form_object(flag_constraint=False)
+        return
 
-    def form_object(self):
+    def form_object(self, flag_constraint: bool = True):
         """Form object."""
-        self.apply_constraints()
+        if flag_constraint:
+            self.apply_constraints()
 
         rad=numpy.pi/180.
 

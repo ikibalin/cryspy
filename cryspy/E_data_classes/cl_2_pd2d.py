@@ -114,7 +114,7 @@ class Pd2d(DataN):
 
         background = self.pd2d_background
         int_bkgd = background.interpolate_by_points(tth, phi)
-        setattr(proc, "__intensity_bkg_calc", int_bkgd)
+        proc.intensity_bkg_calc = int_bkgd
 
         tth_rad = tth*numpy.pi/180.
         phi_rad = phi*numpy.pi/180.
@@ -348,6 +348,10 @@ class Pd2d(DataN):
         proc.intensity_down_total = res_d_2d+int_bkgd
         if flag_internal:
             l_calc_objs = l_refln + l_refln_s + l_peak
+            proc.form_ttheta_phi_intensity_up_net()
+            proc.form_ttheta_phi_intensity_down_net()
+            proc.form_ttheta_phi_intensity_up_total()
+            proc.form_ttheta_phi_intensity_down_total()
             l_calc_objs.append(proc)
             self.add_items(l_calc_objs)
 
@@ -494,6 +498,11 @@ class Pd2d(DataN):
                                  goodness_of_fit_all=chi_sq_val/float(n),
                                  weighting_scheme="sigma")
             self.refine_ls = refine_ls
+            proc.form_ttheta_phi_intensity_bkg_calc()
+            proc.form_ttheta_phi_intensity_up()
+            proc.form_ttheta_phi_intensity_up_sigma()
+            proc.form_ttheta_phi_intensity_down()
+            proc.form_ttheta_phi_intensity_down_sigma()
         return chi_sq_val, n
 
     def calc_for_iint(self, index_h, index_k, index_l, crystal,

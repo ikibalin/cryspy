@@ -65,8 +65,8 @@ class AtomSite(ItemN):
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {'fract_x': "{:.5f}", 'fract_y': "{:.5f}",
-                 'fract_z': "{:.5f}"}
+    D_FORMATS = {'fract_x': "{:.6f}", 'fract_y': "{:.6f}",
+                 'fract_z': "{:.6f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"adp_type": ["Uani", "Uiso", "Uovl", "Umpe", "Bani",
@@ -221,6 +221,10 @@ class AtomSite(ItemN):
         self.__dict__["constr_number"] = numb
         return numb
 
+    def report(self) -> str:
+        """Report."""
+        s_out = f'{self.label.rjust(10):}: {self.scat_length_neutron: .3f}'
+        return s_out
 
 class AtomSiteL(LoopN):
     """
@@ -242,6 +246,11 @@ class AtomSiteL(LoopN):
     def calc_constr_number(self, space_group):
         l_numb = [item.calc_constr_number(space_group) for item in self.items]
         return l_numb
+
+    def report(self) -> str:
+        """Report."""
+        ls_out = [item.report() for item in self.items]
+        return "\n".join(ls_out)
 
 # s_cont = """
 #  loop_                                     

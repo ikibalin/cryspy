@@ -982,6 +982,7 @@ REFERENCE_TABLE_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM = (
     ("tP", "P", "tetragonal"),
     ("tI", "I", "tetragonal"),
     ("hP", "P", "hexagonal"),
+    ("hP", "P", "trigonal"),  # FIXME: not sure
     ("hR", "R", "trigonal"),
     ("hR", "Rrev", "trigonal"),
     ("hR", "H", "trigonal"),
