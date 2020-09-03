@@ -183,10 +183,13 @@ class Pd(DataN):
 
         l_dd_out = []
         l_peak, l_refln, l_refln_s = [], [], []
-        for phase_label, phase_scale, phase_igsize, peak_in, refln_in, \
-                refln_susceptibility_in, dd_in in zip(
-                phase.label, phase.scale, phase.igsize, l_peak_in, l_refln_in,
-                l_refln_susceptibility_in, l_dd_in):
+        for phase_item, peak_in, refln_in, refln_susceptibility_in, dd_in in \
+                zip(phase.items, l_peak_in, l_refln_in,
+                    l_refln_susceptibility_in, l_dd_in):
+            phase_label = phase_item.label
+            phase_scale = phase_item.scale
+            phase_igsize = phase_item.igsize
+
             dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name.lower() == phase_label.lower():
@@ -354,7 +357,12 @@ class Pd(DataN):
         l_refln_susceptibility_in = []
         l_dd_in = []
         if (not(flag_internal) & (self.dd is not None)):
-            for crystal in l_crystal:
+            for phase_item in self.phase.items:
+                crystal = None
+                for cryst in l_crystal:
+                    if cryst.data_name.lower() == phase_item.label.lower():
+                        crystal = cryst
+                        break
                 attr_peak = f"pd_peak_{crystal.data_name:}"
                 attr_refln = f"refln_{crystal.data_name:}"
                 attr_refln_s = f"refln_susceptibility_{crystal.data_name:}"

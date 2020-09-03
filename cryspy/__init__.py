@@ -164,6 +164,7 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
 from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
 from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
     Pd2dPeakL
+from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
@@ -171,7 +172,10 @@ from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 
 from cryspy.G_global_classes.cl_1_rhochi import RhoChi
+from cryspy.G_global_classes.cl_1_mem import MEM
 
 from cryspy.H_functions_global.function_1_cryspy_objects import \
     str_to_globaln, file_to_globaln, str_to_items
 
+from cryspy.H_functions_global.function_1_cryspy_objects import \
+    L_GLOBAL_CLASS, L_DATA_CLASS, L_LOOP_CLASS, L_ITEM_CLASS

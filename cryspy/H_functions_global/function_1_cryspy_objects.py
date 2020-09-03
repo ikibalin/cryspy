@@ -67,6 +67,8 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
 from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
 from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
     Pd2dPeakL
+from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
+    DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
@@ -74,6 +76,7 @@ from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 
 from cryspy.G_global_classes.cl_1_rhochi import RhoChi
+from cryspy.G_global_classes.cl_1_mem import MEM
 
 
 L_ITEM_CLASS = []
@@ -89,7 +92,7 @@ L_ITEM_CLASS.extend([
     DiffrnOrientMatrix, DiffrnRefln, Extinction, Phase, RefineLs, PdBackground,
     PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak, Chi2,
     Range, Texture, Exclude, Pd2dBackground, Pd2dInstrReflexAsymmetry,
-    Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak])
+    Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak, DensityPoint])
 
 L_LOOP_CLASS.extend([
     CellL, AtomSiteL, AtomTypeL, AtomSiteAnisoL, ReflnL,
@@ -98,11 +101,11 @@ L_LOOP_CLASS.extend([
     DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,  ExtinctionL, PhaseL,
     RefineLsL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,
     PdMeasL, PdProcL, PdPeakL, Chi2L, RangeL, TextureL, ExcludeL,
-    Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL])
+    Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL, DensityPointL])
 
 L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d])
 
-L_GLOBAL_CLASS.append(RhoChi)
+L_GLOBAL_CLASS.extend([MEM, RhoChi])
 
 
 def is_in_rcif_block(rcif_block, cryspy_obj):

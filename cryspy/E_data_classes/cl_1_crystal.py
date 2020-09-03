@@ -1,4 +1,4 @@
-"""Description of Cell class."""
+"""Description of Crystal class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
 import math

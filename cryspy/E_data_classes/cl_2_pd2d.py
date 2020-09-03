@@ -182,6 +182,7 @@ class Pd2d(DataN):
             phase_label = item_phase.label
             phase_scale = item_phase.scale
             phase_igsize = item_phase.igsize
+
             dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name.lower() == phase_label.lower():
@@ -386,7 +387,12 @@ class Pd2d(DataN):
         l_refln_susceptibility_in = []
         l_dd_in = []
         if (not(flag_internal) & (self.dd is not None)):
-            for crystal in l_crystal:
+            for phase_item in self.phase.items:
+                crystal = None
+                for cryst in l_crystal:
+                    if cryst.data_name.lower() == phase_item.label.lower():
+                        crystal = cryst
+                        break
                 attr_peak = f"pd2d_peak_{crystal.data_name:}"
                 attr_refln = f"refln_{crystal.data_name:}"
                 attr_refln_s = f"refln_susceptibility_{crystal.data_name:}"

@@ -316,15 +316,18 @@ class Diffrn(DataN):
         delta_fpm_sq = delta_f_m_p_sq - delta_f_m_p_vert_sq
 
         if extinction is not None:
-            yp, delta_yp = extinction.calc_extinction(
+            yp, dderp = extinction.calc_extinction(
                 cell, index_h, index_k, index_l,
-                fp_sq, wavelength, flag_derivative_f_sq=True)
-            ym, delta_ym = extinction.calc_extinction(
+                fp_sq, wavelength, flag_derivatives=True)
+            delta_yp = dderp["der_yext__f_sq"]
+            ym, dderm = extinction.calc_extinction(
                 cell, index_h, index_k, index_l,
-                fm_sq, wavelength, flag_derivative_f_sq=True)
-            ypm, delta_ypm = extinction.calc_extinction(
+                fm_sq, wavelength, flag_derivatives=True)
+            delta_ym = dderm["der_yext__f_sq"]
+            ypm, dderpm = extinction.calc_extinction(
                 cell, index_h, index_k, index_l,
-                fpm_sq, wavelength, flag_derivative_f_sq=True)
+                fpm_sq, wavelength, flag_derivatives=True)
+            delta_ypm = dderpm["der_yext__f_sq"]
         else:
             yp = numpy.ones(shape=fp_sq.shape, dtype=float),
             delta_yp = numpy.zeros(shape=fp_sq.shape, dtype=float)
