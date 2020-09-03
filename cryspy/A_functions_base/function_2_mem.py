@@ -206,3 +206,90 @@ def calc_moment_perp(k_hkl, moment_2d):
     h_1 = calc_vector_product(moment_2d, k_hkl)
     moment_perp = calc_vector_product(k_hkl, h_1)
     return moment_perp
+
+
+def calc_fm_3d_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d):
+    """
+    Calculate magnetic structure factor.
+
+    [hkl, points, symmetry]
+
+    F_M = V_uc / (Ns * Np) mult_i den_i moment_2d[i, s] * phase_3d[hkl, i, s]
+
+    V_uc is volume of unit cell
+    Ns is the number of symmetry elements
+    Np is the number of points in unit cell
+    i is the points in assymetric unit cell
+    s is the elemnt of symmetries
+    mult_i is the multiplicity of i point
+    den_i is the density of i point
+    moment_2d[i, s] is the moment in assymetric point i at element symmetry s
+        in local coordinate system
+    phase_3d[hkl, i, s] is the phase for reflection hkl in the point i for
+        symmetry element s
+
+
+    Output data:
+        - f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3: [hkl]
+
+    """
+    # number of symmetry elements
+    ns = phase_3d.shape[2]
+
+    # [ind]
+    m_rho = (volume*1./float(ns*np))*den_i*mult_i
+
+    m_2d_1, m_2d_2, m_2d_3 = moment_2d
+
+    # [ind, symm]
+    t_2d_1, t_2d_2, t_2d_3 = m_rho[:, newaxis] * m_2d_1, m_rho[:, newaxis] * \
+        m_2d_2, m_rho[:, newaxis] * m_2d_3
+
+    # [hkl, ind, symm]
+    f_hkl_3d_1 = t_2d_1[newaxis, :, :] * phase_3d[:, :, :]
+    f_hkl_3d_2 = t_2d_2[newaxis, :, :] * phase_3d[:, :, :]
+    f_hkl_3d_3 = t_2d_3[newaxis, :, :] * phase_3d[:, :, :]
+    return f_hkl_3d_1, f_hkl_3d_2, f_hkl_3d_3
+
+
+def calc_fm_2d_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d,
+                          axis: int = 2):
+    r"""
+    Calculate magnetic structure factor.
+
+    [hkl, points] at axis = 2
+
+    F_M = V_uc / (Ns * Np) mult_i den_i \sum_{s}^{Ns} moment_2d[i, s] *
+        phase_3d[hkl, i, s]
+
+    [hkl, symmetry] at axis = 1
+
+    F_M = V_uc / (Ns * Np) \sum_{i}^{a.u.c} mult_i den_i  moment_2d[i, s] *
+        phase_3d[hkl, i, s]
+
+    """
+    f_hkl_3d_1, f_hkl_3d_2, f_hkl_3d_3 = \
+        calc_fm_3d_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d)
+    f_hkl_2d_1 = f_hkl_3d_1.sum(axis=axis)
+    f_hkl_2d_2 = f_hkl_3d_2.sum(axis=axis)
+    f_hkl_2d_3 = f_hkl_3d_3.sum(axis=axis)
+    return f_hkl_2d_1, f_hkl_2d_2, f_hkl_2d_3
+
+
+def calc_fm_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d):
+    r"""
+    Calculate magnetic structure factor.
+
+    [hkl]
+
+    F_M = V_uc / (Ns * Np) \sum_{i}^{a.u.c} mult_i den_i \sum_{s}^{Ns}
+        moment_2d[i, s] * phase_3d[hkl, i, s]
+
+    """
+    f_hkl_2d_1, f_hkl_2d_2, f_hkl_2d_3 = \
+        calc_fm_2d_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d,
+                              axis=2)
+    f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3 = \
+        f_hkl_2d_1.sum(axis=1), f_hkl_2d_2.sum(axis=1), f_hkl_2d_3.sum(axis=1)
+    return f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3
+

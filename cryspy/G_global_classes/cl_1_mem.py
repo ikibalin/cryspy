@@ -71,18 +71,14 @@ class MEM(GlobalN):
         """List of crystals."""
         return [item for item in self.items if isinstance(item, Crystal)]
 
-    def maximize_entropy(self):
+    def maximize_entropy(self, chi_iso_ferro: float = 0., 
+                         chi_iso_antiferro: float = 0.,
+                         n_x: int = 48, n_y: int = 48, n_z: int = 48,
+                         prior_density: str = "uniform", disp: bool = True):
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
         c_lambda = 1e-7
-        n_cycle = 100
-        chi_iso_ferro = 0.
-        chi_iso_antiferro = 0.
-        n_x = 48
-        n_y = 48
-        n_z = 48
-        prior_density = "uniform"
-        disp = True
+        n_cycle = 30000
 
         density_point = maximize_entropy(
             crystal, l_diffrn, c_lambda=c_lambda, n_cycle=n_cycle,
@@ -90,3 +86,11 @@ class MEM(GlobalN):
             n_x=n_x, n_y=n_y, n_z=n_z, prior_density=prior_density, disp=disp)
 
         self.add_items([density_point])
+
+    def refine_susceptibility(self, chi_iso_ferro: float = 0., 
+                         chi_iso_antiferro: float = 0.,
+                         n_x: int = 48, n_y: int = 48, n_z: int = 48,
+                         prior_density: str = "uniform", disp: bool = True):
+        crystal = self.crystals()[0]  # FIXME:
+        l_diffrn = self.experiments()  # FIXME:
+        density_point = self.density_point
