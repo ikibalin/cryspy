@@ -131,7 +131,7 @@ class MEM(GlobalN):
         mult_i = numpy.array(density_point.multiplicity, dtype=int)
 
         volume = cell.volume
-        np = mult_i.sum()
+        n_points = mult_i.sum()
 
         for diffrn in l_diffrn:
             diffrn_orient_matrix = diffrn.diffrn_orient_matrix
@@ -156,16 +156,17 @@ class MEM(GlobalN):
                     chi_iso_ferro=1.,
                     chi_iso_antiferro=1.)
 
-            chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, np, volume,
-                                           chi_2d_ferro, phase_3d)
+            chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, n_points,
+                                           volume, chi_2d_ferro, phase_3d)
             chi_perp_ferro = calc_moment_perp(k_hkl, chi_ferro)
 
-            chi_aferro = calc_fm_by_density(mult_i, den_antiferro_i, np,
-                                            volume, chi_2d_antiferro, phase_3d)
+            chi_aferro = calc_fm_by_density(
+                mult_i, den_antiferro_i, n_points, volume, chi_2d_antiferro,
+                phase_3d)
             chi_perp_aferro = calc_moment_perp(k_hkl, chi_aferro)
 
-            f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d,
-                                     phase_3d)
+            f_m = calc_fm_by_density(mult_i, den_i, n_points, volume,
+                                     moment_2d, phase_3d)
             f_m_perp = calc_moment_perp(k_hkl, f_m)
 
             f_m_perp_sum = (
@@ -230,7 +231,6 @@ class MEM(GlobalN):
 
         mem_parameters.chi_ferro = chi_iso_f
         mem_parameters.chi_antiferro = chi_iso_af
-        return
 
     def make_cycle(self, disp: bool = True,
                    n_cycle: int = 10):
@@ -261,4 +261,3 @@ class MEM(GlobalN):
         self.add_items([density_point])
         mem_parameters.chi_ferro = chi_iso_f
         mem_parameters.chi_antiferro = chi_iso_af
-        return
