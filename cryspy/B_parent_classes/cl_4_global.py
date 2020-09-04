@@ -314,9 +314,14 @@ class GlobalN(object):
         for item in self.items:
             if not(item.is_defined()):
                 flag = False
-                warn(f"Item {item.PREFIX:} is not fully described.",
-                     UserWarning)
-                break
+                if isinstance(item, (ItemN, DataN)):
+                    warn(f"Item {item.PREFIX:} is not fully described.",
+                         UserWarning)
+                    break
+                elif isinstance(item, LoopN):
+                    warn(f"Item {item.ITEM_CLASS.PREFIX:} is not fully described.",
+                         UserWarning)
+                    break
         if flag:
             cls_items = [type(item) for item in self.items]
             for cls_mand in self.CLASSES_MANDATORY:

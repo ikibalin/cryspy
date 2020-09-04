@@ -192,7 +192,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
         norm_density = numpy.zeros((radius.size, n_shell), dtype=float)
 
         l_attr = [f"coeff_{_.strip():}" for _ in l_shell]
-        for _i, _item in enumerate(self.item):
+        for _i, _item in enumerate(self.items):
             normalized_rho = _item.calc_normalized_rho(radius, kappa=kappa)
             for _j, _attr in enumerate(l_attr):
                 coeff[_j, _i] = float(getattr(_item, _attr))

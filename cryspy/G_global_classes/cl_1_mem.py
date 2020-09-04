@@ -2,15 +2,21 @@
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
 from typing import NoReturn
+import numpy
+
+from cryspy.A_functions_base.function_2_mem import calc_moment_perp, \
+    calc_fm_by_density
 
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
+from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
-from cryspy.F_functions_data.script_1_mem import maximize_entropy
+from cryspy.F_functions_data.script_1_mem import maximize_entropy, \
+    refine_susceptibility, make_cycle
 
 
 class MEM(GlobalN):
@@ -28,11 +34,13 @@ class MEM(GlobalN):
         - crystals()
         - experiments()
         - maximize_entropy()
+        - refine_susceptibility()
+        - make_cycle()
         - apply_constraints()
     """
 
     CLASSES_MANDATORY = (Crystal, Diffrn)
-    CLASSES_OPTIONAL = (DensityPointL, )
+    CLASSES_OPTIONAL = (DensityPointL, MEMParameters)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -40,7 +48,7 @@ class MEM(GlobalN):
     PREFIX = "mem"
 
     # default values for the parameters
-    D_DEFAULT = {}
+    D_DEFAULT = {"mem_parameters": MEMParameters()}
 
     def __init__(self, global_name=None, **kwargs) -> NoReturn:
         super(MEM, self).__init__()
@@ -71,26 +79,186 @@ class MEM(GlobalN):
         """List of crystals."""
         return [item for item in self.items if isinstance(item, Crystal)]
 
-    def maximize_entropy(self, chi_iso_ferro: float = 0., 
-                         chi_iso_antiferro: float = 0.,
-                         n_x: int = 48, n_y: int = 48, n_z: int = 48,
-                         prior_density: str = "uniform", disp: bool = True):
+    def create_prior_density(self):
+        """Create prior denisity."""
+        crystal = self.crystals()[0]  # FIXME:
+        atom_site_susceptibility = crystal.atom_site_susceptibility
+        space_group = crystal.space_group
+        space_group_symop = space_group.full_space_group_symop
+        cell = crystal.cell
+        atom_site = crystal.atom_site
+        mem_parameters = self.mem_parameters
+        prior_density = mem_parameters.prior_density
+        points_a = mem_parameters.points_a
+        points_b = mem_parameters.points_b
+        points_c = mem_parameters.points_c
+
+        l_magnetic_labes = atom_site_susceptibility.label
+        density_point = DensityPointL()
+        if prior_density == "core":
+            atom_electron_configuration = crystal.atom_electron_configuration
+            density_point.create_core_density(
+                space_group_symop, cell, atom_site,
+                atom_electron_configuration, points_a=points_a,
+                points_b=points_b, points_c=points_c)
+        else:
+            density_point.create_flat_density(
+                space_group_symop, cell, atom_site,
+                l_magnetic_labes=l_magnetic_labes, points_a=points_a,
+                points_b=points_b, points_c=points_c)
+        self.add_items([density_point])
+
+    def calc_fr(self):
+        """Calculate Flip Ratios for diffraction experiments."""
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
+        density_point = self.density_point
+        mem_parameters = self.mem_parameters
+        chi_iso_ferro = mem_parameters.chi_ferro
+        chi_iso_antiferro = mem_parameters.chi_antiferro
+
+        cell = crystal.cell
+        space_group = crystal.space_group
+        space_group_symop = space_group.full_space_group_symop
+        atom_site_susceptibility = crystal.atom_site_susceptibility
+
+        total_peaks = 0
+
+        den_i = numpy.array(density_point.density, dtype=float)
+        den_ferro_i = numpy.array(density_point.density_ferro, dtype=float)
+        den_antiferro_i = numpy.array(density_point.density_antiferro,
+                                      dtype=float)
+        mult_i = numpy.array(density_point.multiplicity, dtype=int)
+
+        volume = cell.volume
+        np = mult_i.sum()
+
+        for diffrn in l_diffrn:
+            diffrn_orient_matrix = diffrn.diffrn_orient_matrix
+            e_up = diffrn_orient_matrix.calc_e_up()
+            setup = diffrn.setup
+            field = float(setup.field)
+            h_loc = (field*e_up[0], field*e_up[1], field*e_up[2])
+            diffrn_refln = diffrn.diffrn_refln
+            index_h = numpy.array(diffrn_refln.index_h, dtype=int)
+            index_k = numpy.array(diffrn_refln.index_k, dtype=int)
+            index_l = numpy.array(diffrn_refln.index_l, dtype=int)
+            total_peaks += index_h.size
+            hkl = (index_h, index_k, index_l)
+
+            f_nucl = crystal.calc_f_nucl(*hkl)
+            k_hkl = cell.calc_k_loc(*hkl)
+            phase_3d = density_point.calc_phase_3d(hkl, space_group_symop)
+
+            moment_2d, chi_2d_ferro, chi_2d_antiferro = \
+                density_point.calc_moment_2d(
+                    space_group_symop, cell, atom_site_susceptibility, h_loc,
+                    chi_iso_ferro=1.,
+                    chi_iso_antiferro=1.)
+
+            chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, np, volume,
+                                           chi_2d_ferro, phase_3d)
+            chi_perp_ferro = calc_moment_perp(k_hkl, chi_ferro)
+
+            chi_aferro = calc_fm_by_density(mult_i, den_antiferro_i, np,
+                                            volume, chi_2d_antiferro, phase_3d)
+            chi_perp_aferro = calc_moment_perp(k_hkl, chi_aferro)
+
+            f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d,
+                                     phase_3d)
+            f_m_perp = calc_moment_perp(k_hkl, f_m)
+
+            f_m_perp_sum = (
+                f_m_perp[0] + chi_iso_ferro*chi_perp_ferro[0] +
+                chi_iso_antiferro*chi_perp_aferro[0],
+                f_m_perp[1] + chi_iso_ferro*chi_perp_ferro[1] +
+                chi_iso_antiferro*chi_perp_aferro[1],
+                f_m_perp[2] + chi_iso_ferro*chi_perp_ferro[2] +
+                chi_iso_antiferro*chi_perp_aferro[2])
+
+            fr_m, delta_fr_m = diffrn.calc_fr(cell, f_nucl, f_m_perp_sum,
+                                              delta_f_m_perp=f_m_perp)
+            diffrn.diffrn_refln.numpy_fr_calc = fr_m
+        for diffrn in l_diffrn:
+            # FIXME: not sure that input parameters should be modified
+            diffrn.diffrn_refln.numpy_to_items()
+
+    def maximize_entropy(self, disp: bool = True):
+        """Run entropy maximization.
+
+        Arguments
+        ---------
+            - prior_density: "uniform" (default) or "core"
+            - disp: True (default) or False
+        """
+        crystal = self.crystals()[0]  # FIXME:
+        l_diffrn = self.experiments()  # FIXME:
+        mem_parameters = self.mem_parameters
+        chi_iso_ferro = mem_parameters.chi_ferro
+        chi_iso_antiferro = mem_parameters.chi_antiferro
+        points_a = mem_parameters.points_a
+        points_b = mem_parameters.points_b
+        points_c = mem_parameters.points_c
+        prior_density = mem_parameters.prior_density
+
         c_lambda = 1e-7
-        n_cycle = 30000
+        n_cycle = 300
 
         density_point = maximize_entropy(
             crystal, l_diffrn, c_lambda=c_lambda, n_cycle=n_cycle,
             chi_iso_ferro=chi_iso_ferro, chi_iso_antiferro=chi_iso_antiferro,
-            n_x=n_x, n_y=n_y, n_z=n_z, prior_density=prior_density, disp=disp)
+            n_x=points_a, n_y=points_b, n_z=points_c,
+            prior_density=prior_density, disp=disp)
 
         self.add_items([density_point])
 
-    def refine_susceptibility(self, chi_iso_ferro: float = 0., 
-                         chi_iso_antiferro: float = 0.,
-                         n_x: int = 48, n_y: int = 48, n_z: int = 48,
-                         prior_density: str = "uniform", disp: bool = True):
+    def refine_susceptibility(self, disp: bool = True) -> (float, float):
+        """Refine susceptibility."""
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
         density_point = self.density_point
+        mem_parameters = self.mem_parameters
+        chi_iso_ferro = mem_parameters.chi_ferro
+        chi_iso_antiferro = mem_parameters.chi_antiferro
+        flag_ferro = mem_parameters.chi_ferro_refinement
+        flag_antiferro = mem_parameters.chi_antiferro_refinement
+
+        chi_iso_f, chi_iso_af = refine_susceptibility(
+            crystal, l_diffrn, density_point, chi_iso_ferro=chi_iso_ferro,
+            chi_iso_antiferro=chi_iso_antiferro, flag_ferro=flag_ferro,
+            flag_antiferro=flag_antiferro, disp=disp)
+
+        mem_parameters.chi_ferro = chi_iso_f
+        mem_parameters.chi_antiferro = chi_iso_af
+        return
+
+    def make_cycle(self, disp: bool = True,
+                   n_cycle: int = 10):
+        """Run Rho - Chi cycle refinement."""
+        crystal = self.crystals()[0]  # FIXME:
+        l_diffrn = self.experiments()  # FIXME:
+        mem_parameters = self.mem_parameters
+        chi_iso_ferro = mem_parameters.chi_ferro
+        chi_iso_antiferro = mem_parameters.chi_antiferro
+        flag_ferro = mem_parameters.chi_ferro_refinement
+        flag_antiferro = mem_parameters.chi_antiferro_refinement
+        points_a = mem_parameters.points_a
+        points_b = mem_parameters.points_b
+        points_c = mem_parameters.points_c
+        prior_density = mem_parameters.prior_density
+
+        c_lambda = 1e-7
+        n_mem = 30000
+
+        density_point, chi_iso_f, chi_iso_af = \
+            make_cycle(
+                crystal, l_diffrn, chi_iso_ferro=chi_iso_ferro,
+                chi_iso_antiferro=chi_iso_antiferro, flag_ferro=flag_ferro,
+                flag_antiferro=flag_antiferro, disp=disp, points_a=points_a,
+                points_b=points_b, points_c=points_c,
+                prior_density=prior_density, c_lambda=c_lambda, n_mem=n_mem,
+                n_cycle=n_cycle)
+        self.add_items([density_point])
+        mem_parameters.chi_ferro = chi_iso_f
+        mem_parameters.chi_antiferro = chi_iso_af
+        return

@@ -35,11 +35,15 @@ class Setup(ItemN):
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
 
+    # formats if cif format
+    D_FORMATS = {'wavelength': "{:.4f}", 'field': "{:.2f}",
+                 'offset_ttheta': "{:.3f}", 'offset_phi': "{:.3f}"}
+
     # constraints on the parameters
     D_CONSTRAINTS = {}
 
     # default values for the parameters
-    D_DEFAULT = {"offset_2theta":0.}
+    D_DEFAULT = {"offset_2theta": 0.}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):

@@ -20,6 +20,7 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import \
     AtomElectronConfigurationL
+from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import \
     AtomRhoOrbitalRadialSlaterL
@@ -475,12 +476,16 @@ class DensityPointL(LoopN):
         self.set_core_density(atom_site, atom_electron_configuration)
 
     def save_to_file_den(
-            self, points_a: int, points_b: int, points_c: int,
-            space_group: SpaceGroup, cell: Cell, f_name: str = "file.den",
-            label_atom=None, f_background: str = "file_back.den",
-            chi_iso_ferro: int = 0., chi_iso_antiferro: int = 0.):
+            self, mem_parameters: MEMParameters, space_group: SpaceGroup,
+            cell: Cell, f_name: str = "file.den", label_atom=None,
+            f_background: str = "file_back.den"):
         """Save to file."""
         numpy_basin_atom_label = numpy.array(self.basin_atom_label, dtype=str)
+        points_a = mem_parameters.points_a
+        points_b = mem_parameters.points_b
+        points_c = mem_parameters.points_c
+        chi_iso_ferro = mem_parameters.chi_ferro
+        chi_iso_antiferro = mem_parameters.chi_antiferro
         index_x = self.index_x
         index_y = self.index_y
         index_z = self.index_z

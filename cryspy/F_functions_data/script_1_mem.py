@@ -129,7 +129,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         # print(" ".join([f" {val:10.2f}" for val in l_chi_sq]))
         return sum(l_chi_sq), sum(l_der_chi_sq), sum(l_der_chi_sq_f), \
             sum(l_der_chi_sq_a)
-    
+
     chi_sq_diff_prev, chi_sq_diff = numpy.inf, numpy.inf
     chi_sq_prev, flag = numpy.inf, False
 
@@ -157,7 +157,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             c_lambda = 1.01 * c_lambda
         else:
             c_lambda = 0.99 * c_lambda
-        
+
         chi_sq_diff_prev = chi_sq_diff
         chi_sq_prev = chi_sq
 
@@ -181,12 +181,12 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
     return density_point
 
 
-def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn], 
+def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
                           density_point: DensityPointL,
                           chi_iso_ferro: float = 0.,
                           chi_iso_antiferro: float = 0.,
                           flag_ferro: bool = True, flag_antiferro: bool = True,
-                          disp: bool = True):
+                          disp: bool = True) -> (float, float):
     """
     Refinement of susceptibility.
 
@@ -232,7 +232,6 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
     den_antiferro_i = density_point.numpy_density_antiferro
     mult_i = density_point.numpy_multiplicity
 
-    
     l_f_nucl, l_fr_e, l_fr_s, l_e_up, l_h_loc = [], [], [], [], []
     l_k_hkl, l_phase_3d = [], []
     l_chi_perp_ferro, l_chi_perp_antiferro = [], []
@@ -244,11 +243,11 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         field = float(setup.field)
         h_loc = (field*e_up[0], field*e_up[1], field*e_up[2])
         diffrn_refln = diffrn.diffrn_refln
-        h = numpy.array(diffrn_refln.index_h, dtype=int)
-        k = numpy.array(diffrn_refln.index_k, dtype=int)
-        l = numpy.array(diffrn_refln.index_l, dtype=int)
-        total_peaks += h.size
-        hkl = (h, k, l)
+        index_h = numpy.array(diffrn_refln.index_h, dtype=int)
+        index_k = numpy.array(diffrn_refln.index_k, dtype=int)
+        index_l = numpy.array(diffrn_refln.index_l, dtype=int)
+        total_peaks += index_h.size
+        hkl = (index_h, index_k, index_l)
         fr_e = numpy.array(diffrn_refln.fr, dtype=float)
         fr_s = numpy.array(diffrn_refln.fr_sigma, dtype=float)
         f_nucl = crystal.calc_f_nucl(*hkl)
@@ -257,7 +256,8 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
 
         moment_2d, chi_2d_ferro, chi_2d_antiferro = \
             density_point.calc_moment_2d(
-            space_group_symop, cell, atom_site_susceptibility, h_loc, 1., 1.)
+                space_group_symop, cell, atom_site_susceptibility, h_loc, 1.,
+                1.)
 
         chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, np, volume,
                                        chi_2d_ferro, phase_3d)
@@ -272,71 +272,81 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         l_fr_s.append(fr_s)
         l_e_up.append(e_up)
         l_h_loc.append(h_loc)
-        l_k_hkl.append(k_hkl) 
+        l_k_hkl.append(k_hkl)
         l_phase_3d.append(phase_3d)
-        l_chi_perp_ferro.append(chi_perp_ferro) 
+        l_chi_perp_ferro.append(chi_perp_ferro)
         l_chi_perp_antiferro.append(chi_perp_aferro)
-    
-    l_var = atom_site_susceptibility.get_variables()
-    l_par_0 = [float(_) for _ in l_var]
+
+    l_name = atom_site_susceptibility.get_variable_names()
+    l_par_0 = [atom_site_susceptibility.get_variable_by_name(name) for name
+               in l_name]
     if flag_ferro:
         l_par_0.append(chi_iso_ferro)
     if flag_antiferro:
         l_par_0.append(chi_iso_antiferro)
-        
-    #l_par_0.extend([chi_iso_ferro, chi_iso_antiferro])
-    
 
     def temp_func(l_par):
         if (flag_ferro & flag_antiferro):
-            for variable, parameter in zip(l_var, l_par[:-2]):
-                variable.value = float(parameter)
+            for name, parameter in zip(l_name, l_par[:-2]):
+                atom_site_susceptibility.set_variable_by_name(name, parameter)
             chi_iso_f = float(l_par[-2])
+            chi_iso_af = float(l_par[-1])
         elif (flag_ferro & (not(flag_antiferro))):
-            for variable, parameter in zip(l_var, l_par[:-1]):
-                variable.value = float(parameter)
+            for name, parameter in zip(l_name, l_par[:-1]):
+                atom_site_susceptibility.set_variable_by_name(name, parameter)
             chi_iso_f = float(l_par[-1])
             chi_iso_af = chi_iso_antiferro
         elif ((not(flag_ferro)) & flag_antiferro):
-            for variable, parameter in zip(l_var, l_par[:-1]):
-                variable.value = float(parameter)
+            for name, parameter in zip(l_name, l_par[:-1]):
+                atom_site_susceptibility.set_variable_by_name(name, parameter)
             chi_iso_f = chi_iso_ferro
             chi_iso_af = float(l_par[-1])
         else:
-            for variable, parameter in zip(l_var, l_par):
-                variable.value = float(parameter)
+            for name, parameter in zip(l_name, l_par):
+                atom_site_susceptibility.set_variable_by_name(name, parameter)
             chi_iso_f = chi_iso_ferro
             chi_iso_af = chi_iso_antiferro
-            
-        
-        if chi_iso_f < 0.: chi_iso_f = 0
-        if chi_iso_af > 0.: chi_iso_af = 0
-            
-        atom_site_susceptibility.apply_space_group_constraint(atom_site, space_group)
+
+        if chi_iso_f < 0.:
+            chi_iso_f = 0
+        if chi_iso_af > 0.:
+            chi_iso_af = 0
+
+        atom_site_susceptibility.apply_space_group_constraint(atom_site,
+                                                              space_group)
         l_chi_sq = []
         l_der_chi_sq, l_der_chi_sq_f, l_der_chi_sq_a = [], [], []
-        for diffrn, f_nucl, fr_e, fr_s, e_up, h_loc, k_hkl, phase_3d, chi_perp_ferro, chi_perp_aferro in \
-            zip(l_diffrn, l_f_nucl, l_fr_e, l_fr_s, l_e_up, l_h_loc, l_k_hkl, l_phase_3d,
-               l_chi_perp_ferro, l_chi_perp_antiferro):
+        for diffrn, f_nucl, fr_e, fr_s, e_up, h_loc, k_hkl, phase_3d, \
+            chi_perp_ferro, chi_perp_aferro in \
+            zip(l_diffrn, l_f_nucl, l_fr_e, l_fr_s, l_e_up, l_h_loc, l_k_hkl,
+                l_phase_3d, l_chi_perp_ferro, l_chi_perp_antiferro):
 
-            
-            moment_2d, moment_ferro, moment_antiferro = density_point.calc_moment_2d(space_group_symop, cell,
-                       atom_site_susceptibility, 
-                       h_loc, chi_iso_ferro, 
-                       chi_iso_antiferro)
+            moment_2d, moment_ferro, moment_antiferro = \
+                density_point.calc_moment_2d(
+                    space_group_symop, cell, atom_site_susceptibility, h_loc,
+                    chi_iso_ferro, chi_iso_antiferro)
 
-            f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d)
+            f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d,
+                                     phase_3d)
             f_m_perp = calc_moment_perp(k_hkl, f_m)
+
             # add ferro and anti_ferro
 
-            f_m_perp_sum = (f_m_perp[0]+chi_iso_f*chi_perp_ferro[0]+chi_iso_af*chi_perp_aferro[0], 
-                            f_m_perp[1]+chi_iso_f*chi_perp_ferro[1]+chi_iso_af*chi_perp_aferro[1], 
-                            f_m_perp[2]+chi_iso_f*chi_perp_ferro[2]+chi_iso_af*chi_perp_aferro[2])
-            
-            fr_m, delta_fr_m = diffrn.calc_fr(cell, f_nucl, f_m_perp_sum, delta_f_m_perp=f_m_perp)
+            f_m_perp_sum = (
+                f_m_perp[0] + chi_iso_f*chi_perp_ferro[0] +
+                chi_iso_af*chi_perp_aferro[0],
+                f_m_perp[1] + chi_iso_f*chi_perp_ferro[1] +
+                chi_iso_af*chi_perp_aferro[1],
+                f_m_perp[2] + chi_iso_f*chi_perp_ferro[2] +
+                chi_iso_af*chi_perp_aferro[2])
+
+            fr_m, delta_fr_m = diffrn.calc_fr(cell, f_nucl, f_m_perp_sum,
+                                              delta_f_m_perp=f_m_perp)
             delta_fr_m_f = delta_fr_m
             delta_fr_m_a = delta_fr_m
-            
+
+            diffrn.diffrn_refln.numpy_fr_calc = fr_m
+
             chi_sq, der_chi_sq = calc_chi_sq(fr_e, fr_s, fr_m, delta_fr_m)
             der_chi_sq_f = calc_chi_sq(fr_e, fr_s, fr_m, delta_fr_m_f)[1]
             der_chi_sq_a = calc_chi_sq(fr_e, fr_s, fr_m, delta_fr_m_a)[1]
@@ -344,80 +354,95 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
             l_der_chi_sq.append(der_chi_sq)
             l_der_chi_sq_f.append(der_chi_sq_f)
             l_der_chi_sq_a.append(der_chi_sq_a)
-        #print(" ".join([f" {val:10.2f}" for val in l_chi_sq]))
         return sum(l_chi_sq)
-
     chi_sq = temp_func(l_par_0)
-    print(f"Chi_sq before optimization {chi_sq/float(total_peaks):.5f}.           ", end="\r")
-    res = scipy.optimize.minimize(temp_func, l_par_0, method="BFGS", 
-                                  callback=func_temp, options={"eps":0.001})
+    print(f"Chi_sq before optimization {chi_sq/total_peaks:.5f}.           ",
+          end="\r")
+    res = scipy.optimize.minimize(temp_func, l_par_0, method="BFGS",
+                                  callback=func_temp, options={"eps": 0.001})
     l_param = res.x
     chi_sq_new = res.fun
 
-    hess_inv = res["hess_inv"] 
+    hess_inv = res["hess_inv"]
     sigma = (abs(numpy.diag(hess_inv)))**0.5
 
-    print(f"Chi_sq after optimization {chi_sq_new/float(total_peaks):.5f}.           ", end="\r")
+    print(f"Chi_sq after optimization {chi_sq_new/total_peaks:.5f}.          ",
+          end="\r")
 
     if (flag_ferro & flag_antiferro):
-        for variable, parameter, sig in zip(l_var, l_param[:-2], sigma[:-2]):
-            variable.value = float(parameter)
-            variable.sigma = sig
+        for name, parameter, sig in zip(l_name, l_param[:-2], sigma[:-2]):
+            atom_site_susceptibility.set_variable_by_name(name, parameter)
+            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
+            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
         chi_iso_f = float(l_param[-2])
         chi_iso_af = float(l_param[-1])
     elif (flag_ferro & (not(flag_antiferro))):
-        for variable, parameter, sig in zip(l_var, l_param[:-1], sigma[:-1]):
-            variable.value = float(parameter)
-            variable.sigma = sig
+        for name, parameter, sig in zip(l_name, l_param[:-1], sigma[:-1]):
+            atom_site_susceptibility.set_variable_by_name(name, parameter)
+            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
+            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
         chi_iso_f = float(l_param[-1])
         chi_iso_af = chi_iso_antiferro
     elif ((not(flag_ferro)) & flag_antiferro):
-        for variable, parameter, sig in zip(l_var, l_param[:-1], sigma[:-1]):
-            variable.value = float(parameter)
-            variable.sigma = sig
+        for name, parameter, sig in zip(l_name, l_param[:-1], sigma[:-1]):
+            atom_site_susceptibility.set_variable_by_name(name, parameter)
+            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
+            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
         chi_iso_f = chi_iso_ferro
         chi_iso_af = float(l_param[-1])
     else:
-        for variable, parameter, sig in zip(l_var, l_param, sigma):
-            variable.value = float(parameter)
-            variable.sigma = sig
+        for name, parameter, sig in zip(l_name, l_param, sigma):
+            atom_site_susceptibility.set_variable_by_name(name, parameter)
+            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
+            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
         chi_iso_f = chi_iso_ferro
         chi_iso_af = chi_iso_antiferro
-        
+
+    if chi_iso_f < 0.:
+        chi_iso_f = 0.
+    if chi_iso_af > 0.:
+        chi_iso_af = 0.
+    for diffrn in l_diffrn:
+        # FIXME: not sure that input parameters should be modified
+        diffrn.diffrn_refln.numpy_to_items()
+
     return chi_iso_f, chi_iso_af
 
 
 def func_temp(*argv):
+    """Show data at optimization procedure."""
     l_param = argv[0]
-    s_out = " ".join([f"{_:10.5f}" for _ in l_param]) 
+    s_out = " ".join([f"{_:10.5f}" for _ in l_param])
     print(f"{s_out:}", end="\r")
 
 
-def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn], 
-               chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0., 
+def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
+               chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
                flag_ferro: bool = True, flag_antiferro: bool = True,
                disp: bool = True,
-               points_a: int = 48, points_b: int = 48, points_c: int = 48, 
+               points_a: int = 48, points_b: int = 48, points_c: int = 48,
                prior_density: str = "uniform",
                c_lambda: float = 1e-6, n_mem: int = 51, n_cycle: int = 10):
+    """Rho - Chi cycle."""
     chi_iso_ferro_new, chi_iso_antiferro_new = chi_iso_ferro, chi_iso_antiferro
-    atom_site_susceptibility = crystal.atom_site_susceptibility
-    l_var = atom_site_susceptibility.get_variables()
+    # atom_site_susceptibility = crystal.atom_site_susceptibility
+    # l_var = atom_site_susceptibility.get_variables()
     chi_iso_ferro_new = float(chi_iso_ferro)
     chi_iso_antiferro_new = float(chi_iso_antiferro)
     for i_cycle in range(n_cycle):
-        print(f"Cycle {(i_cycle+1):4}. Entropy maximization                      ",
+        print(f"Cycle {(i_cycle+1):4}. Entropy maximization                  ",
               end="\r")
-        density_point = maximize_entropy(crystal, l_diffrn, c_lambda, n_mem,
-            chi_iso_ferro=chi_iso_ferro_new, 
+        density_point = maximize_entropy(
+            crystal, l_diffrn, c_lambda, n_mem,
+            chi_iso_ferro=chi_iso_ferro_new,
             chi_iso_antiferro=chi_iso_antiferro_new,
-            n_x=points_a, n_y=points_b, n_z=points_c, 
+            n_x=points_a, n_y=points_b, n_z=points_c,
             prior_density=prior_density, disp=disp)
-        print(f"Cycle {(i_cycle+1):4}. Chi refinement                            ",
+        print(f"Cycle {(i_cycle+1):4}. Chi refinement                        ",
               end="\r")
-        chi_iso_ferro_new, chi_iso_antiferro_new= refine_susceptibility(
-            crystal, l_diffrn, density_point, chi_iso_ferro=chi_iso_ferro_new, 
-            chi_iso_antiferro=chi_iso_antiferro_new, 
-            flag_ferro=flag_ferro,flag_antiferro=flag_antiferro,
+        chi_iso_ferro_new, chi_iso_antiferro_new = refine_susceptibility(
+            crystal, l_diffrn, density_point, chi_iso_ferro=chi_iso_ferro_new,
+            chi_iso_antiferro=chi_iso_antiferro_new,
+            flag_ferro=flag_ferro, flag_antiferro=flag_antiferro,
             disp=disp)
     return density_point, chi_iso_ferro_new, chi_iso_antiferro_new

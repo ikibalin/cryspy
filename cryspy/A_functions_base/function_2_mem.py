@@ -242,13 +242,14 @@ def calc_fm_3d_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d):
     m_2d_1, m_2d_2, m_2d_3 = moment_2d
 
     # [ind, symm]
-    t_2d_1, t_2d_2, t_2d_3 = m_rho[:, newaxis] * m_2d_1, m_rho[:, newaxis] * \
-        m_2d_2, m_rho[:, newaxis] * m_2d_3
+    t_2d_1, t_2d_2, t_2d_3 = m_rho[:, numpy.newaxis] * \
+        m_2d_1, m_rho[:, numpy.newaxis] * m_2d_2, m_rho[:, numpy.newaxis] * \
+        m_2d_3
 
     # [hkl, ind, symm]
-    f_hkl_3d_1 = t_2d_1[newaxis, :, :] * phase_3d[:, :, :]
-    f_hkl_3d_2 = t_2d_2[newaxis, :, :] * phase_3d[:, :, :]
-    f_hkl_3d_3 = t_2d_3[newaxis, :, :] * phase_3d[:, :, :]
+    f_hkl_3d_1 = t_2d_1[numpy.newaxis, :, :] * phase_3d[:, :, :]
+    f_hkl_3d_2 = t_2d_2[numpy.newaxis, :, :] * phase_3d[:, :, :]
+    f_hkl_3d_3 = t_2d_3[numpy.newaxis, :, :] * phase_3d[:, :, :]
     return f_hkl_3d_1, f_hkl_3d_2, f_hkl_3d_3
 
 

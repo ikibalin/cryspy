@@ -34,6 +34,10 @@ class Texture(ItemN):
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
 
+    # formats if cif format
+    D_FORMATS = {'g_1': "{:.5f}", 'g_2': "{:.5f}", 'h_ax': "{:.3f}",
+                 'k_ax': "{:.3f}", 'l_ax': "{:.3f}"}
+
     # constraints on the parameters
     D_CONSTRAINTS = {}
 

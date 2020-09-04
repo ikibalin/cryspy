@@ -104,7 +104,6 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_1_cell import Cell, CellL
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, \
     AtomSiteL
@@ -117,20 +116,15 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibility, AtomSiteSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
     AtomTypeScat, AtomTypeScatL
-from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
-    AtomSiteScat, AtomSiteScatL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
     ReflnSusceptibility, ReflnSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
     AtomLocalAxes, AtomLocalAxesL
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfiguration, AtomElectronConfigurationL
-
 from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation, DiffrnRadiationL
-from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
-    DiffrnOrientMatrix, DiffrnOrientMatrixL
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
     DiffrnReflnL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
@@ -164,6 +158,15 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
 from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
 from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
     Pd2dPeakL
+from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
+    MEMParameters, MEMParametersL
+
+from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
+    AtomSiteScat, AtomSiteScatL
+from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
+    DiffrnOrientMatrix, DiffrnOrientMatrixL
+
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
