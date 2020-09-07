@@ -17,7 +17,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                      c_lambda: float = 1e-7, n_cycle: int = 10000,
                      chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
                      n_x: int = 48, n_y: int = 48, n_z: int = 48,
-                     prior_density: str = "uniform", disp: bool = True) -> \
+                     prior_density: str = "uniform",
+                     flag_two_channel: bool = False, disp: bool = True) -> \
         DensityPointL:
     """
     Collins algroritm.
@@ -44,6 +45,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         DESCRIPTION. The default is 48.
     prior_density: str, optional
         Choose of prior density: "core" or "uniform". The default is "uniform".
+    flag_two_channel: bool, optional
+        DESCRIPTION. The default is False.
     disp : bool, optional
         DESCRIPTION. The default is True.
 

@@ -58,7 +58,7 @@ class AtomSite(ItemN):
     ATTR_INT_PROTECTED_NAMES = ("space_group_wyckoff", "constr_number")
 
     # parameters considered are refined parameters
-    ATTR_REF = ("fract_x", "fract_y", "fract_z", "u_iso_or_equiv",
+    ATTR_REF = ("fract_x", "fract_y", "fract_z", "occupancy", "u_iso_or_equiv",
                 "u_equiv_geom_mean", "b_iso_or_equiv")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
