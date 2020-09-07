@@ -20,28 +20,9 @@ class PdPeak(ItemN):
     processed diffractogram and thus corrections for position
     and intensity will have been previously applied.
 
-
-    Mandatory attributes:
-        - ub_11, ub_12, ub_13, ub_21, ub_22, ub_23, ub_31, ub_32, ub_33
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    Attributes:
+        - index_h, index_k, index_l (mandatory)
+        - index_mult, ttheta, intensity_up, intensity_down, width_ttheta
     """
     ATTR_MANDATORY_NAMES = ("index_h", "index_k", "index_l")
     ATTR_MANDATORY_TYPES = (int, int, int)
@@ -111,6 +92,10 @@ class PdPeakL(LoopN):
     Note that peak positions are customarily determined from the
     processed diffractogram and thus corrections for position
     and intensity will have been previously applied.
+
+    Attributes:
+        - index_h, index_k, index_l (mandatory)
+        - index_mult, ttheta, intensity_up, intensity_down, width_ttheta
 
     """
     ITEM_CLASS = PdPeak
