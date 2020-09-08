@@ -153,8 +153,7 @@ class MEM(GlobalN):
             moment_2d, chi_2d_ferro, chi_2d_antiferro = \
                 density_point.calc_moment_2d(
                     space_group_symop, cell, atom_site_susceptibility, h_loc,
-                    chi_iso_ferro=1.,
-                    chi_iso_antiferro=1.)
+                    chi_iso_ferro=1., chi_iso_antiferro=1.)
 
             chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, n_points,
                                            volume, chi_2d_ferro, phase_3d)

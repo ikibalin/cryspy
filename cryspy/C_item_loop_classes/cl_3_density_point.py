@@ -317,8 +317,10 @@ class DensityPointL(LoopN):
             label_a = str(structured_atom["label"])
             flag_atom = numpy_basin_atom_label == label_a
             sum_m_i_basin = (numpy_multiplicity[flag_atom]).sum()
-            den_i = float(n_u_c * mult_a) / float(sum_m_i_basin * volume_u_c)
-            numpy_density[flag_atom] = den_i
+            if sum_m_i_basin != 0:  # Case of two atoms in the same position
+                den_i = float(n_u_c * mult_a) / float(sum_m_i_basin *
+                                                      volume_u_c)
+                numpy_density[flag_atom] = den_i
 
         self.numpy_density = numpy_density
 
@@ -330,7 +332,7 @@ class DensityPointL(LoopN):
 
         numpy_multiplicity = self.numpy_multiplicity
         sum_m_i_back = numpy_multiplicity[flag_background].sum()
-
+        
         den_i = float(n_u_c * 1.) / float(sum_m_i_back * volume_u_c)
         numpy_density_ferro = numpy.zeros(self.numpy_index_x.shape)
         numpy_density_ferro[flag_background] += den_i
