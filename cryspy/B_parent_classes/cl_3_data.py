@@ -303,11 +303,11 @@ class DataN(object):
             if not(item.is_defined()):
                 flag = False
                 if isinstance(item, ItemN):
-                    warn(f"Item {item.PREFIX:} is not fully described.",
+                    warn(f"{item.PREFIX:} is not fully described.",
                          UserWarning)
                     break
                 elif isinstance(item, LoopN):
-                    warn(f"Item {item.ITEM_CLASS.PREFIX:} is not fully described.",
+                    warn(f"{item.ITEM_CLASS.PREFIX:} is not fully described.",
                          UserWarning)
                     break
         if flag:
@@ -325,8 +325,7 @@ class DataN(object):
         pass
 
     def to_cif(self, separator="_") -> str:
-        """
-        Print information about object in string in STAR format.
+        """Print information about object in string in STAR format.
 
         Arguments
         ---------
@@ -419,3 +418,10 @@ class DataN(object):
         obj = cls.from_cif(str_from_cif)
         obj.file_input = f_name
         return obj
+
+    def copy(self, data_name: str = ""):
+        """Deep copy of object with new data name."""
+        s_cif = self.to_cif()
+        obj_new = type(self).from_cif(s_cif)
+        obj_new.data_name = data_name
+        return obj_new
