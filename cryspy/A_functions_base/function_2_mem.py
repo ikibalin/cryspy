@@ -293,4 +293,3 @@ def calc_fm_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d):
     f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3 = \
         f_hkl_2d_1.sum(axis=1), f_hkl_2d_2.sum(axis=1), f_hkl_2d_3.sum(axis=1)
     return f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3
-

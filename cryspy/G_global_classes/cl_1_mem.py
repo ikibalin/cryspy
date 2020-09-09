@@ -92,6 +92,7 @@ class MEM(GlobalN):
         points_a = mem_parameters.points_a
         points_b = mem_parameters.points_b
         points_c = mem_parameters.points_c
+        flag_two_channel = mem_parameters.method == "2channel"
 
         l_magnetic_labes = atom_site_susceptibility.label
         density_point = DensityPointL()
@@ -105,7 +106,8 @@ class MEM(GlobalN):
             density_point.create_flat_density(
                 space_group_symop, cell, atom_site,
                 l_magnetic_labes=l_magnetic_labes, points_a=points_a,
-                points_b=points_b, points_c=points_c)
+                points_b=points_b, points_c=points_c,
+                flag_two_channel=flag_two_channel)
         self.add_items([density_point])
 
     def calc_fr(self):
@@ -116,6 +118,8 @@ class MEM(GlobalN):
         mem_parameters = self.mem_parameters
         chi_iso_ferro = mem_parameters.chi_ferro
         chi_iso_antiferro = mem_parameters.chi_antiferro
+
+        flag_two_channel = mem_parameters.method == "2channel"
 
         cell = crystal.cell
         space_group = crystal.space_group
@@ -153,7 +157,8 @@ class MEM(GlobalN):
             moment_2d, chi_2d_ferro, chi_2d_antiferro = \
                 density_point.calc_moment_2d(
                     space_group_symop, cell, atom_site_susceptibility, h_loc,
-                    chi_iso_ferro=1., chi_iso_antiferro=1.)
+                    chi_iso_ferro=1., chi_iso_antiferro=1.,
+                    flag_two_channel=flag_two_channel)
 
             chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, n_points,
                                            volume, chi_2d_ferro, phase_3d)
@@ -200,15 +205,17 @@ class MEM(GlobalN):
         points_b = mem_parameters.points_b
         points_c = mem_parameters.points_c
         prior_density = mem_parameters.prior_density
+        flag_two_channel = mem_parameters.method == "2channel"
 
         c_lambda = 1e-7
-        n_cycle = 300
+        n_cycle = 3000
 
         density_point = maximize_entropy(
             crystal, l_diffrn, c_lambda=c_lambda, n_cycle=n_cycle,
             chi_iso_ferro=chi_iso_ferro, chi_iso_antiferro=chi_iso_antiferro,
             n_x=points_a, n_y=points_b, n_z=points_c,
-            prior_density=prior_density, disp=disp)
+            prior_density=prior_density, disp=disp,
+            flag_two_channel=flag_two_channel)
 
         self.add_items([density_point])
 

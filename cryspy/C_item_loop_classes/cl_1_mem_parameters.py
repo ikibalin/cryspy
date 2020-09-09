@@ -10,15 +10,15 @@ class MEMParameters(ItemN):
 
     Attributes
     ----------
-        - ferro:  positive
-        - antiferro: negative
+        - points_a, points_b, points_c, chi_ferro (mandatory)
+        - chi_antiferro, prior_density, method (mandatory)
     """
 
     ATTR_MANDATORY_NAMES = ("points_a", "points_b", "points_c", "chi_ferro",
-                            "chi_antiferro", "prior_density")
-    ATTR_MANDATORY_TYPES = (int, int, int, float, float, str)
+                            "chi_antiferro", "prior_density", "method")
+    ATTR_MANDATORY_TYPES = (int, int, int, float, float, str, str)
     ATTR_MANDATORY_CIF = ("points_a", "points_b", "points_c", "chi_ferro",
-                          "chi_antiferro", "prior_density")
+                          "chi_antiferro", "prior_density", "method")
 
     ATTR_OPTIONAL_NAMES = ()
     ATTR_OPTIONAL_TYPES = ()
@@ -41,12 +41,13 @@ class MEMParameters(ItemN):
     D_FORMATS = {'chi_ferro': "{:.5f}", 'chi_antiferro': "{:.5f}"}
 
     # constraints on the parameters
-    D_CONSTRAINTS = {"prior_density": ["core", "uniform"]}
+    D_CONSTRAINTS = {"prior_density": ["core", "uniform"],
+                     "method": ["tensorMEM", "2channel"]}
 
     # default values for the parameters
     D_DEFAULT = {"points_a": 48, "points_b": 48, "points_c": 48,
                  "chi_ferro": 0., "chi_antiferro": 0.,
-                 "prior_density": "uniform"}
+                 "prior_density": "uniform", "method": "tensorMEM"}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):

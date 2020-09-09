@@ -299,7 +299,8 @@ class DensityPointL(LoopN):
         self.numpy_basin_atom_symop = numpy_basin_atom_symop
         self.numpy_basin_atom_distance = numpy_basin_atom_distance
 
-    def set_flat_density(self, l_magnetic_labes: list):
+    def set_flat_density(self, l_magnetic_labes: list,
+                         flag_two_channel: bool = False):
         r"""
         Define starting density as flat density by expression.
 
@@ -329,10 +330,12 @@ class DensityPointL(LoopN):
             numpy.newaxis, :]
         flag_atom = numpy.any(flag_2d, axis=1)
         flag_background = numpy.logical_not(flag_atom)
+        if flag_two_channel:
+            flag_background = numpy.ones(flag_background.shape, bool)
 
         numpy_multiplicity = self.numpy_multiplicity
+
         sum_m_i_back = numpy_multiplicity[flag_background].sum()
-        
         den_i = float(n_u_c * 1.) / float(sum_m_i_back * volume_u_c)
         numpy_density_ferro = numpy.zeros(self.numpy_index_x.shape)
         numpy_density_ferro[flag_background] += den_i
@@ -421,7 +424,8 @@ class DensityPointL(LoopN):
     def create_flat_density(self, space_group_symop: SpaceGroupSymopL,
                             cell: Cell, atom_site: AtomSiteL,
                             l_magnetic_labes: list, points_a: int = 48,
-                            points_b: int = 48, points_c: int = 48):
+                            points_b: int = 48, points_c: int = 48,
+                            flag_two_channel: bool = False):
         r"""Define starting density as flat density by expression.
 
         p_{i} = \frac{N_{points} \Sum_{a} m_{a}} {V_{u.c.} \Sum_{i} m_{i}}
@@ -434,7 +438,8 @@ class DensityPointL(LoopN):
             space_group_symop, cell, atom_site, points_a=points_a,
             points_b=points_b, points_c=points_c)
 
-        self.set_flat_density(l_magnetic_labes)
+        self.set_flat_density(l_magnetic_labes,
+                              flag_two_channel=flag_two_channel)
 
     def create_core_density(
             self, space_group_symop: SpaceGroupSymopL, cell: Cell,
@@ -831,7 +836,8 @@ class DensityPointL(LoopN):
     def calc_moment_2d(self, space_group_symop: SpaceGroupSymopL, cell: Cell,
                        atom_site_susceptibility: AtomSiteSusceptibilityL,
                        h_loc, chi_iso_ferro: float = 0.,
-                       chi_iso_antiferro: float = 0.):
+                       chi_iso_antiferro: float = 0.,
+                       flag_two_channel: bool = False):
         """Calculate moments over points and symmetry elements.
 
         Parameters
@@ -882,14 +888,20 @@ class DensityPointL(LoopN):
 
         r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
 
-        s_11, s_22, s_33, s_12, s_13, s_23 = self.calc_susc_i(
-            atom_site_susceptibility)
+        if not(flag_two_channel):
+            s_11, s_22, s_33, s_12, s_13, s_23 = self.calc_susc_i(
+                atom_site_susceptibility)
 
-        susc_i = (0.2695*s_11, 0.2695*s_22, 0.2695*s_33,
-                  0.2695*s_12, 0.2695*s_13, 0.2695*s_23)
+            susc_i = (0.2695*s_11, 0.2695*s_22, 0.2695*s_33,
+                      0.2695*s_12, 0.2695*s_13, 0.2695*s_23)
 
-        moment_2d = calc_moment_2d_by_susceptibility(r_ij, susc_i, m_norm_ij,
-                                                     h_loc)
+            moment_2d = calc_moment_2d_by_susceptibility(
+                r_ij, susc_i, m_norm_ij, h_loc)
+        else:
+            moment_2d = (
+                numpy.zeros(shape=(self.numpy_index_x.size, r_ij[0].size)),
+                numpy.zeros(shape=(self.numpy_index_x.size, r_ij[0].size)),
+                numpy.zeros(shape=(self.numpy_index_x.size, r_ij[0].size)))
 
         moment_ferro = (0.2695*chi_iso_ferro*h_loc[0]*numpy.ones(
                             shape=(self.numpy_index_x.size, r_ij[0].size)),
@@ -909,7 +921,8 @@ class DensityPointL(LoopN):
     def calc_factor_in_front_of_density_for_fm(
             self, hkl, space_group_symop: SpaceGroupSymopL, cell: Cell,
             atom_site_susceptibility: AtomSiteSusceptibilityL, h_loc,
-            chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.):
+            chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
+            flag_two_channel: bool = False):
         """Calculate factor in front of density for FM.
 
         Parameters
@@ -946,7 +959,8 @@ class DensityPointL(LoopN):
             self.calc_moment_2d(space_group_symop, cell,
                                 atom_site_susceptibility, h_loc,
                                 chi_iso_ferro=chi_iso_ferro,
-                                chi_iso_antiferro=chi_iso_antiferro)
+                                chi_iso_antiferro=chi_iso_antiferro,
+                                flag_two_channel=flag_two_channel)
         phase_3d = self.calc_phase_3d(hkl, space_group_symop)
         v_hkl_2d_i = \
             calc_factor_in_front_of_density_for_fm(mult_i, np, volume,
@@ -964,7 +978,8 @@ class DensityPointL(LoopN):
     def calc_factor_in_front_of_density_for_fm_perp(
             self, hkl, space_group_symop: SpaceGroupSymopL, cell: Cell,
             atom_site_susceptibility: AtomSiteSusceptibilityL, h_loc,
-            chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.):
+            chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
+            flag_two_channel: bool = False):
         """Calculate factor in front of density for FM_perp.
 
         Arguments
@@ -977,7 +992,8 @@ class DensityPointL(LoopN):
             self.calc_factor_in_front_of_density_for_fm(
                 hkl, space_group_symop, cell, atom_site_susceptibility, h_loc,
                 chi_iso_ferro=chi_iso_ferro,
-                chi_iso_antiferro=chi_iso_antiferro)
+                chi_iso_antiferro=chi_iso_antiferro,
+                flag_two_channel=flag_two_channel)
 
         k_hkl_1, k_hkl_2, k_hkl_3 = cell.calc_k_loc(*hkl)
         v_hkl_perp_2d_i = calc_moment_perp((k_hkl_1[:, numpy.newaxis],
@@ -1031,7 +1047,7 @@ class DensityPointL(LoopN):
 
         return numpy_atoms, m_b_ferro, m_b_aferro
 
-    def renormalize_numpy_densities(self):
+    def renormalize_numpy_densities(self, flag_two_channel: bool = False):
         """
         Renormalize numpy densitites.
 
@@ -1042,7 +1058,6 @@ class DensityPointL(LoopN):
         numpy_multiplicity = self.numpy_multiplicity
         volume_unit_cell = self.volume_unit_cell
         number_unit_cell = self.number_unit_cell
-        numpy_structured_atom = self.numpy_structured_atom
         coeff = volume_unit_cell/float(number_unit_cell)
         m_b_ferro = (numpy_density_ferro*numpy_multiplicity).sum()*coeff
         m_b_aferro = (numpy_density_antiferro*numpy_multiplicity).sum()*coeff
@@ -1050,19 +1065,23 @@ class DensityPointL(LoopN):
         numpy_density_ferro /= m_b_ferro
         numpy_density_antiferro /= m_b_aferro
 
-        numpy_density = self.numpy_density
-        numpy_basin_atom_label = self.numpy_basin_atom_label
+        if not(flag_two_channel):
+            numpy_structured_atom = self.numpy_structured_atom
 
-        for structured_atom in numpy_structured_atom:
-            atom_label = structured_atom["label"]
-            mult_a = structured_atom["multiplicity"]
-            f_at = (numpy_basin_atom_label == atom_label)
-            m_at = (numpy_density[f_at]*numpy_multiplicity[f_at]).sum()*coeff
-            if m_at == 0.:
-                numpy_density[f_at] = float(mult_a)/(
-                    coeff*float((numpy_multiplicity[f_at]).sum()))
-                m_at = float(mult_a)
-            numpy_density[f_at] *= float(mult_a)/float(m_at)
+            numpy_density = self.numpy_density
+            numpy_basin_atom_label = self.numpy_basin_atom_label
+
+            for structured_atom in numpy_structured_atom:
+                atom_label = structured_atom["label"]
+                mult_a = structured_atom["multiplicity"]
+                f_at = (numpy_basin_atom_label == atom_label)
+                m_at = (numpy_density[f_at]*numpy_multiplicity[f_at]).sum() * \
+                    coeff
+                if m_at == 0.:
+                    numpy_density[f_at] = float(mult_a)/(
+                        coeff*float((numpy_multiplicity[f_at]).sum()))
+                    m_at = float(mult_a)
+                numpy_density[f_at] *= float(mult_a)/float(m_at)
 
 # s_cont = """
 #   loop_Ho1

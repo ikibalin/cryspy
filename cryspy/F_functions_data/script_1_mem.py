@@ -74,7 +74,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         density_point.create_flat_density(
             space_group_symop, cell, atom_site,
             l_magnetic_labes=l_magnetic_labes, points_a=n_x, points_b=n_y,
-            points_c=n_z)
+            points_c=n_z, flag_two_channel=flag_two_channel)
 
     l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s = [], [], [], []
     total_peaks = 0
@@ -96,7 +96,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             density_point.calc_factor_in_front_of_density_for_fm_perp(
                 hkl, space_group_symop, cell, atom_site_susceptibility, h_loc,
                 chi_iso_ferro=chi_iso_ferro,
-                chi_iso_antiferro=chi_iso_antiferro)
+                chi_iso_antiferro=chi_iso_antiferro,
+                flag_two_channel=flag_two_channel)
         f_nucl = crystal.calc_f_nucl(*hkl)
         l_f_nucl.append(f_nucl)
         l_v_2d_i.append((v_hkl_perp_2d_i, v_b_ferro, v_b_antiferro))
@@ -164,16 +165,19 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         chi_sq_diff_prev = chi_sq_diff
         chi_sq_prev = chi_sq
 
-        numpy_density_new = numpy_density*numpy.exp(-c_lambda*delta_chi_sq)
+        if not(flag_two_channel):
+            numpy_density_new = numpy_density*numpy.exp(-c_lambda*delta_chi_sq)
+            density_point.numpy_density = numpy_density_new
+
         numpy_density_ferro_new = \
             numpy_density_ferro*numpy.exp(-c_lambda*delta_chi_sq_f)
         numpy_density_antiferro_new = \
             numpy_density_antiferro*numpy.exp(-c_lambda*delta_chi_sq_a)
 
-        density_point.numpy_density = numpy_density_new
         density_point.numpy_density_ferro = numpy_density_ferro_new
         density_point.numpy_density_antiferro = numpy_density_antiferro_new
-        density_point.renormalize_numpy_densities()
+        density_point.renormalize_numpy_densities(
+            flag_two_channel=flag_two_channel)
         if chi_sq_n < 1.:
             print(f"at cycle {i_cycle:5} chi_sq/n is less than 1.", end="\r")
             break
