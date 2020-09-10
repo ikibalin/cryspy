@@ -87,6 +87,16 @@ class PdMeas(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    def apply_constraints(self):
+        """Apply constraints."""
+        keys = self.__dict__.keys()
+        if (("intensity_up" in keys) & ("intensity_up_sigma" not in keys)):
+            self.intensity_up_sigma = (self.intensity_up)**0.5
+        if (("intensity_down" in keys) & ("intensity_down_sigma" not in keys)):
+            self.intensity_down_sigma = (self.intensity_down)**0.5
+        if (("intensity" in keys) & ("intensity_sigma" not in keys)):
+            self.intensity_sigma = (self.intensity)**0.5
+
 
 class PdMeasL(LoopN):
     """
@@ -112,6 +122,7 @@ class PdMeasL(LoopN):
     should be recorded using _pd_meas_intensity_.
 
     """
+
     ITEM_CLASS = PdMeas
     ATTR_INDEX = "ttheta"
     def __init__(self, loop_name = None) -> NoReturn:
@@ -134,6 +145,9 @@ class PdMeasL(LoopN):
                 flag = True
         return flag
 
+    def apply_constraints(self):
+        for item in self.items:
+            item.apply_constraints()
 
 # s_cont = """
 #  loop_

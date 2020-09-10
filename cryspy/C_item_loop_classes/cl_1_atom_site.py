@@ -130,12 +130,14 @@ class AtomSite(ItemN):
 
 
     def define_space_group_wyckoff(self, space_group_wyckoff_l) -> bool:
+        """Define space group by Wyckoff."""
         fract_x, fract_y, fract_z = self.fract_x, self.fract_y, self.fract_z
         x, y, z = float(fract_x), float(fract_y), float(fract_z)
         _id = space_group_wyckoff_l.get_id_for_fract(x, y, z)
         self.__dict__["space_group_wyckoff"] = space_group_wyckoff_l[_id]
 
-    def apply_constraint(self, space_group_wyckoff_l) -> bool:
+    def apply_constraints(self, space_group_wyckoff_l) -> bool:
+        """Apply constraints."""
         space_group_wyckoff = self.space_group_wyckoff
         if space_group_wyckoff is None:
             self.define_space_group_wyckoff(space_group_wyckoff_l)
@@ -238,10 +240,9 @@ class AtomSiteL(LoopN):
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
 
-    def apply_constraint(self, space_group_wyckoff_l) -> bool:
-        flag = all([item.apply_constraint(space_group_wyckoff_l) 
-                    for item in self.items])
-        return flag
+    def apply_constraints(self, space_group_wyckoff_l) -> bool:
+        for item in self.items:
+            item.apply_constraints(space_group_wyckoff_l)
 
     def calc_constr_number(self, space_group):
         l_numb = [item.calc_constr_number(space_group) for item in self.items]

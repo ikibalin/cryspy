@@ -696,6 +696,10 @@ class Pd(DataN):
         ls_out.extend([_.to_cif(separator=separator)+"\n" for _ in l_loopn])
         return "\n".join(ls_out)
 
+    def apply_constraints(self):
+        """Apply constraints."""
+        if self.pd_meas is not None:
+            self.pd_meas.apply_constraints()
 
 # s_cont = """
 #  data_pnd

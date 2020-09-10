@@ -73,8 +73,7 @@ class RhoChi(GlobalN):
     def apply_constraint(self):
         """Apply constraints."""
         for item in self.items:
-            if isinstance(item, Crystal):
-                item.apply_constraint()
+            item.apply_constraints()
 
     def experiments(self):
         """List of expreiments."""

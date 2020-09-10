@@ -96,9 +96,9 @@ class Crystal(DataN):
 
     def form_object(self) -> NoReturn:
         """Redefined method of DataN."""
-        self.apply_constraint()
+        self.apply_constraints()
 
-    def apply_constraint(self) -> NoReturn:
+    def apply_constraints(self) -> NoReturn:
         """
         Symmetry constraints on parameters.
 
@@ -117,7 +117,7 @@ class Crystal(DataN):
         cell.apply_constraints()
 
         atom_site = self.atom_site
-        atom_site.apply_constraint(space_group_wyckoff)
+        atom_site.apply_constraints(space_group_wyckoff)
         atom_site_aniso = self.atom_site_aniso
         if atom_site_aniso is not None:
             atom_site_aniso.apply_space_group_constraint(atom_site,
@@ -847,6 +847,6 @@ class Crystal(DataN):
 #     print(var_name)
 #     obj.set_variable_by_name(var_name, 7)
 # print(obj.atom_site_susceptibility)
-# obj.apply_constraint()
+# obj.apply_constraints()
 # print(obj.atom_site_susceptibility)
 # print(obj.report_main_axes_of_magnetization_ellipsoids())

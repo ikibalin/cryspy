@@ -632,6 +632,9 @@ class Diffrn(DataN):
                                  ('f_mag_sigma', '<f8')])
         return res
 
+    def apply_constraints(self):
+        """Apply constraints."""
+        pass
 
 # s_cont = """
 #  data_mono
