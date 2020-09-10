@@ -5,20 +5,27 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class MEMParameters(ItemN):
-    """
-    Description of MEMParameters.
+    """Description of MEMParameters.
 
     Attributes
     ----------
         - points_a, points_b, points_c, chi_ferro (mandatory)
         - chi_antiferro, prior_density, method (mandatory)
+        - gof_desired (mandatory)
+
+    Accessible Values
+    -----------------
+        method is "2channel" (default) or "tensorMEM"
+        prior_density is "uniform" (default) or "core"
     """
 
     ATTR_MANDATORY_NAMES = ("points_a", "points_b", "points_c", "chi_ferro",
-                            "chi_antiferro", "prior_density", "method")
-    ATTR_MANDATORY_TYPES = (int, int, int, float, float, str, str)
+                            "chi_antiferro", "prior_density", "method",
+                            "gof_desired")
+    ATTR_MANDATORY_TYPES = (int, int, int, float, float, str, str, float)
     ATTR_MANDATORY_CIF = ("points_a", "points_b", "points_c", "chi_ferro",
-                          "chi_antiferro", "prior_density", "method")
+                          "chi_antiferro", "prior_density", "method",
+                          "GoF_desired")
 
     ATTR_OPTIONAL_NAMES = ()
     ATTR_OPTIONAL_TYPES = ()
@@ -38,7 +45,8 @@ class MEMParameters(ItemN):
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {'chi_ferro': "{:.5f}", 'chi_antiferro': "{:.5f}"}
+    D_FORMATS = {'chi_ferro': "{:.5f}", 'chi_antiferro': "{:.5f}",
+                 'gof_desired': "{:.2f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"prior_density": ["core", "uniform"],
@@ -47,7 +55,8 @@ class MEMParameters(ItemN):
     # default values for the parameters
     D_DEFAULT = {"points_a": 48, "points_b": 48, "points_c": 48,
                  "chi_ferro": 0., "chi_antiferro": 0.,
-                 "prior_density": "uniform", "method": "tensorMEM"}
+                 "prior_density": "uniform", "method": "2channel",
+                 "gof_desired": 1.}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
@@ -59,7 +68,8 @@ class MEMParameters(ItemN):
         super(MEMParameters, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"points_a": 0, "points_b": 0, "points_c": 0, "chi_ferro": 0.}
+        D_MIN = {"points_a": 0, "points_b": 0, "points_c": 0, "chi_ferro": 0.,
+                 "gof_desired": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {"chi_antiferro": 0}

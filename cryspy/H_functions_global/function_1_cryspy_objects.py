@@ -248,6 +248,7 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
         flag_mand = all([items_cif.is_value(name) for name in l_cls_mand_cif])
         flag_any = any([items_cif.is_value(name) for name in l_cls_all_cif])
 
+
         item_obj = None
         if flag_mand:
             items_small = items_cif.items_with_prefix(f"_{prefix:}")
@@ -259,8 +260,8 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
 
         if item_obj is not None:
             l_item.append(item_obj)
-            l_name_cif_remove = [name for name in l_cls_all_cif
-                                 if l_name_cif.count(name)]
+            l_name_cif_remove = [name.lower() for name in l_cls_all_cif
+                                 if bool(l_name_cif.count(name.lower()))]
             for name in l_name_cif_remove:
                 l_name_cif.remove(name)
 
@@ -270,7 +271,7 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
                             for name in l_name_cif]
         else:
             l_prefix_cif = find_prefixes(l_name_cif)
-        print("l_prefix_cif", l_prefix_cif)
+
         for prefix in l_prefix_cif:
             items_small = items_cif.items_with_prefix(f"_{prefix:}")
             item_obj = ItemN.from_cif(str(items_small))

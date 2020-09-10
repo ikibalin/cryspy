@@ -1,34 +1,29 @@
-import numpy
+"""RefineLs and RefineLsL classes."""
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class RefineLs(ItemN):
-    """
+    """RefineLs class.
+
     Data items in the REFINE_LS category record details about the
     structure-refinement parameters.
 
     By default the UB matrix are given in ccsl notation
 
     Attributes
-        - goodness_of_fit_all (mandatory)
-        - number_reflns (mandatory)
-        - number_parameters (mandatory)
-        - number_restraints
-        - number_constraints
+    ----------
+        - goodness_of_fit_all, number_reflns (mandatory)
+        - number_parameters, number_restraints, number_constraints
         - weighting_scheme
 
-    Internal attributes:
-        - 
-
-    Internal protected attributes:
-        - 
+    Accesible Values
+    ----------------
+        - weighting_scheme is "sigma" or "unit" or "calc"
     """
-    ATTR_MANDATORY_NAMES = ("goodness_of_fit_all","number_reflns")
+
+    ATTR_MANDATORY_NAMES = ("goodness_of_fit_all", "number_reflns")
     ATTR_MANDATORY_TYPES = (float, int)
     ATTR_MANDATORY_CIF = ("goodness_of_fit_all", "number_reflns")
 
@@ -85,15 +80,13 @@ class RefineLs(ItemN):
             setattr(self, key, attr)
 
 
-
 class RefineLsL(LoopN):
-    """
-    Description of AtomSite in loop.
+    """Description of RefineLsL class."""
 
-    """
     ITEM_CLASS = RefineLs
-    ATTR_INDEX = "id"
-    def __init__(self, loop_name = None) -> NoReturn:
+    ATTR_INDEX = None
+
+    def __init__(self, loop_name=None) -> NoReturn:
         super(RefineLsL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name

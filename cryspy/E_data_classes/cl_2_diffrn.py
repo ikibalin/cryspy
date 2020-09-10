@@ -111,13 +111,19 @@ class Diffrn(DataN):
             self._show_message("Crystal not found.\nThe first one is taken.")
             crystal = l_crystal[0]
             self.phase.label = crystal.label
-        wavelength = float(self.setup.wavelength)
-        field_z = float(self.setup.field)
+
+        setup = self.setup
+        wavelength = setup.wavelength
+        field_z = setup.field
+        ratio_lambdaover2 = setup.ratio_lambdaover2
+        flag_lambdaover2 = ratio_lambdaover2 is not None
+
         diffrn_radiation = self.diffrn_radiation
         extinction = self.extinction
-        orient_matrix = self.diffrn_orient_matrix
 
+        orient_matrix = self.diffrn_orient_matrix
         orientation = orient_matrix.u
+
         field_vec = numpy.array([0., 0., field_z], dtype=float)
 
         phi_d, chi_d, omega_d = 0., 0., 0.
@@ -200,6 +206,31 @@ class Diffrn(DataN):
         fm_sq = f_nucl_sq + mag_p_sq - fnp
         fpm_sq = mag_p_sq - mag_p_e_u_sq
 
+        if flag_lambdaover2:
+            index_2h = 2 * index_h
+            index_2k = 2 * index_k
+            index_2l = 2 * index_l
+            f_nucl_2hkl = crystal.calc_f_nucl(index_2h, index_2k, index_2l)
+            chi_m_2hkl = crystal.calc_susceptibility_moment_tensor(
+                index_2h, index_2k, index_2l)
+            mag_p_2hkl_1, mag_p_2hkl_2, mag_p_2hkl_3 = self.calc_fm_perp_loc(
+                index_2h, index_2k, index_2l, cell, *chi_m_2hkl)
+
+            mag_p_sq_2hkl = abs(mag_p_2hkl_1*mag_p_2hkl_1.conjugate() +
+                                mag_p_2hkl_2*mag_p_2hkl_2.conjugate() +
+                                mag_p_2hkl_3*mag_p_2hkl_3.conjugate())
+
+            mag_p_e_u_2hkl = mag_p_2hkl_1*e_u_loc[0]+mag_p_2hkl_2*e_u_loc[1] +\
+                mag_p_2hkl_3*e_u_loc[2]
+
+            f_nucl_sq_2hkl = abs(f_nucl_2hkl)**2
+            mag_p_e_u_sq_2hkl = abs(mag_p_e_u_2hkl*mag_p_e_u_2hkl.conjugate())
+            fnp_2hkl = (mag_p_e_u_2hkl*f_nucl_2hkl.conjugate() +
+                        mag_p_e_u_2hkl.conjugate()*f_nucl_2hkl).real
+            fp_sq_2hkl = f_nucl_sq_2hkl + mag_p_sq_2hkl + fnp_2hkl
+            fm_sq_2hkl = f_nucl_sq_2hkl + mag_p_sq_2hkl - fnp_2hkl
+            fpm_sq_2hkl = mag_p_sq_2hkl - mag_p_e_u_sq_2hkl
+
         # extinction correction
         if extinction is not None:
             yp = extinction.calc_extinction(cell, index_h, index_k, index_l,
@@ -208,10 +239,25 @@ class Diffrn(DataN):
                                             fm_sq, wavelength)
             ypm = extinction.calc_extinction(cell, index_h, index_k, index_l,
                                              fpm_sq, wavelength)
+            if flag_lambdaover2:
+                yp_2hkl = extinction.calc_extinction(
+                    cell, index_2h, index_2k, index_2l, fp_sq_2hkl,
+                    0.5*wavelength)
+                ym_2hkl = extinction.calc_extinction(
+                    cell, index_2h, index_2k, index_2l, fm_sq_2hkl,
+                    0.5*wavelength)
+                ypm_2hkl = extinction.calc_extinction(
+                    cell, index_2h, index_2k, index_2l, fpm_sq_2hkl,
+                    0.5*wavelength)
         else:
             yp = 1. + 0.*f_nucl_sq
             ym = yp
             ypm = yp
+            if flag_lambdaover2:
+                yp_2hkl = 1. + 0.*f_nucl_sq_2hkl
+                ym_2hkl = yp_2hkl
+                ypm_2hkl = yp_2hkl
+
         pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
         ppmin = 0.5*((1-p_d)*yp+(1+p_d)*ym)
         pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
@@ -222,6 +268,22 @@ class Diffrn(DataN):
         iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
 
         flip_ratio = iint_u/iint_d
+
+        if flag_lambdaover2:
+            pppl_2hkl = 0.5*((1+p_u)*yp_2hkl+(1-p_u)*ym_2hkl)
+            ppmin_2hkl = 0.5*((1-p_d)*yp_2hkl+(1+p_d)*ym_2hkl)
+            pmpl_2hkl = 0.5*((1+p_u)*yp_2hkl-(1-p_u)*ym_2hkl)
+            pmmin_2hkl = 0.5*((1-p_d)*yp_2hkl-(1+p_d)*ym_2hkl)
+
+            # integral intensities and flipping ratios
+            iint_u_2hkl = (f_nucl_sq_2hkl+mag_p_e_u_sq_2hkl)*pppl_2hkl + \
+                pmpl_2hkl*fnp_2hkl + ypm_2hkl*fpm_sq_2hkl
+            iint_d_2hkl = (f_nucl_sq_2hkl+mag_p_e_u_sq_2hkl)*ppmin_2hkl + \
+                pmmin_2hkl*fnp_2hkl + ypm_2hkl*fpm_sq_2hkl
+
+            flip_ratio = (iint_u+ratio_lambdaover2*iint_u_2hkl) / \
+                (iint_d+ratio_lambdaover2*iint_d_2hkl)
+
         """
         d_info_out = {"iint_u": iint_u, "iint_d": iint_d,
                       "flip_ratio": flip_ratio}
@@ -253,6 +315,8 @@ class Diffrn(DataN):
         f_m_perp [hkl]
         delta_f_nucl [hkl, parameters]
         delta_f_m_perp [hkl, parameters]
+
+        ratio_lambda/2 is not introduce  # FIXME
         """
         f_n_sq = (f_nucl * f_nucl.conjugate()).real
         f_m_p_x, f_m_p_y, f_m_p_z = f_m_perp

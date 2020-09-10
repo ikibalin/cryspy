@@ -4,20 +4,25 @@ from typing import List
 import numpy
 import scipy
 import scipy.optimize
+import copy
 
 from cryspy.A_functions_base.function_1_matrices import calc_chi_sq
 from cryspy.A_functions_base.function_2_mem import calc_moment_perp, \
     calc_fm_by_density
+
+from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
+
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
 
 def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
-                     c_lambda: float = 1e-7, n_cycle: int = 10000,
+                     c_lambda: float = 1e-7, n_iterations: int = 10000,
                      chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
-                     n_x: int = 48, n_y: int = 48, n_z: int = 48,
-                     prior_density: str = "uniform",
+                     points_a: int = 48, points_b: int = 48,
+                     points_c: int = 48, prior_density: str = "uniform",
+                     gof_desired: float = 1.,
                      flag_two_channel: bool = False, disp: bool = True) -> \
         DensityPointL:
     """
@@ -31,7 +36,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         DESCRIPTION.
     c_lambda : float, optional
         DESCRIPTION. The default is 1e-7.
-    n_cycle : int, optional
+    n_iterations : int, optional
         DESCRIPTION. The default is 10000.
     chi_iso_ferro : float, optional
         DESCRIPTION. The default is 0..
@@ -68,13 +73,14 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         atom_electron_configuration = crystal.atom_electron_configuration
         density_point.create_core_density(
             space_group_symop, cell, atom_site, atom_electron_configuration,
-            points_a=n_x, points_b=n_y, points_c=n_z)
+            points_a=points_a, points_b=points_b, points_c=points_c)
     else:
         print("The prior density is uniform.", end="\r")
         density_point.create_flat_density(
             space_group_symop, cell, atom_site,
-            l_magnetic_labes=l_magnetic_labes, points_a=n_x, points_b=n_y,
-            points_c=n_z, flag_two_channel=flag_two_channel)
+            l_magnetic_labes=l_magnetic_labes, points_a=points_a,
+            points_b=points_b, points_c=points_c,
+            flag_two_channel=flag_two_channel)
 
     l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s = [], [], [], []
     total_peaks = 0
@@ -134,57 +140,85 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         return sum(l_chi_sq), sum(l_der_chi_sq), sum(l_der_chi_sq_f), \
             sum(l_der_chi_sq_a)
 
-    chi_sq_diff_prev, chi_sq_diff = numpy.inf, numpy.inf
-    chi_sq_prev, flag = numpy.inf, False
+    chi_sq_best, chi_sq_n_diff = numpy.inf, numpy.inf
+    numpy_density_best, numpy_density_ferro_best = None, None
+    numpy_density_antiferro_best = None
+    delta_chi_sq_best, delta_chi_sq_f_best = None, None
+    delta_chi_sq_a_best = None
 
+    c_lambda_min = 1e-9  # min value
     i_cycle = 0
-    while i_cycle <= n_cycle:
+    while i_cycle <= n_iterations:
         i_cycle += 1
         numpy_density = density_point.numpy_density
         numpy_density_ferro = density_point.numpy_density_ferro
         numpy_density_antiferro = density_point.numpy_density_antiferro
         chi_sq, delta_chi_sq, delta_chi_sq_f, delta_chi_sq_a = temp_func()
-        chi_sq_diff = chi_sq_prev - chi_sq
+
+        chi_sq_n = chi_sq/float(total_peaks)
         if disp:
-            chi_sq_n = chi_sq/float(total_peaks)
-            print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f}",
+            print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}",
                   end="\r")
-        if chi_sq > chi_sq_prev:
-            if flag:
-                print("U...")
-                break
-            flag = True
+        if chi_sq > chi_sq_best:
+            numpy_density = numpy_density_best
+            numpy_density_ferro = numpy_density_ferro_best
+            numpy_density_antiferro = numpy_density_antiferro_best
+            delta_chi_sq = delta_chi_sq_best
+            delta_chi_sq_f = delta_chi_sq_f_best
+            delta_chi_sq_a = delta_chi_sq_a_best
+            c_lambda = 0.5*c_lambda
         else:
-            flag = False
-
-        if chi_sq_diff < chi_sq_diff_prev:  # FIXME: not sure about this
-            c_lambda = 1.01 * c_lambda
-        else:
-            c_lambda = 0.99 * c_lambda
-
-        chi_sq_diff_prev = chi_sq_diff
-        chi_sq_prev = chi_sq
+            chi_sq_n_diff = (chi_sq_best - chi_sq)/float(total_peaks)
+            chi_sq_best = chi_sq
+            c_lambda = 1.015*c_lambda
 
         if not(flag_two_channel):
-            numpy_density_new = numpy_density*numpy.exp(-c_lambda*delta_chi_sq)
-            density_point.numpy_density = numpy_density_new
+            numpy_density_best = copy.deepcopy(numpy_density)
+            delta_chi_sq_best = copy.deepcopy(delta_chi_sq)
+        numpy_density_ferro_best = copy.deepcopy(numpy_density_ferro)
+        numpy_density_antiferro_best = copy.deepcopy(numpy_density_antiferro)
+        delta_chi_sq_f_best = copy.deepcopy(delta_chi_sq_f)
+        delta_chi_sq_a_best = copy.deepcopy(delta_chi_sq_a)
 
-        numpy_density_ferro_new = \
+        if chi_sq_n < gof_desired:
+            print(f"OUT: cycle {i_cycle:5} chi_sq/n is less than {gof_desired:.2f}",
+                  end="\r")
+            break
+        elif c_lambda < c_lambda_min:
+            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f}.",
+                  end="\r")
+            if not(flag_two_channel):
+                density_point.numpy_density = numpy_density_best
+            density_point.numpy_density_ferro = numpy_density_ferro_best
+            density_point.numpy_density_antiferro = \
+                numpy_density_antiferro_best
+            density_point.renormalize_numpy_densities(
+                flag_two_channel=flag_two_channel)
+            break
+        elif chi_sq_n_diff < 0.001:
+            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff of GoF is less than 0.001.",
+                  end="\r")
+            break
+
+        if not(flag_two_channel):
+            density_point.numpy_density = numpy_density*numpy.exp(
+                -c_lambda*delta_chi_sq)
+
+        density_point.numpy_density_ferro = \
             numpy_density_ferro*numpy.exp(-c_lambda*delta_chi_sq_f)
-        numpy_density_antiferro_new = \
+        density_point.numpy_density_antiferro = \
             numpy_density_antiferro*numpy.exp(-c_lambda*delta_chi_sq_a)
 
-        density_point.numpy_density_ferro = numpy_density_ferro_new
-        density_point.numpy_density_antiferro = numpy_density_antiferro_new
         density_point.renormalize_numpy_densities(
             flag_two_channel=flag_two_channel)
-        if chi_sq_n < 1.:
-            print(f"at cycle {i_cycle:5} chi_sq/n is less than 1.", end="\r")
-            break
+
     density_point.numpy_to_items()
     for diffrn in l_diffrn:
-        # FIXME: not sure that input parameters should be modified
         diffrn.diffrn_refln.numpy_to_items()
+        chi_sq, points = diffrn.diffrn_refln.calc_chi_sq_points()
+        refine_ls = RefineLs(goodness_of_fit_all=chi_sq/points,
+                             number_reflns=points)
+        diffrn.add_items([refine_ls])
     return density_point
 
 
@@ -193,7 +227,8 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
                           chi_iso_ferro: float = 0.,
                           chi_iso_antiferro: float = 0.,
                           flag_ferro: bool = True, flag_antiferro: bool = True,
-                          disp: bool = True) -> (float, float):
+                          flag_two_channel: bool = False, disp: bool = True) \
+        -> (float, float):
     """
     Refinement of susceptibility.
 
@@ -263,8 +298,9 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
 
         moment_2d, chi_2d_ferro, chi_2d_antiferro = \
             density_point.calc_moment_2d(
-                space_group_symop, cell, atom_site_susceptibility, h_loc, 1.,
-                1.)
+                space_group_symop, cell, atom_site_susceptibility, h_loc,
+                chi_iso_ferro=1., chi_iso_antiferro=1.,
+                flag_two_channel=flag_two_channel)
 
         chi_ferro = calc_fm_by_density(mult_i, den_ferro_i, np, volume,
                                        chi_2d_ferro, phase_3d)
@@ -331,7 +367,9 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
             moment_2d, moment_ferro, moment_antiferro = \
                 density_point.calc_moment_2d(
                     space_group_symop, cell, atom_site_susceptibility, h_loc,
-                    chi_iso_ferro, chi_iso_antiferro)
+                    chi_iso_ferro=chi_iso_ferro,
+                    chi_iso_antiferro=chi_iso_antiferro,
+                    flag_two_channel=flag_two_channel)
 
             f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d,
                                      phase_3d)
@@ -362,6 +400,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
             l_der_chi_sq_f.append(der_chi_sq_f)
             l_der_chi_sq_a.append(der_chi_sq_a)
         return sum(l_chi_sq)
+
     chi_sq = temp_func(l_par_0)
     print(f"Chi_sq before optimization {chi_sq/total_peaks:.5f}.           ",
           end="\r")
@@ -410,9 +449,11 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
     if chi_iso_af > 0.:
         chi_iso_af = 0.
     for diffrn in l_diffrn:
-        # FIXME: not sure that input parameters should be modified
         diffrn.diffrn_refln.numpy_to_items()
-
+        chi_sq, points = diffrn.diffrn_refln.calc_chi_sq_points()
+        refine_ls = RefineLs(goodness_of_fit_all=chi_sq/points,
+                             number_reflns=points)
+        diffrn.add_items([refine_ls])
     return chi_iso_f, chi_iso_af
 
 
@@ -426,10 +467,11 @@ def func_temp(*argv):
 def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
                chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
                flag_ferro: bool = True, flag_antiferro: bool = True,
-               disp: bool = True,
                points_a: int = 48, points_b: int = 48, points_c: int = 48,
                prior_density: str = "uniform",
-               c_lambda: float = 1e-6, n_mem: int = 51, n_cycle: int = 10):
+               c_lambda: float = 1e-6, n_iterations: int = 51,
+               n_cycle: int = 10, gof_desired: float = 1.,
+               flag_two_channel: bool = False, disp: bool = True):
     """Rho - Chi cycle."""
     chi_iso_ferro_new, chi_iso_antiferro_new = chi_iso_ferro, chi_iso_antiferro
     # atom_site_susceptibility = crystal.atom_site_susceptibility
@@ -440,16 +482,17 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
         print(f"Cycle {(i_cycle+1):4}. Entropy maximization                  ",
               end="\r")
         density_point = maximize_entropy(
-            crystal, l_diffrn, c_lambda, n_mem,
+            crystal, l_diffrn, c_lambda=c_lambda, n_iterations=n_iterations,
             chi_iso_ferro=chi_iso_ferro_new,
             chi_iso_antiferro=chi_iso_antiferro_new,
-            n_x=points_a, n_y=points_b, n_z=points_c,
-            prior_density=prior_density, disp=disp)
+            points_a=points_a, points_b=points_b, points_c=points_c,
+            prior_density=prior_density, gof_desired=gof_desired,
+            flag_two_channel=flag_two_channel, disp=disp)
         print(f"Cycle {(i_cycle+1):4}. Chi refinement                        ",
               end="\r")
         chi_iso_ferro_new, chi_iso_antiferro_new = refine_susceptibility(
             crystal, l_diffrn, density_point, chi_iso_ferro=chi_iso_ferro_new,
             chi_iso_antiferro=chi_iso_antiferro_new,
             flag_ferro=flag_ferro, flag_antiferro=flag_antiferro,
-            disp=disp)
+            flag_two_channel=flag_two_channel, disp=disp)
     return density_point, chi_iso_ferro_new, chi_iso_antiferro_new

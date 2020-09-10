@@ -151,6 +151,17 @@ class DiffrnReflnL(LoopN):
 
         return "\n".join(ls_out)
 
+    def calc_chi_sq_points(self) -> (float, int):
+        """Calculate chi_sq and points if fr, fr_sigma, fr_calc are given."""
+        l_fr, l_fr_sigma, l_fr_calc = self.fr, self.fr_sigma, self.fr_calc
+        if (l_fr is None) & (l_fr_sigma is None) & (l_fr_calc is None):
+            return (None, None)
+
+        l_chi_sq = [(abs(float(fr-fr_calc)/float(fr_sigma))**2)
+                    for fr, fr_sigma, fr_calc
+                    in zip(l_fr, l_fr_sigma, l_fr_calc)]
+        return sum(l_chi_sq), len(l_chi_sq)
+
     def report_chi_sq_exp(self, cell=None) -> str:
         """
         Make a report about experimental chi_sq in string format.
