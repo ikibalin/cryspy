@@ -280,10 +280,12 @@ class Diffrn(DataN):
                 pmpl_2hkl*fnp_2hkl + ypm_2hkl*fpm_sq_2hkl
             iint_d_2hkl = (f_nucl_sq_2hkl+mag_p_e_u_sq_2hkl)*ppmin_2hkl + \
                 pmmin_2hkl*fnp_2hkl + ypm_2hkl*fpm_sq_2hkl
+            # iint_unpol_2hkl = 0.5*(iint_u_2hkl+iint_d_2hkl)
+            # flip_ratio = (iint_u+ratio_lambdaover2*iint_unpol_2hkl) / \
+            #     (iint_d+ratio_lambdaover2*iint_unpol_2hkl)
 
             flip_ratio = (iint_u+ratio_lambdaover2*iint_u_2hkl) / \
                 (iint_d+ratio_lambdaover2*iint_d_2hkl)
-
         """
         d_info_out = {"iint_u": iint_u, "iint_d": iint_d,
                       "flip_ratio": flip_ratio}
