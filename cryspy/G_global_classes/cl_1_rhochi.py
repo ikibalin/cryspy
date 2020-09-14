@@ -113,7 +113,8 @@ class RhoChi(GlobalN):
             n_res += n
         return chi_sq_res, n_res
 
-    def refine(self, disp: bool = False, optimization_method: str = "BFGS"):
+    def refine(self, optimization_method: str = "BFGS", disp: bool = False,
+               d_info: dict = None):
         """
         Minimization procedure.
 
@@ -123,6 +124,14 @@ class RhoChi(GlobalN):
             - "simplex"
             - "basinhopping"
         """
+
+        if d_info is not None:
+            d_info_keys = d_info.keys()
+            if "stop" not in d_info_keys:
+                d_info["stop"] = False
+            if "print" not in d_info_keys:
+                d_info["print"] = ""
+
         flag = True
 
         # self.remove_internal_objs
@@ -168,7 +177,8 @@ class RhoChi(GlobalN):
             # simplex
             res = scipy.optimize.minimize(
                 tempfunc, param_0, method='Nelder-Mead',
-                callback=lambda x: self._f_callback(disp, coeff_norm, x),
+                callback=lambda x: self._f_callback(disp, coeff_norm, x,
+                                                    d_info=d_info),
                 options={"fatol": 0.01*n})
 
             m_error, dist_hh = error_estimation_simplex(
@@ -196,7 +206,8 @@ class RhoChi(GlobalN):
             # BFGS
             res = scipy.optimize.minimize(
                 tempfunc, param_0, method='BFGS',
-                callback=lambda x: self._f_callback(disp, coeff_norm, x),
+                callback=lambda x: self._f_callback(disp, coeff_norm, x,
+                                                    d_info=d_info),
                 options={"disp": disp})
 
             _dict_out = {"flag": flag, "res": res}
@@ -215,7 +226,7 @@ class RhoChi(GlobalN):
 
         return _dict_out
 
-    def _f_callback(self, *arg):
+    def _f_callback(self, *arg, d_info: dict = None):
         disp = arg[0]
         if disp:
             coeff_norm = arg[1]
@@ -223,6 +234,12 @@ class RhoChi(GlobalN):
             ls_out = " ".join(["{:12.5f}".format(_1*_2)
                                for _1, _2 in zip(res_x, coeff_norm)])
             print(ls_out)
+
+        if d_info is not None:
+            coeff_norm = arg[1]
+            res_x = arg[2]
+            d_info["print"] = " ".join(["{:12.5f}".format(_1*_2)
+                                        for _1, _2 in zip(res_x, coeff_norm)])
 
     def save_to_file(self, f_name):
         """Save to file."""

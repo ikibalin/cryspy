@@ -206,8 +206,9 @@ class MEM(GlobalN):
                                  number_reflns=points)
             diffrn.add_items([refine_ls])
 
-    def maximize_entropy(self, c_lambda: float = 1e-3,
-                         n_iterations: int = 3000, disp: bool = True):
+    def maximize_entropy(
+            self, c_lambda: float = 1e-3, n_iterations: int = 3000,
+            disp: bool = True, d_info: dict = None):
         """Run entropy maximization.
 
         Arguments
@@ -232,7 +233,7 @@ class MEM(GlobalN):
             chi_iso_ferro=chi_iso_ferro, chi_iso_antiferro=chi_iso_antiferro,
             points_a=points_a, points_b=points_b, points_c=points_c,
             prior_density=prior_density, gof_desired=gof_desired,
-            flag_two_channel=flag_two_channel, disp=disp)
+            flag_two_channel=flag_two_channel, disp=disp, d_info=d_info)
 
         self.add_items([density_point])
 

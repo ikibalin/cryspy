@@ -23,8 +23,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                      points_a: int = 48, points_b: int = 48,
                      points_c: int = 48, prior_density: str = "uniform",
                      gof_desired: float = 1.,
-                     flag_two_channel: bool = False, disp: bool = True) -> \
-        DensityPointL:
+                     flag_two_channel: bool = False, disp: bool = True,
+                     d_info: dict = None) -> DensityPointL:
     """
     Collins algroritm.
 
@@ -61,6 +61,15 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         Magnetization density.
 
     """
+    flag_info = d_info is not None
+
+    if flag_info:
+        d_info_keys = d_info.keys()
+        if "stop" not in d_info_keys:
+            d_info["stop"] = False
+        if "print" not in d_info_keys:
+            d_info["print"] = ""
+
     cell = crystal.cell
     space_group = crystal.space_group
     atom_site = crystal.atom_site
@@ -70,12 +79,17 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
     density_point = DensityPointL()
     if prior_density == "core":
         print("The prior density is core's one.", end="\r")
+        if flag_info:
+            d_info["print"] = "The prior density is core's one."
+
         atom_electron_configuration = crystal.atom_electron_configuration
         density_point.create_core_density(
             space_group_symop, cell, atom_site, atom_electron_configuration,
             points_a=points_a, points_b=points_b, points_c=points_c)
     else:
         print("The prior density is uniform.", end="\r")
+        if flag_info:
+            d_info["print"] = "The prior density is uniform."
         density_point.create_flat_density(
             space_group_symop, cell, atom_site,
             l_magnetic_labes=l_magnetic_labes, points_a=points_a,
@@ -159,6 +173,9 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         if disp:
             print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}",
                   end="\r")
+        if flag_info:
+            d_info["print"] = f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}"
+
         if chi_sq > chi_sq_best:
             numpy_density = numpy_density_best
             numpy_density_ferro = numpy_density_ferro_best
@@ -199,6 +216,9 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff of GoF is less than 0.001.",
                   end="\r")
             break
+        elif flag_info:
+            if d_info["stop"]:
+                break
 
         if not(flag_two_channel):
             density_point.numpy_density = numpy_density*numpy.exp(
@@ -480,16 +500,20 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
     chi_iso_ferro_new = float(chi_iso_ferro)
     chi_iso_antiferro_new = float(chi_iso_antiferro)
     flag_info = d_info is not None
+
     if flag_info:
-        d_info["stop"] = False
-        d_info["print"] = ""
+        d_info_keys = d_info.keys()
+        if "stop" not in d_info_keys:
+            d_info["stop"] = False
+        if "print" not in d_info_keys:
+            d_info["print"] = ""
 
     for i_cycle in range(n_cycle):
         print(f"Cycle {(i_cycle+1):4}. Entropy maximization                  ",
               end="\r")
 
         if flag_info:
-            d_info["print"] = f"Cycle {(i_cycle+1):4}. Entropy maximization."
+            d_info["print"] = f"Cycle {(i_cycle+1):4}/{n_cycle:}. Entropy maximization."
             if d_info["stop"]:
                 break
         density_point = maximize_entropy(
@@ -498,10 +522,10 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
             chi_iso_antiferro=chi_iso_antiferro_new,
             points_a=points_a, points_b=points_b, points_c=points_c,
             prior_density=prior_density, gof_desired=gof_desired,
-            flag_two_channel=flag_two_channel, disp=disp)
+            flag_two_channel=flag_two_channel, disp=disp, d_info=None)
 
         if flag_info:
-            d_info["print"] = f"Cycle {(i_cycle+1):4}. Chi refinement."
+            d_info["print"] = f"Cycle {(i_cycle+1):4}/{n_cycle:}. Chi refinement."
             if d_info["stop"]:
                 break
         print(f"Cycle {(i_cycle+1):4}. Chi refinement                        ",

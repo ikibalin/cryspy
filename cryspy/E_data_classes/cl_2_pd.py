@@ -356,7 +356,9 @@ class Pd(DataN):
         l_peak_in, l_refln_in = [], []
         l_refln_susceptibility_in = []
         l_dd_in = []
-        if (not(flag_internal) & (self.dd is not None)):
+        flag_1 = not(flag_internal)
+        flag_2 = (self.dd is not None)
+        if (flag_1 & flag_2):
             for phase_item in self.phase.items:
                 crystal = None
                 for cryst in l_crystal:

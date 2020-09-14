@@ -200,7 +200,6 @@ class Crystal(DataN):
 
         cell = self.cell
         atom_site = self.atom_site
-
         occupancy = numpy.array(atom_site.occupancy, dtype=float)
         x = numpy.array(atom_site.fract_x, dtype=float)
         y = numpy.array(atom_site.fract_y, dtype=float)

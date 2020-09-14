@@ -248,15 +248,13 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
         flag_mand = all([items_cif.is_value(name) for name in l_cls_mand_cif])
         flag_any = any([items_cif.is_value(name) for name in l_cls_all_cif])
 
-
         item_obj = None
         if flag_mand:
             items_small = items_cif.items_with_prefix(f"_{prefix:}")
             item_obj = cls_item.from_cif(str(items_small))
         elif flag_any:
             items_small = items_cif.items_with_prefix(f"_{prefix:}")
-            item_obj = ItemN()
-            item_obj.from_cif(str(items_small))
+            item_obj = ItemN.from_cif(str(items_small))
 
         if item_obj is not None:
             l_item.append(item_obj)
@@ -315,7 +313,6 @@ def items_to_globaln(global_name: str, items: list, l_global_class):
             global_obj = cls_global()
             global_obj.global_name = global_name
             global_obj.add_items(items)
-
     if global_obj is None:
         global_obj = GlobalN.make_container((), tuple(classes), "global")
         global_obj.global_name = global_name

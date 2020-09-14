@@ -482,4 +482,3 @@ class ItemN(object):
         for attr in (self.ATTR_NAMES + self.ATTR_SIGMA +
                      self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG):
             setattr(self, attr, getattr(obj, attr))
-
