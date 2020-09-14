@@ -471,16 +471,27 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
                prior_density: str = "uniform",
                c_lambda: float = 1e-6, n_iterations: int = 51,
                n_cycle: int = 10, gof_desired: float = 1.,
-               flag_two_channel: bool = False, disp: bool = True):
+               flag_two_channel: bool = False, disp: bool = True,
+               d_info: dict = None):
     """Rho - Chi cycle."""
     chi_iso_ferro_new, chi_iso_antiferro_new = chi_iso_ferro, chi_iso_antiferro
     # atom_site_susceptibility = crystal.atom_site_susceptibility
     # l_var = atom_site_susceptibility.get_variables()
     chi_iso_ferro_new = float(chi_iso_ferro)
     chi_iso_antiferro_new = float(chi_iso_antiferro)
+    flag_info = d_info is not None
+    if flag_info:
+        d_info["stop"] = False
+        d_info["print"] = ""
+
     for i_cycle in range(n_cycle):
         print(f"Cycle {(i_cycle+1):4}. Entropy maximization                  ",
               end="\r")
+
+        if flag_info:
+            d_info["print"] = f"Cycle {(i_cycle+1):4}. Entropy maximization."
+            if d_info["stop"]:
+                break
         density_point = maximize_entropy(
             crystal, l_diffrn, c_lambda=c_lambda, n_iterations=n_iterations,
             chi_iso_ferro=chi_iso_ferro_new,
@@ -488,6 +499,11 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
             points_a=points_a, points_b=points_b, points_c=points_c,
             prior_density=prior_density, gof_desired=gof_desired,
             flag_two_channel=flag_two_channel, disp=disp)
+
+        if flag_info:
+            d_info["print"] = f"Cycle {(i_cycle+1):4}. Chi refinement."
+            if d_info["stop"]:
+                break
         print(f"Cycle {(i_cycle+1):4}. Chi refinement                        ",
               end="\r")
         chi_iso_ferro_new, chi_iso_antiferro_new = refine_susceptibility(

@@ -293,3 +293,29 @@ def calc_fm_by_density(mult_i, den_i, np, volume, moment_2d, phase_3d):
     f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3 = \
         f_hkl_2d_1.sum(axis=1), f_hkl_2d_2.sum(axis=1), f_hkl_2d_3.sum(axis=1)
     return f_hkl_1d_1, f_hkl_1d_2, f_hkl_1d_3
+
+
+def transfer_to_density_3d(np_indexes, density, n_xyz, r_ij, b_i):
+    """Give 3D array of density from asymetric cell.
+
+    Arguments
+    ---------
+        - np_xyz is numpy array of integer numbers
+        - val_1, ... are numpy array of float numbers.
+    """
+    (n_x, n_y, n_z) = n_xyz
+    (i_x, i_y, i_z) = np_indexes
+    den_3d = numpy.zeros(n_xyz)
+    for r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3 \
+            in zip(*r_ij, *b_i):
+        np_ind_x = numpy.mod((numpy.around((
+            i_x*r_11 + i_y*r_12 + i_z*r_13 + n_x*b_1).astype(float), 0)
+            ).astype(int), n_x)
+        np_ind_y = numpy.mod((numpy.around((
+            i_x*r_21 + i_y*r_22 + i_z*r_23 + n_y*b_2).astype(float), 0)
+            ).astype(int), n_y)
+        np_ind_z = numpy.mod((numpy.around((
+            i_x*r_31 + i_y*r_32 + i_z*r_33 + n_z*b_3).astype(float), 0)
+            ).astype(int), n_z)
+        den_3d[np_ind_x, np_ind_y, np_ind_z] = density
+    return den_3d

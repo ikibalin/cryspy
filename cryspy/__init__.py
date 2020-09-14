@@ -11,7 +11,6 @@ Content
             - calc_scalar_product_by_vectors
             - calc_scalar_product_by_complex_vectors
             - calc_modulus_sq_by_complex_vector
-            - tri_linear_interpolation
         2. Crystallography base
         ~~~~~~~~~~~~~~~~~~~~~~~
             - calc_volume_uc_by_abc_cosines
@@ -32,6 +31,9 @@ Content
             - calc_f_plus_sq
             - calc_f_minus_sq
             - calc_flip_ratio
+       5. Matrices
+            - tri_linear_interpolation
+
     Section B: Parent classes
     =========================
         1. Internal classes (not for user)
@@ -75,11 +77,11 @@ name = "cryspy"
 from .A_functions_base.function_1_algebra import \
     calc_scalar_product_by_vectors,\
     calc_scalar_product_by_complex_vectors,\
-    calc_modulus_sq_by_complex_vector,\
-    tri_linear_interpolation
+    calc_modulus_sq_by_complex_vector
 
 from .A_functions_base.function_1_strings import value_error_to_string
 
+from .A_functions_base.function_1_matrices import tri_linear_interpolation
 
 from .A_functions_base.function_2_crystallography_base import \
     calc_volume_uc_by_abc_cosines,\
@@ -95,7 +97,7 @@ from .A_functions_base.function_2_crystallography_base import \
 from .A_functions_base.function_3_extinction import \
     calc_extinction,\
     calc_extinction_2
-    
+
 from .A_functions_base.function_4_flip_ratio import \
     calc_f_plus_sq, calc_f_minus_sq, calc_flip_ratio
 

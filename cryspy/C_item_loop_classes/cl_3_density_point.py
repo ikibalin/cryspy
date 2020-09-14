@@ -508,19 +508,19 @@ class DensityPointL(LoopN):
         ls_out.append("{:}".format(len(index_x)))
         ls_out_b.append("{:}".format(len(index_x)))
 
-        for _x, _y, _z, _l, _den, _den_f, _den_a in \
+        for _x, _y, _z, _l, den, den_f, den_a in \
             zip(index_x, index_y, index_z, numpy_basin_atom_label, density,
                 density_ferro, density_antiferro):
             if label_atom is not None:
                 if label_atom == _l:
-                    _s = f"{_den:15.7f}"
+                    _s = f"{den:15.7f}"
                 else:
                     _s = f"{0.:15.7f}"
             else:
-                _s = f"{_den:15.7f}"
+                _s = f"{den:15.7f}"
 
             ls_out.append(f"{_x:4} {_y:4} {_z:4} {_s:}")
-            v1 = chi_iso_ferro*_den_f+chi_iso_antiferro*_den_a
+            v1 = (chi_iso_ferro*den_f+chi_iso_antiferro*den_a)
             ls_out_b.append(f"{_x:4} {_y:4} {_z:4} {v1:15.7f}")
 
         a, b, c = cell.length_a, cell.length_b, cell.length_c
@@ -543,14 +543,20 @@ class DensityPointL(LoopN):
             len(l_orig)))
         for _ in r_s_g_s.items:
             ls_out.append(
-                f"{int(_.r_11):4}{int(_.r_21):4}{int(_.r_31):4}  {int(_.r_12):4}{int(_.r_22):4}{int(_.r_32):4}  {int(_.r_13):4}{int(_.r_23):4}{int(_.r_33):4}    {float(_.b_1):8.5f}{float(_.b_2):8.5f}{float(_.b_3):8.5f}")
+                f"{int(_.r_11):4}{int(_.r_21):4}{int(_.r_31):4}  \
+{int(_.r_12):4}{int(_.r_22):4}{int(_.r_32):4}  {int(_.r_13):4}{int(_.r_23):4}\
+{int(_.r_33):4}    {float(_.b_1):8.5f}{float(_.b_2):8.5f}{float(_.b_3):8.5f}")
             ls_out_b.append(
-                f"{int(_.r_11):4}{int(_.r_21):4}{int(_.r_31):4}  {int(_.r_12):4}{int(_.r_22):4}{int(_.r_32):4}  {int(_.r_13):4}{int(_.r_23):4}{int(_.r_33):4}    {float(_.b_1):8.5f}{float(_.b_2):8.5f}{float(_.b_3):8.5f}")
+                f"{int(_.r_11):4}{int(_.r_21):4}{int(_.r_31):4}  \
+{int(_.r_12):4}{int(_.r_22):4}{int(_.r_32):4}  {int(_.r_13):4}{int(_.r_23):4}\
+{int(_.r_33):4}    {float(_.b_1):8.5f}{float(_.b_2):8.5f}{float(_.b_3):8.5f}")
         for orig in l_orig:
             ls_out.append(
-                f"{float(orig[0]):8.4f}{float(orig[1]):8.4f}{float(orig[2]):8.4f}")
+                f"{float(orig[0]):8.4f}{float(orig[1]):8.4f}\
+{float(orig[2]):8.4f}")
             ls_out_b.append(
-                f"{float(orig[0]):8.4f}{float(orig[1]):8.4f}{float(orig[2]):8.4f}")
+                f"{float(orig[0]):8.4f}{float(orig[1]):8.4f}\
+{float(orig[2]):8.4f}")
 
         with open(f_name, "w") as fid:
             fid.write("\n".join(ls_out))

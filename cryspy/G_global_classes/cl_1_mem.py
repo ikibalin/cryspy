@@ -81,6 +81,18 @@ class MEM(GlobalN):
         """List of crystals."""
         return [item for item in self.items if isinstance(item, Crystal)]
 
+    def save_to_file_den(self, f_name: str = "file.den", label_atom=None,
+                         f_background: str = "file_back.den"):
+        """Save density to ".den" files."""
+        mem_parameters = self.mem_parameters
+        crystal = self.crystals()[0]
+        space_group = crystal.space_group
+        cell = crystal.cell
+        density_point = self.density_point
+        density_point.save_to_file_den(
+            mem_parameters, space_group, cell, f_name=f_name,
+            label_atom=label_atom, f_background=f_background)
+
     def create_prior_density(self):
         """Create prior denisity."""
         crystal = self.crystals()[0]  # FIXME:
@@ -246,7 +258,7 @@ class MEM(GlobalN):
         mem_parameters.chi_antiferro = chi_iso_af
 
     def make_cycle(self, c_lambda: float = 1e-3, n_iterations: int = 3000,
-                   n_cycle: int = 10, disp: bool = True):
+                   n_cycle: int = 10, disp: bool = True, d_info: dict = None):
         """Run Rho - Chi cycle refinement."""
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
@@ -271,7 +283,7 @@ class MEM(GlobalN):
                 prior_density=prior_density, c_lambda=c_lambda,
                 n_iterations=n_iterations, n_cycle=n_cycle,
                 gof_desired=gof_desired,
-                flag_two_channel=flag_two_channel, disp=disp)
+                flag_two_channel=flag_two_channel, disp=disp, d_info=d_info)
         self.add_items([density_point])
         mem_parameters.chi_ferro = chi_iso_f
         mem_parameters.chi_antiferro = chi_iso_af

@@ -1,7 +1,262 @@
 global_
 
 data_
+loop_H_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+ 1 1.00  1.00
 
+loop_Li_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1 2.48030  0.89778 -0.14426
+ 1 4.70710  0.11031 -0.01584
+ 2 0.35000 -0.00006  0.00202
+ 2 0.66000  0.00109  0.97901
+ 2 1.00000 -0.00144  0.09077
+ 2 1.73500  0.00937 -0.08964
+
+loop_Be_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1 3.47116  0.91796 -0.17092
+ 1 6.36861  0.08724 -0.01455
+ 2 0.77820  0.00108  0.21186
+ 2 0.94067 -0.00199  0.62499
+ 2 1.48725  0.00176  0.26662
+ 2 2.71830  0.00628 -0.09919
+
+loop_B_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1 4.44561  0.92705 -0.19484
+ 1 7.91796  0.07780 -0.01254
+ 2 0.86709  0.00088  0.06941
+ 2 1.21924 -0.00200  0.75234
+ 2 2.07264  0.00433  0.31856
+ 2 3.44332  0.00270 -0.12642
+
+loop_B_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 0.87481  0.53622
+ 2 1.36992  0.40340
+ 2 2.32262  0.11653
+ 2 5.59481  0.00821
+
+loop_C_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1 5.43599  0.93262 -0.20814
+ 1 9.48256  0.06931 -0.01071
+ 2 1.05749  0.00083  0.08099
+ 2 1.52427 -0.00176  0.75045
+ 2 2.68435  0.00559  0.33549
+ 2 4.20096  0.00382 -0.14765
+
+loop_C_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 0.98073 0.28241
+ 2 1.44361 0.54697
+ 2 2.60051 0.23195
+ 2 6.51003 0.01025
+
+loop_N_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1  6.45739  0.93780 -0.21677
+ 1 11.17200  0.05849 -0.00846
+ 2  1.36405  0.00093  0.17991
+ 2  1.89734 -0.00170  0.67416
+ 2  3.25291  0.00574  0.31297
+ 2  5.08238  0.00957 -0.14497
+
+loop_N_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 1.16068 0.26639
+ 2 1.70472 0.52319
+ 2 3.03935 0.27353
+ 2 7.17482 0.01292
+
+loop_O_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1  7.61413  0.94516 -0.22157
+ 1 13.75740  0.03391 -0.00476
+ 2  1.69824 -0.00034  0.34844
+ 2  2.48022  0.00241  0.60807
+ 2  4.31196 -0.00486  0.25365
+ 2  5.86596  0.03681 -0.19183
+
+loop_O_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 1.14394 0.16922
+ 2 1.81730 0.57974
+ 2 3.44988 0.32352
+ 2 7.56484 0.01660
+
+loop_F_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+ 1  8.51260  .94205 -.22924
+ 1 14.41300  .04499 -.00534
+ 2  1.85990 -.00010  .27178
+ 2  2.70560  .00153  .65367
+ 2  4.90190 -.00076  .33031
+ 2  6.44400  .02389 -.23130
+
+loop_F_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 1.26550 .17003
+ 2 2.03010 .55982
+ 2 3.91060 .34875
+ 2 8.63630 .01691
+
+loop_Na_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+_atom_rho_orbital_radial_slater_coeff_3s
+ 1 11.00000  0.96305 -0.23508  0.03532
+ 3 12.36850  0.04219 -0.00373  0.00087
+ 3  8.02540  0.01590  0.13129 -0.02237
+ 3  5.70590 -0.00281  0.40213 -0.06277
+ 3  3.63100  0.00159  0.52699 -0.09421
+ 3  2.15370 -0.00033  0.04726  0.00254
+ 3  1.10810  0.00012 -0.00585  0.41486
+ 3  0.70830 -0.00005  0.00217  0.63607
+
+loop_Na_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 5.50000 0.47360
+ 4 8.39370 0.03555
+ 4 5.42060 0.27825
+ 4 3.56460 0.32310
+ 4 2.28330 0.07308
+
+loop_Mg_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+_atom_rho_orbital_radial_slater_coeff_3s
+ 1 12.00000  0.96539 -0.24382  0.04695
+ 3 13.55520  0.03767 -0.00504  0.00166
+ 3  9.24890  0.01583  0.10176 -0.02391
+ 3  6.55170 -0.00121  0.39908 -0.07764
+ 3  4.20080  0.00104  0.55719 -0.13548
+ 3  2.47020 -0.00014  0.04715 -0.00710
+ 3  1.43310  0.00005 -0.00783  0.50699
+ 3  0.87830 -0.00001  0.00197  0.57016
+
+loop_Mg_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+ 2 6.00000 0.51090
+ 4 7.98840 0.08276
+ 4 5.31970 0.32223
+ 4 3.71680 0.21178
+ 4 2.53540 0.03591
+
+loop_Al_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+_atom_rho_orbital_radial_slater_coeff_3s
+ 1 13.00000  0.96741 -0.25134  0.05804
+ 3 14.71120  0.03493 -0.00465  0.00047
+ 3  9.90000  0.01691  0.12045 -0.02622
+ 3  7.10880 -0.00304  0.37640 -0.10400
+ 3  4.74670  0.00178  0.55298 -0.13670
+ 3  2.87680 -0.00048  0.05379 -0.10971
+ 3  1.90290  0.00020 -0.01021  0.57002
+ 3  1.11400 -0.00004  0.00178  0.59412
+
+loop_Al_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+_atom_rho_orbital_radial_slater_coeff_3p
+ 2  6.50000  0.54093 -0.09683
+ 4 10.18870  0.02708 -0.00969
+ 4  7.85270  0.04439  0.00955
+ 4  5.98260  0.31758 -0.07857
+ 4  4.04170  0.21192  0.02128
+ 4  1.95590  0.00770  0.39563
+ 4  1.19180 -0.00224  0.44743
+ 4  0.86300  0.00101  0.25549
+
+
+loop_Mn_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+_atom_rho_orbital_radial_slater_coeff_3s
+_atom_rho_orbital_radial_slater_coeff_4s
+ 1 24.60960  0.95312 -0.30378  0.11283 -0.02403
+ 1 37.60670  0.02706  0.00053 -0.00083  0.00006
+ 2 21.11770  0.02484 -0.16252  0.06340 -0.01460
+ 2 10.66850  0.00567  0.96978 -0.38358  0.08545
+ 3  9.75659 -0.00379  0.19210 -0.23797  0.05408
+ 3  5.73348  0.00287  0.02128  0.45292 -0.09262
+ 3  4.14800 -0.00261 -0.00733  0.62563 -0.20451
+ 4  3.65000  0.00097  0.00244  0.13316  0.02977
+ 4  1.81690 -0.00018 -0.00025  0.00478  0.50295
+ 4  1.08110  0.00012  0.00016 -0.00235  0.54246
+ 4  0.76520 -0.00006 -0.00007  0.00098  0.05052
+
+loop_Mn_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+_atom_rho_orbital_radial_slater_coeff_3p
+ 2  9.58940 0.85701 -0.34307
+ 2 16.26990 0.14805 -0.04274
+ 3  6.08000 0.01941 -0.15851
+ 3  5.28000 0.01069  0.68124
+ 3  3.43000 -0.00876  0.45354
+ 3  2.60000 0.00380  0.13901
+
+loop_Mn_d
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_3d
+ 3  3.7239  0.23794
+ 3 11.1772  0.02837
+ 3  5.6157  0.29074
+ 3  2.4849  0.46502
+ 3  1.3718  0.13663
+ 
 loop_Co_s
 _atom_rho_orbital_radial_slater_n0
 _atom_rho_orbital_radial_slater_zeta0

@@ -75,8 +75,7 @@ def apply_constraint_on_cell_by_type_cell(cell, type_cell:str,
         cell.angle_alpha, cell.angle_alpha_refinement, cell.angle_alpha_constraint = 90., False, True
         cell.angle_beta, cell.angle_beta_refinement, cell.angle_beta_constraint = 90., False, True
         cell.angle_gamma, cell.angle_gamma_refinement, cell.angle_gamma_constraint = 90., False, True
-    return 
-        
+
 
 def get_scat_length_neutron(type_n):
     """
@@ -98,9 +97,4 @@ def get_scat_length_neutron(type_n):
         warnings.warn(
             f"Can not find b_scat for '{type_n:}'.\n It is putted as 0.",
             UserWarning, stacklevel=2)
-    return res 
-
-FUNCTIONS = [
-    apply_constraint_on_cell_by_type_cell,
-    get_scat_length_neutron
-]
+    return res
