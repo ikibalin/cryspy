@@ -219,44 +219,29 @@ class MEM(GlobalN):
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
         mem_parameters = self.mem_parameters
-        chi_iso_ferro = mem_parameters.chi_ferro
-        chi_iso_antiferro = mem_parameters.chi_antiferro
-        points_a = mem_parameters.points_a
-        points_b = mem_parameters.points_b
-        points_c = mem_parameters.points_c
-        prior_density = mem_parameters.prior_density
-        flag_two_channel = mem_parameters.method == "2channel"
-        gof_desired = mem_parameters.gof_desired
 
         density_point = maximize_entropy(
-            crystal, l_diffrn, c_lambda=c_lambda, n_iterations=n_iterations,
-            chi_iso_ferro=chi_iso_ferro, chi_iso_antiferro=chi_iso_antiferro,
-            points_a=points_a, points_b=points_b, points_c=points_c,
-            prior_density=prior_density, gof_desired=gof_desired,
-            flag_two_channel=flag_two_channel, disp=disp, d_info=d_info)
+            crystal, l_diffrn, mem_parameters, c_lambda=c_lambda,
+            n_iterations=n_iterations, disp=disp, d_info=d_info)
 
         self.add_items([density_point])
 
-    def refine_susceptibility(self, disp: bool = True) -> (float, float):
+    def refine_susceptibility(self, disp: bool = True, d_info: dict = None) \
+            -> (float, float):
         """Refine susceptibility."""
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
         density_point = self.density_point
         mem_parameters = self.mem_parameters
-        chi_iso_ferro = mem_parameters.chi_ferro
-        chi_iso_antiferro = mem_parameters.chi_antiferro
-        flag_ferro = mem_parameters.chi_ferro_refinement
-        flag_antiferro = mem_parameters.chi_antiferro_refinement
-        flag_two_channel = mem_parameters.method == "2channel"
 
-        chi_iso_f, chi_iso_af = refine_susceptibility(
-            crystal, l_diffrn, density_point, chi_iso_ferro=chi_iso_ferro,
-            chi_iso_antiferro=chi_iso_antiferro, flag_ferro=flag_ferro,
-            flag_antiferro=flag_antiferro, flag_two_channel=flag_two_channel,
-            disp=disp)
+        # FIXME: temporary solution
+        density_point.volume_unit_cell = crystal.cell.volume
+        density_point.number_unit_cell = \
+            mem_parameters.points_a * mem_parameters.points_b * \
+            mem_parameters.points_c
 
-        mem_parameters.chi_ferro = chi_iso_f
-        mem_parameters.chi_antiferro = chi_iso_af
+        refine_susceptibility(crystal, l_diffrn, density_point, mem_parameters,
+                              disp=disp, d_info=d_info)
 
     def make_cycle(self, c_lambda: float = 1e-3, n_iterations: int = 3000,
                    n_cycle: int = 10, disp: bool = True, d_info: dict = None):
@@ -264,27 +249,9 @@ class MEM(GlobalN):
         crystal = self.crystals()[0]  # FIXME:
         l_diffrn = self.experiments()  # FIXME:
         mem_parameters = self.mem_parameters
-        chi_iso_ferro = mem_parameters.chi_ferro
-        chi_iso_antiferro = mem_parameters.chi_antiferro
-        flag_ferro = mem_parameters.chi_ferro_refinement
-        flag_antiferro = mem_parameters.chi_antiferro_refinement
-        points_a = mem_parameters.points_a
-        points_b = mem_parameters.points_b
-        points_c = mem_parameters.points_c
-        prior_density = mem_parameters.prior_density
-        flag_two_channel = mem_parameters.method == "2channel"
-        gof_desired = mem_parameters.gof_desired
 
-        density_point, chi_iso_f, chi_iso_af = \
-            make_cycle(
-                crystal, l_diffrn, chi_iso_ferro=chi_iso_ferro,
-                chi_iso_antiferro=chi_iso_antiferro, flag_ferro=flag_ferro,
-                flag_antiferro=flag_antiferro, points_a=points_a,
-                points_b=points_b, points_c=points_c,
-                prior_density=prior_density, c_lambda=c_lambda,
-                n_iterations=n_iterations, n_cycle=n_cycle,
-                gof_desired=gof_desired,
-                flag_two_channel=flag_two_channel, disp=disp, d_info=d_info)
+        density_point = \
+            make_cycle(crystal, l_diffrn, mem_parameters, c_lambda=c_lambda,
+                       n_iterations=n_iterations, n_cycle=n_cycle, disp=disp,
+                       d_info=d_info)
         self.add_items([density_point])
-        mem_parameters.chi_ferro = chi_iso_f
-        mem_parameters.chi_antiferro = chi_iso_af

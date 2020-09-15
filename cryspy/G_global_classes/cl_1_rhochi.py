@@ -3,8 +3,9 @@ __author__ = 'ikibalin'
 __version__ = "2020_08_19"
 import os
 import os.path
+from warnings import warn
 import numpy
-from typing import NoReturn
+from typing import NoReturn, List
 import scipy
 import scipy.optimize
 
@@ -129,8 +130,7 @@ class RhoChi(GlobalN):
             d_info_keys = d_info.keys()
             if "stop" not in d_info_keys:
                 d_info["stop"] = False
-            if "print" not in d_info_keys:
-                d_info["print"] = ""
+            d_info["print"] = "Refinement is running."
 
         flag = True
 
@@ -177,8 +177,8 @@ class RhoChi(GlobalN):
             # simplex
             res = scipy.optimize.minimize(
                 tempfunc, param_0, method='Nelder-Mead',
-                callback=lambda x: self._f_callback(disp, coeff_norm, x,
-                                                    d_info=d_info),
+                callback=lambda x: self._f_callback(
+                    disp, coeff_norm, x, param_name=l_var_name, d_info=d_info),
                 options={"fatol": 0.01*n})
 
             m_error, dist_hh = error_estimation_simplex(
@@ -189,9 +189,9 @@ class RhoChi(GlobalN):
                 # slightly change definition, instead of (n-k) here is n
                 error = (abs(m_error[i, i])*1./n)**0.5
                 if m_error[i, i] < 0.:
-                    raise UserWarning("Negative diagonal elements of Hessian")
+                    warn("Negative diagonal elements of Hessian.", UserWarning)
                 if val_2 > error:
-                    raise UserWarning("Minimum is not found")
+                    warn("Minimum is not found.", UserWarning)
 
                 l_sigma.append(max(error, val_2))
 
@@ -206,8 +206,8 @@ class RhoChi(GlobalN):
             # BFGS
             res = scipy.optimize.minimize(
                 tempfunc, param_0, method='BFGS',
-                callback=lambda x: self._f_callback(disp, coeff_norm, x,
-                                                    d_info=d_info),
+                callback=lambda x: self._f_callback(
+                    disp, coeff_norm, x, param_name=l_var_name, d_info=d_info),
                 options={"disp": disp})
 
             _dict_out = {"flag": flag, "res": res}
@@ -226,7 +226,9 @@ class RhoChi(GlobalN):
 
         return _dict_out
 
-    def _f_callback(self, *arg, d_info: dict = None):
+    def _f_callback(self, *arg, param_name: List[tuple] = None,
+                    d_info: dict = None) -> bool:
+        flag_out = False
         disp = arg[0]
         if disp:
             coeff_norm = arg[1]
@@ -237,9 +239,16 @@ class RhoChi(GlobalN):
 
         if d_info is not None:
             coeff_norm = arg[1]
-            res_x = arg[2]
-            d_info["print"] = " ".join(["{:12.5f}".format(_1*_2)
-                                        for _1, _2 in zip(res_x, coeff_norm)])
+            l_param = arg[2]
+            if param_name is not None:
+                ls_out = [f"{name[-1][0]:}: {coeff*param: 10.5f}" for name,
+                          param, coeff in zip(param_name, l_param, coeff_norm)]
+            else:
+                ls_out = [f"{coeff*param: 10.5f}" for param, coeff in zip(
+                    l_param, coeff_norm)]
+            d_info["print"] = "Best solution:\n\n"+"\n".join(ls_out)
+            flag_out = d_info["stop"]
+        return flag_out
 
     def save_to_file(self, f_name):
         """Save to file."""

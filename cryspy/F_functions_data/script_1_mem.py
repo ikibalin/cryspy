@@ -11,6 +11,7 @@ from cryspy.A_functions_base.function_2_mem import calc_moment_perp, \
     calc_fm_by_density
 
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
+from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
@@ -18,13 +19,9 @@ from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
 
 def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
+                     mem_parameters: MEMParameters,
                      c_lambda: float = 1e-7, n_iterations: int = 10000,
-                     chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
-                     points_a: int = 48, points_b: int = 48,
-                     points_c: int = 48, prior_density: str = "uniform",
-                     gof_desired: float = 1.,
-                     flag_two_channel: bool = False, disp: bool = True,
-                     d_info: dict = None) -> DensityPointL:
+                     disp: bool = True, d_info: dict = None) -> DensityPointL:
     """
     Collins algroritm.
 
@@ -69,6 +66,15 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             d_info["stop"] = False
         if "print" not in d_info_keys:
             d_info["print"] = ""
+
+    chi_iso_ferro = mem_parameters.chi_ferro
+    chi_iso_antiferro = mem_parameters.chi_antiferro
+    points_a = mem_parameters.points_a
+    points_b = mem_parameters.points_b
+    points_c = mem_parameters.points_c
+    prior_density = mem_parameters.prior_density
+    flag_two_channel = mem_parameters.method == "2channel"
+    gof_desired = mem_parameters.gof_desired
 
     cell = crystal.cell
     space_group = crystal.space_group
@@ -174,7 +180,10 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}",
                   end="\r")
         if flag_info:
-            d_info["print"] = f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}"
+            d_info["print"] = f"""Iteration {i_cycle:5}:
+    chi_sq/n: {chi_sq_n:.2f};
+    c_lambda: {c_lambda*10**5:.3f} * 10**-5;
+    difference of chi_sq/n: {chi_sq_n_diff:.4f}."""
 
         if chi_sq > chi_sq_best:
             numpy_density = numpy_density_best
@@ -200,10 +209,16 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         if chi_sq_n < gof_desired:
             print(f"OUT: cycle {i_cycle:5} chi_sq/n is less than {gof_desired:.2f}",
                   end="\r")
+            if flag_info:
+                d_info["print"] = f"""OUT on iteration {i_cycle:5}:
+    chi_sq/n is less than {gof_desired:.2f}."""
             break
         elif c_lambda < c_lambda_min:
             print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f}.",
                   end="\r")
+            if flag_info:
+                d_info["print"] = f"""OUT on iteration {i_cycle:5}:
+    chi_sq/n is {chi_sq_n:.2f}."""
             if not(flag_two_channel):
                 density_point.numpy_density = numpy_density_best
             density_point.numpy_density_ferro = numpy_density_ferro_best
@@ -212,12 +227,17 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             density_point.renormalize_numpy_densities(
                 flag_two_channel=flag_two_channel)
             break
-        elif chi_sq_n_diff < 0.001:
+        elif ((chi_sq_n_diff < 0.001) and (i_cycle > 10)):
             print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff of GoF is less than 0.001.",
                   end="\r")
+            if flag_info:
+                d_info["print"] = f"""OUT on iteration {i_cycle:5}:
+    chi_sq/n is {chi_sq_n:.2f};
+    difference of GoF is less than 0.001."""
             break
         elif flag_info:
             if d_info["stop"]:
+                d_info["stop"] = False
                 break
 
         if not(flag_two_channel):
@@ -244,11 +264,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
 
 def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
                           density_point: DensityPointL,
-                          chi_iso_ferro: float = 0.,
-                          chi_iso_antiferro: float = 0.,
-                          flag_ferro: bool = True, flag_antiferro: bool = True,
-                          flag_two_channel: bool = False, disp: bool = True) \
-        -> (float, float):
+                          mem_parameters: MEMParameters, disp: bool = True,
+                          d_info: dict = None) -> (float, float):
     """
     Refinement of susceptibility.
 
@@ -279,6 +296,17 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         Chi_iso_antiferro.
 
     """
+    flag_info = d_info is not None
+
+    if flag_info:
+        d_info_keys = d_info.keys()
+        if "stop" not in d_info_keys:
+            d_info["stop"] = False
+        if "print" not in d_info_keys:
+            d_info["print"] = ""
+
+    flag_two_channel = mem_parameters.method == "2channel"
+
     cell = crystal.cell
     space_group = crystal.space_group
     atom_site = crystal.atom_site
@@ -340,45 +368,33 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         l_chi_perp_ferro.append(chi_perp_ferro)
         l_chi_perp_antiferro.append(chi_perp_aferro)
 
-    l_name = atom_site_susceptibility.get_variable_names()
-    l_par_0 = [atom_site_susceptibility.get_variable_by_name(name) for name
-               in l_name]
-    if flag_ferro:
-        l_par_0.append(chi_iso_ferro)
-    if flag_antiferro:
-        l_par_0.append(chi_iso_antiferro)
+    l_name_1 = atom_site_susceptibility.get_variable_names()
+    l_par_1_0 = [atom_site_susceptibility.get_variable_by_name(name) for name
+                 in l_name_1]
+
+    l_name_2 = mem_parameters.get_variable_names()
+    l_par_2_0 = [mem_parameters.get_variable_by_name(name) for name
+                 in l_name_2]
+    l_name = l_name_1 + l_name_2
+    l_par_0 = l_par_1_0 + l_par_2_0
 
     def temp_func(l_par):
-        if (flag_ferro & flag_antiferro):
-            for name, parameter in zip(l_name, l_par[:-2]):
+        for name, parameter in zip(l_name, l_par):
+            if name[0][0] == "atom_site_susceptibility":
                 atom_site_susceptibility.set_variable_by_name(name, parameter)
-            chi_iso_f = float(l_par[-2])
-            chi_iso_af = float(l_par[-1])
-        elif (flag_ferro & (not(flag_antiferro))):
-            for name, parameter in zip(l_name, l_par[:-1]):
-                atom_site_susceptibility.set_variable_by_name(name, parameter)
-            chi_iso_f = float(l_par[-1])
-            chi_iso_af = chi_iso_antiferro
-        elif ((not(flag_ferro)) & flag_antiferro):
-            for name, parameter in zip(l_name, l_par[:-1]):
-                atom_site_susceptibility.set_variable_by_name(name, parameter)
-            chi_iso_f = chi_iso_ferro
-            chi_iso_af = float(l_par[-1])
-        else:
-            for name, parameter in zip(l_name, l_par):
-                atom_site_susceptibility.set_variable_by_name(name, parameter)
-            chi_iso_f = chi_iso_ferro
-            chi_iso_af = chi_iso_antiferro
+            elif name[0][0] == "mem_parameters":
+                mem_parameters.set_variable_by_name(name, parameter)
 
-        if chi_iso_f < 0.:
-            chi_iso_f = 0
-        if chi_iso_af > 0.:
-            chi_iso_af = 0
+        chi_iso_f = mem_parameters.chi_ferro
+        chi_iso_af = mem_parameters.chi_antiferro
 
-        atom_site_susceptibility.apply_space_group_constraint(atom_site,
-                                                              space_group)
+        atom_site_susceptibility.apply_space_group_constraint(
+            atom_site, space_group)
+
         l_chi_sq = []
         l_der_chi_sq, l_der_chi_sq_f, l_der_chi_sq_a = [], [], []
+
+        # FIXME: e_up is not used. Why?
         for diffrn, f_nucl, fr_e, fr_s, e_up, h_loc, k_hkl, phase_3d, \
             chi_perp_ferro, chi_perp_aferro in \
             zip(l_diffrn, l_f_nucl, l_fr_e, l_fr_s, l_e_up, l_h_loc, l_k_hkl,
@@ -387,8 +403,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
             moment_2d, moment_ferro, moment_antiferro = \
                 density_point.calc_moment_2d(
                     space_group_symop, cell, atom_site_susceptibility, h_loc,
-                    chi_iso_ferro=chi_iso_ferro,
-                    chi_iso_antiferro=chi_iso_antiferro,
+                    chi_iso_ferro=1., chi_iso_antiferro=1.,
                     flag_two_channel=flag_two_channel)
 
             f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d,
@@ -424,8 +439,14 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
     chi_sq = temp_func(l_par_0)
     print(f"Chi_sq before optimization {chi_sq/total_peaks:.5f}.           ",
           end="\r")
-    res = scipy.optimize.minimize(temp_func, l_par_0, method="BFGS",
-                                  callback=func_temp, options={"eps": 0.001})
+    if flag_info:
+        d_info["print"] = \
+            f"Chi_sq/n before optimization {chi_sq/total_peaks:.5f}."
+
+    res = scipy.optimize.minimize(
+        temp_func, l_par_0, method="BFGS",
+        callback=lambda x: func_temp(x, param_name=l_name, d_info=d_info),
+        options={"eps": 0.001})
     l_param = res.x
     chi_sq_new = res.fun
 
@@ -434,105 +455,88 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
 
     print(f"Chi_sq after optimization {chi_sq_new/total_peaks:.5f}.          ",
           end="\r")
+    if flag_info:
+        d_info["print"] = \
+            f"Chi_sq/n after optimization {chi_sq_new/total_peaks:.5f}."
 
-    if (flag_ferro & flag_antiferro):
-        for name, parameter, sig in zip(l_name, l_param[:-2], sigma[:-2]):
+    for name, parameter, sig in zip(l_name, l_param, sigma):
+        name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
+        if name[0][0] == "atom_site_susceptibility":
             atom_site_susceptibility.set_variable_by_name(name, parameter)
-            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
             atom_site_susceptibility.set_variable_by_name(name_sig, sig)
-        chi_iso_f = float(l_param[-2])
-        chi_iso_af = float(l_param[-1])
-    elif (flag_ferro & (not(flag_antiferro))):
-        for name, parameter, sig in zip(l_name, l_param[:-1], sigma[:-1]):
-            atom_site_susceptibility.set_variable_by_name(name, parameter)
-            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
-            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
-        chi_iso_f = float(l_param[-1])
-        chi_iso_af = chi_iso_antiferro
-    elif ((not(flag_ferro)) & flag_antiferro):
-        for name, parameter, sig in zip(l_name, l_param[:-1], sigma[:-1]):
-            atom_site_susceptibility.set_variable_by_name(name, parameter)
-            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
-            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
-        chi_iso_f = chi_iso_ferro
-        chi_iso_af = float(l_param[-1])
-    else:
-        for name, parameter, sig in zip(l_name, l_param, sigma):
-            atom_site_susceptibility.set_variable_by_name(name, parameter)
-            name_sig = name[:-1] + ((f"{name[-1][0]:}_sigma", name[-1][1]), )
-            atom_site_susceptibility.set_variable_by_name(name_sig, sig)
-        chi_iso_f = chi_iso_ferro
-        chi_iso_af = chi_iso_antiferro
+        elif name[0][0] == "mem_parameters":
+            mem_parameters.set_variable_by_name(name, parameter)
+            mem_parameters.set_variable_by_name(name_sig, sig)
 
-    if chi_iso_f < 0.:
-        chi_iso_f = 0.
-    if chi_iso_af > 0.:
-        chi_iso_af = 0.
     for diffrn in l_diffrn:
         diffrn.diffrn_refln.numpy_to_items()
         chi_sq, points = diffrn.diffrn_refln.calc_chi_sq_points()
         refine_ls = RefineLs(goodness_of_fit_all=chi_sq/points,
                              number_reflns=points)
         diffrn.add_items([refine_ls])
-    return chi_iso_f, chi_iso_af
 
 
-def func_temp(*argv):
+def func_temp(*argv, param_name: List[tuple] = None, d_info: dict = None) \
+        -> bool:
     """Show data at optimization procedure."""
+    flag_out = False
     l_param = argv[0]
     s_out = " ".join([f"{_:10.5f}" for _ in l_param])
     print(f"{s_out:}", end="\r")
+    if d_info is not None:
+        if param_name is not None:
+            ls_out = [f"{name[-1][0]:}: {param: 10.5f}" for name, param in
+                      zip(param_name, l_param)]
+        else:
+            ls_out = [f"{param: 10.5f}" for param in l_param]
+        d_info["print"] = "Best solution:\n\n"+"\n".join(ls_out)
+        flag_out = d_info["stop"]
+    return flag_out
 
 
 def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
-               chi_iso_ferro: float = 0., chi_iso_antiferro: float = 0.,
-               flag_ferro: bool = True, flag_antiferro: bool = True,
-               points_a: int = 48, points_b: int = 48, points_c: int = 48,
-               prior_density: str = "uniform",
+               mem_parameters: MEMParameters,
                c_lambda: float = 1e-6, n_iterations: int = 51,
-               n_cycle: int = 10, gof_desired: float = 1.,
-               flag_two_channel: bool = False, disp: bool = True,
+               n_cycle: int = 10, disp: bool = True,
                d_info: dict = None):
     """Rho - Chi cycle."""
-    chi_iso_ferro_new, chi_iso_antiferro_new = chi_iso_ferro, chi_iso_antiferro
-    # atom_site_susceptibility = crystal.atom_site_susceptibility
-    # l_var = atom_site_susceptibility.get_variables()
-    chi_iso_ferro_new = float(chi_iso_ferro)
-    chi_iso_antiferro_new = float(chi_iso_antiferro)
     flag_info = d_info is not None
 
+    d_info_2 = None
     if flag_info:
         d_info_keys = d_info.keys()
         if "stop" not in d_info_keys:
             d_info["stop"] = False
         if "print" not in d_info_keys:
             d_info["print"] = ""
+        if "d_info" not in d_info_keys:
+            d_info_2 = {"stop": False, "print": ""}
+            d_info["d_info"] = d_info_2
+
+    flag_info = d_info is not None
 
     for i_cycle in range(n_cycle):
         print(f"Cycle {(i_cycle+1):4}. Entropy maximization                  ",
               end="\r")
 
         if flag_info:
-            d_info["print"] = f"Cycle {(i_cycle+1):4}/{n_cycle:}. Entropy maximization."
+            d_info["print"] = f"""Cycle {(i_cycle+1):4}/{n_cycle:}:
+    Entropy maximization."""
             if d_info["stop"]:
+                d_info["stop"] = False
                 break
         density_point = maximize_entropy(
-            crystal, l_diffrn, c_lambda=c_lambda, n_iterations=n_iterations,
-            chi_iso_ferro=chi_iso_ferro_new,
-            chi_iso_antiferro=chi_iso_antiferro_new,
-            points_a=points_a, points_b=points_b, points_c=points_c,
-            prior_density=prior_density, gof_desired=gof_desired,
-            flag_two_channel=flag_two_channel, disp=disp, d_info=None)
+            crystal, l_diffrn, mem_parameters, c_lambda=c_lambda,
+            n_iterations=n_iterations, disp=disp, d_info=d_info_2)
 
         if flag_info:
-            d_info["print"] = f"Cycle {(i_cycle+1):4}/{n_cycle:}. Chi refinement."
+            d_info["print"] = f"""Cycle {(i_cycle+1):4}/{n_cycle:}:
+    Chi refinement."""
             if d_info["stop"]:
+                d_info["stop"] = False
                 break
         print(f"Cycle {(i_cycle+1):4}. Chi refinement                        ",
               end="\r")
-        chi_iso_ferro_new, chi_iso_antiferro_new = refine_susceptibility(
-            crystal, l_diffrn, density_point, chi_iso_ferro=chi_iso_ferro_new,
-            chi_iso_antiferro=chi_iso_antiferro_new,
-            flag_ferro=flag_ferro, flag_antiferro=flag_antiferro,
-            flag_two_channel=flag_two_channel, disp=disp)
-    return density_point, chi_iso_ferro_new, chi_iso_antiferro_new
+        refine_susceptibility(crystal, l_diffrn, density_point, mem_parameters,
+                              disp=disp, d_info=d_info_2)
+    return density_point
