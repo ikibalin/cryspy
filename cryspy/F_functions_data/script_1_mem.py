@@ -18,6 +18,27 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
 
+def choose_max_clambda(c_lambda: float, den: numpy.ndarray, der: numpy.ndarray,
+                       rel_diff: float = 0.1) -> float:
+    """Search optimal c_lambda.
+
+    den_new = den * exp(-c_lambda * der)
+    c_lambda: (den_new - den) < rel_diff
+    """
+    exp_c_lambda = numpy.exp(-c_lambda*der)
+    rel_max = (numpy.abs(1.-exp_c_lambda)).max()
+    arg_max = (numpy.abs(1.-exp_c_lambda)).argmax()
+    if rel_max < rel_diff:
+        return c_lambda
+
+    # FIXME: check it.
+    if exp_c_lambda[arg_max] > 1.: 
+        c_lambda_new = -1*numpy.log(1+rel_diff)/der[arg_max]
+    else:  # <= 1
+        c_lambda_new = -1*numpy.log(1-rel_diff)/der[arg_max]
+    return c_lambda_new
+
+
 def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                      mem_parameters: MEMParameters,
                      c_lambda: float = 1e-7, n_iterations: int = 10000,
