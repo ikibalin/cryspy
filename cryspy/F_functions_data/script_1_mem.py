@@ -32,7 +32,7 @@ def choose_max_clambda(c_lambda: float, den: numpy.ndarray, der: numpy.ndarray,
         return c_lambda
 
     # FIXME: check it.
-    if exp_c_lambda[arg_max] > 1.: 
+    if exp_c_lambda[arg_max] > 1.:
         c_lambda_new = -1*numpy.log(1+rel_diff)/der[arg_max]
     else:  # <= 1
         c_lambda_new = -1*numpy.log(1-rel_diff)/der[arg_max]
@@ -261,10 +261,16 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                 d_info["stop"] = False
                 break
 
+        rel_diff = 0.05
         if not(flag_two_channel):
+            c_lambda = choose_max_clambda(c_lambda, numpy_density,
+                                          delta_chi_sq, rel_diff)
             density_point.numpy_density = numpy_density*numpy.exp(
                 -c_lambda*delta_chi_sq)
-
+        else:
+            c_lambda = choose_max_clambda(c_lambda, numpy_density_ferro,
+                                          delta_chi_sq_f, rel_diff)
+            
         density_point.numpy_density_ferro = \
             numpy_density_ferro*numpy.exp(-c_lambda*delta_chi_sq_f)
         density_point.numpy_density_antiferro = \
