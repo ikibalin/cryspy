@@ -2,7 +2,7 @@
 Base crystallographic functions.
 
 Functions
-=========
+---------
     - calc_beta_by_u
     - vibration_constraints,
     - apply_constraint_on_cell_by_type_cell
@@ -380,10 +380,3 @@ def apply_constraint_on_cell_by_type_cell(
     cell_constr = (a_constr, b_constr, c_constr, alpha_constr, beta_constr,
                    gamma_constr)
     return cell_param, cell_sigma, cell_ref, cell_constr
-
-
-FUNCTIONS = [
-    calc_beta_by_u,
-    vibration_constraints,
-    apply_constraint_on_cell_by_type_cell
-]

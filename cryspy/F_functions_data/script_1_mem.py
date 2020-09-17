@@ -6,12 +6,15 @@ import scipy
 import scipy.optimize
 import copy
 
-from cryspy.A_functions_base.function_1_matrices import calc_chi_sq
+from cryspy.A_functions_base.function_1_matrices import calc_chi_sq, \
+    tri_linear_interpolation, calc_product_matrix_vector
 from cryspy.A_functions_base.function_2_mem import calc_moment_perp, \
-    calc_fm_by_density
+    calc_fm_by_density, transfer_to_density_3d, transfer_to_chi_3d
 
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
+
+from cryspy.C_item_loop_classes.cl_2_section import Section
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
@@ -270,7 +273,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         else:
             c_lambda = choose_max_clambda(c_lambda, numpy_density_ferro,
                                           delta_chi_sq_f, rel_diff)
-            
+
         density_point.numpy_density_ferro = \
             numpy_density_ferro*numpy.exp(-c_lambda*delta_chi_sq_f)
         density_point.numpy_density_antiferro = \
@@ -567,3 +570,181 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
         refine_susceptibility(crystal, l_diffrn, density_point, mem_parameters,
                               disp=disp, d_info=d_info_2)
     return density_point
+
+
+def calc_moments(fract_x, fract_y, fract_z, field_loc,
+                 density_point: DensityPointL, crystal: Crystal,
+                 mem_parameters: MEMParameters):
+    """Calculate magnetic moments in points fract_x, fract_y, fract_z."""
+    points_a = mem_parameters.points_a
+    points_b = mem_parameters.points_b
+    points_c = mem_parameters.points_c
+    
+    cell = crystal.cell
+    atom_site = crystal.atom_site
+
+    np_ind_xyz = numpy.transpose(numpy.array([fract_x*points_a, fract_y*points_b, fract_z*points_c], dtype=float))
+    
+    # np_ind_xyz = (fract_x*points_a, fract_y*points_b, fract_z*points_c)
+
+    chi_3d_11, chi_3d_22, chi_3d_33, chi_3d_12, chi_3d_13, chi_3d_23, \
+        chi_3d_iso = calc_densities_3d_for_mem(
+        density_point, crystal, mem_parameters=mem_parameters)
+
+    c_11 = tri_linear_interpolation(np_ind_xyz, chi_3d_11)
+    c_22 = tri_linear_interpolation(np_ind_xyz, chi_3d_22)
+    c_33 = tri_linear_interpolation(np_ind_xyz, chi_3d_33)
+    c_12 = tri_linear_interpolation(np_ind_xyz, chi_3d_12)
+    c_13 = tri_linear_interpolation(np_ind_xyz, chi_3d_13)
+    c_23 = tri_linear_interpolation(np_ind_xyz, chi_3d_23)
+
+    c_iso = tri_linear_interpolation(np_ind_xyz, chi_3d_iso)
+
+    c_orto = cell.ortogonalize_matrix((c_11, c_12, c_13, c_12, c_22, c_23,
+                                       c_13, c_23, c_33))
+    m_x, m_y, m_z = calc_product_matrix_vector(c_orto, field_loc)
+    m_b_x, m_b_y, m_b_z = c_iso*field_loc[0], c_iso*field_loc[1], \
+        c_iso*field_loc[2]
+
+    moment_x, moment_y, moment_z = m_x+m_b_x, m_y+m_b_y, m_z+m_b_z
+
+    return moment_x, moment_y, moment_z 
+
+def calc_moments_in_unit_cell(field_loc, density_point: DensityPointL,
+                              crystal: Crystal, mem_parameters: MEMParameters):
+    points_a = mem_parameters.points_a
+    points_b = mem_parameters.points_b
+    points_c = mem_parameters.points_c
+
+    h_x = numpy.linspace(0., 1., num=points_a, endpoint=False, dtype=float)
+    h_y = numpy.linspace(0., 1., num=points_b, endpoint=False, dtype=float)
+    h_z = numpy.linspace(0., 1., num=points_c, endpoint=False, dtype=float)
+
+    fract_x, fract_y, fract_z = numpy.meshgrid(h_x, h_y, h_z, indexing="ij")
+    fract_x, fract_y = fract_x.flatten(), fract_y.flatten()
+    fract_z = fract_z.flatten()
+
+    moment_x, moment_y, moment_z = calc_moments(
+        fract_x, fract_y, fract_z, field_loc, density_point, crystal,
+        mem_parameters)
+
+    return fract_x, fract_y, fract_z, moment_x, moment_y, moment_z
+
+def calc_section_for_mem(section: Section, density_point: DensityPointL,
+                         crystal: Crystal, mem_parameters: MEMParameters,
+                         field_loc):
+    """
+    Calculate magnetization density of paramagnetic compound at given field.
+
+    The result is written into file.
+    """
+
+    cell = crystal.cell
+    atom_site = crystal.atom_site
+    np_fract_x, np_fract_y, np_fract_z = section.calc_fractions(
+        cell, atom_site)
+
+    moment_x, moment_y, moment_z = calc_moments(
+        np_fract_x, np_fract_y, np_fract_z, field_loc, density_point, crystal,
+        mem_parameters)
+
+    size_x, size_y = float(section.size_x), float(section.size_y)
+
+    np_x = (numpy.array(range(section.points_x), dtype=float) -
+            0.5*section.points_x) * size_x / float(section.points_x)
+
+    np_y = (numpy.array(range(section.points_y), dtype=float) -
+            0.5*section.points_y) * size_y / float(section.points_y)
+
+    np_x_2d, np_y_2d = meshgrid(np_x, np_y, indexing="ij")
+    np_x, np_y = np_x_2d.flatten(), np_y_2d.flatten()
+
+    v_pos_x, v_pos_y, v_pos_z = section.calc_axes_x_y_z(cell, atom_site)
+
+    ls_out = []
+    ls_out.append(
+        f"   dist_x    dist_y        moment_x        moment_y        moment_z")
+    for _x, _y, v_m_x, v_m_y, v_m_z in zip(
+            np_x, np_y, moment_x, moment_y, moment_z):
+        val_x = v_pos_x[0]*v_m_x + v_pos_x[1]*v_m_y + v_pos_x[2]*v_m_z
+        val_y = v_pos_y[0]*v_m_x + v_pos_y[1]*v_m_y + v_pos_y[2]*v_m_z
+        val_z = v_pos_z[0]*v_m_x + v_pos_z[1]*v_m_y + v_pos_z[2]*v_m_z
+        ls_out.append(f"{_x:9.5f} {_y:9.5f} {val_x:15.10f} {val_y:15.10f} {val_z:15.10f}")
+    with open(section.url_out, "w") as fid:
+        fid.write("\n".join(ls_out))
+        
+
+def calc_densities_3d_for_mem(density_point: DensityPointL, crystal: Crystal,
+                              mem_parameters: MEMParameters):
+    """
+    Calculate 3d density for susceptibility tensor and isotropical background.
+
+    Output:
+
+        - chi_den_3d_11, chi_den_3d_22, chi_den_3d_33,
+          chi_den_3d_12, chi_den_3d_13, chi_den_3d_23,
+          chi_den_3d_iso
+    """
+    points_a = mem_parameters.points_a
+    points_b = mem_parameters.points_b
+    points_c = mem_parameters.points_c
+    chi_iso_ferro = mem_parameters.chi_ferro
+    chi_iso_antiferro = mem_parameters.chi_antiferro
+
+    atom_site_susceptibility = crystal.atom_site_susceptibility
+
+    space_group = crystal.space_group
+    full_space_group_symop = space_group.full_space_group_symop
+
+    points_abc = (points_a, points_b, points_c)
+    
+    density_point.calc_rbs_i(full_space_group_symop, points_a=points_a,
+                             points_b=points_b, points_c=points_c)
+
+    susc_11, susc_22, susc_33, susc_12, susc_13, susc_23 = \
+        density_point.calc_susc_i(atom_site_susceptibility)
+
+    index_xyz = (numpy.array(density_point.index_x, dtype=int),
+                 numpy.array(density_point.index_y, dtype=int),
+                 numpy.array(density_point.index_z, dtype=int))
+
+    den_i = numpy.array(density_point.density, dtype=float)
+    den_ferro_i = numpy.array(density_point.density_ferro, dtype=float)
+    den_aferro_i = numpy.array(density_point.density_antiferro, dtype=float)
+
+    r_11 = full_space_group_symop.numpy_r_11.astype(float)
+    r_12 = full_space_group_symop.numpy_r_12.astype(float)
+    r_13 = full_space_group_symop.numpy_r_13.astype(float)
+    r_21 = full_space_group_symop.numpy_r_21.astype(float)
+    r_22 = full_space_group_symop.numpy_r_22.astype(float)
+    r_23 = full_space_group_symop.numpy_r_23.astype(float)
+    r_31 = full_space_group_symop.numpy_r_31.astype(float)
+    r_32 = full_space_group_symop.numpy_r_32.astype(float)
+    r_33 = full_space_group_symop.numpy_r_33.astype(float)
+
+    b_1 = full_space_group_symop.numpy_b_1.astype(float)
+    b_2 = full_space_group_symop.numpy_b_2.astype(float)
+    b_3 = full_space_group_symop.numpy_b_3.astype(float)
+
+    r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+    b_i = (b_1, b_2, b_3)
+    
+    den_3d = transfer_to_density_3d(index_xyz, den_i, points_abc, r_ij, b_i)
+    den_ferro_3d = transfer_to_density_3d(
+        index_xyz, den_ferro_i, points_abc, r_ij, b_i)
+    den_aferro_3d = transfer_to_density_3d(
+        index_xyz, den_aferro_i, points_abc, r_ij, b_i)
+
+    chi_3d_11, chi_3d_22, chi_3d_33, chi_3d_12, chi_3d_13, chi_3d_23 = \
+        transfer_to_chi_3d(index_xyz, susc_11, susc_22, susc_33, susc_12,
+                           susc_13, susc_23, points_abc, r_ij, b_i)
+
+    chi_den_3d_11, chi_den_3d_22 = chi_3d_11*den_3d, chi_3d_22*den_3d
+    chi_den_3d_33, chi_den_3d_12 = chi_3d_33*den_3d, chi_3d_12*den_3d
+    chi_den_3d_13, chi_den_3d_23 = chi_3d_13*den_3d, chi_3d_23*den_3d
+
+    chi_den_3d_iso = chi_iso_ferro*den_ferro_3d + \
+        chi_iso_antiferro*den_aferro_3d
+
+    return chi_den_3d_11, chi_den_3d_22, chi_den_3d_33,\
+        chi_den_3d_12, chi_den_3d_13, chi_den_3d_23, chi_den_3d_iso

@@ -508,7 +508,7 @@ def tri_linear_interpolation(ind_xyz, den_3d):
 
     Parameters
     ----------
-    ind_xyz : TYPE
+    ind_xyz : [:, 3] of float
         DESCRIPTION.
     den_3d : TYPE
         DESCRIPTION.

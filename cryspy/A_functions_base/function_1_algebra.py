@@ -1,4 +1,13 @@
-"""Module realized some mathematical functions."""
+"""Module realized some mathematical functions.
+
+Functions
+---------
+    - calc_m_sigma
+    - calc_scalar_product_by_vectors
+    - calc_scalar_product_by_complex_vectors
+    - calc_modulus_sq_by_complex_vector
+
+"""
 import numpy
 
 

@@ -18,7 +18,7 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
 from cryspy.F_functions_data.script_1_mem import maximize_entropy, \
-    refine_susceptibility, make_cycle
+    refine_susceptibility, make_cycle, calc_moments_in_unit_cell
 
 
 class MEM(GlobalN):
@@ -140,6 +140,12 @@ class MEM(GlobalN):
         space_group_symop = space_group.full_space_group_symop
         atom_site_susceptibility = crystal.atom_site_susceptibility
 
+        # FIXME: temporary solution of calculation rbs_i if it's not defined
+        density_point.calc_rbs_i(
+            space_group_symop, points_a=mem_parameters.points_a,
+            points_b=mem_parameters.points_b, points_c=mem_parameters.points_c)
+
+
         total_peaks = 0
 
         den_i = numpy.array(density_point.density, dtype=float)
@@ -199,7 +205,6 @@ class MEM(GlobalN):
                                               delta_f_m_perp=f_m_perp)
             diffrn.diffrn_refln.numpy_fr_calc = fr_m
         for diffrn in l_diffrn:
-            # FIXME: not sure that input parameters should be modified
             diffrn.diffrn_refln.numpy_to_items()
             chi_sq, points = diffrn.diffrn_refln.calc_chi_sq_points()
             refine_ls = RefineLs(goodness_of_fit_all=chi_sq/points,
@@ -255,3 +260,29 @@ class MEM(GlobalN):
                        n_iterations=n_iterations, n_cycle=n_cycle, disp=disp,
                        d_info=d_info)
         self.add_items([density_point])
+
+    def calc_moments_in_unit_cell(self, field_loc,
+                                  f_name: str = "moments_in_unit_cell.dat"):
+        """Calc moments in an unit cell.
+
+        If f_name is given, the result is save in file.
+        If it is None, the results are given in output.
+        """
+        density_point = self.density_point
+        crystal = self.crystals()[0]
+        mem_parameters = self.mem_parameters
+        fract_x, fract_y, fract_z, moment_x, moment_y, moment_z = \
+            calc_moments_in_unit_cell(field_loc, density_point, crystal,
+                                      mem_parameters)
+        if f_name is None:
+            return fract_x, fract_y, fract_z, moment_x, moment_y, moment_z
+        else:
+            ls_out = ["# Moments in an unit cell"]
+            ls_out.append("loop_\n_fract_x\n_fract_y\n_fract_z")
+            ls_out.append("_moment_x\n_moment_y\n_moment_z")
+            for f_x, f_y, f_z, m_x, m_y, m_z in zip(
+                    fract_x, fract_y, fract_z, moment_x, moment_y, moment_z):
+                ls_out.append(f"{f_x:9.5f} {f_y:9.5f} {f_z:9.5f} \
+{m_x:10.3f} {m_y:10.3f} {m_z:10.3f}")
+            with open(f_name, "w") as fid:
+                fid.write("\n".join(ls_out))

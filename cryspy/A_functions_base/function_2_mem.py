@@ -3,7 +3,7 @@ from typing import NoReturn
 import numpy
 
 from cryspy.A_functions_base.function_1_matrices import \
-    calc_product_matrix_vector, calc_vector_product
+    calc_product_matrix_vector, calc_vector_product, calc_mRmCmRT
 
 
 def calc_asymmetric_unit_cell_indexes(n_x: int, n_y: int, n_z: int, r_ij, b_i)\
@@ -319,3 +319,44 @@ def transfer_to_density_3d(np_indexes, density, n_xyz, r_ij, b_i):
             ).astype(int), n_z)
         den_3d[np_ind_x, np_ind_y, np_ind_z] = density
     return den_3d
+
+
+def transfer_to_chi_3d(np_indexes, chi_11, chi_22, chi_33, chi_12, chi_13,
+                       chi_23, n_xyz, r_ij, b_i):
+    """
+    Give six 3D arrays of susceptibility.
+
+    Input arguments:
+        - np_xyz is numpy array of integer numbers;
+        - val_1, ... are numpy array of float numbers.
+    """
+    (n_x, n_y, n_z) = n_xyz
+    (i_x, i_y, i_z) = np_indexes
+    chi_3d_11, chi_3d_22 = numpy.zeros(n_xyz), numpy.zeros(n_xyz)
+    chi_3d_33, chi_3d_12 = numpy.zeros(n_xyz), numpy.zeros(n_xyz)
+    chi_3d_13, chi_3d_23 = numpy.zeros(n_xyz), numpy.zeros(n_xyz)
+
+    for r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2, b_3 \
+            in zip(*r_ij, *b_i):
+        np_ind_x = numpy.mod((numpy.around((
+            i_x*r_11 + i_y*r_12 + i_z*r_13 + n_x*b_1).astype(float), 0)
+            ).astype(int), n_x)
+        np_ind_y = numpy.mod((numpy.around((
+            i_x*r_21 + i_y*r_22 + i_z*r_23 + n_y*b_2).astype(float), 0)
+            ).astype(int), n_y)
+        np_ind_z = numpy.mod((numpy.around((
+            i_x*r_31 + i_y*r_32 + i_z*r_33 + n_z*b_3).astype(float), 0)
+            ).astype(int), n_z)
+        chi_out = calc_mRmCmRT(
+            (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33),
+            (chi_11, chi_12, chi_13, chi_12, chi_22, chi_23, chi_13, chi_23,
+             chi_33))
+        chi_11_rot, chi_12_rot, chi_13_rot, chi_21_rot, chi_22_rot, \
+            chi_23_rot, chi_31_rot, chi_32_rot, chi_33_rot = chi_out
+        chi_3d_11[np_ind_x, np_ind_y, np_ind_z] = chi_11_rot
+        chi_3d_22[np_ind_x, np_ind_y, np_ind_z] = chi_22_rot
+        chi_3d_33[np_ind_x, np_ind_y, np_ind_z] = chi_33_rot
+        chi_3d_12[np_ind_x, np_ind_y, np_ind_z] = chi_12_rot
+        chi_3d_13[np_ind_x, np_ind_y, np_ind_z] = chi_13_rot
+        chi_3d_23[np_ind_x, np_ind_y, np_ind_z] = chi_23_rot
+    return chi_3d_11, chi_3d_22, chi_3d_33, chi_3d_12, chi_3d_13, chi_3d_23

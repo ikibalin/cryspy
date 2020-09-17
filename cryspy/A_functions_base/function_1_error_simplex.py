@@ -1,4 +1,10 @@
-"""Module realized error estimation after minimization procedure by simplex."""
+"""Module realized error estimation after minimization procedure by simplex.
+
+Functions
+---------
+    - error_estimation_simplex
+
+"""
 import numpy
 
 
