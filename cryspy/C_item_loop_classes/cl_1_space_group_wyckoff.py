@@ -96,14 +96,17 @@ class SpaceGroupWyckoff(ItemN):
             self.__dict__["full_b"] = full_b
             self.__dict__["full_coord_xyz"] = full_coord_xyz
 
-    def is_valid_for_fract(self, fract_x: float, fract_y: float, fract_z: float, tol=10 ** -5) -> bool:
-        fract_x, fract_y, fract_z = float(fract_x), float(fract_y), float(fract_z)
+    def is_valid_for_fract(self, fract_x: float, fract_y: float,
+                           fract_z: float, tol=10 ** -5) -> bool:
+        fract_x, fract_y = float(fract_x), float(fract_y)
+        fract_z = float(fract_z)
         nval = int(tol ** -1)
         flag_res = False
         for r, b in zip(self.full_r, self.full_b):
-            flag_res = is_good_for_mask(r, b, Fraction(fract_x).limit_denominator(nval),
-                                        Fraction(fract_y).limit_denominator(nval),
-                                        Fraction(fract_z).limit_denominator(nval))
+            flag_res = is_good_for_mask(
+                r, b, Fraction(fract_x).limit_denominator(nval),
+                Fraction(fract_y).limit_denominator(nval),
+                Fraction(fract_z).limit_denominator(nval))
             if flag_res:
                 break
         return flag_res

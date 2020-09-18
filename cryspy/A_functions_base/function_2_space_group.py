@@ -1243,9 +1243,10 @@ def separate_notation_it_coordinate_system_code(name: str):
     return notation, it_coordinate_system_code
 
 
-def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number: int, it_coordinate_system_code: str):
+def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
+        it_number: int, it_coordinate_system_code: str):
     """
-    TODO: HOW it works for 166 space group
+    FIXME: HOW it works for 166 space group
     crystal system should be trigonal or hexagonal
     """
     crystal_system = get_crystal_system_by_it_number(it_number)
@@ -1258,10 +1259,10 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(it_number: i
     elif "1" in it_coordinate_system_code:
         choice = "1"
     elif "h" in it_coordinate_system_code:
-        #TODO: IT SHOULD BE CHECKED
-        #if crystal_system.startswith("trigonal"):
-        #    choice = "2"
-        #else:  # hexagonal
+        # FIXME: IT SHOULD BE CHECKED
+        # if crystal_system.startswith("trigonal"):
+        #     choice = "2"
+        # else:  # hexagonal
         choice = "1"
     elif "r" in it_coordinate_system_code:
         choice = "1"

@@ -128,7 +128,6 @@ class AtomSite(ItemN):
         type_n = self.type_symbol
         self.__dict__["scat_length_neutron"] = get_scat_length_neutron(type_n)
 
-
     def define_space_group_wyckoff(self, space_group_wyckoff_l) -> bool:
         """Define space group by Wyckoff."""
         fract_x, fract_y, fract_z = self.fract_x, self.fract_y, self.fract_z
@@ -235,6 +234,7 @@ class AtomSiteL(LoopN):
     """
     ITEM_CLASS = AtomSite
     ATTR_INDEX = "label"
+
     def __init__(self, loop_name = None) -> NoReturn:
         super(AtomSiteL, self).__init__()
         self.__dict__["items"] = []

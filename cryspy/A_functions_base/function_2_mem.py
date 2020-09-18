@@ -175,9 +175,8 @@ def calc_factor_in_front_of_density_for_fm(mult_i, np, volume,
 
     # [ind, symm]
     m_2d_1, m_2d_2, m_2d_3 = moment_2d
-    t_2d_1, t_2d_2, t_2d_3 = m_rho[:, numpy.newaxis] * \
-        m_2d_1, m_rho[:, numpy.newaxis] * m_2d_2, m_rho[:, numpy.newaxis] * \
-        m_2d_3
+    t_2d_1, t_2d_2, t_2d_3 = m_rho[:, numpy.newaxis] * m_2d_1, \
+        m_rho[:, numpy.newaxis] * m_2d_2, m_rho[:, numpy.newaxis] * m_2d_3
 
     # [hkl, ind, symm]
     v_hkl_3d_1 = t_2d_1[numpy.newaxis, :, :] * phase_3d[:, :, :]

@@ -193,7 +193,7 @@ class SpaceGroupSymopL(LoopN):
                 _item.id = f"{_i:}"
                 item_uniq.append(_item)
         _obj = cls()
-        _obj.items=item_uniq
+        _obj.items = item_uniq
         return _obj
 
     def get_coords_xyz_by_coord_xyz(self, coord_xyz: str) -> Tuple:

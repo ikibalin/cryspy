@@ -115,7 +115,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         atom_electron_configuration = crystal.atom_electron_configuration
         density_point.create_core_density(
             space_group_symop, cell, atom_site, atom_electron_configuration,
-            points_a=points_a, points_b=points_b, points_c=points_c)
+            points_a=points_a, points_b=points_b, points_c=points_c,
+            flag_two_channel=flag_two_channel)
     else:
         print("The prior density is uniform.", end="\r")
         if flag_info:
@@ -201,7 +202,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
 
         chi_sq_n = chi_sq/float(total_peaks)
         if disp:
-            print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} {c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}",
+            print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} \
+{c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}",
                   end="\r")
         if flag_info:
             d_info["print"] = f"""Iteration {i_cycle:5}:
@@ -231,7 +233,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         delta_chi_sq_a_best = copy.deepcopy(delta_chi_sq_a)
 
         if chi_sq_n < gof_desired:
-            print(f"OUT: cycle {i_cycle:5} chi_sq/n is less than {gof_desired:.2f}",
+            print(f"OUT: cycle {i_cycle:5} chi_sq/n is less than \
+{gof_desired:.2f}",
                   end="\r")
             if flag_info:
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:
@@ -252,7 +255,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                 flag_two_channel=flag_two_channel)
             break
         elif ((chi_sq_n_diff < 0.001) and (i_cycle > 10)):
-            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff of GoF is less than 0.001.",
+            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff \
+of GoF is less than 0.001.",
                   end="\r")
             if flag_info:
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:

@@ -346,11 +346,13 @@ class DensityPointL(LoopN):
         self.numpy_density_ferro = numpy_density_ferro
         self.numpy_density_antiferro = numpy_density_antiferro
 
+        self.renormalize_numpy_densities(flag_two_channel=flag_two_channel)
         self.numpy_to_items()
 
-    def set_core_density(self, atom_site: AtomSiteL,
-                         atom_electron_configuration:
-                             AtomElectronConfigurationL):
+    def set_core_density(
+            self, atom_site: AtomSiteL,
+            atom_electron_configuration: AtomElectronConfigurationL,
+            flag_two_channel: bool = False):
         r"""
         Define starting density as flat density by expression.
 
@@ -414,12 +416,9 @@ class DensityPointL(LoopN):
         self.numpy_density_ferro = numpy_density_ferro
         self.numpy_density_antiferro = numpy_density_antiferro
 
-        for item, density, density_ferro, density_antiferro in \
-            zip(self.items, numpy_density, numpy_density_ferro,
-                numpy_density_antiferro):
-            item.density = density
-            item.density_ferro = density_ferro
-            item.density_antiferro = density_antiferro
+        self.renormalize_numpy_densities(flag_two_channel=flag_two_channel)
+        self.numpy_to_items()
+
 
     def create_flat_density(self, space_group_symop: SpaceGroupSymopL,
                             cell: Cell, atom_site: AtomSiteL,
@@ -445,7 +444,7 @@ class DensityPointL(LoopN):
             self, space_group_symop: SpaceGroupSymopL, cell: Cell,
             atom_site: AtomSiteL, atom_electron_configuration:
             AtomElectronConfigurationL, points_a: int = 48, points_b: int = 48,
-            points_c: int = 48):
+            points_c: int = 48, flag_two_channel: bool = False):
         """Create core density.
 
         Parameters
@@ -480,11 +479,12 @@ class DensityPointL(LoopN):
             space_group_symop, cell, atom_site, points_a=points_a,
             points_b=points_b, points_c=points_c)
 
-        self.set_core_density(atom_site, atom_electron_configuration)
+        self.set_core_density(atom_site, atom_electron_configuration,
+                              flag_two_channel=flag_two_channel)
 
     def save_to_file_den(
             self, mem_parameters: MEMParameters, space_group: SpaceGroup,
-            cell: Cell, f_name: str = "file.den", label_atom=None,
+            cell: Cell, f_name: str = "file.den", l_label_atom: list = None,
             f_background: str = "file_back.den"):
         """Save to file."""
         numpy_basin_atom_label = numpy.array(self.basin_atom_label, dtype=str)
@@ -501,18 +501,15 @@ class DensityPointL(LoopN):
         density_antiferro = self.density_antiferro
         ls_out = []
         ls_out_b = ["Created by CrysPy, mu_B/Tesla"]
-        if label_atom is not None:
-            ls_out.append(f"Created by CrysPy, atom: {label_atom:}")
-        else:
-            ls_out.append("Created by CrysPy")
+        ls_out.append("Created by CrysPy")
         ls_out.append("{:}".format(len(index_x)))
         ls_out_b.append("{:}".format(len(index_x)))
 
         for _x, _y, _z, _l, den, den_f, den_a in \
             zip(index_x, index_y, index_z, numpy_basin_atom_label, density,
                 density_ferro, density_antiferro):
-            if label_atom is not None:
-                if label_atom == _l:
+            if l_label_atom is not None:
+                if _l in l_label_atom:
                     _s = f"{den:15.7f}"
                 else:
                     _s = f"{0.:15.7f}"
@@ -724,8 +721,8 @@ class DensityPointL(LoopN):
             flag_x = np_x_n == i_x
             flag_y = np_y_n == i_y
             flag_z = np_z_n == i_z
-            fl_xyz = numpy.logical_and(numpy.logical_and(flag_x, flag_y),
-                                       flag_z)
+            flag_xy = numpy.logical_and(flag_x, flag_y)
+            fl_xyz = numpy.logical_and(flag_xy, flag_z)
             r_11_c, r_12_c, r_13_c = r_11[fl_xyz], r_12[fl_xyz], r_13[fl_xyz]
             r_21_c, r_22_c, r_23_c = r_21[fl_xyz], r_22[fl_xyz], r_23[fl_xyz]
             r_31_c, r_32_c, r_33_c = r_31[fl_xyz], r_32[fl_xyz], r_33[fl_xyz]

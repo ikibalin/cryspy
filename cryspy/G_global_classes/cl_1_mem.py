@@ -84,14 +84,20 @@ class MEM(GlobalN):
     def save_to_file_den(self, f_name: str = "file.den", label_atom=None,
                          f_background: str = "file_back.den"):
         """Save density to ".den" files."""
-        mem_parameters = self.mem_parameters
         crystal = self.crystals()[0]
         space_group = crystal.space_group
         cell = crystal.cell
+        mem_parameters = self.mem_parameters
+        flag_two_channel = mem_parameters.method == "2channel"
+        if flag_two_channel:
+            l_label_atom = None
+        else:
+            atom_site_susceptibility = crystal.atom_site_susceptibility
+            l_label_atom = atom_site_susceptibility.label
         density_point = self.density_point
         density_point.save_to_file_den(
             mem_parameters, space_group, cell, f_name=f_name,
-            label_atom=label_atom, f_background=f_background)
+            l_label_atom=l_label_atom, f_background=f_background)
 
     def create_prior_density(self):
         """Create prior denisity."""
@@ -115,13 +121,15 @@ class MEM(GlobalN):
             density_point.create_core_density(
                 space_group_symop, cell, atom_site,
                 atom_electron_configuration, points_a=points_a,
-                points_b=points_b, points_c=points_c)
+                points_b=points_b, points_c=points_c,
+                flag_two_channel=flag_two_channel)
         else:
             density_point.create_flat_density(
                 space_group_symop, cell, atom_site,
                 l_magnetic_labes=l_magnetic_labes, points_a=points_a,
                 points_b=points_b, points_c=points_c,
                 flag_two_channel=flag_two_channel)
+
         self.add_items([density_point])
 
     def calc_fr(self):
