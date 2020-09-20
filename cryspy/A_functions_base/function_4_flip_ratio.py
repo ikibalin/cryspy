@@ -1,16 +1,13 @@
 import numpy
 
-from .function_1_algebra import \
-    calc_modulus_sq_by_complex_vector,\
+from .function_1_algebra import calc_modulus_sq_by_complex_vector,\
     calc_scalar_product_by_complex_vectors
 
-from .function_2_crystallography_base import \
-    calc_volume_uc_by_abc_cosines,\
+from .function_2_crystallography_base import calc_volume_uc_by_abc_cosines, \
     calc_sthovl_by_hkl_abc_cosines
 
 
-from .function_3_extinction import \
-    calc_extinction_2
+from .function_3_extinction import calc_extinction_2
 
 
 def calc_f_plus_sq(f_nucl:complex, f_mag_perp_vert:complex, 

@@ -8,6 +8,7 @@ import scipy
 import scipy.misc
 from cryspy.A_functions_base.function_1_matrices import scalar_product
 from cryspy.A_functions_base.function_1_roots import calc_roots
+from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
@@ -691,11 +692,19 @@ class Diffrn(DataN):
                 f_mag_sigma = abs(fr_sigma[_ind] / der1)
                 lFMansMin_sigma.append(f_mag_sigma)
 
-        res = numpy.array(list(zip(index_h, index_k, index_l, lFMansMin,
-                                   lFMansMin_sigma)),
-                          dtype=[('index_h', 'i4'), ('index_k', 'i4'),
-                                 ('index_l', 'i4'), ('f_mag', '<f8'),
-                                 ('f_mag_sigma', '<f8')])
+        # res = numpy.array(list(zip(index_h, index_k, index_l, lFMansMin,
+        #                            lFMansMin_sigma)),
+        #                   dtype=[('index_h', 'i4'), ('index_k', 'i4'),
+        #                          ('index_l', 'i4'), ('f_mag', '<f8'),
+        #                          ('f_mag_sigma', '<f8')])
+        ls_out = ["loop_\n_estimate_index_h\n_estimate_index_k"]
+        ls_out.append("_estimate_index_l\n_estimate_f_mag\n_estimate_f_sigma")
+        for ind_h, ind_k, ind_l, f_mag, f_sig in \
+                zip(index_h, index_k, index_l, lFMansMin, lFMansMin_sigma):
+            ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} {f_mag:}  {f_sig:}")
+
+        res = LoopN.from_cif("\n".join(ls_out))
+
         return res
 
     def apply_constraints(self):

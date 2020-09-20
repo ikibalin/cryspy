@@ -343,15 +343,15 @@ class SpaceGroup(ItemN):
         """
 Give equivalent reflections of hkl and its multiplicity
         """
-        r_11 = self.reduced_space_group_symop.r_11
-        r_12 = self.reduced_space_group_symop.r_12
-        r_13 = self.reduced_space_group_symop.r_13
-        r_21 = self.reduced_space_group_symop.r_21
-        r_22 = self.reduced_space_group_symop.r_22
-        r_23 = self.reduced_space_group_symop.r_23
-        r_31 = self.reduced_space_group_symop.r_31
-        r_32 = self.reduced_space_group_symop.r_32
-        r_33 = self.reduced_space_group_symop.r_33
+        r_11 = numpy.array(self.reduced_space_group_symop.r_11, dtype=Fraction)
+        r_12 = numpy.array(self.reduced_space_group_symop.r_12, dtype=Fraction)
+        r_13 = numpy.array(self.reduced_space_group_symop.r_13, dtype=Fraction)
+        r_21 = numpy.array(self.reduced_space_group_symop.r_21, dtype=Fraction)
+        r_22 = numpy.array(self.reduced_space_group_symop.r_22, dtype=Fraction)
+        r_23 = numpy.array(self.reduced_space_group_symop.r_23, dtype=Fraction)
+        r_31 = numpy.array(self.reduced_space_group_symop.r_31, dtype=Fraction)
+        r_32 = numpy.array(self.reduced_space_group_symop.r_32, dtype=Fraction)
+        r_33 = numpy.array(self.reduced_space_group_symop.r_33, dtype=Fraction)
 
         h_s = r_11*h + r_21*k + r_31*l 
         k_s = r_12*h + r_22*k + r_32*l 
