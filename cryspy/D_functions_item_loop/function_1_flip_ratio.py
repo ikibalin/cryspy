@@ -102,6 +102,7 @@ def calc_intensity_up_down(
     # integral intensities and flipping ratios
     iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
     iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
+
     return iint_u, iint_d, dder
 
 
