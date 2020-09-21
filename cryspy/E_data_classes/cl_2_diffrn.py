@@ -1,13 +1,16 @@
 """Description of Diffrn class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
-import numpy
 
+from warnings import warn
 from typing import NoReturn, List
+import numpy
 import scipy
 import scipy.misc
+
 from cryspy.A_functions_base.function_1_matrices import scalar_product
 from cryspy.A_functions_base.function_1_roots import calc_roots
+
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 
@@ -23,6 +26,9 @@ from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
     ReflnSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
+
+from cryspy.D_functions_item_loop.function_1_flip_ratio import \
+    calc_flip_ratio, calc_fm_perp_loc, calc_e_up_loc
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
@@ -84,7 +90,7 @@ class Diffrn(DataN):
             setattr(self, key, attr)
 
     def calc_iint_u_d_flip_ratio(self, index_h, index_k, index_l, l_crystal,
-                                 flag_internal=True):
+                                 flag_internal: bool = True):
         """
         Calculate intensity for the given diffraction angle.
 
@@ -109,43 +115,43 @@ class Diffrn(DataN):
             ind = l_label.index(self.data_name)
             crystal = l_crystal[ind]
         else:
-            self._show_message("Crystal not found.\nThe first one is taken.")
+            warn("Crystal not found. The first one is taken.")
             crystal = l_crystal[0]
             self.phase.label = crystal.label
 
+        cell = crystal.cell
+        volume_unit_cell = cell.volume
+        sthovl = cell.calc_sthovl(index_h, index_k, index_l)
+        k_loc_i = cell.calc_k_loc(index_h, index_k, index_l)
+
         setup = self.setup
         wavelength = setup.wavelength
-        field_z = setup.field
+        field_norm = setup.field
         ratio_lambdaover2 = setup.ratio_lambdaover2
         flag_lambdaover2 = ratio_lambdaover2 is not None
 
+        diffrn_orient_matrix = self.diffrn_orient_matrix
+        u_matrix = diffrn_orient_matrix.u
+        e_up_loc = calc_e_up_loc(0., 0., 0., u_matrix)
+
         diffrn_radiation = self.diffrn_radiation
+        polarization = diffrn_radiation.polarization
+        flipper_efficiency = diffrn_radiation.efficiency
+
         extinction = self.extinction
+        if extinction is not None:
+            model_extinction = extinction.model
+            radius = extinction.radius
+            mosaicity = extinction.mosaicity
+        else:
+            model_extinction = ""
+            radius = None
+            mosaicity = None
 
-        orient_matrix = self.diffrn_orient_matrix
-        orientation = orient_matrix.u
-
-        field_vec = numpy.array([0., 0., field_z], dtype=float)
-
-        phi_d, chi_d, omega_d = 0., 0., 0.
-        m_phi_d = numpy.array([[numpy.cos(phi_d), numpy.sin(phi_d), 0.],
-                               [-numpy.sin(phi_d), numpy.cos(phi_d), 0.],
-                               [0.,               0., 1.]], dtype=float)
-
-        m_omega_d = numpy.array([[numpy.cos(omega_d), numpy.sin(omega_d), 0.],
-                                 [-numpy.sin(omega_d), numpy.cos(omega_d), 0.],
-                                 [0.,                 0., 1.]], dtype=float)
-
-        m_chi_d = numpy.array([[numpy.cos(chi_d), 0., numpy.sin(chi_d)],
-                               [0., 1.,               0.],
-                               [-numpy.sin(chi_d), 0., numpy.cos(chi_d)]],
-                              dtype=float)
-
-        m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(
-            m_phi_d, orientation)))
-
-        p_u = float(diffrn_radiation.polarization)
-        p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
+        if flag_lambdaover2:
+            index_2h = 2 * index_h
+            index_2k = 2 * index_k
+            index_2l = 2 * index_l
 
         if flag_internal:
             refln = crystal.calc_refln(index_h, index_k, index_l)
@@ -153,158 +159,67 @@ class Diffrn(DataN):
         else:
             f_nucl = crystal.calc_f_nucl(index_h, index_k, index_l)
 
+        if flag_lambdaover2:
+            f_nucl_2hkl = crystal.calc_f_nucl(index_2h, index_2k, index_2l)
+        else:
+            f_nucl_2hkl = None
+
         if flag_internal:
             refln_s = crystal.calc_refln_susceptibility(index_h, index_k,
                                                         index_l)
-            sft_11 = refln_s.numpy_chi_11_calc
-            sft_12 = refln_s.numpy_chi_12_calc
-            sft_13 = refln_s.numpy_chi_13_calc
-            sft_21 = refln_s.numpy_chi_21_calc
-            sft_22 = refln_s.numpy_chi_22_calc
-            sft_23 = refln_s.numpy_chi_23_calc
-            sft_31 = refln_s.numpy_chi_31_calc
-            sft_32 = refln_s.numpy_chi_32_calc
-            sft_33 = refln_s.numpy_chi_33_calc
+            sft_ij = (refln_s.numpy_chi_11_calc,
+                      refln_s.numpy_chi_12_calc,
+                      refln_s.numpy_chi_13_calc,
+                      refln_s.numpy_chi_21_calc,
+                      refln_s.numpy_chi_22_calc,
+                      refln_s.numpy_chi_23_calc,
+                      refln_s.numpy_chi_31_calc,
+                      refln_s.numpy_chi_32_calc,
+                      refln_s.numpy_chi_33_calc)
 
-            sftm_11 = refln_s.numpy_moment_11_calc
-            sftm_12 = refln_s.numpy_moment_12_calc
-            sftm_13 = refln_s.numpy_moment_13_calc
-            sftm_21 = refln_s.numpy_moment_21_calc
-            sftm_22 = refln_s.numpy_moment_22_calc
-            sftm_23 = refln_s.numpy_moment_23_calc
-            sftm_31 = refln_s.numpy_moment_31_calc
-            sftm_32 = refln_s.numpy_moment_32_calc
-            sftm_33 = refln_s.numpy_moment_33_calc
+            sftm_ij = (refln_s.numpy_moment_11_calc,
+                       refln_s.numpy_moment_12_calc,
+                       refln_s.numpy_moment_13_calc,
+                       refln_s.numpy_moment_21_calc,
+                       refln_s.numpy_moment_22_calc,
+                       refln_s.numpy_moment_23_calc,
+                       refln_s.numpy_moment_31_calc,
+                       refln_s.numpy_moment_32_calc,
+                       refln_s.numpy_moment_33_calc)
         else:
-            chi_m = crystal.calc_susceptibility_moment_tensor(index_h, index_k,
-                                                              index_l)
-            sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, \
-                sft_33 = chi_m[:9]
-            sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, \
-                sftm_32, sftm_33 = chi_m[9:]
+            chi_m = crystal.calc_susceptibility_moment_tensor(
+                index_h, index_k, index_l)
+            sft_ij = chi_m[:9]
+            sftm_ij = chi_m[9:]
 
-        cell = crystal.cell
-
-        mag_p_1, mag_p_2, mag_p_3 = self.calc_fm_perp_loc(
-            index_h, index_k, index_l, cell, sft_11, sft_12, sft_13, sft_21,
-            sft_22, sft_23, sft_31, sft_32, sft_33, sftm_11, sftm_12, sftm_13,
-            sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, sftm_33)
-
-        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
-        field_norm = ((field_loc**2).sum())**0.5
-        e_u_loc = field_loc/field_norm
-
-        mag_p_sq = abs(mag_p_1*mag_p_1.conjugate() +
-                       mag_p_2*mag_p_2.conjugate() +
-                       mag_p_3*mag_p_3.conjugate())
-
-        mag_p_e_u = mag_p_1*e_u_loc[0]+mag_p_2*e_u_loc[1]+mag_p_3*e_u_loc[2]
-
-        f_nucl_sq = abs(f_nucl)**2
-        mag_p_e_u_sq = abs(mag_p_e_u*mag_p_e_u.conjugate())
-        fnp = (mag_p_e_u*f_nucl.conjugate()+mag_p_e_u.conjugate()*f_nucl).real
-        fp_sq = f_nucl_sq + mag_p_sq + fnp
-        fm_sq = f_nucl_sq + mag_p_sq - fnp
-        fpm_sq = mag_p_sq - mag_p_e_u_sq
+        fm_perp_loc = calc_fm_perp_loc(e_up_loc, field_norm, k_loc_i, sft_ij,
+                                       sftm_ij)
 
         if flag_lambdaover2:
-            index_2h = 2 * index_h
-            index_2k = 2 * index_k
-            index_2l = 2 * index_l
-            f_nucl_2hkl = crystal.calc_f_nucl(index_2h, index_2k, index_2l)
             chi_m_2hkl = crystal.calc_susceptibility_moment_tensor(
                 index_2h, index_2k, index_2l)
-            mag_p_2hkl_1, mag_p_2hkl_2, mag_p_2hkl_3 = self.calc_fm_perp_loc(
-                index_2h, index_2k, index_2l, cell, *chi_m_2hkl)
-
-            mag_p_sq_2hkl = abs(mag_p_2hkl_1*mag_p_2hkl_1.conjugate() +
-                                mag_p_2hkl_2*mag_p_2hkl_2.conjugate() +
-                                mag_p_2hkl_3*mag_p_2hkl_3.conjugate())
-
-            mag_p_e_u_2hkl = mag_p_2hkl_1*e_u_loc[0]+mag_p_2hkl_2*e_u_loc[1] +\
-                mag_p_2hkl_3*e_u_loc[2]
-
-            f_nucl_sq_2hkl = abs(f_nucl_2hkl)**2
-            mag_p_e_u_sq_2hkl = abs(mag_p_e_u_2hkl*mag_p_e_u_2hkl.conjugate())
-            fnp_2hkl = (mag_p_e_u_2hkl*f_nucl_2hkl.conjugate() +
-                        mag_p_e_u_2hkl.conjugate()*f_nucl_2hkl).real
-            fp_sq_2hkl = f_nucl_sq_2hkl + mag_p_sq_2hkl + fnp_2hkl
-            fm_sq_2hkl = f_nucl_sq_2hkl + mag_p_sq_2hkl - fnp_2hkl
-            fpm_sq_2hkl = mag_p_sq_2hkl - mag_p_e_u_sq_2hkl
-
-        # extinction correction
-        if extinction is not None:
-            yp = extinction.calc_extinction(cell, index_h, index_k, index_l,
-                                            fp_sq, wavelength)
-            ym = extinction.calc_extinction(cell, index_h, index_k, index_l,
-                                            fm_sq, wavelength)
-            ypm = extinction.calc_extinction(cell, index_h, index_k, index_l,
-                                             fpm_sq, wavelength)
-            if flag_lambdaover2:
-                yp_2hkl = extinction.calc_extinction(
-                    cell, index_2h, index_2k, index_2l, fp_sq_2hkl,
-                    0.5*wavelength)
-                ym_2hkl = extinction.calc_extinction(
-                    cell, index_2h, index_2k, index_2l, fm_sq_2hkl,
-                    0.5*wavelength)
-                ypm_2hkl = extinction.calc_extinction(
-                    cell, index_2h, index_2k, index_2l, fpm_sq_2hkl,
-                    0.5*wavelength)
+            sft_ij_2hkl = chi_m_2hkl[:9]
+            sftm_ij_2hkl = chi_m_2hkl[9:]
+            fm_perp_loc_2hkl = calc_fm_perp_loc(e_up_loc, field_norm, k_loc_i,
+                                                sft_ij_2hkl, sftm_ij_2hkl)
         else:
-            yp = 1. + 0.*f_nucl_sq
-            ym = yp
-            ypm = yp
-            if flag_lambdaover2:
-                yp_2hkl = 1. + 0.*f_nucl_sq_2hkl
-                ym_2hkl = yp_2hkl
-                ypm_2hkl = yp_2hkl
+            fm_perp_loc_2hkl = None
 
-        pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
-        ppmin = 0.5*((1-p_d)*yp+(1+p_d)*ym)
-        pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
-        pmmin = 0.5*((1-p_d)*yp-(1+p_d)*ym)
-
-        # integral intensities and flipping ratios
-        iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
-        iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
-
-        flip_ratio = iint_u/iint_d
-
-        if flag_lambdaover2:
-            pppl_2hkl = 0.5*((1+p_u)*yp_2hkl+(1-p_u)*ym_2hkl)
-            ppmin_2hkl = 0.5*((1-p_d)*yp_2hkl+(1+p_d)*ym_2hkl)
-            pmpl_2hkl = 0.5*((1+p_u)*yp_2hkl-(1-p_u)*ym_2hkl)
-            pmmin_2hkl = 0.5*((1-p_d)*yp_2hkl-(1+p_d)*ym_2hkl)
-
-            # integral intensities and flipping ratios
-            iint_u_2hkl = (f_nucl_sq_2hkl+mag_p_e_u_sq_2hkl)*pppl_2hkl + \
-                pmpl_2hkl*fnp_2hkl + ypm_2hkl*fpm_sq_2hkl
-            iint_d_2hkl = (f_nucl_sq_2hkl+mag_p_e_u_sq_2hkl)*ppmin_2hkl + \
-                pmmin_2hkl*fnp_2hkl + ypm_2hkl*fpm_sq_2hkl
-            iint_unpol_2hkl = 0.5*(iint_u_2hkl+iint_d_2hkl)
-            flip_ratio = (iint_u+ratio_lambdaover2*iint_unpol_2hkl) / \
-                (iint_d+ratio_lambdaover2*iint_unpol_2hkl)
-
-            # flip_ratio = (iint_u+ratio_lambdaover2*iint_u_2hkl) / \
-            #     (iint_d+ratio_lambdaover2*iint_d_2hkl)
-        """
-        d_info_out = {"iint_u": iint_u, "iint_d": iint_d,
-                      "flip_ratio": flip_ratio}
-        d_info_out.update(d_info_sf)
-        print("   h   k   l  iint_u  iint_d flip_ratio")
-        for h1, k1, l1, i_u, i_d, f_r in zip(h, k, l, iint_u, iint_d,
-                                             flip_ratio):
-            print("{:3} {:3} {:3} {:7.3f} {:7.3f} {:7.3f}".format(
-                    h1, k1, l1, i_u, i_d, f_r))
-        """
+        flip_ratio, dder = calc_flip_ratio(
+            sthovl, wavelength, field_norm, u_matrix, polarization,
+            flipper_efficiency, volume_unit_cell, model_extinction, radius,
+            mosaicity, f_nucl, fm_perp_loc,
+            ratio_lambdaover2=ratio_lambdaover2, f_nucl_2hkl=f_nucl_2hkl,
+            fm_perp_loc_2hkl=fm_perp_loc_2hkl)
 
         if flag_internal:
             refln.loop_name = crystal.data_name
             refln_s.loop_name = crystal.data_name
             self.add_items([refln, refln_s])
 
-        return iint_u, iint_d, flip_ratio
+        return flip_ratio, dder
 
+    # FIXME: merge with calc_iint_u_d_flip_ratio
     def calc_fr(self, cell, f_nucl, f_m_perp, delta_f_nucl=None,
                 delta_f_m_perp=None):
         """
@@ -318,8 +233,6 @@ class Diffrn(DataN):
         f_m_perp [hkl]
         delta_f_nucl [hkl, parameters]
         delta_f_m_perp [hkl, parameters]
-
-        ratio_lambda/2 is not introduce  # FIXME
         """
         f_n_sq = (f_nucl * f_nucl.conjugate()).real
         f_m_p_x, f_m_p_y, f_m_p_z = f_m_perp
@@ -446,68 +359,6 @@ class Diffrn(DataN):
 
         return f_r_m, delta_f_r_m
 
-    def calc_fm_perp_loc(self, index_h, index_k, index_l, cell, sft_11,
-                         sft_12, sft_13, sft_21,
-                         sft_22, sft_23, sft_31, sft_32, sft_33,
-                         sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23,
-                         sftm_31, sftm_32, sftm_33):
-        """
-        Calculate the magnetic structure factor perpendicular to hkl.
-
-        Output
-        ------
-            x, y and z coordinates of FM_perp
-
-        Cartezian coordinate system is defined such way that
-        (x||a*), (z||c).
-        """
-        field_z = float(self.setup.field)
-        orient_matrix = self.diffrn_orient_matrix
-
-        orientation = orient_matrix.u
-        field_vec = numpy.array([0., 0., field_z], dtype=float)
-
-        phi_d, chi_d, omega_d = 0., 0., 0.
-        m_phi_d = numpy.array([[numpy.cos(phi_d), numpy.sin(phi_d), 0.],
-                               [-numpy.sin(phi_d), numpy.cos(phi_d), 0.],
-                               [0.,               0., 1.]], dtype=float)
-
-        m_omega_d = numpy.array([[numpy.cos(omega_d), numpy.sin(omega_d), 0.],
-                                 [-numpy.sin(omega_d), numpy.cos(omega_d), 0.],
-                                 [0.,                 0., 1.]], dtype=float)
-
-        m_chi_d = numpy.array([[numpy.cos(chi_d), 0., numpy.sin(chi_d)],
-                               [0., 1.,               0.],
-                               [-numpy.sin(chi_d), 0., numpy.cos(chi_d)]],
-                              dtype=float)
-
-        m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(
-            m_phi_d, orientation)))
-
-        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
-        field_norm = ((field_loc**2).sum())**0.5
-        e_u_loc = field_loc/field_norm
-
-        k_1, k_2, k_3 = cell.calc_k_loc(index_h, index_k, index_l)
-
-        # not sure about e_u_loc at field < 0
-        mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + \
-            sft_13*field_loc[2] + sftm_11*e_u_loc[0] + sftm_12*e_u_loc[1] + \
-            sftm_13*e_u_loc[2]
-        mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + \
-            sft_23*field_loc[2] + sftm_21*e_u_loc[0] + sftm_22*e_u_loc[1] + \
-            sftm_23*e_u_loc[2]
-        mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + \
-            sft_33*field_loc[2] + sftm_31*e_u_loc[0] + sftm_32*e_u_loc[1] + \
-            sftm_33*e_u_loc[2]
-
-        # vector product k x mag x k
-        mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
-        mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
-        mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1
-
-        return mag_p_1, mag_p_2, mag_p_3
-
     def calc_chi_sq(self, l_crystal: List[Crystal], flag_internal=True):
         """
         Calculate chi square.
@@ -530,13 +381,13 @@ class Diffrn(DataN):
         np_l = diffrn_refln.numpy_index_l
         fr_exp = diffrn_refln.numpy_fr
         fr_sigma = diffrn_refln.numpy_fr_sigma
-        int_u_mod, int_d_mod, fr_mod = self.calc_iint_u_d_flip_ratio(
+        fr_mod, dder = self.calc_iint_u_d_flip_ratio(
             np_h, np_k, np_l, l_crystal, flag_internal=flag_internal)
 
         if flag_internal:
             diffrn_refln.numpy_fr_calc = fr_mod
-            diffrn_refln.numpy_intensity_up_calc = int_u_mod
-            diffrn_refln.numpy_intensity_down_calc = int_d_mod
+            # diffrn_refln.numpy_intensity_up_calc = int_u_mod
+            # diffrn_refln.numpy_intensity_down_calc = int_d_mod
             diffrn_refln.numpy_to_items()
 
         chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
@@ -583,96 +434,74 @@ class Diffrn(DataN):
         flipping ratios based on give crystal structure.
         The crystal structure should be centrosymmetrical
         """
-        flag_internal = True
+        setup = self.setup
+        wavelength = setup.wavelength
+        field_norm = setup.field
 
-        wavelength = float(self.setup.wavelength)
-        field_z = float(self.setup.field)
+        diffrn_refln = self.diffrn_refln
+        index_h = diffrn_refln.numpy_index_h
+        index_k = diffrn_refln.numpy_index_k
+        index_l = diffrn_refln.numpy_index_l
+        fr_exp = diffrn_refln.numpy_fr
+        fr_sigma = diffrn_refln.numpy_fr_sigma
+
         diffrn_radiation = self.diffrn_radiation
+        polarization = diffrn_radiation.polarization
+        flipper_efficiency = diffrn_radiation.efficiency
+
         extinction = self.extinction
-        orient_matrix = self.diffrn_orient_matrix
-
-        orientation = orient_matrix.u
-        field_vec = numpy.array([0., 0., field_z], dtype=float)
-
-        phi_d, chi_d, omega_d = 0., 0., 0.
-        m_phi_d = numpy.array([[numpy.cos(phi_d), numpy.sin(phi_d), 0.],
-                               [-numpy.sin(phi_d), numpy.cos(phi_d), 0.],
-                               [0.,               0., 1.]], dtype=float)
-
-        m_omega_d = numpy.array([[numpy.cos(omega_d), numpy.sin(omega_d), 0.],
-                                 [-numpy.sin(omega_d), numpy.cos(omega_d), 0.],
-                                 [0.,                 0., 1.]], dtype=float)
-
-        m_chi_d = numpy.array([[numpy.cos(chi_d), 0., numpy.sin(chi_d)],
-                               [0., 1.,               0.],
-                               [-numpy.sin(chi_d), 0., numpy.cos(chi_d)]],
-                              dtype=float)
-
-        m_u_d = numpy.matmul(m_omega_d, numpy.matmul(m_chi_d, numpy.matmul(
-            m_phi_d, orientation)))
-
-        field_loc = numpy.matmul(m_u_d.transpose(), field_vec)
-
-        field_norm = ((field_loc**2).sum())**0.5
-
-        p_u = float(diffrn_radiation.polarization)
-        p_d = (2.*float(diffrn_radiation.efficiency)-1.)*p_u
-
-        e_u_loc = field_loc/field_norm
-
-        index_h = self.diffrn_refln.numpy_index_h
-        index_k = self.diffrn_refln.numpy_index_k
-        index_l = self.diffrn_refln.numpy_index_l
-        fr_exp = self.diffrn_refln.numpy_fr
-        fr_sigma = self.diffrn_refln.numpy_fr_sigma
-
-        if flag_internal:
-            refln = crystal.calc_refln(index_h, index_k, index_l)
-            f_nucl = numpy.array(refln.f_calc, dtype=complex)
+        if extinction is not None:
+            model_extinction = extinction.model
+            radius = extinction.radius
+            mosaicity = extinction.mosaicity
         else:
-            f_nucl = crystal.calc_f_nucl(index_h, index_k, index_l)
+            model_extinction = ""
+            radius = None
+            mosaicity = None
+
+        diffrn_orient_matrix = self.diffrn_orient_matrix
+        u_matrix = diffrn_orient_matrix.u
+        e_up_loc = calc_e_up_loc(0., 0., 0., u_matrix)
+
+        refln = crystal.calc_refln(index_h, index_k, index_l)
+        f_nucl = numpy.array(refln.f_calc, dtype=complex)
 
         cell = crystal.cell
-        k_1, k_2, k_3 = cell.calc_k_loc(index_h, index_k, index_l)
-
-        k_e_up_loc = k_1*e_u_loc[0]+k_2*e_u_loc[1]+k_3*e_u_loc[2]
-
-        f_nucl_sq = abs(f_nucl)**2
+        volume_unit_cell = cell.volume
+        sthovl = cell.calc_sthovl(index_h, index_k, index_l)
+        k_loc_1, k_loc_2, k_loc_3 = cell.calc_k_loc(index_h, index_k, index_l)
 
         def function_to_find_fm(f_mag):
-            mag_p_sq = numpy.square(f_mag*0.2695)*(1-numpy.square(k_e_up_loc))
-            mag_p_e_u = f_mag*0.2695 * (1-numpy.square(k_e_up_loc))
-            mag_p_e_u_sq = numpy.square(mag_p_e_u)
+            """Calc flip ratio.
 
-            fnp = (mag_p_e_u * f_nucl.conjugate() + mag_p_e_u.conjugate() *
-                   f_nucl).real
-            fp_sq = f_nucl_sq + mag_p_sq + fnp
-            fm_sq = f_nucl_sq + mag_p_sq - fnp
-            fpm_sq = mag_p_sq - mag_p_e_u_sq
+            Parameters
+            ----------
+            f_mag : float
+                in muB.
 
-            # extinction correction
-            if extinction is not None:
-                yp = extinction.calc_extinction(cell, index_h, index_k,
-                                                index_l, fp_sq, wavelength)
-                ym = extinction.calc_extinction(cell, index_h, index_k,
-                                                index_l, fm_sq, wavelength)
-                ypm = extinction.calc_extinction(cell, index_h, index_k,
-                                                 index_l, fpm_sq, wavelength)
-            else:
-                yp = 1. + 0.*f_nucl_sq
-                ym = yp
-                ypm = yp
+            Returns
+            -------
+            flip_ratio : float
+                flip ratio.
+            """
+            mag_loc_1 = e_up_loc[0]*f_mag*0.2695
+            mag_loc_2 = e_up_loc[1]*f_mag*0.2695
+            mag_loc_3 = e_up_loc[2]*f_mag*0.2695
 
-            pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
-            ppmin = 0.5*((1-p_d)*yp+(1+p_d)*ym)
-            pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
-            pmmin = 0.5*((1-p_d)*yp-(1+p_d)*ym)
+            # vector product k x (0, 0, mag_3) x k
+            mag_p_1 = (k_loc_3*mag_loc_1 - k_loc_1*mag_loc_3)*k_loc_3 - \
+                (k_loc_1*mag_loc_2 - k_loc_2*mag_loc_1)*k_loc_2
+            mag_p_2 = (k_loc_1*mag_loc_2 - k_loc_2*mag_loc_1)*k_loc_1 - \
+                (k_loc_2*mag_loc_3 - k_loc_3*mag_loc_2)*k_loc_3
+            mag_p_3 = (k_loc_2*mag_loc_3 - k_loc_3*mag_loc_2)*k_loc_2 - \
+                (k_loc_3*mag_loc_1 - k_loc_1*mag_loc_3)*k_loc_1
 
-            # integral intensities and flipping ratios
-            iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
-            iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
-
-            flip_ratio = iint_u/iint_d
+            fm_perp_loc = (mag_p_1, mag_p_2, mag_p_3)
+            flip_ratio, dder = calc_flip_ratio(
+                sthovl, wavelength, field_norm, u_matrix, polarization,
+                flipper_efficiency, volume_unit_cell, model_extinction, radius,
+                mosaicity, f_nucl, fm_perp_loc, ratio_lambdaover2=None,
+                f_nucl_2hkl=None, fm_perp_loc_2hkl=None)
             return flip_ratio
 
         lFMans, lFMansMin = [], []
@@ -692,13 +521,9 @@ class Diffrn(DataN):
                 f_mag_sigma = abs(fr_sigma[_ind] / der1)
                 lFMansMin_sigma.append(f_mag_sigma)
 
-        # res = numpy.array(list(zip(index_h, index_k, index_l, lFMansMin,
-        #                            lFMansMin_sigma)),
-        #                   dtype=[('index_h', 'i4'), ('index_k', 'i4'),
-        #                          ('index_l', 'i4'), ('f_mag', '<f8'),
-        #                          ('f_mag_sigma', '<f8')])
-        ls_out = ["loop_\n_estimate_index_h\n_estimate_index_k"]
-        ls_out.append("_estimate_index_l\n_estimate_f_mag\n_estimate_f_sigma")
+        ls_out = [f"loop_{crystal.data_name:}"]
+        ls_out.append("_estimate_index_h\n_estimate_index_k")
+        ls_out.append("_estimate_index_l\n_estimate_F_M\n_estimate_F_M_sigma")
         for ind_h, ind_k, ind_l, f_mag, f_sig in \
                 zip(index_h, index_k, index_l, lFMansMin, lFMansMin_sigma):
             ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} {f_mag:}  {f_sig:}")
