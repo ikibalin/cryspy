@@ -12,13 +12,17 @@ from cryspy.B_parent_classes.cl_4_global import GlobalN
 
 from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
+
+from cryspy.C_item_loop_classes.cl_2_section import SectionL
+
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
 from cryspy.F_functions_data.script_1_mem import maximize_entropy, \
-    refine_susceptibility, make_cycle, calc_moments_in_unit_cell
+    refine_susceptibility, make_cycle, calc_moments_in_unit_cell, \
+    calc_section_for_mem
 
 
 class MEM(GlobalN):
@@ -42,7 +46,7 @@ class MEM(GlobalN):
     """
 
     CLASSES_MANDATORY = (Crystal, Diffrn)
-    CLASSES_OPTIONAL = (DensityPointL, MEMParameters)
+    CLASSES_OPTIONAL = (DensityPointL, MEMParameters, SectionL)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -152,7 +156,6 @@ class MEM(GlobalN):
         density_point.calc_rbs_i(
             space_group_symop, points_a=mem_parameters.points_a,
             points_b=mem_parameters.points_b, points_c=mem_parameters.points_c)
-
 
         total_peaks = 0
 
@@ -280,8 +283,8 @@ class MEM(GlobalN):
         crystal = self.crystals()[0]
         mem_parameters = self.mem_parameters
         fract_x, fract_y, fract_z, moment_x, moment_y, moment_z = \
-            calc_moments_in_unit_cell(field_loc, density_point, crystal,
-                                      mem_parameters)
+            calc_moments_in_unit_cell(density_point, crystal, mem_parameters,
+                                      field_loc)
         if f_name is None:
             return fract_x, fract_y, fract_z, moment_x, moment_y, moment_z
         else:
@@ -294,3 +297,18 @@ class MEM(GlobalN):
 {m_x:10.3f} {m_y:10.3f} {m_z:10.3f}")
             with open(f_name, "w") as fid:
                 fid.write("\n".join(ls_out))
+
+    def calc_sections(self):
+        """Calc moments in an unit cell.
+
+        If f_name is given, the result is save in file.
+        If it is None, the results are given in output.
+        """
+        density_point = self.density_point
+        crystal = self.crystals()[0]
+        loop_section = self.section
+        mem_parameters = self.mem_parameters
+
+        for section in loop_section.items:
+            calc_section_for_mem(section, density_point, crystal,
+                                 mem_parameters)

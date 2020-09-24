@@ -69,6 +69,7 @@ from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
     AtomSiteScat, AtomSiteScatL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
     DiffrnOrientMatrix, DiffrnOrientMatrixL
+from cryspy.C_item_loop_classes.cl_2_section import Section, SectionL
 
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
     DensityPointL
@@ -96,7 +97,7 @@ L_ITEM_CLASS.extend([
     PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak, Chi2,
     Range, Texture, Exclude, Pd2dBackground, Pd2dInstrReflexAsymmetry,
     Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak, DensityPoint,
-    MEMParameters])
+    MEMParameters, Section])
 
 L_LOOP_CLASS.extend([
     CellL, AtomSiteL, AtomTypeL, AtomSiteAnisoL, ReflnL,
@@ -106,7 +107,7 @@ L_LOOP_CLASS.extend([
     RefineLsL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,
     PdMeasL, PdProcL, PdPeakL, Chi2L, RangeL, TextureL, ExcludeL,
     Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL, DensityPointL,
-    MEMParametersL])
+    MEMParametersL, SectionL])
 
 L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d])
 

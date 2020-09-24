@@ -27,9 +27,9 @@ class Section(ItemN):
                           "atom_along_axis_y", "atom_y_operation_xyz",
                           "points_x", "points_y", "url_out")
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("field_x", "field_y", "field_z")
+    ATTR_OPTIONAL_TYPES = (float, float, float)
+    ATTR_OPTIONAL_CIF = ("field_x", "field_y", "field_z")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES

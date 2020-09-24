@@ -191,6 +191,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
     delta_chi_sq_best, delta_chi_sq_f_best = None, None
     delta_chi_sq_a_best = None
 
+    mult_i = density_point.numpy_multiplicity
+
     c_lambda_min = 1e-9  # min value
     i_cycle = 0
     while i_cycle <= n_iterations:
@@ -268,20 +270,24 @@ of GoF is less than 0.001.",
                 d_info["stop"] = False
                 break
 
-        rel_diff = 0.05
+        delta_chi_sq_f_mult_i = delta_chi_sq_f/mult_i
+        delta_chi_sq_a_mult_i = delta_chi_sq_a/mult_i
+
+        rel_diff = 0.25
         if not(flag_two_channel):
+            delta_chi_sq_mult_i = delta_chi_sq/mult_i
             c_lambda = choose_max_clambda(c_lambda, numpy_density,
-                                          delta_chi_sq, rel_diff)
+                                          delta_chi_sq_mult_i, rel_diff)
             density_point.numpy_density = numpy_density*numpy.exp(
-                -c_lambda*delta_chi_sq)
+                -c_lambda*delta_chi_sq_mult_i)
         else:
             c_lambda = choose_max_clambda(c_lambda, numpy_density_ferro,
-                                          delta_chi_sq_f, rel_diff)
+                                          delta_chi_sq_f_mult_i, rel_diff)
 
         density_point.numpy_density_ferro = \
-            numpy_density_ferro*numpy.exp(-c_lambda*delta_chi_sq_f)
+            numpy_density_ferro*numpy.exp(-c_lambda*delta_chi_sq_f_mult_i)
         density_point.numpy_density_antiferro = \
-            numpy_density_antiferro*numpy.exp(-c_lambda*delta_chi_sq_a)
+            numpy_density_antiferro*numpy.exp(-c_lambda*delta_chi_sq_a_mult_i)
 
         density_point.renormalize_numpy_densities(
             flag_two_channel=flag_two_channel)
@@ -612,10 +618,12 @@ def calc_moments(fract_x, fract_y, fract_z, field_loc,
 
     moment_x, moment_y, moment_z = m_x+m_b_x, m_y+m_b_y, m_z+m_b_z
 
-    return moment_x, moment_y, moment_z 
+    return moment_x, moment_y, moment_z
 
-def calc_moments_in_unit_cell(field_loc, density_point: DensityPointL,
-                              crystal: Crystal, mem_parameters: MEMParameters):
+
+def calc_moments_in_unit_cell(density_point: DensityPointL, crystal: Crystal,
+                              mem_parameters: MEMParameters, field_loc):
+    """Calculate magnetization density in an unit cell."""
     points_a = mem_parameters.points_a
     points_b = mem_parameters.points_b
     points_c = mem_parameters.points_c
@@ -634,15 +642,16 @@ def calc_moments_in_unit_cell(field_loc, density_point: DensityPointL,
 
     return fract_x, fract_y, fract_z, moment_x, moment_y, moment_z
 
+
 def calc_section_for_mem(section: Section, density_point: DensityPointL,
-                         crystal: Crystal, mem_parameters: MEMParameters,
-                         field_loc):
+                         crystal: Crystal, mem_parameters: MEMParameters):
     """
     Calculate magnetization density of paramagnetic compound at given field.
 
     The result is written into file.
     """
-
+    field_loc = numpy.array([section.field_x, section.field_y,
+                             section.field_z], dtype=float)
     cell = crystal.cell
     atom_site = crystal.atom_site
     np_fract_x, np_fract_y, np_fract_z = section.calc_fractions(
@@ -660,23 +669,24 @@ def calc_section_for_mem(section: Section, density_point: DensityPointL,
     np_y = (numpy.array(range(section.points_y), dtype=float) -
             0.5*section.points_y) * size_y / float(section.points_y)
 
-    np_x_2d, np_y_2d = meshgrid(np_x, np_y, indexing="ij")
+    np_x_2d, np_y_2d = numpy.meshgrid(np_x, np_y, indexing="ij")
     np_x, np_y = np_x_2d.flatten(), np_y_2d.flatten()
 
     v_pos_x, v_pos_y, v_pos_z = section.calc_axes_x_y_z(cell, atom_site)
 
-    ls_out = []
-    ls_out.append(
-        f"   dist_x    dist_y        moment_x        moment_y        moment_z")
+    ls_out = ["loop_\n_section_cut_dist_x\n_section_cut_dist_y"]
+    ls_out.append("_section_cut_moment_x\n_section_cut_moment_y")
+    ls_out.append("_section_cut_moment_z")
     for _x, _y, v_m_x, v_m_y, v_m_z in zip(
             np_x, np_y, moment_x, moment_y, moment_z):
         val_x = v_pos_x[0]*v_m_x + v_pos_x[1]*v_m_y + v_pos_x[2]*v_m_z
         val_y = v_pos_y[0]*v_m_x + v_pos_y[1]*v_m_y + v_pos_y[2]*v_m_z
         val_z = v_pos_z[0]*v_m_x + v_pos_z[1]*v_m_y + v_pos_z[2]*v_m_z
-        ls_out.append(f"{_x:9.5f} {_y:9.5f} {val_x:15.10f} {val_y:15.10f} {val_z:15.10f}")
+        ls_out.append(f"{_x:9.5f} {_y:9.5f} {val_x:15.10f} {val_y:15.10f} \
+{val_z:15.10f}")
     with open(section.url_out, "w") as fid:
         fid.write("\n".join(ls_out))
-        
+
 
 def calc_densities_3d_for_mem(density_point: DensityPointL, crystal: Crystal,
                               mem_parameters: MEMParameters):
@@ -701,7 +711,7 @@ def calc_densities_3d_for_mem(density_point: DensityPointL, crystal: Crystal,
     full_space_group_symop = space_group.full_space_group_symop
 
     points_abc = (points_a, points_b, points_c)
-    
+
     density_point.calc_rbs_i(full_space_group_symop, points_a=points_a,
                              points_b=points_b, points_c=points_c)
 
@@ -732,7 +742,7 @@ def calc_densities_3d_for_mem(density_point: DensityPointL, crystal: Crystal,
 
     r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
     b_i = (b_1, b_2, b_3)
-    
+
     den_3d = transfer_to_density_3d(index_xyz, den_i, points_abc, r_ij, b_i)
     den_ferro_3d = transfer_to_density_3d(
         index_xyz, den_ferro_i, points_abc, r_ij, b_i)
