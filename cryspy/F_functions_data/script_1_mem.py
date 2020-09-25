@@ -20,6 +20,9 @@ from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
+from cryspy.D_functions_item_loop.function_1_flip_ratio import \
+    calc_fm_perp_loc, calc_e_up_loc
+
 
 def choose_max_clambda(c_lambda: float, den: numpy.ndarray, der: numpy.ndarray,
                        rel_diff: float = 0.1) -> float:
@@ -127,11 +130,13 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             points_b=points_b, points_c=points_c,
             flag_two_channel=flag_two_channel)
 
-    l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s = [], [], [], []
+    l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s, l_fm_orb_perp_loc = [], [], [], [], []
     total_peaks = 0
     for diffrn in l_diffrn:
         diffrn_orient_matrix = diffrn.diffrn_orient_matrix
-        e_up = diffrn_orient_matrix.calc_e_up()
+        u_matrix = diffrn_orient_matrix.u
+        e_up = calc_e_up_loc(0., 0., 0., u_matrix)
+
         setup = diffrn.setup
         field = float(setup.field)
         h_loc = (field*e_up[0], field*e_up[1], field*e_up[2])
@@ -140,6 +145,16 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         ind_k = numpy.array(diffrn_refln.index_k, dtype=int)
         ind_l = numpy.array(diffrn_refln.index_l, dtype=int)
         total_peaks += ind_h.size
+
+        chi_m = crystal.calc_susceptibility_moment_tensor(
+            ind_h, ind_k, ind_l, flag_only_orbital=True)
+        sft_ij = chi_m[:9]
+        sftm_ij = chi_m[9:]
+
+        k_loc_i = cell.calc_k_loc(ind_h, ind_k, ind_l)
+        fm_orb_perp_loc = calc_fm_perp_loc(e_up, field, k_loc_i, sft_ij,
+                                           sftm_ij)
+
         hkl = (ind_h, ind_k, ind_l)
         fr_e = numpy.array(diffrn_refln.fr, dtype=float)
         fr_s = numpy.array(diffrn_refln.fr_sigma, dtype=float)
@@ -154,15 +169,24 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         l_v_2d_i.append((v_hkl_perp_2d_i, v_b_ferro, v_b_antiferro))
         l_fr_e.append(fr_e)
         l_fr_s.append(fr_s)
+        l_fm_orb_perp_loc.append(fm_orb_perp_loc)
 
     def temp_func(numpy_den=None):
         l_chi_sq, l_der_chi_sq = [], []
         l_der_chi_sq_f, l_der_chi_sq_a = [], []
-        for diffrn, f_nucl, v_2d_i, fr_e, fr_s in \
-                zip(l_diffrn, l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s):
+        for diffrn, f_nucl, v_2d_i, fr_e, fr_s, fm_orb_perp_loc in \
+                zip(l_diffrn, l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s,
+                    l_fm_orb_perp_loc):
+            diffrn_refln = diffrn.diffrn_refln
 
             f_m_perp, delta_f_m_perp, delta_f_m_perp_f, delta_f_m_perp_a = \
                 density_point.calc_fm(*v_2d_i)
+
+            # # FIXME: put condition
+            # f_m_perp = (f_m_perp[0] + fm_orb_perp_loc[0],
+            #             f_m_perp[1] + fm_orb_perp_loc[1],
+            #             f_m_perp[2] + fm_orb_perp_loc[2])
+
             fr_m, delta_fr_m = diffrn.calc_fr(cell, f_nucl, f_m_perp,
                                               delta_f_nucl=None,
                                               delta_f_m_perp=delta_f_m_perp)
@@ -173,7 +197,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                                           delta_f_nucl=None,
                                           delta_f_m_perp=delta_f_m_perp_a)[1]
 
-            diffrn.diffrn_refln.numpy_fr_calc = fr_m
+            diffrn_refln.numpy_fr_calc = fr_m
             chi_sq, der_chi_sq = calc_chi_sq(fr_e, fr_s, fr_m, delta_fr_m)
             der_chi_sq_f = calc_chi_sq(fr_e, fr_s, fr_m, delta_fr_m_f)[1]
             der_chi_sq_a = calc_chi_sq(fr_e, fr_s, fr_m, delta_fr_m_a)[1]
@@ -273,7 +297,7 @@ of GoF is less than 0.001.",
         delta_chi_sq_f_mult_i = delta_chi_sq_f/mult_i
         delta_chi_sq_a_mult_i = delta_chi_sq_a/mult_i
 
-        rel_diff = 0.25
+        rel_diff = 0.05
         if not(flag_two_channel):
             delta_chi_sq_mult_i = delta_chi_sq/mult_i
             c_lambda = choose_max_clambda(c_lambda, numpy_density,
@@ -368,7 +392,9 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
     total_peaks = 0
     for diffrn in l_diffrn:
         diffrn_orient_matrix = diffrn.diffrn_orient_matrix
-        e_up = diffrn_orient_matrix.calc_e_up()
+        u_matrix = diffrn_orient_matrix.u
+        e_up = calc_e_up_loc(0., 0., 0., u_matrix)
+
         setup = diffrn.setup
         field = float(setup.field)
         h_loc = (field*e_up[0], field*e_up[1], field*e_up[2])
@@ -434,7 +460,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         l_chi_sq = []
         l_der_chi_sq, l_der_chi_sq_f, l_der_chi_sq_a = [], [], []
 
-        # FIXME: e_up is not used. Why?
+        # FIXME: add flag for orbital magnetic moment
         for diffrn, f_nucl, fr_e, fr_s, e_up, h_loc, k_hkl, phase_3d, \
             chi_perp_ferro, chi_perp_aferro in \
             zip(l_diffrn, l_f_nucl, l_fr_e, l_fr_s, l_e_up, l_h_loc, l_k_hkl,
@@ -449,6 +475,21 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
             f_m = calc_fm_by_density(mult_i, den_i, np, volume, moment_2d,
                                      phase_3d)
             f_m_perp = calc_moment_perp(k_hkl, f_m)
+
+            # # correction on orbital moment
+            # diffrn_refln = diffrn.diffrn_refln
+            # setup = diffrn.setup
+            # field = setup.field
+            # ind_h = diffrn_refln.numpy_index_h
+            # ind_k = diffrn_refln.numpy_index_k
+            # ind_l = diffrn_refln.numpy_index_l
+            # chi_m = crystal.calc_susceptibility_moment_tensor(
+            #     ind_h, ind_k, ind_l, flag_only_orbital=True)
+            # sft_ij = chi_m[:9]
+            # sftm_ij = chi_m[9:]
+
+            # fm_orb_perp_loc = calc_fm_perp_loc(e_up, field, k_hkl, sft_ij,
+            #                                    sftm_ij)
 
             # add ferro and anti_ferro
 
