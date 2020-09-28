@@ -396,7 +396,14 @@ class ItemN(object):
         item = None
         if cls is ItemN:
             l_name = [item.name for item in cif_data.items]
-            prefix = common_string(*tuple(l_name))
+            if len(l_name) == 1:
+                name = l_name[0]
+                if name.find(".") != -1:
+                    prefix = name.split(".")[0]
+                else:
+                    prefix = "_"+name.split("_")[1]+"_"
+            else:
+                prefix = common_string(*tuple(l_name))
             l_attr = [name[len(prefix):] for name in l_name]
 
             prefix = prefix.strip("_").strip(".")
