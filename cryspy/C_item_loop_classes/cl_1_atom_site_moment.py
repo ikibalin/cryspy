@@ -1,60 +1,41 @@
+"""AtomSiteMoment, AtomSiteMomentL classes are given."""
 import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_atomic_vibrations import \
-    calc_beta_by_u
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+
 class AtomSiteMoment(ItemN):
-    """
-    This category provides a loop for presenting the magnetic moments 
-    of atoms in one of several coordinate systems. This is a child category 
-    of the AtomSite category, so that the magnetic moments can either be 
+    """AtomSiteMoment class.
+
+    This category provides a loop for presenting the magnetic moments
+    of atoms in one of several coordinate systems. This is a child category
+    of the AtomSite category, so that the magnetic moments can either be
     listed alongside the non-magnetic atom properties in the main AtomSite loop
     (not realized) or be listed in a separate loop (realized)
 
-    Mandatory attributes:
-        - label
-        - type_symbol
-        - fract_x
-        - fract_y
-        - fract_z
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    Attributes
+    ----------
+        - label, symmform (mandatory)
+        - cartn_x, cartn_y, cartn_z, crystalaxis_x, crystalaxis_y,
+          crystalaxis_z, modulation_flag, refinement_flags_magnetic,
+          spherical_azimuthal, spherical_modulus, spherical_polar
     """
-    ATTR_MANDATORY_NAMES = ("label", )
-    ATTR_MANDATORY_TYPES = (str, )
-    ATTR_MANDATORY_CIF = ("label", )
+
+    ATTR_MANDATORY_NAMES = ("label", "symmform")
+    ATTR_MANDATORY_TYPES = (str, str)
+    ATTR_MANDATORY_CIF = ("label", "symmform")
 
     ATTR_OPTIONAL_NAMES = (
         "cartn_x", "cartn_y", "cartn_z", "crystalaxis_x", "crystalaxis_y",
         "crystalaxis_z", "modulation_flag", "refinement_flags_magnetic",
-        "spherical_azimuthal", "spherical_modulus", "spherical_polar",
-        "symmform")
+        "spherical_azimuthal", "spherical_modulus", "spherical_polar")
     ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float,
-                           str, str, float, float, float, str)
+                           str, str, float, float, float)
     ATTR_OPTIONAL_CIF = (
         "cartn_x", "cartn_y", "cartn_z", "crystalaxis_x", "crystalaxis_y",
         "crystalaxis_z", "modulation_flag", "refinement_flags_magnetic",
-        "spherical_azimuthal", "spherical_modulus", "spherical_polar",
-        "symmform")
+        "spherical_azimuthal", "spherical_modulus", "spherical_polar")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -64,7 +45,7 @@ class AtomSiteMoment(ItemN):
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
-    ATTR_REF = ()
+    ATTR_REF = ("crystalaxis_x", "crystalaxis_y", "crystalaxis_z")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
@@ -100,19 +81,26 @@ class AtomSiteMoment(ItemN):
             setattr(self, key, attr)
 
     def moment(self):
+        """Calculate moment.
+
+        FIXME: It is valid only for cubic crystals
+        """
         np_x = numpy.array(self.crystalaxis_x, dtype=float)
         np_y = numpy.array(self.crystalaxis_y, dtype=float)
         np_z = numpy.array(self.crystalaxis_z, dtype=float)
-        np_moment = numpy.sqrt(numpy.square(np_x)+numpy.square(np_y)+numpy.square(np_z))
+        np_moment = numpy.sqrt(numpy.square(np_x) + numpy.square(np_y) +
+                               numpy.square(np_z))
         return np_moment
 
     def calc_zeeman(self, field_cryst):
-        """
-        !!! It is valid only for cubic crystals
-        moment*sin(moment^field) at angle decreesing 
+        """Calc Zeeman energy.
+
+        FIXME: It is valid only for cubic crystals
+        moment*sin(moment^field) at angle decreesing
         """
         h_a, h_b, h_c = field_cryst[0], field_cryst[1], field_cryst[2]
-        if abs(h_a)+abs(h_b)+abs(h_c) ==0.:
+
+        if abs(h_a)+abs(h_b)+abs(h_c) == 0.:
             np_val = numpy.zeros(len(self.label), dtype=float)
             return np_val
         else:
@@ -128,32 +116,35 @@ class AtomSiteMoment(ItemN):
 
 
 class AtomSiteMomentL(LoopN):
-    """
-    AtomSiteMomentL category provides a loop for presenting the magnetic moments 
-    of atoms in one of several coordinate systems. This is a child category 
-    of the AtomSite category, so that the magnetic moments can either be 
-    listed alongside the non-magnetic atom properties in the main AtomSite loop
-    (not realized) or be listed in a separate loop (realized)
+    """AtomSiteMomentL class.
 
+    AtomSiteMomentL category provides a loop for presenting the magnetic
+    moments  of atoms in one of several coordinate systems. This is a child
+    category of the AtomSite category, so that the magnetic moments can either
+    be listed alongside the non-magnetic atom properties in the main AtomSite
+    loop (not realized) or be listed in a separate loop (realized)
     """
+
     ITEM_CLASS = AtomSiteMoment
     ATTR_INDEX = "label"
-    def __init__(self, loop_name = None) -> NoReturn:
+
+    def __init__(self, loop_name: str = None) -> NoReturn:
         super(AtomSiteMomentL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
 
+# s_cont = """
+# loop_
+# _atom_site_moment_label
+# _atom_site_moment_crystalaxis_x
+# _atom_site_moment_crystalaxis_y
+# _atom_site_moment_crystalaxis_z
+# _atom_site_moment_symmform
+# Tm1_1   -6.44   0.0     0.0   mx,0,0
+# Tm1_2   -6.44   0.0     0.0   mx,0,0
+# Tm1_3   -6.44   -6.44   0.0   mx,my,0
+#   """
 
-s_cont = """
- loop_                                     
- _atom_site_moment_label
- _atom_site_moment_crystalaxis_x
- _atom_site_moment_crystalaxis_y
- _atom_site_moment_crystalaxis_z
- Fe3A 4.8  0.0  0.0
- Fe3B 0.0 -4.5  0.0
-  """
-
-obj = AtomSiteMomentL.from_cif(s_cont)
-print(obj, end="\n\n")
-print(obj["Fe3B"], end="\n\n")
+# obj = AtomSiteMomentL.from_cif(s_cont)
+# print(obj, end="\n\n")
+# print(obj["Tm1_2"], end="\n\n")

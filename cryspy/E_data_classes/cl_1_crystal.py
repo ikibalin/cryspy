@@ -179,15 +179,15 @@ class Crystal(DataN):
         """
         Calculate nuclear structure factor.
 
-        Keyword Arguments:
+        Keyword Arguments
         -----------------
             index_h, index_k, index_l: 1D numpy array of Miller indexes
 
-        Output:
-        -------
+        Output
+        ------
             f_nucl: 1D numpy array of Nuclear structure factor
 
-        Example:
+        Example
         -------
             >>> import numpy as np
             >>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int),

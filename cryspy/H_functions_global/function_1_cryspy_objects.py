@@ -10,34 +10,42 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-from cryspy.C_item_loop_classes.cl_1_cell import Cell, CellL
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, \
     AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_atom_type import AtomType, \
     AtomTypeL
 from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
     AtomSiteAniso, AtomSiteAnisoL
-from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
+from cryspy.C_item_loop_classes.cl_1_atom_site_moment import \
+    AtomSiteMoment, AtomSiteMomentL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibility, AtomSiteSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
     AtomTypeScat, AtomTypeScatL
-from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
-    ReflnSusceptibility, ReflnSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
     AtomLocalAxes, AtomLocalAxesL
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfiguration, AtomElectronConfigurationL
-from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
+from cryspy.C_item_loop_classes.cl_1_cell import Cell, CellL
+from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation, DiffrnRadiationL
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
     DiffrnReflnL
+from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
     ExtinctionL
 from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
-from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs, \
-    RefineLsL
+from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
+    Pd2dInstrReflexAsymmetry, Pd2dInstrReflexAsymmetryL
+from cryspy.C_item_loop_classes.cl_1_pd2d_instr_resolution import \
+    Pd2dInstrResolution, Pd2dInstrResolutionL
+from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
+from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
+from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
+    Pd2dPeakL
+from cryspy.C_item_loop_classes.cl_1_pd2d_background import \
+    Pd2dBackground
 from cryspy.C_item_loop_classes.cl_1_pd_background import \
     PdBackground, PdBackgroundL
 from cryspy.C_item_loop_classes.cl_1_pd_instr_reflex_asymmetry import \
@@ -47,34 +55,33 @@ from cryspy.C_item_loop_classes.cl_1_pd_instr_resolution import \
 from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeas, PdMeasL
 from cryspy.C_item_loop_classes.cl_1_pd_proc import PdProc, PdProcL
 from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeak, PdPeakL
-from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
 from cryspy.C_item_loop_classes.cl_1_range import Range, RangeL
+from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
+from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
+    ReflnSusceptibility, ReflnSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs, \
+    RefineLsL
+from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
+    SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnCenteringL
 from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
-from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
-from cryspy.C_item_loop_classes.cl_1_pd2d_background import \
-    Pd2dBackground
-from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
-    Pd2dInstrReflexAsymmetry, Pd2dInstrReflexAsymmetryL
-from cryspy.C_item_loop_classes.cl_1_pd2d_instr_resolution import \
-    Pd2dInstrResolution, Pd2dInstrResolutionL
-from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
-from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
-from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
-    Pd2dPeakL
 from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
     MEMParameters, MEMParametersL
 
-from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
     AtomSiteScat, AtomSiteScatL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
     DiffrnOrientMatrix, DiffrnOrientMatrixL
 from cryspy.C_item_loop_classes.cl_2_section import Section, SectionL
+from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
+    SpaceGroupSymopMagnOperation, SpaceGroupSymopMagnOperationL
 
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
     DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
+from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
@@ -90,26 +97,35 @@ L_GLOBAL_CLASS = []
 L_FUNCTION_ALL = []
 
 L_ITEM_CLASS.extend([
-    SpaceGroup, Cell, AtomSite, AtomType, AtomSiteAniso, Refln,
-    AtomSiteSusceptibility, AtomTypeScat, AtomSiteScat, ReflnSusceptibility,
-    AtomLocalAxes, AtomElectronConfiguration, Setup, DiffrnRadiation,
-    DiffrnOrientMatrix, DiffrnRefln, Extinction, Phase, RefineLs, PdBackground,
-    PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak, Chi2,
-    Range, Texture, Exclude, Pd2dBackground, Pd2dInstrReflexAsymmetry,
-    Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak, DensityPoint,
-    MEMParameters, Section])
+    AtomElectronConfiguration, AtomLocalAxes,
+    AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
+    AtomSiteSusceptibility, AtomType, AtomTypeScat,
+    Cell, Chi2,
+    DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
+    Exclude, Extinction, MEMParameters,
+    Phase, PdBackground,
+    PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak,
+    Pd2dBackground, Pd2dInstrReflexAsymmetry,
+    Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak,
+    Range, RefineLs, Refln, ReflnSusceptibility,
+    Setup, SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnOperation,
+    SpaceGroup, Section, Texture])
 
 L_LOOP_CLASS.extend([
-    CellL, AtomSiteL, AtomTypeL, AtomSiteAnisoL, ReflnL,
-    AtomSiteSusceptibilityL, AtomTypeScatL, AtomSiteScatL,
-    ReflnSusceptibilityL, AtomLocalAxesL, AtomElectronConfigurationL, SetupL,
-    DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,  ExtinctionL, PhaseL,
-    RefineLsL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,
-    PdMeasL, PdProcL, PdPeakL, Chi2L, RangeL, TextureL, ExcludeL,
-    Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL, DensityPointL,
-    MEMParametersL, SectionL])
+    AtomLocalAxesL, AtomElectronConfigurationL,
+    AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
+    AtomSiteSusceptibilityL, AtomTypeL, AtomTypeScatL,
+    CellL, Chi2L,
+    DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
+    ExtinctionL, ExcludeL, MEMParametersL,
+    PhaseL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,
+    PdMeasL, PdProcL, PdPeakL,
+    Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL,
+    RangeL, RefineLsL, ReflnL, ReflnSusceptibilityL,
+    SectionL, SetupL, SpaceGroupSymopMagnCenteringL,
+    SpaceGroupSymopMagnOperationL, TextureL])
 
-L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d])
+L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d])
 
 L_GLOBAL_CLASS.extend([MEM, RhoChi])
 
@@ -178,6 +194,8 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
         flag = False
         str_data = str(data_cif)
         for cls_data in l_data_class:
+            # FIXME: it's bad solution as we loose information which are
+            #        not specified as knonw in cryspy library.
             data_obj = cls_data.from_cif(str_data)
             if data_obj is not None:
                 l_global_item.append(data_obj)
@@ -240,14 +258,29 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
     for cls_item in l_item_class:
         prefix = cls_item.PREFIX
 
-        l_cls_mand_cif = [f"_{prefix:}{separator:}{attr_cif:}"
+        separator_loc = "_"
+
+        l_cls_mand_cif = [f"_{prefix:}{separator_loc:}{attr_cif:}"
                           for attr_cif in cls_item.ATTR_MANDATORY_CIF]
 
-        l_cls_all_cif = [f"_{prefix:}{separator:}{attr_cif:}"
+        l_cls_all_cif = [f"_{prefix:}{separator_loc:}{attr_cif:}"
                          for attr_cif in cls_item.ATTR_MANDATORY_CIF]
 
         flag_mand = all([items_cif.is_value(name) for name in l_cls_mand_cif])
         flag_any = any([items_cif.is_value(name) for name in l_cls_all_cif])
+
+        if not(flag_any):
+            separator_loc = "."
+            l_cls_mand_cif = [f"_{prefix:}{separator_loc:}{attr_cif:}"
+                              for attr_cif in cls_item.ATTR_MANDATORY_CIF]
+
+            l_cls_all_cif = [f"_{prefix:}{separator_loc:}{attr_cif:}"
+                             for attr_cif in cls_item.ATTR_MANDATORY_CIF]
+
+            flag_mand = all([items_cif.is_value(name) for name in
+                             l_cls_mand_cif])
+            flag_any = any([items_cif.is_value(name) for name in
+                            l_cls_all_cif])
 
         item_obj = None
         if flag_mand:
