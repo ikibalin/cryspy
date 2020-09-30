@@ -457,8 +457,94 @@ def read_magnetic_data():
                         numpy.array(l_h[13:13+9], dtype=int).reshape(3, 3))
 
 # read_magnetic_data()
-# print(nlabel_bns)
-# print(nlabelparts_bns)
-# print(spacegroup_label_bns)
-# print(nlabel_og, nlabelparts_og)
-# print(spacegroup_label_og)
+# i = 5
+# print("numerical label in BNS setting: ", nlabel_bns[i])
+# print("jth part of nlabel_bns: ", nlabelparts_bns[:, i])
+# print("group symbol: ", spacegroup_label_bns[i])
+# print("numerical label in OG setting: ", nlabel_og[i])
+# print("jth part of nlabel_og: ", nlabelparts_og[:, i])
+# print("group symbol: ", spacegroup_label_og[i])
+# print("type of magnetic space group (1-4): ", magtype[i])
+# if magtype[i] == 4:
+#     print("BNS-OG: 3x3 point operator part of transformation: ",
+#           bnsog_point_op[:, :, i])
+#     print("BNS-OG: translation part of transformation: ",
+#           bnsog_origin[:, i])
+#     print("BNS-OG: common denominator: ",
+#           bnsog_origin_denom [i])
+# print("number of point operators: ", ops_count[i])
+# print("number of wyckoff sites: ", wyckoff_site_count[i])
+# for j in range(wyckoff_site_count[i]):
+#     print("number of positions in jth wyckoff site:", wyckoff_pos_count[j, i])
+#     print("multiplicity for jth wyckoff site:", wyckoff_mult[j, i])
+#     print("symbol (a,b,c,...,z,alpha) for jth wyckoff site:",
+#           wyckoff_label[j, i])
+
+#     print("kth component of fractional part of wyckoff position:",
+#           wyckoff_bns_fract[:, :, j, i])
+#     print("common denominator:", wyckoff_bns_fract_denom[:, j, i])
+
+
+# print("number of lattice vectors defining the lattice: ",
+#       lattice_bns_vectors_count[i])
+
+# print("kth component of the jth lattice vector: ",
+#       lattice_bns_vectors[:, :, i])
+# print("common denominator: ", lattice_bns_vectors_denom[:, i])
+
+
+# # for jth operator
+# # ops_bns_point_op(j,i): point operator part
+# ops_bns_point_op = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# # ops_bns_trans(k,j,i): kth component of translation part
+# # ops_bns_trans_denom(j,i): common denominator
+# ops_bns_trans = numpy.zeros(shape = (3, 96, magcount, ), dtype=int)
+# ops_bns_trans_denom = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# # ops_bns_timeinv(j,i): 1=no time inversion, -1=time inversion
+# ops_bns_timeinv = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+
+# # wyckoff_bns_xyz(m,k,j,i): mth component to coeffcient of kth paramater (x,y,z)
+# wyckoff_bns_xyz = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
+# # wyckoff_bns_mag(m,k,j,i): mth component to coeffcient of kth magnetic
+# # paramater (mx,my,mz)
+# wyckoff_bns_mag = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
+
+# # for OG setting (for type-4 groups)
+# # lattice_og_vectors_count(i): number of lattice vectors defining the lattice
+# lattice_og_vectors_count = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# # lattice_og_vectors(k,j,i): kth component of the jth lattice vector
+# # lattice_og_vectors_denom(j,i): common denominator
+# lattice_og_vectors = numpy.zeros(shape = (3, 6, magcount, ), dtype=int)
+# lattice_og_vectors_denom = numpy.zeros(shape = (6, magcount, ), dtype=int)
+
+# # for jth operator
+# # ops_og_point_op(j,i): point operator part
+# ops_og_point_op = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# # ops_og_trans(k,j,i): kth component of translation part
+# # ops_og_trans_denom(j,i): common denominator
+# ops_og_trans = numpy.zeros(shape = (3, 96, magcount, ), dtype=int)
+# ops_og_trans_denom = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# # ops_og_timeinv(j,i): 1=no time inversion, -1=time inversion
+# ops_og_timeinv = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# # for jth wyckoff site
+# # wyckoff_og_fract(k,j,i): kth component of fractional part of wyckoff position
+# # wyckoff_og_fract_denom(j,i): common denominator
+# wyckoff_og_fract = numpy.zeros(shape = (3, 96, 27, magcount, ), dtype=int)
+# wyckoff_og_fract_denom = numpy.zeros(shape = (96, 27, magcount, ), dtype=int)
+
+# # wyckoff_og_xyz(m,k,j,i): mth component to coeffcient of kth paramater (x,y,z)
+# wyckoff_og_xyz = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
+# # wyckoff_og_mag(m,k,j,i): mth component to coeffcient of kth magnetic
+# # paramater (mx,my,mz)
+# wyckoff_og_mag = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
