@@ -1,4 +1,4 @@
-
+# ORIGINAL FORTRAN PROGRAM
 #       program read_magnetic_data
 # * read data about magnetic space groups
 # * input data from magnetic_table.dat
@@ -188,82 +188,277 @@
 #       end
 
 import os
+import numpy
+
+# for the ith nonhexagonal point operator:
+# point_op_label(i): point operator symbol (from Litvin)
+point_op_label = numpy.zeros(shape = (48, ), dtype='<8U')
+
+# point_op_xyz(i): point operator in x,y,z notation
+point_op_xyz = numpy.zeros(shape = (48, ), dtype='<10U')
+
+# point_op_matrix(i): point operator matrix
+point_op_matrix = numpy.zeros(shape = (3, 3, 48, ), dtype=int)
+
+# for the ith hexagonal point operator:
+# point_op_hex_label(i): point operator symbol (from Litvin)
+point_op_hex_label = numpy.zeros(shape = (24, ), dtype='<8U')
+
+# point_op_hex_xyz(i): point operator in x,y,z notation
+point_op_hex_xyz = numpy.zeros(shape = (24, ), dtype='<10U')
+
+# point_op_hex_matrix(i): point operator matrix
+point_op_hex_matrix = numpy.zeros(shape = (3, 3, 24, ), dtype=int)
+
+      
+# number of magnetic space groups
+magcount = 1651
+
+# for the ith magnetic space group
+# nlabel_bns(i): numerical label in BNS setting
+nlabel_bns = numpy.zeros(shape = (magcount, ), dtype='<12U')
+
+# nlabel_parts_bns(j,i): jth part of nlabel_bns
+nlabelparts_bns = numpy.zeros(shape = (2, magcount, ), dtype=int)
+
+# label_bns(i): group symbol
+spacegroup_label_bns =  numpy.zeros(shape = (magcount, ), dtype='<14U')
+
+# nlabel_og(i): numerical label in OG setting
+nlabel_og =  numpy.zeros(shape = (magcount, ), dtype='<12U')
+
+# nlabel_parts_og(j,i): jth part of nlabel_og
+nlabelparts_og = numpy.zeros(shape = (3, magcount, ), dtype=int)
+
+# label_og(i): group symbol
+spacegroup_label_og =  numpy.zeros(shape = (magcount, ), dtype='<14U')
+
+# magtype(i): type of magnetic space group (1-4)
+magtype = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# BNS-OG transformation (if type-4)
+# bnsog_point_op(j,k,i): 3x3 point operator part of transformation
+bnsog_point_op = numpy.zeros(shape = (3, 3, magcount, ), dtype=int)
+
+# bnsog_origin(j,i): translation part of transformation
+# bnsog_point_origin(i): common denominator
+bnsog_origin = numpy.zeros(shape = (3, magcount, ), dtype=int)
+bnsog_origin_denom = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# iops_count(i): number of point operators
+ops_count = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# wyckoff_count(i): number of wyckoff sites
+wyckoff_site_count = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# wyckoff_pos_count(j,i): number of positions in jth wyckoff site
+wyckoff_pos_count = numpy.zeros(shape = (27, magcount, ), dtype=int)
+
+# wyckoff_mult(j,i): multiplicity for jth wyckoff site
+wyckoff_mult = numpy.zeros(shape = (27, magcount, ), dtype=int)
+      
+# wyckoff_label(j,i): symbol (a,b,c,...,z,alpha) for jth wyckoff site
+wyckoff_label = numpy.zeros(shape = (27, magcount, ), dtype="<1U")
+
+# for BNS setting
+# lattice_bns_vectors_count(i): number of lattice vectors defining the lattice
+lattice_bns_vectors_count = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# lattice_bns_vectors(k,j,i): kth component of the jth lattice vector
+# lattice_bns_vectors_denom(j,i): common denominator
+lattice_bns_vectors = numpy.zeros(shape = (3, 6, magcount, ), dtype=int)
+lattice_bns_vectors_denom = numpy.zeros(shape = (6, magcount, ), dtype=int)
+
+# for jth operator
+# ops_bns_point_op(j,i): point operator part
+ops_bns_point_op = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# ops_bns_trans(k,j,i): kth component of translation part
+# ops_bns_trans_denom(j,i): common denominator
+ops_bns_trans = numpy.zeros(shape = (3, 96, magcount, ), dtype=int)
+ops_bns_trans_denom = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# ops_bns_timeinv(j,i): 1=no time inversion, -1=time inversion
+ops_bns_timeinv = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# for jth wyckoff site
+# wyckoff_bns_fract(k,j,i): kth component of fractional part of wyckoff position
+# wyckoff_bns_fract_denom(j,i): common denominator
+wyckoff_bns_fract = numpy.zeros(shape = (3, 96, 27, magcount, ), dtype=int)
+wyckoff_bns_fract_denom = numpy.zeros(shape = (96, 27, magcount, ), dtype=int)
+
+# wyckoff_bns_xyz(m,k,j,i): mth component to coeffcient of kth paramater (x,y,z)
+wyckoff_bns_xyz = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
+# wyckoff_bns_mag(m,k,j,i): mth component to coeffcient of kth magnetic
+# paramater (mx,my,mz)
+wyckoff_bns_mag = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
+
+# for OG setting (for type-4 groups)
+# lattice_og_vectors_count(i): number of lattice vectors defining the lattice
+lattice_og_vectors_count = numpy.zeros(shape = (magcount, ), dtype=int)
+
+# lattice_og_vectors(k,j,i): kth component of the jth lattice vector
+# lattice_og_vectors_denom(j,i): common denominator
+lattice_og_vectors = numpy.zeros(shape = (3, 6, magcount, ), dtype=int)
+lattice_og_vectors_denom = numpy.zeros(shape = (6, magcount, ), dtype=int)
+
+# for jth operator
+# ops_og_point_op(j,i): point operator part
+ops_og_point_op = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# ops_og_trans(k,j,i): kth component of translation part
+# ops_og_trans_denom(j,i): common denominator
+ops_og_trans = numpy.zeros(shape = (3, 96, magcount, ), dtype=int)
+ops_og_trans_denom = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# ops_og_timeinv(j,i): 1=no time inversion, -1=time inversion
+ops_og_timeinv = numpy.zeros(shape = (96, magcount, ), dtype=int)
+
+# for jth wyckoff site
+# wyckoff_og_fract(k,j,i): kth component of fractional part of wyckoff position
+# wyckoff_og_fract_denom(j,i): common denominator
+wyckoff_og_fract = numpy.zeros(shape = (3, 96, 27, magcount, ), dtype=int)
+wyckoff_og_fract_denom = numpy.zeros(shape = (96, 27, magcount, ), dtype=int)
+
+# wyckoff_og_xyz(m,k,j,i): mth component to coeffcient of kth paramater (x,y,z)
+wyckoff_og_xyz = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
+# wyckoff_og_mag(m,k,j,i): mth component to coeffcient of kth magnetic
+# paramater (mx,my,mz)
+wyckoff_og_mag = numpy.zeros(shape = (3, 3, 96, 27, magcount, ), dtype=int)
+
 
 F_MAG_DATA = os.path.join(os.path.dirname(__file__), "magnetic_data.txt")
-
+      
 def read_magnetic_data():
     with open(F_MAG_DATA, "r") as fid:
         l_cont = fid.readlines()
     # read nonhexangonal point operators
-    for line in l_cont[0:48]:
-        pass
+    i_line = 0
+    for i in range(48):
+        l_h  = l_cont[i_line].split(); i_line += 1
+        n = int(l_h[0])
+        point_op_label[i] = l_h[1]
+        point_op_xyz[i] = l_h[2]
+        point_op_matrix[:,:,i] = numpy.array(l_h[3:3+9], dtype=int).reshape(
+            3, 3)
+        if n != (i+1):
+            break
     # read hexangonal point operators
-    for line in l_cont[48:72]:
-        pass
+    for i in range(24):
+        l_h  = l_cont[i_line].split(); i_line += 1
+        n = int(l_h[0])
+        point_op_hex_label[i] = l_h[1]
+        point_op_hex_xyz[i] = l_h[2]
+        point_op_hex_matrix[:,:,i] = numpy.array(l_h[3:3+9], dtype=int).reshape(
+            3, 3)
+        if n != (i+1):
+            break
 
-    n_start = 72
-    # read data for each magnetic space group
-    l_nlabelparts_bns_1, l_nlabelparts_bns_2 = [], []
-    l_nlabel_bns = []
-    l_spacegroup_label_bns = []
-    l_nlabelparts_og_1, l_nlabelparts_og_2, l_nlabelparts_og_3 = [], [], []
-    l_nlabel_og, l_spacegroup_label_og = [], []
+    for i in range(magcount):
+        l_h  = l_cont[i_line].split(); i_line += 1
+        nlabelparts_bns[:,i] = numpy.array(l_h[0:2], dtype=int)
+        nlabel_bns[i] = l_h[2]
+        spacegroup_label_bns[i] = l_h[3]
+        nlabelparts_og[:, i] = numpy.array(l_h[4:7], dtype=int)
+        nlabel_og[i] = l_h[7]
+        spacegroup_label_og[i] = l_h[8]
 
-    l_mag_type = []
-
-    l_bnsog_point_op, l_bnsog_origin, l_bnsog_origin_denom = [], [], []
-
-    l_ops_count, l_ops_bns_point_op, l_ops_bns_trans = [], [], []
-    l_ops_bns_trans_denom, l_ops_bns_timeinv = [], []
-    
-    l_lattice_bns_vectors_count = []
-    for i_read in range(1651):
-        l_h = l_cont[n_start+i_read].split(" ")
-        l_nlabelparts_bns_1.append(int(l_h[0]))
-        l_nlabelparts_bns_2.append(int(l_h[1]))
-        l_nlabel_bns.append(l_h[2])
-        l_spacegroup_label_bns.append(l_h[3])
-        l_nlabelparts_og_1.append(int(l_h[4]))
-        l_nlabelparts_og_2.append(int(l_h[5]))
-        l_nlabelparts_og_3.append(int(l_h[6]))
-        l_nlabel_og.append(l_h[7])
-        l_spacegroup_label_og.append(l_h[7])
-
-        mag_type = int(l_cont[n_start+i_read+1])
-
-        l_mag_type.append(mag_type)
-        n_mag_type = 0
-        if mag_type == 4:
-            n_mag_type = 1
-            line = l_cont[n_start+i_read+1+n_mag_type]
-            l_h = line.split()
-            l_bnsog_point_op.append(l_h[0:9])
-            l_bnsog_origin.append(l_h[9:12])
-            l_bnsog_origin_denom.append(l_h[12])
-        else:
-            l_bnsog_point_op.append(None)
-            l_bnsog_origin.append(None)
-            l_bnsog_origin_denom.append(None)
-
-        line = l_cont[n_start+i_read+1+n_mag_type+1]
-        ops_count = int(line)
-        l_ops_count.append(ops_count)
-
-        line = l_cont[n_start+i_read+1+n_mag_type+2]
-        l_h = line.split()
-        n_val = 0
-        for i_ops_count in range(ops_count):
-            l_ops_bns_point_op.append(l_h[i_ops_count*n_val])
-            l_ops_bns_trans.append(l_h[(i_ops_count*n_val+1):
-                                       (i_ops_count*n_val+4)])
-            l_ops_bns_trans_denom.append(l_h[i_ops_count*n_val+4])
-            l_ops_bns_timeinv.append(l_h[i_ops_count*n_val+5])
-            n_val += 6
-
-        line = l_cont[n_start+i_read+1+n_mag_type+3]
-        n_l_bns_v_c = int(line)
-        l_lattice_bns_vectors_count.append(n_l_bns_v_c)
+        l_h  = l_cont[i_line].split(); i_line += 1
+        magtype[i] = l_h[0]
         
-        # line = l_cont[n_start+i_read+1+n_mag_type+4]
-        # for i_l_bns_v_c in range(n_l_bns_v_c):
-        #     lattice_bns_vectors_denom
+        if magtype[i] == 4:
+            l_h  = l_cont[i_line].split(); i_line += 1
+            bnsog_point_op[:,:,i] = numpy.transpose(
+                numpy.array(l_h[0:9], dtype=int).reshape(3, 3))
+            bnsog_origin[:, i] = numpy.array(l_h[9:9+3], dtype=int)
+            bnsog_origin_denom[i] = l_h[12]
+            
+        l_h  = l_cont[i_line].split(); i_line += 1
+        ops_count[i] = l_h[0]
+
+        for j in range(ops_count[i]):
+            if j%4 == 0:
+                l_h  = l_cont[i_line].split(); i_line += 1
+            ops_bns_point_op[j, i], ops_bns_trans[0,j,i], \
+                ops_bns_trans[1,j,i], ops_bns_trans[2,j,i], \
+                ops_bns_trans_denom[j,i], ops_bns_timeinv[j,i] = \
+                l_h[0+6*j%4], l_h[1+6*j%4], l_h[2+6*j%4], l_h[3+6*j%4], \
+                l_h[4+6*j%4], l_h[5+6*j%4]
+
+        l_h  = l_cont[i_line].split(); i_line += 1
+        lattice_bns_vectors_count[i] = l_h[0]
+
+        l_h  = l_cont[i_line].split(); i_line += 1
+        for j in range(lattice_bns_vectors_count[i]):
+            lattice_bns_vectors[0, j, i], lattice_bns_vectors[1, j, i], \
+                lattice_bns_vectors[2, j, i], \
+                lattice_bns_vectors_denom[j, i] = \
+                l_h[0+4*j], l_h[1+4*j], l_h[2+4*j], l_h[3+4*j]
+            
+        l_h  = l_cont[i_line].split(); i_line += 1
+        wyckoff_site_count[i] = l_h[0]
+
+        for j in range(wyckoff_site_count[i]):
+            l_h  = l_cont[i_line].split(); i_line += 1
+            wyckoff_pos_count[j, i],  wyckoff_mult[j, i], \
+                wyckoff_label[j, i] = l_h[0], l_h[1], l_h[2]
+
+            for k in range(wyckoff_pos_count[j, i]):
+                l_h  = l_cont[i_line].split(); i_line += 1
+                wyckoff_bns_fract[:, k, j, i] = numpy.array(l_h[0:3],
+                                                            dtype=int)
+                wyckoff_bns_fract_denom[k, j, i] = l_h[3]
+                wyckoff_bns_xyz[:, :, k, j, i] = numpy.transpose(
+                    numpy.array(l_h[4:13], dtype=int).reshape(3,3))
+                wyckoff_bns_mag[:, :, k, j, i] = numpy.transpose(
+                    numpy.array(l_h[13:22], dtype=int).reshape(3,3))
+
+        if magtype[i] == 4:
+            l_h  = l_cont[i_line].split(); i_line += 1
+            ops_count[i] = l_h[0]
+
+            for j in range(ops_count[i]):
+                if j%4 == 0:
+                    l_h  = l_cont[i_line].split(); i_line += 1
+                ops_og_point_op[j, i], ops_og_trans[0, j, i], \
+                    ops_og_trans[1, j, i], ops_og_trans[2, j, i], \
+                    ops_og_trans_denom[j, i], ops_og_timeinv[j, i] = \
+                    l_h[0+6*j%4], l_h[1+6*j%4], l_h[2+6*j%4], l_h[3+6*j%4], \
+                    l_h[4+6*j%4], l_h[5+6*j%4]
+                
+            l_h  = l_cont[i_line].split(); i_line += 1
+            lattice_og_vectors_count[i] = l_h[0]
+
+            l_h  = l_cont[i_line].split(); i_line += 1
+            for j in range(lattice_og_vectors_count[i]):
+                lattice_og_vectors[:, j, i] = numpy.array(l_h[0+4*j:3+4*j],
+                                                          dtype=int)
+                lattice_og_vectors_denom[j, i] = l_h[3+4*j]
+                
+            l_h  = l_cont[i_line].split(); i_line += 1
+            wyckoff_site_count[i] = l_h[0]
+
+            for j in range(wyckoff_site_count[i]):
+                l_h  = l_cont[i_line].split(); i_line += 1
+                wyckoff_pos_count[j, i], wyckoff_mult[j, i] = l_h[0], l_h[1]
+                wyckoff_label[j, i] = l_h[2]
+                
+                for k in range(wyckoff_pos_count[j, i]):
+                    l_h  = l_cont[i_line].split(); i_line += 1
+                    wyckoff_og_fract[:, k, j, i] = numpy.array(l_h[0:3],
+                                                               dtype=int)
+                    wyckoff_og_fract_denom[k, j, i] = l_h[3]
+                    wyckoff_og_xyz[:, :, k, j, i] = numpy.transpose(
+                        numpy.array(l_h[4:4+9], dtype=int).reshape(3, 3))
+                    wyckoff_og_mag[:, :, k, j, i] = numpy.transpose(
+                        numpy.array(l_h[13:13+9], dtype=int).reshape(3, 3))
+
+# read_magnetic_data()
+# print(nlabel_bns)
+# print(nlabelparts_bns)
+# print(spacegroup_label_bns)
+# print(nlabel_og, nlabelparts_og)
+# print(spacegroup_label_og)
