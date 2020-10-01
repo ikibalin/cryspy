@@ -389,8 +389,8 @@ def read_magnetic_data():
             ops_bns_point_op[j, i], ops_bns_trans[0, j, i], \
                 ops_bns_trans[1, j, i], ops_bns_trans[2, j, i], \
                 ops_bns_trans_denom[j, i], ops_bns_timeinv[j, i] = \
-                l_h[0+6*j % 4], l_h[1+6*j % 4], l_h[2+6*j % 4],\
-                l_h[3+6*j % 4], l_h[4+6*j % 4], l_h[5+6*j % 4]
+                l_h[0+6*(j % 4)], l_h[1+6*(j % 4)], l_h[2+6*(j % 4)],\
+                l_h[3+6*(j % 4)], l_h[4+6*(j % 4)], l_h[5+6*(j % 4)]
 
         l_h = l_cont[i_line].split(); i_line += 1
         lattice_bns_vectors_count[i] = l_h[0]
@@ -430,8 +430,8 @@ def read_magnetic_data():
                 ops_og_point_op[j, i], ops_og_trans[0, j, i], \
                     ops_og_trans[1, j, i], ops_og_trans[2, j, i], \
                     ops_og_trans_denom[j, i], ops_og_timeinv[j, i] = \
-                    l_h[0+6*j % 4], l_h[1+6*j % 4], l_h[2+6*j % 4], \
-                    l_h[3+6*j % 4], l_h[4+6*j % 4], l_h[5+6*j % 4]
+                    l_h[0+6*(j % 4)], l_h[1+6*(j % 4)], l_h[2+6*(j % 4)], \
+                    l_h[3+6*(j % 4)], l_h[4+6*(j % 4)], l_h[5+6*(j % 4)]
 
             l_h = l_cont[i_line].split(); i_line += 1
             lattice_og_vectors_count[i] = l_h[0]
@@ -485,6 +485,7 @@ def calc_moment_by_sym_elem(moment, sym_elem):
     r_21, r_22, r_23 = sym_elem[16], sym_elem[17], sym_elem[18]
     r_31, r_32, r_33 = sym_elem[19], sym_elem[20], sym_elem[21]
 
+    # FIXME: multiplication on det(R) is missed.
     m_x_new = r_11 * m_x + r_12 * m_y + r_13 * m_z
     m_y_new = r_21 * m_x + r_22 * m_y + r_23 * m_z
     m_z_new = r_31 * m_x + r_32 * m_y + r_33 * m_z
@@ -505,15 +506,16 @@ def get_sym_elem_by_ops(ops, flag_non_hexagonal: bool = True):
         size_ops = 1  # if ops is list of numbers
 
     t_i = ops[5]  # time inversion
+
     if flag_non_hexagonal:
         val = numpy.reshape(point_op_matrix[:, :, ops[0]-1], (9, size_ops))
     else:
         val = numpy.reshape(point_op_hex_matrix[:, :, ops[0]-1], (9, size_ops))
     res = numpy.array([
         ops[1], ops[2], ops[3], ops[4], val[0], val[1], val[2], val[3], val[4],
-        val[5], val[6], val[7], val[8], ops[5]*val[0], ops[5]*val[1],
-        t_i*val[2], t_i*val[3], t_i*val[4], t_i*val[5],
-        t_i*val[6], t_i*val[7], t_i*val[8]], dtype=int)
+        val[5], val[6], val[7], val[8], t_i*val[0], t_i*val[1], t_i*val[2],
+        t_i*val[3], t_i*val[4], t_i*val[5], t_i*val[6], t_i*val[7],
+        t_i*val[8]], dtype=int)
     return res
 
 def find_i_for_nlabel_bns(part_1: int, part_2: int):
@@ -527,9 +529,9 @@ def get_sym_elems_for_bns(part_1: int, part_2: int):
     """Get symmetry elements for bns space group."""
     i = find_i_for_nlabel_bns(part_1, part_2)
     j = ops_count[i]
-    ops = [ops_og_point_op[:j, i], ops_og_trans[0, :j, i],
-           ops_og_trans[1, :j, i], ops_og_trans[2, :j, i],
-           ops_og_trans_denom[:j, i], ops_og_timeinv[:j, i]]
+    ops = [ops_bns_point_op[:j, i], ops_bns_trans[0, :j, i],
+           ops_bns_trans[1, :j, i], ops_bns_trans[2, :j, i],
+           ops_bns_trans_denom[:j, i], ops_bns_timeinv[:j, i]]
 
     flag_non_hexagonal = True  # FIXME
     sym_elems = get_sym_elem_by_ops(ops, flag_non_hexagonal=flag_non_hexagonal)
@@ -538,62 +540,127 @@ def get_sym_elems_for_bns(part_1: int, part_2: int):
 
 def get_str_for_sym_elem(sym_elem, labels=("x", "y", "z", "mx", "my", "mz")):
     """Get str for sym element."""
-    if len(sym_elem.shape) == 1:
-        size = 1
+    flag_moment = sym_elem.shape[0] > 12
     sym_elem_zero = 0*sym_elem
     sym_elem_plus_one = sym_elem_zero + 1
     sym_elem_minus_one = sym_elem_zero - 1
-    flag_zero = sym_elem_zero == sym_elem
+
     flag_plus_one = sym_elem_plus_one == sym_elem
     flag_minus_one = sym_elem_minus_one == sym_elem
 
     str_empty = numpy.zeros(shape=sym_elem_zero.shape, dtype='<3U')
 
-    str_empty[4] = numpy.where(flag_plus_one[4], labels[0], numpy.where(
+    str_empty[4] = numpy.where(flag_plus_one[4], "+"+labels[0], numpy.where(
         flag_minus_one[4], "-"+labels[0], ""))
-    str_empty[5] = numpy.where(flag_plus_one[5], labels[1], numpy.where(
+    str_empty[5] = numpy.where(flag_plus_one[5], "+"+labels[1], numpy.where(
         flag_minus_one[5], "-"+labels[1], ""))
-    str_empty[6] = numpy.where(flag_plus_one[6], labels[2], numpy.where(
+    str_empty[6] = numpy.where(flag_plus_one[6], "+"+labels[2], numpy.where(
         flag_minus_one[6], "-"+labels[2], ""))
 
-    str_empty[7] = numpy.where(flag_plus_one[7], labels[0], numpy.where(
+    str_empty[7] = numpy.where(flag_plus_one[7], "+"+labels[0], numpy.where(
         flag_minus_one[7], "-"+labels[0], ""))
-    str_empty[8] = numpy.where(flag_plus_one[8], labels[1], numpy.where(
+    str_empty[8] = numpy.where(flag_plus_one[8], "+"+labels[1], numpy.where(
         flag_minus_one[8], "-"+labels[1], ""))
-    str_empty[9] = numpy.where(flag_plus_one[9], labels[2], numpy.where(
+    str_empty[9] = numpy.where(flag_plus_one[9], "+"+labels[2], numpy.where(
         flag_minus_one[9], "-"+labels[2], ""))
 
-    str_empty[10] = numpy.where(flag_plus_one[10], labels[3], numpy.where(
+    str_empty[10] = numpy.where(flag_plus_one[10], "+"+labels[0], numpy.where(
         flag_minus_one[10], "-"+labels[0], ""))
-    str_empty[11] = numpy.where(flag_plus_one[11], labels[4], numpy.where(
+    str_empty[11] = numpy.where(flag_plus_one[11], "+"+labels[1], numpy.where(
         flag_minus_one[11], "-"+labels[1], ""))
-    str_empty[12] = numpy.where(flag_plus_one[12], labels[5], numpy.where(
+    str_empty[12] = numpy.where(flag_plus_one[12], "+"+labels[2], numpy.where(
         flag_minus_one[12], "-"+labels[2], ""))
 
-    str_empty[13] = numpy.where(flag_plus_one[13], labels[3], numpy.where(
-        flag_minus_one[13], "-"+labels[0], ""))
-    str_empty[14] = numpy.where(flag_plus_one[14], labels[4], numpy.where(
-        flag_minus_one[14], "-"+labels[1], ""))
-    str_empty[15] = numpy.where(flag_plus_one[15], labels[5], numpy.where(
-        flag_minus_one[15], "-"+labels[2], ""))
+    if flag_moment:
+        str_empty[13] = numpy.where(flag_plus_one[13], "+"+labels[3], numpy.where(
+            flag_minus_one[13], "-"+labels[3], ""))
+        str_empty[14] = numpy.where(flag_plus_one[14], "+"+labels[4], numpy.where(
+            flag_minus_one[14], "-"+labels[4], ""))
+        str_empty[15] = numpy.where(flag_plus_one[15], "+"+labels[5], numpy.where(
+            flag_minus_one[15], "-"+labels[5], ""))
+    
+        str_empty[16] = numpy.where(flag_plus_one[16], "+"+labels[3], numpy.where(
+            flag_minus_one[16], "-"+labels[3], ""))
+        str_empty[17] = numpy.where(flag_plus_one[17], "+"+labels[4], numpy.where(
+            flag_minus_one[17], "-"+labels[4], ""))
+        str_empty[18] = numpy.where(flag_plus_one[18], "+"+labels[5], numpy.where(
+            flag_minus_one[18], "-"+labels[5], ""))
+    
+        str_empty[19] = numpy.where(flag_plus_one[19], "+"+labels[3], numpy.where(
+            flag_minus_one[19], "-"+labels[3], ""))
+        str_empty[20] = numpy.where(flag_plus_one[20], "+"+labels[4], numpy.where(
+            flag_minus_one[20], "-"+labels[4], ""))
+        str_empty[21] = numpy.where(flag_plus_one[21], "+"+labels[5], numpy.where(
+            flag_minus_one[21], "-"+labels[5], ""))
 
-    str_empty[16] = numpy.where(flag_plus_one[16], labels[3], numpy.where(
-        flag_minus_one[16], "-"+labels[0], ""))
-    str_empty[17] = numpy.where(flag_plus_one[17], labels[4], numpy.where(
-        flag_minus_one[17], "-"+labels[1], ""))
-    str_empty[18] = numpy.where(flag_plus_one[18], labels[5], numpy.where(
-        flag_minus_one[18], "-"+labels[2], ""))
+    char_add = numpy.char.add
+    char_strip = numpy.char.strip
 
-    str_empty[19] = numpy.where(flag_plus_one[19], labels[3], numpy.where(
-        flag_minus_one[19], "-"+labels[0], ""))
-    str_empty[20] = numpy.where(flag_plus_one[20], labels[4], numpy.where(
-        flag_minus_one[20], "-"+labels[1], ""))
-    str_empty[21] = numpy.where(flag_plus_one[21], labels[5], numpy.where(
-        flag_minus_one[21], "-"+labels[2], ""))
+    t_x = sym_elem[0]
+    t_y = sym_elem[1]
+    t_z = sym_elem[2]
+    denom = sym_elem[3]
 
-    return str_empty
-read_magnetic_data()
+    gcd_x = numpy.gcd(t_x, denom)
+    gcd_y = numpy.gcd(t_y, denom)
+    gcd_z = numpy.gcd(t_z, denom)
 
-sym_elems = get_sym_elems_for_bns(2, 6)
-print("sym_elems: ", sym_elems[:, 0])
-print(get_str_for_sym_elem(sym_elems))
+    denom_x, denom_y, denom_z = denom // gcd_x, denom // gcd_y, denom // gcd_z
+    t_x_new, t_y_new, t_z_new = t_x // gcd_x, t_y // gcd_y, t_z // gcd_z
+
+    s_t_x_new, s_t_y_new = t_x_new.astype(str), t_y_new.astype(str)
+    s_t_z_new = t_z_new.astype(str)
+
+    s_denom_x, s_denom_y = denom_x.astype(str), denom_y.astype(str)
+    s_denom_z = denom_z.astype(str)
+
+    s_fract_x = char_add(char_add(s_t_x_new, "/"), s_denom_x)
+    s_fract_y = char_add(char_add(s_t_y_new, "/"), s_denom_y)
+    s_fract_z = char_add(char_add(s_t_z_new, "/"), s_denom_z)
+    
+    s_fract_x[numpy.char.startswith(s_fract_x, "0")] = ""
+    s_fract_y[numpy.char.startswith(s_fract_y, "0")] = ""
+    s_fract_z[numpy.char.startswith(s_fract_z, "0")] = ""
+
+    flag_x = numpy.char.startswith(s_fract_x, "-")
+    s_fract_x = numpy.where(flag_x, s_fract_x, char_add("+", s_fract_x))
+    flag_y = numpy.char.startswith(s_fract_y, "-")
+    s_fract_y = numpy.where(flag_y, s_fract_y, char_add("+", s_fract_y))
+    flag_z = numpy.char.startswith(s_fract_z, "-")
+    s_fract_z = numpy.where(flag_z, s_fract_z, char_add("+", s_fract_z))
+
+    s_out_f_1 = char_add(char_add(char_add(str_empty[4], str_empty[5]),
+                                  str_empty[6]), s_fract_x)
+    s_out_f_2 = char_add(char_add(char_add(str_empty[7], str_empty[8]),
+                                  str_empty[9]), s_fract_y)
+    s_out_f_3 = char_add(char_add(char_add(str_empty[10], str_empty[11]),
+                                  str_empty[12]), s_fract_z)
+
+    if flag_moment:
+        s_out_m_1 = char_add(char_add(str_empty[13], str_empty[14]), str_empty[15])
+        s_out_m_2 = char_add(char_add(str_empty[16], str_empty[17]), str_empty[18])
+        s_out_m_3 = char_add(char_add(str_empty[19], str_empty[20]), str_empty[21])
+
+    s_out_f_1 = char_strip(s_out_f_1, "+")
+    s_out_f_2 = char_strip(s_out_f_2, "+")
+    s_out_f_3 = char_strip(s_out_f_3, "+")
+
+    s_out_m_1 = char_strip(s_out_m_1, "+")
+    s_out_m_2 = char_strip(s_out_m_2, "+")
+    s_out_m_3 = char_strip(s_out_m_3, "+")
+
+    s_out_fract = char_add(char_add(char_add(char_add(s_out_f_1, ","),
+                                             s_out_f_2), ","), s_out_f_3) 
+    if flag_moment:
+        s_out_moment = char_add(char_add(char_add(char_add(
+            s_out_m_1, ","), s_out_m_2), ","), s_out_m_3) 
+        s_out = char_add(char_add(s_out_fract, ";"), s_out_moment)
+    else:
+        s_out = s_out_fract
+    return s_out
+
+
+# read_magnetic_data()
+
+# sym_elems = get_sym_elems_for_bns(224, 112)
+# print(get_str_for_sym_elem(sym_elems))
