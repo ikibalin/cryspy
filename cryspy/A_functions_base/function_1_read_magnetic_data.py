@@ -364,11 +364,11 @@ def read_magnetic_data():
     for i in range(magcount):
         l_h = l_cont[i_line].split(); i_line += 1
         nlabelparts_bns[:, i] = numpy.array(l_h[0:2], dtype=int)
-        nlabel_bns[i] = l_h[2]
-        spacegroup_label_bns[i] = l_h[3]
+        nlabel_bns[i] = l_h[2].strip("\"")
+        spacegroup_label_bns[i] = l_h[3].strip("\"")
         nlabelparts_og[:, i] = numpy.array(l_h[4:7], dtype=int)
         nlabel_og[i] = l_h[7]
-        spacegroup_label_og[i] = l_h[8]
+        spacegroup_label_og[i] = l_h[8].strip("\"")
 
         l_h = l_cont[i_line].split(); i_line += 1
         magtype[i] = l_h[0]
@@ -461,34 +461,55 @@ def read_magnetic_data():
                         numpy.array(l_h[13:13+9], dtype=int).reshape(3, 3))
 
 
-def calc_fract_by_sym_elem(fract, sym_elem):
+def calc_fract_by_sym_elem(sym_elems, fract):
     """Calculate fraction of atom for given atom and symmetry element."""
-    f_x, f_y, f_z = fract[0], fract[1], fract[2]
-    b_x, b_y, b_z = sym_elem[0], sym_elem[1], sym_elem[2]
-    denom = sym_elem[3]
-    r_11, r_12, r_13 = sym_elem[4], sym_elem[5], sym_elem[6]
-    r_21, r_22, r_23 = sym_elem[7], sym_elem[8], sym_elem[9]
-    r_31, r_32, r_33 = sym_elem[10], sym_elem[11], sym_elem[12]
+    fract_np = numpy.array(fract, dtype=float)
 
-    at_x_new = r_11 * f_x + r_12 * f_y + r_13 * f_z + b_x/denom
-    at_y_new = r_21 * f_x + r_22 * f_y + r_23 * f_z + b_y/denom
-    at_z_new = r_31 * f_x + r_32 * f_y + r_33 * f_z + b_z/denom
+    if len(fract_np.shape) == 1:
+        fract_np.resize((3,1))
+
+    f_x, f_y, f_z = fract_np[0], fract_np[1], fract_np[2]
+    b_x, b_y, b_z = sym_elems[0], sym_elems[1], sym_elems[2]
+    denom = sym_elems[3]
+    r_11, r_12, r_13 = sym_elems[4], sym_elems[5], sym_elems[6]
+    r_21, r_22, r_23 = sym_elems[7], sym_elems[8], sym_elems[9]
+    r_31, r_32, r_33 = sym_elems[10], sym_elems[11], sym_elems[12]
+
+    n_a = numpy.newaxis
+    at_x_new = numpy.mod(r_11[:, n_a] * f_x[n_a, :] + r_12[:, n_a] * \
+                         f_y[n_a, :] + r_13[:, n_a] * f_z[n_a, :] + \
+                             (b_x/denom)[:, n_a], 1.)
+    at_y_new = numpy.mod(r_21[:, n_a] * f_x[n_a, :] + r_22[:, n_a] * \
+                         f_y[n_a, :] + r_23[:, n_a] * f_z[n_a, :] + \
+                             (b_y/denom)[:, n_a], 1.)
+    at_z_new = numpy.mod(r_31[:, n_a] * f_x[n_a, :] + r_32[:, n_a] * \
+                         f_y[n_a, :] + r_33[:, n_a] * f_z[n_a, :] + \
+                             (b_z/denom)[:, n_a], 1.)
     at_new = numpy.array([at_x_new, at_y_new, at_z_new], dtype=float)
     return at_new
 
 
-def calc_moment_by_sym_elem(moment, sym_elem):
+def calc_moment_by_sym_elem(sym_elems, moment):
     """Calculate fraction of atom for given atom and symmetry element."""
-    m_x, m_y, m_z = moment[0], moment[1], moment[2]
+    moment_np = numpy.array(moment, dtype=float)
 
-    r_11, r_12, r_13 = sym_elem[13], sym_elem[14], sym_elem[15]
-    r_21, r_22, r_23 = sym_elem[16], sym_elem[17], sym_elem[18]
-    r_31, r_32, r_33 = sym_elem[19], sym_elem[20], sym_elem[21]
+    if len(moment_np.shape) == 1:
+        moment_np.resize((3,1))
 
+    m_x, m_y, m_z = moment_np[0], moment_np[1], moment_np[2]
+
+    r_11, r_12, r_13 = sym_elems[13], sym_elems[14], sym_elems[15]
+    r_21, r_22, r_23 = sym_elems[16], sym_elems[17], sym_elems[18]
+    r_31, r_32, r_33 = sym_elems[19], sym_elems[20], sym_elems[21]
+
+    n_a = numpy.newaxis
     # FIXME: multiplication on det(R) is missed.
-    m_x_new = r_11 * m_x + r_12 * m_y + r_13 * m_z
-    m_y_new = r_21 * m_x + r_22 * m_y + r_23 * m_z
-    m_z_new = r_31 * m_x + r_32 * m_y + r_33 * m_z
+    m_x_new = r_11[:, n_a] * m_x[n_a, :] + r_12[:, n_a] * m_y[n_a, :] + \
+        r_13[:, n_a] * m_z[n_a, :]
+    m_y_new = r_21[:, n_a] * m_x[n_a, :] + r_22[:, n_a] * m_y[n_a, :] + \
+        r_23[:, n_a] * m_z[n_a, :]
+    m_z_new = r_31[:, n_a] * m_x[n_a, :] + r_32[:, n_a] * m_y[n_a, :] + \
+        r_33[:, n_a] * m_z[n_a, :]
     m_new = numpy.array([m_x_new, m_y_new, m_z_new], dtype=float)
     return m_new
 
@@ -524,8 +545,24 @@ def find_i_for_nlabel_bns(part_1: int, part_2: int):
     flag_3 = flag_1*flag_2
     return int(numpy.argwhere(flag_3))
 
+D_CENTRING_TYPE_SHIFT = {
+    "P": numpy.array([[0, 0, 0, 1], ], dtype=int).transpose(),
+    "A": numpy.array([[0, 0, 0, 1], [0, 1, 1, 2]], dtype=int).transpose(),    
+    "B": numpy.array([[0, 0, 0, 1], [1, 0, 1, 2]], dtype=int).transpose(),    
+    "C": numpy.array([[0, 0, 0, 1], [1, 1, 0, 2]], dtype=int).transpose(),    
+    "F": numpy.array([[0, 0, 0, 1], [0, 1, 1, 2], [1, 0, 1, 2], [1, 1, 0, 2]],
+                     dtype=int).transpose(),    
+    "I": numpy.array([[0, 0, 0, 1], [1, 1, 1, 2]], dtype=int).transpose(),    
+    "R": numpy.array([[0, 0, 0, 1], [2, 1, 1, 3], [1, 2, 2, 3]],
+                     dtype=int).transpose(),    
+    "Rrev": numpy.array([[0, 0, 0, 1], [1, 2, 1, 3], [2, 1, 2, 3]],
+                        dtype=int).transpose(),    
+    "H": numpy.array([[0, 0, 0, 1], [2, 1, 0, 3], [1, 2, 0, 3]],
+                     dtype=int).transpose(),    
+        }
 
-def get_sym_elems_for_bns(part_1: int, part_2: int):
+
+def get_sym_elems_magn_centering_for_bns(part_1: int, part_2: int):
     """Get symmetry elements for bns space group."""
     i = find_i_for_nlabel_bns(part_1, part_2)
     j = ops_count[i]
@@ -535,7 +572,15 @@ def get_sym_elems_for_bns(part_1: int, part_2: int):
 
     flag_non_hexagonal = True  # FIXME
     sym_elems = get_sym_elem_by_ops(ops, flag_non_hexagonal=flag_non_hexagonal)
-    return sym_elems
+    
+    label = spacegroup_label_bns[i]
+    n_shift = D_CENTRING_TYPE_SHIFT[label[0]]
+    new_shape = (18, )+n_shift.shape[1:]
+    xyz_sym = numpy.zeros(shape=new_shape, dtype=int)
+    xyz_sym[0], xyz_sym[4], xyz_sym[8] = 1, 1, 1
+    xyz_sym[9], xyz_sym[13], xyz_sym[17] = 1, 1, 1
+    magn_centering = numpy.vstack([n_shift, xyz_sym])
+    return sym_elems, magn_centering
 
 
 def get_str_for_sym_elem(sym_elem, labels=("x", "y", "z", "mx", "my", "mz")):
@@ -572,26 +617,9 @@ def get_str_for_sym_elem(sym_elem, labels=("x", "y", "z", "mx", "my", "mz")):
         flag_minus_one[12], "-"+labels[2], ""))
 
     if flag_moment:
-        str_empty[13] = numpy.where(flag_plus_one[13], "+"+labels[3], numpy.where(
-            flag_minus_one[13], "-"+labels[3], ""))
-        str_empty[14] = numpy.where(flag_plus_one[14], "+"+labels[4], numpy.where(
-            flag_minus_one[14], "-"+labels[4], ""))
-        str_empty[15] = numpy.where(flag_plus_one[15], "+"+labels[5], numpy.where(
-            flag_minus_one[15], "-"+labels[5], ""))
-    
-        str_empty[16] = numpy.where(flag_plus_one[16], "+"+labels[3], numpy.where(
-            flag_minus_one[16], "-"+labels[3], ""))
-        str_empty[17] = numpy.where(flag_plus_one[17], "+"+labels[4], numpy.where(
-            flag_minus_one[17], "-"+labels[4], ""))
-        str_empty[18] = numpy.where(flag_plus_one[18], "+"+labels[5], numpy.where(
-            flag_minus_one[18], "-"+labels[5], ""))
-    
-        str_empty[19] = numpy.where(flag_plus_one[19], "+"+labels[3], numpy.where(
-            flag_minus_one[19], "-"+labels[3], ""))
-        str_empty[20] = numpy.where(flag_plus_one[20], "+"+labels[4], numpy.where(
-            flag_minus_one[20], "-"+labels[4], ""))
-        str_empty[21] = numpy.where(flag_plus_one[21], "+"+labels[5], numpy.where(
-            flag_minus_one[21], "-"+labels[5], ""))
+        str_empty[13] = numpy.where((flag_plus_one[4]*flag_plus_one[13] | 
+                                     flag_minus_one[4]*flag_minus_one[13]),
+                                    "+1", "-1")
 
     char_add = numpy.char.add
     char_strip = numpy.char.strip
@@ -636,31 +664,152 @@ def get_str_for_sym_elem(sym_elem, labels=("x", "y", "z", "mx", "my", "mz")):
     s_out_f_3 = char_add(char_add(char_add(str_empty[10], str_empty[11]),
                                   str_empty[12]), s_fract_z)
 
-    if flag_moment:
-        s_out_m_1 = char_add(char_add(str_empty[13], str_empty[14]), str_empty[15])
-        s_out_m_2 = char_add(char_add(str_empty[16], str_empty[17]), str_empty[18])
-        s_out_m_3 = char_add(char_add(str_empty[19], str_empty[20]), str_empty[21])
-
     s_out_f_1 = char_strip(s_out_f_1, "+")
     s_out_f_2 = char_strip(s_out_f_2, "+")
     s_out_f_3 = char_strip(s_out_f_3, "+")
 
-    s_out_m_1 = char_strip(s_out_m_1, "+")
-    s_out_m_2 = char_strip(s_out_m_2, "+")
-    s_out_m_3 = char_strip(s_out_m_3, "+")
-
     s_out_fract = char_add(char_add(char_add(char_add(s_out_f_1, ","),
                                              s_out_f_2), ","), s_out_f_3) 
     if flag_moment:
-        s_out_moment = char_add(char_add(char_add(char_add(
-            s_out_m_1, ","), s_out_m_2), ","), s_out_m_3) 
-        s_out = char_add(char_add(s_out_fract, ";"), s_out_moment)
+        # s_out_moment = char_add(char_add(char_add(char_add(
+        #     s_out_m_1, ","), s_out_m_2), ","), s_out_m_3) 
+        # s_out = char_add(char_add(s_out_fract, ";"), s_out_moment)
+        s_out = char_add(char_add(s_out_fract, ","), str_empty[13])
     else:
         s_out = s_out_fract
     return s_out
 
 
-# read_magnetic_data()
+def calc_full_sym_elems(sym_elems, magn_centering):
+    """Calculate full list of symmetry elements.
+         0      1      2        3     4     5     6     7     8     9
+    [num_x, num_y, num_z, den_xyz, r_11, r_12, r_13, r_21, r_22, r_23,
+        10   11    12    13    14    15    16    17    18    19    20    21
+     r_31, r_32, r_33, m_11, m_12, m_13, m_21, m_22, m_23, m_31, m_32, m_33]
+    """
+    new_shape = (22, ) + sym_elems.shape[1:] + magn_centering.shape[1:]
+    full_sym_elems = numpy.zeros(shape=new_shape, dtype=int)
+    full_ones = numpy.ones(shape=(1, ) + sym_elems.shape[1:] + magn_centering.shape[1:], dtype=int)
 
-# sym_elems = get_sym_elems_for_bns(224, 112)
-# print(get_str_for_sym_elem(sym_elems))
+    n_ax = numpy.newaxis
+    for j in range(2):
+        full_sym_elems[4+j*9] = \
+            magn_centering[4, n_ax, :] * sym_elems[4+j*9, :, n_ax] + \
+            magn_centering[5, n_ax, :] * sym_elems[7+j*9, :, n_ax] + \
+            magn_centering[6, n_ax, :] * sym_elems[10+j*9, :, n_ax]
+        full_sym_elems[5+j*9] = \
+            magn_centering[4, n_ax, :] * sym_elems[5+j*9, :, n_ax] + \
+            magn_centering[5, n_ax, :] * sym_elems[8+j*9, :, n_ax] + \
+            magn_centering[6, n_ax, :] * sym_elems[11+j*9, :, n_ax]
+        full_sym_elems[6+j*9] = \
+            magn_centering[4, n_ax, :] * sym_elems[6+j*9, :, n_ax] + \
+            magn_centering[5, n_ax, :] * sym_elems[9+j*9, :, n_ax] + \
+            magn_centering[6, n_ax, :] * sym_elems[12+j*9, :, n_ax]
+    
+        full_sym_elems[7+j*9] = \
+            magn_centering[7, n_ax, :] * sym_elems[4+j*9, :, n_ax] + \
+            magn_centering[8, n_ax, :] * sym_elems[7+j*9, :, n_ax] + \
+            magn_centering[9, n_ax, :] * sym_elems[10+j*9, :, n_ax]
+        full_sym_elems[8+j*9] = \
+            magn_centering[7, n_ax, :] * sym_elems[5+j*9, :, n_ax] + \
+            magn_centering[8, n_ax, :] * sym_elems[8+j*9, :, n_ax] + \
+            magn_centering[9, n_ax, :] * sym_elems[11+j*9, :, n_ax]
+        full_sym_elems[9+j*9] = \
+            magn_centering[7, n_ax, :] * sym_elems[6+j*9, :, n_ax] + \
+            magn_centering[8, n_ax, :] * sym_elems[9+j*9, :, n_ax] + \
+            magn_centering[9, n_ax, :] * sym_elems[12+j*9, :, n_ax]
+    
+        full_sym_elems[10+j*9] = \
+            magn_centering[10, n_ax, :] * sym_elems[4+j*9, :, n_ax] + \
+            magn_centering[11, n_ax, :] * sym_elems[7+j*9, :, n_ax] + \
+            magn_centering[12, n_ax, :] * sym_elems[10+j*9, :, n_ax]
+        full_sym_elems[11+j*9] = \
+            magn_centering[10, n_ax, :] * sym_elems[5+j*9, :, n_ax] + \
+            magn_centering[11, n_ax, :] * sym_elems[8+j*9, :, n_ax] + \
+            magn_centering[12, n_ax, :] * sym_elems[11+j*9, :, n_ax]
+        full_sym_elems[12+j*9] = \
+            magn_centering[10, n_ax, :] * sym_elems[6+j*9, :, n_ax] + \
+            magn_centering[11, n_ax, :] * sym_elems[9+j*9, :, n_ax] + \
+            magn_centering[12, n_ax, :] * sym_elems[12+j*9, :, n_ax]
+
+
+    num_x, den_x = rational_sum(
+        magn_centering[4, n_ax, :]*sym_elems[0, :, n_ax] +
+        magn_centering[5, n_ax, :]*sym_elems[1, :, n_ax] +
+        magn_centering[6, n_ax, :]*sym_elems[2, :, n_ax],
+        full_ones*sym_elems[3, :, n_ax],
+        full_ones*magn_centering[0, n_ax, :], full_ones*magn_centering[3, n_ax, :])
+
+    num_y, den_y = rational_sum(
+        magn_centering[7, n_ax, :]*sym_elems[0, :, n_ax] +
+        magn_centering[8, n_ax, :]*sym_elems[1, :, n_ax] +
+        magn_centering[9, n_ax, :]*sym_elems[2, :, n_ax],
+        full_ones*sym_elems[3, :, n_ax],
+        full_ones*magn_centering[1, n_ax, :], full_ones*magn_centering[3, n_ax, :])
+
+    num_z, den_z = rational_sum(
+        magn_centering[10, n_ax, :]*sym_elems[0, :, n_ax] +
+        magn_centering[11, n_ax, :]*sym_elems[1, :, n_ax] +
+        magn_centering[12, n_ax, :]*sym_elems[2, :, n_ax],
+        full_ones*sym_elems[3, :, n_ax],
+        full_ones*magn_centering[2, n_ax, :], full_ones*magn_centering[3, n_ax, :])
+
+    num_xx = num_x*den_y*den_z
+    num_yy = num_y*den_x*den_z
+    num_zz = num_z*den_x*den_y
+    den = den_x*den_y*den_z
+    num_xx, num_yy, num_zz = num_xx%den, num_yy%den, num_zz%den
+    
+    gcd = numpy.gcd.reduce([num_xx, num_yy, num_zz, den])
+
+    full_sym_elems[0] = num_xx // gcd
+    full_sym_elems[1] = num_yy // gcd
+    full_sym_elems[2] = num_zz // gcd
+    full_sym_elems[3] = den // gcd
+    
+    n_vol = 1
+    for val in sym_elems.shape[1:] + magn_centering.shape[1:]:
+        n_vol *= val
+    
+    full_sym_elems_reshape = full_sym_elems.reshape((22, n_vol), order="C")
+    full_sym_elems_unique = numpy.unique(full_sym_elems_reshape, axis=1)
+    return full_sym_elems_unique
+
+
+def rational_sum(numerator, denominator, *argv):
+    """Sum of rational numbers."""
+    if len(argv) < 2:
+        gcd = numpy.gcd(numerator, denominator)
+        num_out, den_out = numerator//gcd, denominator//gcd, 
+    else:
+        num_2 = argv[0]
+        den_2 = argv[1]
+        num_3 = numerator*den_2 + num_2*denominator
+        den_3 = denominator*den_2
+        gcd = numpy.gcd(num_3, den_3)
+        num_out, den_out = rational_sum(num_3//gcd, den_3//gcd, argv[2:])
+    return num_out, den_out
+
+def calc_multiplicity(sym_elems, fract_xyz):
+    fract_xyz_new = calc_fract_by_sym_elem(sym_elems, fract_xyz)
+    fract_xyz_round = numpy.round(fract_xyz_new, 6)
+    n_xyz, n_symm, n_at = fract_xyz_round.shape
+    multiplicity = numpy.array([numpy.unique(
+        fract_xyz_round[:,:,i], axis=1).shape[1] for i in range(n_at)],
+        dtype = int)
+    return multiplicity
+    
+read_magnetic_data()
+
+# sym_elems, magn_centering = get_sym_elems_magn_centering_for_bns(71, 536)
+# print("sym_elems.shape: ", sym_elems.shape)
+# print("magn_centering.shape: ", magn_centering.shape)
+# full_sym_elems = calc_full_sym_elems(sym_elems, magn_centering)
+# print(get_str_for_sym_elem(sym_elems), end=2*"\n")
+# print(get_str_for_sym_elem(magn_centering), end=2*"\n")
+# print(get_str_for_sym_elem(full_sym_elems), end=2*"\n")
+# fract_xyz = numpy.array([[0.1,0.0,0.0,0.2],
+#                          [0.2,0.0,0.5,0.2],
+#                          [0.5,0.0,0.5,0.2]], dtype=float)
+# print(calc_multiplicity(full_sym_elems, fract_xyz))
+# print(calc_multiplicity(full_sym_elems, (0.1, 0.2, 0.5)))

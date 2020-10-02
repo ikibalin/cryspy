@@ -893,7 +893,8 @@ def get_name_hm_full_by_it_number(it_number: int) -> str:
 
 REFERENCE_TABLE_CENTRING_TYPE_SHIFT = (
     ("P", ((Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)),)),
-    ("A", ((Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)),)),
+    ("A", ((Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)),
+           (Fraction(0, 2), Fraction(1, 2), Fraction(1, 2)))),
     ("B", ((Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)),
            (Fraction(1, 2), Fraction(0, 2), Fraction(1, 2)))),
     ("C", ((Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)),

@@ -1,6 +1,10 @@
 """Calculation of flip ratio."""
 import numpy
 
+from cryspy.A_functions_base.function_1_read_magnetic_data import \
+    calc_full_sym_elems, calc_multiplicity, calc_moment_by_sym_elem, \
+    get_str_for_sym_elem
+
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_phase_by_hkl_xyz_rb, calc_dwf
 
@@ -8,6 +12,12 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
     AtomSiteAnisoL
+
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
+    SpaceGroupSymopMagnCenteringL
+
+from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
+    SpaceGroupSymopMagnOperationL
 
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment import AtomSiteMomentL
 
@@ -139,69 +149,110 @@ def calc_f_nucl(
 
 # FIXME: full_space_group_symop is temporary slow solution.
 def calc_f_mag(
-        index_h, index_k, index_l, full_space_group_symop,
+        index_hkl,
+        space_group_symop_magn_operation: SpaceGroupSymopMagnOperationL,
+        space_group_symop_magn_centering: SpaceGroupSymopMagnCenteringL,
         cell: Cell, atom_site: AtomSiteL, atom_site_aniso: AtomSiteAnisoL,
-        atom_site_moment: AtomSiteMomentL, atom_site_scat: AtomSiteScatL,
+        atom_site_scat: AtomSiteScatL, atom_site_moment: AtomSiteMomentL,
         flag_derivatives: bool = False, flag_only_orbital: bool = False):
     """Calculate magnetic structure factor. TEST."""
     dder = {}
+    index_h, index_k, index_l = index_hkl[0], index_hkl[1], index_hkl[2]
 
-    r_s_g_s = full_space_group_symop
+    m_x = numpy.array(atom_site_moment.crystalaxis_x, dtype=float)
+    m_y = numpy.array(atom_site_moment.crystalaxis_y, dtype=float)
+    m_z = numpy.array(atom_site_moment.crystalaxis_z, dtype=float)
+    moment = numpy.array([m_x, m_y, m_z], dtype=float)
 
-    occupancy = numpy.array(atom_site.occupancy, dtype=float)
-    x = numpy.array(atom_site.fract_x, dtype=float)
-    y = numpy.array(atom_site.fract_y, dtype=float)
-    z = numpy.array(atom_site.fract_z, dtype=float)
 
-    atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
-    scat_length_neutron = numpy.array(atom_site.scat_length_neutron,
-                                      dtype=complex)
+    l_it_a_s_mag = [atom_site[item.label] for item in atom_site_moment.items]
+    atom_site_mag = AtomSiteL()
+    atom_site_mag.items = l_it_a_s_mag
+
+    l_x, l_y, l_z, l_occ, l_mult = [], [], [], [], []
+    flag_calc_multiplicity = False
+    for atom_site_item in atom_site_mag.items:
+        l_x.append(atom_site_item.fract_x)
+        l_y.append(atom_site_item.fract_y)
+        l_z.append(atom_site_item.fract_z)
+        l_occ.append(atom_site_item.occupancy)
+        l_mult.append(atom_site_item.multiplicity)
+        if atom_site_item.multiplicity is None:
+            flag_calc_multiplicity = True
+
+    occupancy = numpy.array(l_occ, dtype=float)
+    x = numpy.array(l_x, dtype=float)
+    y = numpy.array(l_y, dtype=float)
+    z = numpy.array(l_z, dtype=float)
+
+    fract_xyz = numpy.array([x, y, z], dtype=float)
+
+    b_iso, beta = calc_b_iso_beta(cell, atom_site_mag, atom_site_aniso)
 
     sthovl = cell.calc_sthovl(index_h, index_k, index_l)
     form_factor = atom_site_scat.calc_form_factor(
         sthovl, flag_only_orbital=flag_only_orbital)
 
+    sym_elems = space_group_symop_magn_operation.get_sym_elems()
+    magn_centering = space_group_symop_magn_centering.get_sym_elems()
 
-    m_x = numpy.array(atom_site_moment.crystalaxis_x, dtype=float)
-    m_y = numpy.array(atom_site_moment.crystalaxis_y, dtype=float)
-    m_z = numpy.array(atom_site_moment.crystalaxis_z, dtype=float)
+    full_sym_elems = calc_full_sym_elems(sym_elems, magn_centering)
+
+    if flag_calc_multiplicity:
+        atom_multiplicity = calc_multiplicity(full_sym_elems, fract_xyz)
+    else:
+        atom_multiplicity = numpy.array(l_mult, dtype=int)
 
     occ_mult = occupancy*atom_multiplicity
 
-    r_11 = r_s_g_s.numpy_r_11.astype(float)
-    r_12 = r_s_g_s.numpy_r_12.astype(float)
-    r_13 = r_s_g_s.numpy_r_13.astype(float)
-    r_21 = r_s_g_s.numpy_r_21.astype(float)
-    r_22 = r_s_g_s.numpy_r_22.astype(float)
-    r_23 = r_s_g_s.numpy_r_23.astype(float)
-    r_31 = r_s_g_s.numpy_r_31.astype(float)
-    r_32 = r_s_g_s.numpy_r_32.astype(float)
-    r_33 = r_s_g_s.numpy_r_33.astype(float)
-    b_1 = r_s_g_s.numpy_b_1.astype(float)
-    b_2 = r_s_g_s.numpy_b_2.astype(float)
-    b_3 = r_s_g_s.numpy_b_3.astype(float)
+    r_11 = full_sym_elems[4].astype(float)
+    r_12 = full_sym_elems[5].astype(float)
+    r_13 = full_sym_elems[6].astype(float)
+    r_21 = full_sym_elems[7].astype(float)
+    r_22 = full_sym_elems[8].astype(float)
+    r_23 = full_sym_elems[9].astype(float)
+    r_31 = full_sym_elems[10].astype(float)
+    r_32 = full_sym_elems[11].astype(float)
+    r_33 = full_sym_elems[12].astype(float)
+    b_1 = full_sym_elems[0].astype(float)/full_sym_elems[3].astype(float)
+    b_2 = full_sym_elems[1].astype(float)/full_sym_elems[3].astype(float)
+    b_3 = full_sym_elems[2].astype(float)/full_sym_elems[3].astype(float)
+
+    # [xyz, symm, mag_at]
+    moments_3d = calc_moment_by_sym_elem(full_sym_elems, moment)
+    # print("moments_3d: \n", moments_3d)
+    # print(get_str_for_sym_elem(full_sym_elems), end=2*"\n")
 
     phase_3d = calc_phase_by_hkl_xyz_rb(
         index_h, index_k, index_l, x, y, z, r_11, r_12, r_13, r_21, r_22,
         r_23, r_31, r_32, r_33, b_1, b_2, b_3)
 
-    b_iso, beta = calc_b_iso_beta(cell, atom_site, atom_site_aniso)
-
     dwf_3d = calc_dwf(cell, index_h, index_k, index_l, b_iso, beta, r_11,
                       r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
 
-    hh = phase_3d*dwf_3d
-    phase_2d = hh.sum(axis=2)  # sum over symmetry
+    n_a = numpy.newaxis
 
-    b_scat_2d = numpy.meshgrid(index_h, scat_length_neutron,
-                               indexing="ij")[1]
+    hh_1 = phase_3d*dwf_3d*(moments_3d[0, :, :]).transpose()[n_a, :, :]
+    hh_2 = phase_3d*dwf_3d*(moments_3d[1, :, :]).transpose()[n_a, :, :]
+    hh_3 = phase_3d*dwf_3d*(moments_3d[2, :, :]).transpose()[n_a, :, :]
+
+    phase_2d_1 = hh_1.sum(axis=2)  # sum over symmetry
+    phase_2d_2 = hh_2.sum(axis=2)  # sum over symmetry
+    phase_2d_3 = hh_3.sum(axis=2)  # sum over symmetry
+
     occ_mult_2d = numpy.meshgrid(index_h, occ_mult, indexing="ij")[1]
 
-    hh = phase_2d * b_scat_2d * occ_mult_2d
+    # print("phase_2d_1:", phase_2d_1)
+
+    hh_1 = phase_2d_1 * form_factor * occ_mult_2d
+    hh_2 = phase_2d_2 * form_factor * occ_mult_2d
+    hh_3 = phase_2d_3 * form_factor * occ_mult_2d
     # nuclear structure factor in assymetric unit cell
-    f_hkl_as = hh.sum(axis=1)*1./r_11.size
+    f_hkl_1 = hh_1.sum(axis=1)*1./r_11.size
+    f_hkl_2 = hh_2.sum(axis=1)*1./r_11.size
+    f_hkl_3 = hh_3.sum(axis=1)*1./r_11.size
 
     # f_nucl = space_group.calc_f_hkl_by_f_hkl_as(index_h, index_k, index_l,
     #                                             f_hkl_as)
-
-    return f_hkl_as, dder
+    f_mag = numpy.array([f_hkl_1, f_hkl_2, f_hkl_3], dtype=complex)
+    return f_mag, dder

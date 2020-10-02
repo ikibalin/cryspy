@@ -33,7 +33,7 @@ class SpaceGroupSymopMagnCentering(ItemN):
 
     ATTR_INT_NAMES = ("r", "b", "r_11", "r_12", "r_13", "r_21", "r_22",
                       "r_23", "r_31", "r_32", "r_33", "b_1", "b_2", "b_3",
-                      "theta")
+                      "theta", "sym_elem")
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
@@ -76,20 +76,37 @@ class SpaceGroupSymopMagnCentering(ItemN):
         if xyz is None:
             return False
         r, b = transform_string_to_r_b(xyz, labels=("x", "y", "z"))
+        r_11, r_12, r_13 = int(r[0, 0]), int(r[0, 1]), int(r[0, 2])
+        r_21, r_22, r_23 = int(r[1, 0]), int(r[1, 1]), int(r[1, 2])
+        r_31, r_32, r_33 = int(r[2, 0]), int(r[2, 1]), int(r[2, 2])
+        den_1, den_2 = b[0].denominator, b[1].denominator
+        den_3 = b[2].denominator
+        num_1, num_2 = b[0].numerator, b[1].numerator
+        num_3 = b[2].numerator
+        den = numpy.lcm.reduce([den_1, den_2, den_3])
+        num_1 *= den//den_1
+        num_2 *= den//den_2
+        num_3 *= den//den_3
 
-        self.__dict__["r_11"] = r[0, 0]
-        self.__dict__["r_12"] = r[0, 1]
-        self.__dict__["r_13"] = r[0, 2]
-        self.__dict__["r_21"] = r[1, 0]
-        self.__dict__["r_22"] = r[1, 1]
-        self.__dict__["r_23"] = r[1, 2]
-        self.__dict__["r_31"] = r[2, 0]
-        self.__dict__["r_32"] = r[2, 1]
-        self.__dict__["r_33"] = r[2, 2]
+        theta = int(b[3])
+        self.__dict__["r_11"] = r_11
+        self.__dict__["r_12"] = r_12
+        self.__dict__["r_13"] = r_13
+        self.__dict__["r_21"] = r_21
+        self.__dict__["r_22"] = r_22
+        self.__dict__["r_23"] = r_23
+        self.__dict__["r_31"] = r_31
+        self.__dict__["r_32"] = r_32
+        self.__dict__["r_33"] = r_33
         self.__dict__["b_1"] = b[0]
         self.__dict__["b_2"] = b[1]
         self.__dict__["b_3"] = b[2]
-        self.__dict__["theta"] = int(b[3])
+        self.__dict__["theta"] = theta
+        self.__dict__["sym_elem"] = numpy.array([
+            num_1, num_2, num_3, den,
+            r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33,
+            theta*r_11, theta*r_12, theta*r_13, theta*r_21, theta*r_22,
+            theta*r_23, theta*r_31, theta*r_32, theta*r_33], dtype=int)
 
 
 class SpaceGroupSymopMagnCenteringL(LoopN):
@@ -132,6 +149,12 @@ class SpaceGroupSymopMagnCenteringL(LoopN):
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
 
+    def get_sym_elems(self):
+        """Get sym elems."""
+        res = numpy.array([item.sym_elem for item in self.items], dtype=int
+                          ).transpose()
+        return res
+
 # s_cont = """
 # loop_
 # _space_group_symop_magn_centering_id
@@ -142,3 +165,5 @@ class SpaceGroupSymopMagnCenteringL(LoopN):
 # obj = SpaceGroupSymopMagnCenteringL.from_cif(s_cont)
 # print(obj, end="\n\n")
 # print(obj["1"], end="\n\n")
+# print(obj.get_sym_elems(), end="\n\n")
+# print(obj.get_sym_elems().shape, end="\n\n")
