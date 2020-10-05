@@ -1,9 +1,15 @@
-"""Calculation of flip ratio."""
+"""Calculation for MagCrystal.
+
+Functions
+---------
+    - calc_b_iso_beta
+    - calc_f_nucl
+    - calc_f_mag
+"""
 import numpy
 
-from cryspy.A_functions_base.function_1_read_magnetic_data import \
-    calc_full_sym_elems, calc_multiplicity, calc_moment_by_sym_elem, \
-    get_str_for_sym_elem
+from cryspy.A_functions_base.function_3_mcif import \
+    calc_full_sym_elems, calc_multiplicity, calc_moment_by_sym_elem
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_phase_by_hkl_xyz_rb, calc_dwf
@@ -22,6 +28,7 @@ from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment import AtomSiteMomentL
 
 from cryspy.C_item_loop_classes.cl_2_atom_site_scat import AtomSiteScatL
+
 
 def calc_b_iso_beta(cell: Cell, atom_site: AtomSiteL,
                     atom_site_aniso: AtomSiteAnisoL):
@@ -147,7 +154,6 @@ def calc_f_nucl(
     return f_hkl_as, dder
 
 
-# FIXME: full_space_group_symop is temporary slow solution.
 def calc_f_mag(
         index_hkl,
         space_group_symop_magn_operation: SpaceGroupSymopMagnOperationL,
@@ -163,7 +169,6 @@ def calc_f_mag(
     m_y = numpy.array(atom_site_moment.crystalaxis_y, dtype=float)
     m_z = numpy.array(atom_site_moment.crystalaxis_z, dtype=float)
     moment = numpy.array([m_x, m_y, m_z], dtype=float)
-
 
     l_it_a_s_mag = [atom_site[item.label] for item in atom_site_moment.items]
     atom_site_mag = AtomSiteL()
@@ -221,7 +226,7 @@ def calc_f_mag(
     # [xyz, symm, mag_at]
     moments_3d = calc_moment_by_sym_elem(full_sym_elems, moment)
     # print("moments_3d: \n", moments_3d)
-    # print(get_str_for_sym_elem(full_sym_elems), end=2*"\n")
+    # print(get_str_for_sym_elem(sym_elems), end=2*"\n")
 
     phase_3d = calc_phase_by_hkl_xyz_rb(
         index_h, index_k, index_l, x, y, z, r_11, r_12, r_13, r_21, r_22,

@@ -113,15 +113,21 @@ def calc_fm_perp_loc(e_up_loc: numpy.ndarray, field_norm: float,
     Cartezian coordinate system is defined such way that
     (x||a*), (z||c).
     """
+
+    fm_loc = calc_fm_loc(e_up_loc, sft_ij, sftm_ij, field_norm)
+    fm_perp = calc_fm_perp_for_fm_loc(k_loc_i, fm_loc)
+    mag_p_1, mag_p_2, mag_p_3 = fm_perp
+
+    return mag_p_1, mag_p_2, mag_p_3
+
+
+def calc_fm_perp_for_fm_loc(k_loc_i, fm_loc):
+    """Calculate perpendicular component of fm to scattering vector."""
     k_1, k_2, k_3 = k_loc_i
-
-    mag_1, mag_2, mag_3 = calc_fm_loc(e_up_loc, sft_ij, sftm_ij, field_norm)
-
-    # vector product k x mag x k
+    mag_1, mag_2, mag_3 = fm_loc
     mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
     mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
     mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1
-
     return mag_p_1, mag_p_2, mag_p_3
 
 

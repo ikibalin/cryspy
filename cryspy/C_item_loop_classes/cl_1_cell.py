@@ -8,9 +8,24 @@ from cryspy.A_functions_base.function_2_crystallography_base import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+
 class Cell(ItemN):
-    """
-    Unit cell description.
+    """Unit cell description.
+
+    Attributes
+    ----------
+        - length_a, length_b, length_c, angle_alpha, angle_beta, angle_gamma
+          (mandatory)
+        - m_g, m_g_reciprocal, m_b, m_b_norm, m_m, m_m_norm,
+          cos_a, cos_b, cos_g, sin_a, sin_b, sin_g, cos_a_sq,
+          cos_b_sq, cos_g_sq, sin_a_sq, sin_b_sq, sin_g_sq, cos_ia,
+          cos_ib, cos_ig, sin_ia, sin_ib, sin_ig, cos_ia_sq,
+          cos_ib_sq, cos_ig_sq, sin_ia_sq, sin_ib_sq, sin_ig_sq,
+          reciprocal_length_a, reciprocal_length_b, reciprocal_length_c,
+          reciprocal_angle_alpha, reciprocal_angle_beta,
+          reciprocal_angle_gamma, volume (internal)
+        - type_cell, it_coordinate_system_code, formula_units_z
+          (internal, protected)
     """
     ATTR_MANDATORY_NAMES = ("length_a", "length_b", "length_c",
                             "angle_alpha", "angle_beta", "angle_gamma")
@@ -35,7 +50,8 @@ class Cell(ItemN):
         "reciprocal_length_a", "reciprocal_length_b", "reciprocal_length_c",
         "reciprocal_angle_alpha", "reciprocal_angle_beta",
         "reciprocal_angle_gamma", "volume")
-    ATTR_INT_PROTECTED_NAMES = ("type_cell", "it_coordinate_system_code", "formula_units_z")
+    ATTR_INT_PROTECTED_NAMES = ("type_cell", "it_coordinate_system_code",
+                                "formula_units_z")
 
     # parameters considered are refined parameters
     ATTR_REF = ('length_a', 'length_b', 'length_c',
@@ -88,8 +104,8 @@ class Cell(ItemN):
 
     def apply_constraints(self):
         """Apply constraints."""
-        if ((self.type_cell is None) |
-            (self.it_coordinate_system_code is None)):
+        if ((self.type_cell is None) | (self.it_coordinate_system_code is
+                                        None)):
             return
         cell_p = (self.length_a, self.length_b, self.length_c,
                   self.angle_alpha, self.angle_beta, self.angle_gamma)
@@ -135,7 +151,7 @@ class Cell(ItemN):
         if flag_constraint:
             self.apply_constraints()
 
-        rad=numpy.pi/180.
+        rad = numpy.pi/180.
 
         c_a = numpy.cos(float(self.angle_alpha)*rad)
         c_b = numpy.cos(float(self.angle_beta)*rad)
@@ -165,16 +181,16 @@ class Cell(ItemN):
         vol = a*b*c*v_sqrt
         self.volume = vol
 
-        #G matrix
-        m_g = numpy.array([[    a*a, a*b*c_g, a*c*c_b],
-                           [a*b*c_g,     b*b, b*c*c_a],
-                           [a*c*c_b, b*c*c_a,     c*c]], dtype=float)
+        # G matrix
+        m_g = numpy.array([[a*a, a*b*c_g, a*c*c_b],
+                           [a*b*c_g, b*b, b*c*c_a],
+                           [a*c*c_b, b*c*c_a, c*c]], dtype=float)
         self.m_g = m_g
 
-        #nM matrix
-        m_m_norm = numpy.array([[       v_sqrt/s_a,  0,      0],
-                                [(c_g-c_a*c_b)/s_a,  s_a,    0],
-                                [              c_b,  c_a,    1]], dtype=float)
+        # nM matrix
+        m_m_norm = numpy.array([[v_sqrt/s_a, 0, 0],
+                                [(c_g-c_a*c_b)/s_a, s_a, 0],
+                                [c_b, c_a, 1]], dtype=float)
         self.m_m_norm = m_m_norm
 
         irad = 180./numpy.pi
@@ -190,8 +206,10 @@ class Cell(ItemN):
         self.reciprocal_angle_beta = ibeta
         self.reciprocal_angle_gamma = igamma
 
-        c_ia, c_ib, c_ig = numpy.cos(ialpha*rad), numpy.cos(ibeta*rad), numpy.cos(igamma*rad)
-        s_ia, s_ib, s_ig = numpy.sin(ialpha*rad), numpy.sin(ibeta*rad), numpy.sin(igamma*rad)
+        c_ia, c_ib, c_ig = numpy.cos(ialpha*rad), numpy.cos(ibeta*rad), \
+            numpy.cos(igamma*rad)
+        s_ia, s_ib, s_ig = numpy.sin(ialpha*rad), numpy.sin(ibeta*rad), \
+            numpy.sin(igamma*rad)
         self.cos_ia = c_ia
         self.cos_ib = c_ib
         self.cos_ig = c_ig
@@ -209,31 +227,31 @@ class Cell(ItemN):
         self.sin_ig_sq = s_ig_sq
 
         # G matrix for reciprocal unit cell
-        m_g_reciprocal = numpy.array([[     ia*ia, ia*ib*c_ig, ia*ic*c_ib],
-                                      [ia*ib*c_ig,      ib*ib, ib*ic*c_ia],
-                                      [ia*ic*c_ib, ib*ic*c_ia,      ic*ic]],
+        m_g_reciprocal = numpy.array([[ia*ia, ia*ib*c_ig, ia*ic*c_ib],
+                                      [ia*ib*c_ig, ib*ib, ib*ic*c_ia],
+                                      [ia*ic*c_ib, ib*ic*c_ia, ic*ic]],
                                      dtype=float)
         self.m_g_reciprocal = m_g_reciprocal
 
         # nB matrix
-        m_b_norm = numpy.array([[ 1,  c_ig,       c_ib],
-                                [ 0,  s_ig,  -s_ib*c_a],
-                                [ 0,     0, v_sqrt/s_g]], dtype=float)
+        m_b_norm = numpy.array([[ 1, c_ig, c_ib],
+                                [ 0, s_ig, -s_ib*c_a],
+                                [ 0, 0, v_sqrt/s_g]], dtype=float)
         self.m_b_norm = m_b_norm
 
         # B matrix
-        m_b = numpy.array([[ia,  ib*c_ig,      ic*c_ib],
-                           [0.,  ib*s_ig, -ic*s_ib*c_a],
-                           [0.,       0.,         1./c]], dtype=float)
+        m_b = numpy.array([[ia, ib*c_ig, ic*c_ib],
+                           [0., ib*s_ig, -ic*s_ib*c_a],
+                           [0., 0., 1./c]], dtype=float)
         self.m_b = m_b
 
         # M matrix
-        m_m = numpy.array([[        1./ia,     0,  0],
-                           [-1*a*s_b*c_ig, b*s_a,  0],
-                           [        a*c_b, b*c_a,  c]], dtype=float)
+        m_m = numpy.array([[ 1./ia, 0,0],
+                           [-1*a*s_b*c_ig, b*s_a, 0],
+                           [ a*c_b, b*c_a, c]], dtype=float)
         self.m_m = m_m
 
-    def calc_sthovl(self, h:int, k:int, l:int):
+    def calc_sthovl(self, index_h: int, index_k: int, index_l: int):
         """
         Calculate sin(theta)/lambda for list of hkl reflections.
 
@@ -253,10 +271,10 @@ class Cell(ItemN):
 
         """
         return calc_sthovl_by_hkl_abc_cosines(
-            h, k, l, self.length_a, self.length_b, self.length_c,
-            self.cos_a, self.cos_b, self.cos_g)
+            index_h, index_k, index_l, self.length_a, self.length_b,
+            self.length_c, self.cos_a, self.cos_b, self.cos_g)
 
-    def calc_k_loc(self, h, k, l):
+    def calc_k_loc(self, index_h, index_k, index_l):
         """
         Calculate unity scattering vector in Cartesian coordinate system.
         Coordinate system is defined as (x||a*, z||c).
@@ -267,18 +285,20 @@ class Cell(ItemN):
 
         Output arguments:
 
-            k_x, k_y, k_z: 1D numpy array of x, y, z components of unity scattering vector 
+            k_x, k_y, k_z: 1D numpy array of x, y, z components of unity
+                           scattering vector
         """
-        np_h = numpy.array(h, dtype=int)
-        np_k = numpy.array(k, dtype=int)
-        np_l = numpy.array(l, dtype=int)
+        np_h = numpy.array(index_h, dtype=int)
+        np_k = numpy.array(index_k, dtype=int)
+        np_l = numpy.array(index_l, dtype=int)
         m_b = self.m_b
         k_x = m_b[0, 0]*np_h + m_b[0, 1]*np_k +m_b[0, 2]*np_l
         k_y = m_b[1, 0]*np_h + m_b[1, 1]*np_k +m_b[1, 2]*np_l
         k_z = m_b[2, 0]*np_h + m_b[2, 1]*np_k +m_b[2, 2]*np_l
 
         k_norm = (k_x**2 + k_y**2 + k_z**2)**0.5
-        if not((type(h) is float)|(type(h) is int)|(type(h) is numpy.float64)):
+        if not((type(index_h) is float) | (type(index_h) is int) |
+               (type(index_h) is numpy.float64)):
             k_norm[k_norm == 0.] = 1.
         elif k_norm == 0.:
             k_norm = 1.
@@ -288,10 +308,10 @@ class Cell(ItemN):
         k_z = k_z/k_norm
 
         return k_x, k_y, k_z
-        
+
     def calc_m_t(self, index_h, index_k, index_l):
-        """
-        Determine rotation matrix to have new z axis along kloc
+        """Determine rotation matrix to have new z axis along k_loc.
+
         Rotation matrix is defined by Euler angles
         """
         m_b = self.m_b
@@ -337,7 +357,7 @@ class Cell(ItemN):
         # FIXME: I would like to recheck the expression for T.
         t_11, t_12, t_13 = ca*cg-sa*cb*sg, -ca*sg-sa*cb*cg,  sa*sb
         t_21, t_22, t_23 = sa*cg+ca*cb*sg, -sa*sg+ca*cb*cg, -ca*sb
-        t_31, t_32, t_33 =          sb*sg,           sb*cg,     cb
+        t_31, t_32, t_33 = sb*sg, sb*cg, cb
 
         flag = (((sa*sb-k_x)**2+(-ca*sb-k_y)**2+(cb-k_z)**2) > 0.0001)
         if any(flag):

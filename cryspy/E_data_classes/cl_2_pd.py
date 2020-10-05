@@ -203,9 +203,6 @@ class Pd(DataN):
             scale = phase_scale
             i_g = phase_igsize
 
-            cell = crystal.cell
-            space_group = crystal.space_group
-
             if peak_in is not None:
                 index_h = peak_in.numpy_index_h
                 index_k = peak_in.numpy_index_k
@@ -213,11 +210,11 @@ class Pd(DataN):
                 mult = peak_in.numpy_index_mult
             else:
                 if texture is None:
-                    index_h, index_k, index_l, mult = cell.calc_hkl(
-                        space_group, sthovl_min, sthovl_max)
-                else:
-                    index_h, index_k, index_l, mult = cell.calc_hkl_in_range(
+                    index_h, index_k, index_l, mult = crystal.calc_hkl(
                         sthovl_min, sthovl_max)
+                else:
+                    index_h, index_k, index_l, mult = \
+                        crystal.calc_hkl_in_range(sthovl_min, sthovl_max)
 
             peak = PdPeakL(loop_name=phase_label)
 
@@ -238,6 +235,7 @@ class Pd(DataN):
             l_refln.append(refln)
             l_refln_s.append(refln_s)
 
+            cell = crystal.cell
             sthovl_hkl = cell.calc_sthovl(index_h, index_k, index_l)
 
             tth_hkl_rad = numpy.where(sthovl_hkl*wavelength < 1.,

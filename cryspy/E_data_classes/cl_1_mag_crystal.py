@@ -1,16 +1,11 @@
 """Description of Crystal class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
-import math
+from typing import NoReturn
 import numpy
 
-from typing import NoReturn
-
-from cryspy.A_functions_base.function_1_strings import \
-    value_error_to_string
-from cryspy.A_functions_base.function_1_algebra import calc_m_sigma
-from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_phase_by_hkl_xyz_rb, calc_dwf, calc_form_factor_tensor_susceptibility
+from cryspy.A_functions_base.function_3_mcif import calc_full_sym_elems, \
+    calc_hkl_in_range
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 
@@ -35,7 +30,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfigurationL
 
-from cryspy.D_functions_item_loop.function_1_calc_f_nucl import calc_f_nucl
+from cryspy.D_functions_item_loop.function_1_calc_for_magcrystal import \
+    calc_f_nucl, calc_f_mag
 
 
 class MagCrystal(DataN):
@@ -121,15 +117,15 @@ class MagCrystal(DataN):
         """
         Calculate nuclear structure factor.
 
-        Keyword Arguments:
-        -----------------
+        Arguments
+        ---------
             index_h, index_k, index_l: 1D numpy array of Miller indexes
 
-        Output:
-        -------
+        Output
+        ------
             f_nucl: 1D numpy array of Nuclear structure factor
 
-        Example:
+        Example
         -------
             >>> import numpy as np
             >>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int),
@@ -153,24 +149,17 @@ class MagCrystal(DataN):
         """
         Calculate Refln cryspy object where nuclear structure factor is stored.
 
-        Keyword Arguments:
-        -----------------
+        Arguments
+        ---------
             h, k, l: 1D numpy array of Miller indexes
             flag_internal: a flag to calculate or to use internal objects.
                            It should be True if user call the function.
                            It's True by default.
 
-        Output:
-        -------
+        Output
+        ------
             refln: object cryspy.Refln
 
-        Example:
-        -------
-            >>> import numpy as np
-            >>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int),
-                          np.array([1,0],dtype=int)
-            >>> refln = crystal.calc_refln(h, k, l)
-            >>> print(refln.to_cif())
         """
         f_nucl = self.calc_f_nucl(index_h, index_k, index_l)
         res = ReflnL()
@@ -184,7 +173,7 @@ class MagCrystal(DataN):
 
     def calc_f_mag(self, index_h, index_k, index_l):
         """
-        Calculate nuclear structure factor.
+        Calculate magnetic structure factor.
 
         Keyword Arguments:
         -----------------
@@ -192,7 +181,7 @@ class MagCrystal(DataN):
 
         Output:
         -------
-            f_nucl: 1D numpy array of Nuclear structure factor
+            f_mag: 2D numpy array of Nuclear structure factor
 
         Example:
         -------
@@ -206,26 +195,60 @@ class MagCrystal(DataN):
         atom_site = self.atom_site
         atom_site_aniso = self.atom_site_aniso
 
+        atom_site_scat = self.atom_site_scat
         atom_site_moment = self.atom_site_moment
 
         # FIXME: temporary not correct solution
-        full_space_group_symop = self.space_group_symop_magn_operation
+        space_group_symop_magn_operation = \
+            self.space_group_symop_magn_operation
+        space_group_symop_magn_centering = \
+            self.space_group_symop_magn_centering
 
-        f_hkl_as, dder = calc_f_mag(
-            index_h, index_k, index_l, full_space_group_symop, cell,
-            atom_site, atom_site_aniso, atom_site_moment,
-            flag_derivatives=False)
-        return f_hkl_as
+        flag_only_orbital = False
+        flag_derivatives = False
+        # f_mag is given in abc crystallographical axis
+        f_mag, dder = calc_f_mag(
+            (index_h, index_k, index_l), space_group_symop_magn_operation,
+            space_group_symop_magn_centering, cell, atom_site, atom_site_aniso,
+            atom_site_scat, atom_site_moment,
+            flag_derivatives=flag_derivatives,
+            flag_only_orbital=flag_only_orbital)
+        return f_mag
 
-    def calc_hkl(self, sthol_min: float, sthovl_max: float):
+    def calc_f_mag_perp(self, index_h, index_k, index_l):
+        """
+        Calculate perpendicular component of magnetic structure factor.
+
+        Keyword Arguments:
+        -----------------
+            index_h, index_k, index_l: 1D numpy array of Miller indexes
+
+        Output:
+        -------
+            f_mag: 2D numpy array of Nuclear structure factor
+
+        Example:
+        -------
+            >>> import numpy as np
+            >>> h, k, l = np.array([1,2],dtype=int), np.array([1,0],dtype=int),
+                          np.array([1,0],dtype=int)
+            >>> f_nucl = crystal.calc_f_nucl(h, k, l)
+
+        """
+        f_mag = self.calc_f_mag(index_h, index_k, index_l)
+
+        cell = self.cell
+        k_loc = cell.calc_k_loc(index_h, index_k, index_l)
+
+    def calc_hkl(self, sthovl_min: float, sthovl_max: float):
         """
         Give hkl taking symmetry into account.
 
         Parameters
         ----------
-        sthol_min : TYPE
+        sthol_min : float
             DESCRIPTION.
-        sthovl_max : TYPE
+        sthovl_max : float
             DESCRIPTION.
 
         Returns
@@ -234,13 +257,23 @@ class MagCrystal(DataN):
             DESCRIPTION.
 
         """
-        # cell = self.cell
-        # space_group = self.space_group
-        # res = cell.calc_hkl(space_group, sthol_min, sthovl_max)
-        # return res
-        pass
+        cell = self.cell
+        rad = numpy.pi / 180.
+        unit_cell_parameters = (
+            cell.length_a, cell.length_b, cell.length_c,
+            cell.angle_alpha*rad, cell.angle_beta*rad, cell.angle_gamma*rad)
 
-    def calc_hkl_in_range(self, sthol_min: float, sthovl_max: float):
+        sym_elems = self.space_group_symop_magn_operation
+        magn_centering = self.space_group_symop_magn_centering
+        full_sym_elems = calc_full_sym_elems(sym_elems, magn_centering)
+
+        ind_hkl_mult = calc_hkl_in_range(
+            full_sym_elems, unit_cell_parameters, sthovl_min, sthovl_max)
+
+        return ind_hkl_mult
+
+
+    def calc_hkl_in_range(self, sthovl_min: float, sthovl_max: float):
         """
         Give hkl without taking symmetry into account.
 
@@ -258,8 +291,18 @@ class MagCrystal(DataN):
 
         """
         cell = self.cell
-        res = cell.calc_hkl_in_range(sthol_min, sthovl_max)
-        return res
+        rad = numpy.pi / 180.
+        unit_cell_parameters = (
+            cell.length_a, cell.length_b, cell.length_c,
+            cell.angle_alpha*rad, cell.angle_beta*rad, cell.angle_gamma*rad)
+
+        full_sym_elems = numpy.array([
+            [0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1],
+            [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
+
+        ind_hkl_mult = calc_hkl_in_range(
+            full_sym_elems, unit_cell_parameters, sthovl_min, sthovl_max)
+        return ind_hkl_mult
 
 
 # s_cont = """
