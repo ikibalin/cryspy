@@ -3,6 +3,7 @@ __author__ = 'ikibalin'
 __version__ = "2020_08_19"
 from typing import NoReturn
 import numpy
+from warnings import warn
 
 from cryspy.A_functions_base.function_3_mcif import calc_full_sym_elems, \
     calc_hkl_in_range
@@ -32,6 +33,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
 
 from cryspy.D_functions_item_loop.function_1_calc_for_magcrystal import \
     calc_f_nucl, calc_f_mag
+from cryspy.D_functions_item_loop.function_1_flip_ratio import \
+    calc_fm_perp_for_fm_loc
 
 
 class MagCrystal(DataN):
@@ -83,6 +86,11 @@ class MagCrystal(DataN):
             DESCRIPTION.
 
         """
+        atom_site = self.atom_site
+        atom_site_scat = self.atom_site_scat
+        atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)
+
+
         pass
         # space_group = self.space_group
         # space_group_wyckoff = space_group.space_group_wyckoff
@@ -135,14 +143,21 @@ class MagCrystal(DataN):
         """
         cell = self.cell
         atom_site = self.atom_site
-        atom_site_aniso = self.atom_site_aniso
+        try:
+            atom_site_aniso = self.atom_site_aniso
+        except AttributeError:
+            atom_site_aniso = None
 
-        # FIXME: temporary not correct solution
-        full_space_group_symop = self.space_group_symop_magn_operation
+        space_group_symop_magn_operation = \
+            self.space_group_symop_magn_operation
+        space_group_symop_magn_centering = \
+            self.space_group_symop_magn_centering
 
         f_hkl_as, dder = calc_f_nucl(
-            index_h, index_k, index_l, full_space_group_symop, cell,
-            atom_site, atom_site_aniso, flag_derivatives=False)
+            index_h, index_k, index_l,
+            space_group_symop_magn_operation,
+            space_group_symop_magn_centering,
+            cell, atom_site, atom_site_aniso, flag_derivatives=False)
         return f_hkl_as
 
     def calc_refln(self, index_h, index_k, index_l, flag_internal=True):
@@ -193,12 +208,14 @@ class MagCrystal(DataN):
         """
         cell = self.cell
         atom_site = self.atom_site
-        atom_site_aniso = self.atom_site_aniso
+        try:
+            atom_site_aniso = self.atom_site_aniso
+        except AttributeError:
+            atom_site_aniso = None
 
         atom_site_scat = self.atom_site_scat
         atom_site_moment = self.atom_site_moment
 
-        # FIXME: temporary not correct solution
         space_group_symop_magn_operation = \
             self.space_group_symop_magn_operation
         space_group_symop_magn_centering = \
@@ -239,6 +256,11 @@ class MagCrystal(DataN):
 
         cell = self.cell
         k_loc = cell.calc_k_loc(index_h, index_k, index_l)
+        # FIXME: it works correctly only in cubic or ortogonal systems
+        warn("MagCryst ONLY WORKS FOR ORTOGONAL SYSTEMS!!!", UserWarning)
+        f_mag_perp = calc_fm_perp_for_fm_loc(k_loc, f_mag)
+        f_mag_perp = numpy.array(f_mag_perp, dtype=complex)
+        return f_mag_perp
 
     def calc_hkl(self, sthovl_min: float, sthovl_max: float):
         """
@@ -263,8 +285,8 @@ class MagCrystal(DataN):
             cell.length_a, cell.length_b, cell.length_c,
             cell.angle_alpha*rad, cell.angle_beta*rad, cell.angle_gamma*rad)
 
-        sym_elems = self.space_group_symop_magn_operation
-        magn_centering = self.space_group_symop_magn_centering
+        sym_elems = self.space_group_symop_magn_operation.get_sym_elems()
+        magn_centering = self.space_group_symop_magn_centering.get_sym_elems()
         full_sym_elems = calc_full_sym_elems(sym_elems, magn_centering)
 
         ind_hkl_mult = calc_hkl_in_range(

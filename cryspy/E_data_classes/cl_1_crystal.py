@@ -118,16 +118,24 @@ class Crystal(DataN):
 
         atom_site = self.atom_site
         atom_site.apply_constraints(space_group_wyckoff)
-        atom_site_aniso = self.atom_site_aniso
-        if atom_site_aniso is not None:
-            atom_site_aniso.apply_space_group_constraint(atom_site,
-                                                         space_group)
-        atom_site_susceptibility = self.atom_site_susceptibility
-        if atom_site_susceptibility is not None:
-            atom_site_susceptibility.apply_chi_iso_constraint(cell)
-            atom_site_susceptibility.apply_moment_iso_constraint(cell)
-            atom_site_susceptibility.apply_space_group_constraint(atom_site,
-                                                                  space_group)
+
+        try:
+            atom_site_aniso = self.atom_site_aniso
+            if atom_site_aniso is not None:
+                atom_site_aniso.apply_space_group_constraint(atom_site,
+                                                             space_group)
+        except AttributeError:
+            pass
+
+        try:
+            atom_site_susceptibility = self.atom_site_susceptibility
+            if atom_site_susceptibility is not None:
+                atom_site_susceptibility.apply_chi_iso_constraint(cell)
+                atom_site_susceptibility.apply_moment_iso_constraint(cell)
+                atom_site_susceptibility.apply_space_group_constraint(
+                    atom_site, space_group)
+        except AttributeError:
+            pass
 
     def calc_b_iso_beta(self):
         """
@@ -136,7 +144,10 @@ class Crystal(DataN):
         For each atom defined in atom_site.
         """
         a_s = self.atom_site
-        a_s_a = self.atom_site_aniso
+        try:
+            a_s_a = self.atom_site_aniso
+        except AttributeError:
+            a_s_a = None
         l_b_iso, l_beta = [], []
         coeff = float(8.*numpy.pi**2)
         cell = self.cell
@@ -319,11 +330,12 @@ class Crystal(DataN):
         r_s_g_s = space_group.reduced_space_group_symop
 
         cell = self.cell
-        atom_site_scat = self.atom_site_scat
-        atom_site_susceptibility = self.atom_site_susceptibility
         sthovl = cell.calc_sthovl(index_h, index_k, index_l)
 
-        if atom_site_susceptibility is None:
+        try:
+            atom_site_scat = self.atom_site_scat
+            atom_site_susceptibility = self.atom_site_susceptibility
+        except AttributeError:
             s_11 = numpy.zeros(index_h.shape, dtype=float)
             s_12 = numpy.zeros(index_h.shape, dtype=float)
             s_13 = numpy.zeros(index_h.shape, dtype=float)
@@ -388,8 +400,6 @@ class Crystal(DataN):
             atom_site[item.label].multiplicity)
             for item in atom_site_susceptibility.items], dtype=float)
 
-        atom_site_aniso = self.atom_site_aniso
-
         x = np_x_y_z_occ_mult[:, 0]
         y = np_x_y_z_occ_mult[:, 1]
         z = np_x_y_z_occ_mult[:, 2]
@@ -415,7 +425,13 @@ class Crystal(DataN):
             index_h, index_k, index_l, x, y, z, r_11, r_12, r_13, r_21, r_22,
             r_23, r_31, r_32, r_33, b_1, b_2, b_3)
 
-        flag_adp = atom_site_aniso is not None
+        try:
+            atom_site_aniso = self.atom_site_aniso
+            flag_adp = True
+        except AttributeError:
+            flag_adp = False
+
+        # FIXME
         flag_adp = False
         if flag_adp:
             b_iso = atom_site.numpy_b_iso_or_equiv
@@ -709,8 +725,9 @@ class Crystal(DataN):
         ls_out = []
         # crystal is defined object of cryspy library;
         # type(crystal) is Crystal
-        a_s_m_a = self.atom_site_susceptibility
-        if a_s_m_a is None:
+        try:
+            a_s_m_a = self.atom_site_susceptibility
+        except AttributeError:
             return None
         l_susceptibilities, l_directions = \
             self.calc_main_axes_of_magnetization_ellipsoids()

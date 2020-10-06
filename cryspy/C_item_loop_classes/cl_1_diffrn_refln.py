@@ -213,7 +213,8 @@ class DiffrnReflnL(LoopN):
             np_h = numpy.array(self.index_h, dtype=int)
             np_k = numpy.array(self.index_k, dtype=int)
             np_l = numpy.array(self.index_l, dtype=int)
-            np_sthovl = cell.calc_sthovl(h=np_h, k=np_k, l=np_l)
+            np_sthovl = cell.calc_sthovl(index_h=np_h, index_k=np_k,
+                                         index_l=np_l)
             np_fr, np_fr_sigma = numpy.array(l_fr, dtype=float), numpy.array(l_fr_sigma, dtype=float) 
             np_fr_calc = numpy.array(l_fr_calc, dtype=float)
             np_diff = numpy.abs((np_fr-np_fr_calc)/np_fr_sigma)

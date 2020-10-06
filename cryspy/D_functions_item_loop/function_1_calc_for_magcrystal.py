@@ -78,7 +78,9 @@ def calc_b_iso_beta(cell: Cell, atom_site: AtomSiteL,
 
 # FIXME: full_space_group_symop is temporary slow solution.
 def calc_f_nucl(
-        index_h, index_k, index_l, full_space_group_symop,
+        index_h, index_k, index_l,
+        space_group_symop_magn_operation: SpaceGroupSymopMagnOperationL,
+        space_group_symop_magn_centering: SpaceGroupSymopMagnCenteringL,
         cell: Cell, atom_site: AtomSiteL, atom_site_aniso: AtomSiteAnisoL,
         flag_derivatives: bool = False):
     """
@@ -102,31 +104,40 @@ def calc_f_nucl(
     """
     dder = {}
 
-    r_s_g_s = full_space_group_symop
+    sym_elems = space_group_symop_magn_operation.get_sym_elems()
+    magn_centering = space_group_symop_magn_centering.get_sym_elems()
+
+    full_sym_elems = calc_full_sym_elems(sym_elems, magn_centering)
 
     occupancy = numpy.array(atom_site.occupancy, dtype=float)
     x = numpy.array(atom_site.fract_x, dtype=float)
     y = numpy.array(atom_site.fract_y, dtype=float)
     z = numpy.array(atom_site.fract_z, dtype=float)
 
-    atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
+    fract_xyz = numpy.array([x, y, z], dtype=float)
+    # FIXME: temporary solution
+    try:
+        atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
+    except TypeError:
+        atom_multiplicity = calc_multiplicity(full_sym_elems, fract_xyz)
+
     scat_length_neutron = numpy.array(atom_site.scat_length_neutron,
                                       dtype=complex)
 
     occ_mult = occupancy*atom_multiplicity
 
-    r_11 = r_s_g_s.numpy_r_11.astype(float)
-    r_12 = r_s_g_s.numpy_r_12.astype(float)
-    r_13 = r_s_g_s.numpy_r_13.astype(float)
-    r_21 = r_s_g_s.numpy_r_21.astype(float)
-    r_22 = r_s_g_s.numpy_r_22.astype(float)
-    r_23 = r_s_g_s.numpy_r_23.astype(float)
-    r_31 = r_s_g_s.numpy_r_31.astype(float)
-    r_32 = r_s_g_s.numpy_r_32.astype(float)
-    r_33 = r_s_g_s.numpy_r_33.astype(float)
-    b_1 = r_s_g_s.numpy_b_1.astype(float)
-    b_2 = r_s_g_s.numpy_b_2.astype(float)
-    b_3 = r_s_g_s.numpy_b_3.astype(float)
+    r_11 = full_sym_elems[4].astype(float)
+    r_12 = full_sym_elems[5].astype(float)
+    r_13 = full_sym_elems[6].astype(float)
+    r_21 = full_sym_elems[7].astype(float)
+    r_22 = full_sym_elems[8].astype(float)
+    r_23 = full_sym_elems[9].astype(float)
+    r_31 = full_sym_elems[10].astype(float)
+    r_32 = full_sym_elems[11].astype(float)
+    r_33 = full_sym_elems[12].astype(float)
+    b_1 = full_sym_elems[0].astype(float)/full_sym_elems[3].astype(float)
+    b_2 = full_sym_elems[1].astype(float)/full_sym_elems[3].astype(float)
+    b_3 = full_sym_elems[2].astype(float)/full_sym_elems[3].astype(float)
 
     phase_3d = calc_phase_by_hkl_xyz_rb(
         index_h, index_k, index_l, x, y, z, r_11, r_12, r_13, r_21, r_22,

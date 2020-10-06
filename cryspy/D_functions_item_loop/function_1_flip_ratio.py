@@ -1,4 +1,16 @@
-"""Calculation of flip ratio."""
+"""Calculation of flip ratio.
+
+Functions
+---------
+    - calc_flip_ratio
+    - calc_intensity_up_down
+    - calc_fm_perp_loc
+    - calc_fm_perp_for_fm_loc
+    - calc_fm_loc
+    - calc_e_up_loc
+    - calc_rotated_ub
+
+"""
 import numpy
 
 from cryspy.A_functions_base.function_3_extinction import calc_extinction_2
@@ -123,8 +135,8 @@ def calc_fm_perp_loc(e_up_loc: numpy.ndarray, field_norm: float,
 
 def calc_fm_perp_for_fm_loc(k_loc_i, fm_loc):
     """Calculate perpendicular component of fm to scattering vector."""
-    k_1, k_2, k_3 = k_loc_i
-    mag_1, mag_2, mag_3 = fm_loc
+    k_1, k_2, k_3 = k_loc_i[0], k_loc_i[1], k_loc_i[2]
+    mag_1, mag_2, mag_3 = fm_loc[0], fm_loc[1], fm_loc[2]
     mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
     mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
     mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1

@@ -145,11 +145,13 @@ class Pd2d(DataN):
         res_u_2d = numpy.zeros((tth.shape[0], phi.shape[0]), dtype=float)
         res_d_2d = numpy.zeros((tth.shape[0], phi.shape[0]), dtype=float)
 
-        texture = self.texture
-        if texture is not None:
+        try:
+            texture = self.texture
             h_ax, k_ax = float(texture.h_ax), float(texture.k_ax)
             l_ax = float(texture.l_ax)
             g_1, g_2 = float(texture.g_1), float(texture.g_2)
+        except AttributeError:
+            texture = None
 
         phase = self.phase
         _h = len(phase.label)
@@ -387,7 +389,12 @@ class Pd2d(DataN):
         l_refln_susceptibility_in = []
         l_dd_in = []
         flag_1 = not(flag_internal)
-        flag_2 = (self.dd is not None)
+
+        try:
+            dd = self.dd
+            flag_2 = True
+        except AttributeError:
+            flag_2 = False
         if (flag_1 & flag_2):
             for phase_item in self.phase.items:
                 crystal = None
@@ -402,15 +409,20 @@ class Pd2d(DataN):
                 l_refln_in.append(getattr(self, attr_refln))
                 l_refln_susceptibility_in.append(getattr(self, attr_refln_s))
 
-        range_ = self.range
         cond_tth_in = numpy.ones(tth.size, dtype=bool)
-        cond_tth_in = numpy.logical_and(cond_tth_in, tth >= range_.ttheta_min)
-        cond_tth_in = numpy.logical_and(cond_tth_in, tth <= range_.ttheta_max)
-
         cond_phi_in = numpy.ones(phi.size, dtype=bool)
-        cond_phi_in = numpy.logical_and(cond_phi_in, phi >= range_.phi_min)
-        cond_phi_in = numpy.logical_and(cond_phi_in, phi <= range_.phi_max)
+        try:
+            range_ = self.range
+            cond_tth_in = numpy.logical_and(cond_tth_in, tth >=
+                                            range_.ttheta_min)
+            cond_tth_in = numpy.logical_and(cond_tth_in, tth <=
+                                            range_.ttheta_max)
 
+            cond_phi_in = numpy.logical_and(cond_phi_in, phi >= range_.phi_min)
+            cond_phi_in = numpy.logical_and(cond_phi_in, phi <= range_.phi_max)
+
+        except AttributeError:
+            pass
         # cond_1_in, cond_2_in = numpy.meshgrid(cond_tth_in, cond_phi_in,
         #                                       indexing="ij")
         # cond_in = numpy.logical_and(cond_1_in, cond_2_in)
@@ -454,8 +466,8 @@ class Pd2d(DataN):
         cond_dif = numpy.logical_not(numpy.isnan(chi_sq_dif))
 
         # exclude region
-        exclude = self.exclude
-        if exclude is not None:
+        try:
+            exclude = self.exclude
             l_excl_tth_min = exclude.numpy_ttheta_min
             l_excl_tth_max = exclude.numpy_ttheta_max
             l_excl_phi_min = exclude.numpy_phi_min
@@ -473,6 +485,8 @@ class Pd2d(DataN):
                 cond_u = numpy.logical_and(cond_u, cond_12)
                 cond_d = numpy.logical_and(cond_d, cond_12)
                 cond_sum = numpy.logical_and(cond_sum, cond_12)
+        except AttributeError:
+            pass
 
         chi_sq_u_val = (chi_sq_u[cond_u]).sum()
         n_u = cond_u.sum()

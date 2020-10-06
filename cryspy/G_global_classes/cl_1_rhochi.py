@@ -15,6 +15,7 @@ from cryspy.A_functions_base.function_1_error_simplex import \
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
+from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
@@ -42,11 +43,10 @@ class RhoChi(GlobalN):
         - calc_to_cif
         - estimate_FM
 
-
     """
 
-    CLASSES_MANDATORY = (Crystal, )
-    CLASSES_OPTIONAL = (Diffrn, Pd, Pd2d, )
+    CLASSES_MANDATORY = ()
+    CLASSES_OPTIONAL = (Crystal, MagCrystal, Diffrn, Pd, Pd2d)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -83,7 +83,8 @@ class RhoChi(GlobalN):
 
     def crystals(self):
         """List of crystals."""
-        return [item for item in self.items if isinstance(item, Crystal)]
+        return [item for item in self.items if isinstance(item, (Crystal,
+                                                                 MagCrystal))]
 
     def calc_chi_sq(self, flag_internal=True):
         """

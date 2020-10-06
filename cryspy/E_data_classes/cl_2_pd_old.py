@@ -35,11 +35,7 @@ from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import Texture
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
-from cryspy.D_functions_item_loop.function_1_flip_ratio import \
-    calc_intensity_up_down
-
 from cryspy.E_data_classes.cl_1_crystal import Crystal
-from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
 
 class Pd(DataN):
@@ -54,7 +50,7 @@ class Pd(DataN):
         - calc_profile
         - calc_chi_sq
         - simmulation
-        - calc_iint
+        - calc_iint 
         - _gauss_pd
         - _lor_pd
         - calc_shape_profile
@@ -96,8 +92,9 @@ class Pd(DataN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def calc_profile(self, tth, l_crystal, flag_internal: bool = True,
-                     flag_polarized: bool = True):
+    def calc_profile(self, tth, l_crystal, l_peak_in=None, l_refln_in=None,
+                     l_refln_susceptibility_in=None, l_dd_in=None,
+                     flag_internal: bool = True, flag_polarized: bool = True):
         """Calculate intensity for the given diffraction angles.
 
         Arguments
@@ -120,29 +117,18 @@ class Pd(DataN):
             - l_peak: data about peaks
             - l_refln: data about nuclear structure factor
         """
-        if flag_internal:
-            d_internal_val = {}
-            self.d_internal_val = d_internal_val
-        else:
-            try:
-                d_internal_val = self.d_internal_val
-            except AttributeError:
-                d_internal_val = {}
-                self.d_internal_val = d_internal_val
-
         proc = PdProcL()
         proc.numpy_ttheta = tth
 
-        try:
-            background = self.pd_background
+        background = self.pd_background
+        if background is not None:
             int_bkgd = background.interpolate_by_points(tth)
-        except AttributeError:
+        else:
             int_bkgd = 0.*tth
 
         proc.numpy_intensity_bkg_calc = int_bkgd
 
-        setup = self.setup
-        wavelength = float(setup.wavelength)
+        wavelength = float(self.setup.wavelength)
 
         tth_min = tth.min()
         tth_max = tth.max() + 3.
@@ -151,68 +137,91 @@ class Pd(DataN):
         sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wavelength
         sthovl_max = numpy.sin(0.5*tth_max*numpy.pi/180.)/wavelength
 
-        try:
-            texture = self.texture
+        texture = self.texture
+        if texture is not None:
             h_ax, k_ax, l_ax = texture.h_ax, texture.k_ax, texture.l_ax
             g_1, g_2 = texture.g_1, texture.g_2
-        except AttributeError:
-            texture = None
 
         res_u_1d = numpy.zeros(tth.shape[0], dtype=float)
         res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
 
         phase = self.phase
+        _h = len(phase.label)
+        if l_peak_in is None:
+            l_peak_in = len(phase.label)*[None]
+        else:
+            if _h != len(l_peak_in):
+                l_peak_in = len(phase.label)*[None]
+        if l_refln_in is None:
+            l_refln_in = len(phase.label)*[None]
+        else:
+            if len(phase.label) != len(l_refln_in):
+                l_refln_in = len(phase.label)*[None]
+        if l_refln_susceptibility_in is None:
+            l_refln_susceptibility_in = len(phase.label) * [None]
+        else:
+            if _h != len(l_refln_susceptibility_in):
+                l_refln_susceptibility_in = len(phase.label) * [None]
 
-        for phase_item in phase.items:
+        if l_dd_in is None:
+            l_dd_in = len(phase.label) * [None]
+        else:
+            if _h != len(l_dd_in):
+                l_dd_in = len(phase.label) * [None]
+
+        l_dd_out = []
+        l_peak, l_refln, l_refln_s = [], [], []
+        for phase_item, peak_in, refln_in, refln_susceptibility_in, dd_in in \
+                zip(phase.items, l_peak_in, l_refln_in,
+                    l_refln_susceptibility_in, l_dd_in):
             phase_label = phase_item.label
             phase_scale = phase_item.scale
             phase_igsize = phase_item.igsize
 
+            dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name.lower() == phase_label.lower():
                     ind_cry = i_crystal
                     break
             if ind_cry is None:
-                raise AttributeError(
-                    f"Crystal with name '{crystal.data_name:}' is not found.")
+                warn(f"Crystal with name '{phase_label:}' is not found.",
+                     UserWarning)
                 return
             crystal = l_crystal[ind_cry]
-
             scale = phase_scale
             i_g = phase_igsize
 
-            try:
-                peak = d_internal_val[f"peak_{crystal.data_name:}"]
-                index_h = peak.numpy_index_h
-                index_k = peak.numpy_index_k
-                index_l = peak.numpy_index_l
-                mult = peak.numpy_index_multiplicity
-                cond_2 = True
-            except KeyError:
+            if peak_in is not None:
+                index_h = peak_in.numpy_index_h
+                index_k = peak_in.numpy_index_k
+                index_l = peak_in.numpy_index_l
+                mult = peak_in.numpy_index_mult
+            else:
                 if texture is None:
                     index_h, index_k, index_l, mult = crystal.calc_hkl(
                         sthovl_min, sthovl_max)
                 else:
                     index_h, index_k, index_l, mult = \
                         crystal.calc_hkl_in_range(sthovl_min, sthovl_max)
-                peak = PdPeakL(loop_name=phase_label)
-                peak.numpy_index_h = numpy.array(index_h, dtype=int)
-                peak.numpy_index_k = numpy.array(index_k, dtype=int)
-                peak.numpy_index_l = numpy.array(index_l, dtype=int)
-                peak.numpy_index_multiplicity = numpy.array(mult, dtype=int)
-                d_internal_val[f"peak_{crystal.data_name:}"] = peak
-                cond_2 = False
+
+            peak = PdPeakL(loop_name=phase_label)
 
             cond_1 = not(crystal.is_variables())
+            cond_2 = (peak_in is not None) & (refln_in is not None)
             if cond_1 & cond_2:
-                np_iint_u = peak.numpy_intensity_up
-                np_iint_d = peak.numpy_intensity_down
+                np_iint_u = peak_in.numpy_intensity_up
+                np_iint_d = peak_in.numpy_intensity_down
+                refln = refln_in
+                refln_s = refln_susceptibility_in
             else:
-                np_iint_u, np_iint_d = self.calc_iint(
+                np_iint_u, np_iint_d, refln, refln_s = self.calc_iint(
                     index_h, index_k, index_l, crystal,
                     flag_internal=flag_internal)
-                peak.numpy_intensity_up = np_iint_u
-                peak.numpy_intensity_down = np_iint_d
+                refln.loop_name = phase_label
+                refln_s.loop_name = phase_label
+
+            l_refln.append(refln)
+            l_refln_s.append(refln_s)
 
             cell = crystal.cell
             sthovl_hkl = cell.calc_sthovl(index_h, index_k, index_l)
@@ -225,6 +234,12 @@ class Pd(DataN):
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(
                 tth, tth_hkl, i_g)
 
+            peak.numpy_index_h = index_h
+            peak.numpy_index_k = index_k
+            peak.numpy_index_l = index_l
+            peak.numpy_index_mult = mult
+            peak.numpy_intensity_up = np_iint_u
+            peak.numpy_intensity_down = np_iint_d
             peak.numpy_ttheta = tth_hkl+self.setup.offset_ttheta
             peak.numpy_width_ttheta = h_pv
 
@@ -235,16 +250,12 @@ class Pd(DataN):
 
             # texture
             if texture is not None:
+                cond_1 = dd_in is not None
                 cond_2 = ((not(texture.is_variables())) &
                           (not(cell.is_variables())))
-                if cond_2:
-                    try:
-                        texture_2d = d_internal_val[
-                            f"texture_2d_{crystal.data_name:}"]
-                        cond_1 = False
-                    except KeyError:
-                        cond_1 = True
-                if cond_1:
+                if cond_1 & cond_2:
+                    texture_2d = dd_in["texture_2d"]
+                else:
                     cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax,
                                                 index_h, index_k, index_l)
                     c_help = 1.-cos_alpha_ax**2
@@ -260,9 +271,8 @@ class Pd(DataN):
                     cos_alpha_2d = cos_alpha_ax_2d*1.+sin_alpha_ax_2d*0.
                     texture_2d = g_2 + (1. - g_2) * (1./g_1 + (g_1**2 - 1./g_1)
                                                      * cos_alpha_2d**2)**(-1.5)
-                    d_internal_val[f"texture_2d_{crystal.data_name:}"] = \
-                        texture_2d
 
+                dd_out["texture_2d"] = texture_2d
                 profile_2d = profile_2d*texture_2d
 
             res_u_2d = profile_2d*np_iint_u_2d
@@ -274,6 +284,8 @@ class Pd(DataN):
 
             if flag_internal:
                 peak.numpy_to_items()
+            l_peak.append(peak)
+            l_dd_out.append(dd_out)
 
         proc.numpy_ttheta_corrected = tth_zs
         proc.numpy_intensity_up_net = res_u_1d
@@ -291,27 +303,11 @@ class Pd(DataN):
 
         if flag_internal:
             proc.numpy_to_items()
-            l_calc_objs = []
-            for crystal in l_crystal:
-                try:
-                    obj = d_internal_val[f"refln_{crystal.data_name}"]
-                    l_calc_objs.append(obj)
-                except KeyError:
-                    pass
-                try:
-                    obj = d_internal_val[
-                        f"refln_susceptibility_{crystal.data_name}"]
-                    l_calc_objs.append(obj)
-                except KeyError:
-                    pass
-                try:
-                    obj = d_internal_val[f"peak_{crystal.data_name}"]
-                    l_calc_objs.append(obj)
-                except KeyError:
-                    pass
+            l_calc_objs = l_refln + l_refln_s + l_peak
             l_calc_objs.append(proc)
             self.add_items(l_calc_objs)
-        return proc
+
+        return proc, l_peak, l_refln, l_dd_out
 
     def calc_chi_sq(self, l_crystal, flag_internal=True):
         """
@@ -343,16 +339,33 @@ class Pd(DataN):
             int_exp = meas.numpy_intensity
             sint_exp = meas.numpy_intensity_sigma
 
+        l_peak_in, l_refln_in = [], []
+        l_refln_susceptibility_in = []
+        l_dd_in = []
+        flag_1 = not(flag_internal)
+        flag_2 = (self.dd is not None)
+        if (flag_1 & flag_2):
+            for phase_item in self.phase.items:
+                crystal = None
+                for cryst in l_crystal:
+                    if cryst.data_name.lower() == phase_item.label.lower():
+                        crystal = cryst
+                        break
+                attr_peak = f"pd_peak_{crystal.data_name:}"
+                attr_refln = f"refln_{crystal.data_name:}"
+                attr_refln_s = f"refln_susceptibility_{crystal.data_name:}"
+                l_peak_in.append(getattr(self, attr_peak))
+                l_refln_in.append(getattr(self, attr_refln))
+                l_refln_susceptibility_in.append(getattr(self, attr_refln_s))
+
+        range_ = self.range
         cond_in = numpy.ones(tth.shape, dtype=bool)
-        try:
-            range_ = self.range
+        if range_ is not None:
             range_min = numpy.array(range_.ttheta_min, dtype=float)
             range_max = numpy.array(range_.ttheta_max, dtype=float)
 
             cond_in = numpy.logical_and(cond_in, tth >= range_min)
             cond_in = numpy.logical_and(cond_in, tth <= range_max)
-        except AttributeError:
-            pass
 
         tth_in = tth[cond_in]
         if flag_polarized:
@@ -364,9 +377,13 @@ class Pd(DataN):
             int_exp_in = int_exp[cond_in]
             sint_exp_in = sint_exp[cond_in]
 
-        proc = self.calc_profile(
-            tth_in, l_crystal, flag_internal=flag_internal,
+        proc, l_peak, l_refln, l_dd_out = self.calc_profile(
+            tth_in, l_crystal, l_peak_in=l_peak_in, l_refln_in=l_refln_in,
+            l_refln_susceptibility_in=l_refln_susceptibility_in,
+            l_dd_in=l_dd_in, flag_internal=flag_internal,
             flag_polarized=flag_polarized)
+
+        self.dd = l_dd_out
 
         if flag_polarized:
             proc.numpy_intensity_up = int_u_exp_in
@@ -401,8 +418,8 @@ class Pd(DataN):
             cond_sum = numpy.logical_not(numpy.isnan(chi_sq_sum))
 
         # exclude region
-        try:
-            exclude = self.exclude
+        exclude = self.exclude
+        if exclude is not None:
             l_excl_tth_min = exclude.ttheta_min
             l_excl_tth_max = exclude.ttheta_max
             if flag_polarized:
@@ -419,8 +436,6 @@ class Pd(DataN):
                     cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min,
                                               tth_in > 1.*excl_tth_max)
                     cond_sum = numpy.logical_and(cond_sum, cond_1)
-        except AttributeError:
-            pass
 
         chi_sq_sum_val = (chi_sq_sum[cond_sum]).sum()
         n_sum = cond_sum.sum()
@@ -451,6 +466,10 @@ class Pd(DataN):
         else:
             chi_sq_val = chi_sq_sum_val
             n = n_sum
+        # d_exp_out = {"chi_sq_val": chi_sq_val, "n": n}
+        # d_exp_out.update(d_exp_prof_out)
+        # print(f"chi_sq_val/n: {chi_sq_val/n:.2f} , \
+        #         chi_sq_val: {chi_sq_val:.2f}")
 
         if flag_internal:
             refine_ls = RefineLs(number_reflns=n,
@@ -475,136 +494,97 @@ class Pd(DataN):
 
     def calc_iint(self, index_h, index_k, index_l, crystal: Crystal,
                   flag_internal: bool = True):
-        """Calculate the integrated intensity for h, k, l reflections.
+        """
+        Calculate the integrated intensity for h, k, l reflections.
 
-        Arguments
-        ---------
+        Keyword Arguments
+        -----------------
             - h, k, l: 1D numpy array of Miller indexes, dtype = int32
             - l_crystal: a list of Crystal objects of cryspy library
             - flag_internal: a flag to calculate or to use internal objects.
                    It should be True if user call the function.
                    It's True by default.
 
-        Output
-        ------
+        Output Arguments
+        ----------------
             - iint_u: 1D numpy array of integrated intensity up, dtype = float
             - iint_d: 1D numpy array of integrated intensity up, dtype = float
             - refln: ReflnL object of cryspy library (nuclear structure factor)
             - refln_s: ReflnSusceptibilityL object of cryspy library
               (nuclear structure factor)
         """
-        if flag_internal:
-            try:
-                d_internal_val = self.d_internal_val
-            except AttributeError:
-                d_internal_val = {}
-                self.d_internal_val = d_internal_val
-        else:
-            d_internal_val = {}
-            self.d_internal_val = d_internal_val
-
-        setup = self.setup
-        try:
-            field = setup.field
-        except AttributeError:
+        field = self.setup.field
+        if field is None:
             field = 0.
 
-        try:
-            diffrn_radiation = self.diffrn_radiation
+        diffrn_radiation = self.diffrn_radiation
+        if diffrn_radiation is not None:
             p_u = float(diffrn_radiation.polarization)
             p_d = (2.*float(diffrn_radiation.efficiency)-1)*p_u
-        except AttributeError:
+        else:
             p_u = 0.0
             p_d = 0.0
 
-        try:
-            if (not(flag_internal) | crystal.is_variables()):
-                raise KeyError
-            refln = d_internal_val[f"refln_{crystal.data_name:}"]
-        except KeyError:
-            refln = crystal.calc_refln(index_h, index_k, index_l,
-                                       flag_internal=flag_internal)
-            d_internal_val[f"refln_{crystal.data_name:}"] = refln
+        refln = crystal.calc_refln(index_h, index_k, index_l,
+                                   flag_internal=flag_internal)
         f_nucl = refln.numpy_f_calc
-        f_nucl_sq = abs(f_nucl*f_nucl.conjugate())
 
-        if isinstance(crystal, Crystal):
-            try:
-                if (not(flag_internal) | crystal.is_variables()):
-                    raise KeyError
-                refln_s = d_internal_val[
-                    f"refln_susceptibility_{crystal.data_name:}"]
-            except KeyError:
-                refln_s = crystal.calc_refln_susceptibility(
-                    index_h, index_k, index_l, flag_internal=flag_internal)
-                d_internal_val[f"refln_susceptibility_{crystal.data_name:}"] \
-                    = refln_s
+        refln_s = crystal.calc_refln_susceptibility(
+            index_h, index_k, index_l, flag_internal=flag_internal)
 
-            sft_11 = refln_s.numpy_chi_11_calc
-            sft_12 = refln_s.numpy_chi_12_calc
-            sft_13 = refln_s.numpy_chi_13_calc
-            sft_21 = refln_s.numpy_chi_21_calc
-            sft_22 = refln_s.numpy_chi_22_calc
-            sft_23 = refln_s.numpy_chi_23_calc
-            sft_31 = refln_s.numpy_chi_31_calc
-            sft_32 = refln_s.numpy_chi_32_calc
-            sft_33 = refln_s.numpy_chi_33_calc
+        sft_11 = refln_s.numpy_chi_11_calc
+        sft_12 = refln_s.numpy_chi_12_calc
+        sft_13 = refln_s.numpy_chi_13_calc
+        sft_21 = refln_s.numpy_chi_21_calc
+        sft_22 = refln_s.numpy_chi_22_calc
+        sft_23 = refln_s.numpy_chi_23_calc
+        sft_31 = refln_s.numpy_chi_31_calc
+        sft_32 = refln_s.numpy_chi_32_calc
+        sft_33 = refln_s.numpy_chi_33_calc
 
-            sftm_11 = refln_s.numpy_moment_11_calc
-            sftm_12 = refln_s.numpy_moment_12_calc
-            sftm_13 = refln_s.numpy_moment_13_calc
-            sftm_21 = refln_s.numpy_moment_21_calc
-            sftm_22 = refln_s.numpy_moment_22_calc
-            sftm_23 = refln_s.numpy_moment_23_calc
-            sftm_31 = refln_s.numpy_moment_31_calc
-            sftm_32 = refln_s.numpy_moment_32_calc
-            sftm_33 = refln_s.numpy_moment_33_calc
+        sftm_11 = refln_s.numpy_moment_11_calc
+        sftm_12 = refln_s.numpy_moment_12_calc
+        sftm_13 = refln_s.numpy_moment_13_calc
+        sftm_21 = refln_s.numpy_moment_21_calc
+        sftm_22 = refln_s.numpy_moment_22_calc
+        sftm_23 = refln_s.numpy_moment_23_calc
+        sftm_31 = refln_s.numpy_moment_31_calc
+        sftm_32 = refln_s.numpy_moment_32_calc
+        sftm_33 = refln_s.numpy_moment_33_calc
 
-            _11, _12 = sftm_11+field*sft_11, sftm_12+field*sft_12
-            _21, _13 = sftm_21+field*sft_21, sftm_13+field*sft_13
-            _22, _23 = sftm_22+field*sft_22, sftm_23+field*sft_23
-            _31, _32 = sftm_31+field*sft_31, sftm_32+field*sft_32
-            _33 = sftm_33+field*sft_33
-            _ij = (_11, _12, _13, _21, _22, _23, _31, _32, _33)
-            cell = crystal.cell
+        _11, _12 = sftm_11+field*sft_11, sftm_12+field*sft_12
+        _21, _13 = sftm_21+field*sft_21, sftm_13+field*sft_13
+        _22, _23 = sftm_22+field*sft_22, sftm_23+field*sft_23
+        _31, _32 = sftm_31+field*sft_31, sftm_32+field*sft_32
+        _33 = sftm_33+field*sft_33
+        _ij = (_11, _12, _13, _21, _22, _23, _31, _32, _33)
+        cell = crystal.cell
 
-            # k_loc = cell.calc_k_loc(h, k, l)
-            t_ij = cell.calc_m_t(index_h, index_k, index_l)
-            # FIXME: I would like to recheck the expression for T
-            #        and expression SIGMA = T^T CHI T
-            t_tr_ij = (t_ij[0], t_ij[3], t_ij[6],
-                       t_ij[1], t_ij[4], t_ij[7],
-                       t_ij[2], t_ij[5], t_ij[8])
-            th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = \
-                calc_mRmCmRT(t_tr_ij, _ij)
+        # k_loc = cell.calc_k_loc(h, k, l)
+        t_ij = cell.calc_m_t(index_h, index_k, index_l)
+        # FIXME: I would like to recheck the expression for T
+        #        and expression SIGMA = T^T CHI T
+        t_tr_ij = (t_ij[0], t_ij[3], t_ij[6],
+                   t_ij[1], t_ij[4], t_ij[7],
+                   t_ij[2], t_ij[5], t_ij[8])
+        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = \
+            calc_mRmCmRT(t_tr_ij, _ij)
 
-            # fm_p_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+
-            #            th_22*th_22.conjugate())+th_12*th_12.conjugate())
-            # fm_p_field = field*0.5*(th_11+th_22)
-            fm_p_sq = abs(0.5 * (th_11 * th_11.conjugate() +
-                                 th_22 * th_22.conjugate()) +
-                          th_12 * th_12.conjugate())
-            fm_p_field = 0.5*(th_11 + th_22)
-            cross = 2.*(f_nucl.real*fm_p_field.real +
-                        f_nucl.imag*fm_p_field.imag)
+        # fm_p_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+
+        #            th_22*th_22.conjugate())+th_12*th_12.conjugate())
+        # fm_p_field = field*0.5*(th_11+th_22)
+        fm_p_sq = abs(0.5 * (th_11 * th_11.conjugate() +
+                             th_22 * th_22.conjugate()) +
+                      th_12 * th_12.conjugate())
+        fm_p_field = 0.5*(th_11 + th_22)
+        cross = 2.*(f_nucl.real*fm_p_field.real+f_nucl.imag*fm_p_field.imag)
 
-            iint_u = f_nucl_sq + fm_p_sq + p_u*cross
-            iint_d = f_nucl_sq + fm_p_sq - p_d*cross
-        elif isinstance(crystal, MagCrystal):
-            try:
-                if (not(flag_internal) | crystal.is_variables()):
-                    raise KeyError
-                f_mag_perp = d_internal_val[f"f_mag_perp_{crystal.data_name:}"]
+        iint_u = abs(f_nucl*f_nucl.conjugate()) + fm_p_sq + p_u*cross
+        iint_d = abs(f_nucl*f_nucl.conjugate()) + fm_p_sq - p_d*cross
 
-            except KeyError:
-                f_mag_perp = crystal.calc_f_mag_perp(index_h, index_k, index_l)
-                d_internal_val[f"f_mag_perp_{crystal.data_name:}"] = f_mag_perp
-            # FIXME: f_mag given in a, b, c axes but here the Chartezian is
-            # supposed.
-            f_mag_perp_sq = abs(f_mag_perp*f_mag_perp.conjugate()).sum(axis=0)
-            iint_u = f_nucl_sq + f_mag_perp_sq*0.2695**2
-            iint_d = f_nucl_sq + f_mag_perp_sq*0.2695**2
-        return iint_u, iint_d
+        # d_info_out = {"iint_u": iint_u, "iint_d": iint_d}
+        # d_info_out.update(d_info_cry)
+        return iint_u, iint_d, refln, refln_s
 
     def _gauss_pd(self, tth_2d):
         """One dimensional gauss powder diffraction."""
@@ -651,10 +631,10 @@ class Pd(DataN):
 
         np_shape_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
 
-        try:
-            asymmetry = self.asymmetry
+        asymmetry = self.asymmetry
+        if asymmetry is not None:
             np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl, h_pv)
-        except AttributeError:
+        else:
             np_ass_2d = numpy.ones(shape=np_shape_2d.shape)
 
         # Lorentz factor

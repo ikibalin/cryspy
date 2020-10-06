@@ -74,7 +74,7 @@ class AtomRhoOrbitalRadialSlater(ItemN):
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
 
-    PREFIX = "atom_rho_orbital_radial_slater"
+    PREFIX = "atom_rho_orbital_radial_Slater"
 
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomRhoOrbitalRadialSlater, self).__init__()
