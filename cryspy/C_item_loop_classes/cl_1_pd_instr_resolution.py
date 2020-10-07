@@ -12,27 +12,10 @@ class PdInstrResolution(ItemN):
     PdInstrReflexAsymmetry describes asymmetry of Bragg reflections for
     1d powder diffractometer.
 
-    Mandatory attributes:
-        - ub_11, ub_12, ub_13, ub_21, ub_22, ub_23, ub_31, ub_32, ub_33
+    Attributes
+    ----------
+        - u, v, w, x, y (mandatory)
 
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
     """
     ATTR_MANDATORY_NAMES = ("u", "v", "w", "x", "y")
     ATTR_MANDATORY_TYPES = (float, float, float, float, float)
@@ -98,23 +81,26 @@ class PdInstrResolution(ItemN):
 
         self.c_th = res
         self.ic_th = 1./res
-        
-    def calc_hg(self, i_g = 0.):
+
+    def calc_hg(self, phase_igsize: float = 0., phase_u: float = 0.,
+            phase_v: float = 0., phase_w: float = 0., ):
         """
         ttheta in radians, could be array
         gauss size
         """
-        u, v, w = float(self.u), float(self.v), float(self.w)
-        res_sq = (u*self.t_th_sq + v*self.t_th + w + 
-                  i_g*self.ic_th**2)
+        u = float(self.u)+phase_u
+        v = float(self.v)+phase_v
+        w = float(self.w)+phase_w
+        res_sq = (u*self.t_th_sq + v*self.t_th + w +
+                  phase_igsize*self.ic_th**2)
         self.hg = numpy.sqrt(res_sq)
-        
-    def calc_hl(self):
+
+    def calc_hl(self, phase_x: float = 0., phase_y: float = 0.):
         """
         ttheta in radians, could be array
         lorentz site
         """
-        x, y = float(self.x), float(self.y)
+        x, y = float(self.x)+phase_x, float(self.y)+phase_y
         self.hl = x*self.t_th + y*self.ic_th
 
     def calc_hpveta(self):
@@ -141,37 +127,39 @@ class PdInstrResolution(ItemN):
 
         self.ag = (2./hpv)*(numpy.log(2.)/numpy.pi)**0.5
         self.bg = 4*numpy.log(2)/(hpv**2)
-        
+
     def calc_albl(self):
         hpv = self.hpv
         self.al = 2./(numpy.pi*hpv )
         self.bl = 4./(hpv**2)
-    
-    def calc_resolution(self, tth_hkl, i_g = 0.):
-        """
-Calculate parameters for tth
-tth_hkl in degrees
 
-Output values:
+    def calc_resolution(
+            self, tth_hkl, phase_igsize: float = 0., phase_u: float = 0.,
+            phase_v: float = 0., phase_w: float = 0., phase_x: float = 0.,
+            phase_y: float = 0.):
+        """Calculate parameters for tth tth_hkl in degrees.
 
-h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
+        Output
+        ------
+            - h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
         """
         self.calc_tancos(0.5*tth_hkl*numpy.pi/180.)
-        self.calc_hg(i_g = i_g)
-        self.calc_hl()
+        self.calc_hg(phase_igsize=phase_igsize, phase_u=phase_u,
+                     phase_v=phase_v, phase_w=phase_w)
+        self.calc_hl(phase_x=phase_x, phase_y=phase_y)
         self.calc_hpveta()
         self.calc_agbg()
         self.calc_albl()
 
-        a_g = self.ag  
-        b_g = self.bg  
-        a_l = self.al  
-        b_l = self.bl 
-        h_g = self.hg  
-        h_l = self.hl 
-        h_pv = self.hpv 
+        a_g = self.ag
+        b_g = self.bg
+        a_l = self.al
+        b_l = self.bl
+        h_g = self.hg
+        h_l = self.hl
+        h_pv = self.hpv
         eta = self.eta
-        
+
         return h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
     
 

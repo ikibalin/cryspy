@@ -17,9 +17,9 @@ class Phase(ItemN):
     ATTR_MANDATORY_TYPES = (str, )
     ATTR_MANDATORY_CIF = ("label", )
 
-    ATTR_OPTIONAL_NAMES = ("scale", "igsize")
-    ATTR_OPTIONAL_TYPES = (float, float)
-    ATTR_OPTIONAL_CIF = ("scale", "igsize")
+    ATTR_OPTIONAL_NAMES = ("scale", "igsize", "x", "y", "u", "v", "w")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float)
+    ATTR_OPTIONAL_CIF = ("scale", "igsize", "X", "Y", "U", "V", "W")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -29,7 +29,7 @@ class Phase(ItemN):
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
-    ATTR_REF = ("scale", "igsize")
+    ATTR_REF = ("scale", "igsize", "x", "y", "u", "v", "w")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])

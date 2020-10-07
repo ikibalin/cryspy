@@ -223,7 +223,6 @@ class MagCrystal(DataN):
 
         flag_only_orbital = False
         flag_derivatives = False
-        # f_mag is given in abc crystallographical axis
         f_mag, dder = calc_f_mag(
             (index_h, index_k, index_l), space_group_symop_magn_operation,
             space_group_symop_magn_centering, cell, atom_site, atom_site_aniso,
@@ -256,8 +255,6 @@ class MagCrystal(DataN):
 
         cell = self.cell
         k_loc = cell.calc_k_loc(index_h, index_k, index_l)
-        # FIXME: it works correctly only in cubic or ortogonal systems
-        warn("MagCryst ONLY WORKS FOR ORTOGONAL SYSTEMS!!!", UserWarning)
         f_mag_perp = calc_fm_perp_for_fm_loc(k_loc, f_mag)
         f_mag_perp = numpy.array(f_mag_perp, dtype=complex)
         return f_mag_perp

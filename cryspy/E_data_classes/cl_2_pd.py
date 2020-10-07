@@ -166,7 +166,36 @@ class Pd(DataN):
         for phase_item in phase.items:
             phase_label = phase_item.label
             phase_scale = phase_item.scale
-            phase_igsize = phase_item.igsize
+            try:
+                phase_igsize = phase_item.igsize
+                if phase_igsize is None: phase_igsize = 0. # temporary solution
+            except AttributeError:
+                phase_igsize = 0.
+            try:
+                phase_u = phase_item.u
+                if phase_u is None: phase_u = 0. # temporary solution
+            except AttributeError:
+                phase_u = 0.
+            try:
+                phase_v = phase_item.v
+                if phase_v is None: phase_v = 0. # temporary solution
+            except AttributeError:
+                phase_v = 0.
+            try:
+                phase_w= phase_item.w
+                if phase_w is None: phase_w = 0. # temporary solution
+            except AttributeError:
+                phase_w= 0.
+            try:
+                phase_x = phase_item.x
+                if phase_x is None: phase_x = 0. # temporary solution
+            except AttributeError:
+                phase_x = 0.
+            try:
+                phase_y = phase_item.y
+                if phase_y is None: phase_y = 0. # temporary solution
+            except AttributeError:
+                phase_y = 0.
 
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name.lower() == phase_label.lower():
@@ -179,7 +208,6 @@ class Pd(DataN):
             crystal = l_crystal[ind_cry]
 
             scale = phase_scale
-            i_g = phase_igsize
 
             try:
                 peak = d_internal_val[f"peak_{crystal.data_name:}"]
@@ -223,7 +251,9 @@ class Pd(DataN):
             tth_hkl = tth_hkl_rad*180./numpy.pi
 
             profile_2d, tth_zs, h_pv = self.calc_shape_profile(
-                tth, tth_hkl, i_g)
+                tth, tth_hkl, phase_igsize=phase_igsize, phase_u=phase_u,
+                phase_v=phase_v, phase_w=phase_w, phase_x=phase_x,
+                phase_y=phase_y)
 
             peak.numpy_ttheta = tth_hkl+self.setup.offset_ttheta
             peak.numpy_width_ttheta = h_pv
@@ -599,11 +629,9 @@ class Pd(DataN):
             except KeyError:
                 f_mag_perp = crystal.calc_f_mag_perp(index_h, index_k, index_l)
                 d_internal_val[f"f_mag_perp_{crystal.data_name:}"] = f_mag_perp
-            # FIXME: f_mag given in a, b, c axes but here the Chartezian is
-            # supposed.
             f_mag_perp_sq = abs(f_mag_perp*f_mag_perp.conjugate()).sum(axis=0)
-            iint_u = f_nucl_sq + f_mag_perp_sq*0.2695**2
-            iint_d = f_nucl_sq + f_mag_perp_sq*0.2695**2
+            iint_u = f_nucl_sq + f_mag_perp_sq
+            iint_d = f_nucl_sq + f_mag_perp_sq
         return iint_u, iint_d
 
     def _gauss_pd(self, tth_2d):
@@ -618,7 +646,10 @@ class Pd(DataN):
         al, bl = self.al, self.bl
         self.lor_pd = al*1./(1.+bl*tth_2d**2)
 
-    def calc_shape_profile(self, tth, tth_hkl, i_g=0.):
+    def calc_shape_profile(
+            self, tth, tth_hkl, phase_igsize: float = 0., phase_u: float = 0.,
+            phase_v: float = 0., phase_w: float = 0., phase_x: float = 0.,
+            phase_y: float = 0.):
         """
         Calculate shape profile.
 
@@ -633,7 +664,8 @@ class Pd(DataN):
         resolution = self.pd_instr_resolution
 
         h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l = resolution.calc_resolution(
-            tth_hkl, i_g=i_g)
+            tth_hkl, phase_igsize=phase_igsize, phase_u=phase_u,
+            phase_v=phase_v, phase_w=phase_w, phase_x=phase_x, phase_y=phase_y)
 
         tth_2d, tth_hkl_2d = numpy.meshgrid(tth_zs, tth_hkl, indexing="ij")
 

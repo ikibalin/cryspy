@@ -172,7 +172,13 @@ def calc_f_mag(
         cell: Cell, atom_site: AtomSiteL, atom_site_aniso: AtomSiteAnisoL,
         atom_site_scat: AtomSiteScatL, atom_site_moment: AtomSiteMomentL,
         flag_derivatives: bool = False, flag_only_orbital: bool = False):
-    """Calculate magnetic structure factor. TEST."""
+    """Calculate magnetic structure factor.
+
+    It's given in Cartesian coordianate system x||a* z||c
+    (!!!!!!it should be checked!!!!!)
+
+    Unity is 10**-12 cm
+    """
     dder = {}
     index_h, index_k, index_l = index_hkl[0], index_hkl[1], index_hkl[2]
 
@@ -270,5 +276,15 @@ def calc_f_mag(
 
     # f_nucl = space_group.calc_f_hkl_by_f_hkl_as(index_h, index_k, index_l,
     #                                             f_hkl_as)
-    f_mag = numpy.array([f_hkl_1, f_hkl_2, f_hkl_3], dtype=complex)
+    # FIXME it should be checked
+    # f_mag should be given in Cartezian coordinate system (x||a*, z||c)
+    m_m = cell.m_m_norm
+    f_hkl_cart_1 = (m_m[0, 0]*f_hkl_1 + m_m[0, 1]*f_hkl_2 + m_m[0, 2]*f_hkl_3
+                    )*0.2695
+    f_hkl_cart_2 = (m_m[1, 0]*f_hkl_1 + m_m[1, 1]*f_hkl_2 + m_m[1, 2]*f_hkl_3
+                    )*0.2695
+    f_hkl_cart_3 = (m_m[2, 0]*f_hkl_1 + m_m[2, 1]*f_hkl_2 + m_m[2, 2]*f_hkl_3
+                    )*0.2695
+    f_mag = numpy.array([f_hkl_cart_1, f_hkl_cart_2, f_hkl_cart_3],
+                        dtype=complex)
     return f_mag, dder

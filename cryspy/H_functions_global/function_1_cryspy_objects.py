@@ -157,11 +157,11 @@ def str_to_items(s_cont: str, item_classes=(), loop_classes=()) -> list:
     data_cif.take_from_string(s_cont)
     l_item_class = L_ITEM_CLASS + list(item_classes)
     l_loop_class = L_LOOP_CLASS + list(loop_classes)
-    
+
     l_item = items_to_itemsn(data_cif.items, l_item_class)
     for loop_cif in data_cif.loops:
-        loop_obj = loop_to_loopn(loop_cif, l_loop_class)
-        l_item.append(loop_obj)
+        l_loop_obj = loop_to_loopn(loop_cif, l_loop_class)
+        l_item.extend(l_loop_obj)
     return l_item
 
 
@@ -185,10 +185,11 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                 l_cls_global.append(type(item))
 
         for loop_cif in global_cif.loops:
-            loop_obj = loop_to_loopn(loop_cif, l_loop_class)
-            l_global_item.append(loop_obj)
-            if type(loop_obj) not in l_cls_global:
-                l_cls_global.append(type(loop_obj))
+            l_loop_obj = loop_to_loopn(loop_cif, l_loop_class)
+            l_global_item.extend(l_loop_obj)
+            for loop_obj in l_loop_obj:
+                if type(loop_obj) not in l_cls_global:
+                    l_cls_global.append(type(loop_obj))
 
     for data_cif in global_cif.datas:
         flag = False
@@ -213,10 +214,11 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                     l_cls_data.append(type(item))
 
             for loop_cif in data_cif.loops:
-                loop_obj = loop_to_loopn(loop_cif, l_loop_class)
-                l_data_item.append(loop_obj)
-                if type(loop_obj) not in l_cls_data:
-                    l_cls_data.append(type(loop_obj))
+                l_loop_obj = loop_to_loopn(loop_cif, l_loop_class)
+                l_data_item.extend(l_loop_obj)
+                for loop_obj in l_loop_obj:
+                    if type(loop_obj) not in l_cls_data:
+                        l_cls_data.append(type(loop_obj))
 
             if len(l_data_item) > 0:
                 data_obj = items_to_datan(data_cif.name, l_data_item,
@@ -228,20 +230,121 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
     return global_obj
 
 
+def find_name_prefix(loop_name, l_loop_prefix):
+    """Find name prefix."""
+    loop_name = loop_name.strip("_")
+    l_loop = [loop_prefix for loop_prefix in l_loop_prefix if
+              loop_name.startswith(loop_prefix)]
+    if len(l_loop) > 0:
+        l_loop.sort(key=lambda x: len(x))
+        prefix = l_loop[-1]
+        name = loop_name.strip("_")[len(prefix)+1:]
+        separator = loop_name.strip("_")[len(prefix)]
+        return prefix, name, separator
+    return None, None, None
+
+
 # TODO: l_item_class should be added as not necessary l_loop_class fully
 #       correspond to l_item_class
 def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
-    """Transform Items object to items of ItemN classes."""
-    prefix = loop_cif.prefix
-    flag = False
-    for cls_loop in l_loop_class:
-        if f"_{cls_loop.ITEM_CLASS.PREFIX:}" == prefix:
-            loop_obj = cls_loop.from_cif(str(loop_cif))
-            flag = True
-            break
-    if not(flag):
-        loop_obj = LoopN.from_cif(str(loop_cif))
-    return loop_obj
+    """Transform Loop object to ItemN objects."""
+    # l_item_class for future.
+    l_item_class = []
+    l_item_prefix = [item_cls.PREFIX for item_cls in l_item_class]
+    l_loop_prefix = [loop_cls.ITEM_CLASS.PREFIX for loop_cls in l_loop_class]
+    l_loop_name = [name.lower() for name in loop_cif.names]
+    flag_id = False
+    flag_label = False
+    flag_type = False
+    l_loop_prefix_in = []
+    l_loop_name_in = []
+    l_loop_separator_in = []
+    for loop_name in l_loop_name:
+        prefix, name, separator = find_name_prefix(loop_name,
+                                                   l_loop_prefix)
+        if prefix is not None:
+            l_name_allowed = [h.lower() for h in l_loop_class[
+                l_loop_prefix.index(prefix)].ITEM_CLASS.ATTR_CIF]
+            if not(name.lower() in l_name_allowed):
+                prefix = None
+                name = None
+        if (prefix is None) | (name is None):
+            prefix, name, separator = find_name_prefix(loop_name,
+                                                       l_item_prefix)
+            if prefix is not None:
+                l_name_allowed = [h.lower() for h in l_item_class[
+                    l_item_prefix.index(prefix)].ATTR_CIF]
+                if not(name.lower() in l_name_allowed):
+                    prefix = None
+                    name = None
+        if (prefix is None) | (name is None):
+            if loop_name.find(".") != -1:
+                prefix, name = loop_name.strip("_").split(".")[:2]
+                separator = "."
+            else:
+                prefix = loop_name.strip("_").split("_")[0]
+                name = loop_name.strip("_")[len(prefix)+1:]
+                separator = "_"
+        if name.lower() == "id":
+            flag_id = True
+            prefix_id = prefix
+            loop_name_id = loop_name
+        if name.lower() == "label":
+            flag_label = True
+            prefix_label = prefix
+            loop_name_label = loop_name
+        if name.lower() == "type":
+            flag_type = True
+            prefix_type = prefix
+            loop_name_type = loop_name
+        l_loop_prefix_in.append(prefix)
+        l_loop_name_in.append(name)
+        l_loop_separator_in.append(separator)
+
+    s_loop_prefix_in = set(l_loop_prefix_in)
+    l_loopn = []
+    for prefix in s_loop_prefix_in:
+        item_cls = ItemN
+        loop_cls = LoopN
+        if prefix in l_loop_prefix:
+            loop_cls = l_loop_class[l_loop_prefix.index(prefix)]
+        elif prefix in l_item_prefix:
+            # for future
+            item_cls = l_item_class[l_loop_prefix.index(prefix)]
+        l_loop_name_cif = []
+        ll_val_cif = []
+        separator = "_"
+        for loop_name, prefix_in, name_in, separator_in in zip(
+                l_loop_name, l_loop_prefix_in, l_loop_name_in,
+                l_loop_separator_in):
+            if prefix == prefix_in:
+                l_loop_name_cif.append(loop_name)
+                ll_val_cif.append(loop_cif[loop_name])
+                separator = separator_in
+        if flag_id:
+            if prefix_id != prefix:
+                loop_new_name_id = "_"+prefix+f"{separator:}id"
+                l_loop_name_cif.append(loop_new_name_id)
+                ll_val_cif.append(loop_cif[loop_name_id])
+        elif flag_label:
+            if prefix_label != prefix:
+                loop_new_name_label = "_"+prefix+f"{separator:}label"
+                l_loop_name_cif.append(loop_new_name_label)
+                ll_val_cif.append(loop_cif[loop_name_label])
+        elif flag_type:
+            if prefix_type != prefix:
+                loop_new_name_type = "_"+prefix+f"{separator:}type"
+                l_loop_name_cif.append(loop_new_name_type)
+                ll_val_cif.append(loop_cif[loop_name_type])
+        ll_val_cif_t = [[ll_val_cif[i_2][i_1] for i_2 in range(len(
+            ll_val_cif))] for i_1 in range(len(ll_val_cif[0]))]
+        obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t)
+        loopn = loop_cls.from_cif(str(obj))
+        if not(loopn is None):
+            l_loopn.append(loopn)
+        else:
+            print("l_loop_name_cif: \n", l_loop_name_cif)
+    return l_loopn
 
 
 def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
