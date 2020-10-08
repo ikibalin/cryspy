@@ -185,6 +185,17 @@ class ItemN(object):
         for key in l_del_name:
             del self.__dict__[key]
 
+    def is_attribute(self, name:str):
+        """Give True if attribute is defined."""
+        flag = True
+        try:
+            val = getattr(self, name)
+            if val is None:  # temporary solution
+                flag = False
+        except AttributeError:
+            flag = False
+        return flag
+
     def is_defined(self) -> bool:
         """
         If all mandatory attributes is defined.

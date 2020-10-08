@@ -183,7 +183,36 @@ class Pd2d(DataN):
                     l_refln_susceptibility_in, l_dd_in):
             phase_label = item_phase.label
             phase_scale = item_phase.scale
-            phase_igsize = item_phase.igsize
+            try:
+                phase_igsize = item_phase.igsize
+                if phase_igsize is None: phase_igsize = 0. # temporary solution
+            except AttributeError:
+                phase_igsize = 0.
+            try:
+                phase_u = item_phase.u
+                if phase_u is None: phase_u = 0. # temporary solution
+            except AttributeError:
+                phase_u = 0.
+            try:
+                phase_v = item_phase.v
+                if phase_v is None: phase_v = 0. # temporary solution
+            except AttributeError:
+                phase_v = 0.
+            try:
+                phase_w = item_phase.w
+                if phase_w is None: phase_w = 0. # temporary solution
+            except AttributeError:
+                phase_w = 0.
+            try:
+                phase_x = item_phase.x
+                if phase_x is None: phase_x = 0. # temporary solution
+            except AttributeError:
+                phase_x = 0.
+            try:
+                phase_y = item_phase.y
+                if phase_y is None: phase_y = 0. # temporary solution
+            except AttributeError:
+                phase_y = 0.
 
             dd_out = {}
             for i_crystal, crystal in enumerate(l_crystal):
@@ -284,7 +313,11 @@ class Pd2d(DataN):
             tth_hkl = tth_hkl_rad*180./numpy.pi
 
             cond_1 = dd_in is not None
-            cond_2 = ((not(item_phase.igsize_refinement)) &
+            flag_phase_uvwxy_ref = (
+                item_phase.igsize_refinement | item_phase.u_refinement |
+                item_phase.v_refinement | item_phase.w_refinement |
+                item_phase.x_refinement | item_phase.y_refinement)
+            cond_2 = ((not(flag_phase_uvwxy_ref)) &
                       (not(self.pd2d_instr_resolution.is_variables())) &
                       (not(setup.is_variables())))
             if cond_1 & cond_2:
@@ -292,7 +325,9 @@ class Pd2d(DataN):
                 h_pv = dd_in["h_pv"]
             else:
                 profile_3d, tth_zs, h_pv = self.calc_shape_profile(
-                    tth, phi, tth_hkl, phase_igsize)
+                    tth, phi, tth_hkl, phase_igsize=phase_igsize,
+                    phase_u=phase_u, phase_v=phase_v, phase_w=phase_w,
+                    phase_x=phase_x, phase_y=phase_y)
             dd_out["profile_3d"] = profile_3d
             dd_out["tth_zs"] = tth_zs
             dd_out["h_pv"] = h_pv
@@ -606,7 +641,10 @@ class Pd2d(DataN):
         al, bl = self.al, self.bl
         self.lor_pd = al*1./(1.+bl*tth_2d**2)
 
-    def calc_shape_profile(self, tth, phi, tth_hkl, i_g=0.):
+    def calc_shape_profile(
+            self, tth, phi, tth_hkl, phase_igsize: float = 0.,
+            phase_u: float = 0., phase_v: float = 0., phase_w: float = 0.,
+            phase_x: float = 0., phase_y: float = 0.):
         """
         Calculate profile in the range ttheta.
 
@@ -622,7 +660,8 @@ class Pd2d(DataN):
         resolution = self.pd2d_instr_resolution
 
         h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l = resolution.calc_resolution(
-                                                  tth_hkl, i_g=i_g)
+            tth_hkl, phase_igsize=phase_igsize, phase_u=phase_u,
+            phase_v=phase_v, phase_w=phase_w, phase_x=phase_x, phase_y=phase_y)
 
         tth_3d, phi_3d, tth_hkl_3d = numpy.meshgrid(tth_zs, phi, tth_hkl,
                                                     indexing="ij")

@@ -86,12 +86,13 @@ class MagCrystal(DataN):
             DESCRIPTION.
 
         """
-        atom_site = self.atom_site
-        atom_site_scat = self.atom_site_scat
-        atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)
+        try:
+            atom_site = self.atom_site
+            atom_site_scat = self.atom_site_scat
+            atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)
+        except AttributeError:
+            pass
 
-
-        pass
         # space_group = self.space_group
         # space_group_wyckoff = space_group.space_group_wyckoff
 

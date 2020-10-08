@@ -81,30 +81,31 @@ class Pd2dInstrResolution(ItemN):
 
         self.c_th = res
         self.ic_th = 1./res
-        
-    def _calc_hg(self, i_g = 0.):
+
+    def _calc_hg(self, phase_igsize: float = 0., phase_u: float = 0.,
+                 phase_v: float = 0., phase_w: float = 0.):
         """
         ttheta in radians, could be array
         gauss size
         """
-        u, v, w = float(self.u), float(self.v), float(self.w)
+        u, v = float(self.u)+phase_u, float(self.v)+phase_v
+        w = float(self.w)+phase_w
         res_sq = (u*self.t_th_sq + v*self.t_th + w + 
-                  i_g*self.ic_th**2)
+                  phase_igsize*self.ic_th**2)
         self.hg = numpy.sqrt(res_sq)
-        
-    def _calc_hl(self):
+
+    def _calc_hl(self, phase_x: float = 0., phase_y: float = 0.):
         """
         ttheta in radians, could be array
         lorentz site
         """
-        x, y = float(self.x), float(self.y)
+        x, y = float(self.x)+phase_x, float(self.y)+phase_y
         self.hl = x*self.t_th + y*self.ic_th
-
 
     def _calc_hpveta(self):
         """
-ttheta in radians, could be array
-pseudo-Voight function
+        ttheta in radians, could be array
+        pseudo-Voight function
         """
         hg = self.hg
         hl = self.hl
@@ -131,14 +132,18 @@ pseudo-Voight function
         self.al = 2./(numpy.pi*hpv )
         self.bl = 4./(hpv**2)
     
-    def calc_resolution(self, tth_hkl, i_g = 0.):
+    def calc_resolution(
+            self, tth_hkl, phase_igsize: float = 0., phase_u: float = 0.,
+            phase_v: float = 0., phase_w: float = 0., phase_x: float = 0.,
+            phase_y: float = 0.):
         """
 Calculate parameters for tth
 tth_hkl in degrees
         """
         self._calc_tancos(0.5*tth_hkl*numpy.pi/180.)
-        self._calc_hg(i_g = i_g)
-        self._calc_hl()
+        self._calc_hg(phase_igsize=phase_igsize, phase_u=phase_u,
+                      phase_v=phase_v, phase_w=phase_w)
+        self._calc_hl(phase_x=phase_x, phase_y=phase_y)
         self._calc_hpveta()
         self._calc_agbg()
         self._calc_albl()
