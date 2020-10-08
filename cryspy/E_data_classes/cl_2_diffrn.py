@@ -127,8 +127,12 @@ class Diffrn(DataN):
         setup = self.setup
         wavelength = setup.wavelength
         field_norm = setup.field
-        ratio_lambdaover2 = setup.ratio_lambdaover2
-        flag_lambdaover2 = ratio_lambdaover2 is not None
+        try:
+            ratio_lambdaover2 = setup.ratio_lambdaover2
+            flag_lambdaover2 = True
+        except AttributeError:
+            ratio_lambdaover2 = None
+            flag_lambdaover2 = False
 
         diffrn_orient_matrix = self.diffrn_orient_matrix
         u_matrix = diffrn_orient_matrix.u
@@ -138,8 +142,8 @@ class Diffrn(DataN):
         polarization = diffrn_radiation.polarization
         flipper_efficiency = diffrn_radiation.efficiency
 
-        extinction = self.extinction
-        if extinction is not None:
+        if self.is_attribute("extinction"):
+            extinction = self.extinction
             model_extinction = extinction.model
             radius = extinction.radius
             mosaicity = extinction.mosaicity

@@ -324,8 +324,8 @@ class LoopN(object):
         prefix = item_0.PREFIX
         ls_out_2 = []
         for name, name_cif in zip(item_0.ATTR_NAMES, item_0.ATTR_CIF):
-            value = getattr(item_0, name)
-            if value is not None:
+            flag_value = item_0.is_attribute(name)
+            if flag_value:
                 ls_out.append(f"_{prefix:}{separator:}{name_cif:}")
                 list_value = [getattr(item, f"{name}_as_string")
                               for item in self.items]

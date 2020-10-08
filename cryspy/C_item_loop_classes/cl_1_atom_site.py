@@ -98,7 +98,7 @@ class AtomSite(ItemN):
             setattr(self, key, attr)
 
     def form_object(self) -> bool:
-        if self.space_group_wyckoff is not None:
+        if self.is_attribute("space_group_wyckoff"):
             space_group_wyckoff = self.space_group_wyckoff
             self.__dict__["multiplicity"] = space_group_wyckoff.multiplicity
             self.__dict__["wyckoff_symbol"] = space_group_wyckoff.letter
@@ -137,10 +137,9 @@ class AtomSite(ItemN):
 
     def apply_constraints(self, space_group_wyckoff_l) -> bool:
         """Apply constraints."""
-        space_group_wyckoff = self.space_group_wyckoff
-        if space_group_wyckoff is None:
+        flag = not(self.is_attribute("space_group_wyckoff"))
+        if flag:
             self.define_space_group_wyckoff(space_group_wyckoff_l)
-            space_group_wyckoff = self.space_group_wyckoff
         if self.is_defined():
             self.form_object()
 
@@ -148,8 +147,8 @@ class AtomSite(ItemN):
         """
         According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147.
         """
-        if self.constr_number is not None:
-            return self.constr_number 
+        if self.is_attribute("constr_number"):
+            return self.constr_number
         x, y, z = self.fract_x, self.fract_y, self.fract_z
         o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 =\
             space_group.calc_el_symm_for_xyz(x,y,z)
@@ -218,7 +217,7 @@ class AtomSite(ItemN):
         elif r_22 == 2*r_12:
             numb = 15
         else:
-            numb = 0 # no constraint
+            numb = 0  # no constraint
         self.__dict__["constr_number"] = numb
         return numb
 
@@ -227,24 +226,25 @@ class AtomSite(ItemN):
         s_out = f'{self.label.rjust(10):}: {self.scat_length_neutron: .3f}'
         return s_out
 
-class AtomSiteL(LoopN):
-    """
-    Description of AtomSite in loop.
 
-    """
+class AtomSiteL(LoopN):
+    """Description of AtomSite in loop."""
+
     ITEM_CLASS = AtomSite
     ATTR_INDEX = "label"
 
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name=None) -> NoReturn:
         super(AtomSiteL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
 
     def apply_constraints(self, space_group_wyckoff_l) -> bool:
+        """Apply constraints."""
         for item in self.items:
             item.apply_constraints(space_group_wyckoff_l)
 
     def calc_constr_number(self, space_group):
+        """Calc constr number."""
         l_numb = [item.calc_constr_number(space_group) for item in self.items]
         return l_numb
 
@@ -254,15 +254,15 @@ class AtomSiteL(LoopN):
         return "\n".join(ls_out)
 
 # s_cont = """
-#  loop_                                     
-#  _atom_site_label          
-#  _atom_site_type_symbol   
-#  _atom_site_fract_x       
-#  _atom_site_fract_y       
-#  _atom_site_fract_z       
-#  _atom_site_adp_type       
+#  loop_
+#  _atom_site_label
+#  _atom_site_type_symbol
+#  _atom_site_fract_x
+#  _atom_site_fract_y
+#  _atom_site_fract_z
+#  _atom_site_adp_type
 #  _atom_site_B_iso_or_equiv
-#  _atom_site_occupancy     
+#  _atom_site_occupancy
 #   Fe3A   Fe  0.12500 0.12500 0.12500  Uani   0.0   1.0
 #   Fe3B   Fe  0.50000 0.50000 0.50000  Uani   0.0   1.0
 #   O1     O   0.25521 0.25521 0.25521  Uiso   0.0   1.0

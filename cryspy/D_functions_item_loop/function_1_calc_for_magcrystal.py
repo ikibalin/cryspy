@@ -42,7 +42,10 @@ def calc_b_iso_beta(cell: Cell, atom_site: AtomSiteL,
     coeff = float(8.*numpy.pi**2)
     for item_a_s in a_s.items:
         label_atom = item_a_s.label
-        adp_type = item_a_s.adp_type
+        try:
+            adp_type = item_a_s.adp_type
+        except AttributeError:
+            adp_type = None
         b_iso = 0.
         beta = (0., 0., 0., 0., 0., 0.)
         if adp_type == "Uiso":
@@ -118,7 +121,7 @@ def calc_f_nucl(
     # FIXME: temporary solution
     try:
         atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
-    except TypeError:
+    except AttributeError:
         atom_multiplicity = calc_multiplicity(full_sym_elems, fract_xyz)
 
     scat_length_neutron = numpy.array(atom_site.scat_length_neutron,
@@ -198,8 +201,9 @@ def calc_f_mag(
         l_y.append(atom_site_item.fract_y)
         l_z.append(atom_site_item.fract_z)
         l_occ.append(atom_site_item.occupancy)
-        l_mult.append(atom_site_item.multiplicity)
-        if atom_site_item.multiplicity is None:
+        try:
+            l_mult.append(atom_site_item.multiplicity)
+        except AttributeError:
             flag_calc_multiplicity = True
 
     occupancy = numpy.array(l_occ, dtype=float)

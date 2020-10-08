@@ -1,7 +1,7 @@
 """Description of Pd class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
-from warnings import warn
+
 import numpy
 from typing import NoReturn
 
@@ -34,9 +34,6 @@ from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import Texture
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
-
-from cryspy.D_functions_item_loop.function_1_flip_ratio import \
-    calc_intensity_up_down
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal

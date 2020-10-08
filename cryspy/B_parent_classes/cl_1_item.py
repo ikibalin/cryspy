@@ -74,8 +74,9 @@ class ItemN(object):
         """
         if name.endswith("_as_string"):
             name_sh = name[:-(len("_as_string"))]
-            val = getattr(self, name_sh)
-            if val is None:
+            try:
+                val = getattr(self, name_sh)
+            except AttributeError:
                 return "."
             flag_ref = False
             keys = self.__dict__.keys()
@@ -98,17 +99,21 @@ class ItemN(object):
             return res
         if name in (self.ATTR_NAMES + self.ATTR_SIGMA
                     + self.ATTR_INT_PROTECTED_NAMES):
-            return None
+            raise AttributeError(f"Attribute '{name:}' is not defined in \
+'{type(self).__name__:}'")
+            # return None
         elif name in self.ATTR_INT_NAMES:
             if self.is_defined():
                 # print("is_defined: ", self.is_defined())
                 self.form_object()
                 return self.__dict__[name]
             else:
-                return None
+                raise AttributeError(f"Attribute '{name:}' is not defined in \
+'{type(self).__name__:}'")
+                # return None
         else:
-            raise AttributeError(
-                f"'{type(self).__name__:}' object has no attribute '{name:}'")
+            raise AttributeError(f"Attribute '{name:}' is not defined in \
+'{type(self).__name__:}'")
 
     def __setattr__(self, name: str, value) -> NoReturn:
         """
@@ -185,7 +190,7 @@ class ItemN(object):
         for key in l_del_name:
             del self.__dict__[key]
 
-    def is_attribute(self, name:str):
+    def is_attribute(self, name: str):
         """Give True if attribute is defined."""
         flag = True
         try:
@@ -208,16 +213,16 @@ class ItemN(object):
         """
         flag = True
         for name in self.ATTR_MANDATORY_NAMES:
-            if getattr(self, name) is None:
-                flag = False
+            flag = self.is_attribute(name)
+            if not(flag):
                 break
         if (len(self.ATTR_MANDATORY_NAMES) == 0):
             flag = False
             for name in self.ATTR_OPTIONAL_NAMES:
                 # print(name, getattr(self, name))
                 if name in self.__dict__.keys():
-                    if getattr(self, name) is not None:
-                        flag = True
+                    flag = self.is_attribute(name)
+                    if flag:
                         break
         return flag
 
@@ -249,12 +254,12 @@ class ItemN(object):
         ls_out = []
         prefix = self.PREFIX
         for name, name_cif in zip(self.ATTR_NAMES, self.ATTR_CIF):
-            value = getattr(self, name)
-            if ((value is not None) | flag_all_attributes):
-                if value is None:
-                    s_val = "."
+            flag_value = self.is_attribute(name)
+            if (flag_value | flag_all_attributes):
+                if flag_value:
+                    s_val = str(getattr(self, name))
                 else:
-                    s_val = str(value)
+                    s_val = "."
                 l_s_val = s_val.split("\n")
                 if len(l_s_val) > 1:
                     ls_out.append(f"_{prefix:}{separator:}{name_cif:}")

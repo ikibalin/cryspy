@@ -153,7 +153,10 @@ class Crystal(DataN):
         cell = self.cell
         for item_a_s in a_s.items:
             label_atom = item_a_s.label
-            adp_type = item_a_s.adp_type
+            try:
+                adp_type = item_a_s.adp_type
+            except AttributeError:
+                adp_type = None
             b_iso = 0.
             beta = (0., 0., 0., 0., 0., 0.)
             if adp_type == "Uiso":
@@ -357,39 +360,65 @@ class Crystal(DataN):
             return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33,\
                 sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33
 
-        chi_11 = numpy.array(atom_site_susceptibility.chi_11, dtype=float)
-        chi_22 = numpy.array(atom_site_susceptibility.chi_22, dtype=float)
-        chi_33 = numpy.array(atom_site_susceptibility.chi_33, dtype=float)
-        chi_12 = numpy.array(atom_site_susceptibility.chi_12, dtype=float)
-        chi_13 = numpy.array(atom_site_susceptibility.chi_13, dtype=float)
-        chi_23 = numpy.array(atom_site_susceptibility.chi_23, dtype=float)
+        n_item = len(atom_site_susceptibility.items)
 
-        chi_11[numpy.isnan(chi_11)] = 0.
-        chi_22[numpy.isnan(chi_22)] = 0.
-        chi_33[numpy.isnan(chi_33)] = 0.
-        chi_12[numpy.isnan(chi_12)] = 0.
-        chi_13[numpy.isnan(chi_13)] = 0.
-        chi_23[numpy.isnan(chi_23)] = 0.
+        try:
+            chi_11 = numpy.array(atom_site_susceptibility.chi_11, dtype=float)
+        except AttributeError:
+            chi_11 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            chi_22 = numpy.array(atom_site_susceptibility.chi_22, dtype=float)
+        except AttributeError:
+            chi_22 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            chi_33 = numpy.array(atom_site_susceptibility.chi_33, dtype=float)
+        except AttributeError:
+            chi_33 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            chi_12 = numpy.array(atom_site_susceptibility.chi_12, dtype=float)
+        except AttributeError:
+            chi_12 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            chi_13 = numpy.array(atom_site_susceptibility.chi_13, dtype=float)
+        except AttributeError:
+            chi_13 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            chi_23 = numpy.array(atom_site_susceptibility.chi_23, dtype=float)
+        except AttributeError:
+            chi_23 = numpy.zeros(shape=(n_item, ), dtype=float)
 
-        moment_11 = numpy.array(atom_site_susceptibility.moment_11,
-                                dtype=float)
-        moment_22 = numpy.array(atom_site_susceptibility.moment_22,
-                                dtype=float)
-        moment_33 = numpy.array(atom_site_susceptibility.moment_33,
-                                dtype=float)
-        moment_12 = numpy.array(atom_site_susceptibility.moment_12,
-                                dtype=float)
-        moment_13 = numpy.array(atom_site_susceptibility.moment_13,
-                                dtype=float)
-        moment_23 = numpy.array(atom_site_susceptibility.moment_23,
-                                dtype=float)
+        try:
+            moment_11 = numpy.array(atom_site_susceptibility.moment_11,
+                                    dtype=float)
+        except AttributeError:
+            moment_11 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            moment_22 = numpy.array(atom_site_susceptibility.moment_22,
+                                    dtype=float)
+        except AttributeError:
+            moment_22 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            moment_33 = numpy.array(atom_site_susceptibility.moment_33,
+                                    dtype=float)
+        except AttributeError:
+            moment_33 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            moment_12 = numpy.array(atom_site_susceptibility.moment_12,
+                                    dtype=float)
+        except AttributeError:
+            moment_12 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            moment_13 = numpy.array(atom_site_susceptibility.moment_13,
+                                    dtype=float)
+        except AttributeError:
+            moment_13 = numpy.zeros(shape=(n_item, ), dtype=float)
+        try:
+            moment_23 = numpy.array(atom_site_susceptibility.moment_23,
+                                    dtype=float)
+        except AttributeError:
+            moment_23 = numpy.zeros(shape=(n_item, ), dtype=float)
 
-        moment_11[numpy.isnan(moment_11)] = 0.
-        moment_22[numpy.isnan(moment_22)] = 0.
-        moment_33[numpy.isnan(moment_33)] = 0.
-        moment_12[numpy.isnan(moment_12)] = 0.
-        moment_13[numpy.isnan(moment_13)] = 0.
-        moment_23[numpy.isnan(moment_23)] = 0.
+
 
         atom_site = self.atom_site
         atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)

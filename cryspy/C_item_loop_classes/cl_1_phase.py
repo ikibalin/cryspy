@@ -1,18 +1,18 @@
+"""Description of Phase and PhaseL classes."""
 from typing import NoReturn
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Phase(ItemN):
-    """
-    Mandatory attributes:
-        - label
+    """Phase class.
 
-    Optional attributes:
-        - scale
-        - igsize
-
+    Attributes
+    ----------
+        - label (mandatory)
+        - scale, igsize, u, v, w, x, y (optional)
     """
+
     ATTR_MANDATORY_NAMES = ("label",)
     ATTR_MANDATORY_TYPES = (str, )
     ATTR_MANDATORY_CIF = ("label", )
@@ -39,6 +39,7 @@ class Phase(ItemN):
 
     # default values for the parameters
     D_DEFAULT = {}
+
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
@@ -64,13 +65,18 @@ class Phase(ItemN):
 
 
 class PhaseL(LoopN):
-    """
-    Description of Loop in loop.
+    """Description of Loop in loop.
 
+    Attributes
+    ----------
+        - label (mandatory)
+        - scale, igsize, u, v, w, x, y (optional)
     """
+
     ITEM_CLASS = Phase
     ATTR_INDEX = "label"
-    def __init__(self, loop_name = None) -> NoReturn:
+
+    def __init__(self, loop_name: str = None) -> NoReturn:
         super(PhaseL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name

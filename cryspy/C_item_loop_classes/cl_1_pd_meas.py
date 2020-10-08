@@ -8,43 +8,25 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class PdMeas(ItemN):
-    """
-    PdInstrReflexAsymmetry describes asymmetry of Bragg reflections for
-    1d powder diffractometer.
+    """PdMeas class.
 
-    Mandatory attributes:
-        - ub_11, ub_12, ub_13, ub_21, ub_22, ub_23, ub_31, ub_32, ub_33
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    Attributes
+    ----------
+        - ttheta (mandatory)
+        - intensity_up, intensity_up_sigma, intensity_down,
+          intensity_down_sigma, intensity, intensity_sigma (optional)
     """
     ATTR_MANDATORY_NAMES = ("ttheta", )
     ATTR_MANDATORY_TYPES = (float, )
     ATTR_MANDATORY_CIF = ("2theta", )
 
-    ATTR_OPTIONAL_NAMES = ("intensity_up", "intensity_up_sigma", 
-                           "intensity_down", "intensity_down_sigma", 
-                          "intensity", "intensity_sigma")
+    ATTR_OPTIONAL_NAMES = ("intensity_up", "intensity_up_sigma",
+                           "intensity_down", "intensity_down_sigma",
+                           "intensity", "intensity_sigma")
     ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("intensity_up", "intensity_up_sigma", 
-                           "intensity_down", "intensity_down_sigma", 
-                          "intensity", "intensity_sigma")
+    ATTR_OPTIONAL_CIF = ("intensity_up", "intensity_up_sigma",
+                         "intensity_down", "intensity_down_sigma",
+                         "intensity", "intensity_sigma")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -99,7 +81,8 @@ class PdMeas(ItemN):
 
 
 class PdMeasL(LoopN):
-    """
+    """PdMeasL class.
+
     This section contains the measured diffractogram and information
     about the conditions used for the measurement of the diffraction 
     data set, prior to processing and application of correction
@@ -120,32 +103,28 @@ class PdMeasL(LoopN):
     as the square root of the number of counts recorded, should
     use the _pd_meas_counts_ fields. All other intensity values
     should be recorded using _pd_meas_intensity_.
-
     """
 
     ITEM_CLASS = PdMeas
     ATTR_INDEX = "ttheta"
-    def __init__(self, loop_name = None) -> NoReturn:
+
+    def __init__(self, loop_name: str = None) -> NoReturn:
         super(PdMeasL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
-   
+
     def is_polarized(self):
-        """
-        True if polaraized data are defined
-
-        and
-
-        False for unpolaraized data
-        """
+        """Give True if polaraized data are defined."""
         flag = False
         if len(self.items) != 0:
-            if ((self.items[0].intensity_up is not None) &
-                (self.items[0].intensity_down is not None)):
-                flag = True
+            items_0 = self.items[0]
+            flag_up = items_0.is_attribute("intensity_up")
+            flag_down = items_0.is_attribute("intensity_down")
+            flag = flag_up & flag_down
         return flag
 
     def apply_constraints(self):
+        """Redefined applyied constraints."""
         for item in self.items:
             item.apply_constraints()
 
