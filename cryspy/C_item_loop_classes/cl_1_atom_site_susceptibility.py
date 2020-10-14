@@ -117,10 +117,10 @@ class AtomSiteSusceptibility(ItemN):
         label = atom_site.label
         index = label.index(label_aniso)
 
-        flag_chi = (self.chi_type is not None)
+        flag_chi = self.is_attribute("chi_type")
         if flag_chi:
             flag_chi = self.chi_type.lower().startswith("cani")
-        flag_moment = (self.moment_type is not None)
+        flag_moment = self.is_attribute("moment_type")
         if flag_moment:
             flag_moment = self.moment_type.lower().startswith("mani")
         if flag_chi:
@@ -223,9 +223,9 @@ class AtomSiteSusceptibility(ItemN):
         c_ib = cell.cos_ib
         c_ig = cell.cos_ig
         # not sure, it is better to check
-        chi_type = self.chi_type
-        if chi_type is None:
+        if not(self.is_attribute("chi_type")):
             return
+        chi_type = self.chi_type
         if chi_type.lower().startswith("ciso"):
             self.__dict__["chi_22"] = self.chi_11
             self.__dict__["chi_33"] = self.chi_11
@@ -257,9 +257,9 @@ class AtomSiteSusceptibility(ItemN):
         c_ib = cell.cos_ib
         c_ig = cell.cos_ig
         # not sure, it is better to check
-        moment_type = self.moment_type
-        if moment_type is None:
+        if not(self.is_attribute("moment_type")):
             return
+        moment_type = self.moment_type
         if moment_type.lower().startswith("miso"):
             self.__dict__["moment_22"] = self.moment_11
             self.__dict__["moment_33"] = self.moment_11

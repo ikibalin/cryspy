@@ -51,7 +51,7 @@ class Phase(ItemN):
         super(Phase, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"igsize": 0.}
+        D_MIN = {"igsize": 0., "x": 0., "y": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}

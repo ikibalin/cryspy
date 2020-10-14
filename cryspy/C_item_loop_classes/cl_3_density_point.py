@@ -378,12 +378,14 @@ class DensityPointL(LoopN):
 
             for sh_pop in l_sh_pop:
                 shell, population = sh_pop
-
+                obj = None
                 for arors in l_arors:
-                    l_val = getattr(arors, f"coeff_{shell:}")
-                    if not(any([_ is None for _ in l_val])):
+                    try:
+                        l_val = getattr(arors, f"coeff_{shell:}")
                         obj = arors
                         break
+                    except AttributeError:
+                        pass
                 if obj is not None:
                     rho_sq = (obj.calc_normalized_rho(
                                 numpy_basin_atom_distance[flag_at_label],

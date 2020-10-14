@@ -41,7 +41,7 @@ with open(f_name, 'r') as f:
 
 setup(
     name='cryspy',
-    version='0.4.9',
+    version='0.4.11',
     description='PNPD data analysis',
     long_description = long_description,
     author='Iurii Kibalin',

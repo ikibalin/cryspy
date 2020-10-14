@@ -1,10 +1,5 @@
-"""
-Classes.
+"""AtomRhoOrbitalRadialSlater and AtomRhoOrbitalRadialSlaterL classes."""
 
-    - AtomRhoOrbitalRadialSlater
-    - AtomRhoOrbitalRadialSlaterL
-
-"""
 from typing import NoReturn
 import os
 import os.path
@@ -18,22 +13,22 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat
 
+
 class AtomRhoOrbitalRadialSlater(ItemN):
-    """
+    """AtomRhoOrbitalRadialSlater class.
+
     These items are used when the radial dependence of the
     electron density, R(k(l), l, r), of the atom specified in
     _atom_rho_orbital_atom_label is expressed as a Slater-type
     function [Hansen & Coppens (1978), equation (3)]:
 
-    Mandatory attributes:
-        - n0, zeta0
-
-    Optional attributes:
-        - coeff_1s, coeff_2s, coeff_3s, coeff_4s, coeff_5s, coeff_2p
-        - coeff_3p, coeff_4p, coeff_5p, coeff_3d, coeff_4d, coeff_5d
-        - coeff_4f, coeff_5f
-
+    Attributes
+        - n0, zeta0 (mandatory)
+        - coeff_1s, coeff_2s, coeff_3s, coeff_4s, coeff_5s, coeff_2p,
+          coeff_3p, coeff_4p, coeff_5p, coeff_3d, coeff_4d, coeff_5d,
+          coeff_4f, coeff_5f (optional)
     """
+
     ATTR_MANDATORY_NAMES = ("n0", "zeta0")
     ATTR_MANDATORY_TYPES = (int, float)
     ATTR_MANDATORY_CIF = ("n0", "zeta0")
@@ -94,21 +89,21 @@ class AtomRhoOrbitalRadialSlater(ItemN):
 
     def calc_normalized_rho(self, radius: numpy.array, kappa: float = 1.) -> \
             numpy.array:
-        """
-        Give normalized Slatter type function.
+        """Give normalized Slatter type function.
 
         R = ((2*zeta0)**(n0+0.5)/((2*n0)!)**0.5)*r**(n0-1)*exp(-zeta0*r)
         (see Clementi_1974)
 
-        Input arguments:
+        Arguments
+        ---------
+            - radius is numpy 1D array of float numbers in Angstrem
+            - kappa is describes contraction/extension of atomic orbital
 
-            radius is numpy 1D array of float numbers in Angstrem
-            kappa is describes contraction/extension of atomic orbital
+        Output
+        ------
+            - normalized radial density given as numpy 1D array of floats
 
-        Output arguments:
-            normalized radial density given as numpy 1D array of float numbers
-
-        Example:
+        Example
         -------
             >>> radius = numpy.linspace(0.,5,600)
             >>> rho = obj.calc_normalized_rho(radius)
@@ -124,9 +119,7 @@ class AtomRhoOrbitalRadialSlater(ItemN):
 
     def calc_jl(self, sthovl: numpy.array, l_max: int, kappa: float = 1.) -> \
             numpy.array:
-        """
-        Calculate jl for l from 0 until l_max of atomic orbital.
-        """
+        """Calculate jl for l from 0 until l_max of atomic orbital."""
         zeta0 = self.zeta0
         n0 = self.n0
         zeta_ang = kappa*zeta0/0.52918
@@ -139,25 +132,28 @@ class AtomRhoOrbitalRadialSlater(ItemN):
         jl = ql_2d*coeff_norm*coeff_norm*transs(l_max, nn, zeta, sthovl)
         return jl
 
+
 class AtomRhoOrbitalRadialSlaterL(LoopN):
-    """
+    """AtomRhoOrbitalRadialSlaterL class.
+
     These items are used when the radial dependence of the
     electron density, R(k(l), l, r), of the atom specified in
     _atom_rho_orbital_atom_label is expressed as a Slater-type
     function [Hansen & Coppens (1978), equation (3)]:
-
     """
+
     ITEM_CLASS = AtomRhoOrbitalRadialSlater
     ATTR_INDEX = "atom_label"
-    def __init__(self, loop_name = None) -> NoReturn:
+
+    def __init__(self, loop_name: str = None) -> NoReturn:
         super(AtomRhoOrbitalRadialSlaterL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
 
-
     def calc_normalized_rho(self, radius: numpy.array, shell: str, kappa=1.,
                             *argv) -> numpy.array:
-        """
+        """Calc normalized rho.
+
         Give normalized Slatter type function at given radius for given shell.
 
         $$
@@ -165,22 +161,21 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
         $$
         (see Clementi_1974)
 
-        Input arguments:
-        ----------------
-            radius is numpy 1D array of float numbers in Angstrem
-            shell is it is orbital shell
-            kappa is describes contraction/extension of atomic orbital
+        Arguments
+        ---------
+            - radius is numpy 1D array of float numbers in Angstrem
+            - shell is it is orbital shell
+            - kappa is describes contraction/extension of atomic orbital
 
-        Output arguments:
-        -----------------
-            normalized radial density given as numpy 1D array of float numbers
+        Output
+        ------
+            - normalized radial density given as numpy 1D array of floats
 
-        Example:
+        Example
         -------
             >>> radius = numpy.linspace(0.,5,600)
             >>> rho = obj.calc_rho(radius, "3d")
             >>> rho = obj.calc_rho(radius, "3d", "2s")
-
         """
         # transformation from atomic units to inverse angstrems
         l_shell = [shell]
@@ -202,6 +197,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
 
     @classmethod
     def take_objects_for_atom_type(cls, atom_type: str) -> list:
+        """Take objects for atom type."""
         l_arors = []
         f_dir = os.path.dirname(__file__)
         f_name = os.path.join(f_dir, "library.rcif")
@@ -219,8 +215,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
 
     def calc_jl_by_radial_density(self, sthovl, lmax: int, shell: str,
                                   kappa=1.):
-        """
-        Calculate <j_l> for given sthovl, l and shell.
+        """Calculate <j_l> for given sthovl, l and shell.
 
         $$
         <j_l> = sum_{n, dzeta} integral_{0}^{inf} R^{2}(n,dzeta,r) j_l(r*s) dr
@@ -242,7 +237,6 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
         np_q_2d, np_l_2d = numpy.meshgrid(np_q, np_l, indexing="ij")
         np_ql_2d = numpy.power(np_q_2d, np_l_2d)
 
-
         jl = np_ql_2d * calc_GCF(n0, zeta0, coeff, kappa,
                                  n0, zeta0, coeff, kappa,
                                  sthovl, lmax)
@@ -251,6 +245,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
     def refine_coefficients_by_jl(self, atom_type: str, shell: str,
                                   sthovl_min=0.0, sthovl_max=2.0, lande=2.,
                                   kappa=1., sthvl_num=100):
+        """Refine coefficients by jl."""
         ats = AtomTypeScat.form_by_symbol(atom_type)
 
         sthovl = numpy.linspace(sthovl_min, sthovl_max, num=int(sthvl_num))
@@ -271,7 +266,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
                                           T=0.1, stepsize=0.1, interval=20,
                                           disp=True)
         for _1, _2 in zip(fitable, res.x):
-            _1.value = abs(_2)# only positive coefficients, found minima
+            _1.value = abs(_2)  # only positive coefficients, found minima
 
         return res
 

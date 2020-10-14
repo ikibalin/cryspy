@@ -57,7 +57,7 @@ class Pd2dInstrResolution(ItemN):
         super(Pd2dInstrResolution, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {}
+        D_MIN = {"x": 0., "y": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}

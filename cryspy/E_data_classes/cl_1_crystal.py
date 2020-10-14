@@ -119,23 +119,17 @@ class Crystal(DataN):
         atom_site = self.atom_site
         atom_site.apply_constraints(space_group_wyckoff)
 
-        try:
+        if self.is_attribute("atom_site_aniso"):
             atom_site_aniso = self.atom_site_aniso
-            if atom_site_aniso is not None:
-                atom_site_aniso.apply_space_group_constraint(atom_site,
-                                                             space_group)
-        except AttributeError:
-            pass
+            atom_site_aniso.apply_space_group_constraint(
+                atom_site, space_group)
 
-        try:
+        if self.is_attribute("atom_site_susceptibility"):
             atom_site_susceptibility = self.atom_site_susceptibility
-            if atom_site_susceptibility is not None:
-                atom_site_susceptibility.apply_chi_iso_constraint(cell)
-                atom_site_susceptibility.apply_moment_iso_constraint(cell)
-                atom_site_susceptibility.apply_space_group_constraint(
-                    atom_site, space_group)
-        except AttributeError:
-            pass
+            atom_site_susceptibility.apply_chi_iso_constraint(cell)
+            atom_site_susceptibility.apply_moment_iso_constraint(cell)
+            atom_site_susceptibility.apply_space_group_constraint(
+                atom_site, space_group)
 
     def calc_b_iso_beta(self):
         """
