@@ -412,8 +412,6 @@ class Crystal(DataN):
         except AttributeError:
             moment_23 = numpy.zeros(shape=(n_item, ), dtype=float)
 
-
-
         atom_site = self.atom_site
         atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)
 
@@ -655,7 +653,7 @@ class Crystal(DataN):
                                      [_13, _23, _33]], dtype=float)
             m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc),
                                       m_m_norm.transpose())
-            val, vec = numpy.linalg.eig(m_chi_orto)
+            val, vec = numpy.linalg.eigh(m_chi_orto)
             D = numpy.diag(numpy.abs(val))  # only positive eigenvalues
             R = numpy.array(vec).transpose()
             chi_as_u_orto = numpy.matmul(R.transpose(), numpy.matmul(D, R))
@@ -672,12 +670,12 @@ class Crystal(DataN):
 
         The main axes are given in Cartezian coordinate system (x||a*, z||c).
 
-        Output Arguments:
-        ----------------
+        Output
+        ------
             arg1: the list of the suscetibility along main axes for each atom
             arg2: the list of directions for each atom
 
-        Example:
+        Example
         -------
             >>> # crystal is defined object of cryspy library;
             >>> # type(crystal) is Crystal
@@ -714,7 +712,7 @@ class Crystal(DataN):
             m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc),
                                       m_m_norm.transpose())
 
-            val, vec = numpy.linalg.eig(m_chi_orto)
+            val, vec = numpy.linalg.eigh(m_chi_orto)
             flag_error = (
                 math.isclose(sig_11, 0.) & math.isclose(sig_22, 0.) &
                 math.isclose(sig_33, 0.) & math.isclose(sig_12, 0.) &

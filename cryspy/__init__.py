@@ -67,11 +67,11 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2020, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.4.0"
+__version__ = "0.4.13"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "01.09.2020"
+__date__ = "20.10.2020"
 name = "cryspy"
 
 from .A_functions_base.function_1_algebra import \

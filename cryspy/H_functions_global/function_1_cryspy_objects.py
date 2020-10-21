@@ -301,6 +301,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
         l_loop_name_in.append(name)
         l_loop_separator_in.append(separator)
 
+
     s_loop_prefix_in = set(l_loop_prefix_in)
     l_loopn = []
     for prefix in s_loop_prefix_in:
@@ -340,6 +341,10 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
             ll_val_cif))] for i_1 in range(len(ll_val_cif[0]))]
         obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t)
         loopn = loop_cls.from_cif(str(obj))
+        if loopn is None:
+            loop_cls = LoopN
+            loopn = loop_cls.from_cif(str(obj))
+
         if not(loopn is None):
             l_loopn.append(loopn)
         else:

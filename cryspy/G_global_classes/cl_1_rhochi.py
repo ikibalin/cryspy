@@ -70,6 +70,9 @@ class RhoChi(GlobalN):
     def form_object(self):
         """Form object."""
         self.apply_constraint()
+        for item in self.items:
+            if item.is_defined():
+                item.form_object()
 
     def apply_constraint(self):
         """Apply constraints."""

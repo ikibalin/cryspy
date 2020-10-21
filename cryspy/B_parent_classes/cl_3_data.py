@@ -339,6 +339,7 @@ class DataN(object):
         """Form object."""
         pass
 
+
     def to_cif(self, separator="_") -> str:
         """Print information about object in string in STAR format.
 

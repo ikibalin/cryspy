@@ -6,30 +6,23 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 
 class Pd2dProc(ItemN):
     """
-    PdInstrReflexAsymmetry describes asymmetry of Bragg reflections for
-    1d powder diffractometer.
+    Pd2dProc class
 
-    Mandatory attributes:
-        - ub_11, ub_12, ub_13, ub_21, ub_22, ub_23, ub_31, ub_32, ub_33
+    Attributes
+    ----------
+        - ttheta_phi_intensity_up_net, ttheta_phi_intensity_down_net,
+          ttheta_phi_intensity_up_total, ttheta_phi_intensity_down_total,
+          ttheta_phi_intensity_bkg_calc, ttheta_phi_intensity_up,
+          ttheta_phi_intensity_up_sigma, ttheta_phi_intensity_down,
+          ttheta_phi_intensity_down_sigma (mandatory)
 
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
+    Internal
+    --------
+        - ttheta, phi, intensity_up_net, intensity_down_net,
+          intensity_up_total, intensity_down_total, intensity_bkg_calc,
+          intensity_up, intensity_up_sigma, intensity_down,
+          intensity_down_sigma
 
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
     """
     ATTR_MANDATORY_NAMES = (
         "ttheta_phi_intensity_up_net", "ttheta_phi_intensity_down_net",
@@ -97,14 +90,14 @@ class Pd2dProc(ItemN):
 
     def form_object(self) -> NoReturn:
         flag = True
-        if any([self.ttheta_phi_intensity_up_net is None, 
-                self.ttheta_phi_intensity_down_net is None, 
-                self.ttheta_phi_intensity_up_total is None, 
-                self.ttheta_phi_intensity_down_total is None, 
-                self.ttheta_phi_intensity_bkg_calc is None, 
-                self.ttheta_phi_intensity_up is None, 
+        if any([self.ttheta_phi_intensity_up_net is None,
+                self.ttheta_phi_intensity_down_net is None,
+                self.ttheta_phi_intensity_up_total is None,
+                self.ttheta_phi_intensity_down_total is None,
+                self.ttheta_phi_intensity_bkg_calc is None,
+                self.ttheta_phi_intensity_up is None,
                 self.ttheta_phi_intensity_up_sigma is None,
-                self.ttheta_phi_intensity_down is None, 
+                self.ttheta_phi_intensity_down is None,
                 self.ttheta_phi_intensity_down_sigma is None]):
             return False
         l_1 = (self.ttheta_phi_intensity_up_net).strip().split("\n")

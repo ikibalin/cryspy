@@ -145,6 +145,11 @@ class LoopN(object):
         else:
             self.__dict__[name] = val_new
 
+    def is_attribute(self, name: str):
+        """Give True if all attributes are defined."""
+        flag = all([item.is_attribute(name) for item in self.items])
+        return flag
+
     def numpy_to_items(self) -> NoReturn:
         """
         Transform all internal numpy arrays to elements of items.
@@ -174,6 +179,9 @@ class LoopN(object):
                     del_name.append(name)
         for name in del_name:
             del self.__dict__[name]
+
+    def form_object(self):
+        pass
 
     @classmethod
     def from_cif(cls, string: str):
