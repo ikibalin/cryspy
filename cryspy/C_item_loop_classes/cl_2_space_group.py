@@ -103,8 +103,9 @@ class SpaceGroup(ItemN):
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
 
-    ACCESIBLE_NAME_HM_ALT = frozenset(set(ACCESIBLE_NAME_HM_FULL.union(
-        set(ACCESIBLE_NAME_HM_EXTENDED))))
+    ACCESIBLE_NAME_HM_ALT = frozenset(
+        set(ACCESIBLE_NAME_HM_SHORT) | set(ACCESIBLE_NAME_HM_FULL) |
+        set(ACCESIBLE_NAME_HM_EXTENDED))
 
     # constraints on the parameters
     D_CONSTRAINTS = {
@@ -160,8 +161,8 @@ class SpaceGroup(ItemN):
             it_number = self.it_number
             it_coordinate_system_code = self.it_coordinate_system_code
         elif self.is_attribute("name_hm_alt"):
-            _res = get_type_hm(self.name_hm_alt)
-            if "extended" in _res:
+            t_res = get_type_hm(self.name_hm_alt)
+            if "extended" in t_res:
                 it_number, it_coordinate_system_codes = \
                     get_it_number_it_coordinate_system_codes_by_name_hm_extended(
                         self.name_hm_alt)
@@ -170,8 +171,10 @@ class SpaceGroup(ItemN):
                     it_coordinate_system_code = \
                         auto_choose_it_coordinate_system_code(
                             it_number, it_coordinate_system_codes)
-            elif "full" in _res:
+            elif "full" in t_res:
                 it_number = get_it_number_by_name_hm_full(self.name_hm_alt)
+            elif "short" in t_res:
+                it_number = get_it_number_by_name_hm_short(self.name_hm_alt)
         elif self.is_attribute("name_hm_ref"):
             it_number = get_it_number_by_name_hm_short(self.name_hm_ref)
         elif self.is_attribute("name_hall"):
@@ -268,14 +271,17 @@ class SpaceGroup(ItemN):
 
         if centrosymmetry is not None:
             self.__dict__["centrosymmetry"] = centrosymmetry
-        if name_hm_extended is not None:
-            self.__dict__["name_hm_alt"] = name_hm_extended
-            self.__dict__["name_hm_alt_description"] = \
-                "The extended Hermann-Mauguin space-group symbol."
+        # if name_hm_extended is not None:
+        #     self.__dict__["name_hm_alt"] = name_hm_extended
+        #     self.__dict__["name_hm_alt_description"] = \
+        #         "The extended Hermann-Mauguin space-group symbol."
         if name_hm_full is not None:
             self.__dict__["name_hm_full"] = name_hm_full
         if name_hm_short is not None:
             self.__dict__["name_hm_ref"] = name_hm_short
+            self.__dict__["name_hm_alt"] = name_hm_short
+            self.__dict__["name_hm_alt_description"] = \
+                "The short Hermann-Mauguin space-group symbol."
         if name_hall is not None:
             self.__dict__["name_hall"] = name_hall
         if name_schoenflies is not None:
@@ -743,8 +749,8 @@ class SpaceGroup(ItemN):
         if flag_minimal:
             ls_out = []
             prefix = self.PREFIX
-            attributes = ["name_hm_ref", "it_coordinate_system_code"]
-            related_attributes = ["name_H-M_ref", "IT_coordinate_system_code"]
+            attributes = ["name_hm_alt", "it_coordinate_system_code"]
+            related_attributes = ["name_H-M_alt", "IT_coordinate_system_code"]
             for _attr, cif_attr in zip(attributes, related_attributes):
                 _val = getattr(self, _attr)
                 if _val is not None:
