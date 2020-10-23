@@ -89,20 +89,24 @@ class Pd2dMeas(ItemN):
             setattr(self, key, attr)
 
     def form_object(self) -> NoReturn:
-        if any([self.ttheta_phi_intensity_up is None, 
-                self.ttheta_phi_intensity_up_sigma is None,
-                self.ttheta_phi_intensity_down is None, 
-                self.ttheta_phi_intensity_down_sigma is None]):
-            return 
+        """Redefine form_object."""
+        flag = (self.is_attribute("ttheta_phi_intensity_up") &
+                self.is_attribute("ttheta_phi_intensity_up_sigma") &
+                self.is_attribute("ttheta_phi_intensity_down") &
+                self.is_attribute("ttheta_phi_intensity_down_sigma"))
+        if not(flag):
+            return
         l_1 = (self.ttheta_phi_intensity_up).strip().split("\n")
         l_2 = (self.ttheta_phi_intensity_up_sigma).strip().split("\n")
         l_3 = (self.ttheta_phi_intensity_down).strip().split("\n")
         l_4 = (self.ttheta_phi_intensity_down_sigma).strip().split("\n")
 
-        l_ttheta = numpy.array([_ for _ in l_1[0].strip().split()[1:]], dtype=float)
+        l_ttheta = numpy.array([_ for _ in l_1[0].strip().split()[1:]],
+                               dtype=float)
         l_phi, ll_intensity_up, ll_intensity_up_sigma = [], [], []
         ll_intensity_down, ll_intensity_down_sigma = [], []
-        for line_1, line_2, line_3, line_4 in zip(l_1[1:], l_2[1:], l_3[1:], l_4[1:]):
+        for line_1, line_2, line_3, line_4 in zip(l_1[1:], l_2[1:], l_3[1:],
+                                                  l_4[1:]):
             _l_1 = line_1.strip().split()
             _l_2 = line_2.strip().split()
             _l_3 = line_3.strip().split()
@@ -127,7 +131,8 @@ class Pd2dMeas(ItemN):
 
 
     def form_ttheta_phi_intensity_up(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_up is not None)):
+        if (self.is_attribute("phi") & self.is_attribute("ttheta") &
+            self.is_attribute("intensity_up")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_up
@@ -137,7 +142,8 @@ class Pd2dMeas(ItemN):
             self.__dict__["ttheta_phi_intensity_up"] = "\n".join(ls_out)
 
     def form_ttheta_phi_intensity_up_sigma(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_up_sigma is not None)):
+        if (self.is_attribute("phi") & self.is_attribute("ttheta") &
+            self.is_attribute("intensity_up_sigma")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_up_sigma
@@ -147,7 +153,8 @@ class Pd2dMeas(ItemN):
             self.__dict__["ttheta_phi_intensity_up_sigma"] = "\n".join(ls_out)
 
     def form_ttheta_phi_intensity_down(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_down is not None)):
+        if (self.is_attribute("phi") & self.is_attribute("ttheta") &
+            self.is_attribute("intensity_down")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_down
@@ -157,7 +164,8 @@ class Pd2dMeas(ItemN):
             self.__dict__["ttheta_phi_intensity_down"] = "\n".join(ls_out)
 
     def form_ttheta_phi_intensity_down_sigma(self) -> bool:
-        if ((self.phi is not None) & (self.ttheta is not None) & (self.intensity_down_sigma is not None)):
+        if (self.is_attribute("phi") & self.is_attribute("ttheta") &
+            self.is_attribute("intensity_down_sigma")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
             ll_intensity = self.intensity_down_sigma
