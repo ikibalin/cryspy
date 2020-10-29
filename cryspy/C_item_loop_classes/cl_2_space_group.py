@@ -205,7 +205,7 @@ class SpaceGroup(ItemN):
         """Form object by it number it coordinate system code.
 
         TODO: Solve the problem with centring_type for hexagonal systems
-              (Ex.: 166 spcace group)
+              (Ex.: 166 spcace group).
         """
         bravais_type, laue_class, patterson_name_hm, centring_type, \
             crystal_system = None, None, None, None, None
@@ -694,7 +694,8 @@ class SpaceGroup(ItemN):
         if self.is_attribute("centrosymmetry"):
             ls_out.append(
                 "Centrosymmetry: ".rjust(width_left) +
-                f"{'Yes' if self.centrosymmetry else 'No':}".ljust(width_right))
+                f"{'Yes' if self.centrosymmetry else 'No':}".ljust(
+                    width_right))
 
         # if generators != (): print(
         #    f"Generators: ".rjust(width_left) +
@@ -731,8 +732,8 @@ class SpaceGroup(ItemN):
 {float(_pos[2]):9.5f}")
         return "\n".join(ls_out)
 
-    def to_cif(self, separator="_", flag_all_attributes=False,
-               flag_minimal=True) -> str:
+    def to_cif(self, separator: str = "_", flag_all_attributes: bool = False,
+               flag_minimal: bool = True) -> str:
         """Print information about object in string in STAR format.
 
         Arguments
@@ -767,8 +768,7 @@ class SpaceGroup(ItemN):
             s_out = "\n".join(ls_out)
         else:
             s_out = super(SpaceGroup, self).to_cif(
-                separator="_", flag_all_attributes=False,
-                flag_minimal=flag_minimal)
+                separator=separator, flag_all_attributes=flag_all_attributes)
         return s_out
 
 

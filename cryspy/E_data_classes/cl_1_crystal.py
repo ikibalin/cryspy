@@ -256,7 +256,8 @@ class Crystal(DataN):
                                                     f_hkl_as)
         return f_nucl
 
-    def calc_refln(self, index_h, index_k, index_l, flag_internal=True):
+    def calc_refln(self, index_h, index_k, index_l,
+                   flag_internal: bool = True):
         """
         Calculate Refln cryspy object where nuclear structure factor is stored.
 
@@ -289,8 +290,8 @@ class Crystal(DataN):
             res.numpy_to_items()
         return res
 
-    def calc_susceptibility_moment_tensor(self, index_h, index_k, index_l,
-                                          flag_only_orbital=False):
+    def calc_susceptibility_moment_tensor(
+            self, index_h, index_k, index_l, flag_only_orbital: bool = False):
         """
         Susceptibility tensor function.
 
@@ -520,8 +521,9 @@ class Crystal(DataN):
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33, \
             sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33
 
-    def calc_refln_susceptibility(self, index_h, index_k, index_l,
-                                  flag_internal=True, flag_only_orbital=False):
+    def calc_refln_susceptibility(
+            self, index_h, index_k, index_l, flag_internal: bool = True,
+            flag_only_orbital: bool = False):
         """
         Calculate susceptibility tensor and moment tensor.
 
@@ -589,7 +591,7 @@ class Crystal(DataN):
             cell.ortogonalize_matrix(l_ij)
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
-    def calc_hkl(self, sthol_min: float, sthovl_max: float):
+    def calc_hkl(self, sthol_min: float = 0., sthovl_max: float = 1.):
         """
         Give hkl taking symmetry into account.
 
@@ -611,7 +613,7 @@ class Crystal(DataN):
         res = cell.calc_hkl(space_group, sthol_min, sthovl_max)
         return res
 
-    def calc_hkl_in_range(self, sthol_min: float, sthovl_max: float):
+    def calc_hkl_in_range(self, sthol_min: float = 0., sthovl_max: float = 1.):
         """
         Give hkl without taking symmetry into account.
 

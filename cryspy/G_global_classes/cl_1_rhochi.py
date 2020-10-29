@@ -89,7 +89,7 @@ class RhoChi(GlobalN):
         return [item for item in self.items if isinstance(item, (Crystal,
                                                                  MagCrystal))]
 
-    def calc_chi_sq(self, flag_internal=True):
+    def calc_chi_sq(self, flag_internal: bool = True):
         """
         Calculate chi square.
 
@@ -254,7 +254,7 @@ class RhoChi(GlobalN):
             flag_out = d_info["stop"]
         return flag_out
 
-    def save_to_file(self, f_name):
+    def save_to_file(self, f_name: str):
         """Save to file."""
         self.file_input = f_name
         if os.path.basename(f_name) == "main.rcif":
