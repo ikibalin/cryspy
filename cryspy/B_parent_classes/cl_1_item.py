@@ -504,4 +504,5 @@ class ItemN(object):
             return
         for attr in (self.ATTR_NAMES + self.ATTR_SIGMA +
                      self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG):
-            setattr(self, attr, getattr(obj, attr))
+            if obj.is_attribute(attr):
+                setattr(self, attr, getattr(obj, attr))

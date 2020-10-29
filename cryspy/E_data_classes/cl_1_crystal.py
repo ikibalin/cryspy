@@ -640,11 +640,14 @@ class Crystal(DataN):
 
         Negtive eigenvalues of ellipsoid are replaced by positive.
         """
-        cell = self.cell
-        a_s_m_a = self.atom_site_susceptibility
+        l_res = []
+        try:
+            cell = self.cell
+            a_s_m_a = self.atom_site_susceptibility
+        except AttributeError:
+            return l_res
         m_m_norm = cell.m_m_norm
         m_im_norm = numpy.linalg.inv(m_m_norm)
-        l_res = []
         for _l, _11, _22, _33, _12, _13, _23 in zip(
                 a_s_m_a.label, a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33,
                 a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
@@ -692,13 +695,15 @@ class Crystal(DataN):
             >>>     print("")
             >>> print("Cartezian coordinate system is x||a*, z||c.")
         """
-        cell = self.cell
-        a_s_s = self.atom_site_susceptibility
-        if a_s_s is None:
-            return None
-        m_m_norm = cell.m_m_norm
         ll_moments = []
         ll_directions = []
+        try:
+            cell = self.cell
+            a_s_s = self.atom_site_susceptibility
+        except AttributeError:
+            return ll_moments, ll_directions
+
+        m_m_norm = cell.m_m_norm
         for it_a_s_s in a_s_s.items:
             _11, _22, _33 = it_a_s_s.chi_11, it_a_s_s.chi_22, it_a_s_s.chi_33
             _12, _13, _23 = it_a_s_s.chi_12, it_a_s_s.chi_13, it_a_s_s.chi_23
@@ -746,10 +751,10 @@ class Crystal(DataN):
         ls_out = []
         # crystal is defined object of cryspy library;
         # type(crystal) is Crystal
-        try:
+        if self.is_attribute("atom_site_susceptibility"):
             a_s_m_a = self.atom_site_susceptibility
-        except AttributeError:
-            return None
+        else:
+            return ""
         l_susceptibilities, l_directions = \
             self.calc_main_axes_of_magnetization_ellipsoids()
         l_chi_as_u = self.calc_magnetization_ellipsoid()
@@ -790,15 +795,20 @@ class Crystal(DataN):
         (a/|a|, b/|b|, c/|c|)
         """
         np_field = numpy.array(field_abc, dtype=float)
-        spgr = self.space_group
+        l_lab_out, l_xyz_out, l_moment_out = [], [], []
 
-        cell = self.cell
+        try:
+            spgr = self.space_group
+            cell = self.cell
+            a_s = self.atom_site
+            a_s_m_a = self.atom_site_susceptibility
+        except AttributeError:
+            return l_lab_out, l_xyz_out, l_moment_out
+
         m_m_norm = cell.m_m_norm
         m_mt_norm_m_norm_field = numpy.matmul(
             numpy.matmul(m_m_norm.transpose(), m_m_norm), np_field)
-        a_s = self.atom_site
-        a_s_m_a = self.atom_site_susceptibility
-        l_lab_out, l_xyz_out, l_moment_out = [], [], []
+
         for _l, _11, _22, _33, _12, _13, _23 in zip(
                 a_s_m_a.label, a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33,
                 a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):

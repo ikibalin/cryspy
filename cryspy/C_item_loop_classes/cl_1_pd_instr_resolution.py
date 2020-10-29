@@ -161,7 +161,7 @@ class PdInstrResolution(ItemN):
         eta = self.eta
 
         return h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
-    
+
 
 
 class PdInstrResolutionL(LoopN):

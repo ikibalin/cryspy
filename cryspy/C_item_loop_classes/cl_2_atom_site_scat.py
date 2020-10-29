@@ -27,9 +27,9 @@ class AtomSiteScat(ItemN):
     ATTR_MANDATORY_TYPES = (str, )
     ATTR_MANDATORY_CIF = ("label", )
 
-    ATTR_OPTIONAL_NAMES = ("lande", "kappa")
-    ATTR_OPTIONAL_TYPES = (float, float)
-    ATTR_OPTIONAL_CIF = ("Lande", "kappa")
+    ATTR_OPTIONAL_NAMES = ("type_symbol", "lande", "kappa")
+    ATTR_OPTIONAL_TYPES = (str, float, float)
+    ATTR_OPTIONAL_CIF = ("type_symbol", "Lande", "kappa")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -76,7 +76,12 @@ class AtomSiteScat(ItemN):
 
     def calc_form_factor(self, sthovl, flag_only_orbital=False):
         """Calculate form factor."""
-        atom_type_scat = self.atom_type_scat
+        if self.is_attribute("atom_type_scat"):
+            atom_type_scat = self.atom_type_scat
+        else:
+            self.load_atom_type_scat_by_symbol(self.type_symbol)
+            atom_type_scat = self.atom_type_scat
+
         form_factor = atom_type_scat.calc_form_factor(
             sthovl, lande=self.lande, kappa=self.kappa,
             flag_only_orbital=flag_only_orbital)
@@ -84,9 +89,16 @@ class AtomSiteScat(ItemN):
 
     def load_atom_type_scat_by_symbol(self, symbol: str):
         """Load details about atom type scattering."""
+        self.type_symbol = symbol
         _a_t_s = AtomTypeScat.form_by_symbol(symbol)
         self.__dict__["atom_type_scat"] = _a_t_s
 
+    def report(self):
+        """Report."""
+        s_out = ""
+        if self.is_attribute("atom_type_scat"):
+            s_out = str(self.atom_type_scat)
+        return s_out
 
 class AtomSiteScatL(LoopN):
     """
@@ -118,6 +130,11 @@ class AtomSiteScatL(LoopN):
         """Load details about atom type scattering."""
         all([item.load_atom_type_scat_by_symbol(
             atom_site[item.label].type_symbol) for item in self.items])
+
+    def report(self):
+        """Report."""
+        ls_out = [item.report() for item in self.items]
+        return "\n".join(ls_out)
 
 
 # s_cont = """

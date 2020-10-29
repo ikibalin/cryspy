@@ -535,10 +535,10 @@ class Cell(ItemN):
         m_norm_ij = (m_m_norm[0, 0], m_m_norm[0, 1], m_m_norm[0, 2],
                      m_m_norm[1, 0], m_m_norm[1, 1], m_m_norm[1, 2],
                      m_m_norm[2, 0], m_m_norm[2, 1], m_m_norm[2, 2])
-        
+
         s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = \
             ortogonalize_matrix(m_ij, m_norm_ij)
-        
+
         return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
     def report(self) -> str:

@@ -296,16 +296,19 @@ class RhoChi(GlobalN):
         with open(f_main, 'w') as fid:
             fid.write("\n".join(ls_main))
 
-    def estimate_f_mag_for_diffrn(self, maxAbsFM: float = 5,
-                                  deltaFM: float = 0.001):
+    def estimate_f_mag_for_diffrn(
+            self, maxAbsFM: float = 5, deltaFM: float = 0.001,
+            flag_lambdaover2_correction: bool = False):
         """Estimate magnetic structure factor for diffrn experiments."""
         l_res = []
         experiments = self.experiments()
         for experiment in experiments:
             if isinstance(experiment, Diffrn):
                 crystal = getattr(self, f"crystal_{experiment.phase.label:}")
-                res = experiment.estimate_FM(crystal, maxAbsFM=maxAbsFM,
-                                             deltaFM=deltaFM)
+                res = experiment.estimate_FM(
+                    crystal, maxAbsFM=maxAbsFM, deltaFM=deltaFM,
+                    flag_lambdaover2_correction=bool(
+                        flag_lambdaover2_correction))
                 l_res.append(res)
         return l_res
 # s_cont = """

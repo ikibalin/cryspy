@@ -181,12 +181,13 @@ class SpaceGroup(ItemN):
             it_number = get_it_number_by_name_hall(self.name_hall)
         elif self.is_attribute("it_number"):
             it_number = self.it_number
-            it_coordinate_system_code = self.it_coordinate_system_code
+            # it_coordinate_system_code = self.it_coordinate_system_code
         elif self.is_attribute("name_schoenflies"):
             it_number = get_it_number_by_name_schoenflies(
                 self.name_schoenflies)
         else:
             flag = False
+
         if flag:
             it_coordinate_system_codes = \
                 get_it_coordinate_system_codes_by_it_number(it_number)

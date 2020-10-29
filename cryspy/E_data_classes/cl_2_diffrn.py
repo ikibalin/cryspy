@@ -430,7 +430,7 @@ class Diffrn(DataN):
         return "\n".join(ls_out)
 
     def estimate_FM(self, crystal, maxAbsFM: float = 5,
-                    deltaFM: float = 0.001):
+                    deltaFM: float = 0.001, flag_lambdaover2_correction=False):
         """
         Estimate magnetic structure factor.
 
@@ -473,7 +473,35 @@ class Diffrn(DataN):
         cell = crystal.cell
         volume_unit_cell = cell.volume
         sthovl = cell.calc_sthovl(index_h, index_k, index_l)
-        k_loc_1, k_loc_2, k_loc_3 = cell.calc_k_loc(index_h, index_k, index_l)
+        k_loc_i = cell.calc_k_loc(index_h, index_k, index_l)
+        k_loc_1, k_loc_2, k_loc_3 = k_loc_i
+
+        if (setup.is_attribute("ratio_lambdaover2") &
+                flag_lambdaover2_correction):
+            ratio_lambdaover2 = setup.ratio_lambdaover2
+            flag_lambdaover2 = True
+        else:
+            ratio_lambdaover2 = None
+            flag_lambdaover2 = False
+
+        if (flag_lambdaover2 & flag_lambdaover2_correction):
+            index_2h = 2 * index_h
+            index_2k = 2 * index_k
+            index_2l = 2 * index_l
+            f_nucl_2hkl = crystal.calc_f_nucl(index_2h, index_2k, index_2l)
+        else:
+            f_nucl_2hkl = None
+
+        if (flag_lambdaover2 & flag_lambdaover2_correction):
+            chi_m_2hkl = crystal.calc_susceptibility_moment_tensor(
+                index_2h, index_2k, index_2l)
+            sft_ij_2hkl = chi_m_2hkl[:9]
+            sftm_ij_2hkl = chi_m_2hkl[9:]
+            fm_perp_loc_2hkl = calc_fm_perp_loc(e_up_loc, field_norm, k_loc_i,
+                                                sft_ij_2hkl, sftm_ij_2hkl)
+        else:
+            fm_perp_loc_2hkl = None
+
 
         def function_to_find_fm(f_mag):
             """Calc flip ratio.
@@ -504,8 +532,10 @@ class Diffrn(DataN):
             flip_ratio, dder = calc_flip_ratio(
                 sthovl, wavelength, field_norm, u_matrix, polarization,
                 flipper_efficiency, volume_unit_cell, model_extinction, radius,
-                mosaicity, f_nucl, fm_perp_loc, ratio_lambdaover2=None,
-                f_nucl_2hkl=None, fm_perp_loc_2hkl=None)
+                mosaicity, f_nucl, fm_perp_loc,
+                ratio_lambdaover2=ratio_lambdaover2,
+                f_nucl_2hkl=f_nucl_2hkl,
+                fm_perp_loc_2hkl=fm_perp_loc_2hkl)
             return flip_ratio
 
         lFMans, lFMansMin = [], []
