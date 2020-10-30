@@ -484,9 +484,30 @@ class DensityPointL(LoopN):
         self.set_core_density(atom_site, atom_electron_configuration,
                               flag_two_channel=flag_two_channel)
 
+    def calc_density_chi(self, cell: Cell,
+                         atom_site_susceptibility: AtomSiteSusceptibilityL):
+        """Calculate density chi."""
+        density = self.density
+
+        if atom_site_susceptibility is None:
+            return numpy.zeros(len(density), dtype=float)
+
+        label = self.basin_atom_label
+
+        l_max_moment = [numpy.abs(
+            item.calc_main_axes_of_magnetization_ellipsoid(cell)[0]).max()
+            for item in atom_site_susceptibility.items]
+        l_label_atom = atom_site_susceptibility.label
+
+        l_den_chi = [den*l_max_moment[l_label_atom.index(lab)] if lab in
+                     l_label_atom else 0. for lab, den in zip(label, density)]
+
+        return numpy.array(l_den_chi, dtype=float)
+
     def save_to_file_den(
             self, mem_parameters: MEMParameters, space_group: SpaceGroup,
-            cell: Cell, f_name: str = "file.den", l_label_atom: list = None,
+            cell: Cell, f_name: str = "file.den",
+            atom_site_susceptibility: AtomSiteSusceptibilityL = None,
             f_background: str = "file_back.den"):
         """Save to file."""
         numpy_basin_atom_label = numpy.array(self.basin_atom_label, dtype=str)
@@ -498,7 +519,8 @@ class DensityPointL(LoopN):
         index_x = self.index_x
         index_y = self.index_y
         index_z = self.index_z
-        density = self.density
+        # density = self.density
+        density_chi = self.calc_density_chi(cell, atom_site_susceptibility)
         density_ferro = self.density_ferro
         density_antiferro = self.density_antiferro
         ls_out = []
@@ -507,18 +529,10 @@ class DensityPointL(LoopN):
         ls_out.append("{:}".format(len(index_x)))
         ls_out_b.append("{:}".format(len(index_x)))
 
-        for _x, _y, _z, _l, den, den_f, den_a in \
-            zip(index_x, index_y, index_z, numpy_basin_atom_label, density,
+        for _x, _y, _z, _l, den_chi, den_f, den_a in \
+            zip(index_x, index_y, index_z, numpy_basin_atom_label, density_chi,
                 density_ferro, density_antiferro):
-            if l_label_atom is not None:
-                if _l in l_label_atom:
-                    _s = f"{den:15.7f}"
-                else:
-                    _s = f"{0.:15.7f}"
-            else:
-                _s = f"{den:15.7f}"
-
-            ls_out.append(f"{_x:4} {_y:4} {_z:4} {_s:}")
+            ls_out.append(f"{_x:4} {_y:4} {_z:4} {den_chi:15.7f}")
             v1 = (chi_iso_ferro*den_f+chi_iso_antiferro*den_a)
             ls_out_b.append(f"{_x:4} {_y:4} {_z:4} {v1:15.7f}")
 
@@ -1001,18 +1015,13 @@ class DensityPointL(LoopN):
                 flag_two_channel=flag_two_channel)
 
         k_hkl_1, k_hkl_2, k_hkl_3 = cell.calc_k_loc(*hkl)
-        v_hkl_perp_2d_i = calc_moment_perp((k_hkl_1[:, numpy.newaxis],
-                                            k_hkl_2[:, numpy.newaxis],
-                                            k_hkl_3[:, numpy.newaxis]),
-                                           v_hkl_2d_i)
-        v_perp_ferro = calc_moment_perp((k_hkl_1[:, numpy.newaxis],
-                                         k_hkl_2[:, numpy.newaxis],
-                                         k_hkl_3[:, numpy.newaxis]),
-                                        v_ferro)
-        v_perp_antiferro = calc_moment_perp((k_hkl_1[:, numpy.newaxis],
-                                             k_hkl_2[:, numpy.newaxis],
-                                             k_hkl_3[:, numpy.newaxis]),
-                                            v_antiferro)
+        na = numpy.newaxis
+        v_hkl_perp_2d_i = calc_moment_perp(
+            (k_hkl_1[:, na], k_hkl_2[:, na], k_hkl_3[:, na]), v_hkl_2d_i)
+        v_perp_ferro = calc_moment_perp(
+            (k_hkl_1[:, na], k_hkl_2[:, na], k_hkl_3[:, na]), v_ferro)
+        v_perp_antiferro = calc_moment_perp(
+            (k_hkl_1[:, na], k_hkl_2[:, na], k_hkl_3[:, na]), v_antiferro)
         return v_hkl_perp_2d_i, v_perp_ferro, v_perp_antiferro
 
     def calc_electrons_per_unit_cell(self):

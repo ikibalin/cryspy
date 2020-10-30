@@ -24,6 +24,7 @@ import numpy
 from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT, \
     calc_product_matrix_vector, scalar_product
 
+
 def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
     """Calculate directed cosines."""
     q_1_x, q_1_y, q_1_z = cell.calc_k_loc(h_1, k_1, l_1)
@@ -34,6 +35,7 @@ def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
     res = q_12/(q_1_sq*q_2_sq)**0.5
     res[res > 1.] = 1.
     return res
+
 
 def calc_volume_uc_by_abc_cosines(a:float, b:float, c:float, 
         cos_alpha:float, cos_beta:float, cos_gamma:float):
@@ -70,9 +72,9 @@ def calc_inverse_d_by_hkl_abc_cosines(h:float, k:float, l:float,
     c_a_sq, c_b_sq = numpy.square(cos_alpha), numpy.square(cos_beta)
     c_g_sq = numpy.square(cos_gamma)
     s_a_sq, s_b_sq, s_g_sq = (1.-c_a_sq), (1.-c_b_sq), (1.-c_g_sq)
-    
+
     A = (1.-c_a_sq-c_b_sq-c_g_sq+2.*cos_alpha*cos_beta*cos_gamma)
-    
+
     B1 = s_a_sq*numpy.square(h*1./a)+\
          s_b_sq*numpy.square(k*1./b)+\
          s_g_sq*numpy.square(l*1./c)
@@ -98,8 +100,9 @@ def calc_inverse_d_by_hkl_abc_angles(
     return inverse_d
 
 
-def calc_sthovl_by_hkl_abc_cosines(h:float, k:float, l:float, a:float, b:float, c:float, 
-        cos_alpha:float, cos_beta:float, cos_gamma:float):
+def calc_sthovl_by_hkl_abc_cosines(
+        h: float, k: float, l: float, a: float, b: float, c: float,
+        cos_alpha: float, cos_beta: float, cos_gamma: float):
     """
     Calculate sin(theta)/lambda for given reflections h, k, l
     and unit cell parameters defined as a, b, c, cos(alpha), cos(beta), cos(gamma).
@@ -111,8 +114,8 @@ def calc_sthovl_by_hkl_abc_cosines(h:float, k:float, l:float, a:float, b:float, 
 
 
 def calc_sthovl_by_hkl_abc_angles(
-        h:float, k:float, l:float, a:float, b:float, c:float, alpha:float,
-        beta:float, gamma:float):
+        h: float, k: float, l: float, a: float, b: float, c: float,
+        alpha: float, beta: float, gamma: float):
     """
     Calculate sin(theta)/lambda for given reflections h, k, l
     and unit cell parameters defined as a, b, c, alpha, beta, gamma.
@@ -179,7 +182,8 @@ def calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, r_11, r_12, r_13, r_21, r_22,
     np_x_s = np_x*np_r_11 + np_y*np_r_12 + np_z*np_r_13 + np_b_1
     np_y_s = np_x*np_r_21 + np_y*np_r_22 + np_z*np_r_23 + np_b_2
     np_z_s = np_x*np_r_31 + np_y*np_r_32 + np_z*np_r_33 + np_b_3
-    hh = (2*numpy.pi*1j*(np_h*np_x_s + np_k*np_y_s+ np_l*np_z_s)).astype(complex)
+    hh = (2*numpy.pi*1j*(np_h*np_x_s + np_k*np_y_s+ np_l*np_z_s)).astype(
+        complex)
     phase_3d = numpy.exp(hh)
     return phase_3d
 
@@ -218,23 +222,22 @@ h,k,l is 1D (temporary solution)
     np_k_s = np_h*np_r_12 + np_k*np_r_22 + np_l*np_r_32
     np_l_s = np_h*np_r_13 + np_k*np_r_23 + np_l*np_r_33
 
-    power_dwf_aniso = (np_b_11*np_h_s**2 + np_b_22*np_k_s**2 + 
-                       np_b_33*np_l_s**2 + 2.*np_b_12*np_h_s*np_k_s + 
-                      2.*np_b_13*np_h_s*np_l_s + 2.*np_b_23*np_k_s*np_l_s)
-
-    return power_dwf_aniso 
+    power_dwf_aniso = (np_b_11*np_h_s**2 + np_b_22*np_k_s**2 +
+                       np_b_33*np_l_s**2 + 2.*np_b_12*np_h_s*np_k_s +
+                       2.*np_b_13*np_h_s*np_l_s + 2.*np_b_23*np_k_s*np_l_s)
+    return power_dwf_aniso
 
 
 def calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23,
              r_31, r_32, r_33):
     """Calculate Debye-Waller factor."""
     sthovl = cell.calc_sthovl(h, k, l)
-    #dimensions (hkl, atoms in assymmetric unit cell)
+    # dimensions (hkl, atoms in assymmetric unit cell)
     power_iso_2d = calc_power_dwf_iso(b_iso, sthovl)
 
-    #dimensions (hkl, atoms in assymmetric unit cell, el.symmetry)
-    power_aniso_3d = calc_power_dwf_aniso(h, k, l, beta, 
-                      r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+    # dimensions (hkl, atoms in assymmetric unit cell, el.symmetry)
+    power_aniso_3d = calc_power_dwf_aniso(
+        h, k, l, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
     power_3d = power_iso_2d[:, :, numpy.newaxis] + power_aniso_3d
     dwf_3d = numpy.exp(-power_3d)
     return dwf_3d
@@ -366,3 +369,43 @@ def ortogonalize_matrix(m_ij, m_norm_ij):
     s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33 = calc_mRmCmRT(
         m_norm_ij, m_ij)
     return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
+
+
+# FIXME: it works incorrectly
+def calc_atoms_in_unit_cell(r_ij, b_i, fract_xyz, atom_label):
+    """Calculate atoms in unit cell.
+
+    Arguments
+    ---------
+        - r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+        - b_i = (b_1, b_2, b_3)
+        - fract_xyz = (fract_x, fract_y, fract_z)
+        - atom_label
+
+    Output
+    ------
+        - fract_uc_x
+        - fract_uc_y
+        - fract_uc_z
+        - label_uc
+    """
+    (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33) = r_ij
+    (b_1, b_2, b_3) = b_i
+    (fract_x, fract_y, fract_z) = fract_xyz
+    na = numpy.newaxis
+    f_x = numpy.mod(r_11[:, na]*fract_x[na, :] + r_12[:, na]*fract_y[na, :] +
+                    r_13[:, na]*fract_z[na, :] + b_1, 1.)
+    f_y = numpy.mod(r_21[:, na]*fract_x[na, :] + r_22[:, na]*fract_y[na, :] +
+                    r_23[:, na]*fract_z[na, :] + b_2, 1.)
+    f_z = numpy.mod(r_31[:, na]*fract_x[na, :] + r_32[:, na]*fract_y[na, :] +
+                    r_33[:, na]*fract_z[na, :] + b_3, 1.)
+    r_f_x = numpy.round(f_x, decimals=1e-5)
+    r_f_y = numpy.round(f_y, decimals=1e-5)
+    r_f_z = numpy.round(f_z, decimals=1e-5)
+
+    r_f_xyz = numpy.array([r_f_x.flatten(), r_f_y.flatten(), r_f_z.flatten()],
+                          dtype=float)
+    u_f_xyz = numpy.unique(r_f_xyz, axis=1)
+    fract_uc_x, fract_uc_y, fract_uc_z = u_f_xyz[0], u_f_xyz[1], u_f_xyz[2]
+    label_uc = None
+    return fract_uc_x, fract_uc_y, fract_uc_z, label_uc

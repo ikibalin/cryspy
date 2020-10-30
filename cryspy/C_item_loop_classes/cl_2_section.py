@@ -1,12 +1,17 @@
 """Description of classes Section, SectionL."""
 from typing import NoReturn
 import numpy
+
+from cryspy.A_functions_base.function_2_mem import \
+    calc_index_atom_symmetry_closest_to_fract_xyz
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
-from cryspy.C_item_loop_classes.cl_1_space_group_symop import SpaceGroupSymop
+from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
+    SpaceGroupSymop, SpaceGroupSymopL
 
 
 class Section(ItemN):
@@ -128,8 +133,7 @@ class Section(ItemN):
 
     def calc_fractions(self, cell: Cell, atom_site: AtomSiteL) -> \
             numpy.ndarray:
-        """
-        Give a numpy.nd_array of fractions: fractions_xyz.
+        """Give a numpy.nd_array of fractions: fractions_xyz.
 
         Arguments
         ---------
@@ -162,6 +166,84 @@ class Section(ItemN):
         fract_x, fract_y, fract_z = cell.calc_coordinate_by_position(
             pos_xyz[0, :], pos_xyz[1, :], pos_xyz[2, :])
         return fract_x, fract_y, fract_z
+
+    def calc_atoms(self, cell: Cell, atom_site: AtomSiteL,
+                   space_group_symop: SpaceGroupSymopL, distance_min=0.3):
+        """Calculate position of atoms in the section plane.
+
+        Argument
+        --------
+            - cell
+            - atom_site
+            - space_group_symop
+            - distance_min is minimal distance to search atom in angstrems
+              (default value is 0.3)
+
+        Output
+        ------
+            - atom_x
+            - atom_y
+            - atom_label
+        """
+        r_11 = numpy.array(space_group_symop.r_11, dtype=int)
+        r_12 = numpy.array(space_group_symop.r_12, dtype=int)
+        r_13 = numpy.array(space_group_symop.r_13, dtype=int)
+        r_21 = numpy.array(space_group_symop.r_21, dtype=int)
+        r_22 = numpy.array(space_group_symop.r_22, dtype=int)
+        r_23 = numpy.array(space_group_symop.r_23, dtype=int)
+        r_31 = numpy.array(space_group_symop.r_31, dtype=int)
+        r_32 = numpy.array(space_group_symop.r_32, dtype=int)
+        r_33 = numpy.array(space_group_symop.r_33, dtype=int)
+
+        b_1 = numpy.array(space_group_symop.b_1, dtype=float)
+        b_2 = numpy.array(space_group_symop.b_2, dtype=float)
+        b_3 = numpy.array(space_group_symop.b_3, dtype=float)
+
+        r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+        b_i = (b_1, b_2, b_3)
+
+        size_x = self.size_x
+        size_y = self.size_y
+
+        atom_center = self.atom_center
+        atom_site_center = atom_site[atom_center]
+        center_fract_x = atom_site_center.fract_x
+        center_fract_y = atom_site_center.fract_y
+        center_fract_z = atom_site_center.fract_z
+
+        center_pos_x, center_pos_y, center_pos_z = \
+            cell.calc_position_by_coordinate(center_fract_x, center_fract_y,
+                                             center_fract_z)
+
+        v_pos_x, v_pos_y, v_pos_z = self.calc_axes_x_y_z(cell, atom_site)
+
+        fract_atom_auc_x = numpy.array(atom_site.fract_x, dtype=float)
+        fract_atom_auc_y = numpy.array(atom_site.fract_y, dtype=float)
+        fract_atom_auc_z = numpy.array(atom_site.fract_z, dtype=float)
+        label_atom_auc = numpy.array(atom_site.label, dtype=str)
+
+
+        
+
+        pos_atom_x, pos_atom_y, pos_atom_z = cell.calc_position_by_coordinate(
+            fract_atom_x, fract_atom_y, fract_atom_z)
+
+        pos_atom_loc_x = v_pos_x[0]*pos_atom_x + v_pos_x[1]*pos_atom_y + \
+            v_pos_x[2]*pos_atom_z
+        pos_atom_loc_y = v_pos_y[0]*pos_atom_x + v_pos_y[1]*pos_atom_y + \
+            v_pos_y[2]*pos_atom_z
+        pos_atom_loc_z = v_pos_z[0]*pos_atom_x + v_pos_z[1]*pos_atom_y + \
+            v_pos_z[2]*pos_atom_z
+
+        flag_x = numpy.abs(pos_atom_loc_x - center_pos_x) < 0.5*size_x
+        flag_y = numpy.abs(pos_atom_loc_y - center_pos_y) < 0.5*size_y
+        flag_z = numpy.abs(pos_atom_loc_z - center_pos_z) < distance_min
+        flag_xyz = numpy.logical_and(flag_x, numpy.logical_and(flag_y, flag_z))
+
+        atom_x = pos_atom_loc_x[flag_xyz]
+        atom_y = pos_atom_loc_y[flag_xyz]
+        atom_label = label_atom[flag_xyz]
+        return atom_x, atom_y, atom_label
 
 
 class SectionL(LoopN):

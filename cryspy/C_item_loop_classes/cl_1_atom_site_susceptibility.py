@@ -1,5 +1,8 @@
 """Describe AtomSiteSusceptibility, AtomSiteSusceptibilityL."""
 from typing import NoReturn
+import math
+import numpy
+from cryspy.A_functions_base.function_1_algebra import calc_m_sigma
 from cryspy.A_functions_base.function_1_atomic_vibrations import \
     vibration_constraints
 from cryspy.B_parent_classes.cl_1_item import ItemN
@@ -286,6 +289,58 @@ class AtomSiteSusceptibility(ItemN):
             self.__dict__["moment_13_constraint"] = True
             self.__dict__["moment_23_constraint"] = True
 
+    def calc_main_axes_of_magnetization_ellipsoid(self, cell):
+        """Susceptibility along the main axes of magnetization ellipsoid.
+
+        Arguments
+        ---------
+            - cell
+
+        Output
+        ------
+            - moments is main axes of ellipsoid in mu_B/T
+            - moments_sigma is sigmas for main axes of ellipsoid
+            - rot_matrix is directions for moments
+                for moments[0] direction is rot_matrix[:, 0]
+                for moments[1] direction is rot_matrix[:, 1]
+                for moments[2] direction is rot_matrix[:, 2]
+
+        The main axes are given in Cartezian coordinate system (x||a*, z||c).
+        """
+        m_m_norm = cell.m_m_norm
+
+        chi_11, chi_22, chi_33 = self.chi_11, self.chi_22, self.chi_33
+        chi_12, chi_13, chi_23 = self.chi_12, self.chi_13, self.chi_23
+
+        sig_11, sig_22 = self.chi_11_sigma, self.chi_22_sigma
+        sig_33, sig_12 = self.chi_33_sigma, self.chi_12_sigma
+        sig_13, sig_23 = self.chi_13_sigma, self.chi_23_sigma
+
+        m_chi_loc = numpy.array([
+            [chi_11, chi_12, chi_13], [chi_12, chi_22, chi_23],
+            [chi_13, chi_23, chi_33]], dtype=float)
+
+        m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc),
+                                  m_m_norm.transpose())
+
+        moments, rot_matrix = numpy.linalg.eigh(m_chi_orto)
+        moments_sigma = numpy.zeros(shape=moments.shape)
+        flag_error = (
+            math.isclose(sig_11, 0.) & math.isclose(sig_22, 0.) &
+            math.isclose(sig_33, 0.) & math.isclose(sig_12, 0.) &
+            math.isclose(sig_13, 0.) & math.isclose(sig_23, 0.))
+
+        if not(flag_error):
+            np_sigma = numpy.array([[sig_11, sig_12, sig_13],
+                                    [sig_12, sig_22, sig_23],
+                                    [sig_13, sig_23, sig_33]],
+                                   dtype=float)
+            M1 = numpy.matmul(rot_matrix.transpose(), m_m_norm)
+            M2 = calc_m_sigma(M1, np_sigma)
+            l_sig = [sum(M2[:, 0]**2)**0.5, sum(M2[:, 1]**2)**0.5,
+                     sum(M2[:, 2]**2)**0.5]
+            moments_sigma = numpy.array(l_sig, dtype=float)
+        return moments, moments_sigma, rot_matrix
 
 class AtomSiteSusceptibilityL(LoopN):
     """
@@ -320,6 +375,35 @@ class AtomSiteSusceptibilityL(LoopN):
         """Apply isotropic constraint on moments."""
         for item in self.items:
             item.apply_moment_iso_constraint(cell)
+
+    def calc_main_axes_of_magnetization_ellipsoid(self, cell):
+        """Susceptibility along the main axes of magnetization ellipsoid.
+
+        Arguments
+        ---------
+            - cell
+
+        Output
+        ------
+            - l_moments is main axes of ellipsoid in mu_B/T for each atom
+            - l_moments_sigma is sigmas for main axes of ellipsoid for each
+              atom
+            - l_rot_matrix is directions for moments
+                for moments[0] direction is rot_matrix[:, 0]
+                for moments[1] direction is rot_matrix[:, 1]
+                for moments[2] direction is rot_matrix[:, 2]
+
+        The main axes are given in Cartezian coordinate system (x||a*, z||c).
+        """
+        l_moments, l_moments_sigma, l_rot_matrix = [], [], []
+        for item in self.items:
+            moments, moments_sigma, rot_matrix = \
+                item.calc_main_axes_of_magnetization_ellipsoid(cell)
+            l_moments.append(moments)
+            l_moments_sigma.append(moments_sigma)
+            l_rot_matrix.append(rot_matrix)
+        return l_moments, l_moments_sigma, l_rot_matrix
+
 
 # s_cont = """
 #  loop_

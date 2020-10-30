@@ -237,13 +237,3 @@ x+1/2y+2/3
 def transform_r_b_to_string(r, b, labels=("x", "y", "z")) -> str:
     l_res = [transform_digits_to_string(labels, _ri, _bi) for _ri, _bi in zip(r, b)]
     return ",".join(l_res)
-
-
-    
-
-FUNCTIONS = [
-transform_string_to_r_b,
-transform_string_to_digits,
-transform_fraction_with_label_to_string,
-transform_digits_to_string
-]    

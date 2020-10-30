@@ -94,14 +94,15 @@ class MEM(GlobalN):
         mem_parameters = self.mem_parameters
         flag_two_channel = mem_parameters.method == "2channel"
         if flag_two_channel:
-            l_label_atom = None
+            atom_site_susceptibility = None
         else:
             atom_site_susceptibility = crystal.atom_site_susceptibility
-            l_label_atom = atom_site_susceptibility.label
+
         density_point = self.density_point
         density_point.save_to_file_den(
             mem_parameters, space_group, cell, f_name=f_name,
-            l_label_atom=l_label_atom, f_background=f_background)
+            atom_site_susceptibility=atom_site_susceptibility,
+            f_background=f_background)
 
     def create_prior_density(self):
         """Create prior denisity."""

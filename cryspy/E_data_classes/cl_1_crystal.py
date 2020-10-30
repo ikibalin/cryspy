@@ -668,34 +668,19 @@ class Crystal(DataN):
         return l_res
 
     def calc_main_axes_of_magnetization_ellipsoids(self):
-        """
-        Susceptibility along the main axes of magnetization ellipsoid.
-
-        In Bohr magneton for each magnetic atom.
-
-        The main axes are given in Cartezian coordinate system (x||a*, z||c).
+        """Susceptibility along the main axes of magnetization ellipsoid.
 
         Output
         ------
-            arg1: the list of the suscetibility along main axes for each atom
-            arg2: the list of directions for each atom
+            - l_moments is main axes of ellipsoid in mu_B/T for each atom
+            - l_moments_sigma is sigmas for main axes of ellipsoid for each
+              atom
+            - l_rot_matrix is directions for moments
+                for moments[0] direction is rot_matrix[:, 0]
+                for moments[1] direction is rot_matrix[:, 1]
+                for moments[2] direction is rot_matrix[:, 2]
 
-        Example
-        -------
-            >>> # crystal is defined object of cryspy library;
-            >>> # type(crystal) is Crystal
-            >>> l_susceptibilities, l_directions = \
-                crystal.calc_main_axes_of_magnetization_ellipsoids()
-            >>> #cycle over magnetic atoms
-            >>> for susceptibilities, directions in zip(l_susceptibilities,
-                                                        l_directions):
-            >>>     #cycle over three main axes
-            >>>     for _val1, _direction in zip(susceptibilities, directions):
-            >>>         print(f"{_val1: 9.5f} mu_B/T \
-                              along: {_direction[0]: 9.5f} \
-                                  {_direction[1]: 9.5f} {_direction[2]: 9.5f}")
-            >>>     print("")
-            >>> print("Cartezian coordinate system is x||a*, z||c.")
+        The main axes are given in Cartezian coordinate system (x||a*, z||c).
         """
         ll_moments = []
         ll_directions = []
@@ -705,41 +690,9 @@ class Crystal(DataN):
         except AttributeError:
             return ll_moments, ll_directions
 
-        m_m_norm = cell.m_m_norm
-        for it_a_s_s in a_s_s.items:
-            _11, _22, _33 = it_a_s_s.chi_11, it_a_s_s.chi_22, it_a_s_s.chi_33
-            _12, _13, _23 = it_a_s_s.chi_12, it_a_s_s.chi_13, it_a_s_s.chi_23
-
-            sig_11, sig_22 = it_a_s_s.chi_11_sigma, it_a_s_s.chi_22_sigma
-            sig_33, sig_12 = it_a_s_s.chi_33_sigma, it_a_s_s.chi_12_sigma
-            sig_13, sig_23 = it_a_s_s.chi_13_sigma, it_a_s_s.chi_23_sigma
-
-            m_chi_loc = numpy.array([[_11, _12, _13], [_12, _22, _23],
-                                     [_13, _23, _33]], dtype=float)
-            m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc),
-                                      m_m_norm.transpose())
-
-            val, vec = numpy.linalg.eigh(m_chi_orto)
-            flag_error = (
-                math.isclose(sig_11, 0.) & math.isclose(sig_22, 0.) &
-                math.isclose(sig_33, 0.) & math.isclose(sig_12, 0.) &
-                math.isclose(sig_13, 0.) & math.isclose(sig_23, 0.))
-
-            if not(flag_error):
-                np_sigma = numpy.array([[sig_11, sig_12, sig_13],
-                                        [sig_12, sig_22, sig_23],
-                                        [sig_13, sig_23, sig_33]],
-                                       dtype=float)
-                M1 = numpy.matmul(vec.transpose(), m_m_norm)
-                M2 = calc_m_sigma(M1, np_sigma)
-                l_sig = [sum(M2[:, 0]**2)**0.5, sum(M2[:, 1]**2)**0.5,
-                         sum(M2[:, 2]**2)**0.5]
-                val = [(_1, _2) for _1, _2 in zip(val, l_sig)]
-            l_moments = list(val)
-            l_directions = [vec[:, 0], vec[:, 1], vec[:, 2]]
-            ll_moments.append(l_moments)
-            ll_directions.append(l_directions)
-        return ll_moments, ll_directions
+        l_moments, l_moments_sigma, l_rot_matrix = \
+            a_s_s.calc_main_axes_of_magnetization_ellipsoid(cell)
+        return l_moments, l_moments_sigma, l_rot_matrix
 
     def report_main_axes_of_magnetization_ellipsoids(self):
         """
@@ -757,21 +710,23 @@ class Crystal(DataN):
             a_s_m_a = self.atom_site_susceptibility
         else:
             return ""
-        l_susceptibilities, l_directions = \
+        l_moments, l_moments_sigma, l_rot_matrix = \
             self.calc_main_axes_of_magnetization_ellipsoids()
         l_chi_as_u = self.calc_magnetization_ellipsoid()
         # cycle over magnetic atoms
-        for label, susceptibilities, directions, chi_as_u in \
-                zip(a_s_m_a.label, l_susceptibilities, l_directions,
-                    l_chi_as_u):
+        for label, susceptibilities, susceptibilities_sigma, rot_matrix, \
+            chi_as_u in zip(a_s_m_a.label, l_moments, l_moments_sigma,
+                            l_rot_matrix, l_chi_as_u):
             ls_out.append(f"For `{label:}` the susceptibility is:")
             # cycle over three main axes
-            for _val1, _direction in zip(susceptibilities, directions):
-                if isinstance(_val1, tuple):
-                    s_param = value_error_to_string(*_val1)
-                    s_val = f"{s_param:}".rjust(9)
-                else:
+            directions = rot_matrix.transpose()
+            for _val1, val_sigma, _direction in zip(
+                    susceptibilities, susceptibilities_sigma, directions):
+                if math.isclose(val_sigma, 0.):
                     s_val = f"{_val1: 9.5f}".rjust(9)
+                else:
+                    s_param = value_error_to_string(_val1, val_sigma)
+                    s_val = f"{s_param:}".rjust(9)
                 ls_out.append(
                     f"{s_val:} mu_B/T along: {_direction[0]: 9.5f} \
 {_direction[1]: 9.5f} {_direction[2]: 9.5f}")

@@ -171,6 +171,9 @@ from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
 
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
+from cryspy.D_functions_item_loop.function_1_section_from_density_point \
+    import calc_section_from_density_point
+
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
