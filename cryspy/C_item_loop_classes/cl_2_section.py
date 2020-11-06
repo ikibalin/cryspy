@@ -2,6 +2,8 @@
 from typing import NoReturn
 import numpy
 
+from cryspy.A_functions_base.function_2_crystallography_base import \
+    calc_atoms_in_unit_cell
 from cryspy.A_functions_base.function_2_mem import \
     calc_index_atom_symmetry_closest_to_fract_xyz
 
@@ -185,6 +187,8 @@ class Section(ItemN):
             - atom_y
             - atom_label
         """
+
+
         r_11 = numpy.array(space_group_symop.r_11, dtype=int)
         r_12 = numpy.array(space_group_symop.r_12, dtype=int)
         r_13 = numpy.array(space_group_symop.r_13, dtype=int)
@@ -202,6 +206,17 @@ class Section(ItemN):
         r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
         b_i = (b_1, b_2, b_3)
 
+        fract_atom_auc_x = numpy.array(atom_site.fract_x, dtype=float)
+        fract_atom_auc_y = numpy.array(atom_site.fract_y, dtype=float)
+        fract_atom_auc_z = numpy.array(atom_site.fract_z, dtype=float)
+        fract_atom_auc_xyz = (fract_atom_auc_x, fract_atom_auc_y,
+                              fract_atom_auc_z)
+        label_atom_auc = numpy.array(atom_site.label, dtype=str)
+
+        fract_atom_uc_x, fract_atom_uc_y, fract_atom_uc_z, label_atom_uc = \
+            calc_atoms_in_unit_cell(r_ij, b_i, fract_atom_auc_xyz,
+                                    label_atom_auc)
+
         size_x = self.size_x
         size_y = self.size_y
 
@@ -217,32 +232,28 @@ class Section(ItemN):
 
         v_pos_x, v_pos_y, v_pos_z = self.calc_axes_x_y_z(cell, atom_site)
 
-        fract_atom_auc_x = numpy.array(atom_site.fract_x, dtype=float)
-        fract_atom_auc_y = numpy.array(atom_site.fract_y, dtype=float)
-        fract_atom_auc_z = numpy.array(atom_site.fract_z, dtype=float)
-        label_atom_auc = numpy.array(atom_site.label, dtype=str)
+        pos_atom_uc_x, pos_atom_uc_y, pos_atom_uc_z = \
+            cell.calc_position_by_coordinate(fract_atom_uc_x, fract_atom_uc_y,
+                                             fract_atom_uc_z)
 
+        pos_atom_loc_x = v_pos_x[0]*(pos_atom_uc_x - center_pos_x) + \
+            v_pos_x[1]*(pos_atom_uc_y - center_pos_y) + \
+            v_pos_x[2]*(pos_atom_uc_z - center_pos_z)
+        pos_atom_loc_y = v_pos_y[0]*(pos_atom_uc_x - center_pos_x) + \
+            v_pos_y[1]*(pos_atom_uc_y - center_pos_y) + \
+            v_pos_y[2]*(pos_atom_uc_z - center_pos_z)
+        pos_atom_loc_z = v_pos_z[0]*(pos_atom_uc_x - center_pos_x) + \
+            v_pos_z[1]*(pos_atom_uc_y - center_pos_y) + \
+            v_pos_z[2]*(pos_atom_uc_z - center_pos_z)
 
-        
-
-        pos_atom_x, pos_atom_y, pos_atom_z = cell.calc_position_by_coordinate(
-            fract_atom_x, fract_atom_y, fract_atom_z)
-
-        pos_atom_loc_x = v_pos_x[0]*pos_atom_x + v_pos_x[1]*pos_atom_y + \
-            v_pos_x[2]*pos_atom_z
-        pos_atom_loc_y = v_pos_y[0]*pos_atom_x + v_pos_y[1]*pos_atom_y + \
-            v_pos_y[2]*pos_atom_z
-        pos_atom_loc_z = v_pos_z[0]*pos_atom_x + v_pos_z[1]*pos_atom_y + \
-            v_pos_z[2]*pos_atom_z
-
-        flag_x = numpy.abs(pos_atom_loc_x - center_pos_x) < 0.5*size_x
-        flag_y = numpy.abs(pos_atom_loc_y - center_pos_y) < 0.5*size_y
-        flag_z = numpy.abs(pos_atom_loc_z - center_pos_z) < distance_min
+        flag_x = numpy.abs(pos_atom_loc_x) < 0.5*size_x
+        flag_y = numpy.abs(pos_atom_loc_y) < 0.5*size_y
+        flag_z = numpy.abs(pos_atom_loc_z) < distance_min
         flag_xyz = numpy.logical_and(flag_x, numpy.logical_and(flag_y, flag_z))
 
         atom_x = pos_atom_loc_x[flag_xyz]
         atom_y = pos_atom_loc_y[flag_xyz]
-        atom_label = label_atom[flag_xyz]
+        atom_label = label_atom_uc[flag_xyz]
         return atom_x, atom_y, atom_label
 
 

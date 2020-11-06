@@ -371,7 +371,6 @@ def ortogonalize_matrix(m_ij, m_norm_ij):
     return s_11, s_12, s_13, s_21, s_22, s_23, s_31, s_32, s_33
 
 
-# FIXME: it works incorrectly
 def calc_atoms_in_unit_cell(r_ij, b_i, fract_xyz, atom_label):
     """Calculate atoms in unit cell.
 
@@ -391,21 +390,33 @@ def calc_atoms_in_unit_cell(r_ij, b_i, fract_xyz, atom_label):
     """
     (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33) = r_ij
     (b_1, b_2, b_3) = b_i
+    atom_number = numpy.linspace(0, atom_label.size-1, atom_label.size)
     (fract_x, fract_y, fract_z) = fract_xyz
     na = numpy.newaxis
     f_x = numpy.mod(r_11[:, na]*fract_x[na, :] + r_12[:, na]*fract_y[na, :] +
-                    r_13[:, na]*fract_z[na, :] + b_1, 1.)
+                    r_13[:, na]*fract_z[na, :] + b_1[:, na], 1.)
     f_y = numpy.mod(r_21[:, na]*fract_x[na, :] + r_22[:, na]*fract_y[na, :] +
-                    r_23[:, na]*fract_z[na, :] + b_2, 1.)
+                    r_23[:, na]*fract_z[na, :] + b_2[:, na], 1.)
     f_z = numpy.mod(r_31[:, na]*fract_x[na, :] + r_32[:, na]*fract_y[na, :] +
-                    r_33[:, na]*fract_z[na, :] + b_3, 1.)
-    r_f_x = numpy.round(f_x, decimals=1e-5)
-    r_f_y = numpy.round(f_y, decimals=1e-5)
-    r_f_z = numpy.round(f_z, decimals=1e-5)
+                    r_33[:, na]*fract_z[na, :] + b_3[:, na], 1.)
+    r_f_x = numpy.round(f_x, decimals=5)
+    r_f_y = numpy.round(f_y, decimals=5)
+    r_f_z = numpy.round(f_z, decimals=5)
 
-    r_f_xyz = numpy.array([r_f_x.flatten(), r_f_y.flatten(), r_f_z.flatten()],
+    a_n = numpy.ones(r_f_x.shape, dtype=float) * atom_number[na, :]
+    r_f_xyz = numpy.array([r_f_x.flatten(), r_f_y.flatten(), r_f_z.flatten(),
+                           a_n.flatten()],
                           dtype=float)
     u_f_xyz = numpy.unique(r_f_xyz, axis=1)
+
     fract_uc_x, fract_uc_y, fract_uc_z = u_f_xyz[0], u_f_xyz[1], u_f_xyz[2]
-    label_uc = None
-    return fract_uc_x, fract_uc_y, fract_uc_z, label_uc
+    number_uc = numpy.round(u_f_xyz[3], decimals=0).astype(int)
+    label_uc = atom_label[number_uc]
+    ind_sort = numpy.argsort(number_uc)
+
+    fract_uc_x_s = numpy.take_along_axis(fract_uc_x, ind_sort, 0)
+    fract_uc_y_s = numpy.take_along_axis(fract_uc_y, ind_sort, 0)
+    fract_uc_z_s = numpy.take_along_axis(fract_uc_z, ind_sort, 0)
+    label_uc_s = numpy.take_along_axis(label_uc, ind_sort, 0)
+
+    return fract_uc_x_s, fract_uc_y_s, fract_uc_z_s, label_uc_s
