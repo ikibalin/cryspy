@@ -67,7 +67,7 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2020, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.4.16"
+__version__ = "0.4.17"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
@@ -113,6 +113,7 @@ from cryspy.C_item_loop_classes.cl_1_atom_type import AtomType, \
     AtomTypeL
 from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
     AtomSiteAniso, AtomSiteAnisoL
+from cryspy.C_item_loop_classes.cl_1_hessian_matrix import HessianMatrix
 from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibility, AtomSiteSusceptibilityL

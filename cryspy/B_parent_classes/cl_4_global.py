@@ -124,6 +124,21 @@ class GlobalN(object):
         else:
             self.__dict__[name] = val_new
 
+    def is_attribute(self, name):
+        """Temporary construction.
+
+        Better to use:
+
+        try:
+            obj = self.attribute_name
+        except AttributeError as e:
+            obj = ...
+        """
+        for item in self.items:
+            if name.lower() == item.get_name():
+                return True
+        return False
+
     def add_items(self, items: list):
         """Add items."""
         l_name = [item.get_name() for item in items]

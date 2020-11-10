@@ -9,10 +9,14 @@ from typing import NoReturn, List
 import scipy
 import scipy.optimize
 
+from cryspy.A_functions_base.function_1_hessian_matrix import \
+    estimate_hessian_matrix
 from cryspy.A_functions_base.function_1_error_simplex import \
     error_estimation_simplex
 
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+
+from cryspy.C_item_loop_classes.cl_1_hessian_matrix import HessianMatrix
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -31,6 +35,7 @@ class RhoChi(GlobalN):
         - diffrn_#name
         - pd_#name
         - pd2d_#name
+        - hessian_matrix (oprional)
 
     Methods
     -------
@@ -46,7 +51,7 @@ class RhoChi(GlobalN):
     """
 
     CLASSES_MANDATORY = ()
-    CLASSES_OPTIONAL = (Crystal, MagCrystal, Diffrn, Pd, Pd2d)
+    CLASSES_OPTIONAL = (HessianMatrix, Crystal, MagCrystal, Diffrn, Pd, Pd2d)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -77,7 +82,8 @@ class RhoChi(GlobalN):
     def apply_constraint(self):
         """Apply constraints."""
         for item in self.items:
-            item.apply_constraints()
+            if isinstance(item, (Crystal, MagCrystal, Diffrn, Pd, Pd2d)):
+                item.apply_constraints()
 
     def experiments(self):
         """List of expreiments."""
@@ -118,6 +124,45 @@ class RhoChi(GlobalN):
             n_res += n
         return chi_sq_res, n_res
 
+    def estimate_hessian(self):
+        """Estimate hessian matrix."""
+        if self.is_attribute("hessian_matrix"):
+            self.items.remove(self.hessian_matrix)
+
+        self.apply_constraint()
+        l_var_name = self.get_variable_names()
+
+        val_0 = numpy.array([self.get_variable_by_name(var_name)
+                             for var_name in l_var_name], dtype=float)
+
+        chi_sq, n = self.calc_chi_sq(flag_internal=True)
+
+        def tempfunc(l_param):
+            for var_name, param in zip(l_var_name, l_param):
+                self.set_variable_by_name(var_name, param)
+            chi_sq, n_points = self.calc_chi_sq(flag_internal=False)
+            if n_points < n:
+                res_out = 1.0e+308
+            else:
+                res_out = chi_sq
+            return res_out
+
+        l_label = [var_name[-1][0] for var_name in l_var_name]
+        np_hessian = estimate_hessian_matrix(tempfunc, val_0)
+        hessian_matrix = HessianMatrix()
+        hessian_matrix.set_labels(l_label)
+        hessian_matrix.set_hessian_matrix(np_hessian)
+        hessian_matrix.form_hessian_matrix()
+        hessian_matrix.form_object()
+        self.hessian_matrix = hessian_matrix
+
+        # It's very strange behaviour
+        # np_sigma = hessian_matrix.sigma
+        # for var_name, sigma in zip(l_var_name, np_sigma):
+        #     hh = tuple((f"{var_name[-1][0]:}_sigma", ) + var_name[-1][1:])
+        #     var_name_sigma = tuple(var_name[:-1]+(hh, ))
+        #     self.set_variable_by_name(var_name_sigma, sigma)
+
     def refine(self, optimization_method: str = "BFGS", disp: bool = False,
                d_info: dict = None):
         """
@@ -129,6 +174,8 @@ class RhoChi(GlobalN):
             - "simplex"
             - "basinhopping"
         """
+        if self.is_attribute("hessian_matrix"):
+            self.items.remove(self.hessian_matrix)
 
         if d_info is not None:
             d_info_keys = d_info.keys()
@@ -199,6 +246,14 @@ class RhoChi(GlobalN):
 
                 l_sigma.append(max(error, val_2))
 
+            obj_hm = HessianMatrix()
+            obj_hm.set_hessian_matrix(m_error*1./float(n))
+            l_label = [var_name[-1][0] for var_name in l_var_name]
+            obj_hm.set_labels(l_label)
+            obj_hm.form_hessian_matrix()
+            obj_hm.form_object()
+            self.hessian_matrix = obj_hm
+
             for var_name, sigma, coeff in \
                     zip(l_var_name, l_sigma, coeff_norm):
                 hh = tuple((f"{var_name[-1][0]:}_sigma", ) + var_name[-1][1:])
@@ -219,6 +274,17 @@ class RhoChi(GlobalN):
             hess_inv = res["hess_inv"] * hes_coeff_norm
             l_param = res["x"]
             l_sigma = (abs(numpy.diag(hess_inv)*1./float(n)))**0.5
+
+            # not sure about this
+            hess_matrix = hess_inv*1./float(n)
+            obj_hm = HessianMatrix()
+            obj_hm.set_hessian_matrix(hess_matrix)
+            l_label = [var_name[-1][0] for var_name in l_var_name]
+            obj_hm.set_labels(l_label)
+            obj_hm.form_hessian_matrix()
+            obj_hm.form_object()
+            self.hessian_matrix = obj_hm
+
             for var_name, sigma, param, coeff in \
                     zip(l_var_name, l_sigma, l_param, coeff_norm):
                 hh = tuple((f"{var_name[-1][0]:}_sigma", ) + var_name[-1][1:])
@@ -272,8 +338,10 @@ class RhoChi(GlobalN):
         f_main = os.path.join(f_dir, "main.rcif")
         ls_main = []
         ls_main.append("global_{:}\n".format(self.global_name))
+        if self.is_attribute("hessian_matrix"):
+            ls_main.append(self.hessian_matrix.to_cif()+"\n")
         for experiment in self.experiments():
-            ls_main.append(f"_add_url {experiment.data_name:}_data.rcif\n")
+            ls_main.append(f"_add_url {experiment.data_name:}_data.rcif")
             ls_main.append(f"_add_url {experiment.data_name:}_calc.rcif\n")
         for crystal in self.crystals():
             ls_main.append("\n"+crystal.to_cif())

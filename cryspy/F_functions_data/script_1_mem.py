@@ -369,8 +369,10 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         if "print" not in d_info_keys:
             d_info["print"] = ""
 
-    flag_two_channel = mem_parameters.method == "2channel"
+    crystal.apply_constraints()
 
+    flag_two_channel = mem_parameters.method == "2channel"
+    
     cell = crystal.cell
     space_group = crystal.space_group
     atom_site = crystal.atom_site
@@ -454,6 +456,8 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         chi_iso_f = mem_parameters.chi_ferro
         chi_iso_af = mem_parameters.chi_antiferro
 
+        atom_site_susceptibility.apply_chi_iso_constraint(cell)
+        atom_site_susceptibility.apply_moment_iso_constraint(cell)
         atom_site_susceptibility.apply_space_group_constraint(
             atom_site, space_group)
 

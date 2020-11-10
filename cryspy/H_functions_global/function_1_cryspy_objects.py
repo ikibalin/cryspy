@@ -35,6 +35,7 @@ from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
 from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
     ExtinctionL
+from cryspy.C_item_loop_classes.cl_1_hessian_matrix import HessianMatrix
 from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
 from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
     Pd2dInstrReflexAsymmetry, Pd2dInstrReflexAsymmetryL
@@ -102,7 +103,7 @@ L_ITEM_CLASS.extend([
     AtomSiteSusceptibility, AtomType, AtomTypeScat,
     Cell, Chi2,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
-    Exclude, Extinction, MEMParameters,
+    Exclude, Extinction, HessianMatrix, MEMParameters,
     Phase, PdBackground,
     PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak,
     Pd2dBackground, Pd2dInstrReflexAsymmetry,
@@ -446,6 +447,7 @@ def items_to_globaln(global_name: str, items: list, l_global_class):
     """
     global_obj = None
     classes = set([type(item) for item in items])
+
     for cls_global in l_global_class:
         flag_mand = all([cls_mand in classes
                          for cls_mand in cls_global.CLASSES_MANDATORY])
