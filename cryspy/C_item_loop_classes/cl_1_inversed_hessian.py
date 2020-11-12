@@ -16,9 +16,9 @@ def hessian_to_correlation(np_hessian):
     np_correlation_matrix = np_hessian / np_sigma_sq_matrix
     return np_correlation_matrix, np_sigma
 
-class HessianMatrix(ItemN):
+class InversedHessian(ItemN):
     """
-    HessianMatrix class.
+    InversedHessian class.
 
     In mathematics, the Hessian matrix or Hessian is a square matrix of
     second-order partial derivatives of a scalar-valued function, or scalar
@@ -26,7 +26,7 @@ class HessianMatrix(ItemN):
 
     Attributes
     ----------
-        - hessian_matrix
+        - with_labels
 
     Internal Attributes
     -------------------
@@ -70,10 +70,10 @@ class HessianMatrix(ItemN):
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
 
-    PREFIX = "hessian_matrix"
+    PREFIX = "inversed_hessian"
 
     def __init__(self, **kwargs) -> NoReturn:
-        super(HessianMatrix, self).__init__()
+        super(InversedHessian, self).__init__()
 
         # defined for any integer and float parameters
         D_MIN = {}
@@ -103,7 +103,7 @@ class HessianMatrix(ItemN):
         np_correlation_matrix, np_sigma = hessian_to_correlation(np_matrix)
         
         self.set_labels(np_label)
-        self.set_hessian_matrix(np_matrix)
+        self.set_inversed_hessian(np_matrix)
         self.set_correlation_matrix(np_correlation_matrix)
         self.set_sigmas(np_sigma)
 
@@ -112,7 +112,7 @@ class HessianMatrix(ItemN):
         np_label = numpy.array(labels, dtype=str)
         self.__dict__["label"] = np_label
 
-    def set_hessian_matrix(self, matrix) -> NoReturn:
+    def set_inversed_hessian(self, matrix) -> NoReturn:
         """Form 2theta_phi_intensity from internal attributes."""
         self.__dict__["matrix"] = matrix
 
@@ -124,7 +124,7 @@ class HessianMatrix(ItemN):
         """Form 2theta_phi_intensity from internal attributes."""
         self.__dict__["sigma"] = sigmas
 
-    def form_hessian_matrix(self):
+    def form_inversed_hessian(self):
         f_label = self.is_attribute("label")
         f_hessian = self.is_attribute("matrix")
         f_correlation = self.is_attribute("correlation_matrix")
@@ -138,7 +138,7 @@ class HessianMatrix(ItemN):
             np_sigma = self.sigma
             np_na = numpy.newaxis
             np_hessian = np_correlation*np_sigma[:, np_na]*np_sigma[np_na, :]
-            self.set_hessian_matrix(np_hessian)
+            self.set_inversed_hessian(np_hessian)
             ls_out = [f"{lab:7} "+" ".join([f"{val:.10f}" for val in hess])
                       for lab, hess in zip(self.label, self.matrix)]
             self.with_labels = "\n".join(ls_out)
@@ -169,7 +169,7 @@ class HessianMatrix(ItemN):
 
 # """
 
-# obj = HessianMatrix.from_cif(s_cont)
+# obj = InversedHessian.from_cif(s_cont)
 # obj.form_object()
 # print(obj, end="\n\n")
 # print(obj.matrix, end="\n\n")
@@ -177,6 +177,6 @@ class HessianMatrix(ItemN):
 # print(obj.correlation_matrix, end="\n\n")
 # print(obj.sigma, end="\n\n")
 # print(obj.with_labels, end="\n\n")
-# obj.form_hessian_matrix()
+# obj.form_inversed_hessian()
 
 # print(obj, end="\n\n")

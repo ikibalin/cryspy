@@ -107,8 +107,12 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
     space_group = crystal.space_group
     atom_site = crystal.atom_site
     space_group_symop = space_group.full_space_group_symop
-    atom_site_susceptibility = crystal.atom_site_susceptibility
-    l_magnetic_labes = atom_site_susceptibility.label
+    if crystal.is_attribute("atom_site_sisceptibility"):
+        atom_site_susceptibility = crystal.atom_site_susceptibility
+        l_magnetic_labes = atom_site_susceptibility.label
+    else:
+        atom_site_susceptibility = None
+        l_magnetic_labes  = []
     density_point = DensityPointL()
     if prior_density == "core":
         print("The prior density is core's one.", end="\r")

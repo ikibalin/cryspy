@@ -9,14 +9,14 @@ from typing import NoReturn, List
 import scipy
 import scipy.optimize
 
-from cryspy.A_functions_base.function_1_hessian_matrix import \
-    estimate_hessian_matrix
+from cryspy.A_functions_base.function_1_inversed_hessian import \
+    estimate_inversed_hessian_matrix
 from cryspy.A_functions_base.function_1_error_simplex import \
     error_estimation_simplex
 
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-from cryspy.C_item_loop_classes.cl_1_hessian_matrix import HessianMatrix
+from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -51,7 +51,7 @@ class RhoChi(GlobalN):
     """
 
     CLASSES_MANDATORY = ()
-    CLASSES_OPTIONAL = (HessianMatrix, Crystal, MagCrystal, Diffrn, Pd, Pd2d)
+    CLASSES_OPTIONAL = (InversedHessian, Crystal, MagCrystal, Diffrn, Pd, Pd2d)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -124,10 +124,10 @@ class RhoChi(GlobalN):
             n_res += n
         return chi_sq_res, n_res
 
-    def estimate_hessian(self):
-        """Estimate hessian matrix."""
-        if self.is_attribute("hessian_matrix"):
-            self.items.remove(self.hessian_matrix)
+    def estimate_inversed_hessian(self):
+        """Estimate inversed Hessian matrix."""
+        if self.is_attribute("inversed_hessian"):
+            self.items.remove(self.inversed_hessian)
 
         self.apply_constraint()
         l_var_name = self.get_variable_names()
@@ -148,13 +148,17 @@ class RhoChi(GlobalN):
             return res_out
 
         l_label = [var_name[-1][0] for var_name in l_var_name]
-        np_hessian = estimate_hessian_matrix(tempfunc, val_0)
-        hessian_matrix = HessianMatrix()
-        hessian_matrix.set_labels(l_label)
-        hessian_matrix.set_hessian_matrix(np_hessian)
-        hessian_matrix.form_hessian_matrix()
-        hessian_matrix.form_object()
-        self.hessian_matrix = hessian_matrix
+        np_hessian, np_first_der = estimate_inversed_hessian_matrix(
+            tempfunc, val_0)
+        inv_hessian = InversedHessian()
+        inv_hessian.set_labels(l_label)
+        inv_hessian.set_inversed_hessian(np_hessian)
+        inv_hessian.form_inversed_hessian()
+        inv_hessian.form_object()
+        self.inversed_hessian = inv_hessian
+
+        # change = -1*numpy.matmul(np_hessian, np_first_der)
+        # print("change:\n", change, end=2*"\n")
 
         # It's very strange behaviour
         # np_sigma = hessian_matrix.sigma
@@ -174,8 +178,8 @@ class RhoChi(GlobalN):
             - "simplex"
             - "basinhopping"
         """
-        if self.is_attribute("hessian_matrix"):
-            self.items.remove(self.hessian_matrix)
+        if self.is_attribute("inversed_hessian"):
+            self.items.remove(self.inversed_hessian)
 
         if d_info is not None:
             d_info_keys = d_info.keys()
@@ -246,13 +250,13 @@ class RhoChi(GlobalN):
 
                 l_sigma.append(max(error, val_2))
 
-            obj_hm = HessianMatrix()
-            obj_hm.set_hessian_matrix(m_error*1./float(n))
+            obj_hm = InversedHessian()
+            obj_hm.set_inversed_hessian(m_error*1./float(n))
             l_label = [var_name[-1][0] for var_name in l_var_name]
             obj_hm.set_labels(l_label)
-            obj_hm.form_hessian_matrix()
+            obj_hm.form_inversed_hessian()
             obj_hm.form_object()
-            self.hessian_matrix = obj_hm
+            self.inversed_hessian = obj_hm
 
             for var_name, sigma, coeff in \
                     zip(l_var_name, l_sigma, coeff_norm):
@@ -277,13 +281,13 @@ class RhoChi(GlobalN):
 
             # not sure about this
             hess_matrix = hess_inv*1./float(n)
-            obj_hm = HessianMatrix()
-            obj_hm.set_hessian_matrix(hess_matrix)
+            obj_hm = InversedHessian()
+            obj_hm.set_inversed_hessian(hess_matrix)
             l_label = [var_name[-1][0] for var_name in l_var_name]
             obj_hm.set_labels(l_label)
-            obj_hm.form_hessian_matrix()
+            obj_hm.form_inversed_hessian()
             obj_hm.form_object()
-            self.hessian_matrix = obj_hm
+            self.inversed_hessian = obj_hm
 
             for var_name, sigma, param, coeff in \
                     zip(l_var_name, l_sigma, l_param, coeff_norm):

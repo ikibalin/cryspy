@@ -11,12 +11,13 @@ Functions
 import numpy
 import copy
 
-def estimate_hessian_matrix(func, param_0):
-    """Estimate Hessian matrix."""
+def estimate_inversed_hessian_matrix(func, param_0):
+    """Estimate inversed Hessian matrix."""
     n_param = len(param_0)
     np_hessian = numpy.zeros(shape=(n_param, n_param), dtype=float)
+    np_first_der = numpy.zeros(shape=(n_param,), dtype=float)
     chi_sq = func(param_0)
-    perc = 0.1
+    perc = 0.01
     for i_p_1, p_1 in enumerate(param_0):
         delta_p_1 = perc * numpy.abs(p_1)
         if delta_p_1 < 1e-5:
@@ -25,10 +26,13 @@ def estimate_hessian_matrix(func, param_0):
         param_m = copy.deepcopy(param_0)
         param_p[i_p_1] += delta_p_1
         param_m[i_p_1] -= delta_p_1
-        chi_sq_p = func(param_p)
-        chi_sq_m = func(param_m)
-        der_second = (chi_sq_p + chi_sq_m - 2.*chi_sq)/(delta_p_1**2)
-        np_hessian[i_p_1, i_p_1] = der_second
+        # chi_sq_p = func(param_p)
+        # chi_sq_m = func(param_m)
+        # der_second = (chi_sq_p + chi_sq_m - 2.*chi_sq)/(delta_p_1**2)
+        # np_hessian[i_p_1, i_p_1] = der_second
+
+        # der_first = (chi_sq_p - chi_sq_m) / (2.*delta_p_1)
+        # np_first_der[i_p_1] = der_first
 
         param_pp = copy.deepcopy(param_0)
         param_pm = copy.deepcopy(param_0)
@@ -38,7 +42,7 @@ def estimate_hessian_matrix(func, param_0):
         param_pm[i_p_1] += delta_p_1
         param_mp[i_p_1] -= delta_p_1
         param_mm[i_p_1] -= delta_p_1
-        for i_p_2, p_2 in enumerate(param_0[:i_p_1]):
+        for i_p_2, p_2 in enumerate(param_0[:i_p_1+1]):
             delta_p_2 = perc * numpy.abs(p_2)
             if delta_p_2 < 1e-5:
                 delta_p_2 = 1e-5
@@ -57,6 +61,6 @@ def estimate_hessian_matrix(func, param_0):
             np_hessian[i_p_1, i_p_2] = der_second
             np_hessian[i_p_2, i_p_1] = der_second
     np_hessian_inv = numpy.linalg.inv(np_hessian)
-    chi_sq = func(param_0)
-    return np_hessian_inv
+    func(param_0)
+    return np_hessian_inv, np_first_der
 

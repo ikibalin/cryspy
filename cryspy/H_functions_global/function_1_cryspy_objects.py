@@ -35,7 +35,7 @@ from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
 from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
     ExtinctionL
-from cryspy.C_item_loop_classes.cl_1_hessian_matrix import HessianMatrix
+from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian
 from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
 from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
     Pd2dInstrReflexAsymmetry, Pd2dInstrReflexAsymmetryL
@@ -103,7 +103,7 @@ L_ITEM_CLASS.extend([
     AtomSiteSusceptibility, AtomType, AtomTypeScat,
     Cell, Chi2,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
-    Exclude, Extinction, HessianMatrix, MEMParameters,
+    Exclude, Extinction, MEMParameters, InversedHessian,
     Phase, PdBackground,
     PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak,
     Pd2dBackground, Pd2dInstrReflexAsymmetry,
