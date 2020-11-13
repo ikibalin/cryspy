@@ -49,7 +49,7 @@ _atom_site_susceptibility_moment_33
 _atom_site_susceptibility_moment_12
 _atom_site_susceptibility_moment_13
 _atom_site_susceptibility_moment_23
-Ho1 Cani Mani 3.5653 3.5653 3.5653  3.5872(98) 3.5872 3.5872  0.0001(99) 0.0001 0.0001 0.0 0.0 0.0
+Ho1 Cani Mani 2.5653() 3.5653 3.5653  2.5872(98) 3.5872 3.5872  0.0000 0.0001 0.0001 0.0 0.0 0.0
 
 loop_
 _atom_site_scat_label
@@ -75,8 +75,8 @@ _diffrn_orient_matrix_ub_31 7.4657
 _diffrn_orient_matrix_ub_32 6.94702
 _diffrn_orient_matrix_ub_33 -0.18685
 
-_extinction_mosaicity 0.5523
-_extinction_radius 77.7983
+_extinction_mosaicity 0.5523()
+_extinction_radius 77.7983()
 _extinction_model gauss
 
 _phase_label Ho2Ti2O7

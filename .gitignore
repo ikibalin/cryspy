@@ -9,6 +9,8 @@ dist/*
 cryspy.egg-info/*
 .idea/*
 .pytest_cache/*
+.pylint.d/*
 .vscode/*
+.spyproject/*
 .vs/*
 TestResults/*
