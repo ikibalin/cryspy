@@ -107,7 +107,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
     space_group = crystal.space_group
     atom_site = crystal.atom_site
     space_group_symop = space_group.full_space_group_symop
-    if crystal.is_attribute("atom_site_sisceptibility"):
+    if crystal.is_attribute("atom_site_susceptibility"):
         atom_site_susceptibility = crystal.atom_site_susceptibility
         l_magnetic_labes = atom_site_susceptibility.label
     else:
