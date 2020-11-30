@@ -16,6 +16,21 @@ class SpaceGroupSymop(ItemN):
     Contains information about the symmetry operations of the
     space group.
 
+    Attributes
+    ----------
+        - operation_xyz (mandatory)
+        - id, operation_description, generator_xyz, sg_id (optional)
+        - r, b, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2,
+          b_3 (internal attributes)
+
+    Methods
+    -------------
+        - define_by_el_symm() (class method)
+        - get_symop_inversed()
+        - get_symops_by_centring_type()
+        - get_symops_by_generator_xyz()
+        - get_coords_xyz_by_coord_xyz()
+        
     """
     ATTR_MANDATORY_NAMES = ("operation_xyz", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -90,6 +105,24 @@ class SpaceGroupSymop(ItemN):
         self.__dict__["b_2"] = b[1]
         self.__dict__["b_3"] = b[2]
 
+    @classmethod
+    def define_by_el_symm(cls, el_symm):
+        """Define object by element of symmetry (class method).
+        
+        Arguments
+        ---------
+            - el_symm is [b_1, r_11, r_12, r_13,
+                          b_2, r_21, r_22, r_23,
+                          b_3, r_31, r_32, r_33]
+        """
+        [b_1, r_11, r_12, r_13, b_2, r_21, r_22, r_23, b_3, r_31, r_32, r_33] \
+            = el_symm
+        r = numpy.array([[r_11, r_12, r_13], [r_21, r_22, r_23],
+                         [r_31, r_32, r_33]], dtype=int)
+        b = numpy.array([b_1, b_2, b_3], dtype=float)
+        symop = transform_r_b_to_string(r, b, labels=("x", "y", "z"))
+        obj = cls(operation_xyz=symop)
+        return obj
 
     def get_symop_inversed(self, pcentr=numpy.zeros(3, float)):
         r, b = self.r, self.b

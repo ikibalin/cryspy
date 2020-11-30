@@ -34,8 +34,10 @@ def choose_max_clambda(c_lambda: float, den: numpy.ndarray, der: numpy.ndarray,
     exp_c_lambda = numpy.exp(-c_lambda*der)
     rel_max = (numpy.abs(1.-exp_c_lambda)).max()
     arg_max = (numpy.abs(1.-exp_c_lambda)).argmax()
-    if rel_max < rel_diff:
+    if (rel_max < rel_diff) & (rel_max > 0.0001 * rel_diff):
         return c_lambda
+    elif (rel_max < 0.0001 * rel_diff):
+        rel_diff = 0.01 * rel_diff
 
     # FIXME: check it.
     if exp_c_lambda[arg_max] > 1.:
@@ -186,10 +188,10 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             f_m_perp, delta_f_m_perp, delta_f_m_perp_f, delta_f_m_perp_a = \
                 density_point.calc_fm(*v_2d_i)
 
-            # # FIXME: put condition
-            # f_m_perp = (f_m_perp[0] + fm_orb_perp_loc[0],
-            #             f_m_perp[1] + fm_orb_perp_loc[1],
-            #             f_m_perp[2] + fm_orb_perp_loc[2])
+            # FIXME: put condition
+            f_m_perp = (f_m_perp[0] + fm_orb_perp_loc[0],
+                        f_m_perp[1] + fm_orb_perp_loc[1],
+                        f_m_perp[2] + fm_orb_perp_loc[2])
 
             fr_m, delta_fr_m = diffrn.calc_fr(cell, f_nucl, f_m_perp,
                                               delta_f_nucl=None,
@@ -252,7 +254,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         else:
             chi_sq_n_diff = (chi_sq_best - chi_sq)/float(total_peaks)
             chi_sq_best = chi_sq
-            c_lambda = 1.015*c_lambda
+            c_lambda = 1.03*c_lambda
 
         if not(flag_two_channel):
             numpy_density_best = copy.deepcopy(numpy_density)
@@ -270,12 +272,13 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:
     chi_sq/n is less than {gof_desired:.2f}."""
             break
-        elif c_lambda < c_lambda_min:
-            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f}.",
+        elif ((c_lambda < c_lambda_min) & False):
+            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f}. \
+c_lambda: {c_lambda:}",
                   end="\r")
             if flag_info:
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:
-    chi_sq/n is {chi_sq_n:.2f}."""
+    chi_sq/n is {chi_sq_n:.2f}. c_lambda less minimal"""
             if not(flag_two_channel):
                 density_point.numpy_density = numpy_density_best
             density_point.numpy_density_ferro = numpy_density_ferro_best

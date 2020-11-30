@@ -754,8 +754,8 @@ class SpaceGroup(ItemN):
             attributes = ["name_hm_alt", "it_coordinate_system_code"]
             related_attributes = ["name_H-M_alt", "IT_coordinate_system_code"]
             for _attr, cif_attr in zip(attributes, related_attributes):
-                _val = getattr(self, _attr)
-                if _val is not None:
+                if self.is_attribute(_attr):
+                    _val = getattr(self, _attr)
                     s_val = str(_val)
                     if len(s_val.split(" ")) > 1:
                         ls_out.append(
@@ -763,7 +763,7 @@ class SpaceGroup(ItemN):
                     else:
                         ls_out.append(
                             f"_{prefix:}{separator:}{cif_attr:} {s_val:}")
-                elif flag_all_attributes:
+                else:
                     ls_out.append(f"_{prefix:}{separator:}{cif_attr:} .")
             s_out = "\n".join(ls_out)
         else:

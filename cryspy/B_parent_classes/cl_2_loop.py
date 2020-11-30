@@ -10,7 +10,7 @@ from typing import NoReturn, Union
 import numpy
 from pycifstar import Data, to_data
 
-from cryspy.A_functions_base.function_1_strings import common_string, \
+from cryspy.A_functions_base.function_1_strings import find_prefix, \
     ciftext_to_html
 from cryspy.A_functions_base.function_1_strings import \
     string_to_value_error
@@ -207,10 +207,12 @@ class LoopN(object):
         if cls is LoopN:
             loop = cif_data.loops[0]
             l_name = loop.names
-            prefix = common_string(*tuple(l_name))
-            l_attr = [name[len(prefix):] for name in l_name]
+            prefix = find_prefix(*tuple(l_name))
+            l_attr = [name[len(prefix):].strip("_").strip(".") for name in l_name]
             l_cif_attr = [_.lower() for _ in l_attr]
-            prefix = prefix.strip("_").strip(".")
+            if "" in l_attr:
+                l_attr[l_attr.index("")] = "label"
+            prefix = prefix.strip("_").strip("_")
             obj = cls()
             obj.__dict__["ITEM_CLASS"] = ItemN
             obj.__dict__["ATTR_INDEX"] = None
@@ -226,8 +228,14 @@ class LoopN(object):
             prefix = item_class.PREFIX
 
         for cif_loop in cif_data.loops:
-            if ("_" + prefix.lower()) == cif_loop.prefix.lower():
-                prefix = cif_loop.prefix
+            # cond = ("_" + prefix.lower()) == cif_loop.prefix.lower()
+            # print("cif_loop.prefix: ", cif_loop.prefix)
+            # print(("_" + prefix.lower()) == cif_loop.prefix.lower(),
+            #       cif_loop.prefix.lower().startswith("_" + prefix.lower()))
+            # if ("_" + prefix.lower()) == cif_loop.prefix.lower():
+            if (cif_loop.prefix.lower().startswith("_" + prefix.lower())):
+                prefix = f"_{prefix:}"
+                # prefix = cif_loop.prefix
                 l_name = cif_loop.names
                 loop_name = cif_loop.name
                 l_name_short = [_[(len(prefix) + 1):] for _ in l_name]
@@ -241,7 +249,7 @@ class LoopN(object):
                     else:
                         _name_short_obj = _name_short.lower()
 
-                    if _name_short_obj in l_attr:
+                    if _name_short_obj.strip("_").strip(".") in l_attr:
                         if _i == 0:
                             items = []
                             for _val in cif_loop[_name]:
@@ -249,11 +257,13 @@ class LoopN(object):
                                     item = item_class()
                                     item._base_attributes_itemn(
                                         prefix.strip("_").strip("."),
-                                        tuple(l_cif_attr))
+                                        tuple(l_cif_attr), tuple(l_attr))
                                 else:
                                     item = item_class()
+
                                 if _name_short_obj in item.ATTR_REF:
                                     value, error = string_to_value_error(_val)
+                                    
                                     setattr(item, _name_short_obj, value)
                                     if error is not None:
                                         setattr(
@@ -297,6 +307,7 @@ class LoopN(object):
 
                 obj.items = items
                 break
+
         return obj
 
     def to_cif(self, separator: str = "_") -> str:
@@ -334,20 +345,25 @@ class LoopN(object):
         for name, name_cif in zip(item_0.ATTR_NAMES, item_0.ATTR_CIF):
             flag_value = item_0.is_attribute(name)
             if flag_value:
-                ls_out.append(f"_{prefix:}{separator:}{name_cif:}")
+                if name_cif == "":
+                    ls_out.append(f"_{prefix:}")
+                else:
+                    ls_out.append(f"_{prefix:}{separator:}{name_cif:}")
                 list_value = [getattr(item, f"{name}_as_string")
                               for item in self.items]
                 if len(ls_out_2) == 0:
                     n_max = max(map(len, [str(h) for h in list_value])) + 2
                     for s_val in list_value:
-                        if len(s_val.split(" ")) > 1:
+                        if ((len(s_val.split(" ")) > 1) |
+                                s_val.startswith("_")):
                             ls_out_2.append([("\""+s_val+"\"").ljust(n_max)])
                         else:
                             ls_out_2.append([s_val.ljust(n_max)])
                 else:
                     n_max = max(map(len, [str(h) for h in list_value])) + 2
                     for list_out, s_val in zip(ls_out_2, list_value):
-                        if len(s_val.split(" ")) > 1:
+                        if ((len(s_val.split(" ")) > 1) | 
+                                s_val.startswith("_")):
                             list_out.append(("\""+s_val+"\"").ljust(n_max))
                         else:
                             list_out.append(s_val.ljust(n_max))

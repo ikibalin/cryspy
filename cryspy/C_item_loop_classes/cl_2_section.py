@@ -17,8 +17,7 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
 
 
 class Section(ItemN):
-    """
-    Section class.
+    """Section class.
 
     Describe information concerning the density point.
     """

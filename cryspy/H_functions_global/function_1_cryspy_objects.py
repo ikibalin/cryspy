@@ -5,6 +5,8 @@ from typing import List
 
 from pycifstar import Global, to_global, Items, Loop, Data
 
+from cryspy.A_functions_base.function_1_strings import find_prefix
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
@@ -36,6 +38,8 @@ from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
     ExtinctionL
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian
+from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
+    MEMParameters, MEMParametersL
 from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
 from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
     Pd2dInstrReflexAsymmetry, Pd2dInstrReflexAsymmetryL
@@ -66,8 +70,14 @@ from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
     SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnCenteringL
 from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
-from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
-    MEMParameters, MEMParametersL
+from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground, \
+    TOFBackgroundL
+from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeas, TOFMeasL
+from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters, \
+    TOFParametersL
+from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeak, TOFPeakL
+from cryspy.C_item_loop_classes.cl_1_tof_proc import TOFProc, TOFProcL
+from cryspy.C_item_loop_classes.cl_1_tof_profile import TOFProfile, TOFProfileL
 
 from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
     AtomSiteScat, AtomSiteScatL
@@ -86,6 +96,7 @@ from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
+from cryspy.E_data_classes.cl_2_tof import TOF
 
 from cryspy.G_global_classes.cl_1_rhochi import RhoChi
 from cryspy.G_global_classes.cl_1_mem import MEM
@@ -110,7 +121,8 @@ L_ITEM_CLASS.extend([
     Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak,
     Range, RefineLs, Refln, ReflnSusceptibility,
     Setup, SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnOperation,
-    SpaceGroup, Section, Texture])
+    SpaceGroup, Section, Texture, TOFBackground, TOFMeas, TOFParameters,
+    TOFPeak, TOFProc, TOFProfile])
 
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL,
@@ -124,9 +136,10 @@ L_LOOP_CLASS.extend([
     Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL,
     RangeL, RefineLsL, ReflnL, ReflnSusceptibilityL,
     SectionL, SetupL, SpaceGroupSymopMagnCenteringL,
-    SpaceGroupSymopMagnOperationL, TextureL])
+    SpaceGroupSymopMagnOperationL, TextureL, TOFBackgroundL, TOFMeasL,
+    TOFParametersL, TOFPeakL, TOFProcL, TOFProfileL])
 
-L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d])
+L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d, TOF])
 
 L_GLOBAL_CLASS.extend([MEM, RhoChi])
 
@@ -231,17 +244,25 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
     return global_obj
 
 
-def find_name_prefix(loop_name, l_loop_prefix):
+def find_name_prefix(loop_name, l_item_cls):
     """Find name prefix."""
     loop_name = loop_name.strip("_")
+    l_loop_prefix = [item_cls.PREFIX for item_cls in l_item_cls]
     l_loop = [loop_prefix for loop_prefix in l_loop_prefix if
               loop_name.startswith(loop_prefix)]
     if len(l_loop) > 0:
         l_loop.sort(key=lambda x: len(x))
-        prefix = l_loop[-1]
-        name = loop_name.strip("_")[len(prefix)+1:]
-        separator = loop_name.strip("_")[len(prefix)]
-        return prefix, name, separator
+        for prefix in l_loop:
+            name = loop_name.strip("_")[len(prefix)+1:]
+            item_cls = l_item_cls[l_loop_prefix.index(prefix)]
+            l_attr_cif = [attr.lower() for attr in item_cls.ATTR_CIF]
+            if name.lower() in l_attr_cif:
+                separator = loop_name.strip("_")[len(prefix)]
+                return prefix, name, separator
+        # prefix = l_loop[-1]
+        # name = loop_name.strip("_")[len(prefix)+1:]
+        # separator = loop_name.strip("_")[len(prefix)]
+        # return prefix, name, separator
     return None, None, None
 
 
@@ -252,6 +273,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
     # l_item_class for future.
     l_item_class = []
     l_item_prefix = [item_cls.PREFIX for item_cls in l_item_class]
+    l_item_cls_in_def_loop = [loop_cls.ITEM_CLASS for loop_cls in l_loop_class]
     l_loop_prefix = [loop_cls.ITEM_CLASS.PREFIX for loop_cls in l_loop_class]
     l_loop_name = [name.lower() for name in loop_cif.names]
     flag_id = False
@@ -260,24 +282,28 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
     l_loop_prefix_in = []
     l_loop_name_in = []
     l_loop_separator_in = []
+
     for loop_name in l_loop_name:
         prefix, name, separator = find_name_prefix(loop_name,
-                                                   l_loop_prefix)
+                                                   l_item_cls_in_def_loop)
+
         if prefix is not None:
             l_name_allowed = [h.lower() for h in l_loop_class[
                 l_loop_prefix.index(prefix)].ITEM_CLASS.ATTR_CIF]
             if not(name.lower() in l_name_allowed):
                 prefix = None
                 name = None
+
         if (prefix is None) | (name is None):
             prefix, name, separator = find_name_prefix(loop_name,
-                                                       l_item_prefix)
+                                                       l_item_cls_in_def_loop)
             if prefix is not None:
                 l_name_allowed = [h.lower() for h in l_item_class[
                     l_item_prefix.index(prefix)].ATTR_CIF]
                 if not(name.lower() in l_name_allowed):
                     prefix = None
                     name = None
+
         if (prefix is None) | (name is None):
             if loop_name.find(".") != -1:
                 prefix, name = loop_name.strip("_").split(".")[:2]
@@ -286,18 +312,22 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
                 prefix = loop_name.strip("_").split("_")[0]
                 name = loop_name.strip("_")[len(prefix)+1:]
                 separator = "_"
+
         if name.lower() == "id":
             flag_id = True
             prefix_id = prefix
             loop_name_id = loop_name
+
         if name.lower() == "label":
             flag_label = True
             prefix_label = prefix
             loop_name_label = loop_name
+
         if name.lower() == "type":
             flag_type = True
             prefix_type = prefix
             loop_name_type = loop_name
+
         l_loop_prefix_in.append(prefix)
         l_loop_name_in.append(name)
         l_loop_separator_in.append(separator)
@@ -313,6 +343,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
         elif prefix in l_item_prefix:
             # for future
             item_cls = l_item_class[l_loop_prefix.index(prefix)]
+
         l_loop_name_cif = []
         ll_val_cif = []
         separator = "_"
@@ -342,10 +373,13 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
             ll_val_cif))] for i_1 in range(len(ll_val_cif[0]))]
         obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t)
         loopn = loop_cls.from_cif(str(obj))
+
         if loopn is None:
             loop_cls = LoopN
             loopn = loop_cls.from_cif(str(obj))
-
+        # if len(loopn.items) == 0:
+        #     print("obj:", loop_cls)
+        #     print(obj)
         if not(loopn is None):
             l_loopn.append(loopn)
         else:
@@ -355,6 +389,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
 
 def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
     """Transform Items object to items of ItemN classes."""
+
     l_item = []
     l_name_cif = list(items_cif.names)
     flag_point_separator = all([name.find(".") == -1
@@ -373,7 +408,8 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
                           for attr_cif in cls_item.ATTR_MANDATORY_CIF]
 
         l_cls_all_cif = [f"_{prefix:}{separator_loc:}{attr_cif:}"
-                         for attr_cif in cls_item.ATTR_MANDATORY_CIF]
+                         for attr_cif in (cls_item.ATTR_MANDATORY_CIF +
+                                          cls_item.ATTR_OPTIONAL_CIF)]
 
         flag_mand = all([items_cif.is_value(name) for name in l_cls_mand_cif])
         flag_any = any([items_cif.is_value(name) for name in l_cls_all_cif])
@@ -384,7 +420,8 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
                               for attr_cif in cls_item.ATTR_MANDATORY_CIF]
 
             l_cls_all_cif = [f"_{prefix:}{separator_loc:}{attr_cif:}"
-                             for attr_cif in cls_item.ATTR_MANDATORY_CIF]
+                             for attr_cif in (cls_item.ATTR_MANDATORY_CIF +
+                                              cls_item.ATTR_OPTIONAL_CIF)]
 
             flag_mand = all([items_cif.is_value(name) for name in
                              l_cls_mand_cif])
@@ -414,7 +451,9 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
             l_prefix_cif = find_prefixes(l_name_cif)
 
         for prefix in l_prefix_cif:
-            items_small = items_cif.items_with_prefix(f"_{prefix:}")
+            names = [name_cif for name_cif in l_name_cif if 
+                     name_cif.startswith("_"+prefix)]
+            items_small = items_cif.items_with_names(names)
             item_obj = ItemN.from_cif(str(items_small))
             l_item.append(item_obj)
     return l_item
@@ -422,7 +461,14 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
 
 def find_prefixes(l_name_cif):
     """Find prefix."""
-    l_prefix_cif = list(set([(name[1:]).split("_")[0] for name in l_name_cif]))
+    l_short_prefix_cif = list(set([(name[1:]).split("_")[0]
+                                   for name in l_name_cif]))
+    l_prefix_cif = []
+    for short_prefix_cif in l_short_prefix_cif:
+        l_name_2_cif = [name for name in l_name_cif
+                        if (name[1:]).split("_")[0] == short_prefix_cif]
+        prefix_cif = find_prefix(*tuple(l_name_2_cif))
+        l_prefix_cif.append(prefix_cif[1:])
     return l_prefix_cif
 
 
@@ -457,6 +503,7 @@ def items_to_globaln(global_name: str, items: list, l_global_class):
             global_obj = cls_global()
             global_obj.global_name = global_name
             global_obj.add_items(items)
+
     if global_obj is None:
         global_obj = GlobalN.make_container((), tuple(classes), "global")
         global_obj.global_name = global_name

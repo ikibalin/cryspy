@@ -23,6 +23,7 @@ from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
+from cryspy.E_data_classes.cl_2_tof import TOF
 
 
 class RhoChi(GlobalN):
@@ -51,7 +52,8 @@ class RhoChi(GlobalN):
     """
 
     CLASSES_MANDATORY = ()
-    CLASSES_OPTIONAL = (InversedHessian, Crystal, MagCrystal, Diffrn, Pd, Pd2d)
+    CLASSES_OPTIONAL = (InversedHessian, Crystal, MagCrystal, Diffrn, Pd, Pd2d,
+                        TOF)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -88,7 +90,7 @@ class RhoChi(GlobalN):
     def experiments(self):
         """List of expreiments."""
         return [item for item in self.items if isinstance(item, (Diffrn, Pd,
-                                                                 Pd2d))]
+                                                                 Pd2d, TOF))]
 
     def crystals(self):
         """List of crystals."""
@@ -383,6 +385,7 @@ class RhoChi(GlobalN):
                         flag_lambdaover2_correction))
                 l_res.append(res)
         return l_res
+
 # s_cont = """
 # global_
 #  data_Fe3O4

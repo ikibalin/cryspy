@@ -8,7 +8,7 @@ import os.path
 from typing import NoReturn, Union
 from pycifstar import Data, to_data
 
-from cryspy.A_functions_base.function_1_strings import common_string, \
+from cryspy.A_functions_base.function_1_strings import find_prefix, \
     ciftext_to_html
 from cryspy.A_functions_base.function_1_strings import \
     string_to_value_error, value_error_to_string
@@ -78,6 +78,8 @@ class ItemN(object):
                 val = getattr(self, name_sh)
             except AttributeError:
                 return "."
+            if val is None:
+                return "."
             flag_ref = False
             keys = self.__dict__.keys()
             if ((f"{name_sh:}_refinement" in keys) &
@@ -132,7 +134,7 @@ class ItemN(object):
 
         """
         flag, flag_write = False, False
-        if ((value == ".") | (value is None)):
+        if ((value == ".") | (value == "?") | (value is None)):
             flag, flag_write = True, True
             val_new = None
         elif name in self.ATTR_NAMES:
@@ -191,12 +193,16 @@ class ItemN(object):
             del self.__dict__[key]
 
     def is_attribute(self, name: str):
-        """Give True if attribute is defined."""
+        """Give True if attribute is defined.
+        
+        Attention if parameter defined as None it's considered as defined.
+        """
         flag = True
         try:
-            val = getattr(self, name)
-            if val is None:  # temporary solution
-                flag = False
+            getattr(self, name)
+            # val = getattr(self, name)
+            # if val is None:  # temporary solution
+            #     flag = False
         except AttributeError:
             flag = False
         return flag
@@ -254,6 +260,8 @@ class ItemN(object):
         ls_out = []
         prefix = self.PREFIX
         for name, name_cif in zip(self.ATTR_NAMES, self.ATTR_CIF):
+            if name_cif == "":
+                name_cif = name
             flag_value = self.is_attribute(name)
             if (flag_value | flag_all_attributes):
                 if flag_value:
@@ -352,18 +360,19 @@ class ItemN(object):
         attr_name = attr_t[0]
         setattr(self, attr_name, value)
 
-    def _base_attributes_itemn(self, prefix, name_opt_cif):
+    def _base_attributes_itemn(self, prefix, name_opt_cif, name_opt=None):
         name_mand, name_mand_cif = (), ()
         attr_ref = ()
-        name_opt = name_opt_cif
+        if name_opt is None:
+            name_opt = name_opt_cif
         self.__dict__["PREFIX"] = prefix
         self.__dict__["ATTR_MANDATORY_CIF"] = name_mand_cif
         self.__dict__["ATTR_OPTIONAL_CIF"] = name_opt_cif
+        self.__dict__["ATTR_REF"] = attr_ref
+        self.__dict__["ATTR_CIF"] = name_mand_cif+name_opt_cif
         self.__dict__["ATTR_MANDATORY_NAMES"] = name_mand
         self.__dict__["ATTR_OPTIONAL_NAMES"] = name_opt
-        self.__dict__["ATTR_REF"] = attr_ref
         self.__dict__["ATTR_NAMES"] = name_mand+name_opt
-        self.__dict__["ATTR_CIF"] = name_mand_cif+name_opt_cif
         types_mand = tuple(len(name_mand)*[str])
         types_opt = tuple(len(name_opt)*[str])
         self.__dict__["ATTR_MANDATORY_TYPES"] = types_mand
@@ -417,10 +426,10 @@ class ItemN(object):
                 if name.find(".") != -1:
                     prefix = name.split(".")[0]
                 else:
-                    prefix = "_"+name.split("_")[1]+"_"
+                    prefix = "_"+name.split("_")[1]
             else:
-                prefix = common_string(*tuple(l_name))
-            l_attr = [name[len(prefix):] for name in l_name]
+                prefix = find_prefix(*tuple(l_name))
+            l_attr = [name[len(prefix)+1:] for name in l_name]
 
             prefix = prefix.strip("_").strip(".")
             name_opt_cif = tuple(l_attr)

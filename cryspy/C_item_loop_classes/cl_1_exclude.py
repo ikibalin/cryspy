@@ -6,24 +6,25 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class Exclude(ItemN):
     """
-    Exclued class.
+    Exclude class.
 
     Attributes
     ----------
-        - ttheta_min (mandatory)
-        - ttheta_max (mandatory)
-        - id
-        - phi_min
-        - phi_max
+        - ttheta_min, ttheta_max, id, phi_min, phi_max,
+          time_low, time_high (optional)
+    
+    Attributes time_low, time_high  are used for TOF calculations
     """
 
-    ATTR_MANDATORY_NAMES = ("ttheta_min", "ttheta_max")
-    ATTR_MANDATORY_TYPES = (float, float)
-    ATTR_MANDATORY_CIF = ("2theta_min", "2theta_max")
+    ATTR_MANDATORY_NAMES = ()
+    ATTR_MANDATORY_TYPES = ()
+    ATTR_MANDATORY_CIF = ()
 
-    ATTR_OPTIONAL_NAMES = ("id", "phi_min", "phi_max")
-    ATTR_OPTIONAL_TYPES = (str, float, float)
-    ATTR_OPTIONAL_CIF = ("id", "phi_min", "phi_max")
+    ATTR_OPTIONAL_NAMES = ("id", "ttheta_min", "ttheta_max", "phi_min",
+                           "phi_max", "time_low", "time_high")
+    ATTR_OPTIONAL_TYPES = (str, float, float, float, float, float, float)
+    ATTR_OPTIONAL_CIF = ("id", "2theta_min", "2theta_max", "phi_min",
+                         "phi_max", "time_low", "time_high")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -55,7 +56,7 @@ class Exclude(ItemN):
 
         # defined for any integer and float parameters
         D_MIN = {"ttheta_min": 0., "ttheta_max": 0., "phi_min": -90.,
-                 "phi_max": -90.}
+                 "phi_max": -90., "time_low": 0., "time_high": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {"ttheta_min": 180., "ttheta_max": 180., "phi_min": 90.,

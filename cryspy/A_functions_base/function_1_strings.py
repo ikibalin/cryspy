@@ -27,6 +27,42 @@ def ciftext_to_html(text: str) -> str:
     return text_html
 
 
+def find_prefix(*argv) -> str:
+    """Find prefix
+    
+    Example 1 (trivial)
+    -------------------
+    
+    loop_
+    _atom_site_label
+    _atom_site_fract_x
+    _atom_site_fract_y
+    
+    Output: "_atom_site"
+
+    Example 2 (not trivial)
+    -----------------------
+    loop_
+        _geom_torsion
+        _geom_torsion_atom_site_label_1
+        _geom_torsion_atom_site_label_2
+    
+    Output: "_geom_torsion"
+    (name for item "geom_torsion" is label)
+    
+    """
+    c_string = common_string(*argv)
+    ind_point = c_string.rfind(".")
+    if ind_point != -1:
+        prefix = c_string[:ind_point]
+    elif ((len(argv) > 1) & (c_string in argv)):
+        prefix = c_string
+    else:
+        ind_und = c_string.rfind("_")
+        prefix = c_string[:ind_und]
+    return prefix
+
+
 def common_string(*argv) -> str:
     """Return common begining of input strings."""
     ls_out = []

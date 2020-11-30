@@ -67,11 +67,11 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2020, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.4.19"
+__version__ = "0.4.20"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "20.10.2020"
+__date__ = "30.11.2020"
 name = "cryspy"
 
 from .A_functions_base.function_1_algebra import \
@@ -125,19 +125,17 @@ from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
     AtomLocalAxes, AtomLocalAxesL
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfiguration, AtomElectronConfigurationL
-from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
+from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
+from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation, DiffrnRadiationL
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
     DiffrnReflnL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
     ExtinctionL
+from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
+    MEMParameters, MEMParametersL
 from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
-from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
-from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
-    ReflnSusceptibility, ReflnSusceptibilityL
-from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs, \
-    RefineLsL
 from cryspy.C_item_loop_classes.cl_1_pd_background import \
     PdBackground, PdBackgroundL
 from cryspy.C_item_loop_classes.cl_1_pd_instr_reflex_asymmetry import \
@@ -147,10 +145,6 @@ from cryspy.C_item_loop_classes.cl_1_pd_instr_resolution import \
 from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeas, PdMeasL
 from cryspy.C_item_loop_classes.cl_1_pd_proc import PdProc, PdProcL
 from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeak, PdPeakL
-from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
-from cryspy.C_item_loop_classes.cl_1_range import Range, RangeL
-from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
-from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_pd2d_background import \
     Pd2dBackground
 from cryspy.C_item_loop_classes.cl_1_pd2d_instr_reflex_asymmetry import\
@@ -161,14 +155,31 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_meas import Pd2dMeas
 from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
 from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeak, \
     Pd2dPeakL
-from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
-    MEMParameters, MEMParametersL
+from cryspy.C_item_loop_classes.cl_1_range import Range, RangeL
+from cryspy.C_item_loop_classes.cl_1_refln import Refln, ReflnL
+from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
+    ReflnSusceptibility, ReflnSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs, \
+    RefineLsL
+from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
+from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
+from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground, \
+    TOFBackgroundL
+from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeas, TOFMeasL
+from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters, \
+    TOFParametersL
+from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeak, TOFPeakL
+from cryspy.C_item_loop_classes.cl_1_tof_proc import TOFProc, TOFProcL
+from cryspy.C_item_loop_classes.cl_1_tof_profile import TOFProfile, TOFProfileL
 
-from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
     AtomSiteScat, AtomSiteScatL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
     DiffrnOrientMatrix, DiffrnOrientMatrixL
+from cryspy.C_item_loop_classes.cl_2_section import Section, SectionL
+from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
+    SpaceGroupSymopMagnOperation, SpaceGroupSymopMagnOperationL
 
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 
@@ -179,6 +190,7 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
+from cryspy.E_data_classes.cl_2_tof import TOF
 
 from cryspy.G_global_classes.cl_1_rhochi import RhoChi
 from cryspy.G_global_classes.cl_1_mem import MEM
