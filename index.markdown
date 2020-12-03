@@ -5,7 +5,7 @@
 layout: home
 ---
 
-Welcome to documentation page. 
+Welcome to the documentation page. 
 
 Type in console (or terminal):
 
@@ -28,9 +28,9 @@ python -m cryspy_editor
 - **to upgrade:**
 
 {% highlight bash %}
-python -m pip install --upgrade cryspy cryspy_editor
+python -m pip install --upgrade cryspy cryspy_editor --user
 {% endhighlight %}
 
-See examples on [GitHub][cryspy-examples]
+See examples on [GitHub][cryspy-examples].
 
 [cryspy-examples]: https://github.com/ikibalin/cryspy/tree/master/examples

@@ -35,5 +35,5 @@ python -m pip install numpy scipy matplotlib pyqt5 pyqtgraph pycifstar
 
 Print in the conosole/ terminal to upgrade the packages
 {% highlight bash %}
-python -m pip install --upgrade cryspy cryspy_editor
+python -m pip install --upgrade cryspy cryspy_editor --user
 {% endhighlight %}
