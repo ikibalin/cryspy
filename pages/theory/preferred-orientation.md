@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /notes/preferred-orientation/
+permalink: /theory/preferred-orientation/
 ---
 <html>
 <!-- Mathjax Support -->
@@ -31,4 +31,4 @@ Description of texture in cif file:
     _texture_k_ax -0.0541
     _texture_l_ax 3.0613
     
-[notes]: /cryspy/notes
+[notes]: /cryspy/theory

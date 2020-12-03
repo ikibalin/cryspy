@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /notes/local-susceptibility-tensor/
+permalink: /theory/local-susceptibility-tensor/
 ---
 <html>
 <!-- Mathjax Support -->
@@ -38,5 +38,5 @@ The principle axis susceptibilities are the eigenvalues of the susceptibility te
 $$ \chi^{orto} = nM \cdot \chi_{loc} \cdot nM^T $$
 
 
-[notes]: /cryspy/notes
+[notes]: /cryspy/theory
 [wiki-decomposition]: https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix

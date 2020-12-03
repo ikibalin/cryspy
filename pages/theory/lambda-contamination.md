@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /notes/lambda-contamination/
+permalink: /theory/lambda-contamination/
 ---
 <html>
 <!-- Mathjax Support -->
@@ -27,4 +27,4 @@ $$ FR = \frac{I^{UP}_{hkl} + c \cdot I_{2h2k2l}}{I^{DOWN}_{hkl} + c \cdot I_{2h2
 
 In the calculations of the extinction correction $$y$$ for $$(2h2k2l)$$ reflections the half of the wavelength is used.
 
-[notes]: /cryspy/notes
+[notes]: /cryspy/theory

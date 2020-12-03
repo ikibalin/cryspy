@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /notes/peak-asymmetry/
+permalink: /theory/peak-asymmetry/
 ---
 <html>
 <!-- Mathjax Support -->
@@ -34,4 +34,4 @@ $$ F_b(z) = 2 (2 z^2-3) F_a(z) $$
 The asymmetry correction has four independent parameters $$P_1$$, $$P_2$$, $$P_3$$, $$P_4$$.
 
 
-[notes]: /cryspy/notes
+[notes]: /cryspy/theory

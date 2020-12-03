@@ -1,46 +1,41 @@
 ---
 layout: page
-permalink: /usage/
+title: Content
+permalink: /content/
 ---
 
-The CrysPy library can be used in two ways: 
-(i) as a python script (or jupyter notebook) or
-(ii) the graphical user interface: "Cryspy Editor". 
+Please use the following links to get detailed information about different objects and procedures of the CrysPy library:
 
-To run the program in a console (or terminal) the user has to invoke the name of the executable file or an
-appropriate alias, for instance:
+# Objects
+1. Item/Loop classes
+    - Classes describing the crystal structures
+    - Classes describing experiments
+2. Data containers to describe
+    - crystal structure: class `Crystal`
+    - magnetic crystal structure: class `MagCrystal`
+    - single diffraction experiment with polarized neutrons: class `Diffrn`
+    - unpolarized and polarized neutron diffraction experiment (in equatorial plane): class `Pd`
+    - unpolarized and polarized neutron diffraction experiment (2D patterns): class `Pd2d`
+    - unpolarized and polarized neutron diffraction T.O.F. experiment (in equatorial plane): class `TOF`
+3. Global containers
+    - Data refinement of described experiments: class `RhoChi`
+    - Reconstraction of magnetization density by Maximum Entropy Method: class `MEM`
 
 
-# To run GUI "CrysPy Editor"
+# Procedures and functions
+1. Base functions
+    - Algebra
+    - Crystallography base
+    - Extinction
+    - Flip ratio
+    - Matrices
+2. Functions operating with predefined items and loops
+    - Procedure for flip ratios
+3. Functions operating with data containers
+    - Procedures for Maximum Entropy calculations
+4. Functions operating with global containers
+    - str_to_globaln, file_to_globaln, str_to_items
 
-Use console/terminal to run GUI "CrysPy Editor":
-
-{% highlight bash %}
-python -m cryspy_editor
-{% endhighlight %}
-
-or put it into bash file (in Windows os) and run it after.  
-
-# To run refinement in console mode
-
-To run data refinement given in the file `file_name.rcif` print in console mode :
-
-{% highlight bash %}
-python -m cryspy file_name.rcif
-{% endhighlight %}
-
-# Example of python script or Jupyter notebook 
-
-{% highlight python %}
-import cryspy
-
-# the name of the input file (in .rcif format)
-f_name = "main.rcif" 
-
-rhochi_obj = cryspy.globaln_to_file(f_name)
-rhochi_obj.run_refinement()
-rhochi_obj.save_to_files()
-
-print(rhochi_obj)
-{% endhighlight %}
-
+# How to create own object
+1. Basic rules
+2. The extension of the library by own objects

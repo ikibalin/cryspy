@@ -1,11 +1,17 @@
 ---
 layout: page
-title: Examples
-permalink: /examples/
+title: Expressions
+permalink: /theory/
 ---
 
-Different examples of the usage of the CrysPy library as a python script:
+Different expressions used in the CrysPy library are given:
 
-[Simple example of python script][link]
+- [Lambda/2 contamination][lambda-contamination]
+- [Local susceptibility tensor][local-susceptibility-tensor]
+- [Peak asymmetry][peak-asymmetry]
+- [Preferred orientation][preferred-orientation]
 
-[link]: /cryspy/usage
+[lambda-contamination]: /cryspy/theory/lambda-contamination
+[local-susceptibility-tensor]: /cryspy/theory/local-susceptibility-tensor
+[peak-asymmetry]: /cryspy/theory/peak-asymmetry
+[preferred-orientation]: /cryspy/theory/preferred-orientation
