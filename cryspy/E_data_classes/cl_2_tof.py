@@ -81,13 +81,13 @@ class TOF(DataN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def calc_profile(self, tth, l_crystal, flag_internal: bool = True,
+    def calc_profile(self, time, l_crystal, flag_internal: bool = True,
                      flag_polarized: bool = True):
         """Calculate intensity for the given diffraction angles.
 
         Arguments
         ---------
-            - tth: 1D numpy array of 2theta in degrees
+            - time: 1D numpy array of time in micro seconds (???)
             - l_crystal: a list of Crystal objects of cryspy library
             - l_peak_in: precalculated data about integrated intensities
               (used to speed up the calculations)
@@ -115,26 +115,24 @@ class TOF(DataN):
                 d_internal_val = {}
                 self.d_internal_val = d_internal_val
 
-        proc = TOFProcL()
-        proc.numpy_time = tth
+        tof_proc = TOFProcL()
+        tof_proc.numpy_time = time
 
         try:
-            background = self.pd_background
-            int_bkgd = background.interpolate_by_points(tth)
+            tof_background = self.tof_background
+            int_bkgd = tof_background.calc_background(time)
         except AttributeError:
-            int_bkgd = 0.*tth
+            int_bkgd = 0.*time
 
-        proc.numpy_intensity_bkg_calc = int_bkgd
+        tof_proc.numpy_intensity_bkg_calc = int_bkgd
 
-        setup = self.setup
-        wavelength = float(setup.wavelength)
-
-        tth_min = tth.min()
-        tth_max = tth.max() + 3.
-        if tth_max > 180.:
-            tth_max = 180.
-        sthovl_min = numpy.sin(0.5*tth_min*numpy.pi/180.)/wavelength
-        sthovl_max = numpy.sin(0.5*tth_max*numpy.pi/180.)/wavelength
+        tof_parameters = self.tof_parameters
+        tof_profile = self.tof_profile
+        
+        d = tof_parameters.calc_d_by_time(time)
+        d_min, d_max = tof_parameters.calc_d_min_max(time)
+        sthovl_min = 0.5/d_max
+        sthovl_max = 0.5/d_min
 
         try:
             texture = self.texture
@@ -143,8 +141,8 @@ class TOF(DataN):
         except AttributeError:
             texture = None
 
-        res_u_1d = numpy.zeros(tth.shape[0], dtype=float)
-        res_d_1d = numpy.zeros(tth.shape[0], dtype=float)
+        res_u_1d = numpy.zeros(time.shape[0], dtype=float)
+        res_d_1d = numpy.zeros(time.shape[0], dtype=float)
 
         phase = self.phase
 
@@ -156,31 +154,6 @@ class TOF(DataN):
                 if phase_igsize is None: phase_igsize = 0. # temporary solution
             except AttributeError:
                 phase_igsize = 0.
-            try:
-                phase_u = phase_item.u
-                if phase_u is None: phase_u = 0. # temporary solution
-            except AttributeError:
-                phase_u = 0.
-            try:
-                phase_v = phase_item.v
-                if phase_v is None: phase_v = 0. # temporary solution
-            except AttributeError:
-                phase_v = 0.
-            try:
-                phase_w= phase_item.w
-                if phase_w is None: phase_w = 0. # temporary solution
-            except AttributeError:
-                phase_w= 0.
-            try:
-                phase_x = phase_item.x
-                if phase_x is None: phase_x = 0. # temporary solution
-            except AttributeError:
-                phase_x = 0.
-            try:
-                phase_y = phase_item.y
-                if phase_y is None: phase_y = 0. # temporary solution
-            except AttributeError:
-                phase_y = 0.
 
             for i_crystal, crystal in enumerate(l_crystal):
                 if crystal.data_name.lower() == phase_label.lower():
@@ -229,24 +202,29 @@ class TOF(DataN):
 
             cell = crystal.cell
             sthovl_hkl = cell.calc_sthovl(index_h, index_k, index_l)
+            d_hkl = 0.5/sthovl_hkl
+            time_hkl = tof_parameters.calc_time_by_d(d_hkl)
+            
 
-            tth_hkl_rad = numpy.where(sthovl_hkl*wavelength < 1.,
-                                      2.*numpy.arcsin(sthovl_hkl*wavelength),
-                                      numpy.pi)
-            tth_hkl = tth_hkl_rad*180./numpy.pi
+            profile_2d = self.calc_shape_profile(
+                d, d_hkl, phase_igsize=phase_igsize)
 
-            profile_2d, tth_zs, h_pv = self.calc_shape_profile(
-                tth, tth_hkl, phase_igsize=phase_igsize, phase_u=phase_u,
-                phase_v=phase_v, phase_w=phase_w, phase_x=phase_x,
-                phase_y=phase_y)
+            peak.numpy_time = time_hkl
 
-            peak.numpy_ttheta = tth_hkl+self.setup.offset_ttheta
-            peak.numpy_width_ttheta = h_pv
+            tth_rad = tof_parameters.ttheta_bank * numpy.pi/180.
+            wavelength = 2.*d_hkl*numpy.sin(0.5*tth_rad)
+            wavelength_4 = wavelength**4
+            
+            iint_u_0 = np_iint_u * mult * wavelength_4
+            iint_d_0 = np_iint_d * mult * wavelength_4
 
-            np_iint_u_2d = numpy.meshgrid(tth, np_iint_u*mult,
-                                          indexing="ij")[1]
-            np_iint_d_2d = numpy.meshgrid(tth, np_iint_d*mult,
-                                          indexing="ij")[1]
+            if tof_parameters.is_attribute("extinction"):
+                tof_extinction = tof_parameters.extinction
+                iint_u_0 = (1. - tof_extinction*iint_u_0)*mult*wavelength_4
+                iint_d_0 = (1. - tof_extinction*iint_d_0)*mult*wavelength_4
+
+            np_iint_u_2d = numpy.meshgrid(time, iint_u_0, indexing="ij")[1]
+            np_iint_d_2d = numpy.meshgrid(time, iint_d_0, indexing="ij")[1]
 
             # texture
             if texture is not None:
@@ -265,9 +243,9 @@ class TOF(DataN):
                     c_help = 1.-cos_alpha_ax**2
                     c_help[c_help < 0.] = 0.
                     sin_alpha_ax = numpy.sqrt(c_help)
-                    cos_alpha_ax_2d = numpy.meshgrid(tth, cos_alpha_ax,
+                    cos_alpha_ax_2d = numpy.meshgrid(time, cos_alpha_ax,
                                                      indexing="ij")[1]
-                    sin_alpha_ax_2d = numpy.meshgrid(tth, sin_alpha_ax,
+                    sin_alpha_ax_2d = numpy.meshgrid(time, sin_alpha_ax,
                                                      indexing="ij")[1]
                     # cos_alpha_2d = cos_alpha_ax_2d*cos_alpha_ang_2d + \
                     #                sin_alpha_ax_2d*sin_alpha_ang_2d
@@ -290,22 +268,22 @@ class TOF(DataN):
             if flag_internal:
                 peak.numpy_to_items()
 
-        proc.numpy_ttheta_corrected = tth_zs
-        proc.numpy_intensity_up_net = res_u_1d
-        proc.numpy_intensity_down_net = res_d_1d
-        proc.numpy_intensity_net = res_u_1d+res_d_1d
-        proc.numpy_intensity_diff_total = res_u_1d-res_d_1d
+        tof_proc.numpy_d_spacing = d
+        tof_proc.numpy_intensity_up_net = res_u_1d
+        tof_proc.numpy_intensity_down_net = res_d_1d
+        tof_proc.numpy_intensity_net = res_u_1d+res_d_1d
+        tof_proc.numpy_intensity_diff_total = res_u_1d-res_d_1d
         if flag_polarized:
-            proc.numpy_intensity_up_total = res_u_1d+int_bkgd
-            proc.numpy_intensity_down_total = res_d_1d+int_bkgd
-            proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd+int_bkgd
+            tof_proc.numpy_intensity_up_total = res_u_1d+int_bkgd
+            tof_proc.numpy_intensity_down_total = res_d_1d+int_bkgd
+            tof_proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd+int_bkgd
         else:
-            proc.numpy_intensity_up_total = res_u_1d+0.5*int_bkgd
-            proc.numpy_intensity_down_total = res_d_1d+0.5*int_bkgd
-            proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd
+            tof_proc.numpy_intensity_up_total = res_u_1d+0.5*int_bkgd
+            tof_proc.numpy_intensity_down_total = res_d_1d+0.5*int_bkgd
+            tof_proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd
 
         if flag_internal:
-            proc.numpy_to_items()
+            tof_proc.numpy_to_items()
             l_calc_objs = []
             for crystal in l_crystal:
                 try:
@@ -324,9 +302,9 @@ class TOF(DataN):
                     l_calc_objs.append(obj)
                 except KeyError:
                     pass
-            l_calc_objs.append(proc)
+            l_calc_objs.append(tof_proc)
             self.add_items(l_calc_objs)
-        return proc
+        return tof_proc
 
     def calc_chi_sq(self, l_crystal, flag_internal=True):
         """
@@ -345,31 +323,31 @@ class TOF(DataN):
               (Sum_i ((y_e_i - y_m_i) / sigma_i)**2)
             - n: number of measured reflections
         """
-        meas = self.pd_meas
-        flag_polarized = meas.is_polarized()
+        tof_meas = self.tof_meas
+        flag_polarized = tof_meas.is_polarized()
 
-        tth = meas.numpy_ttheta
+        np_time = tof_meas.numpy_time
         if flag_polarized:
-            int_u_exp = meas.numpy_intensity_up
-            sint_u_exp = meas.numpy_intensity_up_sigma
-            int_d_exp = meas.numpy_intensity_down
-            sint_d_exp = meas.numpy_intensity_down_sigma
+            int_u_exp = tof_meas.numpy_intensity_up
+            sint_u_exp = tof_meas.numpy_intensity_up_sigma
+            int_d_exp = tof_meas.numpy_intensity_down
+            sint_d_exp = tof_meas.numpy_intensity_down_sigma
         else:
-            int_exp = meas.numpy_intensity
-            sint_exp = meas.numpy_intensity_sigma
+            int_exp = tof_meas.numpy_intensity
+            sint_exp = tof_meas.numpy_intensity_sigma
 
-        cond_in = numpy.ones(tth.shape, dtype=bool)
+        cond_in = numpy.ones(np_time.shape, dtype=bool)
         try:
             range_ = self.range
-            range_min = numpy.array(range_.ttheta_min, dtype=float)
-            range_max = numpy.array(range_.ttheta_max, dtype=float)
+            time_min = numpy.array(range_.time_min, dtype=float)
+            time_max = numpy.array(range_.time_max, dtype=float)
 
-            cond_in = numpy.logical_and(cond_in, tth >= range_min)
-            cond_in = numpy.logical_and(cond_in, tth <= range_max)
+            cond_in = numpy.logical_and(cond_in, np_time >= time_min)
+            cond_in = numpy.logical_and(cond_in, np_time <= time_max)
         except AttributeError:
             pass
 
-        tth_in = tth[cond_in]
+        np_time_in = np_time[cond_in]
         if flag_polarized:
             int_u_exp_in = int_u_exp[cond_in]
             sint_u_exp_in = sint_u_exp[cond_in]
@@ -379,24 +357,24 @@ class TOF(DataN):
             int_exp_in = int_exp[cond_in]
             sint_exp_in = sint_exp[cond_in]
 
-        proc = self.calc_profile(
-            tth_in, l_crystal, flag_internal=flag_internal,
+        tof_proc = self.calc_profile(
+            np_time_in, l_crystal, flag_internal=flag_internal,
             flag_polarized=flag_polarized)
 
         if flag_polarized:
-            proc.numpy_intensity_up = int_u_exp_in
-            proc.numpy_intensity_up_sigma = sint_u_exp_in
-            proc.numpy_intensity_down = int_d_exp_in
-            proc.numpy_intensity_down_sigma = sint_d_exp_in
-            proc.numpy_intensity = int_u_exp_in+int_d_exp_in
-            proc.numpy_intensity_sigma = numpy.sqrt(
+            tof_proc.numpy_intensity_up = int_u_exp_in
+            tof_proc.numpy_intensity_up_sigma = sint_u_exp_in
+            tof_proc.numpy_intensity_down = int_d_exp_in
+            tof_proc.numpy_intensity_down_sigma = sint_d_exp_in
+            tof_proc.numpy_intensity = int_u_exp_in+int_d_exp_in
+            tof_proc.numpy_intensity_sigma = numpy.sqrt(
                 numpy.square(sint_u_exp_in) + numpy.square(sint_d_exp_in))
         else:
-            proc.numpy_intensity = int_exp_in
-            proc.numpy_intensity_sigma = sint_exp_in
+            tof_proc.numpy_intensity = int_exp_in
+            tof_proc.numpy_intensity_sigma = sint_exp_in
 
-        int_u_mod = proc.numpy_intensity_up_total
-        int_d_mod = proc.numpy_intensity_down_total
+        int_u_mod = tof_proc.numpy_intensity_up_total
+        int_d_mod = tof_proc.numpy_intensity_down_total
 
         if flag_polarized:
             sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
@@ -418,21 +396,21 @@ class TOF(DataN):
         # exclude region
         try:
             exclude = self.exclude
-            l_excl_tth_min = exclude.ttheta_min
-            l_excl_tth_max = exclude.ttheta_max
+            l_excl_time_min = exclude.time_min
+            l_excl_time_max = exclude.time_max
             if flag_polarized:
-                for excl_tth_min, excl_tth_max in zip(l_excl_tth_min,
-                                                      l_excl_tth_max):
-                    cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min,
-                                              tth_in > 1.*excl_tth_max)
+                for excl_time_min, excl_time_max in zip(l_excl_time_min,
+                                                        l_excl_time_max):
+                    cond_1 = numpy.logical_or(np_time_in < 1.*excl_time_min,
+                                              np_time_in > 1.*excl_time_max)
                     cond_u = numpy.logical_and(cond_u, cond_1)
                     cond_d = numpy.logical_and(cond_d, cond_1)
                     cond_sum = numpy.logical_and(cond_sum, cond_1)
             else:
-                for excl_tth_min, excl_tth_max in zip(l_excl_tth_min,
-                                                      l_excl_tth_max):
-                    cond_1 = numpy.logical_or(tth_in < 1.*excl_tth_min,
-                                              tth_in > 1.*excl_tth_max)
+                for excl_time_min, excl_time_max in zip(l_excl_time_min,
+                                                        l_excl_time_max):
+                    cond_1 = numpy.logical_or(np_time_in < 1.*excl_time_min,
+                                              np_time_in > 1.*excl_time_max)
                     cond_sum = numpy.logical_and(cond_sum, cond_1)
         except AttributeError:
             pass
@@ -472,21 +450,21 @@ class TOF(DataN):
                                  goodness_of_fit_all=chi_sq_val/float(n),
                                  weighting_scheme="sigma")
             self.refine_ls = refine_ls
-            proc.numpy_to_items()
+            tof_proc.numpy_to_items()
         return chi_sq_val, n
 
-    def simulation(self, l_crystal, ttheta_start: float = 4.,
-                   ttheta_end: float = 120., ttheta_step: float = 0.1,
-                   flag_polarized: bool = True) -> NoReturn:
-        """Simulate."""
-        n_points = int(round((ttheta_end-ttheta_start)/ttheta_step))
-        tth_in = numpy.linspace(ttheta_start, ttheta_end, n_points)
-        if isinstance(l_crystal, Crystal):
-            l_crystal = [l_crystal]
-        self.calc_profile(tth_in, l_crystal, l_peak_in=None, l_refln_in=None,
-                          l_refln_susceptibility_in=None, l_dd_in=None,
-                          flag_internal=True, flag_polarized=flag_polarized)
-        return
+    # def simulation(self, l_crystal, ttheta_start: float = 4.,
+    #                ttheta_end: float = 120., ttheta_step: float = 0.1,
+    #                flag_polarized: bool = True) -> NoReturn:
+    #     """Simulate."""
+    #     n_points = int(round((ttheta_end-ttheta_start)/ttheta_step))
+    #     tth_in = numpy.linspace(ttheta_start, ttheta_end, n_points)
+    #     if isinstance(l_crystal, Crystal):
+    #         l_crystal = [l_crystal]
+    #     self.calc_profile(tth_in, l_crystal, l_peak_in=None, l_refln_in=None,
+    #                       l_refln_susceptibility_in=None, l_dd_in=None,
+    #                       flag_internal=True, flag_polarized=flag_polarized)
+    #     return
 
     def calc_iint(self, index_h, index_k, index_l, crystal: Crystal,
                   flag_internal: bool = True):
@@ -518,9 +496,9 @@ class TOF(DataN):
             d_internal_val = {}
             self.d_internal_val = d_internal_val
 
-        setup = self.setup
+        tof_parameters = self.tof_parameters
         try:
-            field = setup.field
+            field = tof_parameters.field
         except AttributeError:
             field = 0.
 
@@ -605,6 +583,7 @@ class TOF(DataN):
 
             iint_u = f_nucl_sq + fm_p_sq + p_u*cross
             iint_d = f_nucl_sq + fm_p_sq - p_d*cross
+
         elif isinstance(crystal, MagCrystal):
             try:
                 if (not(flag_internal) | crystal.is_variables()):
@@ -617,72 +596,48 @@ class TOF(DataN):
             f_mag_perp_sq = abs(f_mag_perp*f_mag_perp.conjugate()).sum(axis=0)
             iint_u = f_nucl_sq + f_mag_perp_sq
             iint_d = f_nucl_sq + f_mag_perp_sq
+
         return iint_u, iint_d
 
-    def _gauss_pd(self, tth_2d):
+    def _gauss_pd(self, time_2d):
         """One dimensional gauss powder diffraction."""
         ag, bg = self.ag, self.bg
-        val_1 = bg*tth_2d**2
+        val_1 = bg*time_2d**2
         val_2 = numpy.where(val_1 < 5., numpy.exp(-val_1), 0.)
         self.gauss_pd = ag*val_2
 
-    def _lor_pd(self, tth_2d):
+    def _lor_pd(self, time_2d):
         """One dimensional lorentz powder diffraction."""
         al, bl = self.al, self.bl
-        self.lor_pd = al*1./(1.+bl*tth_2d**2)
+        self.lor_pd = al*1./(1.+bl*time_2d**2)
 
-    def calc_shape_profile(
-            self, tth, tth_hkl, phase_igsize: float = 0., phase_u: float = 0.,
-            phase_v: float = 0., phase_w: float = 0., phase_x: float = 0.,
-            phase_y: float = 0.):
+    def calc_shape_profile(self, d, d_hkl, phase_igsize: float = 0.):
         """
         Calculate shape profile.
 
-        Calculate profile in the range ttheta for reflections placed on
-        ttheta_hkl with i_g parameter by default equal to zero
+        Calculate profile in the range of time for reflections placed on
+        time_hkl with i_g parameter by default equal to zero
 
-        tth, tth_hkl in degrees
+        d, d_hkl in angstrems
         """
-        zero_shift = float(self.setup.offset_ttheta)
-        tth_zs = tth-zero_shift
+        tof_parameters = self.tof_parameters
+        tof_profile = self.tof_profile
+        
+        time = tof_parameters.calc_time_by_d(d)
+        time_hkl = tof_parameters.calc_time_by_d(d_hkl)
 
-        resolution = self.pd_instr_resolution
-
-        h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l = resolution.calc_resolution(
-            tth_hkl, phase_igsize=phase_igsize, phase_u=phase_u,
-            phase_v=phase_v, phase_w=phase_w, phase_x=phase_x, phase_y=phase_y)
-
-        tth_2d, tth_hkl_2d = numpy.meshgrid(tth_zs, tth_hkl, indexing="ij")
-
-        self.ag = numpy.meshgrid(tth_zs, a_g, indexing="ij")[1]
-        self.bg = numpy.meshgrid(tth_zs, b_g, indexing="ij")[1]
-        self.al = numpy.meshgrid(tth_zs, a_l, indexing="ij")[1]
-        self.bl = numpy.meshgrid(tth_zs, b_l, indexing="ij")[1]
-        eta_2d = numpy.meshgrid(tth_zs, eta, indexing="ij")[1]
-        self.eta = eta_2d
-
-        self._gauss_pd(tth_2d-tth_hkl_2d)
-        self._lor_pd(tth_2d-tth_hkl_2d)
-        g_pd_2d = self.gauss_pd
-        l_pd_2d = self.lor_pd
-
-        np_shape_2d = eta_2d * l_pd_2d + (1.-eta_2d) * g_pd_2d
-
-        try:
-            asymmetry = self.asymmetry
-            np_ass_2d = asymmetry.calc_asymmetry(tth_zs, tth_hkl, h_pv)
-        except AttributeError:
-            np_ass_2d = numpy.ones(shape=np_shape_2d.shape)
+        # FIXME: strain_g, size_g, size_l
+        np_shape_2d = tof_profile.calc_peak_shape_function(
+            d, time, time_hkl, size_g=phase_igsize, strain_g=0.,
+            size_l=0., strain_l=0.)
 
         # Lorentz factor
-        tth_rad = tth_zs*numpy.pi/180.
-        np_lor_1d = 1./(numpy.sin(tth_rad)*numpy.sin(0.5*tth_rad))
+        tth_rad = tof_parameters.ttheta_bank*numpy.pi/180.
+        lorentz_factor = 1./(numpy.sin(tth_rad)*numpy.sin(0.5*tth_rad))
 
-        np_lor_2d = numpy.meshgrid(np_lor_1d, tth_hkl, indexing="ij")[0]
+        profile_2d = np_shape_2d*lorentz_factor
 
-        profile_2d = np_shape_2d*np_ass_2d*np_lor_2d
-
-        return profile_2d, tth_zs, h_pv
+        return profile_2d
 
     def params_to_cif(self, separator="_", flag: bool = False,
                       flag_minimal: bool = True) -> str:
@@ -738,6 +693,7 @@ class TOF(DataN):
 # _range_time_min 3001.589
 # _range_time_max 19000.0
 
+# _tof_background_time_max 19000.0
 # _tof_background_coeff1 24832.850
 # _tof_background_coeff2 6139.244
 # _tof_background_coeff3 8063.472

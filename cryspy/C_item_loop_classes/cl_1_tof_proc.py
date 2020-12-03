@@ -12,9 +12,14 @@ class TOFProc(ItemN):
 
     Attributes
     ----------
-        - time (mandatory)
-        - ...
+        - time_corrected, d_spacing, intensity_up_net,
+          intensity_down_net, intensity_up_total, intensity_down_total, 
+          intensity_bkg_calc, intensity_net, intensity_total,
+          intensity_diff_total, intensity_up, intensity_up_sigma,
+          intensity_down, intensity_down_sigma, intensity,
+          intensity_sigma (optional)
 
+    time is given in microseconds.
     """
     ATTR_MANDATORY_NAMES = ("time", )
     ATTR_MANDATORY_TYPES = (float, )

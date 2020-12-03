@@ -1,9 +1,16 @@
 import numpy
+import scipy
+import scipy.special
 from typing import NoReturn
+
 from cryspy.A_functions_base.function_1_matrices import\
     calc_product_matrices, calc_product_matrix_vector
+from cryspy.A_functions_base.function_1_tof import tof_Jorgensen, \
+    tof_Jorgensen_VonDreele, calc_hpv_eta, calc_sigma_gamma
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
@@ -13,14 +20,15 @@ class TOFProfile(ItemN):
 
     Attributes
     ----------
-        - sigma0, sigma1, sigma2, gamma0, gamma1, gamma2 (mandatory)
-          size_g, size_l, strain_g, strain_l (optional)
+        - sigma0, sigma1, sigma2, gamma0, gamma1, gamma2 
+          alpha0, alpha1, beta0, beta1 (mandatory)
+        - size_g, size_l, strain_g, strain_l, peak_shape (optional)
 
     The variance of the Gaussian component of the peak shape in TOF neutrons is
     given by:
  
         H_G**2 = (sigma_2+size_g)*d**4 + (sigma_1+strain_g)*d**2 + sigma_0
-        H_L**2 = (gamma_2+size_l)*d**4 + (sigma_1+strain_l)*d**2 + sigma_0
+        H_L = (gamma_2+size_l)*d**2 + (gamma_1+strain_l)*d + gamma_0
         
     where d is the d-spacing in angstroms.
 
@@ -31,15 +39,20 @@ class TOFProfile(ItemN):
         sigma0, gamma0 are (microsecs**2);
 
     """
-    ATTR_MANDATORY_NAMES = ("sigma2", "sigma1", "sigma0",
-                            "gamma2", "gamma1", "gamma0")
+    ATTR_MANDATORY_NAMES = ("alpha0", "alpha1", "beta0", "beta1", "sigma0",
+                            "sigma1")
     ATTR_MANDATORY_TYPES = (float, float, float, float, float, float)
-    ATTR_MANDATORY_CIF = ("sigma2", "sigma1", "sigma0",
-                          "gamma2", "gamma1", "gamma0")
+    ATTR_MANDATORY_CIF = ("alpha0", "alpha1", "beta0", "beta1", "sigma0",
+                          "sigma1")
 
-    ATTR_OPTIONAL_NAMES = ("size_g", "size_l", "strain_g", "strain_l")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("size_g", "size_l", "strain_g", "strain_l")
+    ATTR_OPTIONAL_NAMES = (
+        "sigma2", "peak_shape", "size_g", "size_l", "strain_g", "strain_l",
+        "gamma2", "gamma1", "gamma0")
+    ATTR_OPTIONAL_TYPES = (float, str, float, float, float, float, float,
+                           float, float)
+    ATTR_OPTIONAL_CIF = (
+        "sigma2", "peak_shape", "size_g", "size_l", "strain_g", "strain_l",
+        "gamma2", "gamma1", "gamma0")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -49,8 +62,9 @@ class TOFProfile(ItemN):
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
-    ATTR_REF = ("sigma2", "sigma1", "sigma0", "gamma2", "gamma1",
-                "gamma0", "size_g", "size_l", "strain_g", "strain_l")
+    ATTR_REF = ("sigma2", "sigma1", "sigma0", "gamma2", "gamma1", "gamma0",
+                "alpha0", "alpha1", "beta0", "beta1", "size_g", "size_l",
+                "strain_g", "strain_l")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
@@ -58,15 +72,15 @@ class TOFProfile(ItemN):
     # formats if cif format
     D_FORMATS = {"sigma0": "{:.5f}", "sigma1": "{:.5f}", "sigma2": "{:.5f}",
                  "gamma0": "{:.5f}", "gamma1": "{:.5f}", "gamma2": "{:.5f}",
-                 "size_g": "{:.5f}", "size_l": "{:.5f}", "strain_g": "{:.5f}",
-                 "strain_l": "{:.5f}"}
+                 "alpha0": "{:.5f}", "alpha1": "{:.5f}", "beta0": "{:.5f}",
+                 "beta1": "{:.5f}", "size_g": "{:.5f}", "size_l": "{:.5f}",
+                 "strain_g": "{:.5f}", "strain_l": "{:.5f}"}
 
     # constraints on the parameters
-    D_CONSTRAINTS = {}
+    D_CONSTRAINTS = {"peak_shape": ["pseudo-Voigt", "Gauss"]}
 
     # default values for the parameters
-    D_DEFAULT = {"sigma0": 0., "sigma1": 0., "sigma2": 0.,
-                 "gamma0": 0., "gamma1": 0., "gamma2": 0.}
+    D_DEFAULT = {"peak_shape": "pseudo-Voigt"}
 
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
@@ -91,7 +105,81 @@ class TOFProfile(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    def calc_hpveta(self, h_g, h_l):
+        """
+        ttheta in radians, could be array
+        pseudo-Voight function
+        """
+        h_pv, eta = calc_hpv_eta(h_g, h_l)
+        return h_pv, eta
 
+    def calc_agbg(self, h_pv):
+        a_g = (2./h_pv)*(numpy.log(2.)/numpy.pi)**0.5
+        b_g = 4*numpy.log(2)/(h_pv**2)
+        return a_g, b_g
+
+    def calc_albl(self, h_pv):
+        a_l = 2./(numpy.pi*h_pv)
+        b_l = 4./(h_pv**2)
+        return a_l, b_l
+
+
+    def calc_peak_shape_function(
+            self, d, time, time_hkl, size_g: float = 0., strain_g: float = 0.,
+            size_l: float = 0., strain_l: float = 0.):
+        """Calculate peak-shape function F(DELTA)
+
+        For Gauss peak-shape:
+            F(DELTA) = alpha * beta / (alpha+beta) * [exp(u) erfc(y) + exp(v) erfc(z)]
+
+        For pseudo-Voigt peak-shape:
+            F(DELTA) = ...
+
+        alpha = alpha0 + alpha1 / d
+        beta = beta0 + beta1 / d**4
+        sigma = sigma0 + sigma1 * d
+
+        u = alpha/2 * (alpha * sigma**2 + 2 DELTA)
+        v = beta/2 * (beta * sigma**2 - 2 DELTA)
+        y = (alpha * sigma**2 + DELTA)/(sigma * 2**0.5)
+        z = (beta * sigma**2 - DELTA)/(sigma * 2**0.5)
+
+        DELTA = time - time_hkl
+
+        """
+        
+        alpha = self.alpha0 + self.alpha1 / d
+        beta = self.beta0 + self.beta1 / d**4
+        
+        if self.peak_shape == "Gauss":
+            sigma = self.sigma0 + self.sigma1 * d
+            res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
+        else:  # self.peak_shape == "pseudo-Voigt"
+            if self.is_attribute("size_g"):
+                size_g_s = self.size_g+size_g
+            else:
+                size_g_s = size_g
+            if self.is_attribute("size_l"):
+                size_l_s = self.size_l+size_l
+            else:
+                size_l_s = size_l
+            if self.is_attribute("strain_g"):
+                strain_g_s = self.strain_g+strain_g
+            else:
+                strain_g_s = strain_g
+            if self.is_attribute("strain_l"):
+                strain_l_s = self.strain_l+strain_l
+            else:
+                strain_l_s = strain_l
+
+            sigma, gamma = calc_sigma_gamma(
+                d, self.sigma0, self.sigma1, self.sigma2, self.gamma0,
+                self.gamma1, self.gamma2, size_g=size_g_s, size_l=size_l_s,
+                strain_g=strain_g_s, strain_l=strain_l_s)
+            
+            res_2d = tof_Jorgensen_VonDreele(
+                alpha, beta, sigma, gamma, time, time_hkl)
+        return res_2d
 
 class TOFProfileL(LoopN):
     """

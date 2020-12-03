@@ -15,6 +15,8 @@ class TOFMeas(ItemN):
         - time (mandatory)
         - intensity_up, intensity_up_sigma, intensity_down,
           intensity_down_sigma, intensity, intensity_sigma (optional)
+
+    time is given in microseconds.
     """
     ATTR_MANDATORY_NAMES = ("time", )
     ATTR_MANDATORY_TYPES = (float, )
