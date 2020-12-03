@@ -2,15 +2,26 @@
 layout: page
 permalink: /notes/preferred-orientation/
 ---
+<html>
+<!-- Mathjax Support -->
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>    
+  </head>
+</html>
+
 [Back to notes][notes]
 
 # Preferred orientation
 
 Modified March's function:
 
-$$ P_h = G_2 + (1-G_2) ((G_1 cos \alpha_h)^2 + \fract{sin^2 \alpha_h} {G_1})^{-3/2} $$
+$$ P_h = G_2 + \left(1-G_2\right) \cdot \left(\left(G_1 \cos \alpha_h\right)^2 + \frac{\sin^2 \alpha_h} {G_1}\right)^{-3/2} $$
 
-Where and G are refinable parameters and is the acute angle between the scattering vector and the normal to the crystallites (platy habit).
+Where $$G_1$$ and $$G_2$$ are refinable parameters and is the acute angle between the scattering vector and the normal to the crystallites (platy habit).
 
 Description of texture in cif file:
 
