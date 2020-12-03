@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "Preferred orientation"
-date:   2020-02-01 12:00:00 +0100
-categories: jekyll update
+layout: page
+permalink: /notes/preferred-orientation/
 ---
+[Back to notes][notes]
+
+# Preferred orientation
 
 Modified March's function:
 
@@ -18,3 +19,5 @@ Description of texture in cif file:
     _texture_h_ax -0.66119
     _texture_k_ax -0.0541
     _texture_l_ax 3.0613
+    
+[notes]: /cryspy/notes

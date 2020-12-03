@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "Local susceptibility tensor"
-date:   2020-02-02 12:00:00 +0100
-categories: jekyll update
+layout: page
+permalink: /notes/local-susceptibility-tensor/
 ---
+[Back to notes][notes]
+
+# Local susceptibility tensor
 
 The local susceptibility tensor is defined in unit less reciprocal unit cell (a\*/\|a\*\|, b\*/\|b\*\|, c\*/\|c\*\|). In fact, it is almost the same system as for atomic vibration parameters U_ij, where the reciprocal unit cell is used (a\*, b\*, c\*).
 
@@ -24,3 +25,6 @@ The components of the susceptibility tensor can be negatives. But, in principle,
 The principle axis susceptibilities are the eigenvalues of the susceptibility tensor written in Cartesian coordinate system. To estimate it from the local susceptibility tensor defined in reciprocal unit cell the following equation should be used:
 
 $$ \chi_{orto} = nM \cdot \chi_{loc} \cdot nM^T $$
+
+
+[notes]: /cryspy/notes

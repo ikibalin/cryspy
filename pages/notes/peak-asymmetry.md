@@ -1,9 +1,10 @@
 ---
-layout: post
-title:  "Peak asymmetry"
-date:   2020-02-03 12:00:00 +0100
-categories: jekyll update
+layout: page
+permalink: /notes/peak-asymmetry/
 ---
+[Back to notes][notes]
+
+# Peak asymmetry
 
 The default asymmetry correction is a multiplier term to the peak shape. The asymmetry correction adopts the form:
 
@@ -21,3 +22,5 @@ $$ F_b(z) = 2 (2 z^2-3) F_a(z) $$
 
 The asymmetry correction has four independent parameters $P_1$, $P_2$, $P_3$, $P_4$.
 
+
+[notes]: /cryspy/notes

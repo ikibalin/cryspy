@@ -1,8 +1,6 @@
 ---
-layout: post
-title:  "Running the program"
-date:   2019-01-03 12:00:00 +0100
-categories: jekyll update
+layout: page
+permalink: /usage/
 ---
 
 The CrysPy library can be used in two ways: 
@@ -13,7 +11,7 @@ To run the program in a console (or terminal) the user has to invoke the name of
 appropriate alias, for instance:
 
 
-# Run GUI "CrysPy Editor"
+# To run GUI "CrysPy Editor"
 
 Use console/terminal to run GUI "CrysPy Editor":
 
@@ -23,15 +21,15 @@ python -m cryspy_editor
 
 or put it into bash file (in Windows os) and run it after.  
 
-# Run refinement in console mode
+# To run refinement in console mode
 
-To run data refinement print in console mode :
+To run data refinement given in the file `file_name.rcif` print in console mode :
 
 {% highlight bash %}
 python -m cryspy file_name.rcif
 {% endhighlight %}
 
-# Command line in Jupyter notebook or python console
+# Example of python script or Jupyter notebook 
 
 {% highlight python %}
 import cryspy

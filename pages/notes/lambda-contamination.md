@@ -1,16 +1,14 @@
 ---
-layout: post
-title:  "Lambda/2 contamination"
-categories: jekyll update
+layout: page
+permalink: /notes/lambda-contamination/
 ---
-# lambda/2 contamination
+
+[Back to notes][notes]
+
+# Lambda/2 contamination
 
 For experiments with single crystal the correction of $\lambda/2$ contamination is
 introduced by a nonzero coefficient in front of unpolarized integrated intensity with doubled Miller indeces:
-
-<div class="Math">
-  $$y=x^2$$
-</div>
 
 $$ Int_{2h2k2l} = \frac{1}{2} \cdot ( Int^{UP}{2h2k2l} + Int^{DOWN}{2h2k2l} ) $$
 
@@ -18,3 +16,4 @@ $$ FlipRatio = (Int^{UP}{hkl} + coeff * Int{2h2k2l}) / (Int^{DOWN}{hkl} + coeff 
 
 In the calculations of the extinction correction y for 2h2k2l reflections the half of the wavelength is used.
 
+[notes]: /cryspy/notes
