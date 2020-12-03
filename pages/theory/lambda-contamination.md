@@ -13,7 +13,7 @@ permalink: /theory/lambda-contamination/
   </head>
 </html>
 
-[Back to notes][notes]
+[Back to expressions][notes]
 
 # $$\lambda/2$$ contamination
 

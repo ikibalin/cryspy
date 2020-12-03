@@ -2,7 +2,7 @@
 layout: page
 permalink: /scripts/simple-script/
 ---
-[Back to notes][scripts]
+[Back to scripts][scripts]
 
 The CrysPy library can be used in two ways: 
 (i) as a python script (or jupyter notebook) or

@@ -13,7 +13,7 @@ permalink: /theory/preferred-orientation/
   </head>
 </html>
 
-[Back to notes][notes]
+[Back to expressions][notes]
 
 # Preferred orientation
 

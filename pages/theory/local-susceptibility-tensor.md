@@ -13,7 +13,7 @@ permalink: /theory/local-susceptibility-tensor/
   </head>
 </html>
 
-[Back to notes][notes]
+[Back to expressions][notes]
 
 # Local susceptibility tensor
 

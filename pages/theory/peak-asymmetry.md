@@ -13,7 +13,7 @@ permalink: /theory/peak-asymmetry/
   </head>
 </html>
 
-[Back to notes][notes]
+[Back to expressions][notes]
 
 # Peak asymmetry
 
