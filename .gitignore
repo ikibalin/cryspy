@@ -7,10 +7,12 @@ rhochi.egg-info
 build/*
 dist/*
 cryspy.egg-info/*
+_site/*
 .idea/*
 .pytest_cache/*
 .pylint.d/*
 .vscode/*
+.jekyll-cache/*
 .spyproject/*
 .vs/*
 TestResults/*
