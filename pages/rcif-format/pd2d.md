@@ -18,7 +18,7 @@ measurements (2d case).
 - [Range][range]
 - [Chi2][chi2]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Extinction][extinction]
 - [Pd2d Instr Reflex Asymmetry][pd2d-instr-reflex-asymmetry]
 - [Texture][texture]

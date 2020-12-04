@@ -13,7 +13,7 @@ single diffraction measurements.
 - [Diffrn Orient Matrix][diffrn-orient-matrix]
 - [Diffrn Refln][diffrn-refln]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Extinction][extinction]
 - [Phase][phase]
 - [Refln][refln]

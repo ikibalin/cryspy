@@ -12,7 +12,7 @@ crystal structure.
 - [Cell][cell]
 - [Atom Site][atom-site]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Atom Type][atom-type]
 - [Atom Site Aniso][atom-site-aniso]
 - [Atom Site Susceptibility][atom-site-susceptibility]

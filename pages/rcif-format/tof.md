@@ -15,7 +15,7 @@ powder diffraction measurements by Time of FLight
 - [TOF Background][tof-background]
 - [TOF Meas][tof-meas]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Diffrn Radiation][diffrn-radiation]
 - [Chi2][chi2]
 - [Range][range]

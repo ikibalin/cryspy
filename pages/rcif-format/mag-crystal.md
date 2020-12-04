@@ -13,7 +13,7 @@ magnetic crystal structure.
 - [Atom Site Moment][atom-site-moment]
 - [Space Group Symop Magn Operation][space-group-symop-magn-operation]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Atom Type][atom-type]
 - [Atom Site Aniso][atom-site-aniso]
 - [Space Group Symop Magn Centering][space-group-symop-magn-centering]

@@ -7,9 +7,9 @@ layout: home
 
 Welcome  to the documentation page
 
-Type in console (or terminal):
+If [python 3][python-downloads] is installed, type in console (or terminal):
 
-- **to install:**
+- **to install CrysPy:**
 
 {% highlight bash %}
 python -m pip install cryspy cryspy_editor
@@ -18,7 +18,7 @@ python -m pip install cryspy cryspy_editor
 python -m pip install pyqt5 pyqtgraph scipy matplotlib numpy
 {% endhighlight %}
 
-- **to run:**
+- **to run it:**
 
 {% highlight bash %}
 python -m cryspy_editor
@@ -66,6 +66,7 @@ Any third-party scripts based on the library CrysPy can be added.
 
 If you have any suggestions, bug reports or annoyances please report them to our issue [tracker on GitHub][cryspy-issue].
 
+[python-downloads]: https://www.python.org/downloads
 [cryspy-zenodo]: https://zenodo.org/badge/latestdoi/178411703
 [cryspy-issue]: https://github.com/ikibalin/cryspy/issues
 

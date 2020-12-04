@@ -4,7 +4,7 @@ title: GUI
 permalink: /gui/
 ---
 
-To run GUI "Cryspy Editor" type in console command:
+To run GUI "Cryspy Editor" type command in console:
 
 {% highlight bash %}
 python -m cryspy_editor

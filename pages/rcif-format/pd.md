@@ -15,7 +15,7 @@ measurements (1d case).
 - [Pd Background][pd-background]
 - [Pd Meas][pd-meas]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Diffrn Radiation][diffrn-radiation]
 - [Chi2][chi2]
 - [Range][range]

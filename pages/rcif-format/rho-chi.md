@@ -16,7 +16,7 @@ It describes data blocks of crystals and experiments for data refinement
 - [Dd2d][pd2d]
 - [TOF][tof]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Inversed Hessian][inversed-hessian]
 
 
