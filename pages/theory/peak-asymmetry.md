@@ -33,5 +33,10 @@ $$ F_b(z) = 2 (2 z^2-3) F_a(z) $$
 
 The asymmetry correction has four independent parameters $$P_1$$, $$P_2$$, $$P_3$$, $$P_4$$.
 
+They are given in [Pd Instr Reflex Asymmetry][pd-instr-reflex-asymmetry] item (for 1d neutron powder diffraction [experiment][pd]) and in [Pd2d Instr Reflex Asymmetry][pd2d-instr-reflex-asymmetry] item (for 2d neutron powder diffraction [experiment][pd2d]).
 
 [notes]: /cryspy/theory
+[pd-instr-reflex-asymmetry]: /cryspy/rcif-format/pd-instr-reflex-asymmetry
+[pd2d-instr-reflex-asymmetry]: /cryspy/rcif-format/pd2d-instr-reflex-asymmetry
+[pd]: /cryspy/rcif-format/pd
+[pd2d]: /cryspy/rcif-format/pd2d

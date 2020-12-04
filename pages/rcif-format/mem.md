@@ -11,7 +11,7 @@ density reconstruction by Maximum Entropy Method.
 - [crystal][crystal]
 - [Diffrn][diffrn]
 
-# Optinal Items/Loops:
+# Optional Items/Loops:
 - [Density Point][density-point]
 - [MEM Parameters][mem-parameters]
 - [Section][section]

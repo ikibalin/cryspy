@@ -23,12 +23,7 @@ $$ P_h = G_2 + \left(1-G_2\right) \cdot \left(\left(G_1 \cos \alpha_h\right)^2 +
 
 Where $$G_1$$ and $$G_2$$ are refinable parameters and is the acute angle between the scattering vector and the normal to the crystallites (platy habit).
 
-Description of texture in cif file:
-
-    _texture_g_1 0.1239
-    _texture_g_2 0.94211
-    _texture_h_ax -0.66119
-    _texture_k_ax -0.0541
-    _texture_l_ax 3.0613
+The parameters  $$G_1, G_1, h_{\text{ax.}}, k_{\text{ax.}}, l_{\text{ax.}}$$ are given in [Texture][texture] item.
     
 [notes]: /cryspy/theory
+[texture]: /cryspy/rcif-format/texture

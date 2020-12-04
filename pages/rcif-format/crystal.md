@@ -21,7 +21,7 @@ crystal structure.
 - [Atom Local Axes][atom-local-axes]
 - [Atom Electron Confiduration][atom-electron-confiduration]
 
-Minimal description:
+# Example
 
       data_Fe3O4
 

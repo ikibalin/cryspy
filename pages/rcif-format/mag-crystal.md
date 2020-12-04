@@ -23,7 +23,7 @@ magnetic crystal structure.
 - [Atom Electron Confiduration][atom-electron-confiduration]
 
 
-Minimal description:
+# Example
 
       data_5yOhtAoR
       

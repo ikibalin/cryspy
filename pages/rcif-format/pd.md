@@ -29,7 +29,7 @@ measurements (1d case).
 - [Refln][refln]
 - [ReflnSusceptibility][refln-susceptibility]
 
-Example:
+# Example
 
       data_pnd
 

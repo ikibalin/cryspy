@@ -28,7 +28,7 @@ powder diffraction measurements by Time of FLight
 - [Refln][refln]
 - [ReflnSusceptibility][refln-susceptibility]
 
-Example:
+# Example
 
       data_tof
 

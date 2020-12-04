@@ -27,4 +27,9 @@ $$ FR = \frac{I^{UP}_{hkl} + c \cdot I_{2h2k2l}}{I^{DOWN}_{hkl} + c \cdot I_{2h2
 
 In the calculations of the extinction correction $$y$$ for $$(2h2k2l)$$ reflections the half of the wavelength is used.
 
+The parameter $$c$$ is given as `ratio_lambda/2` in [setup item][setup].
+
+
+
 [notes]: /cryspy/theory
+[setup]: /cryspy/rcif-format/setup

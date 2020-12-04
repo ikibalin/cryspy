@@ -29,7 +29,7 @@ measurements (2d case).
 - [Refln][refln]
 - [ReflnSusceptibility][refln-susceptibility]
 
-Example:
+# Example
 
       data_powder2d
 
