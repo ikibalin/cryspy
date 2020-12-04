@@ -4,6 +4,8 @@ permalink: /rcif-format/atom-type-scat/
 ---
 [Back to RCIF format][rcif-format]
 
+# `atom_type_scat` item/loop:
+
      loop_
      _atom_type_scat_symbol
      _atom_type_scat_neutron_magnetic_j0_A1
@@ -29,5 +31,25 @@ permalink: /rcif-format/atom-type-scat/
       O2-  0.00000   0.00000  0.00000  0.00000  0.00000  0.00000  0.00000 
       N2   0.00000   0.00000  0.00000  0.00000  0.00000  0.00000  0.00000
 
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

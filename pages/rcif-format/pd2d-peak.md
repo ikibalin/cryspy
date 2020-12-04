@@ -4,6 +4,8 @@ permalink: /rcif-format/pd2d-peak/
 ---
 [Back to RCIF format][rcif-format]
 
+# `pd2d_peak` item/loop:
+
       loop_
       _pd2d_peak_index_h
       _pd2d_peak_index_k
@@ -18,5 +20,25 @@ permalink: /rcif-format/pd2d-peak/
       2  2  0  4 17.2 100.0 101.2   90.0  87.4 2.3
       2  1  3  2 19.1  78.6 101.0   92.0  82.7 5.7
 
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

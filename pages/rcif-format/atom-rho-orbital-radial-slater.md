@@ -4,6 +4,8 @@ permalink: /rcif-format/atom-rho-orbital-radial-slater/
 ---
 [Back to RCIF format][rcif-format]
 
+# `atom_rho_orbital_radial_slater` item/loop:
+
       loop_V_s
       _atom_rho_orbital_radial_slater_n0
       _atom_rho_orbital_radial_slater_zeta0
@@ -17,5 +19,25 @@ permalink: /rcif-format/atom-rho-orbital-radial-slater/
           2  9.37400  0.00415 10.04067 -0.42093  0.09958
           3  7.90503 -0.00366  0.12576 -0.25395  0.05408
           3  5.12985  0.00552 -0.02332  0.73273 -0.11001
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

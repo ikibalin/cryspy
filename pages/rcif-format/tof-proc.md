@@ -4,6 +4,8 @@ permalink: /rcif-format/tof-proc/
 ---
 [Back to RCIF format][rcif-format]
 
+# `tof_proc` item/loop:
+
      loop_
      _tof_proc_time
      _tof_proc_time_corrected
@@ -19,5 +21,26 @@ permalink: /rcif-format/tof-proc/
      _tof_proc_intensity_down_sigma
      4.00  3.9  11.2   400.00   317.00   460.00   377.00   60.00    465.80000   128.97000   301.88000   129.30000
 
+
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

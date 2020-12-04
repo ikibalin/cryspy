@@ -4,6 +4,8 @@ permalink: /rcif-format/space-group-symop-magn-operation/
 ---
 [Back to RCIF format][rcif-format]
 
+# `space_group_symop_magn_operation` item/loop:
+
      loop_
      _space_group_symop_magn_operation_id
      _space_group_symop_magn_operation_xyz
@@ -19,5 +21,26 @@ permalink: /rcif-format/space-group-symop-magn-operation/
      10   -x,-x+y+1/2,z,-1
      11   x-y+1/2,-y,z,-1
      12   y,x,z,-1
+
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

@@ -4,6 +4,8 @@ permalink: /rcif-format/tof-background/
 ---
 [Back to RCIF format][rcif-format]
 
+# `tof_background` item/loop:
+
      _tof_background_time_max  30000.00
      _tof_background_coeff1    24832.850
      _tof_background_coeff2     6139.244
@@ -15,5 +17,22 @@ permalink: /rcif-format/tof-background/
      _tof_background_coeff8     -103.742
      _tof_background_coeff9      -11.806
 
+
+**Mandatory parameters:** 
+`time_max` in microseconds, `coeff1`.
+
+**Optional parameters:** 
+`coeff2`, `coeff3`, `coeff4`, `coeff5`, `coeff6`, `coeff7`, `coeff8`,
+`coeff9`, `coeff10`, `coeff11`, `coeff12`, `coeff13`, `coeff14`,
+`coeff15`, `coeff16`, `coeff17`, `coeff18`, `id`.
+
+# Item object
+
+**Methods:** 
+`.calc_background(...)`.
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

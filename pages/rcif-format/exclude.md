@@ -4,6 +4,8 @@ permalink: /rcif-format/exclude/
 ---
 [Back to RCIF format][rcif-format]
 
+# `exclude` item/loop:
+
      loop_
      _exclude_id
      _exclude_ttheta_min
@@ -12,5 +14,25 @@ permalink: /rcif-format/exclude/
       2  30.0  45.0
       3  58.0  63.0
 
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format

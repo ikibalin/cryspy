@@ -4,6 +4,8 @@ permalink: /rcif-format/refln-susceptibility/
 ---
 [Back to RCIF format][rcif-format]
 
+# `refln_susceptibility` item/loop:
+
      loop_
      _refln_susceptibility.index_h    
      _refln_susceptibility.index_k    
@@ -31,5 +33,25 @@ permalink: /rcif-format/refln-susceptibility/
      2 0 0 4.52 0.123 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j  0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j
      0 2 0 4.52 0.123 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j  0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j
 
+**Mandatory parameters:** 
+No
+
+**Optional parameters:** 
+No
+
+# Item object
+
+**Methods:** 
+No
+
+**Internal parameters:** 
+No 
+
+**Protected parameters:** 
+No
+
+# Loop object
+**Methods:** 
+No
 
 [rcif-format]: /cryspy/rcif-format
