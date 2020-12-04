@@ -7,7 +7,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
-class TOFCorrectionIntensityIncident(ItemN):
+class TOFIntensityIncident(ItemN):
     """
     Correction of incident intensity
 
@@ -58,10 +58,10 @@ class TOFCorrectionIntensityIncident(ItemN):
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
 
-    PREFIX = "tof_correction_intensity_incident"
+    PREFIX = "tof_intensity_incident"
 
     def __init__(self, **kwargs) -> NoReturn:
-        super(TOFCorrectionIntensityIncident, self).__init__()
+        super(TOFIntensityIncident, self).__init__()
 
         # defined for any integer and float parameters
         D_MIN = {}
@@ -117,28 +117,28 @@ class TOFCorrectionIntensityIncident(ItemN):
         return res
 
 
-class TOFCorrectionIntensityIncidentL(LoopN):
+class TOFIntensityIncidentL(LoopN):
     """
     Description of AtomSite in loop.
 
     """
-    ITEM_CLASS = TOFCorrectionIntensityIncident
+    ITEM_CLASS = TOFIntensityIncident
     ATTR_INDEX = None
     def __init__(self, loop_name = None) -> NoReturn:
-        super(TOFCorrectionIntensityIncidentL, self).__init__()
+        super(TOFIntensityIncidentL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
    
 
 # s_cont = """
-# _tof_correction_intensity_incident_a1 0
-# _tof_correction_intensity_incident_a2 0
-# _tof_correction_intensity_incident_a3 0
-# _tof_correction_intensity_incident_a4 0
-# _tof_correction_intensity_incident_a5 0
-# _tof_correction_intensity_incident_a6 0
-# _tof_correction_intensity_incident_a7 0
-# _tof_correction_intensity_incident_a8 0
+# _tof_intensity_incident_a1 0
+# _tof_intensity_incident_a2 0
+# _tof_intensity_incident_a3 0
+# _tof_intensity_incident_a4 0
+# _tof_intensity_incident_a5 0
+# _tof_intensity_incident_a6 0
+# _tof_intensity_incident_a7 0
+# _tof_intensity_incident_a8 0
 # """
 
 # obj = TOFCorrectionIntensityIncident.from_cif(s_cont)

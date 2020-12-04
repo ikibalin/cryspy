@@ -165,6 +165,8 @@ from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
 from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground, \
     TOFBackgroundL
+from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
+    TOFIntensityIncident, TOFIntensityIncidentL
 from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeas, TOFMeasL
 from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters, \
     TOFParametersL

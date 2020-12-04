@@ -148,8 +148,6 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     profile_l_2d = norm[:, na] * (oml_a_2d + oml_b_2d)
     one_e = 1. - eta
     tof_peak_2d = one_e[:, na] * profile_g_2d + eta[:, na] * profile_l_2d
-    print("tof_peak_2d.min(): ", tof_peak_2d.min())
-    print("tof_peak_2d.max(): ", tof_peak_2d.max())
     return tof_peak_2d
 
 

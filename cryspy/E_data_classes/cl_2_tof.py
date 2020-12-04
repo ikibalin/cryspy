@@ -27,6 +27,8 @@ from cryspy.C_item_loop_classes.cl_1_texture import Texture
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground
+from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
+    TOFIntensityIncident
 from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeasL
 from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters
 from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeakL
@@ -58,8 +60,8 @@ class TOF(DataN):
 
     CLASSES_MANDATORY = (TOFParameters, TOFProfile, PhaseL, TOFBackground,
                          TOFMeasL)
-    CLASSES_OPTIONAL = (DiffrnRadiation, Chi2, Range, Extinction,
-                        Texture, ExcludeL, TOFProcL,
+    CLASSES_OPTIONAL = (DiffrnRadiation, Chi2, Range,
+                        Texture, TOFIntensityIncident, ExcludeL, TOFProcL,
                         TOFPeakL, RefineLs, ReflnL, ReflnSusceptibilityL)
     # CLASSES_INTERNAL = ()
 

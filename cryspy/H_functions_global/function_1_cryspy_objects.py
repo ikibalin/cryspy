@@ -72,6 +72,8 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
 from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground, \
     TOFBackgroundL
+from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
+    TOFIntensityIncident, TOFIntensityIncidentL
 from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeas, TOFMeasL
 from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters, \
     TOFParametersL
@@ -121,8 +123,8 @@ L_ITEM_CLASS.extend([
     Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak,
     Range, RefineLs, Refln, ReflnSusceptibility,
     Setup, SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnOperation,
-    SpaceGroup, Section, Texture, TOFBackground, TOFMeas, TOFParameters,
-    TOFPeak, TOFProc, TOFProfile])
+    SpaceGroup, Section, Texture, TOFBackground, TOFIntensityIncident, TOFMeas,
+    TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL,
@@ -136,8 +138,9 @@ L_LOOP_CLASS.extend([
     Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL,
     RangeL, RefineLsL, ReflnL, ReflnSusceptibilityL,
     SectionL, SetupL, SpaceGroupSymopMagnCenteringL,
-    SpaceGroupSymopMagnOperationL, TextureL, TOFBackgroundL, TOFMeasL,
-    TOFParametersL, TOFPeakL, TOFProcL, TOFProfileL])
+    SpaceGroupSymopMagnOperationL, TextureL, TOFBackgroundL, 
+    TOFIntensityIncidentL, TOFMeasL, TOFParametersL, TOFPeakL, TOFProcL,
+    TOFProfileL])
 
 L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d, TOF])
 
