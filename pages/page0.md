@@ -65,6 +65,7 @@ various properties needed for data refinement.
 - [Space Group][space-group]
 - [Texture][texture]
 - [TOF Background][tof-background]
+- [TOF Intensity Incident][tof-intensity-incident]
 - [TOF Meas][tof-meas]
 - [TOF Parameters][tof-parameters]
 - [TOF Peak][tof-peak]
@@ -131,6 +132,7 @@ various properties needed for data refinement.
 [space-group]: /cryspy/rcif-format/space-group
 [texture]: /cryspy/rcif-format/texture
 [tof-background]: /cryspy/rcif-format/tof-background
+[tof-intensity-incident]: /cryspy/rcif-format/tof-intensity-incident
 [tof-meas]: /cryspy/rcif-format/tof-meas
 [tof-parameters]: /cryspy/rcif-format/tof-parameters
 [tof-peak]: /cryspy/rcif-format/tof-peak
