@@ -4,23 +4,11 @@ permalink: /rcif-format/diffrn/
 ---
 [Back to RCIF format][rcif-format]
 
+# `diffrn` item:
+
 Data items in the DIFFRN category record details about
 single diffraction measurements.
 
-# Mandatory Items/Loops:
-- [Setup][setup]
-- [Diffrn Radiation][diffrn-radiation]
-- [Diffrn Orient Matrix][diffrn-orient-matrix]
-- [Diffrn Refln][diffrn-refln]
-
-# Optional Items/Loops:
-- [Extinction][extinction]
-- [Phase][phase]
-- [Refln][refln]
-- [Refln Susceptibility][refln-susceptibility]
-- [RefineLs][refine-ls]
-
-Example:
 
       data_mono
 
@@ -55,6 +43,29 @@ Example:
       0 0 8 0.64545 0.01329
       2 0 6 1.75682 0.04540
       0 2 6 1.67974 0.03711
+
+
+**Mandatory Items/Loops:**
+- [Setup][setup]
+- [Diffrn Radiation][diffrn-radiation]
+- [Diffrn Orient Matrix][diffrn-orient-matrix]
+- [Diffrn Refln][diffrn-refln]
+
+**Optional Items/Loops:**
+- [Extinction][extinction]
+- [Phase][phase]
+- [Refln][refln]
+- [Refln Susceptibility][refln-susceptibility]
+- [RefineLs][refine-ls]
+
+**Methods:**
+`.calc_iint_u_d_flip_ratio(...)`,
+`.calc_fr(...)`,
+`.calc_chi_sq(...)`,
+`.params_to_cif(...)`,
+`.data_to_cif(...)`,
+`.calc_to_cif(...)`,
+`.estimate_FM(...)`.
 
 
 [rcif-format]: /cryspy/rcif-format

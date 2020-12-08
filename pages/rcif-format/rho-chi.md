@@ -4,21 +4,33 @@ permalink: /rcif-format/rho-chi/
 ---
 [Back to RCIF format][rcif-format]
 
+# `RhoChi` object:
+
 It describes data blocks of crystals and experiments for data refinement
 
-# Crystals:
+**Crystals:**
 - [Crystal][crystal]
 - [Mag Crystal][mag-crystal]
 
-# Experiments:
+**Experiments:**
 - [Diffrn][diffrn]
 - [Pd][pd]
-- [Dd2d][pd2d]
+- [Pd2d][pd2d]
 - [TOF][tof]
 
-# Optional Items/Loops:
+**Optional Items/Loops:**
 - [Inversed Hessian][inversed-hessian]
 
+**Methods:**
+`.apply_constraints(...)`, 
+`.calc_chi_sq(...)`, 
+`.crystals(...)`, 
+`.estimate_f_mag_for_diffrn()`, 
+`.estimate_inversed_hessian(...)`, 
+`.experiments(...)`, 
+`.refine(...)`, 
+`.save_to_file(...)`, 
+`.save_to_files(...)`.
 
 [rcif-format]: /cryspy/rcif-format
 

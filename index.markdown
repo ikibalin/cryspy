@@ -56,7 +56,7 @@ questions regarding the use of CrysPy library or "CrysPy Editor", troubles with
 its installation or running the program try the following steps:
 
 - Read the relevant manual sections, paying particular attention to examples files (under development).
-- Send an e-mail to *iurii.kibalin@cea.fr* or call by skype (*yurikibalin@outlook.com*).
+- Send an e-mail to *iurii.kibalin@cea.fr* or call by Zoom (id: *309 327 7961*).
 
 A reference to the software use the following DOI: [10.5281/zenodo.4271777][cryspy-zenodo]
 

@@ -4,24 +4,10 @@ permalink: /rcif-format/crystal/
 ---
 [Back to RCIF format][rcif-format]
 
+# `crystal` item:
+
 Data items in the CRYSTAL category record details about
 crystal structure.
-
-# Mandatory Items/Loops:
-- [Space Group][space-group]
-- [Cell][cell]
-- [Atom Site][atom-site]
-
-# Optional Items/Loops:
-- [Atom Type][atom-type]
-- [Atom Site Aniso][atom-site-aniso]
-- [Atom Site Susceptibility][atom-site-susceptibility]
-- [Atom Site Scat][atom-site-scat]
-- [Atom Type Scat][atom-type-scat]
-- [Atom Local Axes][atom-local-axes]
-- [Atom Electron Confiduration][atom-electron-confiduration]
-
-# Example
 
       data_Fe3O4
 
@@ -49,6 +35,33 @@ crystal structure.
       Uiso 0.0 0.50000 0.50000 0.50000 Fe3B 1.0 Fe3+
       Uiso 0.0 0.25521 0.25521 0.25521   O1 1.0  O2-
 
+**Mandatory Items/Loops:**
+- [Space Group][space-group]
+- [Cell][cell]
+- [Atom Site][atom-site]
+
+**Optional Items/Loops:**
+- [Atom Type][atom-type]
+- [Atom Site Aniso][atom-site-aniso]
+- [Atom Site Susceptibility][atom-site-susceptibility]
+- [Atom Site Scat][atom-site-scat]
+- [Atom Type Scat][atom-type-scat]
+- [Atom Local Axes][atom-local-axes]
+- [Atom Electron Confiduration][atom-electron-confiduration]
+
+**Methods:**
+`.apply_constraints(...)`,
+`.calc_b_iso_beta(...)`,
+`.calc_f_nucl(...)`,
+`.calc_hkl(...)`,
+`.calc_hkl_in_range(...)`,
+`.calc_magnetization_ellipsoid(...)`,
+`.calc_magnetic_moments_with_field_loc(...)`.
+`.calc_refln(...)`,
+`.calc_refln_susceptibility(...)`,
+`.calc_susceptibility_moment_tensor(...)`,
+`.calc_main_axes_of_magnetization_ellipsoids(...)`,
+`.report_main_axes_of_magnetization_ellipsoids(...)`,
 
 [rcif-format]: /cryspy/rcif-format
 

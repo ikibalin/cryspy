@@ -14,24 +14,18 @@ permalink: /rcif-format/inversed-hessian/
      ;
 
 **Mandatory parameters:** 
-No
-
-**Optional parameters:** 
-No
+`with_labels`
 
 # Item object
 
 **Methods:** 
-No
+`.set_labels(...)`, 
+`.set_inversed_hessian(...)`, 
+`.set_correlation_matrix(...)`, 
+`.set_sigmas(...)`, 
+`.report(...)`.
 
 **Internal parameters:** 
-No 
-
-**Protected parameters:** 
-No
-
-# Loop object
-**Methods:** 
-No
+`label`, `matrix`, `correlation_matrix`, `sigma`
 
 [rcif-format]: /cryspy/rcif-format

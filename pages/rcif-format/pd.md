@@ -4,32 +4,12 @@ permalink: /rcif-format/pd/
 ---
 [Back to RCIF format][rcif-format]
 
+# `pd` item:
+
 Data items in the PD category record details about
 powder polarized and unpolarized neutron diffraction
 measurements (1d case).
 
-# Mandatory Items/Loops:
-- [Setup][setup]
-- [Pd Instr Resolution][pd-instr-resolution]
-- [Phase][phase]
-- [Pd Background][pd-background]
-- [Pd Meas][pd-meas]
-
-# Optional Items/Loops:
-- [Diffrn Radiation][diffrn-radiation]
-- [Chi2][chi2]
-- [Range][range]
-- [Extinction][extinction]
-- [Pd Instr Reflex Asymmetry][pd-instr-reflex-asymmetry]
-- [Texture][texture]
-- [Exclude][exclude]
-- [PdProc][pd-proc]
-- [PdPeak][pd-peak]
-- [RefineLs][refine-ls]
-- [Refln][refln]
-- [ReflnSusceptibility][refln-susceptibility]
-
-# Example
 
       data_pnd
 
@@ -87,6 +67,37 @@ measurements (1d case).
       4.2 323.78 118.22 206.06 120.00
       4.4 307.14 115.90 230.47 116.53
 
+**Mandatory Items/Loops:**
+- [Setup][setup]
+- [Pd Instr Resolution][pd-instr-resolution]
+- [Phase][phase]
+- [Pd Background][pd-background]
+- [Pd Meas][pd-meas]
+
+**Optional Items/Loops:**
+- [Diffrn Radiation][diffrn-radiation]
+- [Chi2][chi2]
+- [Range][range]
+- [Extinction][extinction]
+- [Pd Instr Reflex Asymmetry][pd-instr-reflex-asymmetry]
+- [Texture][texture]
+- [Exclude][exclude]
+- [PdProc][pd-proc]
+- [PdPeak][pd-peak]
+- [RefineLs][refine-ls]
+- [Refln][refln]
+- [ReflnSusceptibility][refln-susceptibility]
+
+**Methods:**
+`.calc_profile(...)`, 
+`.calc_chi_sq(...)`, 
+`.simulation(...)`, 
+`.calc_iint(...)`, 
+`.calc_shape_profile(...)`, 
+`.params_to_cif(...)`, 
+`.data_to_cif(...)`, 
+`.calc_to_cif(...)`, 
+`.apply_constraints(...)`.
 
 [rcif-format]: /cryspy/rcif-format
 
