@@ -4,7 +4,7 @@ permalink: /rcif-format/crystal/
 ---
 [Back to RCIF format][rcif-format]
 
-# `crystal` item:
+# `crystal` data object:
 
 Data items in the CRYSTAL category record details about
 crystal structure.

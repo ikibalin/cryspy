@@ -4,7 +4,7 @@ permalink: /rcif-format/mem/
 ---
 [Back to RCIF format][rcif-format]
 
-# `MEM` object:
+# `MEM` global object:
 
 It describes data blocks of crystals and experiments for magnetization
 density reconstruction by Maximum Entropy Method.

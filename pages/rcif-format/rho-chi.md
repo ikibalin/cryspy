@@ -4,7 +4,7 @@ permalink: /rcif-format/rho-chi/
 ---
 [Back to RCIF format][rcif-format]
 
-# `RhoChi` object:
+# `RhoChi` global object:
 
 It describes data blocks of crystals and experiments for data refinement
 

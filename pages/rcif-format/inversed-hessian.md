@@ -4,7 +4,7 @@ permalink: /rcif-format/inversed-hessian/
 ---
 [Back to RCIF format][rcif-format]
 
-# `inversed_hessian` item/loop:
+# `inversed_hessian` item:
 
      _inversed_hessian_with_labels
      ;

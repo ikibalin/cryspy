@@ -4,7 +4,7 @@ permalink: /rcif-format/pd/
 ---
 [Back to RCIF format][rcif-format]
 
-# `pd` item:
+# `pd` data object:
 
 Data items in the PD category record details about
 powder polarized and unpolarized neutron diffraction

@@ -4,7 +4,7 @@ permalink: /rcif-format/diffrn/
 ---
 [Back to RCIF format][rcif-format]
 
-# `diffrn` item:
+# `diffrn` data object:
 
 Data items in the DIFFRN category record details about
 single diffraction measurements.
