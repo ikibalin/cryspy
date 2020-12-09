@@ -11,7 +11,8 @@ from cryspy import GlobalN
 from cryspy import Crystal, PdMeasL, RefineLs
 
 class MyGlobal(GlobalN):
-    """MyData class."""
+    """MyData class.
+    """
 
     CLASSES_MANDATORY = (Crystal, )
     CLASSES_OPTIONAL = (PdMeasL, RefineLs)
@@ -23,7 +24,7 @@ class MyGlobal(GlobalN):
     # default values for the parameters
     D_DEFAULT = {}
 
-    def __init__(self, data_name=None, **kwargs) -> NoReturn:
+    def __init__(self, data_name=None, **kwargs):
         super(MyGlobal, self).__init__()
 
         self.__dict__["items"] = []
@@ -34,8 +35,8 @@ class MyGlobal(GlobalN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-	def my_method():
-		pass
+    def my_method():
+        pass
 {% endhighlight %}
 
 [content]: /cryspy/content

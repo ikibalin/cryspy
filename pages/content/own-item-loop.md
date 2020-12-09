@@ -9,8 +9,8 @@ permalink: /content/own-item-loop/
 {% highlight python %}
 from cryspy import ItemN, LoopN
 
-class MyItem(ItemN):
-    """MyItem class.
+class MyObject(ItemN):
+    """MyObject class.
 
     Attributes
     ----------
@@ -55,10 +55,10 @@ class MyItem(ItemN):
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
 
-    PREFIX = "my_item" # prefix for cif file
+    PREFIX = "my_object" # prefix for cif file
 
-    def __init__(self, **kwargs) -> NoReturn:
-        super(MyItem, self).__init__()
+    def __init__(self, **kwargs):
+        super(MyObject, self).__init__()
 
         # defined for any integer and float parameters
         D_MIN = {"param_1": 0, "param_2": 0.}
@@ -73,8 +73,8 @@ class MyItem(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-	def my_method():
-		pass
+    def my_method():
+        pass
 
 
 # loop class
@@ -84,13 +84,13 @@ class MyObjectL(LoopN):
     ITEM_CLASS = MyObject
     ATTR_INDEX = None
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name=None):
         super(MyObjectL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
-	
-	def my_method():
-		pass
+    
+    def my_method():
+        pass
 {% endhighlight %}
 
 

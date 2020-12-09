@@ -24,7 +24,7 @@ class MyData(DataN):
     # default values for the parameters
     D_DEFAULT = {}
 
-    def __init__(self, data_name=None, **kwargs) -> NoReturn:
+    def __init__(self, data_name=None, **kwargs):
         super(MyData, self).__init__()
 
         self.__dict__["items"] = []
@@ -35,8 +35,8 @@ class MyData(DataN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-	def my_method():
-		pass
+    def my_method():
+        pass
 {% endhighlight %}
 
 

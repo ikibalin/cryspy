@@ -29,8 +29,7 @@ CRYSPY_CLASSES = [MyObject, MyObjectL, MyData, MyGlobal, ]
 {% endhighlight %}
 
 [content]: /cryspy/content
-[template-package]: https://1drv.ms/u/s!AszKwJJFkEkTjMFgKigLj3raX5Vfug?e=wSJ2Ie
-
+[template-package]: https://1drv.ms/u/s!AszKwJJFkEkTjMFh1I5s8w315jAzsw?e=vZppFR
 [own-item-loop]:  /cryspy/content/own-item-loop
 [own-data]:  /cryspy/content/own-data
 [own-global]:  /cryspy/content/own-global
