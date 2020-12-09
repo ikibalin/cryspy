@@ -4,38 +4,27 @@ title: Content
 permalink: /content/
 ---
 
-Please use the following links to get detailed information about different objects and procedures of the CrysPy library:
+## Procedures and functions of the standard CrysPy library
 
-# Objects
-1. Item/Loop classes
-    - Classes describing the crystal structures
-    - Classes describing experiments
-2. Data containers to describe
-    - crystal structure: class `Crystal`
-    - magnetic crystal structure: class `MagCrystal`
-    - single diffraction experiment with polarized neutrons: class `Diffrn`
-    - unpolarized and polarized neutron diffraction experiment (in equatorial plane): class `Pd`
-    - unpolarized and polarized neutron diffraction experiment (2D patterns): class `Pd2d`
-    - unpolarized and polarized neutron diffraction T.O.F. experiment (in equatorial plane): class `TOF`
-3. Global containers
-    - Data refinement of described experiments: class `RhoChi`
-    - Reconstraction of magnetization density by Maximum Entropy Method: class `MEM`
+The CrysPy library has a number of defined functions and procedures that can be used in external scripts.
 
+1. Base functions;
+2. Functions operating with predefined items and loops;
+3. Functions operating with data containers;
+4. Functions operating with global containers.
 
-# Procedures and functions
-1. Base functions
-    - Algebra
-    - Crystallography base
-    - Extinction
-    - Flip ratio
-    - Matrices
-2. Functions operating with predefined items and loops
-    - Procedure for flip ratios
-3. Functions operating with data containers
-    - Procedures for Maximum Entropy calculations
-4. Functions operating with global containers
-    - str_to_globaln, file_to_globaln, str_to_items
+## Extending the library by own packages
 
-# How to create own object
-1. Basic rules
-2. The extension of the library by own objects
+The standard CrysPy library is a simple way to analyse data by Maximum Entropy Method, Rietveld analysis, and so on. However, own packages will help you significantly expand the basic functionality. It can make the data analysis as convenient and efficient as possible.
+
+1. [Create own Item/Loop class][own-item-loop];
+2. [Create own Data class][own-data];
+3. [Create own Global class][own-global];
+4. [Create own package (with template)][own-package];
+5. [Add packages to the CrysPy library][add-packages].
+
+[add-packages]:  /cryspy/content/add-packages
+[own-item-loop]:  /cryspy/content/own-item-loop
+[own-data]:  /cryspy/content/own-data
+[own-global]:  /cryspy/content/own-global
+[own-package]:  /cryspy/content/own-package
