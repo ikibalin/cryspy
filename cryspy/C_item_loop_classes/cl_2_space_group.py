@@ -142,10 +142,17 @@ class SpaceGroup(ItemN):
 
         self.__dict__["D_MIN"] = D_MIN
         self.__dict__["D_MAX"] = D_MAX
+        flag_form_object = False
         for key, attr in self.D_DEFAULT.items():
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
+            if key in ("it_number", "name_hm_alt", "name_hm_ref",
+                       "name_schoenflies", "name_hall", "name_hm_full"):
+                flag_form_object = True
+
+        if flag_form_object:
+            self.form_object()
 
     def form_object(self) -> NoReturn:
         """Form object."""
@@ -239,7 +246,12 @@ class SpaceGroup(ItemN):
         name_hm_short = get_name_hm_short_by_it_number(it_number)
         if (name_hm_short is not None):
             lattice_type = get_lattice_type_by_name_hm_short(name_hm_short)
+            if centring_type is None:
+                centring_type = get_centring_type_by_name_hm_extended(
+                    name_hm_short)
         name_hm_full = get_name_hm_full_by_it_number(it_number)
+        if ((name_hm_full is not None) & (centring_type is None)):
+            centring_type = get_centring_type_by_name_hm_extended(name_hm_full)
         name_hall = get_name_hall_by_it_number(it_number)
         if name_hall is not None:
             centrosymmetry = get_centrosymmetry_by_name_hall(name_hall)

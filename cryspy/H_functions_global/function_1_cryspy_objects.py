@@ -146,6 +146,66 @@ L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d, TOF])
 
 L_GLOBAL_CLASS.extend([MEM, RhoChi])
 
+F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
+
+import sys
+from importlib import import_module
+
+
+def load_packages():
+    """Load external packages."""
+    if os.path.isfile(F_PACKAGES):
+        with open(F_PACKAGES, "r") as fid:
+            l_content = fid.readlines()
+    else:
+        return
+    l_content_new = []
+    for f_name in l_content:
+        f_name_sh = f_name.strip()
+        f_ok = True
+        if os.path.isdir(f_name.strip()):
+            module_name = os.path.basename(f_name_sh)
+            module_way = os.path.dirname(f_name_sh)
+            sys.path.append(module_way)
+            module = import_module(module_name)
+            try:
+                for obj in module.CRYSPY_CLASSES:
+                    if issubclass(obj, ItemN):
+                        if not(obj in L_ITEM_CLASS):
+                            L_ITEM_CLASS.append(obj)
+                    elif issubclass(obj, LoopN):
+                        if not(obj in L_LOOP_CLASS):
+                            L_LOOP_CLASS.append(obj)
+                    elif issubclass(obj, DataN):
+                        if not(obj in L_DATA_CLASS):
+                            L_DATA_CLASS.append(obj)
+                    elif issubclass(obj, GlobalN):
+                        if not(obj in L_GLOBAL_CLASS):
+                            L_GLOBAL_CLASS.append(obj)
+            except AttributeError:
+                print(f"Module '{module_name:}' in folder: \n {module_way}\n\
+does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.")
+                f_ok = False
+        else: 
+            f_ok = False
+        if f_ok:
+            l_content_new.append(f_name_sh)
+    with open(F_PACKAGES, "w") as fid:
+        fid.write("\n".join(l_content_new)+"\n")
+
+
+def add_package(f_name: str):
+    """Add packages to cryspy library."""
+    if os.path.isfile(F_PACKAGES):
+        with open(F_PACKAGES, 'r') as fid:
+            l_cont = fid.readlines()
+        if not(f_name+"\n" in l_cont):
+            with open(F_PACKAGES, 'a') as fid:
+                fid.write(f_name+"\n")
+    else:
+        with open(F_PACKAGES, 'a') as fid:
+            fid.write(f_name+"\n")
+
 
 def is_in_rcif_block(rcif_block, cryspy_obj):
     """Is in rcif block."""
