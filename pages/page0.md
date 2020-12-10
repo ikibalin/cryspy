@@ -61,6 +61,7 @@ various properties needed for data refinement.
 - [Refln][refln]
 - [Section][section]
 - [Setup][setup]
+- [Space Proup Symop][space-group-symop]
 - [Space Group Symop Magn Operation][space-group-symop-magn-operation]
 - [Space Group][space-group]
 - [Texture][texture]
@@ -128,6 +129,7 @@ various properties needed for data refinement.
 [refln]: /cryspy/rcif-format/refln
 [section]: /cryspy/rcif-format/section
 [setup]: /cryspy/rcif-format/setup
+[space-group-symop]: /cryspy/rcif-format/space-group-symop
 [space-group-symop-magn-operation]: /cryspy/rcif-format/space-group-symop-magn-operation
 [space-group]: /cryspy/rcif-format/space-group
 [texture]: /cryspy/rcif-format/texture
