@@ -6,14 +6,14 @@ permalink: /rcif-format/space-group-symop/
 
 # `space_group_symop` item/loop:
 
-  loop_
-  _space_group_symop.id
-  _space_group_symop.operation_xyz
-  _space_group_symop.operation_description
-    1    x,y,z              'identity mapping'
-    2    -x,-y,-z           'inversion'
-    3    -x,1/2+y,1/2-z '2-fold screw rotation with axis in (0,y,1/4)'
-    4    x,1/2-y,1/2+z  'c glide reflection through the plane (x,1/4,y)'
+     loop_
+     _space_group_symop.id
+     _space_group_symop.operation_xyz
+     _space_group_symop.operation_description     
+     1    x,y,z              'identity mapping'
+     2    -x,-y,-z           'inversion'
+     3    -x,1/2+y,1/2-z '2-fold screw rotation with axis in (0,y,1/4)'
+     4    x,1/2-y,1/2+z  'c glide reflection through the plane (x,1/4,y)'
 
 **Mandatory parameters:** 
 `operation_xyz`.
