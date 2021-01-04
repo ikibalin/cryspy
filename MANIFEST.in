@@ -1,2 +1,0 @@
-include *.rst
-recursive-include cryspy *.txt *.tab *.py *.dat *.png *.rcif *pyw
