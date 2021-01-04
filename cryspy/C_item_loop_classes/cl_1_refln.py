@@ -5,8 +5,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Refln(ItemN):
-    """
-    Refln class.
+    """Nuclear structure factor of reflection.
 
     Data items in the REFLN category record details about the
     reflections used to determine the ATOM_SITE data items.
@@ -106,7 +105,7 @@ class Refln(ItemN):
 
 
 class ReflnL(LoopN):
-    """ReflnL class."""
+    """Nuclear structure factors for reflections."""
 
     ITEM_CLASS = Refln
     ATTR_INDEX = "id"

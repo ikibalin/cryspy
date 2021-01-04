@@ -10,17 +10,17 @@ from typing import NoReturn, Union
 import numpy
 from pycifstar import Data, to_data
 
+from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_strings import find_prefix, \
-    ciftext_to_html
-from cryspy.A_functions_base.function_1_strings import \
     string_to_value_error
+from cryspy.A_functions_base.function_1_objects import \
+    get_functions_of_objet, get_table_html_for_variables
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 
 class LoopN(object):
-    """
-    Class LoopN.
+    """Loop data.
 
     It is internal class of cryspy library.
     You should use it only to create your own classes.
@@ -40,8 +40,27 @@ class LoopN(object):
 
     def _repr_html_(self):
         """Representation in HTML format."""
-        return ciftext_to_html(self.__repr__())
+        ls_html = [f"<h3>Object '{self.get_name():}'</h3>"]
+        ls_html.append(self.attributes_to_html())
 
+        ls_html.append(get_table_html_for_variables(self))
+        
+        report = self.report_html()
+        if report != "":
+            ls_html.append(f"<h3>Description </h3> {report:}")
+
+        ls_html.append(f"<h3>Methods</h3>")
+        method = self.methods_html()
+        if method != "":
+            ls_html.append(f"<b>Methods: </b> {method:}")
+
+        return " ".join(ls_html)
+
+    def methods_html(self):
+        ls_html = [f".{func_name}" for func_name in
+                   get_functions_of_objet(self)]
+        return ", ".join(ls_html)+"."
+    
     def __str__(self):
         """
         Magic method str() is redefined.
@@ -183,6 +202,33 @@ class LoopN(object):
     def form_object(self):
         pass
 
+    @classmethod
+    def define_by_items(cls, l_item: list, loop_name: str = ""):
+        """Define LoopN by defined items.
+        
+        (it's for the future)
+        """
+        if len(l_item) == 0:
+            raise ValueError("Number of items is zero")
+        if not(isinstance(l_item[0], ItemN)):
+            raise ValueError("type of items is not ItemN")
+        item_class = type(l_item[0])
+        flag = all([type(item) is item_class for item in l_item])
+        if not(flag):
+            raise ValueError("There are different types of given items")
+        obj = cls()
+        if cls is LoopN:
+            obj.__dict__["ITEM_CLASS"] = item_class
+            obj.__dict__["ATTR_INDEX"] = None
+            obj.__dict__["items"] = l_item
+            obj.__dict__["loop_name"] = loop_name
+        elif obj.ITEM_CLASS is item_class:
+            obj.items = l_item
+        else:
+            raise ValueError("Type of items does not correspond to loop class")            
+        return obj
+
+            
     @classmethod
     def from_cif(cls, string: str):
         """
@@ -373,6 +419,50 @@ class LoopN(object):
             ls_out.append(s_line)
         return "\n".join(ls_out)
 
+    def attributes_to_html(self) -> str:
+        """Representation of defined parameters in HTML format.
+        """
+        ls_html = ["<table>"]
+        item_class = self.ITEM_CLASS
+        if item_class is ItemN:
+            if len(self.items) != 0:
+                item_n = self.items[0]
+                attribute_names = item_n.ATTR_NAMES
+            else:
+                return ""
+        else:
+            attribute_names = item_class.ATTR_NAMES
+        flags = [False for name in attribute_names]
+        for item in self.items:
+            for ind_name, name in enumerate(attribute_names):
+                flag_value = item.is_attribute(name)
+                if flag_value:
+                    flags[ind_name] = True
+
+        ls_html.append(
+            "<tr><th> </th>"+"".join([f"<th>.{name:}</th>" for name, flag in zip(
+                attribute_names, flags)  if flag])+"</tr>")
+
+        for ind_item, item in enumerate(self.items):
+            ls_line = []
+            for name, flag in zip(attribute_names, flags):
+                if flag:
+                    flag_value = item.is_attribute(name)
+                    if flag_value:
+                        value = getattr(item, f"{name}_as_string")
+                        ls_line.append(f"<td>{value:}</td>")
+                    else:
+                        ls_line.append("<td>.</td>")
+            ls_html.append(f"<tr><th>[{ind_item}]</th>"+"".join(ls_line)+"</tr>")
+            if ind_item > 10:
+                ls_line = ["<td>...</td>" for flag in flags if flag ]
+                ls_html.append(f"<tr><th>[..., {len(self.items):}]</th>"+"".join(ls_line)+
+                               "</tr>")
+                break
+
+        ls_html.append("</table>")
+        return " ".join(ls_html)
+
     def save_to_csv(self, file_name: str = "output.csv", delimiter: str = ";")\
             -> NoReturn:
         """
@@ -459,7 +549,13 @@ class LoopN(object):
 
         """
         item_class = self.ITEM_CLASS
-        prefix = item_class.PREFIX
+        if item_class is ItemN:
+            if len(self.items) != 0:
+                prefix = self.items[0].PREFIX
+            else:
+                return []
+        else:
+            prefix = item_class.PREFIX
         loop_name = self.loop_name
         l_var = []
         for ind, item in enumerate(self.items):
@@ -492,10 +588,26 @@ class LoopN(object):
 
         """
         item_class = self.ITEM_CLASS
-        prefix_t, attr_t = name
-        if prefix_t != (item_class.PREFIX, self.loop_name):
+        if item_class is ItemN:
+            if len(self.items) != 0:
+                prefix = self.items[0].PREFIX
+            else:
+                return
+        else:
+            prefix = item_class.PREFIX
+        prefix_t = name[0]
+        if prefix_t != (prefix, self.loop_name):
             return None
-        attr_name, item_index = attr_t
+
+        if len(name) == 1:
+            return self
+        attr_t = name[1]
+        attr_name = attr_t[0]
+        if len(attr_t) == 1:
+            return getattr(self.items, attr_name)
+        item_index = attr_t[1]
+        if attr_name is None:
+            return self.items[item_index]
         return getattr(self.items[item_index], attr_name)
 
     def set_variable_by_name(self, name: tuple, value) -> NoReturn:
@@ -516,8 +628,16 @@ class LoopN(object):
 
         """
         item_class = self.ITEM_CLASS
+        if item_class is ItemN:
+            if len(self.items) != 0:
+                prefix = self.items[0].PREFIX
+            else:
+                return
+        else:
+            prefix = item_class.PREFIX
+        
         prefix_t, attr_t = name
-        if prefix_t != (item_class.PREFIX, self.loop_name):
+        if prefix_t != (prefix, self.loop_name):
             return
         attr_name, item_index = attr_t
         setattr(self.items[item_index], attr_name, value)
@@ -556,3 +676,40 @@ class LoopN(object):
             return
         self.items.clear()
         self.items = copy.deepcopy(obj.items)
+
+    def report(self):
+        return ""
+
+    def report_html(self):
+        return md_to_html(self.report())
+
+    def plots(self, *argv):
+        return []
+
+    def fix_variables(self):
+        """Fix variables."""
+        for item in self.items:
+            item.fix_variables()
+
+    def set_variable(self, name: str, index=None):
+        """Set refinement for variable given by name.
+        
+        Index parameters is used only for objects given as a matrix.
+        """
+        name_sh = name.strip(".").lower()
+        item_class = self.ITEM_CLASS
+        if item_class is ItemN:
+            if len(self.items) != 0:
+                att_ref = self.items[0].ATTR_REF
+            else:
+                return
+        else:
+            att_ref = item_class.ATTR_REF
+
+        if name_sh in att_ref:
+            if index is None:
+                for item in self.items:
+                    item.set_variable(name_sh, index=index)
+            else:
+                item = self[index]
+                item.set_variable(name_sh, index=None)

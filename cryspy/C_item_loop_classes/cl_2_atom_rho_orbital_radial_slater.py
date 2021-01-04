@@ -8,14 +8,17 @@ import numpy
 import scipy
 import scipy.optimize
 from pycifstar import to_data
+
 from cryspy.A_functions_base.function_1_rhocif import transs, calc_GCF
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat
 
 
 class AtomRhoOrbitalRadialSlater(ItemN):
-    """AtomRhoOrbitalRadialSlater class.
+    """Description of radial Slater functions.
 
     These items are used when the radial dependence of the
     electron density, R(k(l), l, r), of the atom specified in
@@ -134,7 +137,7 @@ class AtomRhoOrbitalRadialSlater(ItemN):
 
 
 class AtomRhoOrbitalRadialSlaterL(LoopN):
-    """AtomRhoOrbitalRadialSlaterL class.
+    """Description of radial Slater functions.
 
     These items are used when the radial dependence of the
     electron density, R(k(l), l, r), of the atom specified in

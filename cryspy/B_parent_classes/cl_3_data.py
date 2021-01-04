@@ -5,14 +5,16 @@ from warnings import warn
 from typing import Union, NoReturn
 from pycifstar import Data, to_data
 
-from cryspy.A_functions_base.function_1_strings import ciftext_to_html
+from cryspy.A_functions_base.function_1_markdown import md_to_html
+from cryspy.A_functions_base.function_1_objects import \
+    get_functions_of_objet, get_table_html_for_variables
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class DataN(object):
-    """DataN class."""
+    """Data container of loops and items."""
 
     def __repr__(self):
         """
@@ -34,7 +36,55 @@ class DataN(object):
 
     def _repr_html_(self):
         """Representation in HTML format."""
-        return ciftext_to_html(self.__repr__())
+        ls_html = [f"<h2>Object '{self.get_name():}'</h2>"]
+        ls_html.append(self.attributes_to_html())
+
+
+        ls_html.append(get_table_html_for_variables(self))
+
+        report = self.report_html()
+        if report != "":
+            ls_html.append(f"<h2>Description </h2> {report:}")
+
+        ls_html.append(f"<h2>Classes and methods</h2>")
+        try:
+            names = sorted([obj.__name__ for obj in self.CLASSES_MANDATORY])
+            if len(names) != 0:
+                ls_html.append("<b>Mandatory classes: </b>")
+                ls_html.append(f"{', '.join(names):}.<br>")
+        except AttributeError:
+            pass
+        try:
+            names = sorted([obj.__name__ for obj in self.CLASSES_OPTIONAL])
+            if len(names) != 0:
+                ls_html.append("<b>Optional classes: </b>")
+                ls_html.append(f"{', '.join(names):}.<br>")
+        except AttributeError:
+            pass
+
+        method = self.methods_html()
+        if method != "":
+            ls_html.append(f"<b>Methods: </b> {method:}")
+
+        return " ".join(ls_html)
+
+    def methods_html(self):
+        ls_html = [f".{func_name}" for func_name in
+                   get_functions_of_objet(self)]
+        return ", ".join(ls_html)+"."
+    
+    def attributes_to_html(self) -> str:
+        """Representation of defined parameters in HTML format.
+        """
+        ls_html = ["<table>"]
+        ls_html.append("<tr><th>Attribute</th><th> Class </th></tr>")
+        items_sorted = sorted(self.items, key=lambda item: item.get_name())
+        for item in items_sorted:
+            item_type = item.__doc__.strip().split("\n")[0]
+            ls_html.append(f"<tr><td>.{item.get_name():}</td>\
+<td>{item_type:}</td></tr>")
+        ls_html.append("</table>")
+        return " ".join(ls_html)
 
     def __str__(self):
         """
@@ -135,7 +185,8 @@ class DataN(object):
         """Add items."""
         l_name = [item.get_name() for item in items]
         s_name = set(l_name)
-        if len(s_name) != l_name:
+
+        if len(s_name) != len(l_name):
             warn("Double items were given.", UserWarning)
             items_unique = [items[l_name.index(name)] for name in s_name]
         else:
@@ -166,6 +217,19 @@ class DataN(object):
         obj.__dict__["items"] = []
         obj.__dict__["data_name"] = ""
         return obj
+
+    @classmethod
+    def get_mandatory_attributes(cls, separator: str = "_"):
+        """Get a list of mandatory attributes from mandatory classes."""
+        l_res = []
+        for cls_obj in cls.CLASSES_MANDATORY:
+            if issubclass(cls_obj, ItemN):
+                cls_item = cls_obj
+            else: #LoopN
+                cls_item = cls_obj.ITEM_CLASS
+            l_res.extend([f"{cls_item.PREFIX:}{separator:}{name_cif:}" 
+                              for name_cif in cls_item.ATTR_MANDATORY_CIF])
+        return l_res
 
     def __getitem__(self, name: Union[int, str]):
         """
@@ -256,7 +320,11 @@ class DataN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                prefix = item.ITEM_CLASS.PREFIX
+                item_cls = item.ITEM_CLASS
+                if item_cls is ItemN:
+                    prefix = item[0].PREFIX
+                else:
+                    prefix = item_cls.PREFIX
             else:
                 raise AttributeError(
                     f"Unknown type object '{type(item).__name__:}'")
@@ -296,7 +364,11 @@ class DataN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                prefix = item.ITEM_CLASS.PREFIX
+                item_cls = item.ITEM_CLASS
+                if item_cls is ItemN:
+                    prefix = item[0].PREFIX
+                else:
+                    prefix = item_cls.PREFIX
             else:
                 raise AttributeError(
                     f"Unknown type object '{type(item).__name__:}'")
@@ -441,3 +513,49 @@ class DataN(object):
         obj_new = type(self).from_cif(s_cif)
         obj_new.data_name = data_name
         return obj_new
+
+    def report(self):
+        return ""
+
+    def report_html(self):
+        return md_to_html(self.report())
+
+    def plots(self, *argv):
+        l_res = []
+        for item in self.items:
+            for plot in item.plots():
+                if plot is not None:
+                    l_res.append(plot)
+        return l_res
+
+    def fix_variables(self):
+        """Fix variables."""
+        for item in self.items:
+            item.fix_variables()        
+
+    def set_variable(self, name: str, index=None):
+        """Set refinement for variable given by name.
+        
+        Index parameters is used only for objects given as a matrix.
+        """
+        name_sh = name.strip(".").lower()
+        l_name = name_sh.split(".")
+        name_1 = l_name[0]
+        for item in self.items:
+            if name_1 == item.get_name(): 
+                if len(l_name) == 1:
+                    attr_refs = []
+                    if isinstance(item, ItemN):
+                        attr_refs = item.ATTR_REF
+                    elif isinstance(item, LoopN):
+                        item_class = item.ITEM_CLASS
+                        if item_class is ItemN:
+                            if len(self.items) != 0:
+                                attr_refs = item.items[0].ATTR_REF
+                        else:
+                            attr_refs = item_class.ATTR_REF
+                    for attr_ref in attr_refs:
+                        item.set_variable(attr_ref, index=index)
+                        
+                else:
+                    item.set_variable(".".join(l_name[1:]), index=index)

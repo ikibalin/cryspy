@@ -41,7 +41,7 @@ from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
 class Pd(DataN):
     """
-    Pd class.
+    Powder diffraction experiment with polarized or unpolarized neutrons (1d).
 
     Data items in the DIFFRN category record details about
     powder diffraction measurements.
@@ -321,18 +321,18 @@ class Pd(DataN):
             l_calc_objs = []
             for crystal in l_crystal:
                 try:
-                    obj = d_internal_val[f"refln_{crystal.data_name}"]
+                    obj = d_internal_val[f"refln_{crystal.data_name:}"]
                     l_calc_objs.append(obj)
                 except KeyError:
                     pass
                 try:
                     obj = d_internal_val[
-                        f"refln_susceptibility_{crystal.data_name}"]
+                        f"refln_susceptibility_{crystal.data_name:}"]
                     l_calc_objs.append(obj)
                 except KeyError:
                     pass
                 try:
-                    obj = d_internal_val[f"peak_{crystal.data_name}"]
+                    obj = d_internal_val[f"peak_{crystal.data_name:}"]
                     l_calc_objs.append(obj)
                 except KeyError:
                     pass
@@ -449,6 +449,7 @@ class Pd(DataN):
         except AttributeError:
             pass
 
+        proc.numpy_excluded = numpy.logical_not(cond_sum)
         chi_sq_sum_val = (chi_sq_sum[cond_sum]).sum()
         n_sum = cond_sum.sum()
 
@@ -737,6 +738,57 @@ class Pd(DataN):
         """Apply constraints."""
         if self.pd_meas is not None:
             self.pd_meas.apply_constraints()
+
+    def plots(self):
+        if self.is_attribute("pd_proc"):
+            pd_proc = self.pd_proc
+            if self.is_attribute("chi2"):
+                flag_up = self.chi2.up
+                flag_down = self.chi2.down
+                flag_sum = self.chi2.sum
+                flag_diff = self.chi2.diff
+            else:
+                flag_up, flag_down, flag_sum = False, False, True
+                flag_diff = False
+            if flag_sum:
+                fig_s, ax_s = pd_proc.plot_sum()
+                ax_s.set_title(self.data_name + " - "+ax_s.title.get_text())
+                y_min_s, y_max_s = ax_s.get_ylim()
+                y_dist_s = y_max_s-y_min_s
+                y_step_s = 0.
+            
+            flag_d = False
+            if flag_diff:
+                fig_d_ax_d = pd_proc.plot_diff()
+                flag_d = fig_d_ax_d is not None
+                if flag_d:
+                    fig_d, ax_d = fig_d_ax_d
+                    ax_d.set_title(self.data_name + " - "+ax_d.title.get_text())
+                    y_min_d, y_max_d = ax_d.get_ylim()
+                    y_dist_d = y_max_d-y_min_d
+                    y_step_d = 0.
+
+            for item in self.items:
+                if isinstance(item, PdPeakL):
+                    np_tth = item.numpy_ttheta
+                    if flag_sum:
+                        ax_s.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|",
+                                  label=item.loop_name)
+                        y_step_s += 0.05*y_dist_s
+                    if (flag_d & flag_diff):
+                        ax_d.plot(np_tth, 0.*np_tth+y_min_d-y_step_d, "|",
+                                  label=item.loop_name)
+                        y_step_d += 0.05*y_dist_d
+            res = []
+            if flag_sum:
+                ax_s.legend(loc='upper right')
+                res.append((fig_s, ax_s))
+            if (flag_d & flag_diff):
+                ax_d.legend(loc='upper right')
+                res.append((fig_d, ax_d))
+            return res
+        elif self.is_attribute("pd_meas"):
+            return self.pd_meas.plots()
 
 # s_cont = """
 #  data_pnd

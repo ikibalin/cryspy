@@ -1,15 +1,12 @@
 from typing import NoReturn
-import numpy
-import warnings
-from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_sthovl_by_hkl_abc_cosines, ortogonalize_matrix
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class DiffrnRadiation(ItemN):
     """
-    Description of beam polarization.
+    Polarization of the neutron beam.
 
     Attributes:
         - polarization  (float)

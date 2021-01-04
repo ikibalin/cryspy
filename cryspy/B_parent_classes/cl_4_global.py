@@ -5,7 +5,9 @@ from warnings import warn
 from typing import Union, NoReturn
 from pycifstar import Global, to_global
 
-from cryspy.A_functions_base.function_1_strings import ciftext_to_html
+from cryspy.A_functions_base.function_1_markdown import md_to_html
+from cryspy.A_functions_base.function_1_objects import \
+    get_functions_of_objet, get_table_html_for_variables
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
@@ -13,7 +15,7 @@ from cryspy.B_parent_classes.cl_3_data import DataN
 
 
 class GlobalN(object):
-    """GlobalN class."""
+    """Data container of data bloks, loops and items."""
 
     def __repr__(self):
         """
@@ -42,7 +44,59 @@ class GlobalN(object):
 
     def _repr_html_(self):
         """Representation in HTML format."""
-        return ciftext_to_html(self.__repr__())
+        ls_html = [f"<h1>Object '{self.get_name():}'</h1>"]
+        ls_html.append(self.attributes_to_html())
+
+        ls_html.append(get_table_html_for_variables(self))
+
+        report = self.report_html()
+        if report != "":
+            ls_html.append(f"<h1>Description </h1> {report:}")
+
+        ls_html.append("<h1>Classes and methods</h1>")
+        try:
+            names = sorted([obj.__name__ for obj in self.CLASSES_MANDATORY])
+            if len(names) != 0:
+                ls_html.append("<b>Mandatory classes: </b>")
+                ls_html.append(f"{', '.join(names):}.<br>")
+        except AttributeError:
+            pass
+        try:
+            names = sorted([obj.__name__ for obj in self.CLASSES_OPTIONAL])
+            if len(names) != 0:
+                ls_html.append("<b>Optional classes: </b>")
+                ls_html.append(f"{', '.join(names):}.<br>")
+        except AttributeError:
+            pass
+
+        method = self.methods_html()
+        if method != "":
+            ls_html.append(f"<b>Methods: </b> {method:}")
+        return " ".join(ls_html)
+
+    def attributes_to_html(self) -> str:
+        """Representation of defined parameters in HTML format.
+        """
+        ls_html = ["<table>"]
+        ls_html.append("<tr><th>Attribute</th><th> Class </th></tr>")
+        items_sorted = sorted(self.items, key=lambda item: item.get_name())
+        for item in items_sorted:
+            item_type = item.__doc__.strip().split("\n")[0]
+            ls_html.append(f"<tr><td>.<b>{item.get_name():}</b></td>\
+<td><b>{item_type:}</b></td></tr>")
+            if isinstance(item, DataN):
+                items_s_d = sorted(item.items, key=lambda x: x.get_name())
+                for item_d in items_s_d:
+                    item_type_d = item_d.__doc__.strip().split("\n")[0]
+                    ls_html.append(f"<tr><td>.{item.get_name():}.<b>{item_d.get_name():}</b></td>\
+<td>{item_type_d:}</td></tr>")
+        ls_html.append("</table>")
+        return " ".join(ls_html)
+
+    def methods_html(self):
+        ls_html = [f".{func_name}" for func_name in
+                   get_functions_of_objet(self)]
+        return ", ".join(ls_html)+"."
 
     def __str__(self):
         """
@@ -143,7 +197,7 @@ class GlobalN(object):
         """Add items."""
         l_name = [item.get_name() for item in items]
         s_name = set(l_name)
-        if len(s_name) != l_name:
+        if len(s_name) != len(l_name):
             warn("Double items were given.", UserWarning)
             items_unique = [items[l_name.index(name)] for name in s_name]
         else:
@@ -264,7 +318,11 @@ class GlobalN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                prefix = item.ITEM_CLASS.PREFIX
+                item_cls = item.ITEM_CLASS
+                if item_cls is ItemN:
+                    prefix = item[0].PREFIX
+                else:
+                    prefix = item_cls.PREFIX
             elif isinstance(item, DataN):
                 prefix = item.PREFIX
             else:
@@ -306,7 +364,11 @@ class GlobalN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                prefix = item.ITEM_CLASS.PREFIX
+                item_cls = item.ITEM_CLASS
+                if item_cls is ItemN:
+                    prefix = item[0].PREFIX
+                else:
+                    prefix = item_cls.PREFIX
             elif isinstance(item, DataN):
                 prefix = item.PREFIX
             else:
@@ -458,3 +520,37 @@ class GlobalN(object):
         obj = cls.from_cif(str_from_cif)
         obj.file_input = f_name
         return obj
+
+    def report(self):
+        return ""
+
+    def report_html(self):
+        return md_to_html(self.report())
+
+    def plots(self, *argv):
+        l_res = []
+        for item in self.items:
+            for plot in item.plots():
+                if plot is not None:
+                    l_res.append(plot)
+        return l_res
+
+    def fix_variables(self):
+        """Fix variables."""
+        for item in self.items:
+            item.fix_variables()
+
+    def set_variable(self, name: str, index=None):
+        """Set refinement for variable given by name.
+        
+        Index parameters is used only for objects given as a matrix.
+        """
+        name_sh = name.strip(".").lower()
+        l_name = name_sh.split(".")
+        name_1 = l_name[0]
+        for item in self.items:
+            if name_1 == item.get_name(): 
+                if len(l_name) == 0:
+                    pass
+                else:
+                    item.set_variable(".".join(l_name[1:]), index=index)

@@ -5,7 +5,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class Chi2(ItemN):
     """
-    Description of chi2.
+    Choise of the experimental data for the refinement procedure.
 
     Attributes
     ----------

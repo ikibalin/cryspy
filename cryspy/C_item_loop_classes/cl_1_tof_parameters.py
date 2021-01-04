@@ -3,19 +3,14 @@ import scipy
 import scipy.special
 
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
-
 
 # FIXME: estimate d by time for epithermal neutrons
 class TOFParameters(ItemN):
-    """
-    Reflexion positions parameters in T.O.F patterns
+    """Parameters of the reflexion positions in time-of-flight experiments.
 
     Attributes
     ----------
@@ -210,8 +205,7 @@ epithermal neutrons")
 
 
 class TOFParametersL(LoopN):
-    """
-    Description of AtomSite in loop.
+    """Parameters of the reflexion positions in time-of-flight experiments.
 
     """
     ITEM_CLASS = TOFParameters

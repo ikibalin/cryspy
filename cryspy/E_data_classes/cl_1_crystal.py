@@ -37,7 +37,7 @@ from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
 
 class Crystal(DataN):
     """
-    Crystal class.
+    Crystal structure description.
 
     Data items in the CRYSTAL category record details about
     crystal structure.
@@ -58,16 +58,10 @@ class Crystal(DataN):
 
     Attributes
     ----------
-        - space_group (mandatory)
-        - cell (mandatory)
-        - atom_site (mandatory)
-        - atom_type
-        - atom_site_aniso
-        - atom_site_susceptibility
-        - atom_site_scat
-        - atom_type_scat
-        - atom_local_axes
-        - atom_electron_confiduration
+        - space_group, cell, atom_site (mandatory)
+        - atom_type, atom_site_aniso, atom_site_susceptibility,
+          atom_site_scat, atom_type_scat, atom_local_axes,
+          atom_electron_confiduration (optional)
     """
 
     CLASSES_MANDATORY = (SpaceGroup, Cell, AtomSiteL)
@@ -281,7 +275,7 @@ class Crystal(DataN):
             >>> print(refln.to_cif())
         """
         f_nucl = self.calc_f_nucl(index_h, index_k, index_l)
-        res = ReflnL()
+        res = ReflnL(loop_name=self.data_name)
         res.numpy_index_h = index_h
         res.numpy_index_k = index_k
         res.numpy_index_l = index_l
@@ -551,7 +545,7 @@ class Crystal(DataN):
         sm_11, sm_12, sm_13, sm_21, sm_22, sm_23, sm_31, sm_32, sm_33 = \
             CHI_M[9:]
 
-        res = ReflnSusceptibilityL()
+        res = ReflnSusceptibilityL(loop_name=self.data_name)
         res.numpy_index_h = index_h
         res.numpy_index_k = index_k
         res.numpy_index_l = index_l
@@ -717,9 +711,11 @@ class Crystal(DataN):
         for label, susceptibilities, susceptibilities_sigma, rot_matrix, \
             chi_as_u in zip(a_s_m_a.label, l_moments, l_moments_sigma,
                             l_rot_matrix, l_chi_as_u):
-            ls_out.append(f"For `{label:}` the susceptibility is:")
+            ls_out.append(f"For **`{label:}`** the susceptibility is:\n")
             # cycle over three main axes
             directions = rot_matrix.transpose()
+            ls_out.append("|Susceptibility (mu_B/T)|Orientation: |X along inv.a| Y is [inv.a, c]|Z along c|")
+            ls_out.append("|--------------|-------|----------|----------|----------|")
             for _val1, val_sigma, _direction in zip(
                     susceptibilities, susceptibilities_sigma, directions):
                 if math.isclose(val_sigma, 0.):
@@ -728,18 +724,20 @@ class Crystal(DataN):
                     s_param = value_error_to_string(_val1, val_sigma)
                     s_val = f"{s_param:}".rjust(9)
                 ls_out.append(
-                    f"{s_val:} mu_B/T along: {_direction[0]: 9.5f} \
-{_direction[1]: 9.5f} {_direction[2]: 9.5f}")
-            ls_out.append("To plot magn. ellispoid as a thermal one:")
+                    f"|  {s_val:} | along:| {_direction[0]: 9.5f}| \
+{_direction[1]: 9.5f}| {_direction[2]: 9.5f}|")
+            ls_out.append("\nUse thermal parameters U_ij to plot magn. ellispoid.\n")
+            ls_out.append(f"|     U_11|     U_22|     U_33|     U_12|     \
+U_13|     U_23|")
+            ls_out.append(f"|---------|---------|---------|---------|-----\
+----|---------|")
             ls_out.append(
-                f"         U11, U22, U33: {chi_as_u[0, 0]:9.2f} \
-{chi_as_u[1, 1]:9.2f} {chi_as_u[2, 2]:9.2f}")
-            ls_out.append(
-                f"         U12, U13, U23: {chi_as_u[0, 1]:9.2f} \
-{chi_as_u[0, 2]:9.2f} {chi_as_u[1, 2]:9.2f}")
-            ls_out.append("")
-        ls_out.append("Cartezian coordinate system is x||a*, z||c.")
-
+                f"|{chi_as_u[0, 0]:9.2f}|{chi_as_u[1, 1]:9.2f}|\
+{chi_as_u[2, 2]:9.2f}|{chi_as_u[0, 1]:9.2f}|{chi_as_u[0, 2]:9.2f}|\
+{chi_as_u[1, 2]:9.2f}|\n")
+        # ls_out.append("Cartezian coordinate system is x||a*, z||c.")
+        if len(ls_out) != 0:
+            ls_out.insert(0, "# Magnetization ellipsoids\n")
         return "\n".join(ls_out)
 
     def calc_magnetic_moments_with_field_loc(self, field_abc):
@@ -784,6 +782,8 @@ class Crystal(DataN):
                 l_moment_out.append(_moment)
         return l_lab_out, l_xyz_out, l_moment_out
 
+    def report(self):
+        return self.report_main_axes_of_magnetization_ellipsoids()
 
 # s_cont = """
 #   data_Fe3O4

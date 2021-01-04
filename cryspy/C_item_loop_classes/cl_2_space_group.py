@@ -47,7 +47,7 @@ from cryspy.C_item_loop_classes.cl_1_space_group_wyckoff import \
 
 
 class SpaceGroup(ItemN):
-    """SpaceGroup class.
+    """Space group description.
 
     Contains all the data items that refer to the space group as a
     whole, such as its name, Laue group etc.
@@ -641,6 +641,9 @@ class SpaceGroup(ItemN):
             l_res.append((_xyz, matrix_chi_rot))
         return l_res
 
+    def report(self) -> str:
+        return self.report_space_group()
+
     def report_space_group(self) -> str:
         """Make a report about space group in string format."""
         if self.is_defined:
@@ -648,65 +651,65 @@ class SpaceGroup(ItemN):
         else:
             return ""
         ls_out = []
-        ls_out.append("Space group:")
+        ls_out.append("# Space group")
 
         width_left, width_right = 30, 40
 
         if self.is_attribute("it_number"):
-            ls_out.append("IT_number: ".rjust(width_left) +
-                          f"{self.it_number:}".ljust(width_right))
+            ls_out.append("|IT_number: ".rjust(width_left) + "|" +
+                          f"{self.it_number:}|".ljust(width_right))
         if self.is_attribute("name_hm_alt"):
             ls_out.append(
-                "Name H-M alt: ".rjust(width_left) +
-                f"\"{self.name_hm_alt:}\"".ljust(width_right))
+                "|Name H-M alt: ".rjust(width_left) + "|" +
+                f"\"{self.name_hm_alt:}\"|".ljust(width_right))
         if self.is_attribute("name_hm_full"):
             ls_out.append(
-                "Name H-M full: ".rjust(width_left) +
-                f"\"{self.name_hm_full:}\"".ljust(width_right))
+                "|Name H-M full: ".rjust(width_left) + "|" +
+                f"\"{self.name_hm_full:}\"|".ljust(width_right))
         if self.is_attribute("name_hm_ref"):
             ls_out.append(
-                "Name H-M ref: ".rjust(width_left) +
-                f"\"{self.name_hm_ref:}\"".ljust(width_right))
+                "|Name H-M ref: ".rjust(width_left) + "|" +
+                f"\"{self.name_hm_ref:}\"|".ljust(width_right))
         if self.is_attribute("name_hall"):
-            ls_out.append("Name Hall short: ".rjust(width_left) +
-                          f"\"{self.name_hall:}\"".ljust(width_right))
+            ls_out.append("|Name Hall short: ".rjust(width_left) + "|" +
+                          f"\"{self.name_hall:}\"|".ljust(width_right))
         if self.is_attribute("name_schoenflies"):
             ls_out.append(
-                "Name Schoenflies: ".rjust(width_left) +
-                f"\"{self.name_schoenflies:}\"".ljust(width_right))
+                "|Name Schoenflies: ".rjust(width_left) + "|" +
+                f"\"{self.name_schoenflies:}\"|".ljust(width_right))
         if self.is_attribute("it_coordinate_system_code"):
-            ls_out.append("IT_coordinate_system_code: ".rjust(width_left) +
-                          f"\"{self.it_coordinate_system_code:}\"".ljust(
+            ls_out.append("|IT_coordinate_system_code: ".rjust(width_left) + "|" +
+                          f"\"{self.it_coordinate_system_code:}\"|".ljust(
                               width_right))
         ls_out.append("")
         if self.is_attribute("point_group_hm"):
             ls_out.append(
-                "Point group H-M: ".rjust(width_left) +
-                f"\"{self.point_group_hm:}\"".ljust(width_right))
+                "|Point group H-M: ".rjust(width_left) + "|" +
+                f"\"{self.point_group_hm:}\"|".ljust(width_right))
         if self.is_attribute("laue_class"):
-            ls_out.append("Laue class: ".rjust(width_left) +
-                          f"\"{self.laue_class:}\"".ljust(width_right))
+            ls_out.append("|Laue class: ".rjust(width_left) + "|" +
+                          f"\"{self.laue_class:}\"|".ljust(width_right))
         if self.is_attribute("patterson_name_hm"):
             ls_out.append(
-                "Patterson name H-M: ".rjust(width_left) +
-                f"\"{self.patterson_name_hm:}\"".ljust(width_right))
+                "|Patterson name H-M: ".rjust(width_left) + "|" +
+                f"\"{self.patterson_name_hm:}\"|".ljust(width_right))
         if self.is_attribute("centring_type"):
             ls_out.append(
-                "Centring type: ".rjust(width_left) +
-                f"\"{self.centring_type:}\"".ljust(width_right))
+                "|Centring type: ".rjust(width_left) + "|" +
+                f"\"{self.centring_type:}\"|".ljust(width_right))
         if self.is_attribute("bravais_type"):
             ls_out.append(
-                "Bravais type: ".rjust(width_left) +
-                f"\"{self.bravais_type:}\"".ljust(width_right))
+                "|Bravais type: ".rjust(width_left) + "|" +
+                f"\"{self.bravais_type:}\"|".ljust(width_right))
         if self.is_attribute("crystal_system"):
             ls_out.append(
-                "Crystal system: ".rjust(width_left) +
-                f"\"{self.crystal_system:}\"".ljust(width_right))
+                "|Crystal system: ".rjust(width_left) + "|" +
+                f"\"{self.crystal_system:}\"|".ljust(width_right))
         ls_out.append("")
         if self.is_attribute("centrosymmetry"):
             ls_out.append(
-                "Centrosymmetry: ".rjust(width_left) +
-                f"{'Yes' if self.centrosymmetry else 'No':}".ljust(
+                "|Centrosymmetry: ".rjust(width_left) + "|" +
+                f"{'Yes' if self.centrosymmetry else 'No':}|".ljust(
                     width_right))
 
         # if generators != (): print(
@@ -719,29 +722,33 @@ class SpaceGroup(ItemN):
 
         if self.is_attribute("space_group_wyckoff"):
             s_g_w = self.space_group_wyckoff
-            ls_out.append("\nSpecial position:")
+            ls_out.append("\n## Special positions:\n")
+            ls_out.append("|Position | Multiplicity| Character| Group|")
+            ls_out.append("|---------|-------------|----------|------|")
             for _1, _2, _3, _4 in zip(s_g_w.multiplicity, s_g_w.letter,
                                       s_g_w.site_symmetry, s_g_w.coord_xyz):
                 ls_out.append(
-                    f"{_4.rjust(12):12} {_1:3} {_2.rjust(3):3} \
-{_3.rjust(7):7}")
+                    f"|{_4.rjust(12):12}| {_1:3}| {_2.rjust(3):3}| \
+{_3.rjust(7):7}|")
 
         if self.is_attribute("reduced_space_group_symop"):
             r_s_g_s = self.reduced_space_group_symop
-            ls_out.append("\nReduced space group symop:")
+            ls_out.append("\n## Reduced space group symop:\n")
             line = []
             for _i,  _1 in enumerate(r_s_g_s.operation_xyz):
                 line.append(f" {_1.rjust(12):12}")
                 if _i % 3 == 2:
-                    ls_out.append(" ".join(line))
+                    ls_out.append("|"+"|".join(line)+"|")
                     line = []
 
         if self.is_attribute("shift"):
             shift = self.shift
-            ls_out.append("\nShift::")
+            ls_out.append("\n## Shift:\n")
+            ls_out.append("|along a | along b| along c|")
+            ls_out.append("|--------|--------|--------|")
             for _pos in shift:
-                ls_out.append(f"{float(_pos[0]):9.5f} {float(_pos[1]):9.5f} \
-{float(_pos[2]):9.5f}")
+                ls_out.append(f"|{float(_pos[0]):9.5f}| {float(_pos[1]):9.5f}| \
+{float(_pos[2]):9.5f}|")
         return "\n".join(ls_out)
 
     def to_cif(self, separator: str = "_", flag_all_attributes: bool = False,

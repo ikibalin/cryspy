@@ -5,12 +5,11 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class Texture(ItemN):
     """
-    Mandatory attributes:
-        - g_1
-        - g_2
-        - h_ax
-        - k_ax
-        - l_ax
+    Texture description by Modified March’s function.
+    
+    Mandatory Attributes
+    --------------------
+        - g_1, g_2, h_ax, k_ax, l_ax
 
     """
     ATTR_MANDATORY_NAMES = ("g_1", "g_2", "h_ax", "k_ax", "l_ax")

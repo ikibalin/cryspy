@@ -1,15 +1,17 @@
-from typing import NoReturn, Tuple, List
-import copy
+from typing import NoReturn
 import numpy
-from fractions import Fraction
+
 from cryspy.A_functions_base.function_1_strings import \
-    transform_string_to_r_b, transform_r_b_to_string
+    transform_string_to_r_b
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class SpaceGroupSymopMagnCentering(ItemN):
-    """Centering or anti-centering translation.
+    """Centring translation in description of a magnetic space group.
+    
+    Centering or anti-centering translation.
 
     Given in a BNS-supercell description of a magnetic space group.
 
@@ -110,7 +112,9 @@ class SpaceGroupSymopMagnCentering(ItemN):
 
 
 class SpaceGroupSymopMagnCenteringL(LoopN):
-    """This loop provides a list of centering or anti-centering
+    """Centring translation in description of a magnetic space group.
+    
+     This loop provides a list of centering or anti-centering
      translation in a BNS-supercell description of a magnetic space
      group.
 

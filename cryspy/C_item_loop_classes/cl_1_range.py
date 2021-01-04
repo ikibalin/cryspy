@@ -4,14 +4,11 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Range(ItemN):
-    """
-    Mandatory attributes:
-        - label
-
-    Optional attributes:
-        - scale
-        - igsize
-
+    """Contains range information.
+    
+    Attributes
+    ----------
+        - 
     """
     ATTR_MANDATORY_NAMES = ()
     ATTR_MANDATORY_TYPES = ()

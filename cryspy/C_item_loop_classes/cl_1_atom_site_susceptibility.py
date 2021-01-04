@@ -10,37 +10,14 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class AtomSiteSusceptibility(ItemN):
-    """
-    AtomSiteSusceptibility class.
+    """Magnetic properties of the atom that occupy the atom site.
 
     Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
     magnetic properties of the atoms that occupy the atom sites.
 
-    Mandatory attributes:
-        - label
-        - type_symbol
-        - fract_x
-        - fract_y
-        - fract_z
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    Attributes
+    ----------
+        - 
     """
 
     ATTR_MANDATORY_NAMES = ("label", )
@@ -343,8 +320,7 @@ class AtomSiteSusceptibility(ItemN):
         return moments, moments_sigma, rot_matrix
 
 class AtomSiteSusceptibilityL(LoopN):
-    """
-    Description of AtomSite in loop.
+    """Magnetic properties of the atoms that occupy the atom sites.
 
     Methods
     -------

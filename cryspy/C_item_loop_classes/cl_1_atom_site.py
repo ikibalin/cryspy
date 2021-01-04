@@ -6,32 +6,16 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomSite(ItemN):
-    """
-    Mandatory attributes:
-        - label
-        - type_symbol
-        - fract_x
-        - fract_y
-        - fract_z
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    """Describe the atom site.
+    
+    Attributes
+    ----------
+        - label, type_symbol, fract_x, fract_y, fract_z (mandatory)
+        - occupancy, adp_type, u_iso_or_equiv, u_equiv_geom_mean,
+          b_iso_or_equiv, multiplicity, wyckoff_symbol, cartn_x, cartn_y,
+          cartn_z (optional)
+        - scat_length_neutron (internal)
+        - space_group_wyckoff, constr_number (internal protected)
     """
     ATTR_MANDATORY_NAMES = ("label", "type_symbol", "fract_x", "fract_y",
                             "fract_z")
@@ -223,13 +207,26 @@ class AtomSite(ItemN):
 
     def report(self) -> str:
         """Report."""
-        s_out = f'{self.label.rjust(10):}: {self.scat_length_neutron: .3f}'
+        s_out = ""
+        if ((self.is_attribute("scat_length_neutron")) &
+                (self.is_attribute("label"))):
+            s_out = \
+                f'|{self.label.rjust(10):} | {self.scat_length_neutron: .3f}|'
         return s_out
 
 
 class AtomSiteL(LoopN):
-    """Description of AtomSite in loop."""
-
+    """Describe the atom sites in crystal.
+    
+    Attributes
+    ----------
+        - label, type_symbol, fract_x, fract_y, fract_z (mandatory)
+        - occupancy, adp_type, u_iso_or_equiv, u_equiv_geom_mean,
+          b_iso_or_equiv, multiplicity, wyckoff_symbol, cartn_x, cartn_y,
+          cartn_z (optional)
+        - scat_length_neutron (internal)
+        - space_group_wyckoff, constr_number (internal protected)
+    """
     ITEM_CLASS = AtomSite
     ATTR_INDEX = "label"
 
@@ -250,7 +247,10 @@ class AtomSiteL(LoopN):
 
     def report(self) -> str:
         """Report."""
-        ls_out = [item.report() for item in self.items]
+        ls_out = ["# Scattering amplitude"]
+        ls_out.append("| type| b_scat|")
+        ls_out.append("|-----|-------|")
+        ls_out.extend([item.report() for item in self.items])
         return "\n".join(ls_out)
 
 # s_cont = """

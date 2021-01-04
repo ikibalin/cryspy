@@ -1,12 +1,16 @@
-import numpy
 from typing import NoReturn
+import numpy
+import matplotlib
+import matplotlib.pyplot as plt
+
 from cryspy.A_functions_base.function_1_gamma_nu import \
     recal_int_to_gammanu_grid
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 class Pd2dProc(ItemN):
     """
-    Pd2dProc class
+    Calculated 2D diffraction pattern (polarized neutrons).
 
     Attributes
     ----------
@@ -288,8 +292,181 @@ class Pd2dProc(ItemN):
         int_diff_m_out = numpy.array(recal_int_to_gammanu_grid(l_tth_grid, l_phi_grid, int_diff_m, l_gamma_grid, l_nu_grid), dtype=float)
 
         return l_gamma_grid*180./numpy.pi, l_nu_grid*180./numpy.pi, [int_u_out, int_d_out, int_sum_out, int_diff_out, int_u_m_out, int_d_m_out, int_sum_m_out, int_diff_m_out]
+
+        
+    def plots(self):
+        return [self.plot_sum_total(), self.plot_diff_total(),
+                self.plot_projection_sum(), self.plot_projection_diff()]
+    
+    def plot_projection_sum(self):
+        """Plot experimental unpolarized intensity vs. 2 theta (degrees)
+        """
+        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
+               self.is_attribute("intensity_up_sigma") &
+               self.is_attribute("intensity_down") & 
+               self.is_attribute("intensity_down_sigma") &
+               self.is_attribute("intensity_up_total") &
+               self.is_attribute("intensity_down_total")):
+            return
+        fig, ax = plt.subplots()
+        ax.set_title("Projection of unpolarized intensity on 2 theta axis")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('Intensity')
+
+        np_tth = numpy.array(self.ttheta, dtype=float)
+        np_up = self.intensity_up
+        np_sup = self.intensity_up_sigma
+        np_down = self.intensity_down
+        np_sdown = self.intensity_down_sigma
+        np_sum = np_up + np_down
+        np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+
+        np_up_m = self.intensity_up_total
+        np_down_m = self.intensity_down_total
+        np_sum_m = np_up_m + np_down_m
+
+        np_sum_1d = numpy.where(numpy.isnan(np_sum), 0., np_sum).sum(axis=1)
+        np_ssum_1d = ((numpy.where(numpy.isnan(np_sum), 0., np_ssum)**2).sum(
+            axis=1))**0.5
+
+        np_sum_m_1d = numpy.where(numpy.isnan(np_sum), 0., np_sum_m).sum(
+            axis=1)
+
+        ax.plot(np_tth, np_sum_m_1d, "k-", label="model")
+        ax.errorbar(np_tth, np_sum_1d, yerr=np_ssum_1d, fmt="ko", alpha=0.2,
+                    label="experiment")
+
+        y_min_d, y_max_d = ax.get_ylim()
+        param = y_min_d-(np_sum_1d-np_sum_m_1d).max()
+
+        ax.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+        ax.plot(np_tth, np_sum_1d - np_sum_m_1d+param, "r-", alpha=0.7,
+                label="difference")
+
+        if self.is_attribute("intensity_bkg_calc"):
+            np_bkg = self.intensity_bkg_calc
+            np_bkg_1d = numpy.where(numpy.isnan(np_sum), 0., np_bkg).sum(
+                axis=1)
+            ax.plot(np_tth, 2*np_bkg_1d, "b:", label="background")
+
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
+    def plot_projection_diff(self):
+        """Plot experimental polarized intensity vs. 2 theta (degrees)
+        """
+        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
+               self.is_attribute("intensity_up_sigma") &
+               self.is_attribute("intensity_down") & 
+               self.is_attribute("intensity_down_sigma")):
+            return
+        fig, ax = plt.subplots()
+        ax.set_title("Projection of polarized intensity on 2 theta axis")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('Intensity')
+
+
+        np_tth = numpy.array(self.ttheta, dtype=float)
+        np_up = self.intensity_up
+        np_sup = self.intensity_up_sigma
+        np_down = self.intensity_down
+        np_sdown = self.intensity_down_sigma
+        np_diff = np_up - np_down
+        np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+
+        np_diff_1d = numpy.where(numpy.isnan(np_diff), 0., np_diff).sum(axis=1)
+        np_sdiff_1d = ((numpy.where(numpy.isnan(np_diff), 0., np_sdiff)**2
+                        ).sum(axis=1))**0.5
+
+        np_up_m = self.intensity_up_total
+        np_down_m = self.intensity_down_total
+        np_diff_m = np_up_m - np_down_m
+
+        np_diff_m_1d = numpy.where(numpy.isnan(np_diff), 0., np_diff_m).sum(
+            axis=1)
+
+        ax.plot([np_tth.min(), np_tth.max()], [0., 0.], "b:")
+        ax.plot(np_tth, np_diff_m_1d, "k-", label="model")
+        ax.errorbar(np_tth, np_diff_1d, yerr=np_sdiff_1d, fmt="ko", alpha=0.2,
+                        label="experiment")
+        y_min_d, y_max_d = ax.get_ylim()
+        param = y_min_d-(np_diff_1d-np_diff_m_1d).max()
+
+        ax.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+        ax.plot(np_tth, np_diff_1d-np_diff_m_1d+param, "r-", alpha=0.7,
+                    label="difference")
+
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
+    def plot_sum_total(self):
+        if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
+               self.is_attribute("intensity_up_total") & 
+               self.is_attribute("intensity_down_total")):
+            return
+        fig, ax = plt.subplots()
+        ax.set_title("Unpolarized intensity")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('phi (degrees)')
+
+        np_tth = numpy.array(self.ttheta, dtype=float)
+        np_phi = numpy.array(self.phi, dtype=float)
+        np_up = self.intensity_up_total
+        np_down = self.intensity_down_total
+        np_sum = np_up + np_down
+        
+        norm = matplotlib.colors.Normalize(vmax=abs(np_sum).max(),
+                                           vmin=-abs(np_sum).max())
+        # cmap = matplotlib.PRGn
         
 
+        extent =(np_tth.min(), np_tth.max(), np_phi.min(), np_phi.max())
+        plt.set_cmap('rainbow')
+        ax.imshow(np_sum.transpose(), interpolation='bilinear', extent=extent,
+                  alpha=0.9, origin="lower", norm=norm)        
+        
+        # blk = '#000000'
+        # ax.contour(np_tth, np_phi, np_sum.transpose(),
+        #             #levels=[0.1, 0.5, 1., 5., 10., 50.],
+        #             levels=5,
+        #             colors=[blk, blk, blk, blk, blk, blk],
+        #             linewidths=0.5)
+        return (fig, ax)
+
+    def plot_diff_total(self):
+        if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
+               self.is_attribute("intensity_up_total") & 
+               self.is_attribute("intensity_down_total")):
+            return
+        fig, ax = plt.subplots()
+        ax.set_title("Polarized intensity")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('phi (degrees)')
+
+        np_tth = numpy.array(self.ttheta, dtype=float)
+        np_phi = numpy.array(self.phi, dtype=float)
+        np_up = self.intensity_up_total
+        np_down = self.intensity_down_total
+        np_diff = np_up - np_down
+        
+        norm = matplotlib.colors.Normalize(vmax=abs(np_diff).max(),
+                                           vmin=-abs(np_diff).max())
+        # cmap = matplotlib.PRGn
+        
+        extent =(np_tth.min(), np_tth.max(), np_phi.min(), np_phi.max())
+        plt.set_cmap('rainbow')
+        ax.imshow(np_diff.transpose(), interpolation='bilinear', extent=extent,
+                  alpha=0.9, origin="lower", norm=norm)        
+        
+        # blk = '#000000'
+        # ax.contour(np_tth, np_phi, np_sum.transpose(),
+        #             #levels=[0.1, 0.5, 1., 5., 10., 50.],
+        #             levels=5,
+        #             colors=[blk, blk, blk, blk, blk, blk],
+        #             linewidths=0.5)
+        return (fig, ax)
 # s_cont = """
 #  _pd2d_proc_2theta_phi_intensity_up_net
 #  ;

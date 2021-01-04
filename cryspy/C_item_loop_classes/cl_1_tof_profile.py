@@ -3,20 +3,15 @@ import scipy
 import scipy.special
 from typing import NoReturn
 
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
 from cryspy.A_functions_base.function_1_tof import tof_Jorgensen, \
     tof_Jorgensen_VonDreele, calc_hpv_eta, calc_sigma_gamma
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
-
 
 class TOFProfile(ItemN):
-    """
-    Profile parameters-I, T.O.F
+    """Profile parameters for time-of-flight experiment.
 
     Attributes
     ----------
@@ -182,8 +177,7 @@ class TOFProfile(ItemN):
         return res_2d
 
 class TOFProfileL(LoopN):
-    """
-    Description of AtomSite in loop.
+    """Profile parameters for time-of-flight experiment.
 
     """
     ITEM_CLASS = TOFProfile

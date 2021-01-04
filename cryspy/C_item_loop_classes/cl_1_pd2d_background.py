@@ -154,7 +154,7 @@ class Pd2dBackground(ItemN):
         """
         prefix = self.PREFIX
         np_i, np_j = numpy.where(self.intensity_refinement == True)
-        return [((prefix, ), ("intensity", (i, j)))
+        return [((prefix, None), ("intensity", (i, j)))
                 for i, j in zip(np_i, np_j)]
 
     def get_variable_by_name(self, name: tuple) -> Union[float, int, str]:
@@ -172,9 +172,12 @@ class Pd2dBackground(ItemN):
             Value.
 
         """
-        prefix_t, attr_t = name
+        prefix_t = name[0]
         if prefix_t[0] != self.PREFIX:
             return None
+        if len(name) == 1:
+            return self
+        attr_t = name[1]
         attr_name, ind_ij = attr_t
         return getattr(self, attr_name)[ind_ij]
 

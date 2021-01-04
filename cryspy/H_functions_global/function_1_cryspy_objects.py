@@ -207,6 +207,28 @@ def add_package(f_name: str):
             fid.write(f_name+"\n")
 
 
+def packages():
+    """Give list of installed packages."""
+    if os.path.isfile(F_PACKAGES):
+        with open(F_PACKAGES, "r") as fid:
+            l_content = fid.readlines()
+        l_res = [hh for hh in l_content if hh.strip() != ""]
+    else:
+        l_res = []
+    return l_res
+
+
+def delete_package(f_name: str):
+    """Delete from the list of installed packages."""
+    f_name_sh = f_name.strip()
+    if os.path.isfile(F_PACKAGES):
+        with open(F_PACKAGES, "r") as fid:
+            l_content = fid.readlines()
+        l_res = [hh for hh in l_content if hh.strip() != f_name_sh]
+        with open(F_PACKAGES, "w") as fid:
+            fid.write("\n".join(l_res) + "\n")
+
+
 def is_in_rcif_block(rcif_block, cryspy_obj):
     """Is in rcif block."""
     ls_cryspy = cryspy_obj.to_cif.split("\n")
@@ -274,12 +296,22 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
         for cls_data in l_data_class:
             # FIXME: it's bad solution as we loose information which are
             #        not specified as knonw in cryspy library.
-            data_obj = cls_data.from_cif(str_data)
-            if data_obj is not None:
-                l_global_item.append(data_obj)
-                if not(cls_data in l_cls_global):
-                    l_cls_global.append(cls_data)
-                flag = True
+            mand_line = cls_data.get_mandatory_attributes(separator="_")
+            mand_point = cls_data.get_mandatory_attributes(separator=".")
+            l_flag = []
+            for m_l, m_p in zip(mand_line, mand_point):
+                flag_t = data_cif.is_value(m_l)
+                if not(flag_t):
+                    flag_t = data_cif.is_value(m_p)
+                l_flag.append(flag_t)
+            if all(l_flag):
+                #print("all(l_flag): \n", all(l_flag), end="\n\n")
+                data_obj = cls_data.from_cif(str_data)
+                if data_obj is not None:
+                    l_global_item.append(data_obj)
+                    if not(cls_data in l_cls_global):
+                        l_cls_global.append(cls_data)
+                    flag = True
         if not(flag):
             l_data_item = []
             l_cls_data = []

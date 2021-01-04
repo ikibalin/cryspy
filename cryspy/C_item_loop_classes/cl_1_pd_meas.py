@@ -1,14 +1,13 @@
-import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
+import numpy
+import matplotlib.pyplot as plt
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class PdMeas(ItemN):
-    """PdMeas class.
+    """Measured data point.
 
     Attributes
     ----------
@@ -81,7 +80,7 @@ class PdMeas(ItemN):
 
 
 class PdMeasL(LoopN):
-    """PdMeasL class.
+    """Measured data points.
 
     This section contains the measured diffractogram and information
     about the conditions used for the measurement of the diffraction 
@@ -127,6 +126,73 @@ class PdMeasL(LoopN):
         """Redefined applyied constraints."""
         for item in self.items:
             item.apply_constraints()
+
+
+    def plots(self):
+        return [self.plot_sum(), self.plot_diff()]
+    
+    def plot_sum(self):
+        """Plot experimental unpolarized intensity vs. 2 theta (degrees)
+        """
+        fig, ax = plt.subplots()
+        ax.set_title("Unpolarized intensity: I_up + I_down")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('Intensity')
+
+        if (self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
+            self.is_attribute("intensity_up_sigma") &
+            self.is_attribute("intensity_down") & 
+            self.is_attribute("intensity_down_sigma")):
+            np_tth = numpy.array(self.ttheta, dtype=float)
+            np_up = numpy.array(self.intensity_up, dtype=float)
+            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_down, dtype=float)
+            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_sum = np_up + np_down
+            np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+            ax.plot(np_tth, np_sum, "k-", alpha=0.2)
+            ax.errorbar(np_tth, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+                        label="experiment")
+        elif (self.is_attribute("ttheta") & self.is_attribute("intensity") & 
+              self.is_attribute("intensity_sigma")):
+            np_tth = numpy.array(self.ttheta, dtype=float)
+            np_sum = numpy.array(self.intensity, dtype=float)
+            np_ssum = numpy.array(self.intensity_sigma, dtype=float)
+            ax.plot(np_tth, np_sum, "k-", alpha=0.2)
+            ax.errorbar(np_tth, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+                        label="experiment")
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
+    def plot_diff(self):
+        """Plot experimental polarized intensity vs. 2 theta (degrees)
+        """
+        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
+               self.is_attribute("intensity_up_sigma") &
+               self.is_attribute("intensity_down") & 
+               self.is_attribute("intensity_down_sigma")):
+            return
+        fig, ax = plt.subplots()
+        ax.set_title("Polarized intensity: I_up - I_down")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('Intensity')
+            
+        np_tth = numpy.array(self.ttheta, dtype=float)
+        np_up = numpy.array(self.intensity_up, dtype=float)
+        np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+        np_down = numpy.array(self.intensity_down, dtype=float)
+        np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+        np_diff = np_up - np_down
+        np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+        ax.plot([np_tth.min(), np_tth.max()], [0., 0.], "k:")
+        ax.plot(np_tth, np_diff, "k-", alpha=0.2)
+        ax.errorbar(np_tth, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
+                        label="experiment")
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
 
 # s_cont = """
 #  loop_

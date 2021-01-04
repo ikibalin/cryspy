@@ -6,7 +6,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class Exclude(ItemN):
     """
-    Exclude class.
+    Excluding region in data refinement.
 
     Attributes
     ----------
@@ -71,7 +71,8 @@ class Exclude(ItemN):
 
 
 class ExcludeL(LoopN):
-    """Description of Exclude in loop."""
+    """    Excluding regions in data refinement.
+    """
 
     ITEM_CLASS = Exclude
     ATTR_INDEX = "id"

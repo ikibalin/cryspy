@@ -546,29 +546,26 @@ class Cell(ItemN):
         Make a report about cell object in string format.
         """
         ls_out = []
-        ls_out.append("Unit cell (Ang.):")
-        ls_out.append(f"{float(self.length_a):9.5f} {float(self.length_b):9.5f} {float(self.length_c):9.5f}")
-        ls_out.append(f"{float(self.angle_alpha):9.3f} {float(self.angle_beta):9.3f} {float(self.angle_gamma):9.3f}")
-        ls_out.append(f"Volume: {self.volume: 9.2f} Ang.**3")
+        ls_out.append(f"|Volume:| {self.volume: 9.2f} Ang.**3|")
 
-        ls_out.append("\nReciprocal unit cell (1/Ang.):")
-        ls_out.append(f"{float(self.reciprocal_length_a):9.5f} {float(self.reciprocal_length_b):9.5f} {float(self.reciprocal_length_c):9.5f}")
-        ls_out.append(f"{float(self.reciprocal_angle_alpha):9.3f} {float(self.reciprocal_angle_beta):9.3f} {float(self.reciprocal_angle_gamma):9.3f}")
+        ls_out.append("\n## Reciprocal unit cell (1/Ang.)\n")
+        ls_out.append(f"|{float(self.reciprocal_length_a):9.5f} |{float(self.reciprocal_length_b):9.5f} |{float(self.reciprocal_length_c):9.5f}|")
+        ls_out.append(f"|{float(self.reciprocal_angle_alpha):9.3f} |{float(self.reciprocal_angle_beta):9.3f} |{float(self.reciprocal_angle_gamma):9.3f}|")
 
-        ls_out.append("\nB matrix (x||a*, z||c):")
-        ls_out.append(f"{self.m_b[0, 0]: 10.5f}{self.m_b[0, 1]: 10.5f}{self.m_b[0, 2]: 10.5f}")
-        ls_out.append(f"{self.m_b[1, 0]: 10.5f}{self.m_b[1, 1]: 10.5f}{self.m_b[1, 2]: 10.5f}")
-        ls_out.append(f"{self.m_b[2, 0]: 10.5f}{self.m_b[2, 1]: 10.5f}{self.m_b[2, 2]: 10.5f}")
+        ls_out.append("\n## B matrix (x||a*, z||c)\n")
+        ls_out.append(f"|{self.m_b[0, 0]: 10.5f}|{self.m_b[0, 1]: 10.5f}|{self.m_b[0, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_b[1, 0]: 10.5f}|{self.m_b[1, 1]: 10.5f}|{self.m_b[1, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_b[2, 0]: 10.5f}|{self.m_b[2, 1]: 10.5f}|{self.m_b[2, 2]: 10.5f}|")
 
-        ls_out.append("\nMetric tensor for unit cell:")
-        ls_out.append(f"{self.m_g[0, 0]: 10.5f}{self.m_g[0, 1]: 10.5f}{self.m_g[0, 2]: 10.5f}")
-        ls_out.append(f"{self.m_g[1, 0]: 10.5f}{self.m_g[1, 1]: 10.5f}{self.m_g[1, 2]: 10.5f}")
-        ls_out.append(f"{self.m_g[2, 0]: 10.5f}{self.m_g[2, 1]: 10.5f}{self.m_g[2, 2]: 10.5f}")
+        ls_out.append("\n## Metric tensor for unit cell\n")
+        ls_out.append(f"|{self.m_g[0, 0]: 10.5f}|{self.m_g[0, 1]: 10.5f}|{self.m_g[0, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_g[1, 0]: 10.5f}|{self.m_g[1, 1]: 10.5f}|{self.m_g[1, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_g[2, 0]: 10.5f}|{self.m_g[2, 1]: 10.5f}|{self.m_g[2, 2]: 10.5f}|")
 
-        ls_out.append("\nMetric tensor for reciprocal unit cell:")
-        ls_out.append(f"{self.m_g_reciprocal[0, 0]: 10.5f}{self.m_g_reciprocal[0, 1]: 10.5f}{self.m_g_reciprocal[0, 2]: 10.5f}")
-        ls_out.append(f"{self.m_g_reciprocal[1, 0]: 10.5f}{self.m_g_reciprocal[1, 1]: 10.5f}{self.m_g_reciprocal[1, 2]: 10.5f}")
-        ls_out.append(f"{self.m_g_reciprocal[2, 0]: 10.5f}{self.m_g_reciprocal[2, 1]: 10.5f}{self.m_g_reciprocal[2, 2]: 10.5f}")
+        ls_out.append("\n## Metric tensor for reciprocal unit cell\n")
+        ls_out.append(f"|{self.m_g_reciprocal[0, 0]: 10.5f}|{self.m_g_reciprocal[0, 1]: 10.5f}|{self.m_g_reciprocal[0, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_g_reciprocal[1, 0]: 10.5f}|{self.m_g_reciprocal[1, 1]: 10.5f}|{self.m_g_reciprocal[1, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_g_reciprocal[2, 0]: 10.5f}|{self.m_g_reciprocal[2, 1]: 10.5f}|{self.m_g_reciprocal[2, 2]: 10.5f}|")
 
         return "\n".join(ls_out)
 

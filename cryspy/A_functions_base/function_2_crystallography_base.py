@@ -1,24 +1,5 @@
 """
 Base crystallographic functions.
-
-Functions
----------
-
-    - calc_cos_ang
-    - calc_volume_uc_by_abc_cosines
-    - calc_volume_uc_by_abc_angles
-    - calc_inverse_d_by_hkl_abc_cosines
-    - calc_inverse_d_by_hkl_abc_angles
-    - calc_sthovl_by_hkl_abc_cosines
-    - calc_sthovl_by_hkl_abc_angles
-    - calc_phase_3d
-    - calc_phase_by_hkl_xyz_rb
-    - calc_power_dwf_iso
-    - calc_power_dwf_aniso
-    - calc_dwf
-    - calc_form_factor_tensor_susceptibility
-    - calc_moment_2d_by_susceptibility
-    - ortogonalize_matrix
 """
 import numpy
 from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT, \

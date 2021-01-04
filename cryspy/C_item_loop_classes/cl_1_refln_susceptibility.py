@@ -1,14 +1,12 @@
-import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class ReflnSusceptibility(ItemN):
-    """
+    """Susceptibility structure factor tensor.
+    
     Data items in the REFLN_SUSCEPTIBILITY category record details about the
     susceptibility structure factor tensor and magnetization structure factor 
     tensor calculated for different reflections.
@@ -111,9 +109,7 @@ class ReflnSusceptibility(ItemN):
 
 
 class ReflnSusceptibilityL(LoopN):
-    """
-    Description of AtomSite in loop.
-
+    """Susceptibility structure factor tensors.
     """
     ITEM_CLASS = ReflnSusceptibility
     ATTR_INDEX = "id"

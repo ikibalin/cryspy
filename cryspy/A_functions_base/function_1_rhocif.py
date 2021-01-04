@@ -60,8 +60,3 @@ def calc_GCF(ln1: list, ldzeta1: list, lcoeff1: list, kappa1: float,
             GCF += coeff1*coeff2*Norm1*Norm2*transs(lmax, nn, zeta, sthovl)
     return GCF
 
-
-FUNCTIONS = [
-    transs,
-    calc_GCF
-]

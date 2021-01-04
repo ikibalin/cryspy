@@ -1,10 +1,5 @@
 """
 Functions to work with strings.
-
-    - transform_string_to_r_b,
-    - transform_string_to_digits,
-    - transform_fraction_with_label_to_string,
-    - transform_digits_to_string
 """
 
 from typing import Tuple, Union
@@ -16,11 +11,14 @@ def ciftext_to_html(text: str) -> str:
     """Convert cif text to html format."""
     l_text_new = []
     for line in text.split("\n"):
-        if line.find("_") == -1:
-            line_new = f"<b>{line:}</b>"
+        if line.strip().startswith("###"):
+            line_new = f"<h3>{line:}</h3>"
+        elif line.strip().startswith("##"):
+            line_new = f"<h2>{line:}</h2>"
+        elif line.strip().startswith("#"):
+            line_new = f"<h1>{line:}</h1>"
         else:
-            line_new = " ".join([f"<b>{word:}</b>" if word.find("_") == -1
-                                 else word for word in line.split(" ")])
+            line_new = line
         l_text_new.append(line_new)
     text_html = "<br>".join(l_text_new)
     # text_html = "<b>"+text.replace("\n", "<br>")+"<\b>"

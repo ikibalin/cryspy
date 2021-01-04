@@ -28,7 +28,7 @@ from cryspy.E_data_classes.cl_2_tof import TOF
 
 class RhoChi(GlobalN):
     """
-    Class to describe RhoChi class.
+    Refinement of single and powder diffraction data.
 
     Attributes
     ----------
@@ -385,6 +385,32 @@ class RhoChi(GlobalN):
                         flag_lambdaover2_correction))
                 l_res.append(res)
         return l_res
+
+    def plots(self):
+        l_res = []
+        for experiment in self.experiments():
+            l_res.extend(experiment.plots())
+        return l_res
+
+    def report(self):
+        l_res = []
+        for experiment in self.experiments():
+            number_reflns = 0
+            chi_sq = 0
+            if experiment.is_attribute("refine_ls"):
+                refine_ls = experiment.refine_ls
+                if (refine_ls.is_attribute("goodness_of_fit_all") &
+                        refine_ls.is_attribute("number_reflns")):
+                    hh = refine_ls.number_reflns
+                    number_reflns += hh
+                    chi_sq += hh*refine_ls.goodness_of_fit_all
+        if number_reflns != 0:
+            gof = chi_sq/number_reflns
+            l_res.append(f"|Goodness of fit | {gof:.2f} |\n\
+|experimental points|{number_reflns:}|\n\n")
+        if self.is_attribute("inversed_hessian"):
+            l_res.append(self.inversed_hessian.report())
+        return "".join(l_res)
 
 # s_cont = """
 # global_

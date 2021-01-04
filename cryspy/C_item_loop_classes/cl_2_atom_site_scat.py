@@ -1,14 +1,16 @@
 """Classes AtomSiteScat, AtomSiteScatL."""
-import numpy
 from typing import NoReturn
+import numpy
+import matplotlib.pyplot as plt
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat
 
 
 class AtomSiteScat(ItemN):
-    """
-    AtomSiteScat class.
+    """Description of magnetic structure factor.
 
     Attributes
     ----------
@@ -93,16 +95,32 @@ class AtomSiteScat(ItemN):
         _a_t_s = AtomTypeScat.form_by_symbol(symbol)
         self.__dict__["atom_type_scat"] = _a_t_s
 
-    def report(self):
-        """Report."""
-        s_out = ""
-        if self.is_attribute("atom_type_scat"):
-            s_out = str(self.atom_type_scat)
-        return s_out
+    def plots(self):
+        return [self.plot_form_factor()]
+
+    def plot_form_factor(self):
+        """Plot magnetic form factor.
+        """
+        x_min, x_max = 0, 1.5
+        sthovl = numpy.linspace(x_min, x_max, 100)
+        try:
+            res = self.calc_form_factor(sthovl, flag_only_orbital=False)
+        except AttributeError:
+            return
+        label = self.label
+        fig, ax = plt.subplots()
+        ax.set_xlabel('sin theta / lambda')
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylabel('Magnetic form factor')
+        ax.plot(sthovl, res, label=label) 
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
 
 class AtomSiteScatL(LoopN):
     """
-    AtomSiteScatL class record details about Lande parameter and kappa factor.
+    Description of magnetic structure factor by Lande factor and kappa.
 
     Methods
     -------
@@ -130,12 +148,31 @@ class AtomSiteScatL(LoopN):
         """Load details about atom type scattering."""
         all([item.load_atom_type_scat_by_symbol(
             atom_site[item.label].type_symbol) for item in self.items])
+   
+    def plots(self):
+        return [self.plot_form_factor()]
 
-    def report(self):
-        """Report."""
-        ls_out = [item.report() for item in self.items]
-        return "\n".join(ls_out)
-
+    def plot_form_factor(self):
+        """Plot magnetic form factor.
+        """
+        x_min, x_max = 0, 1.5
+        sthovl = numpy.linspace(x_min, x_max, 100)
+        try:
+            res = self.calc_form_factor(sthovl, flag_only_orbital=False)
+        except AttributeError:
+            return
+        labels = self.label
+        fig, ax = plt.subplots()
+        ax.set_title("Magnetic form factor")
+        ax.set_xlabel('sin theta / lambda')
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylabel('Magnetic form factor')
+        for ind in range(res.shape[1]):
+            ax.plot(sthovl, res[:, ind], label=labels[ind], alpha=0.7) 
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+            
 
 # s_cont = """
 #  loop_

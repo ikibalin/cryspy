@@ -41,7 +41,7 @@ from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
 class TOF(DataN):
     """
-    TOF class.
+    Time-of-flight powder diffraction (polarized or unpolarized neutrons, 1d).
 
     Data items in the TOF category record details about
     powder diffraction measurements by Time of FLight.
@@ -398,8 +398,8 @@ class TOF(DataN):
         # exclude region
         try:
             exclude = self.exclude
-            l_excl_time_min = exclude.time_min
-            l_excl_time_max = exclude.time_max
+            l_excl_time_min = exclude.time_low
+            l_excl_time_max = exclude.time_high
             if flag_polarized:
                 for excl_time_min, excl_time_max in zip(l_excl_time_min,
                                                         l_excl_time_max):
@@ -417,6 +417,7 @@ class TOF(DataN):
         except AttributeError:
             pass
 
+        tof_proc.numpy_excluded = numpy.logical_not(cond_sum)
         chi_sq_sum_val = (chi_sq_sum[cond_sum]).sum()
         n_sum = cond_sum.sum()
 
@@ -681,6 +682,44 @@ class TOF(DataN):
         """Apply constraints."""
         if self.pd_meas is not None:
             self.pd_meas.apply_constraints()
+
+    def plots(self):
+        if self.is_attribute("tof_proc"):
+            tof_proc = self.tof_proc
+            fig_s, ax_s = tof_proc.plot_sum()
+            fig_d_ax_d = tof_proc.plot_diff()
+            flag_d = fig_d_ax_d is not None
+            if flag_d:
+                fig_d, ax_d = fig_d_ax_d
+                y_min_d, y_max_d = ax_d.get_ylim()
+                y_dist_d = y_max_d-y_min_d
+                y_step_d = 0.
+
+            y_min_s, y_max_s = ax_s.get_ylim()
+            y_dist_s = y_max_s-y_min_s
+            y_step_s = 0.
+            for item in self.items:
+                if isinstance(item, TOFPeakL):
+                    np_tth = item.numpy_time
+                    ax_s.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|", label=item.loop_name)
+                    y_step_s += 0.05*y_dist_s
+                    if flag_d:
+                        ax_d.plot(np_tth, 0.*np_tth+y_min_d-y_step_d, "|", label=item.loop_name)
+                        y_step_d += 0.05*y_dist_d
+            ax_s.set_title(self.data_name)
+            ax_s.legend(loc='upper right')
+            if flag_d:
+                ax_d.set_title(self.data_name)
+                ax_d.legend(loc='upper right')
+            if flag_d:
+                res = [(fig_s, ax_s), (fig_d, ax_d)]
+            else:
+                res = [(fig_s, ax_s)]
+            return res
+            
+            return self.tof_proc.plots()
+        elif self.is_attribute("tof_meas"):
+            return self.tof_meas.plots()
 
 # s_cont = """
 #   data_tof

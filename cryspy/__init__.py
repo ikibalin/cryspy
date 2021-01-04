@@ -64,14 +64,14 @@ Content
         1. str_to_globaln, file_to_globaln, str_to_items
 """
 __author__ = 'Iurii KIBALIN'
-__copyright__   = "Copyright 2020, "
+__copyright__   = "Copyright 2021, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.4.20"
+__version__ = "0.5.1"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "30.11.2020"
+__date__ = "04.01.2021"
 name = "cryspy"
 
 from .A_functions_base.function_1_algebra import \
@@ -82,6 +82,7 @@ from .A_functions_base.function_1_algebra import \
 from .A_functions_base.function_1_strings import value_error_to_string
 
 from .A_functions_base.function_1_matrices import tri_linear_interpolation
+from .A_functions_base.function_1_markdown import md_to_html
 
 from .A_functions_base.function_2_crystallography_base import \
     calc_volume_uc_by_abc_cosines,\
@@ -113,8 +114,11 @@ from cryspy.H_functions_global.function_1_cryspy_objects import \
     str_to_globaln, file_to_globaln, str_to_items
 
 from cryspy.H_functions_global.function_1_cryspy_objects import \
+    file_to_globaln as load_file
+
+from cryspy.H_functions_global.function_1_cryspy_objects import \
     L_GLOBAL_CLASS, L_DATA_CLASS, L_LOOP_CLASS, L_ITEM_CLASS, load_packages, \
-    add_package
+    add_package, packages, delete_package
 
 def __getattr__(name):
     for obj_class in L_ITEM_CLASS+L_LOOP_CLASS+L_DATA_CLASS+L_GLOBAL_CLASS:

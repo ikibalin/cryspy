@@ -1,14 +1,13 @@
-import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
+import numpy
+import matplotlib.pyplot as plt
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class TOFMeas(ItemN):
-    """TOFMeas class.
+    """Measured data for time-of-flight experiments.
 
     Attributes
     ----------
@@ -89,7 +88,7 @@ class TOFMeas(ItemN):
 
 
 class TOFMeasL(LoopN):
-    """TOFMeasL class.
+    """Measured data for time-of-flight experiments.
 
     This section contains the measured diffractogram and information
     about the conditions used for the measurement of the diffraction 
@@ -135,6 +134,78 @@ class TOFMeasL(LoopN):
         """Redefined applyied constraints."""
         for item in self.items:
             item.apply_constraints()
+
+    def plots(self, *argv):
+        return [self.plot_sum(*argv), self.plot_diff(*argv)]
+    
+    def plot_sum(self, *argv):
+        """Plot experimental unpolarized intensity vs. time
+        """
+        fig, ax = plt.subplots()
+        ax.set_title("Unpolarized intensity: I_up + I_down")
+        ax.set_xlabel("Time (microseconds)")
+        ax.set_ylabel('Intensity')
+        if len(argv)>=2:
+            ax.set_xlim(argv[0], argv[1])
+        if len(argv)>=4:
+            ax.set_ylim(argv[2], argv[3])
+
+        if (self.is_attribute("time") & self.is_attribute("intensity_up") & 
+            self.is_attribute("intensity_up_sigma") &
+            self.is_attribute("intensity_down") & 
+            self.is_attribute("intensity_down_sigma")):
+            np_time = numpy.array(self.time, dtype=float)
+            np_up = numpy.array(self.intensity_up, dtype=float)
+            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_down, dtype=float)
+            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_sum = np_up + np_down
+            np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+            ax.plot(np_time, np_sum, "k-", alpha=0.2)
+            ax.errorbar(np_time, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+                        label="experiment")
+        elif (self.is_attribute("time") & self.is_attribute("intensity") & 
+              self.is_attribute("intensity_sigma")):
+            np_time = numpy.array(self.time, dtype=float)
+            np_sum = numpy.array(self.intensity, dtype=float)
+            np_ssum = numpy.array(self.intensity_sigma, dtype=float)
+            ax.plot(np_time, np_sum, "k-", alpha=0.2)
+            ax.errorbar(np_time, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+                        label="experiment")
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
+    def plot_diff(self, *argv):
+        """Plot experimental polarized intensity vs. time
+        """
+        if not(self.is_attribute("time") & self.is_attribute("intensity_up") & 
+               self.is_attribute("intensity_up_sigma") &
+               self.is_attribute("intensity_down") & 
+               self.is_attribute("intensity_down_sigma")):
+            return
+        fig, ax = plt.subplots()
+        ax.set_title("Polarized intensity: I_up - I_down")
+        ax.set_xlabel("Time (microseconds)")
+        ax.set_ylabel('Intensity')
+        if len(argv)==2:
+            ax.set_xlim(argv[0], argv[1])
+            
+        np_time = numpy.array(self.time, dtype=float)
+        np_up = numpy.array(self.intensity_up, dtype=float)
+        np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+        np_down = numpy.array(self.intensity_down, dtype=float)
+        np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+        np_diff = np_up - np_down
+        np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+
+        ax.plot([np_time.min(), np_time.max()], [0., 0.], "k:")
+        ax.plot(np_time, np_diff, "k-", alpha=0.2)
+        ax.errorbar(np_time, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
+                    label="experiment")
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
 
 # s_cont = """
 #   loop_

@@ -1,15 +1,15 @@
-from typing import NoReturn, Tuple, List
-import copy
+from typing import NoReturn
+
 import numpy
-from fractions import Fraction
+
 from cryspy.A_functions_base.function_1_strings import \
-    transform_string_to_r_b, transform_r_b_to_string
+    transform_string_to_r_b
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
-    SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnCenteringL
+    SpaceGroupSymopMagnCentering
 
 
 class SpaceGroupSymopMagnOperation(ItemN):
@@ -118,7 +118,7 @@ class SpaceGroupSymopMagnOperation(ItemN):
 
 
 class SpaceGroupSymopMagnOperationL(LoopN):
-    """A list of magnetic space-group symmetry operations."""
+    """Magnetic space-group symmetry operations."""
 
     ITEM_CLASS = SpaceGroupSymopMagnOperation
     ATTR_INDEX = "id"

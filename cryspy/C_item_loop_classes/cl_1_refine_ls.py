@@ -5,7 +5,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class RefineLs(ItemN):
-    """RefineLs class.
+    """Goodness of fit parameters.
 
     Data items in the REFINE_LS category record details about the
     structure-refinement parameters.

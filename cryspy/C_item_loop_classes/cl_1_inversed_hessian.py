@@ -3,8 +3,7 @@ import numpy
 import scipy
 import scipy.interpolate
 from typing import NoReturn, Union
-from cryspy.A_functions_base.function_1_strings import \
-    string_to_value_error, value_error_to_string
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 def hessian_to_correlation(np_hessian):
@@ -17,8 +16,7 @@ def hessian_to_correlation(np_hessian):
     return np_correlation_matrix, np_sigma
 
 class InversedHessian(ItemN):
-    """
-    InversedHessian class.
+    """Inversed Hessian matrix.
 
     In mathematics, the Hessian matrix or Hessian is a square matrix of
     second-order partial derivatives of a scalar-valued function, or scalar
@@ -149,14 +147,38 @@ class InversedHessian(ItemN):
             np_correlation = self.correlation_matrix
             np_sigma = self.sigma
             np_label = self.label
-            ls_out = ["Sigmas:"]
-            ls_out.extend([f"{i_n+1:2} -- {lab:7}: {sig:.5f}" for i_n, lab, sig in zip(
-                range(len(np_sigma)), np_label, np_sigma)])
-            ls_out.append("\nCorrelation matrix:")
-            ls_out.extend([f" {i_n+1:2}: "+" ".join([
-                f"{val:5.2f}" for val in mat]) for i_n, mat in enumerate(np_correlation)])
+            ls_out = ["# Sigmas and correlation matrix"]
+            ls_out.append("|SIGMAS | Cor.Matrix:|"+"|".join(np_label) + "|")
+            ls_out.append("|-----|-----|"+"|".join(["-----" for hh in
+                                                    np_label]) + "|")
+            
+            for i1, lab, mat, sig in zip(range(len(np_label)), np_label,
+                                         np_correlation, np_sigma):
+                ls_out.append(f"|{sig:.5f}|{lab:}|"+"|".join([
+                    f"{val:5.2f}" for i2, val in enumerate(mat)]) + "|")
+            # ls_out.extend([f"{i_n+1:2} -- {lab:7}: {sig:.5f}" for i_n, lab, sig in zip(
+            #     range(len(np_sigma)), np_label, np_sigma)])
+            # ls_out.append("\nCorrelation matrix:")
+            # ls_out.extend([f" {i_n+1:2}: "+" ".join([
+            #     f"{val:5.2f}" for val in mat]) for i_n, mat in enumerate(np_correlation)])
             return "\n".join(ls_out)
-        return "Hessian matrix is not defined"
+
+    def report_html(self):
+        ls_html = []
+        if self.is_defined():
+            self.form_object()
+            np_correlation = self.correlation_matrix
+            np_sigma = self.sigma
+            np_label = self.label
+            ls_html.append("<table>")
+            ls_html.append("<tr><th>SIGMAS</th><th>CORRELATION MATRIX:</th>"+"".join(
+                [f"<th>{lab:}</th>" for lab in np_label]) + "</tr>")
+            for i1, lab, mat, sig in zip(range(len(np_label)), np_label, np_correlation, np_sigma):
+                ls_html.append(f"<tr><td>{sig:.5f}</td><th>{lab:}</th>"+"".join([
+                    f"<td bgcolor='#ff2200'>{val:5.2f}</td>" if ((abs(val)>0.7) & (i1 != i2 ))
+                    else f"<td>{val:5.2f}</td>" for i2, val in enumerate(mat)]) + "</tr>")
+            ls_html.append("</table>")
+        return "".join(ls_html)
             
 
 # s_cont = """

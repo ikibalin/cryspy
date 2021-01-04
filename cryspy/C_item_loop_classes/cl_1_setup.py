@@ -5,7 +5,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Setup(ItemN):
-    """Setup class.
+    """Experimental diffraction setup (constant wavelength).
 
     Attributes
     ----------
@@ -75,7 +75,8 @@ class Setup(ItemN):
 
 
 class SetupL(LoopN):
-    """Description of Setup in loop."""
+    """Experimental diffraction setup (constant wavelength).
+    """
 
     ITEM_CLASS = Setup
     ATTR_INDEX = None

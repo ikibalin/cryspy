@@ -130,8 +130,3 @@ def calc_extinction_2(radius:float, mosaicity:float, model:str,
 
     dder = {"der_yext__f_sq": delta_f_sq_yext}
     return yext, dder 
-
-FUNCTIONS = [
-    calc_extinction,
-    calc_extinction_2
-]

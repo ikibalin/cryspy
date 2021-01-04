@@ -65,7 +65,7 @@ class Phase(ItemN):
 
 
 class PhaseL(LoopN):
-    """Description of Loop in loop.
+    """Phases of the sample.
 
     Attributes
     ----------

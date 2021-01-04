@@ -1,15 +1,12 @@
 import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class TOFIntensityIncident(ItemN):
-    """
-    Correction of incident intensity
+    """Correction of incident intensity for time-of-flight experiment.
 
     Attributes
     ----------
@@ -118,8 +115,7 @@ class TOFIntensityIncident(ItemN):
 
 
 class TOFIntensityIncidentL(LoopN):
-    """
-    Description of AtomSite in loop.
+    """Correction of incident intensity for time-of-flight experiment.
 
     """
     ITEM_CLASS = TOFIntensityIncident

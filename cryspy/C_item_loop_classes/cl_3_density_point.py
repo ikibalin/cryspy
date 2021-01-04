@@ -28,7 +28,7 @@ from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import \
 
 class DensityPoint(ItemN):
     """
-    DensityPoint class.
+    Density point description.
 
     Attributes
     ----------

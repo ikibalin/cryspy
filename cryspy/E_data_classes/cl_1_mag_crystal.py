@@ -39,7 +39,7 @@ from cryspy.D_functions_item_loop.function_1_flip_ratio import \
 
 class MagCrystal(DataN):
     """
-    MagCrystal class.
+    Crystal structure description with defined magnetic space group.
 
     Data items in the MAG_CRYSTAL category record details about
     magnetic crystal structure.

@@ -1,4 +1,6 @@
-"""Common functions from MEM calculations."""
+"""Common functions from MEM calculations.
+"""
+
 from typing import NoReturn
 import numpy
 

@@ -35,7 +35,7 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 class Diffrn(DataN):
     """
-    Diffrn class.
+    Single diffraction experiment with polarized neutrons.
 
     Data items in the DIFFRN category record details about
     single diffraction measurements.
@@ -569,6 +569,32 @@ class Diffrn(DataN):
     def apply_constraints(self):
         """Apply constraints."""
         pass
+
+    def plots(self):
+        l_res = []
+        if self.is_attribute("diffrn_refln"):
+            diffrn_refln = self.diffrn_refln
+            fr_ax = diffrn_refln.plot_fr_vs_fr_calc()
+            if fr_ax is not None:
+                fr, ax = fr_ax
+                ax.set_title(self.data_name + " - "+ax.title.get_text())
+                l_res.append((fr, ax))        
+        return l_res
+
+    def report(self):
+        if self.is_attribute("diffrn_refln"):
+            diffrn_refln = self.diffrn_refln
+            rep_1 = diffrn_refln.report_agreement_factor_exp()
+            rep_2 = ""
+            if self.is_attribute("diffrn_orient_matrix"):
+                ub_matrix = self.diffrn_orient_matrix
+                if ub_matrix.is_defined():
+                    cell = ub_matrix.cell
+                    rep_2 = diffrn_refln.report_chi_sq_exp(cell=cell)
+            if rep_2 == "":
+                rep_2 = diffrn_refln.report_chi_sq_exp()
+            return rep_1 + "\n" + rep_2
+        return  ""
 
 # s_cont = """
 #  data_mono

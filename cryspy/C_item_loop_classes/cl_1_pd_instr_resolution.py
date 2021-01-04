@@ -1,16 +1,13 @@
-import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
+import numpy
+import matplotlib.pyplot as plt
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class PdInstrResolution(ItemN):
-    """
-    PdInstrReflexAsymmetry describes asymmetry of Bragg reflections for
-    1d powder diffractometer.
+    """Resolution of Bragg reflections for 1d powder diffractometer.
 
     Attributes
     ----------
@@ -39,7 +36,7 @@ class PdInstrResolution(ItemN):
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"u": "{:.5f}", "v": "{:.5f}", "w": "{:.5f}", "x": "{:.2f}",
+    D_FORMATS = {"u": "{:.5f}", "v": "{:.5f}", "w": "{:.5f}", "x": "{:.5f}",
                  "y": "{:.5f}"}
 
     # constraints on the parameters
@@ -162,11 +159,28 @@ class PdInstrResolution(ItemN):
 
         return h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
 
+    def plot_resolution(self):
+        """Plot resolution."""
+        x_min, x_max = 0, 140
+        ttheta = numpy.linspace(x_min, x_max, 100)
+        h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l = self.calc_resolution(ttheta)
+        fig, ax = plt.subplots()
+        ax.set_title("Resolution")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylabel('Resolution (degrees)')
+        ax.plot(ttheta, h_g, "k:", label="h_g")
+        ax.plot(ttheta, h_l, "k--", label="h_l")
+        ax.plot(ttheta, h_pv, "k-", label="h_pv")
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
 
+    def plots(self):
+        return [self.plot_resolution()]
 
 class PdInstrResolutionL(LoopN):
-    """
-    Description of AtomSite in loop.
+    """Resolution of Bragg reflections for several 1d powder diffractometers.
 
     """
     ITEM_CLASS = PdInstrResolution

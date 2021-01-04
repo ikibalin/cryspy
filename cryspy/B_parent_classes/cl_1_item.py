@@ -8,15 +8,14 @@ import os.path
 from typing import NoReturn, Union
 from pycifstar import Data, to_data
 
+from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_strings import find_prefix, \
-    ciftext_to_html
-from cryspy.A_functions_base.function_1_strings import \
     string_to_value_error, value_error_to_string
+from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
 
 
 class ItemN(object):
-    """
-    Class ItemN.
+    """Items data.
 
     It is internal class of cryspy library.
     You should use it only to create your own classes.
@@ -39,7 +38,53 @@ class ItemN(object):
 
     def _repr_html_(self):
         """Representation in HTML format."""
-        return ciftext_to_html(self.__repr__())
+        ls_html = [f"<h3>Object '{self.get_name():}'</h3>"]
+        ls_html.append(self.attributes_to_html())
+
+        report = self.report_html()
+        if report != "":
+            ls_html.append(f"<h3>Description </h3> {report:}")
+
+        ls_html.append(f"<h3>Attributes and methods</h3>")
+        try:
+            names = sorted(self.ATTR_MANDATORY_NAMES)
+            if len(names) != 0:
+                ls_html.append("<b>Mandatory attributes: </b>")
+                ls_html.append(f".{', .'.join(names):}<br>")
+        except AttributeError:
+            pass
+        try:
+            names = sorted(self.ATTR_OPTIONAL_NAMES)
+            if len(names) != 0:
+                ls_html.append("<b>Optional attributes: </b>")
+                ls_html.append(f".{', .'.join(names):}<br>")
+        except AttributeError:
+            pass
+        try:
+            names = sorted(self.ATTR_INT_NAMES)
+            if len(names) != 0:
+                ls_html.append("<b>Internal attributes: </b>")
+                ls_html.append(f".{', .'.join(names):}<br>")
+        except AttributeError:
+            pass
+        try:
+            names = sorted(self.ATTR_INT_PROTECTED_NAMES)
+            if len(names) != 0:
+                ls_html.append("<b>Internal protected attributes: </b>")
+                ls_html.append(f".{', .'.join(names):}<br>")
+        except AttributeError:
+            pass
+
+        method = self.methods_html()
+        if method != "":
+            ls_html.append(f"<b>Methods: </b> {method:}")
+
+        return " ".join(ls_html)
+
+    def methods_html(self):
+        ls_html = [f".{func_name}" for func_name in
+                   get_functions_of_objet(self)]
+        return ", ".join(ls_html)+"."
 
     def __str__(self):
         """
@@ -134,7 +179,14 @@ class ItemN(object):
 
         """
         flag, flag_write = False, False
-        if ((value == ".") | (value == "?") | (value is None)):
+        flag_none_string = False
+        if isinstance(value, str):
+            flag_none_string = ((value == ".") | (value == "?"))
+
+        if (value is None):
+            flag, flag_write = True, True
+            val_new = None
+        elif flag_none_string:
             flag, flag_write = True, True
             val_new = None
         elif name in self.ATTR_NAMES:
@@ -284,6 +336,30 @@ class ItemN(object):
                             f"_{prefix:}{separator:}{name_cif:} {s_val:}")
         return "\n".join(ls_out)
 
+    def attributes_to_html(self) -> str:
+        """Representation of defined parameters in HTML format.
+        """
+        ls_html = ["<table>"]
+        ls_html.append("<tr><th>Attributes</th><th> Value </th></tr>")
+        for name in self.ATTR_NAMES:
+            flag_value = self.is_attribute(name)
+            if flag_value:
+                if name in self.ATTR_REF:
+                    s_val = str(getattr(self, f"{name:}_as_string"))
+                else:
+                    s_val = str(getattr(self, name))
+                if len(s_val.split("\n")) > 1:
+                    ls_html.append(f"<tr><td>.{name:}</td><td> \
+<i>multiline expression</i> </td></tr>")
+                elif len(s_val)>40:                    
+                    ls_html.append(f"<tr><td>.{name:}</td><td>{s_val[:40]:}...\
+</td></tr>")
+                else:
+                    ls_html.append(f"<tr><td>.{name:}</td><td>{s_val:}\
+</td></tr>")
+        ls_html.append("</table>")
+        return " ".join(ls_html)
+
     def get_name(self) -> str:
         """Get name."""
         return self.PREFIX.lower()
@@ -332,9 +408,13 @@ class ItemN(object):
             Value.
 
         """
-        prefix_t, attr_t = name
+        
+        prefix_t = name[0]
         if prefix_t[0] != self.PREFIX:
             return None
+        if len(name) == 1:
+            return self
+        attr_t = name[1]
         attr_name = attr_t[0]
         return getattr(self, attr_name)
 
@@ -515,3 +595,32 @@ class ItemN(object):
                      self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG):
             if obj.is_attribute(attr):
                 setattr(self, attr, getattr(obj, attr))
+
+    def report(self):
+        return ""
+
+    def report_html(self):
+        return md_to_html(self.report())
+
+    def plots(self, *argv):
+        return []
+    
+    def fix_variables(self):
+        """Fix variables."""
+        for name in self.get_variable_names():
+            name_ref = name[:-1] + ((f"{name[-1][0]:}_refinement",
+                                     name[-1][1]), )
+            self.set_variable_by_name(name_ref, False)
+
+    def set_variable(self, name: str, index=None):
+        """Set refinement for variable given by name.
+        
+        Index parameters is used only for objects given as a matrix.
+        """
+        name_sh = name.strip(".").lower()
+        if name_sh in self.ATTR_REF:
+            flag_1 = self.is_attribute(name_sh)
+            flag_2 = not(getattr(self, f"{name_sh:}_constraint"))
+            if flag_1 & flag_2:
+                setattr(self, f"{name_sh:}_refinement", True)
+        

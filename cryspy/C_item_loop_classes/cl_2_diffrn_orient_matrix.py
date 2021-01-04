@@ -2,15 +2,18 @@
 
 import numpy
 from typing import NoReturn
+
 from cryspy.A_functions_base.function_1_matrices import\
     calc_product_matrices, calc_product_matrix_vector
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class DiffrnOrientMatrix(ItemN):
-    """DiffrnOrientMatrix class.
+    """UB-matrix desription.
 
     Data items in the DIFFRN_ORIENT_MATRIX category record details
     about the orientation matrix used in the measurement of the
@@ -337,7 +340,29 @@ class DiffrnOrientMatrix(ItemN):
         res = 1.-(k_1*h_1_loc + k_2*h_2_loc + k_3*h_3_loc)**2
         return res
 
+    def report(self):
+        s_out = f"""Orientation matrix U:
+          a* [c,  a*]        c
+ X: {self.u_11: 8.5f} {self.u_12: 8.5f} {self.u_13: 8.5f}
+ Y: {self.u_21: 8.5f} {self.u_22: 8.5f} {self.u_23: 8.5f}
+ Z: {self.u_31: 8.5f} {self.u_32: 8.5f} {self.u_33: 8.5f}
 
+axis 'X' is along incident beam;
+axis 'Z' is vertical direction."""
+        return s_out
+
+    def report_html(self):
+        s_out = f"""<b>Orientation matrix U:</b><br>
+        <table>
+<tr><th></th><th>a*</th><th>[c,  a*]</th><th>c</th></tr>
+<tr><th>X:</th><td>{self.u_11: 8.5f}</td><td>{self.u_12: 8.5f}</td><td>{self.u_13: 8.5f}</td></tr>
+<tr><th>Y:</th><td>{self.u_21: 8.5f}</td><td>{self.u_22: 8.5f}</td><td>{self.u_23: 8.5f}</td></tr>
+<tr><th>Z:</th><td>{self.u_31: 8.5f}</td><td>{self.u_32: 8.5f}</td><td>{self.u_33: 8.5f}</td></tr>
+        </table>
+axis 'X' is along incident beam;<br>
+axis 'Z' is vertical direction."""
+        return s_out
+        
 class DiffrnOrientMatrixL(LoopN):
     """Description of DiffrnOrientMatrixL in loop."""
 

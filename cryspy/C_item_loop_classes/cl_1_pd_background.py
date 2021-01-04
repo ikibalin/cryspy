@@ -1,39 +1,13 @@
 import numpy
 from typing import NoReturn
-from cryspy.A_functions_base.function_1_matrices import\
-    calc_product_matrices, calc_product_matrix_vector
+
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
 class PdBackground(ItemN):
-    """
-    Data items in the REFLN_SUSCEPTIBILITY category record details about the
-    susceptibility structure factor tensor and magnetization structure factor 
-    tensor calculated for different reflections.
-
-    Mandatory attributes:
-        - ub_11, ub_12, ub_13, ub_21, ub_22, ub_23, ub_31, ub_32, ub_33
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    """Background point in powder 1d experiment.
     """
     ATTR_MANDATORY_NAMES = ("ttheta", "intensity")
     ATTR_MANDATORY_TYPES = (float, float)
@@ -86,9 +60,7 @@ class PdBackground(ItemN):
 
 
 class PdBackgroundL(LoopN):
-    """
-    Description of AtomSite in loop.
-
+    """Background points in powder 1d experiment.
     """
     ITEM_CLASS = PdBackground
     ATTR_INDEX = "ttheta"

@@ -3,20 +3,23 @@ __author__ = 'ikibalin'
 __version__ = "2020_08_19"
 from typing import NoReturn
 import numpy
+import matplotlib.pyplot as plt
 
+from cryspy.A_functions_base.function_2_crystallography_base import \
+    calc_atoms_in_unit_cell
 from cryspy.A_functions_base.function_2_mem import calc_moment_perp, \
-    calc_fm_by_density
+    calc_fm_by_density, calc_index_atom_symmetry_closest_to_fract_xyz
 
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-
+from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
 from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
-
 from cryspy.C_item_loop_classes.cl_2_section import SectionL
 
-from cryspy.C_item_loop_classes.cl_3_density_point import DensityPointL
-
+from cryspy.D_functions_item_loop.function_1_section_from_density_point \
+    import calc_section_from_density_point
+    
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
@@ -27,7 +30,7 @@ from cryspy.F_functions_data.script_1_mem import maximize_entropy, \
 
 class MEM(GlobalN):
     """
-    Class to describe RhoChi class.
+    Maximum Entropy Method: two-channel approach or chi approach.
 
     Attributes
     ----------
@@ -313,3 +316,127 @@ class MEM(GlobalN):
         for section in loop_section.items:
             calc_section_for_mem(section, density_point, crystal,
                                  mem_parameters)
+
+    def plots(self):
+        return [self.plot_section(), ]
+    
+    def plot_section(self):
+        """Plot first section
+        """
+        if not((self.is_attribute("section") &
+                self.is_attribute("density_point") &
+                self.is_attribute("mem_parameters") )):
+            return
+        if len(self.section.items) == 0:
+            return
+
+        section = self.section[0]
+        crystal = self.crystals()[0]
+        space_group = crystal.space_group
+        f_s_g_s = space_group.full_space_group_symop
+        r_11 = numpy.array(f_s_g_s.r_11, dtype=float)
+        r_12 = numpy.array(f_s_g_s.r_12, dtype=float)
+        r_13 = numpy.array(f_s_g_s.r_13, dtype=float)
+        r_21 = numpy.array(f_s_g_s.r_21, dtype=float)
+        r_22 = numpy.array(f_s_g_s.r_22, dtype=float)
+        r_23 = numpy.array(f_s_g_s.r_23, dtype=float)
+        r_31 = numpy.array(f_s_g_s.r_31, dtype=float)
+        r_32 = numpy.array(f_s_g_s.r_32, dtype=float)
+        r_33 = numpy.array(f_s_g_s.r_33, dtype=float)
+
+        r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+
+        b_1 = numpy.array(f_s_g_s.b_1, dtype=float)
+        b_2 = numpy.array(f_s_g_s.b_2, dtype=float)
+        b_3 = numpy.array(f_s_g_s.b_3, dtype=float)
+
+        b_i = (b_1, b_2, b_3)
+
+        atom_site = crystal.atom_site
+        fract_x = atom_site.numpy_fract_x
+        fract_y = atom_site.numpy_fract_y
+        fract_z = atom_site.numpy_fract_z
+        fract_xyz = (fract_x, fract_y, fract_z)
+
+        atom_label = atom_site.numpy_label
+
+        fract_uc_x, fract_uc_y, fract_uc_z, label_uc = \
+            calc_atoms_in_unit_cell(r_ij, b_i, fract_xyz, atom_label)
+    
+        cell = crystal.cell
+        atom_site_susceptibility = crystal.atom_site_susceptibility
+
+        density_point = self.density_point
+        mem_parameters = self.mem_parameters
+
+        atom_x, atom_y, atom_label = section.calc_atoms(
+            cell, atom_site, f_s_g_s, distance_min=0.3)
+
+        den_chi_section, den_b_section = \
+            calc_section_from_density_point(
+            section, density_point, mem_parameters, cell, f_s_g_s,
+            atom_site, atom_site_susceptibility)
+
+        fract_atom_xyz = numpy.array(fract_xyz, dtype=float
+                                     ).transpose()
+
+        fract_sec_xyz = section.calc_fractions(cell, atom_site)
+        fract_sec_xyz = numpy.transpose(numpy.array(fract_sec_xyz,
+                                                    dtype=float))
+
+        n_atom_index, n_symmetry, distance = \
+            calc_index_atom_symmetry_closest_to_fract_xyz(
+                fract_sec_xyz, fract_atom_xyz, r_ij, b_i, cell)
+        n_at_2d = numpy.transpose(n_atom_index.reshape(
+            section.points_x, section.points_y))
+
+        fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(4.2, 4.2),
+                                       dpi=300)
+        plt.set_cmap('Accent')
+        ax1.imshow(n_at_2d, interpolation='bilinear',
+                   extent=(-0.5*section.size_x, 0.5*section.size_x,
+                           -0.5*section.size_y, 0.5*section.size_y),
+                   alpha=0.1, origin="lower")
+
+        den_x = numpy.linspace(-0.5*section.size_x, 0.5*section.size_x,
+                               section.points_x)
+        den_y = numpy.linspace(-0.5*section.size_y, 0.5*section.size_y,
+                               section.points_y)
+
+        blk = '#000000'
+        ax1.contour(den_x, den_y, den_chi_section.transpose(),
+                    levels=[0.1, 0.5, 1., 5., 10., 50.],
+                    colors=[blk, blk, blk, blk, blk, blk],
+                    linewidths=0.5)
+
+        ax1.plot(atom_x, atom_y, 'ko', ms=3)
+        for _1, _2, _3 in zip(atom_x, atom_y, atom_label):
+            ax1.text(_1, _2, _3)
+        ax1.set_title(
+            f"Tensor. Max is {den_chi_section.max():.1f}")
+
+        # plt.set_cmap('RdBu')
+        ax2.imshow(n_at_2d, interpolation='bilinear',
+                   extent=(-0.5*section.size_x, 0.5*section.size_x,
+                           -0.5*section.size_y, 0.5*section.size_y),
+                   alpha=0.1, origin="lower")
+
+        hh = numpy.abs(den_b_section).max()
+        rd = '#FF0000'
+        ax2.contour(den_x, den_y, den_b_section.transpose(),
+                    levels=[-50., -10., -5., -1., -0.5, -0.1, 
+                            0.1, 0.5, 1., 5., 10., 50.],
+                    colors=[rd, rd, rd, rd, rd, rd,
+                            blk, blk, blk, blk, blk, blk],
+                    linewidths=0.5)
+        # ax2.imshow(den_b_section, interpolation='bilinear',
+        #            extent=(-0.5*section.size_x, 0.5*section.size_x,
+        #                    -0.5*section.size_y, 0.5*section.size_y),
+        #            vmin=-hh, vmax=hh,
+        #            alpha=1., origin="lower")
+        ax2.set_title(f"2channel. Max is {hh:.1f}")
+        ax2.plot(atom_x, atom_y, 'ko', ms=3)
+        for _1, _2, _3 in zip(atom_x, atom_y, atom_label):
+            ax2.text(_1, _2, _3)
+    
+        return (fig, (ax1, ax2))

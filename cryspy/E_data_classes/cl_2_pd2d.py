@@ -41,7 +41,7 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 class Pd2d(DataN):
     """
-    Pd2d class.
+    Powder diffraction experiment with polarized or unpolarized neutrons (2d).
 
     Data items in the DIFFRN category record details about
     2d powder diffraction measurements.
@@ -735,6 +735,55 @@ class Pd2d(DataN):
         """Apply constraints."""
         pass
 
+    def plots(self):
+        if self.is_attribute("pd2d_proc"):
+            pd2d_proc = self.pd2d_proc
+            if self.is_attribute("chi2"):
+                flag_up = self.chi2.up
+                flag_down = self.chi2.down
+                flag_sum = self.chi2.sum
+                flag_diff = self.chi2.diff
+            else:
+                flag_up, flag_down, flag_sum = False, False, True
+                flag_diff = False
+
+            if flag_sum:
+                fig_s, ax_s = pd2d_proc.plot_projection_sum()
+                ax_s.set_title(self.data_name + " - "+ax_s.title.get_text())
+                y_min_s, y_max_s = ax_s.get_ylim()
+                y_dist_s = y_max_s-y_min_s
+                y_step_s = 0.
+
+            if flag_diff:
+                fig_d, ax_d = pd2d_proc.plot_projection_diff()
+                ax_d.set_title(self.data_name + " - "+ax_d.title.get_text())
+                y_min_d, y_max_d = ax_d.get_ylim()
+                y_dist_d = y_max_d-y_min_d
+                y_step_d = 0.
+
+            for item in self.items:
+                if isinstance(item, Pd2dPeakL):
+                    np_tth = item.numpy_ttheta
+                    if flag_sum:
+                        ax_s.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|",
+                                  label=item.loop_name)
+                        y_step_s += 0.05*y_dist_s
+                    if flag_diff:
+                        ax_d.plot(np_tth, 0.*np_tth+y_min_d-y_step_d, "|",
+                                  label=item.loop_name)
+                        y_step_d += 0.05*y_dist_d
+            res = []
+            if flag_sum:
+                ax_s.legend(loc='upper right')
+                res.append((fig_s, ax_s))
+            if flag_diff:
+                ax_d.legend(loc='upper right')
+                res.append((fig_d, ax_d))
+            return res
+        elif self.is_attribute("pd2d_meas"):
+            return self.pd2d_meas.plots()
+        return []
+        
 # s_cont = """
 #  data_powder2d
 #  _setup_wavelength     0.840

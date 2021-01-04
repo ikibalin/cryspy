@@ -2,17 +2,19 @@ from typing import NoReturn, Tuple, List
 import copy
 import numpy
 from fractions import Fraction
+
 from cryspy.A_functions_base.function_1_strings import \
     transform_string_to_r_b, transform_r_b_to_string
 from cryspy.A_functions_base.function_2_space_group import \
-    get_shift_by_centring_type, is_good_for_mask, mult_matrix_vector, \
-    mult_matrixes
+    get_shift_by_centring_type, mult_matrix_vector, mult_matrixes
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class SpaceGroupSymop(ItemN):
-    """
+    """Symmetry space group operation.
+    
     Contains information about the symmetry operations of the
     space group.
 
@@ -179,9 +181,9 @@ class SpaceGroupSymop(ItemN):
 
 
 class SpaceGroupSymopL(LoopN):
-    """
-    Contains information about the symmetry operations of the space group.
+    """Symmetry space group operations.
 
+    Contains information about the symmetry operations of the space group.
     """
     ITEM_CLASS = SpaceGroupSymop
     ATTR_INDEX = "id"

@@ -4,7 +4,8 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomType(ItemN):
-    """
+    """Details about properties of the atom.
+    
     Data items in the ATOM_TYPE category record details about
     properties of the atoms that occupy the atom sites, such as the
     atomic scattering factors.
@@ -101,9 +102,7 @@ class AtomType(ItemN):
 
 
 class AtomTypeL(LoopN):
-    """
-    Description of AtomSite in loop.
-
+    """Details about properties of the atoms.
     """
     ITEM_CLASS = AtomType
     ATTR_INDEX = "symbol"

@@ -4,8 +4,6 @@ import numpy
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_atoms_in_unit_cell
-from cryspy.A_functions_base.function_2_mem import \
-    calc_index_atom_symmetry_closest_to_fract_xyz
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
@@ -17,7 +15,7 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
 
 
 class Section(ItemN):
-    """Section class.
+    """Section description.
 
     Describe information concerning the density point.
     """
@@ -257,7 +255,7 @@ class Section(ItemN):
 
 
 class SectionL(LoopN):
-    """SectionL class.
+    """Description of sections.
 
     Describe information concerning the density point.
     """

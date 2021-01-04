@@ -1,13 +1,15 @@
 from typing import NoReturn
 import math
 import numpy
+import matplotlib.pyplot as plt
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class DiffrnRefln(ItemN):
     """
-    DiffrnRefln class.
+    The flip ratios measured in the single diffraction experiment.
 
     Data items in the DIFFRN_REFLN category record details about
     the intensities measured in the diffraction experiment.
@@ -78,7 +80,7 @@ class DiffrnRefln(ItemN):
 
 class DiffrnReflnL(LoopN):
     """
-    Description of chi2 in loop.
+    Flip ratios measured in the single diffraction experiment.
 
     """
     ITEM_CLASS = DiffrnRefln
@@ -87,6 +89,9 @@ class DiffrnReflnL(LoopN):
         super(DiffrnReflnL, self).__init__()
         self.__dict__["items"] = []
         self.__dict__["loop_name"] = loop_name
+
+    def report(self):
+        return self.report_agreement_factor_exp() + "\n" + self.report_chi_sq_exp()
 
     def report_agreement_factor_exp(self):
         """
@@ -130,24 +135,24 @@ class DiffrnReflnL(LoopN):
                 # print("hkl: {:4} {:4} {:4}".format(_hkl[0], _hkl[1], _hkl[2]))
                 # print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))
                 # print("ag_f_exp: {:.3f} ".format(ag_f_exp))
-        ls_out = []
+        ls_out = ["# Experimental agreement factor\n"]
         n = n_0s + n_1s + n_2s + n_3s
-        ls_out.append(f"\n Number of measured reflections: {n:4}")
-        ls_out.append(f"      range of h is {min([_[0] for _ in l_hkl]):3},{max([_[0] for _ in l_hkl]):3} ")
-        ls_out.append(f"               k is {min([_[1] for _ in l_hkl]):3},{max([_[1] for _ in l_hkl]):3} ")
-        ls_out.append(f"               l is {min([_[2] for _ in l_hkl]):3},{max([_[2] for _ in l_hkl]):3} ")
-        ls_out.append(f" max(FR_exp - 1) is {max(l_diff):5.3f} ")
-        ls_out.append(f" N+1 > |FR_exp - 1|/FR_sigma > N: ")
-        ls_out.append(f" |FR_exp - 1|/FR_sigma < 1: {n_0s:4}, {100*float(n_0s)/float(n):5.1f}%  ")
-        ls_out.append(f"                     N = 1: {n_1s:4}, {100*float(n_1s)/float(n):5.1f}%  ")
-        ls_out.append(f"                     N = 2: {n_2s:4}, {100 * float(n_2s) / float(n):5.1f}% ")
-        ls_out.append(f" |FR_exp - 1|/FR_sigma > 3: {n_3s:4}, {100 * float(n_3s) / float(n):5.1f}% ")
+        ls_out.append(f"\n| Number of measured reflections:| {n:4}|")
+        ls_out.append(f"  |    range of h is |{min([_[0] for _ in l_hkl]):3},{max([_[0] for _ in l_hkl]):3} |")
+        ls_out.append(f"  |             k is |{min([_[1] for _ in l_hkl]):3},{max([_[1] for _ in l_hkl]):3} |")
+        ls_out.append(f"  |             l is |{min([_[2] for _ in l_hkl]):3},{max([_[2] for _ in l_hkl]):3} |")
+        ls_out.append(f" |max(FR_exp - 1) is |{max(l_diff):5.3f} |")
+        ls_out.append("\n N+1 > abs(FR_exp - 1)/FR_sigma > N: ")
+        ls_out.append(f" |abs(FR_exp - 1)/FR_sigma < 1: |{n_0s:4}| {100*float(n_0s)/float(n):5.1f}% | ")
+        ls_out.append(f" |                    N = 1: |{n_1s:4}| {100*float(n_1s)/float(n):5.1f}%  |")
+        ls_out.append(f" |                    N = 2: |{n_2s:4}| {100 * float(n_2s) / float(n):5.1f}% |")
+        ls_out.append(f" |abs(FR_exp - 1)/FR_sigma > 3: |{n_3s:4}| {100 * float(n_3s) / float(n):5.1f}% |")
 
         n_friedel = len(l_chi_sq_exp)
-        ls_out.append(f"Total number of Friedel reflections is {n_friedel:}.")
+        ls_out.append(f"\n|Total number of Friedel reflections is |{n_friedel:}.|")
         if n_friedel != 0:
-            ls_out.append(f"  (|FR_exp-FR_av.|/|FR_sigma|)^2  is {sum(l_chi_sq_exp) / n_friedel:.2f}")
-            ls_out.append(f"   |FR_exp-FR_av.|/|FR_exp-1| per reflection is {(100*sum(l_ag_f_exp)/n_friedel):.2f}% ")
+            ls_out.append(f"|  (abs(FR_exp-FR_av.)/FR_sigma)^2  is| {sum(l_chi_sq_exp) / n_friedel:.2f}|")
+            ls_out.append(f"|   abs(FR_exp-FR_av.)/abs(FR_exp-1) per reflection is |{(100*sum(l_ag_f_exp)/n_friedel):.2f}% |")
 
         return "\n".join(ls_out)
 
@@ -190,25 +195,26 @@ class DiffrnReflnL(LoopN):
                 n_3s += 1
             else:
                 l_worsest.append((_hkl, _fr, _fr_sigma, _fr_calc, _diff))
-        ls_out.append(f"Total number of reflections is {n:}.")
-        ls_out.append(f"  (|FR_exp-FR_mod|/|FR_sigma|)^2 per reflection is {sum(l_chi_sq)/float(n):.2f}")
-        ls_out.append(f"   |FR_exp-FR_mod|/|FR_exp|      per reflection is {100*sum(l_af_f) / float(n):.2f}%")
-        ls_out.append(f"   |FR_exp-FR_mod|/|FR_exp-1|    per reflection is {100*sum(l_af_r) / float(n):.2f}%")
-        ls_out.append(f"           (reflections with FR_exp = 1 are excluded)")
+        ls_out.append("# Chi_sq experimental")
+        ls_out.append(f"Total number of reflections is {n:}")
+        ls_out.append(f"|  (abs(FR_exp-FR_mod)/FR_sigma)^2 per reflection is |{sum(l_chi_sq)/float(n):.2f}|")
+        ls_out.append(f"|   abs(FR_exp-FR_mod)/FR_exp      per reflection is |{100*sum(l_af_f) / float(n):.2f}%|")
+        ls_out.append(f"|   abs(FR_exp-FR_mod)/abs(FR_exp-1)    per reflection is |{100*sum(l_af_r) / float(n):.2f}%|")
+        ls_out.append("           (reflections with FR_exp = 1 are excluded)")
         n_worsest = len(l_worsest)
-        ls_out.append(f"\nReflections in range  ")
-        ls_out.append(f" (N-1)*FR_sigma < |FR_exp - FR_mod| < N*FR_sigma: ")
-        ls_out.append(f"      N = 1: {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, three sigma rule) ")
-        ls_out.append(f"      N = 2: {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, three sigma rule)")
-        ls_out.append(f"      N = 3: {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, three sigma rule)")
-        ls_out.append(f"      N > 3: {n_worsest:}/{n:} ={100 * float(n_worsest) / float(n):5.1f}% ({2*(0.1):4.1f}%, three sigma rule)")
+        ls_out.append("\n## Reflections in range  ")
+        ls_out.append(" (N-1)*FR_sigma < abs(FR_exp - FR_mod) < N*FR_sigma: ")
+        ls_out.append(f"|      N = 1:| {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, three sigma rule) |")
+        ls_out.append(f"|      N = 2:| {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, three sigma rule)|")
+        ls_out.append(f"|      N = 3:| {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, three sigma rule)|")
+        ls_out.append(f"|      N > 3:| {n_worsest:}/{n:} ={100 * float(n_worsest) / float(n):5.1f}% ({2*(0.1):4.1f}%, three sigma rule)|")
         l_worsest.sort(key=lambda x: x[4], reverse=True)
         if len(l_worsest) > 1:
             if n_worsest > 10: n_worsest = 10
-            ls_out.append("\nThe ten worsest reflections:")
-            ls_out.append("  h  k  l       FR FR_sigma  FR_calc  diff")
+            ls_out.append("\n## The ten worsest reflections:")
+            ls_out.append("|  h | k | l  |     FR |FR_sigma | FR_calc | diff|")
             for (_hkl, _fr, _fr_sigma, _fr_calc, _diff) in l_worsest[:n_worsest]:
-                ls_out.append(f"{_hkl[0]:3}{_hkl[1]:3}{_hkl[2]:3}{_fr:9.5f}{_fr_sigma:9.5f}{_fr_calc:9.5f}{_diff:6.1f}")
+                ls_out.append(f"|{_hkl[0]:3}|{_hkl[1]:3}|{_hkl[2]:3}|{_fr:9.5f}|{_fr_sigma:9.5f}|{_fr_calc:9.5f}|{_diff:6.1f}|")
         if cell is not None:
             np_h = numpy.array(self.index_h, dtype=int)
             np_k = numpy.array(self.index_k, dtype=int)
@@ -220,18 +226,43 @@ class DiffrnReflnL(LoopN):
             np_diff = numpy.abs((np_fr-np_fr_calc)/np_fr_sigma)
             n_bins = 10
             np_val, np_sthovl_bins = numpy.histogram(np_sthovl, bins=n_bins)
-            ls_out.append(f"\nDistribution of reflection in sin(theta)/lambda range")
-            ls_out.append(f"sthovl_1 sthovl_2 <Exp-Mod/Sigma> n_points")
+            ls_out.append("\n## Distribution of reflection in sin(theta)/lambda range")
+            ls_out.append("|sthovl_1 |sthovl_2 | (Exp-Mod)/Sigma |n_points|")
             for _1, _2, _3 in zip(np_sthovl_bins[:-1], np_sthovl_bins[1:], np_val):
                 np_flag = numpy.logical_and(np_sthovl >= _1, np_sthovl < _2) 
                 res = np_diff[np_flag]
                 if res.size == 0:
-                    ls_out.append(f"{_1:8.3f} {_2:8.3f}:       None          0")
+                    ls_out.append(f"|{_1:8.3f} |{_2:8.3f}|       None    |      0|")
                 else:
-                    ls_out.append(f"{_1:8.3f} {_2:8.3f}:    {np_diff[np_flag].mean():7.3f} {_3:10}")
-            n_vals = numpy.histogram(np_sthovl, bins=n_bins)
+                    ls_out.append(f"|{_1:8.3f} |{_2:8.3f}|    {np_diff[np_flag].mean():7.3f} |{_3:10}|")
+            numpy.histogram(np_sthovl, bins=n_bins)
         return "\n".join(ls_out)
 
+    def plots(self):
+        return [self.plot_fr_vs_fr_calc()]
+    
+    def plot_fr_vs_fr_calc(self):
+        """Plot experimental fr vs. fr_calc
+        """
+        if not(self.is_attribute("fr") & self.is_attribute("fr_sigma") &
+               self.is_attribute("fr_calc")):
+            return 
+
+        fig, ax = plt.subplots()
+        ax.set_title("Flip Ratio")
+        np_fr_1 = numpy.array(self.fr, dtype=float)-numpy.array(self.fr_sigma, dtype=float)
+        np_fr_2 = numpy.array(self.fr, dtype=float)+numpy.array(self.fr_sigma, dtype=float)
+        fr_min = min([min(np_fr_1), min(self.fr_calc)])
+        fr_max = max([max(np_fr_2), max(self.fr_calc)])
+        ax.plot([fr_min, fr_max], [fr_min, fr_max], "k:")
+        ax.errorbar(self.fr_calc, self.fr, yerr=self.fr_sigma, fmt="ko",
+                    alpha=0.2)
+        ax.set_xlabel("Flip ratio (model)")
+        ax.set_ylabel('Flip ratio (experiment)')
+        ax.set_aspect(1)
+        fig.tight_layout()
+        return (fig, ax)
+        
 # s_cont = """
 #   loop_
 #   _diffrn_refln_index_h
