@@ -15,7 +15,7 @@ If [python 3][python-downloads] is installed, type in console (or terminal):
 python -m pip install cryspy cryspy_editor
 
 # additional libraries
-python -m pip install pyqt5 pyqtgraph scipy matplotlib numpy
+python -m pip install pyqt5 scipy matplotlib numpy
 {% endhighlight %}
 
 - **to run it:**
@@ -31,7 +31,7 @@ python -m cryspy_editor
 python -m pip install --upgrade cryspy cryspy_editor --user
 {% endhighlight %}
 
-See examples on [GitHub][cryspy-examples].
+Current versions of the CrysPy library is **0.5.1**, and the CrysPy Editor is **1.5.1**. See examples on [GitHub][cryspy-examples].
 
 CrysPy is a crystallographic library for neutron data analysis.
 It allows to refine polarized
@@ -70,4 +70,4 @@ If you have any suggestions, bug reports or annoyances please report them to our
 [cryspy-zenodo]: https://zenodo.org/badge/latestdoi/178411703
 [cryspy-issue]: https://github.com/ikibalin/cryspy/issues
 
-[cryspy-examples]: https://github.com/ikibalin/cryspy/tree/master/examples
+[cryspy-examples]: https://github.com/ikibalin/cryspy/tree/examples

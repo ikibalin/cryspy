@@ -10,3 +10,4 @@ To run GUI "Cryspy Editor" type command in console:
 python -m cryspy_editor
 {% endhighlight %}
 
+![gui](/gui_1.png){:class="img-responsive"}
