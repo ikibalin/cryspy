@@ -91,7 +91,6 @@ class RefineLs(ItemN):
             l_res.append(f"|Restraints number | {self.number_restraints:}|")
         if self.is_attribute("number_constraints"):
             l_res.append(f"|Constraints number | {self.number_constraints:}|")
-
         return "\n".join(l_res)
 
 

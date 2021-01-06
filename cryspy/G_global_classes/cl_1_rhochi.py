@@ -351,8 +351,8 @@ class RhoChi(GlobalN):
         f_main = os.path.join(f_dir, "main.rcif")
         ls_main = []
         ls_main.append("global_{:}\n".format(self.global_name))
-        if self.is_attribute("hessian_matrix"):
-            ls_main.append(self.hessian_matrix.to_cif()+"\n")
+        if self.is_attribute("inversed_hessian"):
+            ls_main.append(self.inversed_hessian.to_cif()+"\n")
         if self.is_attribute("refine_ls"):
             ls_main.append(self.refine_ls.to_cif()+"\n")
         for experiment in self.experiments():
@@ -405,10 +405,10 @@ class RhoChi(GlobalN):
         l_res = []
 
         if self.is_attribute("refine_ls"):
-            l_res.append(self.refine_ls.report())
+            l_res.append(self.refine_ls.report()+2*"\n")
 
         if self.is_attribute("inversed_hessian"):
-            l_res.append(self.inversed_hessian.report())
+            l_res.append(self.inversed_hessian.report()+"\n")
         return "".join(l_res)
 
 # s_cont = """

@@ -245,7 +245,8 @@ class DiffrnReflnL(LoopN):
         return "\n".join(ls_out)
 
     def plots(self):
-        return [self.plot_fr_vs_fr_calc()]
+        return [self.plot_fr_vs_fr_calc(),
+                self.plot_asymmetry_vs_asymmetry_calc()]
     
     def plot_fr_vs_fr_calc(self):
         """Plot experimental fr vs. fr_calc
@@ -255,7 +256,7 @@ class DiffrnReflnL(LoopN):
             return 
 
         fig, ax = plt.subplots()
-        ax.set_title("Flip Ratio")
+        ax.set_title("Flip Ratio: I_up / I_down")
         np_fr_1 = numpy.array(self.fr, dtype=float)-numpy.array(self.fr_sigma, dtype=float)
         np_fr_2 = numpy.array(self.fr, dtype=float)+numpy.array(self.fr_sigma, dtype=float)
         fr_min = min([min(np_fr_1), min(self.fr_calc)])
@@ -265,6 +266,32 @@ class DiffrnReflnL(LoopN):
                     alpha=0.2)
         ax.set_xlabel("Flip ratio (model)")
         ax.set_ylabel('Flip ratio (experiment)')
+        ax.set_aspect(1)
+        fig.tight_layout()
+        return (fig, ax)
+
+    def plot_asymmetry_vs_asymmetry_calc(self):
+        """Plot experimental fr vs. fr_calc
+        """
+        if not(self.is_attribute("fr") & self.is_attribute("fr_sigma") &
+               self.is_attribute("fr_calc")):
+            return 
+
+        fig, ax = plt.subplots()
+        np_fr = numpy.array(self.fr, dtype=float)
+        np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)
+        np_fr_calc = numpy.array(self.fr_calc, dtype=float)
+        ax.set_title("Asymmetry: (I_up - I_down) / (I_up + I_down)")
+        asymmetry = (np_fr - 1.)/(np_fr + 1.)
+        asymmetry_sigma = np_fr_sigma*numpy.sqrt(numpy.square(np_fr)+1.) / \
+            numpy.square(np_fr+1.)
+        asymmetry_calc = (np_fr_calc - 1.)/(np_fr_calc + 1.)
+        
+        ax.plot([-1, 1], [-1, 1], "k:")
+        ax.errorbar(asymmetry_calc, asymmetry, yerr=asymmetry_sigma, fmt="ko",
+                    alpha=0.2)
+        ax.set_xlabel("Asymmetry (model)")
+        ax.set_ylabel('Asymmetry (experiment)')
         ax.set_aspect(1)
         fig.tight_layout()
         return (fig, ax)
