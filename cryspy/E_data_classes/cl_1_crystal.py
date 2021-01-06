@@ -466,8 +466,14 @@ class Crystal(DataN):
         # phase_2d = hh.sum(axis=2)#sum over symmetry
 
         # b_scat_2d = numpy.meshgrid(h, scat_length_neutron, indexing="ij")[1]
-        form_factor = atom_site_scat.calc_form_factor(
+        # form_factor = atom_site_scat.calc_form_factor(
+        #     sthovl, flag_only_orbital=flag_only_orbital)
+        
+        form_factor = [atom_site_scat[item.label].calc_form_factor(
             sthovl, flag_only_orbital=flag_only_orbital)
+            for item in atom_site_susceptibility.items]
+        form_factor = numpy.array(list(zip(*form_factor)), dtype=float)
+        
 
         # dimensions: hkl, magnetic atoms, reduced symmetry operators
         ff_11, ff_12, ff_13, ff_21, ff_22, ff_23, ff_31, ff_32, ff_33 = \
@@ -784,6 +790,9 @@ U_13|     U_23|")
 
     def report(self):
         return self.report_main_axes_of_magnetization_ellipsoids()
+
+    def plots(self):
+        return []
 
 # s_cont = """
 #   data_Fe3O4

@@ -79,6 +79,21 @@ class RefineLs(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    def report(self):
+        l_res = []
+        if self.is_attribute("goodness_of_fit_all"):
+            l_res.append(f"|Goodness of fit | {self.goodness_of_fit_all:.2f}|")
+        if self.is_attribute("number_reflns"):
+            l_res.append(f"|Experimental points | {self.number_reflns:}|")
+        if self.is_attribute("number_parameters"):
+            l_res.append(f"|Parameters number | {self.number_parameters:}|")
+        if self.is_attribute("number_restraints"):
+            l_res.append(f"|Restraints number | {self.number_restraints:}|")
+        if self.is_attribute("number_constraints"):
+            l_res.append(f"|Constraints number | {self.number_constraints:}|")
+
+        return "\n".join(l_res)
+
 
 class RefineLsL(LoopN):
     """Description of RefineLsL class."""

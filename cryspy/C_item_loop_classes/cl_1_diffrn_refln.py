@@ -114,7 +114,10 @@ class DiffrnReflnL(LoopN):
             else:
                 n_0s += 1
             if _fr_1 <= 1.:
-                l_diff.append(1./_fr_1-1.)
+                if math.isclose(_fr_1, 0.):
+                    l_diff.append(1./(_fr_1+_fr_sigma_1)-1.)
+                else:
+                    l_diff.append(1./_fr_1-1.)
             else:
                 l_diff.append(_fr_1-1.)
 
@@ -184,9 +187,12 @@ class DiffrnReflnL(LoopN):
         for _hkl, _fr, _fr_sigma, _fr_calc in zip(l_hkl, l_fr, l_fr_sigma, l_fr_calc):
             _diff = abs(float(_fr-_fr_calc)/float(_fr_sigma))
             l_chi_sq.append(_diff**2)
-            l_af_f.append(abs(float(_fr - _fr_calc) / float(_fr)))
-            if _fr != 1.:
-                l_af_r.append(abs(float(_fr-_fr_calc)/float(_fr-1)))
+            if math.isclose(_fr, 0.):
+                l_af_f.append(abs(float(_fr - _fr_calc) / float(_fr_sigma)))
+            else:
+                l_af_f.append(abs(float(_fr - _fr_calc) / float(_fr)))
+            if not(math.isclose(_fr, 1.)):
+                l_af_r.append(abs(float(_fr-_fr_calc)/float(_fr-1.)))
             if _diff <= 1.:
                 n_1s +=1
             elif _diff <= 2.:

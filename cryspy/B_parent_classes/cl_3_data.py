@@ -520,7 +520,7 @@ class DataN(object):
     def report_html(self):
         return md_to_html(self.report())
 
-    def plots(self, *argv):
+    def plots(self):
         l_res = []
         for item in self.items:
             for plot in item.plots():

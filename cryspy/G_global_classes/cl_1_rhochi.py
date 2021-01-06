@@ -24,6 +24,7 @@ from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 from cryspy.E_data_classes.cl_2_tof import TOF
+from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 
 
 class RhoChi(GlobalN):
@@ -53,7 +54,7 @@ class RhoChi(GlobalN):
 
     CLASSES_MANDATORY = ()
     CLASSES_OPTIONAL = (InversedHessian, Crystal, MagCrystal, Diffrn, Pd, Pd2d,
-                        TOF)
+                        TOF, RefineLs)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -124,6 +125,12 @@ class RhoChi(GlobalN):
             experiment.n = n
             chi_sq_res += chi_sq
             n_res += n
+            
+        if flag_internal:
+            refine_ls = RefineLs(goodness_of_fit_all= chi_sq_res/n_res,
+                                 number_reflns=n_res)
+            self.refine_ls = refine_ls
+
         return chi_sq_res, n_res
 
     def estimate_inversed_hessian(self):
@@ -346,6 +353,8 @@ class RhoChi(GlobalN):
         ls_main.append("global_{:}\n".format(self.global_name))
         if self.is_attribute("hessian_matrix"):
             ls_main.append(self.hessian_matrix.to_cif()+"\n")
+        if self.is_attribute("refine_ls"):
+            ls_main.append(self.refine_ls.to_cif()+"\n")
         for experiment in self.experiments():
             ls_main.append(f"_add_url {experiment.data_name:}_data.rcif")
             ls_main.append(f"_add_url {experiment.data_name:}_calc.rcif\n")
@@ -394,20 +403,10 @@ class RhoChi(GlobalN):
 
     def report(self):
         l_res = []
-        for experiment in self.experiments():
-            number_reflns = 0
-            chi_sq = 0
-            if experiment.is_attribute("refine_ls"):
-                refine_ls = experiment.refine_ls
-                if (refine_ls.is_attribute("goodness_of_fit_all") &
-                        refine_ls.is_attribute("number_reflns")):
-                    hh = refine_ls.number_reflns
-                    number_reflns += hh
-                    chi_sq += hh*refine_ls.goodness_of_fit_all
-        if number_reflns != 0:
-            gof = chi_sq/number_reflns
-            l_res.append(f"|Goodness of fit | {gof:.2f} |\n\
-|experimental points|{number_reflns:}|\n\n")
+
+        if self.is_attribute("refine_ls"):
+            l_res.append(self.refine_ls.report())
+
         if self.is_attribute("inversed_hessian"):
             l_res.append(self.inversed_hessian.report())
         return "".join(l_res)

@@ -135,20 +135,46 @@ class TOFMeasL(LoopN):
         for item in self.items:
             item.apply_constraints()
 
-    def plots(self, *argv):
-        return [self.plot_sum(*argv), self.plot_diff(*argv)]
+    def plots(self):
+        return [self.plot_up_down(), self.plot_sum(), self.plot_diff()]
+
+    def plot_up_down(self):
+        """Plot experimental intensity up and down vs. 2 theta (degrees)
+        """
+        fig, ax = plt.subplots()
+        ax.set_title("I_up and I_down")
+        ax.set_xlabel("Time (microseconds)")
+        ax.set_ylabel('Intensity')
+
+        if (self.is_attribute("time") & self.is_attribute("intensity_up") & 
+            self.is_attribute("intensity_up_sigma") &
+            self.is_attribute("intensity_down") & 
+            self.is_attribute("intensity_down_sigma")):
+            np_time = numpy.array(self.time, dtype=float)
+            np_up = numpy.array(self.intensity_up, dtype=float)
+            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_down, dtype=float)
+            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+
+            ax.plot(np_time, np_up, "r-", alpha=0.2)
+            ax.errorbar(np_time, np_up, yerr=np_sup, fmt="ro", alpha=0.2,
+                        label="up")
+            ax.plot(np_time, np_down, "b-", alpha=0.2)
+            ax.errorbar(np_time, np_down, yerr=np_sdown, fmt="bs", alpha=0.2,
+                        label="down")
+        else:
+            return
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
     
-    def plot_sum(self, *argv):
+    def plot_sum(self):
         """Plot experimental unpolarized intensity vs. time
         """
         fig, ax = plt.subplots()
         ax.set_title("Unpolarized intensity: I_up + I_down")
         ax.set_xlabel("Time (microseconds)")
         ax.set_ylabel('Intensity')
-        if len(argv)>=2:
-            ax.set_xlim(argv[0], argv[1])
-        if len(argv)>=4:
-            ax.set_ylim(argv[2], argv[3])
 
         if (self.is_attribute("time") & self.is_attribute("intensity_up") & 
             self.is_attribute("intensity_up_sigma") &
@@ -176,7 +202,7 @@ class TOFMeasL(LoopN):
         fig.tight_layout()
         return (fig, ax)
 
-    def plot_diff(self, *argv):
+    def plot_diff(self):
         """Plot experimental polarized intensity vs. time
         """
         if not(self.is_attribute("time") & self.is_attribute("intensity_up") & 
@@ -188,8 +214,6 @@ class TOFMeasL(LoopN):
         ax.set_title("Polarized intensity: I_up - I_down")
         ax.set_xlabel("Time (microseconds)")
         ax.set_ylabel('Intensity')
-        if len(argv)==2:
-            ax.set_xlim(argv[0], argv[1])
             
         np_time = numpy.array(self.time, dtype=float)
         np_up = numpy.array(self.intensity_up, dtype=float)

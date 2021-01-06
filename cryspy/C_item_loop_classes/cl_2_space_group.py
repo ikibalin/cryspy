@@ -163,10 +163,29 @@ class SpaceGroup(ItemN):
         """Define it number and it coordinate system code."""
         flag = True
         it_coordinate_system_code = None
+        if self.is_attribute("it_coordinate_system_code"):
+            it_coordinate_system_code = self.it_coordinate_system_code
+
         if (self.is_attribute("it_number") &
                 self.is_attribute("it_coordinate_system_code")):
             it_number = self.it_number
             it_coordinate_system_code = self.it_coordinate_system_code
+        elif ((self.is_attribute("name_hm_alt")) &
+              (it_coordinate_system_code is not None)):
+            t_res = get_type_hm(self.name_hm_alt)
+            if "full" in t_res:
+                it_number = get_it_number_by_name_hm_full(self.name_hm_alt)
+            elif "short" in t_res:
+                it_number = get_it_number_by_name_hm_short(self.name_hm_alt)
+            elif "extended" in t_res:
+                it_number, it_coordinate_system_codes = \
+                    get_it_number_it_coordinate_system_codes_by_name_hm_extended(
+                        self.name_hm_alt)
+                if (not(it_coordinate_system_code in
+                        it_coordinate_system_codes)):
+                    it_coordinate_system_code = \
+                        auto_choose_it_coordinate_system_code(
+                            it_number, it_coordinate_system_codes)
         elif self.is_attribute("name_hm_alt"):
             t_res = get_type_hm(self.name_hm_alt)
             if "extended" in t_res:

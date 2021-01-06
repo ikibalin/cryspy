@@ -683,7 +683,7 @@ class LoopN(object):
     def report_html(self):
         return md_to_html(self.report())
 
-    def plots(self, *argv):
+    def plots(self):
         return []
 
     def fix_variables(self):

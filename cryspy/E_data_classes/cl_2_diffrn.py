@@ -453,8 +453,8 @@ class Diffrn(DataN):
         polarization = diffrn_radiation.polarization
         flipper_efficiency = diffrn_radiation.efficiency
 
-        extinction = self.extinction
-        if extinction is not None:
+        if self.is_attribute("extinction"):
+            extinction = self.extinction
             model_extinction = extinction.model
             radius = extinction.radius
             mosaicity = extinction.mosaicity

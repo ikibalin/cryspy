@@ -129,7 +129,78 @@ class PdMeasL(LoopN):
 
 
     def plots(self):
-        return [self.plot_sum(), self.plot_diff()]
+        return [self.plot_up_down(), self.plot_sum_diff()]
+
+    def plot_up_down(self):
+        """Plot experimental intensity up and down vs. 2 theta (degrees)
+        """
+        fig, ax = plt.subplots()
+        ax.set_title("I_up and I_down")
+        ax.set_xlabel("2 theta (degrees)")
+        ax.set_ylabel('Intensity')
+
+        if (self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
+            self.is_attribute("intensity_up_sigma") &
+            self.is_attribute("intensity_down") & 
+            self.is_attribute("intensity_down_sigma")):
+            np_tth = numpy.array(self.ttheta, dtype=float)
+            np_up = numpy.array(self.intensity_up, dtype=float)
+            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_down, dtype=float)
+            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+
+            ax.plot(np_tth, np_up, "r-", alpha=0.2)
+            ax.errorbar(np_tth, np_up, yerr=np_sup, fmt="ro", alpha=0.2,
+                        label="up")
+            ax.plot(np_tth, np_down, "b-", alpha=0.2)
+            ax.errorbar(np_tth, np_down, yerr=np_sdown, fmt="bs", alpha=0.2,
+                        label="down")
+        else:
+            return
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+
+    def plot_sum_diff(self):
+
+        if (self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
+            self.is_attribute("intensity_up_sigma") &
+            self.is_attribute("intensity_down") & 
+            self.is_attribute("intensity_down_sigma")):
+            fig, axs = plt.subplots(2)
+            ax_1, ax_2 = axs
+            ax_1.set_title("Unpolarized intensity: I_up + I_down")
+            ax_1.set_xlabel("2 theta (degrees)")
+            ax_1.set_ylabel('Intensity')            
+
+            ax_2.set_title("Polarized intensity: I_up - I_down")
+            ax_2.set_xlabel("2 theta (degrees)")
+            ax_2.set_ylabel('Intensity')            
+            
+            np_tth = numpy.array(self.ttheta, dtype=float)
+            np_up = numpy.array(self.intensity_up, dtype=float)
+            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_down, dtype=float)
+            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_sum = np_up + np_down
+            np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+            ax_1.plot(np_tth, np_sum, "k-", alpha=0.2)
+            ax_1.errorbar(np_tth, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+                        label="experiment")
+            ax_1.legend(loc='upper right')
+
+            np_diff = np_up - np_down
+            np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
+            ax_2.plot([np_tth.min(), np_tth.max()], [0., 0.], "k:")
+            ax_2.plot(np_tth, np_diff, "k-", alpha=0.2)
+            ax_2.errorbar(np_tth, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
+                            label="experiment")
+            ax_2.legend(loc='upper right')
+            fig.tight_layout()
+            return (fig, ax_1)
+        else:
+            return self.plot_sum()
+
     
     def plot_sum(self):
         """Plot experimental unpolarized intensity vs. 2 theta (degrees)

@@ -238,7 +238,7 @@ def calc_form_factor_tensor_susceptibility(
     ff = numpy.array(form_factor, dtype=float)
     sthovl = cell.calc_sthovl(h, k, l)
     # dimension (hkl, atoms)
-
+    
     r_11 = numpy.array(space_group_symop.r_11, dtype=float)
     r_12 = numpy.array(space_group_symop.r_12, dtype=float)
     r_13 = numpy.array(space_group_symop.r_13, dtype=float)
