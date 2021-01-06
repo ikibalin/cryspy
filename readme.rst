@@ -1,25 +1,9 @@
-.. image:: docs_rst/logo_page.jpg
-   :scale: 60 %
-   :alt: logo
-   :align: center
-
 **CrysPy** is a crystallographic library for neutron data analysis. 
 Based on the library *CrysPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments 
 performed with single crystals as well as with powder magnetic compounds. 
 
-+----------+------------------------+
-| Folder   | Description            |
-+==========+========================+
-| cryspy   | CrysPy library         |
-+----------+------------------------+
-| examples | examples               |
-+----------+------------------------+
-| docs     | html documentation     |
-+----------+------------------------+
-
-
 Main Features
-------------------------
+-------------
 - Analysis of the polarized neutron scattering on crystals by the library *CrysPy*;
 - Diffraction data refinement for single crystals or powders by *RhoChi*;
 - Free distributed software. 
@@ -28,7 +12,7 @@ Main Features
 For more information please see `documentation site <https://ikibalin.github.io/cryspy/>`_.
 
 Copyright and License
--------------------------------
+---------------------
 
 MIT License
 
