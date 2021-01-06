@@ -1,0 +1,166 @@
+global_
+
+_refine_ls_goodness_of_fit_all 42.836
+_refine_ls_number_reflns 407
+
+_add_url 50k7a_data.rcif
+_add_url 50k7a_calc.rcif
+
+_add_url 50k7t_data.rcif
+_add_url 50k7t_calc.rcif
+
+_add_url 50k7c_data.rcif
+_add_url 50k7c_calc.rcif
+
+_add_url 50k1t_data.rcif
+_add_url 50k1t_calc.rcif
+
+
+data_phase1
+
+_space_group_name_H-M_alt "P n m a"
+_space_group_IT_coordinate_system_code cab
+
+_cell_length_a 5.30100
+_cell_length_b 5.87400
+_cell_length_c 7.44670
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Tb   Tb3+   0.991570   0.080360   0.250000   1.0   Biso   0.22322   4   c  
+O1   O2-    0.105280   0.465620   0.250000   1.0   Biso   0.36659   4   c  
+O2   O2-    0.708440   0.326840   0.051770   1.0   Biso   0.48125   8   d  
+Mn   Mn3+   0.500000   0.000000   0.000000   1.0   Biso   0.3157    4   b  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+Tb   Cani   0.56555(62)   0.4432(52)   0.03735(14)   0.3245(14)   0.00000    0.00000   
+Mn   Ciso   0.04032(14)   0.04032      0.04032       -0.00000     -0.00000   -0.00000  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Tb   Tb3+   1.5   1.0  
+Mn   Mn3+   2.0   1.0  
+O2   O2-    2.0   1.0  
+
+
+data_50k7a
+_setup_wavelength 0.8400
+_setup_field 7.00
+
+_diffrn_radiation_polarization -0.91
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 0.002926
+_diffrn_orient_matrix_ub_12 -0.142796
+_diffrn_orient_matrix_ub_13 0.073101
+_diffrn_orient_matrix_ub_21 0.001219
+_diffrn_orient_matrix_ub_22 -0.092672
+_diffrn_orient_matrix_ub_23 -0.112651
+_diffrn_orient_matrix_ub_31 0.188614
+_diffrn_orient_matrix_ub_32 0.002814
+_diffrn_orient_matrix_ub_33 -0.000407
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+
+_phase_label phase1
+
+
+data_50k7t
+_setup_wavelength 0.8400
+_setup_field 7.00
+
+_diffrn_radiation_polarization -0.91
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 0.072219
+_diffrn_orient_matrix_ub_12 0.056841
+_diffrn_orient_matrix_ub_13 0.115673
+_diffrn_orient_matrix_ub_21 -0.106004
+_diffrn_orient_matrix_ub_22 0.140317
+_diffrn_orient_matrix_ub_23 -0.009365
+_diffrn_orient_matrix_ub_31 -0.13832
+_diffrn_orient_matrix_ub_32 -0.077858
+_diffrn_orient_matrix_ub_33 0.067571
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+
+_phase_label phase1
+
+
+data_50k7c
+_setup_wavelength 1.4000
+_setup_field 7.00
+
+_diffrn_radiation_polarization -0.91
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 0.066109
+_diffrn_orient_matrix_ub_12 0.158883
+_diffrn_orient_matrix_ub_13 -0.010546
+_diffrn_orient_matrix_ub_21 -0.175871
+_diffrn_orient_matrix_ub_22 0.060541
+_diffrn_orient_matrix_ub_23 0.008836
+_diffrn_orient_matrix_ub_31 0.016851
+_diffrn_orient_matrix_ub_32 0.008538
+_diffrn_orient_matrix_ub_33 0.133584
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+
+_phase_label phase1
+
+
+data_50k1t
+_setup_wavelength 0.8400
+_setup_field 1.00
+
+_diffrn_radiation_polarization -0.91
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 0.072219
+_diffrn_orient_matrix_ub_12 0.056841
+_diffrn_orient_matrix_ub_13 0.115673
+_diffrn_orient_matrix_ub_21 -0.106004
+_diffrn_orient_matrix_ub_22 0.140317
+_diffrn_orient_matrix_ub_23 -0.009365
+_diffrn_orient_matrix_ub_31 -0.13832
+_diffrn_orient_matrix_ub_32 -0.077858
+_diffrn_orient_matrix_ub_33 0.067571
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+
+_phase_label phase1
