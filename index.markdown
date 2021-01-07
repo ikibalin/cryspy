@@ -28,7 +28,7 @@ python -m cryspy_editor
 - **to upgrade:**
 
 {% highlight bash %}
-python -m pip install --upgrade cryspy cryspy_editor --user
+python -m pip install --upgrade cryspy cryspy_editor pycifstar --user
 {% endhighlight %}
 
 Current versions of the CrysPy library is **0.5.3**, and the CrysPy Editor is **1.5.4**. See examples on [GitHub][cryspy-examples].
