@@ -26,6 +26,9 @@ permalink: /rcif-format/tof-background/
 `coeff9`, `coeff10`, `coeff11`, `coeff12`, `coeff13`, `coeff14`,
 `coeff15`, `coeff16`, `coeff17`, `coeff18`, `id`.
 
+For details see [the expression page](https://ikibalin.github.io/cryspy/theory/tof-background/).
+
+
 # Item object
 
 **Methods:** 
