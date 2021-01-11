@@ -24,7 +24,9 @@ permalink: /rcif-format/tof-intensity-incident/
 **Optional parameters:** 
 `spectrum`.
 
-Constraints on `spectrum`: "Maxwell" or "Empirical-Exponents".
+**Constraints on `spectrum`**: "Maxwell" or "Empirical-Exponents".
+
+For details see the [expression page](https://ikibalin.github.io/cryspy/theory/tof-incident-intensity/).
 
 # Item object
 
