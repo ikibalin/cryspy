@@ -5,8 +5,8 @@ permalink: /rcif-format/tof/
 [Back to RCIF format][rcif-format]
 
 Data items in the TOF category record details about
-powder diffraction measurements by Time of FLight
-(1f case).
+powder diffraction measurements by Time of Flight
+(1d case).
 
 # Mandatory Items/Loops:
 - [TOF Parameters][tof-parameters]
