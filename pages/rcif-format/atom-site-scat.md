@@ -8,30 +8,34 @@ permalink: /rcif-format/atom-site-scat/
 
      loop_
      _atom_site_scat_label
-     _atom_site_scat_Lande
-     _atom_site_scat_kappa
-     Fe3A    2.00 1.00
-     Fe3B    2.00 1.00(12)
+     _atom_site_scat_type_symbol
+     _atom_site_scat_Lande 
+     _atom_site_scat_kappa 
+     Ho Ho3+ 1.250 1.
+     Dy Dy3+ 1.333 1.
+
+Description of magnetic structure factor.
 
 **Mandatory parameters:** 
-No
+`label`.
 
 **Optional parameters:** 
-No
+`type_symbol`, `lande`, `kappa`.
 
 # Item object
 
 **Methods:** 
-No
-
-**Internal parameters:** 
-No 
+`.calc_form_factor(...)`,
+`.load_atom_type_scat_by_symbol(...)`,
+`.plot_form_factor(...)`.
 
 **Protected parameters:** 
-No
+`atom_type_scat`.
 
 # Loop object
 **Methods:** 
-No
+`.calc_form_factor(...)`,
+`.load_atom_type_scat_by_atom_site(...)`,
+`.plot_form_factor(...)`.
 
 [rcif-format]: /cryspy/rcif-format
