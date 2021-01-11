@@ -24,7 +24,9 @@ permalink: /rcif-format/tof-profile/
 `sigma2`, `peak_shape`, `size_g`, `size_l`, `strain_g`, `strain_l`,
 `gamma2`, `gamma1`, `gamma0`.
 
-Constraint `peak_shape`: "pseudo-Voigt", "Gauss".
+**Constraint `peak_shape`**: "pseudo-Voigt", "Gauss".
+
+For details see [the expression page](https://ikibalin.github.io/cryspy/theory/tof-profile/).
 
 # Item object
 
