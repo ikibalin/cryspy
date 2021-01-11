@@ -15,10 +15,16 @@ permalink: /rcif-format/tof-parameters/
 
 
 **Mandatory parameters:** 
-No
+`zero`: microseconds, `dtt1`: in microseconds/Angstrem, `ttheta_bank`: degrees.
 
 **Optional parameters:** 
-No
+`neutrons`, `dtt2`: in microseconds/Angstrem^2, `zerot`: in microseconds, `dtt1t`: in microseconds/Angstrem,
+`dtt2t`: in microseconds/Angstrem^2,
+`width`, `x_cross`, `field`: in Tesla, `extinction`.
+
+**Constraint on `neutrons`**: "thermal", "epithermal"
+
+For details see [the expression page](https://ikibalin.github.io/cryspy/theory/tof-parameters/).
 
 # Item object
 
