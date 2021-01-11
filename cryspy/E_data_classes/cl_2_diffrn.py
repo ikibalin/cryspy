@@ -394,7 +394,9 @@ class Diffrn(DataN):
             # diffrn_refln.numpy_intensity_down_calc = int_d_mod
             diffrn_refln.numpy_to_items()
 
-        chi_sq = ((fr_mod-fr_exp)/fr_sigma)**2
+        flag_in = numpy.logical_not(diffrn_refln.numpy_excluded)
+
+        chi_sq = ((fr_mod[flag_in]-fr_exp[flag_in])/fr_sigma[flag_in])**2
         chi_sq_val = (chi_sq[numpy.logical_not(numpy.isnan(chi_sq))]).sum()
         n = numpy.logical_not(numpy.isnan(chi_sq)).sum()
 

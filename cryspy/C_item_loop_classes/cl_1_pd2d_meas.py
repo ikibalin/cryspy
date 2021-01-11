@@ -1,5 +1,6 @@
 from typing import NoReturn
 import numpy
+import matplotlib
 import matplotlib.pyplot as plt
 
 from cryspy.A_functions_base.function_1_gamma_nu import \
@@ -207,66 +208,48 @@ class Pd2dMeas(ItemN):
         return l_gamma_grid*180./numpy.pi, l_nu_grid*180./numpy.pi, [int_u_out, int_d_out, int_sum_out, int_diff_out]
         
     def plots(self):
-        return [self.plot_sum(), self.plot_diff(), self.plot_projection_sum(),
-                self.plot_projection_diff()]
+        return [self.plot_projection_sum(), self.plot_projection_diff()]
 
-    def plot_sum(self):
+    def plot_ttheta_phi(self):
         if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
                self.is_attribute("intensity_up") & 
                self.is_attribute("intensity_down")):
             return
-        fig, ax = plt.subplots()
-        ax.set_title("Unpolarized intensity")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('phi (degrees)')
-
         np_tth = numpy.array(self.ttheta, dtype=float)
         np_phi = numpy.array(self.phi, dtype=float)
         np_up = self.intensity_up
         np_down = self.intensity_down
         np_sum = np_up + np_down
-        
-        extent =(np_tth.min(), np_tth.max(), np_phi.min(), np_phi.max())
-        plt.set_cmap('rainbow')
-        ax.imshow(np_sum.transpose(), interpolation='bilinear', extent=extent,
-                  alpha=0.9, origin="lower")        
-        
-        # blk = '#000000'
-        # ax.contour(np_tth, np_phi, np_sum.transpose(),
-        #             #levels=[0.1, 0.5, 1., 5., 10., 50.],
-        #             levels=5,
-        #             colors=[blk, blk, blk, blk, blk, blk],
-        #             linewidths=0.5)
-        return (fig, ax)
-
-    def plot_diff(self):
-        if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
-               self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_down")):
-            return
-        fig, ax = plt.subplots()
-        ax.set_title("Polarized intensity")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('phi (degrees)')
-
-        np_tth = numpy.array(self.ttheta, dtype=float)
-        np_phi = numpy.array(self.phi, dtype=float)
-        np_up = self.intensity_up
-        np_down = self.intensity_down
         np_diff = np_up - np_down
+
+        fig, axs = plt.subplots(2)
+        ax_1, ax_2 = axs
+        ax_1.set_title("Unpolarized intensity")
+        ax_1.set_xlabel("2 theta (degrees)")
+        ax_1.set_ylabel('phi (degrees)')
+
+        max_val = numpy.nanmax(numpy.abs(np_sum))
+        norm_1 = matplotlib.colors.Normalize(
+            vmax=max_val, vmin=-max_val)
         
         extent =(np_tth.min(), np_tth.max(), np_phi.min(), np_phi.max())
         plt.set_cmap('rainbow')
-        ax.imshow(np_diff.transpose(), interpolation='bilinear', extent=extent,
-                  alpha=0.9, origin="lower")        
-        
-        # blk = '#000000'
-        # ax.contour(np_tth, np_phi, np_sum.transpose(),
-        #             #levels=[0.1, 0.5, 1., 5., 10., 50.],
-        #             levels=5,
-        #             colors=[blk, blk, blk, blk, blk, blk],
-        #             linewidths=0.5)
-        return (fig, ax)
+        ax_1.imshow(np_sum.transpose(), interpolation='bilinear',
+                    extent=extent, alpha=0.9, origin="lower", norm=norm_1) 
+
+        ax_2.set_title("Polarized intensity")
+        ax_2.set_xlabel("gamma (degrees)")
+        ax_2.set_ylabel('nu (degrees)')
+
+        max_val = numpy.nanmax(numpy.abs(np_diff))
+        norm_2 = matplotlib.colors.Normalize(
+            vmax=max_val, vmin=-max_val)
+
+        ax_2.imshow(np_diff.transpose(), interpolation='bilinear',
+                    extent=extent, alpha=0.9, origin="lower", norm=norm_2)
+
+        return (fig, ax_1)
+
 
     def plot_projection_sum(self):
         """Plot experimental unpolarized intensity vs. 2 theta (degrees)
@@ -334,6 +317,51 @@ class Pd2dMeas(ItemN):
         ax.legend(loc='upper right')
         fig.tight_layout()
         return (fig, ax)
+
+    def plot_gamma_nu(self):
+        if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
+               self.is_attribute("intensity_up") & 
+               self.is_attribute("intensity_down")):
+            return
+
+        np_gamma, np_nu, ints = self.recalc_to_gamma_nu_grid()
+        [np_up, np_down, np_sum, np_diff] = ints
+
+        fig, axs = plt.subplots(2)
+        ax_1, ax_2 = axs
+        ax_1.set_title("Unpolarized intensity")
+        ax_1.set_xlabel("gamma (degrees)")
+        ax_1.set_ylabel('nu (degrees)')
+
+        max_val = numpy.nanmax(numpy.abs(np_sum))
+        norm_1 = matplotlib.colors.Normalize(
+            vmax=max_val, vmin=-max_val)
+        
+        extent =(np_gamma.min(), np_gamma.max(), np_nu.min(), np_nu.max())
+        plt.set_cmap('rainbow')
+        ax_1.imshow(np_sum, interpolation='bilinear', extent=extent,
+                  alpha=0.9, origin="lower", norm=norm_1) 
+
+        ax_2.set_title("Polarized intensity")
+        ax_2.set_xlabel("gamma (degrees)")
+        ax_2.set_ylabel('nu (degrees)')
+
+        max_val = numpy.nanmax(numpy.abs(np_diff))
+        norm_2 = matplotlib.colors.Normalize(
+            vmax=max_val, vmin=-max_val)
+
+        ax_2.imshow(np_diff, interpolation='bilinear', extent=extent,
+                  alpha=0.9, origin="lower", norm=norm_2)
+        
+        # blk = '#000000'
+        # ax.contour(np_tth, np_phi, np_sum.transpose(),
+        #             #levels=[0.1, 0.5, 1., 5., 10., 50.],
+        #             levels=5,
+        #             colors=[blk, blk, blk, blk, blk, blk],
+        #             linewidths=0.5)
+        return (fig, ax_1)
+
+
 # s_cont = """
 
 #  _pd2d_meas_2theta_phi_intensity_up

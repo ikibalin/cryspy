@@ -26,10 +26,10 @@ class DiffrnRefln(ItemN):
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
     ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity_up_calc",
-                           "intensity_down_calc")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float)
+                           "intensity_down_calc", "excluded")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, bool)
     ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc" , "intensity_up_calc",
-                         "intensity_down_calc")
+                         "intensity_down_calc", "excluded")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -52,7 +52,7 @@ class DiffrnRefln(ItemN):
     D_CONSTRAINTS = {}
 
     # default values for the parameters
-    D_DEFAULT = {}
+    D_DEFAULT = {"excluded": False}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
@@ -161,14 +161,24 @@ class DiffrnReflnL(LoopN):
 
     def calc_chi_sq_points(self) -> (float, int):
         """Calculate chi_sq and points if fr, fr_sigma, fr_calc are given."""
-        l_fr, l_fr_sigma, l_fr_calc = self.fr, self.fr_sigma, self.fr_calc
-        if (l_fr is None) & (l_fr_sigma is None) & (l_fr_calc is None):
-            return (None, None)
+        if (self.is_attribute("fr") & self.is_attribute("fr_sigma") &
+                self.is_attribute("fr_calc")):
 
-        l_chi_sq = [(abs(float(fr-fr_calc)/float(fr_sigma))**2)
-                    for fr, fr_sigma, fr_calc
-                    in zip(l_fr, l_fr_sigma, l_fr_calc)]
-        return sum(l_chi_sq), len(l_chi_sq)
+            np_excl = numpy.array(self.excluded, dtype=bool)
+            if numpy.all(np_excl):
+                return (0., 0)
+
+            flag_in = numpy.logical_not(np_excl)
+            np_fr = numpy.array(self.fr, dtype=float)[flag_in]
+            np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
+            np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
+
+            chi_sq = numpy.sum(numpy.square((np_fr-np_fr_calc)/np_fr_sigma))
+            points = np_fr.size
+            return chi_sq, points
+
+        return (0., 0)
+
 
     def report_chi_sq_exp(self, cell=None) -> str:
         """
@@ -257,13 +267,34 @@ class DiffrnReflnL(LoopN):
 
         fig, ax = plt.subplots()
         ax.set_title("Flip Ratio: I_up / I_down")
-        np_fr_1 = numpy.array(self.fr, dtype=float)-numpy.array(self.fr_sigma, dtype=float)
-        np_fr_2 = numpy.array(self.fr, dtype=float)+numpy.array(self.fr_sigma, dtype=float)
-        fr_min = min([min(np_fr_1), min(self.fr_calc)])
-        fr_max = max([max(np_fr_2), max(self.fr_calc)])
-        ax.plot([fr_min, fr_max], [fr_min, fr_max], "k:")
-        ax.errorbar(self.fr_calc, self.fr, yerr=self.fr_sigma, fmt="ko",
-                    alpha=0.2)
+        np_excl = numpy.array(self.excluded, dtype=bool)
+        flag_in = numpy.logical_not(np_excl)
+        if numpy.all(np_excl):
+            fr_min = 0.
+            fr_max = 10.
+        else:
+            np_fr = numpy.array(self.fr, dtype=float)[flag_in]
+            np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
+            np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
+    
+            np_fr_1 = np_fr - np_fr_sigma
+            np_fr_2 = np_fr + np_fr_sigma
+    
+            fr_min = min([min(np_fr_1), min(self.fr_calc)])
+            fr_max = max([max(np_fr_2), max(self.fr_calc)])
+            ax.plot([fr_min, fr_max], [fr_min, fr_max], "k:")
+            ax.errorbar(np_fr_calc, np_fr, yerr=np_fr_sigma, fmt="ko", alpha=0.2)
+
+        flag_excl = numpy.logical_not(flag_in)
+        np_fr_excl = numpy.array(self.fr, dtype=float)[flag_excl]
+        np_fr_calc_excl = numpy.array(self.fr_calc, dtype=float)[flag_excl]
+        np_fr_sigma_excl = numpy.array(self.fr_sigma, dtype=float)[flag_excl]
+        ax.errorbar(np_fr_calc_excl, np_fr_excl, yerr=np_fr_sigma_excl,
+                    fmt="rs", alpha=0.2, label="excluded")
+
+        ax.set_xlim(fr_min, fr_max)
+        ax.set_ylim(fr_min, fr_max)
+        
         ax.set_xlabel("Flip ratio (model)")
         ax.set_ylabel('Flip ratio (experiment)')
         ax.set_aspect(1)
@@ -278,9 +309,12 @@ class DiffrnReflnL(LoopN):
             return 
 
         fig, ax = plt.subplots()
-        np_fr = numpy.array(self.fr, dtype=float)
-        np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)
-        np_fr_calc = numpy.array(self.fr_calc, dtype=float)
+        np_excl = numpy.array(self.excluded, dtype=bool)
+        flag_in = numpy.logical_not(np_excl)
+        np_fr = numpy.array(self.fr, dtype=float)[flag_in]
+        np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
+        np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
+
         ax.set_title("Asymmetry: (I_up - I_down) / (I_up + I_down)")
         asymmetry = (np_fr - 1.)/(np_fr + 1.)
         asymmetry_sigma = np_fr_sigma*numpy.sqrt(numpy.square(np_fr)+1.) / \
@@ -290,12 +324,42 @@ class DiffrnReflnL(LoopN):
         ax.plot([-1, 1], [-1, 1], "k:")
         ax.errorbar(asymmetry_calc, asymmetry, yerr=asymmetry_sigma, fmt="ko",
                     alpha=0.2)
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 1)
+
         ax.set_xlabel("Asymmetry (model)")
         ax.set_ylabel('Asymmetry (experiment)')
         ax.set_aspect(1)
         fig.tight_layout()
         return (fig, ax)
-        
+
+    def include_all_points(self):
+        for item in self.items:
+            item.excluded = False
+        name = "numpy_excluded"
+        if name in self.__dict__.keys():
+            del self.__dict__[name]
+
+    def exclude_by_fr_max(self, fr_max: float = 3.):
+        """Exclude points by rules
+        1./fr_max <= FR <= fr_max
+        """
+        if fr_max >= 1.:
+            fr_1 = 1./fr_max
+            fr_2 = fr_max
+        else:
+            fr_1 = fr_max
+            fr_2 = 1./fr_max
+
+        for item in self.items:
+            if ((item.fr < fr_1) | (item.fr > fr_2)):
+                item.excluded = True
+
+        name = "numpy_excluded"
+        if name in self.__dict__.keys():
+            del self.__dict__[name]
+
+
 # s_cont = """
 #   loop_
 #   _diffrn_refln_index_h
