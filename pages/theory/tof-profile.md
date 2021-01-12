@@ -15,12 +15,7 @@ permalink: /theory/tof-profile/
 
 [Back to expressions][expressions]
 
-Rietveld refinement with spallation Neutron Powder Diffraction Data
-(according J.Appl.Cryst.(1982). 15, 581-589)
-
-# Peak shape function
-
-For Gauss profile the peak shape function is calculated as:
+# The Gauss peak shape function
 
 $$
 \text{profile}_G = \frac{\alpha \beta}{\alpha + \beta} \left[ \exp(u) \cdot \text{erfc}(y) + \exp(v) \cdot \text{erfc}(z) \right]
@@ -44,32 +39,45 @@ $$ \beta = \beta_0 + \beta_1 / d^4 $$
 
 $$ \sigma = \sigma_0 + \sigma_1 \cdot d $$
 
+The above expressions are taken from R.B. Von Dreele, J.D. Jorgensen and C.G. Windsor, "Rietveld refinement with spallation Neutron Powder Diffraction Data", J.Appl.Cryst.(1982). 15, 581-589.
 
-For pseudo-Voigt profile the Lorentz part of the peak shape function is calculated as:
+# The pseudo-Voigt peak shape function
 
-$$ \sigma^2 = (\sigma_2^2+\text{size}_G) \cdot d^4 + (\sigma_1^2+\text{strain}_G) \cdot d^2 + \sigma_0^2 $$
+$$ \text{profile}_{pV} = (1 - \eta) \cdot \text{profile}_G + \eta \cdot \text{profile}_L $$
 
-$$ \gamma = (\gamma_2+\text{size}_L) \cdot d^2 + (\gamma_1+\text{strain}_L) \cdot d + \gamma_0 $$
+The calculation of the Gauss part is given above. The  Lorentz part of the pseudo-Voigt peak shape function is given as:
 
-$$ z_1 = \alpha \cdot \Delta + 0.5j \cdot \alpha \cdot \gamma $$
+$$ \text{profile}_L = \frac{1}{2} \frac{\alpha \beta}{\alpha + \beta} \cdot (\Omega_a + \Omega_b) $$
 
-$$ z_2 = -\beta \cdot \Delta + 0.5j  \cdot \beta \cdot \gamma $$
-
-$$ fz_1 = \text{exp1}(z_1) $$
-
-$$ fz_2 = \text{exp1}(z_2) $$
+The expressions for $$\alpha$$ and $$\beta$$ parameters are given above. The other parameters are defined as:
 
 $$ \Omega_a = -2 \pi \cdot \text{Im}(fz_1) $$
 
 $$ \Omega_b = -2 \pi \cdot \text{Im}(fz_2) $$
 
-$$ \text{profile}_L = \frac{1}{2} \frac{\alpha \beta}{\alpha + \beta} \cdot (\Omega_a + \Omega_b) $$
+in which
 
-$$ \text{profile}_{pV} = (1 - \eta) \cdot \text{profile}_G + \eta \cdot \text{profile}_L $$
+$$ fz_1 = \text{exp1}(z_1) $$
+
+$$ fz_2 = \text{exp1}(z_2) $$
+
+where $$z_1, z_2$$:
+
+$$ z_1 = \alpha \cdot \Delta + 0.5j \cdot \alpha \cdot \gamma $$
+
+$$ z_2 = -\beta \cdot \Delta + 0.5j  \cdot \beta \cdot \gamma $$
+
+The parameter $$\Delta$$ is defined above. The $$\gamma$$ value is calculated as
+
+$$ \gamma = (\gamma_2+\text{size}_L) \cdot d^2 + (\gamma_1+\text{strain}_L) \cdot d + \gamma_0 $$
 
 
+The parameter $$\sigma$$ which is defined above in the case of the Gauss shape profile functions is replaced by next one:
 
-The parameters $$\alpha_0, \alpha_1, \beta_0, \beta_1, \sigma_0, \sigma_1, \gamma_0, \gamma_1$$ are defined
+$$ \sigma^2 = (\sigma_2^2+\text{size}_G) \cdot d^4 + (\sigma_1^2+\text{strain}_G) \cdot d^2 + \sigma_0^2 $$
+
+
+The parameters $$\alpha_0, \alpha_1, \beta_0, \beta_1, \sigma_0, \sigma_1, \sigma_2, \gamma_0, \gamma_1, \gamma_2$$ are defined
 in [tof profile][tof-profile]. The parameter **peak_shape** defines the shape of the peak: "Gauss" or "pseudo-Voigt".
 
 [expressions]: /cryspy/theory
