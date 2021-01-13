@@ -9,7 +9,7 @@ Refinement of various data types is presented:
   - single crystal: Ho2Ti2O7, TbMnO3.
   - powder (1D data): Ho2Ti2O7, Fe3O4.
   - powder (2D data): Ho2Ti2O7, Fe3O4, Dy3Ga5O12.
-  - textured sample (2D data): Dy3Al5O12, SMM.
+  - textured sample (2D data): Dy3Al5O12.
 
 - Reconstruction of spin density by two channel MEM on 
   - single crystal: YTiO3.
