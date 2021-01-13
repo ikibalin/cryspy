@@ -289,9 +289,9 @@ class Cell(ItemN):
             k_x, k_y, k_z: 1D numpy array of x, y, z components of unity
                            scattering vector
         """
-        np_h = numpy.array(index_h, dtype=int)
-        np_k = numpy.array(index_k, dtype=int)
-        np_l = numpy.array(index_l, dtype=int)
+        np_h = numpy.array(index_h, dtype=float)
+        np_k = numpy.array(index_k, dtype=float)
+        np_l = numpy.array(index_l, dtype=float)
         m_b = self.m_b
         k_x = m_b[0, 0]*np_h + m_b[0, 1]*np_k +m_b[0, 2]*np_l
         k_y = m_b[1, 0]*np_h + m_b[1, 1]*np_k +m_b[1, 2]*np_l

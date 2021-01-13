@@ -15,9 +15,8 @@ class AtomSiteScat(ItemN):
     Attributes
     ----------
         - label (mandatory)
-        - lande - Lande factor
-        - kappa
-        - atom_type_scat (protected internal attribute)
+        - lande, kappa, type_symbol (optional)
+        - atom_type_scat (internal protected attribute)
 
     Method
     ------
@@ -52,7 +51,7 @@ class AtomSiteScat(ItemN):
                                                    "MA", "SMA"]}
 
     # default values for the parameters
-    D_DEFAULT = {}
+    D_DEFAULT = {"lande": 2., "kappa": 1.}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):

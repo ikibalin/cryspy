@@ -129,7 +129,7 @@ class TOF(DataN):
         tof_proc.numpy_intensity_bkg_calc = int_bkgd
 
         tof_parameters = self.tof_parameters
-        tof_profile = self.tof_profile
+        # tof_profile = self.tof_profile
         
         d = tof_parameters.calc_d_by_time(time)
         d_min, d_max = tof_parameters.calc_d_min_max(time)
@@ -647,7 +647,8 @@ class TOF(DataN):
         """Save parameters to cif format."""
         ls_out = []
         l_cls = (DiffrnRadiation, Chi2, Range, Extinction, Texture,
-                 PhaseL, ExcludeL, TOFBackground)
+                 TOFIntensityIncident, TOFParameters, TOFProfile, PhaseL,
+                 ExcludeL, TOFBackground)
         l_obj = [item for item in self.items if type(item) in l_cls]
         l_itemn = [item for item in l_obj if isinstance(item, ItemN)]
         l_loopn = [item for item in l_obj if isinstance(item, LoopN)]

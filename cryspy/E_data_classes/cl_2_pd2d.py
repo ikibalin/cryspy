@@ -355,6 +355,7 @@ class Pd2d(DataN):
                 else:
                     cos_alpha_ax = calc_cos_ang(cell, h_ax, k_ax, l_ax,
                                                 index_h, index_k, index_l)
+
                     c_help = 1.-cos_alpha_ax**2
                     c_help[c_help < 0.] = 0.
                     sin_alpha_ax = numpy.sqrt(c_help)

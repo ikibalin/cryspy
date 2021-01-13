@@ -197,6 +197,15 @@ class Crystal(DataN):
             >>> f_nucl = crystal.calc_f_nucl(h, k, l)
 
         """
+        if isinstance(index_h, (float, int)):
+            index_h = numpy.array([index_h], dtype=float)
+            index_k = numpy.array([index_k], dtype=float)
+            index_l = numpy.array([index_l], dtype=float)
+        elif isinstance(index_h, list):
+            index_h = numpy.array(index_h, dtype=float)
+            index_k = numpy.array(index_k, dtype=float)
+            index_l = numpy.array(index_l, dtype=float)
+
         space_group = self.space_group
         r_s_g_s = space_group.reduced_space_group_symop
 
@@ -274,6 +283,15 @@ class Crystal(DataN):
             >>> refln = crystal.calc_refln(h, k, l)
             >>> print(refln.to_cif())
         """
+        if isinstance(index_h, (float, int)):
+            index_h = numpy.array([index_h], dtype=float)
+            index_k = numpy.array([index_k], dtype=float)
+            index_l = numpy.array([index_l], dtype=float)
+        elif isinstance(index_h, list):
+            index_h = numpy.array(index_h, dtype=float)
+            index_k = numpy.array(index_k, dtype=float)
+            index_l = numpy.array(index_l, dtype=float)
+        
         f_nucl = self.calc_f_nucl(index_h, index_k, index_l)
         res = ReflnL(loop_name=self.data_name)
         res.numpy_index_h = index_h
@@ -318,6 +336,15 @@ class Crystal(DataN):
                 CHI_M[9:]
 
         """
+        if isinstance(index_h, (float, int)):
+            index_h = numpy.array([index_h], dtype=float)
+            index_k = numpy.array([index_k], dtype=float)
+            index_l = numpy.array([index_l], dtype=float)
+        elif isinstance(index_h, list):
+            index_h = numpy.array(index_h, dtype=float)
+            index_k = numpy.array(index_k, dtype=float)
+            index_l = numpy.array(index_l, dtype=float)
+
         space_group = self.space_group
         r_s_g_s = space_group.reduced_space_group_symop
 
@@ -544,6 +571,16 @@ class Crystal(DataN):
                           np.array([1,0],dtype=int)
             >>> refln_suscept = crystal.calc_refln_susceptibility(h, k, l)
         """
+        if isinstance(index_h, (float, int)):
+            index_h = numpy.array([index_h], dtype=float)
+            index_k = numpy.array([index_k], dtype=float)
+            index_l = numpy.array([index_l], dtype=float)
+        elif isinstance(index_h, list):
+            index_h = numpy.array(index_h, dtype=float)
+            index_k = numpy.array(index_k, dtype=float)
+            index_l = numpy.array(index_l, dtype=float)
+
+        
         CHI_M = self.calc_susceptibility_moment_tensor(
             index_h, index_k, index_l, flag_only_orbital=flag_only_orbital)
 
@@ -593,19 +630,20 @@ class Crystal(DataN):
 
     def calc_hkl(self, sthol_min: float = 0., sthovl_max: float = 1.):
         """
-        Give hkl taking symmetry into account.
+        Calculate hkl and multiplicity taking into account the symmetry
+        constraints.
 
         Parameters
         ----------
-        sthol_min : TYPE
-            DESCRIPTION.
-        sthovl_max : TYPE
-            DESCRIPTION.
+        sthol_min : float
+            minimal sin(theta)/wavelength in inversed angstrems.
+        sthovl_max : float
+            maximal sin(theta)/wavelength in inversed angstrems.
 
         Returns
         -------
-        res : TYPE
-            DESCRIPTION.
+        h, k, l, mult : numpy.array[float]
+            The Miller indeces: h, k, l, and its multiplicity: mult.
 
         """
         cell = self.cell

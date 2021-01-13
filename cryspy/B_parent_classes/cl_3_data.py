@@ -77,7 +77,7 @@ class DataN(object):
         """Representation of defined parameters in HTML format.
         """
         ls_html = ["<table>"]
-        ls_html.append("<tr><th>Attribute</th><th> Class </th></tr>")
+        ls_html.append("<tr><th>Attribute</th><th> Note </th></tr>")
         items_sorted = sorted(self.items, key=lambda item: item.get_name())
         for item in items_sorted:
             item_type = item.__doc__.strip().split("\n")[0]
