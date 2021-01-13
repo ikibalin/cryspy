@@ -31,7 +31,7 @@ python -m cryspy_editor
 python -m pip install --upgrade cryspy cryspy_editor pycifstar --user
 {% endhighlight %}
 
-Current versions of the CrysPy library is **0.5.4**, and the CrysPy Editor is **1.5.5**. See [CrysPy examples][cryspy-examples] on GitHub.
+Current versions of the CrysPy library is **0.5.5**, and the CrysPy Editor is **1.5.5**. See [CrysPy examples][cryspy-examples] on GitHub.
 
 CrysPy is a crystallographic library for neutron data analysis.
 It allows to refine polarized
