@@ -1,0 +1,103 @@
+global_
+
+_refine_ls_goodness_of_fit_all 0.619
+_refine_ls_number_reflns 4901
+
+_add_url powder1d_data.rcif
+_add_url powder1d_calc.rcif
+
+
+data_5yOhtAoR
+
+_cell_length_a 12.42600
+_cell_length_b 4.14200
+_cell_length_c 9.62400
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+U1_1    U3+   0.000000   0.000000   0.000000   1.0   
+U1_2    U3+   0.333330   0.000000   0.000000   1.0   
+Rh1_1   Rh    0.500000   0.000000   0.250000   0.04  
+Rh1_2   Rh    0.166670   0.000000   0.250000   0.04  
+Ru1_1   Ru    0.500000   0.000000   0.250000   0.96  
+Ru1_2   Ru    0.166670   0.000000   0.250000   0.96  
+Si1_1   Si    0.000000   0.000000   0.629000   1.0   
+Si1_2   Si    0.333330   0.000000   0.629000   1.0   
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_symmform
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+U1_1   0,0,mz   0.0   0.0   -0.630(54)  
+U1_2   0,0,mz   0.0   0.0   0.505(53)   
+
+loop_
+_space_group_symop_magn_operation_xyz
+_space_group_symop_magn_operation_id
+x,y,z,+1      1  
+-x,-y,z,+1    2  
+-x,-y,-z,+1   3  
+x,y,-z,+1     4  
+x,-y,-z,-1    5  
+-x,y,-z,-1    6  
+-x,y,z,-1     7  
+x,-y,z,-1     8  
+
+loop_
+_space_group_symop_magn_centering_xyz
+_space_group_symop_magn_centering_id
+x,y,z,+1               1  
+x+1/2,y+1/2,z+1/2,+1   2  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+U1_1   U3+   2.0   1.0  
+U1_2   U3+   2.0   1.0  
+
+
+data_powder1d
+_setup_wavelength 1.5600
+_setup_offset_2theta 0.000
+
+_pd_instr_resolution_U 0.17600
+_pd_instr_resolution_V -0.19781
+_pd_instr_resolution_W 0.09145
+_pd_instr_resolution_X 0.00000
+_pd_instr_resolution_Y 0.03008
+
+_chi2_sum True
+_chi2_diff False
+_chi2_up False
+_chi2_down False
+
+_range_2theta_min 2.0
+_range_2theta_max 100.0
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+5yohtaor   1.0   0.0  
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+2.0     100.0  
+20.0    100.0  
+40.0    100.0  
+80.0    100.0  
+100.0   100.0  
+130.0   100.0  

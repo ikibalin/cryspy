@@ -1,0 +1,93 @@
+global_
+
+_inversed_hessian_with_labels
+;
+sigma1  0.0008828305 -0.0009607280 -0.0003532353
+sigma0  -0.0009607280 0.0012171444 0.0013762462
+scale   -0.0003532353 0.0013762462 0.3229839306
+;
+
+_refine_ls_goodness_of_fit_all 2.897
+_refine_ls_number_reflns 3692
+
+_add_url tof1_data.rcif
+_add_url tof1_calc.rcif
+
+
+data_cecual
+
+_space_group_name_H-M_alt "I 4 m m"
+_space_group_IT_coordinate_system_code 1
+
+_cell_length_a 4.25678
+_cell_length_b 4.25678
+_cell_length_c 10.63386
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Ce1   Ce   0.000000   0.000000   0.000000   1.0     Uiso   0.00589   2   a  
+Cu1   Cu   0.000000   0.000000   0.632240   0.925   Uiso   0.0083    2   a  
+Al1   Al   0.000000   0.000000   0.632240   0.075   Uiso   0.0083    2   a  
+Cu2   Cu   0.000000   0.000000   0.404370   0.044   Uiso   0.0097    2   a  
+Al2   Al   0.000000   0.000000   0.404370   0.956   Uiso   0.0097    2   a  
+Al3   Al   0.000000   0.500000   0.249810   0.986   Uiso   0.00707   4   b  
+
+loop_
+_atom_type_symbol
+_atom_type_scat_length_neutron
+_atom_type_scat_source
+CE   (0.484+0j)    V.F._Sears_Neutron_News_3_26_(1992)  
+CU   (0.7718+0j)   V.F._Sears_Neutron_News_3_26_(1992)  
+AL   (0.3449+0j)   V.F._Sears_Neutron_News_3_26_(1992)  
+
+
+data_tof1
+_tof_parameters_Zero 2.92100
+_tof_parameters_Dtt1 6167.24700
+_tof_parameters_2theta_bank 145.00
+_tof_parameters_neutrons thermal
+_tof_parameters_dtt2 -2.28000
+
+_tof_profile_alpha0 0.00000
+_tof_profile_alpha1 0.29710
+_tof_profile_beta0 0.04182
+_tof_profile_beta1 0.00224
+_tof_profile_sigma0 0.409(35)
+_tof_profile_sigma1 8.118(30)
+_tof_profile_sigma2 0.00000
+_tof_profile_peak_shape Gauss
+_tof_profile_gamma2 0.00000
+_tof_profile_gamma1 0.60400
+_tof_profile_gamma0 0.00000
+
+_tof_background_time_max 19000.00
+_tof_background_coeff1 24832.85000
+_tof_background_coeff2 6139.24400
+_tof_background_coeff3 8063.47200
+_tof_background_coeff4 3125.05000
+_tof_background_coeff5 2566.95600
+_tof_background_coeff6 311.07700
+_tof_background_coeff7 837.34800
+_tof_background_coeff8 -103.74200
+_tof_background_coeff9 -11.80600
+
+_range_time_min 3001.589
+_range_time_max 19000.0
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+cecual   1359.57(56)   0.0  

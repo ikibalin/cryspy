@@ -1,0 +1,122 @@
+global_
+
+_inversed_hessian_with_labels
+;
+offset_ttheta 0.0000075172 -0.0000057218 -0.0000002419 0.0000171363 -0.0000053277 -0.0001990185 -0.0000000117 0.0000014125 0.0000006184 0.0000000970
+v       -0.0000057218 0.0004504011 0.0000036985 -0.0011472274 -0.0024083226 -0.0019459743 -0.0000021870 -0.0000009986 -0.0000167119 0.0000128315
+scale   -0.0000002419 0.0000036985 0.0000005606 -0.0000346081 -0.0001715901 -0.0012991786 -0.0000004400 -0.0000000602 0.0000030041 -0.0000030698
+intensity 0.0000171363 -0.0011472274 -0.0000346081 0.1692201782 -0.0673300540 0.4526245560 0.0000807207 0.0000025504 0.0004268732 0.0000223431
+intensity -0.0000053277 -0.0024083226 -0.0001715901 -0.0673300540 0.4182012473 -0.8857317891 0.0001753927 -0.0000037112 -0.0012923167 0.0002150672
+intensity -0.0001990185 -0.0019459743 -0.0012991786 0.4526245560 -0.8857317891 41.7146737944 0.0015383406 -0.0000500322 -0.0037771659 0.0059381064
+polarization -0.0000000117 -0.0000021870 -0.0000004400 0.0000807207 0.0001753927 0.0015383406 0.0000049879 -0.0000000154 -0.0000003405 0.0000001330
+length_a 0.0000014125 -0.0000009986 -0.0000000602 0.0000025504 -0.0000037112 -0.0000500322 -0.0000000154 0.0000003057 0.0000000563 0.0000001761
+chi_11  0.0000006184 -0.0000167119 0.0000030041 0.0004268732 -0.0012923167 -0.0037771659 -0.0000003405 0.0000000563 0.0000772707 -0.0000015222
+chi_11  0.0000000970 0.0000128315 -0.0000030698 0.0000223431 0.0002150672 0.0059381064 0.0000001330 0.0000001761 -0.0000015222 0.0000530330
+;
+
+_refine_ls_goodness_of_fit_all 13.739
+_refine_ls_number_reflns 658
+
+_add_url pnd_data.rcif
+_add_url pnd_calc.rcif
+
+
+data_Fe3O4
+
+_space_group_name_H-M_alt "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+_cell_length_a 8.45420(55)
+_cell_length_b 8.45421
+_cell_length_c 8.45421
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Fe3A   Fe3+   0.125000   0.125000   0.125000   1.0   Uani   0.0   8    a  
+Fe3B   Fe3+   0.500000   0.500000   0.500000   1.0   Uani   0.0   16   d  
+O1     O2-    0.255210   0.255210   0.255210   1.0   Uiso   0.0   32   e  
+
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_U_11
+_atom_site_aniso_U_22
+_atom_site_aniso_U_33
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_23
+Fe3A   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  
+Fe3B   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+Fe3A   Cani   -3.9731(88)   -3.97309   -3.97309   0.00000   0.00000   0.00000  
+Fe3B   Cani   3.6833(73)    3.68337    3.68337    0.00000   0.00000   0.00000  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Fe3A   Fe3+   2.0   1.0  
+Fe3B   Fe3+   2.0   1.0  
+
+
+data_pnd
+_setup_wavelength 2.4000
+_setup_field 1.00
+_setup_offset_2theta -0.4008(27)
+
+_pd_instr_resolution_U 16.97760
+_pd_instr_resolution_V -0.593(21)
+_pd_instr_resolution_W 0.57631
+_pd_instr_resolution_X 0.00000
+_pd_instr_resolution_Y 0.00000
+
+_diffrn_radiation_polarization 0.6539(22)
+_diffrn_radiation_efficiency 1.0
+
+_chi2_sum True
+_chi2_diff True
+_chi2_up False
+_chi2_down False
+
+_range_2theta_min 4.0
+_range_2theta_max 70.0
+
+_pd_instr_reflex_asymmetry_p1 0.0
+_pd_instr_reflex_asymmetry_p2 0.0
+_pd_instr_reflex_asymmetry_p3 0.0
+_pd_instr_reflex_asymmetry_p4 0.0
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+Fe3O4   0.34974(75)   0.0  
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+4.5    256.0       
+40.0   255.03(41)  
+65.0   387.12(65)  
+80.0   278(6)      

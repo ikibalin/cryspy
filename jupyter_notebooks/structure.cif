@@ -1,0 +1,30 @@
+global_
+
+data_dyal
+
+_space_group_name_H-M_alt "I a -3 d"
+_space_group_IT_coordinate_system_code 1
+
+_cell_length_a 11.89817
+_cell_length_b 11.89817
+_cell_length_c 11.89817
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Dy0   Dy3+   0.125000   0.000000   0.250000   1.0   Uiso   0.0   24   c  
+Al1   Al3+   0.375000   0.000000   0.250000   1.0   Uiso   0.0   24   d  
+Al2   Al3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   a  
+O3    O2-    0.030431   0.050707   0.649060   1.0   Uiso   0.0   96   h  
+

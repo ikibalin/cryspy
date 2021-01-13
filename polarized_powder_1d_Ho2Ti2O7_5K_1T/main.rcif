@@ -1,0 +1,118 @@
+global_
+
+_inversed_hessian_with_labels
+;
+offset_ttheta 0.0000045290 0.0000401977 -0.0000304262 0.0000039889 -0.0000000114 0.0000001432 0.0000016165 -0.0000024313 0.0000001591 -0.0000001258
+u       0.0000401977 0.0272685378 -0.0101239095 0.0007963855 0.0000026058 0.0000824855 0.0000105087 -0.0004209914 0.0000553288 0.0005321791
+v       -0.0000304262 -0.0101239095 0.0053295308 -0.0005608351 -0.0000006453 -0.0000309448 -0.0000099211 0.0001233553 -0.0001203222 -0.0002391802
+w       0.0000039889 0.0007963855 -0.0005608351 0.0000784989 0.0000000534 0.0000031771 0.0000013760 0.0000018095 0.0000237528 0.0000313570
+scale   -0.0000000114 0.0000026058 -0.0000006453 0.0000000534 0.0000000041 0.0000000656 -0.0000000068 -0.0000004942 -0.0000002736 0.0000005444
+polarization 0.0000001432 0.0000824855 -0.0000309448 0.0000031771 0.0000000656 0.0000210036 0.0000000119 -0.0000559470 0.0000132018 0.0000144322
+length_a 0.0000016165 0.0000105087 -0.0000099211 0.0000013760 -0.0000000068 0.0000000119 0.0000007384 -0.0000005923 0.0000005766 -0.0000002317
+chi_11  -0.0000024313 -0.0004209914 0.0001233553 0.0000018095 -0.0000004942 -0.0000559470 -0.0000005923 0.0004488460 -0.0000187965 0.0000180975
+chi_12  0.0000001591 0.0000553288 -0.0001203222 0.0000237528 -0.0000002736 0.0000132018 0.0000005766 -0.0000187965 0.0002311461 0.0000383023
+lande   -0.0000001258 0.0005321791 -0.0002391802 0.0000313570 0.0000005444 0.0000144322 -0.0000002317 0.0000180975 0.0000383023 0.0001960922
+;
+
+_refine_ls_goodness_of_fit_all 4.626
+_refine_ls_number_reflns 756
+
+_add_url powder1_data.rcif
+_add_url powder1_calc.rcif
+
+
+data_phase1
+
+_space_group_name_H-M_alt "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+_cell_length_a 10.26788(86)
+_cell_length_b 10.26789
+_cell_length_c 10.26789
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Ho1   Ho3+   0.500000   0.500000   0.500000   1.0   Uiso   0.0   16   d  
+Ti1   Ti3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   c  
+O1    O2-    0.329600   0.125000   0.125000   1.0   Uiso   0.0   48   f  
+O2    O2-    0.375000   0.375000   0.375000   1.0   Uiso   0.0   8    b  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+Ho1   Cani   3.629(21)   3.62936   3.62936   3.573(15)   3.57408   3.57408  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Ho1   Ho3+   1.278(14)   1.0  
+
+
+data_powder1
+_setup_wavelength 0.8400
+_setup_field 1.00
+_setup_offset_2theta -0.3701(21)
+
+_pd_instr_resolution_U 15.05(17)
+_pd_instr_resolution_V -2.176(73)
+_pd_instr_resolution_W 0.4988(89)
+_pd_instr_resolution_X 0.00000
+_pd_instr_resolution_Y 0.00000
+
+_diffrn_radiation_polarization 0.7100(46)
+_diffrn_radiation_efficiency 1.0
+
+_chi2_sum True
+_chi2_diff True
+_chi2_up False
+_chi2_down False
+
+_range_2theta_min 4.0
+_range_2theta_max 80.0
+
+_pd_instr_reflex_asymmetry_p1 0.0
+_pd_instr_reflex_asymmetry_p2 0.0
+_pd_instr_reflex_asymmetry_p3 0.0
+_pd_instr_reflex_asymmetry_p4 0.0
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+phase1   0.023311(64)   0.0  
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+5.0     647.0  
+14.0    483.0  
+28.79   415.0  
+44.76   315.0  
+67.68   285.0  
+82.0    264.0  
+
+loop_
+_exclude_id
+_exclude_2theta_min
+_exclude_2theta_max
+1   0.0   1.0  

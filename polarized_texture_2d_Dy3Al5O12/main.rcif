@@ -1,0 +1,111 @@
+global_
+
+_refine_ls_goodness_of_fit_all 4.347
+_refine_ls_number_reflns 30771
+
+_add_url powder2_data.rcif
+_add_url powder2_calc.rcif
+
+
+data_dyal
+
+_space_group_name_H-M_alt "I a -3 d"
+_space_group_IT_coordinate_system_code 1
+
+_cell_length_a 12.04260
+_cell_length_b 12.04260
+_cell_length_c 12.04260
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Dy0   Dy3+   0.125000   0.000000   0.250000   1.0   Uiso   0.0   24   c  
+Al1   Al3+   0.375000   0.000000   0.250000   1.0   Uiso   0.0   24   d  
+Al2   Al3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   a  
+O3    O2-    0.035770   0.058520   0.646170   1.0   Uiso   0.0   96   h  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+Dy0   Cani   10.484()   0.75()   0.75000   0.00000   0.00000   -0.336()  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Dy0   Dy3+   1.36   1.0  
+
+
+data_powder2
+_pd2d_instr_resolution_U 12.08000
+_pd2d_instr_resolution_V 3.56000
+_pd2d_instr_resolution_W 0.32000
+_pd2d_instr_resolution_X 0.00
+_pd2d_instr_resolution_Y 0.00000
+
+_diffrn_radiation_polarization 0.93
+_diffrn_radiation_efficiency 1.0
+
+_setup_wavelength 1.4048
+_setup_field 1.00
+_setup_offset_2theta 0.191
+_setup_offset_phi 0.001
+
+_range_2theta_min 9.5
+_range_2theta_max 70.0
+_range_phi_min -3.0
+_range_phi_max 60.0
+
+_chi2_sum True
+_chi2_diff True
+_chi2_up False
+_chi2_down False
+
+_pd2d_background_2theta_phi_intensity
+;
+2   7.60        21.40        28.80        54.00        70.00
+0.00 391136.0     590443.0     442596.0     368049.0     371812.0
+40.00 471663.0     586140.0     838163.0     713038.0     1246140.0
+;
+
+_pd2d_instr_reflex_asymmetry_p1 0.0
+_pd2d_instr_reflex_asymmetry_p2 0.0
+_pd2d_instr_reflex_asymmetry_p3 0.0
+_pd2d_instr_reflex_asymmetry_p4 0.0
+
+_texture_g_1 0.11236
+_texture_g_2 0.98544
+_texture_h_ax 1.000
+_texture_k_ax 1.000
+_texture_l_ax 1.000
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+dyal   5.0018   0.0  
+
+loop_
+_exclude_2theta_min
+_exclude_2theta_max
+_exclude_phi_min
+_exclude_phi_max
+32.0   45.0   0.0   40.0  

@@ -1,0 +1,94 @@
+global_
+
+_inversed_hessian_with_labels
+;
+chi_11  0.0001015107 0.0000378154 0.0000958055 -0.0045972812
+chi_12  0.0000378154 0.0000864588 0.0000502303 -0.0029268447
+mosaicity 0.0000958055 0.0000502303 0.0007988635 -0.0260504990
+radius  -0.0045972812 -0.0029268447 -0.0260504990 1.2584274292
+;
+
+_refine_ls_goodness_of_fit_all 10.444
+_refine_ls_number_reflns 94
+
+_add_url Ho2Ti2O7_data.rcif
+_add_url Ho2Ti2O7_calc.rcif
+
+
+data_Ho2Ti2O7
+
+_space_group_name_H-M_alt "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+_cell_length_a 10.20000
+_cell_length_b 10.20000
+_cell_length_c 10.20000
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Ho1   Ho3+   0.500000   0.500000   0.500000   1.0   Uiso   0.0   16   d  
+Ti1   Ti3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   c  
+O1    O2-    0.331920   0.125000   0.125000   1.0   Uiso   0.0   48   f  
+O2    O2-    0.375000   0.375000   0.375000   1.0   Uiso   0.0   8    b  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_moment_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+_atom_site_susceptibility_moment_11
+_atom_site_susceptibility_moment_22
+_atom_site_susceptibility_moment_33
+_atom_site_susceptibility_moment_12
+_atom_site_susceptibility_moment_13
+_atom_site_susceptibility_moment_23
+Ho1   Cani   Mani   3.270(10)   3.27115   3.27115   3.2959(92)   3.29604   3.29604   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Ho1   Ho3+   1.25   1.0  
+
+
+data_Ho2Ti2O7
+_setup_wavelength 1.4000
+_setup_field 1.00
+
+_extinction_model gauss
+_extinction_mosaicity 0.800(28)
+_extinction_radius 81(1)
+
+_diffrn_radiation_polarization -0.87
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 6.59783
+_diffrn_orient_matrix_ub_12 -6.99807
+_diffrn_orient_matrix_ub_13 3.3663
+_diffrn_orient_matrix_ub_21 2.18396
+_diffrn_orient_matrix_ub_22 -2.60871
+_diffrn_orient_matrix_ub_23 -9.5302
+_diffrn_orient_matrix_ub_31 7.4657
+_diffrn_orient_matrix_ub_32 6.94702
+_diffrn_orient_matrix_ub_33 -0.18685
+_diffrn_orient_matrix_type CCSL
+
+_phase_label Ho2Ti2O7
