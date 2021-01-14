@@ -19,7 +19,7 @@ permalink: /theory/preferred-orientation/
 
 Modified March's function:
 
-$$ P_h = G_2 + \left(1-G_2\right) \cdot \left(\left(G_1 \cos \alpha_h\right)^2 + \frac{\sin^2 \Delta\alpha} {G_1}\right)^{-3/2} $$
+$$ P_h = G_2 + \left(1-G_2\right) \cdot \left(\left(G_1 \cos \Delta\alpha \right)^2 + \frac{\sin^2 \Delta\alpha} {G_1}\right)^{-3/2} $$
 
 Where $$G_1$$ and $$G_2$$ are refinable parameters, $$\Delta\alpha$$ is the acute angle between the scattering vector and the normal to the crystallites (platy habit).
 
