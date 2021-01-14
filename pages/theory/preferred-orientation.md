@@ -37,9 +37,9 @@ $$ \cos \alpha_{\text{CSC}} = \frac{\left( \vec{q}_{hkl} \cdot \vec{q}_{\text{ax
 
 in which $$2 \theta_{\text{det.}}, \phi_{\text{det.}}$$ are the angles describing the scattered beam, $$q_{\text{ax.}}$$ and $$q_{hkl}$$ is calculated as:
 
-$$q_{\text{ax.}} = B \cdot \vec{hkl}_{\text{ax.}}$$
+$$q_{\text{ax.}} = B \cdot \vec{hkl}_{\text{ax.}},$$
 
-$$q_{hkl} = B \cdot \vec{hkl}$$
+$$q_{hkl} = B \cdot \vec{hkl}.$$
 
 $$\vec{hkl}_{\text{ax.}}$$ describes the texture axis which is along the vertical direction. $$\vec{hkl}$$ is the vector composed from the Miller indeces. The $$B$$ matrix is estimated from the unit cell parameters.
 
