@@ -1,0 +1,164 @@
+global_
+
+_inversed_hessian_with_labels
+;
+chi_11  0.0238411048 0.0103754273 -0.0212693794 0.0040903689 0.0054512341 -0.0022825599
+chi_22  0.0103754273 0.0148679764 -0.0137668084 0.0015307295 0.0070657328 -0.0010456572
+chi_33  -0.0212693794 -0.0137668084 0.0245485786 -0.0037522072 -0.0031758273 0.0027017876
+chi_12  0.0040903689 0.0015307295 -0.0037522072 0.0104485206 -0.0001757116 -0.0033127677
+chi_13  0.0054512341 0.0070657328 -0.0031758273 -0.0001757116 0.0184028510 0.0001132418
+chi_23  -0.0022825599 -0.0010456572 0.0027017876 -0.0033127677 0.0001132418 0.0086279584
+;
+
+_refine_ls_goodness_of_fit_all 0.313
+_refine_ls_number_reflns 10229
+
+_add_url exp_data.rcif
+_add_url exp_calc.rcif
+
+
+data_COTMTU
+
+_space_group_name_H-M_alt "P 21/c"
+_space_group_IT_coordinate_system_code b2
+
+_cell_length_a 9.83106
+_cell_length_b 12.58153
+_cell_length_c 14.07634
+_cell_angle_alpha 90.00
+_cell_angle_beta 92.99
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Co1     Co3+   0.776245   0.242943   0.513250   1.0   Biso   0.394784176044   4   e  
+Cl1     Cl     0.930669   0.188867   0.626753   1.0   Biso   0.63165468167    4   e  
+Cl2     Cl     0.852068   0.241653   0.365593   1.0   Biso   0.63165468167    4   e  
+S_2     S      0.717292   0.416565   0.555126   1.0   Biso   0.552697846461   4   e  
+S_1     S      0.583850   0.140030   0.531707   1.0   Biso   0.552697846461   4   e  
+N_3     N      0.749830   0.585887   0.447295   1.0   Biso   0.552697846461   4   e  
+N_4     N      0.619924   0.453406   0.376560   1.0   Biso   0.552697846461   4   e  
+N_1     N      0.584242   0.009899   0.678659   1.0   Biso   0.63165468167    4   e  
+N_2     N      0.739660   0.968955   0.566973   1.0   Biso   0.552697846461   4   e  
+C_2     C      0.693993   0.489160   0.452064   1.0   Biso   0.473741011252   4   e  
+C_5     C      0.523593   0.367125   0.382871   1.0   Biso   0.710611516878   4   e  
+C_7     C      0.832797   0.913342   0.633569   1.0   Biso   0.868525187296   4   e  
+C_6     C      0.857710   0.620329   0.514693   1.0   Biso   0.868525187296   4   e  
+C_1     C      0.641452   0.031943   0.596569   1.0   Biso   0.473741011252   4   e  
+C_4     C      0.511849   0.090774   0.729791   1.0   Biso   0.868525187296   4   e  
+C_10    C      0.684653   0.672021   0.392660   1.0   Biso   0.789568352087   4   e  
+C_8     C      0.563264   0.901817   0.711382   1.0   Biso   0.868525187296   4   e  
+C_9     C      0.650556   0.481538   0.279511   1.0   Biso   0.789568352087   4   e  
+C_3     C      0.783367   0.973035   0.470006   1.0   Biso   0.789568352087   4   e  
+H_5A    H      0.571527   0.294205   0.364604   1.0   Biso   1.02643885771    4   e  
+H_5B    H      0.437527   0.381133   0.334570   1.0   Biso   1.02643885771    4   e  
+H_5C    H      0.490313   0.362075   0.454107   1.0   Biso   1.02643885771    4   e  
+H_7A    H      0.819441   0.941605   0.704344   1.0   Biso   1.34226619855    4   e  
+H_7B    H      0.935596   0.927416   0.615018   1.0   Biso   1.34226619855    4   e  
+H_7C    H      0.811847   0.830096   0.630324   1.0   Biso   1.34226619855    4   e  
+H_6A    H      0.814010   0.649740   0.577758   1.0   Biso   1.26330936334    4   e  
+H_6B    H      0.915430   0.681928   0.483262   1.0   Biso   1.26330936334    4   e  
+H_6C    H      0.923268   0.554760   0.532781   1.0   Biso   1.26330936334    4   e  
+H_4A    H      0.565214   0.164549   0.726153   1.0   Biso   1.26330936334    4   e  
+H_4B    H      0.506037   0.067706   0.802818   1.0   Biso   1.26330936334    4   e  
+H_4C    H      0.411023   0.099786   0.698052   1.0   Biso   1.26330936334    4   e  
+H_10A   H      0.744740   0.691502   0.333671   1.0   Biso   1.18435252813    4   e  
+H_10B   H      0.676289   0.740113   0.437475   1.0   Biso   1.18435252813    4   e  
+H_10C   H      0.585042   0.647717   0.366773   1.0   Biso   1.18435252813    4   e  
+H_8A    H      0.457057   0.889105   0.720903   1.0   Biso   1.26330936334    4   e  
+H_8B    H      0.619644   0.889640   0.777782   1.0   Biso   1.26330936334    4   e  
+H_8C    H      0.597673   0.847111   0.659547   1.0   Biso   1.26330936334    4   e  
+H_9A    H      0.745448   0.523370   0.280184   1.0   Biso   1.18435252813    4   e  
+H_9B    H      0.571095   0.530977   0.249052   1.0   Biso   1.18435252813    4   e  
+H_9C    H      0.657805   0.410994   0.237702   1.0   Biso   1.18435252813    4   e  
+H_3A    H      0.860526   0.032408   0.464846   1.0   Biso   1.26330936334    4   e  
+H_3B    H      0.698170   0.992213   0.422471   1.0   Biso   1.26330936334    4   e  
+H_3C    H      0.823732   0.897537   0.451039   1.0   Biso   1.26330936334    4   e  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+Co1   Cani   1.31(15)   1.87(12)   3.85(16)   0.600(100)   -0.41(14)   -2.133(93)  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Co1   Co3+   2.0   1.0  
+
+
+data_exp
+_pd2d_instr_resolution_U 16.96447
+_pd2d_instr_resolution_V -3.21339
+_pd2d_instr_resolution_W 1.37142
+_pd2d_instr_resolution_X 0.00
+_pd2d_instr_resolution_Y 0.00000
+
+_diffrn_radiation_polarization 1.0
+_diffrn_radiation_efficiency 1.0
+
+_setup_wavelength 1.4000
+_setup_field 1.00
+_setup_offset_2theta 0.245
+_setup_offset_phi -1.162
+
+_range_2theta_min 10.0
+_range_2theta_max 40.0
+_range_phi_min 0.0
+_range_phi_max 40.0
+
+_chi2_sum False
+_chi2_diff True
+_chi2_up False
+_chi2_down False
+
+_pd2d_background_2theta_phi_intensity
+;
+2   5.70         7.80        14.30        20.07        30.62        45.68        56.65        67.34
+-2.00 8.65         13.99        20.57        21.62        13.65        11.91        5.164        0.284
+41.00 8.65         7.13         11.67        17.82        14.72        9.11         5.164        0.284
+;
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+
+_pd2d_instr_reflex_asymmetry_p1 0.0
+_pd2d_instr_reflex_asymmetry_p2 0.0
+_pd2d_instr_reflex_asymmetry_p3 0.0
+_pd2d_instr_reflex_asymmetry_p4 0.0
+
+_texture_g_1 0.12586
+_texture_g_2 0.93813
+_texture_h_ax -0.718
+_texture_k_ax 0.000
+_texture_l_ax 3.061
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+COTMTU   0.00022227020419513714   0.0  
+
+loop_
+_exclude_2theta_min
+_exclude_2theta_max
+_exclude_phi_min
+_exclude_phi_max
+30.0   0.0   45.0   60.0  
