@@ -10,7 +10,7 @@ Functions
 import numpy
 
 from cryspy.A_functions_base.function_2_sym_elems import \
-    form_sym_elems_by_b_i_r_ij, calc_numerators_denominator_for_b_i, \
+    form_symm_elems_by_b_i_r_ij, calc_numerators_denominator_for_b_i, \
     transform_to_p1
 
 
@@ -35,8 +35,10 @@ def read_den_file(file_name: str):
     number_lines = int(l_content[1])
 
     hh = l_content[number_lines+2].strip().split()
-    cell_parameters = (float(hh[0]), float(hh[1]), float(hh[2]), 
-                       float(hh[3]), float(hh[4]), float(hh[5]))
+    rad = float(numpy.pi/180.)
+    cell_parameters = numpy.array([float(hh[0]), float(hh[1]), float(hh[2]), 
+                       float(hh[3])*rad, float(hh[4])*rad, float(hh[5])*rad],
+                                  dtype=float)
 
     [points_a, points_b, points_c, n_el_symm, centr, n_shift] = [
         int(hh) for hh in l_content[number_lines+3][:-1].split()]
@@ -66,7 +68,7 @@ def read_den_file(file_name: str):
         [], [], [], [], []
     b_1, b_2, b_3 = [], [], []
     for line in l_content[number_lines+4:number_lines+4+n_el_symm]:
-        hh = line.strip().split()
+        hh = line.replace("-", " -").strip().split()
         r_11.append(int(hh[0]))
         r_12.append(int(hh[3]))
         r_13.append(int(hh[6]))
@@ -86,7 +88,7 @@ def read_den_file(file_name: str):
     b_i = (b_1, b_2, b_3)
     r_ij = (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
 
-    sym_elems = form_sym_elems_by_b_i_r_ij(b_i, r_ij)
+    sym_elems = form_symm_elems_by_b_i_r_ij(b_i, r_ij)
 
     shift_1, shift_2, shift_3 = [], [], []
     for line in l_content[number_lines+4+n_el_symm:

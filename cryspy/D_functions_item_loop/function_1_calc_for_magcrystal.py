@@ -228,6 +228,7 @@ def calc_f_mag(
         atom_multiplicity = calc_multiplicity(full_sym_elems, fract_xyz)
     else:
         atom_multiplicity = numpy.array(l_mult, dtype=int)
+    
 
     occ_mult = occupancy*atom_multiplicity
 

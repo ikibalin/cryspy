@@ -16,3 +16,4 @@ _site/*
 .spyproject/*
 .vs/*
 TestResults/*
+.ipynb_checkpoints

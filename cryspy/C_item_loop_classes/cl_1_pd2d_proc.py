@@ -425,8 +425,10 @@ class Pd2dProc(ItemN):
         np_sum = np_up + np_down
         np_diff = np_up - np_down
         
-        norm_1 = matplotlib.colors.Normalize(vmax=abs(np_sum_m).max(),
-                                             vmin=-abs(np_sum_m).max())
+        max_val = numpy.nanmax(np_sum_m)
+        min_val = numpy.nanmin(np_sum_m)
+        norm_1 = matplotlib.colors.Normalize(
+            vmax=max_val, vmin=min_val)
         # cmap = matplotlib.PRGn
         
         max_val = numpy.nanmax(numpy.abs(np_sum_m))
@@ -514,9 +516,10 @@ class Pd2dProc(ItemN):
         ax_1.set_xlabel("gamma (degrees)")
         ax_1.set_ylabel('nu (degrees)')
 
-        max_val = numpy.nanmax(numpy.abs(np_sum_m))
+        max_val = numpy.nanmax(np_sum_m)
+        min_val = numpy.nanmin(np_sum_m)
         norm_1 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=-max_val)
+            vmax=max_val, vmin=min_val)
         # cmap = matplotlib.PRGn
         
         extent =(np_gamma.min(), np_gamma.max(),

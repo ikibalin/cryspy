@@ -18,7 +18,7 @@ magn_sym_elems: [22, n_elems]
 
 Functions
 ---------
-    - form_sym_elems_by_b_i_r_ij
+    - form_symm_elems_by_b_i_r_ij
     - calc_numerators_denominator_for_b_i
     - calc_common_denominator
     - calc_rational_sum
@@ -30,7 +30,23 @@ import numpy
 # from cryspy.A_functions_base.function_1_strings import 
 
 
-def form_sym_elems_by_b_i_r_ij(b_i, r_ij):
+def form_symm_elems_by_b_i_r_ij(b_i, r_ij):
+    """
+
+    Parameters
+    ----------
+    b_i : fractions
+        DESCRIPTION.
+    r_ij : int
+        DESCRIPTION.
+
+    Returns
+    -------
+    sym_elems : TYPE
+        [b_num_1, b_num_2, b_num_3, r_11, r_12, r_13, r_21, r_22, r_23,
+         r_31, r_32, r_33]
+
+    """
     b_num_1, b_num_2, b_num_3, b_den = calc_numerators_denominator_for_b_i(*b_i)
     (r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33) = r_ij
 
@@ -308,3 +324,100 @@ shifting parameters")
     densities_p1_uniq = densities_p1[:, uniq_ind]
 
     return indexes_xyz_p1_uniq, densities_p1_uniq
+
+
+def get_string_by_symm_elem(symm_elem):
+    """Represent symmetry element by string."""
+    labels = ("x", "y", "z")
+   
+    flag_moment = symm_elem.shape[0] > 13
+    
+    symm_elem_zero = 0*symm_elem
+    symm_elem_plus_one = symm_elem_zero + 1
+    symm_elem_minus_one = symm_elem_zero - 1
+
+    flag_plus_one = symm_elem_plus_one == symm_elem
+    flag_minus_one = symm_elem_minus_one == symm_elem
+
+    str_empty = numpy.zeros(shape=symm_elem_zero.shape, dtype='<3U')
+
+    str_empty[4] = numpy.where(flag_plus_one[4], "+"+labels[0], numpy.where(
+        flag_minus_one[4], "-"+labels[0], ""))
+    str_empty[5] = numpy.where(flag_plus_one[5], "+"+labels[1], numpy.where(
+        flag_minus_one[5], "-"+labels[1], ""))
+    str_empty[6] = numpy.where(flag_plus_one[6], "+"+labels[2], numpy.where(
+        flag_minus_one[6], "-"+labels[2], ""))
+
+    str_empty[7] = numpy.where(flag_plus_one[7], "+"+labels[0], numpy.where(
+        flag_minus_one[7], "-"+labels[0], ""))
+    str_empty[8] = numpy.where(flag_plus_one[8], "+"+labels[1], numpy.where(
+        flag_minus_one[8], "-"+labels[1], ""))
+    str_empty[9] = numpy.where(flag_plus_one[9], "+"+labels[2], numpy.where(
+        flag_minus_one[9], "-"+labels[2], ""))
+
+    str_empty[10] = numpy.where(flag_plus_one[10], "+"+labels[0], numpy.where(
+        flag_minus_one[10], "-"+labels[0], ""))
+    str_empty[11] = numpy.where(flag_plus_one[11], "+"+labels[1], numpy.where(
+        flag_minus_one[11], "-"+labels[1], ""))
+    str_empty[12] = numpy.where(flag_plus_one[12], "+"+labels[2], numpy.where(
+        flag_minus_one[12], "-"+labels[2], ""))
+
+ 
+    if flag_moment:
+        str_empty[13] = numpy.where((flag_plus_one[4]*flag_plus_one[13] | 
+                                     flag_minus_one[4]*flag_minus_one[13]),
+                                    "+1", "-1")
+    char_add = numpy.char.add
+    char_strip = numpy.char.strip
+
+    t_x = symm_elem[0]
+    t_y = symm_elem[1]
+    t_z = symm_elem[2]
+    denom = symm_elem[3]
+
+    gcd_x = numpy.gcd(t_x, denom)
+    gcd_y = numpy.gcd(t_y, denom)
+    gcd_z = numpy.gcd(t_z, denom)
+
+    denom_x, denom_y, denom_z = denom // gcd_x, denom // gcd_y, denom // gcd_z
+    t_x_new, t_y_new, t_z_new = t_x // gcd_x, t_y // gcd_y, t_z // gcd_z
+
+    s_t_x_new, s_t_y_new = t_x_new.astype(str), t_y_new.astype(str)
+    s_t_z_new = t_z_new.astype(str)
+
+    s_denom_x, s_denom_y = denom_x.astype(str), denom_y.astype(str)
+    s_denom_z = denom_z.astype(str)
+
+    s_fract_x = char_add(char_add(s_t_x_new, "/"), s_denom_x)
+    s_fract_y = char_add(char_add(s_t_y_new, "/"), s_denom_y)
+    s_fract_z = char_add(char_add(s_t_z_new, "/"), s_denom_z)
+
+    s_fract_x[numpy.char.startswith(s_fract_x, "0")] = ""
+    s_fract_y[numpy.char.startswith(s_fract_y, "0")] = ""
+    s_fract_z[numpy.char.startswith(s_fract_z, "0")] = ""
+
+    flag_x = numpy.char.startswith(s_fract_x, "-")
+    s_fract_x = numpy.where(flag_x, s_fract_x, char_add("+", s_fract_x))
+    flag_y = numpy.char.startswith(s_fract_y, "-")
+    s_fract_y = numpy.where(flag_y, s_fract_y, char_add("+", s_fract_y))
+    flag_z = numpy.char.startswith(s_fract_z, "-")
+    s_fract_z = numpy.where(flag_z, s_fract_z, char_add("+", s_fract_z))
+
+    s_out_f_1 = char_add(char_add(char_add(str_empty[4], str_empty[5]),
+                                  str_empty[6]), s_fract_x)
+    s_out_f_2 = char_add(char_add(char_add(str_empty[7], str_empty[8]),
+                                  str_empty[9]), s_fract_y)
+    s_out_f_3 = char_add(char_add(char_add(str_empty[10], str_empty[11]),
+                                  str_empty[12]), s_fract_z)
+
+    s_out_f_1 = char_strip(s_out_f_1, "+")
+    s_out_f_2 = char_strip(s_out_f_2, "+")
+    s_out_f_3 = char_strip(s_out_f_3, "+")
+
+    s_out_fract = char_add(char_add(char_add(char_add(s_out_f_1, ","),
+                                             s_out_f_2), ","), s_out_f_3)
+    if flag_moment:
+        s_out = char_add(char_add(s_out_fract, ","), str_empty[13])
+    else:
+        s_out = s_out_fract
+    return s_out

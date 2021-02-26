@@ -67,8 +67,12 @@ from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs, \
     RefineLsL
 from cryspy.C_item_loop_classes.cl_1_setup import Setup, SetupL
+from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
+    SpaceGroupSymop, SpaceGroupSymopL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
     SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnCenteringL
+from cryspy.C_item_loop_classes.cl_1_space_group_wyckoff import \
+    SpaceGroupWyckoff, SpaceGroupWyckoffL
 from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground, \
     TOFBackgroundL
@@ -81,8 +85,11 @@ from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeak, TOFPeakL
 from cryspy.C_item_loop_classes.cl_1_tof_proc import TOFProc, TOFProcL
 from cryspy.C_item_loop_classes.cl_1_tof_profile import TOFProfile, TOFProfileL
 
-from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
-    AtomSiteScat, AtomSiteScatL
+
+from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import \
+    AtomRhoOrbitalRadialSlater, AtomRhoOrbitalRadialSlaterL
+from cryspy.C_item_loop_classes.cl_2_atom_site_scat import AtomSiteScat, \
+    AtomSiteScatL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
     DiffrnOrientMatrix, DiffrnOrientMatrixL
 from cryspy.C_item_loop_classes.cl_2_section import Section, SectionL
@@ -108,10 +115,11 @@ L_ITEM_CLASS = []
 L_LOOP_CLASS = []
 L_DATA_CLASS = []
 L_GLOBAL_CLASS = []
-L_FUNCTION_ALL = []
+L_FUNCTION_ADD = []
+
 
 L_ITEM_CLASS.extend([
-    AtomElectronConfiguration, AtomLocalAxes,
+    AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater, 
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
     AtomSiteSusceptibility, AtomType, AtomTypeScat,
     Cell, Chi2,
@@ -122,12 +130,13 @@ L_ITEM_CLASS.extend([
     Pd2dBackground, Pd2dInstrReflexAsymmetry,
     Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak,
     Range, RefineLs, Refln, ReflnSusceptibility,
-    Setup, SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnOperation,
-    SpaceGroup, Section, Texture, TOFBackground, TOFIntensityIncident, TOFMeas,
+    Section, Setup, SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnOperation,
+    SpaceGroup, SpaceGroupSymop, SpaceGroupWyckoff, Texture, TOFBackground,
+    TOFIntensityIncident, TOFMeas,
     TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
 L_LOOP_CLASS.extend([
-    AtomLocalAxesL, AtomElectronConfigurationL,
+    AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL, 
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
     AtomSiteSusceptibilityL, AtomTypeL, AtomTypeScatL,
     CellL, Chi2L,
@@ -137,10 +146,10 @@ L_LOOP_CLASS.extend([
     PdMeasL, PdProcL, PdPeakL,
     Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL,
     RangeL, RefineLsL, ReflnL, ReflnSusceptibilityL,
-    SectionL, SetupL, SpaceGroupSymopMagnCenteringL,
-    SpaceGroupSymopMagnOperationL, TextureL, TOFBackgroundL, 
-    TOFIntensityIncidentL, TOFMeasL, TOFParametersL, TOFPeakL, TOFProcL,
-    TOFProfileL])
+    SectionL, SetupL, SpaceGroupSymopL, SpaceGroupSymopMagnCenteringL,
+    SpaceGroupSymopMagnOperationL, SpaceGroupWyckoffL, TextureL,
+    TOFBackgroundL, TOFIntensityIncidentL, TOFMeasL, TOFParametersL, TOFPeakL,
+    TOFProcL, TOFProfileL])
 
 L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d, TOF])
 
@@ -185,6 +194,12 @@ def load_packages():
             except AttributeError:
                 print(f"Module '{module_name:}' in folder: \n {module_way}\n\
 does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.")
+                f_ok = False
+            try:
+                L_FUNCTION_ADD.extend(module.L_FUNCTION)
+            except AttributeError:
+                print(f"Module '{module_name:}' in folder: \n {module_way}\n\
+does not contains in 'init.py' parameter 'L_FUNCTION'.")
                 f_ok = False
         else: 
             f_ok = False

@@ -228,9 +228,10 @@ class Pd2dMeas(ItemN):
         ax_1.set_xlabel("2 theta (degrees)")
         ax_1.set_ylabel('phi (degrees)')
 
-        max_val = numpy.nanmax(numpy.abs(np_sum))
+        max_val = numpy.nanmax(np_sum)
+        min_val = numpy.nanmin(np_sum)
         norm_1 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=-max_val)
+            vmax=max_val, vmin=min_val)
         
         extent =(np_tth.min(), np_tth.max(), np_phi.min(), np_phi.max())
         plt.set_cmap('rainbow')
@@ -333,7 +334,10 @@ class Pd2dMeas(ItemN):
         ax_1.set_xlabel("gamma (degrees)")
         ax_1.set_ylabel('nu (degrees)')
 
-        max_val = numpy.nanmax(numpy.abs(np_sum))
+        max_val = numpy.nanmax(np_sum)
+        min_val = numpy.nanmin(np_sum)
+        norm_1 = matplotlib.colors.Normalize(
+            vmax=max_val, vmin=min_val)
         norm_1 = matplotlib.colors.Normalize(
             vmax=max_val, vmin=-max_val)
         
