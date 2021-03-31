@@ -27,19 +27,23 @@ class GlobalN(object):
             DESCRIPTION.
 
         """
-        ls_out = [self.get_name()]
+        ls_out = [f"# Object '{self.get_name():}':"]
         for item in self.items:
             if isinstance(item, LoopN):
-                ls_out.append(f"{4*' ':}{item.get_name():} (loop)")
+                ls_out.append(f"{4*' ':}.{item.get_name():} (loop)")
             else:
-                ls_out.append(f"{4*' ':}{item.get_name():}")
+                ls_out.append(f"{4*' ':}.{item.get_name():}")
             if isinstance(item, DataN):
                 for i_d in item.items:
                     if isinstance(i_d, ItemN):
-                        ls_out.append(f"{8*' ':}{i_d.get_name():}")
+                        ls_out.append(f"{8*' ':}.{i_d.get_name():}")
                     else:
                         ls_out.append(
-                            f"{8*' ':}{i_d.get_name():} (loop)")
+                            f"{8*' ':}.{i_d.get_name():} (loop)")
+
+        method = self.methods_html()
+        if method != "":
+            ls_out.append(f"\n# Methods:\n{method:}\n")                
         return "\n".join(ls_out)
 
     def _repr_html_(self):

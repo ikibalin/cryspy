@@ -36,7 +36,13 @@ class LoopN(object):
             DESCRIPTION.
 
         """
-        return str(self)
+        ls_out = [f"# Object '{self.get_name():}':\n"]
+        ls_out.append(str(self))
+
+        method = self.methods_html()
+        if method != "":
+            ls_out.append(f"\n# Methods:\n{method:}\n")                
+        return "\n".join(ls_out)
 
     def _repr_html_(self):
         """Representation in HTML format."""

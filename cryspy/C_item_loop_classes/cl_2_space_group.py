@@ -486,7 +486,7 @@ class SpaceGroup(ItemN):
 
         flag = unique_inverse == ind
 
-        item_out = [_item for _item, _flag in zip(symop.item, flag) if _flag]
+        item_out = [_item for _item, _flag in zip(symop.items, flag) if _flag]
         symop_out = SpaceGroupSymopL()
         symop_out.items = item_out
         return symop_out

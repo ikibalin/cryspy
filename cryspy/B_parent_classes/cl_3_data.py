@@ -26,12 +26,16 @@ class DataN(object):
             DESCRIPTION.
 
         """
-        ls_out = [self.get_name()]
+        ls_out = [f"# Object '{self.get_name():}'"]
         for item in self.items:
             if isinstance(item, ItemN):
-                ls_out.append(f"{4*' ':}{item.get_name():}")
+                ls_out.append(f"{4*' ':}.{item.get_name():}")
             else:
-                ls_out.append(f"{4*' ':}{item.get_name():} (loop)")
+                ls_out.append(f"{4*' ':}.{item.get_name():} (loop)")
+                
+        method = self.methods_html()
+        if method != "":
+            ls_out.append(f"\n# Methods:\n{method:}\n")                
         return "\n".join(ls_out)
 
     def _repr_html_(self):

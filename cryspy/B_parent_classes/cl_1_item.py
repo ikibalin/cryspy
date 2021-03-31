@@ -31,10 +31,16 @@ class ItemN(object):
             DESCRIPTION.
 
         """
+        ls_out = [f"# Object '{self.get_name():}':\n"]
         res = str(self)
         if res == "":
             res = self.to_cif(flag_all_attributes=True)
-        return res
+        ls_out.append(res)
+
+        method = self.methods_html()
+        if method != "":
+            ls_out.append(f"\n# Methods:\n{method:}\n")                
+        return "\n".join(ls_out)
 
     def _repr_html_(self):
         """Representation in HTML format."""

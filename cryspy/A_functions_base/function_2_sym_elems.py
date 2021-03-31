@@ -211,27 +211,27 @@ def transform_to_p1(points_abc, sym_elems, shift, centrosymmetry, indexes_xyz,
     denom_y = points_abc[1]
     denom_z = points_abc[2]
 
-    sym_elems_b_num_1 = sym_elems[0, :]
-    sym_elems_b_num_2 = sym_elems[1, :]
-    sym_elems_b_num_3 = sym_elems[2, :]
-    sym_elems_b_denom = sym_elems[3, :]
+    sym_elems_b_num_1 = sym_elems[0]
+    sym_elems_b_num_2 = sym_elems[1]
+    sym_elems_b_num_3 = sym_elems[2]
+    sym_elems_b_denom = sym_elems[3]
 
-    sym_elems_r_11 = sym_elems[4, :]
-    sym_elems_r_12 = sym_elems[5, :]
-    sym_elems_r_13 = sym_elems[6, :]
+    sym_elems_r_11 = sym_elems[4]
+    sym_elems_r_12 = sym_elems[5]
+    sym_elems_r_13 = sym_elems[6]
 
-    sym_elems_r_21 = sym_elems[7, :]
-    sym_elems_r_22 = sym_elems[8, :]
-    sym_elems_r_23 = sym_elems[9, :]
+    sym_elems_r_21 = sym_elems[7]
+    sym_elems_r_22 = sym_elems[8]
+    sym_elems_r_23 = sym_elems[9]
 
-    sym_elems_r_31 = sym_elems[10, :]
-    sym_elems_r_32 = sym_elems[11, :]
-    sym_elems_r_33 = sym_elems[12, :]
+    sym_elems_r_31 = sym_elems[10]
+    sym_elems_r_32 = sym_elems[11]
+    sym_elems_r_33 = sym_elems[12]
 
-    shift_num_1 = shift[0, :]
-    shift_num_2 = shift[1, :]
-    shift_num_3 = shift[2, :]
-    shift_denom = shift[3, :]
+    shift_num_1 = shift[0]
+    shift_num_2 = shift[1]
+    shift_num_3 = shift[2]
+    shift_denom = shift[3]
 
     # checking:
     flag_b_x = numpy.alltrue(numpy.mod(denom_x, sym_elems_b_denom) == 0)
@@ -261,9 +261,9 @@ shifting parameters")
 shifting parameters")
     
     
-    ind_num_x = indexes_xyz[0, :]
-    ind_num_y = indexes_xyz[1, :]
-    ind_num_z = indexes_xyz[2, :]
+    ind_num_x = indexes_xyz[0]
+    ind_num_y = indexes_xyz[1]
+    ind_num_z = indexes_xyz[2]
     
     denom_xyz = numpy.lcm.reduce([denom_x, denom_y, denom_z])
     num_x = ind_num_x * denom_xyz // denom_x

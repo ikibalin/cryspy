@@ -386,6 +386,8 @@ class Pd2d(DataN):
         proc.intensity_up_total = res_u_2d+int_bkgd
         proc.intensity_down_total = res_d_2d+int_bkgd
         if flag_internal:
+            if background.is_variables():
+                background.form_ttheta_phi_intensity()
             l_calc_objs = l_refln + l_refln_s + l_peak
             proc.form_ttheta_phi_intensity_up_net()
             proc.form_ttheta_phi_intensity_down_net()
@@ -473,7 +475,7 @@ class Pd2d(DataN):
             tth_in, phi_in, l_crystal, l_peak_in=l_peak_in,
             l_refln_in=l_refln_in,
             l_refln_susceptibility_in=l_refln_susceptibility_in,
-            l_dd_in=l_dd_in)
+            l_dd_in=l_dd_in, flag_internal=flag_internal)
         proc.intensity_up = int_u_exp_in
         proc.intensity_up_sigma = sint_u_exp_in
         proc.intensity_down = int_d_exp_in

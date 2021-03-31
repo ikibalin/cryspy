@@ -223,6 +223,11 @@ class Pd2dBackground(ItemN):
             int_2d = int_2d.transpose()
         return int_2d
 
+    def is_variables(self):
+        """
+        Redefine function
+        """
+        return numpy.any(self.intensity_refinement)
 
 # s_cont = """
 #   _pd2d_background_2theta_phi_intensity

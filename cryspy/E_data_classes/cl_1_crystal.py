@@ -785,13 +785,19 @@ U_13|     U_23|")
         return "\n".join(ls_out)
 
     def calc_magnetic_moments_with_field_loc(self, field_abc):
-        """
-        Orientation of magetic moment for atoms at applied magnetic field.
+        """Orientation of magetic moment for atoms at applied magnetic field.
 
         The input magnetic field should be given in normalized unit cell
         (a/|a|, b/|b|, c/|c|)
         The output magnetic moment are given in normalized unit cell
         (a/|a|, b/|b|, c/|c|)
+        
+        Output
+        ------
+        l_lab_out - label of atoms
+        l_xyz_out - position of atoms
+        l_moment_out - moment of atoms
+
         """
         np_field = numpy.array(field_abc, dtype=float)
         l_lab_out, l_xyz_out, l_moment_out = [], [], []
