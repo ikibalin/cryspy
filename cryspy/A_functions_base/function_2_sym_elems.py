@@ -98,7 +98,7 @@ def calc_sym_elems_b_with_common_denominator(*argv):
     t_res = tuple([norm_sym_elems_b * (denom_common // norm_denom) 
                    for norm_sym_elems_b, norm_denom
                    in zip(l_norm_sym_elems_b, l_norm_denom)])
-    return *t_res, denom_common
+    return (*t_res, denom_common)
         
 
 def calc_normalized_sym_elems_b(sym_elems_b):
@@ -162,7 +162,7 @@ def calc_numerators_and_common_denominator(*argv):
         denom = argv[2*ind+1]
         coeff = den_common//denom
         l_res.append(num*coeff)
-    return *tuple(l_res), den_common
+    return (*l_res, den_common)
 
 
 def calc_rational_sum(*argv):
