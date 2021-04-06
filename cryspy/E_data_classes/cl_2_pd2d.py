@@ -388,13 +388,13 @@ class Pd2d(DataN):
         if flag_internal:
             if background.is_variables():
                 background.form_ttheta_phi_intensity()
-            l_calc_objs = l_refln + l_refln_s + l_peak
             proc.form_ttheta_phi_intensity_up_net()
             proc.form_ttheta_phi_intensity_down_net()
             proc.form_ttheta_phi_intensity_up_total()
             proc.form_ttheta_phi_intensity_down_total()
-            l_calc_objs.append(proc)
-            self.add_items(l_calc_objs)
+        l_calc_objs = l_refln + l_refln_s + l_peak
+        l_calc_objs.append(proc)
+        self.add_items(l_calc_objs)
 
         return proc, l_peak, l_refln, l_dd_out
 
