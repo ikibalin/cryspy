@@ -34,6 +34,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfigurationL
 
+from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid \
+    import magnetization_ellipsoid_by_u_ij, report_main_axes_of_magnetization_ellipsoids
 
 class Crystal(DataN):
     """
@@ -680,28 +682,15 @@ class Crystal(DataN):
 
         Negtive eigenvalues of ellipsoid are replaced by positive.
         """
-        l_res = []
         try:
             cell = self.cell
             a_s_m_a = self.atom_site_susceptibility
         except AttributeError:
             return l_res
-        m_m_norm = cell.m_m_norm
-        m_im_norm = numpy.linalg.inv(m_m_norm)
-        for _l, _11, _22, _33, _12, _13, _23 in zip(
-                a_s_m_a.label, a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33,
-                a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
-            m_chi_loc = numpy.array([[_11, _12, _13],
-                                     [_12, _22, _23],
-                                     [_13, _23, _33]], dtype=float)
-            m_chi_orto = numpy.matmul(numpy.matmul(m_m_norm, m_chi_loc),
-                                      m_m_norm.transpose())
-            val, vec = numpy.linalg.eigh(m_chi_orto)
-            D = numpy.diag(numpy.abs(val))  # only positive eigenvalues
-            R = numpy.array(vec).transpose()
-            chi_as_u_orto = numpy.matmul(R.transpose(), numpy.matmul(D, R))
-            chi_as_u_loc = numpy.matmul(numpy.matmul(m_im_norm, chi_as_u_orto),
-                                        m_im_norm.transpose())
+
+        l_res = []
+        for item in a_s_m_a.items:
+            chi_as_u_loc = magnetization_ellipsoid_by_u_ij(cell, item)
             l_res.append(chi_as_u_loc)
         return l_res
 
@@ -741,48 +730,18 @@ class Crystal(DataN):
         get_main_axes_of_magnetization_ellipsoids method
         and calc_magnetization_ellipsoid method of the crystal object.
         """
-        ls_out = []
         # crystal is defined object of cryspy library;
         # type(crystal) is Crystal
         if self.is_attribute("atom_site_susceptibility"):
             a_s_m_a = self.atom_site_susceptibility
         else:
             return ""
-        l_moments, l_moments_sigma, l_rot_matrix = \
-            self.calc_main_axes_of_magnetization_ellipsoids()
-        l_chi_as_u = self.calc_magnetization_ellipsoid()
-        # cycle over magnetic atoms
-        for label, susceptibilities, susceptibilities_sigma, rot_matrix, \
-            chi_as_u in zip(a_s_m_a.label, l_moments, l_moments_sigma,
-                            l_rot_matrix, l_chi_as_u):
-            ls_out.append(f"For **`{label:}`** the susceptibility is:\n")
-            # cycle over three main axes
-            directions = rot_matrix.transpose()
-            ls_out.append("|Susceptibility (mu_B/T)|Orientation: |X along inv.a| Y is [inv.a, c]|Z along c|")
-            ls_out.append("|--------------|-------|----------|----------|----------|")
-            for _val1, val_sigma, _direction in zip(
-                    susceptibilities, susceptibilities_sigma, directions):
-                if math.isclose(val_sigma, 0.):
-                    s_val = f"{_val1: 9.5f}".rjust(9)
-                else:
-                    s_param = value_error_to_string(_val1, val_sigma)
-                    s_val = f"{s_param:}".rjust(9)
-                ls_out.append(
-                    f"|  {s_val:} | along:| {_direction[0]: 9.5f}| \
-{_direction[1]: 9.5f}| {_direction[2]: 9.5f}|")
-            ls_out.append("\nUse thermal parameters U_ij to plot magn. ellispoid.\n")
-            ls_out.append(f"|     U_11|     U_22|     U_33|     U_12|     \
-U_13|     U_23|")
-            ls_out.append(f"|---------|---------|---------|---------|-----\
-----|---------|")
-            ls_out.append(
-                f"|{chi_as_u[0, 0]:9.2f}|{chi_as_u[1, 1]:9.2f}|\
-{chi_as_u[2, 2]:9.2f}|{chi_as_u[0, 1]:9.2f}|{chi_as_u[0, 2]:9.2f}|\
-{chi_as_u[1, 2]:9.2f}|\n")
-        # ls_out.append("Cartezian coordinate system is x||a*, z||c.")
-        if len(ls_out) != 0:
-            ls_out.insert(0, "# Magnetization ellipsoids\n")
-        return "\n".join(ls_out)
+
+        cell = self.cell
+        s_out = report_main_axes_of_magnetization_ellipsoids(
+            cell, a_s_m_a)
+
+        return s_out
 
     def calc_magnetic_moments_with_field_loc(self, field_abc):
         """Orientation of magetic moment for atoms at applied magnetic field.

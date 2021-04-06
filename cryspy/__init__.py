@@ -131,6 +131,10 @@ from .A_functions_base.function_4_flip_ratio import \
 from cryspy.D_functions_item_loop.function_1_section_from_density_point \
     import calc_section_from_density_point
 
+
+from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import \
+    magnetization_ellipsoid_by_u_ij, report_main_axes_of_magnetization_ellipsoids
+
 from cryspy.H_functions_global.function_1_cryspy_objects import \
     str_to_globaln, file_to_globaln, str_to_items
 
@@ -238,7 +242,9 @@ L_FUNCTION = [
     load_file,
     load_packages,
     add_package, packages, delete_package,
-    repr_function]
+    repr_function,
+    magnetization_ellipsoid_by_u_ij,
+    report_main_axes_of_magnetization_ellipsoids]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD
