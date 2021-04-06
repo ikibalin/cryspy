@@ -1,0 +1,103 @@
+global_
+
+_add_url exp_data.rcif
+
+_add_url exp_calc.rcif
+
+
+data_Na2Ca3Al2F14
+
+_cell_length_a 10.25022
+_cell_length_b 10.25022
+_cell_length_c 10.25022
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+_space_group_name_H-M_ref "I 21 3"
+_space_group_IT_coordinate_system_code 1
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Ca1   Ca   0.466410   0.000000   0.250000   3.0   Biso   0.0   12   b  
+Al1   Al   0.248190   0.248190   0.248190   3.0   Biso   0.0   8    a  
+Na1   Na   0.084290   0.084290   0.084290   3.0   Biso   0.0   8    a  
+F1    F    0.138530   0.306380   0.120690   3.0   Biso   0.0   24   c  
+F2    F    0.364040   0.362980   0.187400   3.0   Biso   0.0   24   c  
+F3    F    0.461530   0.461530   0.461530   3.0   Biso   0.0   8    a  
+
+
+data_PbSO4
+
+_cell_length_a 8.47836
+_cell_length_b 5.39667
+_cell_length_c 6.95797
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+_space_group_name_H-M_ref "P n m a"
+_space_group_IT_coordinate_system_code abc
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Pb   Pb   0.187890   0.250000   0.167200   1.0   Biso   0.5   4   c  
+S    S    0.064550   0.250000   0.684980   1.0   Biso   0.5   4   c  
+O1   O    0.908670   0.250000   0.595650   1.0   Biso   0.5   4   c  
+O2   O    0.193080   0.250000   0.542860   1.0   Biso   0.5   4   c  
+O3   O    0.080730   0.027090   0.808410   1.0   Biso   0.5   8   d  
+
+
+data_exp
+_pd_instr_reflex_asymmetry_p1 0.3825
+_pd_instr_reflex_asymmetry_p2 0.04024
+_pd_instr_reflex_asymmetry_p3 -0.36185
+_pd_instr_reflex_asymmetry_p4 0.0
+
+_range_2theta_min 2.0
+_range_2theta_max 100.0
+
+_setup_wavelength 1.2253
+_setup_offset_2theta -0.319
+
+_chi2_sum True
+_chi2_diff False
+_chi2_up False
+_chi2_down False
+
+_pd_instr_resolution_U 0.16706
+_pd_instr_resolution_V -0.47345
+_pd_instr_resolution_W 0.42614
+_pd_instr_resolution_X 0.00
+_pd_instr_resolution_Y 0.08597
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+Na2Ca3Al2F14   0.034815   0.0  
+PbSO4          1.4869     0.0  
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+2.0     2686.905  
+100.0   2686.905  

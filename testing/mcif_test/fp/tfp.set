@@ -1,0 +1,29 @@
+! Behaviour of programs after running FullProf from the Toolbar
+ 
+! External ASCII Editor for the Toolbar
+  Editor = 
+ 
+! Executable VESTA program
+  VESTA = 
+ 
+! Executable Dysnomia program
+  Dysnomia = 
+ 
+! Browser program version
+  Browser = C:\Program Files (x86)\Mozilla Firefox\firefox.exe
+ 
+! PDF Viewer program
+  PDFViewer = 
+ 
+! PS Viewer program version
+  PSViewer = 
+ 
+! Behaviour of the toolbar (Always on Top - onTop, or Expose)
+  Behaviour = Expose
+ 
+! Prefix for launching console programs
+  Prefix = cmd /t:0e /c
+ 
+! Last Working Directory
+  LastDirectory = C:\Users\ikibalin\Documents\documents\working_comp\cryspy_tests\mcif_test\fp
+ 

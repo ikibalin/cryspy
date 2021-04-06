@@ -1,0 +1,88 @@
+global_
+
+_add_url exp_MnBiTe_data.rcif
+
+_add_url exp_MnBiTe_calc.rcif
+
+
+data_exp_MnBiTe
+
+_space_group_name_H-M_ref "P -3 m 1"
+_space_group_IT_coordinate_system_code r
+
+_cell_length_a 4.35500
+_cell_length_b 4.35500
+_cell_length_c 23.81500
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 120.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Mn1   Mn2+   0.000000   0.000000   0.500000   0.73   Uiso   0.0   1   b  
+Bi0   Bi3+   0.000000   0.000000   0.500000   0.27   Uiso   0.0   1   b  
+Bi1   Bi3+   0.333333   0.666667   0.085700   1.0    Uiso   0.0   2   d  
+Bi2   Bi3+   0.333333   0.666667   0.341700   1.0    Uiso   0.0   2   d  
+Te1   Te2-   0.000000   0.000000   0.000000   1.0    Uiso   0.0   1   a  
+Te2   Te2-   0.333333   0.666667   0.841700   1.0    Uiso   0.0   2   d  
+Te3   Te2-   0.000000   0.000000   0.270100   1.0    Uiso   0.0   2   c  
+Te4   Te2-   0.333333   0.666667   0.568200   1.0    Uiso   0.0   2   d  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_moment_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+_atom_site_susceptibility_moment_11
+_atom_site_susceptibility_moment_22
+_atom_site_susceptibility_moment_33
+_atom_site_susceptibility_moment_12
+_atom_site_susceptibility_moment_13
+_atom_site_susceptibility_moment_23
+Mn1   Cani   Mani   0.00000   0.00000   4.057(63)   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+Mn1   2.0   1.0  
+
+
+data_exp_MnBiTe
+_phase_label exp_MnBiTe
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 30(4)
+
+_setup_wavelength 1.5520
+_setup_field 1.00
+_setup_ratio_lambda/2 0.0279(25)
+
+_diffrn_radiation_polarization -0.55
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 -0.087226
+_diffrn_orient_matrix_ub_12 -0.260523
+_diffrn_orient_matrix_ub_13 0.000779
+_diffrn_orient_matrix_ub_21 -0.250512
+_diffrn_orient_matrix_ub_22 -0.04975
+_diffrn_orient_matrix_ub_23 -0.000451
+_diffrn_orient_matrix_ub_31 0.001069
+_diffrn_orient_matrix_ub_32 -0.004276
+_diffrn_orient_matrix_ub_33 -0.042184
+_diffrn_orient_matrix_type CCSL

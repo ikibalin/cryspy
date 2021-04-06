@@ -1,0 +1,87 @@
+global_
+
+_add_url pd_data.rcif
+
+_add_url pd_calc.rcif
+
+
+data_pbso4
+
+_space_group_name_H-M_ref "P n m a"
+_space_group_IT_coordinate_system_code abc
+
+_cell_length_a 8.47836
+_cell_length_b 5.39667
+_cell_length_c 6.95797
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Pb   Pb3+   0.187490   0.250000   0.167190   1.0   Biso   1.41668   4   c  
+S    S3+    0.065410   0.250000   0.683400   1.0   Biso   0.42052   4   c  
+O1   O2-    0.907670   0.250000   0.595290   1.0   Biso   1.9879    4   c  
+O2   O2-    0.193760   0.250000   0.543210   1.0   Biso   1.47157   4   c  
+O3   O2-    0.081030   0.027080   0.809040   1.0   Biso   1.32212   8   d  
+
+
+data_pd
+_range_2theta_min 10.0
+_range_2theta_max 155.45
+
+_chi2_sum True
+_chi2_diff False
+_chi2_up False
+_chi2_down False
+
+_pd_instr_resolution_U 0.15579
+_pd_instr_resolution_V -0.45607
+_pd_instr_resolution_W 0.41917
+_pd_instr_resolution_X 0.00
+_pd_instr_resolution_Y 0.09174
+
+_setup_wavelength 1.9120
+_setup_field 0.00
+_setup_offset_2theta -0.13884(13)
+
+_pd_instr_reflex_asymmetry_p1 0.37434
+_pd_instr_reflex_asymmetry_p2 0.03713
+_pd_instr_reflex_asymmetry_p3 -0.32978
+_pd_instr_reflex_asymmetry_p4 0.0
+
+loop_
+_exclude_2theta_min
+_exclude_2theta_max
+_exclude_id
+0.0     10.0    A  
+154.0   180.0   B  
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+11.0    205(1)      
+15.0    194.18(77)  
+20.0    194.22(61)  
+30.0    188.56(40)  
+50.0    202.15(32)  
+70.0    201.28(24)  
+90.0    216.00(28)  
+110.0   238.56(31)  
+130.0   235.34(41)  
+153.0   231.61(71)  
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+pbso4   1.4809   0.0  

@@ -1,0 +1,170 @@
+COMM   D1B      FeMN39 20K
+! Current global Chi2 (Bragg contrib.) =     0.4478E+06
+! Files => DAT-file: full.dat,  PCR-file: full
+!Job Npr Nph Nba Nex Nsc Nor Dum Iwg Ilo Ias Res Ste Nre Cry Uni Cor Opt Aut
+   1   0   2   2   0   0   0   1   0   0   1   0   0   0   0   0   0   0   0
+!
+!Ipr Ppl Ioc Mat Pcr Ls1 Ls2 Ls3 NLI Prf Ins Rpa Sym Hkl Fou Sho Ana
+   3   0   1   0   1   0   4   0   0  -3  10   0   0   0   0   0   0
+!
+! Lambda1  Lambda2    Ratio    Bkpos    Wdt    Cthm     muR   AsyLim   Rpolarz  2nd-muR -> Patt# 1
+ 1.400000 1.400000  1.00000   90.000  3.0000  0.0000  0.0000   40.00    0.0000  0.0000
+!
+!NCY  Eps  R_at  R_an  R_pr  R_gl     Thmin       Step       Thmax    PSD    Sent0
+  1  0.30  0.65  0.65  0.65  0.65     17.4700   0.100091   126.4700   0.000   0.000
+!
+!2Theta/TOF/E(Kev)   Background  for Pattern#  1
+         5.0000         0.0000          0.00
+        80.0000         0.0000          0.00
+! 
+!
+       0    !Number of refined parameters
+!
+!  Zero    Code    SyCos    Code   SySin    Code  Lambda     Code MORE ->Patt# 1
+  0.77300    0.0  0.00000    0.0  0.00000    0.0 0.000000    0.00   0
+!-------------------------------------------------------------------------------
+!  Data for PHASE number:   1  ==> Current R_Bragg for Pattern#  1: ********
+!-------------------------------------------------------------------------------
+Fe3O4  CORE
+!
+!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More
+   3   0   0 1.0 1.0 1.0  10   0  -1   0   0        231.558   0   7   0
+!
+!
+F d -3 m                 <--Space group symbol
+!Nsym Cen Laue MagMat
+  24   2   1   1
+!
+SYMM  x,y,z
+MSYM u,v,w,0.0
+SYMM  x,-y+1/4,-z+1/4
+MSYM u,v,w,0.0
+SYMM  -x+1/4,y,-z+1/4
+MSYM u,v,w,0.0
+SYMM  -x+1/4,-y+1/4,z
+MSYM u,v,w,0.0
+SYMM  y,z,x
+MSYM u,v,w,0.0
+SYMM  -y+1/4,-z+1/4,x
+MSYM u,v,w,0.0
+SYMM  y,-z+1/4,-x+1/4
+MSYM u,v,w,0.0
+SYMM  -y+1/4,z,-x+1/4
+MSYM u,v,w,0.0
+SYMM  z,x,y
+MSYM u,v,w,0.0
+SYMM  -z+1/4,x,-y+1/4
+MSYM u,v,w,0.0
+SYMM  -z+1/4,-x+1/4,y
+MSYM u,v,w,0.0
+SYMM  z,-x+1/4,-y+1/4
+MSYM u,v,w,0.0
+SYMM  y,x,z
+MSYM u,v,w,0.0
+SYMM  -y+1/4,x,-z+1/4
+MSYM u,v,w,0.0
+SYMM  y,-x+1/4,-z+1/4
+MSYM u,v,w,0.0
+SYMM  -y+1/4,-x+1/4,z
+MSYM u,v,w,0.0
+SYMM  z,y,x
+MSYM u,v,w,0.0
+SYMM  -z+1/4,-y+1/4,x
+MSYM u,v,w,0.0
+SYMM  -z+1/4,y,-x+1/4
+MSYM u,v,w,0.0
+SYMM  z,-y+1/4,-x+1/4
+MSYM u,v,w,0.0
+SYMM  x,z,y
+MSYM u,v,w,0.0
+SYMM  x,-z+1/4,-y+1/4
+MSYM u,v,w,0.0
+SYMM  -x+1/4,-z+1/4,y
+MSYM u,v,w,0.0
+SYMM  -x+1/4,z,-y+1/4
+MSYM u,v,w,0.0
+!
+!Atom   Typ    Mag Vek      X         Y         Z       Biso      Occ    N_type  Spc/Fftype /Line below:Codes
+!       Rx       Ry        Rz        Ix        Iy        Iz      MagPh  / Line below:Codes
+!      beta11   beta22   beta33   beta12   beta13   beta23  / Line below:Codes
+A1     MFE3      1  0    0.12500   0.12500   0.12500   0.00000   0.04167    1    0  
+                            0.00      0.00      0.00      0.00      0.00
+     0.00000   0.00000   5.00000   0.00000   0.00000   0.00000   0.00000 <-MagPar
+        0.00      0.00      0.00      0.00      0.00      0.00      0.00
+B1     MFE3      1  0    0.50000   0.50000   0.50000   0.00000   0.08333    1    0  
+                            0.00      0.00      0.00      0.00      0.00
+     0.00000   0.00000  -5.00000   0.00000   0.00000   0.00000   0.00000 <-MagPar
+        0.00      0.00      0.00      0.00      0.00      0.00      0.00
+O      O         0  0    0.25223   0.25223   0.25223   0.00000   0.16667    0    0  
+                            0.00      0.00      0.00      0.00      0.00
+!-------> Profile Parameters for Pattern #  1
+!  Scale        Shape1      Bov      Str1      Str2      Str3   Strain-Model
+  32.320       0.00000   0.00991   0.00000   0.00000   0.00000       0
+    71.00000     0.000     0.000     0.000     0.000     0.000
+!       U         V          W           X          Y        GauSiz   LorSiz Size-Model
+  16.879370  -2.359620   0.495600   0.000000   0.000000   1.324000   0.000000    0
+      0.000      0.000      0.000      0.000     11.000     51.000      0.000
+!     a          b         c        alpha      beta       gamma      #Cell Info
+   8.367340   8.367340   8.367340  90.000000  90.000000  90.000000   
+   41.00000   41.00000   41.00000    0.00000    0.00000    0.00000
+!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L
+  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000
+     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00
+!-------------------------------------------------------------------------------
+!  Data for PHASE number:   2  ==> Current R_Bragg for Pattern#  1: 407.2444
+!-------------------------------------------------------------------------------
+Mn3O4  hausmannite  SHELL
+!
+!Nat Dis Ang Pr1 Pr2 Pr3 Jbt Irf Isy Str Furth       ATZ    Nvk Npr More
+   3   0   0 0.0 0.0 1.0  10   0  -1   0   0        114.406   0   7   0
+!
+!
+I -1                     <--Space group symbol
+!Nsym Cen Laue MagMat
+   8   2   4   1
+!
+SYMM  x,y,z
+MSYM  u,v,w, 0.0
+SYMM  -y+1/4,x+3/4,z+1/4
+MSYM  u,v,w, 0.0
+SYMM  -x+1/2,-y,z+1/2
+MSYM  u,v,w, 0.0
+SYMM  y+1/4,-x+1/4,z+3/4
+MSYM  u,v,w, 0.0
+SYMM  -x,y,z
+MSYM  u,v,w, 0.0
+SYMM  y+3/4,x+3/4,z+1/4
+MSYM  u,v,w, 0.0
+SYMM  x+1/2,-y,z+1/2
+MSYM  u,v,w, 0.0
+SYMM  -y+3/4,-x+1/4,z+3/4
+MSYM  u,v,w, 0.0
+!
+!Atom   Typ    Mag Vek      X         Y         Z       Biso      Occ    N_type  Spc/Fftype /Line below:Codes
+!       Rx       Ry        Rz        Ix        Iy        Iz      MagPh  / Line below:Codes
+!      beta11   beta22   beta33   beta12   beta13   beta23  / Line below:Codes
+MN2+   MMN2      1  0    0.00000   0.75000   0.12500   0.00000   0.12500    1    0  
+                            0.00      0.00      0.00      0.00      0.00
+     0.00000   0.00000   2.00000   0.00000   0.00000   0.00000   0.00000 <-MagPar
+        0.00      0.00     31.00      0.00      0.00      0.00      0.00
+MN3+   MMN3      1  0    0.00000   0.00000   0.50000   0.00000   0.25000    1    0  
+                            0.00      0.00      0.00      0.00      0.00
+     0.00000   0.00000  -2.00000   0.00000   0.00000   0.00000   0.00000 <-MagPar
+        0.00      0.00    -31.00      0.00      0.00      0.00      0.00
+O1     O         0  0    0.00000   0.47230   0.25920   0.00000   0.50000    0    0  
+                            0.00      0.00      0.00      0.00      0.00
+!-------> Profile Parameters for Pattern #  1
+!  Scale        Shape1      Bov      Str1      Str2      Str3   Strain-Model
+  45.000       0.00000   0.00000   0.00000   0.00000   0.00000       0
+    61.00000     0.000     0.000     0.000     0.000     0.000
+!       U         V          W           X          Y        GauSiz   LorSiz Size-Model
+  16.879370  -2.359620   0.495600   0.000000   0.000000   2.142000   0.000000    0
+      0.000      0.000      0.000      0.000      0.000     21.000      0.000
+!     a          b         c        alpha      beta       gamma      #Cell Info
+   5.723600   5.723600   9.478600  90.000000  90.000000  90.000000   
+    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
+!  Pref1    Pref2      Asy1     Asy2     Asy3     Asy4      S_L      D_L
+  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000  0.00000
+     0.00     0.00     0.00     0.00     0.00     0.00     0.00     0.00
+!  2Th1/TOF1    2Th2/TOF2  Pattern to plot
+      17.470      80.000       1

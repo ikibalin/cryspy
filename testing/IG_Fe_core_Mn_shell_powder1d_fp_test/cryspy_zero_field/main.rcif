@@ -1,0 +1,144 @@
+global_
+
+_add_url powder1d_data.rcif
+
+_add_url powder1d_calc.rcif
+
+
+data_fe3o4
+
+_cell_length_a 8.36739
+_cell_length_b 8.36739
+_cell_length_c 8.36739
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+_space_group_name_H-M_ref "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+FeA   2.0   1.0  
+FeB   2.0   1.0  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_moment_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+_atom_site_susceptibility_moment_11
+_atom_site_susceptibility_moment_22
+_atom_site_susceptibility_moment_33
+_atom_site_susceptibility_moment_12
+_atom_site_susceptibility_moment_13
+_atom_site_susceptibility_moment_23
+FeA   Ciso   Miso   0.00000    0.00000    0.00000    -0.00000   -0.00000   -0.00000   0.00000   0.00000   0.00000   -0.00000   -0.00000   -0.00000  
+FeB   Ciso   Miso   -0.00000   -0.00000   -0.00000   0.00000    0.00000    0.00000    0.00000   0.00000   0.00000   -0.00000   -0.00000   -0.00000  
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+FeA   Fe3+   0.125000   0.125000   0.125000   1.0   8    a  
+FeB   Fe3+   0.500000   0.500000   0.500000   1.0   16   d  
+O     O2-    0.252230   0.252230   0.252230   1.0   32   e  
+
+
+data_mn3o4
+
+_cell_length_a 5.72360
+_cell_length_b 5.72360
+_cell_length_c 9.47860
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+_space_group_name_H-M_ref "I 41/a m d"
+_space_group_IT_coordinate_system_code 2
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+MnA   2.0   1.0  
+MnB   2.0   1.0  
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_moment_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+_atom_site_susceptibility_moment_11
+_atom_site_susceptibility_moment_22
+_atom_site_susceptibility_moment_33
+_atom_site_susceptibility_moment_12
+_atom_site_susceptibility_moment_13
+_atom_site_susceptibility_moment_23
+MnA   Ciso   Miso   -0.00000   -0.00000   -0.00000   0.00000    0.00000    0.00000    0.00000   0.00000   0.00000   -0.00000   -0.00000   -0.00000  
+MnB   Ciso   Miso   0.00000    0.00000    0.00000    -0.00000   -0.00000   -0.00000   0.00000   0.00000   0.00000   -0.00000   -0.00000   -0.00000  
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+MnA   Mn2+   0.000000   0.750000   0.125000   1.0   Uiso   0.0   4    a  
+MnB   Mn3+   0.000000   0.000000   0.500000   1.0   Uiso   0.0   8    d  
+O1    O2-    0.000000   0.472300   0.259200   1.0   Uiso   0.0   16   h  
+
+
+data_powder1d
+_chi2_sum True
+_chi2_diff False
+_chi2_up False
+_chi2_down False
+
+_range_2theta_min 17.469999
+_range_2theta_max 126.470001
+
+_pd_instr_resolution_U 16.87937
+_pd_instr_resolution_V -2.35962
+_pd_instr_resolution_W 0.49560
+_pd_instr_resolution_X 0.00
+_pd_instr_resolution_Y 0.00000
+
+_setup_wavelength 1.4000
+_setup_field 1.00
+_setup_offset_2theta 0.773
+
+loop_
+_phase_label
+_phase_scale
+_phase_igsize
+fe3o4   8.0150(55)   1.324   
+mn3o4   11.698(40)   2.1417  
+
+loop_
+_pd_background_2theta
+_pd_background_intensity
+20.0    0.0  
+120.0   0.0  

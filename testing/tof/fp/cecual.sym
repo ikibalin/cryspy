@@ -1,0 +1,183 @@
+  CeCuAl3 RT #13744 ThCr2Si2 type
+
+            --------------------------------
+            SYMMETRY INFORMATION ON PHASE: 1
+            --------------------------------
+
+
+ => Symmetry information on space group: I 4 m m             
+ -> The multiplicity of the general position is:  16
+ -> The space group is Acentric                 
+ -> Lattice type  I: { 000; 1/2 1/2 1/2 }+                         
+ -> Reduced set of symmetry operators:
+
+  No.  IT   Symmetry symbol    Rotation part     Associated Translation
+   1: ( 1)   1            -->     ( x, y, z) + {  0.0000  0.0000  0.0000}
+   2: (16)  4+ ( 0, 0, z) -->     (-y, x, z) + {  0.0000  0.0000  0.0000}
+   3: ( 2)   2 ( 0, 0, z) -->     (-x,-y, z) + {  0.0000  0.0000  0.0000}
+   4: (15)  4- ( 0, 0, z) -->     ( y,-x, z) + {  0.0000  0.0000  0.0000}
+   5: (28)   m ( 0, y, z) -->     (-x, y, z) + {  0.0000  0.0000  0.0000}
+   6: (38)   m ( x, x, z) -->     ( y, x, z) + {  0.0000  0.0000  0.0000}
+   7: (27)   m ( x, 0, z) -->     ( x,-y, z) + {  0.0000  0.0000  0.0000}
+   8: (37)   m ( x,-x, z) -->     (-y,-x, z) + {  0.0000  0.0000  0.0000}
+
+
+        Information on Space Group: 
+        --------------------------- 
+
+ =>   Number of Space group: 107
+ =>  Hermann-Mauguin Symbol: I 4 m m
+ =>             Hall Symbol: I 4 -2
+ =>            Setting Type: IT (Generated from Hermann-Mauguin symbol)
+ =>          Crystal System: Tetragonal
+ =>              Laue Class: 4/mmm
+ =>             Point Group: 4mm
+ =>         Bravais Lattice: I
+ =>          Lattice Symbol: tI
+ =>  Reduced Number of S.O.:   8
+ =>    General multiplicity:  16
+ =>          Centrosymmetry: Acentric
+ =>  Generators (exc. -1&L):   2
+ =>         Asymmetric unit:  0.000 <= x <=  0.500
+                              0.000 <= y <=  0.500
+                              0.000 <= z <=  0.500
+ => Centring vectors:  1
+ => Latt( 1): (1/2,1/2,1/2)                                                                         
+
+ => List of all Symmetry Operators and Symmetry Symbols
+
+ => SYMM(  1): x,y,z                             Symbol: 1
+ => SYMM(  2): -y,x,z                            Symbol: 4+ 0,0,z
+ => SYMM(  3): -x,-y,z                           Symbol: 2 0,0,z
+ => SYMM(  4): y,-x,z                            Symbol: 4- 0,0,z
+ => SYMM(  5): -x,y,z                            Symbol: m 0,y,z
+ => SYMM(  6): y,x,z                             Symbol: m x,x,z
+ => SYMM(  7): x,-y,z                            Symbol: m x,0,z
+ => SYMM(  8): -y,-x,z                           Symbol: m x,-x,z
+ => SYMM(  9): x+1/2,y+1/2,z+1/2                 Symbol: t (1/2,1/2,1/2)
+ => SYMM( 10): -y+1/2,x+1/2,z+1/2                Symbol: 4+ (0,0,1/2) 0,1/2,z
+ => SYMM( 11): -x+1/2,-y+1/2,z+1/2               Symbol: 2 (0,0,1/2) 1/4,1/4,z
+ => SYMM( 12): y+1/2,-x+1/2,z+1/2                Symbol: 4- (0,0,1/2) 1/2,0,z
+ => SYMM( 13): -x+1/2,y+1/2,z+1/2                Symbol: n (0,1/2,1/2) 1/4,y,z
+ => SYMM( 14): y+1/2,x+1/2,z+1/2                 Symbol: n (1/2,1/2,1/2) x,x,z
+ => SYMM( 15): x+1/2,-y+1/2,z+1/2                Symbol: n (1/2,0,1/2) x,1/4,z
+ => SYMM( 16): -y+1/2,-x+1/2,z+1/2               Symbol: c x,-x+1/2,z
+
+ => Special Wyckoff Positions for I 4 m m
+ 
+    Multp     Site        Representative Coordinates (centring translations excluded)
+      8       d              x,0,z               0,x,z               -x,0,z                                  
+                             0,-x,z                                                                          
+ 
+      8       c              x,x,z               -x,x,z              -x,-x,z                                 
+                             x,-x,z                                                                          
+ 
+      4       b              0,1/2,z             1/2,0,z                                                     
+ 
+      2       a              0,0,z                                                                           
+ 
+
+       -------------------------------------------------
+       INFORMATION ON SITE SYMMETRY OF ATOMS IN PHASE: 1
+       -------------------------------------------------
+
+
+  -> Information on Atom: Ce1    at position:    0.00000   0.00000   0.00000  Multiplicity:   2
+     List of symmetry operators and symmetry elements of the site point group:
+     Operator  2:  -y,x,z                        4+ 0,0,z  
+     Operator  3:  -x,-y,z                       2 0,0,z   
+     Operator  4:  y,-x,z                        4- 0,0,z  
+     Operator  5:  -x,y,z                        m 0,y,z   
+     Operator  6:  y,x,z                         m x,x,z   
+     Operator  7:  x,-y,z                        m x,0,z   
+     Operator  8:  -y,-x,z                       m x,-x,z  
+     Codes for atom coordinates  (Automatic Constraints):        0.00        0.00        0.00
+     Codes for anisotropic betas (Automatic Constraints):        0.00        0.00        0.00        0.00        0.00        0.00
+
+     --> Complete orbit of the atom: Ce1   
+
+         Ce1(  1)    0.00000  0.00000  0.00000    x,y,z
+         Ce1(  2)    0.50000  0.50000  0.50000    x+1/2,y+1/2,z+1/2
+
+  -> Information on Atom: Cu1    at position:    0.00000   0.00000   0.63224  Multiplicity:   2
+     List of symmetry operators and symmetry elements of the site point group:
+     Operator  2:  -y,x,z                        4+ 0,0,z  
+     Operator  3:  -x,-y,z                       2 0,0,z   
+     Operator  4:  y,-x,z                        4- 0,0,z  
+     Operator  5:  -x,y,z                        m 0,y,z   
+     Operator  6:  y,x,z                         m x,x,z   
+     Operator  7:  x,-y,z                        m x,0,z   
+     Operator  8:  -y,-x,z                       m x,-x,z  
+     Codes for atom coordinates  (Automatic Constraints):        0.00        0.00      141.00
+     Codes for anisotropic betas (Automatic Constraints):        0.00        0.00        0.00        0.00        0.00        0.00
+
+     --> Complete orbit of the atom: Cu1   
+
+         Cu1(  1)    0.00000  0.00000  0.63224    x,y,z
+         Cu1(  2)    0.50000  0.50000  0.13224    x+1/2,y+1/2,z+1/2
+
+  -> Information on Atom: Al1    at position:    0.00000   0.00000   0.63224  Multiplicity:   2
+     List of symmetry operators and symmetry elements of the site point group:
+     Operator  2:  -y,x,z                        4+ 0,0,z  
+     Operator  3:  -x,-y,z                       2 0,0,z   
+     Operator  4:  y,-x,z                        4- 0,0,z  
+     Operator  5:  -x,y,z                        m 0,y,z   
+     Operator  6:  y,x,z                         m x,x,z   
+     Operator  7:  x,-y,z                        m x,0,z   
+     Operator  8:  -y,-x,z                       m x,-x,z  
+     Codes for atom coordinates  (Automatic Constraints):        0.00        0.00      141.00
+     Codes for anisotropic betas (Automatic Constraints):        0.00        0.00        0.00        0.00        0.00        0.00
+
+     --> Complete orbit of the atom: Al1   
+
+         Al1(  1)    0.00000  0.00000  0.63224    x,y,z
+         Al1(  2)    0.50000  0.50000  0.13224    x+1/2,y+1/2,z+1/2
+
+  -> Information on Atom: Cu2    at position:    0.00000   0.00000   0.40437  Multiplicity:   2
+     List of symmetry operators and symmetry elements of the site point group:
+     Operator  2:  -y,x,z                        4+ 0,0,z  
+     Operator  3:  -x,-y,z                       2 0,0,z   
+     Operator  4:  y,-x,z                        4- 0,0,z  
+     Operator  5:  -x,y,z                        m 0,y,z   
+     Operator  6:  y,x,z                         m x,x,z   
+     Operator  7:  x,-y,z                        m x,0,z   
+     Operator  8:  -y,-x,z                       m x,-x,z  
+     Codes for atom coordinates  (Automatic Constraints):        0.00        0.00      151.00
+     Codes for anisotropic betas (Automatic Constraints):        0.00        0.00        0.00        0.00        0.00        0.00
+
+     --> Complete orbit of the atom: Cu2   
+
+         Cu2(  1)    0.00000  0.00000  0.40437    x,y,z
+         Cu2(  2)    0.50000  0.50000  0.90437    x+1/2,y+1/2,z+1/2
+
+  -> Information on Atom: Al2    at position:    0.00000   0.00000   0.40437  Multiplicity:   2
+     List of symmetry operators and symmetry elements of the site point group:
+     Operator  2:  -y,x,z                        4+ 0,0,z  
+     Operator  3:  -x,-y,z                       2 0,0,z   
+     Operator  4:  y,-x,z                        4- 0,0,z  
+     Operator  5:  -x,y,z                        m 0,y,z   
+     Operator  6:  y,x,z                         m x,x,z   
+     Operator  7:  x,-y,z                        m x,0,z   
+     Operator  8:  -y,-x,z                       m x,-x,z  
+     Codes for atom coordinates  (Automatic Constraints):        0.00        0.00      151.00
+     Codes for anisotropic betas (Automatic Constraints):        0.00        0.00        0.00        0.00        0.00        0.00
+
+     --> Complete orbit of the atom: Al2   
+
+         Al2(  1)    0.00000  0.00000  0.40437    x,y,z
+         Al2(  2)    0.50000  0.50000  0.90437    x+1/2,y+1/2,z+1/2
+
+  -> Information on Atom: Al3    at position:    0.00000   0.50000   0.24981  Multiplicity:   4
+     List of symmetry operators and symmetry elements of the site point group:
+     Operator  2:  -x,y,z                        m 0,y,z   
+     Operator  3:  -x,-y+1,z                     2 0,1/2,z 
+     Operator  4:  x,-y+1,z                      m x,1/2,z 
+     Codes for atom coordinates  (Automatic Constraints):        0.00        0.00      161.00
+     Codes for anisotropic betas (Automatic Constraints):        0.00        0.00        0.00        0.00        0.00        0.00
+
+     --> Complete orbit of the atom: Al3   
+
+         Al3(  1)    0.00000  0.50000  0.24981    x,y,z
+         Al3(  2)    0.50000  0.00000  0.24981    -y,x,z
+         Al3(  3)    0.50000  0.00000  0.74981    x+1/2,y+1/2,z+1/2
+         Al3(  4)    0.00000  0.50000  0.74981    -y+1/2,x+1/2,z+1/2

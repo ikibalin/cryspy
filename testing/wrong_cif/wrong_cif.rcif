@@ -1,0 +1,467 @@
+global_
+
+data_global
+
+_publ_contact_author_name .
+_publ_contact_author_address .
+_publ_contact_author_email .
+_publ_contact_author_fax .
+_publ_contact_author_phone .
+_publ_contact_letter .
+_publ_requested_journal .
+_publ_requested_coeditor_name .
+_publ_requested_category .
+_publ_section_title "Tb2Ti2O7, nuclear"
+_publ_section_title_footnote .
+_publ_section_synopsis .
+_publ_section_abstract .
+_publ_section_comment .
+_publ_section_exptl_prep .
+_publ_section_exptl_refinement .
+_publ_section_references .
+_publ_section_figure_captions .
+_publ_section_acknowledgements .
+
+_journal_data_validation_number .
+_journal_date_recd_electronic .
+_journal_date_to_coeditor .
+_journal_date_from_coeditor .
+_journal_date_accepted .
+_journal_date_printers_first .
+_journal_date_printers_final .
+_journal_date_proofs_out .
+_journal_date_proofs_in .
+_journal_coeditor_name .
+_journal_coeditor_code .
+_journal_coeditor_notes .
+_journal_techeditor_code .
+_journal_techeditor_notes .
+_journal_coden_astm .
+_journal_name_full "Journal Name"
+_journal_year 1986
+_journal_volume 25
+_journal_issue 1
+_journal_page_first 16
+_journal_page_last 85
+_journal_paper_category .
+_journal_suppl_publ_number .
+_journal_suppl_publ_pages .
+
+loop_
+_publ_manuscript_incl_extra_item
+_publ_manuscript_incl_extra_info
+_publ_manuscript_incl_extra_defn
+"_pd_proc_ls_prof_cR_factor"    "Prof. R-factor CORRECTED for background"  no  
+"_pd_proc_ls_prof_cwR_factor"   "wProf.R-factor CORRECTED for background"  no  
+"_pd_proc_ls_prof_cwR_expected" "wProf.Expected CORRECTED for background"  no  
+"_pd_proc_ls_prof_chi2"         "Chi-square for all considered points"     no  
+"_pd_proc_ls_prof_echi2"        "Chi-2 for points with Bragg contribution" no  
+
+loop_
+_publ_author_name
+_publ_author_footnote
+_publ_author_address
+.   .   .  
+;   .   .  
+;   .   .  
+;   .   .  
+;   .   .  
+
+
+data_Tb2Ti2O7
+
+_exptl_crystal_description .
+_exptl_crystal_colour .
+_exptl_crystal_size_max .
+_exptl_crystal_size_mid .
+_exptl_crystal_size_min .
+_exptl_crystal_size_rad .
+_exptl_crystal_density_diffrn .
+_exptl_crystal_density_meas .
+_exptl_crystal_density_method .
+_exptl_crystal_f_000 .
+_exptl_absorpt_coefficient_mu .
+_exptl_absorpt_correction_type .
+_exptl_absorpt_process_details .
+_exptl_absorpt_correction_t_min .
+_exptl_absorpt_correction_t_max .
+_exptl_special_details .
+
+_cell_length_a 10.13000
+_cell_length_b 10.13000
+_cell_length_c 10.13000
+_cell_angle_alpha 90.00
+_cell_angle_beta 90.00
+_cell_angle_gamma 90.00
+
+_reflns_number_total .
+_reflns_number_gt .
+_reflns_threshold_expression .
+
+_chemical_name_systematic .
+_chemical_name_common .
+_chemical_formula_moiety .
+_chemical_formula_structural .
+_chemical_formula_analytical .
+_chemical_formula_iupac .
+_chemical_formula_sum .
+_chemical_formula_weight .
+_chemical_melting_point .
+_chemical_compound_source .
+
+_refine_ls_goodness_of_fit_all .
+_refine_ls_number_reflns .
+_refine_ls_number_restraints .
+_refine_ls_number_constraints .
+_refine_ls_weighting_scheme .
+_refine_ls_number_parameters .
+
+_symmetry_int_tables_number 227
+_symmetry_space_group_name_h-m "P b n m"
+_symmetry_space_group_name_hall "-F 4vw 2vw 3"
+
+_geom_special_details .
+
+_refine_special_details .
+_refine_ls_structure_factor_coef .
+_refine_ls_matrix_type .
+_refine_ls_r_i_factor .
+_refine_ls_r_fsqd_factor .
+_refine_ls_r_factor_all .
+_refine_ls_r_factor_gt .
+_refine_ls_wr_factor_all .
+_refine_ls_wr_factor_ref .
+_refine_ls_goodness_of_fit_ref .
+_refine_ls_restrained_s_all .
+_refine_ls_restrained_s_obs .
+_refine_ls_hydrogen_treatment .
+_refine_ls_weighting_details .
+_refine_ls_shift/su_max .
+_refine_ls_shift/su_mean .
+_refine_diff_density_max .
+_refine_diff_density_min .
+_refine_ls_extinction_method .
+_refine_ls_extinction_coef .
+_refine_ls_abs_structure_details .
+_refine_ls_abs_structure_flack .
+_refine_ls_abs_structure_rogers .
+
+_computing_data_collection .
+_computing_cell_refinement .
+_computing_data_reduction "DATARED (CFML-v.1)"
+_computing_structure_solution .
+_computing_structure_refinement FULLPROF
+_computing_molecular_graphics .
+_computing_publication_material .
+
+_diffrn_ambient_temperature .
+_diffrn_source "nuclear reactor"
+_diffrn_radiation_type "Constant Wavelength Neutron Diffraction"
+_diffrn_radiation_wavelength 1.54056
+_diffrn_source_type .
+_diffrn_radiation_monochromator .
+_diffrn_measurement_device_type .
+_diffrn_measurement_method .
+_diffrn_detector_area_resol_mean .
+_diffrn_detector .
+_diffrn_detector_type .
+_diffrn_reflns_number .
+_diffrn_reflns_av_r_equivalents .
+_diffrn_reflns_av_sigmai/neti .
+_diffrn_reflns_theta_min .
+_diffrn_reflns_theta_max .
+_diffrn_reflns_theta_full .
+_diffrn_measured_fraction_theta_max .
+_diffrn_measured_fraction_theta_full .
+_diffrn_reflns_limit_h_min .
+_diffrn_reflns_limit_h_max .
+_diffrn_reflns_limit_k_min .
+_diffrn_reflns_limit_k_max .
+_diffrn_reflns_limit_l_min .
+_diffrn_reflns_limit_l_max .
+_diffrn_reflns_reduction_process .
+_diffrn_standards_number .
+_diffrn_standards_interval_count .
+_diffrn_standards_interval_time .
+_diffrn_standards_decay_% .
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+Tb1   TB   0.500000      0.500000   0.500000   1.0       Uiso   0.0125(15)  
+Ti1   TI   0.000000      0.000000   0.000000   1.0       Uiso   0.0120(30)  
+O1    O    0.32870(29)   0.125000   0.125000   1.00004   Uiso   0.0170(11)  
+O21   O    0.375000      0.375000   0.375000   1.00012   Uiso   0.0180(20)  
+
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+x,y,z                 .  
+x,-y+1/4,-z+1/4       .  
+-x+1/4,y,-z+1/4       .  
+-x+1/4,-y+1/4,z       .  
+y,z,x                 .  
+-y+1/4,-z+1/4,x       .  
+y,-z+1/4,-x+1/4       .  
+-y+1/4,z,-x+1/4       .  
+z,x,y                 .  
+-z+1/4,x,-y+1/4       .  
+-z+1/4,-x+1/4,y       .  
+z,-x+1/4,-y+1/4       .  
+y,x,z                 .  
+-y+1/4,x,-z+1/4       .  
+y,-x+1/4,-z+1/4       .  
+-y+1/4,-x+1/4,z       .  
+z,y,x                 .  
+-z+1/4,-y+1/4,x       .  
+-z+1/4,y,-x+1/4       .  
+z,-y+1/4,-x+1/4       .  
+x,z,y                 .  
+x,-z+1/4,-y+1/4       .  
+-x+1/4,-z+1/4,y       .  
+-x+1/4,z,-y+1/4       .  
+-x,-y,-z              .  
+-x,y+3/4,z+3/4        .  
+x+3/4,-y,z+3/4        .  
+x+3/4,y+3/4,-z        .  
+-y,-z,-x              .  
+y+3/4,z+3/4,-x        .  
+-y,z+3/4,x+3/4        .  
+y+3/4,-z,x+3/4        .  
+-z,-x,-y              .  
+z+3/4,-x,y+3/4        .  
+z+3/4,x+3/4,-y        .  
+-z,x+3/4,y+3/4        .  
+-y,-x,-z              .  
+y+3/4,-x,z+3/4        .  
+-y,x+3/4,z+3/4        .  
+y+3/4,x+3/4,-z        .  
+-z,-y,-x              .  
+z+3/4,y+3/4,-x        .  
+z+3/4,-y,x+3/4        .  
+-z,y+3/4,x+3/4        .  
+-x,-z,-y              .  
+-x,z+3/4,y+3/4        .  
+x+3/4,z+3/4,-y        .  
+x+3/4,-z,y+3/4        .  
+x+1/2,y+1/2,z         .  
+x+1/2,-y+3/4,-z+1/4   .  
+-x+3/4,y+1/2,-z+1/4   .  
+-x+3/4,-y+3/4,z       .  
+y+1/2,z+1/2,x         .  
+-y+3/4,-z+3/4,x       .  
+y+1/2,-z+3/4,-x+1/4   .  
+-y+3/4,z+1/2,-x+1/4   .  
+z+1/2,x+1/2,y         .  
+-z+3/4,x+1/2,-y+1/4   .  
+-z+3/4,-x+3/4,y       .  
+z+1/2,-x+3/4,-y+1/4   .  
+y+1/2,x+1/2,z         .  
+-y+3/4,x+1/2,-z+1/4   .  
+y+1/2,-x+3/4,-z+1/4   .  
+-y+3/4,-x+3/4,z       .  
+z+1/2,y+1/2,x         .  
+-z+3/4,-y+3/4,x       .  
+-z+3/4,y+1/2,-x+1/4   .  
+z+1/2,-y+3/4,-x+1/4   .  
+x+1/2,z+1/2,y         .  
+x+1/2,-z+3/4,-y+1/4   .  
+-x+3/4,-z+3/4,y       .  
+-x+3/4,z+1/2,-y+1/4   .  
+-x+1/2,-y+1/2,-z      .  
+-x+1/2,y+1/4,z+3/4    .  
+x+1/4,-y+1/2,z+3/4    .  
+x+1/4,y+1/4,-z        .  
+-y+1/2,-z+1/2,-x      .  
+y+1/4,z+1/4,-x        .  
+-y+1/2,z+1/4,x+3/4    .  
+y+1/4,-z+1/2,x+3/4    .  
+-z+1/2,-x+1/2,-y      .  
+z+1/4,-x+1/2,y+3/4    .  
+z+1/4,x+1/4,-y        .  
+-z+1/2,x+1/4,y+3/4    .  
+-y+1/2,-x+1/2,-z      .  
+y+1/4,-x+1/2,z+3/4    .  
+-y+1/2,x+1/4,z+3/4    .  
+y+1/4,x+1/4,-z        .  
+-z+1/2,-y+1/2,-x      .  
+z+1/4,y+1/4,-x        .  
+z+1/4,-y+1/2,x+3/4    .  
+-z+1/2,y+1/4,x+3/4    .  
+-x+1/2,-z+1/2,-y      .  
+-x+1/2,z+1/4,y+3/4    .  
+x+1/4,z+1/4,-y        .  
+x+1/4,-z+1/2,y+3/4    .  
+x+1/2,y,z+1/2         .  
+x+1/2,-y+1/4,-z+3/4   .  
+-x+3/4,y,-z+3/4       .  
+-x+3/4,-y+1/4,z+1/2   .  
+y+1/2,z,x+1/2         .  
+-y+3/4,-z+1/4,x+1/2   .  
+y+1/2,-z+1/4,-x+3/4   .  
+-y+3/4,z,-x+3/4       .  
+z+1/2,x,y+1/2         .  
+-z+3/4,x,-y+3/4       .  
+-z+3/4,-x+1/4,y+1/2   .  
+z+1/2,-x+1/4,-y+3/4   .  
+y+1/2,x,z+1/2         .  
+-y+3/4,x,-z+3/4       .  
+y+1/2,-x+1/4,-z+3/4   .  
+-y+3/4,-x+1/4,z+1/2   .  
+z+1/2,y,x+1/2         .  
+-z+3/4,-y+1/4,x+1/2   .  
+-z+3/4,y,-x+3/4       .  
+z+1/2,-y+1/4,-x+3/4   .  
+x+1/2,z,y+1/2         .  
+x+1/2,-z+1/4,-y+3/4   .  
+-x+3/4,-z+1/4,y+1/2   .  
+-x+3/4,z,-y+3/4       .  
+-x+1/2,-y,-z+1/2      .  
+-x+1/2,y+3/4,z+1/4    .  
+x+1/4,-y,z+1/4        .  
+x+1/4,y+3/4,-z+1/2    .  
+-y+1/2,-z,-x+1/2      .  
+y+1/4,z+3/4,-x+1/2    .  
+-y+1/2,z+3/4,x+1/4    .  
+y+1/4,-z,x+1/4        .  
+-z+1/2,-x,-y+1/2      .  
+z+1/4,-x,y+1/4        .  
+z+1/4,x+3/4,-y+1/2    .  
+-z+1/2,x+3/4,y+1/4    .  
+-y+1/2,-x,-z+1/2      .  
+y+1/4,-x,z+1/4        .  
+-y+1/2,x+3/4,z+1/4    .  
+y+1/4,x+3/4,-z+1/2    .  
+-z+1/2,-y,-x+1/2      .  
+z+1/4,y+3/4,-x+1/2    .  
+z+1/4,-y,x+1/4        .  
+-z+1/2,y+3/4,x+1/4    .  
+-x+1/2,-z,-y+1/2      .  
+-x+1/2,z+3/4,y+1/4    .  
+x+1/4,z+3/4,-y+1/2    .  
+x+1/4,-z,y+1/4        .  
+x,y+1/2,z+1/2         .  
+x,-y+3/4,-z+3/4       .  
+-x+1/4,y+1/2,-z+3/4   .  
+-x+1/4,-y+3/4,z+1/2   .  
+y,z+1/2,x+1/2         .  
+-y+1/4,-z+3/4,x+1/2   .  
+y,-z+3/4,-x+3/4       .  
+-y+1/4,z+1/2,-x+3/4   .  
+z,x+1/2,y+1/2         .  
+-z+1/4,x+1/2,-y+3/4   .  
+-z+1/4,-x+3/4,y+1/2   .  
+z,-x+3/4,-y+3/4       .  
+y,x+1/2,z+1/2         .  
+-y+1/4,x+1/2,-z+3/4   .  
+y,-x+3/4,-z+3/4       .  
+-y+1/4,-x+3/4,z+1/2   .  
+z,y+1/2,x+1/2         .  
+-z+1/4,-y+3/4,x+1/2   .  
+-z+1/4,y+1/2,-x+3/4   .  
+z,-y+3/4,-x+3/4       .  
+x,z+1/2,y+1/2         .  
+x,-z+3/4,-y+3/4       .  
+-x+1/4,-z+3/4,y+1/2   .  
+-x+1/4,z+1/2,-y+3/4   .  
+-x,-y+1/2,-z+1/2      .  
+-x,y+1/4,z+1/4        .  
+x+3/4,-y+1/2,z+1/4    .  
+x+3/4,y+1/4,-z+1/2    .  
+-y,-z+1/2,-x+1/2      .  
+y+3/4,z+1/4,-x+1/2    .  
+-y,z+1/4,x+1/4        .  
+y+3/4,-z+1/2,x+1/4    .  
+-z,-x+1/2,-y+1/2      .  
+z+3/4,-x+1/2,y+1/4    .  
+z+3/4,x+1/4,-y+1/2    .  
+-z,x+1/4,y+1/4        .  
+-y,-x+1/2,-z+1/2      .  
+y+3/4,-x+1/2,z+1/4    .  
+-y,x+1/4,z+1/4        .  
+y+3/4,x+1/4,-z+1/2    .  
+-z,-y+1/2,-x+1/2      .  
+z+3/4,y+1/4,-x+1/2    .  
+z+3/4,-y+1/2,x+1/4    .  
+-z,y+1/4,x+1/4        .  
+-x,-z+1/2,-y+1/2      .  
+-x,z+1/4,y+1/4        .  
+x+3/4,z+1/4,-y+1/2    .  
+x+3/4,-z+1/2,y+1/4    .  
+
+loop_
+_atom_type_symbol
+_atom_type_scat_length_neutron
+_atom_type_scat_source
+TB   (0.738+0j)     V.F._Sears_Neutron_News_3_26_(1992)  
+TI   (-0.3438+0j)   V.F._Sears_Neutron_News_3_26_(1992)  
+O    (0.5803+0j)    V.F._Sears_Neutron_News_3_26_(1992)  
+
+loop_
+_diffrn_standard_refln_index_h
+_diffrn_standard_refln_index_k
+_diffrn_standard_refln_index_l
+.   .   .  
+
+loop_
+_geom_bond_atom_site_label_1
+_geom_bond_atom_site_label_2
+_geom_bond_site_symmetry_1
+_geom_bond_site_symmetry_2
+_geom_bond_distance
+_geom_bond_publ_flag
+.   .   .   .   .   .  
+
+loop_
+_geom_torsion_atom_site_label_1
+_geom_torsion_atom_site_label_2
+_geom_torsion_atom_site_label_3
+_geom_torsion_atom_site_label_4
+_geom_torsion_site_symmetry_1
+_geom_torsion_site_symmetry_2
+_geom_torsion_site_symmetry_3
+_geom_torsion_site_symmetry_4
+_geom_torsion
+_geom_torsion_publ_flag
+.   .   .   .   .   .   .   .   .   .  
+
+loop_
+_geom_hbond_atom_site_label_d
+_geom_hbond_atom_site_label_h
+_geom_hbond_atom_site_label_a
+_geom_hbond_site_symmetry_d
+_geom_hbond_site_symmetry_h
+_geom_hbond_site_symmetry_a
+_geom_hbond_distance_dh
+_geom_hbond_distance_ha
+_geom_hbond_distance_da
+_geom_hbond_angle_dha
+_geom_hbond_publ_flag
+.   .   .   .   .   .   .   .   .   .   .  
+
+loop_
+_geom_angle_atom_site_label_1
+_geom_angle_atom_site_label_2
+_geom_angle_atom_site_label_3
+_geom_angle_site_symmetry_1
+_geom_angle_site_symmetry_2
+_geom_angle_site_symmetry_3
+_geom_angle
+_geom_angle_publ_flag
+.   .   .   .   .   .   .   .  
+
+loop_
+_geom_contact_atom_site_label_1
+_geom_contact_atom_site_label_2
+_geom_contact_distance
+_geom_contact_site_symmetry_1
+_geom_contact_site_symmetry_2
+_geom_contact_publ_flag
+.   .   .   .   .   .  
+

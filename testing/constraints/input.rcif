@@ -1,0 +1,16 @@
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+Ho   Ho3+   0.07120   0.25000   0.06039   0.9(2)1    Biso  0.0000()3   4   c  
+Fe   Fe3+   0.50000   0.00000   0.00000   0.1(2)1-   Biso  0.0000()3   4   c  
+O1   O2-    0.48027   0.25000   0.00817   1.0(3)2    Biso  0.0000()3   8   d  
+O2   O2-    0.32290   0.05461   0.00403   1.0(3)2    Biso  0.0000()3   4   b  
+O3   O2-    0.50000   0.74534   0.37050   1.0(3)2-   Biso  0.0000()3   4   b  

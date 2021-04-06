@@ -1,0 +1,25 @@
+#VESTA_FORMAT_VERSION 3.1.9
+ 
+ 
+CRYSTAL
+TITLE
+   CeCuAl3 RT #13744 ThCr2Si2 type
+ 
+IMPORT_STRUCTURE
+cecual.cif
+ 
+IMPORT_DENSITY 1
++1.000000E+000 cecual.pgrid
+ 
+BOUND
+    -0.1      1.1      -0.1      1.1      -0.1     1.1 
+  0   0   0   0  0
+SBOND
+  1  Al  Al   0 3.5  0  1  0  0  1
+  0 0 0 0
+ 
+STYLE
+MODEL   2  1  0
+SURFS   0  1  1
+SECTS  96  0
+POLYS  0
