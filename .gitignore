@@ -3,6 +3,8 @@
 *.bkg
 *.json
 *.pyc
+cryspy.pyproj
+cryspy.sln
 rhochi.egg-info
 build/*
 dist/*
