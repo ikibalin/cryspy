@@ -7,7 +7,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[ci skip]')"
 
     timeout-minutes: 15
-  
+
     strategy:
       max-parallel: 3
       matrix:
@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
+
+      - name: Set-up Python dependences
+        run: pip install pytest
 
       - name: Run tests
         run: python -m pytest
