@@ -21,12 +21,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set-up Python dependences
-        run: pip3 install pytest pycifstar
+        run: pip3 install -e .
 
       - name: Run tests
-        run: |
-          which python
-          which python3
-          pwd
-          ls
-          python3 -m pytest
+        run: python3 -m pytest
