@@ -30,7 +30,8 @@ def magnetization_ellipsoid_by_u_ij(
                               m_m_norm.transpose())
     val, vec = numpy.linalg.eigh(m_chi_orto)
     
-    D = numpy.diag(numpy.abs(val))  # only positive eigenvalues
+    # D = numpy.diag(numpy.abs(val))  # only positive eigenvalues
+    D = numpy.diag(numpy.square(val))  # only positive eigenvalues
     R = numpy.array(vec)
     
     chi_as_u_orto = numpy.matmul(R, numpy.matmul(D, R.transpose()))
