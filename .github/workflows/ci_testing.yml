@@ -11,8 +11,8 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        python-version: [3.7, 3.8, 3.9]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.7]  #[3.7, 3.8, 3.9]
+        os: [ubuntu-latest]  #[ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -24,4 +24,9 @@ jobs:
         run: pip install pytest
 
       - name: Run tests
-        run: python -m pytest
+        run: |
+          which python
+          which python3
+          pwd
+          ls
+          python -m pytest
