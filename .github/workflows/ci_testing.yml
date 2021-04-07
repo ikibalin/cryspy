@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set-up Python dependences
-        run: pip install pytest
+        run: pip3 install pytest
 
       - name: Run tests
         run: |
@@ -29,4 +29,4 @@ jobs:
           which python3
           pwd
           ls
-          python -m pytest
+          python3 -m pytest
