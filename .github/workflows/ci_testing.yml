@@ -1,0 +1,24 @@
+name: CI Testing
+
+on: [push, pull_request]
+
+jobs:
+  pytest_job:
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+
+    timeout-minutes: 15
+  
+    strategy:
+      max-parallel: 3
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: python -m pytest
