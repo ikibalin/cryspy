@@ -22,8 +22,9 @@ jobs:
 
       - name: Set-up Python dependences
         run: |
-          pip3 install -e .    # from setup.py
-          pip3 install pytest  # extra
+          pip3 install -e .        # from setup.py
+          pip3 install matplotlib  # extra packages
+          pip3 install pytest      # testing packages
 
       - name: Run tests
         run: python3 -m pytest
