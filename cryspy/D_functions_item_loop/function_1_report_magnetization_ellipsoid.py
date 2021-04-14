@@ -2,10 +2,12 @@ from typing import Union
 import math
 import numpy
 
+from cryspy.A_functions_base.function_1_strings import \
+    value_error_to_string
+
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibility, AtomSiteSusceptibilityL
-
 
 def magnetization_ellipsoid_by_u_ij(
         cell: Cell,
