@@ -256,6 +256,8 @@ class SpaceGroup(ItemN):
         name_hm_extended = \
             get_name_hm_extended_by_it_number_it_coordinate_system_code(
                 it_number, it_c_s_c)
+        if (name_hm_extended is None):
+            name_hm_extended = get_name_hm_full_by_it_number(it_number)
         if (name_hm_extended is not None):
             centring_type = get_centring_type_by_name_hm_extended(
                 name_hm_extended)
