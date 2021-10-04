@@ -61,6 +61,7 @@ setup(
     install_requires=[
         'numpy', 
         'scipy', 
-        'pycifstar'
+        'pycifstar',
+        'matplotlib'
     ] 
 )
