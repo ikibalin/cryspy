@@ -7,17 +7,23 @@ from typing import List, NoReturn
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_cos_ang
-from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT
+
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
+from cryspy.A_functions_base.unit_cell import calc_matrix_t
+from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
+    calc_ttheta_phi_by_gamma_nu
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction
 from cryspy.C_item_loop_classes.cl_1_phase import PhaseL
+from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeakL
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
     ReflnSusceptibilityL
@@ -33,11 +39,12 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_proc import Pd2dProc
 from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeakL
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
-from cryspy.C_item_loop_classes.cl_1_texture import Texture
+from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
+na = numpy.newaxis
 
 class Pd2d(DataN):
     """
@@ -82,8 +89,8 @@ class Pd2d(DataN):
     CLASSES_MANDATORY = (Pd2dInstrResolution, PhaseL, DiffrnRadiation,
                          Setup, Range, Chi2, Pd2dBackground, Pd2dMeas)
     CLASSES_OPTIONAL = (Extinction, ExcludeL, Pd2dInstrReflexAsymmetry,
-                        Texture, RefineLs, ReflnL, ReflnSusceptibilityL,
-                        Pd2dPeakL, Pd2dProc)
+                        TextureL, RefineLs, ReflnL, ReflnSusceptibilityL,
+                        Pd2dPeakL, Pd2dProc, PdPeakL)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -147,9 +154,9 @@ class Pd2d(DataN):
 
         try:
             texture = self.texture
-            h_ax, k_ax = float(texture.h_ax), float(texture.k_ax)
-            l_ax = float(texture.l_ax)
-            g_1, g_2 = float(texture.g_1), float(texture.g_2)
+            h_ax, k_ax = float(texture.h_ax[0]), float(texture.k_ax[0]) # FIXME
+            l_ax = float(texture.l_ax[0])
+            g_1, g_2 = float(texture.g_1[0]), float(texture.g_2[0])
         except AttributeError:
             texture = None
 
@@ -227,7 +234,7 @@ class Pd2d(DataN):
             crystal = l_crystal[ind_cry]
 
             cell = crystal.cell
-            space_group = crystal.space_group
+            # space_group = crystal.space_group
 
             if peak_in is not None:
                 index_h = peak_in.numpy_index_h
@@ -236,11 +243,10 @@ class Pd2d(DataN):
                 mult = peak_in.numpy_index_mult
             else:
                 if texture is None:
-                    index_h, index_k, index_l, mult = cell.calc_hkl(
-                        space_group, sthovl_min, sthovl_max)
+                    ind_hkl_mult = crystal.calc_hkl(sthovl_min, sthovl_max)
                 else:
-                    index_h, index_k, index_l, mult = cell.calc_hkl_in_range(
-                        sthovl_min, sthovl_max)
+                    ind_hkl_mult = crystal.calc_hkl_in_range(sthovl_min, sthovl_max)
+                index_h, index_k, index_l, mult = ind_hkl_mult[0], ind_hkl_mult[1], ind_hkl_mult[2], ind_hkl_mult[3]
 
             peak = Pd2dPeakL(loop_name=phase_label)
             peak.numpy_index_h = index_h
@@ -381,17 +387,17 @@ class Pd2d(DataN):
             l_dd_out.append(dd_out)
 
         proc.ttheta_corrected = tth_zs
-        proc.intensity_up_net = res_u_2d
-        proc.intensity_down_net = res_d_2d
-        proc.intensity_up_total = res_u_2d+int_bkgd
-        proc.intensity_down_total = res_d_2d+int_bkgd
+        proc.intensity_plus_net = res_u_2d
+        proc.intensity_minus_net = res_d_2d
+        proc.intensity_plus_total = res_u_2d+int_bkgd
+        proc.intensity_minus_total = res_d_2d+int_bkgd
         if flag_internal:
             if background.is_variables():
                 background.form_ttheta_phi_intensity()
-            proc.form_ttheta_phi_intensity_up_net()
-            proc.form_ttheta_phi_intensity_down_net()
-            proc.form_ttheta_phi_intensity_up_total()
-            proc.form_ttheta_phi_intensity_down_total()
+            proc.form_ttheta_phi_intensity_plus_net()
+            proc.form_ttheta_phi_intensity_minus_net()
+            proc.form_ttheta_phi_intensity_plus_total()
+            proc.form_ttheta_phi_intensity_minus_total()
         l_calc_objs = l_refln + l_refln_s + l_peak
         l_calc_objs.append(proc)
         self.add_items(l_calc_objs)
@@ -418,10 +424,10 @@ class Pd2d(DataN):
 
         tth = meas.ttheta
         phi = meas.phi
-        int_u_exp = meas.intensity_up
-        sint_u_exp = meas.intensity_up_sigma
-        int_d_exp = meas.intensity_down
-        sint_d_exp = meas.intensity_down_sigma
+        int_u_exp = meas.intensity_plus
+        sint_u_exp = meas.intensity_plus_sigma
+        int_d_exp = meas.intensity_minus
+        sint_d_exp = meas.intensity_minus_sigma
 
         l_peak_in, l_refln_in = [], []
         l_refln_susceptibility_in = []
@@ -476,18 +482,18 @@ class Pd2d(DataN):
             l_refln_in=l_refln_in,
             l_refln_susceptibility_in=l_refln_susceptibility_in,
             l_dd_in=l_dd_in, flag_internal=flag_internal)
-        proc.intensity_up = int_u_exp_in
-        proc.intensity_up_sigma = sint_u_exp_in
-        proc.intensity_down = int_d_exp_in
-        proc.intensity_down_sigma = sint_d_exp_in
+        proc.intensity_plus = int_u_exp_in
+        proc.intensity_plus_sigma = sint_u_exp_in
+        proc.intensity_minus = int_d_exp_in
+        proc.intensity_minus_sigma = sint_d_exp_in
 
         # self.proc = proc
         # self.peaks = l_peak
         # self.reflns = l_refln
         self.dd = l_dd_out
 
-        int_u_mod = proc.intensity_up_total
-        int_d_mod = proc.intensity_down_total
+        int_u_mod = proc.intensity_plus_total
+        int_d_mod = proc.intensity_minus_total
 
         sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
 
@@ -559,24 +565,25 @@ class Pd2d(DataN):
                                  weighting_scheme="sigma")
             self.refine_ls = refine_ls
             proc.form_ttheta_phi_intensity_bkg_calc()
-            proc.form_ttheta_phi_intensity_up()
-            proc.form_ttheta_phi_intensity_up_sigma()
-            proc.form_ttheta_phi_intensity_down()
-            proc.form_ttheta_phi_intensity_down_sigma()
+            proc.form_ttheta_phi_intensity_plus()
+            proc.form_ttheta_phi_intensity_plus_sigma()
+            proc.form_ttheta_phi_intensity_minus()
+            proc.form_ttheta_phi_intensity_minus_sigma()
         return chi_sq_val, n
 
     def calc_for_iint(self, index_h, index_k, index_l, crystal,
                       flag_internal: bool = True):
         """Calculate the integral intensity for h, k, l reflections."""
+        index_hkl = numpy.stack([index_h, index_k, index_l], axis=0)
         setup = self.setup
         field = float(setup.field)
 
-        refln = crystal.calc_refln(index_h, index_k, index_l)
-
-        refln_s = crystal.calc_refln_susceptibility(index_h, index_k, index_l)
-
+        refln = crystal.calc_refln(index_hkl)
         f_nucl = refln.numpy_f_calc
 
+        f_nucl_sq = abs(f_nucl*f_nucl.conjugate())
+
+        refln_s = crystal.calc_refln_susceptibility(index_hkl)
         sft_11 = refln_s.numpy_chi_11_calc
         sft_12 = refln_s.numpy_chi_12_calc
         sft_13 = refln_s.numpy_chi_13_calc
@@ -586,34 +593,14 @@ class Pd2d(DataN):
         sft_31 = refln_s.numpy_chi_31_calc
         sft_32 = refln_s.numpy_chi_32_calc
         sft_33 = refln_s.numpy_chi_33_calc
-
-        sftm_11 = refln_s.numpy_moment_11_calc
-        sftm_12 = refln_s.numpy_moment_12_calc
-        sftm_13 = refln_s.numpy_moment_13_calc
-        sftm_21 = refln_s.numpy_moment_21_calc
-        sftm_22 = refln_s.numpy_moment_22_calc
-        sftm_23 = refln_s.numpy_moment_23_calc
-        sftm_31 = refln_s.numpy_moment_31_calc
-        sftm_32 = refln_s.numpy_moment_32_calc
-        sftm_33 = refln_s.numpy_moment_33_calc
-
-        _11, _12 = sftm_11+field*sft_11, sftm_12+field*sft_12
-        _21, _13 = sftm_21+field*sft_21, sftm_13+field*sft_13
-        _22, _23 = sftm_22+field*sft_22, sftm_23+field*sft_23
-        _31, _32 = sftm_31+field*sft_31, sftm_32+field*sft_32
-        _33 = sftm_33+field*sft_33
-        _ij = (_11, _12, _13, _21, _22, _23, _31, _32, _33)
+        _ij = numpy.stack([sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33], axis=0)
+        
         cell = crystal.cell
-        # k_loc = cell.calc_k_loc(index_h, index_k, index_l)
-        t_ij = cell.calc_m_t(index_h, index_k, index_l)
-        # FIXME: I would like to recheck the expression for T
-        #        and expression SIGMA = T^T CHI T
-
-        t_tr_ij = (t_ij[0], t_ij[3], t_ij[6],
-                   t_ij[1], t_ij[4], t_ij[7],
-                   t_ij[2], t_ij[5], t_ij[8])
-        th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = \
-            calc_mRmCmRT(t_tr_ij, _ij)
+        unit_cell_parameters = cell.get_unit_cell_parameters()
+        t_ij = calc_matrix_t(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+        #SIGMA = T CHI T^-1 = T chi T^T (because T is rotation matrix, therefore T^-1 = T^T)
+        th_ij = calc_m1_m2_m1t(t_ij, _ij)[0]
+        th_11, th_12, th_13, th_22, th_23 = th_ij[0], th_ij[1], th_ij[2], th_ij[4], th_ij[5]
 
         # f_m_p_sin_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+\
         #                th_22*th_22.conjugate())+th_12*th_12.conjugate())
@@ -621,7 +608,6 @@ class Pd2d(DataN):
         #                 th_23*th_23.conjugate())
         # f_m_p_field = 0.5*field*(th_11+th_22)
 
-        f_nucl_sq = abs(f_nucl*f_nucl.conjugate())
         f_m_p_sin_sq = abs(0.5 * (th_11 * th_11.conjugate()+th_22 *
                                   th_22.conjugate())+th_12 * th_12.conjugate())
         f_m_p_cos_sq = abs(th_13 * th_13.conjugate() +
@@ -703,7 +689,7 @@ class Pd2d(DataN):
         ls_out = []
         l_cls = (Pd2dBackground, Pd2dInstrResolution, PhaseL, DiffrnRadiation,
                  Setup, Range, Chi2, Extinction, ExcludeL,
-                 Pd2dInstrReflexAsymmetry, Texture)
+                 Pd2dInstrReflexAsymmetry, TextureL)
         l_obj = [item for item in self.items if type(item) in l_cls]
         l_itemn = [item for item in l_obj if isinstance(item, ItemN)]
         l_loopn = [item for item in l_obj if isinstance(item, LoopN)]
@@ -741,6 +727,61 @@ class Pd2d(DataN):
     def plots(self):
         if self.is_attribute("pd2d_proc"):
             pd2d_proc = self.pd2d_proc
+            fig = pd2d_proc.plot_gamma_nu()[0]
+            l_pd_peak = [item for item in self.items if isinstance(item, PdPeakL)]
+            [ax1, ax2] = fig.axes[:2]
+            gamma_min, gamma_max = ax1.get_xlim()
+            nu_min, nu_max = ax1.get_ylim()
+            for pd_peak in l_pd_peak:
+                if pd_peak.is_attribute("gamma"):
+                    index_h = numpy.array(pd_peak.index_h, dtype=int)
+                    index_k = numpy.array(pd_peak.index_k, dtype=int)
+                    index_l = numpy.array(pd_peak.index_l, dtype=int)
+                    gamma = numpy.array(pd_peak.gamma, dtype=float)
+                    nu = numpy.array(pd_peak.nu, dtype=float)
+
+                    flag_gn = numpy.logical_and(
+                        numpy.logical_and(gamma>=gamma_min, gamma<=gamma_max),
+                        numpy.logical_and(nu>=nu_min, nu<=nu_max))
+
+                    if (pd_peak.is_attribute("intensity_plus") and pd_peak.is_attribute("intensity_minus")):
+                        i_plus = numpy.array(pd_peak.intensity_plus, dtype=float)
+                        i_minus = numpy.array(pd_peak.intensity_minus, dtype=float)
+                        inv_lf = numpy.sin(gamma*numpy.pi/180)*numpy.sin(0.5*gamma*numpy.pi/180)
+                        i_sum = numpy.abs(i_plus*flag_gn+i_minus*flag_gn)
+                        i_difference = numpy.abs(i_plus*flag_gn-i_minus*flag_gn)
+                        flag_i_plus = (i_sum-i_sum.min()) > 0.01 * (i_sum.max() - i_sum.min())
+                        flag_i_difference = i_difference  > 0.01 * i_difference.max()
+                        flag_i = numpy.logical_or(flag_i_plus, flag_i_difference)
+                        flag_gn = numpy.logical_and(flag_gn, flag_i)
+
+                    ax1.plot(gamma[flag_gn], 0.5*(nu[flag_gn]+nu_max), "k.", alpha=0.3)
+                    ax2.plot(gamma[flag_gn], 0.5*(nu[flag_gn]+nu_max), "k.", alpha=0.3)
+                    ax1.plot(gamma[flag_gn], nu_min+0.5*(-nu[flag_gn]+nu_max), "k.", alpha=0.3)
+                    ax2.plot(gamma[flag_gn], nu_min+0.5*(-nu[flag_gn]+nu_max), "k.", alpha=0.3)
+
+                    if (pd_peak.is_attribute("intensity_plus") and pd_peak.is_attribute("intensity_minus")):
+                        i_plus = numpy.array(pd_peak.intensity_plus, dtype=float)
+                        i_minus = numpy.array(pd_peak.intensity_minus, dtype=float)
+                        inv_lf = numpy.sin(gamma*numpy.pi/180)*numpy.sin(0.5*gamma*numpy.pi/180)
+                        i_sum = numpy.abs(i_plus*flag_gn+i_minus*flag_gn)
+                        i_difference = numpy.abs(i_plus*flag_gn-i_minus*flag_gn)
+                        flag_i_plus = (i_sum-i_sum.min()) > 0.2 * (i_sum.max() - i_sum.min())
+                        flag_i_difference = i_difference  > 0.2 * i_difference.max()
+                        flag_i = numpy.logical_or(flag_i_plus, flag_i_difference)
+                        flag_gn = numpy.logical_and(flag_gn, flag_i)
+
+                    l_gn = []
+                    for i_h, i_k, i_l, i_g, i_n in zip(
+                            index_h[flag_gn], index_k[flag_gn], index_l[flag_gn], gamma[flag_gn], nu[flag_gn]):
+                        if not((i_g, i_n) in l_gn):
+                            s_text = f"({i_h:}{i_k:}{i_l:})"
+                            ax1.text(i_g, 0.5*(+i_n+nu_max), s_text, alpha=0.5, color="k")
+                            ax2.text(i_g, 0.5*(+i_n+nu_max), s_text, alpha=0.5, color="k")
+                            ax1.text(i_g, 0.5*(-i_n+nu_max)+nu_min, s_text, alpha=0.5, color="k")
+                            ax2.text(i_g, 0.5*(-i_n+nu_max)+nu_min, s_text, alpha=0.5, color="k")
+                            l_gn.append((i_g, i_n))
+            return [(fig, ax1), ]
             if self.is_attribute("chi2"):
                 flag_up = self.chi2.up
                 flag_down = self.chi2.down
@@ -787,76 +828,439 @@ class Pd2d(DataN):
             return self.pd2d_meas.plots()
         return []
         
-# s_cont = """
-#  data_powder2d
-#  _setup_wavelength     0.840
-#  _setup_field          1.000
-#  _setup_offset_2theta -0.385
-#  _chi2_sum  True
-#  _chi2_diff False
-#  _chi2_up   False
-#  _chi2_down False
-#  _range_2theta_min     4.000
-#  _range_2theta_max    80.000
-#  _range_phi_min       -2.000
-#  _range_phi_max       40.000
-#  _pd2d_background_2theta_phi_intensity
-#  ;
-#  2 5 80
-#  5 2. 2.(1)
-#  40 2. 2.
-#  ;
-#  loop_
-#  _exclude_2theta_min
-#  _exclude_2theta_max
-#  _exclude_phi_min
-#  _exclude_phi_max
-#  0.0 1.0 0. 1.0
-#  _pd2d_instr_reflex_asymmetry_p1 0.0
-#  _pd2d_instr_reflex_asymmetry_p2 0.0
-#  _pd2d_instr_reflex_asymmetry_p3 0.0
-#  _pd2d_instr_reflex_asymmetry_p4 0.0
-#  _diffrn_radiation_polarization 0.0
-#  _diffrn_radiation_efficiency   1.0
 
-#  _pd2d_instr_resolution_u 16.9776
-#  _pd2d_instr_resolution_v -2.8357(1)
-#  _pd2d_instr_resolution_w  0.5763
-#  _pd2d_instr_resolution_x  0.0
-#  _pd2d_instr_resolution_y  0.0
-#  loop_
-#  _phase_label
-#  _phase_scale
-#  _phase_igsize
-#  Fe3O4 0.02381() 0.0
-#  _pd2d_meas_2theta_phi_intensity_up
-#  ;
-#  2 5 80
-#  5 2. 2.
-#  40 2. 2.
-#  ;
-#  _pd2d_meas_2theta_phi_intensity_up_sigma
-#  ;
-#  2 5 80
-#  5 2. 2.
-#  40 2. 2.
-#  ;
-#  _pd2d_meas_2theta_phi_intensity_down
-#  ;
-#  2 5 80
-#  5 2. 2.
-#  40 2. 2.
-#  ;
-#  _pd2d_meas_2theta_phi_intensity_down_sigma
-#  ;
-#  2 5 80
-#  5 2. 2.
-#  40 2. 2.
-#  ;
-# """
-# obj = Pd2d.from_cif(s_cont)
-# for item in obj.items:
-#     print(item, end="\n\n")
-# print(50*"*", "\n", obj.is_defined())
-# for var_name in obj.get_variable_names():
-#     print(var_name)
+    def get_dictionary(self):
+        """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.
+        """
+        self.form_object()
+        ddict = {}
+        setup, pd2d_meas, resolution = None, None, None
+        pd2d_background, range_, exclude = None, None, None
+        asymmetry, diffrn_radiation = None, None
+        phase, texture, chi2 = None, None, None
+
+        l_obj = take_items_by_class(self, (Setup, ))
+        if len(l_obj) > 0:
+            setup = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Pd2dMeas, ))
+        if len(l_obj) > 0:
+            pd2d_meas = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Pd2dInstrResolution, ))
+        if len(l_obj) > 0:
+            resolution = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Pd2dBackground, ))
+        if len(l_obj) > 0:
+            pd2d_background = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Range, ))
+        if len(l_obj) > 0:
+            range_ = l_obj[0]
+
+        l_obj = take_items_by_class(self, (ExcludeL, ))
+        if len(l_obj) > 0:
+            exclude = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Pd2dInstrReflexAsymmetry, ))
+        if len(l_obj) > 0:
+            asymmetry = l_obj[0]
+
+        l_obj = take_items_by_class(self, (DiffrnRadiation, ))
+        if len(l_obj) > 0:
+            diffrn_radiation = l_obj[0]
+
+        l_obj = take_items_by_class(self, (PhaseL, ))
+        if len(l_obj) > 0:
+            phase = l_obj[0]
+
+        l_obj = take_items_by_class(self, (TextureL, ))
+        if len(l_obj) > 0:
+            texture = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Chi2, ))
+        if len(l_obj) > 0:
+            chi2 = l_obj[0]
+
+        ddict["name"] = self.data_name
+        ddict["type_name"] = self.get_name()
+        if setup is not None:
+            ddict["magnetic_field"] = numpy.array([setup.field], dtype=float)
+            ddict["wavelength"] = numpy.array([setup.wavelength], dtype=float)
+            ddict["flags_wavelength"] = numpy.array([setup.wavelength_refinement], dtype=bool)
+            ddict["offset_gamma"] = numpy.array([setup.offset_gamma * numpy.pi/180.], dtype=float) # FIXME
+            ddict["flags_offset_gamma"] = numpy.array([setup.offset_gamma_refinement], dtype=bool) # FIXME
+            ddict["offset_nu"] = numpy.array([setup.offset_nu * numpy.pi/180.], dtype=float) # FIXME
+            ddict["flags_offset_nu"] = numpy.array([setup.offset_nu_refinement], dtype=bool) # FIXME
+
+        if chi2 is not None:
+            ddict["flag_chi_sq_sum"] = chi2.sum
+            ddict["flag_chi_sq_difference"] = chi2.diff
+
+        if pd2d_meas is not None:
+            gamma_deg = numpy.array(pd2d_meas.gamma, dtype=float) # 
+            gamma_min_deg = range_.gamma_min 
+            gamma_max_deg = range_.gamma_max 
+            nu_deg = numpy.array(pd2d_meas.nu, dtype=float) # 
+            nu_min_deg = range_.nu_min 
+            nu_max_deg = range_.nu_max 
+
+            flag_gamma_in = numpy.logical_and(
+                gamma_deg >= gamma_min_deg,
+                gamma_deg <= gamma_max_deg)
+
+            flag_nu_in = numpy.logical_and(
+                nu_deg >= nu_min_deg,
+                nu_deg <= nu_max_deg)
+            
+            flag_in = flag_gamma_in[:, na] * flag_nu_in[na, :]
+
+            # ddict["ttheta"] = ttheta_deg[flag_in] * numpy.pi/180.
+            ddict["gamma"] = gamma_deg[flag_gamma_in] * numpy.pi/180.
+            ddict["nu"] = nu_deg[flag_nu_in] * numpy.pi/180.
+
+            if pd2d_meas.is_attribute("gn_intensity_plus"):
+                int_plus = numpy.array(pd2d_meas.gn_intensity_plus, dtype=float)[flag_gamma_in][:, flag_nu_in]
+                s_int_plus = numpy.array(pd2d_meas.gn_intensity_plus_sigma, dtype=float)[flag_gamma_in][:, flag_nu_in]
+                int_minus = numpy.array(pd2d_meas.gn_intensity_minus, dtype=float)[flag_gamma_in][:, flag_nu_in]
+                s_int_minus = numpy.array(pd2d_meas.gn_intensity_minus_sigma, dtype=float)[flag_gamma_in][:, flag_nu_in]
+                ddict["signal_exp_plus"] = numpy.stack([int_plus, s_int_plus], axis=0)
+                ddict["signal_exp_minus"] = numpy.stack([int_minus, s_int_minus], axis=0)
+            else:
+                int_sum = numpy.array(pd2d_meas.gn_intensity, dtype=float)[flag_gamma_in][:, flag_nu_in]
+                s_int_sum = numpy.array(pd2d_meas.gn_intensity_sigma, dtype=float)[flag_gamma_in][:, flag_nu_in]
+                ddict["signal_exp"] = numpy.stack([int_sum, s_int_sum], axis=0)
+
+            gamma_in_range = gamma_deg[flag_gamma_in]
+            nu_in_range = nu_deg[flag_nu_in]
+            ttheta_in_range, phi_in_range = calc_ttheta_phi_by_gamma_nu(
+                gamma_in_range[:, na]*numpy.pi/180. - ddict["offset_gamma"],
+                nu_in_range[na, :]*numpy.pi/180. - ddict["offset_nu"],
+                flag_gamma=False, flag_nu=False)[:2]
+            ttheta_in_range = ttheta_in_range*180./numpy.pi
+            phi_in_range = phi_in_range*180./numpy.pi
+            flag_exclude = numpy.zeros(gamma_in_range.shape + nu_in_range.shape, dtype=bool)
+            if exclude is not None:
+                for item_e in exclude.items:
+                    if item_e.is_attribute("gamma_min"):
+                        if item_e.gamma_min is not None:
+                            flag_gamma_in_1 = numpy.logical_and(
+                                gamma_in_range >= item_e.gamma_min, 
+                                gamma_in_range <= item_e.gamma_max)
+                            flag_nu_in_1 = numpy.logical_and(
+                                nu_in_range >= item_e.nu_min, 
+                                nu_in_range <= item_e.nu_max) 
+                            flag_in_1 = flag_gamma_in_1[:, na] * flag_nu_in_1[na, :]
+                            flag_exclude = numpy.logical_or(flag_exclude, flag_in_1)
+                    if item_e.is_attribute("ttheta_min"):
+                        if item_e.ttheta_min is not None:
+                            flag_ttheta_in_1 = numpy.logical_and(
+                                ttheta_in_range >= item_e.ttheta_min, 
+                                ttheta_in_range <= item_e.ttheta_max)
+                            flag_phi_in_1 = numpy.logical_and(
+                                phi_in_range >= item_e.phi_min, 
+                                phi_in_range <= item_e.phi_max)
+                            flag_in_1 = numpy.logical_and(
+                                flag_ttheta_in_1,
+                                flag_phi_in_1)
+                            flag_exclude = numpy.logical_or(flag_exclude, flag_in_1)                            
+
+            ddict["excluded_points"] = flag_exclude
+
+        if resolution is not None:
+            ddict["resolution_parameters"] = numpy.array([
+                resolution.u, resolution.v, resolution.w,
+                resolution.x, resolution.y], dtype=float)
+
+            ddict["flags_resolution_parameters"] = numpy.array([
+                resolution.u_refinement, resolution.v_refinement, resolution.w_refinement,
+                resolution.x_refinement, resolution.y_refinement], dtype=bool)
+
+        if asymmetry is not None:
+            ddict["asymmetry_parameters"] = numpy.array([
+                asymmetry.p1, asymmetry.p2, asymmetry.p3,
+                asymmetry.p4], dtype=float)
+
+            ddict["flags_asymmetry_parameters"] = numpy.array([
+                asymmetry.p1_refinement, asymmetry.p2_refinement, asymmetry.p3_refinement,
+                asymmetry.p4_refinement], dtype=bool)
+
+        if diffrn_radiation is not None:
+            beam_polarization = diffrn_radiation.polarization
+            flipper_efficiency = diffrn_radiation.efficiency
+            ddict["beam_polarization"] = numpy.array([beam_polarization], dtype=float)
+            ddict["flipper_efficiency"] = numpy.array([flipper_efficiency], dtype=float)
+            ddict["flags_beam_polarization"] = numpy.array([diffrn_radiation.polarization_refinement], dtype=bool)
+            ddict["flags_flipper_efficiency"] = numpy.array([diffrn_radiation.efficiency_refinement], dtype=bool)
+
+        if phase is not None:
+            ddict["phase_name"] = numpy.array(phase.label, dtype=str)
+            if phase.is_attribute("u"):
+                p_u = numpy.array(phase.u, dtype=float)
+                r_u = numpy.array(phase.u_refinement, dtype=bool)
+            else:
+                p_u = numpy.zeros((len(phase.items),), dtype=float)
+                r_u = numpy.zeros((len(phase.items),), dtype=bool)
+
+            if phase.is_attribute("v"):
+                p_v = numpy.array(phase.v, dtype=float)
+                r_v = numpy.array(phase.v_refinement, dtype=bool)
+            else:
+                p_v = numpy.zeros((len(phase.items),), dtype=float)
+                r_v = numpy.zeros((len(phase.items),), dtype=bool)
+
+            if phase.is_attribute("w"):
+                p_w = numpy.array(phase.w, dtype=float)
+                r_w = numpy.array(phase.w_refinement, dtype=bool)
+            else:
+                p_w = numpy.zeros((len(phase.items),), dtype=float)
+                r_w = numpy.zeros((len(phase.items),), dtype=bool)
+
+            if phase.is_attribute("x"):
+                p_x = numpy.array(phase.x, dtype=float)
+                r_x = numpy.array(phase.x_refinement, dtype=bool)
+            else:
+                p_x = numpy.zeros((len(phase.items),), dtype=float)
+                r_x = numpy.zeros((len(phase.items),), dtype=bool)
+
+            if phase.is_attribute("y"):
+                p_y = numpy.array(phase.y, dtype=float)
+                r_y = numpy.array(phase.y_refinement, dtype=bool)
+            else:
+                p_y = numpy.zeros((len(phase.items),), dtype=float)
+                r_y = numpy.zeros((len(phase.items),), dtype=bool)
+
+            ddict["phase_resolution_parameters"] = numpy.stack([p_u, p_v, p_w, p_x, p_y], axis=0)
+            ddict["flags_phase_resolution_parameters"] = numpy.stack([r_u, r_v, r_w, r_x, r_y], axis=0)
+
+            if phase.is_attribute("ig"):
+                ddict["phase_ig"] = numpy.array(phase.ig, dtype=float)
+                ddict["flags_phase_ig"] = numpy.array(phase.ig_refinement, dtype=bool)
+            else:
+                ddict["phase_ig"] = numpy.zeros((len(phase.items),), dtype=float)
+                ddict["flags_phase_ig"] = numpy.zeros((len(phase.items),), dtype=bool)
+
+            if phase.is_attribute("scale"):
+                ddict["phase_scale"] = numpy.array(phase.scale, dtype=float)
+                ddict["flags_phase_scale"] = numpy.array(phase.scale_refinement, dtype=bool)
+            else:
+                ddict["phase_scale"] = numpy.zeros((len(phase.items),), dtype=float)
+                ddict["flags_phase_scale"] = numpy.zeros((len(phase.items),), dtype=bool)
+
+        if texture is not None:
+            ddict["texture_name"] = numpy.array(texture.label, dtype=str)
+            ddict["texture_g1"] = numpy.array(texture.g_1, dtype=float)
+            ddict["texture_g2"] = numpy.array(texture.g_2, dtype=float)
+            ddict["texture_axis"] = numpy.array(
+                [texture.h_ax, texture.k_ax, texture.l_ax], dtype=float)
+            ddict["flags_texture_g1"] = numpy.array(texture.g_1_refinement, dtype=bool)
+            ddict["flags_texture_g2"] = numpy.array(texture.g_2_refinement, dtype=bool)
+            ddict["flags_texture_axis"] = numpy.array(
+                [texture.h_ax_refinement, 
+                 texture.k_ax_refinement, 
+                 texture.l_ax_refinement], dtype=bool)
+
+        if pd2d_background is not None:
+            ddict["background_gamma"] = numpy.array(pd2d_background.gamma, dtype=float)*numpy.pi/180. 
+            ddict["background_nu"] = numpy.array(pd2d_background.nu, dtype=float)*numpy.pi/180. 
+            ddict["background_intensity"] = numpy.array(pd2d_background.intensity, dtype=float)
+            ddict["flags_background_intensity"] = numpy.array(pd2d_background.intensity_refinement, dtype=bool)
+
+        return ddict
+
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        keys = ddict_diffrn.keys()
+        if l_parameter_name is not None:
+            parameter_label = [hh[0] for hh in l_parameter_name]
+        else:
+            parameter_label = []
+
+        if "beam_polarization" in keys:
+            self.diffrn_radiation.polarization = ddict_diffrn["beam_polarization"]
+
+        if "flipper_efficiency" in keys:
+            self.diffrn_radiation.efficiency = ddict_diffrn["flipper_efficiency"]
+
+        if "resolution_parameters" in keys:
+            np_resolution = ddict_diffrn["resolution_parameters"]
+            resolution = self.pd2d_instr_resolution
+            resolution.u = float(np_resolution[0])
+            resolution.v = float(np_resolution[1])
+            resolution.w = float(np_resolution[2])
+            resolution.x = float(np_resolution[3])
+            resolution.y = float(np_resolution[4])
+
+
+        if "background_intensity" in keys:
+            background_intensity = ddict_diffrn["background_intensity"]
+            self.pd2d_background.intensity = numpy.round(background_intensity,5)
+            self.pd2d_background.form_gamma_nu_intensity()
+
+        if "texture_g1" in keys:
+            hh_g1 = ddict_diffrn["texture_g1"]
+            hh_g2 = ddict_diffrn["texture_g2"]
+            hh_axis = ddict_diffrn["texture_axis"]
+            for i_item, item in enumerate(self.texture):
+                item.g_1  = float(hh_g1[i_item])
+                item.g_2  = float(hh_g2[i_item])
+                item.h_ax = float(hh_axis[0, i_item])
+                item.k_ax = float(hh_axis[1, i_item])
+                item.l_ax = float(hh_axis[2, i_item])
+
+        if "asymmetry_parameters" in keys:
+            hh = ddict_diffrn["asymmetry_parameters"]
+            self.pd2d_instr_reflex_asymmetry.p1 = float(hh[0]) 
+            self.pd2d_instr_reflex_asymmetry.p2 = float(hh[1]) 
+            self.pd2d_instr_reflex_asymmetry.p3 = float(hh[2]) 
+            self.pd2d_instr_reflex_asymmetry.p4 = float(hh[3]) 
+
+
+        if "phase_scale" in keys:
+            hh = ddict_diffrn["phase_scale"]
+            for i_item, item in enumerate(self.phase.items):
+                item.scale = float(hh[i_item])
+
+        if "offset_gamma" in keys:
+            self.setup.offset_gamma = float(ddict_diffrn["offset_gamma"]) * 180./numpy.pi
+
+        if "offset_nu" in keys:
+            self.setup.offset_nu = float(ddict_diffrn["offset_nu"]) * 180./numpy.pi
+
+        if "wavelength" in keys:
+            self.setup.wavelength = float(ddict_diffrn["wavelength"])
+
+        if len(parameter_label) > 0:
+            for name, sigma in zip(l_parameter_name, l_sigma):
+                if name[0] == "background_intensity":
+                    self.pd2d_background.intensity_sigma[name[1]] = float(sigma)
+                if name[0] == "phase_scale":
+                    self.phase.items[name[1][0]].scale_sigma = float(sigma)
+                if name[0] == "wavelength":
+                    self.setup.wavelength_sigma = float(sigma)
+                if name[0] == "offset_gamma":
+                    self.setup.offset_gamma_sigma = float(sigma) * 180./numpy.pi
+                if name[0] == "offset_nu":
+                    self.setup.offset_nu_sigma = float(sigma) * 180./numpy.pi
+                if name[0] == "beam_polarization":
+                    self.diffrn_radiation.polarization_sigma = float(sigma)
+                if name[0] == "flipper_efficiency":
+                    self.diffrn_radiation.efficiency_sigma = float(sigma)
+                if name[0] == "asymmetry_parameters":
+                    asymmetry = self.pd2d_instr_reflex_asymmetry
+                    if name[1][0] == 0:
+                        asymmetry.p1_sigma = float(sigma)
+                    elif name[1][0] == 1:
+                        asymmetry.p2_sigma = float(sigma)
+                    elif name[1][0] == 2:
+                        asymmetry.p3_sigma = float(sigma)
+                    elif name[1][0] == 3:
+                        asymmetry.p4_sigma = float(sigma)
+                if name[0] == "resolution_parameters":
+                    resolution = self.pd2d_instr_resolution 
+                    if name[1][0] == 0:
+                        resolution.u_sigma = float(sigma)
+                    elif name[1][0] == 1:
+                        resolution.v_sigma = float(sigma)
+                    elif name[1][0] == 2:
+                        resolution.w_sigma = float(sigma)
+                    elif name[1][0] == 3:
+                        resolution.x_sigma = float(sigma)
+                    elif name[1][0] == 4:
+                        resolution.y_sigma = float(sigma)
+                if name[0] == "texture_g1":
+                    self.texture.items[name[1][0]].g1_sigma = float(sigma)
+                if name[0] == "texture_g2":
+                    self.texture.items[name[1][0]].g2_sigma = float(sigma)
+                if name[0] == "texture_axis":
+                    ind_param, ind_a = name[1]
+                    if ind_param == 0:
+                        self.texture.items[ind_a].h_ax_sigma = float(sigma)
+                    if ind_param == 1:
+                        self.texture.items[ind_a].k_ax_sigma = float(sigma)
+                    if ind_param == 2:
+                        self.texture.items[ind_a].l_ax_sigma = float(sigma)
+
+            if "background_intensity" in parameter_label:
+                self.pd2d_background.form_gamma_nu_intensity()
+
+        if (("signal_plus" in keys) and ("signal_minus" in keys) and ("signal_background" in keys)):
+            pd2d_proc = Pd2dProc()
+            pd2d_proc.gamma = numpy.round(ddict_diffrn["gamma"] * 180./numpy.pi, 5)
+            pd2d_proc.nu = numpy.round(ddict_diffrn["nu"] * 180./numpy.pi, 5)
+            pd2d_proc.intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], 5)
+            pd2d_proc.intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], 5)
+            pd2d_proc.intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], 5)
+            pd2d_proc.intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0, :, :], 5)
+            pd2d_proc.intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1, :, :], 5)
+            pd2d_proc.intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0, :, :], 5)
+            pd2d_proc.intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1, :, :], 5)
+            pd2d_proc.excluded_points = ddict_diffrn["excluded_points"][:, :]
+
+            
+            pd2d_proc.form_gamma_nu_intensity_plus_net()
+            pd2d_proc.form_gamma_nu_intensity_minus_net()
+            pd2d_proc.form_gamma_nu_intensity_bkg_calc()
+            pd2d_proc.form_gamma_nu_intensity_plus()
+            pd2d_proc.form_gamma_nu_intensity_plus_sigma()
+            pd2d_proc.form_gamma_nu_intensity_minus()
+            pd2d_proc.form_gamma_nu_intensity_minus_sigma()
+            pd2d_proc.form_gamma_nu_excluded_points()
+            self.pd2d_proc = pd2d_proc
+
+        l_pd_peak = []
+        for item_phase in self.phase.items:
+            s_label = f"dict_in_out_{item_phase.label:}"
+            if s_label in keys:
+                dict_crystal = ddict_diffrn[s_label]
+                dict_crystal_keys = dict_crystal.keys()
+                if (("index_hkl" in dict_crystal_keys) and  ("ttheta_hkl" in dict_crystal_keys)):
+                    pd_peak = PdPeakL(loop_name = item_phase.label)
+                    int_max = numpy.square(numpy.abs(dict_crystal["f_nucl"]))
+
+                    if "f_m_perp_o" in dict_crystal_keys:
+                        int_max += numpy.sum(numpy.square(numpy.abs(dict_crystal["f_m_perp_o"])), axis=0)
+                    if "p_1" in dict_crystal_keys:
+                        int_max += dict_crystal["p_1"]
+
+                    if "p_3" in dict_crystal_keys:
+                        int_plus_max = int_max+dict_crystal["p_3"]
+                        int_minus_max = int_max-dict_crystal["p_3"]
+                    else:
+                        int_plus_max = int_max
+                        int_minus_max = int_max
+
+                    index_hkl = dict_crystal["index_hkl"]
+                    ttheta_hkl = dict_crystal["ttheta_hkl"]
+                    lf = numpy.sin(ttheta_hkl)*numpy.sin(0.5*ttheta_hkl)
+                    lf[lf<0] = 1.
+                    pd_peak.numpy_index_h = index_hkl[0]
+                    pd_peak.numpy_index_k = index_hkl[1]
+                    pd_peak.numpy_index_l = index_hkl[2]
+                    pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi,3)
+                    pd_peak.numpy_intensity_plus = int_plus_max/lf
+                    pd_peak.numpy_intensity_minus = int_minus_max/lf
+                    if (("gamma_hkl" in dict_crystal_keys) and ("nu_hkl" in dict_crystal_keys)):
+                        gamma_hkl = dict_crystal["gamma_hkl"]
+                        nu_hkl = dict_crystal["nu_hkl"]
+                        pd_peak.numpy_gamma = numpy.round(gamma_hkl * 180./numpy.pi,3)
+                        pd_peak.numpy_nu = numpy.round(nu_hkl * 180./numpy.pi,3)
+                    pd_peak.numpy_to_items()
+                    l_pd_peak.append(pd_peak)
+        if len(l_pd_peak) > 0:
+            self.add_items(l_pd_peak)
+
+    def estimate_background(self):
+        pd2d_background = self.pd2d_background
+        intensity_refinement = numpy.copy(pd2d_background.intensity_refinement)
+        pd2d_background.intensity_refinement = numpy.ones_like(intensity_refinement, dtype=bool)
+        setup=self.setup
+        pd2d_proc = self.pd2d_proc
+        res = pd2d_proc.estimate_background(
+            pd2d_background,
+            offset_gamma=setup.offset_gamma,
+            offset_nu = setup.offset_nu)
+        pd2d_background.intensity_refinement = intensity_refinement
+        pd2d_background.form_gamma_nu_intensity()
+        return res
+    

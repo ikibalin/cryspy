@@ -5,6 +5,8 @@ from typing import NoReturn
 
 from cryspy.A_functions_base.function_1_matrices import\
     calc_product_matrices, calc_product_matrix_vector
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
@@ -59,6 +61,7 @@ class DiffrnOrientMatrix(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {"type": ["CCSL", "6T2@LLB", "5C1@LLB", "BusingLevy",
@@ -70,6 +73,8 @@ class DiffrnOrientMatrix(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "diffrn_orient_matrix"
 
@@ -291,7 +296,7 @@ class DiffrnOrientMatrix(ItemN):
         ut_ij = (u_11, u_21, u_31, u_12, u_22, u_32, u_13, u_23, u_33)
         e_up_1, e_up_2, e_up_3 = calc_product_matrix_vector(
             ut_ij, (0., 0., 1.))
-        return e_up_1, e_up_2, e_up_3
+        return numpy.array([e_up_1, e_up_2, e_up_3], dtype=float)
 
     def calc_angle(self, index_h, index_k, index_l, wavelength: float = 1.4):
         """Calculate scattering angles for given reflection hkl.
@@ -369,9 +374,9 @@ class DiffrnOrientMatrixL(LoopN):
     ITEM_CLASS = DiffrnOrientMatrix
     ATTR_INDEX = "id"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(DiffrnOrientMatrixL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 # s_cont = """

@@ -185,7 +185,8 @@ class MEM(GlobalN):
             total_peaks += index_h.size
             hkl = (index_h, index_k, index_l)
 
-            f_nucl = crystal.calc_f_nucl(*hkl)
+            index_hkl = numpy.stack([ind_h, ind_k, ind_l], dtype=bool)
+            f_nucl = crystal.calc_f_nucl(index_hkl)
             k_hkl = cell.calc_k_loc(*hkl)
             phase_3d = density_point.calc_phase_3d(hkl, space_group_symop)
 

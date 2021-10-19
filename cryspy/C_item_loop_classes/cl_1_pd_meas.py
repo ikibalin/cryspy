@@ -2,6 +2,9 @@ from typing import NoReturn
 import numpy
 import matplotlib.pyplot as plt
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -12,19 +15,19 @@ class PdMeas(ItemN):
     Attributes
     ----------
         - ttheta (mandatory)
-        - intensity_up, intensity_up_sigma, intensity_down,
-          intensity_down_sigma, intensity, intensity_sigma (optional)
+        - intensity_plus, intensity_plus_sigma, intensity_minus,
+          intensity_minus_sigma, intensity, intensity_sigma (optional)
     """
     ATTR_MANDATORY_NAMES = ("ttheta", )
     ATTR_MANDATORY_TYPES = (float, )
     ATTR_MANDATORY_CIF = ("2theta", )
 
-    ATTR_OPTIONAL_NAMES = ("intensity_up", "intensity_up_sigma",
-                           "intensity_down", "intensity_down_sigma",
+    ATTR_OPTIONAL_NAMES = ("intensity_plus", "intensity_plus_sigma",
+                           "intensity_minus", "intensity_minus_sigma",
                            "intensity", "intensity_sigma")
     ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("intensity_up", "intensity_up_sigma",
-                         "intensity_down", "intensity_down_sigma",
+    ATTR_OPTIONAL_CIF = ("intensity_plus", "intensity_plus_sigma",
+                         "intensity_minus", "intensity_minus_sigma",
                          "intensity", "intensity_sigma")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
@@ -39,6 +42,7 @@ class PdMeas(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -49,6 +53,8 @@ class PdMeas(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "pd_meas"
 
@@ -71,10 +77,10 @@ class PdMeas(ItemN):
     def apply_constraints(self):
         """Apply constraints."""
         keys = self.__dict__.keys()
-        if (("intensity_up" in keys) & ("intensity_up_sigma" not in keys)):
-            self.intensity_up_sigma = (self.intensity_up)**0.5
-        if (("intensity_down" in keys) & ("intensity_down_sigma" not in keys)):
-            self.intensity_down_sigma = (self.intensity_down)**0.5
+        if (("intensity_plus" in keys) & ("intensity_plus_sigma" not in keys)):
+            self.intensity_plus_sigma = (self.intensity_plus)**0.5
+        if (("intensity_minus" in keys) & ("intensity_minus_sigma" not in keys)):
+            self.intensity_minus_sigma = (self.intensity_minus)**0.5
         if (("intensity" in keys) & ("intensity_sigma" not in keys)):
             self.intensity_sigma = (self.intensity)**0.5
 
@@ -107,9 +113,9 @@ class PdMeasL(LoopN):
     ITEM_CLASS = PdMeas
     ATTR_INDEX = "ttheta"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(PdMeasL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def is_polarized(self):
@@ -117,8 +123,8 @@ class PdMeasL(LoopN):
         flag = False
         if len(self.items) != 0:
             items_0 = self.items[0]
-            flag_up = items_0.is_attribute("intensity_up")
-            flag_down = items_0.is_attribute("intensity_down")
+            flag_up = items_0.is_attribute("intensity_plus")
+            flag_down = items_0.is_attribute("intensity_minus")
             flag = flag_up & flag_down
         return flag
 
@@ -129,25 +135,26 @@ class PdMeasL(LoopN):
 
 
     def plots(self):
-        return [self.plot_up_down(), self.plot_sum_diff()]
+        return [self.plot_plus_minus(), self.plot_sum_diff()]
 
-    def plot_up_down(self):
+    def plot_plus_minus(self):
         """Plot experimental intensity up and down vs. 2 theta (degrees)
         """
-        fig, ax = plt.subplots()
-        ax.set_title("I_up and I_down")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('Intensity')
 
-        if (self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
-            self.is_attribute("intensity_up_sigma") &
-            self.is_attribute("intensity_down") & 
-            self.is_attribute("intensity_down_sigma")):
+        if (self.is_attribute("ttheta") & self.is_attribute("intensity_plus") & 
+            self.is_attribute("intensity_plus_sigma") &
+            self.is_attribute("intensity_minus") & 
+            self.is_attribute("intensity_minus_sigma")):
+            fig, ax = plt.subplots()
+            ax.set_title(r"$I_{plus}$ and $I_{minus}$")
+            ax.set_xlabel(r"$2\theta$ (degrees)")
+            ax.set_ylabel('Intensity (arb.u.)')
+
             np_tth = numpy.array(self.ttheta, dtype=float)
-            np_up = numpy.array(self.intensity_up, dtype=float)
-            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-            np_down = numpy.array(self.intensity_down, dtype=float)
-            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_up = numpy.array(self.intensity_plus, dtype=float)
+            np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_minus, dtype=float)
+            np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
 
             ax.plot(np_tth, np_up, "r-", alpha=0.2)
             ax.errorbar(np_tth, np_up, yerr=np_sup, fmt="ro", alpha=0.2,
@@ -155,33 +162,35 @@ class PdMeasL(LoopN):
             ax.plot(np_tth, np_down, "b-", alpha=0.2)
             ax.errorbar(np_tth, np_down, yerr=np_sdown, fmt="bs", alpha=0.2,
                         label="down")
+            ax.legend(loc='upper right')
+            fig.tight_layout()
+
         else:
             return
-        ax.legend(loc='upper right')
-        fig.tight_layout()
+
         return (fig, ax)
 
     def plot_sum_diff(self):
 
-        if (self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
-            self.is_attribute("intensity_up_sigma") &
-            self.is_attribute("intensity_down") & 
-            self.is_attribute("intensity_down_sigma")):
+        if (self.is_attribute("ttheta") & self.is_attribute("intensity_plus") & 
+            self.is_attribute("intensity_plus_sigma") &
+            self.is_attribute("intensity_minus") & 
+            self.is_attribute("intensity_minus_sigma")):
             fig, axs = plt.subplots(2)
             ax_1, ax_2 = axs
-            ax_1.set_title("Unpolarized intensity: I_up + I_down")
-            ax_1.set_xlabel("2 theta (degrees)")
-            ax_1.set_ylabel('Intensity')            
+            ax_1.set_title(r"Unpolarized signal: $I_{plus}$ + $I_{minus}$")
+            ax_1.set_xlabel(r"$2\theta$ (degrees)")
+            ax_1.set_ylabel('Intensity (arb.u.)')            
 
-            ax_2.set_title("Polarized intensity: I_up - I_down")
-            ax_2.set_xlabel("2 theta (degrees)")
-            ax_2.set_ylabel('Intensity')            
+            ax_2.set_title(r"Polarized signal: $I_{plus}$ + $I_{minus}$")
+            ax_2.set_xlabel(r"2\theta (degrees)")
+            ax_2.set_ylabel('Intensity (arb.u.)')            
             
             np_tth = numpy.array(self.ttheta, dtype=float)
-            np_up = numpy.array(self.intensity_up, dtype=float)
-            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-            np_down = numpy.array(self.intensity_down, dtype=float)
-            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_up = numpy.array(self.intensity_plus, dtype=float)
+            np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_minus, dtype=float)
+            np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
             np_sum = np_up + np_down
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
             ax_1.plot(np_tth, np_sum, "k-", alpha=0.2)
@@ -206,19 +215,19 @@ class PdMeasL(LoopN):
         """Plot experimental unpolarized intensity vs. 2 theta (degrees)
         """
         fig, ax = plt.subplots()
-        ax.set_title("Unpolarized intensity: I_up + I_down")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('Intensity')
+        ax.set_title("Unpolarized signal")
+        ax.set_xlabel(r"$2\theta$ (degrees)")
+        ax.set_ylabel('Intensity (arb.u.)')
 
-        if (self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
-            self.is_attribute("intensity_up_sigma") &
-            self.is_attribute("intensity_down") & 
-            self.is_attribute("intensity_down_sigma")):
+        if (self.is_attribute("ttheta") & self.is_attribute("intensity_plus") & 
+            self.is_attribute("intensity_plus_sigma") &
+            self.is_attribute("intensity_minus") & 
+            self.is_attribute("intensity_minus_sigma")):
             np_tth = numpy.array(self.ttheta, dtype=float)
-            np_up = numpy.array(self.intensity_up, dtype=float)
-            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-            np_down = numpy.array(self.intensity_down, dtype=float)
-            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_up = numpy.array(self.intensity_plus, dtype=float)
+            np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_minus, dtype=float)
+            np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
             np_sum = np_up + np_down
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
             ax.plot(np_tth, np_sum, "k-", alpha=0.2)
@@ -239,21 +248,21 @@ class PdMeasL(LoopN):
     def plot_diff(self):
         """Plot experimental polarized intensity vs. 2 theta (degrees)
         """
-        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_up_sigma") &
-               self.is_attribute("intensity_down") & 
-               self.is_attribute("intensity_down_sigma")):
+        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_plus") & 
+               self.is_attribute("intensity_plus_sigma") &
+               self.is_attribute("intensity_minus") & 
+               self.is_attribute("intensity_minus_sigma")):
             return
         fig, ax = plt.subplots()
-        ax.set_title("Polarized intensity: I_up - I_down")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('Intensity')
+        ax.set_title(r"Polarized intensity: $I_{plus}$ + $I_{minus}$")
+        ax.set_xlabel(r"$2\theta$ (degrees)")
+        ax.set_ylabel('Intensity (arb.u.)')
             
         np_tth = numpy.array(self.ttheta, dtype=float)
-        np_up = numpy.array(self.intensity_up, dtype=float)
-        np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-        np_down = numpy.array(self.intensity_down, dtype=float)
-        np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+        np_up = numpy.array(self.intensity_plus, dtype=float)
+        np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+        np_down = numpy.array(self.intensity_minus, dtype=float)
+        np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
         np_diff = np_up - np_down
         np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
         ax.plot([np_tth.min(), np_tth.max()], [0., 0.], "k:")
@@ -268,10 +277,10 @@ class PdMeasL(LoopN):
 # s_cont = """
 #  loop_
 #  _pd_meas_ttheta
-#  _pd_meas_intensity_up
-#  _pd_meas_intensity_up_sigma
-#  _pd_meas_intensity_down
-#  _pd_meas_intensity_down_sigma
+#  _pd_meas_intensity_plus
+#  _pd_meas_intensity_plus_sigma
+#  _pd_meas_intensity_minus
+#  _pd_meas_intensity_minus_sigma
 #   4.00   465.80000   128.97000   301.88000   129.30000
 #   4.20   323.78000   118.22000   206.06000   120.00000
 # """

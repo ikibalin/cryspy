@@ -3,6 +3,9 @@ import math
 import numpy
 import matplotlib.pyplot as plt
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -25,11 +28,11 @@ class DiffrnRefln(ItemN):
     ATTR_MANDATORY_TYPES = (int, int, int)
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
-    ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity_up_calc",
-                           "intensity_down_calc", "excluded")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, bool)
-    ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc" , "intensity_up_calc",
-                         "intensity_down_calc", "excluded")
+    ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity_plus_calc",
+                           "intensity_minus_calc", "excluded", "sintlambda")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, bool, float)
+    ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc" , "intensity_plus_calc",
+                         "intensity_minus_calc", "excluded", "sint/lambda")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -43,10 +46,11 @@ class DiffrnRefln(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"fr_calc": "{:.5f}", "intensity_up_calc": "{:.2f}",
-                 "intensity_down_calc": "{:.2f}"}
+    D_FORMATS = {"fr_calc": "{:.5f}", "intensity_plus_calc": "{:.2f}",
+                 "intensity_minus_calc": "{:.2f}", "sintlambda": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -57,6 +61,8 @@ class DiffrnRefln(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "diffrn_refln"
 
@@ -65,7 +71,8 @@ class DiffrnRefln(ItemN):
 
         # defined for any integer and float parameters
         D_MIN = {"fr": 0., "fr_sigma": 0., "fr_calc": 0.,
-                 "intensity_up_calc": 0., "intensity_down_calc": 0.}
+                 "intensity_plus_calc": 0., "intensity_minus_calc": 0.,
+                 "sintlambda": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}
@@ -85,9 +92,9 @@ class DiffrnReflnL(LoopN):
     """
     ITEM_CLASS = DiffrnRefln
     ATTR_INDEX = None
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(DiffrnReflnL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def report(self):
@@ -266,16 +273,19 @@ class DiffrnReflnL(LoopN):
             return 
 
         fig, ax = plt.subplots()
-        ax.set_title("Flip Ratio: I_up / I_down")
         np_excl = numpy.array(self.excluded, dtype=bool)
         flag_in = numpy.logical_not(np_excl)
         if numpy.all(np_excl):
+            ax.set_title("Flip Ratio: I_plus / I_minus")
             fr_min = 0.
             fr_max = 10.
         else:
             np_fr = numpy.array(self.fr, dtype=float)[flag_in]
             np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
             np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
+
+            chi_sq_per_n = numpy.square((np_fr-np_fr_calc)/np_fr_sigma).sum()/np_fr.shape[0]
+            ax.set_title(r"Flip Ratio: $I_{plus} / I_{minus}$, $\chi^2=$" + f"{chi_sq_per_n:.2f}.")
     
             np_fr_1 = np_fr - np_fr_sigma
             np_fr_2 = np_fr + np_fr_sigma

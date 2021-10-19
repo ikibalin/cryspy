@@ -2,6 +2,9 @@ from typing import NoReturn
 import numpy
 import matplotlib.pyplot as plt
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -12,8 +15,8 @@ class TOFMeas(ItemN):
     Attributes
     ----------
         - time (mandatory)
-        - intensity_up, intensity_up_sigma, intensity_down,
-          intensity_down_sigma, intensity, intensity_sigma (optional)
+        - intensity_plus, intensity_plus_sigma, intensity_minus,
+          intensity_minus_sigma, intensity, intensity_sigma (optional)
 
     time is given in microseconds.
     """
@@ -21,12 +24,12 @@ class TOFMeas(ItemN):
     ATTR_MANDATORY_TYPES = (float, )
     ATTR_MANDATORY_CIF = ("time", )
 
-    ATTR_OPTIONAL_NAMES = ("intensity_up", "intensity_up_sigma",
-                           "intensity_down", "intensity_down_sigma",
+    ATTR_OPTIONAL_NAMES = ("intensity_plus", "intensity_plus_sigma",
+                           "intensity_minus", "intensity_minus_sigma",
                            "intensity", "intensity_sigma")
     ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("intensity_up", "intensity_up_sigma",
-                         "intensity_down", "intensity_down_sigma",
+    ATTR_OPTIONAL_CIF = ("intensity_plus", "intensity_plus_sigma",
+                         "intensity_minus", "intensity_minus_sigma",
                          "intensity", "intensity_sigma")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
@@ -41,10 +44,11 @@ class TOFMeas(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {'intensity_up': "{:.2f}", 'intensity_up_sigma': "{:.2f}",
-                 'intensity_down': "{:.2f}", 'intensity_down_sigma': "{:.2f}",
+    D_FORMATS = {'intensity_plus': "{:.2f}", 'intensity_plus_sigma': "{:.2f}",
+                 'intensity_minus': "{:.2f}", 'intensity_minus_sigma': "{:.2f}",
                  'intensity': "{:.2f}", 'intensity_sigma': "{:.2f}",
                  'time': "{:.3f}"}
 
@@ -57,6 +61,8 @@ class TOFMeas(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "tof_meas"
 
@@ -79,10 +85,10 @@ class TOFMeas(ItemN):
     def apply_constraints(self):
         """Apply constraints."""
         keys = self.__dict__.keys()
-        if (("intensity_up" in keys) & ("intensity_up_sigma" not in keys)):
-            self.intensity_up_sigma = (self.intensity_up)**0.5
-        if (("intensity_down" in keys) & ("intensity_down_sigma" not in keys)):
-            self.intensity_down_sigma = (self.intensity_down)**0.5
+        if (("intensity_plus" in keys) & ("intensity_plus_sigma" not in keys)):
+            self.intensity_plus_sigma = (self.intensity_plus)**0.5
+        if (("intensity_minus" in keys) & ("intensity_minus_sigma" not in keys)):
+            self.intensity_minus_sigma = (self.intensity_minus)**0.5
         if (("intensity" in keys) & ("intensity_sigma" not in keys)):
             self.intensity_sigma = (self.intensity)**0.5
 
@@ -115,9 +121,9 @@ class TOFMeasL(LoopN):
     ITEM_CLASS = TOFMeas
     ATTR_INDEX = "time"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(TOFMeasL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def is_polarized(self):
@@ -125,8 +131,8 @@ class TOFMeasL(LoopN):
         flag = False
         if len(self.items) != 0:
             items_0 = self.items[0]
-            flag_up = items_0.is_attribute("intensity_up")
-            flag_down = items_0.is_attribute("intensity_down")
+            flag_up = items_0.is_attribute("intensity_plus")
+            flag_down = items_0.is_attribute("intensity_minus")
             flag = flag_up & flag_down
         return flag
 
@@ -146,15 +152,15 @@ class TOFMeasL(LoopN):
         ax.set_xlabel("Time (microseconds)")
         ax.set_ylabel('Intensity')
 
-        if (self.is_attribute("time") & self.is_attribute("intensity_up") & 
-            self.is_attribute("intensity_up_sigma") &
-            self.is_attribute("intensity_down") & 
-            self.is_attribute("intensity_down_sigma")):
+        if (self.is_attribute("time") & self.is_attribute("intensity_plus") & 
+            self.is_attribute("intensity_plus_sigma") &
+            self.is_attribute("intensity_minus") & 
+            self.is_attribute("intensity_minus_sigma")):
             np_time = numpy.array(self.time, dtype=float)
-            np_up = numpy.array(self.intensity_up, dtype=float)
-            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-            np_down = numpy.array(self.intensity_down, dtype=float)
-            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_up = numpy.array(self.intensity_plus, dtype=float)
+            np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_minus, dtype=float)
+            np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
 
             ax.plot(np_time, np_up, "r-", alpha=0.2)
             ax.errorbar(np_time, np_up, yerr=np_sup, fmt="ro", alpha=0.2,
@@ -176,15 +182,15 @@ class TOFMeasL(LoopN):
         ax.set_xlabel("Time (microseconds)")
         ax.set_ylabel('Intensity')
 
-        if (self.is_attribute("time") & self.is_attribute("intensity_up") & 
-            self.is_attribute("intensity_up_sigma") &
-            self.is_attribute("intensity_down") & 
-            self.is_attribute("intensity_down_sigma")):
+        if (self.is_attribute("time") & self.is_attribute("intensity_plus") & 
+            self.is_attribute("intensity_plus_sigma") &
+            self.is_attribute("intensity_minus") & 
+            self.is_attribute("intensity_minus_sigma")):
             np_time = numpy.array(self.time, dtype=float)
-            np_up = numpy.array(self.intensity_up, dtype=float)
-            np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-            np_down = numpy.array(self.intensity_down, dtype=float)
-            np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+            np_up = numpy.array(self.intensity_plus, dtype=float)
+            np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+            np_down = numpy.array(self.intensity_minus, dtype=float)
+            np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
             np_sum = np_up + np_down
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
             ax.plot(np_time, np_sum, "k-", alpha=0.2)
@@ -205,10 +211,10 @@ class TOFMeasL(LoopN):
     def plot_diff(self):
         """Plot experimental polarized intensity vs. time
         """
-        if not(self.is_attribute("time") & self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_up_sigma") &
-               self.is_attribute("intensity_down") & 
-               self.is_attribute("intensity_down_sigma")):
+        if not(self.is_attribute("time") & self.is_attribute("intensity_plus") & 
+               self.is_attribute("intensity_plus_sigma") &
+               self.is_attribute("intensity_minus") & 
+               self.is_attribute("intensity_minus_sigma")):
             return
         fig, ax = plt.subplots()
         ax.set_title("Polarized intensity: I_up - I_down")
@@ -216,10 +222,10 @@ class TOFMeasL(LoopN):
         ax.set_ylabel('Intensity')
             
         np_time = numpy.array(self.time, dtype=float)
-        np_up = numpy.array(self.intensity_up, dtype=float)
-        np_sup = numpy.array(self.intensity_up_sigma, dtype=float)
-        np_down = numpy.array(self.intensity_down, dtype=float)
-        np_sdown = numpy.array(self.intensity_down_sigma, dtype=float)
+        np_up = numpy.array(self.intensity_plus, dtype=float)
+        np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
+        np_down = numpy.array(self.intensity_minus, dtype=float)
+        np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
         np_diff = np_up - np_down
         np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
 
@@ -234,10 +240,10 @@ class TOFMeasL(LoopN):
 # s_cont = """
 #   loop_
 #   _tof_meas_time
-#   _tof_meas_intensity_up
-#   _tof_meas_intensity_up_sigma
-#   _tof_meas_intensity_down
-#   _tof_meas_intensity_down_sigma
+#   _tof_meas_intensity_plus
+#   _tof_meas_intensity_plus_sigma
+#   _tof_meas_intensity_minus
+#   _tof_meas_intensity_minus_sigma
 # 3001.589    40409.0    462.0    40409.0    462.0    
 # 3003.09     40171.0    460.0    40409.0    462.0    
 # 3004.591    39733.0    458.0   40409.0    462.0    

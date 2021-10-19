@@ -83,7 +83,6 @@ def app_grid(mat_xy, x_grid, y_grid, l_point):
             val_x = point[0]
             val_y = point[1]
         except Exception:
-            print(ipoint, point)
             return []
 
         n_tot_x = (val_x - min_x)/step_x

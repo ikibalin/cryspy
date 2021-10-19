@@ -1,10 +1,14 @@
 from typing import NoReturn
 import numpy
 import warnings
+
 from cryspy.A_functions_base.function_1_atomic_vibrations import \
     apply_constraint_on_cell_by_type_cell
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_sthovl_by_hkl_abc_cosines, ortogonalize_matrix
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -59,11 +63,12 @@ class Cell(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"length_a": "{:.5f}", "length_b": "{:.5f}",
-                 "length_c": "{:.5f}", "angle_alpha": "{:.2f}",
-                 "angle_beta": "{:.2f}", "angle_gamma": "{:.2f}"}
+    D_FORMATS = {"length_a": "{:.6f}", "length_b": "{:.6f}",
+                 "length_c": "{:.6f}", "angle_alpha": "{:.6f}",
+                 "angle_beta": "{:.6f}", "angle_gamma": "{:.6f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {'type': ["c", "p"]}
@@ -75,6 +80,8 @@ class Cell(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "cell"
 
@@ -246,7 +253,7 @@ class Cell(ItemN):
                            [0., 0., 1./c]], dtype=float)
         self.m_b = m_b
 
-        # M matrix
+        # M matrix j
         m_m = numpy.array([[ 1./ia, 0,0],
                            [-1*a*s_b*c_ig, b*s_a, 0],
                            [ a*c_b, b*c_a, c]], dtype=float)
@@ -310,10 +317,12 @@ class Cell(ItemN):
 
         return k_x, k_y, k_z
 
-    def calc_m_t(self, index_h, index_k, index_l):
+    def calc_matrix_t(self, index_h, index_k, index_l):
         """Determine rotation matrix to have new z axis along k_loc.
 
         Rotation matrix is defined by Euler angles
+        Attention
+        m_(x||a*, z||c) = T * M_(Z||hkl)
         """
         m_b = self.m_b
         k_x = m_b[0, 0] * index_h + m_b[0, 1] * index_k + m_b[0, 2] * index_l
@@ -557,6 +566,11 @@ class Cell(ItemN):
         ls_out.append(f"|{self.m_b[1, 0]: 10.5f}|{self.m_b[1, 1]: 10.5f}|{self.m_b[1, 2]: 10.5f}|")
         ls_out.append(f"|{self.m_b[2, 0]: 10.5f}|{self.m_b[2, 1]: 10.5f}|{self.m_b[2, 2]: 10.5f}|")
 
+        ls_out.append("\n## M matrix (x||a*, z||c)\n")
+        ls_out.append(f"|{self.m_m[0, 0]: 10.5f}|{self.m_m[0, 1]: 10.5f}|{self.m_m[0, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_m[1, 0]: 10.5f}|{self.m_m[1, 1]: 10.5f}|{self.m_m[1, 2]: 10.5f}|")
+        ls_out.append(f"|{self.m_m[2, 0]: 10.5f}|{self.m_m[2, 1]: 10.5f}|{self.m_m[2, 2]: 10.5f}|")
+
         ls_out.append("\n## Metric tensor for unit cell\n")
         ls_out.append(f"|{self.m_g[0, 0]: 10.5f}|{self.m_g[0, 1]: 10.5f}|{self.m_g[0, 2]: 10.5f}|")
         ls_out.append(f"|{self.m_g[1, 0]: 10.5f}|{self.m_g[1, 1]: 10.5f}|{self.m_g[1, 2]: 10.5f}|")
@@ -569,6 +583,22 @@ class Cell(ItemN):
 
         return "\n".join(ls_out)
 
+    def get_unit_cell_parameters(self):
+        unit_cell_parameters = numpy.array([
+            self.length_a, self.length_b, self.length_c, 
+            self.angle_alpha*numpy.pi/180., self.angle_beta*numpy.pi/180.,
+            self.angle_gamma*numpy.pi/180.], dtype=float)
+        return unit_cell_parameters
+
+    def get_flags_unit_cell_parameters(self):
+        flags_unit_cell_parameters = numpy.array([
+            self.length_a_refinement, self.length_b_refinement, 
+            self.length_c_refinement, self.angle_alpha_refinement,
+            self.angle_beta_refinement, self.angle_gamma_refinement], dtype=bool)
+        return flags_unit_cell_parameters
+
+                
+
 class CellL(LoopN):
     """
     Description of unit cell in loop.
@@ -576,9 +606,9 @@ class CellL(LoopN):
     """
     ITEM_CLASS = Cell
     ATTR_INDEX = None
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(CellL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 # s_cont = """

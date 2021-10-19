@@ -209,8 +209,8 @@ def vibration_constraints(numb, param_i, sigma_i, ref_i):
         p_23_ref = False
         p_23_constr = True
     elif numb == 13:
-        p_12 = 0.5*p_22
-        s_12 = 0.5*s_22
+        p_12 = 0.5*p_22         
+        s_12 = 0.5*s_22         
         p_12_ref = False
         p_12_constr = True
         p_23 = 0.
@@ -244,8 +244,8 @@ def vibration_constraints(numb, param_i, sigma_i, ref_i):
         s_22 = s_11
         p_22_ref = False
         p_22_constr = True
-        p_12 = 0.5*p_11
-        s_12 = 0.5*s_11
+        p_12 = 0.5*p_11      
+        s_12 = 0.5*s_11      
         p_12_ref = False
         p_12_constr = True
         p_13 = 0.

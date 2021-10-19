@@ -1,8 +1,16 @@
 from typing import NoReturn
+import numpy
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2, calc_vt_m_v
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.C_item_loop_classes.cl_1_cell import Cell
+from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import DiffrnOrientMatrix
 
 class ReflnSusceptibility(ItemN):
     """Susceptibility structure factor tensor.
@@ -40,19 +48,14 @@ class ReflnSusceptibility(ItemN):
     ATTR_OPTIONAL_NAMES = (
         "sintlambda", "d_spacing", "chi_11_calc", "chi_12_calc", "chi_13_calc", 
         "chi_21_calc", "chi_22_calc", "chi_23_calc", "chi_31_calc",
-        "chi_32_calc", "chi_33_calc", "moment_11_calc", "moment_12_calc",
-        "moment_13_calc", "moment_21_calc", "moment_22_calc", "moment_23_calc", 
-        "moment_31_calc", "moment_32_calc", "moment_33_calc")
+        "chi_32_calc", "chi_33_calc", )
     ATTR_OPTIONAL_TYPES = (float, float, complex, complex, complex,
                            complex, complex, complex, complex, complex, 
-                           complex, complex, complex, complex, complex,
-                           complex, complex, complex, complex, complex)
+                           complex, complex, complex, complex, )
     ATTR_OPTIONAL_CIF = (
-        "sintlambda", "d_spacing", "chi_11_calc", "chi_12_calc", "chi_13_calc", 
+        "sint/lambda", "d_spacing", "chi_11_calc", "chi_12_calc", "chi_13_calc", 
         "chi_21_calc", "chi_22_calc", "chi_23_calc", "chi_31_calc",
-        "chi_32_calc", "chi_33_calc", "moment_11_calc", "moment_12_calc",
-        "moment_13_calc", "moment_21_calc", "moment_22_calc", "moment_23_calc", 
-        "moment_31_calc", "moment_32_calc", "moment_33_calc")
+        "chi_32_calc", "chi_33_calc", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -66,6 +69,7 @@ class ReflnSusceptibility(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
     D_FORMATS = {"sintlambda": "{:.5f}", "d_spacing": "{:.5f}",
@@ -73,11 +77,7 @@ class ReflnSusceptibility(ItemN):
                  "chi_13_calc": "{:.2f}", "chi_21_calc": "{:.2f}",
                  "chi_22_calc": "{:.2f}", "chi_23_calc": "{:.2f}",
                  "chi_31_calc": "{:.2f}", "chi_32_calc": "{:.2f}",
-                 "chi_33_calc": "{:.2f}", "moment_11_calc": "{:.2f}",
-                 "moment_12_calc": "{:.2f}", "moment_13_calc": "{:.2f}",
-                 "moment_21_calc": "{:.2f}", "moment_22_calc": "{:.2f}",
-                 "moment_23_calc": "{:.2f}", "moment_31_calc": "{:.2f}",
-                 "moment_32_calc": "{:.2f}", "moment_33_calc": "{:.2f}"}
+                 "chi_33_calc": "{:.2f}", }
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -88,6 +88,8 @@ class ReflnSusceptibility(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "refln_susceptibility"
 
@@ -113,42 +115,24 @@ class ReflnSusceptibilityL(LoopN):
     """
     ITEM_CLASS = ReflnSusceptibility
     ATTR_INDEX = "id"
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(ReflnSusceptibilityL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
+    def calc_f_mag(self, diffrn_orient_matrix: DiffrnOrientMatrix):
+        e_up = diffrn_orient_matrix.calc_e_up(phi=0, omega=0, chi=0)
+        m1_ij = numpy.array([
+            self.chi_11_calc, self.chi_12_calc, self.chi_13_calc,
+            self.chi_21_calc, self.chi_22_calc, self.chi_23_calc,
+            self.chi_31_calc, self.chi_32_calc, self.chi_33_calc], dtype=complex)
+        
+        m2_ij =numpy.conjugate(numpy.stack([
+            m1_ij[0], m1_ij[3], m1_ij[6], m1_ij[1], m1_ij[4], m1_ij[7],
+            m1_ij[2], m1_ij[5], m1_ij[8]], axis=0))
+        
+        m_3_ij = (calc_m1_m2(m2_ij, m1_ij))
+        f_mag_sq = calc_vt_m_v(m_3_ij, e_up).real
+        f_mag = numpy.sqrt(f_mag_sq)
+        return f_mag
 
-# s_cont = """
-#  loop_
-#  _refln_susceptibility.index_h    
-#  _refln_susceptibility.index_k    
-#  _refln_susceptibility.index_l    
-#  _refln_susceptibility.d_spacing       
-#  _refln_susceptibility.sintlambda
-#  _refln_susceptibility.chi_11_calc     
-#  _refln_susceptibility.chi_12_calc     
-#  _refln_susceptibility.chi_13_calc     
-#  _refln_susceptibility.chi_21_calc     
-#  _refln_susceptibility.chi_22_calc     
-#  _refln_susceptibility.chi_23_calc     
-#  _refln_susceptibility.chi_31_calc     
-#  _refln_susceptibility.chi_32_calc     
-#  _refln_susceptibility.chi_33_calc     
-#  _refln_susceptibility.moment_11_calc  
-#  _refln_susceptibility.moment_12_calc  
-#  _refln_susceptibility.moment_13_calc  
-#  _refln_susceptibility.moment_21_calc  
-#  _refln_susceptibility.moment_22_calc  
-#  _refln_susceptibility.moment_23_calc  
-#  _refln_susceptibility.moment_31_calc  
-#  _refln_susceptibility.moment_32_calc  
-#  _refln_susceptibility.moment_33_calc  
-#  2 0 0 4.52 0.123 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j  0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j
-#  0 2 0 4.52 0.123 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j  0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j 0+0j
-#   """
-
-# obj = ReflnSusceptibilityL.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj.sintlambda, end="\n\n")
-# print(obj.numpy_chi_33_calc, end="\n\n")

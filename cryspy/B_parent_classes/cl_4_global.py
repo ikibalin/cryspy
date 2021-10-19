@@ -216,6 +216,11 @@ class GlobalN(object):
         for item in items_unique:
             if isinstance(item, self.CLASSES):
                 self.items.append(item)
+            elif type(self) is GlobalN:
+                if issubclass(type(item), (ItemN, LoopN, DataN)):
+                    self.CLASSES = self.CLASSES + (type(item), )
+                    self.CLASSES_OPTIONAL = self.CLASSES_OPTIONAL + (type(item), )
+                    self.items.append(item)
 
     @classmethod
     def make_container(cls, cls_mandatory, cls_optional, prefix):
@@ -278,6 +283,8 @@ class GlobalN(object):
         """
         prefix = self.PREFIX
         global_name = self.global_name
+        if isinstance(global_name, str):
+            global_name = global_name.lower()
         l_var = []
         for item in self.items:
             l_var.extend(item.get_variable_names())
@@ -311,10 +318,16 @@ class GlobalN(object):
         """
         prefix = self.PREFIX
         global_name = self.global_name
+        if isinstance(global_name, str):
+            global_name = global_name.lower()
 
         prefix_g, prefix_n = name[0], name[1]
+        if isinstance(prefix_g[1], str):
+            prefix_g_2 = prefix_g[1].lower()
+        else:
+            prefix_g_2 = prefix_g[1]
 
-        if prefix_g != (prefix, global_name):
+        if (prefix_g[0], prefix_g_2) != (prefix, global_name):
             return None
 
         name_sh = tuple(name[1:])
@@ -558,3 +571,79 @@ class GlobalN(object):
                     pass
                 else:
                     item.set_variable(".".join(l_name[1:]), index=index)
+
+    def get_dictionary(self):
+        dict_out = {}
+        for item in self.items:
+            if "get_dictionary" in dir(item):
+                name = item.get_name()
+                dict_out[name] = item.get_dictionary()
+
+        variable_names = self.get_variable_names()
+        dict_names = transfer_cif_names_to_dict_names(variable_names)
+
+        mark_names = [hh[:-1] + ((f"{hh[-1][0]:}_mark", hh[-1][1]), ) for hh in variable_names]
+        marks = [self.get_variable_by_name(hh) for hh in mark_names]
+        constraint_labels = [hh.rstrip("-+") for hh in marks]
+        linear_constraints = []
+        for constraint_label in set(constraint_labels).difference([""]):
+            ind_1 = constraint_labels.index(constraint_label)
+            for i_hh, hh in enumerate(constraint_labels[ind_1+1:]):
+                if hh == constraint_label:
+                    ind_2 = i_hh+ind_1+1
+                    name_1 = dict_names[ind_1]
+                    if marks[ind_1].endswith("-"):
+                        coeff_1 = -1.
+                    else:
+                        coeff_1 = 1.
+                    
+                    name_2 = dict_names[ind_2]
+                    if marks[ind_2].endswith("-"):
+                        coeff_2 = 1.
+                    else:
+                        coeff_2 = -1.
+                    linear_constraints.append([(coeff_1, name_1), (coeff_2, name_2)])
+        if len(linear_constraints) > 0:
+            dict_out["linear_constraints"] = linear_constraints
+
+        return dict_out
+
+
+
+    def take_parameters_from_dictionary(self, dict_global, l_parameter_name: list=None, l_sigma: list=None):
+        keys = dict_global.keys()
+
+        if (l_parameter_name is None) or (l_sigma is None):
+            l_parameter_name = []
+            l_sigma = []
+
+        for item in self.items:
+            item_name = item.get_name().lower()
+            if (item_name in keys) and ("take_parameters_from_dictionary" in dir(item)):
+                l_parameter_name_data, l_sigma_data = [], []
+                for parameter_name, sigma in zip(l_parameter_name, l_sigma):
+                    if parameter_name[0].lower() == item_name.lower():
+                        l_parameter_name_data.append(parameter_name[1:])
+                        l_sigma_data.append(sigma)
+                dict_data = dict_global[item_name]
+                item.take_parameters_from_dictionary(dict_data, l_parameter_name=l_parameter_name_data, l_sigma=l_sigma_data)
+
+
+def transfer_cif_names_to_dict_names(variable_names):
+    dict_names = []
+    for cif_name in variable_names:
+        data_block = f"{cif_name[1][0]:}_{cif_name[1][1]:}"
+        name = cif_name[-1][0]
+        index = cif_name[-1][1]
+        if index is None:
+            index = (0,)
+        if name == "polarization":
+            name = "beam_polarization"
+        elif name == "efficiency":
+            name = "flipper_efficiency"
+        elif name == "radius":
+            name = "extinction_radius"
+        elif name == "mosaicity":
+            name = "extinction_mosaicity"
+        dict_names.append((data_block.lower(), name.lower(), index))
+    return dict_names

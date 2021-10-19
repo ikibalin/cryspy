@@ -37,6 +37,8 @@ def test_refine_mcif():
     dir = os.path.dirname(__file__)
     f_name = os.path.join(dir, "pd_test.rcif")
     rhochi = cryspy.file_to_globaln(f_name)
-    chi_sq, n_points = rhochi.calc_chi_sq()
+    d_out = cryspy.rhochi_no_refinement(rhochi)
+    chi_sq = d_out["chi_sq"]
+    n_points = d_out["n_points"]
     assert chi_sq < 3036.0
     assert int(n_points) == 4901

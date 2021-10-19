@@ -4,6 +4,8 @@ from typing import NoReturn
 import numpy
 from fractions import Fraction
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 from cryspy.A_functions_base.function_2_space_group import \
     get_shift_by_centring_type, \
     get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2, \
@@ -102,6 +104,7 @@ class SpaceGroup(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     ACCESIBLE_NAME_HM_ALT = frozenset(
         set(ACCESIBLE_NAME_HM_SHORT) | set(ACCESIBLE_NAME_HM_FULL) |
@@ -128,6 +131,8 @@ class SpaceGroup(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "space_group"
 
@@ -259,9 +264,6 @@ class SpaceGroup(ItemN):
         if (name_hm_extended is not None):
             centring_type = get_centring_type_by_name_hm_extended(
                 name_hm_extended)
-        if ((centring_type is not None) & (crystal_system is not None)):
-            bravais_type = get_bravais_type_by_centring_type_crystal_system(
-                centring_type, crystal_system)
         name_hm_short = get_name_hm_short_by_it_number(it_number)
         if (name_hm_short is not None):
             lattice_type = get_lattice_type_by_name_hm_short(name_hm_short)
@@ -271,6 +273,9 @@ class SpaceGroup(ItemN):
         name_hm_full = get_name_hm_full_by_it_number(it_number)
         if ((name_hm_full is not None) & (centring_type is None)):
             centring_type = get_centring_type_by_name_hm_extended(name_hm_full)
+        if ((centring_type is not None) & (crystal_system is not None)):
+            bravais_type = get_bravais_type_by_centring_type_crystal_system(
+                centring_type, crystal_system)
         name_hall = get_name_hall_by_it_number(it_number)
         if name_hall is not None:
             centrosymmetry = get_centrosymmetry_by_name_hall(name_hall)
@@ -822,9 +827,9 @@ class SpaceGroupL(LoopN):
     ITEM_CLASS = SpaceGroup
     ATTR_INDEX = "id"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(SpaceGroupL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 

@@ -10,8 +10,8 @@ _pd_peak_index_k
 _pd_peak_index_l
 _pd_peak_index_mult
 _pd_peak_2theta
-_pd_peak_intensity_up
-_pd_peak_intensity_down
+_pd_peak_intensity_plus
+_pd_peak_intensity_minus
 _pd_peak_width_2theta
 1    1    1   8    7.75    434.09    81.87    0.67396  
 2    0    0   6    9.01    231.16    231.16   0.67334  
@@ -166,18 +166,18 @@ _pd_peak_width_2theta
 loop_
 _pd_proc_2theta
 _pd_proc_2theta_corrected
-_pd_proc_intensity_up_net
-_pd_proc_intensity_down_net
-_pd_proc_intensity_up_total
-_pd_proc_intensity_down_total
+_pd_proc_intensity_plus_net
+_pd_proc_intensity_minus_net
+_pd_proc_intensity_plus_total
+_pd_proc_intensity_minus_total
 _pd_proc_intensity_bkg_calc
 _pd_proc_intensity_net
 _pd_proc_intensity_total
 _pd_proc_intensity_diff_total
-_pd_proc_intensity_up
-_pd_proc_intensity_up_sigma
-_pd_proc_intensity_down
-_pd_proc_intensity_down_sigma
+_pd_proc_intensity_plus
+_pd_proc_intensity_plus_sigma
+_pd_proc_intensity_minus
+_pd_proc_intensity_minus_sigma
 _pd_proc_intensity
 _pd_proc_intensity_sigma
 4.6    4.98    0.00      0.00      647.00    647.00    647.00   0.00      1294.00   0.00       626.97    93.64    413.31    90.64   1040.28   130.32  
@@ -565,8 +565,8 @@ _pd_peak_index_k
 _pd_peak_index_l
 _pd_peak_index_mult
 _pd_peak_2theta
-_pd_peak_intensity_up
-_pd_peak_intensity_down
+_pd_peak_intensity_plus
+_pd_peak_intensity_minus
 _pd_peak_width_2theta
 1    1    1   8    7.75    434.09    81.87    0.67396  
 2    0    0   6    9.01    231.16    231.16   0.67334  

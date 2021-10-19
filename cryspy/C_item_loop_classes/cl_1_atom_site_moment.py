@@ -1,6 +1,10 @@
 """AtomSiteMoment, AtomSiteMomentL classes are given."""
 import numpy
 from typing import NoReturn
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -22,19 +26,19 @@ class AtomSiteMoment(ItemN):
           spherical_azimuthal, spherical_modulus, spherical_polar
     """
 
-    ATTR_MANDATORY_NAMES = ("label", "symmform")
-    ATTR_MANDATORY_TYPES = (str, str)
-    ATTR_MANDATORY_CIF = ("label", "symmform")
+    ATTR_MANDATORY_NAMES = ("label",)
+    ATTR_MANDATORY_TYPES = (str, )
+    ATTR_MANDATORY_CIF = ("label", )
 
     ATTR_OPTIONAL_NAMES = (
         "cartn_x", "cartn_y", "cartn_z", "crystalaxis_x", "crystalaxis_y",
-        "crystalaxis_z", "modulation_flag", "refinement_flags_magnetic",
+        "crystalaxis_z",  "symmform", "modulation_flag", "refinement_flags_magnetic",
         "spherical_azimuthal", "spherical_modulus", "spherical_polar")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float,
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, str,
                            str, str, float, float, float)
     ATTR_OPTIONAL_CIF = (
         "cartn_x", "cartn_y", "cartn_z", "crystalaxis_x", "crystalaxis_y",
-        "crystalaxis_z", "modulation_flag", "refinement_flags_magnetic",
+        "crystalaxis_z",  "symmform", "modulation_flag", "refinement_flags_magnetic",
         "spherical_azimuthal", "spherical_modulus", "spherical_polar")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
@@ -49,6 +53,7 @@ class AtomSiteMoment(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {"modulation_flag": ["yes", "y", "no", "n"],
@@ -61,6 +66,8 @@ class AtomSiteMoment(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "atom_site_moment"
 
@@ -114,6 +121,8 @@ class AtomSiteMoment(ItemN):
             np_res = numpy.sqrt(np_moment_sq-numpy.square(np_val))
         return np_res
 
+    def to_cif(self, separator: str = ".") -> str:
+        return super(AtomSiteMoment, self).to_cif(separator=separator)
 
 class AtomSiteMomentL(LoopN):
     """AtomSiteMomentL class.
@@ -128,10 +137,13 @@ class AtomSiteMomentL(LoopN):
     ITEM_CLASS = AtomSiteMoment
     ATTR_INDEX = "label"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomSiteMomentL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
+
+    def to_cif(self, separator: str = ".") -> str:
+        return super(AtomSiteMomentL, self).to_cif(separator=separator)
 
 # s_cont = """
 # loop_

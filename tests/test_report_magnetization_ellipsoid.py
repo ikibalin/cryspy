@@ -1,8 +1,15 @@
+import os
+import sys
+if not(os.getcwd()  in sys.path):
+    sys.path.append(os.getcwd())
+
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import \
-    magnetization_ellipsoid_by_u_ij, AtomSiteSusceptibility, Cell
+        magnetization_ellipsoid_by_u_ij, AtomSiteSusceptibility, Cell
 
 
 def test_uij():
+
+
     cell = Cell(
         length_a = 9.90710, length_b = 12.70190, length_c = 14.15560,
         angle_alpha = 90., angle_beta = 92.82, angle_gamma = 90.)

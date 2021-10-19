@@ -3,10 +3,16 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 
+
+from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
+    calc_ttheta_phi_by_gamma_nu
+
 from cryspy.A_functions_base.function_1_gamma_nu import \
     recal_int_to_gammanu_grid
-
+    
 from cryspy.B_parent_classes.cl_1_item import ItemN
+
+na = numpy.newaxis
 
 class Pd2dMeas(ItemN):
     """
@@ -39,25 +45,32 @@ class Pd2dMeas(ItemN):
         - space_group_wyckoff
         - constr_number
     """
-    ATTR_MANDATORY_NAMES = (
-        "ttheta_phi_intensity_up", "ttheta_phi_intensity_up_sigma",
-        "ttheta_phi_intensity_down", "ttheta_phi_intensity_down_sigma")
-    ATTR_MANDATORY_TYPES = (str, str, str, str)
+    ATTR_MANDATORY_NAMES = ()
+    ATTR_MANDATORY_TYPES = ()
     # ("matrix", "matrix", "matrix", "matrix")
-    ATTR_MANDATORY_CIF = (
-        "2theta_phi_intensity_up", "2theta_phi_intensity_up_sigma",
-        "2theta_phi_intensity_down", "2theta_phi_intensity_down_sigma")
+    ATTR_MANDATORY_CIF = ()
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = (
+        "ttheta_phi_intensity_plus", "ttheta_phi_intensity_plus_sigma",
+        "ttheta_phi_intensity_minus", "ttheta_phi_intensity_minus_sigma",
+        "gamma_nu_intensity_plus", "gamma_nu_intensity_plus_sigma",
+        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma")
+    ATTR_OPTIONAL_TYPES = (
+        str, str, str, str, str, str, str, str)
+    ATTR_OPTIONAL_CIF = (
+        "2theta_phi_intensity_plus", "2theta_phi_intensity_plus_sigma",
+        "2theta_phi_intensity_minus", "2theta_phi_intensity_minus_sigma",
+        "gamma_nu_intensity_plus", "gamma_nu_intensity_plus_sigma",
+        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
     ATTR_CIF = ATTR_MANDATORY_CIF + ATTR_OPTIONAL_CIF
 
-    ATTR_INT_NAMES = ("ttheta", "phi", "intensity_up", "intensity_up_sigma",
-                      "intensity_down", "intensity_down_sigma")
+    ATTR_INT_NAMES = ("ttheta", "phi", "intensity_plus", "intensity_plus_sigma",
+                      "intensity_minus", "intensity_minus_sigma", "gamma", "nu",
+                      "gn_intensity_plus", "gn_intensity_plus_sigma",
+                      "gn_intensity_minus", "gn_intensity_minus_sigma")
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
@@ -65,6 +78,7 @@ class Pd2dMeas(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -75,6 +89,8 @@ class Pd2dMeas(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "pd2d_meas"
 
@@ -96,95 +112,178 @@ class Pd2dMeas(ItemN):
 
     def form_object(self) -> NoReturn:
         """Redefine form_object."""
-        flag = (self.is_attribute("ttheta_phi_intensity_up") &
-                self.is_attribute("ttheta_phi_intensity_up_sigma") &
-                self.is_attribute("ttheta_phi_intensity_down") &
-                self.is_attribute("ttheta_phi_intensity_down_sigma"))
-        if not(flag):
-            return
-        l_1 = (self.ttheta_phi_intensity_up).strip().split("\n")
-        l_2 = (self.ttheta_phi_intensity_up_sigma).strip().split("\n")
-        l_3 = (self.ttheta_phi_intensity_down).strip().split("\n")
-        l_4 = (self.ttheta_phi_intensity_down_sigma).strip().split("\n")
+        flag_tth_phi = (self.is_attribute("ttheta_phi_intensity_plus") &
+                self.is_attribute("ttheta_phi_intensity_plus_sigma") &
+                self.is_attribute("ttheta_phi_intensity_minus") &
+                self.is_attribute("ttheta_phi_intensity_minus_sigma"))
+        flag_gamma_nu = (
+                self.is_attribute("gamma_nu_intensity_plus") &
+                self.is_attribute("gamma_nu_intensity_plus_sigma") &
+                self.is_attribute("gamma_nu_intensity_minus") &
+                self.is_attribute("gamma_nu_intensity_minus_sigma"))
 
-        l_ttheta = numpy.array([_ for _ in l_1[0].strip().split()[1:]],
-                               dtype=float)
-        l_phi, ll_intensity_up, ll_intensity_up_sigma = [], [], []
-        ll_intensity_down, ll_intensity_down_sigma = [], []
-        for line_1, line_2, line_3, line_4 in zip(l_1[1:], l_2[1:], l_3[1:],
-                                                  l_4[1:]):
-            _l_1 = line_1.strip().split()
-            _l_2 = line_2.strip().split()
-            _l_3 = line_3.strip().split()
-            _l_4 = line_4.strip().split()
-            l_phi.append(float(_l_1[0]))
-            ll_intensity_up.append(_l_1[1:])
-            ll_intensity_up_sigma.append(_l_2[1:])
-            ll_intensity_down.append(_l_3[1:])
-            ll_intensity_down_sigma.append(_l_4[1:])
+        if flag_tth_phi:
+            l_1 = (self.ttheta_phi_intensity_plus).strip().split("\n")
+            l_2 = (self.ttheta_phi_intensity_plus_sigma).strip().split("\n")
+            l_3 = (self.ttheta_phi_intensity_minus).strip().split("\n")
+            l_4 = (self.ttheta_phi_intensity_minus_sigma).strip().split("\n")
 
-        ll_intensity_up = numpy.array(ll_intensity_up, dtype=float).transpose()
-        ll_intensity_up_sigma = numpy.array(ll_intensity_up_sigma, dtype=float).transpose()
-        ll_intensity_down = numpy.array(ll_intensity_down, dtype=float).transpose()
-        ll_intensity_down_sigma = numpy.array(ll_intensity_down_sigma, dtype=float).transpose()
+            l_ttheta = numpy.array([_ for _ in l_1[0].strip().split()[1:]],
+                                   dtype=float)
+            l_phi, ll_intensity_plus, ll_intensity_plus_sigma = [], [], []
+            ll_intensity_minus, ll_intensity_minus_sigma = [], []
+            for line_1, line_2, line_3, line_4 in zip(l_1[1:], l_2[1:], l_3[1:],
+                                                      l_4[1:]):
+                _l_1 = line_1.strip().split()
+                _l_2 = line_2.strip().split()
+                _l_3 = line_3.strip().split()
+                _l_4 = line_4.strip().split()
+                l_phi.append(float(_l_1[0]))
+                ll_intensity_plus.append(_l_1[1:])
+                ll_intensity_plus_sigma.append(_l_2[1:])
+                ll_intensity_minus.append(_l_3[1:])
+                ll_intensity_minus_sigma.append(_l_4[1:])
 
-        self.__dict__["ttheta"] = l_ttheta
-        self.__dict__["phi"] = numpy.array(l_phi, dtype=float)
-        self.__dict__["intensity_up"] = ll_intensity_up
-        self.__dict__["intensity_up_sigma"] = ll_intensity_up_sigma
-        self.__dict__["intensity_down"] = ll_intensity_down
-        self.__dict__["intensity_down_sigma"] = ll_intensity_down_sigma
+            ll_intensity_plus = numpy.array(ll_intensity_plus, dtype=float).transpose()
+            ll_intensity_plus_sigma = numpy.array(ll_intensity_plus_sigma, dtype=float).transpose()
+            ll_intensity_minus = numpy.array(ll_intensity_minus, dtype=float).transpose()
+            ll_intensity_minus_sigma = numpy.array(ll_intensity_minus_sigma, dtype=float).transpose()
+
+            self.__dict__["ttheta"] = l_ttheta
+            self.__dict__["phi"] = numpy.array(l_phi, dtype=float)
+            self.__dict__["intensity_plus"] = ll_intensity_plus
+            self.__dict__["intensity_plus_sigma"] = ll_intensity_plus_sigma
+            self.__dict__["intensity_minus"] = ll_intensity_minus
+            self.__dict__["intensity_minus_sigma"] = ll_intensity_minus_sigma
+        if flag_gamma_nu:
+            l_1 = (self.gamma_nu_intensity_plus).strip().split("\n")
+            l_2 = (self.gamma_nu_intensity_plus_sigma).strip().split("\n")
+            l_3 = (self.gamma_nu_intensity_minus).strip().split("\n")
+            l_4 = (self.gamma_nu_intensity_minus_sigma).strip().split("\n")
+
+            l_gamma = numpy.array([_ for _ in l_1[0].strip().split()[1:]],
+                                   dtype=float)
+            l_nu, ll_intensity_plus, ll_intensity_plus_sigma = [], [], []
+            ll_intensity_minus, ll_intensity_minus_sigma = [], []
+            for line_1, line_2, line_3, line_4 in zip(l_1[1:], l_2[1:], l_3[1:],
+                                                      l_4[1:]):
+                _l_1 = line_1.strip().split()
+                _l_2 = line_2.strip().split()
+                _l_3 = line_3.strip().split()
+                _l_4 = line_4.strip().split()
+                l_nu.append(float(_l_1[0]))
+                ll_intensity_plus.append(_l_1[1:])
+                ll_intensity_plus_sigma.append(_l_2[1:])
+                ll_intensity_minus.append(_l_3[1:])
+                ll_intensity_minus_sigma.append(_l_4[1:])
+
+            ll_intensity_plus = numpy.array(ll_intensity_plus, dtype=float).transpose()
+            ll_intensity_plus_sigma = numpy.array(ll_intensity_plus_sigma, dtype=float).transpose()
+            ll_intensity_minus = numpy.array(ll_intensity_minus, dtype=float).transpose()
+            ll_intensity_minus_sigma = numpy.array(ll_intensity_minus_sigma, dtype=float).transpose()
+
+            self.__dict__["gamma"] = l_gamma
+            self.__dict__["nu"] = numpy.array(l_nu, dtype=float)
+            self.__dict__["gn_intensity_plus"] = ll_intensity_plus
+            self.__dict__["gn_intensity_plus_sigma"] = ll_intensity_plus_sigma
+            self.__dict__["gn_intensity_minus"] = ll_intensity_minus
+            self.__dict__["gn_intensity_minus_sigma"] = ll_intensity_minus_sigma
 
 
-    def form_ttheta_phi_intensity_up(self) -> bool:
+    def form_ttheta_phi_intensity_plus(self) -> bool:
         if (self.is_attribute("phi") & self.is_attribute("ttheta") &
-            self.is_attribute("intensity_up")):
+            self.is_attribute("intensity_plus")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
-            ll_intensity = self.intensity_up
+            ll_intensity = self.intensity_plus
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
                 ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
-            self.__dict__["ttheta_phi_intensity_up"] = "\n".join(ls_out)
+            self.__dict__["ttheta_phi_intensity_plus"] = "\n".join(ls_out)
 
-    def form_ttheta_phi_intensity_up_sigma(self) -> bool:
+    def form_ttheta_phi_intensity_plus_sigma(self) -> bool:
         if (self.is_attribute("phi") & self.is_attribute("ttheta") &
-            self.is_attribute("intensity_up_sigma")):
+            self.is_attribute("intensity_plus_sigma")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
-            ll_intensity = self.intensity_up_sigma
+            ll_intensity = self.intensity_plus_sigma
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
                 ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
-            self.__dict__["ttheta_phi_intensity_up_sigma"] = "\n".join(ls_out)
+            self.__dict__["ttheta_phi_intensity_plus_sigma"] = "\n".join(ls_out)
 
-    def form_ttheta_phi_intensity_down(self) -> bool:
+    def form_ttheta_phi_intensity_minus(self) -> bool:
         if (self.is_attribute("phi") & self.is_attribute("ttheta") &
-            self.is_attribute("intensity_down")):
+            self.is_attribute("intensity_minus")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
-            ll_intensity = self.intensity_down
+            ll_intensity = self.intensity_minus
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
                 ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
-            self.__dict__["ttheta_phi_intensity_down"] = "\n".join(ls_out)
+            self.__dict__["ttheta_phi_intensity_minus"] = "\n".join(ls_out)
 
-    def form_ttheta_phi_intensity_down_sigma(self) -> bool:
+    def form_ttheta_phi_intensity_minus_sigma(self) -> bool:
         if (self.is_attribute("phi") & self.is_attribute("ttheta") &
-            self.is_attribute("intensity_down_sigma")):
+            self.is_attribute("intensity_minus_sigma")):
             ls_out = []
             ls_out.append("{:12} ".format(len(self.phi)) + " ".join(["{:6.2f}      ".format(_) for _ in self.ttheta]))
-            ll_intensity = self.intensity_down_sigma
+            ll_intensity = self.intensity_minus_sigma
             ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
             for phi, l_intensity in zip(self.phi, ll_intensity):
                 ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
-            self.__dict__["ttheta_phi_intensity_down_sigma"] = "\n".join(ls_out)
+            self.__dict__["ttheta_phi_intensity_minus_sigma"] = "\n".join(ls_out)
+
+
+    def form_gamma_nu_intensity_plus(self) -> bool:
+        if (self.is_attribute("nu") & self.is_attribute("gamma") &
+            self.is_attribute("gn_intensity_plus")):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.gn_intensity_plus
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity_plus"] = "\n".join(ls_out)
+
+    def form_gamma_nu_intensity_plus_sigma(self) -> bool:
+        if (self.is_attribute("nu") & self.is_attribute("gamma") &
+            self.is_attribute("gn_intensity_plus_sigma")):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.gn_intensity_plus_sigma
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity_plus_sigma"] = "\n".join(ls_out)
+
+    def form_gamma_nu_intensity_minus(self) -> bool:
+        if (self.is_attribute("nu") & self.is_attribute("gamma") &
+            self.is_attribute("gn_intensity_minus")):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.gn_intensity_minus
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity_minus"] = "\n".join(ls_out)
+
+    def form_gamma_nu_intensity_minus_sigma(self) -> bool:
+        if (self.is_attribute("nu") & self.is_attribute("gamma") &
+            self.is_attribute("gn_intensity_minus_sigma")):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.gn_intensity_minus_sigma
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity_minus_sigma"] = "\n".join(ls_out)
 
     def recalc_to_gamma_nu_grid(self):
         l_tth_grid = numpy.array(self.ttheta)*numpy.pi/180.
         l_phi_grid = numpy.array(self.phi)*numpy.pi/180.
-        int_u = numpy.array(self.intensity_up, dtype=float).transpose()
-        int_d = numpy.array(self.intensity_down, dtype=float).transpose()
+        int_u = numpy.array(self.intensity_plus, dtype=float).transpose()
+        int_d = numpy.array(self.intensity_minus, dtype=float).transpose()
         int_sum = int_u + int_d
         int_diff = int_u - int_d
 
@@ -208,198 +307,120 @@ class Pd2dMeas(ItemN):
         return l_gamma_grid*180./numpy.pi, l_nu_grid*180./numpy.pi, [int_u_out, int_d_out, int_sum_out, int_diff_out]
         
     def plots(self):
-        return [self.plot_projection_sum(), self.plot_projection_diff()]
-
-    def plot_ttheta_phi(self):
-        if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
-               self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_down")):
-            return
-        np_tth = numpy.array(self.ttheta, dtype=float)
-        np_phi = numpy.array(self.phi, dtype=float)
-        np_up = self.intensity_up
-        np_down = self.intensity_down
-        np_sum = np_up + np_down
-        np_diff = np_up - np_down
-
-        fig, axs = plt.subplots(2)
-        ax_1, ax_2 = axs
-        ax_1.set_title("Unpolarized intensity")
-        ax_1.set_xlabel("2 theta (degrees)")
-        ax_1.set_ylabel('phi (degrees)')
-
-        max_val = numpy.nanmax(np_sum)
-        min_val = numpy.nanmin(np_sum)
-        norm_1 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=min_val)
-        
-        extent =(np_tth.min(), np_tth.max(), np_phi.min(), np_phi.max())
-        plt.set_cmap('rainbow')
-        ax_1.imshow(np_sum.transpose(), interpolation='bilinear',
-                    extent=extent, alpha=0.9, origin="lower", norm=norm_1) 
-
-        ax_2.set_title("Polarized intensity")
-        ax_2.set_xlabel("gamma (degrees)")
-        ax_2.set_ylabel('nu (degrees)')
-
-        max_val = numpy.nanmax(numpy.abs(np_diff))
-        norm_2 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=-max_val)
-
-        ax_2.imshow(np_diff.transpose(), interpolation='bilinear',
-                    extent=extent, alpha=0.9, origin="lower", norm=norm_2)
-
-        return (fig, ax_1)
-
-
-    def plot_projection_sum(self):
-        """Plot experimental unpolarized intensity vs. 2 theta (degrees)
-        """
-        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_up_sigma") &
-               self.is_attribute("intensity_down") & 
-               self.is_attribute("intensity_down_sigma")):
-            return
-        fig, ax = plt.subplots()
-        ax.set_title("Projection of unpolarized intensity on 2 theta axis")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('Intensity')
-
-        np_tth = numpy.array(self.ttheta, dtype=float)
-        np_up = self.intensity_up
-        np_sup = self.intensity_up_sigma
-        np_down = self.intensity_down
-        np_sdown = self.intensity_down_sigma
-        np_sum = np_up + np_down
-        np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-
-        np_sum_1d = numpy.where(numpy.isnan(np_sum), 0., np_sum).sum(axis=1)
-        np_ssum_1d = ((numpy.where(numpy.isnan(np_sum), 0., np_ssum)**2).sum(
-            axis=1))**0.5
-
-        ax.plot(np_tth, np_sum_1d, "k-", alpha=0.2)
-        ax.errorbar(np_tth, np_sum_1d, yerr=np_ssum_1d, fmt="ko", alpha=0.2,
-                    label="experiment")
-
-        ax.legend(loc='upper right')
-        fig.tight_layout()
-        return (fig, ax)
-
-    def plot_projection_diff(self):
-        """Plot experimental polarized intensity vs. 2 theta (degrees)
-        """
-        if not(self.is_attribute("ttheta") & self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_up_sigma") &
-               self.is_attribute("intensity_down") & 
-               self.is_attribute("intensity_down_sigma")):
-            return
-        fig, ax = plt.subplots()
-        ax.set_title("Projection of polarized intensity on 2 theta axis")
-        ax.set_xlabel("2 theta (degrees)")
-        ax.set_ylabel('Intensity')
-
-
-        np_tth = numpy.array(self.ttheta, dtype=float)
-        np_up = self.intensity_up
-        np_sup = self.intensity_up_sigma
-        np_down = self.intensity_down
-        np_sdown = self.intensity_down_sigma
-        np_diff = np_up - np_down
-        np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-
-        np_diff_1d = numpy.where(numpy.isnan(np_diff), 0., np_diff).sum(axis=1)
-        np_sdiff_1d = ((numpy.where(numpy.isnan(np_diff), 0., np_sdiff)**2
-                        ).sum(axis=1))**0.5
-
-        ax.plot([np_tth.min(), np_tth.max()], [0., 0.], "k:")
-        ax.plot(np_tth, np_diff_1d, "k-", alpha=0.2)
-        ax.errorbar(np_tth, np_diff_1d, yerr=np_sdiff_1d, fmt="ko", alpha=0.2,
-                        label="experiment")
-        ax.legend(loc='upper right')
-        fig.tight_layout()
-        return (fig, ax)
+        return [self.plot_gamma_nu(), ]
 
     def plot_gamma_nu(self):
-        if not(self.is_attribute("ttheta") & self.is_attribute("phi") &
-               self.is_attribute("intensity_up") & 
-               self.is_attribute("intensity_down")):
+        if not(self.is_attribute("gamma") & self.is_attribute("nu") &
+               self.is_attribute("gn_intensity_plus") & 
+               self.is_attribute("gn_intensity_minus")):
             return
 
-        np_gamma, np_nu, ints = self.recalc_to_gamma_nu_grid()
-        [np_up, np_down, np_sum, np_diff] = ints
+        gamma = self.gamma 
+        nu = self.nu 
+        signal_exp_plus = self.gn_intensity_plus
+        signal_exp_minus = self.gn_intensity_minus
+        signal_exp_plus_sigma = self.gn_intensity_plus_sigma
+        signal_exp_minus_sigma = self.gn_intensity_minus_sigma
+        signal_exp_sum = signal_exp_plus + signal_exp_minus
+        signal_exp_difference = signal_exp_plus - signal_exp_minus
+        signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
+        signal_exp_sum_sigma = numpy.sqrt(signal_exp_sum_sigma_sq)
 
-        fig, axs = plt.subplots(2)
-        ax_1, ax_2 = axs
-        ax_1.set_title("Unpolarized intensity")
-        ax_1.set_xlabel("gamma (degrees)")
-        ax_1.set_ylabel('nu (degrees)')
 
-        max_val = numpy.nanmax(np_sum)
-        min_val = numpy.nanmin(np_sum)
-        norm_1 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=min_val)
-        norm_1 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=-max_val)
+        max_val = numpy.nanmax(signal_exp_sum)
+        min_val = numpy.nanmin(signal_exp_sum)
+        max_val = max_val - (max_val-min_val)*0.25
+
+        gamma_rad, nu_rad = gamma*numpy.pi/180., nu*numpy.pi/180.
+        ttheta_rad, phi_rad = calc_ttheta_phi_by_gamma_nu(
+            gamma_rad[:, na], nu_rad[na, :], flag_gamma=False, flag_nu=False)[:2]
+        ttheta_2d = ttheta_rad * 180./numpy.pi
+
+        ttheta_step = numpy.round(gamma[1]-gamma[0],5)
+        ttheta_min = gamma.min()
+
+        ttheta_index = numpy.round((ttheta_2d-ttheta_min)/ttheta_step, 0).astype(int)
+
+        ttheta = numpy.linspace(
+            ttheta_min,
+            ttheta_step*ttheta_index.max()+ttheta_min,
+            ttheta_index.max(), endpoint=False)
+
+        signal_projection_exp_sum = numpy.zeros_like(ttheta)
+        signal_projection_exp_difference = numpy.zeros_like(ttheta)
+        signal_projection_exp_sum_sigma = numpy.zeros_like(ttheta)
+        signal_projection_exp_difference_sigma = numpy.zeros_like(ttheta)
+
+        flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_difference))
+        for ind in range(ttheta.size):
+            flag_1 = ttheta_index == ind
+            flag = numpy.logical_and(flag_1, flag_nonan)
+            points = numpy.sum(flag)
+            if points != 0:
+                signal_projection_exp_sum[ind] += numpy.sum(signal_exp_sum[flag])/points
+                signal_projection_exp_sum_sigma[ind] += numpy.sqrt(numpy.sum(signal_exp_sum_sigma_sq[flag]))/points
+            else:
+                signal_projection_exp_sum[ind] = numpy.nan
+                signal_projection_exp_sum_sigma[ind] = numpy.nan
+            flag = numpy.logical_and(flag_1, flag_nonan)
+            points = numpy.sum(flag)
+            if points != 0:
+                signal_projection_exp_difference[ind] += numpy.sum(signal_exp_difference[flag])/points
+                signal_projection_exp_difference_sigma[ind] += numpy.sqrt(numpy.sum(signal_exp_sum_sigma_sq[flag]))/points
+            else:
+                signal_projection_exp_difference[ind] = numpy.nan
+                signal_projection_exp_difference_sigma[ind] = numpy.nan
+
+
+        extent = [gamma.min(), gamma.max(), nu.min(), nu.max()]
+
+        cmap_sum = plt.get_cmap("turbo") # BuPu
+        fig, axs = plt.subplots(2,2)
+        ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
+        norm_1 = matplotlib.colors.Normalize(vmax=max_val, vmin=min_val)
+        hh = numpy.copy(signal_exp_sum)
+        hh[numpy.isnan(hh)]=0
+        ax1.imshow(hh.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
+
+        ax1.set_xticks([])
+        ax1.set_xlabel(r"$\gamma$ (deg.)")
+        ax1.set_yticks([])
+        ax1.set_ylabel(r"$\nu$ (deg.)")
+
+        cmap_difference = plt.get_cmap("turbo") # BrBG
+        max_val = numpy.nanmax(numpy.abs(signal_exp_difference))*0.50
+        norm_2 = matplotlib.colors.Normalize(vmax=max_val, vmin=-max_val)
+        hh = numpy.copy(signal_exp_difference)
+        hh[numpy.isnan(hh)]=0
+        ax2.imshow(hh.transpose(), origin="lower", aspect="auto",
+                  norm=norm_2,
+                  cmap=cmap_difference,
+                  extent=extent)
+        # ax2.imshow(zz_difference, origin="lower", aspect="auto", alpha=0.8, extent=extent)
+        # ax2.contour(zz_difference[:,:,3], levels=[50, 70])
+
+        # ax2.get_xaxis().set_visible(False)
+        # ax2.get_yaxis().set_visible(False)
+        ax2.set_xticks([])
+        ax2.set_xlabel(r"$\gamma$ (deg.)")
+        ax2.set_yticks([])
+        ax2.set_ylabel(r"$\nu$ (deg.)")
+
+        ax1.set_title(r"Unpolarized signal")
+
+        ax3.errorbar(
+            ttheta[:gamma.size], signal_projection_exp_sum[:gamma.size],
+            yerr=signal_projection_exp_sum_sigma[:gamma.size], fmt="ko", alpha=0.2)
+        # ax3.legend()
+        ax3.set_xlabel(r"$2\theta$ (deg.)")
+
+        ax2.set_title(r"Polarized signal")
+        ax4.errorbar(
+            ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
+            yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2)
+
+        # ax4.legend()
+        ax4.set_xlabel(r"$2\theta$ (deg.)")
         
-        extent =(np_gamma.min(), np_gamma.max(), np_nu.min(), np_nu.max())
-        plt.set_cmap('rainbow')
-        ax_1.imshow(np_sum, interpolation='bilinear', extent=extent,
-                  alpha=0.9, origin="lower", norm=norm_1) 
+        return (fig, ax1)
 
-        ax_2.set_title("Polarized intensity")
-        ax_2.set_xlabel("gamma (degrees)")
-        ax_2.set_ylabel('nu (degrees)')
-
-        max_val = numpy.nanmax(numpy.abs(np_diff))
-        norm_2 = matplotlib.colors.Normalize(
-            vmax=max_val, vmin=-max_val)
-
-        ax_2.imshow(np_diff, interpolation='bilinear', extent=extent,
-                  alpha=0.9, origin="lower", norm=norm_2)
-        
-        # blk = '#000000'
-        # ax.contour(np_tth, np_phi, np_sum.transpose(),
-        #             #levels=[0.1, 0.5, 1., 5., 10., 50.],
-        #             levels=5,
-        #             colors=[blk, blk, blk, blk, blk, blk],
-        #             linewidths=0.5)
-        return (fig, ax_1)
-
-
-# s_cont = """
-
-#  _pd2d_meas_2theta_phi_intensity_up
-#  ;
-#       2    4.5     40.0     80.0
-#  -3.000 -350.0   -350.0   -400.0
-#  41.000 -351.0   -350.0   -400.0
-#  ;
-
-#  _pd2d_meas_2theta_phi_intensity_up_sigma
-#  ;
-#       2    4.5     40.0     80.0
-#  -3.000 -352.0   -350.0   -400.0
-#  41.000 -353.0   -350.0   -400.0
-#  ;
-
-#  _pd2d_meas_2theta_phi_intensity_down
-#  ;
-#       2    4.5     40.0     80.0
-#  -3.000 -354.0   -350.0   -400.0
-#  41.000 -355.0   -350.0   -400.0
-#  ;
-
-#  _pd2d_meas_2theta_phi_intensity_down_sigma
-#  ;
-#       2    4.5     40.0     80.0
-#  -3.000 -356.0   -350.0   -400.0
-#  41.000 -357.0   -350.0   -400.0
-#  ; 
-# """
-
-# obj = Pd2dMeas.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj.ttheta, end="\n\n")
-# print(obj.phi, end="\n\n")
-# print(obj.intensity_up, end="\n\n")
-# print(obj.intensity_up_sigma, end="\n\n")

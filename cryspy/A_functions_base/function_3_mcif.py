@@ -332,9 +332,7 @@ def calc_moment_by_sym_elem(sym_elems, moment):
     r_21, r_22, r_23 = sym_elems[7], sym_elems[8], sym_elems[9]
     r_31, r_32, r_33 = sym_elems[10], sym_elems[11], sym_elems[12]
 
-    m_11, m_12, m_13 = sym_elems[13], sym_elems[14], sym_elems[15]
-    m_21, m_22, m_23 = sym_elems[16], sym_elems[17], sym_elems[18]
-    m_31, m_32, m_33 = sym_elems[19], sym_elems[20], sym_elems[21]
+    theta = sym_elems[13]
 
     n_a = numpy.newaxis
     # FIXME: multiplication on det(R) is probably incorrect for hexagonal
@@ -342,12 +340,12 @@ def calc_moment_by_sym_elem(sym_elems, moment):
     det_r = calc_determinant_matrix_ij((r_11, r_12, r_13, r_21, r_22, r_23,
                                         r_31, r_32, r_33))
 
-    m_x_new = (m_11[:, n_a] * m_x[n_a, :] + m_12[:, n_a] * m_y[n_a, :] +
-               m_13[:, n_a] * m_z[n_a, :]) * det_r[:, n_a]
-    m_y_new = (m_21[:, n_a] * m_x[n_a, :] + m_22[:, n_a] * m_y[n_a, :] +
-               m_23[:, n_a] * m_z[n_a, :]) * det_r[:, n_a]
-    m_z_new = (m_31[:, n_a] * m_x[n_a, :] + m_32[:, n_a] * m_y[n_a, :] +
-               m_33[:, n_a] * m_z[n_a, :]) * det_r[:, n_a]
+    m_x_new = (r_11[:, n_a] * m_x[n_a, :] + r_12[:, n_a] * m_y[n_a, :] +
+               r_13[:, n_a] * m_z[n_a, :]) * (det_r*theta)[:, n_a]
+    m_y_new = (r_21[:, n_a] * m_x[n_a, :] + r_22[:, n_a] * m_y[n_a, :] +
+               r_23[:, n_a] * m_z[n_a, :]) * (det_r*theta)[:, n_a]
+    m_z_new = (r_31[:, n_a] * m_x[n_a, :] + r_32[:, n_a] * m_y[n_a, :] +
+               r_33[:, n_a] * m_z[n_a, :]) * (det_r*theta)[:, n_a]
     m_new = numpy.array([m_x_new, m_y_new, m_z_new], dtype=float)
     return m_new
 

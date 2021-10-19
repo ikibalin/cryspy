@@ -5,9 +5,11 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 import numpy
 
-from cryspy.A_functions_base.function_1_strings import transform_string_to_r_b
 from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT, \
     calc_phase_3d, calc_moment_2d_by_susceptibility
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+from cryspy.A_functions_base.function_1_strings import transform_string_to_r_b
 
 from cryspy.A_functions_base.function_2_mem import \
     calc_asymmetric_unit_cell_indexes, calc_factor_in_front_of_density_for_fm,\
@@ -69,6 +71,7 @@ class DensityPoint(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
     D_FORMATS = {"density": "{:.5f}", "density_ferro": "{:.5f}",
@@ -85,6 +88,8 @@ class DensityPoint(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "density_point"
 
@@ -137,9 +142,9 @@ class DensityPointL(LoopN):
     ITEM_CLASS = DensityPoint
     ATTR_INDEX = None
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(DensityPointL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def form_asymmetric_unit_cell(self, space_group_symop: SpaceGroupSymopL,

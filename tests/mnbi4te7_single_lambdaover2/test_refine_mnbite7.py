@@ -5,8 +5,10 @@ def test_refine():
     dir = os.path.dirname(__file__)
     f_name = os.path.join(dir, "main.rcif")
     rhochi = cryspy.file_to_globaln(f_name)
-    rhochi.refine()
-    chi_sq, n_points = rhochi.calc_chi_sq()
+    cryspy.rhochi_run(rhochi)
+    d_out = cryspy.rhochi_no_refinement(rhochi)
+    chi_sq = d_out["chi_sq"]
+    n_points = d_out["n_points"]
     assert chi_sq < 429.1
     assert int(n_points) == 142
 
@@ -14,7 +16,7 @@ def test_estimate_fm():
     dir = os.path.dirname(__file__)
     f_name = os.path.join(dir, "main.rcif")
     rhochi = cryspy.file_to_globaln(f_name)
-    l_estimation = rhochi.estimate_f_mag_for_diffrn()
+    l_estimation = cryspy.calc_f_mag_for_diffrn(rhochi)
     estim = l_estimation[0]
     l_f_m = estim.f_m
     l_f_m_sigma = estim.f_m_sigma

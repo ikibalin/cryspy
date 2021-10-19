@@ -101,7 +101,7 @@ from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
     DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
-from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
+# from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
@@ -151,9 +151,9 @@ L_LOOP_CLASS.extend([
     TOFBackgroundL, TOFIntensityIncidentL, TOFMeasL, TOFParametersL, TOFPeakL,
     TOFProcL, TOFProfileL])
 
-L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d, TOF])
+L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
-L_GLOBAL_CLASS.extend([MEM, RhoChi])
+L_GLOBAL_CLASS.extend([]) # MEM, RhoChi
 
 F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
 
@@ -290,6 +290,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
     l_loop_class = L_LOOP_CLASS + list(loop_classes)
     l_data_class = L_DATA_CLASS + list(data_classes)
     l_global_class = L_GLOBAL_CLASS + list(global_classes)
+    # l_global_class = []
     if len(global_cif.items)+len(global_cif.loops) > 0:
         l_item_obj = items_to_itemsn(global_cif.items, l_item_class)
         l_global_item.extend(l_item_obj)
@@ -308,6 +309,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
     for data_cif in global_cif.datas:
         flag = False
         str_data = str(data_cif)
+
         for cls_data in l_data_class:
             # FIXME: it's bad solution as we loose information which are
             #        not specified as knonw in cryspy library.
@@ -348,6 +350,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                 data_obj = items_to_datan(data_cif.name, l_data_item,
                                           l_data_class)
                 l_global_item.append(data_obj)
+
 
     global_obj = items_to_globaln(global_cif.name, l_global_item,
                                   l_global_class)
@@ -481,7 +484,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
                 ll_val_cif.append(loop_cif[loop_name_type])
         ll_val_cif_t = [[ll_val_cif[i_2][i_1] for i_2 in range(len(
             ll_val_cif))] for i_1 in range(len(ll_val_cif[0]))]
-        obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t)
+        obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t, name=loop_cif.name)
         loopn = loop_cls.from_cif(str(obj))
 
         if loopn is None:
@@ -603,7 +606,7 @@ def items_to_globaln(global_name: str, items: list, l_global_class):
     """
     global_obj = None
     classes = set([type(item) for item in items])
-
+    l_global_class  = []
     for cls_global in l_global_class:
         flag_mand = all([cls_mand in classes
                          for cls_mand in cls_global.CLASSES_MANDATORY])

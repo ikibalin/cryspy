@@ -3,7 +3,7 @@
 Functions
 ---------
     - calc_flip_ratio
-    - calc_intensity_up_down
+    - calc_intensity_plus_down
     - calc_fm_perp_loc
     - calc_fm_perp_for_fm_loc
     - calc_fm_loc
@@ -33,7 +33,7 @@ def calc_flip_ratio(
         fm_perp_loc_2hkl: tuple = None):
     """Calculate flip ratio."""
     dder = {}
-    iint_u, iint_d, dder_iint = calc_intensity_up_down(
+    iint_u, iint_d, dder_iint = calc_intensity_plus_down(
         sthovl, wavelength, field_norm, u_matrix, polarization,
         flipper_efficiency, f_nucl, fm_perp_loc, volume_unit_cell,
         model_extinction, radius, mosaicity)
@@ -43,7 +43,7 @@ def calc_flip_ratio(
         wavelength_2hkl = 0.5*wavelength
         polarization_2hkl = 0.
 
-        iint_u_2hkl, iint_d_2hkl, dder_iint_2hkl = calc_intensity_up_down(
+        iint_u_2hkl, iint_d_2hkl, dder_iint_2hkl = calc_intensity_plus_down(
             sthovl_2hkl, wavelength_2hkl, field_norm, u_matrix,
             polarization_2hkl, flipper_efficiency, f_nucl_2hkl,
             fm_perp_loc_2hkl, volume_unit_cell, model_extinction, radius,
@@ -57,7 +57,7 @@ def calc_flip_ratio(
     return flip_ratio, dder
 
 
-def calc_intensity_up_down(
+def calc_intensity_plus_down(
         sthovl: numpy.ndarray, wavelength: float, field_norm: float,
         u_matrix: numpy.ndarray, polarization: float,
         flipper_efficiency: float, f_nucl: numpy.array,
@@ -83,8 +83,10 @@ def calc_intensity_up_down(
     f_nucl_sq = abs(f_nucl)**2
     mag_p_e_u_sq = abs(mag_p_e_u*mag_p_e_u.conjugate())
     fnp = (mag_p_e_u*f_nucl.conjugate()+mag_p_e_u.conjugate()*f_nucl).real
-    fp_sq = f_nucl_sq + mag_p_sq + fnp
-    fm_sq = f_nucl_sq + mag_p_sq - fnp
+    # fp_sq = f_nucl_sq + mag_p_sq + fnp
+    # fm_sq = f_nucl_sq + mag_p_sq - fnp
+    fp_sq = f_nucl_sq + mag_p_e_u_sq + fnp
+    fm_sq = f_nucl_sq + mag_p_e_u_sq - fnp
     fpm_sq = mag_p_sq - mag_p_e_u_sq
 
     l_model_extinction = ["gauss", "lorentz"]
@@ -106,14 +108,21 @@ def calc_intensity_up_down(
         ym = yp
         ypm = yp
 
-    pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
-    ppmin = 0.5*((1-p_d)*yp+(1+p_d)*ym)
-    pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
-    pmmin = 0.5*((1-p_d)*yp-(1+p_d)*ym)
+    iint_u = 0.5*(1.+p_u)*yp*fp_sq + 0.5*(1.-p_u)*ym*fm_sq + ypm*fpm_sq
+    iint_d = 0.5*(1.-p_d)*yp*fp_sq + 0.5*(1.+p_d)*ym*fm_sq + ypm*fpm_sq
+    # print("iint_u_1\n", iint_u, "\n")
+    # print("iint_d_1\n", iint_d, "\n")
 
-    # integral intensities and flipping ratios
-    iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
-    iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
+    # pppl = 0.5*((1+p_u)*yp+(1-p_u)*ym)
+    # ppmin = 0.5*((1-p_d)*yp+(1+p_d)*ym)
+    # pmpl = 0.5*((1+p_u)*yp-(1-p_u)*ym)
+    # pmmin = 0.5*((1-p_d)*yp-(1+p_d)*ym)
+
+    # # integral intensities and flipping ratios
+    # iint_u = (f_nucl_sq+mag_p_e_u_sq)*pppl + pmpl*fnp + ypm*fpm_sq
+    # iint_d = (f_nucl_sq+mag_p_e_u_sq)*ppmin + pmmin*fnp + ypm*fpm_sq
+    # print("iint_u_2\n", iint_u, "\n")
+    # print("iint_d_2\n", iint_d, "\n")
 
     return iint_u, iint_d, dder
 

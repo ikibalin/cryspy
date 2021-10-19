@@ -51,20 +51,20 @@ from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
 
-from .A_functions_base.function_1_algebra import \
+from cryspy.A_functions_base.function_1_algebra import \
     calc_scalar_product_by_vectors,\
     calc_scalar_product_by_complex_vectors,\
     calc_modulus_sq_by_complex_vector
 
-from .A_functions_base.function_1_atomic_vibrations import calc_beta_by_u, vibration_constraints, apply_constraint_on_cell_by_type_cell
-from .A_functions_base.function_1_error_simplex import error_estimation_simplex
-from .A_functions_base.function_1_gamma_nu import gammanu_to_tthphi, tthphi_to_gammanu, recal_int_to_tthphi_grid, recal_int_to_gammanu_grid
+from cryspy.A_functions_base.function_1_atomic_vibrations import calc_beta_by_u, vibration_constraints, apply_constraint_on_cell_by_type_cell
+from cryspy.A_functions_base.function_1_error_simplex import error_estimation_simplex
+from cryspy.A_functions_base.function_1_gamma_nu import gammanu_to_tthphi, tthphi_to_gammanu, recal_int_to_tthphi_grid, recal_int_to_gammanu_grid
 
-from .A_functions_base.function_1_inversed_hessian import estimate_inversed_hessian_matrix
-from .A_functions_base.function_1_magnetic import get_j0_j2_by_symbol
-from .A_functions_base.function_1_markdown import md_to_html
+from cryspy.A_functions_base.function_1_inversed_hessian import estimate_inversed_hessian_matrix
+from cryspy.A_functions_base.function_1_magnetic import get_j0_j2_by_symbol
+from cryspy.A_functions_base.function_1_markdown import md_to_html
 
-from .A_functions_base.function_1_matrices import \
+from cryspy.A_functions_base.function_1_matrices import \
     calc_chi_sq, tri_linear_interpolation, transform_string_to_r_b, transform_string_to_digits,\
     transform_fraction_with_label_to_string, transform_digits_to_string, transform_r_b_to_string, \
     calc_mRmCmRT, calc_rotation_matrix_ij_by_euler_angles,\
@@ -73,24 +73,24 @@ from .A_functions_base.function_1_matrices import \
     calc_product_matrices, calc_product_matrix_vector, calc_vector_angle,\
     calc_vector_product, scalar_product, calc_rotation_matrix_by_two_vectors, \
     ortogonalize_matrix, calc_moment_2d_by_susceptibility, calc_phase_3d
-from .A_functions_base.function_1_objects import get_functions_of_objet, \
+from cryspy.A_functions_base.function_1_objects import get_functions_of_objet, \
     variable_name_to_string, change_variable_name, get_table_html_for_variables
-from .A_functions_base.function_1_rhocif import transs, calc_GCF
-from .A_functions_base.function_1_roots import calc_roots
-from .A_functions_base.function_1_scat_length_neutron import \
+from cryspy.A_functions_base.function_1_rhocif import transs, calc_GCF
+from cryspy.A_functions_base.function_1_roots import calc_roots
+from cryspy.A_functions_base.function_1_scat_length_neutron import \
     apply_constraint_on_cell_by_type_cell, get_scat_length_neutron
 
-from .A_functions_base.function_1_strings import value_error_to_string, \
-    ciftext_to_html, find_prefix, common_string, string_to_value_error, \
+from cryspy.A_functions_base.function_1_strings import value_error_mark_to_string, \
+    ciftext_to_html, find_prefix, common_string, string_to_value_error_mark, \
     transform_string_to_r_b, transform_string_to_digits,\
     transform_fraction_with_label_to_string, transform_digits_to_string,\
     transform_r_b_to_string
 
-from .A_functions_base.function_1_tof import tof_Jorgensen, \
+from cryspy.A_functions_base.function_1_tof import tof_Jorgensen, \
     tof_Jorgensen_VonDreele
 
 
-from .A_functions_base.function_2_crystallography_base import \
+from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_volume_uc_by_abc_cosines,\
     calc_volume_uc_by_abc_angles,\
     calc_inverse_d_by_hkl_abc_cosines,\
@@ -101,31 +101,31 @@ from .A_functions_base.function_2_crystallography_base import \
     calc_moment_2d_by_susceptibility,\
     ortogonalize_matrix
 
-from .A_functions_base.function_2_mem import \
+from cryspy.A_functions_base.function_2_mem import \
     calc_asymmetric_unit_cell_indexes, calc_index_atom_symmetry_closest_to_fract_xyz, \
     calc_factor_in_front_of_density_for_fm, calc_moment_perp,\
     transfer_to_density_3d, transfer_to_chi_3d
 
-from .A_functions_base.function_2_space_group import \
+from cryspy.A_functions_base.function_2_space_group import \
     get_crystal_system_by_it_number, get_name_hm_short_by_it_number, \
     get_name_schoenflies_by_it_number, get_name_hall_by_it_number, \
     get_name_hm_extended_by_it_number_it_coordinate_system_code, \
     get_name_hm_full_by_it_number
 
-from .A_functions_base.function_2_sym_elems import \
+from cryspy.A_functions_base.function_2_sym_elems import \
     form_symm_elems_by_b_i_r_ij, transform_to_p1, get_string_by_symm_elem
 
-from .A_functions_base.function_3_den_file import \
+from cryspy.A_functions_base.function_3_den_file import \
     read_den_file, save_to_den_file
 
-from .A_functions_base.function_3_extinction import \
+from cryspy.A_functions_base.function_3_extinction import \
     calc_extinction,\
     calc_extinction_2
 
-from .A_functions_base.function_3_mcif import \
+from cryspy.A_functions_base.function_3_mcif import \
     calc_fract_by_sym_elem, calc_moment_by_sym_elem
 
-from .A_functions_base.function_4_flip_ratio import \
+from cryspy.A_functions_base.function_4_flip_ratio import \
     calc_f_plus_sq, calc_f_minus_sq, calc_flip_ratio
 
 from cryspy.D_functions_item_loop.function_1_section_from_density_point \
@@ -134,6 +134,9 @@ from cryspy.D_functions_item_loop.function_1_section_from_density_point \
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import \
     magnetization_ellipsoid_by_u_ij, report_main_axes_of_magnetization_ellipsoids
+
+# from cryspy.D_functions_item_loop.structure_factor import \
+#     calculate_nuclear_structure_factor, calculate_structure_factor_tensor
 
 from cryspy.H_functions_global.function_1_cryspy_objects import \
     str_to_globaln, file_to_globaln, str_to_items
@@ -144,6 +147,17 @@ from cryspy.H_functions_global.function_1_cryspy_objects import \
 from cryspy.H_functions_global.function_1_cryspy_objects import \
     L_GLOBAL_CLASS, L_DATA_CLASS, L_LOOP_CLASS, L_ITEM_CLASS, load_packages, \
     add_package, packages, delete_package, L_FUNCTION_ADD
+
+from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement, \
+    rhochi_rietveld_refinement_with_parameters, \
+    rhochi_no_refinement, rhochi_inversed_hessian
+
+
+from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruction, \
+    mempy_spin_density_reconstruction,\
+    mempy_reconstruction_with_parameters
+
+
 
 
 def repr_function(function, flag_long: bool = False):
@@ -208,8 +222,8 @@ L_FUNCTION = [
     transs, calc_GCF,
     calc_roots,
     apply_constraint_on_cell_by_type_cell, get_scat_length_neutron,
-    value_error_to_string, 
-    ciftext_to_html, find_prefix, common_string, string_to_value_error,
+    value_error_mark_to_string, 
+    ciftext_to_html, find_prefix, common_string, string_to_value_error_mark,
     transform_string_to_r_b, transform_string_to_digits,
     transform_fraction_with_label_to_string, transform_digits_to_string,
     transform_r_b_to_string,
@@ -244,7 +258,14 @@ L_FUNCTION = [
     add_package, packages, delete_package,
     repr_function,
     magnetization_ellipsoid_by_u_ij,
-    report_main_axes_of_magnetization_ellipsoids]
+    report_main_axes_of_magnetization_ellipsoids,
+    rhochi_rietveld_refinement, 
+    rhochi_rietveld_refinement_with_parameters, 
+    rhochi_no_refinement,
+    rhochi_inversed_hessian,
+    mempy_magnetization_density_reconstruction, 
+    mempy_spin_density_reconstruction,
+    mempy_reconstruction_with_parameters]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD

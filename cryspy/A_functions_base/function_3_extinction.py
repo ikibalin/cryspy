@@ -56,8 +56,16 @@ def calc_extinction(radius:float, mosaicity:float, model:str,
 def calc_extinction_2(radius:float, mosaicity:float, model:str,
                     f_sq:float, volume_unit_cell:float, sthovl:float, 
                     wavelength:float):
+    """
+    radius in micro meters
+    g in minutes
+    f_sq in 10**-12cm
+    volume_unit_cell in angstrem**3
+    wavelength in angstrem
+    sthovl in angstrem**-1
+    """
     r = radius
-    g = mosaicity
+    g = mosaicity*numpy.pi/(180*60) #transfer minutes to radians
     g_sq = numpy.square(g)
     kk = 1.
     volume_sq = numpy.square(volume_unit_cell)
@@ -69,12 +77,13 @@ def calc_extinction_2(radius:float, mosaicity:float, model:str,
 
     wavelength_cube = wavelength**3
     
-    q = (f_sq*kk/volume_sq)*(wavelength_cube)*1./s2theta
-    delta_f_sq_q = (kk/volume_sq)*(wavelength_cube)*1./s2theta
+    q = (f_sq*kk/volume_sq)*(wavelength_cube)*1./s2theta 
+    delta_f_sq_q = (kk/volume_sq)*(wavelength_cube)*1./s2theta 
 
     t = 1.5*r
     alpha = 1.5*r*s2theta*1./wavelength
     x = 2./3*q*alpha*t
+
     x_sq = numpy.square(x)
     delta_f_sq_x = 2./3*delta_f_sq_q*alpha*t
 
@@ -129,4 +138,5 @@ def calc_extinction_2(radius:float, mosaicity:float, model:str,
     delta_f_sq_yext = delta_f_sq_yp * ys + yp * delta_f_sq_ys
 
     dder = {"der_yext__f_sq": delta_f_sq_yext}
+
     return yext, dder 

@@ -81,9 +81,18 @@ def get_scat_length_neutron(type_n):
     """
     Take scat_length_neutron.
     """
-
     str_1 = type_n.strip().lower()
-    str_1 = "".join([hh if hh.isalpha() else ' ' for hh in str_1 ]).split(" ")[0]
+    flag_label = False
+    l_hh = []
+    for hh in str_1:
+        if hh.isdigit() and flag_label:
+            break
+        elif hh.isdigit():
+            l_hh.append(hh)
+        else:
+            l_hh.append(hh)
+            flag_label = True
+    str_1 = "".join(l_hh)
 
     flag = False
     for _1, _2 in zip(BSCAT["_atom_type_symbol"], BSCAT["_atom_type_cohb"]):

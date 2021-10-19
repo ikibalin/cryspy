@@ -10,7 +10,7 @@ from pycifstar import Data, to_data
 
 from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_strings import find_prefix, \
-    string_to_value_error, value_error_to_string
+    string_to_value_error_mark, value_error_mark_to_string
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
 
 
@@ -133,12 +133,17 @@ class ItemN(object):
                 return "."
             flag_ref = False
             keys = self.__dict__.keys()
+            mark = ""
             if ((f"{name_sh:}_refinement" in keys) &
                     (f"{name_sh:}_sigma" in keys)):
                 flag_ref = self.__dict__[f"{name_sh:}_refinement"]
+                if (f"{name_sh:}_mark" in keys):
+                    mark = self.__dict__[f"{name_sh:}_mark"]
+            
             if flag_ref:
                 val_sig = self.__dict__[f"{name_sh:}_sigma"]
-                res = value_error_to_string(val, val_sig)
+                res = value_error_mark_to_string(val, val_sig, mark)
+                
             else:
                 s_format = None
                 if (("D_FORMATS" in self.__dict__.keys()) |
@@ -159,7 +164,11 @@ class ItemN(object):
             if self.is_defined():
                 # print("is_defined: ", self.is_defined())
                 self.form_object()
-                return self.__dict__[name]
+                if name in  self.__dict__.keys():
+                    return self.__dict__[name]
+                else:
+                    raise AttributeError(f"Attribute '{name:}' is not defined in \
+'{type(self).__name__:}'")
             else:
                 raise AttributeError(f"Attribute '{name:}' is not defined in \
 '{type(self).__name__:}'")
@@ -213,13 +222,15 @@ class ItemN(object):
             if name in self.D_MAX.keys():
                 if val_new > self.D_MAX[name]:
                     val_new = self.D_MAX[name]
-
             self.delete_internal_parameters()
         elif name in self.ATTR_SIGMA:
             val_new = float(value)
             flag, flag_write = True, True
         elif name in (self.ATTR_CONSTR_FLAG+self.ATTR_REF_FLAG):
             val_new = bool(value)
+            flag, flag_write = True, True
+        elif name in self.ATTR_CONSTR_MARK:
+            val_new = str(value).strip()
             flag, flag_write = True, True
 
         if flag and flag_write:
@@ -242,7 +253,7 @@ class ItemN(object):
             if ((key == "D_MIN") | (key == "D_MAX")):
                 flag = False
             elif key in (self.ATTR_NAMES + self.ATTR_SIGMA +
-                         self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG +
+                         self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG + self.ATTR_CONSTR_MARK +
                          self.ATTR_INT_PROTECTED_NAMES):
                 flag = False
             if flag:
@@ -261,7 +272,7 @@ class ItemN(object):
             # val = getattr(self, name)
             # if val is None:  # temporary solution
             #     flag = False
-        except AttributeError:
+        except AttributeError or KeyError:
             flag = False
         return flag
 
@@ -468,6 +479,7 @@ class ItemN(object):
         self.__dict__["ATTR_SIGMA"] = ()
         self.__dict__["ATTR_CONSTR_FLAG"] = ()
         self.__dict__["ATTR_REF_FLAG"] = ()
+        self.__dict__["ATTR_CONSTR_MARK"] = ()
         self.__dict__["D_FORMATS"] = {}
         self.__dict__["D_CONSTRAINTS"] = {}
         self.__dict__["D_DEFAULT"] = {}
@@ -479,7 +491,7 @@ class ItemN(object):
             "ATTR_MANDATORY_NAMES", "ATTR_OPTIONAL_NAMES",
             "ATTR_REF", "ATTR_NAMES", "ATTR_CIF",
             "ATTR_MANDATORY_TYPES", "ATTR_TYPES", "ATTR_REF",
-            "ATTR_SIGMA", "ATTR_CONSTR_FLAG", "ATTR_REF_FLAG",
+            "ATTR_SIGMA", "ATTR_CONSTR_FLAG", "ATTR_REF_FLAG", "ATTR_CONSTR_MARK",
             "D_FORMATS", "D_CONSTRAINTS", "D_DEFAULT",
             "ATTR_INT_NAMES", "ATTR_INT_NAMES",
             "ATTR_INT_PROTECTED_NAMES", "D_MIN", "D_MAX")
@@ -561,13 +573,14 @@ class ItemN(object):
                     _cif_attr_full = "_" + prefix + separator + _cif_attr
                     if cif_data.is_value(_cif_attr_full):
                         if _attr in attr_ref:
-                            value, error = \
-                                string_to_value_error(
+                            value, error, mark = \
+                                string_to_value_error_mark(
                                     cif_data[_cif_attr_full].value)
                             setattr(item, _attr, value)
                             if error is not None:
                                 setattr(item, f"{_attr:}_sigma", error)
                                 setattr(item, f"{_attr:}_refinement", True)
+                                setattr(item, f"{_attr:}_mark", mark)
                             else:
                                 setattr(item, f"{_attr:}_refinement", False)
                         else:
@@ -598,7 +611,7 @@ class ItemN(object):
         if type(obj) is not type(self):
             return
         for attr in (self.ATTR_NAMES + self.ATTR_SIGMA +
-                     self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG):
+                     self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG + self.ATTR_CONSTR_MARK):
             if obj.is_attribute(attr):
                 setattr(self, attr, getattr(obj, attr))
 
@@ -617,6 +630,15 @@ class ItemN(object):
             name_ref = name[:-1] + ((f"{name[-1][0]:}_refinement",
                                      name[-1][1]), )
             self.set_variable_by_name(name_ref, False)
+
+    def refine_all_variables(self):
+        """Fix variables."""
+        for name in self.ATTR_REF:
+            name_constr = f"{name:}_constraint"
+            constr = getattr(self, name_constr)
+            if not(constr):
+                name_ref = f"{name:}_refinement"
+                setattr(self, name_ref, True)
 
     def set_variable(self, name: str, index=None):
         """Set refinement for variable given by name.

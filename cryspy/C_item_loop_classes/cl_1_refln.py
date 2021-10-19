@@ -1,5 +1,9 @@
 """Description of classes Refln, ReflnL."""
 from typing import NoReturn
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -54,7 +58,7 @@ class Refln(ItemN):
         "f_squared_meas", "f_squared_sigma", "include_status",
         "intensity_calc", "intensity_meas", "intensity_sigma",
         "mean_path_length_tbar", "phase_calc", "phase_meas",
-        "refinement_status", "scale_group_code", "sintlambda",
+        "refinement_status", "scale_group_code", "sint/lambda",
         "symmetry_epsilon", "symmetry_multiplicity", "wavelength",
         "wavelength_id")
 
@@ -70,9 +74,11 @@ class Refln(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"f_calc": "{:.2f}", "a_calc": "{:.2f}", "b_calc": "{:.2f}"}
+    D_FORMATS = {"f_calc": "{:.2f}", "a_calc": "{:.4f}", "b_calc": "{:.4f}",
+                 "sintlambda": "{:.5f}", "d_spacing": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"include_status": ["o", "<", "-", "x", "h", "r"],
@@ -84,6 +90,8 @@ class Refln(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "refln"
 
@@ -91,7 +99,7 @@ class Refln(ItemN):
         super(Refln, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {}
+        D_MIN = {"sintlambda": 0., "d_spacing": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}
@@ -110,9 +118,9 @@ class ReflnL(LoopN):
     ITEM_CLASS = Refln
     ATTR_INDEX = "id"
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(ReflnL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 

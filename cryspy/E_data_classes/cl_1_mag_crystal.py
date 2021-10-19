@@ -5,6 +5,9 @@ from typing import NoReturn
 import numpy
 from warnings import warn
 
+
+from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems
+
 from cryspy.A_functions_base.function_3_mcif import calc_full_sym_elems, \
     calc_hkl_in_range
 
@@ -35,6 +38,9 @@ from cryspy.D_functions_item_loop.function_1_calc_for_magcrystal import \
     calc_f_nucl, calc_f_mag
 from cryspy.D_functions_item_loop.function_1_flip_ratio import \
     calc_fm_perp_for_fm_loc
+
+from cryspy.A_functions_base.matrix_operations import calc_vector_product_v1_v2_v1
+from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters
 
 
 class MagCrystal(DataN):
@@ -110,7 +116,6 @@ class MagCrystal(DataN):
         # atom_site_susceptibility = self.atom_site_susceptibility
         # if atom_site_susceptibility is not None:
         #     atom_site_susceptibility.apply_chi_iso_constraint(cell)
-        #     atom_site_susceptibility.apply_moment_iso_constraint(cell)
         #     atom_site_susceptibility.apply_space_group_constraint(atom_site,
         #                                                           space_group)
 
@@ -122,7 +127,7 @@ class MagCrystal(DataN):
         """
         pass
 
-    def calc_f_nucl(self, index_h, index_k, index_l):
+    def calc_f_nucl(self, index_hkl):
         """
         Calculate nuclear structure factor.
 
@@ -155,13 +160,13 @@ class MagCrystal(DataN):
             self.space_group_symop_magn_centering
 
         f_hkl_as, dder = calc_f_nucl(
-            index_h, index_k, index_l,
+            index_hkl,
             space_group_symop_magn_operation,
             space_group_symop_magn_centering,
             cell, atom_site, atom_site_aniso, flag_derivatives=False)
         return f_hkl_as
 
-    def calc_refln(self, index_h, index_k, index_l, flag_internal=True):
+    def calc_refln(self, index_hkl, flag_internal=True):
         """
         Calculate Refln cryspy object where nuclear structure factor is stored.
 
@@ -177,17 +182,17 @@ class MagCrystal(DataN):
             refln: object cryspy.Refln
 
         """
-        f_nucl = self.calc_f_nucl(index_h, index_k, index_l)
+        f_nucl = self.calc_f_nucl(index_hkl)
         res = ReflnL()
-        res.numpy_index_h = index_h
-        res.numpy_index_k = index_k
-        res.numpy_index_l = index_l
+        res.numpy_index_h = index_hkl[0]
+        res.numpy_index_k = index_hkl[1]
+        res.numpy_index_l = index_hkl[2]
         res.numpy_f_calc = f_nucl
         if flag_internal:
             res.numpy_to_items()
         return res
 
-    def calc_f_mag(self, index_h, index_k, index_l):
+    def calc_f_mag(self, index_hkl):
         """
         Calculate magnetic structure factor.
 
@@ -225,14 +230,14 @@ class MagCrystal(DataN):
         flag_only_orbital = False
         flag_derivatives = False
         f_mag, dder = calc_f_mag(
-            (index_h, index_k, index_l), space_group_symop_magn_operation,
+            index_hkl, space_group_symop_magn_operation,
             space_group_symop_magn_centering, cell, atom_site, atom_site_aniso,
             atom_site_scat, atom_site_moment,
             flag_derivatives=flag_derivatives,
             flag_only_orbital=flag_only_orbital)
         return f_mag
 
-    def calc_f_mag_perp(self, index_h, index_k, index_l):
+    def calc_f_mag_perp(self, index_hkl):
         """
         Calculate perpendicular component of magnetic structure factor.
 
@@ -252,12 +257,14 @@ class MagCrystal(DataN):
             >>> f_nucl = crystal.calc_f_nucl(h, k, l)
 
         """
-        f_mag = self.calc_f_mag(index_h, index_k, index_l)
+        f_mag = self.calc_f_mag(index_hkl)
 
         cell = self.cell
-        k_loc = cell.calc_k_loc(index_h, index_k, index_l)
-        f_mag_perp = calc_fm_perp_for_fm_loc(k_loc, f_mag)
-        f_mag_perp = numpy.array(f_mag_perp, dtype=complex)
+        unit_cell_parameters = cell.get_unit_cell_parameters()
+
+        flag_unit_cell_parameters = False
+        eq_ccs, dder_eq_ccs = calc_eq_ccs_by_unit_cell_parameters(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
+        f_mag_perp, dder_f_mag_perp = calc_vector_product_v1_v2_v1(eq_ccs, f_mag)
         return f_mag_perp
 
     def calc_hkl(self, sthovl_min: float, sthovl_max: float):
@@ -283,12 +290,13 @@ class MagCrystal(DataN):
             cell.length_a, cell.length_b, cell.length_c,
             cell.angle_alpha*rad, cell.angle_beta*rad, cell.angle_gamma*rad)
 
-        sym_elems = self.space_group_symop_magn_operation.get_sym_elems()
-        magn_centering = self.space_group_symop_magn_centering.get_sym_elems()
-        full_sym_elems = calc_full_sym_elems(sym_elems, magn_centering)
+        se_sgsmo = self.space_group_symop_magn_operation.get_sym_elems()
+        se_sgsmc = self.space_group_symop_magn_centering.get_sym_elems()
+
+        elem_symm_fs = calc_full_mag_elems(se_sgsmo, se_sgsmc)
 
         ind_hkl_mult = calc_hkl_in_range(
-            full_sym_elems, unit_cell_parameters, sthovl_min, sthovl_max)
+            elem_symm_fs[:13], unit_cell_parameters, sthovl_min, sthovl_max)
 
         return ind_hkl_mult
 

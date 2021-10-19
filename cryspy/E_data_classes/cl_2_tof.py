@@ -7,7 +7,9 @@ from typing import NoReturn
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_cos_ang
-from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT
+
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
+from cryspy.A_functions_base.unit_cell import calc_matrix_t
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
@@ -174,7 +176,7 @@ class TOF(DataN):
                 index_h = peak.numpy_index_h
                 index_k = peak.numpy_index_k
                 index_l = peak.numpy_index_l
-                mult = peak.numpy_index_multiplicity
+                mult = peak.numpy_index_mult
                 cond_2 = True
             except KeyError:
                 if texture is None:
@@ -187,20 +189,20 @@ class TOF(DataN):
                 peak.numpy_index_h = numpy.array(index_h, dtype=int)
                 peak.numpy_index_k = numpy.array(index_k, dtype=int)
                 peak.numpy_index_l = numpy.array(index_l, dtype=int)
-                peak.numpy_index_multiplicity = numpy.array(mult, dtype=int)
+                peak.numpy_index_mult = numpy.array(mult, dtype=int)
                 d_internal_val[f"peak_{crystal.data_name:}"] = peak
                 cond_2 = False
 
             cond_1 = not(crystal.is_variables())
             if cond_1 & cond_2:
-                np_iint_u = peak.numpy_intensity_up
-                np_iint_d = peak.numpy_intensity_down
+                np_iint_u = peak.numpy_intensity_plus
+                np_iint_d = peak.numpy_intensity_minus
             else:
                 np_iint_u, np_iint_d = self.calc_iint(
                     index_h, index_k, index_l, crystal,
                     flag_internal=flag_internal)
-                peak.numpy_intensity_up = np_iint_u
-                peak.numpy_intensity_down = np_iint_d
+                peak.numpy_intensity_plus = np_iint_u
+                peak.numpy_intensity_minus = np_iint_d
 
             cell = crystal.cell
             sthovl_hkl = cell.calc_sthovl(index_h, index_k, index_l)
@@ -271,17 +273,17 @@ class TOF(DataN):
                 peak.numpy_to_items()
 
         tof_proc.numpy_d_spacing = d
-        tof_proc.numpy_intensity_up_net = res_u_1d
-        tof_proc.numpy_intensity_down_net = res_d_1d
+        tof_proc.numpy_intensity_plus_net = res_u_1d
+        tof_proc.numpy_intensity_minus_net = res_d_1d
         tof_proc.numpy_intensity_net = res_u_1d+res_d_1d
         tof_proc.numpy_intensity_diff_total = res_u_1d-res_d_1d
         if flag_polarized:
-            tof_proc.numpy_intensity_up_total = res_u_1d+int_bkgd
-            tof_proc.numpy_intensity_down_total = res_d_1d+int_bkgd
+            tof_proc.numpy_intensity_plus_total = res_u_1d+int_bkgd
+            tof_proc.numpy_intensity_minus_total = res_d_1d+int_bkgd
             tof_proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd+int_bkgd
         else:
-            tof_proc.numpy_intensity_up_total = res_u_1d+0.5*int_bkgd
-            tof_proc.numpy_intensity_down_total = res_d_1d+0.5*int_bkgd
+            tof_proc.numpy_intensity_plus_total = res_u_1d+0.5*int_bkgd
+            tof_proc.numpy_intensity_minus_total = res_d_1d+0.5*int_bkgd
             tof_proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd
 
         if flag_internal:
@@ -330,10 +332,10 @@ class TOF(DataN):
 
         np_time = tof_meas.numpy_time
         if flag_polarized:
-            int_u_exp = tof_meas.numpy_intensity_up
-            sint_u_exp = tof_meas.numpy_intensity_up_sigma
-            int_d_exp = tof_meas.numpy_intensity_down
-            sint_d_exp = tof_meas.numpy_intensity_down_sigma
+            int_u_exp = tof_meas.numpy_intensity_plus
+            sint_u_exp = tof_meas.numpy_intensity_plus_sigma
+            int_d_exp = tof_meas.numpy_intensity_minus
+            sint_d_exp = tof_meas.numpy_intensity_minus_sigma
         else:
             int_exp = tof_meas.numpy_intensity
             sint_exp = tof_meas.numpy_intensity_sigma
@@ -364,10 +366,10 @@ class TOF(DataN):
             flag_polarized=flag_polarized)
 
         if flag_polarized:
-            tof_proc.numpy_intensity_up = int_u_exp_in
-            tof_proc.numpy_intensity_up_sigma = sint_u_exp_in
-            tof_proc.numpy_intensity_down = int_d_exp_in
-            tof_proc.numpy_intensity_down_sigma = sint_d_exp_in
+            tof_proc.numpy_intensity_plus = int_u_exp_in
+            tof_proc.numpy_intensity_plus_sigma = sint_u_exp_in
+            tof_proc.numpy_intensity_minus = int_d_exp_in
+            tof_proc.numpy_intensity_minus_sigma = sint_d_exp_in
             tof_proc.numpy_intensity = int_u_exp_in+int_d_exp_in
             tof_proc.numpy_intensity_sigma = numpy.sqrt(
                 numpy.square(sint_u_exp_in) + numpy.square(sint_d_exp_in))
@@ -375,8 +377,8 @@ class TOF(DataN):
             tof_proc.numpy_intensity = int_exp_in
             tof_proc.numpy_intensity_sigma = sint_exp_in
 
-        int_u_mod = tof_proc.numpy_intensity_up_total
-        int_d_mod = tof_proc.numpy_intensity_down_total
+        int_u_mod = tof_proc.numpy_intensity_plus_total
+        int_d_mod = tof_proc.numpy_intensity_minus_total
 
         if flag_polarized:
             sint_sum_exp_in = (sint_u_exp_in**2 + sint_d_exp_in**2)**0.5
@@ -489,6 +491,8 @@ class TOF(DataN):
             - refln_s: ReflnSusceptibilityL object of cryspy library
               (nuclear structure factor)
         """
+        index_hkl = numpy.stack([index_h, index_k, index_l], axis=0)
+
         if flag_internal:
             try:
                 d_internal_val = self.d_internal_val
@@ -546,33 +550,25 @@ class TOF(DataN):
             sft_32 = refln_s.numpy_chi_32_calc
             sft_33 = refln_s.numpy_chi_33_calc
 
-            sftm_11 = refln_s.numpy_moment_11_calc
-            sftm_12 = refln_s.numpy_moment_12_calc
-            sftm_13 = refln_s.numpy_moment_13_calc
-            sftm_21 = refln_s.numpy_moment_21_calc
-            sftm_22 = refln_s.numpy_moment_22_calc
-            sftm_23 = refln_s.numpy_moment_23_calc
-            sftm_31 = refln_s.numpy_moment_31_calc
-            sftm_32 = refln_s.numpy_moment_32_calc
-            sftm_33 = refln_s.numpy_moment_33_calc
 
-            _11, _12 = sftm_11+field*sft_11, sftm_12+field*sft_12
-            _21, _13 = sftm_21+field*sft_21, sftm_13+field*sft_13
-            _22, _23 = sftm_22+field*sft_22, sftm_23+field*sft_23
-            _31, _32 = sftm_31+field*sft_31, sftm_32+field*sft_32
-            _33 = sftm_33+field*sft_33
-            _ij = (_11, _12, _13, _21, _22, _23, _31, _32, _33)
+            _11, _12 = field*sft_11, field*sft_12
+            _21, _13 = field*sft_21, field*sft_13
+            _22, _23 = field*sft_22, field*sft_23
+            _31, _32 = field*sft_31, field*sft_32
+            _33 = field*sft_33
+            _ij = numpy.stack([_11, _12, _13, _21, _22, _23, _31, _32, _33], axis=0)
             cell = crystal.cell
 
-            # k_loc = cell.calc_k_loc(h, k, l)
-            t_ij = cell.calc_m_t(index_h, index_k, index_l)
-            # FIXME: I would like to recheck the expression for T
-            #        and expression SIGMA = T^T CHI T
-            t_tr_ij = (t_ij[0], t_ij[3], t_ij[6],
-                       t_ij[1], t_ij[4], t_ij[7],
-                       t_ij[2], t_ij[5], t_ij[8])
-            th_11, th_12, th_13, th_21, th_22, th_23, th_31, th_32, th_33 = \
-                calc_mRmCmRT(t_tr_ij, _ij)
+            unit_cell_parameters = numpy.array([
+                cell.length_a, cell.length_b, cell.length_c,
+                cell.angle_alpha*numpy.pi/180.,
+                cell.angle_beta*numpy.pi/180.,
+                cell.angle_gamma*numpy.pi/180.], dtype=float)
+            
+            t_ij = calc_matrix_t(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+            #SIGMA = T CHI T^-1 = T chi T^T (because T is rotation matrix, therefore T^-1 = T^T)
+            th_ij = calc_m1_m2_m1t(t_ij, _ij)[0]
+            th_11, th_12, th_22 = th_ij[0], th_ij[1], th_ij[4]
 
             # fm_p_sq = (field**2)*abs(0.5*(th_11*th_11.conjugate()+
             #            th_22*th_22.conjugate())+th_12*th_12.conjugate())

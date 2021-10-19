@@ -60,6 +60,7 @@ def estimate_inversed_hessian_matrix(func, param_0):
                 4. * delta_p_1 * delta_p_2) 
             np_hessian[i_p_1, i_p_2] = der_second
             np_hessian[i_p_2, i_p_1] = der_second
+
     np_hessian_inv = numpy.linalg.inv(np_hessian)
     func(param_0)
     return np_hessian_inv, np_first_der

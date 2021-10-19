@@ -205,6 +205,11 @@ class DataN(object):
         for item in items_unique:
             if isinstance(item, self.CLASSES):
                 self.items.append(item)
+            elif type(self) is DataN:
+                if issubclass(type(item), (ItemN, LoopN)):
+                    self.CLASSES = self.CLASSES + (type(item), )
+                    self.CLASSES_OPTIONAL = self.CLASSES_OPTIONAL + (type(item), )
+                    self.items.append(item)
 
     @classmethod
     def make_container(cls, cls_mandatory, cls_optional, prefix):
@@ -280,6 +285,8 @@ class DataN(object):
         """
         prefix = self.PREFIX
         data_name = self.data_name
+        if isinstance(data_name, str):
+            data_name = data_name.lower()
         l_var = []
         for item in self.items:
             l_var.extend(item.get_variable_names())
@@ -313,10 +320,16 @@ class DataN(object):
         """
         prefix = self.PREFIX
         data_name = self.data_name
+        if isinstance(data_name, str):
+            data_name = data_name.lower()
 
         prefix_d, prefix_n = name[0], name[1]
+        if isinstance(prefix_d[1], str):
+            prefix_d_2 = prefix_d[1].lower()
+        else:
+            prefix_d_2 = prefix_d[1]
 
-        if prefix_d != (prefix, data_name):
+        if (prefix_d[0], prefix_d_2) != (prefix, data_name):
             return None
 
         name_sh = tuple(name[1:])
@@ -563,3 +576,4 @@ class DataN(object):
                         
                 else:
                     item.set_variable(".".join(l_name[1:]), index=index)
+
