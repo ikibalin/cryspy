@@ -367,7 +367,7 @@ def calc_q_sq(q, flag_q: bool = False):
     """
     q is matrix q_11, q_22, q_33, q_12, q_13, q_23
 
-    Output is quadratic form q
+    Output is quadratic form
     """
     q_11, q_22, q_33 = q[0], q[1], q[2]
     q_12, q_13, q_23 = q[3], q[4], q[5]
@@ -388,13 +388,57 @@ def calc_q_sq(q, flag_q: bool = False):
         dder_33 = numpy.stack([zero, zero, 2*q_33, zero, 2*q_13, 2*q_23], axis=0)
         dder_12 = numpy.stack([q_12, q_12, zero, q_11+q_22, q_23, q_13], axis=0)
         dder_13 = numpy.stack([q_13, zero, q_13, q_23, q_11+q_33, q_12], axis=0)
-        dder_13 = numpy.stack([zero, q_23, q_23, q_13, q_12, q_22+q_33], axis=0)
+        dder_23 = numpy.stack([zero, q_23, q_23, q_13, q_12, q_22+q_33], axis=0)
         if q.dtype == complex:
             dder["q_real"] = numpy.stack([dder_11, dder_22, dder_33, dder_12, dder_13, dder_23], axis=0)
             dder["q_imag"] = 1j*dder["q_real"]
         else:
             dder["q"] = numpy.stack([dder_11, dder_22, dder_33, dder_12, dder_13, dder_23], axis=0)
     return qo, dder
+
+
+def calc_m_sq(m, flag_m: bool = False):
+    """
+    m is matrix m_11, m_12, m_13, m_21, m_22, m_23, m_31, m_32, m_33
+
+    Output is m_sq matrix
+    """
+    m_11, m_12, m_13 = m[0], m[1], m[2]
+    m_21, m_22, m_23 = m[3], m[4], m[5]
+    m_31, m_32, m_33 = m[6], m[7], m[8]
+
+    mo_11 = numpy.square(m_11) + m_12*m_21 + m_13*m_31 
+    mo_22 = m_12*m_21 + numpy.square(m_22) + m_23*m_32 
+    mo_33 = m_13*m_31 + m_23*m_32 + numpy.square(m_33) 
+    mo_12 = m_11 * m_12 + m_12 * m_22 + m_13 * m_32
+    mo_13 = m_11 * m_13 + m_12 * m_23 + m_13 * m_33
+    mo_23 = m_13 * m_21 + m_22 * m_23 + m_23 * m_33
+    mo_21 = m_11 * m_21 + m_21 * m_22 + m_23 * m_31
+    mo_31 = m_11 * m_31 + m_21 * m_32 + m_33 * m_33
+    mo_32 = m_12 * m_31 + m_22 * m_32 + m_32 * m_33
+
+    mo = numpy.stack([
+        mo_11, mo_12, mo_13,
+        mo_21, mo_22, mo_23,
+        mo_31, mo_32, mo_33], axis=0)
+    dder = {}
+    if flag_m:
+        zero = numpy.zeros(m_11.shape, dtype=float)
+        dder_11 = numpy.stack([2*m_11 , m_21 , m_31 , m_12 , zero , zero , m_13 , zero , zero], axis=0)
+        dder_12 = numpy.stack([m_12 , m_11 + m_22 , m_32 , zero , m_12 , zero , zero , m_13 , zero], axis=0)
+        dder_13 = numpy.stack([m_13 , m_23 , m_11 + m_33 , zero , zero , m_12 , zero , zero , m_13], axis=0)
+        dder_21 = numpy.stack([m_21 , zero , zero , m_11 + m_22 , m_21 , m_31 , m_23 , zero , zero], axis=0)
+        dder_22 = numpy.stack([zero , m_21 , zero , m_12 , 2*m_22 , m_32 , zero , m_23 , zero], axis=0)
+        dder_23 = numpy.stack([zero , zero , m_21 , m_13 , m_23 , m_22 + m_33 , zero , zero , m_23], axis=0)
+        dder_31 = numpy.stack([m_31 , zero , zero , m_32 , zero , zero , m_11 + m_33 , m_21 , m_31], axis=0)
+        dder_32 = numpy.stack([zero , m_31 , zero , zero , m_32 , zero , m_12 , m_22 + m_33 , m_32], axis=0)
+        dder_33 = numpy.stack([zero , zero , m_31 , zero , zero , m_32 , m_13 , m_23 , 2*m_33], axis=0)
+        if m.dtype == complex:
+            dder["m_real"] = numpy.stack([dder_11, dder_12, dder_13, dder_21, dder_22, dder_23, dder_31, dder_32, dder_33], axis=0)
+            dder["m_imag"] = 1j*dder["m_real"]
+        else:
+            dder["m"] = numpy.stack([dder_11, dder_12, dder_13, dder_21, dder_22, dder_23, dder_31, dder_32, dder_33], axis=0)
+    return mo, dder
 
 
 def calc_m1_m2_inv_m1(m1_ij, m2_ij, flag_m1: bool = False, flag_m2: bool = False):

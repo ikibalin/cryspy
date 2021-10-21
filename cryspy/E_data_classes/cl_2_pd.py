@@ -737,42 +737,34 @@ class Pd(DataN):
             else:
                 flag_up, flag_down, flag_sum = False, False, True
                 flag_diff = False
-            if flag_sum:
-                fig_s, ax_s = pd_proc.plot_sum()
-                ax_s.set_title(self.data_name + " - "+ax_s.title.get_text())
-                y_min_s, y_max_s = ax_s.get_ylim()
-                y_dist_s = y_max_s-y_min_s
-                y_step_s = 0.
+            
+            fig_s, ax_s = pd_proc.plot_sum_diff()
+            ax_s = fig_s.axes[0]
+            ax_hkl = fig_s.axes[1]
+            ax_s.set_title(self.data_name + " - "+ax_s.title.get_text())
+            y_min_s, y_max_s = ax_hkl.get_ylim()
+            y_dist_s = y_max_s-y_min_s
+            y_step_s = 0.
             
             flag_d = False
-            if flag_diff:
-                fig_d_ax_d = pd_proc.plot_diff()
-                flag_d = fig_d_ax_d is not None
-                if flag_d:
-                    fig_d, ax_d = fig_d_ax_d
-                    ax_d.set_title(self.data_name + " - "+ax_d.title.get_text())
-                    y_min_d, y_max_d = ax_d.get_ylim()
-                    y_dist_d = y_max_d-y_min_d
-                    y_step_d = 0.
+            # if flag_diff:
+            #     fig_d_ax_d = pd_proc.plot_diff()
+            #     flag_d = fig_d_ax_d is not None
+            #     if flag_d:
+            #         fig_d, ax_d = fig_d_ax_d
+            #         ax_d.set_title(self.data_name + " - "+ax_d.title.get_text())
+            #         y_min_d, y_max_d = ax_d.get_ylim()
+            #         y_dist_d = y_max_d-y_min_d
+            #         y_step_d = 0.
 
             for item in self.items:
                 if isinstance(item, PdPeakL):
                     np_tth = item.numpy_ttheta
-                    if flag_sum:
-                        ax_s.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|",
-                                  label=item.loop_name)
-                        y_step_s += 0.05*y_dist_s
-                    if (flag_d & flag_diff):
-                        ax_d.plot(np_tth, 0.*np_tth+y_min_d-y_step_d, "|",
-                                  label=item.loop_name)
-                        y_step_d += 0.05*y_dist_d
+                    ax_hkl.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|", label=item.loop_name)
+                    y_step_s += 0.05*y_dist_s
             res = []
-            if flag_sum:
-                ax_s.legend(loc='upper right')
-                res.append((fig_s, ax_s))
-            if (flag_d & flag_diff):
-                ax_d.legend(loc='upper right')
-                res.append((fig_d, ax_d))
+            ax_s.legend(loc='upper right')
+            res.append((fig_s, ax_s))
             return res
         elif self.is_attribute("pd_meas"):
             return self.pd_meas.plots()

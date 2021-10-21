@@ -6,12 +6,12 @@ import numpy
 
 from typing import NoReturn
 
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags
-from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract, calc_sc_b, calc_sc_chi
+from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
@@ -634,6 +634,7 @@ class Crystal(DataN):
             atom_fract_xyz = numpy.array([atom_site.fract_x,
                                           atom_site.fract_y,
                                           atom_site.fract_z], dtype=float)
+            atom_fract_xyz = numpy.mod(atom_fract_xyz, 1.)
             atom_b_scat = numpy.array(atom_site.scat_length_neutron, dtype=complex)
 
             b_d  = 3*10**5*numpy.ones(atom_fract_xyz.shape[1:], dtype=int) #10**5 it is precision
@@ -660,17 +661,20 @@ class Crystal(DataN):
             l_sc_fract, l_sc_b = [], []
             for ind in range(atom_label.size):
                 symm_elems = elems_fs[:, flag_2d[:, ind]]
-                sc_fract = calc_sc_fract(symm_elems)
+                sc_fract, sc_b = calc_sc_fract_sc_b(symm_elems, atom_fract_xyz[:, ind])
                 l_sc_fract.append(sc_fract)
-                sc_b = calc_sc_b(symm_elems)
                 l_sc_b.append(sc_b)
+            atom_site_sc_fract = numpy.stack(l_sc_fract, axis=-1)
 
-            ddict["atom_site_sc_fract"] = numpy.stack(l_sc_fract, axis=-1)
+            ddict["atom_site_sc_fract"] = atom_site_sc_fract 
             ddict["atom_site_sc_b"] = numpy.stack(l_sc_b, axis=-1)
+
+            flags_atom_fract_xyz = atom_site.get_flags_atom_fract_xyz()
+            flags_atom_fract_xyz_constr = calc_m_v(atom_site_sc_fract, flags_atom_fract_xyz, flag_m=False, flag_v=False)[0].astype(bool)
 
             ddict["atom_label"] = atom_label
             ddict["atom_fract_xyz"] = atom_fract_xyz
-            ddict["flags_atom_fract_xyz"] = atom_site.get_flags_atom_fract_xyz()
+            ddict["flags_atom_fract_xyz"] = flags_atom_fract_xyz_constr 
             ddict["atom_scat_length_neutron"] = atom_b_scat
             ddict["atom_occupancy"] = atom_occupancy
             ddict["flags_atom_occupancy"] = atom_site.get_flags_atom_occupancy()
@@ -728,6 +732,7 @@ class Crystal(DataN):
                 ddict["atom_ordered_index"] = atom_ordered_index
 
         if isinstance(self, Crystal):
+            # FIXME: beta should be defined in atom_site_aniso_beta, b_iso for every atom
             atom_b_iso, atom_beta = self.calc_b_iso_beta()
             ddict["atom_b_iso"] = atom_b_iso
             ddict["atom_beta"] = atom_beta.transpose()

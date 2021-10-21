@@ -35,7 +35,7 @@ from cryspy.A_functions_base.orbital_functions import \
 def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5):
     # **Input information about mem parameters**
-    n_abc = dict_mem_parameters["points_abc"]
+    
     print("*******************************************")
     print("MEM reconstruction by CrysPy (module MEMPy)")
     print("*******************************************\n")
@@ -47,9 +47,11 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     print(f" minimal lambda parameter:      {parameter_lambda_min*1e6:}*10^-6")
     print(f" delta_density:                 {delta_density*1e5:}*10^-5\n")
 
+    dict_in_out_keys = dict_in_out.keys()
     print("Density reconstruction")
     print("----------------------")
 
+    n_abc = dict_mem_parameters["points_abc"]
     print(f"Unit cell is devided on points {n_abc[0]:} x {n_abc[1]:} x {n_abc[2]:}.")
     channel_plus_minus = dict_mem_parameters["channel_plus_minus"]
     channel_chi = dict_mem_parameters["channel_chi"]
@@ -188,31 +190,46 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     l_mem_chi, l_mem_col = [], []
     print(f"Number of experiments is {len(l_dict_diffrn):}.           ")
     for dict_diffrn in l_dict_diffrn:
+        if "dict_in_out_"+dict_diffrn["type_name"] in dict_in_out_keys:
+            diffrn_dict_in_out = dict_in_out["dict_in_out_"+dict_diffrn["type_name"]]
+        else:
+            diffrn_dict_in_out = {}
+            dict_in_out["dict_in_out_"+dict_diffrn["type_name"]] = diffrn_dict_in_out
+
         index_hkl = dict_diffrn["index_hkl"]
         h_ccs = dict_diffrn["magnetic_field"]    
         eh_ccs = dict_diffrn["matrix_u"][6:]
         print(f"Preliminary calculation for experiment {dict_diffrn['name']:}...", end="\r")
 
-        diffrn_dict_in_out = {"index_hkl": index_hkl}
+        diffrn_dict_in_out["index_hkl"] = index_hkl
+        diffrn_dict_in_out_keys = diffrn_dict_in_out.keys()
         if channel_plus_minus:
-            dict_in_out_col = {}
+            if "dict_in_out_col" in diffrn_dict_in_out_keys:
+                dict_in_out_col = diffrn_dict_in_out["dict_in_out_col"]
+            else:
+                dict_in_out_col = {}
+                diffrn_dict_in_out["dict_in_out_col"] = dict_in_out_col
+            
             mem_col = calc_mem_col(
                 index_hkl, unit_cell_parameters, eh_ccs, full_symm_elems, symm_elem_auc_col, 
                 volume_unit_cell, number_unit_cell, 
                 point_multiplicity=point_multiplicity_col,
                 dict_in_out=dict_in_out_col, flag_use_precalculated_data=flag_use_precalculated_data)
-            diffrn_dict_in_out["dict_in_out_col"] = dict_in_out_col
+            
             diffrn_dict_in_out["mem_col"] = mem_col
             l_mem_col.append(mem_col)
 
         if channel_chi:
-            dict_in_out_chi = {}
+            if "dict_in_out_chi" in diffrn_dict_in_out_keys:
+                dict_in_out_chi = diffrn_dict_in_out["dict_in_out_chi"]
+            else:
+                dict_in_out_chi = {}
+                diffrn_dict_in_out["dict_in_out_chi"] = dict_in_out_chi
             mem_chi = calc_mem_chi(
                 index_hkl, unit_cell_parameters, h_ccs, full_symm_elems, symm_elem_auc_chi,
                 point_susceptibility, volume_unit_cell, number_unit_cell, 
                 point_multiplicity=point_multiplicity_chi,
                 dict_in_out=dict_in_out_chi, flag_use_precalculated_data=flag_use_precalculated_data)
-            diffrn_dict_in_out["dict_in_out_chi"] = dict_in_out_chi
             diffrn_dict_in_out["mem_chi"] = mem_chi
             l_mem_chi.append(mem_chi)
 
@@ -230,7 +247,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         else:
             l_exp_value_sigma.append(flip_ratio_es)
 
-        dict_in_out[dict_diffrn["type_name"]] = diffrn_dict_in_out
+        
 
     exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)    
     if channel_plus_minus:
@@ -275,7 +292,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         l_model_value = []
         l_der_model_den_pm, l_der_model_den_chi = [], []
         for dict_diffrn in l_dict_diffrn:
-            diffrn_dict_in_out = dict_in_out[dict_diffrn['type_name']]
+            diffrn_dict_in_out = dict_in_out["dict_in_out_"+dict_diffrn['type_name']]
             index_hkl = diffrn_dict_in_out["index_hkl"]
 
             f_m_perp = numpy.zeros(index_hkl.shape, dtype=complex)
@@ -320,12 +337,12 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 flag_f_nucl = False, flag_f_m_perp = True,
                 dict_in_out = dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
 
+            diffrn_dict_in_out["flip_ratio"] = iint_plus/iint_minus
 
             der_int_plus_fm_perp_real = dder_plus["f_m_perp_real"]
             der_int_plus_fm_perp_imag = dder_plus["f_m_perp_imag"]
             der_int_minus_fm_perp_real = dder_minus["f_m_perp_real"]
             der_int_minus_fm_perp_imag = dder_minus["f_m_perp_imag"]
-
 
             if flag_asymmetry:
                 model_exp, dder_model_exp = calc_asymmetry_by_iint(

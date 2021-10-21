@@ -1,16 +1,19 @@
 import numpy
 
 from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 
-def calc_sc_fract(symm_elems):
+def calc_sc_fract_sc_b(symm_elems, atom_fract_xyz):
     sc_fract = (symm_elems[4:13]).sum(axis=1)/symm_elems.shape[1]
-    return sc_fract
 
-
-def calc_sc_b(symm_elems):
     sc_b = (symm_elems[:3]/(symm_elems.shape[1]*numpy.expand_dims(symm_elems[3], axis=0))).sum(axis=1)
-    return sc_b
+
+    atom_fract_xyz = numpy.mod(atom_fract_xyz, 1)
+    x_new = calc_m_v(symm_elems[4:13], atom_fract_xyz, flag_m=False, flag_v=False)[0]
+    n_s, x0 = numpy.divmod(x_new,1)
+    n_s = -n_s.sum(axis=1)/n_s.shape[1]
+    sc_b = sc_b + n_s
+    return sc_fract, sc_b
 
 
 def calc_sc_beta(symm_elems):

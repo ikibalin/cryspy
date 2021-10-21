@@ -255,6 +255,13 @@ def calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
 
     atom_fract_xyz = dict_crystal["atom_fract_xyz"]
+    # FIXME: for Ho2Ti2O7 it gives incorrect data
+    # atom_site_sc_fract = dict_crystal["atom_site_sc_fract"] 
+    # atom_site_sc_b = dict_crystal["atom_site_sc_b"] 
+    # atom_fract_xyz = calc_m_v(atom_site_sc_fract, numpy.mod(atom_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_site_sc_b
+    # dict_crystal["atom_fract_xyz"] = atom_fract_xyz
+    # print("atom_fract_xyz\n", atom_fract_xyz)
+
     atom_occupancy = dict_crystal["atom_occupancy"]
     scat_length_neutron = dict_crystal["atom_scat_length_neutron"]
     atom_b_iso = dict_crystal["atom_b_iso"]
@@ -478,6 +485,11 @@ def calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     atom_para_index = dict_crystal["atom_para_index"]
     atom_para_fract_xyz = dict_crystal["atom_fract_xyz"][:, atom_para_index]
+    # atom_para_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_para_index]
+    # atom_para_sc_b = dict_crystal["atom_site_sc_b"][:, atom_para_index]
+    # atom_para_fract_xyz = calc_m_v(
+    #     atom_para_sc_fract, numpy.mod(atom_para_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_para_sc_b
+
     atom_para_occupancy = dict_crystal["atom_occupancy"][atom_para_index]
     atom_para_b_iso = dict_crystal["atom_b_iso"][atom_para_index]
     atom_para_beta = dict_crystal["atom_beta"][:, atom_para_index]
@@ -755,6 +767,12 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     atom_ordered_index = dict_crystal["atom_ordered_index"]
     atom_ordered_fract_xyz = dict_crystal["atom_fract_xyz"][:, atom_ordered_index]
+    # atom_ordered_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_ordered_index]
+    # atom_ordered_sc_b = dict_crystal["atom_site_sc_b"][:, atom_ordered_index]
+    # atom_ordered_fract_xyz = calc_m_v(
+    #     atom_ordered_sc_fract, numpy.mod(atom_ordered_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_ordered_sc_b
+
+
     atom_ordered_occupancy = dict_crystal["atom_occupancy"][atom_ordered_index]
     atom_ordered_b_iso = dict_crystal["atom_b_iso"][atom_ordered_index]
     atom_ordered_beta = dict_crystal["atom_beta"][:, atom_ordered_index]

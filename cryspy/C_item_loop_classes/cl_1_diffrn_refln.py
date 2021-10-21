@@ -285,7 +285,7 @@ class DiffrnReflnL(LoopN):
             np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
 
             chi_sq_per_n = numpy.square((np_fr-np_fr_calc)/np_fr_sigma).sum()/np_fr.shape[0]
-            ax.set_title(r"Flip Ratio: $I_{plus} / I_{minus}$, $\chi^2=$" + f"{chi_sq_per_n:.2f}.")
+            ax.set_title(r"Flip Ratio: $I_{plus} / I_{minus}$, $\chi^2/n=$" + f"{chi_sq_per_n:.2f}.")
     
             np_fr_1 = np_fr - np_fr_sigma
             np_fr_2 = np_fr + np_fr_sigma

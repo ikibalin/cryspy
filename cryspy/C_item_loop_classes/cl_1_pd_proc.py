@@ -114,14 +114,11 @@ class PdProcL(LoopN):
         self.__dict__["loop_name"] = loop_name
     
     def plots(self):
-        return [self.plot_sum(), self.plot_diff()]
+        return [self.plot_sum_diff()]
     
-    def plot_sum(self):
+    def plot_sum_diff(self):
         """Plot unpolarized intensity vs. 2 theta
         """
-        fig, ax = plt.subplots()
-        ax.set_xlabel(r"$2\theta$ (degrees)")
-        ax.set_ylabel('Intensity (arb.u.)')
 
         if (self.is_attribute("ttheta") and self.is_attribute("intensity_plus") and 
                 self.is_attribute("intensity_plus_sigma") and
@@ -130,6 +127,21 @@ class PdProcL(LoopN):
                 self.is_attribute("intensity_plus_net") and
                 self.is_attribute("intensity_minus_net") and
                 self.is_attribute("intensity_bkg_calc")):
+
+            fig = plt.figure(constrained_layout=False)
+            gs = fig.add_gridspec(nrows=3, ncols=1, hspace=0, height_ratios=[7,1,7])
+
+            ax_1 = fig.add_subplot(gs[0, 0])
+            ax_3 = fig.add_subplot(gs[1, 0], sharex=ax_1)
+            ax_3.set_yticks([])
+            ax_2 = fig.add_subplot(gs[2, 0], sharex=ax_1)
+
+            # fig, axs = plt.subplots(nrows = 2, sharex=True)
+            # ax_1, ax_2 = axs
+            ax_2.set_xlabel(r"$2\theta$ (degrees)")
+            ax_2.set_ylabel('Intensity (arb.u.)')
+            ax_1.set_ylabel('Intensity (arb.u.)')
+
             np_excl = numpy.array(self.excluded, dtype=bool)
             np_notexcl = numpy.logical_not(np_excl)
             np_tth = numpy.array(self.ttheta, dtype=float)
@@ -142,29 +154,45 @@ class PdProcL(LoopN):
             np_bkg = numpy.array(self.intensity_bkg_calc, dtype=float)
             np_sum = np_up + np_down 
             np_sum_mod = np_up_mod + np_down_mod + np_bkg
+            np_diff = np_up - np_down 
+            np_diff_mod = np_up_mod - np_down_mod
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
             chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
-            ax.set_title(f"Unpolarized signal $\chi^2/n = ${chi_sq_points:.2f}")
+            chi_sq_diff_points = numpy.nansum(numpy.square((np_diff - np_diff_mod)/np_ssum))/np_diff_mod.size
 
-            ax.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            ax_1.set_title(f"Unpolarized ($\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
 
-            y_min_d, y_max_d = ax.get_ylim()
+            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
+            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+
+            y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-((np_sum - np_sum_mod)[np_notexcl]).max()
             coeff = np_notexcl.astype(int)
-            ax.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
-            ax.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5,
-                    label="difference")
-            ax.plot(np_tth, np_sum_mod, "k-", label="model")
-            ax.plot(np_tth, np_bkg, "b:", label="background")
-            ax.legend(loc='upper right')
+            ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+            ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
+            ax_1.plot(np_tth, np_sum_mod, "k-", label="model")
+            ax_1.plot(np_tth, np_bkg, "b:", label="background")
+            ax_1.legend(loc='upper right')
 
+            ax_2.plot([np_tth.min(), np_tth.max()], [0., 0.], "b:")
+            ax_2.errorbar(np_tth, np_diff, yerr=np_ssum, fmt="ko", alpha=0.2, label="experiment")
+
+            y_min_d, y_max_d = ax_2.get_ylim()
+            param = y_min_d-(np_diff-np_diff_mod).max()
+            ax_2.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+            ax_2.plot(np_tth, np_diff-np_diff_mod+param, "r-", alpha=0.5, label="difference")
+            ax_2.plot(np_tth, np_diff_mod, "k-", label="model")
+            ax_2.legend(loc='upper right')
 
         elif (self.is_attribute("ttheta") and 
                 self.is_attribute("intensity") and
                 self.is_attribute("intensity_plus_net") and
                 self.is_attribute("intensity_minus_net") and
                 self.is_attribute("intensity_bkg_calc")):
+            fig, ax_1 = plt.subplots()
+            ax_1.set_xlabel(r"$2\theta$ (degrees)")
+            ax_1.set_ylabel('Intensity (arb.u.)')
+
             np_excl = numpy.array(self.excluded, dtype=bool)
             np_notexcl = numpy.logical_not(np_excl)
             np_tth = numpy.array(self.ttheta, dtype=float)
@@ -177,29 +205,28 @@ class PdProcL(LoopN):
             np_sum_mod = np_up_mod + np_down_mod + np_bkg
 
             chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
-            ax.set_title(f"Unpolarized signal $\chi^2/n = ${chi_sq_points:.2f}")
+            ax_1.set_title(f"Unpolarized signal $\chi^2/n = ${chi_sq_points:.2f}")
 
-            ax.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
+            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
-            y_min_d, y_max_d = ax.get_ylim()
+            y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-(np_sum - np_sum_mod).max()
             coeff = np_notexcl.astype(int)
 
-            ax.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
-            ax.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5,
-                    label="difference")
-            ax.plot(np_tth, np_sum_mod, "k-", label="model")
+            ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+            ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
+            ax_1.plot(np_tth, np_sum_mod, "k-", label="model")
 
-            if (self.is_attribute("ttheta") &
+            if (self.is_attribute("ttheta") and
                     self.is_attribute("intensity_bkg_calc")):
                 np_tth = numpy.array(self.ttheta, dtype=float)
                 np_bkg = numpy.array(self.intensity_bkg_calc, dtype=float)
-                ax.plot(np_tth, np_bkg, "b:", label="background")
-            ax.legend(loc='upper right')
+                ax_1.plot(np_tth, np_bkg, "b:", label="background")
+            ax_1.legend(loc='upper right')
             
         fig.tight_layout()
-        return (fig, ax)
+        return (fig, ax_1)
 
     def plot_diff(self):
         """Plot polarized intensity vs. 2 theta

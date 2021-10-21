@@ -29,6 +29,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfiguration, AtomElectronConfigurationL
 from cryspy.C_item_loop_classes.cl_1_cell import Cell, CellL
+from cryspy.C_item_loop_classes.cl_1_channel_chi import ChannelChi, ChannelChiL
+from cryspy.C_item_loop_classes.cl_1_channel_plus_minus import ChannelPlusMinus, ChannelPlusMinusL
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation, DiffrnRadiationL
@@ -122,7 +124,7 @@ L_ITEM_CLASS.extend([
     AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater, 
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
     AtomSiteSusceptibility, AtomType, AtomTypeScat,
-    Cell, Chi2,
+    Cell, ChannelChi, ChannelPlusMinus, Chi2,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
     Exclude, Extinction, MEMParameters, InversedHessian,
     Phase, PdBackground,
@@ -139,7 +141,7 @@ L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL, 
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
     AtomSiteSusceptibilityL, AtomTypeL, AtomTypeScatL,
-    CellL, Chi2L,
+    CellL, ChannelChiL, ChannelPlusMinusL, Chi2L,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
     ExtinctionL, ExcludeL, MEMParametersL,
     PhaseL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,

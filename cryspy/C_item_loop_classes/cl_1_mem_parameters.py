@@ -67,7 +67,7 @@ class MEMParameters(ItemN):
                  "magnetization_plus": 4., "magnetization_minus": -1.,
                  "channel_chi": False,
                  "only_magnetic_basins": False,
-                 "prior_density": "uniform", "use_asymmetry": False,
+                 "prior_density": "uniform", "use_asymmetry": True,
                  "gof_desired": 1.,
                  "spin_density_to_den_file": "mem_spin_density.den",
                  "magnetization_density_to_den_file": "mem_magnetization_density.den",}
