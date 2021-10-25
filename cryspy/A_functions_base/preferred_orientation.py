@@ -29,7 +29,7 @@ def calc_preferred_orientation_pd(
     eq_hkl_ccs, dder_eq_hkl_ccs = calc_eq_ccs_by_unit_cell_parameters(
         index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
-    cos_alpha_ax = (eq_axis_ccs[:, na] * eq_hkl_ccs).sum(axis=0)
+    cos_alpha_ax = (eq_axis_ccs[:, 0][:, na] * eq_hkl_ccs).sum(axis=0)
 
     sin_alpha_ax_sq = numpy.abs(1. - numpy.square(cos_alpha_ax))
     

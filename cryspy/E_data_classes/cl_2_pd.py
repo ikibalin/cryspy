@@ -76,7 +76,7 @@ class Pd(DataN):
     CLASSES_MANDATORY = (Setup, PdInstrResolution, PhaseL, PdBackgroundL,
                          PdMeasL)
     CLASSES_OPTIONAL = (DiffrnRadiation, Chi2, Range, Extinction,
-                        PdInstrReflexAsymmetry, Texture, ExcludeL, PdProcL,
+                        PdInstrReflexAsymmetry, TextureL, ExcludeL, PdProcL,
                         PdPeakL, RefineLs, ReflnL, ReflnSusceptibilityL)
     # CLASSES_INTERNAL = ()
 
@@ -818,7 +818,7 @@ class Pd(DataN):
 
         l_obj = take_items_by_class(self, (TextureL, ))
         if len(l_obj) > 0:
-            textures = l_obj[0]
+            texture = l_obj[0]
 
         l_obj = take_items_by_class(self, (Chi2, ))
         if len(l_obj) > 0:
@@ -951,7 +951,7 @@ class Pd(DataN):
                 ddict["flags_phase_scale"] = numpy.zeros((len(phase.items),), dtype=bool)
 
         if texture is not None:
-            ddict["texture_label"] = numpy.array(texture.label, dtype=str)
+            ddict["texture_name"] = numpy.array(texture.label, dtype=str)
             ddict["texture_g1"] = numpy.array(texture.g_1, dtype=float)
             ddict["texture_g2"] = numpy.array(texture.g_2, dtype=float)
             ddict["texture_axis"] = numpy.array(

@@ -128,7 +128,7 @@ def calc_chi_sq_for_pd_by_dictionary(
     flags_resolution_parameters = dict_pd["flags_resolution_parameters"] 
     flags_asymmetry_parameters = dict_pd["flags_asymmetry_parameters"] 
     flag_asymmetry_parameters = numpy.any(flags_asymmetry_parameters)
-
+    
     if "texture_name" in dict_pd_keys:
         flag_texture = True
         pd_texture_name = dict_pd["texture_name"]
@@ -157,11 +157,11 @@ def calc_chi_sq_for_pd_by_dictionary(
             if ind_texture.shape[0] != 0:
                 texture_g1 = pd_texture_g1[ind_texture[0]]
                 texture_g2 = pd_texture_g2[ind_texture[0]]
-                texture_axis = pd_texture_axis[ind_texture[0]]
+                texture_axis = pd_texture_axis[:, ind_texture[0]]
                 flag_phase_texture = True
                 flags_texture_g1 = pd_flags_texture_g1[ind_texture[0]]
                 flags_texture_g2 = pd_flags_texture_g2[ind_texture[0]]
-                flags_texture_axis = pd_flags_texture_axis[ind_texture[0]]
+                flags_texture_axis = pd_flags_texture_axis[:, ind_texture[0]]
                 
 
         ind_phase = phase_name.index(p_name)
@@ -240,8 +240,10 @@ def calc_chi_sq_for_pd_by_dictionary(
                 preferred_orientation = dict_in_out_phase["preferred_orientation"]
             else:
                 preferred_orientation, dder_po = calc_preferred_orientation_pd(
-                    index_hkl, texture_g1, texture_g2, texture_axis,
-                    flag_texture_g1, flag_texture_g2, flag_texture_axis)
+                    index_hkl, texture_g1, texture_g2, texture_axis, unit_cell_parameters, 
+                    flag_texture_g1=flag_texture_g1 and flag_calc_analytical_derivatives,
+                    flag_texture_g2=flag_texture_g2 and flag_calc_analytical_derivatives,
+                    flag_texture_axis=flag_texture_axis and flag_calc_analytical_derivatives)
                 dict_in_out_phase["preferred_orientation"] = preferred_orientation
         
         flag_rp = numpy.any(flags_p_resolution) or numpy.any(flags_resolution_parameters)
