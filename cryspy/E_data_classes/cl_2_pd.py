@@ -936,9 +936,9 @@ class Pd(DataN):
             ddict["phase_resolution_parameters"] = numpy.stack([p_u, p_v, p_w, p_x, p_y], axis=0)
             ddict["flags_phase_resolution_parameters"] = numpy.stack([r_u, r_v, r_w, r_x, r_y], axis=0)
 
-            if phase.is_attribute("ig"):
-                ddict["phase_ig"] = numpy.array(phase.ig, dtype=float)
-                ddict["flags_phase_ig"] = numpy.array(phase.ig_refinement, dtype=bool)
+            if phase.is_attribute("igsize"):
+                ddict["phase_ig"] = numpy.array(phase.igsize, dtype=float)
+                ddict["flags_phase_ig"] = numpy.array(phase.igsize_refinement, dtype=bool)
             else:
                 ddict["phase_ig"] = numpy.zeros((len(phase.items),), dtype=float)
                 ddict["flags_phase_ig"] = numpy.zeros((len(phase.items),), dtype=bool)
@@ -987,6 +987,11 @@ class Pd(DataN):
             for i_item, item in enumerate(self.phase.items):
                 item.scale = float(hh[i_item])
 
+        if "phase_ig" in keys:
+            hh = ddict_diffrn["phase_ig"]
+            for i_item, item in enumerate(self.phase.items):
+                item.igsize = float(hh[i_item])
+
         if "resolution_parameters" in keys:
             hh = ddict_diffrn["resolution_parameters"]
             resolution = self.pd_instr_resolution 
@@ -1021,6 +1026,8 @@ class Pd(DataN):
                     self.pd_background.items[name[1][0]].intensity_sigma = float(sigma)
                 if name[0] == "phase_scale":
                     self.phase.items[name[1][0]].scale_sigma = float(sigma)
+                if name[0] == "phase_ig":
+                    self.phase.items[name[1][0]].igsize_sigma = float(sigma)
                 if name[0] == "wavelength":
                     self.setup.wavelength_sigma = float(sigma)
                 if name[0] == "offset_ttheta":

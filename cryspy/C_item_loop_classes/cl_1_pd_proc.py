@@ -189,7 +189,14 @@ class PdProcL(LoopN):
                 self.is_attribute("intensity_plus_net") and
                 self.is_attribute("intensity_minus_net") and
                 self.is_attribute("intensity_bkg_calc")):
-            fig, ax_1 = plt.subplots()
+
+            fig = plt.figure(constrained_layout=False)
+            gs = fig.add_gridspec(nrows=2, ncols=1, hspace=0, height_ratios=[14,1])
+
+            ax_1 = fig.add_subplot(gs[0, 0])
+            ax_3 = fig.add_subplot(gs[1, 0], sharex=ax_1)
+            ax_3.set_yticks([])
+
             ax_1.set_xlabel(r"$2\theta$ (degrees)")
             ax_1.set_ylabel('Intensity (arb.u.)')
 

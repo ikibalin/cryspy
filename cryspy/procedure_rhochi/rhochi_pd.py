@@ -162,7 +162,6 @@ def calc_chi_sq_for_pd_by_dictionary(
                 flags_texture_g1 = pd_flags_texture_g1[ind_texture[0]]
                 flags_texture_g2 = pd_flags_texture_g2[ind_texture[0]]
                 flags_texture_axis = pd_flags_texture_axis[:, ind_texture[0]]
-                
 
         ind_phase = phase_name.index(p_name)
         dict_crystal = dict_crystals[ind_phase]
@@ -247,11 +246,11 @@ def calc_chi_sq_for_pd_by_dictionary(
                 dict_in_out_phase["preferred_orientation"] = preferred_orientation
         
         flag_rp = numpy.any(flags_p_resolution) or numpy.any(flags_resolution_parameters)
-
+        
         hh = resolution_parameters + p_resolution
         u, v, w, x, y = hh[0], hh[1], hh[2], hh[3], hh[4]
         p_1, p_2, p_3, p_4 = asymmetry_parameters[0], asymmetry_parameters[1], asymmetry_parameters[2], asymmetry_parameters[3]
-
+        
         profile_pv, dder_pv = calc_profile_pseudo_voight(ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y,
             p_1, p_2, p_3, p_4, 
             flag_ttheta=flags_offset_ttheta,
