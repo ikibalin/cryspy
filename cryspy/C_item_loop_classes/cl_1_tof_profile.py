@@ -192,17 +192,3 @@ class TOFProfileL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
    
-
-# s_cont = """
-#   loop_
-#   _tof_profile_sigma2 
-#   _tof_profile_sigma1
-#   _tof_profile_sigma0 
-#   _tof_profile_gamma2 
-#   _tof_profile_gamma1 
-#   _tof_profile_gamma0
-#   0.000     61.677      6.195  0.000     0.604     0.000 
-# """
-
-# obj = TOFProfileL.from_cif(s_cont)
-# print(obj, end="\n\n")

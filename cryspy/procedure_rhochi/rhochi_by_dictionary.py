@@ -75,7 +75,9 @@ def rhochi_one_iteration_by_dictionary(
         global_dict, dict_in_out: dict = None, flag_use_precalculated_data: bool = False):
     chi_sq_sum, n_point_sum, der_chi_sq_sum, dder_chi_sq_sum, parameter_name_sum = \
         rhochi_calc_chi_sq_by_dictionary(
-            global_dict, dict_in_out=dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+            global_dict, dict_in_out=dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data,
+            flag_calc_analytical_derivatives=True)
+
     delta_p = -1.* numpy.linalg.inv(dder_chi_sq_sum).dot(der_chi_sq_sum)
     if "linear_constraints" in global_dict.keys():
         linear_constraints = global_dict["linear_constraints"]
@@ -145,6 +147,9 @@ def func_callback(*arg):
     print(arg)
 
 def rhochi_lsq_by_dictionary(global_dict):
+    print("*********************************************")
+    print("Rietveld refinement by CrysPy (module RhoChi)")
+    print("*********************************************\n")
     print("Derivatives are calculated analytically.")
     print("User constraints are working.")
 

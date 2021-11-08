@@ -16,6 +16,19 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 na = numpy.newaxis
 
+# FIXME: temporary solution which is enough slow
+def calc_independent_lines(m):
+    n_x, n_y = m.shape
+    l_ind = [0, ]
+    for ind_x in range(1, n_x):
+        det_m = numpy.linalg.det(m[l_ind+[ind_x, ], :][:, l_ind+[ind_x, ]])
+        if numpy.isclose(det_m, 0.):
+            pass
+        else:
+            l_ind.append(ind_x)
+    return l_ind
+
+
 class AtomSiteSusceptibility(ItemN):
     """Magnetic properties of the atom that occupy the atom site.
 
@@ -130,8 +143,12 @@ class AtomSiteSusceptibility(ItemN):
 
             chi_i_c = sc_chi.dot(chi_i)
             chi_sigma_i_c = numpy.sqrt(numpy.square(sc_chi).dot(numpy.square(chi_sigma_i)))
-            sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi,5),0.))
-            chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0)
+            l_ind_independent = calc_independent_lines(sc_chi)
+            
+            chi_con_i_c = numpy.ones(chi_i_c.shape, dtype=bool)
+            chi_con_i_c[l_ind_independent] = False
+            sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi,5), 0.))
+            # chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0) 
             chi_ref_i_c = sc_chi_bool.dot(chi_ref_i) * numpy.logical_not(chi_con_i_c)
 
             self.__dict__["chi_11"], self.__dict__["chi_22"], \

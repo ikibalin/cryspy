@@ -32,6 +32,7 @@ from cryspy.A_functions_base.extinction import \
 from cryspy.A_functions_base.orbital_functions import \
     calc_density_spherical
 
+
 def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5):
     # **Input information about mem parameters**

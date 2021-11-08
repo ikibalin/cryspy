@@ -637,7 +637,7 @@ class Crystal(DataN):
             atom_fract_xyz = numpy.mod(atom_fract_xyz, 1.)
             atom_b_scat = numpy.array(atom_site.scat_length_neutron, dtype=complex)
 
-            b_d  = 3*10**5*numpy.ones(atom_fract_xyz.shape[1:], dtype=int) #10**5 it is precision
+            b_d  = 3*10**6*numpy.ones(atom_fract_xyz.shape[1:], dtype=int) #10**6 it is precision
             b_elem = (atom_fract_xyz*b_d[na, :]).astype(int)
             gcd = numpy.gcd.reduce(numpy.gcd(b_elem, b_d[na,:]))
 

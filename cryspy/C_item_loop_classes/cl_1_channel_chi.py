@@ -113,3 +113,21 @@ class ChannelChiL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
+    def get_dictionary(self):
+        atom_multiplicity_channel_chi = numpy.array(self.atom_multiplicity, dtype=int)
+        point_multiplicity_channel_chi = numpy.array(self.point_multiplicity, dtype=int)
+        symm_elem_channel_chi = numpy.array([self.numerator_x, self.numerator_y, self.numerator_z, self.denominator_xyz], dtype=int)
+        susceptibility_channel_chi = numpy.array([
+            self.chi_11, self.chi_12, self.chi_13,
+            self.chi_21, self.chi_22, self.chi_23,
+            self.chi_31, self.chi_32, self.chi_33], dtype=float)
+        density_channel_chi = numpy.array(self.density, dtype=float)
+
+        dict_out = {
+            "atom_multiplicity_channel_chi": atom_multiplicity_channel_chi,
+            "point_multiplicity_channel_chi": point_multiplicity_channel_chi,
+            "symm_elem_channel_chi": symm_elem_channel_chi,
+            "susceptibility_channel_chi": susceptibility_channel_chi,
+            "density_channel_chi": density_channel_chi,
+            }
+        return dict_out
