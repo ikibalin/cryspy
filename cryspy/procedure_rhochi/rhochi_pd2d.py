@@ -38,6 +38,22 @@ def calc_background(gamma, nu, background_gamma, background_nu, background_inten
     signal_p = background_intensity
     ga = gamma
 
+    if ga.min() < ga_p.min():
+        ga_p = numpy.insert(ga_p, 0, ga.min(), axis=0)
+        signal_p = numpy.insert(signal_p, 0, signal_p[0,:], axis=0)
+
+    if ga.max() >= ga_p.max():
+        ga_p = numpy.append(ga_p, ga.max()+0.001)
+        signal_p = numpy.append(signal_p, signal_p[-1:,:], axis=0)
+
+    if nu.min() < nu_p.min():
+        nu_p = numpy.insert(nu_p, 0, nu.min(), axis=0)
+        signal_p = numpy.insert(signal_p, 0, signal_p[:,0], axis=1)
+
+    if nu.max() >= nu_p.max():
+        nu_p = numpy.append(nu_p, nu.max()+0.001)
+        signal_p = numpy.append(signal_p, signal_p[:,-1:], axis=1)
+
     ga_left = ga_p[:-1]
     ga_right = ga_p[1:]
     nu_left = nu_p[:-1]
@@ -190,6 +206,7 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     for p_name, p_scale, p_resolution, p_ig, flags_p_scale, flags_p_resolution, flags_p_ig in zip(pd_phase_name, 
             pd_phase_scale, pd_phase_resolution_parameters.transpose(), pd_phase_ig,
             flags_pd_phase_scale, flags_pd_phase_resolution_parameters.transpose(), flags_pd_phase_ig):
+        p_name=p_name.lower()
         flag_phase_texture = False
         if flag_texture:
             ind_texture = numpy.argwhere(pd_texture_name==p_name)

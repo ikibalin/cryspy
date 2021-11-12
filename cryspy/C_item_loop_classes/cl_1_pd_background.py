@@ -103,7 +103,7 @@ class PdBackgroundL(LoopN):
         flags = numpy.abs(ttheta[na, :]-ttheta_bkgr[:, na])<step_ttheta
         
         int_bkrg = numpy.array([numpy.nanmin(intensity[flag], axis=0) for flag in flags], dtype=float)
-        int_bkrg = numpy.round(int_bkrg,5)
+        int_bkrg = numpy.round(int_bkrg, decimals=5)
         self.numpy_ttheta = ttheta_bkgr
         self.numpy_intensity = int_bkrg
         self.items = []

@@ -312,9 +312,9 @@ def calc_f_nucl(index_hkl,
     else:
         ones = numpy.ones_like(atom_fract_xyz[0]).astype(int)
         atom_symm_elems = numpy.stack([
-            (atom_fract_xyz[0]*10**6).astype(int),
-            (atom_fract_xyz[1]*10**6).astype(int),
-            (atom_fract_xyz[2]*10**6).astype(int),
+            (numpy.round(atom_fract_xyz[0]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_fract_xyz[1]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]
@@ -555,9 +555,9 @@ def calc_sft_ccs(index_hkl,
     else:
         ones = numpy.ones_like(atom_para_fract_xyz[0]).astype(int)
         atom_symm_elems = numpy.stack([
-            (atom_para_fract_xyz[0]*10**6).astype(int),
-            (atom_para_fract_xyz[1]*10**6).astype(int),
-            (atom_para_fract_xyz[2]*10**6).astype(int),
+            (numpy.round(atom_para_fract_xyz[0]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_para_fract_xyz[1]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_para_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]
@@ -836,9 +836,9 @@ def calc_f_m_perp_ordered(index_hkl,
     else:
         ones = numpy.ones_like(atom_ordered_fract_xyz[0]).astype(int)
         atom_symm_elems = numpy.stack([
-            (atom_ordered_fract_xyz[0]*10**6).astype(int),
-            (atom_ordered_fract_xyz[1]*10**6).astype(int),
-            (atom_ordered_fract_xyz[2]*10**6).astype(int),
+            (numpy.round(atom_ordered_fract_xyz[0]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_ordered_fract_xyz[1]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_ordered_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
         atom_ordered_multiplicity = calc_multiplicity_by_atom_symm_elems(full_mcif_elems[:13], atom_symm_elems)
         if flag_dict:
@@ -1013,9 +1013,9 @@ def calc_bulk_susceptibility(reduced_symm_elems, centrosymmetry, centrosymmetry_
     else:
         ones = numpy.ones_like(atom_para_fract_xyz[0]).astype(int)
         atom_symm_elems = numpy.stack([
-            (atom_para_fract_xyz[0]*10**6).astype(int),
-            (atom_para_fract_xyz[1]*10**6).astype(int),
-            (atom_para_fract_xyz[2]*10**6).astype(int),
+            (numpy.round(atom_para_fract_xyz[0]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_para_fract_xyz[1]*10**6, decimals=0)).astype(int),
+            (numpy.round(atom_para_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]

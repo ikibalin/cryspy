@@ -1094,7 +1094,7 @@ class Pd2d(DataN):
 
         if "background_intensity" in keys:
             background_intensity = ddict_diffrn["background_intensity"]
-            self.pd2d_background.intensity = numpy.round(background_intensity,5)
+            self.pd2d_background.intensity = numpy.round(background_intensity, decimals=5)
             self.pd2d_background.form_gamma_nu_intensity()
 
         if "texture_g1" in keys:
@@ -1193,15 +1193,15 @@ class Pd2d(DataN):
 
         if (("signal_plus" in keys) and ("signal_minus" in keys) and ("signal_background" in keys)):
             pd2d_proc = Pd2dProc()
-            pd2d_proc.gamma = numpy.round(ddict_diffrn["gamma"] * 180./numpy.pi, 5)
-            pd2d_proc.nu = numpy.round(ddict_diffrn["nu"] * 180./numpy.pi, 5)
-            pd2d_proc.intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], 5)
-            pd2d_proc.intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], 5)
-            pd2d_proc.intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], 5)
-            pd2d_proc.intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0, :, :], 5)
-            pd2d_proc.intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1, :, :], 5)
-            pd2d_proc.intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0, :, :], 5)
-            pd2d_proc.intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1, :, :], 5)
+            pd2d_proc.gamma = numpy.round(ddict_diffrn["gamma"] * 180./numpy.pi, decimals=5)
+            pd2d_proc.nu = numpy.round(ddict_diffrn["nu"] * 180./numpy.pi, decimals=5)
+            pd2d_proc.intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], decimals=5)
+            pd2d_proc.intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], decimals=5)
+            pd2d_proc.intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], decimals=5)
+            pd2d_proc.intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0, :, :], decimals=5)
+            pd2d_proc.intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1, :, :], decimals=5)
+            pd2d_proc.intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0, :, :], decimals=5)
+            pd2d_proc.intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1, :, :], decimals=5)
             pd2d_proc.excluded_points = ddict_diffrn["excluded_points"][:, :]
 
             
@@ -1244,14 +1244,14 @@ class Pd2d(DataN):
                     pd_peak.numpy_index_h = index_hkl[0]
                     pd_peak.numpy_index_k = index_hkl[1]
                     pd_peak.numpy_index_l = index_hkl[2]
-                    pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi,3)
+                    pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi, decimals=3)
                     pd_peak.numpy_intensity_plus = int_plus_max/lf
                     pd_peak.numpy_intensity_minus = int_minus_max/lf
                     if (("gamma_hkl" in dict_crystal_keys) and ("nu_hkl" in dict_crystal_keys)):
                         gamma_hkl = dict_crystal["gamma_hkl"]
                         nu_hkl = dict_crystal["nu_hkl"]
-                        pd_peak.numpy_gamma = numpy.round(gamma_hkl * 180./numpy.pi,3)
-                        pd_peak.numpy_nu = numpy.round(nu_hkl * 180./numpy.pi,3)
+                        pd_peak.numpy_gamma = numpy.round(gamma_hkl * 180./numpy.pi, decimals=3)
+                        pd_peak.numpy_nu = numpy.round(nu_hkl * 180./numpy.pi, decimals=3)
                     pd_peak.numpy_to_items()
                     l_pd_peak.append(pd_peak)
         if len(l_pd_peak) > 0:

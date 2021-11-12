@@ -880,14 +880,14 @@ class Crystal(DataN):
             # hh_2 = ddict_crystal["atom_site_sc_fract"]
             # hh_2 = ddict_crystal["atom_site_sc_b"]
             for i_item, item in enumerate(self.atom_site.items):
-                item.fract_x = numpy.round(numpy.mod(hh[0, i_item], 1.), 6)
-                item.fract_y = numpy.round(numpy.mod(hh[1, i_item], 1.), 6)
-                item.fract_z = numpy.round(numpy.mod(hh[2, i_item], 1.), 6)
+                item.fract_x = numpy.round(numpy.mod(hh[0, i_item], 1.), decimals=6)
+                item.fract_y = numpy.round(numpy.mod(hh[1, i_item], 1.), decimals=6)
+                item.fract_z = numpy.round(numpy.mod(hh[2, i_item], 1.), decimals=6)
 
         if "atom_occupancy" in keys:
             hh = ddict_crystal["atom_occupancy"]
             for i_item, item in enumerate(self.atom_site.items):
-                item.occupancy = numpy.round(hh[i_item], 6)
+                item.occupancy = numpy.round(hh[i_item], decimals=6)
 
         if "unit_cell_parameters" in keys:
             hh = ddict_crystal["unit_cell_parameters"]
@@ -895,9 +895,9 @@ class Crystal(DataN):
             cell.length_a = hh[0]
             cell.length_b = hh[1]
             cell.length_c = hh[2]
-            cell.angle_alpha = numpy.round(hh[3]*180./numpy.pi,5)
-            cell.angle_beta = numpy.round(hh[4]*180./numpy.pi,5)
-            cell.angle_gamma = numpy.round(hh[5]*180./numpy.pi,5)
+            cell.angle_alpha = numpy.round(hh[3]*180./numpy.pi, decimals=5)
+            cell.angle_beta = numpy.round(hh[4]*180./numpy.pi, decimals=5)
+            cell.angle_gamma = numpy.round(hh[5]*180./numpy.pi, decimals=5)
 
         for name, sigma in zip(l_parameter_name, l_sigma):
             parameter_label, ind_s = name

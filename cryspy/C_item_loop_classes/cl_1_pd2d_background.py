@@ -281,7 +281,7 @@ class Pd2dBackground(ItemN):
                     int_bkrg[i_tth, i_phi] = numpy.nanmin(intensity[flag][numpy.logical_not(flag_nan)])
         self.gamma = ttheta_bkgr
         self.nu = phi_bkgr
-        self.intensity = numpy.round(int_bkrg,5)
+        self.intensity = numpy.round(int_bkrg, decimals=5)
         self.intensity_refinement = numpy.zeros(int_bkrg.shape, dtype=bool)
         self.intensity_sigma = numpy.zeros(int_bkrg.shape, dtype=float)
         self.intensity_mark = numpy.zeros(int_bkrg.shape, dtype=str)

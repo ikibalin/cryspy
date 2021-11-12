@@ -336,10 +336,10 @@ class Pd2dMeas(ItemN):
             gamma_rad[:, na], nu_rad[na, :], flag_gamma=False, flag_nu=False)[:2]
         ttheta_2d = ttheta_rad * 180./numpy.pi
 
-        ttheta_step = numpy.round(gamma[1]-gamma[0],5)
+        ttheta_step = numpy.round(gamma[1]-gamma[0], decimals=5)
         ttheta_min = gamma.min()
 
-        ttheta_index = numpy.round((ttheta_2d-ttheta_min)/ttheta_step, 0).astype(int)
+        ttheta_index = numpy.round((ttheta_2d-ttheta_min)/ttheta_step, decimals=0).astype(int)
 
         ttheta = numpy.linspace(
             ttheta_min,

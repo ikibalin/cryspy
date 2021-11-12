@@ -1075,18 +1075,18 @@ class Pd(DataN):
 
         if (("signal_plus" in keys) and ("signal_minus" in keys)):
             pd_proc = PdProcL()
-            pd_proc.numpy_ttheta = numpy.round(ddict_diffrn["ttheta"] * 180./numpy.pi, 5)
-            pd_proc.numpy_intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], 5)
-            pd_proc.numpy_intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], 5)
+            pd_proc.numpy_ttheta = numpy.round(ddict_diffrn["ttheta"] * 180./numpy.pi, decimals=5)
+            pd_proc.numpy_intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], decimals=5)
+            pd_proc.numpy_intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], decimals=5)
             if "signal_exp_plus" in keys:
-                pd_proc.numpy_intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0], 5)
-                pd_proc.numpy_intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1], 5)
-                pd_proc.numpy_intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0], 5)
-                pd_proc.numpy_intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1], 5)
+                pd_proc.numpy_intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0], decimals=5)
+                pd_proc.numpy_intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1], decimals=5)
+                pd_proc.numpy_intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0], decimals=5)
+                pd_proc.numpy_intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1], decimals=5)
             else:
-                pd_proc.numpy_intensity = numpy.round(ddict_diffrn["signal_exp"][0], 5)
-                pd_proc.numpy_intensity_sigma = numpy.round(ddict_diffrn["signal_exp"][1], 5)
-            pd_proc.numpy_intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], 5)
+                pd_proc.numpy_intensity = numpy.round(ddict_diffrn["signal_exp"][0], decimals=5)
+                pd_proc.numpy_intensity_sigma = numpy.round(ddict_diffrn["signal_exp"][1], decimals=5)
+            pd_proc.numpy_intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], decimals=5)
             pd_proc.numpy_excluded = ddict_diffrn["excluded_points"]
             pd_proc.numpy_to_items()
             self.pd_proc = pd_proc
@@ -1132,7 +1132,7 @@ class Pd(DataN):
                     pd_peak.numpy_index_h = index_hkl[0]
                     pd_peak.numpy_index_k = index_hkl[1]
                     pd_peak.numpy_index_l = index_hkl[2]
-                    pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi,3)
+                    pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi, decimals=3)
                     pd_peak.numpy_intensity_plus = int_plus_max/lf
                     pd_peak.numpy_intensity_minus = int_minus_max/lf
                     pd_peak.numpy_to_items()

@@ -478,9 +478,9 @@ class SpaceGroup(ItemN):
         e_33 = numpy.array(symop.r_33, dtype=float)
         e_3 = numpy.array(symop.b_3, dtype=float)
 
-        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
-        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
-        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), decimals=5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), decimals=5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), decimals=5)
 
         xyz_s = numpy.vstack([x_s, y_s, z_s])
 
@@ -516,9 +516,9 @@ class SpaceGroup(ItemN):
         e_33 = numpy.array(symop.r_33, dtype=float)
         e_3 = numpy.array(symop.b_3, dtype=float)
 
-        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
-        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
-        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), decimals=5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), decimals=5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), decimals=5)
 
         xyz_s = numpy.vstack([x_s, y_s, z_s])
 
@@ -637,9 +637,9 @@ class SpaceGroup(ItemN):
         e_33 = numpy.array(symop.r_33, dtype=float)
         e_3 = numpy.array(symop.b_3, dtype=float)
 
-        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
-        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
-        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), decimals=5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), decimals=5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), decimals=5)
         # o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3 \
         #    = self.calc_el_symm_for_xyz(x, y, z)
         # np_x, np_y, np_z, mult = self.calc_xyz_mult(x, y, z)

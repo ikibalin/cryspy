@@ -147,7 +147,7 @@ class AtomSiteSusceptibility(ItemN):
             
             chi_con_i_c = numpy.ones(chi_i_c.shape, dtype=bool)
             chi_con_i_c[l_ind_independent] = False
-            sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi,5), 0.))
+            sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi, decimals=5), 0.))
             # chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0) 
             chi_ref_i_c = sc_chi_bool.dot(chi_ref_i) * numpy.logical_not(chi_con_i_c)
 
