@@ -472,3 +472,39 @@ _atom_rho_orbital_radial_slater_coeff_4f
 4  8.015 0.4567471996121
 4  5.343 0.338448007647751
 4  2.944 0.235406228519368
+
+
+
+# from Clementi, 1974
+loop_Ru_s
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_1s
+_atom_rho_orbital_radial_slater_coeff_2s
+_atom_rho_orbital_radial_slater_coeff_3s
+_atom_rho_orbital_radial_slater_coeff_4s
+_atom_rho_orbital_radial_slater_coeff_5s
+1 43.09340 -1.00036  0.36816  0.17641  0.07292  0.01168
+2 16.19500  0.00121 -1.11012 -0.65321 -0.28013 -0.04502
+3  9.19707 -0.00120  0.08755  1.20192  0.61279  0.09982
+4  4.51136  0.00040 -0.02065  0.01373 -1.11257 -0.19695
+5  1.50550 -0.00005  0.00230 -0.00054 -0.03208  1.00988
+
+loop_Ru_p
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_2p
+_atom_rho_orbital_radial_slater_coeff_3p
+_atom_rho_orbital_radial_slater_coeff_4p
+2 19.98220  0.98236  0.45835  0.16488
+3  9.10071  0.04364 -1.07417 -0.45553
+4  4.13787 -0.00851 -0.02927  1.07401
+
+
+loop_Ru_d
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_3d
+_atom_rho_orbital_radial_slater_coeff_4d
+3  9.79467  0.98039  0.26984
+4  3.34361  0.08764 -1.01307

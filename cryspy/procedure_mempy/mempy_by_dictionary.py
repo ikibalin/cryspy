@@ -1,11 +1,11 @@
 import os
 import numpy
+import scipy
+import scipy.optimize
 
-from cryspy.A_functions_base.matrix_operations import \
-    calc_m_v, calc_m_q_inv_m
 from cryspy.A_functions_base.symmetry_elements import \
-    calc_asymmetric_unit_cell_indexes, \
-    calc_symm_flags
+    calc_asymmetric_unit_cell_indexes
+
 from cryspy.A_functions_base.mempy import \
     calc_mem_col, \
     calc_mem_chi, \
@@ -16,12 +16,15 @@ from cryspy.A_functions_base.mempy import \
     form_basins,\
     calc_point_susceptibility, \
     get_uniform_density_chi,\
-    renormailize_density_chi,\
-    calc_index_atom_symmetry_closest_to_fract_xyz
+    renormailize_density_chi, \
+    calc_model_value_by_precalculated_data, \
+    calc_chi_atoms
+
 from cryspy.A_functions_base.unit_cell import \
     calc_volume_uc_by_unit_cell_parameters, \
     calc_sthovl_by_unit_cell_parameters, \
-    calc_m_m_by_unit_cell_parameters
+    calc_eq_ccs_by_unit_cell_parameters
+    
 from cryspy.A_functions_base.structure_factor import \
     calc_f_nucl_by_dictionary
 from cryspy.A_functions_base.flip_ratio import \
@@ -31,6 +34,12 @@ from cryspy.A_functions_base.extinction import \
     calc_extinction_sphere
 from cryspy.A_functions_base.orbital_functions import \
     calc_density_spherical
+
+from cryspy.A_functions_base.matrix_operations import \
+    calc_vv_as_v1_v2_v1
+
+from cryspy.A_functions_base.function_1_error_simplex import \
+    error_estimation_simplex
 
 
 def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
@@ -242,7 +251,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         flip_ratio_es  = dict_diffrn["flip_ratio_es"]
         if flag_asymmetry:
             asymmetry_e = (flip_ratio_es[0] -1.)/(flip_ratio_es[0] + 1.)
-            asymmetry_s = flip_ratio_es[1] * numpy.sqrt(numpy.square(flip_ratio_es[0]) + 1.)/numpy.square(flip_ratio_es[0] + 1.)
+            asymmetry_s = numpy.sqrt(2.)*flip_ratio_es[1] * numpy.sqrt(numpy.square(flip_ratio_es[0]) + 1.)/numpy.square(flip_ratio_es[0] + 1.)
             asymmetry_es = numpy.stack([asymmetry_e, asymmetry_s], axis=0)
             l_exp_value_sigma.append(asymmetry_es)
         else:
@@ -467,3 +476,184 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         save_spin_density_into_file(file_magnetization_density, index_auc_chi, spin_density, n_abc, unit_cell_parameters,
             reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
         print(f"\nReconstructed magnetization density is written in file '{file_magnetization_density:}'.")
+
+
+def mempy_susceptibility_refinement(dict_channel_chi, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out):
+    print("****************************************")
+    print("Susceptibility refinement (module MEMPy)")
+    print("****************************************")
+
+    number_points = numpy.prod(dict_mem_parameters["points_abc"])
+    
+    flag_asymmetry =  dict_mem_parameters["flag_asymmetry"]
+    channel_plus_minus = dict_mem_parameters["channel_plus_minus"]
+    channel_chi = dict_mem_parameters["channel_chi"]
+    print(f"Channel plus/minus is {channel_plus_minus:}")
+    print("ATTENTION: Channel plus/minus is not taken into account.")
+    print(f"Channel chi is {channel_chi:}")
+
+    print(f"Flag asymmetry is {flag_asymmetry:}")
+    
+    if channel_plus_minus:
+        magnetization_plus = dict_mem_parameters["magnetization_plus"]
+        magnetization_minus = dict_mem_parameters["magnetization_minus"]
+    
+    symm_elem_channel_chi = dict_channel_chi["symm_elem_channel_chi"]
+    atom_multiplicity_channel_chi = dict_channel_chi["atom_multiplicity_channel_chi"]
+    density_channel_chi = dict_channel_chi["density_channel_chi"]
+    point_multiplicity_channel_chi = dict_channel_chi["point_multiplicity_channel_chi"]
+    
+    unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+    full_symm_elems = dict_crystal["full_symm_elems"]
+    atom_fract_xyz = dict_crystal["atom_fract_xyz"]
+    atom_para_sc_chi = dict_crystal["atom_para_sc_chi"]
+    atom_para_index = dict_crystal["atom_para_index"]
+    atom_para_label = dict_crystal["atom_para_label"]
+    atom_para_susceptibility = dict_crystal["atom_para_susceptibility"]
+    flags_atom_para_susceptibility = dict_crystal["flags_atom_para_susceptibility"]
+    print(f"Number of refined parameters is {flags_atom_para_susceptibility.sum():}.")
+    if flags_atom_para_susceptibility.sum() == 0:
+        print("There is no refined susceptibility parameters.")
+        return
+    
+    atom_para_fract_xyz = atom_fract_xyz[:, atom_para_index]
+    
+    n_atom_para = atom_para_susceptibility.shape[1]
+    
+    print("Preliminary calculations of chi atoms ...", end="\r")
+    
+    l_exp_value_sigma = []
+    for dict_diffrn in l_dict_diffrn:
+        flag_use_precalculated_data = False
+        index_hkl = dict_diffrn["index_hkl"] 
+        diffrn_dict_in_out = {"index_hkl": index_hkl}
+    
+        chi_atoms = calc_chi_atoms(
+            unit_cell_parameters, number_points, full_symm_elems,
+            index_hkl, atom_para_fract_xyz, atom_para_sc_chi, 
+            symm_elem_channel_chi, point_multiplicity_channel_chi, density_channel_chi)
+    
+        diffrn_dict_in_out["chi_atoms"] = chi_atoms
+    
+        eq_ccs, dder = calc_eq_ccs_by_unit_cell_parameters(index_hkl, unit_cell_parameters)
+        vp, dder = calc_vv_as_v1_v2_v1(eq_ccs)
+        diffrn_dict_in_out["vp"] = vp
+    
+        f_nucl, dder = calc_f_nucl_by_dictionary(
+            dict_crystal, diffrn_dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+        diffrn_dict_in_out["f_nucl"] = f_nucl
+
+        dict_in_out["dict_in_out_"+dict_diffrn['type_name']] = diffrn_dict_in_out
+    
+        flip_ratio_es  = dict_diffrn["flip_ratio_es"]
+
+        if flag_asymmetry:
+            asymmetry_e = (flip_ratio_es[0] -1.)/(flip_ratio_es[0] + 1.)
+            asymmetry_s = numpy.sqrt(2.)*flip_ratio_es[1] * numpy.sqrt(numpy.square(flip_ratio_es[0]) + 1.)/numpy.square(flip_ratio_es[0] + 1.)
+            asymmetry_es = numpy.stack([asymmetry_e, asymmetry_s], axis=0)
+            l_exp_value_sigma.append(asymmetry_es)
+        else:
+            l_exp_value_sigma.append(flip_ratio_es)
+    exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)
+
+
+    
+    def calc_chi_sq(param):
+        atom_para_susceptibility[flags_atom_para_susceptibility] = param
+        model_value = calc_model_value_by_precalculated_data(atom_para_susceptibility, unit_cell_parameters, flag_asymmetry, dict_in_out, l_dict_diffrn)
+    
+        chi_sq = numpy.square((model_value-exp_value_sigma[0])/exp_value_sigma[1]).sum()
+        return chi_sq
+    
+    param_0 = atom_para_susceptibility[flags_atom_para_susceptibility]
+    chi_sq_per_n = calc_chi_sq(param_0)/exp_value_sigma.shape[1]
+    print(70*" ")
+    print("Before susceptibility refinement")
+    print("Susceptibility tensor:")
+    for ind_at, label in enumerate(atom_para_label):
+        print(f"{label:5}  {atom_para_susceptibility[0, ind_at]:.5f} {atom_para_susceptibility[1, ind_at]:.5f} {atom_para_susceptibility[2, ind_at]:.5f} {atom_para_susceptibility[3, ind_at]:.5f} {atom_para_susceptibility[4, ind_at]:.5f} {atom_para_susceptibility[5, ind_at]:.5f}")
+        
+    print(f"chi_sq_per_n is {chi_sq_per_n:.2f}.")
+    print("Minimization procedure ...", end="\r")
+    res = scipy.optimize.minimize(calc_chi_sq, param_0, method="Nelder-Mead")
+    apss = None
+    if "hess_inv" in res.keys():
+        hess_inv = res["hess_inv"]
+        dict_in_out["hess_inv"] = hess_inv
+        sigma_p = numpy.sqrt(numpy.abs(numpy.diag(hess_inv)))
+        atom_para_susceptibility_sigma = numpy.zeros_like(atom_para_susceptibility)
+        atom_para_susceptibility_sigma[flags_atom_para_susceptibility] = sigma_p
+        apss = (atom_para_sc_chi * numpy.expand_dims(atom_para_susceptibility_sigma, axis=0)).sum(axis=1)
+        dict_in_out["atom_para_susceptibility_sigma"] = apss
+    elif "final_simplex" in res.keys():
+        n = exp_value_sigma.shape[1]
+        m_error, dist_hh = error_estimation_simplex(
+            res["final_simplex"][0], res["final_simplex"][1], calc_chi_sq)
+        l_sigma = []
+        for i, val_2 in zip(range(m_error.shape[0]), dist_hh):
+            # slightly change definition, instead of (n-k) here is n
+            error = (abs(m_error[i, i])*1./n)**0.5
+            if m_error[i, i] < 0.:
+                pass
+                # warn("Negative diagonal elements of Hessian.", UserWarning)
+            if val_2 > error:
+                pass
+                # warn("Minimum is not found.", UserWarning)
+            l_sigma.append(max(error, val_2))
+        sigma_p = numpy.array(l_sigma)
+        atom_para_susceptibility_sigma = numpy.zeros_like(atom_para_susceptibility)
+        atom_para_susceptibility_sigma[flags_atom_para_susceptibility] = sigma_p
+        apss = (atom_para_sc_chi * numpy.expand_dims(atom_para_susceptibility_sigma, axis=0)).sum(axis=1)
+        dict_in_out["atom_para_susceptibility_sigma"] = apss
+        print(sigma_p)
+    print(70*" ")
+    chi_sq_per_n = calc_chi_sq(res.x)/exp_value_sigma.shape[1]
+    
+    atom_para_susceptibility[flags_atom_para_susceptibility] = res.x
+    atom_para_susceptibility = (atom_para_sc_chi * numpy.expand_dims(atom_para_susceptibility, axis=0)).sum(axis=1)     
+    dict_crystal["atom_para_susceptibility"] = atom_para_susceptibility
+    print("After susceptibility refinement")
+    print("Susceptibility tensor:")
+    for ind_at, label in enumerate(atom_para_label):
+        print(f"{label:5}  {atom_para_susceptibility[0, ind_at]:8.5f} {atom_para_susceptibility[1, ind_at]:8.5f} {atom_para_susceptibility[2, ind_at]:8.5f} {atom_para_susceptibility[3, ind_at]:8.5f} {atom_para_susceptibility[4, ind_at]:8.5f} {atom_para_susceptibility[5, ind_at]:8.5f}")
+        if apss is not None:
+            print(f"sigma  {apss[0, ind_at]:8.5f} {apss[1, ind_at]:8.5f} {apss[2, ind_at]:8.5f} {apss[3, ind_at]:8.5f} {apss[4, ind_at]:8.5f} {apss[5, ind_at]:8.5f}")
+
+    print(f"chi_sq_per_n is {chi_sq_per_n:.2f}.")
+    
+    print(70*"*")
+    print("End of MEMPy procedure for susceptibility refinement")
+    print(70*"*")
+    return 
+
+
+def mempy_cycle_density_susceptibility(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+        parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5, n_cycle:int=10):
+    print(70*"*")
+    print("MEMPy: cycle iteration")
+    print(70*"*")
+    print(f"Number of cycles is {n_cycle:}")
+    print(70*" ")
+    for i_cycle in range(n_cycle):
+        print(f"Cycle {i_cycle+1:}")
+        print(len(f"Cycle {i_cycle+1:}")*"-")
+
+        dict_in_out_den = {}
+        mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out_den,
+            parameter_lambda=parameter_lambda, iteration_max=iteration_max, parameter_lambda_min=parameter_lambda_min, delta_density=delta_density)
+    
+        dict_channel_chi = {
+            'atom_multiplicity_channel_chi': dict_in_out_den['atom_multiplicity_channel_chi'],
+            'point_multiplicity_channel_chi': dict_in_out_den['point_multiplicity_channel_chi'],
+            'symm_elem_channel_chi': dict_in_out_den['symm_elem_channel_chi'],
+            'susceptibility_channel_chi': dict_in_out_den['susceptibility_channel_chi'],
+            'density_channel_chi': dict_in_out_den['density_channel_chi'],
+        }
+    
+        dict_in_out_susc = {} 
+        mempy_susceptibility_refinement(dict_channel_chi, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out_susc)
+        print(70*" ")
+    
+    dict_in_out["dict_in_out_den"] = dict_in_out_den
+    dict_in_out["dict_in_out_susc"] = dict_in_out_susc
+    return 

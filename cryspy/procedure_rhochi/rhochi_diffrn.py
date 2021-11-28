@@ -11,7 +11,8 @@ from cryspy.A_functions_base.extinction import \
     calc_extinction_sphere
 
 from cryspy.A_functions_base.flip_ratio import \
-    calc_intensities_by_structure_factors
+    calc_intensities_by_structure_factors, calc_flip_ratio_by_iint, \
+    calc_asymmetry_by_iint
 
 na = numpy.newaxis
 
@@ -43,7 +44,8 @@ def get_flags(obj_dict):
 
 
 def calc_chi_sq_for_diffrn_by_dictionary(
-        dict_diffrn, dict_crystal, dict_in_out: dict = None, flag_use_precalculated_data: bool=False,
+        dict_diffrn, dict_crystal, dict_in_out: dict = None,
+        flag_use_precalculated_data: bool=False,
         flag_calc_analytical_derivatives: bool = False):
     """Calculate chi_sq for diffrn experiment.
     """
@@ -76,6 +78,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flags_wavelength = dict_diffrn["flags_wavelength"]
     flip_ratio_es = dict_diffrn["flip_ratio_es"]
     flip_ratio_excluded = dict_diffrn["flip_ratio_excluded"]
+
+    flag_asymmetry = dict_diffrn["flag_asymmetry"]
 
     if "c_lambda2" in dict_diffrn_keys:
         c_lambda2 = dict_diffrn["c_lambda2"]
@@ -215,17 +219,34 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dict_in_out["iint_plus"] = iint_plus
             dict_in_out["iint_minus"] = iint_minus
 
-    flip_ratio = iint_plus/iint_minus
-    fr_true = numpy.logical_not(flip_ratio_excluded)
-    chi_sq = numpy.square((flip_ratio_es[0, fr_true]-flip_ratio[fr_true])/flip_ratio_es[1, fr_true]).sum(axis=0)
+    if flag_asymmetry:
+        asymmetry_e = (flip_ratio_es[0] -1.)/(flip_ratio_es[0] + 1.)
+        asymmetry_s = numpy.sqrt(2.)*flip_ratio_es[1] * numpy.sqrt(numpy.square(flip_ratio_es[0]) + 1.)/numpy.square(flip_ratio_es[0] + 1.)
+        exp_value = numpy.stack([asymmetry_e, asymmetry_s], axis=0)
 
-    n_hkl = fr_true.sum()
+        model_exp, dder_model_exp = calc_asymmetry_by_iint(
+            iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
+            flag_iint_plus=True, flag_iint_minus=True, 
+            flag_c_lambda2=False, flag_iint_2hkl=False)
+    else:
+        model_exp, dder_model_exp = calc_flip_ratio_by_iint(
+            iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
+            flag_iint_plus=True, flag_iint_minus=True, 
+            flag_c_lambda2=False, flag_iint_2hkl=False)
+        exp_value = flip_ratio_es
+
+    index_true = numpy.logical_not(flip_ratio_excluded)
+    chi_sq = numpy.square((exp_value[0, index_true]-model_exp[index_true])/exp_value[1, index_true]).sum(axis=0)
+    der_model_int_plus = dder_model_exp["iint_plus"]
+    der_model_int_minus = dder_model_exp["iint_minus"]
+
+    n_hkl = index_true.sum()
     if flag_dict:
         dict_in_out["chi_sq"] = chi_sq
         dict_in_out["n_hkl"] = n_hkl
 
-    diff_fr = (flip_ratio_es[0, fr_true]-flip_ratio[fr_true])
-    inv_sigma_sq_fr = 1./numpy.square(flip_ratio_es[1, fr_true])
+    diff_exp_model = (exp_value[0, index_true]-model_exp[index_true])
+    inv_sigma_sq_exp_value = 1./numpy.square(exp_value[1, index_true])
     
     dder_plus_crystal, dder_minus_crystal = {}, {}
     if flag_mag_atom_susceptibility:
@@ -325,16 +346,20 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dder_plus_p = numpy.concatenate(l_dder_plus_p, axis=1)
             dder_minus_p = numpy.concatenate(l_dder_minus_p, axis=1)
 
-            iint_minus_sq = numpy.square(iint_minus)
-            der_fr_p = (iint_minus[:, na] * dder_plus_p - iint_plus[:, na] * dder_minus_p) / iint_minus_sq[:, na]
+            der_model_p = der_model_int_plus[:, na]*dder_plus_p + der_model_int_minus[:, na]*dder_minus_p
+            der_chi_sq = -2.* (diff_exp_model[:, na] * inv_sigma_sq_exp_value[:, na] * der_model_p).sum(axis=0)
+            dder_chi_sq = 2.* (inv_sigma_sq_exp_value[:, na, na]*(der_model_p[:, na, :]*der_model_p[:, :, na])).sum(axis=0) #w_diff is equal to zero
+
+            # iint_minus_sq = numpy.square(iint_minus)
+            # der_fr_p = (iint_minus[:, na] * dder_plus_p - iint_plus[:, na] * dder_minus_p) / iint_minus_sq[:, na]
             
-            dder_fr_p = (2*iint_minus[:, na, na] * dder_minus_p[:, :, na] * dder_minus_p[:, na, :] - 
-                iint_minus_sq[:, na, na] * dder_plus_p[:, :, na] * dder_minus_p[:, na, :] - 
-                dder_minus_p[:, :, na] * dder_plus_p[:, na, :]) / numpy.square(iint_minus_sq)[:, na, na]
+            # dder_fr_p = (2*iint_minus[:, na, na] * dder_minus_p[:, :, na] * dder_minus_p[:, na, :] - 
+            #    iint_minus_sq[:, na, na] * dder_plus_p[:, :, na] * dder_minus_p[:, na, :] - 
+            #    dder_minus_p[:, :, na] * dder_plus_p[:, na, :]) / numpy.square(iint_minus_sq)[:, na, na]
     
-            der_chi_sq = -2.* (diff_fr[:, na] * inv_sigma_sq_fr[:, na] * der_fr_p).sum(axis=0)
-            dder_chi_sq = 2.* (inv_sigma_sq_fr[:, na, na]*(der_fr_p[:, na, :]*der_fr_p[:, :, na] - 
-                0*diff_fr[:, na, na]*dder_fr_p)).sum(axis=0) #w_diff is equal to zero
+            # der_chi_sq = -2.* (diff_exp_model[:, na] * inv_sigma_sq_exp_value[:, na] * der_fr_p).sum(axis=0)
+            # dder_chi_sq = 2.* (inv_sigma_sq_exp_value[:, na, na]*(der_fr_p[:, na, :]*der_fr_p[:, :, na] - 
+            #     0*diff_exp_model[:, na, na]*dder_fr_p)).sum(axis=0) #w_diff is equal to zero
 
     return chi_sq, n_hkl, der_chi_sq, dder_chi_sq, l_parameter_name
     

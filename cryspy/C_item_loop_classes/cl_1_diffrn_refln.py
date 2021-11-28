@@ -325,12 +325,14 @@ class DiffrnReflnL(LoopN):
         np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
         np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
 
-        ax.set_title("Asymmetry: (I_up - I_down) / (I_up + I_down)")
         asymmetry = (np_fr - 1.)/(np_fr + 1.)
-        asymmetry_sigma = np_fr_sigma*numpy.sqrt(numpy.square(np_fr)+1.) / \
+        asymmetry_sigma = np_fr_sigma*numpy.sqrt(2.)*numpy.sqrt(numpy.square(np_fr)+1.) / \
             numpy.square(np_fr+1.)
         asymmetry_calc = (np_fr_calc - 1.)/(np_fr_calc + 1.)
-        
+        chi_sq_per_n = numpy.square((asymmetry-asymmetry_calc)/asymmetry_sigma).sum()/asymmetry.size
+
+        ax.set_title(r"Asymmetry parameter: $\frac{I_{plus}-I_{minus}}{I_{plus}+I_{minus}}$, $\chi^2/n=$" + f"{chi_sq_per_n:.2f}.")
+
         ax.plot([-1, 1], [-1, 1], "k:")
         ax.errorbar(asymmetry_calc, asymmetry, yerr=asymmetry_sigma, fmt="ko",
                     alpha=0.2)

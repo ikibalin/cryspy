@@ -155,7 +155,8 @@ from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement, \
 
 from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruction, \
     mempy_spin_density_reconstruction,\
-    mempy_reconstruction_with_parameters
+    mempy_reconstruction_with_parameters,\
+    mempy_cycle_with_parameters
 
 
 
@@ -265,7 +266,8 @@ L_FUNCTION = [
     rhochi_inversed_hessian,
     mempy_magnetization_density_reconstruction, 
     mempy_spin_density_reconstruction,
-    mempy_reconstruction_with_parameters]
+    mempy_reconstruction_with_parameters,
+    mempy_cycle_with_parameters]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD

@@ -17,15 +17,16 @@ class Chi2(ItemN):
         - diff True
         - up   False
         - down False
+        - asymmetry False # For flip ratios
     """
 
-    ATTR_MANDATORY_NAMES = ("sum", "diff", "up", "down")
-    ATTR_MANDATORY_TYPES = (bool, bool, bool, bool)
-    ATTR_MANDATORY_CIF = ("sum", "diff", "up", "down")
+    ATTR_MANDATORY_NAMES = ()
+    ATTR_MANDATORY_TYPES = ()
+    ATTR_MANDATORY_CIF = ()
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("sum", "diff", "up", "down", "asymmetry")
+    ATTR_OPTIONAL_TYPES = (bool, bool, bool, bool, bool)
+    ATTR_OPTIONAL_CIF = ("sum", "diff", "up", "down", "asymmetry")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -45,7 +46,7 @@ class Chi2(ItemN):
     D_CONSTRAINTS = {}
 
     # default values for the parameters
-    D_DEFAULT = {'sum': True, 'diff': True, 'up': False, 'down': False}
+    D_DEFAULT = {}# 'sum': True, 'diff': True, 'up': False, 'down': False
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):

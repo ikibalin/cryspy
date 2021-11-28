@@ -1103,19 +1103,11 @@ class Pd(DataN):
                     ttheta_hkl = dict_crystal["ttheta_hkl"]
 
                     pd_peak = PdPeakL(loop_name = item_phase.label)
-                    int_max = numpy.square(numpy.abs(dict_crystal["f_nucl"]))
-
-                    if "f_m_perp_o" in dict_crystal_keys:
-                        int_max += numpy.sum(numpy.square(numpy.abs(dict_crystal["f_m_perp_o"])), axis=0)
-                    if "p_1" in dict_crystal_keys:
-                        int_max += dict_crystal["p_1"]
-
-                    if "p_3" in dict_crystal_keys:
-                        int_plus_max = int_max+dict_crystal["p_3"]
-                        int_minus_max = int_max-dict_crystal["p_3"]
-                    else:
-                        int_plus_max = int_max
-                        int_minus_max = int_max
+                    int_plus_max, int_minus_max = None, None
+                    if "iint_plus_with_factors" in dict_crystal_keys:
+                        int_plus_max = dict_crystal["iint_plus_with_factors"]
+                    if "iint_minus_with_factors" in dict_crystal_keys:
+                        int_minus_max = dict_crystal["iint_minus_with_factors"]
 
                     if "f_nucl":
                         refln = ReflnL(loop_name = item_phase.label)
@@ -1127,16 +1119,15 @@ class Pd(DataN):
                         refln.numpy_to_items()
                         l_refln.append(refln)
 
-                    lf = numpy.sin(ttheta_hkl)*numpy.sin(0.5*ttheta_hkl)
-                    lf[lf<0] = 1.
-                    pd_peak.numpy_index_h = index_hkl[0]
-                    pd_peak.numpy_index_k = index_hkl[1]
-                    pd_peak.numpy_index_l = index_hkl[2]
-                    pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi, decimals=3)
-                    pd_peak.numpy_intensity_plus = int_plus_max/lf
-                    pd_peak.numpy_intensity_minus = int_minus_max/lf
-                    pd_peak.numpy_to_items()
-                    l_pd_peak.append(pd_peak)
+                    if not((int_plus_max is None) and (int_minus_max is None)):
+                        pd_peak.numpy_index_h = index_hkl[0]
+                        pd_peak.numpy_index_k = index_hkl[1]
+                        pd_peak.numpy_index_l = index_hkl[2]
+                        pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi, decimals=3)
+                        pd_peak.numpy_intensity_plus = int_plus_max
+                        pd_peak.numpy_intensity_minus = int_minus_max
+                        pd_peak.numpy_to_items()
+                        l_pd_peak.append(pd_peak)
 
         if len(l_pd_peak) > 0:
             self.add_items(l_pd_peak)

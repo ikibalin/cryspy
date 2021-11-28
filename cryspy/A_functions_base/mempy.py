@@ -1,10 +1,21 @@
 import numpy
-from .matrix_operations import calc_m1_m2_inv_m1, calc_m_q_inv_m, calc_m_v, calc_vector_product_v1_v2_v1
+from .matrix_operations import calc_m1_m2_inv_m1, \
+    calc_m_q_inv_m, calc_m_v, calc_vector_product_v1_v2_v1,\
+    calc_mm_as_m_q_inv_m, \
+    calc_mm_as_m1_m2_inv_m1, \
+    calc_m_v, calc_m1_m2_inv_m1
 from .symmetry_elements import calc_multiplicity_by_atom_symm_elems, calc_symm_flags
-from .unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters
+from .unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters,\
+    calc_volume_uc_by_unit_cell_parameters, \
+    calc_sthovl_by_unit_cell_parameters
 from .local_susceptibility import calc_chi_direct_norm_with_symmetry, calc_m_r_inv_m
 
 from .symmetry_constraints import calc_sc_chi_full
+
+from .extinction import calc_extinction_sphere
+from .flip_ratio import \
+    calc_iint, calc_flip_ratio_by_iint, \
+    calc_asymmetry_by_iint
 
 na = numpy.newaxis
 
@@ -312,6 +323,151 @@ def calc_point_susceptibility(
 
     point_susceptibility_aver = (point_scm_chi * numpy.expand_dims(point_susceptibility,axis=0)).sum(axis=1)
     return point_susceptibility_aver
+
+
+def calc_chi_atoms(
+        unit_cell_parameters, number_points, full_symm_elems,
+        index_hkl, atom_para_fract_xyz, atom_para_sc_chi, symm_elem_channel_chi,
+        point_multiplicity_channel_chi, density_channel_chi):
+    
+    m_r_inv_m, dder = calc_m_r_inv_m(unit_cell_parameters, full_symm_elems)
+    mim_1, dder = calc_mm_as_m1_m2_inv_m1(m_r_inv_m)
+    m_m, dder = calc_m_m_by_unit_cell_parameters(unit_cell_parameters)
+    
+    
+    # for SCM
+    flag_2d = calc_symm_flags(
+        numpy.expand_dims(full_symm_elems, axis=2), 
+        numpy.expand_dims(symm_elem_channel_chi, axis=1))
+    
+    l_scm_chi = []
+    for ind in range(flag_2d.shape[1]):
+        symm_elem_direct = full_symm_elems[:, flag_2d[:, ind]]
+        scm_chi = calc_sc_chi_full(symm_elem_direct, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+        l_scm_chi.append(scm_chi)
+    point_scm_chi = numpy.stack(l_scm_chi, axis=-1)
+    
+    point_fract_xyz_auc = symm_elem_channel_chi[:3, :]/numpy.expand_dims(symm_elem_channel_chi[3, :], axis=0)
+    ind_at, ind_sym, point_atom_distance = calc_index_atom_symmetry_closest_to_fract_xyz(
+            point_fract_xyz_auc, atom_para_fract_xyz, full_symm_elems, unit_cell_parameters)
+    
+    symm_elems_ai = full_symm_elems[:, ind_sym]
+    
+    m_r_ai_inv_m, dder = calc_m_r_inv_m(unit_cell_parameters, symm_elems_ai)
+    mim_2, dder = calc_mm_as_m_q_inv_m(m_r_ai_inv_m)
+    
+    rr = calc_m_v(
+        numpy.expand_dims(full_symm_elems[4:13], axis=1),
+        numpy.expand_dims(point_fract_xyz_auc, axis=2), flag_m=False, flag_v=False)[0]
+
+    fract_b = full_symm_elems[:3]/numpy.expand_dims(full_symm_elems[3], axis=0)
+    hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=1)
+    index_hkl_3d = numpy.expand_dims(numpy.expand_dims(index_hkl, axis=2), axis=3)
+    # [hkl, points, symm]
+    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2]))    
+    
+    # sum over symmetry
+    l_hhh = [(numpy.expand_dims(phase_3d[ind:(ind+1), :, :], axis=(0,1)) *
+          numpy.expand_dims(mim_1, axis=(2,3))).sum(axis=4) for ind in range(phase_3d.shape[0])]
+    
+    hhh = numpy.concatenate(l_hhh, axis=2)
+    
+    hhh2 = numpy.expand_dims(point_multiplicity_channel_chi*density_channel_chi, axis=(0,1,2)) * hhh 
+    
+    
+    hh1 = (numpy.expand_dims(mim_2, axis=(2,3)) * numpy.expand_dims(atom_para_sc_chi, axis=(0,4))).sum(axis=1)
+    hh2 = (numpy.expand_dims(point_scm_chi, axis=(2,3)) * numpy.expand_dims(hh1, axis=0)).sum(axis=1)
+    
+    # sum over nu
+    l_flag_at = [ind_at == i_at for i_at in range(ind_at.max()+1)]
+    l_hhh3 = []
+    for ind in range(hhh2.shape[2]):
+        hhhh3 = ((numpy.expand_dims(hhh2[:, :, ind:(ind+1), :], axis=(3, 4)) * 
+                  numpy.expand_dims(hh2, axis=(0, 2)))).sum(axis=1)
+        l_hhh4 = [(hhhh3[:, :, :, ind_at, :]*numpy.expand_dims(flag_at, axis=(0,1,2))).sum(axis=3) for ind_at, flag_at in enumerate(l_flag_at)]
+        hhh3 = numpy.stack(l_hhh4, axis=3)
+        l_hhh3.append(hhh3)
+    hhh3 = numpy.concatenate(l_hhh3, axis=1)    
+    
+    
+    volume_uc, dder = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters)
+    coeff = 0.2695 * volume_uc/(full_symm_elems.shape[1]*number_points)
+    chi_atoms = coeff*hhh3
+    return chi_atoms
+
+
+def calc_f_m_perp_ccs_by_chi_atoms(chi_atoms, magnetic_field, vp, atom_para_susceptibility):
+    m_chi = (chi_atoms*numpy.expand_dims(atom_para_susceptibility, axis=(0,1))).sum(axis=(2,3))
+    mv, dder = calc_m_v(m_chi, magnetic_field)
+    f_m_perp_chi = (vp * numpy.expand_dims(mv, axis=0)).sum(axis=1)
+    return f_m_perp_chi
+
+def calc_model_value_by_precalculated_data(atom_para_susceptibility, unit_cell_parameters, flag_asymmetry, dict_in_out, l_dict_diffrn):
+    flag_use_precalculated_data = False
+    volume_unit_cell, dder = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters)
+    l_model_value = []
+    for dict_diffrn in l_dict_diffrn:
+        diffrn_dict_in_out = dict_in_out["dict_in_out_"+dict_diffrn['type_name']]
+        vp = diffrn_dict_in_out["vp"]
+        chi_atoms = diffrn_dict_in_out["chi_atoms"]
+    
+        f_nucl = diffrn_dict_in_out["f_nucl"]
+    
+        index_hkl = dict_diffrn["index_hkl"]
+        magnetic_field = dict_diffrn["magnetic_field"]
+
+        beam_polarization = dict_diffrn["beam_polarization"]
+        flipper_efficiency = dict_diffrn["flipper_efficiency"]
+        matrix_u = dict_diffrn["matrix_u"]
+        flip_ratio_es = dict_diffrn["flip_ratio_es"]
+    
+        f_m_perp_plus_minus = numpy.zeros(index_hkl.shape, dtype=complex)
+
+    
+        f_m_perp_chi = calc_f_m_perp_ccs_by_chi_atoms(chi_atoms, magnetic_field, vp, atom_para_susceptibility)
+    
+        f_m_perp = f_m_perp_chi + f_m_perp_plus_minus
+
+
+        wavelength = dict_diffrn["wavelength"]
+        sthovl = calc_sthovl_by_unit_cell_parameters(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+        cos_2theta = numpy.cos(2*numpy.arcsin(sthovl*wavelength))
+
+        extinction_model = dict_diffrn["extinction_model"]
+        extinction_radius = dict_diffrn["extinction_radius"]
+        extinction_mosaicity = dict_diffrn["extinction_mosaicity"]        
+        
+        func_extinction = lambda f_sq, flag_f_sq: calc_extinction_sphere(
+            f_sq, extinction_radius, extinction_mosaicity, volume_unit_cell, cos_2theta, wavelength,
+            extinction_model, flag_f_sq=False, flag_radius=False,
+            flag_mosaicity=False,
+            flag_volume_unit_cell=False,
+            flag_cos_2theta=False,
+            flag_wavelength=False)
+
+        iint_plus, iint_minus, dder_plus, dder_minus = calc_iint(
+            beam_polarization, flipper_efficiency, f_nucl, f_m_perp, matrix_u, func_extinction = func_extinction,
+            flag_beam_polarization = False, flag_flipper_efficiency = False,
+            flag_f_nucl = False, flag_f_m_perp = True,
+            dict_in_out = dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
+
+    
+        if flag_asymmetry:
+            model_exp, dder_model_exp = calc_asymmetry_by_iint(
+                iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
+                flag_iint_plus=True, flag_iint_minus=True, 
+                flag_c_lambda2=False, flag_iint_2hkl=False)
+        else:
+            model_exp, dder_model_exp = calc_flip_ratio_by_iint(
+                iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
+                flag_iint_plus=True, flag_iint_minus=True, 
+                flag_c_lambda2=False, flag_iint_2hkl=False)
+        l_model_value.append(model_exp)
+    model_value = numpy.concatenate(l_model_value, axis=0)
+    return model_value
+
+
+
 
 
 #FIXME delete

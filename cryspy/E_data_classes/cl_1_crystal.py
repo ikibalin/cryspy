@@ -683,6 +683,7 @@ class Crystal(DataN):
 
         if atom_site_susceptibility is not None:
             atom_para_label = numpy.array(atom_site_susceptibility.label, dtype=str)
+            atom_para_chi_type = numpy.array(atom_site_susceptibility.chi_type, dtype=str)
             atom_para_susceptibility = numpy.array([
                 atom_site_susceptibility.chi_11, atom_site_susceptibility.chi_22,
                 atom_site_susceptibility.chi_33, atom_site_susceptibility.chi_12,
@@ -707,7 +708,18 @@ class Crystal(DataN):
 
                 l_sc_chi = []
                 for ind in range(atom_para_label.size):
-                    sc_chi = calc_sc_chi(elems_fs[:, flag_2d[:, ind]], unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                    if (atom_para_chi_type[ind]).lower() == "ciso":
+                        sc_chi = numpy.array([
+                            [1./3., 1./3., 1./3., 0., 0., 0.],
+                            [1./3., 1./3., 1./3., 0., 0., 0.],
+                            [1./3., 1./3., 1./3., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.]], dtype=float)
+                    else:
+                        sc_chi = calc_sc_chi(
+                            elems_fs[:, flag_2d[:, ind]],
+                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
                     l_sc_chi.append(sc_chi)
                 atom_para_sc_chi = numpy.stack(l_sc_chi, axis=-1)
                 ddict["atom_para_sc_chi"] = atom_para_sc_chi
@@ -833,7 +845,7 @@ class Crystal(DataN):
                         l_population.append(population)
                         l_n.append(numpy.array(obj.n0, dtype=int))
                         l_zeta.append(numpy.array(obj.zeta0, dtype=float))
-                        l_coeff.append(numpy.array(obj.n0, dtype=float))
+                        l_coeff.append(numpy.array(getattr(obj, f"coeff_{shell:}"), dtype=float))
                 if len(l_population) > 0:
                     dict_shell = {"core_population": l_population,
                         "core_n": l_n,

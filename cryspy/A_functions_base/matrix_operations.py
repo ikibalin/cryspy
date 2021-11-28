@@ -64,78 +64,78 @@ def calc_unity_v(v, flag_v: bool = False):
             dder["v"] = delta_ij/norm - numpy.expand_dims(dder_norm["v"], axis=0)/numpy.square(norm)
     return unity, dder
 
-def calc_vector_product_v1_v2_v1(v1, v2, flag_v1: bool = False, flag_v2: bool = False):
-    """Calculated vector product v1 x v2 x v1.
-    """
-    v1_1, v1_2, v1_3 = v1[0], v1[1], v1[2]
-    v2_1, v2_2, v2_3 = v2[0], v2[1], v2[2]
 
+def calc_vv_as_v1_v2_v1(v1, flag_v1: bool = False):
+    v1_1, v1_2, v1_3 = v1[0], v1[1], v1[2]
+
+    v1_1_sq = numpy.square(v1_1)
     v1_2_sq = numpy.square(v1_2)
     v1_3_sq = numpy.square(v1_3)
-    v1_1_sq = numpy.square(v1_1)
 
-    o_1 = (v1_3_sq  + v1_2_sq) * v2_1 - v1_1 * (v1_3 * v2_3 + v1_2 * v2_2)
-    o_2 = (v1_1_sq  + v1_3_sq) * v2_2 - v1_2 * (v1_1 * v2_1 + v1_3 * v2_3)
-    o_3 = (v1_2_sq  + v1_1_sq) * v2_3 - v1_3 * (v1_2 * v2_2 + v1_1 * v2_1)
-
-    res = numpy.stack([o_1, o_2, o_3], axis=0)
+    vv = numpy.stack([
+        numpy.stack([(v1_3_sq  + v1_2_sq), - v1_1 * v1_2, - v1_1 * v1_3], axis=0),
+        numpy.stack([- v1_2 * v1_1, (v1_1_sq  + v1_3_sq), - v1_2 * v1_3], axis=0),
+        numpy.stack([- v1_3 * v1_1, - v1_3 * v1_2, (v1_2_sq  + v1_1_sq)], axis=0)
+    ], axis=0)
     dder = {}
     if flag_v1:
-        d1_1 = (-(v1_3 * v2_3 + v1_2 * v2_2))
-        d1_2 = ( 2*v1_2 * v2_1 - v1_1 * v2_2) 
-        d1_3 = ( 2*v1_3 * v2_1 - v1_1 * v2_3)
-        d2_1 = ( 2*v1_1 * v2_2 - v1_2 * v2_1)
-        d2_2 = (-(v1_1 * v2_1 + v1_3 * v2_3))
-        d2_3 = ( 2*v1_3 * v2_2 - v1_2 * v2_3)
-        d3_1 = ( 2*v1_1 * v2_3 - v1_3 * v2_1)
-        d3_2 = ( 2*v1_1 * v2_3 - v1_3 * v2_2)
-        d3_3 = (-(v1_2 * v2_2 + v1_1 * v2_1))
+        zeros = numpy.zeros_like(v1_1)
+        dd_11_123 = numpy.stack([zeros, 2.*v1_2, 2*v1_3], axis=0)
+        dd_12_123 = numpy.stack([- v1_2, - v1_1, zeros], axis=0)
+        dd_13_123 = numpy.stack([- v1_3, zeros, - v1_1], axis=0)
+
+        dd_21_123 = numpy.stack([- v1_2, - v1_1, zeros], axis=0)
+        dd_22_123 = numpy.stack([2.*v1_1, zeros, 2*v1_3], axis=0)
+        dd_23_123 = numpy.stack([zeros, - v1_3, - v1_2], axis=0)
+
+        dd_31_123 = numpy.stack([- v1_3, zeros, - v1_1], axis=0)
+        dd_32_123 = numpy.stack([zeros, - v1_3, - v1_2], axis=0)
+        dd_33_123 = numpy.stack([2.*v1_1, 2*v1_2, zeros], axis=0)
 
         if v1.dtype == complex:
             dder["v1_real"] = numpy.stack([
-                numpy.stack([d1_1*np_ol(v1_1.real), d1_2*np_ol(v1_2.real), d1_3*np_ol(v1_3.real)], axis=0),
-                numpy.stack([d2_1*np_ol(v1_1.real), d2_2*np_ol(v1_2.real), d2_3*np_ol(v1_3.real)], axis=0),
-                numpy.stack([d3_1*np_ol(v1_1.real), d3_2*np_ol(v1_2.real), d3_3*np_ol(v1_3.real)], axis=0),
+                numpy.stack([dd_11_123, dd_12_123, dd_13_123], axis=0),
+                numpy.stack([dd_21_123, dd_22_123, dd_23_123], axis=0),
+                numpy.stack([dd_31_123, dd_32_123, dd_33_123], axis=0)
             ], axis=0)
             dder["v1_imag"] = numpy.stack([
-                numpy.stack([d1_1*1j*np_ol(v1_1.real), d1_2*1j*np_ol(v1_2.real), d1_3*1j*np_ol(v1_3.real)], axis=0),
-                numpy.stack([d2_1*1j*np_ol(v1_1.real), d2_2*1j*np_ol(v1_2.real), d2_3*1j*np_ol(v1_3.real)], axis=0),
-                numpy.stack([d3_1*1j*np_ol(v1_1.real), d3_2*1j*np_ol(v1_2.real), d3_3*1j*np_ol(v1_3.real)], axis=0),
+                numpy.stack([dd_11_123*1j, dd_12_123*1j, dd_13_123*1j], axis=0),
+                numpy.stack([dd_21_123*1j, dd_22_123*1j, dd_23_123*1j], axis=0),
+                numpy.stack([dd_31_123*1j, dd_32_123*1j, dd_33_123*1j], axis=0)
             ], axis=0)
         else:
             dder["v1"] = numpy.stack([
-                numpy.stack([d1_1*np_ol(v1_1), d1_2*np_ol(v1_2), d1_3*np_ol(v1_3)], axis=0),
-                numpy.stack([d2_1*np_ol(v1_1), d2_2*np_ol(v1_2), d2_3*np_ol(v1_3)], axis=0),
-                numpy.stack([d3_1*np_ol(v1_1), d3_2*np_ol(v1_2), d3_3*np_ol(v1_3)], axis=0),
+                numpy.stack([dd_11_123, dd_12_123, dd_13_123], axis=0),
+                numpy.stack([dd_21_123, dd_22_123, dd_23_123], axis=0),
+                numpy.stack([dd_31_123, dd_32_123, dd_33_123], axis=0)
             ], axis=0)
+    return vv, dder
+
+
+def calc_vector_product_v1_v2_v1(v1, v2, flag_v1: bool = False, flag_v2: bool = False):
+    """Calculated vector product v1 x v2 x v1.
+    """
+    vv, dder_vv = calc_vv_as_v1_v2_v1(v1, flag_v1=flag_v1)
+    res = (vv*numpy.expand_dims(v2, axis=0)).sum(axis=1)
+
+    # v1_1, v1_2, v1_3 = v1[0], v1[1], v1[2]
+    # v2_1, v2_2, v2_3 = v2[0], v2[1], v2[2]
+
+    dder = {}
+    if flag_v1:
+        if v1.dtype == complex:
+            dder["v1_real"] = dder_vv["v1_real"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2).sum(axis=1)
+            dder["v1_imag"] = dder_vv["v1_imag"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2).sum(axis=1)
+        else:
+            dder["v1"] = dder_vv["v1"]*numpy.expand_dims(numpy.expand_dims(v2, axis=0), axis=2).sum(axis=1)
 
     if flag_v2:
-        d1_1 = (v1_3_sq  + v1_2_sq)
-        d1_2 = - v1_1 * v1_2 
-        d1_3 = - v1_1 * v1_3
-        d2_1 = - v1_2 * v1_1
-        d2_2 = (v1_1_sq  + v1_3_sq)
-        d2_3 = - v1_2 * v1_3
-        d3_1 = - v1_3 * v1_1
-        d3_2 = - v1_3 * v1_2
-        d3_3 = (v1_2_sq  + v1_1_sq)
+        d_2 = vv*numpy.ones((1, )+ v2.shape, dtype=float)
         if v2.dtype == complex:
-            dder["v2_real"] = numpy.stack([
-                numpy.stack([d1_1*np_ol(v2_1), d1_2*np_ol(v2_2), d1_3*np_ol(v2_3)], axis=0),
-                numpy.stack([d2_1*np_ol(v2_1), d2_2*np_ol(v2_2), d2_3*np_ol(v2_3)], axis=0),
-                numpy.stack([d3_1*np_ol(v2_1), d3_2*np_ol(v2_2), d3_3*np_ol(v2_3)], axis=0),
-            ], axis=0)
-            dder["v2_imag"] = numpy.stack([
-                numpy.stack([d1_1*1j*np_ol(v2_1), d1_2*1j*np_ol(v2_2), d1_3*1j*np_ol(v2_3)], axis=0),
-                numpy.stack([d2_1*1j*np_ol(v2_1), d2_2*1j*np_ol(v2_2), d2_3*1j*np_ol(v2_3)], axis=0),
-                numpy.stack([d3_1*1j*np_ol(v2_1), d3_2*1j*np_ol(v2_2), d3_3*1j*np_ol(v2_3)], axis=0),
-            ], axis=0)
+            dder["v2_real"] = d_2
+            dder["v2_imag"] = d_2*1j
         else:
-            dder["v2"] = numpy.stack([
-                numpy.stack([d1_1*np_ol(v2_1), d1_2*np_ol(v2_1), d1_3*np_ol(v2_1)], axis=0),
-                numpy.stack([d2_1*np_ol(v2_1), d2_2*np_ol(v2_1), d2_3*np_ol(v2_1)], axis=0),
-                numpy.stack([d3_1*np_ol(v2_1), d3_2*np_ol(v2_1), d3_3*np_ol(v2_1)], axis=0),
-            ], axis=0)
+            dder["v2"] = d_2
     return res, dder
 
 

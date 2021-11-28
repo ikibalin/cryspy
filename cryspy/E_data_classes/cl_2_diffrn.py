@@ -22,6 +22,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
+from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
@@ -74,7 +75,7 @@ class Diffrn(DataN):
     CLASSES_MANDATORY = (Setup, DiffrnRadiation, DiffrnOrientMatrix,
                          DiffrnReflnL)
     CLASSES_OPTIONAL = (Extinction, Phase, ReflnL, ReflnSusceptibilityL,
-                        RefineLs)
+                        RefineLs, Chi2)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -579,11 +580,21 @@ class Diffrn(DataN):
         l_res = []
         if self.is_attribute("diffrn_refln"):
             diffrn_refln = self.diffrn_refln
-            fr_ax = diffrn_refln.plot_fr_vs_fr_calc()
-            if fr_ax is not None:
-                fr, ax = fr_ax
+            flag_asymmetry = False
+            if self.is_attribute("chi2"):
+                chi2 = self.chi2
+                if chi2.is_attribute("asymmetry"):
+                    flag_asymmetry = chi2.asymmetry
+
+            if flag_asymmetry:
+                fig_ax = diffrn_refln.plot_asymmetry_vs_asymmetry_calc()
+            else:
+                fig_ax = diffrn_refln.plot_fr_vs_fr_calc()
+
+            if fig_ax is not None:
+                fig, ax = fig_ax
                 ax.set_title(self.data_name + " - "+ax.title.get_text())
-                l_res.append((fr, ax))        
+                l_res.append((fig, ax))
         return l_res
 
     def report(self):
@@ -609,7 +620,7 @@ class Diffrn(DataN):
         ddict = {}
         setup, diffrn_refln, diffrn_orient_matrix = None, None, None
         extinction, diffrn_radiation = None, None
-        phase = None
+        phase, chi2 = None, None
 
         l_obj = take_items_by_class(self, (Setup, ))
         if len(l_obj) > 0:
@@ -634,6 +645,10 @@ class Diffrn(DataN):
         l_obj = take_items_by_class(self, (Phase, ))
         if len(l_obj) > 0:
             phase = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Chi2, ))
+        if len(l_obj) > 0:
+            chi2 = l_obj[0]
 
         ddict["name"] = self.data_name
         ddict["type_name"] = self.get_name()
@@ -698,6 +713,14 @@ class Diffrn(DataN):
         else:
             ddict["phase_label"] = numpy.array([""], dtype=str)
 
+        if chi2 is not None:
+            if chi2.is_attribute("asymmetry"):
+                ddict["flag_asymmetry"] = numpy.array([chi2.asymmetry], dtype=bool)
+            else:
+                ddict["flag_asymmetry"] = numpy.array([False], dtype=bool)
+        else:
+            ddict["flag_asymmetry"] = numpy.array([False], dtype=bool)
+            
         keys = ddict.keys()
         if ((setup is not None) and ("matrix_u" in keys)):
             ddict["magnetic_field"] = field*ddict["matrix_u"][6:]

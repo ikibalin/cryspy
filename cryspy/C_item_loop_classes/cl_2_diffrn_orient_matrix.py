@@ -298,7 +298,8 @@ class DiffrnOrientMatrix(ItemN):
             ut_ij, (0., 0., 1.))
         return numpy.array([e_up_1, e_up_2, e_up_3], dtype=float)
 
-    def calc_angle(self, index_h, index_k, index_l, wavelength: float = 1.4):
+    def calc_angle(self, index_h, index_k, index_l, wavelength: float = 1.4,
+            diffracted_beam: str = "left", diffractometer_axes: str = "anticlockwise"):
         """Calculate scattering angles for given reflection hkl.
 
         Output
@@ -319,7 +320,7 @@ class DiffrnOrientMatrix(ItemN):
         flag_hh_2 = True
 
         if q_y2 < 0:
-            # print("Angles are not found.")
+            print("Angles are not found.")
             flag_hh_2 = False
         if flag_hh_2:
             q_final[1] = numpy.sqrt(q_y2)
@@ -331,6 +332,21 @@ class DiffrnOrientMatrix(ItemN):
                    numpy.arctan2(q_ub[1], q_ub[0]))/numpy.pi*180
             [phi, gamma, nu] = [phi if phi > 0. else phi + 360., gamma if
                                 gamma > 0. else gamma + 360., nu]
+            if ((diffracted_beam.strip().lower() == "left") and 
+                (diffractometer_axes.strip().lower() =="anticlockwise")): # left, anticlockwise
+                pass
+            elif ((diffracted_beam.strip().lower() != "left") and 
+                (diffractometer_axes.strip().lower() != "anticlockwise")): # right, clockwise
+                pass
+            elif ((diffracted_beam.strip().lower() == "left") and 
+                (diffractometer_axes.strip().lower() !="anticlockwise")): # right, anticlockwise
+                gamma = -gamma
+                phi = -phi
+            elif ((diffracted_beam.strip().lower() != "left") and 
+                (diffractometer_axes.strip().lower() == "anticlockwise")): # left, clockwise
+                gamma = -gamma
+                phi = -phi
+
             return gamma, nu, phi
 
     def calc_q2(self, index_h: numpy.ndarray, index_k: numpy.ndarray,

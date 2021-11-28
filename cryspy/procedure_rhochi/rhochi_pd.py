@@ -265,10 +265,15 @@ def calc_chi_sq_for_pd_by_dictionary(
         # flags_p_scale
         iint_m_plus = iint_plus * multiplicity_hkl
         iint_m_minus = iint_minus * multiplicity_hkl
+        lf = calc_lorentz_factor(ttheta_hkl, flag_ttheta=None)[0]
+        dict_in_out_phase["iint_plus_with_factors"] = 0.5 * p_scale * lf * iint_m_plus
+        dict_in_out_phase["iint_minus_with_factors"] = 0.5 * p_scale * lf * iint_m_minus
         if flag_texture:
             # 0.5 to have the same meaning for the scale factor as in FullProf
             signal_plus = 0.5 * p_scale * lorentz_factor * (profile_pv * (iint_m_plus * preferred_orientation)[na, :]).sum(axis=1) # sum over hkl
             signal_minus = 0.5 * p_scale * lorentz_factor * (profile_pv * (iint_m_minus * preferred_orientation)[na, :]).sum(axis=1) 
+            dict_in_out_phase["iint_plus_with_factors"] *= preferred_orientation
+            dict_in_out_phase["iint_minus_with_factors"] *= preferred_orientation
         else:
             signal_plus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_plus[na, :]).sum(axis=1) 
             signal_minus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_minus[na, :]).sum(axis=1) 
