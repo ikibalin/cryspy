@@ -949,7 +949,6 @@ class Crystal(DataN):
                 elif ind_p == 2:
                     item.crystalaxis_z_sigma = float(sigma)
 
-
             if "mag_atom_kappa" in parameter_label:
                 ind_a = ind_s[0]
                 item = self.atom_site_scat.items[ind_a]
@@ -959,8 +958,6 @@ class Crystal(DataN):
                 ind_a = ind_s[0]
                 item = self.atom_site_scat.items[ind_a]
                 item.lande_sigma = float(sigma)
-
-
 
             if "unit_cell_parameters" in parameter_label:
                 ind_p = ind_s[0]

@@ -152,40 +152,44 @@ def rhochi_inversed_hessian(global_object: GlobalN):
     if global_object.is_attribute("inversed_hessian"):
         global_object.items.remove(global_object.inversed_hessian)
 
-    crystals = [item for item in global_object.items 
-        if isinstance(item, (Crystal, ))] #MagCrystal
-    experiments = [item for item in global_object.items 
-        if isinstance(item, (Diffrn, Pd, Pd2d, TOF))]
-    chi_sq, n = rhochi_calc_chi_sq(crystals, experiments, flag_internal=True)
+    global_dict = global_object.get_dictionary()
 
-    l_var_name = global_object.get_variable_names()
-    if len(l_var_name) == 0:
-        return 
-    val_0 = numpy.array([global_object.get_variable_by_name(var_name)
-                         for var_name in l_var_name], dtype=float)
+    flag_calc_analytical_derivatives = False
+    flag_use_precalculated_data = False
 
+    obj_dict = global_object.get_dictionary()
+    dict_in_out = {}
+
+    chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_names = rhochi_calc_chi_sq_by_dictionary(
+        obj_dict,
+        dict_in_out=dict_in_out,
+        flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
+    
+    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names]
+
+    flag_use_precalculated_data = True
     def tempfunc(l_param):
-        for var_name, param in zip(l_var_name, l_param):
-            global_object.set_variable_by_name(var_name, param)
-        chi_sq, n_points = rhochi_calc_chi_sq(crystals, experiments, flag_internal=False)
-        if n_points < n:
-            res_out = 1.0e+308
-        else:
-            res_out = chi_sq
-        return res_out
+        for way, param in zip(parameter_names, l_param):
+            global_dict[way[0]][way[1]][way[2]] = param
+        chi_sq = rhochi_calc_chi_sq_by_dictionary(
+            global_dict,
+            dict_in_out=dict_in_out,
+            flag_use_precalculated_data=flag_use_precalculated_data,
+            flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[0]
+        return chi_sq
 
-    l_label = [var_name[-1][0] for var_name in l_var_name]
-    np_hessian, np_first_der = estimate_inversed_hessian_matrix(
-        tempfunc, val_0)
+    hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
+
+    l_label = [f"{i_param: }" for i_param, var_name in enumerate(parameter_names)]
 
     inv_hessian = InversedHessian()
     inv_hessian.set_labels(l_label)
-    inv_hessian.set_inversed_hessian(np_hessian)
+    inv_hessian.set_inversed_hessian(hess_inv)
     inv_hessian.form_inversed_hessian()
     inv_hessian.form_object()
     global_object.items.append(inv_hessian)
 
-    for var_name, sigma in zip(l_var_name, inv_hessian.sigma):
-        var_name_sigma = tuple(var_name[:-1]) + ((f"{var_name[-1][0]:}_sigma", var_name[-1][1]),)
-        global_object.set_variable_by_name(var_name_sigma, sigma)
+    # for var_name, sigma in zip(l_var_name, inv_hessian.sigma):
+    #     var_name_sigma = tuple(var_name[:-1]) + ((f"{var_name[-1][0]:}_sigma", var_name[-1][1]),)
+    #     global_object.set_variable_by_name(var_name_sigma, sigma)
     return inv_hessian

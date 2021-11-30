@@ -7,6 +7,9 @@ from .rhochi_diffrn import calc_chi_sq_for_diffrn_by_dictionary
 from .rhochi_pd import calc_chi_sq_for_pd_by_dictionary
 from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 
+from cryspy.A_functions_base.function_1_inversed_hessian import \
+    estimate_inversed_hessian_matrix
+
 na = numpy.newaxis
 
 
@@ -94,7 +97,6 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
     print("Rietveld refinement by CrysPy (module RhoChi)")
     print("*********************************************\n")
     print("Derivatives are calculated numerically.")
-    print("User constraints are not working.")
     dict_in_out = {}
     flag_use_precalculated_data = False
     flag_calc_analytical_derivatives = False
@@ -128,9 +130,28 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
             flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[0]
         return chi_sq
 
+    linear_constraint = None
+    if "linear_constraints" in global_dict.keys():
+        try:
+            linear_constraints = global_dict["linear_constraints"]
+            matrix_q = form_matrix_q(linear_constraints, parameter_names)
+            lb = numpy.zeros((matrix_q.shape[0],), dtype=float)
+            ub = numpy.zeros((matrix_q.shape[0],), dtype=float)
+            linear_constraint = scipy.optimize.LinearConstraint(matrix_q, lb, ub)
+        except ValueError:
+            print(f"User constraints are not used.")
+
     print("\nMinimization procedure of chi_sq is running... ", end="\r")
-    res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
-    print("Optimization is done.                          ", end="\n")
+    if linear_constraint is not None:
+        method="SLSQP"
+        print(f"User constraints are used in the refinement by method '{method:}'.")
+        res = scipy.optimize.minimize(tempfunc, param_0, method=method, constraints=linear_constraint)
+
+        hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, res.x)
+        res["hess_inv"] = hess_inv
+    else:
+        res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
+        print("Optimization is done.                          ", end="\n")
 
     print("Calculations for optimal parameters... ", end="\r")
     dict_in_out = {}

@@ -985,6 +985,12 @@ class Pd2d(DataN):
             ddict["flags_asymmetry_parameters"] = numpy.array([
                 asymmetry.p1_refinement, asymmetry.p2_refinement, asymmetry.p3_refinement,
                 asymmetry.p4_refinement], dtype=bool)
+        else:
+            ddict["asymmetry_parameters"] = numpy.array([
+                0, 0, 0, 0], dtype=float)
+
+            ddict["flags_asymmetry_parameters"] = numpy.array([
+                False, False, False, False], dtype=bool)
 
         if diffrn_radiation is not None:
             beam_polarization = diffrn_radiation.polarization
@@ -1110,10 +1116,15 @@ class Pd2d(DataN):
 
         if "asymmetry_parameters" in keys:
             hh = ddict_diffrn["asymmetry_parameters"]
-            self.pd2d_instr_reflex_asymmetry.p1 = float(hh[0]) 
-            self.pd2d_instr_reflex_asymmetry.p2 = float(hh[1]) 
-            self.pd2d_instr_reflex_asymmetry.p3 = float(hh[2]) 
-            self.pd2d_instr_reflex_asymmetry.p4 = float(hh[3]) 
+            if self.is_attribute("pd2d_instr_reflex_asymmetry"):
+                asymmetry = self.pd2d_instr_reflex_asymmetry
+            else:
+                asymmetry = Pd2dInstrReflexAsymmetry()
+                self.items.append(asymmetry)
+            asymmetry.p1 = float(hh[0]) 
+            asymmetry.p2 = float(hh[1]) 
+            asymmetry.p3 = float(hh[2]) 
+            asymmetry.p4 = float(hh[3]) 
 
 
         if "phase_scale" in keys:

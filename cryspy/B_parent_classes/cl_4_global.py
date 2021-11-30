@@ -645,5 +645,23 @@ def transfer_cif_names_to_dict_names(variable_names):
             name = "extinction_radius"
         elif name == "mosaicity":
             name = "extinction_mosaicity"
+        elif name == "chi_11":
+            name = "atom_para_susceptibility"
+            index = (0, index)
+        elif name == "chi_22":
+            name = "atom_para_susceptibility"
+            index = (1, index)
+        elif name == "chi_33":
+            name = "atom_para_susceptibility"
+            index = (2, index)
+        elif name == "chi_12":
+            name = "atom_para_susceptibility"
+            index = (3, index)
+        elif name == "chi_13":
+            name = "atom_para_susceptibility"
+            index = (4, index)
+        elif name == "chi_23":
+            name = "atom_para_susceptibility"
+            index = (5, index)
         dict_names.append((data_block.lower(), name.lower(), index))
     return dict_names
