@@ -84,12 +84,15 @@ def calc_magnetization_ellipsoid_axes(susceptibility, unit_cell_parameters):
     
     val, eig_fields = numpy.linalg.eigh(np_q_ccs) # np_q_ccs should have quadratic form for eigh
 
-    moments = numpy.sqrt(val)
+    moments_pos = numpy.sqrt(val)
     np_chi_ccs = numpy.array([
         [susceptibility[0], susceptibility[3], susceptibility[4]],
         [susceptibility[3], susceptibility[1], susceptibility[5]],
         [susceptibility[4], susceptibility[5], susceptibility[2]]], dtype=float)
     eig_moments = numpy.matmul(np_chi_ccs, eig_fields)
+
+    moments_sign = 2*((eig_fields*eig_moments).sum(axis=0) >= 0)-1
+    moments = moments_pos * moments_sign
     return moments, eig_fields, eig_moments
 
 

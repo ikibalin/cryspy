@@ -16,7 +16,7 @@ from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_f
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
-from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
+from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_atom_type import AtomTypeL
 from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
     AtomSiteAnisoL
@@ -455,6 +455,10 @@ class Crystal(DataN):
 
         """
         np_field = numpy.array(field_abc, dtype=float)
+        norm_field = numpy.sqrt(numpy.square(np_field).sum())
+        if norm_field == 0.: 
+            norm_field = 1.
+        np_field = np_field/norm_field
         l_lab_out, l_xyz_out, l_moment_out = [], [], []
 
         try:
@@ -463,12 +467,15 @@ class Crystal(DataN):
             a_s = self.atom_site
             a_s_m_a = self.atom_site_susceptibility
         except AttributeError:
-            return l_lab_out, l_xyz_out, l_moment_out
+            return None
+
 
         m_m_norm = cell.m_m_norm
         m_mt_norm_m_norm_field = numpy.matmul(
             numpy.matmul(m_m_norm.transpose(), m_m_norm), np_field)
 
+        as_p1 = []
+        asm_p1 = []
         for _l, _11, _22, _33, _12, _13, _23 in zip(
                 a_s_m_a.label, a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33,
                 a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
@@ -481,11 +488,28 @@ class Crystal(DataN):
                 _xyz = _out[0]
                 _chi = _out[1]
                 _moment = numpy.matmul(_chi, m_mt_norm_m_norm_field)
-
-                l_lab_out.append(f"{_l:}_{_i_out+1:}")
+                label_p1 = f"{_l:}_{_i_out+1:}"
+                l_lab_out.append(label_p1)
                 l_xyz_out.append(_xyz)
                 l_moment_out.append(_moment)
-        return l_lab_out, l_xyz_out, l_moment_out
+                as_p1.append(AtomSite(label=label_p1, fract_x=_xyz[0], fract_y=_xyz[1], fract_z=_xyz[2]))
+                asm_p1.append(AtomSiteMoment(
+                    label=label_p1,
+                    crystalaxis_x=numpy.round(_moment[0], 5),
+                    crystalaxis_y=numpy.round(_moment[1], 5),
+                    crystalaxis_z=numpy.round(_moment[2], 5)))
+
+
+        spgr_p1 = SpaceGroup(it_number=1)
+        spgr_p1.form_object()
+        atom_site_p1 = AtomSiteL()
+        atom_site_p1.items = as_p1
+        atom_site_moment_p1 = AtomSiteMomentL()
+        atom_site_moment_p1.items = asm_p1
+
+        cryspy_p1 = Crystal(space_group = spgr_p1, cell=cell, atom_site=atom_site_p1, atom_site_moment=atom_site_moment_p1)
+
+        return cryspy_p1
 
 
     def report(self):
