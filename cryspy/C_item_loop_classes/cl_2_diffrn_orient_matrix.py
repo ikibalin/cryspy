@@ -320,7 +320,7 @@ class DiffrnOrientMatrix(ItemN):
         flag_hh_2 = True
 
         if q_y2 < 0:
-            print("Angles are not found.")
+            # print("Angles are not found.")
             flag_hh_2 = False
         if flag_hh_2:
             q_final[1] = numpy.sqrt(q_y2)

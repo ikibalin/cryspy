@@ -148,7 +148,8 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
         res = scipy.optimize.minimize(tempfunc, param_0, method=method, constraints=linear_constraint)
 
         hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, res.x)
-        res["hess_inv"] = hess_inv
+        if hess_inv is not None:
+            res["hess_inv"] = hess_inv
     else:
         res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
         print("Optimization is done.                          ", end="\n")

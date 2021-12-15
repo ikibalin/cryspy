@@ -11,6 +11,8 @@ Functions
 import numpy
 import copy
 
+from numpy.linalg import LinAlgError
+
 def estimate_inversed_hessian_matrix(func, param_0):
     """Estimate inversed Hessian matrix."""
     n_param = len(param_0)
@@ -61,7 +63,10 @@ def estimate_inversed_hessian_matrix(func, param_0):
             np_hessian[i_p_1, i_p_2] = der_second
             np_hessian[i_p_2, i_p_1] = der_second
 
-    np_hessian_inv = numpy.linalg.inv(np_hessian)
+    try:
+        np_hessian_inv = numpy.linalg.inv(np_hessian)
+    except LinAlgError:
+        np_hessian_inv = None
     func(param_0)
     return np_hessian_inv, np_first_der
 
