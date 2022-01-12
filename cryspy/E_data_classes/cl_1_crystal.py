@@ -838,7 +838,9 @@ class Crystal(DataN):
 
             flag_2d = ddict["atom_symm_elems_flag"][:, atom_site_aniso_index]
             l_sc_beta = []
-            for ind in range(atom_para_label.size):
+            atom_site_aniso_label = numpy.array(atom_site_aniso.label, dtype=str)
+
+            for ind in range(atom_site_aniso_label.size):
                 symm_elems = elems_fs[:, flag_2d[:, ind]]
                 sc_beta = calc_sc_beta(symm_elems)
                 l_sc_beta.append(sc_beta)

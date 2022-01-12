@@ -23,27 +23,6 @@ class Pd2dMeas(ItemN):
     data set, prior to processing and application of correction
     terms.
 
-    Mandatory attributes:
-        - ub_11, ub_12, ub_13, ub_21, ub_22, ub_23, ub_31, ub_32, ub_33
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
     """
     ATTR_MANDATORY_NAMES = ()
     ATTR_MANDATORY_TYPES = ()
