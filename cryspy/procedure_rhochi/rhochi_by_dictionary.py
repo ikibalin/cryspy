@@ -148,7 +148,7 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
             first_name = linear_constraint[0][1]
             second_name = linear_constraint[1][1]
             coeff = -linear_constraint[1][0]/linear_constraint[0][0]
-            constr_param = coeff*l_param[parameter_names.index(first_name)]
+            constr_param = coeff*l_param[parameter_names_free.index(first_name)]
             global_dict[second_name[0]][second_name[1]][second_name[2]] = constr_param
 
         chi_sq = rhochi_calc_chi_sq_by_dictionary(
