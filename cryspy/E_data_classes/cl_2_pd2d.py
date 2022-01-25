@@ -977,6 +977,11 @@ class Pd2d(DataN):
                 resolution.u_refinement, resolution.v_refinement, resolution.w_refinement,
                 resolution.x_refinement, resolution.y_refinement], dtype=bool)
 
+            ddict["resolution_phi_parameter"] = numpy.array([
+                resolution.phi,], dtype=float)
+            ddict["flags_resolution_phi_parameter"] = numpy.array([
+                resolution.phi_refinement,], dtype=float)
+
         if asymmetry is not None:
             ddict["asymmetry_parameters"] = numpy.array([
                 asymmetry.p1, asymmetry.p2, asymmetry.p3,
@@ -1097,6 +1102,10 @@ class Pd2d(DataN):
             resolution.x = float(np_resolution[3])
             resolution.y = float(np_resolution[4])
 
+        if "resolution_phi_parameter" in keys:
+            np_resolution = ddict_diffrn["resolution_phi_parameter"]
+            resolution = self.pd2d_instr_resolution
+            resolution.phi = float(np_resolution[0])
 
         if "background_intensity" in keys:
             background_intensity = ddict_diffrn["background_intensity"]
@@ -1186,6 +1195,9 @@ class Pd2d(DataN):
                         resolution.x_sigma = float(sigma)
                     elif name[1][0] == 4:
                         resolution.y_sigma = float(sigma)
+                if name[0] == "resolution_phi_parameter":
+                    resolution = self.pd2d_instr_resolution 
+                    resolution.phi_sigma = float(sigma)
                 if name[0] == "texture_g1":
                     self.texture.items[name[1][0]].g1_sigma = float(sigma)
                 if name[0] == "texture_g2":

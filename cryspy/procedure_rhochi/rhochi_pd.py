@@ -101,6 +101,10 @@ def calc_chi_sq_for_pd_by_dictionary(
     if sthovl_min <= 0:
         sthovl_min = 0.0001
     sthovl_max = numpy.sin(0.5*ttheta_zs.max() + numpy.pi/90.)/wavelength
+    if sthovl_max <= sthovl_min:
+        sthovl_max = sthovl_min+0.01
+        if sthovl_max >= 1.:
+            sthovl_max =  0.99999/wavelength
         
     background_ttheta = dict_pd["background_ttheta"]
     background_intensity = dict_pd["background_intensity"]
@@ -180,9 +184,15 @@ def calc_chi_sq_for_pd_by_dictionary(
         flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
         flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
 
+        if flag_unit_cell_parameters:
+            sc_uc = dict_crystal["sc_uc"]
+            v_uc = dict_crystal["v_uc"]
+            unit_cell_parameters = numpy.dot(sc_uc, unit_cell_parameters) + v_uc
+
+
         if (flag_use_precalculated_data and 
                 ("index_hkl" in dict_in_out_phase_keys) and 
-                ("multiplicity_hkl" in dict_in_out_phase_keys)):
+                ("multiplicity_hkl" in dict_in_out_phase_keys) and not(flag_unit_cell_parameters or flags_offset_ttheta)):
             index_hkl = dict_in_out_phase["index_hkl"]
             multiplicity_hkl = dict_in_out_phase["multiplicity_hkl"]
         else:
@@ -194,6 +204,13 @@ def calc_chi_sq_for_pd_by_dictionary(
             else:
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
                     sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems)
+
+            if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
+                if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
+                    flag_use_precalculated_data = False
+                else: 
+                    flag_use_precalculated_data = numpy.all(numpy.logical_and(dict_in_out_phase["index_hkl"], index_hkl))
+
             dict_in_out_phase["index_hkl"] = index_hkl
             dict_in_out_phase["multiplicity_hkl"] = multiplicity_hkl
 
@@ -332,7 +349,7 @@ def calc_chi_sq_for_pd_by_dictionary(
         n_point += signal_exp_diff.shape[0]
     if numpy.isnan(chi_sq):
         chi_sq = 1e30
-    
+
 
     flags_pd = get_flags(dict_pd)
     l_flags_crystal = [get_flags(dict_crystal) for dict_crystal in dict_crystals]

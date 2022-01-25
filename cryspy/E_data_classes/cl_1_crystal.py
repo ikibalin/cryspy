@@ -646,7 +646,12 @@ class Crystal(DataN):
 
         if cell is not None:
             unit_cell_parameters = cell.get_unit_cell_parameters()
-            ddict["unit_cell_parameters"] = unit_cell_parameters
+
+            sc_uc, v_uc = calc_sc_v_unit_cell_parameters(cell.type_cell, cell.it_coordinate_system_code)
+            ddict["sc_uc"] = sc_uc
+            ddict["v_uc"] = v_uc
+            
+            ddict["unit_cell_parameters"] = numpy.dot(sc_uc, unit_cell_parameters)+v_uc
             ddict["flags_unit_cell_parameters"] = cell.get_flags_unit_cell_parameters()
 
         if atom_site is not None:
@@ -929,13 +934,16 @@ class Crystal(DataN):
 
         if "unit_cell_parameters" in keys:
             hh = ddict_crystal["unit_cell_parameters"]
+            sc_uc = ddict_crystal["sc_uc"]
+            v_uc = ddict_crystal["v_uc"]
+            hhh = numpy.dot(sc_uc, hh) + v_uc
             cell = self.cell
-            cell.length_a = hh[0]
-            cell.length_b = hh[1]
-            cell.length_c = hh[2]
-            cell.angle_alpha = numpy.round(hh[3]*180./numpy.pi, decimals=5)
-            cell.angle_beta = numpy.round(hh[4]*180./numpy.pi, decimals=5)
-            cell.angle_gamma = numpy.round(hh[5]*180./numpy.pi, decimals=5)
+            cell.length_a = hhh[0]
+            cell.length_b = hhh[1]
+            cell.length_c = hhh[2]
+            cell.angle_alpha = numpy.round(hhh[3]*180./numpy.pi, decimals=5)
+            cell.angle_beta = numpy.round(hhh[4]*180./numpy.pi, decimals=5)
+            cell.angle_gamma = numpy.round(hhh[5]*180./numpy.pi, decimals=5)
 
         for name, sigma in zip(l_parameter_name, l_sigma):
             parameter_label, ind_s = name
@@ -1000,3 +1008,74 @@ class Crystal(DataN):
                     item.angle_beta_sigma = float(sigma)*180./numpy.pi
                 elif ind_p == 5:
                     item.angle_gamma_sigma = float(sigma)*180./numpy.pi
+
+
+
+def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: str):
+    """
+       Calculate symmetry constraints on unit_cell_parameters as
+       unit_cell_parameters = sc_uc * unit_cell_parameters + v_uc
+    """
+    sc_uc = numpy.eye(6, dtype=float)
+    v_uc = numpy.zeros((6,), dtype=float)
+
+    if type_cell == "aP":
+        pass
+    elif type_cell.startswith("m"):
+        sc_uc[3, 3] = 0.
+        sc_uc[5, 5] = 0.
+        v_uc[3] = numpy.pi/2.
+        v_uc[5] = numpy.pi/2.
+    elif type_cell.startswith("o"):
+        sc_uc[3, 3] = 0.
+        sc_uc[4, 4] = 0.
+        sc_uc[5, 5] = 0.
+        v_uc[3] = numpy.pi/2.
+        v_uc[4] = numpy.pi/2.
+        v_uc[5] = numpy.pi/2.
+    elif ((type_cell.startswith("t"))):  # FIXME: check  | (type_cell == "hP")
+        sc_uc[0, 0], sc_uc[0, 1] = 0.5, 0.5
+        sc_uc[1, 0], sc_uc[1, 1] = 0.5, 0.5
+        sc_uc[3, 3] = 0.
+        sc_uc[4, 4] = 0.
+        sc_uc[5, 5] = 0.
+        v_uc[3] = numpy.pi/2.
+        v_uc[4] = numpy.pi/2.
+        v_uc[5] = numpy.pi/2.
+    elif ((type_cell.startswith("hP"))):
+        sc_uc[0, 0], sc_uc[0, 1] = 0.5, 0.5
+        sc_uc[1, 0], sc_uc[1, 1] = 0.5, 0.5
+        sc_uc[3, 3] = 0.
+        sc_uc[4, 4] = 0.
+        sc_uc[5, 5] = 0.
+        v_uc[3] = numpy.pi/2.
+        v_uc[4] = numpy.pi/2.
+        v_uc[5] = numpy.pi*2./3.
+    elif (type_cell == "hR"):
+        if it_coordinate_system_code.lower() == "h":
+            sc_uc[0, 0], sc_uc[0, 1] = 0.5, 0.5
+            sc_uc[1, 0], sc_uc[1, 1] = 0.5, 0.5
+            sc_uc[3, 3] = 0.
+            sc_uc[4, 4] = 0.
+            sc_uc[5, 5] = 0.
+            v_uc[3] = numpy.pi/2.
+            v_uc[4] = numpy.pi/2.
+            v_uc[5] = numpy.pi*2./3.
+        else:
+            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1./3., 1./3., 1./3.
+            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1./3., 1./3., 1./3.
+            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1./3., 1./3., 1./3.
+            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1./3., 1./3., 1./3.
+            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1./3., 1./3., 1./3.
+            sc_uc[4, 3], sc_uc[5, 4], sc_uc[5, 5] = 1./3., 1./3., 1./3.
+    elif type_cell.startswith("c"):
+        sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1./3., 1./3., 1./3.
+        sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1./3., 1./3., 1./3.
+        sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1./3., 1./3., 1./3.
+        sc_uc[3, 3] = 0.
+        sc_uc[4, 4] = 0.
+        sc_uc[5, 5] = 0.
+        v_uc[3] = numpy.pi/2.
+        v_uc[4] = numpy.pi/2.
+        v_uc[5] = numpy.pi/2.
+    return sc_uc, v_uc

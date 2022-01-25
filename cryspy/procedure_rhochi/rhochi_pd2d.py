@@ -181,9 +181,13 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     resolution_parameters = dict_pd["resolution_parameters"] # U, V, W, X, Y
     asymmetry_parameters = dict_pd["asymmetry_parameters"] # p1, p2, p3, p4
 
+    p_phi = dict_pd["resolution_phi_parameter"] 
+    flag_p_phi = dict_pd["flags_resolution_phi_parameter"] 
+
     flags_resolution_parameters = dict_pd["flags_resolution_parameters"] 
     flags_asymmetry_parameters = dict_pd["flags_asymmetry_parameters"] 
     flag_asymmetry_parameters = numpy.any(flags_asymmetry_parameters)
+    
 
     if "texture_name" in dict_pd_keys:
         flag_texture = True
@@ -243,9 +247,14 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
         flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
 
+        if flag_unit_cell_parameters:
+            sc_uc = dict_crystal["sc_uc"]
+            v_uc = dict_crystal["v_uc"]
+            unit_cell_parameters = numpy.dot(sc_uc, unit_cell_parameters) + v_uc            
+
         if (flag_use_precalculated_data and 
                 ("index_hkl" in dict_in_out_phase_keys) and 
-                ("multiplicity_hkl" in dict_in_out_phase_keys)):
+                ("multiplicity_hkl" in dict_in_out_phase_keys) and not(flag_unit_cell_parameters or flag_ttheta)):
             index_hkl = dict_in_out_phase["index_hkl"]
             multiplicity_hkl = dict_in_out_phase["multiplicity_hkl"]
         else:
@@ -265,6 +274,12 @@ def calc_chi_sq_for_pd2d_by_dictionary(
                     index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
                         sthovl_min, sthovl_max, unit_cell_parameters, full_mcif_elems[:13], translation_elems_p1)
 
+            if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
+                if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
+                    flag_use_precalculated_data = False
+                else: 
+                    flag_use_precalculated_data = numpy.all(numpy.logical_and(dict_in_out_phase["index_hkl"], index_hkl))
+
             dict_in_out_phase["index_hkl"] = index_hkl
             dict_in_out_phase["multiplicity_hkl"] = multiplicity_hkl
 
@@ -273,7 +288,7 @@ def calc_chi_sq_for_pd2d_by_dictionary(
             unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
         flag_ttheta_hkl = flag_sthovl_hkl or flags_wavelength
-        ttheta_hkl = 2*numpy.arcsin(sthovl_hkl*wavelength)
+        ttheta_hkl = 2*numpy.arcsin(wavelength * sthovl_hkl)
         dict_in_out_phase["ttheta_hkl"] = ttheta_hkl
 
         f_nucl, dder_f_nucl = calc_f_nucl_by_dictionary(
@@ -394,12 +409,13 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         u, v, w, x, y = hh[0], hh[1], hh[2], hh[3], hh[4]
         p_1, p_2, p_3, p_4 = asymmetry_parameters[0], asymmetry_parameters[1], asymmetry_parameters[2], asymmetry_parameters[3]
 
-        flag_profile_pv = flag_rp or flag_asymmetry_parameters
+        flag_profile_pv = flag_rp or flag_asymmetry_parameters or flag_p_phi
         if flag_use_precalculated_data and ("profile_pv" in dict_in_out_keys) and not(flag_profile_pv):
             profile_pv = dict_in_out_phase["profile_pv"]
         else:
-            profile_pv, dder_pv = calc_profile_pseudo_voight_2d(ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y,
+            profile_pv, dder_pv = calc_profile_pseudo_voight_2d(ttheta_zs, phi_zs, ttheta_hkl, u, v, w, p_ig, x, y,
                 p_1, p_2, p_3, p_4, 
+                p_phi,
                 flag_ttheta=flag_ttheta, flag_ttheta_hkl=flag_ttheta_hkl, flag_u=flag_rp,
                 flag_v=flag_rp and flag_calc_analytical_derivatives,
                 flag_w=flag_rp and flag_calc_analytical_derivatives,
@@ -409,7 +425,8 @@ def calc_chi_sq_for_pd2d_by_dictionary(
                 flag_p_1=flag_asymmetry_parameters and flag_calc_analytical_derivatives,
                 flag_p_2=flag_asymmetry_parameters and flag_calc_analytical_derivatives,
                 flag_p_3=flag_asymmetry_parameters and flag_calc_analytical_derivatives,
-                flag_p_4=flag_asymmetry_parameters and flag_calc_analytical_derivatives)
+                flag_p_4=flag_asymmetry_parameters and flag_calc_analytical_derivatives,
+                flag_p_phi=flag_p_phi and flag_calc_analytical_derivatives)
             dict_in_out_phase["profile_pv"] = profile_pv
 
 
@@ -453,7 +470,7 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         total_signal_sum = (total_signal_plus + total_signal_minus)
         diff_signal_sum = signal_exp_sum - total_signal_sum - signal_background
         inv_sigma_sq_sum = numpy.square(1./signal_sigma_sum)
-        chi_sq_sum = numpy.nansum((numpy.square(diff_signal_sum)*inv_sigma_sq_sum)[in_points])
+        chi_sq_sum = numpy.sum(numpy.square(diff_signal_sum)*inv_sigma_sq_sum*in_points)
         chi_sq += chi_sq_sum
         n_point += numpy.sum(in_points)
 
@@ -461,9 +478,12 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         signal_exp_diff = signal_exp_plus[0, :] - signal_exp_minus[0, :]
         signal_sigma_diff = numpy.sqrt(numpy.square(signal_exp_plus[1, :]) + numpy.square(signal_exp_minus[1, :]))
         total_signal_diff = total_signal_plus - total_signal_minus
-        chi_sq_diff = numpy.nansum(numpy.square((signal_exp_diff - total_signal_diff)/signal_sigma_diff))
+        chi_sq_diff = numpy.sum(numpy.square((signal_exp_diff - total_signal_diff)/signal_sigma_diff))
         chi_sq += chi_sq_diff
         n_point += signal_exp_diff.size
+
+    if numpy.isnan(chi_sq):
+        chi_sq = 1e30
 
     flags_pd2d = get_flags(dict_pd)
     l_flags_crystal = [get_flags(dict_crystal) for dict_crystal in dict_crystals]

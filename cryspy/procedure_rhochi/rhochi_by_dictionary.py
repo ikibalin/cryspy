@@ -106,7 +106,22 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
 
-    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names]
+
+    if "linear_constraints" in global_dict.keys():
+        linear_constraints = global_dict["linear_constraints"]
+        # try:            
+        #     matrix_q = form_matrix_q(linear_constraints, parameter_names)
+        #     lb = numpy.zeros((matrix_q.shape[0],), dtype=float)
+        #     ub = numpy.zeros((matrix_q.shape[0],), dtype=float)
+        #     linear_constraint = scipy.optimize.LinearConstraint(matrix_q, lb, ub)
+        # except ValueError:
+        #     print(f"User constraints are not used.")
+    else:
+        linear_constraints = []
+
+    parameter_names_fixed = [linear_constraint[1][1] for linear_constraint in linear_constraints]
+    parameter_names_free = [way for way  in parameter_names if not(way in parameter_names_fixed)]
+    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names_free]
     print(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.         ")
     if len(param_0) == 0:
         res = {}
@@ -116,13 +131,26 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
         print("Example: 1.23()")
         return chi_sq, parameter_names, dict_in_out, res
     print(f"Number of refinement parameters {len(param_0):}")
-    for name, val in zip(parameter_names, param_0):
+    for name, val in zip(parameter_names_free, param_0):
         print(f" - {name:}  {val:.5f}")
+
+    print(f"Fixed parameters:")
+    for name in parameter_names_fixed:
+        print(f" - {name:}")
+
 
     flag_use_precalculated_data = True
     def tempfunc(l_param):
-        for way, param in zip(parameter_names, l_param):
+        for way, param in zip(parameter_names_free, l_param):
             global_dict[way[0]][way[1]][way[2]] = param
+        # linear constraint on one parameter (temporary solution)
+        for linear_constraint in linear_constraints:
+            first_name = linear_constraint[0][1]
+            second_name = linear_constraint[1][1]
+            coeff = -linear_constraint[1][0]/linear_constraint[0][0]
+            constr_param = coeff*l_param[parameter_names.index(first_name)]
+            global_dict[second_name[0]][second_name[1]][second_name[2]] = constr_param
+
         chi_sq = rhochi_calc_chi_sq_by_dictionary(
             global_dict,
             dict_in_out=dict_in_out,
@@ -130,29 +158,18 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
             flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[0]
         return chi_sq
 
-    linear_constraint = None
-    if "linear_constraints" in global_dict.keys():
-        try:
-            linear_constraints = global_dict["linear_constraints"]
-            matrix_q = form_matrix_q(linear_constraints, parameter_names)
-            lb = numpy.zeros((matrix_q.shape[0],), dtype=float)
-            ub = numpy.zeros((matrix_q.shape[0],), dtype=float)
-            linear_constraint = scipy.optimize.LinearConstraint(matrix_q, lb, ub)
-        except ValueError:
-            print(f"User constraints are not used.")
 
     print("\nMinimization procedure of chi_sq is running... ", end="\r")
-    if linear_constraint is not None:
-        method="SLSQP"
-        print(f"User constraints are used in the refinement by method '{method:}'.")
-        res = scipy.optimize.minimize(tempfunc, param_0, method=method, constraints=linear_constraint)
-
-        hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, res.x)
-        if hess_inv is not None:
-            res["hess_inv"] = hess_inv
-    else:
-        res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
-        print("Optimization is done.                          ", end="\n")
+    #if linear_constraint is not None:
+    #    method="SLSQP"
+    #    print(f"User constraints are used in the refinement by method '{method:}'.")
+    #    res = scipy.optimize.minimize(tempfunc, param_0, method=method, constraints=linear_constraint)
+    #    hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, res.x)
+    #    if hess_inv is not None:
+    #        res["hess_inv"] = hess_inv
+    #else:
+    res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
+    print("Optimization is done.                          ", end="\n")
 
     print("Calculations for optimal parameters... ", end="\r")
     dict_in_out = {}

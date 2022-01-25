@@ -18,9 +18,9 @@ class Pd2dInstrResolution(ItemN):
     ATTR_MANDATORY_TYPES = (float, float, float, float, float)
     ATTR_MANDATORY_CIF = ("U", "V", "W", "X", "Y")
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("phi", )
+    ATTR_OPTIONAL_TYPES = (float, )
+    ATTR_OPTIONAL_CIF = ("phi", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -30,7 +30,7 @@ class Pd2dInstrResolution(ItemN):
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
-    ATTR_REF = ("u", "v", "w", "x", "y")
+    ATTR_REF = ("u", "v", "w", "x", "y", "phi")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
@@ -38,13 +38,13 @@ class Pd2dInstrResolution(ItemN):
 
     # formats if cif format
     D_FORMATS = {"u": "{:.5f}", "v": "{:.5f}", "w": "{:.5f}", "x": "{:.2f}",
-                 "y": "{:.5f}"}
+                 "y": "{:.5f}", "phi": "{:.1f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
 
     # default values for the parameters
-    D_DEFAULT = {"u": 0., "v": 0., "w": 0., "x": 0., "y": 0.}
+    D_DEFAULT = {"u": 0., "v": 0., "w": 0., "x": 0., "y": 0., "phi": 0.}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):

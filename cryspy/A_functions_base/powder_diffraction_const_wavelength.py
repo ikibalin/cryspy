@@ -257,14 +257,14 @@ def calc_ttheta_phi_by_gamma_nu(gamma, nu, flag_gamma: bool = False, flag_nu: bo
     return ttheta, phi, dder_ttheta, dder_phi
 
 
-def calc_profile_pseudo_voight_2d(ttheta, 
+def calc_profile_pseudo_voight_2d(ttheta, phi,
         ttheta_hkl, u, v, w, i_g, x, y,
-        p_1, p_2, p_3, p_4, 
+        p_1, p_2, p_3, p_4, p_phi,
         flag_ttheta: bool=False, 
         flag_ttheta_hkl: bool=False, flag_u: bool=False,
         flag_v: bool=False, flag_w: bool=False, flag_i_g: bool=False, flag_x: bool=False,
         flag_y: bool=False, flag_p_1: bool = False, flag_p_2: bool = False,
-        flag_p_3: bool = False, flag_p_4: bool = False):
+        flag_p_3: bool = False, flag_p_4: bool = False, flag_p_phi: bool = False):
     """Calculate profile as psevdo-Voight function defined by parameters.
     For more documentation see documentation module "Powder diffraction at constant wavelenght".
     """
@@ -283,15 +283,28 @@ def calc_profile_pseudo_voight_2d(ttheta,
 
     eta, dder_eta = calc_eta(h_l, h_pv, flag_h_l=flag_h_l, flag_h_pv=flag_h_pv)
 
-    z = (delta_ttheta*180./numpy.pi)/numpy.expand_dims(h_pv, axis=-1)
-    flag_z = flag_h_pv or flag_ttheta_hkl or flag_ttheta
+
+    coeff_phi = calc_coeff_phi(phi, p_phi, flag_p_phi=flag_p_phi)[0]
+    h_pv_phi = h_pv*coeff_phi
+    flag_h_pv_phi = flag_h_pv or flag_p_phi
+
+    z = (delta_ttheta*180./numpy.pi)/numpy.expand_dims(h_pv_phi, axis=-1)
+    flag_z = flag_h_pv_phi or flag_ttheta_hkl or flag_ttheta
     af, dder_af  = calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4, 
         flag_z = flag_z, flag_p_1 =  flag_p_1, flag_p_2 =  flag_p_2,
         flag_p_3 = flag_p_3, flag_p_4 = flag_p_4)
     
-    profile_l, dder_profile_l = func_lorentz_by_h_pv(delta_ttheta, h_pv, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv)
-    profile_g, dder_profile_l = func_gauss_by_h_pv(delta_ttheta, h_pv, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv)
+    profile_l, dder_profile_l = func_lorentz_by_h_pv(delta_ttheta, h_pv_phi, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv_phi)
+    profile_g, dder_profile_l = func_gauss_by_h_pv(delta_ttheta, h_pv_phi, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv_phi)
 
     res = (numpy.expand_dims(eta, axis=-1) * profile_l + numpy.expand_dims((1.-eta), axis=-1)*profile_g)*af
     dder = {}
+    return res, dder
+
+
+def calc_coeff_phi(phi, p_phi, flag_p_phi: bool=False):
+    res= 0.5*(p_phi+1.)-numpy.cos(phi)*(p_phi-1.)*0.5
+    dder = {}
+    if flag_p_phi:
+        dder["p_phi"] = 0.5-0.5*numpy.cos(phi)
     return res, dder
