@@ -2,13 +2,15 @@
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
 import math
+from matplotlib.pyplot import flag
 import numpy
 
 from typing import NoReturn
 
+from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_b_iso_beta, calc_u_ij_by_beta
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
-from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters
+from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags
 from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi
@@ -920,8 +922,10 @@ class Crystal(DataN):
 
         if "atom_fract_xyz" in keys:
             hh = ddict_crystal["atom_fract_xyz"]
-            # hh_2 = ddict_crystal["atom_site_sc_fract"]
-            # hh_2 = ddict_crystal["atom_site_sc_b"]
+            atom_site_sc_fract = ddict_crystal["atom_site_sc_fract"] 
+            atom_site_sc_b = ddict_crystal["atom_site_sc_b"] 
+            hh = calc_m_v(atom_site_sc_fract, numpy.mod(hh, 1), flag_m=False, flag_v=False)[0] + atom_site_sc_b
+
             for i_item, item in enumerate(self.atom_site.items):
                 item.fract_x = numpy.round(numpy.mod(hh[0, i_item], 1.), decimals=6)
                 item.fract_y = numpy.round(numpy.mod(hh[1, i_item], 1.), decimals=6)
@@ -931,6 +935,54 @@ class Crystal(DataN):
             hh = ddict_crystal["atom_occupancy"]
             for i_item, item in enumerate(self.atom_site.items):
                 item.occupancy = numpy.round(hh[i_item], decimals=6)
+
+        if ("atom_b_iso" in keys):
+            atom_b_iso = ddict_crystal["atom_b_iso"]
+            if "atom_beta" in keys:
+                atom_beta = ddict_crystal["atom_beta"]
+
+                if "atom_site_aniso_sc_beta" in keys:
+                    atom_site_aniso_sc_beta = ddict_crystal["atom_site_aniso_sc_beta"]
+                    atom_site_aniso_index = ddict_crystal["atom_site_aniso_index"]
+                    atom_sc_beta = numpy.zeros((6,)+atom_beta.shape, dtype=float)
+                    atom_sc_beta[:, :, atom_site_aniso_index] = atom_site_aniso_sc_beta
+                    atom_beta = (atom_sc_beta*numpy.expand_dims(atom_beta, axis=0)).sum(axis=1)
+
+            else:
+                atom_beta = numpy.zeros((6, )+ atom_b_iso.shape, dtype=float)
+            unit_cell_parameters = ddict_crystal["unit_cell_parameters"]
+            atom_adp_type = numpy.array(self.atom_site.adp_type, dtype=str)
+            atom_iso_param, atom_aniso_param = calc_param_iso_aniso_by_b_iso_beta(unit_cell_parameters, atom_adp_type, atom_b_iso, atom_beta)
+
+
+            if self.is_attribute("atom_site"):
+                atom_site = self.atom_site
+                for i_item, item in enumerate(self.atom_site.items):
+                    if item.adp_type in ("Uiso", "Uovl", "Umpe"):
+                        item.u_iso_or_equiv = atom_iso_param[i_item]
+                    elif item.adp_type in ("Biso", "Bovl"):
+                        item.b_iso_or_equiv = atom_iso_param[i_item]
+
+                if self.is_attribute("atom_site_aniso"):
+                    atom_site_aniso_index = ddict_crystal["atom_site_aniso_index"]
+
+                    for item, index_as in zip(self.atom_site_aniso.items, atom_site_aniso_index):
+                        aniso_param = atom_aniso_param[:, index_as]
+                        item_as = self.atom_site.items[index_as]
+                        if item_as.adp_type in ("Uani", ):
+                            item.u_11 = aniso_param[0]
+                            item.u_22 = aniso_param[1]
+                            item.u_33 = aniso_param[2]
+                            item.u_12 = aniso_param[3]
+                            item.u_13 = aniso_param[4]
+                            item.u_23 = aniso_param[5]
+                        elif item_as.adp_type in ("Bani", ):
+                            item.b_11 = aniso_param[0]
+                            item.b_22 = aniso_param[1]
+                            item.b_33 = aniso_param[2]
+                            item.b_12 = aniso_param[3]
+                            item.b_13 = aniso_param[4]
+                            item.b_23 = aniso_param[5]
 
         if "unit_cell_parameters" in keys:
             hh = ddict_crystal["unit_cell_parameters"]
@@ -972,6 +1024,49 @@ class Crystal(DataN):
                     item.fract_y_sigma = float(sigma)
                 elif ind_p == 2:
                     item.fract_z_sigma = float(sigma)
+
+            if "atom_b_iso" in parameter_label:
+                ind_a = ind_s[0]
+                item = self.atom_site.items[ind_a]
+                if item.adp_type in ("Uiso", "Uovl", "Umpe"):
+                    item.u_iso_or_equiv_sigma = float(sigma)/float(8.*numpy.square(numpy.pi))
+                elif item.adp_type in ("Biso", "Bovl", "Bmpe"):
+                    item.b_iso_or_equiv_sigma = float(sigma)
+
+            if "atom_beta" in parameter_label:
+                ind_p, ind_a = ind_s[0], ind_s[1]
+                item = self.atom_site_aniso[self.atom_site.items[ind_a].label]
+                if self.atom_site[item.label].adp_type in ("Bani", ):
+                    if ind_p == 0:
+                        item.b_11_sigma = float(sigma)
+                    elif ind_p == 1:
+                        item.b_22_sigma = float(sigma)
+                    elif ind_p == 2:
+                        item.b_33_sigma = float(sigma)
+                    elif ind_p == 3:
+                        item.b_12_sigma = float(sigma)
+                    elif ind_p == 4:
+                        item.b_13_sigma = float(sigma)
+                    elif ind_p == 5:
+                        item.b_23_sigma = float(sigma)
+
+                if self.atom_site[item.label].adp_type in ("Uani", ):
+                    reciprocal_unit_cell_parameters = calc_reciprocal_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                    beta_hh = numpy.zeros((6,1), dtype=float)
+                    coeff_hh = calc_u_ij_by_beta(beta_hh, reciprocal_unit_cell_parameters, flag_beta=True)[1]["beta"]
+                    if ind_p == 0:
+                        item.u_11_sigma = float(sigma*coeff_hh[0])
+                    elif ind_p == 1:
+                        item.u_22_sigma = float(sigma*coeff_hh[1])
+                    elif ind_p == 2:
+                        item.u_33_sigma = float(sigma*coeff_hh[2])
+                    elif ind_p == 3:
+                        item.u_12_sigma = float(sigma*coeff_hh[3])
+                    elif ind_p == 4:
+                        item.u_13_sigma = float(sigma*coeff_hh[4])
+                    elif ind_p == 5:
+                        item.u_23_sigma = float(sigma*coeff_hh[5])
+
 
             if "atom_ordered_moment_crystalaxis_xyz" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]

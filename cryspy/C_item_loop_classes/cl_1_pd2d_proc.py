@@ -41,20 +41,22 @@ class Pd2dProc(ItemN):
     """
     ATTR_MANDATORY_NAMES = (
         "gamma_nu_intensity_plus_net", "gamma_nu_intensity_minus_net",
-        "gamma_nu_intensity_bkg_calc", "gamma_nu_intensity_plus",
-        "gamma_nu_intensity_plus_sigma", "gamma_nu_intensity_minus",
-        "gamma_nu_intensity_minus_sigma", "gamma_nu_excluded_points")
-    ATTR_MANDATORY_TYPES = (str, str, str, str, str, str, str, str)
+        "gamma_nu_intensity_bkg_calc", "gamma_nu_excluded_points", )
+    ATTR_MANDATORY_TYPES = (str, str, str, str, )
 
     ATTR_MANDATORY_CIF = (
         "gamma_nu_intensity_plus_net", "gamma_nu_intensity_minus_net",
-        "gamma_nu_intensity_bkg_calc", "gamma_nu_intensity_plus",
-        "gamma_nu_intensity_plus_sigma", "gamma_nu_intensity_minus",
-        "gamma_nu_intensity_minus_sigma", "gamma_nu_excluded_points")
+        "gamma_nu_intensity_bkg_calc", "gamma_nu_excluded_points", )
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = (
+        "gamma_nu_intensity_plus", "gamma_nu_intensity_plus_sigma",
+        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma",
+        "gamma_nu_intensity", "gamma_nu_intensity_sigma", )
+    ATTR_OPTIONAL_TYPES = (str, str, str, str, str, str,  )
+    ATTR_OPTIONAL_CIF = (
+        "gamma_nu_intensity_plus", "gamma_nu_intensity_plus_sigma",
+        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma",
+        "gamma_nu_intensity", "gamma_nu_intensity_sigma", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -63,8 +65,10 @@ class Pd2dProc(ItemN):
     ATTR_INT_NAMES = (
         "gamma", "nu", "intensity_plus_net", "intensity_minus_net",
         "intensity_bkg_calc",
-        "intensity_plus", "intensity_plus_sigma", "intensity_minus",
-        "intensity_minus_sigma", "excluded_points")
+        "intensity_plus", "intensity_plus_sigma",
+        "intensity_minus", "intensity_minus_sigma",
+        "intensity", "intensity_sigma",
+        "excluded_points")
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
@@ -106,69 +110,91 @@ class Pd2dProc(ItemN):
 
     def form_object(self) -> NoReturn:
         flag = True
-        if any([self.gamma_nu_intensity_plus_net is None,
-                self.gamma_nu_intensity_minus_net is None,
-                self.gamma_nu_intensity_bkg_calc is None,
-                self.gamma_nu_intensity_plus is None,
-                self.gamma_nu_intensity_plus_sigma is None,
-                self.gamma_nu_intensity_minus is None,
-                self.gamma_nu_intensity_minus_sigma is None,
-                self.gamma_nu_excluded_points is None]):
+        if not(self.is_attribute("gamma_nu_intensity_plus_net")):
             return False
         l_1 = (self.gamma_nu_intensity_plus_net).strip().split("\n")
         l_2 = (self.gamma_nu_intensity_minus_net).strip().split("\n")
         l_3 = (self.gamma_nu_intensity_bkg_calc).strip().split("\n")
-        l_4 = (self.gamma_nu_intensity_plus).strip().split("\n")
-        l_5 = (self.gamma_nu_intensity_plus_sigma).strip().split("\n")
-        l_6 = (self.gamma_nu_intensity_minus).strip().split("\n")
-        l_7 = (self.gamma_nu_intensity_minus_sigma).strip().split("\n")
         l_8 = (self.gamma_nu_excluded_points).strip().split("\n")
 
+        flag_polarized, flag_unpolarized = False, False
+        if self.is_attribute("gamma_nu_intensity_plus"):
+            l_4 = (self.gamma_nu_intensity_plus).strip().split("\n")
+            l_5 = (self.gamma_nu_intensity_plus_sigma).strip().split("\n")
+            l_6 = (self.gamma_nu_intensity_minus).strip().split("\n")
+            l_7 = (self.gamma_nu_intensity_minus_sigma).strip().split("\n")
+            flag_polarized = True
+        elif self.is_attribute("gamma_nu_intensity"):
+            l_4 = (self.gamma_nu_intensity).strip().split("\n")
+            l_5 = (self.gamma_nu_intensity_sigma).strip().split("\n")
+            flag_unpolarized = True
+        else:
+            return False
         l_gamma = numpy.array([_ for _ in l_1[0].strip().split()[1:]], dtype=float)
-        l_nu, ll_intensity_plus, ll_intensity_plus_sigma = [], [], []
-        ll_intensity_minus, ll_intensity_minus_sigma = [], []
+        l_nu = []
         ll_intensity_plus_net, ll_intensity_minus_net = [], []
         ll_excluded_points = []
         ll_intensity_bkg_calc = []
-        for line_1, line_2, line_3, line_4, line_5, line_6, line_7, line_8 in zip(
-            l_1[1:], l_2[1:], l_3[1:], l_4[1:], l_5[1:], l_6[1:], l_7[1:], l_8[1:]):
+        for line_1, line_2, line_3, line_8 in zip(l_1[1:], l_2[1:], l_3[1:], l_8[1:]):
             _l_1 = line_1.strip().split()
             _l_2 = line_2.strip().split()
             _l_3 = line_3.strip().split()
-            _l_4 = line_4.strip().split()
-            _l_5 = line_5.strip().split()
-            _l_6 = line_6.strip().split()
-            _l_7 = line_7.strip().split()
             _l_8 = line_8.strip().split()
             l_nu.append(float(_l_1[0]))
             ll_intensity_plus_net.append(_l_1[1:])
             ll_intensity_minus_net.append(_l_2[1:])
             ll_intensity_bkg_calc.append(_l_3[1:])
-            ll_intensity_plus.append(_l_4[1:])
-            ll_intensity_plus_sigma.append(_l_5[1:])
-            ll_intensity_minus.append(_l_6[1:])
-            ll_intensity_minus_sigma.append(_l_7[1:])
             ll_excluded_points.append(_l_8[1:])
+
+        if flag_polarized:
+            ll_intensity_plus, ll_intensity_plus_sigma = [], []
+            ll_intensity_minus, ll_intensity_minus_sigma = [], []
+            for line_4, line_5, line_6, line_7 in zip(l_4[1:], l_5[1:], l_6[1:], l_7[1:]):
+                _l_4 = line_4.strip().split()
+                _l_5 = line_5.strip().split()
+                _l_6 = line_6.strip().split()
+                _l_7 = line_7.strip().split()
+                ll_intensity_plus.append(_l_4[1:])
+                ll_intensity_plus_sigma.append(_l_5[1:])
+                ll_intensity_minus.append(_l_6[1:])
+                ll_intensity_minus_sigma.append(_l_7[1:])
+        elif flag_unpolarized:
+            ll_intensity, ll_intensity_sigma = [], []
+            for line_4, line_5 in zip(l_4[1:], l_5[1:]):
+                _l_4 = line_4.strip().split()
+                _l_5 = line_5.strip().split()
+                ll_intensity.append(_l_4[1:])
+                ll_intensity_sigma.append(_l_5[1:])
 
         ll_intensity_plus_net = numpy.array(ll_intensity_plus_net, dtype=float).transpose()
         ll_intensity_minus_net = numpy.array(ll_intensity_minus_net, dtype=float).transpose()
         ll_intensity_bkg_calc = numpy.array(ll_intensity_bkg_calc, dtype=float).transpose()
-        ll_intensity_plus = numpy.array(ll_intensity_plus, dtype=float).transpose()
-        ll_intensity_plus_sigma = numpy.array(ll_intensity_plus_sigma, dtype=float).transpose()
-        ll_intensity_minus = numpy.array(ll_intensity_minus, dtype=float).transpose()
-        ll_intensity_minus_sigma = numpy.array(ll_intensity_minus_sigma, dtype=float).transpose()
         ll_excluded_points = numpy.array([[hhh == "True" for hhh in hh ]for hh in ll_excluded_points], dtype=bool).transpose()
+
+        if flag_polarized:
+            ll_intensity_plus = numpy.array(ll_intensity_plus, dtype=float).transpose()
+            ll_intensity_plus_sigma = numpy.array(ll_intensity_plus_sigma, dtype=float).transpose()
+            ll_intensity_minus = numpy.array(ll_intensity_minus, dtype=float).transpose()
+            ll_intensity_minus_sigma = numpy.array(ll_intensity_minus_sigma, dtype=float).transpose()
+        elif flag_unpolarized:
+            ll_intensity = numpy.array(ll_intensity, dtype=float).transpose()
+            ll_intensity_sigma = numpy.array(ll_intensity_sigma, dtype=float).transpose()
 
         self.__dict__["gamma"] = l_gamma
         self.__dict__["nu"] = numpy.array(l_nu, dtype=float)
         self.__dict__["intensity_plus_net"] = ll_intensity_plus_net
         self.__dict__["intensity_minus_net"] = ll_intensity_minus_net
         self.__dict__["intensity_bkg_calc"] = ll_intensity_bkg_calc
-        self.__dict__["intensity_plus"] = ll_intensity_plus
-        self.__dict__["intensity_plus_sigma"] = ll_intensity_plus_sigma
-        self.__dict__["intensity_minus"] = ll_intensity_minus
-        self.__dict__["intensity_minus_sigma"] = ll_intensity_minus_sigma
         self.__dict__["excluded_points"] = ll_excluded_points
+
+        if flag_polarized:
+            self.__dict__["intensity_plus"] = ll_intensity_plus
+            self.__dict__["intensity_plus_sigma"] = ll_intensity_plus_sigma
+            self.__dict__["intensity_minus"] = ll_intensity_minus
+            self.__dict__["intensity_minus_sigma"] = ll_intensity_minus_sigma
+        elif flag_unpolarized:
+            self.__dict__["intensity"] = ll_intensity
+            self.__dict__["intensity_sigma"] = ll_intensity_sigma
         return flag
 
     def form_gamma_nu_intensity_plus_net(self) -> bool:
@@ -251,6 +277,27 @@ class Pd2dProc(ItemN):
                 ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             self.__dict__["gamma_nu_intensity_minus_sigma"] = "\n".join(ls_out)
 
+    def form_gamma_nu_intensity(self) -> bool:
+        if ((self.nu is not None) & (self.gamma is not None) & (self.intensity is not None)):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.intensity
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity"] = "\n".join(ls_out)
+
+    def form_gamma_nu_intensity_sigma(self) -> bool:
+        if ((self.nu is not None) & (self.gamma is not None) & (self.intensity_sigma is not None)):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.intensity_sigma
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity_sigma"] = "\n".join(ls_out)
+
+
     def plots(self):
         return [self.plot_gamma_nu()]
     
@@ -268,14 +315,25 @@ class Pd2dProc(ItemN):
         signal_sum = signal_plus + signal_minus + bkg_calc
         signal_difference = signal_plus - signal_minus
 
-        signal_exp_plus = self.intensity_plus
-        signal_exp_minus = self.intensity_minus
-        signal_exp_plus_sigma = self.intensity_plus_sigma
-        signal_exp_minus_sigma = self.intensity_minus_sigma
-        signal_exp_sum = signal_exp_plus + signal_exp_minus
-        signal_exp_difference = signal_exp_plus - signal_exp_minus
-        signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
-        signal_exp_sum_sigma = numpy.sqrt(signal_exp_sum_sigma_sq)
+        flag_polarized, flag_unpolarized = False, False
+        if self.is_attribute("intensity_plus"):
+            flag_polarized = True
+        if self.is_attribute("intensity"):
+            flag_unpolarized = True
+
+        if flag_polarized:
+            signal_exp_plus = self.intensity_plus
+            signal_exp_minus = self.intensity_minus
+            signal_exp_plus_sigma = self.intensity_plus_sigma
+            signal_exp_minus_sigma = self.intensity_minus_sigma
+            signal_exp_sum = signal_exp_plus + signal_exp_minus
+            signal_exp_difference = signal_exp_plus - signal_exp_minus
+            signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
+            signal_exp_sum_sigma = numpy.sqrt(signal_exp_sum_sigma_sq)
+        elif flag_unpolarized:
+            signal_exp_sum = self.intensity
+            signal_exp_sum_sigma = self.intensity_sigma
+            signal_exp_sum_sigma_sq = numpy.square(signal_exp_sum_sigma)
 
         excluded_points = numpy.logical_or(
             self.excluded_points,
@@ -283,7 +341,8 @@ class Pd2dProc(ItemN):
         included_points = numpy.logical_not(excluded_points)
 
         signal_em_sum = numpy.concatenate([numpy.flip(signal_sum, axis=1), signal_exp_sum], axis=1)
-        signal_em_difference = numpy.concatenate([numpy.flip(signal_difference, axis=1), signal_exp_difference], axis=1)
+        if flag_polarized:
+            signal_em_difference = numpy.concatenate([numpy.flip(signal_difference, axis=1), signal_exp_difference], axis=1)
 
         max_val = max([numpy.nanmax(signal_exp_sum[included_points]), numpy.nanmax(signal_sum[included_points])])
         min_val = numpy.nanmin(signal_em_sum)
@@ -302,8 +361,14 @@ class Pd2dProc(ItemN):
 
         extent = [gamma.min(), gamma.max(), nu.min(), nu.max()]
         cmap_sum = plt.get_cmap("turbo") # BuPu
-        fig, axs = plt.subplots(2,2)
-        ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
+
+        if flag_polarized:
+            fig, axs = plt.subplots(2,2)
+            ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
+        elif flag_unpolarized:
+            fig, axs = plt.subplots(2, 1, sharex=True)
+            ax1, ax3= axs[0], axs[1]
+
         norm_1 = matplotlib.colors.Normalize(vmax=max_val, vmin=min_val)
         ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
         ax1.imshow(zz_sum, origin="lower", aspect="auto", alpha=0.8, extent=extent)
@@ -313,17 +378,19 @@ class Pd2dProc(ItemN):
         ax1.set_yticks([])
         ax1.set_ylabel("  Model       Experiment")
 
-        cmap_difference = plt.get_cmap("turbo") # BrBG
-        max_val = numpy.nanmax(numpy.abs(signal_em_difference))*0.50
-        norm_2 = matplotlib.colors.Normalize(vmax=max_val, vmin=-max_val)
-        ax2.imshow(signal_em_difference.transpose(), origin="lower", aspect="auto",
-                  norm=norm_2,
-                  cmap=cmap_difference,
-                  extent=extent)
+        if flag_polarized:
+            cmap_difference = plt.get_cmap("turbo") # BrBG
+            max_val = numpy.nanmax(numpy.abs(signal_em_difference))*0.50
+            norm_2 = matplotlib.colors.Normalize(vmax=max_val, vmin=-max_val)
+            ax2.imshow(signal_em_difference.transpose(), origin="lower", aspect="auto",
+                      norm=norm_2,
+                      cmap=cmap_difference,
+                      extent=extent)
 
-        ax2.set_xticks([])
-        ax2.set_xlabel(r"$\gamma$ (deg.)")
-        ax2.set_yticks([])
+            ax2.set_xticks([])
+            ax2.set_xlabel(r"$\gamma$ (deg.)")
+            ax2.set_yticks([])
+
         ax1.set_ylabel("  Model       Experiment")
 
         chi_sq_per_n_sum = numpy.nansum(numpy.square(
@@ -352,22 +419,23 @@ class Pd2dProc(ItemN):
         ax3.set_xlabel(r"$2\theta$ (deg.)")
         # ax3.get_yaxis().set_visible(False)
 
-        chi_sq_per_n_difference = numpy.nansum(numpy.square(
-                (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.product(signal_exp_difference.shape)
-        ax2.set_title(r"Polarized signal $\chi^2/n=$"+f"{chi_sq_per_n_difference:.2f}")
-        ax4.errorbar(
-            ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
-            yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
-        ax4.plot(ttheta[:gamma.size], signal_projection_difference[:gamma.size], "k-", label="model")
+        if flag_polarized:
+            chi_sq_per_n_difference = numpy.nansum(numpy.square(
+                    (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.product(signal_exp_difference.shape)
+            ax2.set_title(r"Polarized signal $\chi^2/n=$"+f"{chi_sq_per_n_difference:.2f}")
+            ax4.errorbar(
+                ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
+                yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
+            ax4.plot(ttheta[:gamma.size], signal_projection_difference[:gamma.size], "k-", label="model")
 
-        y_min_d, y_max_d = ax4.get_ylim()
-        param = y_min_d-numpy.nanmax((signal_projection_exp_difference-signal_projection_difference)[:gamma.size])
-        ax4.plot([ttheta[:gamma.size].min(), ttheta[:gamma.size].max()], [param, param], "k:")
-        ax4.plot(ttheta[:gamma.size], (signal_projection_exp_difference-signal_projection_difference)[:gamma.size]+param,
-            "r-", alpha=0.5) #, label="difference"
-        ax4.legend()
-        ax4.set_xlabel(r"$2\theta$ (deg.)")
-        # ax4.get_yaxis().set_visible(False)
+            y_min_d, y_max_d = ax4.get_ylim()
+            param = y_min_d-numpy.nanmax((signal_projection_exp_difference-signal_projection_difference)[:gamma.size])
+            ax4.plot([ttheta[:gamma.size].min(), ttheta[:gamma.size].max()], [param, param], "k:")
+            ax4.plot(ttheta[:gamma.size], (signal_projection_exp_difference-signal_projection_difference)[:gamma.size]+param,
+                "r-", alpha=0.5) #, label="difference"
+            ax4.legend()
+            ax4.set_xlabel(r"$2\theta$ (deg.)")
+            # ax4.get_yaxis().set_visible(False)
         
         return (fig, ax1)
 
@@ -395,14 +463,23 @@ class Pd2dProc(ItemN):
         signal_sum = signal_plus + signal_minus + bkg_calc
         signal_difference = signal_plus - signal_minus
 
-        signal_exp_plus = self.intensity_plus
-        signal_exp_minus = self.intensity_minus
-        signal_exp_plus_sigma = self.intensity_plus_sigma
-        signal_exp_minus_sigma = self.intensity_minus_sigma
-        signal_exp_sum = signal_exp_plus + signal_exp_minus
-        signal_exp_difference = signal_exp_plus - signal_exp_minus
-        signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
-        signal_exp_sum_sigma = numpy.sqrt(signal_exp_sum_sigma_sq)
+        flag_polarized, flag_unpolarized = False, False
+        if self.is_attribute("intensity_plus"):
+            flag_polarized = True
+        elif self.is_attribute("intensity"):
+            flag_unpolarized = True
+        
+        if flag_polarized:
+            signal_exp_plus = self.intensity_plus
+            signal_exp_minus = self.intensity_minus
+            signal_exp_plus_sigma = self.intensity_plus_sigma
+            signal_exp_minus_sigma = self.intensity_minus_sigma
+            signal_exp_sum = signal_exp_plus + signal_exp_minus
+            signal_exp_difference = signal_exp_plus - signal_exp_minus
+            signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
+        elif flag_unpolarized:
+            signal_exp_sum = self.intensity
+            signal_exp_sum_sigma_sq = numpy.square(self.intensity_sigma)
 
         excluded_points = numpy.logical_or(
             self.excluded_points,
@@ -412,11 +489,15 @@ class Pd2dProc(ItemN):
         signal_projection_sum = numpy.zeros_like(ttheta)
         signal_projection_exp_sum = numpy.zeros_like(ttheta)
         signal_projection_difference = numpy.zeros_like(ttheta)
-        signal_projection_exp_difference = numpy.zeros_like(ttheta)
         signal_projection_exp_sum_sigma = numpy.zeros_like(ttheta)
+        signal_projection_exp_difference = numpy.zeros_like(ttheta)
         signal_projection_exp_difference_sigma = numpy.zeros_like(ttheta)
 
-        flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_difference))
+        if flag_polarized:
+            flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_difference))
+        elif flag_polarized:
+            flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_sum))
+
         for ind in range(ttheta.size):
             flag_1 = ttheta_index == ind
             flag = numpy.logical_and(flag_1, included_points)
@@ -429,16 +510,17 @@ class Pd2dProc(ItemN):
                 signal_projection_sum[ind] = numpy.nan
                 signal_projection_exp_sum[ind] = numpy.nan
                 signal_projection_exp_sum_sigma[ind] = numpy.nan
-            flag = numpy.logical_and(flag_1, flag_nonan)
-            points = numpy.sum(flag)
-            if points != 0:
-                signal_projection_difference[ind] += numpy.sum(signal_difference[flag])/points
-                signal_projection_exp_difference[ind] += numpy.sum(signal_exp_difference[flag])/points
-                signal_projection_exp_difference_sigma[ind] += numpy.sqrt(numpy.sum(signal_exp_sum_sigma_sq[flag]))/points
-            else:
-                signal_projection_difference[ind] = numpy.nan
-                signal_projection_exp_difference[ind] = numpy.nan
-                signal_projection_exp_difference_sigma[ind] = numpy.nan
+            if flag_polarized:
+                flag = numpy.logical_and(flag_1, flag_nonan)
+                points = numpy.sum(flag)
+                if points != 0:
+                    signal_projection_difference[ind] += numpy.sum(signal_difference[flag])/points
+                    signal_projection_exp_difference[ind] += numpy.sum(signal_exp_difference[flag])/points
+                    signal_projection_exp_difference_sigma[ind] += numpy.sqrt(numpy.sum(signal_exp_sum_sigma_sq[flag]))/points
+                else:
+                    signal_projection_difference[ind] = numpy.nan
+                    signal_projection_exp_difference[ind] = numpy.nan
+                    signal_projection_exp_difference_sigma[ind] = numpy.nan
         
         
         return ttheta, signal_projection_sum, signal_projection_exp_sum, signal_projection_exp_sum_sigma, \
@@ -482,13 +564,25 @@ class Pd2dProc(ItemN):
         coeff_difference = 0.5
         gamma = self.gamma
         nu = self.nu
-        signal_exp_sum = self.intensity_plus + self.intensity_minus 
-        signal_exp_difference = self.intensity_plus - self.intensity_minus
+        flag_polarized, flag_unpolarized = False, False
+        if self.is_attribute("intensity_plus"):
+            flag_polarized = True
+        elif self.is_attribute("intensity"):
+            flag_unpolarized = True
+
         signal_sum = self.intensity_plus_net + self.intensity_minus_net + self.intensity_bkg_calc
         signal_difference = self.intensity_plus_net - self.intensity_minus_net
-        signal_exp_sum_sigma = numpy.sqrt(
-            numpy.square(self.intensity_plus_sigma) +
-            numpy.square(self.intensity_minus_sigma))
+        
+        if flag_polarized:
+            signal_exp_sum = self.intensity_plus + self.intensity_minus 
+            signal_exp_difference = self.intensity_plus - self.intensity_minus
+            signal_exp_sum_sigma = numpy.sqrt(
+                numpy.square(self.intensity_plus_sigma) +
+                numpy.square(self.intensity_minus_sigma))
+        elif flag_unpolarized:
+            signal_exp_sum = self.intensity
+            signal_exp_sum_sigma = self.intensity_sigma
+
         included_points = numpy.logical_not(self.excluded_points)
 
         def calc_chi_sq(param):
@@ -498,10 +592,13 @@ class Pd2dProc(ItemN):
             model_sum = f_sum(gamma-offset_gamma, nu-offset_nu).transpose()
             chi_sq_sum = numpy.nansum(numpy.square((model_sum-signal_exp_sum)/signal_exp_sum_sigma)[included_points])
             
-            f_difference = interp2d(gamma, nu, signal_difference.transpose(), kind="linear")
-            model_difference = f_difference(gamma-offset_gamma, nu-offset_nu).transpose()
-            chi_sq_difference = numpy.nansum(numpy.square((model_difference-signal_exp_difference)/signal_exp_sum_sigma))
-            chi_sq = (1. - coeff_difference) * chi_sq_sum + coeff_difference* chi_sq_difference
+            if flag_polarized:
+                f_difference = interp2d(gamma, nu, signal_difference.transpose(), kind="linear")
+                model_difference = f_difference(gamma-offset_gamma, nu-offset_nu).transpose()
+                chi_sq_difference = numpy.nansum(numpy.square((model_difference-signal_exp_difference)/signal_exp_sum_sigma))
+                chi_sq = (1. - coeff_difference) * chi_sq_sum + coeff_difference* chi_sq_difference
+            elif flag_unpolarized:
+                chi_sq = chi_sq_sum
             return chi_sq
 
         param = numpy.array([0., 0.], dtype=float)
@@ -512,10 +609,16 @@ class Pd2dProc(ItemN):
             pd2d_background: Pd2dBackground, offset_gamma: float = 0, offset_nu: float = 0):
         gamma = self.gamma
         nu = self.nu
-        signal_exp_sum = self.intensity_plus + self.intensity_minus 
-        signal_exp_sum_sigma = numpy.sqrt(
-            numpy.square(self.intensity_plus_sigma) +
-            numpy.square(self.intensity_minus_sigma))
+
+        if self.is_attribute("intensity_plus"):
+            signal_exp_sum = self.intensity_plus + self.intensity_minus 
+            signal_exp_sum_sigma = numpy.sqrt(
+                numpy.square(self.intensity_plus_sigma) +
+                numpy.square(self.intensity_minus_sigma))
+        elif self.is_attribute("intensity"):
+            signal_exp_sum = self.intensity 
+            signal_exp_sum_sigma = self.intensity_sigma
+
         signal_sum_net = self.intensity_plus_net + self.intensity_minus_net 
         included_points = numpy.logical_not(self.excluded_points)
 

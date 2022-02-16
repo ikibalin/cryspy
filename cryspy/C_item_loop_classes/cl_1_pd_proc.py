@@ -308,7 +308,7 @@ class PdProcL(LoopN):
             model_bkgr = pd_background.interpolate_by_points(ttheta+offset_ttheta)
             chi_sq_sum = numpy.nansum(numpy.square((signal_exp_sum - signal_sum_net - model_bkgr)/signal_exp_sum_sigma)[included_points])
             return chi_sq_sum
-
+        
         res = scipy.optimize.minimize(temp_func, param_0, method="Nelder-Mead")
         
         self.numpy_intensity_bkg_calc = pd_background.interpolate_by_points(ttheta+offset_ttheta)

@@ -130,11 +130,12 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
         print("Print parenthesis after parameter which heve to be refined.")
         print("Example: 1.23()")
         return chi_sq, parameter_names, dict_in_out, res
-    print(f"Number of refinement parameters {len(param_0):}")
+    print(f"Number of fitting parameters {len(param_0):}")
     for name, val in zip(parameter_names_free, param_0):
         print(f" - {name:}  {val:.5f}")
 
-    print(f"Fixed parameters:")
+    if len(parameter_names_fixed) >0:
+        print(f"Number of constrained parameters:")
     for name in parameter_names_fixed:
         print(f" - {name:}")
 

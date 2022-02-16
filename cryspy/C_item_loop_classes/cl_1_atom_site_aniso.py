@@ -51,7 +51,7 @@ class AtomSiteAniso(ItemN):
     ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float,
                            float, float, float, float, float, float)
     ATTR_OPTIONAL_CIF = ("U_11", "U_22", "U_33", "U_12", "U_13", "U_23",
-                         "B_11", "B_22", "b_33", "B_12", "B_13", "B_23")
+                         "B_11", "B_22", "B_33", "B_12", "B_13", "B_23")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -139,6 +139,7 @@ class AtomSiteAniso(ItemN):
 
         According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
+
         l_numb = atom_site.calc_constr_number(space_group)
         label_aniso = self.label
         label = atom_site.label
@@ -152,7 +153,7 @@ class AtomSiteAniso(ItemN):
         self.__dict__["u_23_constraint"] = False
 
         numb = l_numb[index]
-
+        
         u_i = (self.u_11, self.u_22, self.u_33, self.u_12, self.u_13,
                self.u_23)
         u_sigma_i = (self.u_11_sigma, self.u_22_sigma, self.u_33_sigma,
@@ -160,7 +161,7 @@ class AtomSiteAniso(ItemN):
         u_ref_i = (self.u_11_refinement, self.u_22_refinement,
                    self.u_33_refinement, self.u_12_refinement,
                    self.u_13_refinement, self.u_23_refinement)
-
+        
         u_i, u_sigma_i, u_ref_i, u_constr_i = vibration_constraints(
             numb, u_i, u_sigma_i, u_ref_i)
 

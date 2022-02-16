@@ -5,14 +5,18 @@ from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_
 
 def calc_sc_fract_sc_b(symm_elems, atom_fract_xyz):
     sc_fract = (symm_elems[4:13]).sum(axis=1)/symm_elems.shape[1]
-
-    sc_b = (symm_elems[:3]/(symm_elems.shape[1]*numpy.expand_dims(symm_elems[3], axis=0))).sum(axis=1)
+    b_s = symm_elems[:3]/(symm_elems.shape[1]*numpy.expand_dims(symm_elems[3], axis=0))
 
     atom_fract_xyz = numpy.mod(atom_fract_xyz, 1)
-    x_new = calc_m_v(symm_elems[4:13], atom_fract_xyz, flag_m=False, flag_v=False)[0]
-    n_s, x0 = numpy.divmod(x_new,1)
-    n_s = -n_s.sum(axis=1)/n_s.shape[1]
-    sc_b = sc_b + n_s
+    r_s_x = calc_m_v(symm_elems[4:13], atom_fract_xyz, flag_m=False, flag_v=False)[0]
+    n_s = numpy.expand_dims(atom_fract_xyz, axis=1)-r_s_x-b_s
+    sc_b = (b_s + n_s).sum(axis=1)/n_s.shape[1]
+
+    # sc_b = ().sum(axis=1)
+    # x_new = calc_m_v(symm_elems[4:13], atom_fract_xyz, flag_m=False, flag_v=False)[0]
+    # n_s, x0 = numpy.divmod(x_new,1)
+    # n_s = -n_s.sum(axis=1)/n_s.shape[1]
+    # sc_b = sc_b + n_s
     return sc_fract, sc_b
 
 

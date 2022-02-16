@@ -33,14 +33,16 @@ class Pd2dMeas(ItemN):
         "ttheta_phi_intensity_plus", "ttheta_phi_intensity_plus_sigma",
         "ttheta_phi_intensity_minus", "ttheta_phi_intensity_minus_sigma",
         "gamma_nu_intensity_plus", "gamma_nu_intensity_plus_sigma",
-        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma")
+        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma",
+        "gamma_nu_intensity", "gamma_nu_intensity_sigma")
     ATTR_OPTIONAL_TYPES = (
-        str, str, str, str, str, str, str, str)
+        str, str, str, str, str, str, str, str, str, str)
     ATTR_OPTIONAL_CIF = (
         "2theta_phi_intensity_plus", "2theta_phi_intensity_plus_sigma",
         "2theta_phi_intensity_minus", "2theta_phi_intensity_minus_sigma",
         "gamma_nu_intensity_plus", "gamma_nu_intensity_plus_sigma",
-        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma")
+        "gamma_nu_intensity_minus", "gamma_nu_intensity_minus_sigma",
+        "gamma_nu_intensity", "gamma_nu_intensity_sigma")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -49,7 +51,8 @@ class Pd2dMeas(ItemN):
     ATTR_INT_NAMES = ("ttheta", "phi", "intensity_plus", "intensity_plus_sigma",
                       "intensity_minus", "intensity_minus_sigma", "gamma", "nu",
                       "gn_intensity_plus", "gn_intensity_plus_sigma",
-                      "gn_intensity_minus", "gn_intensity_minus_sigma")
+                      "gn_intensity_minus", "gn_intensity_minus_sigma",
+                      "gn_intensity", "gn_intensity_sigma")
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
@@ -100,6 +103,9 @@ class Pd2dMeas(ItemN):
                 self.is_attribute("gamma_nu_intensity_plus_sigma") &
                 self.is_attribute("gamma_nu_intensity_minus") &
                 self.is_attribute("gamma_nu_intensity_minus_sigma"))
+        flag_gamma_nu_unpolarized = (
+                self.is_attribute("gamma_nu_intensity") &
+                self.is_attribute("gamma_nu_intensity_sigma"))
 
         if flag_tth_phi:
             l_1 = (self.ttheta_phi_intensity_plus).strip().split("\n")
@@ -134,6 +140,7 @@ class Pd2dMeas(ItemN):
             self.__dict__["intensity_plus_sigma"] = ll_intensity_plus_sigma
             self.__dict__["intensity_minus"] = ll_intensity_minus
             self.__dict__["intensity_minus_sigma"] = ll_intensity_minus_sigma
+
         if flag_gamma_nu:
             l_1 = (self.gamma_nu_intensity_plus).strip().split("\n")
             l_2 = (self.gamma_nu_intensity_plus_sigma).strip().split("\n")
@@ -168,6 +175,27 @@ class Pd2dMeas(ItemN):
             self.__dict__["gn_intensity_minus"] = ll_intensity_minus
             self.__dict__["gn_intensity_minus_sigma"] = ll_intensity_minus_sigma
 
+        if flag_gamma_nu_unpolarized:
+            l_1 = (self.gamma_nu_intensity).strip().split("\n")
+            l_2 = (self.gamma_nu_intensity_sigma).strip().split("\n")
+
+            l_gamma = numpy.array([_ for _ in l_1[0].strip().split()[1:]],
+                                   dtype=float)
+            l_nu, ll_intensity, ll_intensity_sigma = [], [], []
+            for line_1, line_2 in zip(l_1[1:], l_2[1:]):
+                _l_1 = line_1.strip().split()
+                _l_2 = line_2.strip().split()
+                l_nu.append(float(_l_1[0]))
+                ll_intensity.append(_l_1[1:])
+                ll_intensity_sigma.append(_l_2[1:])
+
+            ll_intensity = numpy.array(ll_intensity, dtype=float).transpose()
+            ll_intensity_sigma = numpy.array(ll_intensity_sigma, dtype=float).transpose()
+
+            self.__dict__["gamma"] = l_gamma
+            self.__dict__["nu"] = numpy.array(l_nu, dtype=float)
+            self.__dict__["gn_intensity"] = ll_intensity
+            self.__dict__["gn_intensity_sigma"] = ll_intensity_sigma
 
     def form_ttheta_phi_intensity_plus(self) -> bool:
         if (self.is_attribute("phi") & self.is_attribute("ttheta") &
@@ -213,7 +241,6 @@ class Pd2dMeas(ItemN):
                 ls_out.append("{:12.2f} ".format(phi) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             self.__dict__["ttheta_phi_intensity_minus_sigma"] = "\n".join(ls_out)
 
-
     def form_gamma_nu_intensity_plus(self) -> bool:
         if (self.is_attribute("nu") & self.is_attribute("gamma") &
             self.is_attribute("gn_intensity_plus")):
@@ -258,6 +285,30 @@ class Pd2dMeas(ItemN):
                 ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             self.__dict__["gamma_nu_intensity_minus_sigma"] = "\n".join(ls_out)
 
+
+    def form_gamma_nu_intensity(self) -> bool:
+        if (self.is_attribute("nu") & self.is_attribute("gamma") &
+            self.is_attribute("gn_intensity")):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.gn_intensity
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity"] = "\n".join(ls_out)
+
+    def form_gamma_nu_intensity_sigma(self) -> bool:
+        if (self.is_attribute("nu") & self.is_attribute("gamma") &
+            self.is_attribute("gn_intensity_sigma")):
+            ls_out = []
+            ls_out.append("{:12} ".format(len(self.nu)) + " ".join(["{:6.2f}      ".format(_) for _ in self.gamma]))
+            ll_intensity = self.gn_intensity_sigma
+            ll_intensity = [[ll_intensity[_2][_1] for _2 in range(len(ll_intensity))] for _1 in range(len(ll_intensity[0]))]
+            for nu, l_intensity in zip(self.nu, ll_intensity):
+                ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
+            self.__dict__["gamma_nu_intensity_sigma"] = "\n".join(ls_out)
+
+
     def recalc_to_gamma_nu_grid(self):
         l_tth_grid = numpy.array(self.ttheta)*numpy.pi/180.
         l_phi_grid = numpy.array(self.phi)*numpy.pi/180.
@@ -289,22 +340,30 @@ class Pd2dMeas(ItemN):
         return [self.plot_gamma_nu(), ]
 
     def plot_gamma_nu(self):
-        if not(self.is_attribute("gamma") & self.is_attribute("nu") &
+        flag_polarized = (self.is_attribute("gamma") & self.is_attribute("nu") &
                self.is_attribute("gn_intensity_plus") & 
-               self.is_attribute("gn_intensity_minus")):
+               self.is_attribute("gn_intensity_minus"))
+        flag_unpolarized = (self.is_attribute("gamma") & self.is_attribute("nu") &
+               self.is_attribute("gn_intensity"))
+
+        if not(self.is_attribute("gamma") & self.is_attribute("nu")):
             return
 
         gamma = self.gamma 
         nu = self.nu 
-        signal_exp_plus = self.gn_intensity_plus
-        signal_exp_minus = self.gn_intensity_minus
-        signal_exp_plus_sigma = self.gn_intensity_plus_sigma
-        signal_exp_minus_sigma = self.gn_intensity_minus_sigma
-        signal_exp_sum = signal_exp_plus + signal_exp_minus
-        signal_exp_difference = signal_exp_plus - signal_exp_minus
-        signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
-        signal_exp_sum_sigma = numpy.sqrt(signal_exp_sum_sigma_sq)
-
+        if flag_polarized:
+            signal_exp_plus = self.gn_intensity_plus
+            signal_exp_minus = self.gn_intensity_minus
+            signal_exp_plus_sigma = self.gn_intensity_plus_sigma
+            signal_exp_minus_sigma = self.gn_intensity_minus_sigma
+            signal_exp_sum = signal_exp_plus + signal_exp_minus
+            signal_exp_difference = signal_exp_plus - signal_exp_minus
+            signal_exp_sum_sigma_sq = numpy.square(signal_exp_plus_sigma)+numpy.square(signal_exp_minus_sigma)
+        elif flag_unpolarized:
+            signal_exp_sum = self.gn_intensity
+            signal_exp_sum_sigma_sq = numpy.square(self.gn_intensity_sigma)
+        else:
+            return
 
         max_val = numpy.nanmax(signal_exp_sum)
         min_val = numpy.nanmin(signal_exp_sum)
@@ -330,7 +389,10 @@ class Pd2dMeas(ItemN):
         signal_projection_exp_sum_sigma = numpy.zeros_like(ttheta)
         signal_projection_exp_difference_sigma = numpy.zeros_like(ttheta)
 
-        flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_difference))
+        if flag_polarized:
+            flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_difference))
+        elif flag_unpolarized:
+            flag_nonan = numpy.logical_not(numpy.isnan(signal_exp_sum))
         for ind in range(ttheta.size):
             flag_1 = ttheta_index == ind
             flag = numpy.logical_and(flag_1, flag_nonan)
@@ -341,21 +403,28 @@ class Pd2dMeas(ItemN):
             else:
                 signal_projection_exp_sum[ind] = numpy.nan
                 signal_projection_exp_sum_sigma[ind] = numpy.nan
-            flag = numpy.logical_and(flag_1, flag_nonan)
-            points = numpy.sum(flag)
-            if points != 0:
-                signal_projection_exp_difference[ind] += numpy.sum(signal_exp_difference[flag])/points
-                signal_projection_exp_difference_sigma[ind] += numpy.sqrt(numpy.sum(signal_exp_sum_sigma_sq[flag]))/points
-            else:
-                signal_projection_exp_difference[ind] = numpy.nan
-                signal_projection_exp_difference_sigma[ind] = numpy.nan
+
+            if flag_polarized:
+                flag = numpy.logical_and(flag_1, flag_nonan)
+                points = numpy.sum(flag)
+                if points != 0:
+                    signal_projection_exp_difference[ind] += numpy.sum(signal_exp_difference[flag])/points
+                    signal_projection_exp_difference_sigma[ind] += numpy.sqrt(numpy.sum(signal_exp_sum_sigma_sq[flag]))/points
+                else:
+                    signal_projection_exp_difference[ind] = numpy.nan
+                    signal_projection_exp_difference_sigma[ind] = numpy.nan
 
 
         extent = [gamma.min(), gamma.max(), nu.min(), nu.max()]
 
         cmap_sum = plt.get_cmap("turbo") # BuPu
-        fig, axs = plt.subplots(2,2)
-        ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
+        if flag_polarized:
+            fig, axs = plt.subplots(2, 2)
+            ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
+        elif flag_unpolarized:
+            fig, axs = plt.subplots(2, 1, sharex=True)
+            ax1, ax3= axs[0], axs[1]
+
         norm_1 = matplotlib.colors.Normalize(vmax=max_val, vmin=min_val)
         hh = numpy.copy(signal_exp_sum)
         hh[numpy.isnan(hh)]=0
@@ -366,24 +435,25 @@ class Pd2dMeas(ItemN):
         ax1.set_yticks([])
         ax1.set_ylabel(r"$\nu$ (deg.)")
 
-        cmap_difference = plt.get_cmap("turbo") # BrBG
-        max_val = numpy.nanmax(numpy.abs(signal_exp_difference))*0.50
-        norm_2 = matplotlib.colors.Normalize(vmax=max_val, vmin=-max_val)
-        hh = numpy.copy(signal_exp_difference)
-        hh[numpy.isnan(hh)]=0
-        ax2.imshow(hh.transpose(), origin="lower", aspect="auto",
-                  norm=norm_2,
-                  cmap=cmap_difference,
-                  extent=extent)
-        # ax2.imshow(zz_difference, origin="lower", aspect="auto", alpha=0.8, extent=extent)
-        # ax2.contour(zz_difference[:,:,3], levels=[50, 70])
+        if flag_polarized:
+            cmap_difference = plt.get_cmap("turbo") # BrBG
+            max_val = numpy.nanmax(numpy.abs(signal_exp_difference))*0.50
+            norm_2 = matplotlib.colors.Normalize(vmax=max_val, vmin=-max_val)
+            hh = numpy.copy(signal_exp_difference)
+            hh[numpy.isnan(hh)]=0
+            ax2.imshow(hh.transpose(), origin="lower", aspect="auto",
+                      norm=norm_2,
+                      cmap=cmap_difference,
+                      extent=extent)
+            # ax2.imshow(zz_difference, origin="lower", aspect="auto", alpha=0.8, extent=extent)
+            # ax2.contour(zz_difference[:,:,3], levels=[50, 70])
 
-        # ax2.get_xaxis().set_visible(False)
-        # ax2.get_yaxis().set_visible(False)
-        ax2.set_xticks([])
-        ax2.set_xlabel(r"$\gamma$ (deg.)")
-        ax2.set_yticks([])
-        ax2.set_ylabel(r"$\nu$ (deg.)")
+            # ax2.get_xaxis().set_visible(False)
+            # ax2.get_yaxis().set_visible(False)
+            ax2.set_xticks([])
+            ax2.set_xlabel(r"$\gamma$ (deg.)")
+            ax2.set_yticks([])
+            ax2.set_ylabel(r"$\nu$ (deg.)")
 
         ax1.set_title(r"Unpolarized signal")
 
@@ -393,13 +463,14 @@ class Pd2dMeas(ItemN):
         # ax3.legend()
         ax3.set_xlabel(r"$2\theta$ (deg.)")
 
-        ax2.set_title(r"Polarized signal")
-        ax4.errorbar(
-            ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
-            yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2)
+        if flag_polarized:
+            ax2.set_title(r"Polarized signal")
+            ax4.errorbar(
+                ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
+                yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2)
 
-        # ax4.legend()
-        ax4.set_xlabel(r"$2\theta$ (deg.)")
+            # ax4.legend()
+            ax4.set_xlabel(r"$2\theta$ (deg.)")
         
         return (fig, ax1)
 

@@ -130,13 +130,25 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     wavelength = dict_pd["wavelength"]
     flags_wavelength = dict_pd["flags_wavelength"]
 
-    beam_polarization = dict_pd["beam_polarization"]
-    flipper_efficiency = dict_pd["flipper_efficiency"]
     magnetic_field = dict_pd["magnetic_field"]
 
-    flags_beam_polarization = dict_pd["flags_beam_polarization"]
-    flags_flipper_efficiency = dict_pd["flags_flipper_efficiency"]
+    flag_polarized, flag_unpolarized = False, False
+    if "signal_exp_plus" in dict_pd_keys:
+        flag_polarized = True
+    elif "signal_exp" in dict_pd_keys:
+        flag_unpolarized = True
 
+    if flag_polarized:
+        beam_polarization = dict_pd["beam_polarization"]
+        flipper_efficiency = dict_pd["flipper_efficiency"]
+
+        flags_beam_polarization = dict_pd["flags_beam_polarization"]
+        flags_flipper_efficiency = dict_pd["flags_flipper_efficiency"]
+    elif flag_unpolarized:
+        beam_polarization = numpy.array([0.,], dtype=float)
+        flipper_efficiency = numpy.array([0.,], dtype=float)
+        flags_beam_polarization = numpy.array([False,], dtype=bool)
+        flags_flipper_efficiency = numpy.array([False,], dtype=bool)
 
     alpha_det = numpy.arccos(
         numpy.sin(nu_zs)[na, :]/numpy.sqrt(
@@ -338,7 +350,7 @@ def calc_chi_sq_for_pd2d_by_dictionary(
 
         elif not(flag_para) and flag_ordered:
             flag_iint_plus_minus = flag_f_nucl or flag_f_m_perp_o or flags_beam_polarization or flags_flipper_efficiency
-            if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minu" in dict_in_out_phase_keys) and
+            if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minus" in dict_in_out_phase_keys) and
                     flag_use_precalculated_data and not(flag_iint_plus_minus)):
                 iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
             else:
@@ -452,21 +464,32 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     dict_in_out["signal_plus"] = total_signal_plus
     dict_in_out["signal_minus"] = total_signal_minus
 
-    signal_exp_plus = dict_pd["signal_exp_plus"]
-    signal_exp_minus = dict_pd["signal_exp_minus"]
+    if flag_polarized:
+        signal_exp_plus = dict_pd["signal_exp_plus"]
+        signal_exp_minus = dict_pd["signal_exp_minus"]
 
-    dict_in_out["signal_exp_plus"] = signal_exp_plus
-    dict_in_out["signal_exp_minus"] = signal_exp_minus
+        dict_in_out["signal_exp_plus"] = signal_exp_plus
+        dict_in_out["signal_exp_minus"] = signal_exp_minus
+        flag_chi_sq_sum = dict_pd["flag_chi_sq_sum"]
+        flag_chi_sq_difference = dict_pd["flag_chi_sq_difference"]
 
-    flag_chi_sq_sum = dict_pd["flag_chi_sq_sum"]
-    flag_chi_sq_difference = dict_pd["flag_chi_sq_difference"]
+    elif flag_unpolarized:
+        signal_exp = dict_pd["signal_exp"]
+        dict_in_out["signal_exp"] = signal_exp
+        flag_chi_sq_sum = True
+        flag_chi_sq_difference = False
 
     chi_sq = 0.
     n_point = 0
     if flag_chi_sq_sum:
         in_points = numpy.logical_not(excluded_points)
-        signal_exp_sum = signal_exp_plus[0, :] + signal_exp_minus[0, :]
-        signal_sigma_sum = numpy.sqrt(numpy.square(signal_exp_plus[1, :]) + numpy.square(signal_exp_minus[1, :]))
+        if flag_polarized:
+            signal_exp_sum = signal_exp_plus[0, :] + signal_exp_minus[0, :]
+            signal_sigma_sum = numpy.sqrt(numpy.square(signal_exp_plus[1, :]) + numpy.square(signal_exp_minus[1, :]))
+        elif flag_unpolarized:
+            signal_exp_sum = signal_exp[0, :]
+            signal_sigma_sum = signal_exp[1, :]
+
         total_signal_sum = (total_signal_plus + total_signal_minus)
         diff_signal_sum = signal_exp_sum - total_signal_sum - signal_background
         inv_sigma_sq_sum = numpy.square(1./signal_sigma_sum)

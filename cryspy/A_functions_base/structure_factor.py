@@ -117,8 +117,8 @@ def calc_pr4(index_hkl, centrosymmetry_position=None):
     if centrosymmetry_position is None:
         res = numpy.zeros_like(h)
     else:
-        p_1, p_2, p_3 = centrosymmetry_position[0], centrosymmetry_position[1], centrosymmetry_position[2]
-        res = numpy.exp(-2.*numpy.pi * 1j * (h*p_1 + k*p_2 + l*p_3))
+        p_1, p_2, p_3 = centrosymmetry_position[0]/centrosymmetry_position[3], centrosymmetry_position[1]/centrosymmetry_position[3], centrosymmetry_position[2]/centrosymmetry_position[3]
+        res = numpy.exp(-4.*numpy.pi * 1j * (h*p_1 + k*p_2 + l*p_3))
     return res
 
 
@@ -255,17 +255,20 @@ def calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
 
     atom_fract_xyz = dict_crystal["atom_fract_xyz"]
-    # FIXME: for Ho2Ti2O7 it gives incorrect data
-    # atom_site_sc_fract = dict_crystal["atom_site_sc_fract"] 
-    # atom_site_sc_b = dict_crystal["atom_site_sc_b"] 
-    # atom_fract_xyz = calc_m_v(atom_site_sc_fract, numpy.mod(atom_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_site_sc_b
-    # dict_crystal["atom_fract_xyz"] = atom_fract_xyz
-    # print("atom_fract_xyz\n", atom_fract_xyz)
+    atom_site_sc_fract = dict_crystal["atom_site_sc_fract"] 
+    atom_site_sc_b = dict_crystal["atom_site_sc_b"] 
+    atom_fract_xyz = calc_m_v(atom_site_sc_fract, numpy.mod(atom_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_site_sc_b
 
     atom_occupancy = dict_crystal["atom_occupancy"]
     scat_length_neutron = dict_crystal["atom_scat_length_neutron"]
     atom_b_iso = dict_crystal["atom_b_iso"]
     atom_beta = dict_crystal["atom_beta"]
+    if "atom_site_aniso_sc_beta" in dict_crystal_keys:
+        atom_site_aniso_sc_beta = dict_crystal["atom_site_aniso_sc_beta"]
+        atom_site_aniso_index = dict_crystal["atom_site_aniso_index"]
+        atom_sc_beta = numpy.zeros((6,)+atom_beta.shape, dtype=float)
+        atom_sc_beta[:, :, atom_site_aniso_index] = atom_site_aniso_sc_beta
+        atom_beta = (atom_sc_beta*numpy.expand_dims(atom_beta, axis=0)).sum(axis=1)
 
     flag_unit_cell_parameters = numpy.any(dict_crystal["flags_unit_cell_parameters"])
     flag_atom_fract_xyz = numpy.any(dict_crystal["flags_atom_fract_xyz"])
@@ -485,14 +488,21 @@ def calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     atom_para_index = dict_crystal["atom_para_index"]
     atom_para_fract_xyz = dict_crystal["atom_fract_xyz"][:, atom_para_index]
-    # atom_para_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_para_index]
-    # atom_para_sc_b = dict_crystal["atom_site_sc_b"][:, atom_para_index]
-    # atom_para_fract_xyz = calc_m_v(
-    #     atom_para_sc_fract, numpy.mod(atom_para_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_para_sc_b
+    atom_para_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_para_index]
+    atom_para_sc_b = dict_crystal["atom_site_sc_b"][:, atom_para_index]
+    atom_para_fract_xyz = calc_m_v(
+         atom_para_sc_fract, numpy.mod(atom_para_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_para_sc_b
 
     atom_para_occupancy = dict_crystal["atom_occupancy"][atom_para_index]
     atom_para_b_iso = dict_crystal["atom_b_iso"][atom_para_index]
-    atom_para_beta = dict_crystal["atom_beta"][:, atom_para_index]
+    atom_beta = dict_crystal["atom_beta"]
+    if "atom_site_aniso_sc_beta" in dict_crystal_keys:
+        atom_site_aniso_sc_beta = dict_crystal["atom_site_aniso_sc_beta"]
+        atom_site_aniso_index = dict_crystal["atom_site_aniso_index"]
+        atom_sc_beta = numpy.zeros((6,)+atom_beta.shape, dtype=float)
+        atom_sc_beta[:, :, atom_site_aniso_index] = atom_site_aniso_sc_beta
+        atom_beta = (atom_sc_beta*numpy.expand_dims(atom_beta, axis=0)).sum(axis=1)
+    atom_para_beta = atom_beta[:, atom_para_index]
 
     mag_atom_para_index = dict_crystal["mag_atom_para_index"]
     atom_para_lande_factor = dict_crystal["mag_atom_lande_factor"][mag_atom_para_index]
@@ -767,15 +777,23 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     atom_ordered_index = dict_crystal["atom_ordered_index"]
     atom_ordered_fract_xyz = dict_crystal["atom_fract_xyz"][:, atom_ordered_index]
-    # atom_ordered_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_ordered_index]
-    # atom_ordered_sc_b = dict_crystal["atom_site_sc_b"][:, atom_ordered_index]
-    # atom_ordered_fract_xyz = calc_m_v(
-    #     atom_ordered_sc_fract, numpy.mod(atom_ordered_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_ordered_sc_b
+    atom_ordered_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_ordered_index]
+    atom_ordered_sc_b = dict_crystal["atom_site_sc_b"][:, atom_ordered_index]
+    atom_ordered_fract_xyz = calc_m_v(
+        atom_ordered_sc_fract, numpy.mod(atom_ordered_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_ordered_sc_b
 
 
     atom_ordered_occupancy = dict_crystal["atom_occupancy"][atom_ordered_index]
     atom_ordered_b_iso = dict_crystal["atom_b_iso"][atom_ordered_index]
-    atom_ordered_beta = dict_crystal["atom_beta"][:, atom_ordered_index]
+    atom_beta = dict_crystal["atom_beta"]
+    if "atom_site_aniso_sc_beta" in dict_crystal_keys:
+        atom_site_aniso_sc_beta = dict_crystal["atom_site_aniso_sc_beta"]
+        atom_site_aniso_index = dict_crystal["atom_site_aniso_index"]
+        atom_sc_beta = numpy.zeros((6,)+atom_beta.shape, dtype=float)
+        atom_sc_beta[:, :, atom_site_aniso_index] = atom_site_aniso_sc_beta
+        atom_beta = (atom_sc_beta*numpy.expand_dims(atom_beta, axis=0)).sum(axis=1)
+    atom_ordered_beta = atom_beta[:, atom_ordered_index]
+
 
     mag_atom_ordered_index = dict_crystal["mag_atom_ordered_index"]
     atom_ordered_lande_factor = dict_crystal["mag_atom_lande_factor"][mag_atom_ordered_index]
@@ -978,6 +996,10 @@ def calc_bulk_susceptibility_by_dictionary(dict_crystal, dict_in_out, flag_use_p
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     atom_para_index = dict_crystal["atom_para_index"]
     atom_para_fract_xyz = dict_crystal["atom_fract_xyz"][:, atom_para_index]
+    atom_para_sc_fract = dict_crystal["atom_site_sc_fract"][:, atom_para_index]
+    atom_para_sc_b = dict_crystal["atom_site_sc_b"][:, atom_para_index]
+    atom_para_fract_xyz = calc_m_v(
+         atom_para_sc_fract, numpy.mod(atom_para_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_para_sc_b
     atom_para_occupancy = dict_crystal["atom_occupancy"][atom_para_index]
 
     atom_para_susceptibility = dict_crystal["atom_para_susceptibility"]

@@ -1273,7 +1273,9 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
     for _el_card in EL_CARDS:
         if ((_el_card["it_number"] == it_number) & (_el_card["choice"][0] == choice)):
             symop = tuple(_el_card["symmetry"])
-            p_centr = array([Fraction(_).limit_denominator(10) for _ in _el_card["pcentr"][0].split(",")],
+            # FIXME: It looks that definition of p_centr is inversed one compare with parameters given in card (at least for 227 choise 1)
+            # It should be checked for all space group. It is why here factor -1.
+            p_centr = -1*array([Fraction(_).limit_denominator(10) for _ in _el_card["pcentr"][0].split(",")],
                              dtype=Fraction)
             break
     _s_name, _choice = get_transform_pp_abc_choice_by_it_number_it_coordinate_system_code(it_number,

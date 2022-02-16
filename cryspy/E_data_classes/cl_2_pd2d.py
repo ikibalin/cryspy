@@ -87,8 +87,8 @@ class Pd2d(DataN):
     """
 
     CLASSES_MANDATORY = (Pd2dInstrResolution, PhaseL, DiffrnRadiation,
-                         Setup, Range, Chi2, Pd2dBackground, Pd2dMeas)
-    CLASSES_OPTIONAL = (Extinction, ExcludeL, Pd2dInstrReflexAsymmetry,
+                         Setup, Range, Pd2dBackground, Pd2dMeas)
+    CLASSES_OPTIONAL = (Extinction, ExcludeL, Chi2, Pd2dInstrReflexAsymmetry,
                         TextureL, RefineLs, ReflnL, ReflnSusceptibilityL,
                         Pd2dPeakL, Pd2dProc, PdPeakL)
     # CLASSES_INTERNAL = ()
@@ -1221,21 +1221,27 @@ class Pd2d(DataN):
             pd2d_proc.intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], decimals=5)
             pd2d_proc.intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], decimals=5)
             pd2d_proc.intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], decimals=5)
-            pd2d_proc.intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0, :, :], decimals=5)
-            pd2d_proc.intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1, :, :], decimals=5)
-            pd2d_proc.intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0, :, :], decimals=5)
-            pd2d_proc.intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1, :, :], decimals=5)
             pd2d_proc.excluded_points = ddict_diffrn["excluded_points"][:, :]
-
-            
             pd2d_proc.form_gamma_nu_intensity_plus_net()
             pd2d_proc.form_gamma_nu_intensity_minus_net()
             pd2d_proc.form_gamma_nu_intensity_bkg_calc()
-            pd2d_proc.form_gamma_nu_intensity_plus()
-            pd2d_proc.form_gamma_nu_intensity_plus_sigma()
-            pd2d_proc.form_gamma_nu_intensity_minus()
-            pd2d_proc.form_gamma_nu_intensity_minus_sigma()
             pd2d_proc.form_gamma_nu_excluded_points()
+
+            if "signal_exp_plus" in keys:
+                pd2d_proc.intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0, :, :], decimals=5)
+                pd2d_proc.intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1, :, :], decimals=5)
+                pd2d_proc.intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0, :, :], decimals=5)
+                pd2d_proc.intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1, :, :], decimals=5)
+                pd2d_proc.form_gamma_nu_intensity_plus()
+                pd2d_proc.form_gamma_nu_intensity_plus_sigma()
+                pd2d_proc.form_gamma_nu_intensity_minus()
+                pd2d_proc.form_gamma_nu_intensity_minus_sigma()
+            elif "signal_exp" in keys:
+                pd2d_proc.intensity = numpy.round(ddict_diffrn["signal_exp"][0, :, :], decimals=5)
+                pd2d_proc.intensity_sigma = numpy.round(ddict_diffrn["signal_exp"][1, :, :], decimals=5)
+                pd2d_proc.form_gamma_nu_intensity()
+                pd2d_proc.form_gamma_nu_intensity_sigma()
+            
             self.pd2d_proc = pd2d_proc
 
         l_pd_peak = []
