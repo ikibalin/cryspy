@@ -88,6 +88,9 @@ def rhochi_rietveld_refinement_with_parameters(
     obj_dict = cryspy_object.get_dictionary()
     flag_scipy_refinements = True
     if flag_scipy_refinements:
+        
+        DICT_PARAMS["previous_arg"] = ()
+        DICT_PARAMS["iteration"] = 0
         chi_sq, parameter_name, dict_in_out, res = rhochi_rietveld_refinement_by_dictionary(
             obj_dict, method=optimization_method, callback=_f_callback)
         dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name}
@@ -138,13 +141,23 @@ def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
     dict_out = {"chi_sq": chi_sq, "n_point": n_point}
     return dict_out
 
+DICT_PARAMS = {"previous_arg": (), "iteration": 0}
 
 def _f_callback(*arg, d_info: dict = None) -> bool:
     flag_out = False
     res_x = arg[0]
-    ls_out = ["{:12.5f}".format(_1) for _1 in res_x]
-    print(" ".join(ls_out), end="\r")
+    if len(DICT_PARAMS["previous_arg"]) != len(res_x):
+        DICT_PARAMS["previous_arg"] = res_x
+    else:
+        DICT_PARAMS["iteration"] += 1
+        diff = numpy.array(res_x, dtype=float) - numpy.array(DICT_PARAMS["previous_arg"], dtype=float)
+        shift = numpy.sqrt(numpy.square(diff).sum()) * 100
+        print(f"Average shift of parameters is {shift:.5f} ({DICT_PARAMS['iteration']:}).                ", end="\r")
+        DICT_PARAMS["previous_arg"] = res_x
     return flag_out
+    # ls_out = ["{:12.5f}".format(_1) for _1 in res_x]
+    # print(" ".join(ls_out), end="\r")
+    # return flag_out
 
 
 def rhochi_inversed_hessian(global_object: GlobalN):
