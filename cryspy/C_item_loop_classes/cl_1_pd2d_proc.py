@@ -405,7 +405,7 @@ class Pd2dProc(ItemN):
         ax3.errorbar(
             ttheta[:gamma.size], signal_projection_exp_sum[:gamma.size],
             yerr=signal_projection_exp_sum_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
-        ax3.plot(ttheta[:gamma.size], signal_projection_sum[:gamma.size], "k-", label="model")
+        ax3.plot(ttheta[:gamma.size], signal_projection_sum[:gamma.size], "b-", label="model", linewidth=2)
 
         y_min_d, y_max_d = ax3.get_ylim()
         param = y_min_d-numpy.nanmax((signal_projection_exp_sum-signal_projection_sum)[:gamma.size])
@@ -426,7 +426,7 @@ class Pd2dProc(ItemN):
             ax4.errorbar(
                 ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
                 yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
-            ax4.plot(ttheta[:gamma.size], signal_projection_difference[:gamma.size], "k-", label="model")
+            ax4.plot(ttheta[:gamma.size], signal_projection_difference[:gamma.size], "b-", label="model", linewidth=2)
 
             y_min_d, y_max_d = ax4.get_ylim()
             param = y_min_d-numpy.nanmax((signal_projection_exp_difference-signal_projection_difference)[:gamma.size])

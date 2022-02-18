@@ -170,7 +170,7 @@ class PdProcL(LoopN):
             coeff = np_notexcl.astype(int)
             ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
-            ax_1.plot(np_tth, np_sum_mod, "k-", label="model")
+            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=2)
             ax_1.plot(np_tth, np_bkg, "b:", label="background")
             ax_1.legend(loc='upper right')
 
@@ -181,7 +181,7 @@ class PdProcL(LoopN):
             param = y_min_d-(np_diff-np_diff_mod).max()
             ax_2.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_2.plot(np_tth, np_diff-np_diff_mod+param, "r-", alpha=0.5, label="difference")
-            ax_2.plot(np_tth, np_diff_mod, "k-", label="model")
+            ax_2.plot(np_tth, np_diff_mod, "b-", label="model", linewidth=2)
             ax_2.legend(loc='upper right')
 
         elif (self.is_attribute("ttheta") and 
@@ -223,7 +223,7 @@ class PdProcL(LoopN):
 
             ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
-            ax_1.plot(np_tth, np_sum_mod, "k-", label="model")
+            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=2)
 
             if (self.is_attribute("ttheta") and
                     self.is_attribute("intensity_bkg_calc")):
@@ -276,8 +276,8 @@ class PdProcL(LoopN):
         ax.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
         ax.plot(np_tth, np_diff-np_diff_mod+param, "r-", alpha=0.5,
                     label="difference")
-        ax.plot(np_tth, np_diff_mod, "k-",
-                    label="model")
+        ax.plot(np_tth, np_diff_mod, "b-",
+                    label="model", linewidth=2)
         ax.legend(loc='upper right')
         fig.tight_layout()
         return (fig, ax)

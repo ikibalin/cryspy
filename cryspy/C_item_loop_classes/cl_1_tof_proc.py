@@ -139,7 +139,7 @@ class TOFProcL(LoopN):
             np_sum = np_up + np_down
             np_sum_mod = np_up_mod + np_down_mod
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-            ax.plot(np_time, np_sum_mod, "k-", label="model")
+            ax.plot(np_time, np_sum_mod, "b-", label="model", linewidth=2)
             ax.errorbar(np_time[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
             ax.errorbar(np_time[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
@@ -159,7 +159,7 @@ class TOFProcL(LoopN):
             np_sum = numpy.array(self.intensity, dtype=float)
             np_sum_mod = numpy.array(self.intensity_total, dtype=float)
             np_ssum = numpy.array(self.intensity_sigma, dtype=float)
-            ax.plot(np_time, np_sum_mod, "k-", label="model")
+            ax.plot(np_time, np_sum_mod, "b-", label="model", linewidth=2)
             ax.errorbar(np_time[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
             ax.errorbar(np_time[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
@@ -201,8 +201,7 @@ class TOFProcL(LoopN):
         np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
 
         ax.plot([np_time.min(), np_time.max()], [0., 0.], "b:")
-        ax.plot(np_time, np_diff_mod, "k-",
-                    label="model")
+        ax.plot(np_time, np_diff_mod, "b-", label="model", linewidth=2)
         ax.errorbar(np_time, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
                     label="experiment")
 
