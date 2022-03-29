@@ -29,6 +29,26 @@ def calc_independent_lines(m):
     return l_ind
 
 
+def calc_constr_matrix(matrix):
+    m_x, m_y = matrix.shape
+    m_rank = numpy.linalg.matrix_rank(matrix)
+    unity = numpy.diag(m_x*[1.])
+    m_u = matrix - unity
+
+
+    for i_x in range(m_x-1, 0, -1):
+        coeff_1 = m_u[i_x, i_x]
+        if not(numpy.isclose(coeff_1, 0., atol=1e-10)):
+            line_1 = m_u[i_x, :]/coeff_1
+            m_u[i_x, :] = line_1
+            for i_y in range(i_x-1, -1, -1):
+                coeff_2 = m_u[i_y, i_x]
+                line_2 = m_u[i_y, :] - line_1*coeff_2
+                m_u[i_y, :]  = line_2
+
+    res = numpy.round(unity-m_u, 10)
+    return res
+
 class AtomSiteSusceptibility(ItemN):
     """Magnetic properties of the atom that occupy the atom site.
 
@@ -113,6 +133,9 @@ class AtomSiteSusceptibility(ItemN):
 
         item_as = atom_site.items[index] 
         sc_chi = item_as.calc_sc_chi(space_group, cell)
+        # it should be checked
+        sc_chi = calc_constr_matrix(sc_chi)
+        
 
         # l_numb = atom_site.calc_constr_number(space_group)
 
@@ -150,6 +173,8 @@ class AtomSiteSusceptibility(ItemN):
             sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi, decimals=5), 0.))
             # chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0) 
             chi_ref_i_c = sc_chi_bool.dot(chi_ref_i) * numpy.logical_not(chi_con_i_c)
+            # # I am not quite sure. It is to fix two parameters among three.
+            # chi_ref_i_c = numpy.logical_and(chi_ref_i_c, chi_ref_i)
 
             self.__dict__["chi_11"], self.__dict__["chi_22"], \
                 self.__dict__["chi_33"], self.__dict__["chi_12"], \

@@ -6,6 +6,7 @@ import scipy.optimize
 from .rhochi_diffrn import calc_chi_sq_for_diffrn_by_dictionary
 from .rhochi_pd import calc_chi_sq_for_pd_by_dictionary
 from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
+from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
 from cryspy.A_functions_base.function_1_inversed_hessian import \
     estimate_inversed_hessian_matrix
@@ -283,7 +284,7 @@ def rhochi_calc_chi_sq_by_dictionary(
         l_experiments.append(name_key_diffrn)
 
     dict_crystals = [hh[1] for hh in l_dict_crystal]
-    for name_key_exp, dict_exp in l_dict_pd + l_dict_pd2d:
+    for name_key_exp, dict_exp in l_dict_pd + l_dict_pd2d + l_dict_tof:
         if flag_use_precalculated_data and (name_key_exp in dict_in_out_keys):
             dict_in_out_diffrn = dict_in_out[name_key_exp]
         else:
@@ -293,6 +294,21 @@ def rhochi_calc_chi_sq_by_dictionary(
         if name_key_exp.startswith("pd_"):
             chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_name = \
                 calc_chi_sq_for_pd_by_dictionary(
+                    dict_exp, dict_crystals,
+                    dict_in_out=dict_in_out_diffrn,
+                    flag_use_precalculated_data=flag_use_precalculated_data,
+                    flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
+            l_chi_sq.append(chi_sq)
+            l_n_point.append(n_point)
+            l_der_chi_sq.append(der_chi_sq)
+            l_dder_chi_sq.append(dder_chi_sq)
+            l_parameter_name.append(parameter_name)
+            parameter_name_full.extend(parameter_name)
+            l_experiments.append(name_key_exp)
+
+        elif name_key_exp.startswith("tof_"):
+            chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_name = \
+                calc_chi_sq_for_tof_by_dictionary(
                     dict_exp, dict_crystals,
                     dict_in_out=dict_in_out_diffrn,
                     flag_use_precalculated_data=flag_use_precalculated_data,

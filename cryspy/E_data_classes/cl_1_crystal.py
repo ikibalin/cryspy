@@ -12,7 +12,7 @@ from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft
-from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags
+from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
 from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi
 
 from cryspy.B_parent_classes.cl_3_data import DataN
@@ -647,9 +647,17 @@ class Crystal(DataN):
                 ddict["full_mcif_elems"] = full_mcif_elems
 
         if cell is not None:
+            if cell.is_attribute("type_cell"):
+                type_cell, it_coordinate_system_code = cell.type_cell, cell.it_coordinate_system_code
+            elif "full_mcif_elems" in ddict.keys(): 
+                type_cell, it_coordinate_system_code = define_bravais_type_by_symm_elems(full_mcif_elems)
+                cell.type_cell = type_cell
+                cell.it_coordinate_system_code = it_coordinate_system_code
+                cell.apply_constraints()
+
             unit_cell_parameters = cell.get_unit_cell_parameters()
 
-            sc_uc, v_uc = calc_sc_v_unit_cell_parameters(cell.type_cell, cell.it_coordinate_system_code)
+            sc_uc, v_uc = calc_sc_v_unit_cell_parameters(type_cell, it_coordinate_system_code)
             ddict["sc_uc"] = sc_uc
             ddict["v_uc"] = v_uc
             
@@ -722,7 +730,7 @@ class Crystal(DataN):
                 dtype=float)
             ddict["atom_para_label"] = atom_para_label
             ddict["atom_para_susceptibility"] = atom_para_susceptibility
-            ddict["flags_atom_para_susceptibility"] = atom_site_susceptibility.get_flags_susceptibility()
+            ddict["flags_atom_para_susceptibility"] = atom_site_susceptibility.get_flags_susceptibility()            
             if "atom_label" in ddict.keys():
                 flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_para_label, axis=0)
                 args = numpy.argwhere(flag_2d)
@@ -741,9 +749,9 @@ class Crystal(DataN):
                 for ind in range(atom_para_label.size):
                     if (atom_para_chi_type[ind]).lower() == "ciso":
                         sc_chi = numpy.array([
-                            [1./3., 1./3., 1./3., 0., 0., 0.],
-                            [1./3., 1./3., 1./3., 0., 0., 0.],
-                            [1./3., 1./3., 1./3., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
                             [0., 0., 0., 0., 0., 0.],
                             [0., 0., 0., 0., 0., 0.],
                             [0., 0., 0., 0., 0., 0.]], dtype=float)
@@ -1129,8 +1137,8 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
         v_uc[4] = numpy.pi/2.
         v_uc[5] = numpy.pi/2.
     elif ((type_cell.startswith("t"))):  # FIXME: check  | (type_cell == "hP")
-        sc_uc[0, 0], sc_uc[0, 1] = 0.5, 0.5
-        sc_uc[1, 0], sc_uc[1, 1] = 0.5, 0.5
+        sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
+        sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
         sc_uc[3, 3] = 0.
         sc_uc[4, 4] = 0.
         sc_uc[5, 5] = 0.
@@ -1138,8 +1146,8 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
         v_uc[4] = numpy.pi/2.
         v_uc[5] = numpy.pi/2.
     elif ((type_cell.startswith("hP"))):
-        sc_uc[0, 0], sc_uc[0, 1] = 0.5, 0.5
-        sc_uc[1, 0], sc_uc[1, 1] = 0.5, 0.5
+        sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
+        sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
         sc_uc[3, 3] = 0.
         sc_uc[4, 4] = 0.
         sc_uc[5, 5] = 0.
@@ -1148,8 +1156,8 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
         v_uc[5] = numpy.pi*2./3.
     elif (type_cell == "hR"):
         if it_coordinate_system_code.lower() == "h":
-            sc_uc[0, 0], sc_uc[0, 1] = 0.5, 0.5
-            sc_uc[1, 0], sc_uc[1, 1] = 0.5, 0.5
+            sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
+            sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
             sc_uc[3, 3] = 0.
             sc_uc[4, 4] = 0.
             sc_uc[5, 5] = 0.
@@ -1157,16 +1165,16 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
             v_uc[4] = numpy.pi/2.
             v_uc[5] = numpy.pi*2./3.
         else:
-            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1./3., 1./3., 1./3.
-            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1./3., 1./3., 1./3.
-            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1./3., 1./3., 1./3.
-            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1./3., 1./3., 1./3.
-            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1./3., 1./3., 1./3.
-            sc_uc[4, 3], sc_uc[5, 4], sc_uc[5, 5] = 1./3., 1./3., 1./3.
+            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1., 0., 0.
+            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1., 0., 0.
+            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1., 0., 0.
+            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1., 0., 0.
+            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1., 0., 0.
+            sc_uc[4, 3], sc_uc[5, 4], sc_uc[5, 5] = 1., 0., 0.
     elif type_cell.startswith("c"):
-        sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1./3., 1./3., 1./3.
-        sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1./3., 1./3., 1./3.
-        sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1./3., 1./3., 1./3.
+        sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1., 0., 0.
+        sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1., 0., 0.
+        sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1., 0., 0.
         sc_uc[3, 3] = 0.
         sc_uc[4, 4] = 0.
         sc_uc[5, 5] = 0.

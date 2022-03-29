@@ -20,14 +20,14 @@ class Setup(ItemN):
         - ratio_lambdaover2 (optional, for single diffraction)
     """
 
-    ATTR_MANDATORY_NAMES = ("wavelength", )
-    ATTR_MANDATORY_TYPES = (float, )
-    ATTR_MANDATORY_CIF = ("wavelength", )
+    ATTR_MANDATORY_NAMES = ()
+    ATTR_MANDATORY_TYPES = ()
+    ATTR_MANDATORY_CIF = ()
 
-    ATTR_OPTIONAL_NAMES = ("field", "offset_ttheta", "offset_phi", "offset_gamma", "offset_nu",
+    ATTR_OPTIONAL_NAMES = ("wavelength", "field", "offset_ttheta", "offset_phi", "offset_gamma", "offset_nu",
                            "ratio_lambdaover2")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("field", "offset_2theta", "offset_phi", "offset_gamma", "offset_nu",
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float)
+    ATTR_OPTIONAL_CIF = ("wavelength", "field", "offset_2theta", "offset_phi", "offset_gamma", "offset_nu",
                          "ratio_lambda/2")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES

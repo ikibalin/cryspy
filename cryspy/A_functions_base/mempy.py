@@ -219,6 +219,7 @@ def save_spin_density_into_file(
 
     with open(f_name, "w") as fid:
         fid.write("\n".join(ls_out))
+
     return
 
 

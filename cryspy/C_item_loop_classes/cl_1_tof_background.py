@@ -161,7 +161,32 @@ class TOFBackground(ItemN):
             np_cos = numpy.cos(17.*time_rel)
             res += self.coeff18 * np_cos
         return res
-        
+    
+    def get_coefficients(self):
+        l_coeff = []
+        last_number = 1
+        for numb in range(1, 19):
+            if self.is_attribute(f"coeff{numb:}"):
+                coeff = getattr(self, f"coeff{numb:}")
+                last_number = numb
+            else:
+                coeff = 0.
+            l_coeff.append(coeff)
+        coefficients = numpy.array(l_coeff[:last_number], dtype=float)
+        return coefficients
+
+    def get_flags_coefficients(self):
+        l_flag_coeff = []
+        last_number = 1
+        for numb in range(1, 19):
+            if self.is_attribute(f"coeff{numb:}"):
+                flag_coeff = getattr(self, f"coeff{numb:}_refinement")
+                last_number = numb
+            else:
+                flag_coeff = False
+            l_flag_coeff.append(flag_coeff)
+        flags_coefficients = numpy.array(l_flag_coeff[:last_number], dtype=bool)
+        return flags_coefficients
 
 class TOFBackgroundL(LoopN):
     """Bacground description for time-of-flight experiment.

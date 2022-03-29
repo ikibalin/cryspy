@@ -974,6 +974,7 @@ REFERENCE_TABLE_BRAVAIS_TYPE_CENTRING_TYPE_CRYSTAL_SYSTEM = (
     ("mS", "A", "monoclinic"),
     ("mS", "B", "monoclinic"),
     ("mS", "C", "monoclinic"),
+    ("mI", "I", "monoclinic"),
     ("oP", "P", "orthorhombic"),
     ("oS", "A", "orthorhombic"),
     ("oS", "B", "orthorhombic"),

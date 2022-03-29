@@ -473,7 +473,15 @@ _atom_rho_orbital_radial_slater_coeff_4f
 4  5.343 0.338448007647751
 4  2.944 0.235406228519368
 
-
+# from McPhase Pr.sipf
+loop_Pr_f
+_atom_rho_orbital_radial_slater_n0
+_atom_rho_orbital_radial_slater_zeta0
+_atom_rho_orbital_radial_slater_coeff_4f
+4 10.271 0.224472239325598
+4  5.828 0.413190083732576
+4  3.885 0.395392470373499
+4  2.125 0.15761094054561
 
 # from Clementi, 1974
 loop_Ru_s

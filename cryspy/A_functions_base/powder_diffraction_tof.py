@@ -68,7 +68,15 @@ def calc_d_min_max_by_time_thermal_neutrons(time, zero, dtt1, dtt2):
     d_min = (-dtt1+numpy.sqrt(det_sq_min))/(2.*dtt2)
     return numpy.stack([d_min, d_max], axis=0)
 
-
+def calc_d_min_max_by_time_epithermal_neutrons(time, zero, dtt1, zerot, dtt1t, dtt2t):
+    d_min_max_t = calc_d_min_max_by_time_thermal_neutrons(time, zerot, dtt1t, dtt2t)
+    time_min = numpy.min(time)
+    time_max = numpy.max(time)
+    d_min_max_e = numpy.stack([(time_min-zero)/dtt1, (time_max-zero)/dtt1], axis=0)
+    d_min_max = numpy.array([
+        min([d_min_max_t[0], d_min_max_e[0]]),
+        max([d_min_max_t[1], d_min_max_e[1]])], dtype=float)
+    return d_min_max
 
 
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
@@ -120,22 +128,6 @@ imag = numpy.imag
 erfc = scipy.special.erfc
 exp1 = scipy.special.exp1  # E1 = \int_{z}^{\inf} exp(-t)/t dt
 
-#FIXME: delete this function
-def calc_hpv_eta(h_g, h_l):
-    """pseudo-Voight function
-    
-    calculate h_pV and eta based on Gauss and Lorentz Size
-    """
-    h_g_2, h_l_2 = numpy.square(h_g), numpy.square(h_l)
-    h_g_3, h_l_3 = h_g_2*h_g, h_l_2*h_l
-    h_g_4, h_l_4 = h_g_3*h_g, h_l_3*h_l
-    h_g_5, h_l_5 = h_g_4*h_g, h_l_4*h_l
-    c_2, c_3, c_4, c_5 = 2.69269, 2.42843, 4.47163, 0.07842
-    h_pv = numpy.power(h_g_5 + c_2*h_g_4*h_l + c_3*h_g_3*h_l_2 + 
-            c_4*h_g_2*h_l_3 + c_5*h_g*h_l_4 + h_l_5, 0.2)
-    hh = h_l*1./h_pv
-    eta = 1.36603*hh - 0.47719*numpy.square(hh) + 0.11116*numpy.power(hh, 3)
-    return h_pv, eta
 
 
 def calc_alpha(alpha0, alpha1, d):
@@ -207,4 +199,44 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
     exp_v[numpy.isinf(exp_v)] = 1e200
 
     res_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
+    return res_2d
+
+
+def calc_peak_shape_function(alphas, betas, sigmas, 
+        d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
+        size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt"):
+    """Calculate peak-shape function F(DELTA)
+    For Gauss peak-shape:
+        F(DELTA) = alpha * beta / (alpha+beta) * [exp(u) erfc(y) + exp(v) erfc(z)]
+    For pseudo-Voigt peak-shape:
+        F(DELTA) = ...
+    alpha = alpha0 + alpha1 / d
+    beta = beta0 + beta1 / d**4
+    sigma = sigma0 + sigma1 * d
+    u = alpha/2 * (alpha * sigma**2 + 2 DELTA)
+    v = beta/2 * (beta * sigma**2 - 2 DELTA)
+    y = (alpha * sigma**2 + DELTA)/(sigma * 2**0.5)
+    z = (beta * sigma**2 - DELTA)/(sigma * 2**0.5)
+    DELTA = time - time_hkl
+    """
+    alpha0, alpha1 = alphas[0], alphas[1]
+    beta0, beta1 = betas[0], betas[1]
+    alpha = alpha0 + alpha1 / d
+    beta = beta0 + beta1 / d**4
+
+    if peak_shape == "Gauss":
+        sigma0, sigma1 = sigmas[0], sigmas[1]
+
+        sigma = sigma0 + sigma1 * d
+        res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
+    else:  # peak_shape == "pseudo-Voigt"
+        sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
+        gamma0, gamma1, gamma2 = gammas[0], gammas[1], gammas[2]
+        sigma, gamma = calc_sigma_gamma(
+            d, sigma0, sigma1, sigma2, gamma0,
+            gamma1, gamma2, size_g=size_g, size_l=size_l,
+            strain_g=strain_g, strain_l=strain_l)
+        
+        res_2d = tof_Jorgensen_VonDreele(
+            alpha, beta, sigma, gamma, time, time_hkl)
     return res_2d

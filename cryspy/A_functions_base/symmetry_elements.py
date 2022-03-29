@@ -282,3 +282,127 @@ def calc_equivalent_reflections(index_hkl, reduced_symm_elems):
 
     index_hkl_equivalent = numpy.concatenate([index_hkl_equivalent, -1*index_hkl_equivalent], axis=2)
     return index_hkl_equivalent
+
+
+def define_centring_type_by_symm_elems(symm_elems):
+    """Define centring_type by symmetry elements."""
+    
+    symm_elem_I = numpy.array([1,1,1,2,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_A = numpy.array([0,1,1,2,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_B = numpy.array([1,0,1,2,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_C = numpy.array([1,1,0,2,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_H_1 = numpy.array([2,1,0,3,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_H_2 = numpy.array([1,2,0,3,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_R_1 = numpy.array([2,1,1,3,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_R_2 = numpy.array([1,2,2,3,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_Rrev_1 = numpy.array([1,2,1,3,1,0,0,0,1,0,0,0,1], dtype=int)
+    symm_elem_Rrev_2 = numpy.array([2,1,2,3,1,0,0,0,1,0,0,0,1], dtype=int)
+    
+    flag_I = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_I, axis=1), axis=0))
+    flag_A = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_A, axis=1), axis=0))
+    flag_B = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_B, axis=1), axis=0))
+    flag_C = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_C, axis=1), axis=0))
+    flag_H_1 = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_H_1, axis=1), axis=0))
+    flag_H_2 = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_H_2, axis=1), axis=0))
+    flag_R_1 = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_R_1, axis=1), axis=0))
+    flag_R_2 = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_R_2, axis=1), axis=0))
+    flag_Rrev_1 = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_Rrev_1, axis=1), axis=0))
+    flag_Rrev_2 = numpy.any(numpy.all(symm_elems[:13, :] == numpy.expand_dims(symm_elem_Rrev_2, axis=1), axis=0))
+    
+    flag_F = numpy.all([flag_A, flag_B, flag_C])
+    flag_H = numpy.all([flag_H_1, flag_H_2])
+    flag_R = numpy.all([flag_R_1, flag_R_2])
+    flag_Rrev = numpy.all([flag_Rrev_1, flag_Rrev_2])
+    
+    if flag_F:
+        centring_type = "F"
+    elif flag_H:
+        centring_type = "H"
+    elif flag_R:
+        centring_type = "R"
+    elif flag_Rrev:
+        centring_type = "Rrev"
+    elif flag_I:
+        centring_type = "I"
+    elif flag_A:
+        centring_type = "A"
+    elif flag_B:
+        centring_type = "B"
+    elif flag_C:
+        centring_type = "C"
+    else:
+        centring_type = "P"
+    return centring_type
+
+
+def define_bravais_type_by_symm_elems(symm_elems):
+    n_symm_elems = symm_elems.shape[1]
+    
+    symm_elem_inversion = numpy.array([-1,0,0,0,-1,0,0,0,-1], dtype=int)
+    
+    centrosymmetry = numpy.any(numpy.all(symm_elems[4:13, :] == numpy.expand_dims(symm_elem_inversion, axis=1), axis=0))
+    n_centrosymmetry = 2 if centrosymmetry else 1
+    
+    centring_type = define_centring_type_by_symm_elems(symm_elems)
+    d_centring_type = {"P":1, "A":2, "B":2, "C":2, "F":4, "H":3, "I":2, "R":3, "Rrev":3}
+    n_centring_type = d_centring_type[centring_type]
+    
+    n_elems = n_symm_elems // (n_centrosymmetry * n_centring_type)
+    
+    if n_symm_elems % (n_centrosymmetry * n_centring_type) != 0:
+        raise UserWarning("Error in number of symmetry elements")
+        
+    
+    flag_1y = numpy.any(symm_elems[5,:] != 0)
+    flag_1z = numpy.any(symm_elems[6,:] != 0)
+    flag_2x = numpy.any(symm_elems[7,:] != 0)
+    flag_2z = numpy.any(symm_elems[9,:] != 0)
+    flag_3x = numpy.any(symm_elems[10,:] != 0)
+    flag_3y = numpy.any(symm_elems[11,:] != 0)
+
+    flag_1y_no = numpy.all(symm_elems[5,:] == 0)
+    flag_1z_no = numpy.all(symm_elems[6,:] == 0)
+    flag_2x_no = numpy.all(symm_elems[7,:] == 0)
+    flag_2z_no = numpy.all(symm_elems[9,:] == 0)
+    flag_3x_no = numpy.all(symm_elems[10,:] == 0)
+    flag_3y_no = numpy.all(symm_elems[11,:] == 0)
+
+    
+    flag_cubic = numpy.all([flag_1y, flag_1z, flag_2x, flag_2z, flag_3x, flag_3y])
+    flag_no_mix = numpy.all([flag_1y_no, flag_1z_no, flag_2x_no, flag_2z_no, flag_3x_no, flag_3y_no])
+    flag_rhombohedral = numpy.all([flag_no_mix, centring_type.startswith("R")])
+    
+    flag_triclinic = n_elems == 1
+    flag_monoclinic = n_elems == 2
+    flag_orthorombic = n_elems == 4
+    flag_tetragonal = n_elems == 8
+    
+    flag_hexagonal_trigonal = numpy.all([not(flag_rhombohedral), n_elems%3==0])
+    
+    it_coordinate_system_code = None
+
+    if flag_cubic:
+        bravais_type = "c"+centring_type[0]
+    elif flag_rhombohedral:
+        bravais_type = "h"+centring_type[0]
+        it_coordinate_system_code = "r"# FIXME: not sure
+    elif flag_tetragonal:
+        bravais_type = "t"+centring_type[0]
+    elif flag_orthorombic:
+        if centring_type in ["P", "I", "F"]:
+            bravais_type = "o"+centring_type[0]
+        else:
+            bravais_type = "oS"
+    elif flag_monoclinic:
+        if centring_type in ["P", "I", "F"]:
+            bravais_type = "m"+centring_type[0]
+        else:
+            bravais_type = "mS"
+    elif flag_triclinic:
+        bravais_type = "a"+centring_type[0]
+    elif flag_hexagonal_trigonal:
+        bravais_type = "h"+centring_type[0]
+        it_coordinate_system_code = "h"
+    else:
+        bravais_type = None
+    return bravais_type, it_coordinate_system_code

@@ -110,111 +110,131 @@ class TOFProcL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
-    def plots(self):
-        return [self.plot_sum(), self.plot_diff()]
-    
-    def plot_sum(self):
-        """Plot unpolarized intensity vs. time
-        """
-        fig, ax = plt.subplots()
-        ax.set_title("Unpolarized intensity: I_up + I_down")
-        ax.set_xlabel("Time (microseconds)")
-        ax.set_ylabel('Intensity')
 
-        if (self.is_attribute("time") & self.is_attribute("intensity_plus") & 
-                self.is_attribute("intensity_plus_sigma") &
-                self.is_attribute("intensity_minus") & 
-                self.is_attribute("intensity_minus_sigma") &
-                self.is_attribute("intensity_plus_total") &
-                self.is_attribute("intensity_minus_total")):
+    def plots(self):
+        return [self.plot_sum_diff()]
+    
+    def plot_sum_diff(self):
+        """Plot unpolarized intensity vs. 2 theta
+        """
+
+        if (self.is_attribute("time") and self.is_attribute("intensity_plus") and 
+                self.is_attribute("intensity_plus_sigma") and
+                self.is_attribute("intensity_minus") and 
+                self.is_attribute("intensity_minus_sigma") and
+                self.is_attribute("intensity_plus_net") and
+                self.is_attribute("intensity_minus_net") and
+                self.is_attribute("intensity_bkg_calc")):
+
+            fig = plt.figure(constrained_layout=False)
+            gs = fig.add_gridspec(nrows=3, ncols=1, hspace=0, height_ratios=[7,1,7])
+
+            ax_1 = fig.add_subplot(gs[0, 0])
+            ax_3 = fig.add_subplot(gs[1, 0], sharex=ax_1)
+            ax_3.set_yticks([])
+            ax_2 = fig.add_subplot(gs[2, 0], sharex=ax_1)
+
+            # fig, axs = plt.subplots(nrows = 2, sharex=True)
+            # ax_1, ax_2 = axs
+            ax_2.set_xlabel(r"time (ms)")
+            ax_2.set_ylabel('Intensity (arb.u.)')
+            ax_1.set_ylabel('Intensity (arb.u.)')
+
             np_excl = numpy.array(self.excluded, dtype=bool)
             np_notexcl = numpy.logical_not(np_excl)
-            np_time = numpy.array(self.time, dtype=float)
+            np_tth = numpy.array(self.time, dtype=float)
             np_up = numpy.array(self.intensity_plus, dtype=float)
             np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
-            np_up_mod = numpy.array(self.intensity_plus_total, dtype=float)
+            np_up_mod = numpy.array(self.intensity_plus_net, dtype=float)
             np_down = numpy.array(self.intensity_minus, dtype=float)
             np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
-            np_down_mod = numpy.array(self.intensity_minus_total, dtype=float)
-            np_sum = np_up + np_down
-            np_sum_mod = np_up_mod + np_down_mod
+            np_down_mod = numpy.array(self.intensity_minus_net, dtype=float)
+            np_bkg = numpy.array(self.intensity_bkg_calc, dtype=float)
+            np_sum = np_up + np_down 
+            np_sum_mod = np_up_mod + np_down_mod + np_bkg
+            np_diff = np_up - np_down 
+            np_diff_mod = np_up_mod - np_down_mod
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-            ax.plot(np_time, np_sum_mod, "b-", label="model", linewidth=2)
-            ax.errorbar(np_time[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax.errorbar(np_time[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
+            chi_sq_diff_points = numpy.nansum(numpy.square((np_diff - np_diff_mod)/np_ssum))/np_diff_mod.size
 
-            y_min_d, y_max_d = ax.get_ylim()
-            param = y_min_d-(np_sum - np_sum_mod).max()
+            ax_1.set_title(f"Unpolarized ($\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
+
+            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
+            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+
+            y_min_d, y_max_d = ax_1.get_ylim()
+            param = y_min_d-((np_sum - np_sum_mod)[np_notexcl]).max()
             coeff = np_notexcl.astype(int)
+            ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+            ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
+            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=2)
+            ax_1.plot(np_tth, np_bkg, "b:", label="background")
+            ax_1.legend(loc='upper right')
 
-            ax.plot([np_time.min(), np_time.max()], [param, param], "k:")
-            ax.plot(np_time, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.7,
-                    label="difference")
-        elif (self.is_attribute("time") & self.is_attribute("intensity") & 
-              self.is_attribute("intensity_total") &
-              self.is_attribute("intensity_sigma")):
+            ax_2.plot([np_tth.min(), np_tth.max()], [0., 0.], "b:")
+            ax_2.errorbar(np_tth, np_diff, yerr=np_ssum, fmt="ko", alpha=0.2, label="experiment")
+
+            y_min_d, y_max_d = ax_2.get_ylim()
+            param = y_min_d-(np_diff-np_diff_mod).max()
+            ax_2.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+            ax_2.plot(np_tth, np_diff-np_diff_mod+param, "r-", alpha=0.5, label="difference")
+            ax_2.plot(np_tth, np_diff_mod, "b-", label="model", linewidth=2)
+            ax_2.legend(loc='upper right')
+
+        elif (self.is_attribute("time") and 
+                self.is_attribute("intensity") and
+                self.is_attribute("intensity_plus_net") and
+                self.is_attribute("intensity_minus_net") and
+                self.is_attribute("intensity_bkg_calc")):
+
+            fig = plt.figure(constrained_layout=False)
+            gs = fig.add_gridspec(nrows=2, ncols=1, hspace=0, height_ratios=[14,1])
+
+            ax_1 = fig.add_subplot(gs[0, 0])
+            ax_3 = fig.add_subplot(gs[1, 0], sharex=ax_1)
+            ax_3.set_yticks([])
+
+            ax_1.set_xlabel(r"time (ms)")
+            ax_1.set_ylabel('Intensity (arb.u.)')
+
             np_excl = numpy.array(self.excluded, dtype=bool)
             np_notexcl = numpy.logical_not(np_excl)
-            np_time = numpy.array(self.time, dtype=float)
+            np_tth = numpy.array(self.time, dtype=float)
             np_sum = numpy.array(self.intensity, dtype=float)
-            np_sum_mod = numpy.array(self.intensity_total, dtype=float)
             np_ssum = numpy.array(self.intensity_sigma, dtype=float)
-            ax.plot(np_time, np_sum_mod, "b-", label="model", linewidth=2)
-            ax.errorbar(np_time[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax.errorbar(np_time[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
-            y_min_d, y_max_d = ax.get_ylim()
+            np_up_mod = numpy.array(self.intensity_plus_net, dtype=float)
+            np_down_mod = numpy.array(self.intensity_minus_net, dtype=float)
+            np_bkg = numpy.array(self.intensity_bkg_calc, dtype=float)
+            np_sum_mod = np_up_mod + np_down_mod + np_bkg
+
+            chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
+            ax_1.set_title(f"Unpolarized signal $\chi^2/n = ${chi_sq_points:.2f}")
+
+            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
+            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+
+            y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-(np_sum - np_sum_mod).max()
             coeff = np_notexcl.astype(int)
 
-            ax.plot([np_time.min(), np_time.max()], [param, param], "k:")
-            ax.plot(np_time, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.7,
-                    label="difference")
-        ax.legend(loc='upper right')
-        fig.tight_layout()
-        return (fig, ax)
+            ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
+            ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
+            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=2)
 
-    def plot_diff(self):
-        """Plot polarized intensity vs. time
-        """
-        if not(self.is_attribute("time") & self.is_attribute("intensity_plus") & 
-               self.is_attribute("intensity_plus_sigma") &
-               self.is_attribute("intensity_minus") & 
-               self.is_attribute("intensity_minus_sigma") &
-               self.is_attribute("intensity_plus_total") &
-               self.is_attribute("intensity_minus_total")):
-            return
-        fig, ax = plt.subplots()
-        ax.set_title("Polarized intensity: I_up - I_down")
-        ax.set_xlabel("Time (microseconds)")
-        ax.set_ylabel('Intensity')
+            if (self.is_attribute("ttheta") and
+                    self.is_attribute("intensity_bkg_calc")):
+                np_tth = numpy.array(self.ttheta, dtype=float)
+                np_bkg = numpy.array(self.intensity_bkg_calc, dtype=float)
+                ax_1.plot(np_tth, np_bkg, "b:", label="background")
+            ax_1.legend(loc='upper right')
             
-        np_time = numpy.array(self.time, dtype=float)
-        np_up = numpy.array(self.intensity_plus, dtype=float)
-        np_sup = numpy.array(self.intensity_plus_sigma, dtype=float)
-        np_up_mod = numpy.array(self.intensity_plus_total, dtype=float)
-        np_down = numpy.array(self.intensity_minus, dtype=float)
-        np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
-        np_down_mod = numpy.array(self.intensity_minus_total, dtype=float)
-        np_diff = np_up - np_down
-        np_diff_mod = np_up_mod - np_down_mod
-        np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-
-        ax.plot([np_time.min(), np_time.max()], [0., 0.], "b:")
-        ax.plot(np_time, np_diff_mod, "b-", label="model", linewidth=2)
-        ax.errorbar(np_time, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
-                    label="experiment")
-
-        y_min_d, y_max_d = ax.get_ylim()
-        param = y_min_d-(np_diff-np_diff_mod).max()
-
-        ax.plot([np_time.min(), np_time.max()], [param, param], "k:")
-        ax.plot(np_time, np_diff-np_diff_mod+param, "r-", alpha=0.7,
-                    label="difference")
-        ax.legend(loc='upper right')
         fig.tight_layout()
-        return (fig, ax)
+        return (fig, ax_1)
 
+    def estimate_background(self, tof_background):
+        pass
 
 # s_cont = """
 #   loop_

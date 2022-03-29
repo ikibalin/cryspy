@@ -14,6 +14,7 @@ from cryspy.A_functions_base.unit_cell import calc_matrix_t
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
@@ -25,7 +26,8 @@ from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
-from cryspy.C_item_loop_classes.cl_1_texture import Texture
+from cryspy.C_item_loop_classes.cl_1_setup import Setup
+from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground
@@ -64,7 +66,7 @@ class TOF(DataN):
                          TOFMeasL)
     CLASSES_OPTIONAL = (DiffrnRadiation, Chi2, Range,
                         Texture, TOFIntensityIncident, ExcludeL, TOFProcL,
-                        TOFPeakL, RefineLs, ReflnL, ReflnSusceptibilityL)
+                        TOFPeakL, RefineLs, ReflnL, ReflnSusceptibilityL, Setup)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -683,38 +685,317 @@ class TOF(DataN):
     def plots(self):
         if self.is_attribute("tof_proc"):
             tof_proc = self.tof_proc
-            fig_s, ax_s = tof_proc.plot_sum()
-            fig_d_ax_d = tof_proc.plot_diff()
-            flag_d = fig_d_ax_d is not None
-            if flag_d:
-                fig_d, ax_d = fig_d_ax_d
-                y_min_d, y_max_d = ax_d.get_ylim()
-                y_dist_d = y_max_d-y_min_d
-                y_step_d = 0.
-
-            y_min_s, y_max_s = ax_s.get_ylim()
-            y_dist_s = y_max_s-y_min_s
-            y_step_s = 0.
-            for item in self.items:
-                if isinstance(item, TOFPeakL):
-                    np_tth = item.numpy_time
-                    ax_s.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|", label=item.loop_name)
-                    y_step_s += 0.05*y_dist_s
-                    if flag_d:
-                        ax_d.plot(np_tth, 0.*np_tth+y_min_d-y_step_d, "|", label=item.loop_name)
-                        y_step_d += 0.05*y_dist_d
-            ax_s.set_title(self.data_name)
-            ax_s.legend(loc='upper right')
-            if flag_d:
-                ax_d.set_title(self.data_name)
-                ax_d.legend(loc='upper right')
-            if flag_d:
-                res = [(fig_s, ax_s), (fig_d, ax_d)]
-            else:
-                res = [(fig_s, ax_s)]
-            return res
-            
-            return self.tof_proc.plots()
+            res = tof_proc.plot_sum_diff()
+            return [res,]
         elif self.is_attribute("tof_meas"):
             return self.tof_meas.plots()
+
+    def get_dictionary(self):
+        self.form_object()
+        dict_tof = {}
+
+        phase, range_, tof_background = None, None, None
+        exclude = None
+        tof_meas, tof_parameters, tof_profile = None, None, None
+        diffrn_radiation, texture = None, None
+        setup = None
+
+        l_obj = take_items_by_class(self, (PhaseL, ))
+        if len(l_obj) > 0:
+            phase = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Range, ))
+        if len(l_obj) > 0:
+            range_ = l_obj[0]
+
+        l_obj = take_items_by_class(self, (TOFBackground, ))
+        if len(l_obj) > 0:
+            tof_background = l_obj[0]
+
+        l_obj = take_items_by_class(self, (ExcludeL, ))
+        if len(l_obj) > 0:
+            exclude = l_obj[0]
+
+        l_obj = take_items_by_class(self, (TOFMeasL, ))
+        if len(l_obj) > 0:
+            tof_meas = l_obj[0]
+
+        l_obj = take_items_by_class(self, (TOFParameters, ))
+        if len(l_obj) > 0:
+            tof_parameters = l_obj[0]
+
+        l_obj = take_items_by_class(self, (TOFProfile, ))
+        if len(l_obj) > 0:
+            tof_profile = l_obj[0]
+
+        l_obj = take_items_by_class(self, (DiffrnRadiation, ))
+        if len(l_obj) > 0:
+            diffrn_radiation = l_obj[0]
+
+        l_obj = take_items_by_class(self, (TextureL, ))
+        if len(l_obj) > 0:
+            texture = l_obj[0]
+
+        l_obj = take_items_by_class(self, (Setup, ))
+        if len(l_obj) > 0:
+            setup = l_obj[0]
+
+        dict_tof["name"] = self.data_name
+        dict_tof["type_name"] = self.get_name()
+
+        if phase is not None:
+            dict_tof["phase_name"] = numpy.array(phase.label, dtype=str)
+
+            if phase.is_attribute("igsize"):
+                dict_tof["phase_ig"] = numpy.array(phase.igsize, dtype=float)
+                dict_tof["flags_phase_ig"] = numpy.array(phase.igsize_refinement, dtype=bool)
+            else:
+                dict_tof["phase_ig"] = numpy.zeros((len(phase.items),), dtype=float)
+                dict_tof["flags_phase_ig"] = numpy.zeros((len(phase.items),), dtype=bool)
+
+            if phase.is_attribute("scale"):
+                dict_tof["phase_scale"] = numpy.array(phase.scale, dtype=float)
+                dict_tof["flags_phase_scale"] = numpy.array(phase.scale_refinement, dtype=bool)
+            else:
+                dict_tof["phase_scale"] = numpy.zeros((len(phase.items),), dtype=float)
+                dict_tof["flags_phase_scale"] = numpy.zeros((len(phase.items),), dtype=bool)
+
+        if tof_background is not None:
+            dict_tof["background_time_max"] = tof_background.time_max
+            dict_tof["background_coefficients"] = tof_background.get_coefficients()
+            dict_tof["flags_background_coefficients"] = tof_background.get_flags_coefficients()
+            
+
+        if tof_meas is not None:
+            time = numpy.array(tof_meas.time, dtype=float)
+
+            time_min = range_.time_min
+            time_max = range_.time_max
+            dict_tof["time_min"] = time_min
+            dict_tof["time_max"] = time_max
+
+
+            flag_in = numpy.logical_and(
+                time >= time_min,
+                time <= time_max)
+            
+            dict_tof["time"] = time[flag_in]
+            if tof_meas.is_attribute("intensity_plus"):
+                int_plus = numpy.array(tof_meas.intensity_plus, dtype=float)[flag_in]
+                s_int_plus = numpy.array(tof_meas.intensity_plus_sigma, dtype=float)[flag_in]
+                int_minus = numpy.array(tof_meas.intensity_minus, dtype=float)[flag_in]
+                s_int_minus = numpy.array(tof_meas.intensity_minus_sigma, dtype=float)[flag_in]
+                dict_tof["signal_exp_plus"] = numpy.stack([int_plus, s_int_plus], axis=0)
+                dict_tof["signal_exp_minus"] = numpy.stack([int_minus, s_int_minus], axis=0)
+            else:
+                int_sum = numpy.array(tof_meas.intensity, dtype=float)[flag_in]
+                s_int_sum = numpy.array(tof_meas.intensity_sigma, dtype=float)[flag_in]
+                dict_tof["signal_exp"] = numpy.stack([int_sum, s_int_sum], axis=0)
+
+            time_in_range = time[flag_in]
+            flag_exclude = numpy.zeros(time_in_range.shape, dtype=bool)
+            if exclude is not None:
+                for item_e in exclude.items:
+                    flag_in_1 = numpy.logical_and(
+                        time_in_range >= item_e.time_min,
+                        time_in_range <= item_e.time_max)
+                    flag_exclude = numpy.logical_or(flag_exclude, flag_in_1)
+            dict_tof["excluded_points"] = flag_exclude
+
+
+        if tof_parameters is not None:
+            dict_tof["ttheta_bank"] = tof_parameters.ttheta_bank * numpy.pi/180
+            dict_tof["neutron_type"] = tof_parameters.neutrons
+            dict_tof["zero"] = tof_parameters.zero
+            dict_tof["dtt1"] = tof_parameters.dtt1
+            if tof_parameters.is_attribute("dtt2"):
+                dict_tof["dtt2"] = tof_parameters.dtt2
+            if tof_parameters.is_attribute("zerot"):
+                dict_tof["zerot"] = tof_parameters.zerot
+            if tof_parameters.is_attribute("dtt1t"):
+                dict_tof["dtt1t"] = tof_parameters.dtt1t
+            if tof_parameters.is_attribute("dtt2t"):
+                dict_tof["dtt2t"] = tof_parameters.dtt2t
+
+
+        if tof_profile is not None:
+            l_alpha = []
+            for numb in range(2):
+                if tof_profile.is_attribute(f"alpha{numb:}"):
+                    l_alpha.append(getattr(tof_profile, f"alpha{numb:}"))
+                else:
+                    break
+
+            l_beta = []
+            for numb in range(2):
+                if tof_profile.is_attribute(f"beta{numb:}"):
+                    l_beta.append(getattr(tof_profile, f"beta{numb:}"))
+                else:
+                    break
+
+            l_gamma = []
+            for numb in range(2):
+                if tof_profile.is_attribute(f"gamma{numb:}"):
+                    l_gamma.append(getattr(tof_profile, f"gamma{numb:}"))
+                else:
+                    break
+
+            l_sigma = []
+            for numb in range(3):
+                if tof_profile.is_attribute(f"sigma{numb:}"):
+                    l_sigma.append(getattr(tof_profile, f"sigma{numb:}"))
+                else:
+                    break
+
+            if tof_profile.is_attribute("peak_shape"):
+                peak_shape = tof_profile.peak_shape
+            else:
+                peak_shape = "pseudo-Voigt"
+
+            dict_tof["profile_alphas"] = numpy.array(l_alpha, dtype=float)
+            dict_tof["profile_betas"] = numpy.array(l_beta, dtype=float)
+            dict_tof["profile_gammas"] = numpy.array(l_gamma, dtype=float)
+            dict_tof["profile_sigmas"] = numpy.array(l_sigma, dtype=float)
+            dict_tof["profile_peak_shape"] = peak_shape
+
+        if diffrn_radiation is not None:
+            beam_polarization = diffrn_radiation.polarization
+            flipper_efficiency = diffrn_radiation.efficiency
+            dict_tof["beam_polarization"] = numpy.array([beam_polarization], dtype=float)
+            dict_tof["flipper_efficiency"] = numpy.array([flipper_efficiency], dtype=float)
+            dict_tof["flags_beam_polarization"] = numpy.array([diffrn_radiation.polarization_refinement], dtype=bool)
+            dict_tof["flags_flipper_efficiency"] = numpy.array([diffrn_radiation.efficiency_refinement], dtype=bool)
+
+
+        if texture is not None:
+            dict_tof["texture_name"] = numpy.array(texture.label, dtype=str)
+            dict_tof["texture_g1"] = numpy.array(texture.g_1, dtype=float)
+            dict_tof["texture_g2"] = numpy.array(texture.g_2, dtype=float)
+            dict_tof["texture_axis"] = numpy.array(
+                [texture.h_ax, texture.k_ax, texture.l_ax], dtype=float)
+            dict_tof["flags_texture_g1"] = numpy.array(texture.g_1_refinement, dtype=bool)
+            dict_tof["flags_texture_g2"] = numpy.array(texture.g_2_refinement, dtype=bool)
+            dict_tof["flags_texture_axis"] = numpy.array(
+                [texture.h_ax_refinement, 
+                 texture.k_ax_refinement, 
+                 texture.l_ax_refinement], dtype=bool)
+
+
+        if setup is not None:
+            dict_tof["magnetic_field"] = numpy.array([setup.field], dtype=float)
+
+        return dict_tof
+
+
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        keys = ddict_diffrn.keys()
+        if l_parameter_name is not None:
+            parameter_label = [hh[0] for hh in l_parameter_name]
+        else:
+            parameter_label = []
+        if "beam_polarization" in keys:
+            self.diffrn_radiation.polarization = ddict_diffrn["beam_polarization"]
+
+        if "flipper_efficiency" in keys:
+            self.diffrn_radiation.efficiency = ddict_diffrn["flipper_efficiency"]
+
+        if "phase_scale" in keys:
+            hh = ddict_diffrn["phase_scale"]
+            for i_item, item in enumerate(self.phase.items):
+                item.scale = float(hh[i_item])
+
+        if "phase_ig" in keys:
+            hh = ddict_diffrn["phase_ig"]
+            for i_item, item in enumerate(self.phase.items):
+                item.igsize = float(hh[i_item])
+
+
+        if len(parameter_label) > 0:
+            for name, sigma in zip(l_parameter_name, l_sigma):
+                if name[0] == "phase_scale":
+                    self.phase.items[name[1][0]].scale_sigma = float(sigma)
+                if name[0] == "phase_ig":
+                    self.phase.items[name[1][0]].igsize_sigma = float(sigma)
+                if name[0] == "beam_polarization":
+                    self.diffrn_radiation.polarization_sigma = float(sigma)
+                if name[0] == "flipper_efficiency":
+                    self.diffrn_radiation.efficiency_sigma = float(sigma)
+                if name[0] == "texture_g1":
+                    self.texture.items[name[1][0]].g1_sigma = float(sigma)
+                if name[0] == "texture_g2":
+                    self.texture.items[name[1][0]].g2_sigma = float(sigma)
+                if name[0] == "texture_axis":
+                    ind_param, ind_a = name[1]
+                    if ind_param == 0:
+                        self.texture.items[ind_a].h_ax_sigma = float(sigma)
+                    if ind_param == 1:
+                        self.texture.items[ind_a].k_ax_sigma = float(sigma)
+                    if ind_param == 2:
+                        self.texture.items[ind_a].l_ax_sigma = float(sigma)
+
+        if (("signal_plus" in keys) and ("signal_minus" in keys)):
+            tof_proc = TOFProcL()
+            tof_proc.numpy_time = numpy.round(ddict_diffrn["time"], decimals=5)
+            tof_proc.numpy_intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], decimals=5)
+            tof_proc.numpy_intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], decimals=5)
+            if "signal_exp_plus" in keys:
+                tof_proc.numpy_intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0], decimals=5)
+                tof_proc.numpy_intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1], decimals=5)
+                tof_proc.numpy_intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0], decimals=5)
+                tof_proc.numpy_intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1], decimals=5)
+            else:
+                tof_proc.numpy_intensity = numpy.round(ddict_diffrn["signal_exp"][0], decimals=5)
+                tof_proc.numpy_intensity_sigma = numpy.round(ddict_diffrn["signal_exp"][1], decimals=5)
+            tof_proc.numpy_intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], decimals=5)
+            tof_proc.numpy_excluded = ddict_diffrn["excluded_points"]
+            tof_proc.numpy_to_items()
+            self.tof_proc = tof_proc
+
+        l_tof_peak = []
+        l_refln = []
+        for item_phase in self.phase.items:
+            s_label = f"dict_in_out_{item_phase.label:}"
+            if s_label in keys:
+                dict_crystal = ddict_diffrn[s_label]
+                dict_crystal_keys = dict_crystal.keys()
+                if (("index_hkl" in dict_crystal_keys) and  ("time_hkl" in dict_crystal_keys)):
+                    index_hkl = dict_crystal["index_hkl"]
+                    time_hkl = dict_crystal["time_hkl"]
+
+                    tof_peak = TOFPeakL(loop_name = item_phase.label)
+                    int_plus_max, int_minus_max = None, None
+                    if "iint_plus_with_factors" in dict_crystal_keys:
+                        int_plus_max = dict_crystal["iint_plus_with_factors"]
+                    if "iint_minus_with_factors" in dict_crystal_keys:
+                        int_minus_max = dict_crystal["iint_minus_with_factors"]
+
+                    if "f_nucl":
+                        refln = ReflnL(loop_name = item_phase.label)
+                        refln.numpy_index_h = index_hkl[0]
+                        refln.numpy_index_k = index_hkl[1]
+                        refln.numpy_index_l = index_hkl[2]
+                        refln.numpy_a_calc = dict_crystal["f_nucl"].real
+                        refln.numpy_b_calc = dict_crystal["f_nucl"].imag
+                        refln.numpy_to_items()
+                        l_refln.append(refln)
+
+                    if not((int_plus_max is None) and (int_minus_max is None)):
+                        tof_peak.numpy_index_h = index_hkl[0]
+                        tof_peak.numpy_index_k = index_hkl[1]
+                        tof_peak.numpy_index_l = index_hkl[2]
+                        tof_peak.numpy_time = numpy.round(time_hkl, decimals=3)
+                        tof_peak.numpy_intensity_plus = int_plus_max
+                        tof_peak.numpy_intensity_minus = int_minus_max
+                        tof_peak.numpy_to_items()
+                        l_tof_peak.append(tof_peak)
+
+        if len(l_tof_peak) > 0:
+            self.add_items(l_tof_peak)
+        if len(l_refln) > 0:
+            self.add_items(l_refln)
+
+    def estimate_background(self):
+        tof_background = self.tof_background
+        tof_proc = self.tof_proc
+        tof_proc.estimate_background(tof_background)
 

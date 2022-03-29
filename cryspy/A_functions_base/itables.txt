@@ -83,6 +83,13 @@ pcentr: 0, 0, 0
 symmetry: x,y,z
 symmetry: x,-y,z
 
+12 C2/m            Monoclinic
+choice: 3
+centr: true
+pcentr: 0, 0, 0
+symmetry: x,y,z
+symmetry: x,-y,z
+
 13 P2/c            Monoclinic
 choice: 1
 centr: true
@@ -2095,11 +2102,11 @@ choice: 1
 centr: false
 pcentr: 0, 0, 0
 symmetry: x,y,z
-symmetry: y,x-y,z+1/3
-symmetry: x+y,-x,z+2/3
-symmetry: x,-y,z
-symmetry: ,-x+y,z+1/3
-symmetry: -y,x,z+2/3
+symmetry: -y,x-y,z+1/3
+symmetry: -x+y,-x,z+2/3
+symmetry: -x,-y,z
+symmetry: y,-x+y,z+1/3
+symmetry: x-y,x,z+2/3
 
 173 P6(3)          Hexagonal
 choice: 1

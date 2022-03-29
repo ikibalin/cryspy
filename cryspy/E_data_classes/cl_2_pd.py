@@ -771,7 +771,7 @@ class Pd(DataN):
 
 
     def get_dictionary(self):
-        """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.
+        """Form dictionary. See documentation module CrysPy using Jupyter notebook.
         """
         self.form_object()
         ddict = {}
