@@ -6,13 +6,13 @@ from typing import NoReturn, Union
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
-def hessian_to_correlation(np_hessian):
-    """Calculate correlation matrix and sigmas for hessian matrix."""
-    np_sigma_sq = numpy.diagonal(np_hessian)
+def inversed_hessian_to_correlation(inv_hessian):
+    """Calculate correlation matrix and sigmas for inversed hessian matrix."""
+    np_sigma_sq = numpy.diagonal(inv_hessian)
     np_na = numpy.newaxis
     np_sigma = numpy.sqrt(numpy.abs(np_sigma_sq))
     np_sigma_sq_matrix = np_sigma[:, np_na] * np_sigma[np_na, :]
-    np_correlation_matrix = np_hessian / np_sigma_sq_matrix
+    np_correlation_matrix = inv_hessian / np_sigma_sq_matrix
     return np_correlation_matrix, np_sigma
 
 class InversedHessian(ItemN):
@@ -100,7 +100,7 @@ class InversedHessian(ItemN):
 
         np_label = numpy.array(l_label, dtype=str)
         np_matrix = numpy.array(l_matrix, dtype=float)
-        np_correlation_matrix, np_sigma = hessian_to_correlation(np_matrix)
+        np_correlation_matrix, np_sigma = inversed_hessian_to_correlation(np_matrix)
         
         self.set_labels(np_label)
         self.set_inversed_hessian(np_matrix)

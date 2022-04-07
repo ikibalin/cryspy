@@ -79,7 +79,7 @@ class AtomRhoOrbitalRadialSlater(ItemN):
     for key in ATTR_CONSTR_MARK:
         D_DEFAULT[key] = ""
 
-    PREFIX = "atom_rho_orbital_radial_Slater"
+    PREFIX = "atom_rho_orbital_radial_slater"
 
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomRhoOrbitalRadialSlater, self).__init__()
@@ -153,7 +153,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
     """
 
     ITEM_CLASS = AtomRhoOrbitalRadialSlater
-    ATTR_INDEX = "atom_label"
+    ATTR_INDEX = None # "atom_label"
 
     def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomRhoOrbitalRadialSlaterL, self).__init__()
@@ -233,9 +233,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
         """
         n0 = numpy.array(self.n0, dtype=int)
         zeta0 = numpy.array(self.zeta0, dtype=float)
-        coeff_h = getattr(self, f"coeff_{shell:}")
-
-        coeff = numpy.array([_.value for _ in coeff_h], dtype=float)
+        coeff = numpy.array(getattr(self, f"coeff_{shell:}"), dtype=float)
 
         if any([_ is None for _ in coeff]):
             return None

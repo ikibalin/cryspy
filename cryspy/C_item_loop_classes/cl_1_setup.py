@@ -15,6 +15,7 @@ class Setup(ItemN):
     ----------
         - wavelength (mandatory) (in Angstrems)
         - field (optional) (in Tesla)
+        - radiation (optional) (neutrons by default, or X-rays)
         - offset_ttheta (optional for powder 1d and 2d) (in degrees)
         - offset_phi (optional for powder 2d) (in degrees)
         - ratio_lambdaover2 (optional, for single diffraction)
@@ -25,10 +26,10 @@ class Setup(ItemN):
     ATTR_MANDATORY_CIF = ()
 
     ATTR_OPTIONAL_NAMES = ("wavelength", "field", "offset_ttheta", "offset_phi", "offset_gamma", "offset_nu",
-                           "ratio_lambdaover2")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float)
+                           "ratio_lambdaover2", "radiation")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str)
     ATTR_OPTIONAL_CIF = ("wavelength", "field", "offset_2theta", "offset_phi", "offset_gamma", "offset_nu",
-                         "ratio_lambda/2")
+                         "ratio_lambda/2", "radiation")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -52,10 +53,10 @@ class Setup(ItemN):
                  "ratio_lambdaover2": "{:.3f}"}
 
     # constraints on the parameters
-    D_CONSTRAINTS = {}
+    D_CONSTRAINTS = {"radiation": ["neutrons", "X-rays"]}
 
     # default values for the parameters
-    D_DEFAULT = {"offset_2theta": 0.}
+    D_DEFAULT = {"offset_2theta": 0., "radiation": "neutrons"}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
@@ -93,17 +94,3 @@ class SetupL(LoopN):
         super(SetupL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
-
-# s_cont = """
-#   loop_
-#  _setup_wavelength   0.84
-#  _setup_field        1.00
-#  _setup_offset_2theta -0.385
-#  _setup_offset_phi -0.385
-#     0.84 1.0 -0.385 -0.385
-#     1.0  1.5 0.7 0.3
-#   """
-
-# obj = SetupL.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj[0], end="\n\n")

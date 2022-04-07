@@ -8,7 +8,9 @@ from cryspy.A_functions_base.unit_cell import \
     calc_sthovl_by_unit_cell_parameters, calc_matrix_t
 
 from cryspy.A_functions_base.structure_factor import \
-    calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, \
+    calc_f_nucl_by_dictionary, \
+    calc_f_charge_by_dictionary, \
+    calc_sft_ccs_by_dictionary, \
     calc_index_hkl_multiplicity_in_range
 
 from cryspy.A_functions_base.integrated_intensity_powder_diffraction import \
@@ -86,6 +88,7 @@ def calc_chi_sq_for_pd_by_dictionary(
 
     wavelength = dict_pd["wavelength"]
     flags_wavelength = dict_pd["flags_wavelength"]
+    radiation = dict_pd["radiation"]
 
     if "beam_polarization" in dict_pd_keys:
         beam_polarization = dict_pd["beam_polarization"]
@@ -221,29 +224,41 @@ def calc_chi_sq_for_pd_by_dictionary(
         flag_ttheta_hkl = flag_sthovl_hkl or flags_wavelength
         ttheta_hkl = 2*numpy.arcsin(sthovl_hkl*wavelength)
         dict_in_out_phase["ttheta_hkl"] = ttheta_hkl
+        if radiation[0].startswith("neutrons"):
+            f_nucl, dder_f_nucl = calc_f_nucl_by_dictionary(
+                dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
+            flag_f_nucl = len(dder_f_nucl.keys()) > 0
 
-        f_nucl, dder_f_nucl = calc_f_nucl_by_dictionary(
-            dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
-        flag_f_nucl = len(dder_f_nucl.keys()) > 0
+            sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
+                dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
+            flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
 
-        sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
-            dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
-        flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
+            flag_matrix_t = flag_unit_cell_parameters
+            matrix_t, dder_matrix_t = calc_matrix_t(
+                index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
-        flag_matrix_t = flag_unit_cell_parameters
-        matrix_t, dder_matrix_t = calc_matrix_t(
-            index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
+            flag_tensor_sigma = flag_sft_ccs or flag_unit_cell_parameters
+            tensor_sigma, dder_tensor_sigma = calc_m1_m2_m1t(matrix_t, sft_ccs, flag_m1=flag_sft_ccs, flag_m2=flag_unit_cell_parameters)
 
-        flag_tensor_sigma = flag_sft_ccs or flag_unit_cell_parameters
-        tensor_sigma, dder_tensor_sigma = calc_m1_m2_m1t(matrix_t, sft_ccs, flag_m1=flag_sft_ccs, flag_m2=flag_unit_cell_parameters)
+            iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_para(
+                f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
+                flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
+                flag_polarization=flags_beam_polarization, flag_flipper=flags_flipper_efficiency)
 
-        iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_para(
-            f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
-            flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
-            flag_polarization=flags_beam_polarization, flag_flipper=flags_flipper_efficiency)
-        
-        dict_in_out_phase["iint_plus"] = iint_plus
-        dict_in_out_phase["iint_minus"] = iint_minus
+            dict_in_out_phase["iint_plus"] = iint_plus
+            dict_in_out_phase["iint_minus"] = iint_minus
+        elif radiation[0].startswith("X-rays"):
+            f_charge, dder_f_charge = calc_f_charge_by_dictionary(
+                dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
+            flag_f_charge = len(dder_f_charge.keys()) > 0
+
+            iint = numpy.square(numpy.abs(f_charge))
+            # FIXME: preparation for XMD
+            iint_plus = iint 
+            iint_minus = iint
+
+            dict_in_out_phase["iint_plus"] = iint_plus
+            dict_in_out_phase["iint_minus"] = iint_minus
 
         if flag_phase_texture:
             flag_texture_g1 = numpy.any(flags_texture_g1)

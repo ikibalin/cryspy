@@ -192,8 +192,28 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         return chi_sq
 
     hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
+    
+    l_label = []
+    for way in parameter_names:
+        way_1, way_2, way_3 = way[0], way[1], way[2]
+        l_h = way_1.split("_")
+        if len(l_h) > 1:
+            s_1 = "_".join(l_h[1:])
+        else:
+            s_1 = l_h[0]
 
-    l_label = [f"{i_param: }" for i_param, var_name in enumerate(parameter_names)]
+        l_h = way_2.split("_")
+        if len(l_h) > 1:
+            s_2 = "_".join(l_h[1:])
+        else:
+            s_2 = l_h[0]
+
+        s_3 = str(way_3).replace(" ", "")
+
+        l_label.append(f"{s_1:},{s_2:},{s_3:}")
+
+
+    # l_label = [f"{str(var_name).replace(' ',''):}" for i_param, var_name in enumerate(parameter_names)]
 
     inv_hessian = InversedHessian()
     inv_hessian.set_labels(l_label)

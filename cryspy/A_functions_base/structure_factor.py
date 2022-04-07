@@ -289,6 +289,93 @@ def calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_
     return f_nucl, dder
 
 
+
+def calc_f_charge_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data: bool = False):
+    """Calculate nuclear structure factor based on the information given in dictionary.
+    Output information is written in the same dictionary. The following keys have to be defined.
+    """
+    dict_crystal_keys = dict_crystal.keys()
+    dict_in_out_keys = dict_in_out.keys()
+    necessary_crystal_keys = set(["atom_fract_xyz", "atom_occupancy",
+        "atom_scat_length_neutron", "atom_b_iso", "atom_beta", "unit_cell_parameters"])
+    diff_set_crystal = necessary_crystal_keys.difference(set(dict_crystal_keys))
+    if len(diff_set_crystal) != 0:
+        raise AttributeError(f"The following attributes have to be defined {diff_set_crystal:}")
+
+    flag_reduced_symm_elems = len(set(["reduced_symm_elems", "centrosymmetry", "translation_elems"]).difference(set(dict_crystal_keys))) == 0
+    flag_full_symm_elems = len(set(["full_symm_elems", ]).difference(set(dict_crystal_keys))) == 0
+    flag_full_mcif_elems = len(set(["full_mcif_elems", ]).difference(set(dict_crystal_keys))) == 0
+
+    if not(flag_reduced_symm_elems or flag_full_symm_elems or flag_full_mcif_elems):
+        raise AttributeError("The symmetry elements have to be defined.")
+
+    necessary_in_out_keys = set(["index_hkl", ])
+    diff_set_in_out = necessary_in_out_keys.difference(set(dict_in_out_keys))
+    if len(diff_set_in_out) != 0:
+        raise AttributeError(f"The following attributes have to be defined {diff_set_in_out:}")
+
+    index_hkl = dict_in_out["index_hkl"]
+    if flag_reduced_symm_elems:
+        reduced_symm_elems = dict_crystal["reduced_symm_elems"]
+        centrosymmetry = dict_crystal["centrosymmetry"]
+        if centrosymmetry:
+            centrosymmetry_position = dict_crystal["centrosymmetry_position"]
+        else:
+            centrosymmetry_position = None
+        translation_elems = dict_crystal["translation_elems"]
+    elif flag_full_symm_elems:
+        full_symm_elems = dict_crystal["full_symm_elems"]
+        reduced_symm_elems = full_symm_elems
+        centrosymmetry = False
+        centrosymmetry_position = None
+        translation_elems = numpy.array([[0], [0], [0], [1]], dtype=int)
+    elif flag_full_mcif_elems:
+        full_mcif_elems = dict_crystal["full_mcif_elems"]
+        reduced_symm_elems = full_mcif_elems[:13]
+        centrosymmetry = False
+        centrosymmetry_position = None
+        translation_elems = numpy.array([[0], [0], [0], [1]], dtype=int)
+
+    unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+
+    atom_fract_xyz = dict_crystal["atom_fract_xyz"]
+    atom_site_sc_fract = dict_crystal["atom_site_sc_fract"] 
+    atom_site_sc_b = dict_crystal["atom_site_sc_b"] 
+    atom_fract_xyz = calc_m_v(atom_site_sc_fract, numpy.mod(atom_fract_xyz, 1), flag_m=False, flag_v=False)[0] + atom_site_sc_b
+
+    atom_occupancy = dict_crystal["atom_occupancy"]
+    
+    scat_length_neutron = dict_crystal["atom_scat_length_neutron"]
+
+
+    atom_b_iso = dict_crystal["atom_b_iso"]
+    atom_beta = dict_crystal["atom_beta"]
+    if "atom_site_aniso_sc_beta" in dict_crystal_keys:
+        atom_site_aniso_sc_beta = dict_crystal["atom_site_aniso_sc_beta"]
+        atom_site_aniso_index = dict_crystal["atom_site_aniso_index"]
+        atom_sc_beta = numpy.zeros((6,)+atom_beta.shape, dtype=float)
+        atom_sc_beta[:, :, atom_site_aniso_index] = atom_site_aniso_sc_beta
+        atom_beta = (atom_sc_beta*numpy.expand_dims(atom_beta, axis=0)).sum(axis=1)
+
+    flag_unit_cell_parameters = numpy.any(dict_crystal["flags_unit_cell_parameters"])
+    flag_atom_fract_xyz = numpy.any(dict_crystal["flags_atom_fract_xyz"])
+    flag_atom_occupancy = numpy.any(dict_crystal["flags_atom_occupancy"])
+    flag_atom_b_iso = numpy.any(dict_crystal["flags_atom_b_iso"])
+    flag_atom_beta = numpy.any(dict_crystal["flags_atom_beta"])
+
+    
+    f_charge, dder = calc_f_charge(index_hkl,
+        reduced_symm_elems, centrosymmetry, centrosymmetry_position, translation_elems,
+        unit_cell_parameters, atom_fract_xyz, atom_occupancy, scat_length_neutron, atom_b_iso, atom_beta,
+        dict_in_out, 
+        flag_unit_cell_parameters=flag_unit_cell_parameters, flag_atom_fract_xyz=flag_atom_fract_xyz,
+        flag_atom_occupancy=flag_atom_occupancy, flag_atom_b_iso=flag_atom_b_iso, flag_atom_beta=flag_atom_beta,
+        flag_use_precalculated_data=flag_use_precalculated_data)
+    
+
+    return f_charge, dder
+
+
 def calc_f_nucl(index_hkl,
         reduced_symm_elems, centrosymmetry, centrosymmetry_position, translation_elems,
         unit_cell_parameters, atom_fract_xyz, atom_occupancy, scat_length_neutron, atom_b_iso, atom_beta,

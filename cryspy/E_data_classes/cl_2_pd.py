@@ -833,6 +833,7 @@ class Pd(DataN):
             ddict["flags_wavelength"] = numpy.array([setup.wavelength_refinement], dtype=bool)
             ddict["offset_ttheta"] = numpy.array([setup.offset_ttheta * numpy.pi/180.], dtype=float)
             ddict["flags_offset_ttheta"] = numpy.array([setup.offset_ttheta_refinement], dtype=bool)
+            ddict["radiation"] = numpy.array([setup.radiation], dtype=str)
 
         if chi2 is not None:
             ddict["flag_chi_sq_sum"] = chi2.sum
