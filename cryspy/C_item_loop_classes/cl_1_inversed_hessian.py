@@ -99,7 +99,10 @@ class InversedHessian(ItemN):
             l_matrix.append(l_1[1:])
 
         np_label = numpy.array(l_label, dtype=str)
+        arg_sort = numpy.argsort(np_label)
+        np_label = np_label[arg_sort]
         np_matrix = numpy.array(l_matrix, dtype=float)
+        np_matrix = np_matrix[arg_sort,:][:, arg_sort]
         np_correlation_matrix, np_sigma = inversed_hessian_to_correlation(np_matrix)
         
         self.set_labels(np_label)

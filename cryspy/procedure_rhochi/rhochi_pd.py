@@ -2,7 +2,7 @@ import numpy
 import scipy
 import scipy.interpolate
 
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t, calc_m_v
 
 from cryspy.A_functions_base.unit_cell import \
     calc_sthovl_by_unit_cell_parameters, calc_matrix_t
@@ -11,10 +11,11 @@ from cryspy.A_functions_base.structure_factor import \
     calc_f_nucl_by_dictionary, \
     calc_f_charge_by_dictionary, \
     calc_sft_ccs_by_dictionary, \
-    calc_index_hkl_multiplicity_in_range
+    calc_index_hkl_multiplicity_in_range, \
+    calc_f_m_perp_ordered_by_dictionary
 
 from cryspy.A_functions_base.integrated_intensity_powder_diffraction import \
-    calc_powder_iint_1d_para
+    calc_powder_iint_1d_para, calc_powder_iint_1d_ordered, calc_powder_iint_1d_mix
 
 from cryspy.A_functions_base.preferred_orientation import calc_preferred_orientation_pd
 
@@ -147,8 +148,11 @@ def calc_chi_sq_for_pd_by_dictionary(
         pd_flags_texture_axis = dict_pd["flags_texture_axis"]
     else:
         flag_texture = False
-
-    lorentz_factor, dder_lf = calc_lorentz_factor(ttheta_zs, flag_ttheta=flags_offset_ttheta)
+    
+    k = dict_pd["k"]
+    cthm = dict_pd["cthm"]
+    
+    lorentz_factor, dder_lf = calc_lorentz_factor(ttheta_zs, k=k, cthm=cthm, flag_ttheta=flags_offset_ttheta)
     dict_in_out["lorentz_factor"] = lorentz_factor
 
 
@@ -180,9 +184,16 @@ def calc_chi_sq_for_pd_by_dictionary(
             dict_in_out[f"dict_in_out_{p_name:}"] = dict_in_out_phase
 
         dict_in_out_phase_keys = dict_in_out_phase.keys()
+        dict_crystal_keys = dict_crystal.keys()
 
-        reduced_symm_elems  = dict_crystal["reduced_symm_elems"]
-        translation_elems = dict_crystal["translation_elems"]
+        if "reduced_symm_elems" in dict_crystal_keys:
+            reduced_symm_elems  = dict_crystal["reduced_symm_elems"]
+            translation_elems = dict_crystal["translation_elems"]
+        elif "full_symm_elems" in dict_crystal_keys:
+            full_symm_elems = dict_crystal["full_symm_elems"]
+        elif "full_mcif_elems" in dict_crystal_keys:
+            full_mcif_elems  = dict_crystal["full_mcif_elems"]
+
         unit_cell_parameters = dict_crystal["unit_cell_parameters"]
         flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
         flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
@@ -203,10 +214,16 @@ def calc_chi_sq_for_pd_by_dictionary(
                 reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
                 translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, False)
             else:
-                index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems)
+                if "reduced_symm_elems" in dict_crystal_keys:
+                    centrosymmetry = dict_crystal["centrosymmetry"]
+                    index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
+                        sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry)
+                else:
+                    translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
+                    index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
+                        sthovl_min, sthovl_max, unit_cell_parameters, full_mcif_elems[:13], translation_elems_p1, False)
 
             if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
@@ -229,27 +246,76 @@ def calc_chi_sq_for_pd_by_dictionary(
                 dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
             flag_f_nucl = len(dder_f_nucl.keys()) > 0
 
-            sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
-                dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
-            flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
+            flag_para = False
+            if "atom_para_index" in dict_crystal_keys:
+                sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
+                    dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
+                flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
 
-            flag_matrix_t = flag_unit_cell_parameters
-            matrix_t, dder_matrix_t = calc_matrix_t(
-                index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
+                flag_matrix_t = flag_unit_cell_parameters
+                matrix_t, dder_matrix_t = calc_matrix_t(
+                    index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
-            flag_tensor_sigma = flag_sft_ccs or flag_unit_cell_parameters
-            tensor_sigma, dder_tensor_sigma = calc_m1_m2_m1t(matrix_t, sft_ccs, flag_m1=flag_sft_ccs, flag_m2=flag_unit_cell_parameters)
+                flag_tensor_sigma = flag_sft_ccs or flag_unit_cell_parameters
+                tensor_sigma, dder_tensor_sigma = calc_m1_m2_m1t(matrix_t, sft_ccs, flag_m1=flag_sft_ccs, flag_m2=flag_unit_cell_parameters)
+                flag_para = True
 
-            iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_para(
-                f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
-                flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
-                flag_polarization=flags_beam_polarization, flag_flipper=flags_flipper_efficiency)
+            flag_ordered = False
+            if "atom_ordered_index" in dict_crystal_keys:
+                f_m_perp_o_ccs, dder_f_m_perp_o_ccs = calc_f_m_perp_ordered_by_dictionary(
+                    dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
+                flag_f_m_perp_o =  len(dder_f_m_perp_o_ccs.keys()) > 0
+                flag_ordered = True
+
+                flag_matrix_t = flag_unit_cell_parameters
+                matrix_t, dder_matrix_t = calc_matrix_t(
+                    index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
+                f_m_perp_o, dder_f_m_perp_o = calc_m_v(matrix_t, f_m_perp_o_ccs, flag_m=flag_unit_cell_parameters, flag_v=flag_f_m_perp_o)
+
+            if flag_para and not(flag_ordered):
+                flag_iint_plus_minus = flag_f_nucl or flag_tensor_sigma or flags_beam_polarization or flags_flipper_efficiency
+                if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minu" in dict_in_out_phase_keys) and
+                        flag_use_precalculated_data and not(flag_iint_plus_minus)):
+                    iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
+                else:
+                    iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_para(
+                        f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
+                        flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
+                        flag_polarization=flags_beam_polarization, flag_flipper=flags_flipper_efficiency)
+            elif not(flag_para) and flag_ordered:
+                flag_iint_plus_minus = flag_f_nucl or flag_f_m_perp_o or flags_beam_polarization or flags_flipper_efficiency
+                if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minus" in dict_in_out_phase_keys) and
+                        flag_use_precalculated_data and not(flag_iint_plus_minus)):
+                    iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
+                else:
+                    iint_plus, dder_plus = calc_powder_iint_1d_ordered(
+                        f_nucl, f_m_perp_o,
+                        flag_f_nucl=flag_f_nucl and flag_calc_analytical_derivatives,
+                        flag_f_m_perp=flag_f_m_perp_o and flag_calc_analytical_derivatives)
+                    iint_minus = iint_plus
+                    dder_minus = dder_plus
+            elif flag_para and flag_ordered:
+                flag_iint_plus_minus = flag_f_nucl or flag_tensor_sigma or flag_f_m_perp_o or flags_beam_polarization or flags_flipper_efficiency
+                if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minu" in dict_in_out_phase_keys) and
+                        flag_use_precalculated_data and not(flag_iint_plus_minus)):
+                    iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
+                else:
+                    iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_mix(
+                        f_nucl, f_m_perp_o, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
+                        flag_f_nucl=flag_f_nucl and flag_calc_analytical_derivatives,
+                        flag_f_m_perp_ordered=flag_f_m_perp_o and flag_calc_analytical_derivatives,
+                        flag_tensor_sigma=flag_tensor_sigma and flag_calc_analytical_derivatives,
+                        flag_polarization=flags_beam_polarization and flag_calc_analytical_derivatives,
+                        flag_flipper=flags_flipper_efficiency and flag_calc_analytical_derivatives)
+            else:
+                iint_plus = numpy.square(numpy.abs(f_nucl))
+                iint_minus = numpy.square(numpy.abs(f_nucl))
 
             dict_in_out_phase["iint_plus"] = iint_plus
             dict_in_out_phase["iint_minus"] = iint_minus
         elif radiation[0].startswith("X-rays"):
             f_charge, dder_f_charge = calc_f_charge_by_dictionary(
-                dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
+                dict_crystal, wavelength, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
             flag_f_charge = len(dder_f_charge.keys()) > 0
 
             iint = numpy.square(numpy.abs(f_charge))
@@ -297,7 +363,7 @@ def calc_chi_sq_for_pd_by_dictionary(
         # flags_p_scale
         iint_m_plus = iint_plus * multiplicity_hkl
         iint_m_minus = iint_minus * multiplicity_hkl
-        lf = calc_lorentz_factor(ttheta_hkl, flag_ttheta=None)[0]
+        lf = calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[0]
         dict_in_out_phase["iint_plus_with_factors"] = 0.5 * p_scale * lf * iint_m_plus
         dict_in_out_phase["iint_minus_with_factors"] = 0.5 * p_scale * lf * iint_m_minus
         if flag_texture:

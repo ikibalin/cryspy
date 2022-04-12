@@ -268,7 +268,7 @@ def calc_full_symm_elems_by_reduced(reduced_symm_elems, centrosymmetry, centrosy
     return full_symm_elems
 
 
-def calc_equivalent_reflections(index_hkl, reduced_symm_elems):
+def calc_equivalent_reflections(index_hkl, reduced_symm_elems, centrosymmetry: bool = False):
     r_11, r_12, r_13 = numpy.expand_dims(reduced_symm_elems[4], axis=0), numpy.expand_dims(reduced_symm_elems[5], axis=0), numpy.expand_dims(reduced_symm_elems[6], axis=0)
     r_21, r_22, r_23 = numpy.expand_dims(reduced_symm_elems[7], axis=0), numpy.expand_dims(reduced_symm_elems[8], axis=0), numpy.expand_dims(reduced_symm_elems[9], axis=0)
     r_31, r_32, r_33 = numpy.expand_dims(reduced_symm_elems[10], axis=0), numpy.expand_dims(reduced_symm_elems[11], axis=0), numpy.expand_dims(reduced_symm_elems[12], axis=0)
@@ -280,7 +280,8 @@ def calc_equivalent_reflections(index_hkl, reduced_symm_elems):
         r_12*h + r_22*k + r_32*l,
         r_13*h + r_23*k + r_33*l], axis=0)
 
-    index_hkl_equivalent = numpy.concatenate([index_hkl_equivalent, -1*index_hkl_equivalent], axis=2)
+    if centrosymmetry:
+        index_hkl_equivalent = numpy.concatenate([index_hkl_equivalent, -1*index_hkl_equivalent], axis=2)
     return index_hkl_equivalent
 
 

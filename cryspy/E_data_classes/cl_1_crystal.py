@@ -7,6 +7,7 @@ import numpy
 
 from typing import NoReturn
 
+from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_scattering_amplitude_tabulated, get_atom_name_ion_charge_shell, D_DISPERSION
 from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_b_iso_beta, calc_u_ij_by_beta
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
@@ -674,6 +675,36 @@ class Crystal(DataN):
                                           atom_site.fract_y,
                                           atom_site.fract_z], dtype=float)
             atom_fract_xyz = numpy.mod(atom_fract_xyz, 1.)
+
+            atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
+            table_sthovl = numpy.linspace(0, 2, 501) # fro0 to 2 Å**-1
+            table_wavelength = D_DISPERSION["table_wavelength"]
+            l_table_atom_scattering_amplitude = []
+            l_table_atom_dispersion = []
+            flag_atom_scattering_amplitude = True
+            for type_symbol in atom_type_symbol:
+                try:
+                    jl = calc_jl_for_ion(table_sthovl, type_symbol)
+                    scattering_amplitude = jl[:,0]
+                except UserWarning:
+                    try:
+                        scattering_amplitude = calc_scattering_amplitude_tabulated(type_symbol, table_sthovl)[0]
+                    except KeyError:
+                        flag_atom_scattering_amplitude = False
+                        break
+                l_table_atom_scattering_amplitude.append(scattering_amplitude)
+
+                type_atom = get_atom_name_ion_charge_shell(type_symbol)[0]
+                if type_atom in D_DISPERSION.keys():
+                    l_table_atom_dispersion.append(D_DISPERSION[type_atom])
+                else:
+                    l_table_atom_dispersion.append(numpy.zeros_like(table_wavelength))
+            if flag_atom_scattering_amplitude:
+                ddict["table_sthovl"] = table_sthovl
+                ddict["table_atom_scattering_amplitude"] = numpy.stack(l_table_atom_scattering_amplitude, axis=0)
+            ddict["table_wavelength"] = table_wavelength
+            ddict["table_atom_dispersion"] = numpy.stack(l_table_atom_dispersion, axis=0)
+
             atom_b_scat = numpy.array(atom_site.scat_length_neutron, dtype=complex)
 
             b_d  = 3*10**6*numpy.ones(atom_fract_xyz.shape[1:], dtype=int) #10**6 it is precision

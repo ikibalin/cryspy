@@ -105,7 +105,7 @@ def calc_chi_sq_for_tof_by_dictionary(
     flags_background_coefficients = dict_tof["flags_background_coefficients"]
 
     flag_background_coefficients = numpy.any(flags_background_coefficients)
-    if (flag_use_precalculated_data and ("signal_background" in dict_in_out) and not(flag_background_intensity)):
+    if (flag_use_precalculated_data and ("signal_background" in dict_in_out) and not(flag_background_coefficients)):
         signal_background = dict_in_out["signal_background"]
     else:
         signal_background, dder_s_bkgr = calc_background_by_cosines(time, background_coefficients,
@@ -170,6 +170,7 @@ def calc_chi_sq_for_tof_by_dictionary(
 
         reduced_symm_elems  = dict_crystal["reduced_symm_elems"]
         translation_elems = dict_crystal["translation_elems"]
+        centrosymmetry = dict_crystal["centrosymmetry"]
         unit_cell_parameters = dict_crystal["unit_cell_parameters"]
         flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
         flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
@@ -190,10 +191,10 @@ def calc_chi_sq_for_tof_by_dictionary(
                 reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
                 translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, centrosymmetry)
             else:
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry)
 
             if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:

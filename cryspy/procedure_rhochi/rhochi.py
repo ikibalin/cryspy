@@ -14,7 +14,7 @@ from cryspy.A_functions_base.function_1_error_simplex import \
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian
+from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian, inversed_hessian_to_correlation
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -192,6 +192,10 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         return chi_sq
 
     hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
+
+    corr_matrix, sigmas = inversed_hessian_to_correlation(hess_inv) 
+    global_object.take_parameters_from_dictionary(
+        global_dict, l_parameter_name = parameter_names, l_sigma=sigmas)
     
     l_label = []
     for way in parameter_names:
@@ -220,7 +224,9 @@ def rhochi_inversed_hessian(global_object: GlobalN):
     inv_hessian.set_inversed_hessian(hess_inv)
     inv_hessian.form_inversed_hessian()
     inv_hessian.form_object()
+
     global_object.items.append(inv_hessian)
+
 
     # for var_name, sigma in zip(l_var_name, inv_hessian.sigma):
     #     var_name_sigma = tuple(var_name[:-1]) + ((f"{var_name[-1][0]:}_sigma", var_name[-1][1]),)

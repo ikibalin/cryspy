@@ -274,17 +274,18 @@ def calc_chi_sq_for_pd2d_by_dictionary(
                 reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
                 translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1)
-                index_hkl = numpy.reshape(numpy.stack([index_hkl, -1*index_hkl], axis=2), (3, 2*index_hkl.shape[1]))
-                multiplicity_hkl = numpy.ones_like(index_hkl[0])
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, False)
+                # index_hkl = numpy.reshape(numpy.stack([index_hkl, -1*index_hkl], axis=2), (3, 2*index_hkl.shape[1]))
+                # multiplicity_hkl = numpy.ones_like(index_hkl[0])
             else:
                 if "reduced_symm_elems" in dict_crystal_keys:
+                    centrosymmetry = dict_crystal["centrosymmetry"]
                     index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                        sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems)
+                        sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry)
                 else:
                     translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
                     index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                        sthovl_min, sthovl_max, unit_cell_parameters, full_mcif_elems[:13], translation_elems_p1)
+                        sthovl_min, sthovl_max, unit_cell_parameters, full_mcif_elems[:13], translation_elems_p1, False)
 
             if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
@@ -346,7 +347,6 @@ def calc_chi_sq_for_pd2d_by_dictionary(
                     flag_tensor_sigma=flag_tensor_sigma and flag_calc_analytical_derivatives,
                     flag_polarization=flags_beam_polarization and flag_calc_analytical_derivatives,
                     flag_flipper=flags_flipper_efficiency and flag_calc_analytical_derivatives)
-            
 
         elif not(flag_para) and flag_ordered:
             flag_iint_plus_minus = flag_f_nucl or flag_f_m_perp_o or flags_beam_polarization or flags_flipper_efficiency

@@ -820,30 +820,38 @@ class TOF(DataN):
 
         if tof_profile is not None:
             l_alpha = []
+            l_alpha_refinement = []
             for numb in range(2):
                 if tof_profile.is_attribute(f"alpha{numb:}"):
                     l_alpha.append(getattr(tof_profile, f"alpha{numb:}"))
+                    l_alpha_refinement.append(getattr(tof_profile, f"alpha{numb:}_refinement"))
                 else:
                     break
 
             l_beta = []
+            l_beta_refinement = []
             for numb in range(2):
                 if tof_profile.is_attribute(f"beta{numb:}"):
                     l_beta.append(getattr(tof_profile, f"beta{numb:}"))
+                    l_beta_refinement.append(getattr(tof_profile, f"beta{numb:}_refinement"))
                 else:
                     break
 
             l_gamma = []
+            l_gamma_refinement = []
             for numb in range(2):
                 if tof_profile.is_attribute(f"gamma{numb:}"):
                     l_gamma.append(getattr(tof_profile, f"gamma{numb:}"))
+                    l_gamma_refinement.append(getattr(tof_profile, f"gamma{numb:}_refinement"))
                 else:
                     break
 
             l_sigma = []
+            l_sigma_refinement = []
             for numb in range(3):
                 if tof_profile.is_attribute(f"sigma{numb:}"):
                     l_sigma.append(getattr(tof_profile, f"sigma{numb:}"))
+                    l_sigma_refinement.append(getattr(tof_profile, f"sigma{numb:}_refinement"))
                 else:
                     break
 
@@ -853,9 +861,13 @@ class TOF(DataN):
                 peak_shape = "pseudo-Voigt"
 
             dict_tof["profile_alphas"] = numpy.array(l_alpha, dtype=float)
+            dict_tof["flags_profile_alphas"] = numpy.array(l_alpha_refinement, dtype=float)
             dict_tof["profile_betas"] = numpy.array(l_beta, dtype=float)
+            dict_tof["flags_profile_betas"] = numpy.array(l_beta_refinement, dtype=float)
             dict_tof["profile_gammas"] = numpy.array(l_gamma, dtype=float)
+            dict_tof["flags_profile_gammas"] = numpy.array(l_gamma_refinement, dtype=float)
             dict_tof["profile_sigmas"] = numpy.array(l_sigma, dtype=float)
+            dict_tof["flags_profile_sigmas"] = numpy.array(l_sigma_refinement, dtype=float)
             dict_tof["profile_peak_shape"] = peak_shape
 
         if diffrn_radiation is not None:

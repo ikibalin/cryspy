@@ -35,30 +35,30 @@ def calc_transs(l_max, nn, zeta, sthovl):
     Q = 4 pi sint / lambda
     # ATTENTION: in one of my note it was written factor r**2 but it looks that it was mistake
     """
-    Q=4*numpy.pi*sthovl
-    a =[0. for h in range(17)]
-    ff=[0 for h in range(l_max+1)]
-    d = Q**2+zeta**2
+    Q = 4*numpy.pi*sthovl
+    a = [0. for h in range(17)]
+    ff = [0 for h in range(l_max+1)]
+    d = Q**2 + zeta**2
     a[0] = 0.0
     a[1] = 1./d
     n = nn-1
     tz = 2.*zeta
     ts = 4.*numpy.pi
     for l in range(l_max+1):
-        ll=l+1
-        if (ll!=1):
+        ll = l+1
+        if (ll != 1):
             a[ll] = a[ll-1]*ts*l*1./d
             a[ll-1] = numpy.zeros_like(sthovl) 
-        for nx in range(ll,n+1):
+        for nx in range(ll, n+1):
             i1 = nx
             i2 = nx+1
             i3 = i2+1
             a[i3-1] = (tz*nx*a[i2-1] - (nx+l)*(nx-ll)*a[i1-1])*1./d
-        ff[ll-1]=a[i3-1]
+        ff[ll-1] = a[i3-1]
     return ff
 
 
-def calc_jl_per_4pisthovll(sthovl, coeff, n, zeta, kappa=1, l_max = 3):
+def calc_jl_per_2sthovll(sthovl, coeff, n, zeta, kappa=1, l_max = 3):
     c_ij = numpy.expand_dims(coeff, axis=1) * numpy.expand_dims(coeff, axis=0)
     zeta_ang = kappa*zeta/0.529177
     hh = numpy.power(2.*zeta_ang, n.astype(float)+0.5)
@@ -80,7 +80,8 @@ def calc_jl_per_4pisthovll(sthovl, coeff, n, zeta, kappa=1, l_max = 3):
 
 
 def calc_jl(sthovl, coeff, n, zeta, kappa=1, l_max = 3):
-    q_l = numpy.power(numpy.expand_dims(4*numpy.pi*sthovl, axis=1), numpy.expand_dims(numpy.arange(l_max+1), axis=0))
-    jl_per_4pisthovl = calc_jl_per_4pisthovll(sthovl, coeff, n, zeta, kappa=kappa, l_max=l_max)
-    jl = jl_per_4pisthovl*q_l
+    # q_l = numpy.power(numpy.expand_dims(4*numpy.pi*sthovl, axis=1), numpy.expand_dims(numpy.arange(l_max+1), axis=0))
+    q_l = numpy.power(numpy.expand_dims(2.*sthovl, axis=1), numpy.expand_dims(numpy.arange(l_max+1), axis=0))
+    jl_per_2sthovll = calc_jl_per_2sthovll(sthovl, coeff, n, zeta, kappa=kappa, l_max=l_max)
+    jl = jl_per_2sthovll*q_l
     return jl

@@ -19,6 +19,8 @@ class Setup(ItemN):
         - offset_ttheta (optional for powder 1d and 2d) (in degrees)
         - offset_phi (optional for powder 2d) (in degrees)
         - ratio_lambdaover2 (optional, for single diffraction)
+        - k (0. for neutrons, 0.5 for characteristic X-ray, 0.1 for synchrotron radiation)
+        - cthm (cos**2 (2 theta_M)) (for calculation of Lorentrz polarization factor)
     """
 
     ATTR_MANDATORY_NAMES = ()
@@ -26,10 +28,10 @@ class Setup(ItemN):
     ATTR_MANDATORY_CIF = ()
 
     ATTR_OPTIONAL_NAMES = ("wavelength", "field", "offset_ttheta", "offset_phi", "offset_gamma", "offset_nu",
-                           "ratio_lambdaover2", "radiation")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str)
+                           "ratio_lambdaover2", "radiation", "k", "cthm")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str, float, float)
     ATTR_OPTIONAL_CIF = ("wavelength", "field", "offset_2theta", "offset_phi", "offset_gamma", "offset_nu",
-                         "ratio_lambda/2", "radiation")
+                         "ratio_lambda/2", "radiation", "K", "cthm")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -50,13 +52,13 @@ class Setup(ItemN):
     D_FORMATS = {'wavelength': "{:.4f}", 'field': "{:.2f}",
                  'offset_ttheta': "{:.3f}", 'offset_phi': "{:.3f}",
                  'offset_gamma': "{:.3f}", 'offset_nu': "{:.3f}",
-                 "ratio_lambdaover2": "{:.3f}"}
+                 "ratio_lambdaover2": "{:.3f}", "k": "{:.1f}", "cthm": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"radiation": ["neutrons", "X-rays"]}
 
     # default values for the parameters
-    D_DEFAULT = {"offset_2theta": 0., "radiation": "neutrons"}
+    D_DEFAULT = {"offset_2theta": 0., "radiation": "neutrons", "k":0., "cthm": 0.91}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):

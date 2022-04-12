@@ -834,6 +834,8 @@ class Pd(DataN):
             ddict["offset_ttheta"] = numpy.array([setup.offset_ttheta * numpy.pi/180.], dtype=float)
             ddict["flags_offset_ttheta"] = numpy.array([setup.offset_ttheta_refinement], dtype=bool)
             ddict["radiation"] = numpy.array([setup.radiation], dtype=str)
+            ddict["k"] = numpy.array([setup.k], dtype=float)
+            ddict["cthm"] = numpy.array([setup.cthm], dtype=float)
 
         if chi2 is not None:
             ddict["flag_chi_sq_sum"] = chi2.sum
@@ -1120,13 +1122,23 @@ class Pd(DataN):
                     if "iint_minus_with_factors" in dict_crystal_keys:
                         int_minus_max = dict_crystal["iint_minus_with_factors"]
 
-                    if "f_nucl":
+                    if "f_nucl" in dict_crystal_keys:
                         refln = ReflnL(loop_name = item_phase.label)
                         refln.numpy_index_h = index_hkl[0]
                         refln.numpy_index_k = index_hkl[1]
                         refln.numpy_index_l = index_hkl[2]
                         refln.numpy_a_calc = dict_crystal["f_nucl"].real
                         refln.numpy_b_calc = dict_crystal["f_nucl"].imag
+                        refln.numpy_to_items()
+                        l_refln.append(refln)
+
+                    if "f_charge" in dict_crystal_keys:
+                        refln = ReflnL(loop_name = item_phase.label)
+                        refln.numpy_index_h = index_hkl[0]
+                        refln.numpy_index_k = index_hkl[1]
+                        refln.numpy_index_l = index_hkl[2]
+                        refln.numpy_a_calc = dict_crystal["f_charge"].real
+                        refln.numpy_b_calc = dict_crystal["f_charge"].imag
                         refln.numpy_to_items()
                         l_refln.append(refln)
 

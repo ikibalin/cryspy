@@ -3,10 +3,16 @@ import numpy
 na = numpy.newaxis
 
 
-def calc_lorentz_factor(ttheta, flag_ttheta: bool=False):
+def calc_lorentz_factor(ttheta, k:float=0.0, cthm:float = 0.91, flag_ttheta: bool=False):
     """Lorentz factor for 1D powder diffraction profile.
+
+    k is 0 for neutrons
+    k is 0.5 for characteristic x-ray radiation
+    k is 0.1 for synchrotron radiation
+    cthm = cos**2 (2 theta_M )
     """
-    res = 1./(numpy.sin(0.5*ttheta)*numpy.sin(ttheta))
+    hh = 1. - k  + k * cthm * numpy.square(numpy.cos(ttheta))
+    res = hh/(numpy.sin(0.5*ttheta)*numpy.sin(ttheta))
     dder = {}
     if flag_ttheta:
         dder["ttheta"] = - numpy.square(res) * \

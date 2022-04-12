@@ -75,7 +75,6 @@ from cryspy.A_functions_base.function_1_matrices import \
     ortogonalize_matrix, calc_moment_2d_by_susceptibility, calc_phase_3d
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet, \
     variable_name_to_string, change_variable_name, get_table_html_for_variables
-from cryspy.A_functions_base.function_1_rhocif import transs, calc_GCF
 from cryspy.A_functions_base.function_1_roots import calc_roots
 from cryspy.A_functions_base.function_1_scat_length_neutron import \
     apply_constraint_on_cell_by_type_cell, get_scat_length_neutron
@@ -220,7 +219,6 @@ L_FUNCTION = [
     ortogonalize_matrix, calc_moment_2d_by_susceptibility, calc_phase_3d,
     get_functions_of_objet,
     variable_name_to_string, change_variable_name, get_table_html_for_variables,
-    transs, calc_GCF,
     calc_roots,
     apply_constraint_on_cell_by_type_cell, get_scat_length_neutron,
     value_error_mark_to_string, 
