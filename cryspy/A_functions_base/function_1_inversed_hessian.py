@@ -74,7 +74,6 @@ def estimate_inversed_hessian_matrix(func, param_0):
         np_hessian_inv = numpy.linalg.inv(np_hessian)
     except LinAlgError:
         np_hessian_inv = None
-    print("np_hessian_inv: \n", np_hessian_inv)
     func(param_0)
     return np_hessian_inv, np_first_der
 

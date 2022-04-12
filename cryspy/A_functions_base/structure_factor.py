@@ -1057,6 +1057,7 @@ def calc_index_hkl_multiplicity_in_range(sthovl_min, sthovl_max, unit_cell_param
     h_max = int(2.*a*sthovl_max)
     k_max = int(2.*b*sthovl_max)
     l_max = int(2.*c*sthovl_max)
+    
     index_h = numpy.arange(-h_max, h_max+1, 1, dtype=int)
     index_k = numpy.arange(-k_max, k_max+1, 1, dtype=int)
     index_l = numpy.arange(-l_max, l_max+1, 1, dtype=int)
@@ -1065,7 +1066,7 @@ def calc_index_hkl_multiplicity_in_range(sthovl_min, sthovl_max, unit_cell_param
     index_h, index_k, index_l = index_h.flatten(), index_k.flatten(), index_l.flatten()
     index_hkl_full = numpy.stack([index_h, index_k, index_l], axis=0)
     index_hkl_equivalent = calc_equivalent_reflections(index_hkl_full, reduced_symm_elems, centrosymmetry=centrosymmetry)
-
+    
     label_hkl_equivalent = 1000000*index_hkl_equivalent[0] + 1000*index_hkl_equivalent[1] + index_hkl_equivalent[2]
     index_max = numpy.argsort(label_hkl_equivalent, axis=1)[:,-1]
     index_hkl_sort = index_hkl_equivalent[:, numpy.arange(index_max.size),index_max]

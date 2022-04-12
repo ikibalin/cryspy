@@ -109,6 +109,7 @@ class InversedHessian(ItemN):
         self.set_inversed_hessian(np_matrix)
         self.set_correlation_matrix(np_correlation_matrix)
         self.set_sigmas(np_sigma)
+        # self.form_inversed_hessian()
 
     def set_labels(self, labels) -> NoReturn:
         """Form 2theta_phi_intensity from internal attributes."""
@@ -132,13 +133,33 @@ class InversedHessian(ItemN):
         f_hessian = self.is_attribute("matrix")
         f_correlation = self.is_attribute("correlation_matrix")
         f_sigma = self.is_attribute("sigma")
+        if f_label:
+            np_label = numpy.array(self.label, dtype=str)
+            arg_sort = numpy.argsort(np_label)
+            np_label = np_label[arg_sort]
+            self.set_labels(np_label)
+
+            if f_hessian:
+                np_matrix = numpy.array(self.matrix, dtype=float)
+                np_matrix = np_matrix[arg_sort, :][:, arg_sort]
+                self.set_inversed_hessian(np_matrix)            
+            if f_correlation:
+                np_cmatrix = numpy.array(self.correlation_matrix, dtype=float)
+                np_cmatrix = np_cmatrix[arg_sort, :][:, arg_sort]
+                self.set_correlation_matrix(np_cmatrix)            
+            if f_sigma:
+                np_sigma = numpy.array(self.sigma, dtype=float)[arg_sort]
+                self.set_sigmas(np_sigma)
+
         if f_label & f_hessian:
             ls_out = [f"{lab:7} "+" ".join([f"{val:.10f}" for val in hess])
                       for lab, hess in zip(self.label, self.matrix)]
             self.with_labels = "\n".join(ls_out)
+
         elif f_label & f_correlation & f_sigma:
             np_correlation = self.correlation_matrix
             np_sigma = self.sigma
+            
             np_na = numpy.newaxis
             np_hessian = np_correlation*np_sigma[:, np_na]*np_sigma[np_na, :]
             self.set_inversed_hessian(np_hessian)
@@ -185,25 +206,3 @@ class InversedHessian(ItemN):
             ls_html.append("</table>")
         return "".join(ls_html)
             
-
-# s_cont = """
-#   _hessian_matrix_with_labels
-#   ;
-#   length_a 8 3 0
-#   length_b 3 9 2
-#   length_c 2 8 3
-#   ;
-
-# """
-
-# obj = InversedHessian.from_cif(s_cont)
-# obj.form_object()
-# print(obj, end="\n\n")
-# print(obj.matrix, end="\n\n")
-# print(obj.label, end="\n\n")
-# print(obj.correlation_matrix, end="\n\n")
-# print(obj.sigma, end="\n\n")
-# print(obj.with_labels, end="\n\n")
-# obj.form_inversed_hessian()
-
-# print(obj, end="\n\n")

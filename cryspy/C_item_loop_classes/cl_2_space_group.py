@@ -170,7 +170,7 @@ class SpaceGroup(ItemN):
         it_coordinate_system_code = None
         if self.is_attribute("it_coordinate_system_code"):
             it_coordinate_system_code = self.it_coordinate_system_code
-
+        
         if (self.is_attribute("it_number") &
                 self.is_attribute("it_coordinate_system_code")):
             it_number = self.it_number
@@ -230,13 +230,14 @@ class SpaceGroup(ItemN):
                         it_number, it_coordinate_system_codes)
             self.__dict__["it_coordinate_system_code"] = \
                 it_coordinate_system_code
+
         return flag
 
     def form_object_by_it_number_it_coordinate_system_code(self):
         """Form object by it number it coordinate system code.
 
         TODO: Solve the problem with centring_type for hexagonal systems
-              (Ex.: 166 spcace group).
+              (Ex.: 166 space group).
         """
         bravais_type, laue_class, patterson_name_hm, centring_type, \
             crystal_system = None, None, None, None, None
@@ -290,6 +291,9 @@ class SpaceGroup(ItemN):
                 patterson_name_hm = \
                     get_patterson_name_hm_by_lattice_type_laue_class(
                         lattice_type, laue_class)
+        if ((centring_type is not None) and (it_c_s_c is not None)):
+            if centring_type.startswith("R") and it_c_s_c.startswith("r"):
+                centring_type = "P"
 
         pcentr, reduced_space_group_symop, full_space_group_symop, \
             space_group_wyckoff = \
@@ -347,6 +351,7 @@ class SpaceGroup(ItemN):
         symop, pcentr, _multiplicity, _letter, _site_symmetry, _l_coords_xyz_2\
             = get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
                 it_number, it_coordinate_system_code)
+
         item_reduced = []
         for _i_symop, _symop in enumerate(symop):
             _item = SpaceGroupSymop(id=f"{_i_symop+1:}", operation_xyz=_symop,
@@ -355,7 +360,7 @@ class SpaceGroup(ItemN):
             item_reduced.append(_item)
         reduced_space_group_symop = SpaceGroupSymopL()
         reduced_space_group_symop.items = item_reduced
-
+        
         item_full = []
         for _item in item_reduced:
             _symop = _item.operation_xyz

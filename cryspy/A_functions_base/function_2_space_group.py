@@ -1267,7 +1267,7 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
         # else:  # hexagonal
         choice = "1"
     elif "r" in it_coordinate_system_code:
-        choice = "1"
+        choice = "2"
     else:
         choice = "1"
     symop, p_centr = None, None
