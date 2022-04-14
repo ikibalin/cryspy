@@ -657,7 +657,7 @@ class Crystal(DataN):
                 cell.apply_constraints()
 
             unit_cell_parameters = cell.get_unit_cell_parameters()
-
+            
             sc_uc, v_uc = calc_sc_v_unit_cell_parameters(type_cell, it_coordinate_system_code)
             ddict["sc_uc"] = sc_uc
             ddict["v_uc"] = v_uc
@@ -1177,14 +1177,22 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
         v_uc[4] = numpy.pi/2.
         v_uc[5] = numpy.pi/2.
     elif ((type_cell.startswith("hP"))):
-        sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
-        sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
-        sc_uc[3, 3] = 0.
-        sc_uc[4, 4] = 0.
-        sc_uc[5, 5] = 0.
-        v_uc[3] = numpy.pi/2.
-        v_uc[4] = numpy.pi/2.
-        v_uc[5] = numpy.pi*2./3.
+        if it_coordinate_system_code.lower() == "h":
+            sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
+            sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
+            sc_uc[3, 3] = 0.
+            sc_uc[4, 4] = 0.
+            sc_uc[5, 5] = 0.
+            v_uc[3] = numpy.pi/2.
+            v_uc[4] = numpy.pi/2.
+            v_uc[5] = numpy.pi*2./3.
+        else:
+            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1., 0., 0.
+            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1., 0., 0.
+            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1., 0., 0.
+            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1., 0., 0.
+            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1., 0., 0.
+            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1., 0., 0.
     elif (type_cell == "hR"):
         if it_coordinate_system_code.lower() == "h":
             sc_uc[0, 0], sc_uc[0, 1] = 1., 0.

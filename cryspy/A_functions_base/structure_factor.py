@@ -860,7 +860,7 @@ def calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated
     atom_para_j2_parameters = dict_crystal["mag_atom_j2_parameters"][:, mag_atom_para_index]
 
     atom_para_susceptibility = dict_crystal["atom_para_susceptibility"]
-    atom_para_sc_chi = dict_crystal["atom_para_sc_chi"] #FIXME not sure that it should be in crystal dictionary but not dict_in_out
+    atom_para_sc_chi = dict_crystal["atom_para_sc_chi"] 
     flag_unit_cell_parameters = numpy.any(dict_crystal["flags_unit_cell_parameters"])
     flag_atom_para_fract_xyz = numpy.any(dict_crystal["flags_atom_fract_xyz"][:, atom_para_index])
     flag_atom_para_occupancy = numpy.any(dict_crystal["flags_atom_occupancy"][atom_para_index])

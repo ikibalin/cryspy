@@ -345,6 +345,7 @@ def define_bravais_type_by_symm_elems(symm_elems):
     n_centrosymmetry = 2 if centrosymmetry else 1
     
     centring_type = define_centring_type_by_symm_elems(symm_elems)
+    
     d_centring_type = {"P":1, "A":2, "B":2, "C":2, "F":4, "H":3, "I":2, "R":3, "Rrev":3}
     n_centring_type = d_centring_type[centring_type]
     
@@ -371,7 +372,9 @@ def define_bravais_type_by_symm_elems(symm_elems):
     
     flag_cubic = numpy.all([flag_1y, flag_1z, flag_2x, flag_2z, flag_3x, flag_3y])
     flag_no_mix = numpy.all([flag_1y_no, flag_1z_no, flag_2x_no, flag_2z_no, flag_3x_no, flag_3y_no])
-    flag_rhombohedral = numpy.all([flag_no_mix, centring_type.startswith("R")])
+    flag_rhombohedral = numpy.all([flag_cubic, centring_type.startswith("P"), n_elems == 6])
+    if flag_rhombohedral:
+        flag_cubic = False
     
     flag_triclinic = n_elems == 1
     flag_monoclinic = n_elems == 2
@@ -406,4 +409,5 @@ def define_bravais_type_by_symm_elems(symm_elems):
         it_coordinate_system_code = "h"
     else:
         bravais_type = None
+    
     return bravais_type, it_coordinate_system_code

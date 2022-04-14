@@ -351,10 +351,18 @@ def apply_constraint_on_cell_by_type_cell(
         beta, beta_sig, beta_ref, beta_constr = 90., 0., False, True
         gamma, gamma_sig, gamma_ref, gamma_constr = 90., 0., False, True
     elif ((type_cell.startswith("hP"))):
-        b, b_sig, b_ref, b_constr = a, a_sig, False, True
-        alpha, alpha_sig, alpha_ref, alpha_constr = 90., 0., False, True
-        beta, beta_sig, beta_ref, beta_constr = 90., 0., False, True
-        gamma, gamma_sig, gamma_ref, gamma_constr = 120., 0., False, True
+        if it_coordinate_system_code.lower() == "h":
+            b, b_sig, b_ref, b_constr = a, a_sig, False, True
+            alpha, alpha_sig, alpha_ref, alpha_constr = 90., 0., False, True
+            beta, beta_sig, beta_ref, beta_constr = 90., 0., False, True
+            gamma, gamma_sig, gamma_ref, gamma_constr = 120., 0., False, True
+        else:
+            b, b_sig, b_ref, b_constr = a, a_sig, False, True
+            c, c_sig, c_ref, c_constr = a, a_sig, False, True
+            beta, beta_sig, beta_ref, beta_constr = alpha, alpha_sig, \
+                False, True
+            gamma, gamma_sig, gamma_ref, gamma_constr = alpha, alpha_sig,\
+                False, True
     elif (type_cell == "hR"):
         if it_coordinate_system_code.lower() == "h":
             b, b_sig, b_ref, b_constr = a, a_sig, False, True

@@ -489,11 +489,13 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         elif flag_unpolarized:
             signal_exp_sum = signal_exp[0, :]
             signal_sigma_sum = signal_exp[1, :]
+        nan_points_sum = numpy.logical_not(numpy.isnan(signal_exp_sum))
+        in_points = numpy.logical_and(in_points, nan_points_sum)
 
         total_signal_sum = (total_signal_plus + total_signal_minus)
         diff_signal_sum = signal_exp_sum - total_signal_sum - signal_background
         inv_sigma_sq_sum = numpy.square(1./signal_sigma_sum)
-        chi_sq_sum = numpy.sum(numpy.square(diff_signal_sum)*inv_sigma_sq_sum*in_points)
+        chi_sq_sum = numpy.sum(numpy.square(diff_signal_sum[in_points])*inv_sigma_sq_sum[in_points])
         chi_sq += chi_sq_sum
         n_point += numpy.sum(in_points)
 
@@ -501,9 +503,11 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         signal_exp_diff = signal_exp_plus[0, :] - signal_exp_minus[0, :]
         signal_sigma_diff = numpy.sqrt(numpy.square(signal_exp_plus[1, :]) + numpy.square(signal_exp_minus[1, :]))
         total_signal_diff = total_signal_plus - total_signal_minus
-        chi_sq_diff = numpy.sum(numpy.square((signal_exp_diff - total_signal_diff)/signal_sigma_diff))
+        nan_points_diff = numpy.logical_not(numpy.isnan(signal_exp_diff))
+
+        chi_sq_diff = numpy.sum(numpy.square((signal_exp_diff - total_signal_diff)[nan_points_diff]/signal_sigma_diff[nan_points_diff]))
         chi_sq += chi_sq_diff
-        n_point += signal_exp_diff.size
+        n_point += numpy.sum(nan_points_diff)
 
     if numpy.isnan(chi_sq):
         chi_sq = 1e30
