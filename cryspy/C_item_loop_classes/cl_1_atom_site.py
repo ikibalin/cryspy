@@ -1,7 +1,15 @@
 import numpy
 from typing import NoReturn
+
+from cryspy.A_functions_base.symmetry_constraints import calc_sc_chi
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1
+from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
+
 from cryspy.A_functions_base.function_1_scat_length_neutron import \
     get_scat_length_neutron
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -39,7 +47,7 @@ class AtomSite(ItemN):
     ATTR_CIF = ATTR_MANDATORY_CIF + ATTR_OPTIONAL_CIF
 
     ATTR_INT_NAMES = ("scat_length_neutron", )
-    ATTR_INT_PROTECTED_NAMES = ("space_group_wyckoff", "constr_number")
+    ATTR_INT_PROTECTED_NAMES = ("space_group_wyckoff", "constr_number", "sc_chi")
 
     # parameters considered are refined parameters
     ATTR_REF = ("fract_x", "fract_y", "fract_z", "occupancy", "u_iso_or_equiv",
@@ -47,6 +55,7 @@ class AtomSite(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
     D_FORMATS = {'fract_x': "{:.6f}", 'fract_y': "{:.6f}",
@@ -57,11 +66,13 @@ class AtomSite(ItemN):
                                   "Biso", "Bovl"]}
 
     # default values for the parameters
-    D_DEFAULT = {}
+    D_DEFAULT = {"occupancy": 1.}
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "atom_site"
 
@@ -126,6 +137,23 @@ class AtomSite(ItemN):
             self.define_space_group_wyckoff(space_group_wyckoff_l)
         if self.is_defined():
             self.form_object()
+
+    def calc_sc_chi(self, space_group, cell):
+        """Calc sc_chi
+        """
+        if self.is_attribute("sc_chi"):
+            return self.sc_chi
+        unit_cell_parameters = cell.get_unit_cell_parameters()
+        x, y, z = self.fract_x, self.fract_y, self.fract_z
+        o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 =\
+            space_group.calc_el_symm_for_xyz(x,y,z)
+        zero_val = numpy.zeros(o_11.shape, dtype=int)
+        symm_elems = numpy.array([zero_val, zero_val, zero_val, zero_val,
+            o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33], dtype=int)
+        
+        sc_chi = calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+        self.__dict__["sc_chi"] = sc_chi
+        return sc_chi
 
     def calc_constr_number(self, space_group):
         """
@@ -214,6 +242,22 @@ class AtomSite(ItemN):
                 f'|{self.label.rjust(10):} | {self.scat_length_neutron: .3f}|'
         return s_out
 
+    def get_flags_atom_fract_xyz(self):
+        res = numpy.array([self.fract_x_refinement, self.fract_y_refinement, self.fract_z_refinement], dtype=bool)
+        return res
+
+    def get_flags_atom_occupancy(self):
+        res = self.occupancy_refinement
+        return res
+
+    def get_flags_atom_b_iso(self):
+        res = False
+        if self.adp_type in ["Uiso", "Uovl", "Umpe", ]:
+            res = self.u_iso_or_equiv_refinement
+        elif self.adp_type in ["Biso", "Bovl", ]:
+            res = self.b_iso_or_equiv_refinement
+        return res
+
 
 class AtomSiteL(LoopN):
     """Describe the atom sites in crystal.
@@ -230,9 +274,9 @@ class AtomSiteL(LoopN):
     ITEM_CLASS = AtomSite
     ATTR_INDEX = "label"
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomSiteL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def apply_constraints(self, space_group_wyckoff_l) -> bool:
@@ -252,6 +296,19 @@ class AtomSiteL(LoopN):
         ls_out.append("|-----|-------|")
         ls_out.extend([item.report() for item in self.items])
         return "\n".join(ls_out)
+
+    def get_flags_atom_fract_xyz(self):
+        flags_atom_fract_xyz = numpy.stack([item.get_flags_atom_fract_xyz() for item in self.items], axis=0).transpose()
+        return flags_atom_fract_xyz
+
+    def get_flags_atom_occupancy(self):
+        flags_atom_occupancy = numpy.stack([item.get_flags_atom_occupancy() for item in self.items], axis=0)
+        return flags_atom_occupancy
+
+    def get_flags_atom_b_iso(self):
+        flags_atom_b_iso = numpy.stack([item.get_flags_atom_b_iso() for item in self.items], axis=0)
+        return flags_atom_b_iso
+
 
 # s_cont = """
 #  loop_

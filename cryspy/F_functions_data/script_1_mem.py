@@ -138,6 +138,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
 
     l_f_nucl, l_v_2d_i, l_fr_e, l_fr_s, l_fm_orb_perp_loc = [], [], [], [], []
     total_peaks = 0
+
     for diffrn in l_diffrn:
         diffrn_orient_matrix = diffrn.diffrn_orient_matrix
         u_matrix = diffrn_orient_matrix.u
@@ -162,6 +163,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                                            sftm_ij)
 
         hkl = (ind_h, ind_k, ind_l)
+        index_hkl = numpy.stack([ind_h, ind_k, ind_l], dtype=bool)
         fr_e = numpy.array(diffrn_refln.fr, dtype=float)
         fr_s = numpy.array(diffrn_refln.fr_sigma, dtype=float)
         v_hkl_perp_2d_i, v_b_ferro, v_b_antiferro = \
@@ -170,7 +172,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
                 chi_iso_ferro=chi_iso_ferro,
                 chi_iso_antiferro=chi_iso_antiferro,
                 flag_two_channel=flag_two_channel)
-        f_nucl = crystal.calc_f_nucl(*hkl)
+        f_nucl = crystal.calc_f_nucl(index_hkl)
         l_f_nucl.append(f_nucl)
         l_v_2d_i.append((v_hkl_perp_2d_i, v_b_ferro, v_b_antiferro))
         l_fr_e.append(fr_e)
@@ -415,7 +417,8 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         hkl = (index_h, index_k, index_l)
         fr_e = numpy.array(diffrn_refln.fr, dtype=float)
         fr_s = numpy.array(diffrn_refln.fr_sigma, dtype=float)
-        f_nucl = crystal.calc_f_nucl(*hkl)
+        index_hkl = numpy.stack([index_h, index_k, index_l], dtype=bool)
+        f_nucl = crystal.calc_f_nucl(index_hkl)
         k_hkl = cell.calc_k_loc(*hkl)
         phase_3d = density_point.calc_phase_3d(hkl, space_group_symop)
 
@@ -452,6 +455,9 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
                  in l_name_2]
     l_name = l_name_1 + l_name_2
     l_par_0 = l_par_1_0 + l_par_2_0
+    
+    if len(l_name) == 0:
+        return 
 
     def temp_func(l_par):
         for name, parameter in zip(l_name, l_par):
@@ -464,9 +470,8 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         chi_iso_af = mem_parameters.chi_antiferro
 
         atom_site_susceptibility.apply_chi_iso_constraint(cell)
-        atom_site_susceptibility.apply_moment_iso_constraint(cell)
         atom_site_susceptibility.apply_space_group_constraint(
-            atom_site, space_group)
+            atom_site, space_group, cell)
 
         l_chi_sq = []
         l_der_chi_sq, l_der_chi_sq_f, l_der_chi_sq_a = [], [], []
@@ -539,6 +544,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         temp_func, l_par_0, method="BFGS",
         callback=lambda x: func_temp(x, param_name=l_name, d_info=d_info),
         options={"eps": 0.001})
+
     l_param = res.x
     chi_sq_new = res.fun
 

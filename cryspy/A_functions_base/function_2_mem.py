@@ -7,7 +7,7 @@ import numpy
 from cryspy.A_functions_base.function_1_matrices import \
     calc_product_matrix_vector, calc_vector_product, calc_mRmCmRT
 
-
+#FIXME delete as it is doubled in symmetry_elements
 def calc_asymmetric_unit_cell_indexes(n_x: int, n_y: int, n_z: int, r_ij, b_i)\
        -> NoReturn:
     """
@@ -134,10 +134,12 @@ def calc_index_atom_symmetry_closest_to_fract_xyz(
     dist_sq_3d = numpy.square(p_x) + numpy.square(p_y) + numpy.square(p_z)
     dist_sq_2d_over_sym = numpy.min(dist_sq_3d, axis=2)
     dist_sq_2d_over_at = numpy.min(dist_sq_3d, axis=1)
+    
     ind_at = numpy.argmin(dist_sq_2d_over_sym, axis=1)
     ind_sym = numpy.argmin(dist_sq_2d_over_at, axis=1)
     dist_sq = numpy.min(dist_sq_2d_over_sym, axis=1)
     distance = numpy.sqrt(dist_sq)
+
     return ind_at, ind_sym, distance
 
 

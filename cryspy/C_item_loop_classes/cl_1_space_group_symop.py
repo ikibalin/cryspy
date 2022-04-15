@@ -3,10 +3,15 @@ import copy
 import numpy
 from fractions import Fraction
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 from cryspy.A_functions_base.function_1_strings import \
     transform_string_to_r_b, transform_r_b_to_string
 from cryspy.A_functions_base.function_2_space_group import \
     get_shift_by_centring_type, mult_matrix_vector, mult_matrixes
+
+from cryspy.A_functions_base.function_2_sym_elems import \
+    form_symm_elems_by_b_i_r_ij
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
@@ -57,6 +62,7 @@ class SpaceGroupSymop(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -67,6 +73,8 @@ class SpaceGroupSymop(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "space_group_symop"
 
@@ -187,9 +195,9 @@ class SpaceGroupSymopL(LoopN):
     """
     ITEM_CLASS = SpaceGroupSymop
     ATTR_INDEX = "id"
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(SpaceGroupSymopL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     @classmethod
@@ -283,6 +291,11 @@ class SpaceGroupSymopL(LoopN):
         res.items = l_item
         return res
 
+    def get_symm_elems(self):
+        r_ij = (self.r_11, self.r_12, self.r_13, self.r_21, self.r_22, self.r_23, self.r_31, self.r_32, self.r_33)
+        b_i = (self.b_1, self.b_2, self.b_3)
+        symm_elems = form_symm_elems_by_b_i_r_ij(b_i, r_ij)
+        return symm_elems
     
 # s_cont = """
 # loop_

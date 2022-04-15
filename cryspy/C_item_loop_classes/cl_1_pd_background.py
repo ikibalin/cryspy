@@ -1,10 +1,15 @@
 import numpy
 from typing import NoReturn
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeasL
+
+na = numpy.newaxis
 
 class PdBackground(ItemN):
     """Background point in powder 1d experiment.
@@ -29,6 +34,7 @@ class PdBackground(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -39,6 +45,8 @@ class PdBackground(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "pd_background"
 
@@ -64,9 +72,9 @@ class PdBackgroundL(LoopN):
     """
     ITEM_CLASS = PdBackground
     ATTR_INDEX = "ttheta"
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(PdBackgroundL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
    
     def interpolate_by_points(self, tth):
@@ -80,14 +88,24 @@ class PdBackgroundL(LoopN):
             int_1d = numpy.interp(tth, tth_b, int_b)
         return int_1d
 
-# s_cont = """
-#  loop_
-#  _pd_background_ttheta
-#  _pd_background_intensity
-#   4.5  256.0
-#   40.0  158(2)
-#   80.0  65.0 
-# """
+    def define_points(self, pd_meas: PdMeasL, step_ttheta: float = 10.):
+        ttheta = numpy.array(pd_meas.ttheta, dtype=float)
+        if pd_meas.items[0].is_attribute("intensity_plus"):
+            intensity = 0.5*(
+                numpy.array(pd_meas.intensity_plus, dtype=float) + 
+                numpy.array(pd_meas.intensity_minus, dtype=float))
+        else:
+            intensity = numpy.array(pd_meas.intensity, dtype=float)
 
-# obj = PdBackgroundL.from_cif(s_cont)
-# print(obj, end="\n\n")
+        n_points = int((ttheta.max()-ttheta.min())/step_ttheta + 2)
+        ttheta_bkgr = numpy.linspace(ttheta.min(), ttheta.max(), n_points, endpoint=True)
+        
+        flags = numpy.abs(ttheta[na, :]-ttheta_bkgr[:, na])<step_ttheta
+        
+        int_bkrg = numpy.array([numpy.nanmin(intensity[flag], axis=0) for flag in flags], dtype=float)
+        int_bkrg = numpy.round(int_bkrg, decimals=5)
+        self.numpy_ttheta = ttheta_bkgr
+        self.numpy_intensity = int_bkrg
+        self.items = []
+        self.numpy_to_items()
+        return 

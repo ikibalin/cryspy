@@ -29,6 +29,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
     import AtomElectronConfiguration, AtomElectronConfigurationL
 from cryspy.C_item_loop_classes.cl_1_cell import Cell, CellL
+from cryspy.C_item_loop_classes.cl_1_channel_chi import ChannelChi, ChannelChiL
+from cryspy.C_item_loop_classes.cl_1_channel_plus_minus import ChannelPlusMinus, ChannelPlusMinusL
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2, Chi2L
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation, DiffrnRadiationL
@@ -101,7 +103,7 @@ from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
     DensityPointL
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
-from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
+# from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
@@ -122,7 +124,7 @@ L_ITEM_CLASS.extend([
     AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater, 
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
     AtomSiteSusceptibility, AtomType, AtomTypeScat,
-    Cell, Chi2,
+    Cell, ChannelChi, ChannelPlusMinus, Chi2,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
     Exclude, Extinction, MEMParameters, InversedHessian,
     Phase, PdBackground,
@@ -139,7 +141,7 @@ L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL, 
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
     AtomSiteSusceptibilityL, AtomTypeL, AtomTypeScatL,
-    CellL, Chi2L,
+    CellL, ChannelChiL, ChannelPlusMinusL, Chi2L,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
     ExtinctionL, ExcludeL, MEMParametersL,
     PhaseL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,
@@ -151,9 +153,9 @@ L_LOOP_CLASS.extend([
     TOFBackgroundL, TOFIntensityIncidentL, TOFMeasL, TOFParametersL, TOFPeakL,
     TOFProcL, TOFProfileL])
 
-L_DATA_CLASS.extend([Crystal, MagCrystal, Diffrn, Pd, Pd2d, TOF])
+L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
-L_GLOBAL_CLASS.extend([MEM, RhoChi])
+L_GLOBAL_CLASS.extend([]) # MEM, RhoChi
 
 F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
 
@@ -290,6 +292,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
     l_loop_class = L_LOOP_CLASS + list(loop_classes)
     l_data_class = L_DATA_CLASS + list(data_classes)
     l_global_class = L_GLOBAL_CLASS + list(global_classes)
+    # l_global_class = []
     if len(global_cif.items)+len(global_cif.loops) > 0:
         l_item_obj = items_to_itemsn(global_cif.items, l_item_class)
         l_global_item.extend(l_item_obj)
@@ -308,6 +311,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
     for data_cif in global_cif.datas:
         flag = False
         str_data = str(data_cif)
+
         for cls_data in l_data_class:
             # FIXME: it's bad solution as we loose information which are
             #        not specified as knonw in cryspy library.
@@ -348,6 +352,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                 data_obj = items_to_datan(data_cif.name, l_data_item,
                                           l_data_class)
                 l_global_item.append(data_obj)
+
 
     global_obj = items_to_globaln(global_cif.name, l_global_item,
                                   l_global_class)
@@ -481,7 +486,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
                 ll_val_cif.append(loop_cif[loop_name_type])
         ll_val_cif_t = [[ll_val_cif[i_2][i_1] for i_2 in range(len(
             ll_val_cif))] for i_1 in range(len(ll_val_cif[0]))]
-        obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t)
+        obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t, name=loop_cif.name)
         loopn = loop_cls.from_cif(str(obj))
 
         if loopn is None:
@@ -603,7 +608,7 @@ def items_to_globaln(global_name: str, items: list, l_global_class):
     """
     global_obj = None
     classes = set([type(item) for item in items])
-
+    l_global_class  = []
     for cls_global in l_global_class:
         flag_mand = all([cls_mand in classes
                          for cls_mand in cls_global.CLASSES_MANDATORY])
@@ -657,102 +662,3 @@ def items_to_datan(data_name: str, items: list, l_data_class):
         data_obj.data_name = data_name
         data_obj.add_items(items)
     return data_obj
-
-# s_cont = """
-# global_
-#   _unknown_fuck_d 7
-#   _unknown_fuck_e 3546
-#   _unknown_fuck_type_g 14
-#   _test_fuck_d 7
-#   _test_fuck_e 3546
-#   _test_fuck_type_g 14
-
-#   data_Fe3O4
-
-#   _test2_fuck_d 7
-#   _test2_fuck_e 3546
-#   _test2_fuck_type_g 14
-
-#   _cell_angle_alpha 90.0
-#   _cell_angle_beta 90.0
-#   _cell_angle_gamma 90.0
-#   _cell_length_a 8.56212()
-#   _cell_length_b 8.56212
-#   _cell_length_c 8.56212
-#   _space_group_it_coordinate_system_code 2
-#   _space_group_IT_number    227
-#   loop_
-#   _atom_site_adp_type
-#   _atom_site_B_iso_or_equiv
-#   _atom_site_fract_x
-#   _atom_site_fract_y
-#   _atom_site_fract_z
-#   _atom_site_label
-#   _atom_site_occupancy
-#   _atom_site_type_symbol
-#   Uani 0.0 0.125 0.125 0.125 Fe3A 1.0 Fe3+
-#   Uani 0.0 0.5 0.5 0.5 Fe3B 1.0 Fe3+
-#   Uiso 0.0 0.25521 0.25521 0.25521 O1 1.0 O2-
-#   loop_
-#   _atom_type_scat_length_neutron
-#   _atom_type_symbol
-#     0.945 Fe3+
-#   0.5803 O2-
-#   loop_
-#   _atom_site_aniso_U_11
-#   _atom_site_aniso_U_12
-#   _atom_site_aniso_U_13
-#   _atom_site_aniso_U_22
-#   _atom_site_aniso_U_23
-#   _atom_site_aniso_U_33
-#   _atom_site_aniso_label
-#   0.0 0.0 0.0 0.0 0.0 0.0 Fe3A
-#   0.0 0.0 0.0 0.0 0.0 0.0 Fe3B
-#   loop_
-#   _atom_site_scat_label
-#   _atom_site_scat_lande
-#   Fe3A 2.0
-#   Fe3B 2.0
-#   loop_
-#   _atom_site_susceptibility_label
-#   _atom_site_susceptibility_chi_type
-#   _atom_site_susceptibility_chi_11
-#   _atom_site_susceptibility_chi_12
-#   _atom_site_susceptibility_chi_13
-#   _atom_site_susceptibility_chi_22
-#   _atom_site_susceptibility_chi_23
-#   _atom_site_susceptibility_chi_33
-#   Fe3A Cani -3.468(74) 0.0 0.0 -3.468 0.0 -3.468
-#   Fe3B Cani 3.041      0.0 0.0  3.041 0.0  3.041
-#   data_mono
-#   _setup_wavelength     0.840
-#   _setup_field          1.000
-#   _diffrn_radiation_polarization 1.0
-#   _diffrn_radiation_efficiency   1.0
-#   _extinction_mosaicity 100.0
-#   _extinction_radius    50.0
-#   _extinction_model     gauss
-#   _diffrn_orient_matrix_UB_11 6.59783
-#   _diffrn_orient_matrix_UB_12 -6.99807
-#   _diffrn_orient_matrix_UB_13 3.3663
-#   _diffrn_orient_matrix_UB_21 2.18396
-#   _diffrn_orient_matrix_UB_22 -2.60871
-#   _diffrn_orient_matrix_UB_23 -9.5302
-#   _diffrn_orient_matrix_UB_31 7.4657
-#   _diffrn_orient_matrix_UB_32 6.94702
-#   _diffrn_orient_matrix_UB_33 -0.18685
-#   _phase_label  Fe3O4
-#   loop_
-#   _diffrn_refln_index_h
-#   _diffrn_refln_index_k
-#   _diffrn_refln_index_l
-#   _diffrn_refln_fr
-#   _diffrn_refln_fr_sigma
-#   0 0 8 0.64545 0.01329
-#   2 0 6 1.75682 0.04540
-#   0 2 6 1.67974 0.03711
-# """
-# obj = str_to_globaln(s_cont)
-# for var_name in obj.get_variable_names():
-#     print(var_name)
-# obj

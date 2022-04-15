@@ -1,12 +1,14 @@
 """Described classes AtomTypeScat, AtomTypeScatL."""
 import numpy
 from typing import NoReturn
-from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.A_functions_base.function_1_magnetic import \
     get_j0_j2_by_symbol
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 
+from cryspy.B_parent_classes.cl_1_item import ItemN
+from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomTypeScat(ItemN):
     """
@@ -93,7 +95,7 @@ class AtomTypeScat(ItemN):
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
     ATTR_CIF = ATTR_MANDATORY_CIF + ATTR_OPTIONAL_CIF
 
-    ATTR_INT_NAMES = ()
+    ATTR_INT_NAMES = ("j0_parameters", "j2_parameters")
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
@@ -101,6 +103,7 @@ class AtomTypeScat(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -111,6 +114,8 @@ class AtomTypeScat(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "atom_type_scat"
 
@@ -209,6 +214,9 @@ class AtomTypeScat(ItemN):
         self.neutron_magnetic_j2_c2 = j2_c2
         self.neutron_magnetic_j2_d = j2_D
 
+        self.j0_parameters = numpy.array([j0_A1, j0_a2, j0_B1, j0_b2, j0_C1, j0_c2, j0_D], dtype=float)
+        self.j2_parameters = numpy.array([j2_A1, j2_a2, j2_B1, j2_b2, j2_C1, j2_c2, j2_D], dtype=float)
+
     @classmethod
     def form_by_symbol(cls, symbol: str):
         """Form by symbol (classmethod)."""
@@ -224,6 +232,8 @@ class AtomTypeScat(ItemN):
             neutron_magnetic_j2_b1=j2_B1, neutron_magnetic_j2_b2=j2_b2,
             neutron_magnetic_j2_c1=j2_C1, neutron_magnetic_j2_c2=j2_c2,
             neutron_magnetic_j2_d=j2_D)
+        item.j0_parameters = numpy.array([j0_A1, j0_a2, j0_B1, j0_b2, j0_C1, j0_c2, j0_D], dtype=float)
+        item.j2_parameters = numpy.array([j2_A1, j2_a2, j2_B1, j2_b2, j2_C1, j2_c2, j2_D], dtype=float)
         return item
 
 
@@ -233,9 +243,9 @@ class AtomTypeScatL(LoopN):
     ITEM_CLASS = AtomTypeScat
     ATTR_INDEX = "symbol"
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomTypeScatL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def calc_form_factor(self, sthovl, l_lande: list, l_kappa: list,

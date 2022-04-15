@@ -74,7 +74,8 @@ def common_string(*argv) -> str:
     return "".join(ls_out)
 
 
-def string_to_value_error(string: str) -> Tuple[float, Union[float, None]]:
+
+def string_to_value_error_mark(string: str) -> Tuple[float, Union[float, None], str]:
     """
     Convert string to float and error.
 
@@ -91,7 +92,7 @@ def string_to_value_error(string: str) -> Tuple[float, Union[float, None]]:
         Error.
 
     """
-    value, error = None, None
+    value, error, mark = None, None, ""
     ind_1 = string.find("(")
     s_sigma = ""
     if value == ".":
@@ -104,6 +105,7 @@ def string_to_value_error(string: str) -> Tuple[float, Union[float, None]]:
                 s_sigma = ""
         str_1 = string.split("(")[0]
         value = float(str_1)
+        mark = string[ind_2+1:].strip()
         if s_sigma != "":
             s_h = "".join(["0" if _h.isdigit() else _h for _h in
                            str_1[:-len(s_sigma)]])
@@ -115,9 +117,9 @@ def string_to_value_error(string: str) -> Tuple[float, Union[float, None]]:
             value = float(string)
         except ValueError:
             value = None
-    return value, error
+    return value, error, mark
 
-def value_error_to_string(value: float, error: float) -> str:
+def value_error_mark_to_string(value: float, error: float, mark: str) -> str:
     """
     Convert value and error to string
 
@@ -149,17 +151,105 @@ def value_error_to_string(value: float, error: float) -> str:
             s_val_12 = ("{:}".format(int(abs(val_1) % 1.*10**(-n_power+2)))
                         ).rjust(int(-n_power+2), "0")
             val_2 = int(val_2*10**(-n_power+2))
-            string = f"{s_sign:}{abs(i_val_11):}.{s_val_12:}({int(val_2):})"
+            string = f"{s_sign:}{abs(i_val_11):}.{s_val_12:}({int(val_2):}){mark.strip():}"
         else:
             val_1 = numpy.round(value)
             val_2 = numpy.round(error)
-            string = "{:}({:})".format(int(val_1), int(val_2))
+            string = "{:}({:}){:}".format(int(val_1), int(val_2),mark.strip())
     elif (error == 0.):
-        string = "{:}()".format(value)
+        string = "{:}(){:}".format(value, mark.strip())
     else:
         string = "{:}".format(value)
     return string
 
+##FIXME to del
+#def string_to_value_error(string: str) -> Tuple[float, Union[float, None]]:
+#    """
+#    Convert string to float and error.
+#
+#    Parameters
+#    ----------
+#    string : str
+#        DESCRIPTION.
+#
+#    Returns
+#    -------
+#    value : float
+#        Value.
+#    error : float
+#        Error.
+#
+#    """
+#    value, error = None, None
+#    ind_1 = string.find("(")
+#    s_sigma = ""
+#    if value == ".":
+#       pass 
+#    elif ind_1 != -1:
+#        ind_2 = string.find(")")
+#        if ind_2 > ind_1:
+#            s_sigma = string[(ind_1+1):ind_2]
+#            if not(s_sigma.isdigit()):
+#                s_sigma = ""
+#        str_1 = string.split("(")[0]
+#        value = float(str_1)
+#        if s_sigma != "":
+#            s_h = "".join(["0" if _h.isdigit() else _h for _h in
+#                           str_1[:-len(s_sigma)]])
+#            error = abs(float(s_h+s_sigma))
+#        else:
+#            error = 0.
+#    else:
+#        try:
+#            value = float(string)
+#        except ValueError:
+#            value = None
+#    return value, error
+#
+# #FIXME to del
+# def value_error_to_string(value: float, error: float) -> str:
+#     """
+#     Convert value and error to string
+# 
+#     Parameters
+#     ----------
+#     value : float
+#         DESCRIPTION.
+#     error : float
+#         DESCRIPTION.
+# 
+#     Returns
+#     -------
+#     str
+#         DESCRIPTION.
+# 
+#     """
+#     if ((value is None) | (value is numpy.nan)):
+#         string = "."
+#     if not((error == 0.) | (error is None)):
+#         val_hh = numpy.log10(error)
+#         n_power = int(val_hh)
+#         if val_hh <= 0:
+#             val_1 = numpy.round(value, decimals = -1*int(n_power)+2)
+#             val_2 = numpy.round(error, decimals = -1*int(n_power)+2)
+#             i_val_11 = int(val_1)
+#             s_sign = ""
+#             if val_1 < 0.:
+#                 s_sign = "-"
+#             s_val_12 = ("{:}".format(int(abs(val_1) % 1.*10**(-n_power+2)))
+#                         ).rjust(int(-n_power+2), "0")
+#             val_2 = int(val_2*10**(-n_power+2))
+#             string = f"{s_sign:}{abs(i_val_11):}.{s_val_12:}({int(val_2):})"
+#         else:
+#             val_1 = numpy.round(value)
+#             val_2 = numpy.round(error)
+#             string = "{:}({:})".format(int(val_1), int(val_2))
+#     elif (error == 0.):
+#         string = "{:}()".format(value)
+#     else:
+#         string = "{:}".format(value)
+#     return string
+# 
 
 def transform_string_to_r_b(name: str, labels=("x", "y", "z")) -> Tuple:
     """

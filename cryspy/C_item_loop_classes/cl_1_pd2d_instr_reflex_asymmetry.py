@@ -52,6 +52,7 @@ class Pd2dInstrReflexAsymmetry(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -62,6 +63,8 @@ class Pd2dInstrReflexAsymmetry(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "pd2d_instr_reflex_asymmetry"
 

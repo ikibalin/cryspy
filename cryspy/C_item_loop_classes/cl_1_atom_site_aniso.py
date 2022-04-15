@@ -1,8 +1,12 @@
 """Desctiption of AtomSiteAniso and AtomSiteAnisoL."""
 import numpy
 from typing import NoReturn
+
 from cryspy.A_functions_base.function_1_atomic_vibrations import \
     calc_beta_by_u, vibration_constraints
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -47,7 +51,7 @@ class AtomSiteAniso(ItemN):
     ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float,
                            float, float, float, float, float, float)
     ATTR_OPTIONAL_CIF = ("U_11", "U_22", "U_33", "U_12", "U_13", "U_23",
-                         "B_11", "B_22", "b_33", "B_12", "B_13", "B_23")
+                         "B_11", "B_22", "B_33", "B_12", "B_13", "B_23")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -62,6 +66,7 @@ class AtomSiteAniso(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
     D_FORMATS = {"u_11": "{:.5f}", "u_22": "{:.5f}", "u_33": "{:.5f}",
@@ -76,6 +81,8 @@ class AtomSiteAniso(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "atom_site_aniso"
 
@@ -121,7 +128,7 @@ class AtomSiteAniso(ItemN):
 
         """
         u_i = (self.u_11, self.u_22, self.u_33,
-               self.u_12, self.u_13, self.u_13)
+               self.u_12, self.u_13, self.u_23)
         beta_11, beta_22, beta_33, beta_12, beta_13, beta_23 = \
             calc_beta_by_u(u_i, cell)
         return beta_11, beta_22, beta_33, beta_12, beta_13, beta_23
@@ -132,6 +139,7 @@ class AtomSiteAniso(ItemN):
 
         According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
         """
+
         l_numb = atom_site.calc_constr_number(space_group)
         label_aniso = self.label
         label = atom_site.label
@@ -145,7 +153,7 @@ class AtomSiteAniso(ItemN):
         self.__dict__["u_23_constraint"] = False
 
         numb = l_numb[index]
-
+        
         u_i = (self.u_11, self.u_22, self.u_33, self.u_12, self.u_13,
                self.u_23)
         u_sigma_i = (self.u_11_sigma, self.u_22_sigma, self.u_33_sigma,
@@ -153,7 +161,7 @@ class AtomSiteAniso(ItemN):
         u_ref_i = (self.u_11_refinement, self.u_22_refinement,
                    self.u_33_refinement, self.u_12_refinement,
                    self.u_13_refinement, self.u_23_refinement)
-
+        
         u_i, u_sigma_i, u_ref_i, u_constr_i = vibration_constraints(
             numb, u_i, u_sigma_i, u_ref_i)
 
@@ -185,9 +193,9 @@ class AtomSiteAnisoL(LoopN):
     ITEM_CLASS = AtomSiteAniso
     ATTR_INDEX = "label"
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomSiteAnisoL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def calc_beta(self, cell):

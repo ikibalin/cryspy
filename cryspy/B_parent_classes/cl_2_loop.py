@@ -12,7 +12,7 @@ from pycifstar import Data, to_data
 
 from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_strings import find_prefix, \
-    string_to_value_error
+    string_to_value_error_mark
 from cryspy.A_functions_base.function_1_objects import \
     get_functions_of_objet, get_table_html_for_variables
 
@@ -106,7 +106,7 @@ class LoopN(object):
             name_sh = name[6:]
             if name_sh in (item_class.ATTR_NAMES + item_class.ATTR_SIGMA +
                            item_class.ATTR_CONSTR_FLAG +
-                           item_class.ATTR_REF_FLAG):
+                           item_class.ATTR_REF_FLAG + item_class.ATTR_CONSTR_MARK):
                 l_val = [getattr(item, name_sh) for item in self.items]
                 if name_sh in item_class.ATTR_NAMES:
                     type_array = item_class.ATTR_TYPES[
@@ -114,6 +114,8 @@ class LoopN(object):
                 elif name_sh in (item_class.ATTR_CONSTR_FLAG +
                                  item_class.ATTR_REF_FLAG):
                     type_array = bool
+                elif name_sh in item_class.ATTR_CONSTR_MARK:
+                    type_array = str
                 else:
                     type_array = float
                 res = numpy.array(l_val, dtype=type_array)
@@ -127,7 +129,8 @@ class LoopN(object):
                 self.__dict__[name] = res
                 return res
         elif name in (item_class.ATTR_NAMES + item_class.ATTR_SIGMA +
-                      item_class.ATTR_CONSTR_FLAG + item_class.ATTR_REF_FLAG):
+                      item_class.ATTR_CONSTR_FLAG + item_class.ATTR_REF_FLAG +
+                      item_class.ATTR_CONSTR_MARK):
             res = [getattr(item, name) for item in self.items]
             return res
         elif name in (item_class.ATTR_INT_NAMES +
@@ -194,7 +197,8 @@ class LoopN(object):
                 name_sh = name[6:]
                 if name_sh in (item_class.ATTR_NAMES + item_class.ATTR_SIGMA +
                                item_class.ATTR_CONSTR_FLAG +
-                               item_class.ATTR_REF_FLAG):
+                               item_class.ATTR_REF_FLAG + 
+                               item_class.ATTR_CONSTR_MARK):
                     numpy_val = self.__dict__[name]
                     if len(self.items) == 0:
                         items = [item_class() for val in numpy_val]
@@ -314,17 +318,13 @@ class LoopN(object):
                                     item = item_class()
 
                                 if _name_short_obj in item.ATTR_REF:
-                                    value, error = string_to_value_error(_val)
+                                    value, error, mark = string_to_value_error_mark(_val)
                                     
                                     setattr(item, _name_short_obj, value)
                                     if error is not None:
-                                        setattr(
-                                            item, f"{_name_short_obj:}_sigma",
-                                            error)
-                                        setattr(
-                                            item,
-                                            f"{_name_short_obj:}_refinement",
-                                            True)
+                                        setattr(item, f"{_name_short_obj:}_sigma", error)
+                                        setattr(item, f"{_name_short_obj:}_refinement", True)
+                                        setattr(item, f"{_name_short_obj:}_mark", mark)
                                     else:
                                         setattr(
                                             item,
@@ -336,21 +336,14 @@ class LoopN(object):
                         else:
                             for _val, item in zip(cif_loop[_name], items):
                                 if _name_short_obj in item.ATTR_REF:
-                                    value, error = string_to_value_error(_val)
+                                    value, error, mark = string_to_value_error_mark(_val)
                                     setattr(item, _name_short_obj, value)
                                     if error is not None:
-                                        setattr(
-                                            item, f"{_name_short_obj:}_sigma",
-                                            error)
-                                        setattr(
-                                            item,
-                                            f"{_name_short_obj:}_refinement",
-                                            True)
+                                        setattr(item, f"{_name_short_obj:}_sigma", error)
+                                        setattr(item,f"{_name_short_obj:}_refinement", True)
+                                        setattr(item,f"{_name_short_obj:}_mark", mark)
                                     else:
-                                        setattr(
-                                            item,
-                                            f"{_name_short_obj:}_refinement",
-                                            False)
+                                        setattr(item, f"{_name_short_obj:}_refinement", False)
                                 else:
                                     setattr(item, _name_short_obj, _val)
                         _i += 1
@@ -408,17 +401,17 @@ class LoopN(object):
                     for s_val in list_value:
                         if ((len(s_val.split(" ")) > 1) |
                                 s_val.startswith("_")):
-                            ls_out_2.append([("\""+s_val+"\"").ljust(n_max)])
+                            ls_out_2.append([("\""+s_val+"\"").rjust(n_max)])
                         else:
-                            ls_out_2.append([s_val.ljust(n_max)])
+                            ls_out_2.append([s_val.rjust(n_max)])
                 else:
                     n_max = max(map(len, [str(h) for h in list_value])) + 2
                     for list_out, s_val in zip(ls_out_2, list_value):
                         if ((len(s_val.split(" ")) > 1) | 
                                 s_val.startswith("_")):
-                            list_out.append(("\""+s_val+"\"").ljust(n_max))
+                            list_out.append(("\""+s_val+"\"").rjust(n_max))
                         else:
-                            list_out.append(s_val.ljust(n_max))
+                            list_out.append(s_val.rjust(n_max))
 
         for list_out in ls_out_2:
             s_line = " ".join(list_out)
@@ -563,6 +556,8 @@ class LoopN(object):
         else:
             prefix = item_class.PREFIX
         loop_name = self.loop_name
+        if isinstance(loop_name, str):
+            loop_name = loop_name.lower()
         l_var = []
         for ind, item in enumerate(self.items):
             l_var.extend([((prefix, loop_name), (name[1][0], ind))
@@ -602,7 +597,16 @@ class LoopN(object):
         else:
             prefix = item_class.PREFIX
         prefix_t = name[0]
-        if prefix_t != (prefix, self.loop_name):
+        if isinstance(prefix_t[1], str):
+            prefix_t_2 = prefix_t[1].lower()
+        else:
+            prefix_t_2 = prefix_t[1]
+
+        loop_name = self.loop_name
+        if isinstance(loop_name, str):
+            loop_name = loop_name.lower()
+
+        if (prefix_t[0], prefix_t_2) != (prefix, loop_name):
             return None
 
         if len(name) == 1:
@@ -697,6 +701,10 @@ class LoopN(object):
         for item in self.items:
             item.fix_variables()
 
+    def refine_all_variables(self):
+        for item in self.items:
+            item.refine_all_variables()
+
     def set_variable(self, name: str, index=None):
         """Set refinement for variable given by name.
         
@@ -719,3 +727,7 @@ class LoopN(object):
             else:
                 item = self[index]
                 item.set_variable(name_sh, index=None)
+    
+
+    
+    

@@ -4,6 +4,8 @@ from typing import NoReturn
 import numpy
 from fractions import Fraction
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 from cryspy.A_functions_base.function_2_space_group import \
     get_shift_by_centring_type, \
     get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2, \
@@ -102,6 +104,7 @@ class SpaceGroup(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     ACCESIBLE_NAME_HM_ALT = frozenset(
         set(ACCESIBLE_NAME_HM_SHORT) | set(ACCESIBLE_NAME_HM_FULL) |
@@ -128,6 +131,8 @@ class SpaceGroup(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "space_group"
 
@@ -165,7 +170,7 @@ class SpaceGroup(ItemN):
         it_coordinate_system_code = None
         if self.is_attribute("it_coordinate_system_code"):
             it_coordinate_system_code = self.it_coordinate_system_code
-
+        
         if (self.is_attribute("it_number") &
                 self.is_attribute("it_coordinate_system_code")):
             it_number = self.it_number
@@ -225,13 +230,14 @@ class SpaceGroup(ItemN):
                         it_number, it_coordinate_system_codes)
             self.__dict__["it_coordinate_system_code"] = \
                 it_coordinate_system_code
+
         return flag
 
     def form_object_by_it_number_it_coordinate_system_code(self):
         """Form object by it number it coordinate system code.
 
         TODO: Solve the problem with centring_type for hexagonal systems
-              (Ex.: 166 spcace group).
+              (Ex.: 166 space group).
         """
         bravais_type, laue_class, patterson_name_hm, centring_type, \
             crystal_system = None, None, None, None, None
@@ -259,9 +265,6 @@ class SpaceGroup(ItemN):
         if (name_hm_extended is not None):
             centring_type = get_centring_type_by_name_hm_extended(
                 name_hm_extended)
-        if ((centring_type is not None) & (crystal_system is not None)):
-            bravais_type = get_bravais_type_by_centring_type_crystal_system(
-                centring_type, crystal_system)
         name_hm_short = get_name_hm_short_by_it_number(it_number)
         if (name_hm_short is not None):
             lattice_type = get_lattice_type_by_name_hm_short(name_hm_short)
@@ -271,6 +274,9 @@ class SpaceGroup(ItemN):
         name_hm_full = get_name_hm_full_by_it_number(it_number)
         if ((name_hm_full is not None) & (centring_type is None)):
             centring_type = get_centring_type_by_name_hm_extended(name_hm_full)
+        if ((centring_type is not None) & (crystal_system is not None)):
+            bravais_type = get_bravais_type_by_centring_type_crystal_system(
+                centring_type, crystal_system)
         name_hall = get_name_hall_by_it_number(it_number)
         if name_hall is not None:
             centrosymmetry = get_centrosymmetry_by_name_hall(name_hall)
@@ -285,6 +291,9 @@ class SpaceGroup(ItemN):
                 patterson_name_hm = \
                     get_patterson_name_hm_by_lattice_type_laue_class(
                         lattice_type, laue_class)
+        if ((centring_type is not None) and (it_c_s_c is not None)):
+            if centring_type.startswith("R") and it_c_s_c.startswith("r"):
+                centring_type = "P"
 
         pcentr, reduced_space_group_symop, full_space_group_symop, \
             space_group_wyckoff = \
@@ -342,6 +351,7 @@ class SpaceGroup(ItemN):
         symop, pcentr, _multiplicity, _letter, _site_symmetry, _l_coords_xyz_2\
             = get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
                 it_number, it_coordinate_system_code)
+
         item_reduced = []
         for _i_symop, _symop in enumerate(symop):
             _item = SpaceGroupSymop(id=f"{_i_symop+1:}", operation_xyz=_symop,
@@ -350,7 +360,7 @@ class SpaceGroup(ItemN):
             item_reduced.append(_item)
         reduced_space_group_symop = SpaceGroupSymopL()
         reduced_space_group_symop.items = item_reduced
-
+        
         item_full = []
         for _item in item_reduced:
             _symop = _item.operation_xyz
@@ -473,9 +483,9 @@ class SpaceGroup(ItemN):
         e_33 = numpy.array(symop.r_33, dtype=float)
         e_3 = numpy.array(symop.b_3, dtype=float)
 
-        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
-        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
-        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), decimals=5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), decimals=5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), decimals=5)
 
         xyz_s = numpy.vstack([x_s, y_s, z_s])
 
@@ -511,9 +521,9 @@ class SpaceGroup(ItemN):
         e_33 = numpy.array(symop.r_33, dtype=float)
         e_3 = numpy.array(symop.b_3, dtype=float)
 
-        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
-        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
-        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), decimals=5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), decimals=5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), decimals=5)
 
         xyz_s = numpy.vstack([x_s, y_s, z_s])
 
@@ -632,9 +642,9 @@ class SpaceGroup(ItemN):
         e_33 = numpy.array(symop.r_33, dtype=float)
         e_3 = numpy.array(symop.b_3, dtype=float)
 
-        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), 5)
-        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), 5)
-        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), 5)
+        x_s = numpy.round(numpy.mod(e_11*x + e_12*y + e_13*z + e_1, 1), decimals=5)
+        y_s = numpy.round(numpy.mod(e_21*x + e_22*y + e_23*z + e_2, 1), decimals=5)
+        z_s = numpy.round(numpy.mod(e_31*x + e_32*y + e_33*z + e_3, 1), decimals=5)
         # o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_1, o_2, o_3 \
         #    = self.calc_el_symm_for_xyz(x, y, z)
         # np_x, np_y, np_z, mult = self.calc_xyz_mult(x, y, z)
@@ -822,9 +832,9 @@ class SpaceGroupL(LoopN):
     ITEM_CLASS = SpaceGroup
     ATTR_INDEX = "id"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(SpaceGroupL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 

@@ -1,15 +1,14 @@
-**CrysPy** is a crystallographic library for neutron data analysis. 
-Based on the library *CrysPy* a script *RhoChi* allows to refine polarized neutron diffraction experiments 
-performed with single crystals as well as with powder magnetic compounds. 
+**CrysPy** is a crystallographic python library for polarized neutron diffraction data analysis. 
+The package allows the data treatment both for powders and single-crystal samples. Nuclear and (commensurate) magnetic structures refinement can be also perfomed based on the unpolarized neutron diffraction and X-ray diffraction data.
 
-Main Features
--------------
-- Analysis of the polarized neutron scattering on crystals by the library *CrysPy*;
-- Diffraction data refinement for single crystals or powders by *RhoChi*;
-- Free distributed software. 
+Features
+--------
+- CrysPy allows one to analyse the local magnetic anisotropy by the susceptibility approach  and the spin/magnetization densities reconstruction by maximume entropy procedure based on polarized neutron diffraction experiments;
+- Core CIF dictionary of the  IUCr is used to cover the requirements of archiving and exchanging the data and derived magnetic and structural results;
+- The library is written in Python. It can be used in Jupyter notebooks under the main platforms Windows, MacOSX and Linux or as a standalone application with a simple graphical user interface "CrysPy Editor".
 
 
-For more information please see `documentation site <https://ikibalin.github.io/cryspy/>`_.
+For more information please visit `the site <https://sites.google.com/view/cryspy/main>`_.
 
 Copyright and License
 ---------------------

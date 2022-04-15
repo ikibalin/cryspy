@@ -11,6 +11,8 @@ Functions
 import numpy
 import copy
 
+from numpy.linalg import LinAlgError
+
 def estimate_inversed_hessian_matrix(func, param_0):
     """Estimate inversed Hessian matrix."""
     n_param = len(param_0)
@@ -18,6 +20,7 @@ def estimate_inversed_hessian_matrix(func, param_0):
     np_first_der = numpy.zeros(shape=(n_param,), dtype=float)
     chi_sq = func(param_0)
     perc = 0.01
+    
     for i_p_1, p_1 in enumerate(param_0):
         delta_p_1 = perc * numpy.abs(p_1)
         if delta_p_1 < 1e-5:
@@ -38,6 +41,7 @@ def estimate_inversed_hessian_matrix(func, param_0):
         param_pm = copy.deepcopy(param_0)
         param_mp = copy.deepcopy(param_0)
         param_mm = copy.deepcopy(param_0)
+
         param_pp[i_p_1] += delta_p_1
         param_pm[i_p_1] += delta_p_1
         param_mp[i_p_1] -= delta_p_1
@@ -50,7 +54,7 @@ def estimate_inversed_hessian_matrix(func, param_0):
             param_pm[i_p_2] -= delta_p_2
             param_mp[i_p_2] += delta_p_2
             param_mm[i_p_2] -= delta_p_2
-
+            
             chi_sq_pp = func(param_pp)
             chi_sq_pm = func(param_pm)
             chi_sq_mp = func(param_mp)
@@ -60,7 +64,16 @@ def estimate_inversed_hessian_matrix(func, param_0):
                 4. * delta_p_1 * delta_p_2) 
             np_hessian[i_p_1, i_p_2] = der_second
             np_hessian[i_p_2, i_p_1] = der_second
-    np_hessian_inv = numpy.linalg.inv(np_hessian)
+
+            param_pp[i_p_2] -= delta_p_2
+            param_pm[i_p_2] += delta_p_2
+            param_mp[i_p_2] -= delta_p_2
+            param_mm[i_p_2] += delta_p_2
+
+    try:
+        np_hessian_inv = numpy.linalg.inv(np_hessian)
+    except LinAlgError:
+        np_hessian_inv = None
     func(param_0)
     return np_hessian_inv, np_first_der
 

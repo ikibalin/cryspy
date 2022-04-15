@@ -1,6 +1,9 @@
 import numpy
 from typing import NoReturn
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -21,17 +24,17 @@ class TOFPeak(ItemN):
 
     Attributes:
         - index_h, index_k, index_l (mandatory)
-        - index_mult, time, intensity_up, intensity_down, width_time
+        - index_mult, time, intensity_plus, intensity_minus, width_time
     """
     ATTR_MANDATORY_NAMES = ("index_h", "index_k", "index_l")
     ATTR_MANDATORY_TYPES = (int, int, int)
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
-    ATTR_OPTIONAL_NAMES = ("index_mult", "time", "intensity_up",
-                           "intensity_down", "width_time")
+    ATTR_OPTIONAL_NAMES = ("index_mult", "time", "intensity_plus",
+                           "intensity_minus", "width_time")
     ATTR_OPTIONAL_TYPES = (int, float, float, float, float)
-    ATTR_OPTIONAL_CIF = ("index_mult", "time", "intensity_up",
-                         "intensity_down", "width_time")
+    ATTR_OPTIONAL_CIF = ("index_mult", "time", "intensity_plus",
+                         "intensity_minus", "width_time")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -45,10 +48,11 @@ class TOFPeak(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"time": "{:.2f}", "intensity_up": "{:.2f}",
-                 "intensity_down": "{:.2f}", "width_time": "{:.5f}"}
+    D_FORMATS = {"time": "{:.2f}", "intensity_plus": "{:.2f}",
+                 "intensity_minus": "{:.2f}", "width_time": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -59,6 +63,8 @@ class TOFPeak(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "tof_peak"
 
@@ -95,14 +101,14 @@ class TOFPeakL(LoopN):
 
     Attributes:
         - index_h, index_k, index_l (mandatory)
-        - index_mult, time, intensity_up, intensity_down, width_time
+        - index_mult, time, intensity_plus, intensity_minus, width_time
 
     """
     ITEM_CLASS = TOFPeak
     ATTR_INDEX = None
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(TOFPeakL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 
@@ -113,8 +119,8 @@ class TOFPeakL(LoopN):
 #   _tof_peak_index_l
 #   _tof_peak_index_mult
 #   _tof_peak_time
-#   _tof_peak_intensity_up
-#   _tof_peak_intensity_down
+#   _tof_peak_intensity_plus
+#   _tof_peak_intensity_minus
 #   _tof_peak_width_time
 #   2  2  0  4 17.2 100.0  90.0  2.3
 # """

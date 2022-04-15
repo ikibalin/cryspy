@@ -3,10 +3,13 @@ from typing import NoReturn
 import numpy
 import matplotlib.pyplot as plt
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat
+from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat, AtomTypeScatL
 
 
 class AtomSiteScat(ItemN):
@@ -44,6 +47,7 @@ class AtomSiteScat(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {"modulation_flag": ["yes", "y", "no", "n"],
@@ -56,6 +60,8 @@ class AtomSiteScat(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "atom_site_scat"
 
@@ -116,6 +122,13 @@ class AtomSiteScat(ItemN):
         fig.tight_layout()
         return (fig, ax)
 
+    def get_flags_lande(self):
+        res = self.lande_refinement
+        return res
+
+    def get_flags_kappa(self):
+        res = self.kappa_refinement
+        return res
 
 class AtomSiteScatL(LoopN):
     """
@@ -131,9 +144,9 @@ class AtomSiteScatL(LoopN):
     ITEM_CLASS = AtomSiteScat
     ATTR_INDEX = "label"
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomSiteScatL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def calc_form_factor(self, sthovl, flag_only_orbital=False):
@@ -171,7 +184,29 @@ class AtomSiteScatL(LoopN):
         ax.legend(loc='upper right')
         fig.tight_layout()
         return (fig, ax)
-            
+
+    def report(self):
+        s_out = ""
+        l_ats = []
+        for item in self.items:
+            try:
+                ats = item.atom_type_scat
+                l_ats.append(ats)
+            except AttributeError:
+                pass
+        if len(l_ats) != 0:
+            obj = AtomTypeScatL()
+            obj.items=l_ats
+            s_out = str(obj)
+        return s_out
+    
+    def get_flags_lande(self):
+        flags_lande = numpy.stack([item.get_flags_lande() for item in self.items], axis=0)
+        return flags_lande
+
+    def get_flags_kappa(self):
+        flags_kappa = numpy.stack([item.get_flags_kappa() for item in self.items], axis=0)
+        return flags_kappa
 
 # s_cont = """
 #  loop_

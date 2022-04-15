@@ -6,13 +6,13 @@ from typing import NoReturn, Union
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
-def hessian_to_correlation(np_hessian):
-    """Calculate correlation matrix and sigmas for hessian matrix."""
-    np_sigma_sq = numpy.diagonal(np_hessian)
+def inversed_hessian_to_correlation(inv_hessian):
+    """Calculate correlation matrix and sigmas for inversed hessian matrix."""
+    np_sigma_sq = numpy.diagonal(inv_hessian)
     np_na = numpy.newaxis
     np_sigma = numpy.sqrt(numpy.abs(np_sigma_sq))
     np_sigma_sq_matrix = np_sigma[:, np_na] * np_sigma[np_na, :]
-    np_correlation_matrix = np_hessian / np_sigma_sq_matrix
+    np_correlation_matrix = inv_hessian / np_sigma_sq_matrix
     return np_correlation_matrix, np_sigma
 
 class InversedHessian(ItemN):
@@ -57,6 +57,7 @@ class InversedHessian(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -67,6 +68,8 @@ class InversedHessian(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "inversed_hessian"
 
@@ -89,7 +92,6 @@ class InversedHessian(ItemN):
     def form_object(self):
         """Form object."""
         l_1 = (self.with_labels).strip().split("\n")
-
         l_label, l_matrix = [], []
         for line in l_1[0:]:
             l_1 = line.strip().split()
@@ -97,13 +99,17 @@ class InversedHessian(ItemN):
             l_matrix.append(l_1[1:])
 
         np_label = numpy.array(l_label, dtype=str)
+        arg_sort = numpy.argsort(np_label)
+        np_label = np_label[arg_sort]
         np_matrix = numpy.array(l_matrix, dtype=float)
-        np_correlation_matrix, np_sigma = hessian_to_correlation(np_matrix)
+        np_matrix = np_matrix[arg_sort,:][:, arg_sort]
+        np_correlation_matrix, np_sigma = inversed_hessian_to_correlation(np_matrix)
         
         self.set_labels(np_label)
         self.set_inversed_hessian(np_matrix)
         self.set_correlation_matrix(np_correlation_matrix)
         self.set_sigmas(np_sigma)
+        # self.form_inversed_hessian()
 
     def set_labels(self, labels) -> NoReturn:
         """Form 2theta_phi_intensity from internal attributes."""
@@ -127,13 +133,33 @@ class InversedHessian(ItemN):
         f_hessian = self.is_attribute("matrix")
         f_correlation = self.is_attribute("correlation_matrix")
         f_sigma = self.is_attribute("sigma")
+        if f_label:
+            np_label = numpy.array(self.label, dtype=str)
+            arg_sort = numpy.argsort(np_label)
+            np_label = np_label[arg_sort]
+            self.set_labels(np_label)
+
+            if f_hessian:
+                np_matrix = numpy.array(self.matrix, dtype=float)
+                np_matrix = np_matrix[arg_sort, :][:, arg_sort]
+                self.set_inversed_hessian(np_matrix)            
+            if f_correlation:
+                np_cmatrix = numpy.array(self.correlation_matrix, dtype=float)
+                np_cmatrix = np_cmatrix[arg_sort, :][:, arg_sort]
+                self.set_correlation_matrix(np_cmatrix)            
+            if f_sigma:
+                np_sigma = numpy.array(self.sigma, dtype=float)[arg_sort]
+                self.set_sigmas(np_sigma)
+
         if f_label & f_hessian:
             ls_out = [f"{lab:7} "+" ".join([f"{val:.10f}" for val in hess])
                       for lab, hess in zip(self.label, self.matrix)]
             self.with_labels = "\n".join(ls_out)
+
         elif f_label & f_correlation & f_sigma:
             np_correlation = self.correlation_matrix
             np_sigma = self.sigma
+            
             np_na = numpy.newaxis
             np_hessian = np_correlation*np_sigma[:, np_na]*np_sigma[np_na, :]
             self.set_inversed_hessian(np_hessian)
@@ -180,25 +206,3 @@ class InversedHessian(ItemN):
             ls_html.append("</table>")
         return "".join(ls_html)
             
-
-# s_cont = """
-#   _hessian_matrix_with_labels
-#   ;
-#   length_a 8 3 0
-#   length_b 3 9 2
-#   length_c 2 8 3
-#   ;
-
-# """
-
-# obj = InversedHessian.from_cif(s_cont)
-# obj.form_object()
-# print(obj, end="\n\n")
-# print(obj.matrix, end="\n\n")
-# print(obj.label, end="\n\n")
-# print(obj.correlation_matrix, end="\n\n")
-# print(obj.sigma, end="\n\n")
-# print(obj.with_labels, end="\n\n")
-# obj.form_inversed_hessian()
-
-# print(obj, end="\n\n")

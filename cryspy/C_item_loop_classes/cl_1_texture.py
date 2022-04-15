@@ -1,4 +1,8 @@
 from typing import NoReturn
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -16,9 +20,9 @@ class Texture(ItemN):
     ATTR_MANDATORY_TYPES = (float, float, float, float, float)
     ATTR_MANDATORY_CIF = ("g_1", "g_2", "h_ax", "k_ax", "l_ax")
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("label", )
+    ATTR_OPTIONAL_TYPES = (str, )
+    ATTR_OPTIONAL_CIF = ("label", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -32,6 +36,7 @@ class Texture(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
     D_FORMATS = {'g_1': "{:.5f}", 'g_2': "{:.5f}", 'h_ax': "{:.3f}",
@@ -46,6 +51,8 @@ class Texture(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "texture"
 
@@ -73,9 +80,9 @@ class TextureL(LoopN):
     """
     ITEM_CLASS = Texture
     ATTR_INDEX = None
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(TextureL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 # s_cont = """

@@ -9,7 +9,10 @@ import scipy
 import scipy.optimize
 from pycifstar import to_data
 
-from cryspy.A_functions_base.function_1_rhocif import transs, calc_GCF
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
+from cryspy.A_functions_base.orbital_functions import calc_jl
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
@@ -27,9 +30,10 @@ class AtomRhoOrbitalRadialSlater(ItemN):
 
     Attributes
         - n0, zeta0 (mandatory)
-        - coeff_1s, coeff_2s, coeff_3s, coeff_4s, coeff_5s, coeff_2p,
-          coeff_3p, coeff_4p, coeff_5p, coeff_3d, coeff_4d, coeff_5d,
-          coeff_4f, coeff_5f (optional)
+        - "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_6s",
+          "coeff_2p", "coeff_3p", "coeff_4p", "coeff_5p", "coeff_6p",
+          "coeff_3d", "coeff_4d", "coeff_5d", "coeff_6d",
+          "coeff_4f", "coeff_5f", "coeff_6f" (optional)
     """
 
     ATTR_MANDATORY_NAMES = ("n0", "zeta0")
@@ -37,15 +41,20 @@ class AtomRhoOrbitalRadialSlater(ItemN):
     ATTR_MANDATORY_CIF = ("n0", "zeta0")
 
     ATTR_OPTIONAL_NAMES = (
-        "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_2p",
-        "coeff_3p", "coeff_4p", "coeff_5p", "coeff_3d", "coeff_4d", "coeff_5d",
-        "coeff_4f", "coeff_5f")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float,
-                           float, float, float, float, float, float, float)
+        "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_6s",
+        "coeff_2p", "coeff_3p", "coeff_4p", "coeff_5p", "coeff_6p",
+        "coeff_3d", "coeff_4d", "coeff_5d", "coeff_6d",
+        "coeff_4f", "coeff_5f", "coeff_6f")
+    ATTR_OPTIONAL_TYPES = (
+        float, float, float, float, float, float,
+        float, float, float, float, float,
+        float, float, float, float,
+        float, float, float)
     ATTR_OPTIONAL_CIF = (
-        "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_2p",
-        "coeff_3p", "coeff_4p", "coeff_5p", "coeff_3d", "coeff_4d", "coeff_5d",
-        "coeff_4f", "coeff_5f")
+        "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_6s",
+        "coeff_2p", "coeff_3p", "coeff_4p", "coeff_5p", "coeff_6p",
+        "coeff_3d", "coeff_4d", "coeff_5d", "coeff_6d",
+        "coeff_4f", "coeff_5f", "coeff_6f")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -55,12 +64,15 @@ class AtomRhoOrbitalRadialSlater(ItemN):
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
-    ATTR_REF = ("zeta0", "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s",
-                "coeff_5s", "coeff_2p", "coeff_3p", "coeff_4p", "coeff_5p",
-                "coeff_3d", "coeff_4d", "coeff_5d", "coeff_4f", "coeff_5f")
+    ATTR_REF = ("zeta0",
+        "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_6s",
+        "coeff_2p", "coeff_3p", "coeff_4p", "coeff_5p", "coeff_6p",
+        "coeff_3d", "coeff_4d", "coeff_5d", "coeff_6d",
+        "coeff_4f", "coeff_5f", "coeff_6f")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -71,8 +83,10 @@ class AtomRhoOrbitalRadialSlater(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
-    PREFIX = "atom_rho_orbital_radial_Slater"
+    PREFIX = "atom_rho_orbital_radial_slater"
 
     def __init__(self, **kwargs) -> NoReturn:
         super(AtomRhoOrbitalRadialSlater, self).__init__()
@@ -125,14 +139,7 @@ class AtomRhoOrbitalRadialSlater(ItemN):
         """Calculate jl for l from 0 until l_max of atomic orbital."""
         zeta0 = self.zeta0
         n0 = self.n0
-        zeta_ang = kappa*zeta0/0.52918
-        coeff_norm = ((2.*zeta_ang)**(float(n0)+0.5)) / \
-            math.sqrt(math.factorial(2*n0))
-        nn, zeta = (n0+n0), (zeta_ang+zeta_ang)
-        q = 4.*numpy.pi*sthovl
-        q_2d, l_2d = numpy.meshgrid(q, range(l_max+1), indexing="ij")
-        ql_2d = numpy.power(q_2d, l_2d)
-        jl = ql_2d*coeff_norm*coeff_norm*transs(l_max, nn, zeta, sthovl)
+        jl = calc_jl(sthovl, [1.], [n0], [zeta0, ], kappa=kappa, l_max=l_max)
         return jl
 
 
@@ -146,11 +153,11 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
     """
 
     ITEM_CLASS = AtomRhoOrbitalRadialSlater
-    ATTR_INDEX = "atom_label"
+    ATTR_INDEX = None # "atom_label"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(AtomRhoOrbitalRadialSlaterL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def calc_normalized_rho(self, radius: numpy.array, shell: str, kappa=1.,
@@ -203,7 +210,8 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
         """Take objects for atom type."""
         l_arors = []
         f_dir = os.path.dirname(__file__)
-        f_name = os.path.join(f_dir, "library.rcif")
+        f_dir = os.path.join(os.path.dirname(f_dir), "A_functions_base")
+        f_name = os.path.join(f_dir, "atom_rho_orbital_radial_slater.rcif")
 
         obj_rcif = to_data(f_name)
         s_atom_type = ("".join([_ for _ in atom_type if _.isalpha()])).lower()
@@ -226,23 +234,13 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
         """
         n0 = numpy.array(self.n0, dtype=int)
         zeta0 = numpy.array(self.zeta0, dtype=float)
-        coeff_h = getattr(self, f"coeff_{shell:}")
-
-        coeff = numpy.array([_.value for _ in coeff_h], dtype=float)
+        coeff = numpy.array(getattr(self, f"coeff_{shell:}"), dtype=float)
 
         if any([_ is None for _ in coeff]):
             return None
 
-        np_q = 4*numpy.pi * sthovl
-        np_q = 2*sthovl
+        jl = calc_jl(sthovl, coeff, n0, zeta0, kappa=kappa, l_max = 3)
 
-        np_l = numpy.array(range(lmax+1), dtype=int)
-        np_q_2d, np_l_2d = numpy.meshgrid(np_q, np_l, indexing="ij")
-        np_ql_2d = numpy.power(np_q_2d, np_l_2d)
-
-        jl = np_ql_2d * calc_GCF(n0, zeta0, coeff, kappa,
-                                 n0, zeta0, coeff, kappa,
-                                 sthovl, lmax)
         return jl
 
     def refine_coefficients_by_jl(self, atom_type: str, shell: str,
@@ -272,24 +270,3 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
             _1.value = abs(_2)  # only positive coefficients, found minima
 
         return res
-
-# s_cont = """
-# loop_V_s
-# _atom_rho_orbital_radial_slater_n0
-# _atom_rho_orbital_radial_slater_zeta0
-# _atom_rho_orbital_radial_slater_coeff_1s
-# _atom_rho_orbital_radial_slater_coeff_2s
-# _atom_rho_orbital_radial_slater_coeff_3s
-# _atom_rho_orbital_radial_slater_coeff_4s
-#     1 22.77630  0.95175 -0.29620  0.10614 -0.02339
-#     1 36.05340  0.02115  0.00019  0.00042 -0.00046
-#     2 19.54100  0.03441 -0.15795  0.06539 -0.01626
-#     2  9.37400  0.00415 10.04067 -0.42093  0.09958
-#     3  7.90503 -0.00366  0.12576 -0.25395  0.05408
-#     3  5.12985  0.00552 -0.02332  0.73273 -0.11001
-
-#   """
-
-# obj = AtomRhoOrbitalRadialSlaterL.from_cif(s_cont)
-# obj = AtomRhoOrbitalRadialSlaterL.take_objects_for_atom_type("O")
-# print(obj, end="\n\n")

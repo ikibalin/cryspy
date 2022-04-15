@@ -1,4 +1,8 @@
 from typing import NoReturn
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -13,15 +17,16 @@ class Chi2(ItemN):
         - diff True
         - up   False
         - down False
+        - asymmetry False # For flip ratios
     """
 
-    ATTR_MANDATORY_NAMES = ("sum", "diff", "up", "down")
-    ATTR_MANDATORY_TYPES = (bool, bool, bool, bool)
-    ATTR_MANDATORY_CIF = ("sum", "diff", "up", "down")
+    ATTR_MANDATORY_NAMES = ()
+    ATTR_MANDATORY_TYPES = ()
+    ATTR_MANDATORY_CIF = ()
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("sum", "diff", "up", "down", "asymmetry")
+    ATTR_OPTIONAL_TYPES = (bool, bool, bool, bool, bool)
+    ATTR_OPTIONAL_CIF = ("sum", "diff", "up", "down", "asymmetry")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -35,16 +40,19 @@ class Chi2(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
 
     # default values for the parameters
-    D_DEFAULT = {'sum': True, 'diff': True, 'up': False, 'down': False}
+    D_DEFAULT = {}# 'sum': True, 'diff': True, 'up': False, 'down': False
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "chi2"
 
@@ -72,9 +80,9 @@ class Chi2L(LoopN):
     """
     ITEM_CLASS = Chi2
     ATTR_INDEX = None
-    def __init__(self, loop_name = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(Chi2L, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 # s_cont = """

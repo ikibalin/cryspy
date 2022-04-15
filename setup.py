@@ -41,7 +41,7 @@ with open(f_name, 'r') as f:
 
 setup(
     name='cryspy',
-    version='0.5.9',
+    version='0.6.1',
     description='PNPD data analysis',
     long_description = long_description,
     author='Iurii Kibalin',
@@ -54,6 +54,10 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
     ],    
     include_package_data=True,
@@ -61,6 +65,7 @@ setup(
     install_requires=[
         'numpy', 
         'scipy', 
-        'pycifstar'
+        'pycifstar',
+        'matplotlib',
     ] 
 )

@@ -5,6 +5,8 @@ import numpy
 from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT, \
     calc_product_matrix_vector, scalar_product
 
+from .unit_cell import calc_sthovl_by_unit_cell_parameters
+
 
 def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
     """Calculate directed cosines."""
@@ -59,9 +61,13 @@ def calc_inverse_d_by_hkl_abc_cosines(h:float, k:float, l:float,
     B1 = s_a_sq*numpy.square(h*1./a)+\
          s_b_sq*numpy.square(k*1./b)+\
          s_g_sq*numpy.square(l*1./c)
-    B2 = 2.*(k*l*cos_alpha)/(b*c)+\
-         2.*(h*l*cos_beta)/(a*c)+\
-         2.*(h*k*cos_gamma)/(a*b)
+    B2 = 2.*(k*l*(cos_alpha-cos_beta*cos_gamma))/(b*c)+\
+         2.*(h*l*(cos_beta-cos_alpha*cos_gamma))/(a*c)+\
+         2.*(h*k*(cos_gamma-cos_alpha*cos_beta))/(a*b)
+
+    # B2 = 2.*(k*l*cos_alpha)/(b*c)+\
+    #      2.*(h*l*cos_beta)/(a*c)+\
+    #      2.*(h*k*cos_gamma)/(a*b)
     #it should be checked, I am not sure
     B = B1-B2
     inverse_d = numpy.sqrt(B*1./A)
@@ -144,8 +150,9 @@ phase_3d: [hkl, points, symmetry]
     return phase_3d
 
 
-def calc_phase_by_hkl_xyz_rb(h, k, l, x, y, z, r_11, r_12, r_13, r_21, r_22,
+def calc_phase_by_hkl_xyz_rb(index_hkl, x, y, z, r_11, r_12, r_13, r_21, r_22,
                              r_23, r_31, r_32, r_33, b_1, b_2, b_3):
+    h, k, l = index_hkl[0], index_hkl[1], index_hkl[2]
     np_h, np_x, np_r_11 = numpy.meshgrid(h, x, r_11, indexing="ij")
     np_k, np_y, np_r_22 = numpy.meshgrid(k, y, r_22, indexing="ij")
     np_l, np_z, np_r_33 = numpy.meshgrid(l, z, r_33, indexing="ij")
@@ -179,13 +186,14 @@ isotropic harmonic Debye-Waller factor
     return power_dwf_iso_2d
 
 
-def calc_power_dwf_aniso(h, k, l, beta, 
+def calc_power_dwf_aniso(index_hkl, beta, 
     r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33):
     """
 anisotropic harmonic Debye-Waller factor
 
 h,k,l is 1D (temporary solution)
     """
+    h, k, l = index_hkl[0], index_hkl[1], index_hkl[2]
     b_11, b_22, b_33 = beta[:, 0], beta[:, 1], beta[:, 2]
     b_12, b_13, b_23 = beta[:, 3], beta[:, 4], beta[:, 5]
 
@@ -209,16 +217,17 @@ h,k,l is 1D (temporary solution)
     return power_dwf_aniso
 
 
-def calc_dwf(cell, h, k, l, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23,
+def calc_dwf(cell, index_hkl, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23,
              r_31, r_32, r_33):
     """Calculate Debye-Waller factor."""
-    sthovl = cell.calc_sthovl(h, k, l)
+    unit_cell_parameters = cell.get_unit_cell_parameters()
+    sthovl = calc_sthovl_by_unit_cell_parameters(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
     # dimensions (hkl, atoms in assymmetric unit cell)
     power_iso_2d = calc_power_dwf_iso(b_iso, sthovl)
 
     # dimensions (hkl, atoms in assymmetric unit cell, el.symmetry)
     power_aniso_3d = calc_power_dwf_aniso(
-        h, k, l, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
+        index_hkl, beta, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33)
     power_3d = power_iso_2d[:, :, numpy.newaxis] + power_aniso_3d
     dwf_3d = numpy.exp(-power_3d)
     return dwf_3d

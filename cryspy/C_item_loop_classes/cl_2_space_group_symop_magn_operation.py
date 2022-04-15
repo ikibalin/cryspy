@@ -2,6 +2,8 @@ from typing import NoReturn
 
 import numpy
 
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
 from cryspy.A_functions_base.function_1_strings import \
     transform_string_to_r_b
 
@@ -43,6 +45,7 @@ class SpaceGroupSymopMagnOperation(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -53,6 +56,8 @@ class SpaceGroupSymopMagnOperation(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "space_group_symop_magn_operation"
 
@@ -107,8 +112,12 @@ class SpaceGroupSymopMagnOperation(ItemN):
         self.__dict__["sym_elem"] = numpy.array([
             num_1, num_2, num_3, den,
             r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33,
-            theta*r_11, theta*r_12, theta*r_13, theta*r_21, theta*r_22,
-            theta*r_23, theta*r_31, theta*r_32, theta*r_33], dtype=int)
+            theta], dtype=int)
+        # self.__dict__["sym_elem"] = numpy.array([
+        #     num_1, num_2, num_3, den,
+        #     r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33,
+        #     theta*r_11, theta*r_12, theta*r_13, theta*r_21, theta*r_22,
+        #     theta*r_23, theta*r_31, theta*r_32, theta*r_33], dtype=int)
 
     def get_symop_magn_operation_by_magn_centering(
             self, space_group_symop_magn_centering:
@@ -123,9 +132,9 @@ class SpaceGroupSymopMagnOperationL(LoopN):
     ITEM_CLASS = SpaceGroupSymopMagnOperation
     ATTR_INDEX = "id"
 
-    def __init__(self, loop_name: str = None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(SpaceGroupSymopMagnOperationL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
     def get_sym_elems(self):

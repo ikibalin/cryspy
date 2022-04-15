@@ -1,5 +1,9 @@
 """Classes Exclude, ExcludeL."""
 from typing import NoReturn
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -21,10 +25,10 @@ class Exclude(ItemN):
     ATTR_MANDATORY_CIF = ()
 
     ATTR_OPTIONAL_NAMES = ("id", "ttheta_min", "ttheta_max", "phi_min",
-                           "phi_max", "time_low", "time_high")
-    ATTR_OPTIONAL_TYPES = (str, float, float, float, float, float, float)
+                           "phi_max", "time_low", "time_high", "gamma_min", "gamma_max", "nu_min", "nu_max")
+    ATTR_OPTIONAL_TYPES = (str, float, float, float, float, float, float, float, float, float, float)
     ATTR_OPTIONAL_CIF = ("id", "2theta_min", "2theta_max", "phi_min",
-                         "phi_max", "time_low", "time_high")
+                         "phi_max", "time_low", "time_high", "gamma_min", "gamma_max", "nu_min", "nu_max")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -38,6 +42,7 @@ class Exclude(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -48,6 +53,8 @@ class Exclude(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "exclude"
 
@@ -77,9 +84,9 @@ class ExcludeL(LoopN):
     ITEM_CLASS = Exclude
     ATTR_INDEX = "id"
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(ExcludeL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 # s_cont = """

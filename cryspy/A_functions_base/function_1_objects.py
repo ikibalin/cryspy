@@ -80,3 +80,27 @@ for var_name in variable_names])
     return " ".join(ls_html)
 
 
+def form_items_by_dictionary(item_class, d_items):
+    """
+    Form items for loop when variables are given by dictionary
+    """
+    items = []
+    if "items" in d_items.items():
+        items  = d_items["items"]
+    elif len(d_items.items()) > 0:
+        i=0
+        for hh in zip(*d_items.items()):
+            if i==0:
+                keys = hh
+                i += 1
+            else:
+                vals = hh
+        
+        for val in zip(*vals):
+            d_item = {}
+            for k,v in zip(keys, val):
+                d_item[k]=v
+            item = item_class(**d_item)
+            items.append(item)
+        
+    return items

@@ -1,5 +1,9 @@
 """Classes Pd2dPeak, Pd2dPeakL."""
 from typing import NoReturn
+
+from cryspy.A_functions_base.function_1_objects import \
+    form_items_by_dictionary
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -23,10 +27,12 @@ class Pd2dPeak(ItemN):
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
     ATTR_OPTIONAL_NAMES = ("index_mult", "ttheta", "f_nucl_sq", "f_m_p_sin_sq",
-                           "f_m_p_cos_sq", "cross_sin", "width_ttheta")
+                           "f_m_p_cos_sq", "cross_sin", "width_ttheta",
+                           "sintlambda", "d_spacing")
     ATTR_OPTIONAL_TYPES = (int, float, float, float, float, float, float)
     ATTR_OPTIONAL_CIF = ("index_mult", "2theta", "f_nucl_sq", "f_m_p_sin_sq",
-                         "f_m_p_cos_sq", "cross_sin", "width_2theta")
+                         "f_m_p_cos_sq", "cross_sin", "width_2theta",
+                         "sint/lambda", "d_spacing")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -40,11 +46,13 @@ class Pd2dPeak(ItemN):
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
+    ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
     D_FORMATS = {"ttheta": "{:.2f}", "f_nucl_sq": "{:.2f}",
                  "f_m_p_sin_sq": "{:.2f}", "f_m_p_cos_sq": "{:.2f}",
-                 "cross_sin": "{:.2f}", "width_ttheta": "{:.5f}"}
+                 "cross_sin": "{:.2f}", "width_ttheta": "{:.5f}",
+                 "sintlambda": "{:.5f}", "d_spacing": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -55,6 +63,8 @@ class Pd2dPeak(ItemN):
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
         D_DEFAULT[key] = False
+    for key in ATTR_CONSTR_MARK:
+        D_DEFAULT[key] = ""
 
     PREFIX = "pd2d_peak"
 
@@ -62,7 +72,8 @@ class Pd2dPeak(ItemN):
         super(Pd2dPeak, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"ttheta": 0., "width_ttheta": 0.}
+        D_MIN = {"ttheta": 0., "width_ttheta": 0.,
+                 "sintlambda": 0., "d_spacing": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}
@@ -81,9 +92,9 @@ class Pd2dPeakL(LoopN):
     ITEM_CLASS = Pd2dPeak
     ATTR_INDEX = None
 
-    def __init__(self, loop_name=None) -> NoReturn:
+    def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
         super(Pd2dPeakL, self).__init__()
-        self.__dict__["items"] = []
+        self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
 
