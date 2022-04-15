@@ -37,11 +37,11 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2022, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.5.9"
+__version__ = "0.6.1"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "14.04.2021"
+__date__ = "15.04.2022"
 name = "cryspy"
 
 
