@@ -470,7 +470,7 @@ class GlobalN(object):
         ls_out.extend([_ for _ in l_s_loopn])
         ls_out.extend([_1 for _1, _2 in zip(l_s_itemn, l_n_max_item)
                        if _2 > n_max_loop])
-        ls_out.extend(l_s_datan)
+        ls_out.extend(sorted(l_s_datan, key=len))
         return "\n".join(ls_out)
 
     @classmethod
