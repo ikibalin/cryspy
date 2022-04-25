@@ -173,15 +173,19 @@ class InversedHessian(ItemN):
             np_correlation = self.correlation_matrix
             np_sigma = self.sigma
             np_label = self.label
+            np_numbers = numpy.arange(1,np_label.size+1).astype(str)
             ls_out = ["# Sigmas and correlation matrix"]
-            ls_out.append("|SIGMAS | Cor.Matrix:|"+"|".join(np_label) + "|")
+            ls_out.append("|SIGMAS | Cor.Matrix:|"+"|".join(np_numbers) + "|")
             ls_out.append("|-----|-----|"+"|".join(["-----" for hh in
-                                                    np_label]) + "|")
+                                                    np_numbers]) + "|")
             
-            for i1, lab, mat, sig in zip(range(len(np_label)), np_label,
+            for i1, lab, mat, sig in zip(range(len(np_numbers)), np_numbers,
                                          np_correlation, np_sigma):
                 ls_out.append(f"|{sig:.5f}|{lab:}|"+"|".join([
                     f"{val:5.2f}" for i2, val in enumerate(mat)]) + "|")
+            ls_out.append("\nParameters:")
+            for numb, label in zip(np_numbers, np_label):
+                ls_out.append(f" - {numb:}. {label:}")
             # ls_out.extend([f"{i_n+1:2} -- {lab:7}: {sig:.5f}" for i_n, lab, sig in zip(
             #     range(len(np_sigma)), np_label, np_sigma)])
             # ls_out.append("\nCorrelation matrix:")
@@ -196,13 +200,23 @@ class InversedHessian(ItemN):
             np_correlation = self.correlation_matrix
             np_sigma = self.sigma
             np_label = self.label
+            np_numbers = numpy.arange(1,np_label.size+1).astype(str)
+            
             ls_html.append("<table>")
-            ls_html.append("<tr><th>SIGMAS</th><th>CORRELATION MATRIX:</th>"+"".join(
-                [f"<th>{lab:}</th>" for lab in np_label]) + "</tr>")
-            for i1, lab, mat, sig in zip(range(len(np_label)), np_label, np_correlation, np_sigma):
-                ls_html.append(f"<tr><td>{sig:.5f}</td><th>{lab:}</th>"+"".join([
+            ls_html.append("<tr><th>Number</th><th>Parameter</th><th>Sigma</th>")
+            for numb, lab, sig in zip(np_numbers, np_label, np_sigma):
+                ls_html.append(f"<tr><td>{numb:}.</td><td>{lab:}</td><td>{sig:.5f}</td></tr>")
+            ls_html.append("</table>")
+            ls_html.append("<br>")
+            ls_html.append("<b>Correlation matrix:</b>")
+            ls_html.append("<table>")
+            ls_html.append("<th>Number</th>"+"".join(
+                [f"<th>{lab:}</th>" for lab in np_numbers]) + "</tr>")
+            for i1, lab, mat in zip(range(len(np_numbers)), np_numbers, np_correlation):
+                ls_html.append(f"<tr><th>{lab:}</th>"+"".join([
                     f"<td bgcolor='#ff2200'>{val:5.2f}</td>" if ((abs(val)>0.7) & (i1 != i2 ))
                     else f"<td>{val:5.2f}</td>" for i2, val in enumerate(mat)]) + "</tr>")
             ls_html.append("</table>")
+
         return "".join(ls_html)
             
