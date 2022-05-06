@@ -397,7 +397,8 @@ def calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_
         flag_atom_occupancy=flag_atom_occupancy, flag_atom_b_iso=flag_atom_b_iso, flag_atom_beta=flag_atom_beta,
         flag_use_precalculated_data=flag_use_precalculated_data)
     
-
+    if "atom_multiplicity" in dict_in_out.keys():
+        dict_crystal["atom_multiplicity"] = dict_in_out["atom_multiplicity"]
     return f_nucl, dder
 
 
@@ -431,6 +432,10 @@ def calc_f_nucl(index_hkl,
             (numpy.round(atom_fract_xyz[1]*10**6, decimals=0)).astype(int),
             (numpy.round(atom_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
+
+        flag = numpy.all(numpy.mod(atom_symm_elems[:-1,:], 333333)==0, axis=0)
+        atom_symm_elems[-1][flag] -= 1
+
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]
         else:
@@ -625,7 +630,8 @@ def calc_f_charge_by_dictionary(dict_crystal, wavelength:float, dict_in_out, fla
         flag_atom_occupancy=flag_atom_occupancy, flag_atom_b_iso=flag_atom_b_iso, flag_atom_beta=flag_atom_beta,
         flag_use_precalculated_data=flag_use_precalculated_data)
     
-
+    if "atom_multiplicity" in dict_in_out.keys():
+        dict_crystal["atom_multiplicity"] = dict_in_out["atom_multiplicity"]
     return f_charge, dder
 
 
@@ -660,6 +666,10 @@ def calc_f_charge(index_hkl,
             (numpy.round(atom_fract_xyz[1]*10**6, decimals=0)).astype(int),
             (numpy.round(atom_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
+        
+        flag = numpy.all(numpy.mod(atom_symm_elems[:-1,:], 333333)==0, axis=0)
+        atom_symm_elems[-1][flag] -= 1
+
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]
         else:
@@ -918,6 +928,10 @@ def calc_sft_ccs(index_hkl,
             (numpy.round(atom_para_fract_xyz[1]*10**6, decimals=0)).astype(int),
             (numpy.round(atom_para_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
+        
+        flag = numpy.all(numpy.mod(atom_symm_elems[:-1,:], 333333)==0, axis=0)
+        atom_symm_elems[-1][flag] -= 1
+
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]
         else:
@@ -1205,6 +1219,10 @@ def calc_f_m_perp_ordered(index_hkl,
             (numpy.round(atom_ordered_fract_xyz[1]*10**6, decimals=0)).astype(int),
             (numpy.round(atom_ordered_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
+        
+        flag = numpy.all(numpy.mod(atom_symm_elems[:-1,:], 333333)==0, axis=0)
+        atom_symm_elems[-1][flag] -= 1
+
         atom_ordered_multiplicity = calc_multiplicity_by_atom_symm_elems(full_mcif_elems[:13], atom_symm_elems)
         if flag_dict:
             dict_in_out["atom_ordered_multiplicity"] = atom_ordered_multiplicity
@@ -1386,6 +1404,10 @@ def calc_bulk_susceptibility(reduced_symm_elems, centrosymmetry, centrosymmetry_
             (numpy.round(atom_para_fract_xyz[1]*10**6, decimals=0)).astype(int),
             (numpy.round(atom_para_fract_xyz[2]*10**6, decimals=0)).astype(int),
             ones*10**6], axis=0)
+        
+        flag = numpy.all(numpy.mod(atom_symm_elems[:-1,:], 333333)==0, axis=0)
+        atom_symm_elems[-1][flag] -= 1
+
         if "full_symm_elems" in dict_in_out_keys:
             full_symm_elems = dict_in_out["full_symm_elems"]
         else:

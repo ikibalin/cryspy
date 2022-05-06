@@ -327,7 +327,7 @@ class Pd(DataN):
             proc.numpy_intensity_plus_total = res_u_1d+0.5*int_bkgd
             proc.numpy_intensity_minus_total = res_d_1d+0.5*int_bkgd
             proc.numpy_intensity_total = res_u_1d+res_d_1d+int_bkgd
-
+        
         if flag_internal:
             proc.numpy_to_items()
             l_calc_objs = []
@@ -1089,6 +1089,7 @@ class Pd(DataN):
         if (("signal_plus" in keys) and ("signal_minus" in keys)):
             pd_proc = PdProcL()
             pd_proc.numpy_ttheta = numpy.round(ddict_diffrn["ttheta"] * 180./numpy.pi, decimals=5)
+            pd_proc.numpy_ttheta_corrected = numpy.round(ddict_diffrn["ttheta_corrected"] * 180./numpy.pi, decimals=5)
             pd_proc.numpy_intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], decimals=5)
             pd_proc.numpy_intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], decimals=5)
             if "signal_exp_plus" in keys:
@@ -1111,52 +1112,67 @@ class Pd(DataN):
             if s_label in keys:
                 dict_crystal = ddict_diffrn[s_label]
                 dict_crystal_keys = dict_crystal.keys()
-                if (("index_hkl" in dict_crystal_keys) and  ("ttheta_hkl" in dict_crystal_keys)):
+                if ("index_hkl" in dict_crystal_keys):
                     index_hkl = dict_crystal["index_hkl"]
-                    ttheta_hkl = dict_crystal["ttheta_hkl"]
-
                     pd_peak = PdPeakL(loop_name = item_phase.label)
-                    int_plus_max, int_minus_max = None, None
+                    pd_peak.numpy_index_h = index_hkl[0]
+                    pd_peak.numpy_index_k = index_hkl[1]
+                    pd_peak.numpy_index_l = index_hkl[2]
+
                     if "iint_plus_with_factors" in dict_crystal_keys:
-                        int_plus_max = dict_crystal["iint_plus_with_factors"]
+                        pd_peak.numpy_intensity_plus = dict_crystal["iint_plus_with_factors"]
                     if "iint_minus_with_factors" in dict_crystal_keys:
-                        int_minus_max = dict_crystal["iint_minus_with_factors"]
+                        pd_peak.numpy_intensity_minus = dict_crystal["iint_minus_with_factors"]
+                    if "multiplicity_hkl" in dict_crystal_keys:
+                        pd_peak.numpy_index_mult = dict_crystal["multiplicity_hkl"]
+                    if "ttheta_hkl" in dict_crystal_keys:
+                        pd_peak.numpy_ttheta = numpy.round(dict_crystal["ttheta_hkl"]* 180./numpy.pi, decimals=3)
+                    pd_peak.numpy_to_items()
+                    l_pd_peak.append(pd_peak)                 
 
-                    if "f_nucl" in dict_crystal_keys:
+                    flag_f_squared = False
+                    if (("iint_plus" in dict_crystal_keys) and ("iint_minus" in dict_crystal_keys)):
+                        f_squared_calc = dict_crystal["iint_plus"] + dict_crystal["iint_minus"]
+                        f_polarized_squared_calc = dict_crystal["iint_plus"] - dict_crystal["iint_minus"]
+                        flag_f_squared = True
+
+                    if ((("f_nucl" in dict_crystal_keys) or ("f_charge" in dict_crystal_keys)) or flag_f_squared):
                         refln = ReflnL(loop_name = item_phase.label)
                         refln.numpy_index_h = index_hkl[0]
                         refln.numpy_index_k = index_hkl[1]
                         refln.numpy_index_l = index_hkl[2]
-                        refln.numpy_a_calc = dict_crystal["f_nucl"].real
-                        refln.numpy_b_calc = dict_crystal["f_nucl"].imag
+
+                        if "f_charge" in dict_crystal_keys:
+                            refln.numpy_a_calc = dict_crystal["f_charge"].real
+                            refln.numpy_b_calc = dict_crystal["f_charge"].imag
+                        elif "f_nucl" in dict_crystal_keys:
+                            refln.numpy_a_calc = dict_crystal["f_nucl"].real
+                            refln.numpy_b_calc = dict_crystal["f_nucl"].imag
+
+                        if flag_f_squared:
+                            refln.numpy_f_squared_calc = f_squared_calc
+                            refln.numpy_f_polarized_squared_calc = f_polarized_squared_calc
+
                         refln.numpy_to_items()
                         l_refln.append(refln)
 
-                    if "f_charge" in dict_crystal_keys:
-                        refln = ReflnL(loop_name = item_phase.label)
-                        refln.numpy_index_h = index_hkl[0]
-                        refln.numpy_index_k = index_hkl[1]
-                        refln.numpy_index_l = index_hkl[2]
-                        refln.numpy_a_calc = dict_crystal["f_charge"].real
-                        refln.numpy_b_calc = dict_crystal["f_charge"].imag
-                        refln.numpy_to_items()
-                        l_refln.append(refln)
 
-                    if not((int_plus_max is None) and (int_minus_max is None)):
-                        pd_peak.numpy_index_h = index_hkl[0]
-                        pd_peak.numpy_index_k = index_hkl[1]
-                        pd_peak.numpy_index_l = index_hkl[2]
-                        pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi, decimals=3)
-                        pd_peak.numpy_intensity_plus = int_plus_max
-                        pd_peak.numpy_intensity_minus = int_minus_max
-                        pd_peak.numpy_to_items()
-                        l_pd_peak.append(pd_peak)
+
 
         if len(l_pd_peak) > 0:
             self.add_items(l_pd_peak)
         if len(l_refln) > 0:
             self.add_items(l_refln)
 
+    def define_background_points(self, step_ttheta: float = 1.):
+        if self.is_attribute("pd_background"):
+            pd_background = self.pd_background
+        else:
+            pd_background = PdBackgroundL()
+            self.add_items(pd_background)
+        pd_meas = self.pd_meas
+        pd_background.define_points(pd_meas, step_ttheta)
+        return 
 
     def estimate_background(self):
         pd_background = self.pd_background

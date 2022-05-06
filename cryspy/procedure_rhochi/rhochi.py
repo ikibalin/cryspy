@@ -136,6 +136,7 @@ def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
     
+    cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = None, l_sigma=None)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
     
     dict_out = {"chi_sq": chi_sq, "n_point": n_point}

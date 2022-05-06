@@ -91,21 +91,59 @@ class PdBackgroundL(LoopN):
     def define_points(self, pd_meas: PdMeasL, step_ttheta: float = 10.):
         ttheta = numpy.array(pd_meas.ttheta, dtype=float)
         if pd_meas.items[0].is_attribute("intensity_plus"):
-            intensity = 0.5*(
+            intensity = (
                 numpy.array(pd_meas.intensity_plus, dtype=float) + 
                 numpy.array(pd_meas.intensity_minus, dtype=float))
         else:
             intensity = numpy.array(pd_meas.intensity, dtype=float)
 
-        n_points = int((ttheta.max()-ttheta.min())/step_ttheta + 2)
-        ttheta_bkgr = numpy.linspace(ttheta.min(), ttheta.max(), n_points, endpoint=True)
-        
-        flags = numpy.abs(ttheta[na, :]-ttheta_bkgr[:, na])<step_ttheta
-        
-        int_bkrg = numpy.array([numpy.nanmin(intensity[flag], axis=0) for flag in flags], dtype=float)
-        int_bkrg = numpy.round(int_bkrg, decimals=5)
-        self.numpy_ttheta = ttheta_bkgr
-        self.numpy_intensity = int_bkrg
+        step_n = int(step_ttheta/(ttheta[1]-ttheta[0]))
+        if step_n == 0:
+            step_n = 1
+        intensity_bkg = estimate_background(intensity, step_n=step_n)
+
+        # n_points = int((ttheta.max()-ttheta.min())/step_ttheta + 2)
+        # ttheta_bkgr = numpy.linspace(ttheta.min(), ttheta.max(), n_points, endpoint=True)
+        # 
+        # flags = numpy.abs(ttheta[na, :]-ttheta_bkgr[:, na])<step_ttheta
+        # 
+        # int_bkrg = numpy.array([numpy.nanmin(intensity_bkg[flag], axis=0) for flag in flags], dtype=float)
+        # int_bkrg = numpy.round(int_bkrg, decimals=5)
+        self.numpy_ttheta = ttheta
+        self.numpy_intensity = intensity_bkg
         self.items = []
         self.numpy_to_items()
         return 
+
+def estimate_background(y_exp, step_n: int = 10):
+    n_points = numpy.arange(1, step_n+1)
+    y_aver = y_exp.sum()/y_exp.size
+    y_min = y_exp.min()
+    flag = y_exp < y_aver + 2*(y_aver-y_min)
+
+    y_bkg_es = numpy.zeros_like(y_exp)
+    y_bkg_es[flag] = y_exp[flag]
+    y_bkg_es[numpy.logical_not(flag)] = y_aver+2*(y_aver-y_min)
+    
+    
+    n_total = y_bkg_es.size
+    for iii in range(100):
+        y_bkg_new = numpy.zeros_like(y_bkg_es)
+        for i_point in range(n_total):
+            ind_left = i_point - n_points
+
+            ind_left[ind_left<0] = 0
+            ind_right = i_point + n_points
+            ind_right[ind_right>=n_total] = n_total-1
+
+            y_left = y_bkg_es[ind_left]
+            y_right = y_bkg_es[ind_right]
+
+            y_bkg_new[i_point] = (y_left+y_right).sum()/(2*step_n)
+
+        if iii != 99:
+            flag = y_bkg_new > y_bkg_es
+            y_bkg_new[flag] = y_bkg_es[flag]
+        y_bkg_es = y_bkg_new
+    y_bkg = y_bkg_es  
+    return y_bkg

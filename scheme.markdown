@@ -122,8 +122,5 @@ E_data_classes
     cl_1_pd2d
 F_functions_data
     script_1_mem
-G_global_classes
-    cl_1_mem
-    cl_1_rhochi
 H_functions_global
     function_1_cryspy_objects

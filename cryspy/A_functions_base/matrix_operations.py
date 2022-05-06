@@ -139,6 +139,30 @@ def calc_vector_product_v1_v2_v1(v1, v2, flag_v1: bool = False, flag_v2: bool = 
     return res, dder
 
 
+def calc_vector_product_v1_v2(v1, v2, flag_v1: bool=False, flag_v2: bool=False):
+    v1_1, v1_2, v1_3 = v1[0], v1[1], v1[2]
+    v2_1, v2_2, v2_3 = v2[0], v2[1], v2[2]
+
+    o_1 = v1_2*v2_3 - v1_3*v2_2
+    o_2 = v1_3*v2_1 - v1_1*v2_3 
+    o_3 = v1_1*v2_2 - v1_2*v2_1
+    res = numpy.stack([o_1, o_2, o_3], axis=0)
+    dder = {}
+    if flag_v1:
+        if v1.dtype == complex:
+            dder["v1_real"] = None
+            dder["v1_imag"] = None
+        else:
+            dder["v1"] = None
+    if flag_v2:
+        if v2.dtype == complex:
+            dder["v2_real"] = None
+            dder["v2_imag"] = None
+        else:
+            dder["v2"] = None
+    return res, dder
+
+
 def calc_m_q_mt(m_ij, q_ij, flag_m: bool = False, flag_q: bool = False):
     """
     q is quadratic form q_11, q_22, q_33, q_12, q_13, q_23

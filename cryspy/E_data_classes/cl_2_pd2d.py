@@ -1250,7 +1250,7 @@ class Pd2d(DataN):
             if s_label in keys:
                 dict_crystal = ddict_diffrn[s_label]
                 dict_crystal_keys = dict_crystal.keys()
-                if (("index_hkl" in dict_crystal_keys) and  ("ttheta_hkl" in dict_crystal_keys)):
+                if (("index_hkl" in dict_crystal_keys) and  ("ttheta_hkl" in dict_crystal_keys) and  ("f_nucl" in dict_crystal_keys)):
                     pd_peak = PdPeakL(loop_name = item_phase.label)
                     int_max = numpy.square(numpy.abs(dict_crystal["f_nucl"]))
 
@@ -1276,6 +1276,10 @@ class Pd2d(DataN):
                     pd_peak.numpy_ttheta = numpy.round(ttheta_hkl * 180./numpy.pi, decimals=3)
                     pd_peak.numpy_intensity_plus = int_plus_max/lf
                     pd_peak.numpy_intensity_minus = int_minus_max/lf
+                    if "multiplicity_hkl" in dict_crystal_keys:
+                        pd_peak.numpy_index_mult = dict_crystal["multiplicity_hkl"]
+                    if "ttheta_hkl" in dict_crystal_keys:
+                        pd_peak.numpy_ttheta = numpy.round(dict_crystal["ttheta_hkl"] * 180./numpy.pi, decimals=3)
                     if (("gamma_hkl" in dict_crystal_keys) and ("nu_hkl" in dict_crystal_keys)):
                         gamma_hkl = dict_crystal["gamma_hkl"]
                         nu_hkl = dict_crystal["nu_hkl"]

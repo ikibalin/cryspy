@@ -26,7 +26,7 @@ where `file_name` is the address of the file.
     
 Features
   - Analysis of the polarized neutron scattering on crystals;
-  - Diffraction data refinement for single crystals or powder by RhoChi class;
+  - Diffraction data refinement for single crystals or powder;
   - MEM for reconstruction of magnetization density by MEM class;
   - Powder refinement of magnetic space groups.
   - TOF neutron data analysis
@@ -37,7 +37,7 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2022, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"

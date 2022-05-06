@@ -109,10 +109,6 @@ from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 from cryspy.E_data_classes.cl_2_tof import TOF
 
-from cryspy.G_global_classes.cl_1_rhochi import RhoChi
-from cryspy.G_global_classes.cl_1_mem import MEM
-
-
 L_ITEM_CLASS = []
 L_LOOP_CLASS = []
 L_DATA_CLASS = []
@@ -155,7 +151,7 @@ L_LOOP_CLASS.extend([
 
 L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
-L_GLOBAL_CLASS.extend([]) # MEM, RhoChi
+L_GLOBAL_CLASS.extend([])  
 
 F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
 

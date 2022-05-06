@@ -122,7 +122,7 @@ class DataN(object):
             DESCRIPTION.
 
         """
-        for item in self.items:
+        for item in self.__getattribute__('items'): # self.items gives an error during the parallelization process
             if name.lower() == item.get_name():
                 return item
         raise AttributeError(f"Attribute '{name:}' is not defined")

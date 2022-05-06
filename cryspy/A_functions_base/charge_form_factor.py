@@ -43,20 +43,20 @@ def get_atom_name_ion_charge_shell(ion_name: str):
                 break
 
     if flag_isotope:
-        isotope_number = int(isotope_number)
         isotope_position = len(isotope_number)
+        isotope_number = int(isotope_number)
     else:
-        isotope_number = None
         isotope_position = 0
+        isotope_number = None
 
     if flag_charge:
         atom_name = ion_name_sh[isotope_position:(charge_position+isotope_position)].capitalize()
         ion_charge = ion_name_sh[(charge_position+isotope_position):]
         ion_charge = int(f"{ion_charge[-1]:}{ion_charge[:-1]:}")
     else:
-        atom_name = ion_name_sh.capitalize()
+        atom_name = ion_name_sh[isotope_position:].capitalize()
         ion_charge = 0
-    
+
     full_shell = get_full_shell(atom_name, ion_charge)
     return atom_name, ion_charge, full_shell
 

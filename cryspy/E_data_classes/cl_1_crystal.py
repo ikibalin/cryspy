@@ -975,6 +975,11 @@ class Crystal(DataN):
             for i_item, item in enumerate(self.atom_site.items):
                 item.occupancy = numpy.round(hh[i_item], decimals=6)
 
+        if "atom_multiplicity" in keys:
+            hh = ddict_crystal["atom_multiplicity"]
+            for i_item, item in enumerate(self.atom_site.items):
+                item.multiplicity = hh[i_item]
+
         if ("atom_b_iso" in keys):
             atom_b_iso = ddict_crystal["atom_b_iso"]
             if "atom_beta" in keys:

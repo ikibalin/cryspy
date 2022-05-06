@@ -1,6 +1,7 @@
 from typing import NoReturn
 import numpy
 import matplotlib.pyplot as plt
+import matplotlib.widgets as wdg
 import scipy
 import scipy.optimize
 
@@ -57,7 +58,7 @@ class PdProc(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {
+    D_FORMATS = {"ttheta": "{:.2f}",
         "ttheta_corrected": "{:.2f}", "d_spacing": "{:.5f}",
         "intensity_plus_net": "{:.2f}", "intensity_minus_net": "{:.2f}",
         "intensity_plus_total": "{:.2f}", "intensity_minus_total": "{:.2f}",
@@ -163,7 +164,8 @@ class PdProcL(LoopN):
             ax_1.set_title(f"Unpolarized ($\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
             ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
             ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
-            
+            # ax_button = plt.axes([0.25, 0.1, 0.08, 0.05])
+            # grid_button = wdg.Button(ax_button, 'Grid', color='white', hovercolor='grey')
             # ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], color="k", alpha=0.2, label="experiment")
             # ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], color="r", alpha=0.2, label="excluded")
 
