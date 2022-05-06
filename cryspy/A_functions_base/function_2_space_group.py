@@ -210,7 +210,6 @@ def get_default_it_coordinate_system_code_by_it_number(it_number: int) -> str:
 
 def get_it_coordinate_system_codes_by_it_number(it_number: int) -> str:
     crystal_system = get_crystal_system_by_it_number(it_number)
-
     if crystal_system == "triclinic":
         it_coordinate_system_codes = ()
     elif crystal_system == "monoclinic":
@@ -232,7 +231,7 @@ def get_it_coordinate_system_codes_by_it_number(it_number: int) -> str:
         if it_number in ACCESIBLE_IT_NUMBER_TRIGONAL_SYSTEM_DOUBLE_AXES:
             it_coordinate_system_codes = ("h", "r")
         else:
-            it_coordinate_system_codes = ("r",)
+            it_coordinate_system_codes = ("h",) 
     elif crystal_system == "hexagonal":
         it_coordinate_system_codes = ("h",)
     elif crystal_system == "cubic":

@@ -218,11 +218,9 @@ class SpaceGroup(ItemN):
                 self.name_schoenflies)
         else:
             flag = False
-
         if flag:
             it_coordinate_system_codes = \
                 get_it_coordinate_system_codes_by_it_number(it_number)
-
             self.__dict__["it_number"] = it_number
             if (not(it_coordinate_system_code in it_coordinate_system_codes)):
                 it_coordinate_system_code = \
@@ -230,7 +228,6 @@ class SpaceGroup(ItemN):
                         it_number, it_coordinate_system_codes)
             self.__dict__["it_coordinate_system_code"] = \
                 it_coordinate_system_code
-
         return flag
 
     def form_object_by_it_number_it_coordinate_system_code(self):
@@ -837,13 +834,3 @@ class SpaceGroupL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
-
-# s_cont = """
-#     _space_group.IT_number             15
-# """
-
-# obj = SpaceGroup.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj.reduced_space_group_symop, end="\n\n")
-# print(obj.full_space_group_symop, end="\n\n")
-# print(obj.space_group_wyckoff, end="\n\n")
