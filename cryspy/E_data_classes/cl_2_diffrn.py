@@ -657,9 +657,9 @@ class Diffrn(DataN):
             wavelength = setup.wavelength
             ddict["wavelength"] = numpy.array([wavelength], dtype=float)
             ddict["flags_wavelength"] = numpy.array([setup.wavelength_refinement], dtype=bool)
-            if setup.is_attribute("ratio_labmdaover2"):
+            if setup.is_attribute("ratio_lambdaover2"):
                 ddict["c_lambda2"] = numpy.array([setup.ratio_lambdaover2], dtype=float)
-                ddict["flags_c_lambda2"] = numpy.array([setup.ratio_lambdaover2_refinement], dtype=float)
+                ddict["flags_c_lambda2"] = numpy.array([setup.ratio_lambdaover2_refinement], dtype=bool)
 
         if diffrn_refln is not None:
             index_hkl = numpy.array([

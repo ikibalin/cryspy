@@ -80,7 +80,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flip_ratio_excluded = dict_diffrn["flip_ratio_excluded"]
 
     flag_asymmetry = dict_diffrn["flag_asymmetry"]
-
+    
     if "c_lambda2" in dict_diffrn_keys:
         c_lambda2 = dict_diffrn["c_lambda2"]
         flags_c_lambda2 = dict_diffrn["flags_c_lambda2"]
@@ -164,7 +164,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
                 sft_ccs, magnetic_field, eq_ccs, flag_sft_ccs=flag_sft_ccs, flag_magnetic_field=flag_magnetic_field, flag_eq_ccs=flag_eq_ccs)
         if flag_dict:
             dict_in_out["f_m_perp"] = f_m_perp
-     
+
     if c_lambda2 is not None:
         if (flag_use_precalculated_data and (f"dict_in_out_2hkl_{dict_crystal['name']:}" in dict_in_out_keys)):
             dict_in_out_crystal_2hkl = dict_in_out[f"dict_in_out_2hkl_{dict_crystal['name']:}"]
@@ -285,6 +285,9 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     if flags_extinction_mosaicity:
         dder_plus_diffrn["extinction_mosaicity"] = dder_plus["mosaicity"][:, na]
         dder_minus_diffrn["extinction_mosaicity"] = dder_minus["mosaicity"][:, na]
+    if flags_c_lambda2:
+        dder_plus_diffrn["c_lambda2"] = dder_plus["c_lambda2"][:, na]
+        dder_minus_diffrn["c_lambda2"] = dder_minus["c_lambda2"][:, na]
 
     dder_plus_diffrn_keys = dder_plus_diffrn.keys()
     dder_minus_diffrn_keys = dder_minus_diffrn.keys()
