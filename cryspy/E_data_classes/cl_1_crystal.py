@@ -12,7 +12,7 @@ from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
-from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft
+from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
 from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi
 
@@ -516,7 +516,10 @@ class Crystal(DataN):
 
 
     def report(self):
-        return self.report_main_axes_of_magnetization_ellipsoids()
+        s_out = ""
+        s_out += self.report_main_axes_of_magnetization_ellipsoids() + "\n " 
+        s_out += self.report_bulk_susceptibility()
+        return s_out
 
 
     def plots(self):
@@ -550,6 +553,28 @@ class Crystal(DataN):
             res = numpy.zeros((6, len(atom_site.items)), dtype=bool)
         return res
 
+
+    def report_bulk_susceptibility(self):
+        dict_in_out = {}
+        flag_use_precalculated_data = False
+        dict_crystal = self.get_dictionary()
+        ls_out = []
+        try:
+            bulk_susceptibility, dder = calc_bulk_susceptibility_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
+            m_chi = numpy.array([
+                [bulk_susceptibility[0], bulk_susceptibility[1], bulk_susceptibility[2]],
+                [bulk_susceptibility[3], bulk_susceptibility[4], bulk_susceptibility[5]],
+                [bulk_susceptibility[6], bulk_susceptibility[7], bulk_susceptibility[8]]], dtype=float)
+            ls_out.append(r"## Bulk susceptibility (mu_B/T):")
+            ls_out.append(" |X along inv.a | Y is [inv.a, c] |    Z along c| ")
+            ls_out.append(f"| {m_chi[0, 0]:5.2f} | {m_chi[0, 1]:5.2f} | {m_chi[0, 2]:5.2f}|")
+            ls_out.append(f"| {m_chi[1, 0]:5.2f} | {m_chi[1, 1]:5.2f} | {m_chi[1, 2]:5.2f}|")
+            ls_out.append(f"| {m_chi[2, 0]:5.2f} | {m_chi[2, 1]:5.2f} | {m_chi[2, 2]:5.2f}|")
+            ls_out.append(f"\n Averaged moment along applied field is {(m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3:5.2f} " + r"(mu_B/T):")
+            
+        except KeyError:
+            bulk_susceptibility = numpy.array([0,0,0, 0,0,0, 0,0,0], dtype=float)
+        return "\n".join(ls_out)
 
     def get_dictionary(self):
         """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.

@@ -73,6 +73,7 @@ def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN) -> dict:
     dict_out = rhochi_rietveld_refinement_with_parameters(
         cryspy_object,
         optimization_method=method) 
+
     return dict_out
 
 
@@ -119,6 +120,9 @@ def rhochi_rietveld_refinement_with_parameters(
     for name in var_names:
         value = cryspy_object.get_variable_by_name(name)
         print(f" - {name[-1][0]:} {value:.5f}")
+    
+    print("Sigmas are estimating by numerical derivatives.")
+    rhochi_inversed_hessian(cryspy_object)
     return dict_out
 
 
@@ -228,8 +232,4 @@ def rhochi_inversed_hessian(global_object: GlobalN):
 
     global_object.items.append(inv_hessian)
 
-
-    # for var_name, sigma in zip(l_var_name, inv_hessian.sigma):
-    #     var_name_sigma = tuple(var_name[:-1]) + ((f"{var_name[-1][0]:}_sigma", var_name[-1][1]),)
-    #     global_object.set_variable_by_name(var_name_sigma, sigma)
     return inv_hessian

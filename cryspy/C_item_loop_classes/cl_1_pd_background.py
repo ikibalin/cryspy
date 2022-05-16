@@ -1,5 +1,6 @@
 import numpy
 from typing import NoReturn
+import scipy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -94,13 +95,24 @@ class PdBackgroundL(LoopN):
             intensity = (
                 numpy.array(pd_meas.intensity_plus, dtype=float) + 
                 numpy.array(pd_meas.intensity_minus, dtype=float))
+            intensity_sigma = numpy.sqrt(
+                numpy.square(numpy.array(pd_meas.intensity_plus_sigma, dtype=float)) + 
+                numpy.square(numpy.array(pd_meas.intensity_minus_sigma, dtype=float)))
         else:
             intensity = numpy.array(pd_meas.intensity, dtype=float)
+            intensity_sigma = numpy.array(pd_meas.intensity_sigma, dtype=float)
 
         step_n = int(step_ttheta/(ttheta[1]-ttheta[0]))
         if step_n == 0:
             step_n = 1
         intensity_bkg = estimate_background(intensity, step_n=step_n)
+
+        delta_0 = 0.
+        res = scipy.optimize.minimize(
+            lambda p: calc_chi_sq(intensity_bkg, intensity, intensity_sigma, p),
+            delta_0)
+        delta_0 = res["x"]
+        intensity_bkg += delta_0
 
         # n_points = int((ttheta.max()-ttheta.min())/step_ttheta + 2)
         # ttheta_bkgr = numpy.linspace(ttheta.min(), ttheta.max(), n_points, endpoint=True)
@@ -121,25 +133,33 @@ def estimate_background(y_exp, step_n: int = 10):
     y_min = y_exp.min()
     flag = y_exp < y_aver + 2*(y_aver-y_min)
 
-    y_bkg_es = numpy.zeros_like(y_exp)
-    y_bkg_es[flag] = y_exp[flag]
-    y_bkg_es[numpy.logical_not(flag)] = y_aver+2*(y_aver-y_min)
-    
+    # y_bkg_es = numpy.zeros_like(y_exp)
+    # y_bkg_es[flag] = y_exp[flag]
+    # y_bkg_es[numpy.logical_not(flag)] = y_aver+2*(y_aver-y_min)
+    y_bkg_es = numpy.copy(y_exp)
     
     n_total = y_bkg_es.size
     for iii in range(100):
         y_bkg_new = numpy.zeros_like(y_bkg_es)
         for i_point in range(n_total):
             ind_left = i_point - n_points
-
-            ind_left[ind_left<0] = 0
             ind_right = i_point + n_points
-            ind_right[ind_right>=n_total] = n_total-1
+
+            flag_left = ind_left < 0
+            if numpy.any(flag_left):
+                ind_left[flag_left] = 0
+                ind_right[flag_left] = 0
+
+            flag_right = ind_right >= n_total
+            if numpy.any(flag_right):
+                ind_right[flag_right] = n_total-1
+                ind_left[flag_right] = n_total-1
 
             y_left = y_bkg_es[ind_left]
             y_right = y_bkg_es[ind_right]
 
             y_bkg_new[i_point] = (y_left+y_right).sum()/(2*step_n)
+            
 
         if iii != 99:
             flag = y_bkg_new > y_bkg_es
@@ -147,3 +167,11 @@ def estimate_background(y_exp, step_n: int = 10):
         y_bkg_es = y_bkg_new
     y_bkg = y_bkg_es  
     return y_bkg
+
+
+def calc_chi_sq(y_bkg, y_exp, sy_exp, delta):
+    y_diff = (y_exp-(y_bkg+delta))/sy_exp
+    flag = y_diff > 1
+    y_diff[flag] = 1.
+    wss = numpy.sum(numpy.square(y_diff))
+    return wss

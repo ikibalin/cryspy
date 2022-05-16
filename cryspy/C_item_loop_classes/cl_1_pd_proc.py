@@ -163,7 +163,8 @@ class PdProcL(LoopN):
 
             ax_1.set_title(f"Unpolarized ($\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
             ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
-            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
+            if numpy.any(np_excl):
+                ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
             # ax_button = plt.axes([0.25, 0.1, 0.08, 0.05])
             # grid_button = wdg.Button(ax_button, 'Grid', color='white', hovercolor='grey')
             # ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], color="k", alpha=0.2, label="experiment")
