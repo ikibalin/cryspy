@@ -516,10 +516,7 @@ class Crystal(DataN):
 
 
     def report(self):
-        s_out = ""
-        s_out += self.report_main_axes_of_magnetization_ellipsoids() + "\n " 
-        s_out += self.report_bulk_susceptibility()
-        return s_out
+        return self.report_main_axes_of_magnetization_ellipsoids()
 
 
     def plots(self):
@@ -560,17 +557,17 @@ class Crystal(DataN):
         dict_crystal = self.get_dictionary()
         ls_out = []
         try:
-            bulk_susceptibility, dder = calc_bulk_susceptibility_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
+            # bulk_susceptibility, dder = calc_bulk_susceptibility_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
             m_chi = numpy.array([
                 [bulk_susceptibility[0], bulk_susceptibility[1], bulk_susceptibility[2]],
                 [bulk_susceptibility[3], bulk_susceptibility[4], bulk_susceptibility[5]],
                 [bulk_susceptibility[6], bulk_susceptibility[7], bulk_susceptibility[8]]], dtype=float)
-            ls_out.append(r"## Bulk susceptibility (mu_B/T):")
+            ls_out.append(r"## Bulk susceptibility (mu_B/(T V_uc)):")
             ls_out.append(" |X along inv.a | Y is [inv.a, c] |    Z along c| ")
             ls_out.append(f"| {m_chi[0, 0]:5.2f} | {m_chi[0, 1]:5.2f} | {m_chi[0, 2]:5.2f}|")
             ls_out.append(f"| {m_chi[1, 0]:5.2f} | {m_chi[1, 1]:5.2f} | {m_chi[1, 2]:5.2f}|")
             ls_out.append(f"| {m_chi[2, 0]:5.2f} | {m_chi[2, 1]:5.2f} | {m_chi[2, 2]:5.2f}|")
-            ls_out.append(f"\n Averaged moment along applied field is {(m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3:5.2f} " + r"(mu_B/T):")
+            ls_out.append(f"\n Averaged moment along applied field is {(m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3:5.2f} " + r"(mu_B/(T V_uc)):")
             
         except KeyError:
             bulk_susceptibility = numpy.array([0,0,0, 0,0,0, 0,0,0], dtype=float)

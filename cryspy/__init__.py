@@ -147,6 +147,8 @@ from cryspy.H_functions_global.function_1_cryspy_objects import \
     L_GLOBAL_CLASS, L_DATA_CLASS, L_LOOP_CLASS, L_ITEM_CLASS, load_packages, \
     add_package, packages, delete_package, L_FUNCTION_ADD
 
+from cryspy.H_functions_global.powder_experiments import report_powder_experiments
+
 from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement, \
     rhochi_rietveld_refinement_with_parameters, \
     rhochi_no_refinement, rhochi_inversed_hessian
@@ -156,6 +158,7 @@ from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruc
     mempy_spin_density_reconstruction,\
     mempy_reconstruction_with_parameters,\
     mempy_cycle_with_parameters
+
 
 
 
@@ -258,6 +261,7 @@ L_FUNCTION = [
     repr_function,
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
+    report_powder_experiments,
     rhochi_rietveld_refinement, 
     rhochi_rietveld_refinement_with_parameters, 
     rhochi_no_refinement,
