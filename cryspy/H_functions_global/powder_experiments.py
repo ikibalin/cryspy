@@ -19,7 +19,7 @@ def report_powder_experiments(rcif_object: GlobalN):
         phase_name = pd_dict["phase_name"]
         m_chi_total = numpy.zeros((3,3), dtype=float)
         l_s_v_sq, l_m_s_v, l_v_uc = [], [], []
-        l_m_chi_aver = []
+        l_m_chi = []
         for name_sh, scale in zip(phase_name, phase_scale):
             name = f"crystal_"+name_sh
             crystal_dict = rcif_dict[name]
@@ -43,14 +43,20 @@ def report_powder_experiments(rcif_object: GlobalN):
             l_v_uc.append(v_uc)
             l_s_v_sq.append(s_v_sq)
             l_m_s_v.append(m_s_v)
-            l_m_chi_aver.append((m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3)
+            l_m_chi.append(m_chi)
         sum_s_v_sq = numpy.sum(l_s_v_sq)
         ls_out.append("Phase       Volume  Fraction  Aver. moment")
         ls_out.append("                    (volume)        per UC ")
 
-        for p_name, v_uc, s_v_sq, m_chi_aver in zip(phase_name, l_v_uc, l_s_v_sq, l_m_chi_aver):
+        for p_name, v_uc, s_v_sq, m_chi in zip(phase_name, l_v_uc, l_s_v_sq, l_m_chi):
             volume_fraction = s_v_sq/sum_s_v_sq
+            m_chi_aver = (m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3
             ls_out.append(f"{p_name:10} {v_uc:7.2f}    {volume_fraction*100:5.1f}% {m_chi_aver:6.1f} mu_B/T")
+
+        ls_out.append("\n\nPhase          Bulk susceptibility tensor per phase")
+        ls_out.append("             (11 , 22, 33, 12, 13, 23 mu_B/T per UC)")
+        for p_name, m_chi in zip(phase_name, l_m_chi):
+            ls_out.append(f"{p_name:10} {m_chi[0, 0]:6.1f} {m_chi[1, 1]:6.1f} {m_chi[2, 2]:6.1f} {m_chi[0, 1]:6.1f} {m_chi[0, 2]:6.1f} {m_chi[1, 2]:6.1f}")
 
         m_bulk = numpy.zeros((3,3), dtype=float)
         for p_name, m_s_v in zip(phase_name, l_m_s_v):
@@ -60,11 +66,11 @@ def report_powder_experiments(rcif_object: GlobalN):
         m_bulk_aver = (m_bulk[0, 0] + m_bulk[1, 1] + m_bulk[2, 2])/3
         ls_out.append(f"\nBulk powder susceptibility:")
         ls_out.append(f"{m_bulk_aver:.2f} mu_B/T per volume of '{phase_name[0]:}'")
-        ls_out.append(f"\nBulk tensor susceptibility:")
-        ls_out.append(f"(mu_B/T per volume of '{phase_name[0]:}')")
-        ls_out.append(f" {m_bulk[0, 0]:5.2f} {m_bulk[0, 1]:5.2f} {m_bulk[0, 2]:5.2f}")
-        ls_out.append(f" {m_bulk[1, 0]:5.2f} {m_bulk[1, 1]:5.2f} {m_bulk[1, 2]:5.2f}")
-        ls_out.append(f" {m_bulk[2, 0]:5.2f} {m_bulk[2, 1]:5.2f} {m_bulk[2, 2]:5.2f}")
+        # ls_out.append(f"\nBulk tensor susceptibility:")
+        # ls_out.append(f"(mu_B/T per volume of '{phase_name[0]:}')")
+        # ls_out.append(f" {m_bulk[0, 0]:5.2f} {m_bulk[0, 1]:5.2f} {m_bulk[0, 2]:5.2f}")
+        # ls_out.append(f" {m_bulk[1, 0]:5.2f} {m_bulk[1, 1]:5.2f} {m_bulk[1, 2]:5.2f}")
+        # ls_out.append(f" {m_bulk[2, 0]:5.2f} {m_bulk[2, 1]:5.2f} {m_bulk[2, 2]:5.2f}")
 
     print("\n".join(ls_out))
     return "\n".join(ls_out)
