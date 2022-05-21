@@ -28,10 +28,10 @@ class Setup(ItemN):
     ATTR_MANDATORY_CIF = ()
 
     ATTR_OPTIONAL_NAMES = ("wavelength", "field", "offset_ttheta", "offset_phi", "offset_gamma", "offset_nu",
-                           "ratio_lambdaover2", "radiation", "k", "cthm")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str, float, float)
+                           "ratio_lambdaover2", "radiation", "k", "cthm", "temperature")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str, float, float, float)
     ATTR_OPTIONAL_CIF = ("wavelength", "field", "offset_2theta", "offset_phi", "offset_gamma", "offset_nu",
-                         "ratio_lambda/2", "radiation", "K", "cthm")
+                         "ratio_lambda/2", "radiation", "K", "cthm", "temperature")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -52,7 +52,8 @@ class Setup(ItemN):
     D_FORMATS = {'wavelength': "{:.4f}", 'field': "{:.2f}",
                  'offset_ttheta': "{:.3f}", 'offset_phi': "{:.3f}",
                  'offset_gamma': "{:.3f}", 'offset_nu': "{:.3f}",
-                 "ratio_lambdaover2": "{:.3f}", "k": "{:.1f}", "cthm": "{:.5f}"}
+                 "ratio_lambdaover2": "{:.3f}", "k": "{:.1f}", "cthm": "{:.5f}",
+                 'temperature': "{:.1f}",}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"radiation": ["neutrons", "X-rays"]}

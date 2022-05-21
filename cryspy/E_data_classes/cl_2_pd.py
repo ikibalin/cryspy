@@ -829,6 +829,8 @@ class Pd(DataN):
         if setup is not None:
             if setup.is_attribute("field"):
                 ddict["magnetic_field"] = numpy.array([setup.field], dtype=float)
+            if setup.is_attribute("temperature"):
+                ddict["temperature"] = numpy.array([setup.temperature], dtype=float)
             ddict["wavelength"] = numpy.array([setup.wavelength], dtype=float)
             ddict["flags_wavelength"] = numpy.array([setup.wavelength_refinement], dtype=bool)
             ddict["offset_ttheta"] = numpy.array([setup.offset_ttheta * numpy.pi/180.], dtype=float)

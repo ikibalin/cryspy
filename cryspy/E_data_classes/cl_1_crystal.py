@@ -1090,6 +1090,10 @@ class Crystal(DataN):
                     item.fract_y_sigma = float(sigma)
                 elif ind_p == 2:
                     item.fract_z_sigma = float(sigma)
+            if "atom_occupancy" in parameter_label:
+                ind_a = ind_s[0]
+                item = self.atom_site.items[ind_a]
+                item.occupancy_sigma = float(sigma)
 
             if "atom_b_iso" in parameter_label:
                 ind_a = ind_s[0]

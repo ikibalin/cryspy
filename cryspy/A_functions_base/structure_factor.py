@@ -282,7 +282,7 @@ def calc_f_by_f_asym_a_pr(f_asym_a, scattering_length, pr_3, centrosymmetry, pr_
 def calc_sft_ccs_asym_a_by_pr(
         atom_para_multiplicity, debye_waller_factor, atom_para_occupancy,
         atom_para_susceptibility, atom_para_sc_chi,
-        pr_1, pr_2, pr_5,
+        pr_1, pr_2, pr_5, theta=None,
         flag_debye_waller: bool = False,
         flag_atom_para_occupancy: bool = False, flag_atom_para_susceptibility: bool = False,
         flag_pr_1: bool = False, flag_pr_5: bool = False):
@@ -294,6 +294,11 @@ def calc_sft_ccs_asym_a_by_pr(
     mas_constr = (0.2695*atom_para_sc_chi * atom_para_susceptibility[na, :, :]).sum(axis=1)
 
     hh, dder_hh = calc_m_q_inv_m(pr_5[:, :, na], mas_constr[:, na, :], flag_m=False, flag_q=flag_atom_para_susceptibility)
+    if theta is not None:
+        hh *= numpy.expand_dims(theta, axis=(0,2))
+        if flag_atom_para_susceptibility:
+            dder_hh["q"] *= numpy.expand_dims(theta, axis=(0, 1, 3))
+
     hh_1 = atom_para_multiplicity * atom_para_occupancy
     hh_3 = pr_1*debye_waller_factor*hh_1[na, na, :]
     res = (pr_2[na, :, :, na] * hh_3[na, :, :, :] * hh[:, na, :, :]).sum(axis=2)/pr_2.shape[-1]
@@ -835,7 +840,7 @@ def calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated
         translation_elems = numpy.array([[0], [0], [0], [1]], dtype=int)
     elif flag_full_mcif_elems:
         full_mcif_elems = dict_crystal["full_mcif_elems"]
-        reduced_symm_elems = full_mcif_elems[:13]
+        reduced_symm_elems = full_mcif_elems 
         centrosymmetry = False
         centrosymmetry_position = None
         translation_elems = numpy.array([[0], [0], [0], [1]], dtype=int)
@@ -924,7 +929,7 @@ def calc_sft_ccs(index_hkl,
             full_symm_elems = dict_in_out["full_symm_elems"]
         else:
             full_symm_elems = calc_full_symm_elems_by_reduced(
-                reduced_symm_elems, centrosymmetry, centrosymmetry_position, translation_elems)
+                reduced_symm_elems[:13], centrosymmetry, centrosymmetry_position, translation_elems)
             if flag_dict:
                 dict_in_out["full_symm_elems"] = full_symm_elems
         mag_atom_multiplicity = calc_multiplicity_by_atom_symm_elems(full_symm_elems, atom_symm_elems)
@@ -935,14 +940,14 @@ def calc_sft_ccs(index_hkl,
     if (flag_use_precalculated_data and ("pr_1_atom_para" in dict_in_out_keys) and not(flag_atom_para_fract_xyz)):
         pr_1 = dict_in_out["pr_1_atom_para"] 
     else:
-        pr_1, dder_pr_1 = calc_pr1(index_hkl, reduced_symm_elems, atom_para_fract_xyz, flag_fract_xyz=flag_atom_para_fract_xyz)
+        pr_1, dder_pr_1 = calc_pr1(index_hkl, reduced_symm_elems[:13], atom_para_fract_xyz, flag_fract_xyz=flag_atom_para_fract_xyz)
         if flag_dict:
             dict_in_out["pr_1_atom_para"] = pr_1
 
     if (flag_use_precalculated_data and ("pr_2" in dict_in_out_keys)):
         pr_2 = dict_in_out["pr_2"] 
     else:
-        pr_2 = calc_pr2(index_hkl, reduced_symm_elems)
+        pr_2 = calc_pr2(index_hkl, reduced_symm_elems[:13])
         if flag_dict:
             dict_in_out["pr_2"] = pr_2 
 
@@ -973,7 +978,7 @@ def calc_sft_ccs(index_hkl,
     if (flag_use_precalculated_data and ("pr_5" in dict_in_out_keys) and not(flag_pr_5)):
         pr_5 = dict_in_out["pr_5"] 
     else:
-        pr_5, dder_pr_5 = calc_pr5(reduced_symm_elems, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
+        pr_5, dder_pr_5 = calc_pr5(reduced_symm_elems[:13], unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
         if flag_dict:
             dict_in_out["pr_5"] = pr_5
 
@@ -1001,7 +1006,7 @@ def calc_sft_ccs(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_para_b_iso[na, na, :],
-            atom_para_beta[:, na, na, :], reduced_symm_elems[:, na, :, na],
+            atom_para_beta[:, na, na, :], reduced_symm_elems[:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_para_b_iso, flag_beta=flag_atom_para_beta)
         if flag_dict:
             dict_in_out["atom_para_debye_waller_factor"] = debye_waller_factor
@@ -1014,9 +1019,13 @@ def calc_sft_ccs(index_hkl,
             not(flag_sft_ccs_asym)):
         sft_ccs_asym = dict_in_out["sft_ccs_asym"]
     else: 
+        theta = None
+        # if reduced_symm_elems.shape[0] == 14:
+        #     theta = reduced_symm_elems[13] # * calc_det_m(reduced_symm_elems[4:13], flag_m=False)[0]
+        #     # print("theta: ", theta)
         sft_ccs_asym, dder_sft_ccs_asym = calc_sft_ccs_asym_a_by_pr(
             mag_atom_multiplicity, debye_waller_factor, atom_para_occupancy, atom_para_susceptibility, atom_para_sc_chi,
-            pr_1, pr_2, pr_5, 
+            pr_1, pr_2, pr_5, theta=theta,
             flag_debye_waller=flag_debye_waller, flag_atom_para_occupancy=flag_atom_para_occupancy,
             flag_atom_para_susceptibility = flag_atom_para_susceptibility,
             flag_pr_1=flag_pr_1, flag_pr_5=flag_pr_5)
@@ -1276,7 +1285,7 @@ def calc_f_m_perp_ordered(index_hkl,
         m_norm, rm,
         flag_m=flag_unit_cell_parameters, flag_v=flag_atom_ordered_moment_crystalaxis_xyz)
     det_r, der_det_r = calc_det_m(r_direct)
-    theta_s = full_mcif_elems[13,:]
+    theta_s = full_mcif_elems[13,:] 
 
     moment_ccs = 0.2695*rm_ccs*(theta_s*det_r)[na, :, na]
     
