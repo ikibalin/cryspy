@@ -199,6 +199,7 @@ class GlobalN(object):
 
     def add_items(self, items: list):
         """Add items."""
+        items = [hh for hh in items if hh is not None]
         l_name = [item.get_name() for item in items]
         s_name = set(l_name)
         if len(s_name) != len(l_name):

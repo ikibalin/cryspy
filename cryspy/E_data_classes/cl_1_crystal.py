@@ -14,7 +14,7 @@ from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
-from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi
+from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
@@ -25,6 +25,7 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
     AtomSiteAnisoL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_site_exchange import AtomSiteExchangeL
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
     AtomTypeScatL
 from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
@@ -87,7 +88,7 @@ class Crystal(DataN):
 
     CLASSES_MANDATORY = (Cell, AtomSiteL,)
     CLASSES_OPTIONAL = (SpaceGroup,
-        AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteScatL,
+        AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomSiteScatL,
         AtomTypeScatL, AtomLocalAxesL, AtomElectronConfigurationL,
         AtomSiteMomentL, SpaceGroupSymopMagnOperationL, SpaceGroupSymopMagnCenteringL)
     # CLASSES_INTERNAL = ()
@@ -146,6 +147,9 @@ class Crystal(DataN):
                 atom_site_susceptibility.apply_chi_iso_constraint(cell)
                 atom_site_susceptibility.apply_space_group_constraint(
                     atom_site, space_group, cell)
+            if self.is_attribute("atom_site_exchange"):
+                atom_site_exchange = self.atom_site_exchange
+                atom_site_exchange.apply_j_iso_constraint()
 
     def calc_b_iso_beta(self):
         """
@@ -550,29 +554,6 @@ class Crystal(DataN):
             res = numpy.zeros((6, len(atom_site.items)), dtype=bool)
         return res
 
-
-    def report_bulk_susceptibility(self):
-        dict_in_out = {}
-        flag_use_precalculated_data = False
-        dict_crystal = self.get_dictionary()
-        ls_out = []
-        try:
-            # bulk_susceptibility, dder = calc_bulk_susceptibility_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
-            m_chi = numpy.array([
-                [bulk_susceptibility[0], bulk_susceptibility[1], bulk_susceptibility[2]],
-                [bulk_susceptibility[3], bulk_susceptibility[4], bulk_susceptibility[5]],
-                [bulk_susceptibility[6], bulk_susceptibility[7], bulk_susceptibility[8]]], dtype=float)
-            ls_out.append(r"## Bulk susceptibility (mu_B/(T V_uc)):")
-            ls_out.append(" |X along inv.a | Y is [inv.a, c] |    Z along c| ")
-            ls_out.append(f"| {m_chi[0, 0]:5.2f} | {m_chi[0, 1]:5.2f} | {m_chi[0, 2]:5.2f}|")
-            ls_out.append(f"| {m_chi[1, 0]:5.2f} | {m_chi[1, 1]:5.2f} | {m_chi[1, 2]:5.2f}|")
-            ls_out.append(f"| {m_chi[2, 0]:5.2f} | {m_chi[2, 1]:5.2f} | {m_chi[2, 2]:5.2f}|")
-            ls_out.append(f"\n Averaged moment along applied field is {(m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3:5.2f} " + r"(mu_B/(T V_uc)):")
-            
-        except KeyError:
-            bulk_susceptibility = numpy.array([0,0,0, 0,0,0, 0,0,0], dtype=float)
-        return "\n".join(ls_out)
-
     def get_dictionary(self):
         """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.
         """
@@ -580,6 +561,7 @@ class Crystal(DataN):
         ddict = {}
         space_group, cell, atom_site = None, None, None
         atom_site_susceptibility, atom_electron_configuration = None, None
+        atom_site_exchange = None
         atom_type_scat = None
         atom_type = None
         atom_site_aniso = None
@@ -619,6 +601,11 @@ class Crystal(DataN):
         l_obj = take_items_by_class(self, (AtomSiteSusceptibilityL,))
         if len(l_obj) > 0:
             atom_site_susceptibility = l_obj[0]
+
+        l_obj = take_items_by_class(self, (AtomSiteExchangeL,))
+        if len(l_obj) > 0:
+            atom_site_exchange = l_obj[0]
+            
 
         l_obj = take_items_by_class(self, (AtomElectronConfigurationL,))
         if len(l_obj) > 0:
@@ -815,6 +802,19 @@ class Crystal(DataN):
                     l_sc_chi.append(sc_chi)
                 atom_para_sc_chi = numpy.stack(l_sc_chi, axis=-1)
                 ddict["atom_para_sc_chi"] = atom_para_sc_chi
+        
+        if atom_site_exchange is not None:
+            atom_exchange_label = numpy.array(atom_site_exchange.label, dtype=str)
+            atom_exchange_j = numpy.array(atom_site_exchange.j_11, dtype=float)
+            flags_atom_exchange_j = numpy.array(atom_site_exchange.j_11_refinement, dtype=bool)
+            ddict["atom_exchange_label"] = atom_exchange_label
+            ddict["atom_exchange_j"] = atom_exchange_j
+            ddict["flags_atom_exchange_j"] = flags_atom_exchange_j
+            if "atom_label" in ddict.keys():
+                flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_exchange_label, axis=0)
+                args = numpy.argwhere(flag_2d)
+                atom_exchange_index = args[args[:,1].argsort()][:,0]
+                ddict["atom_exchange_index"] = atom_para_index
 
         if atom_site_moment is not None:
             atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)
@@ -963,7 +963,14 @@ class Crystal(DataN):
                 item_ass.chi_12 = mag_atom_susceptibility[3, i_item]
                 item_ass.chi_13 = mag_atom_susceptibility[4, i_item]
                 item_ass.chi_23 = mag_atom_susceptibility[5, i_item]
-        
+
+        if "atom_exchange_j" in keys:
+            j_iso = ddict_crystal["atom_exchange_j"]
+            for i_item, item_ase in enumerate(self.atom_site_exchange.items):
+                item_ase.j_11 = j_iso[i_item]
+                item_ase.j_22 = j_iso[i_item]
+                item_ase.j_33 = j_iso[i_item]
+
         if "atom_ordered_moment_crystalaxis_xyz" in keys:
             hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
             for i_item, item in enumerate(self.atom_site_moment.items):
@@ -1080,6 +1087,11 @@ class Crystal(DataN):
                     item_ass.chi_13_sigma = float(sigma)
                 elif ind_chi == 5:
                     item_ass.chi_23_sigma = float(sigma)
+            
+            if "atom_exchange_j" in parameter_label:
+                ind_a = ind_s[0]
+                item = self.atom_site_exchange.items[ind_a]
+                item.j_11_sigma = float(sigma)
             
             if "atom_fract_xyz" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]

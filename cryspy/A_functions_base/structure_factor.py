@@ -1368,7 +1368,14 @@ def calc_bulk_susceptibility_by_dictionary(dict_crystal, dict_in_out, flag_use_p
         dict_in_out = dict_in_out, flag_unit_cell_parameters = flag_unit_cell_parameters, flag_atom_para_fract_xyz = flag_atom_para_fract_xyz,
         flag_atom_para_occupancy = flag_atom_para_occupancy, flag_atom_para_susceptibility = flag_atom_para_susceptibility,
         flag_use_precalculated_data = flag_use_precalculated_data)
-    return bulk_susceptibility, dder
+    error_bars = numpy.zeros_like(bulk_susceptibility)
+    if 'atom_para_susceptibility' in dder.keys():
+        dder_aps = dder['atom_para_susceptibility']
+        sigma_aps = dict_crystal["atom_para_susceptibility_sigma"]
+        error_bars = numpy.sum(dder_aps*numpy.expand_dims(sigma_aps, axis=0), axis=1)
+
+
+    return bulk_susceptibility, error_bars
 
 
 def calc_bulk_susceptibility(reduced_symm_elems, centrosymmetry, centrosymmetry_position, translation_elems,

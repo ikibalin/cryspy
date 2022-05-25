@@ -22,6 +22,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_moment import \
     AtomSiteMoment, AtomSiteMomentL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibility, AtomSiteSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_site_exchange import \
+    AtomSiteExchange, AtomSiteExchangeL
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
     AtomTypeScat, AtomTypeScatL
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
@@ -119,7 +121,7 @@ L_FUNCTION_ADD = []
 L_ITEM_CLASS.extend([
     AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater, 
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
-    AtomSiteSusceptibility, AtomType, AtomTypeScat,
+    AtomSiteSusceptibility, AtomSiteExchange, AtomType, AtomTypeScat,
     Cell, ChannelChi, ChannelPlusMinus, Chi2,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
     Exclude, Extinction, MEMParameters, InversedHessian,
@@ -136,7 +138,7 @@ L_ITEM_CLASS.extend([
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL, 
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
-    AtomSiteSusceptibilityL, AtomTypeL, AtomTypeScatL,
+    AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomTypeL, AtomTypeScatL,
     CellL, ChannelChiL, ChannelPlusMinusL, Chi2L,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
     ExtinctionL, ExcludeL, MEMParametersL,

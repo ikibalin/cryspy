@@ -100,6 +100,14 @@ def rhochi_rietveld_refinement_with_parameters(
             sigma_p = numpy.sqrt(numpy.abs(numpy.diag(hess_inv)))
             correlation_matrix = hess_inv/(sigma_p[:, na]*sigma_p[na, :])
             dict_out["correlation_matrix"] = correlation_matrix
+
+            l_label = [hh[-1][0] for hh in parameter_name]
+            inv_hessian = InversedHessian()
+            inv_hessian.set_labels(l_label)
+            inv_hessian.set_inversed_hessian(hess_inv)
+            inv_hessian.form_inversed_hessian()
+            inv_hessian.form_object()
+            cryspy_object.add_items([inv_hessian, ])
         else:
             sigma_p = numpy.zeros((len(parameter_name),), dtype=float)
     else:
@@ -197,7 +205,8 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         return chi_sq
 
     hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
-
+    if (numpy.all(hess_inv == numpy.zeros_like(hess_inv)) or (hess_inv is None)):
+        return 
     corr_matrix, sigmas = inversed_hessian_to_correlation(hess_inv) 
     global_object.take_parameters_from_dictionary(
         global_dict, l_parameter_name = parameter_names, l_sigma=sigmas)
@@ -230,6 +239,6 @@ def rhochi_inversed_hessian(global_object: GlobalN):
     inv_hessian.form_inversed_hessian()
     inv_hessian.form_object()
 
-    global_object.items.append(inv_hessian)
+    global_object.add_items([inv_hessian, ])
 
     return inv_hessian
