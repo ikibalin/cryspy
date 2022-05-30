@@ -150,6 +150,8 @@ class Crystal(DataN):
             if self.is_attribute("atom_site_exchange"):
                 atom_site_exchange = self.atom_site_exchange
                 atom_site_exchange.apply_j_iso_constraint()
+                atom_site_exchange.apply_space_group_constraint(
+                    atom_site, space_group, cell)
 
     def calc_b_iso_beta(self):
         """
@@ -805,16 +807,59 @@ class Crystal(DataN):
         
         if atom_site_exchange is not None:
             atom_exchange_label = numpy.array(atom_site_exchange.label, dtype=str)
-            atom_exchange_j = numpy.array(atom_site_exchange.j_11, dtype=float)
-            flags_atom_exchange_j = numpy.array(atom_site_exchange.j_11_refinement, dtype=bool)
+            atom_exchange_type = numpy.array(atom_site_exchange.j_type, dtype=str)
+            atom_exchange_tensor = numpy.array([
+                atom_site_exchange.j_11, 
+                atom_site_exchange.j_22, 
+                atom_site_exchange.j_33, 
+                atom_site_exchange.j_12, 
+                atom_site_exchange.j_13, 
+                atom_site_exchange.j_23, 
+                ], dtype=float)
+            flags_atom_exchange_tensor = numpy.array([
+                atom_site_exchange.j_11_refinement,
+                atom_site_exchange.j_22_refinement,
+                atom_site_exchange.j_33_refinement,
+                atom_site_exchange.j_12_refinement,
+                atom_site_exchange.j_13_refinement,
+                atom_site_exchange.j_23_refinement,
+                ], dtype=bool)
             ddict["atom_exchange_label"] = atom_exchange_label
-            ddict["atom_exchange_j"] = atom_exchange_j
-            ddict["flags_atom_exchange_j"] = flags_atom_exchange_j
+            ddict["atom_exchange_type"] = atom_exchange_type
+            ddict["atom_exchange_tensor"] = atom_exchange_tensor
+            ddict["flags_atom_exchange_tensor"] = flags_atom_exchange_tensor
             if "atom_label" in ddict.keys():
+
+                if "full_mcif_elems" in ddict.keys():
+                    elems_fs = ddict["full_mcif_elems"]
+                elif "full_symm_elems" in ddict.keys():
+                    elems_fs = ddict["full_symm_elems"]
+                else:
+                    raise AttributeError("Symmetry elements are not found.")
+
                 flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_exchange_label, axis=0)
                 args = numpy.argwhere(flag_2d)
                 atom_exchange_index = args[args[:,1].argsort()][:,0]
-                ddict["atom_exchange_index"] = atom_para_index
+                ddict["atom_exchange_index"] = atom_exchange_index
+
+                l_sc_exchange = []
+                flag_2d = ddict["atom_symm_elems_flag"][:, atom_exchange_index]
+                for ind in range(atom_exchange_label.size):
+                    if (atom_exchange_type[ind]).lower() == "jiso":
+                        sc_exchange = numpy.array([
+                            [1., 0., 0., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.]], dtype=float)
+                    else:
+                        sc_exchange = calc_sc_chi(
+                            elems_fs[:, flag_2d[:, ind]],
+                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                    l_sc_exchange.append(sc_exchange)
+                atom_sc_exchange = numpy.stack(l_sc_exchange, axis=-1)
+                ddict["atom_sc_exchange"] = atom_sc_exchange
 
         if atom_site_moment is not None:
             atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)

@@ -14,6 +14,8 @@ import cryspy.A_functions_base.local_susceptibility as local_susceptibility
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import calc_constr_matrix, calc_independent_lines
+
 na = numpy.newaxis
 
 
@@ -52,7 +54,7 @@ class AtomSiteExchange(ItemN):
                  "j_12": "{:.5f}", "j_13": "{:.5f}", "j_23": "{:.5f}",}
 
     # constraints on the parameters
-    D_CONSTRAINTS = {"j_type": ["Jiso", ],
+    D_CONSTRAINTS = {"j_type": ["Jiso", "Jani"],
                      }
 
     # default values for the parameters
@@ -82,6 +84,87 @@ class AtomSiteExchange(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+
+    def apply_space_group_constraint(self, atom_site, space_group, cell):
+        """
+        Space group constraints.
+
+        According to table 1 in Peterse, Palm, Acta Cryst.(1966), 20, 147
+        """
+        label_aniso = self.label
+        label = atom_site.label
+        index = label.index(label_aniso)
+
+        item_as = atom_site.items[index] 
+        sc_exchange = item_as.calc_sc_chi(space_group, cell)
+        # it should be checked
+        sc_exchange = calc_constr_matrix(sc_exchange)
+        
+
+        # l_numb = atom_site.calc_constr_number(space_group)
+
+        flag_j = self.is_attribute("j_type")
+        if flag_j:
+            flag_j = self.j_type.lower().startswith("jani")
+
+        if flag_j:
+            self.__dict__["j_11_constraint"] = False
+            self.__dict__["j_22_constraint"] = False
+            self.__dict__["j_33_constraint"] = False
+            self.__dict__["j_12_constraint"] = False
+            self.__dict__["j_13_constraint"] = False
+            self.__dict__["j_23_constraint"] = False
+
+        if flag_j:
+            j_i = numpy.array([
+                self.j_11, self.j_22, self.j_33,
+                self.j_12, self.j_13, self.j_23], dtype=float)
+
+            j_sigma_i = numpy.array([
+                self.j_11_sigma, self.j_22_sigma, self.j_33_sigma,
+                self.j_12_sigma, self.j_13_sigma, self.j_23_sigma], dtype=float)
+
+            j_ref_i = numpy.array([
+                self.j_11_refinement, self.j_22_refinement, self.j_33_refinement,
+                self.j_12_refinement, self.j_13_refinement, self.j_23_refinement], dtype=bool)
+
+            j_i_c = sc_exchange.dot(j_i)
+            j_sigma_i_c = numpy.sqrt(numpy.square(sc_exchange).dot(numpy.square(j_sigma_i)))
+            l_ind_independent = calc_independent_lines(sc_exchange)
+            
+            j_con_i_c = numpy.ones(j_i_c.shape, dtype=bool)
+            j_con_i_c[l_ind_independent] = False
+            sc_exchange_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_exchange, decimals=5), 0.))
+            
+            j_ref_i_c = sc_exchange_bool.dot(j_ref_i) * numpy.logical_not(j_con_i_c)
+
+            self.__dict__["j_11"], self.__dict__["j_22"], \
+                self.__dict__["j_33"], self.__dict__["j_12"], \
+                self.__dict__["j_13"], self.__dict__["j_23"] = \
+                j_i_c[0], j_i_c[1], j_i_c[2], j_i_c[3], j_i_c[4], j_i_c[5]
+
+            self.__dict__["j_11_sigma"], self.__dict__["j_22_sigma"], \
+                self.__dict__["j_33_sigma"], self.__dict__["j_12_sigma"], \
+                self.__dict__["j_13_sigma"], self.__dict__["j_23_sigma"] =\
+                j_sigma_i_c[0], j_sigma_i_c[1], j_sigma_i_c[2], j_sigma_i_c[3], \
+                j_sigma_i_c[4], j_sigma_i_c[5]
+
+            self.__dict__["j_11_refinement"], \
+                self.__dict__["j_22_refinement"], \
+                self.__dict__["j_33_refinement"], \
+                self.__dict__["j_12_refinement"], \
+                self.__dict__["j_13_refinement"], \
+                self.__dict__["j_23_refinement"] = j_ref_i_c[0], j_ref_i_c[1], j_ref_i_c[2],\
+                    j_ref_i_c[3], j_ref_i_c[4], j_ref_i_c[5]
+
+            self.__dict__["j_11_constraint"], \
+                self.__dict__["j_22_constraint"], \
+                self.__dict__["j_33_constraint"], \
+                self.__dict__["j_12_constraint"], \
+                self.__dict__["j_13_constraint"], \
+                self.__dict__["j_23_constraint"] = j_con_i_c[0], j_con_i_c[1], j_con_i_c[2],\
+                    j_con_i_c[3], j_con_i_c[4], j_con_i_c[5]
+   
 
     def apply_j_iso_constraint(self):
         """Isotropic constraint on exchange."""
@@ -135,6 +218,11 @@ class AtomSiteExchangeL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
+    def apply_space_group_constraint(self, atom_site, space_group, cell):
+        """Apply space group constraint."""
+        for item in self.items:
+            item.apply_space_group_constraint(atom_site, space_group, cell)
+
     def apply_j_iso_constraint(self):
         """Apply isotropic constraint on susceptibility."""
         for item in self.items:
@@ -143,4 +231,3 @@ class AtomSiteExchangeL(LoopN):
     def get_flags_exchange(self):
         flags_exchange = numpy.stack([item.get_flags_exchange() for item in self.items], axis=0).transpose()
         return flags_exchange
-
