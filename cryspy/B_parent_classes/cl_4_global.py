@@ -640,6 +640,8 @@ def transfer_cif_names_to_dict_names(variable_names):
             index = (0,)
         if name == "polarization":
             name = "beam_polarization"
+        elif name == "scale":
+            name = "phase_scale"
         elif name == "efficiency":
             name = "flipper_efficiency"
         elif name == "radius":
@@ -664,5 +666,7 @@ def transfer_cif_names_to_dict_names(variable_names):
         elif name == "chi_23":
             name = "atom_para_susceptibility"
             index = (5, index)
+        if isinstance(index, int):
+            index = (index, )
         dict_names.append((data_block.lower(), name.lower(), index))
     return dict_names

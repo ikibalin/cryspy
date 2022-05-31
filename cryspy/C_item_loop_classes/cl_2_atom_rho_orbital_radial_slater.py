@@ -222,6 +222,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
                 s_atom_type_loop = (s_loop_name.split("_")[0]).lower()
                 if s_atom_type_loop == s_atom_type:
                     l_arors.append(loop_rcif)
+        
         return l_arors
 
     def calc_jl_by_radial_density(self, sthovl, lmax: int, shell: str,

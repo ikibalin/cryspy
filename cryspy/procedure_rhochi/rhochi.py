@@ -102,12 +102,13 @@ def rhochi_rietveld_refinement_with_parameters(
             dict_out["correlation_matrix"] = correlation_matrix
 
             l_label = [hh[-1][0] for hh in parameter_name]
-            inv_hessian = InversedHessian()
-            inv_hessian.set_labels(l_label)
-            inv_hessian.set_inversed_hessian(hess_inv)
-            inv_hessian.form_inversed_hessian()
-            inv_hessian.form_object()
-            cryspy_object.add_items([inv_hessian, ])
+            if len(l_label) == hess_inv.shape[0]:
+                inv_hessian = InversedHessian()
+                inv_hessian.set_labels(l_label)
+                inv_hessian.set_inversed_hessian(hess_inv)
+                inv_hessian.form_inversed_hessian()
+                inv_hessian.form_object()
+                cryspy_object.add_items([inv_hessian, ])
         else:
             sigma_p = numpy.zeros((len(parameter_name),), dtype=float)
     else:

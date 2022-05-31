@@ -965,6 +965,7 @@ class Crystal(DataN):
                 aec_label = aec_item.label
                 at_symbol = atom_site[aec_label].type_symbol
                 core_shells_populations = aec_item.get_core_shells_populations()
+                
                 l_arors = AtomRhoOrbitalRadialSlaterL().take_objects_for_atom_type(at_symbol)
                 
                 l_population = []
