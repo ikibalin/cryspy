@@ -1139,10 +1139,21 @@ class Crystal(DataN):
                 elif ind_chi == 5:
                     item_ass.chi_23_sigma = float(sigma)
             
-            if "atom_exchange_j" in parameter_label:
-                ind_a = ind_s[0]
+            if "atom_exchange_tensor" in parameter_label:
+                ind_j, ind_a = ind_s[0], ind_s[1]
                 item = self.atom_site_exchange.items[ind_a]
-                item.j_11_sigma = float(sigma)
+                if ind_j == 0:
+                    item.j_11_sigma = float(sigma)
+                elif ind_j == 1:
+                    item.j_22_sigma = float(sigma)
+                elif ind_j == 2:
+                    item.j_33_sigma = float(sigma)
+                elif ind_j == 3:
+                    item.j_12_sigma = float(sigma)
+                elif ind_j == 4:
+                    item.j_13_sigma = float(sigma)
+                elif ind_j == 5:
+                    item.j_23_sigma = float(sigma)
             
             if "atom_fract_xyz" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]
