@@ -1010,12 +1010,17 @@ class Crystal(DataN):
                 item_ass.chi_13 = mag_atom_susceptibility[4, i_item]
                 item_ass.chi_23 = mag_atom_susceptibility[5, i_item]
 
-        if "atom_exchange_j" in keys:
-            j_iso = ddict_crystal["atom_exchange_j"]
+        if "atom_exchange_tensor" in keys:
+            j_tensor = ddict_crystal["atom_exchange_tensor"]
+            atom_sc_exchange = ddict_crystal["atom_sc_exchange"]
+            j_tensor = numpy.sum(numpy.expand_dims(j_tensor, axis=0)*atom_sc_exchange, axis=1)
             for i_item, item_ase in enumerate(self.atom_site_exchange.items):
-                item_ase.j_11 = j_iso[i_item]
-                item_ase.j_22 = j_iso[i_item]
-                item_ase.j_33 = j_iso[i_item]
+                item_ase.j_11 = j_tensor[0, i_item]
+                item_ase.j_22 = j_tensor[1, i_item]
+                item_ase.j_33 = j_tensor[2, i_item]
+                item_ase.j_12 = j_tensor[3, i_item]
+                item_ase.j_13 = j_tensor[4, i_item]
+                item_ase.j_23 = j_tensor[5, i_item]
 
         if "atom_ordered_moment_crystalaxis_xyz" in keys:
             hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
