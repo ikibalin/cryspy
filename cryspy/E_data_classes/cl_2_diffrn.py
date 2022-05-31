@@ -660,7 +660,9 @@ class Diffrn(DataN):
             if setup.is_attribute("ratio_lambdaover2"):
                 ddict["c_lambda2"] = numpy.array([setup.ratio_lambdaover2], dtype=float)
                 ddict["flags_c_lambda2"] = numpy.array([setup.ratio_lambdaover2_refinement], dtype=bool)
-
+            if setup.is_attribute("temperature"):
+                ddict["temperature"] = numpy.array([setup.temperature], dtype=float)
+                
         if diffrn_refln is not None:
             index_hkl = numpy.array([
                 diffrn_refln.index_h, diffrn_refln.index_k,

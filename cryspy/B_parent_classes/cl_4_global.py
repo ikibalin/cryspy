@@ -666,6 +666,21 @@ def transfer_cif_names_to_dict_names(variable_names):
         elif name == "chi_23":
             name = "atom_para_susceptibility"
             index = (5, index)
+        elif name == "u":
+            name = "resolution_parameters"
+            index = (0, )
+        elif name == "v":
+            name = "resolution_parameters"
+            index = (1, )
+        elif name == "w":
+            name = "resolution_parameters"
+            index = (2, )
+        elif name == "x":
+            name = "resolution_parameters"
+            index = (3, )
+        elif name == "y":
+            name = "resolution_parameters"
+            index = (4, )
         if isinstance(index, int):
             index = (index, )
         dict_names.append((data_block.lower(), name.lower(), index))
