@@ -53,7 +53,7 @@ class Setup(ItemN):
                  'offset_ttheta': "{:.3f}", 'offset_phi': "{:.3f}",
                  'offset_gamma': "{:.3f}", 'offset_nu': "{:.3f}",
                  "ratio_lambdaover2": "{:.3f}", "k": "{:.1f}", "cthm": "{:.5f}",
-                 'temperature': "{:.1f}",}
+                 'temperature': "{:.2f}",}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"radiation": ["neutrons", "X-rays"]}

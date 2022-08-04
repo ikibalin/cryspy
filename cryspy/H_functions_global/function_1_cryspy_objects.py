@@ -650,6 +650,7 @@ def items_to_datan(data_name: str, items: list, l_data_class):
                          for cls_mand in cls_data.CLASSES_MANDATORY])
         flag_opt = all([class_ in cls_data.CLASSES
                         for class_ in classes])
+
         if (flag_mand & flag_opt):
             data_obj = cls_data()
             data_obj.data_name = data_name

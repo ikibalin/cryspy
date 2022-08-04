@@ -114,6 +114,9 @@ class PdProcL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
     
+    def calc_chi_sq(self):
+        pass
+
     def plots(self):
         return [self.plot_sum_diff()]
     

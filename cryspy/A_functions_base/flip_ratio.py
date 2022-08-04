@@ -364,6 +364,8 @@ def calc_intensities_by_structure_factors(
         dict_in_out=dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
 
     cond = (c_lambda2 is None) or (f_nucl_2hkl is None) or (f_m_perp_2hkl is None)
+    if isinstance(c_lambda2, numpy.ndarray) and not(cond):
+        cond = numpy.any(numpy.isnan(c_lambda2))
     if cond:
         c_lambda2 = None
         iint_2hkl = None
@@ -378,6 +380,7 @@ def calc_intensities_by_structure_factors(
         iint_2hkl = iint_plus_2hkl
         dder_2hkl = dder_plus_2hkl
         flag_iint_2hkl = len(dder_2hkl.keys()) > 0
+        print("here")
         iint_plus += c_lambda2*iint_2hkl
         iint_minus += c_lambda2*iint_2hkl
 
@@ -387,7 +390,7 @@ def calc_intensities_by_structure_factors(
         if flag_f_m_perp_2hkl:
             dder_2hkl["f_m_perp_2hkl_real"] = dder_2hkl.pop("f_m_perp_real")
             dder_2hkl["f_m_perp_2hkl_imag"] = dder_2hkl.pop("f_m_perp_imag")
-
+    
     dder_plus = {}
     dder_minus = {}
     keys_plus = dder_plus_hkl.keys()

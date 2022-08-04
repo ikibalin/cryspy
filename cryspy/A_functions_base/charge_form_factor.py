@@ -6,6 +6,11 @@ from cryspy.A_functions_base.orbital_functions import calc_jl
 
 f_dir = os.path.dirname(__file__)
 
+with open(os.path.join(f_dir, "atom_weight.txt")) as fid:
+    data = fid.read()
+
+D_ATOM_WEIGHT = json.loads(data)
+
 with open(os.path.join(f_dir, "atom_electron_configuration.txt")) as fid:
     data = fid.read()
 
@@ -13,6 +18,22 @@ D_ATOM_ELECTRON_CONFIGURATION = json.loads(data)
 
 f_atom_rho_orbital_radial_slater = os.path.join(f_dir, "atom_rho_orbital_radial_slater.rcif")
 DATA_ATOM_RHO_ORBITAL_RADIAL_SLATER = pycifstar.to_data(f_atom_rho_orbital_radial_slater)
+
+D_ATOM_RHO_ORBITAL_RADIAL_SLATER = {}
+for loop in DATA_ATOM_RHO_ORBITAL_RADIAL_SLATER.loops:
+    s_atom, s_shell = loop.name.strip().split("_")
+    name_sh = [name.split("_")[-1] for name in loop.names]
+    d_shell = {}
+    D_ATOM_RHO_ORBITAL_RADIAL_SLATER[(s_atom.capitalize(), s_shell)] = d_shell
+    for name in loop.names:
+        name_sh = name.split("_")[-1]
+        if name_sh == "n0":
+            data_type = int
+        else:
+            data_type = float
+        d_shell[name_sh] = numpy.array(loop[name], dtype=data_type)
+
+
 
 f_scattering_amplitude = os.path.join(f_dir, "table_6.1.1.4.txt")
 D_SCATTERING_AMPLITUDE = {}
@@ -25,6 +46,16 @@ with open(f_dispersion, "r") as fid:
     D_DISPERSION["table_wavelength"] = (numpy.array(fid.readline().strip().split()[2:], dtype=float))[::-1]
 for line in numpy.loadtxt(f_dispersion, skiprows=1, dtype=str):
     D_DISPERSION[str(line[0])] = (line[2:12].astype(float) + 1j*line[13:23].astype(float))[::-1]
+
+
+def get_n_zeta_coeff_for_atom_with_orbital(atom_name: str, orbital_name: str):
+    shell = orbital_name[1:].lower()
+    d_atom = D_ATOM_RHO_ORBITAL_RADIAL_SLATER[(atom_name.capitalize(), shell)]
+    n = d_atom["n0"]
+    zeta = d_atom["zeta0"]
+    coeff = d_atom[orbital_name.lower()]
+    return n, zeta, coeff
+
 
 def get_atom_name_ion_charge_shell(ion_name: str):
     ion_name_sh = ion_name.strip().lower()
@@ -125,7 +156,6 @@ def get_full_shell(atom_name: str, ion_charge: int = 0):
 
 L_PREDEFINED_NAME = [loop.name for loop in DATA_ATOM_RHO_ORBITAL_RADIAL_SLATER.loops]
 
-
 def calc_jl_for_shell_of_ion(sthovl, ion_name: str, shell: str, kappa:float = 1., l_max:int=5):
     n_shell, orbit_name = shell[0], shell[1]
     atom_name, ion_charge, full_shell = get_atom_name_ion_charge_shell(ion_name)
@@ -136,14 +166,13 @@ def calc_jl_for_shell_of_ion(sthovl, ion_name: str, shell: str, kappa:float = 1.
         s_name = f"{atom_name.capitalize()}_{orbit_name.lower()}"
         shell = f"{n_shell:}{orbit_name:}"
         try:
-            ind_name = L_PREDEFINED_NAME.index(s_name)
-            loop = DATA_ATOM_RHO_ORBITAL_RADIAL_SLATER.loops[ind_name]
-            n = numpy.array(loop["atom_rho_orbital_radial_slater_n0"], dtype=int)
-            zeta = numpy.array(loop["atom_rho_orbital_radial_slater_zeta0"], dtype=float)
-            coeff = numpy.array(loop[f"atom_rho_orbital_radial_slater_coeff_{shell:}"], dtype=float)
+            d_atom = D_ATOM_RHO_ORBITAL_RADIAL_SLATER[atom_name.capitalize(), orbit_name.lower()]
+            n = d_atom["n0"]
+            zeta = d_atom["zeta0"]
+            coeff = d_atom[shell]
             if numpy.any(numpy.isnan(coeff)):
-                raise ValueError
-        except ValueError:
+                raise KeyError
+        except KeyError: #FIXME
             n = numpy.array([n_shell,], dtype=int)
             zeta = numpy.array([n_total_el,], dtype=float)
             coeff = numpy.array([1,], dtype=float)

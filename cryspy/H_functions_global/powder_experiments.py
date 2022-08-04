@@ -1,8 +1,14 @@
-
 import numpy
+from cryspy.A_functions_base.charge_form_factor import  D_ATOM_WEIGHT, get_atom_name_ion_charge_shell
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+
 from cryspy.A_functions_base.structure_factor import calc_bulk_susceptibility_by_dictionary
 from cryspy.A_functions_base.unit_cell import calc_volume_uc_by_unit_cell_parameters
+from cryspy.E_data_classes.cl_1_crystal import Crystal
+from cryspy.E_data_classes.cl_2_pd import Pd
+from cryspy.E_data_classes.cl_2_pd2d import Pd2d
+from cryspy.E_data_classes.cl_2_diffrn import Diffrn
+from cryspy.E_data_classes.cl_2_tof import TOF
 
 def report_powder_experiments(rcif_object: GlobalN):
     ls_out = []
@@ -11,66 +17,83 @@ def report_powder_experiments(rcif_object: GlobalN):
     l_crystal_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("crystal_")]
     l_pd_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("pd_")]
     l_pd2d_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("pd2d_")]
-    for pd_dict_key in l_pd_dict_keys+l_pd2d_dict_keys:
-        pd_dict = rcif_dict[pd_dict_key]
+    
+    l_crystal = [item for item in rcif_object.items if isinstance(item, Crystal)]
+    l_crystal_name = [item.data_name.lower() for item in l_crystal]
+    
+    for item in rcif_object.items:
+        if isinstance(item, (Pd, Pd2d, TOF)):
+            field = item.setup.field
+            ls_out.append(f"In experiment '{item.data_name:}' \n")
 
-        ls_out.append(f"In experiment '{pd_dict['name']:}'\n")
-        phase_scale = pd_dict["phase_scale"]
-        phase_name = pd_dict["phase_name"]
-        m_chi_total = numpy.zeros((3,3), dtype=float)
-        l_s_v_sq, l_m_s_v, l_v_uc = [], [], []
-        l_m_chi = []
-        for name_sh, scale in zip(phase_name, phase_scale):
-            name = f"crystal_"+name_sh
-            crystal_dict = rcif_dict[name]
-            crystal_dict_keys = crystal_dict.keys()
-            if "atom_para_sc_chi" in crystal_dict_keys:
-                dict_in_out = {}
-                flag_use_precalculated_data = False
-                bulk_susceptibility, dder = calc_bulk_susceptibility_by_dictionary(
-                    crystal_dict, dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
-                m_chi = numpy.array([
-                    [bulk_susceptibility[0], bulk_susceptibility[1], bulk_susceptibility[2]],
-                    [bulk_susceptibility[3], bulk_susceptibility[4], bulk_susceptibility[5]],
-                    [bulk_susceptibility[6], bulk_susceptibility[7], bulk_susceptibility[8]]], dtype=float)
-            else:
-                m_chi = numpy.zeros((3,3), dtype=float)
+            phase = item.phase
+            m_chi_total = numpy.zeros((3,3), dtype=float)
+            l_s_v_sq, l_v_uc, l_m_uc = [], [], []
+            l_m_chi = []
+            for phase_item in phase.items:
+                phase_label = phase_item.label.lower()
+                phase_scale = phase_item.scale
+                ind_phase = l_crystal_name.index(phase_label    )
+                crystal = l_crystal[ind_phase]
+                crystal.apply_constraints()
+                atom_site = crystal.atom_site
+                atom_multiplicity = numpy.array([atom_site.multiplicity], dtype=int)
+                atom_occupancy = numpy.array([atom_site.occupancy], dtype=float)
+                l_atom_type_symbol = [get_atom_name_ion_charge_shell(ion_name)[0].capitalize() for ion_name in atom_site.type_symbol]
+                atomic_weight = numpy.array([ float(D_ATOM_WEIGHT[atom_type]) for atom_type in l_atom_type_symbol], dtype=float)
+                
+                unit_cell_weight = numpy.sum(atom_multiplicity*atom_occupancy*atomic_weight)
+                coeff = 6.022*0.927*1000/unit_cell_weight
+
+                crystal_dict = crystal.get_dictionary()
+                crystal_dict_keys = crystal_dict.keys()
+                if "atom_para_sc_chi" in crystal_dict_keys:
+                    dict_in_out = {}
+                    flag_use_precalculated_data = False
+                    bulk_susceptibility, dder = calc_bulk_susceptibility_by_dictionary(
+                        crystal_dict, dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)
+                    m_chi = numpy.array([
+                        [bulk_susceptibility[0], bulk_susceptibility[1], bulk_susceptibility[2]],
+                        [bulk_susceptibility[3], bulk_susceptibility[4], bulk_susceptibility[5]],
+                        [bulk_susceptibility[6], bulk_susceptibility[7], bulk_susceptibility[8]]], dtype=float)
+                else:
+                    m_chi = numpy.zeros((3,3), dtype=float)
+                
+                v_uc, dder = calc_volume_uc_by_unit_cell_parameters(
+                    crystal_dict["unit_cell_parameters"], flag_unit_cell_parameters=False)
+                s_v_sq = phase_scale * v_uc * unit_cell_weight
+                l_m_uc.append(unit_cell_weight)
+                l_v_uc.append(v_uc)
+                l_s_v_sq.append(s_v_sq)
+                
+                l_m_chi.append(m_chi*coeff)
+            sum_s_v_sq = numpy.sum(l_s_v_sq)
+            ls_out.append(f"For polycrystalline sample at field {field:.2f}T:")
+            ls_out.append("-------------------------------------------")
+            ls_out.append("Phase         V_uc     M_uc      WF   Sigma")
+            ls_out.append("-------------------------------------------")
+            m_chi_mixture = 0.
+            for phase_item, v_uc, m_uc, s_v_sq, m_chi in zip(phase.items, l_v_uc, l_m_uc, l_s_v_sq, l_m_chi):
+                weight_fraction = s_v_sq/sum_s_v_sq
+                m_chi_aver = field*(m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3
+                ls_out.append(f"{phase_item.label:10} {v_uc:7.2f} {m_uc:8.2f}  {weight_fraction*100:5.1f}% {m_chi_aver:7.2f}")
+                m_chi_mixture += weight_fraction*m_chi_aver
+            ls_out.append("-------------------------------------------")
+            ls_out.append(f"Mass magnetization of a mixture is {m_chi_mixture:.2f} [emu/g].\n")
+            ls_out.append("  V_uc is volume of unit cell in [ang.^3];")
+            ls_out.append("  M_uc is weight of unit cell in [atomic masses];")
+            ls_out.append("  WF is weight-fraction of given phase in a mixture;")
+            ls_out.append("  Sigma is mass magnetization of powder sample in [emu/g].\n")
             
-            v_uc, dder = calc_volume_uc_by_unit_cell_parameters(
-                crystal_dict["unit_cell_parameters"], flag_unit_cell_parameters=False)
-            s_v_sq = scale * numpy.square(v_uc)
-            m_s_v = m_chi * scale*v_uc
-            l_v_uc.append(v_uc)
-            l_s_v_sq.append(s_v_sq)
-            l_m_s_v.append(m_s_v)
-            l_m_chi.append(m_chi)
-        sum_s_v_sq = numpy.sum(l_s_v_sq)
-        ls_out.append("Phase       Volume  Fraction  Aver. moment")
-        ls_out.append("                    (volume)        per UC ")
-
-        for p_name, v_uc, s_v_sq, m_chi in zip(phase_name, l_v_uc, l_s_v_sq, l_m_chi):
-            volume_fraction = s_v_sq/sum_s_v_sq
-            m_chi_aver = (m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3
-            ls_out.append(f"{p_name:10} {v_uc:7.2f}    {volume_fraction*100:5.1f}% {m_chi_aver:6.1f} mu_B/T")
-
-        ls_out.append("\n\nPhase          Bulk susceptibility tensor per phase")
-        ls_out.append("             (11 , 22, 33, 12, 13, 23 mu_B/T per UC)")
-        for p_name, m_chi in zip(phase_name, l_m_chi):
-            ls_out.append(f"{p_name:10} {m_chi[0, 0]:6.1f} {m_chi[1, 1]:6.1f} {m_chi[2, 2]:6.1f} {m_chi[0, 1]:6.1f} {m_chi[0, 2]:6.1f} {m_chi[1, 2]:6.1f}")
-
-        m_bulk = numpy.zeros((3,3), dtype=float)
-        for p_name, m_s_v in zip(phase_name, l_m_s_v):
-            moment = m_s_v/sum_s_v_sq*l_v_uc[0]
-            m_bulk += moment
-        
-        m_bulk_aver = (m_bulk[0, 0] + m_bulk[1, 1] + m_bulk[2, 2])/3
-        ls_out.append(f"\nBulk powder susceptibility:")
-        ls_out.append(f"{m_bulk_aver:.2f} mu_B/T per volume of '{phase_name[0]:}'")
-        # ls_out.append(f"\nBulk tensor susceptibility:")
-        # ls_out.append(f"(mu_B/T per volume of '{phase_name[0]:}')")
-        # ls_out.append(f" {m_bulk[0, 0]:5.2f} {m_bulk[0, 1]:5.2f} {m_bulk[0, 2]:5.2f}")
-        # ls_out.append(f" {m_bulk[1, 0]:5.2f} {m_bulk[1, 1]:5.2f} {m_bulk[1, 2]:5.2f}")
-        # ls_out.append(f" {m_bulk[2, 0]:5.2f} {m_bulk[2, 1]:5.2f} {m_bulk[2, 2]:5.2f}")
-
-    print("\n".join(ls_out))
+            ls_out.append("For single crystal:")
+            ls_out.append("----------------------------------------------------")      
+            ls_out.append("Phase           Mass susceptibility tensor x 10 000")
+            ls_out.append("----------------------------------------------------")      
+            for phase_item, m_chi in zip(phase.items, l_m_chi):
+                ls_out.append(f"{phase_item.label:10} {m_chi[0, 0]:6.2f} {m_chi[1, 1]:6.2f} {m_chi[2, 2]:6.2f} {m_chi[0, 1]:6.2f} {m_chi[0, 2]:6.2f} {m_chi[1, 2]:6.2f}")
+            ls_out.append("----------------------------------------------------")
+            ls_out.append("The tensor is defined in Cartezian coordinate system")
+            ls_out.append("such as axis Z || c, axis X || a* for each phase in ")
+            ls_out.append("[emu/(Oe g)].")
+    
     return "\n".join(ls_out)
