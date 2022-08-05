@@ -1,5 +1,6 @@
 import numpy
-from cryspy.A_functions_base.charge_form_factor import  D_ATOM_WEIGHT, get_atom_name_ion_charge_shell
+from cryspy.A_functions_base.database import DATABASE
+from cryspy.A_functions_base.charge_form_factor import  get_atom_name_ion_charge_shell
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
 from cryspy.A_functions_base.structure_factor import calc_bulk_susceptibility_by_dictionary
@@ -11,6 +12,7 @@ from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.E_data_classes.cl_2_tof import TOF
 
 def report_powder_experiments(rcif_object: GlobalN):
+    d_elements = DATABASE["Elements"]
     ls_out = []
     rcif_dict = rcif_object.get_dictionary()
     rcif_dict_keys = rcif_dict.keys()
@@ -40,7 +42,7 @@ def report_powder_experiments(rcif_object: GlobalN):
                 atom_multiplicity = numpy.array([atom_site.multiplicity], dtype=int)
                 atom_occupancy = numpy.array([atom_site.occupancy], dtype=float)
                 l_atom_type_symbol = [get_atom_name_ion_charge_shell(ion_name)[0].capitalize() for ion_name in atom_site.type_symbol]
-                atomic_weight = numpy.array([ float(D_ATOM_WEIGHT[atom_type]) for atom_type in l_atom_type_symbol], dtype=float)
+                atomic_weight = numpy.array([ float(d_elements[("Atomic weight", atom_type)]) for atom_type in l_atom_type_symbol], dtype=float)
                 
                 unit_cell_weight = numpy.sum(atom_multiplicity*atom_occupancy*atomic_weight)
                 coeff = 6.022*0.927*1000/unit_cell_weight

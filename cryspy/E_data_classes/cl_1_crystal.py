@@ -1,13 +1,12 @@
 """Description of Crystal class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
-import math
-from matplotlib.pyplot import flag
 import numpy
 
 from typing import NoReturn
 
-from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_scattering_amplitude_tabulated, get_atom_name_ion_charge_shell, D_DISPERSION
+from cryspy.A_functions_base.database import DATABASE
+from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_scattering_amplitude_tabulated, get_atom_name_ion_charge_shell, get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
 from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_b_iso_beta, calc_u_ij_by_beta
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
@@ -689,7 +688,8 @@ class Crystal(DataN):
 
             atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
             table_sthovl = numpy.linspace(0, 2, 501) # fro0 to 2 Å**-1
-            table_wavelength = D_DISPERSION["table_wavelength"]
+            d_dispersion = DATABASE["Dispersion"]
+            table_wavelength = d_dispersion["table_wavelength"]
             l_table_atom_scattering_amplitude = []
             l_table_atom_dispersion = []
             flag_atom_scattering_amplitude = True
@@ -706,9 +706,9 @@ class Crystal(DataN):
                 l_table_atom_scattering_amplitude.append(scattering_amplitude)
 
                 type_atom = get_atom_name_ion_charge_shell(type_symbol)[0]
-                if type_atom in D_DISPERSION.keys():
-                    l_table_atom_dispersion.append(D_DISPERSION[type_atom])
-                else:
+                try:
+                    l_table_atom_dispersion.append(d_dispersion[type_atom.capitalize()])
+                except KeyError:
                     l_table_atom_dispersion.append(numpy.zeros_like(table_wavelength))
             if flag_atom_scattering_amplitude:
                 ddict["table_sthovl"] = table_sthovl
@@ -961,31 +961,23 @@ class Crystal(DataN):
 
 
         if atom_electron_configuration is not None:
+            d_slater_orbitals = DATABASE["Orbitals by radial Slater functions"]
             for aec_item in atom_electron_configuration.items:
                 aec_label = aec_item.label
                 at_symbol = atom_site[aec_label].type_symbol
+                element_symbol, charge, isotope_number = get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(at_symbol)
                 core_shells_populations = aec_item.get_core_shells_populations()
-                
-                l_arors = AtomRhoOrbitalRadialSlaterL().take_objects_for_atom_type(at_symbol)
-                
                 l_population = []
                 l_n = []
                 l_zeta = []
                 l_coeff = []
                 for sh_pop in core_shells_populations:
                     shell, population = sh_pop
-                    for arors in l_arors:
-                        try:
-                            l_val = getattr(arors, f"coeff_{shell:}")
-                            obj = arors
-                            break
-                        except AttributeError:
-                            pass
-                    if obj is not None:
-                        l_population.append(population)
-                        l_n.append(numpy.array(obj.n0, dtype=int))
-                        l_zeta.append(numpy.array(obj.zeta0, dtype=float))
-                        l_coeff.append(numpy.array(getattr(obj, f"coeff_{shell:}"), dtype=float))
+                    n, dzeta, coeff = d_slater_orbitals[(element_symbol, shell)]
+                    l_population.append(population)
+                    l_n.append(n)
+                    l_zeta.append(dzeta)
+                    l_coeff.append(coeff)
                 if len(l_population) > 0:
                     dict_shell = {"core_population": l_population,
                         "core_n": l_n,
