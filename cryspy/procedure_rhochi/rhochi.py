@@ -130,7 +130,7 @@ def rhochi_rietveld_refinement_with_parameters(
         value = cryspy_object.get_variable_by_name(name)
         print(f" - {name[-1][0]:} {value:.5f}")
     
-    print("Sigmas are estimating by numerical derivatives.")
+    print("Errors are estimating by numerical derivatives.")
     rhochi_inversed_hessian(cryspy_object)
     return dict_out
 
