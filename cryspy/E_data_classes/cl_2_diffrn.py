@@ -763,3 +763,21 @@ class Diffrn(DataN):
             diffrn_refln.numpy_fr_calc = ddict_diffrn["iint_plus"]/ddict_diffrn["iint_minus"]
             diffrn_refln.numpy_to_items()
 
+        l_dict_diffrn_out_keys = [hh for hh in keys if hh.startswith("dict_in_out_hkl_")]
+        for dict_diffrn_out_keys in l_dict_diffrn_out_keys:
+            phase_name = dict_diffrn_out_keys[len("dict_in_out_hkl_"):]
+            dict_in_out_hkl = ddict_diffrn[dict_diffrn_out_keys]
+            dict_in_out_hkl_keys = dict_in_out_hkl.keys()
+            l_refln = []
+            if (("f_nucl" in dict_in_out_hkl_keys) and ("index_hkl" in dict_in_out_hkl_keys)):
+                index_hkl = dict_in_out_hkl["index_hkl"]
+                refln = ReflnL(loop_name = phase_name)
+                refln.numpy_index_h = index_hkl[0]
+                refln.numpy_index_k = index_hkl[1]
+                refln.numpy_index_l = index_hkl[2]
+                refln.numpy_a_calc = dict_in_out_hkl["f_nucl"].real
+                refln.numpy_b_calc = dict_in_out_hkl["f_nucl"].imag
+                refln.numpy_sintlambda = dict_in_out_hkl["sthovl"]
+                refln.numpy_to_items()
+                l_refln.append(refln)
+            self.add_items(l_refln)

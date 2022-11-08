@@ -24,20 +24,36 @@ def report_powder_experiments(rcif_object: GlobalN):
     l_crystal_name = [item.data_name.lower() for item in l_crystal]
     
     for item in rcif_object.items:
-        if isinstance(item, (Pd, Pd2d, TOF)):
+        f_powder = isinstance(item, (Pd, Pd2d, TOF))
+        f_single = isinstance(item, (Diffrn, ))
+        if f_powder or f_single:
+            phase = item.phase
+
+        if f_single:
+            l_phase_items = [phase, ]
+        elif f_powder:
+            l_phase_items = phase.items
+
+        if f_powder or f_single:
             field = item.setup.field
             ls_out.append(f"In experiment '{item.data_name:}' \n")
 
-            phase = item.phase
+            
             m_chi_total = numpy.zeros((3,3), dtype=float)
             l_s_v_sq, l_v_uc, l_m_uc = [], [], []
             l_m_chi, l_s_v_m = [], []
             l_m_chi_ion = []
-            for phase_item in phase.items:
+
+
+            for phase_item in l_phase_items:
                 phase_label = phase_item.label.lower()
-                phase_scale = phase_item.scale
-                ind_phase = l_crystal_name.index(phase_label    )
+                if f_single:
+                    phase_scale = 1.
+                else:
+                    phase_scale = phase_item.scale
+                ind_phase = l_crystal_name.index(phase_label)
                 crystal = l_crystal[ind_phase]
+
                 crystal.apply_constraints()
                 atom_site = crystal.atom_site
                 atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
@@ -67,6 +83,7 @@ def report_powder_experiments(rcif_object: GlobalN):
                 
                 v_uc, dder = calc_volume_uc_by_unit_cell_parameters(
                     crystal_dict["unit_cell_parameters"], flag_unit_cell_parameters=False)
+
                 s_v_sq = phase_scale * v_uc * v_uc
                 s_v_m = phase_scale * v_uc * unit_cell_weight
                 l_m_uc.append(unit_cell_weight)
@@ -86,7 +103,7 @@ def report_powder_experiments(rcif_object: GlobalN):
             
             m_chi_mixture = 0.
             m_volume_mixture = 0.
-            for phase_item, v_uc, m_uc, s_v_sq, m_chi, s_v_m, m_chi_ion in zip(phase.items, l_v_uc, l_m_uc, l_s_v_sq, l_m_chi, l_s_v_m, l_m_chi_ion):
+            for phase_item, v_uc, m_uc, s_v_sq, m_chi, s_v_m, m_chi_ion in zip(l_phase_items, l_v_uc, l_m_uc, l_s_v_sq, l_m_chi, l_s_v_m, l_m_chi_ion):
                 volume_fraction = s_v_sq/sum_s_v_sq
                 weight_fraction = s_v_m/sum_s_v_m
                 m_chi_aver = field*(m_chi[0, 0]+m_chi[1, 1]+m_chi[2, 2])/3
@@ -108,11 +125,10 @@ def report_powder_experiments(rcif_object: GlobalN):
             ls_out.append("----------------------------------------------------")      
             ls_out.append("Phase           Mass susceptibility tensor x 10 000")
             ls_out.append("----------------------------------------------------")      
-            for phase_item, m_chi in zip(phase.items, l_m_chi):
+            for phase_item, m_chi in zip(l_phase_items, l_m_chi):
                 ls_out.append(f"{phase_item.label:10} {m_chi[0, 0]:6.2f} {m_chi[1, 1]:6.2f} {m_chi[2, 2]:6.2f} {m_chi[0, 1]:6.2f} {m_chi[0, 2]:6.2f} {m_chi[1, 2]:6.2f}")
             ls_out.append("----------------------------------------------------")
             ls_out.append("The tensor is defined in Cartezian coordinate system")
             ls_out.append("such as axis Z || c, axis X || a* for each phase in ")
             ls_out.append("[emu/(Oe g)].")
-    
     return "\n".join(ls_out)
