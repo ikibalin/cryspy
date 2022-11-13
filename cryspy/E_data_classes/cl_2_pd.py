@@ -55,7 +55,6 @@ class Pd(DataN):
     -------
         - calc_profile
         - calc_chi_sq
-        - simmulation
         - calc_iint
         - _gauss_pd
         - _lor_pd

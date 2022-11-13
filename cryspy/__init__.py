@@ -37,11 +37,11 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2022, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.6.8"
+__version__ = "0.6.9"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "08.11.2022"
+__date__ = "13.11.2022"
 name = "cryspy"
 
 
@@ -160,6 +160,8 @@ from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruc
     mempy_cycle_with_parameters
 
 
+from cryspy.H_functions_global.simulations import simulation_pd
+
 
 
 
@@ -269,7 +271,8 @@ L_FUNCTION = [
     mempy_magnetization_density_reconstruction, 
     mempy_spin_density_reconstruction,
     mempy_reconstruction_with_parameters,
-    mempy_cycle_with_parameters]
+    mempy_cycle_with_parameters,
+    simulation_pd]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD

@@ -1067,6 +1067,11 @@ class Crystal(DataN):
             else:
                 atom_beta = numpy.zeros((6, )+ atom_b_iso.shape, dtype=float)
             unit_cell_parameters = ddict_crystal["unit_cell_parameters"]
+            if not(self.atom_site.is_attribute("adp_type")):
+                for item in self.atom_site:
+                    item.adp_type = "Biso"
+                    if not(item.is_attribute("b_iso_or_equiv")):
+                        item.b_iso_or_equiv = 0.
             atom_adp_type = numpy.array(self.atom_site.adp_type, dtype=str)
             atom_iso_param, atom_aniso_param = calc_param_iso_aniso_by_b_iso_beta(unit_cell_parameters, atom_adp_type, atom_b_iso, atom_beta)
 

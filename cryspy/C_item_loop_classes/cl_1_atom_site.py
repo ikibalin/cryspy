@@ -252,7 +252,9 @@ class AtomSite(ItemN):
 
     def get_flags_atom_b_iso(self):
         res = False
-        if self.adp_type in ["Uiso", "Uovl", "Umpe", ]:
+        if not(self.is_attribute("adp_type")):
+            res = False
+        elif self.adp_type in ["Uiso", "Uovl", "Umpe", ]:
             res = self.u_iso_or_equiv_refinement
         elif self.adp_type in ["Biso", "Bovl", ]:
             res = self.b_iso_or_equiv_refinement
