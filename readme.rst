@@ -8,7 +8,7 @@ Features
 - The library is written in Python. It can be used in Jupyter notebooks under the main platforms Windows, MacOSX and Linux or as a standalone application with a simple graphical user interface "CrysPy Editor".
 
 
-For more information please visit `the site <https://sites.google.com/view/cryspy/main>`_. 
+For more information please visit the site `cryspy.fr <https://www.cryspy.fr>`_. 
 
 Try `CrysPy in a Web Browser <https://www.google.com/url?q=https%3A%2F%2Fmybinder.org%2Fv2%2Fgh%2Fikibalin%2Fcryspy_webapp%2FHEAD%3Furlpath%3Dvoila%252Frender%252Fcryspy_webapp.ipynb&sa=D&sntz=1&usg=AOvVaw3J-PERjuf-b-hp1OuoT4cK>`_ before installing it on your PC.
 
