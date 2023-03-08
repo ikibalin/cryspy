@@ -122,7 +122,7 @@ def rhochi_rietveld_refinement_with_parameters(
             "dder_chi_sq": dder_chi_sq, "correlation_matrix": correlation_matrix}
     cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
-
+    
     var_names = cryspy_object.get_variable_names()
     if len(var_names) > 0:
         print("Optimal parameters:")

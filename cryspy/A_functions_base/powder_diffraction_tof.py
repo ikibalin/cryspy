@@ -23,12 +23,12 @@ def calc_spectrum(time, spectrum_type, spectrum_parameters, flag_spectrum_parame
         res = a0 + a1 * exp(-a2 * time) + \
             a3 * exp(-a4 * time_sq) + \
             a5 * exp(-a6 * time*time_sq) + \
-            a7 * exp(-a8 * time_4) 
+            a7 * exp(-a8 * time_4)
     else:  # spectrum_type == "Maxwell"
         res = a0 + a1 * exp(-a2 * time_sq)/(time*time_4) + \
             a3 * exp(-a4 * time_sq) + \
             a5 * exp(-a6 * time*time_sq) + \
-            a7 * exp(-a8 * numpy.square(time_sq)) 
+            a7 * exp(-a8 * numpy.square(time_sq))
     dder = {}
     if flag_spectrum_parameters:
         pass
@@ -37,7 +37,7 @@ def calc_spectrum(time, spectrum_type, spectrum_parameters, flag_spectrum_parame
 
 def calc_time_for_epithermal_neutrons_by_d(d, zero, dtt1, zerot, dtt1t, dtt2t, width, x_cross):
     time_e = zero + dtt1 * d
-    time_t = zerot + dtt1t * d - dtt2t / d 
+    time_t = zerot + dtt1t * d - dtt2t / d
     n_cross = 0.5*scipy.special.erfc(width * (x_cross - 1./d))
     time = n_cross * time_e + (1-n_cross) * time_t
     return time
@@ -89,7 +89,7 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     # sigma = gamma*(inv_8ln2)**0.5
     h_pv, eta = calc_hpv_eta(sigma, gamma)
 
-    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d) 
+    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
     exp_u = exp(u)
     exp_v = exp(v)
@@ -153,7 +153,7 @@ def calc_sigma_gamma(
         size_g: float = 0., size_l: float = 0., strain_g: float = 0.,
         strain_l: float = 0.):
     """Calculate H_G (sigma) and H_L (gamma)
-    
+
         H_G**2 = (sigma2+size_g)*d**4 + (sigma1+strain_g)*d**2 + sigma0
         H_L = (gamma2+size_l)*d**2 + (sigma1+strain_l)*d + sigma0
     """
@@ -176,6 +176,7 @@ def calc_y_z_u_v(alpha, beta, sigma, delta_2d):
 
     """
     sigma_sq = square(sigma)
+
     y = (alpha * sigma/(2.**0.5))[:, na] + delta_2d/(sigma*2.**0.5)[:, na]
     z = (beta * sigma/(2.**0.5))[:, na] - delta_2d/(sigma*2.**0.5)[:, na]
     u = (0.5*square(alpha)*sigma_sq)[:, na] + delta_2d*alpha[:, na]
@@ -202,7 +203,7 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
     return res_2d
 
 
-def calc_peak_shape_function(alphas, betas, sigmas, 
+def calc_peak_shape_function(alphas, betas, sigmas,
         d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
         size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt"):
     """Calculate peak-shape function F(DELTA)
@@ -236,7 +237,7 @@ def calc_peak_shape_function(alphas, betas, sigmas,
             d, sigma0, sigma1, sigma2, gamma0,
             gamma1, gamma2, size_g=size_g, size_l=size_l,
             strain_g=strain_g, strain_l=strain_l)
-        
+
         res_2d = tof_Jorgensen_VonDreele(
             alpha, beta, sigma, gamma, time, time_hkl)
     return res_2d

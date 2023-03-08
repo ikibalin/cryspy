@@ -524,6 +524,7 @@ def calc_f_nucl(index_hkl,
             dict_in_out["f_asym"] = f_asym
 
     flag_f_nucl = flag_f_asym
+    
     if (flag_use_precalculated_data and ("f_nucl" in dict_in_out_keys) and
             not(flag_f_nucl)):
         f_nucl = dict_in_out["f_nucl"]

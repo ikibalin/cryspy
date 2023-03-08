@@ -25,6 +25,9 @@ from cryspy.A_functions_base.powder_diffraction_tof import \
     calc_d_by_time_for_thermal_neutrons, calc_d_min_max_by_time_thermal_neutrons, \
     calc_d_min_max_by_time_epithermal_neutrons, calc_peak_shape_function
 
+from cryspy.A_functions_base.powder_diffraction_tof_zcode import \
+    calc_profile_by_zcode_parameters
+
 from .rhochi_diffrn import get_flags
 
 
@@ -42,6 +45,30 @@ def calc_background_by_cosines(x, background_coefficients, x_min: float = 0., x_
     if flag_background_coefficients:
         dder["background_coefficients"] = res
     return y, dder 
+
+
+def calc_spectrum_incident(time, coefficients, type: str = "Maxwell", flag_coefficients: bool = False):
+    exp = numpy.exp
+    time_sq = numpy.square(time)
+    time_4 = numpy.square(time_sq)
+    a0, a1, a2, a3, a4 = coefficients[0], coefficients[1], coefficients[2], coefficients[3], coefficients[4]
+    a5, a6, a7, a8 = coefficients[5], coefficients[6], coefficients[7], coefficients[8]
+    if type == "Empirical-Exponents":
+        res = a0 + a1 * exp(-a2 * time) + \
+            a3 * exp(-a4 * time_sq) + \
+            a5 * exp(-a6 * time*time_sq) + \
+            a7 * exp(-a8 * time_4) 
+    else:  # type == "Maxwell"
+        res = a0 + a1 * exp(-a2 * time_sq)/(time*time_4) + \
+            a3 * exp(-a4 * time_sq) + \
+            a5 * exp(-a6 * time*time_sq) + \
+            a7 * exp(-a8 * numpy.square(time_sq)) 
+
+    dder = {}
+    if flag_coefficients:
+        dder["coefficients"] = None
+    return res, dder 
+
 
 
 def calc_chi_sq_for_tof_by_dictionary(
@@ -111,6 +138,21 @@ def calc_chi_sq_for_tof_by_dictionary(
         signal_background, dder_s_bkgr = calc_background_by_cosines(time, background_coefficients,
             flag_background_coefficients= (flag_background_coefficients and flag_calc_analytical_derivatives))
         dict_in_out["signal_background"] = signal_background
+    
+    if "spectrum_incident_type" in dict_tof_keys:
+        spectrum_incident_type = dict_tof["spectrum_incident_type"]
+        spectrum_incident_coefficients = dict_tof["spectrum_incident_coefficients"]
+        flags_spectrum_incident_coefficients = dict_tof["flags_spectrum_incident_coefficients"]
+        flag_spectrum_incident_coefficients = numpy.any(flags_spectrum_incident_coefficients)
+        if (flag_use_precalculated_data and ("spectrum_incident" in dict_in_out) and not(flag_spectrum_incident_coefficients)):
+            spectrum_incident = dict_in_out["spectrum_incident"]
+        else:
+            spectrum_incident, dder_si = calc_spectrum_incident(time, spectrum_incident_coefficients, type=spectrum_incident_type)
+        dict_in_out["spectrum_incident"] = spectrum_incident
+    else:
+        spectrum_incident = numpy.ones_like(time)
+        dict_in_out["spectrum_incident"] = spectrum_incident
+
 
     phase_name = [hh["name"].lower() for hh in dict_crystals]
 
@@ -121,11 +163,26 @@ def calc_chi_sq_for_tof_by_dictionary(
     flags_phase_scale = dict_tof["flags_phase_scale"]
     flags_phase_ig = dict_tof["flags_phase_ig"] # IG_phase
 
-    profile_alphas = dict_tof["profile_alphas"]
-    profile_betas = dict_tof["profile_betas"]
-    profile_gammas = dict_tof["profile_gammas"]
-    profile_sigmas = dict_tof["profile_sigmas"]
     profile_peak_shape = dict_tof["profile_peak_shape"]
+    if profile_peak_shape == "pseudo-Voigt":
+        profile_alphas = dict_tof["profile_alphas"]
+        profile_betas = dict_tof["profile_betas"]
+        profile_sigmas = dict_tof["profile_sigmas"]
+        profile_gammas = dict_tof["profile_gammas"]
+    elif profile_peak_shape == "Gauss":
+        profile_alphas = dict_tof["profile_alphas"]
+        profile_betas = dict_tof["profile_betas"]
+        profile_sigmas = dict_tof["profile_sigmas"]
+    elif profile_peak_shape == "type0m":
+        profile_sigmas = dict_tof["profile_sigmas"]
+        profile_gammas = dict_tof["profile_gammas"]
+        profile_alphas = dict_tof["profile_alphas"]
+        flags_profile_alphas = dict_tof["flags_profile_alphas"]
+        profile_betas = dict_tof["profile_betas"]
+        flags_profile_betas = dict_tof["flags_profile_betas"]
+        profile_rs = dict_tof["profile_rs"]
+        flags_profile_rs = dict_tof["flags_profile_rs"]
+        
     
     if "texture_name" in dict_tof_keys:
         flag_texture = True
@@ -264,10 +321,32 @@ def calc_chi_sq_for_tof_by_dictionary(
                     flag_texture_axis=flag_texture_axis and flag_calc_analytical_derivatives)
                 dict_in_out_phase["preferred_orientation"] = preferred_orientation
         
-
-        profile_tof = calc_peak_shape_function(
-            profile_alphas, profile_betas, profile_sigmas, d, time, time_hkl, gammas=profile_gammas, size_g=0., size_l=0., strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
-
+        if profile_peak_shape == "pseudo-Voigt":
+            profile_tof = calc_peak_shape_function(
+                profile_alphas, profile_betas, profile_sigmas,
+                d, time, time_hkl,
+                gammas=profile_gammas, size_g=0., size_l=0.,
+                strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
+        elif profile_peak_shape == "Gauss":
+            profile_tof = calc_peak_shape_function(
+                profile_alphas, profile_betas, profile_sigmas,
+                d, time, time_hkl,
+                gammas=None, size_g=0., size_l=0.,
+                strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
+        elif profile_peak_shape == "type0m":
+            time_2d = numpy.expand_dims(time, axis=1)
+            time_hkl_2d = numpy.expand_dims(time_hkl, axis=0)
+            d_hkl_2d = numpy.expand_dims(d_hkl, axis=0)
+            delta_t_2d = time_2d - time_hkl_2d
+            profile_sigmas_sq = numpy.square(profile_sigmas)
+            profile_tof = calc_profile_by_zcode_parameters(
+                delta_t_2d, d_hkl_2d,
+                profile_sigmas_sq[0], profile_sigmas_sq[1], profile_sigmas_sq[2],
+                profile_gammas[0], profile_gammas[1], profile_gammas[2],
+                profile_rs[0], profile_rs[1], profile_rs[2],
+                profile_alphas[0], profile_alphas[1],
+                profile_betas[0], profile_betas[1], profile_betas[2])
+                
         dict_in_out_phase["profile_tof"] = profile_tof
 
 
@@ -292,6 +371,8 @@ def calc_chi_sq_for_tof_by_dictionary(
         total_signal_plus += signal_plus
         total_signal_minus += signal_minus
 
+    total_signal_plus *= spectrum_incident
+    total_signal_minus *= spectrum_incident
     if flag_dict:
         dict_in_out["signal_plus"] = total_signal_plus
         dict_in_out["signal_minus"] = total_signal_minus

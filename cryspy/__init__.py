@@ -34,14 +34,14 @@ Features
 For more information please see the site: https://ikibalin.github.io/cryspy/
 """
 __author__ = 'Iurii KIBALIN'
-__copyright__   = "Copyright 2022, "
+__copyright__   = "Copyright 2023, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.6.9"
+__version__ = "0.7.0"
 __maintainer__ = "Iurii KIBALIN"
-__email__ = "iurii.kibalin@cea.fr"
+__email__ = "yurikibalin@outlook.com"
 __status__ = "Development"
-__date__ = "13.11.2022"
+__date__ = "08.03.2023"
 name = "cryspy"
 
 

@@ -168,7 +168,11 @@ class TOFBackground(ItemN):
         for numb in range(1, 19):
             if self.is_attribute(f"coeff{numb:}"):
                 coeff = getattr(self, f"coeff{numb:}")
-                last_number = numb
+                try:
+                    coeff = float(coeff)
+                    last_number = numb
+                except TypeError:
+                    coeff = 0
             else:
                 coeff = 0.
             l_coeff.append(coeff)
