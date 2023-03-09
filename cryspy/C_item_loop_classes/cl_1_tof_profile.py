@@ -167,81 +167,86 @@ class TOFProfile(ItemN):
                             ls_out.append(
                                 f"_{prefix:}{separator:}{name_cif:} {s_val:}")
         return "\n".join(ls_out)
-    # def calc_hpveta(self, h_g, h_l):
-    #     """
-    #     ttheta in radians, could be array
-    #     pseudo-Voight function
-    #     """
-    #     h_pv, eta = calc_hpv_eta(h_g, h_l)
-    #     return h_pv, eta
-    #
-    # def calc_agbg(self, h_pv):
-    #     a_g = (2./h_pv)*(numpy.log(2.)/numpy.pi)**0.5
-    #     b_g = 4*numpy.log(2)/(h_pv**2)
-    #     return a_g, b_g
-    #
-    # def calc_albl(self, h_pv):
-    #     a_l = 2./(numpy.pi*h_pv)
-    #     b_l = 4./(h_pv**2)
-    #     return a_l, b_l
-    #
-    #
-    # def calc_peak_shape_function(
-    #         self, d, time, time_hkl, size_g: float = 0., strain_g: float = 0.,
-    #         size_l: float = 0., strain_l: float = 0.):
-    #     """Calculate peak-shape function F(DELTA)
-    #
-    #     For Gauss peak-shape:
-    #         F(DELTA) = alpha * beta / (alpha+beta) * [exp(u) erfc(y) + exp(v) erfc(z)]
-    #
-    #     For pseudo-Voigt peak-shape:
-    #         F(DELTA) = ...
-    #
-    #     alpha = alpha0 + alpha1 / d
-    #     beta = beta0 + beta1 / d**4
-    #     sigma = sigma0 + sigma1 * d
-    #
-    #     u = alpha/2 * (alpha * sigma**2 + 2 DELTA)
-    #     v = beta/2 * (beta * sigma**2 - 2 DELTA)
-    #     y = (alpha * sigma**2 + DELTA)/(sigma * 2**0.5)
-    #     z = (beta * sigma**2 - DELTA)/(sigma * 2**0.5)
-    #
-    #     DELTA = time - time_hkl
-    #
-    #     """
-    #
-    #     alpha = self.alpha0 + self.alpha1 / d
-    #     beta = self.beta0 + self.beta1 / d**4
-    #
-    #     if self.peak_shape == "Gauss":
-    #         sigma = self.sigma0 + self.sigma1 * d
-    #         res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
-    #     else:  # self.peak_shape == "pseudo-Voigt"
-    #         if self.is_attribute("size_g"):
-    #             size_g_s = self.size_g+size_g
-    #         else:
-    #             size_g_s = size_g
-    #         if self.is_attribute("size_l"):
-    #             size_l_s = self.size_l+size_l
-    #         else:
-    #             size_l_s = size_l
-    #         if self.is_attribute("strain_g"):
-    #             strain_g_s = self.strain_g+strain_g
-    #         else:
-    #             strain_g_s = strain_g
-    #         if self.is_attribute("strain_l"):
-    #             strain_l_s = self.strain_l+strain_l
-    #         else:
-    #             strain_l_s = strain_l
-    #
-    #         sigma, gamma = calc_sigma_gamma(
-    #             d, self.sigma0, self.sigma1, self.sigma2, self.gamma0,
-    #             self.gamma1, self.gamma2, size_g=size_g_s, size_l=size_l_s,
-    #             strain_g=strain_g_s, strain_l=strain_l_s)
-    #
-    #         res_2d = tof_Jorgensen_VonDreele(
-    #             alpha, beta, sigma, gamma, time, time_hkl)
-    #     return res_2d
+
+    def get_dictionary(self):
+        res = {}
+        if self.is_attribute("peak_shape"):
+            peak_shape = self.peak_shape
+        else:
+            peak_shape = "pseudo-Voigt"
+        res["profile_peak_shape"] = peak_shape
+        l_sigma = []
+        l_sigma_refinement = []
+        for numb in range(3):
+            if self.is_attribute(f"sigma{numb:}"):
+                l_sigma.append(getattr(self, f"sigma{numb:}"))
+                l_sigma_refinement.append(getattr(self, f"sigma{numb:}_refinement"))
+            else:
+                break
+        res["profile_sigmas"] = numpy.array(l_sigma, dtype=float)
+        res["flags_profile_sigmas"] = numpy.array(l_sigma_refinement, dtype=float)
+        if peak_shape in ["pseudo-Voigt", "type0m"]:
+            l_gamma = []
+            l_gamma_refinement = []
+            for numb in range(3):
+                if self.is_attribute(f"gamma{numb:}"):
+                    l_gamma.append(getattr(self, f"gamma{numb:}"))
+                    l_gamma_refinement.append(getattr(self, f"gamma{numb:}_refinement"))
+                else:
+                    break
+            res["profile_gammas"] = numpy.array(l_gamma, dtype=float)
+            res["flags_profile_gammas"] = numpy.array(l_gamma_refinement, dtype=float)
+        if peak_shape in ["pseudo-Voigt", "Gauss", ]:
+            l_alpha = []
+            l_alpha_refinement = []
+            for numb in range(2):
+                if self.is_attribute(f"alpha{numb:}"):
+                    l_alpha.append(getattr(self, f"alpha{numb:}"))
+                    l_alpha_refinement.append(getattr(self, f"alpha{numb:}_refinement"))
+                else:
+                    break
+            l_beta = []
+            l_beta_refinement = []
+            for numb in range(2):
+                if self.is_attribute(f"beta{numb:}"):
+                    l_beta.append(getattr(self, f"beta{numb:}"))
+                    l_beta_refinement.append(getattr(self, f"beta{numb:}_refinement"))
+                else:
+                    break
+            res["profile_alphas"] = numpy.array(l_alpha, dtype=float)
+            res["flags_profile_alphas"] = numpy.array(l_alpha_refinement, dtype=float)
+            res["profile_betas"] = numpy.array(l_beta, dtype=float)
+            res["flags_profile_betas"] = numpy.array(l_beta_refinement, dtype=float)
+        elif peak_shape in ["type0m", ]:
+            profile_alphas = numpy.array([
+                getattr(self, "alpha1"), getattr(self, "alpha2")
+                ], dtype=float)
+            flags_profile_alphas = numpy.array([
+                getattr(self, "alpha1_refinement"), getattr(self, "alpha2_refinement")
+                ], dtype=bool)
+            profile_betas = numpy.array([
+                getattr(self, "beta00"), getattr(self, "beta01"), getattr(self, "beta10")
+                ], dtype=float)
+            flags_profile_betas = numpy.array([
+                getattr(self, "beta00_refinement"),
+                getattr(self, "beta01_refinement"),
+                getattr(self, "beta10_refinement")
+                ], dtype=bool)
+            profile_rs = numpy.array([
+                getattr(self, "r01"), getattr(self, "r02"), getattr(self, "r03")
+                ], dtype=float)
+            flags_profile_rs = numpy.array([
+                getattr(self, "r01_refinement"),
+                getattr(self, "r02_refinement"),
+                getattr(self, "r03_refinement")
+                ], dtype=bool)
+            res["profile_alphas"] = profile_alphas
+            res["flags_profile_alphas"] = flags_profile_alphas
+            res["profile_betas"] = profile_betas
+            res["flags_profile_betas"] = flags_profile_betas
+            res["profile_rs"] = profile_rs
+            res["flags_profile_rs"] = flags_profile_rs
+        return res
 
 class TOFProfileL(LoopN):
     """Profile parameters for time-of-flight experiment.

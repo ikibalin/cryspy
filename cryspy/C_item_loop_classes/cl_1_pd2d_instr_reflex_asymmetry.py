@@ -147,7 +147,17 @@ class Pd2dInstrReflexAsymmetry(ItemN):
 
         asymmetry_2d = np_one+val_1+val_2
         return asymmetry_2d
-    
+        
+    def get_dictionary(self):
+        res = {}
+        res["asymmetry_parameters"] = numpy.array([
+            self.p1, self.p2, self.p3,
+            self.p4], dtype=float)
+
+        res["flags_asymmetry_parameters"] = numpy.array([
+            self.p1_refinement, self.p2_refinement, self.p3_refinement,
+            self.p4_refinement], dtype=bool)
+        return res
 
 
 class Pd2dInstrReflexAsymmetryL(LoopN):

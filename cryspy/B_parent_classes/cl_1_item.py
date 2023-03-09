@@ -699,4 +699,13 @@ class ItemN(object):
             flag_2 = not(getattr(self, f"{name_sh:}_constraint"))
             if flag_1 & flag_2:
                 setattr(self, f"{name_sh:}_refinement", True)
-        
+    
+    def get_dictionary(self):
+        res = {}
+        return res
+    
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        """
+        """
+        pass
+        return None

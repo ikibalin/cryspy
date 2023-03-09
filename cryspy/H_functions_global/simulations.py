@@ -17,8 +17,8 @@ from cryspy.E_data_classes.cl_2_pd import Pd
 
 from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
 
-def simulation_pd(l_crystal:list, 
-                  ttheta_start:float=4., 
+def simulation_pd(l_crystal:list,
+                  ttheta_start:float=4.,
                   ttheta_end:float=120.,
                   ttheta_step:float=0.2,
                   flag_polarized:bool=False):
@@ -46,8 +46,8 @@ def simulation_pd(l_crystal:list,
         l_tem_pd.extend([meas_pd, diffrn_rad])
     else:
         meas_pd = PdMeasL(ttheta=tth_deg, intensity=0*tth_deg, intensity_sigma=0*tth_deg+0.1)
-        l_tem_pd.append(meas_pd) 
-    
+        l_tem_pd.append(meas_pd)
+
     pd = Pd(data_name="sim_1d")
     pd.add_items(l_tem_pd)
 

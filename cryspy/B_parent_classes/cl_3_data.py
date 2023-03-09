@@ -586,3 +586,21 @@ class DataN(object):
                 else:
                     item.set_variable(".".join(l_name[1:]), index=index)
 
+    def get_dictionary(self):
+        self.form_object()
+        res = {}
+        res["name"] = getattr(self, "data_name")
+        res["type_name"] = self.get_name()
+        for item in self.items:
+            if isinstance(item, (LoopN, ItemN)):
+                dict = item.get_dictionary()
+                res.update(dict)
+        return res
+    
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        """
+        """
+        for item in self.items:
+            if isinstance(item, (LoopN, ItemN)):
+                item.take_parameters_from_dictionary(ddict_diffrn, l_parameter_name=l_parameter_name, l_sigma=l_sigma)
+        return None

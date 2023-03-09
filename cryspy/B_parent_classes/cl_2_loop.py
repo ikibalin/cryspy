@@ -736,6 +736,12 @@ class LoopN(object):
                 item = self[index]
                 item.set_variable(name_sh, index=None)
     
-
+    def get_dictionary(self):
+        res = {}
+        return res
     
-    
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        """
+        """
+        pass
+        return None

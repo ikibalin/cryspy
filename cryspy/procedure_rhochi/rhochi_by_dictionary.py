@@ -21,7 +21,7 @@ na = numpy.newaxis
 #             tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20,
 #             disp=disp)
 #         _dict_out = {"flag": flag, "res": res}
-# 
+#
 #     elif optimization_method == "simplex":
 #         # simplex
 #         res = scipy.optimize.minimize(
@@ -110,7 +110,7 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
 
     if "linear_constraints" in global_dict.keys():
         linear_constraints = global_dict["linear_constraints"]
-        # try:            
+        # try:
         #     matrix_q = form_matrix_q(linear_constraints, parameter_names)
         #     lb = numpy.zeros((matrix_q.shape[0],), dtype=float)
         #     ub = numpy.zeros((matrix_q.shape[0],), dtype=float)
@@ -207,7 +207,7 @@ def rhochi_lsq_by_dictionary(global_dict):
         if chi_sq_sum_2 < chi_sq_sum:
             chi_sq_sum = chi_sq_sum_2
             delta_p = delta_p_2
-            der_chi_sq_sum = der_chi_sq_sum_2 
+            der_chi_sq_sum = der_chi_sq_sum_2
             dder_chi_sq_sum = dder_chi_sq_sum_2
             parameter_name_sum = parameter_name_sum_2
             dict_in_out = dict_in_out_2
@@ -256,7 +256,7 @@ def rhochi_calc_chi_sq_by_dictionary(
             dict_in_out_diffrn = {}
             dict_in_out[name_key_diffrn] = dict_in_out_diffrn
 
-        phase_label = dict_diffrn["phase_label"][0].lower()
+        phase_label = dict_diffrn["phase_name"][0].lower()
         label_1 = f"crystal_{phase_label:}"
         label_2 = f"magcrystal_{phase_label:}"
         if label_1 in dict_keys:
@@ -265,7 +265,7 @@ def rhochi_calc_chi_sq_by_dictionary(
         elif label_2 in dict_keys:
             name_key_crystal = label_2
             dict_crystal = global_dict[label_2]
-        elif (phase_label == "" and 
+        elif (phase_label == "" and
                 (len(l_dict_crystal)+len(l_dict_magcrystal)) > 0):
             name_key_crystal, dict_crystal = (l_dict_crystal+l_dict_magcrystal)[0]
         else:
@@ -339,8 +339,8 @@ def rhochi_calc_chi_sq_by_dictionary(
 
 
     chi_sq_sum = sum(l_chi_sq) #Unity weighting scheme
-    n_point_sum = sum(l_n_point) 
-    
+    n_point_sum = sum(l_n_point)
+
     parameter_name_sum = list(set(parameter_name_full))
     der_chi_sq_sum = numpy.zeros((len(parameter_name_sum),), dtype=float)
     dder_chi_sq_sum = numpy.zeros((len(parameter_name_sum), len(parameter_name_sum)), dtype=float)

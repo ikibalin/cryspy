@@ -79,7 +79,10 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flip_ratio_es = dict_diffrn["flip_ratio_es"]
     flip_ratio_excluded = dict_diffrn["flip_ratio_excluded"]
 
-    flag_asymmetry = dict_diffrn["flag_asymmetry"]
+    if "flag_asymmetry" in dict_diffrn_keys:
+        flag_asymmetry = dict_diffrn["flag_asymmetry"]
+    else:
+        flag_asymmetry = False
     
     if "c_lambda2" in dict_diffrn_keys:
         c_lambda2 = dict_diffrn["c_lambda2"]

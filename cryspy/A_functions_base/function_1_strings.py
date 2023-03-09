@@ -95,8 +95,8 @@ def string_to_value_error_mark(string: str) -> Tuple[float, Union[float, None], 
     value, error, mark = None, None, ""
     ind_1 = string.find("(")
     s_sigma = ""
-    if value == ".":
-       pass 
+    if string == ".":
+        pass 
     elif ind_1 != -1:
         ind_2 = string.find(")")
         if ind_2 > ind_1:

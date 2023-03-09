@@ -39,7 +39,7 @@ def form_dictionary_by_crystal(data_obj) -> dict:
         ddict = data_obj.get_dictionary()
     else:
         ddict = {}
-    
+
     return ddict
 
 

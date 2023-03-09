@@ -371,6 +371,19 @@ class DiffrnReflnL(LoopN):
         if name in self.__dict__.keys():
             del self.__dict__[name]
 
+    def get_dictionary(self):
+        res = {}
+        index_hkl = numpy.array([
+            self.index_h, self.index_k,
+            self.index_l], dtype=float)
+        refln_fr_es = numpy.array([
+            self.fr, self.fr_sigma], dtype=float)
+        refln_fr_excl = numpy.array(self.excluded, dtype=bool)
+
+        res["index_hkl"] = index_hkl
+        res["flip_ratio_es"] = refln_fr_es
+        res["flip_ratio_excluded"] = refln_fr_excl
+        return res
 
 # s_cont = """
 #   loop_

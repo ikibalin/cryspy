@@ -1,5 +1,6 @@
 """Description of Phase and PhaseL classes."""
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -70,6 +71,63 @@ class Phase(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    def get_dictionary(self):
+        res = {}
+        res["phase_name"] = numpy.array([self.label,], dtype=str)
+        n_items = 1
+        if self.is_attribute("u"):
+            p_u = numpy.array([self.u,], dtype=float)
+            r_u = numpy.array([self.u_refinement,], dtype=bool)
+        else:
+            p_u = numpy.zeros((n_items,), dtype=float)
+            r_u = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("v"):
+            p_v = numpy.array([self.v,], dtype=float)
+            r_v = numpy.array([self.v_refinement,], dtype=bool)
+        else:
+            p_v = numpy.zeros((n_items,), dtype=float)
+            r_v = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("w"):
+            p_w = numpy.array([self.w,], dtype=float)
+            r_w = numpy.array([self.w_refinement,], dtype=bool)
+        else:
+            p_w = numpy.zeros((n_items,), dtype=float)
+            r_w = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("x"):
+            p_x = numpy.array([self.x,], dtype=float)
+            r_x = numpy.array([self.x_refinement,], dtype=bool)
+        else:
+            p_x = numpy.zeros((n_items,), dtype=float)
+            r_x = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("y"):
+            p_y = numpy.array([self.y,], dtype=float)
+            r_y = numpy.array([self.y_refinement,], dtype=bool)
+        else:
+            p_y = numpy.zeros((n_items,), dtype=float)
+            r_y = numpy.zeros((n_items,), dtype=bool)
+
+        res["phase_resolution_parameters"] = numpy.stack([p_u, p_v, p_w, p_x, p_y], axis=0)
+        res["flags_phase_resolution_parameters"] = numpy.stack([r_u, r_v, r_w, r_x, r_y], axis=0)
+
+        if self.is_attribute("igsize"):
+            res["phase_ig"] = numpy.array([self.igsize,], dtype=float)
+            res["flags_phase_ig"] = numpy.array([self.igsize_refinement,], dtype=bool)
+        else:
+            res["phase_ig"] = numpy.zeros((n_items,), dtype=float)
+            res["flags_phase_ig"] = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("scale"):
+            res["phase_scale"] = numpy.array([self.scale,], dtype=float)
+            res["flags_phase_scale"] = numpy.array([self.scale_refinement,], dtype=bool)
+        else:
+            res["phase_scale"] = numpy.zeros((n_items,), dtype=float)
+            res["flags_phase_scale"] = numpy.zeros((n_items,), dtype=bool)
+        return res
+
 
 class PhaseL(LoopN):
     """Phases of the sample.
@@ -88,15 +146,59 @@ class PhaseL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
-# s_cont = """
-#  loop_
-#  _phase_label
-#  _phase_scale
-#  _phase_igsize
-#   Fe3O4 0.02381() 0.2
-#   Al    2.0 -0.3()
-#   """
+    def get_dictionary(self):
+        res = {}
+        res["phase_name"] = numpy.array(self.label, dtype=str)
+        n_items = len(self.items)
+        if self.is_attribute("u"):
+            p_u = numpy.array(self.u, dtype=float)
+            r_u = numpy.array(self.u_refinement, dtype=bool)
+        else:
+            p_u = numpy.zeros((n_items,), dtype=float)
+            r_u = numpy.zeros((n_items,), dtype=bool)
 
-# obj = PhaseL.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj["Al"], end="\n\n")
+        if self.is_attribute("v"):
+            p_v = numpy.array(self.v, dtype=float)
+            r_v = numpy.array(self.v_refinement, dtype=bool)
+        else:
+            p_v = numpy.zeros((n_items,), dtype=float)
+            r_v = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("w"):
+            p_w = numpy.array(self.w, dtype=float)
+            r_w = numpy.array(self.w_refinement, dtype=bool)
+        else:
+            p_w = numpy.zeros((n_items,), dtype=float)
+            r_w = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("x"):
+            p_x = numpy.array(self.x, dtype=float)
+            r_x = numpy.array(self.x_refinement, dtype=bool)
+        else:
+            p_x = numpy.zeros((n_items,), dtype=float)
+            r_x = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("y"):
+            p_y = numpy.array(self.y, dtype=float)
+            r_y = numpy.array(self.y_refinement, dtype=bool)
+        else:
+            p_y = numpy.zeros((n_items,), dtype=float)
+            r_y = numpy.zeros((n_items,), dtype=bool)
+
+        res["phase_resolution_parameters"] = numpy.stack([p_u, p_v, p_w, p_x, p_y], axis=0)
+        res["flags_phase_resolution_parameters"] = numpy.stack([r_u, r_v, r_w, r_x, r_y], axis=0)
+
+        if self.is_attribute("igsize"):
+            res["phase_ig"] = numpy.array(self.igsize, dtype=float)
+            res["flags_phase_ig"] = numpy.array(self.igsize_refinement, dtype=bool)
+        else:
+            res["phase_ig"] = numpy.zeros((n_items,), dtype=float)
+            res["flags_phase_ig"] = numpy.zeros((n_items,), dtype=bool)
+
+        if self.is_attribute("scale"):
+            res["phase_scale"] = numpy.array(self.scale, dtype=float)
+            res["flags_phase_scale"] = numpy.array(self.scale_refinement, dtype=bool)
+        else:
+            res["phase_scale"] = numpy.zeros((n_items,), dtype=float)
+            res["flags_phase_scale"] = numpy.zeros((n_items,), dtype=bool)
+        return res

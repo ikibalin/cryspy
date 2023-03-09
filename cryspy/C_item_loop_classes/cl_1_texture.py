@@ -1,4 +1,5 @@
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -10,7 +11,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 class Texture(ItemN):
     """
     Texture description by Modified March’s function.
-    
+
     Mandatory Attributes
     --------------------
         - g_1, g_2, h_ax, k_ax, l_ax
@@ -85,17 +86,17 @@ class TextureL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
-# s_cont = """
-#   loop_
-#  _texture_g_1 
-#  _texture_g_2 
-#  _texture_h_ax 
-#  _texture_k_ax 
-#  _texture_l_ax 
-#  0.1239 0.94211 -0.66119 -0.0541 3.0613
-#  0.1239(27) 0.94211(18) -0.66119(41) -0.0541(6) 3.0613(7)
-#  """
-
-# obj = TextureL.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj[0], end="\n\n")
+    def get_dictionary(self):
+        res = {}
+        res["texture_name"] = numpy.array(self.label, dtype=str)
+        res["texture_g1"] = numpy.array(self.g_1, dtype=float)
+        res["texture_g2"] = numpy.array(self.g_2, dtype=float)
+        res["texture_axis"] = numpy.array(
+            [self.h_ax, self.k_ax, self.l_ax], dtype=float)
+        res["flags_texture_g1"] = numpy.array(self.g_1_refinement, dtype=bool)
+        res["flags_texture_g2"] = numpy.array(self.g_2_refinement, dtype=bool)
+        res["flags_texture_axis"] = numpy.array(
+            [self.h_ax_refinement,
+                self.k_ax_refinement,
+                self.l_ax_refinement], dtype=bool)
+        return res

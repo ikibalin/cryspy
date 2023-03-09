@@ -1,5 +1,5 @@
-import numpy
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -66,18 +66,18 @@ class PdInstrReflexAsymmetry(ItemN):
     def _func_fa(self, tth):
         """
         For assymmetry correction F_a(z).
-        """ 
+        """
         return 2*tth*numpy.exp(-tth**2)
-        
+
     def _func_fb(self, tth):
         """
         For assymmetry correction F_b(z)
-        """ 
+        """
         return 2.*(2.*tth**2-3.)* self._func_fa(tth)
-        
+
     def calc_asymmetry(self, tth, tth_hkl, fwhm):
         """
-        Calculate asymmetry coefficients for  on the given list ttheta for 
+        Calculate asymmetry coefficients for  on the given list ttheta for
         bragg reflections flaced on the position ttheta_hkl
         tth and tth_hkl in degrees.
 
@@ -87,9 +87,9 @@ class PdInstrReflexAsymmetry(ItemN):
         np_zero = numpy.zeros(tth_2d.shape, dtype = float)
         np_one = numpy.ones(tth_2d.shape, dtype = float)
         val_1, val_2 = np_zero, np_zero
-        
+
         z_2d = (tth_2d - tth_hkl_2d)/fwhm[numpy.newaxis, :]
-        
+
         p1, p2 = float(self.p1), float(self.p2)
         p3, p4 = float(self.p3), float(self.p4)
         flag_1, flag_2 = False, False
@@ -99,7 +99,7 @@ class PdInstrReflexAsymmetry(ItemN):
         if ((p2!= 0.)|(p4!= 0.)):
             flag_2 = True
             fb = self._func_fb(z_2d)
-            
+
         flag_3, flag_4 = False, False
         if ((p1!= 0.)|(p2!= 0.)):
             if flag_1:
@@ -126,6 +126,16 @@ class PdInstrReflexAsymmetry(ItemN):
         asymmetry_2d = np_one+val_1+val_2
         return asymmetry_2d
 
+    def get_dictionary(self):
+        res = {}
+        res["asymmetry_parameters"] = numpy.array([
+            self.p1, self.p2, self.p3,
+            self.p4], dtype=float)
+
+        res["flags_asymmetry_parameters"] = numpy.array([
+            self.p1_refinement, self.p2_refinement, self.p3_refinement,
+            self.p4_refinement], dtype=bool)
+        return res
 
 class PdInstrReflexAsymmetryL(LoopN):
     """Asymmetry of Bragg reflections for several 1d powder diffractometers.
@@ -136,7 +146,7 @@ class PdInstrReflexAsymmetryL(LoopN):
         super(PdInstrReflexAsymmetryL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
-   
+
 
 # s_cont = """
 #  loop_

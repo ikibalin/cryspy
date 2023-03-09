@@ -244,6 +244,7 @@ class TOFMeasL(LoopN):
         fig.tight_layout()
         return (fig, ax)
 
+
 # s_cont = """
 #   loop_
 #   _tof_meas_time

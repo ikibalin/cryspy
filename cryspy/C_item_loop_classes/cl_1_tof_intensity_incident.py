@@ -152,6 +152,14 @@ class TOFIntensityIncident(ItemN):
         ax.legend(loc='upper right')
         fig.tight_layout()
         return (fig, ax)
+    
+    def get_dictionary(self):
+        res = {}
+        res["spectrum_incident_type"] = tof_intensity_incident.spectrum
+        res["spectrum_incident_coefficients"] = tof_intensity_incident.get_coefficients()
+        res["flags_spectrum_incident_coefficients"] = tof_intensity_incident.get_flags_coefficients()
+        return res
+        
 
 class TOFIntensityIncidentL(LoopN):
     """Correction of incident intensity for time-of-flight experiment.

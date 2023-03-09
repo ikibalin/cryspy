@@ -381,7 +381,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
     crystal.apply_constraints()
 
     flag_two_channel = mem_parameters.method == "2channel"
-    
+
     cell = crystal.cell
     space_group = crystal.space_group
     atom_site = crystal.atom_site
@@ -455,9 +455,9 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
                  in l_name_2]
     l_name = l_name_1 + l_name_2
     l_par_0 = l_par_1_0 + l_par_2_0
-    
+
     if len(l_name) == 0:
-        return 
+        return
 
     def temp_func(l_par):
         for name, parameter in zip(l_name, l_par):
@@ -647,12 +647,12 @@ def calc_moments(fract_x, fract_y, fract_z, field_loc,
     points_a = mem_parameters.points_a
     points_b = mem_parameters.points_b
     points_c = mem_parameters.points_c
-    
+
     cell = crystal.cell
     atom_site = crystal.atom_site
 
     np_ind_xyz = numpy.transpose(numpy.array([fract_x*points_a, fract_y*points_b, fract_z*points_c], dtype=float))
-    
+
     # np_ind_xyz = (fract_x*points_a, fract_y*points_b, fract_z*points_c)
 
     chi_3d_11, chi_3d_22, chi_3d_33, chi_3d_12, chi_3d_13, chi_3d_23, \

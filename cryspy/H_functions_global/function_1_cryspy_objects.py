@@ -119,7 +119,7 @@ L_FUNCTION_ADD = []
 
 
 L_ITEM_CLASS.extend([
-    AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater, 
+    AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater,
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
     AtomSiteSusceptibility, AtomSiteExchange, AtomType, AtomTypeScat,
     Cell, ChannelChi, ChannelPlusMinus, Chi2,
@@ -136,7 +136,7 @@ L_ITEM_CLASS.extend([
     TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
 L_LOOP_CLASS.extend([
-    AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL, 
+    AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
     AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomTypeL, AtomTypeScatL,
     CellL, ChannelChiL, ChannelPlusMinusL, Chi2L,
@@ -153,7 +153,7 @@ L_LOOP_CLASS.extend([
 
 L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
-L_GLOBAL_CLASS.extend([])  
+L_GLOBAL_CLASS.extend([])
 
 F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
 
@@ -201,7 +201,7 @@ does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.")
                 print(f"Module '{module_name:}' in folder: \n {module_way}\n\
 does not contains in 'init.py' parameter 'L_FUNCTION'.")
                 f_ok = False
-        else: 
+        else:
             f_ok = False
         if f_ok:
             l_content_new.append(f_name_sh)
@@ -564,7 +564,7 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
             l_prefix_cif = find_prefixes(l_name_cif)
 
         for prefix in l_prefix_cif:
-            names = [name_cif for name_cif in l_name_cif if 
+            names = [name_cif for name_cif in l_name_cif if
                      name_cif.startswith("_"+prefix)]
             items_small = items_cif.items_with_names(names)
             item_obj = ItemN.from_cif(str(items_small))
