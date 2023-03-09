@@ -686,8 +686,22 @@ class TOF(DataN):
     def plots(self):
         if self.is_attribute("tof_proc"):
             tof_proc = self.tof_proc
-            res = tof_proc.plot_sum_diff()
-            return [res,]
+            fig_s, ax_s = tof_proc.plot_sum_diff()
+            ax_s = fig_s.axes[0]
+            ax_hkl = fig_s.axes[1]
+            ax_s.set_title(self.data_name + " - "+ax_s.title.get_text())
+            y_min_s, y_max_s = ax_hkl.get_ylim()
+            y_dist_s = y_max_s-y_min_s
+            y_step_s = 0.
+            for item in self.items:
+                if isinstance(item, TOFPeakL):
+                    np_time = item.numpy_time
+                    ax_hkl.plot(np_time, 0.*np_time+y_min_s-y_step_s, "|", label=item.loop_name)
+                    y_step_s += 0.05*y_dist_s
+            res = []
+            ax_s.legend(loc='upper right')
+            res.append((fig_s, ax_s))
+            return res
         elif self.is_attribute("tof_meas"):
             return self.tof_meas.plots()
 

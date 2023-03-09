@@ -159,9 +159,12 @@ class TOFProcL(LoopN):
             chi_sq_diff_points = numpy.nansum(numpy.square((np_diff - np_diff_mod)/np_ssum))/np_diff_mod.size
 
             ax_1.set_title(f"Unpolarized ($\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
+            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
+            if numpy.any(np_excl):
+                ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
 
-            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            # ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
+            # ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
             y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-((np_sum - np_sum_mod)[np_notexcl]).max()
@@ -212,8 +215,11 @@ class TOFProcL(LoopN):
             chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
             ax_1.set_title(f"Unpolarized signal $\chi^2/n = ${chi_sq_points:.2f}")
 
-            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
+            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
+
+            # ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
+            # ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
             y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-(np_sum - np_sum_mod).max()
