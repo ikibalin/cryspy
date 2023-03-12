@@ -57,7 +57,7 @@ class AtomSiteSusceptibility(ItemN):
 
     Attributes
     ----------
-        - 
+        -
     """
 
     ATTR_MANDATORY_NAMES = ("label", )
@@ -131,11 +131,10 @@ class AtomSiteSusceptibility(ItemN):
         label = atom_site.label
         index = label.index(label_aniso)
 
-        item_as = atom_site.items[index] 
+        item_as = atom_site.items[index]
         sc_chi = item_as.calc_sc_chi(space_group, cell)
         # it should be checked
         sc_chi = calc_constr_matrix(sc_chi)
-        
 
         # l_numb = atom_site.calc_constr_number(space_group)
 
@@ -167,11 +166,11 @@ class AtomSiteSusceptibility(ItemN):
             chi_i_c = sc_chi.dot(chi_i)
             chi_sigma_i_c = numpy.sqrt(numpy.square(sc_chi).dot(numpy.square(chi_sigma_i)))
             l_ind_independent = calc_independent_lines(sc_chi)
-            
+
             chi_con_i_c = numpy.ones(chi_i_c.shape, dtype=bool)
             chi_con_i_c[l_ind_independent] = False
             sc_chi_bool = numpy.logical_not(numpy.isclose(numpy.round(sc_chi, decimals=5), 0.))
-            # chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0) 
+            # chi_con_i_c = numpy.triu((sc_chi_bool[na, :, :] == sc_chi_bool[:, na, :]).all(axis=2), k=1).any(axis=0)
             chi_ref_i_c = sc_chi_bool.dot(chi_ref_i) * numpy.logical_not(chi_con_i_c)
             # # I am not quite sure. It is to fix two parameters among three.
             # chi_ref_i_c = numpy.logical_and(chi_ref_i_c, chi_ref_i)
@@ -202,7 +201,7 @@ class AtomSiteSusceptibility(ItemN):
                 self.__dict__["chi_13_constraint"], \
                 self.__dict__["chi_23_constraint"] = chi_con_i_c[0], chi_con_i_c[1], chi_con_i_c[2],\
                     chi_con_i_c[3], chi_con_i_c[4], chi_con_i_c[5]
-   
+
     def apply_chi_iso_constraint(self, cell):
         """Isotropic constraint on susceptibility."""
         c_a = cell.cos_a
@@ -254,7 +253,7 @@ class AtomSiteSusceptibility(ItemN):
 
         The main axes are given in Cartezian coordinate system (x||a*, z||c).
         """
-        
+
         ucp = numpy.array([
             cell.length_a, cell.length_b, cell.length_c,
             cell.angle_alpha*numpy.pi/180., cell.angle_beta*numpy.pi/180.,

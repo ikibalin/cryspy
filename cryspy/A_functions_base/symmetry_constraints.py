@@ -47,9 +47,9 @@ def calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters: boo
         unit_cell_parameters, flag_unit_cell_parameters=False)
 
     r_direct = symm_elems[4:13]
-        
+
     r_ccs, dder_r_ccs = calc_m1_m2_inv_m1(m_m, r_direct, flag_m1=False, flag_m2=False)
-    
+
     if symm_elems.shape[0] == 14:
         theta = numpy.expand_dims(symm_elems[13], axis=(0,1))
         # det_r_ccs = calc_det_m(r_ccs, flag_m=False)[0]
@@ -58,7 +58,7 @@ def calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters: boo
         theta = numpy.expand_dims(numpy.ones_like(symm_elems[0]), axis=(0,1))
 
     res, dder_mm = calc_mm_as_m_q_inv_m(r_ccs, flag_m= flag_unit_cell_parameters)
-    
+
     # if r_direct.shape[1] == 2:
     #     print("r_ccs: ", r_ccs)
 
