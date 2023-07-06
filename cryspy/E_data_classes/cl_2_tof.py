@@ -224,6 +224,34 @@ class TOF(DataN):
             for i_hh in range(hh.size):
                 setattr(tof_background, f"coeff{i_hh+1:}", float(hh[i_hh]))
 
+        if "profile_peak_shape" in keys:
+            profile_peak_shape = ddict_diffrn["profile_peak_shape"]
+            if profile_peak_shape == "pseudo-Voigt":
+                pass
+            elif profile_peak_shape == "Gauss":
+                pass
+            elif profile_peak_shape == "type0m":
+                profile_alphas = ddict_diffrn["profile_alphas"]
+                profile_betas = ddict_diffrn["profile_betas"]
+                profile_sigmas = ddict_diffrn["profile_sigmas"]
+                profile_gammas = ddict_diffrn["profile_gammas"]
+                profile_rs = ddict_diffrn["profile_rs"]
+                tof_profile = self.tof_profile
+                setattr(tof_profile, "alpha1", profile_alphas[0])
+                setattr(tof_profile, "alpha2", profile_alphas[1])
+                setattr(tof_profile, "beta00", profile_betas[0])
+                setattr(tof_profile, "beta01", profile_betas[1])
+                setattr(tof_profile, "beta10", profile_betas[2])
+                setattr(tof_profile, "sigma0", profile_sigmas[0])
+                setattr(tof_profile, "sigma1", profile_sigmas[1])
+                setattr(tof_profile, "sigma2", profile_sigmas[2])
+                setattr(tof_profile, "gamma0", profile_gammas[0])
+                setattr(tof_profile, "gamma1", profile_gammas[1])
+                setattr(tof_profile, "gamma2", profile_gammas[2])
+                setattr(tof_profile, "r01", profile_rs[0])
+                setattr(tof_profile, "r02", profile_rs[1])
+                setattr(tof_profile, "r03", profile_rs[2])
+
 
         if len(parameter_label) > 0:
             for name, sigma in zip(l_parameter_name, l_sigma):

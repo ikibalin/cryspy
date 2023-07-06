@@ -702,8 +702,8 @@ class Crystal(DataN):
                         scattering_amplitude = calc_scattering_amplitude_tabulated(type_symbol, table_sthovl)[0]
                     except KeyError:
                         flag_atom_scattering_amplitude = False
-                        break
-                l_table_atom_scattering_amplitude.append(scattering_amplitude)
+                if flag_atom_scattering_amplitude:
+                    l_table_atom_scattering_amplitude.append(scattering_amplitude)
 
                 type_atom = get_atom_name_ion_charge_shell(type_symbol)[0]
                 try:

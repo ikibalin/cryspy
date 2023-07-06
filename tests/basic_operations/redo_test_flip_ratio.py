@@ -234,8 +234,9 @@ def test_calc_flip_ratio_intensity_f_nucl():
       ind_vec = 1 # x, y, z
       ind_hkl = 0 # list of hkl
       np_f_m_perp_new[ind_vec, ind_hkl] = numpy.real(param)
+      axis_z = m_u[6:9]
       i_p_hkl, i_m_hkl, dder_p, dder_m = flip_ratio.calc_iint(
-          polarization, flipper, f_nucl_new, np_f_m_perp_new, m_u, func_extinction=func_extinction,
+          polarization, flipper, f_nucl_new, np_f_m_perp_new, axis_z, func_extinction=func_extinction,
           flag_polarization=flag_polarization, flag_flipper=flag_flipper,
           flag_f_n=flag_f_n, flag_f_m_perp=flag_f_m_perp)
       res = i_p_hkl[ind_hkl]

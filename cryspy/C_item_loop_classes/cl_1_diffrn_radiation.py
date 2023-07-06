@@ -57,10 +57,12 @@ class DiffrnRadiation(ItemN):
         super(DiffrnRadiation, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"polarization": -1., "efficiency": -1.}
+        # D_MIN = {"polarization": -1., "efficiency": -1.}
+        D_MIN = {}
 
         # defined for ani integer and float parameters
-        D_MAX = {"polarization": 1., "efficiency": 1.}
+        # D_MAX = {"polarization": 1., "efficiency": 1.}
+        D_MAX = {}
 
         self.__dict__["D_MIN"] = D_MIN
         self.__dict__["D_MAX"] = D_MAX

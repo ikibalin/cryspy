@@ -745,3 +745,15 @@ class LoopN(object):
         """
         pass
         return None
+
+def get_prefix_of_loop(item: LoopN):
+    if not(isinstance(item, LoopN)):
+        return ""
+    if item.ITEM_CLASS is ItemN:
+        if len(item.items) > 0:
+            prefix = item.items[0].PREFIX
+        else:
+            return ""
+    else:
+        prefix = item.ITEM_CLASS.PREFIX
+    return prefix

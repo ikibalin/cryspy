@@ -209,15 +209,16 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         iint_plus = dict_in_out["iint_plus"]
         iint_minus = dict_in_out["iint_minus"]
     else:
+        axis_z = matrix_u[6:9]
         iint_plus, iint_minus, dder_plus, dder_minus = calc_intensities_by_structure_factors(
-            beam_polarization, flipper_efficiency, f_nucl, f_m_perp, matrix_u,
+            beam_polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z,
             func_extinction=func_extinction,
             c_lambda2=c_lambda2, f_nucl_2hkl=f_nucl_2hkl, f_m_perp_2hkl=f_m_perp_2hkl,
             flag_beam_polarization=flags_beam_polarization, flag_flipper_efficiency=flags_flipper_efficiency,
             flag_f_nucl=flag_f_nucl, flag_f_m_perp=flag_f_m_perp,
             flag_c_lambda2=flags_c_lambda2,
             flag_f_nucl_2hkl=flag_f_nucl_2hkl, flag_f_m_perp_2hkl=flag_f_m_perp_2hkl,
-            dict_in_out=dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+            dict_in_out=dict_in_out)
         if flag_dict:
             dict_in_out["iint_plus"] = iint_plus
             dict_in_out["iint_minus"] = iint_minus

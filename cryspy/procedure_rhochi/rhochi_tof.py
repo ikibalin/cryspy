@@ -97,12 +97,22 @@ def calc_chi_sq_for_tof_by_dictionary(
         dtt2 = dict_tof["dtt2"]
         d = calc_d_by_time_for_thermal_neutrons(time, zero, dtt1, dtt2)
         d_min_max = calc_d_min_max_by_time_thermal_neutrons(time, zero, dtt1, dtt2)
+        flag_time = (
+            numpy.any(dict_tof["flags_zero"]) or
+            numpy.any(dict_tof["flags_dtt1"]) or
+            numpy.any(dict_tof["flags_dtt2"]))
     else: # epithermal
         zero = dict_tof["zero"]
         dtt1 = dict_tof["dtt1"]
         zerot = dict_tof["zerot"]
         dtt1t = dict_tof["dtt1t"]
         dtt2t = dict_tof["dtt2t"]
+        flag_time = (
+            numpy.any(dict_tof["flags_zero"]) or
+            numpy.any(dict_tof["flags_dtt1"]) or
+            numpy.any(dict_tof["flags_zerot"]) or
+            numpy.any(dict_tof["flags_dtt1t"]) or
+            numpy.any(dict_tof["flags_dtt2t"]))
         d_min_max = calc_d_min_max_by_time_epithermal_neutrons(time, zero, dtt1, zerot, dtt1t, dtt2t)
         raise AttributeError("Epithermal neutrons are not introudiced")
 
@@ -169,19 +179,31 @@ def calc_chi_sq_for_tof_by_dictionary(
         profile_betas = dict_tof["profile_betas"]
         profile_sigmas = dict_tof["profile_sigmas"]
         profile_gammas = dict_tof["profile_gammas"]
+        flag_profile_shape = (
+            numpy.any(dict_tof["flags_profile_alphas"]) or
+            numpy.any(dict_tof["flags_profile_betas"]) or
+            numpy.any(dict_tof["flags_profile_sigmas"]) or
+            numpy.any(dict_tof["flags_profile_gammas"]))
     elif profile_peak_shape == "Gauss":
         profile_alphas = dict_tof["profile_alphas"]
         profile_betas = dict_tof["profile_betas"]
         profile_sigmas = dict_tof["profile_sigmas"]
+        flag_profile_shape = (
+            numpy.any(dict_tof["flags_profile_alphas"]) or
+            numpy.any(dict_tof["flags_profile_betas"]) or
+            numpy.any(dict_tof["flags_profile_sigmas"]))
     elif profile_peak_shape == "type0m":
+        profile_alphas = dict_tof["profile_alphas"]
+        profile_betas = dict_tof["profile_betas"]
         profile_sigmas = dict_tof["profile_sigmas"]
         profile_gammas = dict_tof["profile_gammas"]
-        profile_alphas = dict_tof["profile_alphas"]
-        flags_profile_alphas = dict_tof["flags_profile_alphas"]
-        profile_betas = dict_tof["profile_betas"]
-        flags_profile_betas = dict_tof["flags_profile_betas"]
         profile_rs = dict_tof["profile_rs"]
-        flags_profile_rs = dict_tof["flags_profile_rs"]
+        flag_profile_shape = (
+            numpy.any(dict_tof["flags_profile_alphas"]) or
+            numpy.any(dict_tof["flags_profile_betas"]) or
+            numpy.any(dict_tof["flags_profile_sigmas"]) or
+            numpy.any(dict_tof["flags_profile_gammas"]) or
+            numpy.any(dict_tof["flags_profile_rs"]))
         
     
     if "texture_name" in dict_tof_keys:
@@ -295,14 +317,19 @@ def calc_chi_sq_for_tof_by_dictionary(
 
         flag_tensor_sigma = flag_sft_ccs or flag_unit_cell_parameters
         tensor_sigma, dder_tensor_sigma = calc_m1_m2_m1t(matrix_t, sft_ccs, flag_m1=flag_sft_ccs, flag_m2=flag_unit_cell_parameters)
-
-        iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_para(
-            f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
-            flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
-            flag_polarization=flags_beam_polarization, flag_flipper=flags_flipper_efficiency)
         
-        dict_in_out_phase["iint_plus"] = iint_plus
-        dict_in_out_phase["iint_minus"] = iint_minus
+        flag_iint_plus_minus = flag_f_nucl or flag_tensor_sigma or flags_beam_polarization or flags_flipper_efficiency
+
+        if (("iint_plus" in dict_in_out_phase_keys) and ("iint_minu" in dict_in_out_phase_keys) and
+                        flag_use_precalculated_data and not(flag_iint_plus_minus)):
+            iint_plus, iint_minus = dict_in_out_phase["iint_plus"], dict_in_out_phase["iint_minus"]
+        else:
+            iint_plus, iint_minus, dder_plus, dder_minus = calc_powder_iint_1d_para(
+                f_nucl, tensor_sigma, beam_polarization, flipper_efficiency, magnetic_field,
+                flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
+                flag_polarization=flags_beam_polarization, flag_flipper=flags_flipper_efficiency)
+            dict_in_out_phase["iint_plus"] = iint_plus
+            dict_in_out_phase["iint_minus"] = iint_minus
 
         if flag_phase_texture:
             flag_texture_g1 = numpy.any(flags_texture_g1)
@@ -321,33 +348,38 @@ def calc_chi_sq_for_tof_by_dictionary(
                     flag_texture_axis=flag_texture_axis and flag_calc_analytical_derivatives)
                 dict_in_out_phase["preferred_orientation"] = preferred_orientation
         
-        if profile_peak_shape == "pseudo-Voigt":
-            profile_tof = calc_peak_shape_function(
-                profile_alphas, profile_betas, profile_sigmas,
-                d, time, time_hkl,
-                gammas=profile_gammas, size_g=0., size_l=0.,
-                strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
-        elif profile_peak_shape == "Gauss":
-            profile_tof = calc_peak_shape_function(
-                profile_alphas, profile_betas, profile_sigmas,
-                d, time, time_hkl,
-                gammas=None, size_g=0., size_l=0.,
-                strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
-        elif profile_peak_shape == "type0m":
-            time_2d = numpy.expand_dims(time, axis=1)
-            time_hkl_2d = numpy.expand_dims(time_hkl, axis=0)
-            d_hkl_2d = numpy.expand_dims(d_hkl, axis=0)
-            delta_t_2d = time_2d - time_hkl_2d
-            profile_sigmas_sq = numpy.square(profile_sigmas)
-            profile_tof = calc_profile_by_zcode_parameters(
-                delta_t_2d, d_hkl_2d,
-                profile_sigmas_sq[0], profile_sigmas_sq[1], profile_sigmas_sq[2],
-                profile_gammas[0], profile_gammas[1], profile_gammas[2],
-                profile_rs[0], profile_rs[1], profile_rs[2],
-                profile_alphas[0], profile_alphas[1],
-                profile_betas[0], profile_betas[1], profile_betas[2])
-                
-        dict_in_out_phase["profile_tof"] = profile_tof
+        flag_profile_tof = (flag_unit_cell_parameters or flag_time or flag_profile_shape)
+        if (("profile_tof" in dict_in_out_phase_keys) and
+                        flag_use_precalculated_data and not(flag_profile_tof)):
+            profile_tof = dict_in_out_phase["profile_tof"] 
+        else:
+            if profile_peak_shape == "pseudo-Voigt":
+                profile_tof = calc_peak_shape_function(
+                    profile_alphas, profile_betas, profile_sigmas,
+                    d, time, time_hkl,
+                    gammas=profile_gammas, size_g=0., size_l=0.,
+                    strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
+            elif profile_peak_shape == "Gauss":
+                profile_tof = calc_peak_shape_function(
+                    profile_alphas, profile_betas, profile_sigmas,
+                    d, time, time_hkl,
+                    gammas=None, size_g=0., size_l=0.,
+                    strain_g=0.,strain_l=0., peak_shape=profile_peak_shape)
+            elif profile_peak_shape == "type0m":
+                time_2d = numpy.expand_dims(time, axis=1)
+                time_hkl_2d = numpy.expand_dims(time_hkl, axis=0)
+                d_hkl_2d = numpy.expand_dims(d_hkl, axis=0)
+                delta_t_2d = time_2d - time_hkl_2d
+                profile_sigmas_sq = numpy.square(profile_sigmas)
+                profile_tof = calc_profile_by_zcode_parameters(
+                    delta_t_2d, d_hkl_2d,
+                    profile_sigmas_sq[0], profile_sigmas_sq[1], profile_sigmas_sq[2],
+                    profile_gammas[0], profile_gammas[1], profile_gammas[2],
+                    profile_rs[0], profile_rs[1], profile_rs[2],
+                    profile_alphas[0], profile_alphas[1],
+                    profile_betas[0], profile_betas[1], profile_betas[2])
+                    
+            dict_in_out_phase["profile_tof"] = profile_tof
 
 
         # flags_p_scale

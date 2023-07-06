@@ -37,16 +37,16 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2023, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.7.3"
+__version__ = "0.7.4"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "yurikibalin@outlook.com"
 __status__ = "Development"
-__date__ = "08.03.2023"
+__date__ = "06.07.2023"
 name = "cryspy"
 
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.B_parent_classes.cl_2_loop import LoopN, get_prefix_of_loop
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
@@ -205,6 +205,7 @@ def repr_function(function, flag_long: bool = False):
 
 
 L_FUNCTION = [
+    get_prefix_of_loop,
     calc_scalar_product_by_vectors,
     calc_scalar_product_by_complex_vectors,
     calc_modulus_sq_by_complex_vector,

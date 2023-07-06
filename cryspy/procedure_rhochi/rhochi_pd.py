@@ -254,7 +254,7 @@ def calc_chi_sq_for_pd_by_dictionary(
             flag_f_nucl = len(dder_f_nucl.keys()) > 0
 
             flag_para = False
-            if "atom_para_index" in dict_crystal_keys:
+            if (("atom_para_index" in dict_crystal_keys) and ("atom_para_susceptibility" in dict_crystal_keys)):
                 sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
                     dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
                 flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
