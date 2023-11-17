@@ -37,7 +37,7 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2023, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.7.5"
+__version__ = "0.7.6"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
@@ -127,6 +127,9 @@ from cryspy.A_functions_base.function_3_mcif import \
 from cryspy.A_functions_base.function_4_flip_ratio import \
     calc_f_plus_sq, calc_f_minus_sq, calc_flip_ratio
 
+from cryspy.B_parent_classes.cl_2_loop import \
+ get_prefix_of_loop
+
 from cryspy.D_functions_item_loop.function_1_section_from_density_point \
     import calc_section_from_density_point
 
@@ -146,6 +149,9 @@ from cryspy.H_functions_global.function_1_cryspy_objects import \
 from cryspy.H_functions_global.function_1_cryspy_objects import \
     L_GLOBAL_CLASS, L_DATA_CLASS, L_LOOP_CLASS, L_ITEM_CLASS, load_packages, \
     add_package, packages, delete_package, L_FUNCTION_ADD
+
+from cryspy.H_functions_global.powder_experiments import \
+    report_powder_experiments
 
 from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement, \
     rhochi_rietveld_refinement_with_parameters, \
@@ -258,6 +264,7 @@ L_FUNCTION = [
     repr_function,
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
+    report_powder_experiments,
     rhochi_rietveld_refinement, 
     rhochi_rietveld_refinement_with_parameters, 
     rhochi_no_refinement,
@@ -265,7 +272,8 @@ L_FUNCTION = [
     mempy_magnetization_density_reconstruction, 
     mempy_spin_density_reconstruction,
     mempy_reconstruction_with_parameters,
-    mempy_cycle_with_parameters]
+    mempy_cycle_with_parameters,
+    get_prefix_of_loop]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD
