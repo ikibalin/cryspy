@@ -206,6 +206,17 @@ class Pd(DataN):
             for i_item, item in enumerate(self.phase.items):
                 item.scale = float(hh[i_item])
 
+        if "texture_g1" in keys:
+            pd_texture_g1 = ddict_diffrn["texture_g1"]
+            pd_texture_g2 = ddict_diffrn["texture_g2"]
+            pd_texture_axis = ddict_diffrn["texture_axis"]
+            for i_item, item in enumerate(self.texture.items):
+                item.g_1 = float(pd_texture_g1[i_item])
+                item.g_2 = float(pd_texture_g2[i_item])
+                item.h_ax = float(pd_texture_axis[0, i_item])
+                item.k_ax = float(pd_texture_axis[1, i_item])
+                item.l_ax = float(pd_texture_axis[2, i_item])
+
         if "phase_ig" in keys:
             hh = ddict_diffrn["phase_ig"]
             for i_item, item in enumerate(self.phase.items):
@@ -249,6 +260,10 @@ class Pd(DataN):
                     self.pd_background.items[name[1][0]].intensity_sigma = float(sigma)
                 if name[0] == "phase_scale":
                     self.phase.items[name[1][0]].scale_sigma = float(sigma)
+                if name[0] == "texture_g1":
+                    self.texture.items[name[1][0]].g_1_sigma = float(sigma)
+                if name[0] == "texture_g2":
+                    self.texture.items[name[1][0]].g_2_sigma = float(sigma)
                 if name[0] == "phase_ig":
                     self.phase.items[name[1][0]].igsize_sigma = float(sigma)
                 if name[0] == "wavelength":

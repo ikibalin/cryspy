@@ -26,7 +26,7 @@ where `file_name` is the address of the file.
     
 Features
   - Analysis of the polarized neutron scattering on crystals;
-  - Diffraction data refinement for single crystals or powder;
+  - Diffraction data refinement for single crystals or powder by RhoChi class;
   - MEM for reconstruction of magnetization density by MEM class;
   - Powder refinement of magnetic space groups.
   - TOF neutron data analysis
@@ -37,16 +37,16 @@ __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2023, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 __maintainer__ = "Iurii KIBALIN"
-__email__ = "yurikibalin@outlook.com"
+__email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "06.07.2023"
+__date__ = "17.11.2023"
 name = "cryspy"
 
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN, get_prefix_of_loop
+from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
@@ -147,8 +147,6 @@ from cryspy.H_functions_global.function_1_cryspy_objects import \
     L_GLOBAL_CLASS, L_DATA_CLASS, L_LOOP_CLASS, L_ITEM_CLASS, load_packages, \
     add_package, packages, delete_package, L_FUNCTION_ADD
 
-from cryspy.H_functions_global.powder_experiments import report_powder_experiments
-
 from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement, \
     rhochi_rietveld_refinement_with_parameters, \
     rhochi_no_refinement, rhochi_inversed_hessian
@@ -158,9 +156,6 @@ from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruc
     mempy_spin_density_reconstruction,\
     mempy_reconstruction_with_parameters,\
     mempy_cycle_with_parameters
-
-
-from cryspy.H_functions_global.simulations import simulation_pd
 
 
 
@@ -205,7 +200,6 @@ def repr_function(function, flag_long: bool = False):
 
 
 L_FUNCTION = [
-    get_prefix_of_loop,
     calc_scalar_product_by_vectors,
     calc_scalar_product_by_complex_vectors,
     calc_modulus_sq_by_complex_vector,
@@ -264,7 +258,6 @@ L_FUNCTION = [
     repr_function,
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
-    report_powder_experiments,
     rhochi_rietveld_refinement, 
     rhochi_rietveld_refinement_with_parameters, 
     rhochi_no_refinement,
@@ -272,8 +265,7 @@ L_FUNCTION = [
     mempy_magnetization_density_reconstruction, 
     mempy_spin_density_reconstruction,
     mempy_reconstruction_with_parameters,
-    mempy_cycle_with_parameters,
-    simulation_pd]
+    mempy_cycle_with_parameters]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD
