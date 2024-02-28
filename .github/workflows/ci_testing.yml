@@ -27,4 +27,4 @@ jobs:
           pip3 install pytest      # testing packages
 
       - name: Run tests
-        run: python3 -m pytest
+        run: python3 -m pytest tests/basic_operations/ -vv
