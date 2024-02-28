@@ -10,8 +10,8 @@ _pd_peak_index_k
 _pd_peak_index_l
 _pd_peak_index_mult
 _pd_peak_2theta
-_pd_peak_intensity_plus
-_pd_peak_intensity_minus
+_pd_peak_intensity_up
+_pd_peak_intensity_down
 _pd_peak_width_2theta
 2    2   0   12   19.15    378.63    378.63    0.63836  
 3    1   0   12   21.47    69.62     69.62     0.63119  
@@ -252,8 +252,8 @@ _pd_peak_index_k
 _pd_peak_index_l
 _pd_peak_index_mult
 _pd_peak_2theta
-_pd_peak_intensity_plus
-_pd_peak_intensity_minus
+_pd_peak_intensity_up
+_pd_peak_intensity_down
 _pd_peak_width_2theta
 1    1   1   8   18.19    0.39     0.39     0.64132  
 2    0   1   4   19.17    1.79     1.79     0.63830  
@@ -1390,10 +1390,10 @@ _refln_susceptibility_moment_33_calc
 loop_
 _pd_proc_2theta
 _pd_proc_2theta_corrected
-_pd_proc_intensity_plus_net
-_pd_proc_intensity_minus_net
-_pd_proc_intensity_plus_total
-_pd_proc_intensity_minus_total
+_pd_proc_intensity_up_net
+_pd_proc_intensity_down_net
+_pd_proc_intensity_up_total
+_pd_proc_intensity_down_total
 _pd_proc_intensity_bkg_calc
 _pd_proc_intensity_net
 _pd_proc_intensity_total

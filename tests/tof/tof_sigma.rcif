@@ -3795,10 +3795,10 @@ _tof_meas_intensity_sigma
 loop_
 _tof_proc_time
 _tof_proc_d_spacing
-_tof_proc_intensity_plus_net
-_tof_proc_intensity_minus_net
-_tof_proc_intensity_plus_total
-_tof_proc_intensity_minus_total
+_tof_proc_intensity_up_net
+_tof_proc_intensity_down_net
+_tof_proc_intensity_up_total
+_tof_proc_intensity_down_total
 _tof_proc_intensity_bkg_calc
 _tof_proc_intensity_net
 _tof_proc_intensity_total
@@ -7822,8 +7822,8 @@ _tof_peak_index_h
 _tof_peak_index_k
 _tof_peak_index_l
 _tof_peak_time
-_tof_peak_intensity_plus
-_tof_peak_intensity_minus
+_tof_peak_intensity_up
+_tof_peak_intensity_down
 1   1   0    18545.67   3.17    3.17   
 1   0   3    16784.97   5.18    5.18   
 0   0   4    16382.22   0.67    0.67   

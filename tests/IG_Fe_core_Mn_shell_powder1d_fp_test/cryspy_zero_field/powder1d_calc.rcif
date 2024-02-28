@@ -7,10 +7,10 @@ _refine_ls_weighting_scheme sigma
 loop_
 _pd_proc_2theta
 _pd_proc_2theta_corrected
-_pd_proc_intensity_plus_net
-_pd_proc_intensity_minus_net
-_pd_proc_intensity_plus_total
-_pd_proc_intensity_minus_total
+_pd_proc_intensity_up_net
+_pd_proc_intensity_down_net
+_pd_proc_intensity_up_total
+_pd_proc_intensity_down_total
 _pd_proc_intensity_bkg_calc
 _pd_proc_intensity_net
 _pd_proc_intensity_total
@@ -1115,8 +1115,8 @@ _pd_peak_index_k
 _pd_peak_index_l
 _pd_peak_index_mult
 _pd_peak_2theta
-_pd_peak_intensity_plus
-_pd_peak_intensity_minus
+_pd_peak_intensity_up
+_pd_peak_intensity_down
 _pd_peak_width_2theta
 1   1   0    4    20.69    0.00     0.00     1.67616  
 1   1   2    8    27.07    1.71     1.71     1.76743  
@@ -1252,8 +1252,8 @@ _pd_peak_index_k
 _pd_peak_index_l
 _pd_peak_index_mult
 _pd_peak_2theta
-_pd_peak_intensity_plus
-_pd_peak_intensity_minus
+_pd_peak_intensity_up
+_pd_peak_intensity_down
 _pd_peak_width_2theta
 2    0   0   6    20.04    0.00      0.00      1.39407  
 2    2   0   12   28.15    57.37     57.37     1.52466  

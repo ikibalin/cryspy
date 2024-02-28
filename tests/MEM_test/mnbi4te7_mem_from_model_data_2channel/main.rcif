@@ -9959,8 +9959,8 @@ _diffrn_refln_index_l
 _diffrn_refln_fr
 _diffrn_refln_fr_sigma
 _diffrn_refln_fr_calc
-_diffrn_refln_intensity_plus_calc
-_diffrn_refln_intensity_minus_calc
+_diffrn_refln_intensity_up_calc
+_diffrn_refln_intensity_down_calc
 0   -3   3    1.37817   0.1   1.47537   1.62    1.18   
 0   -3   1    1.93795   0.1   2.10110   0.50    0.26   
 0   -3   0    0.9668    0.1   0.95700   28.27   29.24  
