@@ -24,5 +24,5 @@ jobs:
           pip3 install matplotlib  # extra packages
           pip3 install pytest      # testing packages
 
-      - name: Run unit tests
-        run: python3 -m pytest tests/basic_operations/
+      - name: Run functional tests
+        run: python3 -m pytest tests/test_scritpts.py -vv
