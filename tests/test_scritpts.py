@@ -36,7 +36,7 @@ L_RIETVELD_REFINEMENT_CHI_SQ = [
 
    
 def test_atom_multiplicity():
-    f_dir_examples = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cryspy-examples")
+    f_dir_examples = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples")
     f_name = os.path.join(
         f_dir_examples,
         os.path.join("only_for_test",
@@ -51,7 +51,7 @@ def test_atom_multiplicity():
 
 
 def test_rietveld_refinement():
-    f_dir_examples = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cryspy-examples")
+    f_dir_examples = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples")
     # %%
     for f_file, chi_sq in zip(L_RIETVELD_REFINEMENT_FILE, L_RIETVELD_REFINEMENT_CHI_SQ):
         f_name = os.path.join(f_dir_examples, f_file)
@@ -65,7 +65,7 @@ def test_rietveld_refinement():
 
 
 def test_mem():
-    f_dir_examples = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cryspy-examples")
+    f_dir_examples = os.path.join(os.path.dirname(os.path.dirname(__file__)), "examples")
     f_name = os.path.join(
         f_dir_examples,
         os.path.join("mempy_spin_density_YTiO3",
