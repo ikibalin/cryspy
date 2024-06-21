@@ -31,6 +31,7 @@ from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground
+from cryspy.C_item_loop_classes.cl_1_tof_background_by_points import TOFBackgroundPointL
 from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
     TOFIntensityIncident
 from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeasL
@@ -62,9 +63,8 @@ class TOF(DataN):
           refln_susceptibility_#phase_name (optional)
     """
 
-    CLASSES_MANDATORY = (TOFParameters, TOFProfile, PhaseL, TOFBackground,
-                         TOFMeasL)
-    CLASSES_OPTIONAL = (DiffrnRadiation, Chi2, Range,
+    CLASSES_MANDATORY = (TOFParameters, TOFProfile, PhaseL, TOFMeasL)
+    CLASSES_OPTIONAL = (TOFBackground, TOFBackgroundPointL, DiffrnRadiation, Chi2, Range,
                         Texture, TOFIntensityIncident, ExcludeL, TOFProcL,
                         TOFPeakL, RefineLs, ReflnL, ReflnSusceptibilityL, Setup)
     # CLASSES_INTERNAL = ()
@@ -106,7 +106,8 @@ class TOF(DataN):
             for item in self.items:
                 if isinstance(item, TOFPeakL):
                     np_time = item.numpy_time
-                    ax_hkl.plot(np_time, 0.*np_time+y_min_s-y_step_s, "|", label=item.loop_name)
+                    ax_hkl.plot(np_time, 0.*np_time+y_min_s -
+                                y_step_s, "|", label=item.loop_name)
                     y_step_s += 0.05*y_dist_s
             res = []
             ax_s.legend(loc='upper right')
@@ -146,16 +147,24 @@ class TOF(DataN):
 
             dict_tof["time"] = time[flag_in]
             if tof_meas.is_attribute("intensity_plus"):
-                int_plus = numpy.array(tof_meas.intensity_plus, dtype=float)[flag_in]
-                s_int_plus = numpy.array(tof_meas.intensity_plus_sigma, dtype=float)[flag_in]
-                int_minus = numpy.array(tof_meas.intensity_minus, dtype=float)[flag_in]
-                s_int_minus = numpy.array(tof_meas.intensity_minus_sigma, dtype=float)[flag_in]
-                dict_tof["signal_exp_plus"] = numpy.stack([int_plus, s_int_plus], axis=0)
-                dict_tof["signal_exp_minus"] = numpy.stack([int_minus, s_int_minus], axis=0)
+                int_plus = numpy.array(
+                    tof_meas.intensity_plus, dtype=float)[flag_in]
+                s_int_plus = numpy.array(
+                    tof_meas.intensity_plus_sigma, dtype=float)[flag_in]
+                int_minus = numpy.array(
+                    tof_meas.intensity_minus, dtype=float)[flag_in]
+                s_int_minus = numpy.array(
+                    tof_meas.intensity_minus_sigma, dtype=float)[flag_in]
+                dict_tof["signal_exp_plus"] = numpy.stack(
+                    [int_plus, s_int_plus], axis=0)
+                dict_tof["signal_exp_minus"] = numpy.stack(
+                    [int_minus, s_int_minus], axis=0)
             else:
                 int_sum = numpy.array(tof_meas.intensity, dtype=float)[flag_in]
-                s_int_sum = numpy.array(tof_meas.intensity_sigma, dtype=float)[flag_in]
-                dict_tof["signal_exp"] = numpy.stack([int_sum, s_int_sum], axis=0)
+                s_int_sum = numpy.array(
+                    tof_meas.intensity_sigma, dtype=float)[flag_in]
+                dict_tof["signal_exp"] = numpy.stack(
+                    [int_sum, s_int_sum], axis=0)
 
             time_in_range = time[flag_in]
             flag_exclude = numpy.zeros(time_in_range.shape, dtype=bool)
@@ -169,8 +178,7 @@ class TOF(DataN):
 
         return dict_tof
 
-
-    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list = None, l_sigma: list = None):
         keys = ddict_diffrn.keys()
         if l_parameter_name is not None:
             parameter_label = [hh[0] for hh in l_parameter_name]
@@ -224,6 +232,11 @@ class TOF(DataN):
             for i_hh in range(hh.size):
                 setattr(tof_background, f"coeff{i_hh+1:}", float(hh[i_hh]))
 
+        if "background_intensity" in keys:
+            hh = ddict_diffrn["background_intensity"]
+            for i_item, item in enumerate(self.tof_backgroundpoint.items):
+                item.intensity = float(hh[i_item])
+
         if "profile_peak_shape" in keys:
             profile_peak_shape = ddict_diffrn["profile_peak_shape"]
             if profile_peak_shape == "pseudo-Voigt":
@@ -252,7 +265,6 @@ class TOF(DataN):
                 setattr(tof_profile, "r02", profile_rs[1])
                 setattr(tof_profile, "r03", profile_rs[2])
 
-
         if len(parameter_label) > 0:
             for name, sigma in zip(l_parameter_name, l_sigma):
                 if name[0] == "phase_scale":
@@ -279,17 +291,26 @@ class TOF(DataN):
         if (("signal_plus" in keys) and ("signal_minus" in keys)):
             tof_proc = TOFProcL()
             tof_proc.numpy_time = numpy.round(ddict_diffrn["time"], decimals=5)
-            tof_proc.numpy_intensity_plus_net = numpy.round(ddict_diffrn["signal_plus"], decimals=5)
-            tof_proc.numpy_intensity_minus_net = numpy.round(ddict_diffrn["signal_minus"], decimals=5)
+            tof_proc.numpy_intensity_plus_net = numpy.round(
+                ddict_diffrn["signal_plus"], decimals=5)
+            tof_proc.numpy_intensity_minus_net = numpy.round(
+                ddict_diffrn["signal_minus"], decimals=5)
             if "signal_exp_plus" in keys:
-                tof_proc.numpy_intensity_plus = numpy.round(ddict_diffrn["signal_exp_plus"][0], decimals=5)
-                tof_proc.numpy_intensity_plus_sigma = numpy.round(ddict_diffrn["signal_exp_plus"][1], decimals=5)
-                tof_proc.numpy_intensity_minus = numpy.round(ddict_diffrn["signal_exp_minus"][0], decimals=5)
-                tof_proc.numpy_intensity_minus_sigma = numpy.round(ddict_diffrn["signal_exp_minus"][1], decimals=5)
+                tof_proc.numpy_intensity_plus = numpy.round(
+                    ddict_diffrn["signal_exp_plus"][0], decimals=5)
+                tof_proc.numpy_intensity_plus_sigma = numpy.round(
+                    ddict_diffrn["signal_exp_plus"][1], decimals=5)
+                tof_proc.numpy_intensity_minus = numpy.round(
+                    ddict_diffrn["signal_exp_minus"][0], decimals=5)
+                tof_proc.numpy_intensity_minus_sigma = numpy.round(
+                    ddict_diffrn["signal_exp_minus"][1], decimals=5)
             else:
-                tof_proc.numpy_intensity = numpy.round(ddict_diffrn["signal_exp"][0], decimals=5)
-                tof_proc.numpy_intensity_sigma = numpy.round(ddict_diffrn["signal_exp"][1], decimals=5)
-            tof_proc.numpy_intensity_bkg_calc = numpy.round(ddict_diffrn["signal_background"], decimals=5)
+                tof_proc.numpy_intensity = numpy.round(
+                    ddict_diffrn["signal_exp"][0], decimals=5)
+                tof_proc.numpy_intensity_sigma = numpy.round(
+                    ddict_diffrn["signal_exp"][1], decimals=5)
+            tof_proc.numpy_intensity_bkg_calc = numpy.round(
+                ddict_diffrn["signal_background"], decimals=5)
             tof_proc.numpy_excluded = ddict_diffrn["excluded_points"]
             tof_proc.numpy_to_items()
             self.tof_proc = tof_proc
@@ -301,11 +322,11 @@ class TOF(DataN):
             if s_label in keys:
                 dict_crystal = ddict_diffrn[s_label]
                 dict_crystal_keys = dict_crystal.keys()
-                if (("index_hkl" in dict_crystal_keys) and  ("time_hkl" in dict_crystal_keys)):
+                if (("index_hkl" in dict_crystal_keys) and ("time_hkl" in dict_crystal_keys)):
                     index_hkl = dict_crystal["index_hkl"]
                     time_hkl = dict_crystal["time_hkl"]
 
-                    tof_peak = TOFPeakL(loop_name = item_phase.label)
+                    tof_peak = TOFPeakL(loop_name=item_phase.label)
                     int_plus_max, int_minus_max = None, None
                     if "iint_plus_with_factors" in dict_crystal_keys:
                         # int_plus_max = dict_crystal["iint_plus_with_factors"]
@@ -316,7 +337,7 @@ class TOF(DataN):
                         int_minus_max = dict_crystal["iint_minus"]
 
                     if "f_nucl":
-                        refln = ReflnL(loop_name = item_phase.label)
+                        refln = ReflnL(loop_name=item_phase.label)
                         refln.numpy_index_h = index_hkl[0]
                         refln.numpy_index_k = index_hkl[1]
                         refln.numpy_index_l = index_hkl[2]
@@ -345,4 +366,3 @@ class TOF(DataN):
     #     tof_background = self.tof_background
     #     tof_proc = self.tof_proc
     #     tof_proc.estimate_background(tof_background)
-
