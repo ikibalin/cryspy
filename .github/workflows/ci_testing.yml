@@ -1,4 +1,4 @@
-name: CI Testing - Ubuntu, MacOS
+name: CI Testing - Basic Operations - Ubuntu, MacOS
 
 on: [push, pull_request]
 
