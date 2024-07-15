@@ -22,7 +22,7 @@ jobs:
       - name: Set-up Python dependences
         run: |
           python3 -m venv .venv
-          .venv/Scripst/activate
+          .venv/Scripts/activate
           python3 -m pip install -e .        # from setup.py
           python3 -m pip install matplotlib  # extra packages
           python3 -m pip install pytest      # testing packages
