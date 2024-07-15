@@ -1,4 +1,4 @@
-name: CI Testing
+name: CI Testing - Functional - Ubuntu, MacOS
 
 on: [push, pull_request]
 
@@ -10,7 +10,7 @@ jobs:
       max-parallel: 3
       matrix:
         python-version: [3.11]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -25,4 +25,8 @@ jobs:
           python3 -m pip install -e .        # from setup.py
           python3 -m pip install matplotlib  # extra packages
           python3 -m pip install pytest      # testing packages
+
+      - name: Run functional tests
+        run: |
+          source .venv/bin/activate
           python3 -m pytest tests/test_scritpts.py -vv
