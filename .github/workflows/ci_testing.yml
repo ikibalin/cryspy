@@ -18,16 +18,14 @@ jobs:
       - name: Check-out repository
         uses: actions/checkout@v2
 
-      - name: Set Virtual environment
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
 
       - name: Set-up Python dependences
         run: |
-          pip3 install -e .        # from setup.py
-          pip3 install matplotlib  # extra packages
-          pip3 install pytest      # testing packages
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python3 -m pip install -e .        # from setup.py
+          python3 -m pip install matplotlib  # extra packages
+          python3 -m pip install pytest      # testing packages
 
       - name: Run unit tests
         run: python3 -m pytest tests/basic_operations/
