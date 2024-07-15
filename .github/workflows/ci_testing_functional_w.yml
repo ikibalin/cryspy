@@ -1,4 +1,4 @@
-name: CI Testing - Functional - Ubuntu, MacOS
+name: CI Testing - Functional - Windows
 
 on: [push, pull_request]
 
