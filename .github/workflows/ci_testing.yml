@@ -20,8 +20,8 @@ jobs:
 
       - name: Set Virtual environment
         run: |
-          python3 -m venv ~/.venv
-          source ~/.venv/bin/activate
+          python3 -m venv .venv
+          source .venv/bin/activate
 
       - name: Set-up Python dependences
         run: |
