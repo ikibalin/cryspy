@@ -27,4 +27,6 @@ jobs:
           python3 -m pip install pytest      # testing packages
           
       - name: Run functional tests
-        run: python3 -m pytest tests/test_scritpts.py -vv
+        run: |
+          source .venv/bin/activate
+          python3 -m pytest tests/test_scritpts.py -vv
