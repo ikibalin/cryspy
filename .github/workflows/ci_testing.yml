@@ -18,6 +18,11 @@ jobs:
       - name: Check-out repository
         uses: actions/checkout@v2
 
+      - name: Set Virtual environment
+        run: |
+          python3 -m venv ~/.venv
+          source ~/.venv/bin/activate
+
       - name: Set-up Python dependences
         run: |
           pip3 install -e .        # from setup.py
