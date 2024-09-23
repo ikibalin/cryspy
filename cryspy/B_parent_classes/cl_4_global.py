@@ -606,7 +606,17 @@ class GlobalN(object):
                     linear_constraints.append([(coeff_1, name_1), (coeff_2, name_2)])
         if len(linear_constraints) > 0:
             dict_out["linear_constraints"] = linear_constraints
-
+        try:
+            expression = self.punishment.function
+            d_marked = {}
+            for rcif_name, dict_name in zip(variable_names, dict_names):
+                rcif_name_mark = rcif_name[:-1]+ ((rcif_name[-1][0]+"_mark", rcif_name[-1][1]),)
+                mark = self.get_variable_by_name(rcif_name_mark)
+                if mark != "":
+                    d_marked[mark] = dict_name
+            dict_out["punishment_function"] = (expression, d_marked)
+        except:
+            pass
         return dict_out
 
 

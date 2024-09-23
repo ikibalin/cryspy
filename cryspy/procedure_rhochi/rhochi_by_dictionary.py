@@ -54,6 +54,17 @@ na = numpy.newaxis
 #             cryspy_object.set_variable_by_name(var_name_sigma, sigma*coeff)
 #         _dict_out = {"flag": flag, "res": res}
 
+def calc_punishement_function(dict_obj):
+    chi_sq_punishement = 0.
+    if "punishment_function" in dict_obj.keys():
+        expression, d_marked = dict_obj["punishment_function"]
+        d_value = {}
+        for mark in d_marked.keys():
+            way = d_marked[mark]
+            d_value[mark] = dict_obj[way[0]][way[1]][way[2]]
+        chi_sq_punishement += eval(expression, {}, d_value)
+    return chi_sq_punishement
+
 
 def calc_shift_p_by_constraints_hamilton(delta_p, dder_chi_sq, matrix_q):
     """Linear type Hamilton constraints.
@@ -158,7 +169,9 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
             dict_in_out=dict_in_out,
             flag_use_precalculated_data=flag_use_precalculated_data,
             flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[0]
-        return chi_sq
+        
+        chi_sq_punishement = calc_punishement_function(global_dict)
+        return chi_sq + chi_sq_punishement
 
 
     print("\nMinimization procedure of chi_sq is running... ", end="\r")

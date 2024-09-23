@@ -72,9 +72,9 @@ class Diffrn(DataN):
         - refine_ls
     """
 
-    CLASSES_MANDATORY = (Setup, DiffrnRadiation, DiffrnOrientMatrix,
+    CLASSES_MANDATORY = (Setup, DiffrnOrientMatrix,
                          DiffrnReflnL)
-    CLASSES_OPTIONAL = (Extinction, Phase, ReflnL, ReflnSusceptibilityL,
+    CLASSES_OPTIONAL = (DiffrnRadiation, Extinction, Phase, ReflnL, ReflnSusceptibilityL,
                         RefineLs, Chi2)
     # CLASSES_INTERNAL = ()
 
@@ -264,8 +264,10 @@ class Diffrn(DataN):
 
             if flag_asymmetry:
                 fig_ax = diffrn_refln.plot_asymmetry_vs_asymmetry_calc()
-            else:
+            elif diffrn_refln.is_attribute("fr"):
                 fig_ax = diffrn_refln.plot_fr_vs_fr_calc()
+            else:
+                fig_ax = diffrn_refln.plot_intensity_vs_intensity_calc()
 
             if fig_ax is not None:
                 fig, ax = fig_ax
@@ -314,6 +316,8 @@ class Diffrn(DataN):
             self.extinction.mosaicity = ddict_diffrn["extinction_mosaicity"]
         if "extinction_radius" in keys:
             self.extinction.radius = ddict_diffrn["extinction_radius"]
+        if "phase_scale" in keys:
+            self.phase.scale = ddict_diffrn["phase_scale"]
 
 
         if len(parameter_label) > 0:
@@ -328,10 +332,15 @@ class Diffrn(DataN):
                     self.extinction.mosaicity_sigma = float(sigma)
                 if name[0] == "extinction_radius":
                     self.extinction.radius_sigma = float(sigma)
+                if name[0] == "phase_scale":
+                    self.phase.scale_sigma = float(sigma)
 
         if (("iint_plus" in keys) and ("iint_minus" in keys)):
             diffrn_refln = self.diffrn_refln
-            diffrn_refln.numpy_fr_calc = ddict_diffrn["iint_plus"]/ddict_diffrn["iint_minus"]
+            if diffrn_refln.is_attribute("fr"):
+                diffrn_refln.numpy_fr_calc = ddict_diffrn["iint_plus"]/ddict_diffrn["iint_minus"]
+            else:
+                diffrn_refln.numpy_intensity_calc = ddict_diffrn["intensity_calc"]
             diffrn_refln.numpy_to_items()
 
         l_dict_diffrn_out_keys = [hh for hh in keys if hh.startswith("dict_in_out_hkl_")]

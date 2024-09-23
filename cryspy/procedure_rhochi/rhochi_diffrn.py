@@ -70,20 +70,28 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flag_magnetic_field=False
 
     matrix_u = dict_diffrn["matrix_u"]
-    beam_polarization = dict_diffrn["beam_polarization"]
-    flags_beam_polarization = dict_diffrn["flags_beam_polarization"]
-    flipper_efficiency = dict_diffrn["flipper_efficiency"]
-    flags_flipper_efficiency = dict_diffrn["flags_flipper_efficiency"]
     wavelength = dict_diffrn["wavelength"]
     flags_wavelength = dict_diffrn["flags_wavelength"]
-    flip_ratio_es = dict_diffrn["flip_ratio_es"]
-    flip_ratio_excluded = dict_diffrn["flip_ratio_excluded"]
+    flip_ratio_excluded = dict_diffrn["flip_ratio_excluded"] # it also work for intensity
 
-    if "flag_asymmetry" in dict_diffrn_keys:
-        flag_asymmetry = dict_diffrn["flag_asymmetry"]
-    else:
-        flag_asymmetry = False
-    
+    flag_unpolarized, flag_asymmetry = False, False
+    if "flip_ratio_es" in dict_diffrn_keys:
+        flip_ratio_es = dict_diffrn["flip_ratio_es"]
+        beam_polarization = dict_diffrn["beam_polarization"]
+        flags_beam_polarization = dict_diffrn["flags_beam_polarization"]
+        flipper_efficiency = dict_diffrn["flipper_efficiency"]
+        flags_flipper_efficiency = dict_diffrn["flags_flipper_efficiency"]
+        if "flag_asymmetry" in dict_diffrn_keys:
+            flag_asymmetry = dict_diffrn["flag_asymmetry"]
+    elif "intensity_es" in dict_diffrn_keys:
+        intensity_es = dict_diffrn["intensity_es"]
+        phase_scale = dict_diffrn["phase_scale"]
+        flags_phase_scale = dict_diffrn["flags_phase_scale"]
+        beam_polarization = 1.
+        flipper_efficiency = 1.
+        flag_unpolarized = True
+        flags_beam_polarization, flags_flipper_efficiency = False, False
+
     if "c_lambda2" in dict_diffrn_keys:
         c_lambda2 = dict_diffrn["c_lambda2"]
         flags_c_lambda2 = dict_diffrn["flags_c_lambda2"]
@@ -232,6 +240,14 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
             flag_iint_plus=True, flag_iint_minus=True, 
             flag_c_lambda2=False, flag_iint_2hkl=False)
+    elif flag_unpolarized:
+        model_exp = (iint_plus + iint_minus)*phase_scale
+        dict_in_out["intensity_calc"] = model_exp
+        exp_value = intensity_es
+        dder_model_exp = {
+            "iint_plus": numpy.ones_like(iint_plus)*phase_scale,
+            "iint_minus": numpy.ones_like(iint_minus)*phase_scale,
+            }
     else:
         model_exp, dder_model_exp = calc_flip_ratio_by_iint(
             iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
@@ -276,7 +292,6 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         dder_plus_crystal["mag_atom_susceptibility"] = numpy.swapaxes(dder_plus_mas, 0, 1)
         dder_minus_crystal["mag_atom_susceptibility"] = numpy.swapaxes(dder_minus_mas, 0, 1)
         
-    
     dder_plus_diffrn, dder_minus_diffrn = {}, {}
     if flags_beam_polarization:
         dder_plus_diffrn["beam_polarization"] = dder_plus["beam_polarization"][:, na]
@@ -320,6 +335,9 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             elif name in dder_minus_diffrn_keys:
                 dder_minus_p = dder_minus_diffrn[name][:, flags]
                 dder_plus_p = numpy.zeros_like(dder_minus_p)
+            elif name == "phase_scale":#FIXME
+                dder_plus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
+                dder_minus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
             else:
                 raise AttributeError("It should not be like this.")
             parameter_name = [(diffrn_type_name, ) + way + (tuple(ind_1d[ind,:]), ) for ind in range(ind_1d.shape[0])]

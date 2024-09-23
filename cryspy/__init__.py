@@ -31,17 +31,17 @@ Features
   - Powder refinement of magnetic space groups.
   - TOF neutron data analysis
 
-For more information please see the site: https://ikibalin.github.io/cryspy/
+For more information please see the site: https://www.cryspy.fr/
 """
 __author__ = 'Iurii KIBALIN'
-__copyright__   = "Copyright 2023, "
+__copyright__   = "Copyright 2024, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "GPL"
-__version__ = "0.7.6"
+__version__ = "0.7.7"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@cea.fr"
 __status__ = "Development"
-__date__ = "17.11.2023"
+__date__ = "12.09.2024"
 name = "cryspy"
 
 
