@@ -5,8 +5,6 @@ from typing import NoReturn
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
-from cryspy.A_functions_base.function_1_tof import tof_Jorgensen, \
-    tof_Jorgensen_VonDreele, calc_hpv_eta, calc_sigma_gamma
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN

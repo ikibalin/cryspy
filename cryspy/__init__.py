@@ -85,7 +85,7 @@ from cryspy.A_functions_base.function_1_strings import value_error_mark_to_strin
     transform_fraction_with_label_to_string, transform_digits_to_string,\
     transform_r_b_to_string
 
-from cryspy.A_functions_base.function_1_tof import tof_Jorgensen, \
+from cryspy.A_functions_base.powder_diffraction_tof import tof_Jorgensen, \
     tof_Jorgensen_VonDreele
 
 

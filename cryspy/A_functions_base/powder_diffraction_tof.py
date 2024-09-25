@@ -79,6 +79,22 @@ def calc_d_min_max_by_time_epithermal_neutrons(time, zero, dtt1, zerot, dtt1t, d
     return d_min_max
 
 
+def calc_hpv_eta(h_g, h_l):
+    """pseudo-Voight function
+    
+    calculate h_pV and eta based on Gauss and Lorentz Size
+    """
+    h_g_2, h_l_2 = h_g**2, h_l**2
+    h_g_3, h_l_3 = h_g_2*h_g, h_l_2*h_l
+    h_g_4, h_l_4 = h_g_3*h_g, h_l_3*h_l
+    h_g_5, h_l_5 = h_g_4*h_g, h_l_4*h_l
+    c_2, c_3, c_4, c_5 = 2.69269, 2.42843, 4.47163, 0.07842
+    h_pv = (h_g_5 + c_2*h_g_4*h_l + c_3*h_g_3*h_l_2 + 
+            c_4*h_g_2*h_l_3 + c_5*h_g*h_l_4 + h_l_5)**0.2
+    hh = h_l*1./h_pv
+    eta = 1.36603*hh - 0.47719*hh**2 + 0.11116*hh**3
+    return h_pv, eta
+
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     two_over_pi = 2.*numpy.pi
     norm = 0.5*alpha*beta/(alpha+beta)
