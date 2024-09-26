@@ -95,6 +95,22 @@ def calc_hpv_eta(h_g, h_l):
     eta = 1.36603*hh - 0.47719*hh**2 + 0.11116*hh**3
     return h_pv, eta
 
+
+def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
+    norm = 0.5*alpha*beta/(alpha+beta)
+    time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
+    delta_2d = time_2d-time_hkl_2d
+    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
+
+    exp_u = exp(u)
+    exp_v = exp(v)
+    exp_u[numpy.isinf(exp_u)] = 1e200
+    exp_v[numpy.isinf(exp_v)] = 1e200
+
+    profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
+    return profile_g_2d
+
+
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     two_over_pi = 2.*numpy.pi
     norm = 0.5*alpha*beta/(alpha+beta)
@@ -158,10 +174,15 @@ def calc_beta(beta0, beta1, d):
     return beta0+beta1*numpy.power(d, -4)
 
 
-def calc_sigma(sigma0, sigma1, d):
-    """sigma0+sigma1*d
+def calc_sigma(d, sigma0, sigma1, sigma2, size_g:float=0., strain_g:float=0.):
     """
-    return sigma0+sigma1*d
+    H_G**2 = (sigma2+size_g)*d**4 + (sigma1+strain_g)*d**2 + sigma0
+    """
+    d_sq = numpy.square(d)
+    d_sq_sq = numpy.square(d_sq)
+    h_g_sq = numpy.abs((sigma2+size_g) * d_sq_sq + (sigma1+strain_g) * d_sq + sigma0)
+    h_g = numpy.sqrt(h_g_sq)
+    return h_g
 
 
 def calc_sigma_gamma(
@@ -174,11 +195,8 @@ def calc_sigma_gamma(
         H_L = (gamma2+size_l)*d**2 + (sigma1+strain_l)*d + sigma0
     """
     d_sq = numpy.square(d)
-    d_sq_sq = numpy.square(d_sq)
-
-    h_g_sq = (sigma2+size_g) * d_sq_sq + (sigma1+strain_l) * d_sq + sigma0
+    h_g = calc_sigma(d, sigma0, sigma1, sigma2, size_g, strain_g)
     h_l = (gamma2+size_l) * d_sq + (gamma1+strain_l) * d + gamma0
-    h_g = numpy.sqrt(h_g_sq)
     return h_g, h_l
 
 
@@ -204,20 +222,6 @@ def tof_Carpenter():
     pass
 
 
-def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
-    norm = 0.5*alpha*beta/(alpha+beta)
-    time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
-    delta_2d = time_2d-time_hkl_2d
-    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
-
-    exp_u = exp(u)
-    exp_v = exp(v)
-    exp_u[numpy.isinf(exp_u)] = 1e200
-    exp_v[numpy.isinf(exp_v)] = 1e200
-
-    res_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
-    return res_2d
-
 
 def calc_peak_shape_function(alphas, betas, sigmas,
         d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
@@ -242,9 +246,8 @@ def calc_peak_shape_function(alphas, betas, sigmas,
     beta = beta0 + beta1 / d**4
 
     if peak_shape == "Gauss":
-        sigma0, sigma1 = sigmas[0], sigmas[1]
-
-        sigma = sigma0 + sigma1 * d
+        sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
+        sigma = calc_sigma(d, sigma0, sigma1, sigma2, size_g=size_g, strain_g=strain_g)
         res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
     else:  # peak_shape == "pseudo-Voigt"
         sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]

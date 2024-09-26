@@ -240,9 +240,33 @@ class TOF(DataN):
         if "profile_peak_shape" in keys:
             profile_peak_shape = ddict_diffrn["profile_peak_shape"]
             if profile_peak_shape == "pseudo-Voigt":
-                pass
+                profile_sigmas = ddict_diffrn["profile_sigmas"]
+                profile_alphas = ddict_diffrn["profile_alphas"]
+                profile_betas = ddict_diffrn["profile_betas"]
+                profile_gammas = ddict_diffrn["profile_gammas"]
+                tof_profile = self.tof_profile
+                setattr(tof_profile, "alpha0", profile_alphas[0])
+                setattr(tof_profile, "alpha1", profile_alphas[1])
+                setattr(tof_profile, "beta0", profile_betas[0])
+                setattr(tof_profile, "beta1", profile_betas[1])
+                setattr(tof_profile, "sigma0", profile_sigmas[0])
+                setattr(tof_profile, "sigma1", profile_sigmas[1])
+                setattr(tof_profile, "sigma2", profile_sigmas[2])
+                setattr(tof_profile, "gamma0", profile_gammas[0])
+                setattr(tof_profile, "gamma1", profile_gammas[1])
+                setattr(tof_profile, "gamma2", profile_gammas[2])
             elif profile_peak_shape == "Gauss":
-                pass
+                profile_sigmas = ddict_diffrn["profile_sigmas"]
+                profile_alphas = ddict_diffrn["profile_alphas"]
+                profile_betas = ddict_diffrn["profile_betas"]
+                tof_profile = self.tof_profile
+                setattr(tof_profile, "alpha0", profile_alphas[0])
+                setattr(tof_profile, "alpha1", profile_alphas[1])
+                setattr(tof_profile, "beta0", profile_betas[0])
+                setattr(tof_profile, "beta1", profile_betas[1])
+                setattr(tof_profile, "sigma0", profile_sigmas[0])
+                setattr(tof_profile, "sigma1", profile_sigmas[1])
+                setattr(tof_profile, "sigma2", profile_sigmas[2])
             elif profile_peak_shape == "type0m":
                 profile_alphas = ddict_diffrn["profile_alphas"]
                 profile_betas = ddict_diffrn["profile_betas"]
@@ -287,6 +311,20 @@ class TOF(DataN):
                         self.texture.items[ind_a].k_ax_sigma = float(sigma)
                     if ind_param == 2:
                         self.texture.items[ind_a].l_ax_sigma = float(sigma)
+                if name[0] == "profile_sigmas":
+                    if name[1] == 0:
+                        self.tof_profile.sigma0_sigma = float(sigma)
+                    elif name[1] == 1:
+                        self.tof_profile.sigma1_sigma = float(sigma)
+                    elif name[1] == 2:
+                        self.tof_profile.sigma2_sigma = float(sigma)
+                if name[0] == "profile_gammas":
+                    if name[1] == 0:
+                        self.tof_profile.gamma0_sigma = float(sigma)
+                    elif name[1] == 1:
+                        self.tof_profile.gamma1_sigma = float(sigma)
+                    elif name[1] == 2:
+                        self.tof_profile.gamma2_sigma = float(sigma)
 
         if (("signal_plus" in keys) and ("signal_minus" in keys)):
             tof_proc = TOFProcL()
