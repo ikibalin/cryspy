@@ -29,4 +29,4 @@ jobs:
       - name: Run functional tests
         run: |
           source .venv/bin/activate
-          python3 -m pytest tests/test_scritpts.py -vv
+          python3 -m pytest tests/test_scripts.py -vv
