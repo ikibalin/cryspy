@@ -73,6 +73,7 @@ def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN) -> dict:
     dict_out = rhochi_rietveld_refinement_with_parameters(
         cryspy_object,
         optimization_method=method) 
+
     return dict_out
 
 
@@ -99,6 +100,15 @@ def rhochi_rietveld_refinement_with_parameters(
             sigma_p = numpy.sqrt(numpy.abs(numpy.diag(hess_inv)))
             correlation_matrix = hess_inv/(sigma_p[:, na]*sigma_p[na, :])
             dict_out["correlation_matrix"] = correlation_matrix
+
+            l_label = [hh[-1][0] for hh in parameter_name]
+            if len(l_label) == hess_inv.shape[0]:
+                inv_hessian = InversedHessian()
+                inv_hessian.set_labels(l_label)
+                inv_hessian.set_inversed_hessian(hess_inv)
+                inv_hessian.form_inversed_hessian()
+                inv_hessian.form_object()
+                cryspy_object.add_items([inv_hessian, ])
         else:
             sigma_p = numpy.zeros((len(parameter_name),), dtype=float)
     else:
@@ -112,13 +122,16 @@ def rhochi_rietveld_refinement_with_parameters(
             "dder_chi_sq": dder_chi_sq, "correlation_matrix": correlation_matrix}
     cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
-
+    
     var_names = cryspy_object.get_variable_names()
     if len(var_names) > 0:
         print("Optimal parameters:")
     for name in var_names:
         value = cryspy_object.get_variable_by_name(name)
         print(f" - {name[-1][0]:} {value:.5f}")
+    
+    print("Errors are estimating by numerical derivatives.")
+    rhochi_inversed_hessian(cryspy_object)
     return dict_out
 
 
@@ -136,6 +149,7 @@ def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
     
+    cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = None, l_sigma=None)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
     
     dict_out = {"chi_sq": chi_sq, "n_point": n_point}
@@ -192,7 +206,8 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         return chi_sq
 
     hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
-
+    if (numpy.all(hess_inv == numpy.zeros_like(hess_inv)) or (hess_inv is None)):
+        return 
     corr_matrix, sigmas = inversed_hessian_to_correlation(hess_inv) 
     global_object.take_parameters_from_dictionary(
         global_dict, l_parameter_name = parameter_names, l_sigma=sigmas)
@@ -225,10 +240,6 @@ def rhochi_inversed_hessian(global_object: GlobalN):
     inv_hessian.form_inversed_hessian()
     inv_hessian.form_object()
 
-    global_object.items.append(inv_hessian)
+    global_object.add_items([inv_hessian, ])
 
-
-    # for var_name, sigma in zip(l_var_name, inv_hessian.sigma):
-    #     var_name_sigma = tuple(var_name[:-1]) + ((f"{var_name[-1][0]:}_sigma", var_name[-1][1]),)
-    #     global_object.set_variable_by_name(var_name_sigma, sigma)
     return inv_hessian

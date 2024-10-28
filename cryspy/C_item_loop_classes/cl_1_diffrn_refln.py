@@ -28,11 +28,11 @@ class DiffrnRefln(ItemN):
     ATTR_MANDATORY_TYPES = (int, int, int)
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
-    ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity_plus_calc",
-                           "intensity_minus_calc", "excluded", "sintlambda")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, bool, float)
-    ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc" , "intensity_plus_calc",
-                         "intensity_minus_calc", "excluded", "sint/lambda")
+    ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity", "intensity_sigma", "intensity_calc",
+                           "excluded", "sintlambda")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, bool, float)
+    ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc", "intensity", "intensity_sigma", "intensity_calc",
+                         "excluded", "sint/lambda")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -49,8 +49,9 @@ class DiffrnRefln(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"fr_calc": "{:.5f}", "intensity_plus_calc": "{:.2f}",
-                 "intensity_minus_calc": "{:.2f}", "sintlambda": "{:.5f}"}
+    D_FORMATS = {"fr_calc": "{:.5f}", "intensity_calc": "{:.2f}",
+                 "sintlambda": "{:.5f}",
+                 "intensity": "{:.2f}", "intensity_sigma": "{:.2f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -71,8 +72,9 @@ class DiffrnRefln(ItemN):
 
         # defined for any integer and float parameters
         D_MIN = {"fr": 0., "fr_sigma": 0., "fr_calc": 0.,
-                 "intensity_plus_calc": 0., "intensity_minus_calc": 0.,
-                 "sintlambda": 0.}
+                 "intensity_calc": 0.,
+                 "sintlambda": 0.,
+                 "intensity": 0., "intensity_sigma":0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}
@@ -263,7 +265,8 @@ class DiffrnReflnL(LoopN):
 
     def plots(self):
         return [self.plot_fr_vs_fr_calc(),
-                self.plot_asymmetry_vs_asymmetry_calc()]
+                self.plot_asymmetry_vs_asymmetry_calc(),
+                self.plot_intensity_vs_intensity_calc(),]
     
     def plot_fr_vs_fr_calc(self):
         """Plot experimental fr vs. fr_calc
@@ -345,6 +348,54 @@ class DiffrnReflnL(LoopN):
         fig.tight_layout()
         return (fig, ax)
 
+    def plot_intensity_vs_intensity_calc(self):
+        """Plot experimental intensity vs. intensity_calc
+        """
+        if not(self.is_attribute("intensity") & self.is_attribute("intensity_sigma") &
+               self.is_attribute("intensity_calc")):
+            return 
+
+        fig, ax = plt.subplots()
+        np_excl = numpy.array(self.excluded, dtype=bool)
+        flag_in = numpy.logical_not(np_excl)
+        if numpy.all(np_excl):
+            ax.set_title("Intensity")
+            intensity_min = 0.
+            intensity_max = 10.
+        else:
+            np_intensity = numpy.array(self.intensity, dtype=float)[flag_in]
+            np_intensity_calc = numpy.array(self.intensity_calc, dtype=float)[flag_in]
+            np_intensity_sigma = numpy.array(self.intensity_sigma, dtype=float)[flag_in]
+
+            chi_sq_per_n = numpy.square((np_intensity-np_intensity_calc)/np_intensity_sigma).sum()/np_intensity.shape[0]
+            agreement_factor = numpy.abs(np_intensity-np_intensity_calc).sum()/numpy.abs(np_intensity).sum() * 100.
+            ax.set_title(r"Intensity, $\chi^2/n=$" + f"{chi_sq_per_n:.2f} "+ r" $RF^2=$"+f"{agreement_factor:.1f}%")
+    
+            np_intensity_1 = np_intensity - np_intensity_sigma
+            np_intensity_2 = np_intensity + np_intensity_sigma
+    
+            intensity_min = min([min(np_intensity_1), min(self.intensity_calc)])
+            intensity_max = max([max(np_intensity_2), max(self.intensity_calc)])
+            ax.plot([intensity_min, intensity_max], [intensity_min, intensity_max], "k:")
+            ax.errorbar(np_intensity_calc, np_intensity, yerr=np_intensity_sigma, fmt="ko", alpha=0.2)
+
+        flag_excl = numpy.logical_not(flag_in)
+        np_intensity_excl = numpy.array(self.intensity, dtype=float)[flag_excl]
+        np_intensity_calc_excl = numpy.array(self.intensity_calc, dtype=float)[flag_excl]
+        np_intensity_sigma_excl = numpy.array(self.intensity_sigma, dtype=float)[flag_excl]
+        ax.errorbar(np_intensity_calc_excl, np_intensity_excl, yerr=np_intensity_sigma_excl,
+                    fmt="rs", alpha=0.2, label="excluded")
+
+        ax.set_xlim(intensity_min, intensity_max)
+        ax.set_ylim(intensity_min, intensity_max)
+        
+        ax.set_xlabel("Intensity (model)")
+        ax.set_ylabel('Intensity (experiment)')
+        ax.set_aspect(1)
+        fig.tight_layout()
+        return (fig, ax)
+
+
     def include_all_points(self):
         for item in self.items:
             item.excluded = False
@@ -371,6 +422,23 @@ class DiffrnReflnL(LoopN):
         if name in self.__dict__.keys():
             del self.__dict__[name]
 
+    def get_dictionary(self):
+        res = {}
+        index_hkl = numpy.array([
+            self.index_h, self.index_k,
+            self.index_l], dtype=float)
+        refln_fr_excl = numpy.array(self.excluded, dtype=bool)
+        res["index_hkl"] = index_hkl
+        res["flip_ratio_excluded"] = refln_fr_excl
+        try:
+            refln_fr_es = numpy.array([
+                self.fr, self.fr_sigma], dtype=float)
+            res["flip_ratio_es"] = refln_fr_es
+        except AttributeError:
+            refln_intensity_es = numpy.array([
+                self.intensity, self.intensity_sigma], dtype=float)
+            res["intensity_es"] = refln_intensity_es
+        return res
 
 # s_cont = """
 #   loop_

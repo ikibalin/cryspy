@@ -378,6 +378,8 @@ class LoopN(object):
             ls_out.append(f"loop_{self.loop_name:}")
 
         if len(self.items) == 0:
+            if item_class == ItemN:
+                return ""
             prefix = item_class.PREFIX
             for name_cif in item_class.ATTR_CIF:
                 ls_out.append(f"_{prefix:}{separator:}{name_cif:}")
@@ -525,7 +527,10 @@ class LoopN(object):
     def get_name(self) -> str:
         """Get name."""
         if self.ITEM_CLASS is ItemN:
-            name = self.items[0].PREFIX
+            if len(self.items) > 0:
+                name = self.items[0].PREFIX
+            else:
+                return ""
         else:
             name = self.ITEM_CLASS.PREFIX
         loop_name = self.loop_name
@@ -682,10 +687,13 @@ class LoopN(object):
 
     def copy_from(self, obj):
         """Copy attributes from obj to self."""
+        
         if type(obj) is not type(self):
             return
         self.items.clear()
-        self.items = copy.deepcopy(obj.items)
+        self.items = [type(item).from_cif(str(item))  for item in obj.items]
+        
+        
 
     def report(self):
         return ""
@@ -728,6 +736,24 @@ class LoopN(object):
                 item = self[index]
                 item.set_variable(name_sh, index=None)
     
+    def get_dictionary(self):
+        res = {}
+        return res
+    
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        """
+        """
+        pass
+        return None
 
-    
-    
+def get_prefix_of_loop(item: LoopN):
+    if not(isinstance(item, LoopN)):
+        return ""
+    if item.ITEM_CLASS is ItemN:
+        if len(item.items) > 0:
+            prefix = item.items[0].PREFIX
+        else:
+            return ""
+    else:
+        prefix = item.ITEM_CLASS.PREFIX
+    return prefix

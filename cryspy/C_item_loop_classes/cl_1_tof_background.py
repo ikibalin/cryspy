@@ -54,7 +54,7 @@ class TOFBackground(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {'time_max': "{:.2f}", 
+    D_FORMATS = {'time_max': "{:.2f}",
                  'coeff1': "{:.5f}", 'coeff2': "{:.5f}", 'coeff3': "{:.5f}",
                  'coeff4': "{:.5f}", 'coeff5': "{:.5f}", 'coeff6': "{:.5f}",
                  'coeff7': "{:.5f}", 'coeff8': "{:.5f}", 'coeff9': "{:.5f}",
@@ -161,14 +161,18 @@ class TOFBackground(ItemN):
             np_cos = numpy.cos(17.*time_rel)
             res += self.coeff18 * np_cos
         return res
-    
+
     def get_coefficients(self):
         l_coeff = []
         last_number = 1
         for numb in range(1, 19):
             if self.is_attribute(f"coeff{numb:}"):
                 coeff = getattr(self, f"coeff{numb:}")
-                last_number = numb
+                try:
+                    coeff = float(coeff)
+                    last_number = numb
+                except TypeError:
+                    coeff = 0
             else:
                 coeff = 0.
             l_coeff.append(coeff)
@@ -187,6 +191,13 @@ class TOFBackground(ItemN):
             l_flag_coeff.append(flag_coeff)
         flags_coefficients = numpy.array(l_flag_coeff[:last_number], dtype=bool)
         return flags_coefficients
+
+    def get_dictionary(self):
+        res = {}
+        res["background_time_max"] = getattr(self, "time_max")
+        res["background_coefficients"] = self.get_coefficients()
+        res["flags_background_coefficients"] = self.get_flags_coefficients()
+        return res
 
 class TOFBackgroundL(LoopN):
     """Bacground description for time-of-flight experiment.

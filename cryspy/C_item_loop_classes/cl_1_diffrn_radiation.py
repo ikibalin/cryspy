@@ -1,4 +1,5 @@
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -56,10 +57,12 @@ class DiffrnRadiation(ItemN):
         super(DiffrnRadiation, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"polarization": -1., "efficiency": -1.}
+        # D_MIN = {"polarization": -1., "efficiency": -1.}
+        D_MIN = {}
 
         # defined for ani integer and float parameters
-        D_MAX = {"polarization": 1., "efficiency": 1.}
+        # D_MAX = {"polarization": 1., "efficiency": 1.}
+        D_MAX = {}
 
         self.__dict__["D_MIN"] = D_MIN
         self.__dict__["D_MAX"] = D_MAX
@@ -67,6 +70,16 @@ class DiffrnRadiation(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
+
+    def get_dictionary(self):
+        res = {}
+        beam_polarization = self.polarization
+        flipper_efficiency = self.efficiency
+        res["beam_polarization"] = numpy.array([beam_polarization], dtype=float)
+        res["flipper_efficiency"] = numpy.array([flipper_efficiency], dtype=float)
+        res["flags_beam_polarization"] = numpy.array([self.polarization_refinement], dtype=bool)
+        res["flags_flipper_efficiency"] = numpy.array([self.efficiency_refinement], dtype=bool)
+        return res
 
 
 class DiffrnRadiationL(LoopN):
@@ -83,8 +96,8 @@ class DiffrnRadiationL(LoopN):
 
 # s_cont = """
 # loop_
-#  _diffrn_radiation_polarization 
-#  _diffrn_radiation_efficiency   
+#  _diffrn_radiation_polarization
+#  _diffrn_radiation_efficiency
 #  1. 1.
 #  1. -0.87()
 #  5() -7

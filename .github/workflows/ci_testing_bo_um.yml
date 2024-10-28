@@ -1,0 +1,33 @@
+name: CI Testing - Basic Operations - Ubuntu, MacOS
+
+on: [push, pull_request]
+
+jobs:
+  pytest_job:
+    timeout-minutes: 60
+
+    strategy:
+      max-parallel: 3
+      matrix:
+        python-version: [3.11]
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+
+
+      - name: Set-up Python dependences
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python3 -m pip install -e .        # from setup.py
+          python3 -m pip install matplotlib  # extra packages
+          python3 -m pip install pytest      # testing packages
+
+      - name: Run unit tests
+        run: |
+          source .venv/bin/activate
+          python3 -m pytest tests/basic_operations/

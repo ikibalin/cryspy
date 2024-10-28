@@ -23,12 +23,12 @@ def calc_spectrum(time, spectrum_type, spectrum_parameters, flag_spectrum_parame
         res = a0 + a1 * exp(-a2 * time) + \
             a3 * exp(-a4 * time_sq) + \
             a5 * exp(-a6 * time*time_sq) + \
-            a7 * exp(-a8 * time_4) 
+            a7 * exp(-a8 * time_4)
     else:  # spectrum_type == "Maxwell"
         res = a0 + a1 * exp(-a2 * time_sq)/(time*time_4) + \
             a3 * exp(-a4 * time_sq) + \
             a5 * exp(-a6 * time*time_sq) + \
-            a7 * exp(-a8 * numpy.square(time_sq)) 
+            a7 * exp(-a8 * numpy.square(time_sq))
     dder = {}
     if flag_spectrum_parameters:
         pass
@@ -37,7 +37,7 @@ def calc_spectrum(time, spectrum_type, spectrum_parameters, flag_spectrum_parame
 
 def calc_time_for_epithermal_neutrons_by_d(d, zero, dtt1, zerot, dtt1t, dtt2t, width, x_cross):
     time_e = zero + dtt1 * d
-    time_t = zerot + dtt1t * d - dtt2t / d 
+    time_t = zerot + dtt1t * d - dtt2t / d
     n_cross = 0.5*scipy.special.erfc(width * (x_cross - 1./d))
     time = n_cross * time_e + (1-n_cross) * time_t
     return time
@@ -79,6 +79,38 @@ def calc_d_min_max_by_time_epithermal_neutrons(time, zero, dtt1, zerot, dtt1t, d
     return d_min_max
 
 
+def calc_hpv_eta(h_g, h_l):
+    """pseudo-Voight function
+    
+    calculate h_pV and eta based on Gauss and Lorentz Size
+    """
+    h_g_2, h_l_2 = h_g**2, h_l**2
+    h_g_3, h_l_3 = h_g_2*h_g, h_l_2*h_l
+    h_g_4, h_l_4 = h_g_3*h_g, h_l_3*h_l
+    h_g_5, h_l_5 = h_g_4*h_g, h_l_4*h_l
+    c_2, c_3, c_4, c_5 = 2.69269, 2.42843, 4.47163, 0.07842
+    h_pv = (h_g_5 + c_2*h_g_4*h_l + c_3*h_g_3*h_l_2 + 
+            c_4*h_g_2*h_l_3 + c_5*h_g*h_l_4 + h_l_5)**0.2
+    hh = h_l*1./h_pv
+    eta = 1.36603*hh - 0.47719*hh**2 + 0.11116*hh**3
+    return h_pv, eta
+
+
+def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
+    norm = 0.5*alpha*beta/(alpha+beta)
+    time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
+    delta_2d = time_2d-time_hkl_2d
+    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
+
+    exp_u = exp(u)
+    exp_v = exp(v)
+    exp_u[numpy.isinf(exp_u)] = 1e200
+    exp_v[numpy.isinf(exp_v)] = 1e200
+
+    profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
+    return profile_g_2d
+
+
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     two_over_pi = 2.*numpy.pi
     norm = 0.5*alpha*beta/(alpha+beta)
@@ -89,7 +121,7 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     # sigma = gamma*(inv_8ln2)**0.5
     h_pv, eta = calc_hpv_eta(sigma, gamma)
 
-    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d) 
+    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
     exp_u = exp(u)
     exp_v = exp(v)
@@ -142,10 +174,15 @@ def calc_beta(beta0, beta1, d):
     return beta0+beta1*numpy.power(d, -4)
 
 
-def calc_sigma(sigma0, sigma1, d):
-    """sigma0+sigma1*d
+def calc_sigma(d, sigma0, sigma1, sigma2, size_g:float=0., strain_g:float=0.):
     """
-    return sigma0+sigma1*d
+    H_G**2 = (sigma2+size_g)*d**4 + (sigma1+strain_g)*d**2 + sigma0
+    """
+    d_sq = numpy.square(d)
+    d_sq_sq = numpy.square(d_sq)
+    h_g_sq = numpy.abs((sigma2+size_g) * d_sq_sq + (sigma1+strain_g) * d_sq + sigma0)
+    h_g = numpy.sqrt(h_g_sq)
+    return h_g
 
 
 def calc_sigma_gamma(
@@ -153,16 +190,13 @@ def calc_sigma_gamma(
         size_g: float = 0., size_l: float = 0., strain_g: float = 0.,
         strain_l: float = 0.):
     """Calculate H_G (sigma) and H_L (gamma)
-    
+
         H_G**2 = (sigma2+size_g)*d**4 + (sigma1+strain_g)*d**2 + sigma0
         H_L = (gamma2+size_l)*d**2 + (sigma1+strain_l)*d + sigma0
     """
     d_sq = numpy.square(d)
-    d_sq_sq = numpy.square(d_sq)
-
-    h_g_sq = (sigma2+size_g) * d_sq_sq + (sigma1+strain_l) * d_sq + sigma0
+    h_g = calc_sigma(d, sigma0, sigma1, sigma2, size_g, strain_g)
     h_l = (gamma2+size_l) * d_sq + (gamma1+strain_l) * d + gamma0
-    h_g = numpy.sqrt(h_g_sq)
     return h_g, h_l
 
 
@@ -176,6 +210,7 @@ def calc_y_z_u_v(alpha, beta, sigma, delta_2d):
 
     """
     sigma_sq = square(sigma)
+
     y = (alpha * sigma/(2.**0.5))[:, na] + delta_2d/(sigma*2.**0.5)[:, na]
     z = (beta * sigma/(2.**0.5))[:, na] - delta_2d/(sigma*2.**0.5)[:, na]
     u = (0.5*square(alpha)*sigma_sq)[:, na] + delta_2d*alpha[:, na]
@@ -187,22 +222,8 @@ def tof_Carpenter():
     pass
 
 
-def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
-    norm = 0.5*alpha*beta/(alpha+beta)
-    time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
-    delta_2d = time_2d-time_hkl_2d
-    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
-    exp_u = exp(u)
-    exp_v = exp(v)
-    exp_u[numpy.isinf(exp_u)] = 1e200
-    exp_v[numpy.isinf(exp_v)] = 1e200
-
-    res_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
-    return res_2d
-
-
-def calc_peak_shape_function(alphas, betas, sigmas, 
+def calc_peak_shape_function(alphas, betas, sigmas,
         d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
         size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt"):
     """Calculate peak-shape function F(DELTA)
@@ -225,9 +246,8 @@ def calc_peak_shape_function(alphas, betas, sigmas,
     beta = beta0 + beta1 / d**4
 
     if peak_shape == "Gauss":
-        sigma0, sigma1 = sigmas[0], sigmas[1]
-
-        sigma = sigma0 + sigma1 * d
+        sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
+        sigma = calc_sigma(d, sigma0, sigma1, sigma2, size_g=size_g, strain_g=strain_g)
         res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
     else:  # peak_shape == "pseudo-Voigt"
         sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
@@ -236,7 +256,7 @@ def calc_peak_shape_function(alphas, betas, sigmas,
             d, sigma0, sigma1, sigma2, gamma0,
             gamma1, gamma2, size_g=size_g, size_l=size_l,
             strain_g=strain_g, strain_l=strain_l)
-        
+
         res_2d = tof_Jorgensen_VonDreele(
             alpha, beta, sigma, gamma, time, time_hkl)
     return res_2d

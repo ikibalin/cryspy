@@ -162,12 +162,15 @@ class TOFMeasL(LoopN):
             np_down = numpy.array(self.intensity_minus, dtype=float)
             np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
 
-            ax.plot(np_time, np_up, "r-", alpha=0.2)
-            ax.errorbar(np_time, np_up, yerr=np_sup, fmt="ro", alpha=0.2,
-                        label="up")
-            ax.plot(np_time, np_down, "b-", alpha=0.2)
-            ax.errorbar(np_time, np_down, yerr=np_sdown, fmt="bs", alpha=0.2,
-                        label="down")
+            ax.fill_between(np_time, (np_up-np_sup), (np_up+np_sup), color="r", alpha=0.4, label="plus")
+            ax.fill_between(np_time, (np_down-np_sdown), (np_down+np_sdown), color="b", alpha=0.4, label="minus")
+
+            # ax.plot(np_time, np_up, "r-", alpha=0.2)
+            # ax.errorbar(np_time, np_up, yerr=np_sup, fmt="ro", alpha=0.2,
+            #             label="up")
+            # ax.plot(np_time, np_down, "b-", alpha=0.2)
+            # ax.errorbar(np_time, np_down, yerr=np_sdown, fmt="bs", alpha=0.2,
+            #             label="down")
         else:
             return
         ax.legend(loc='upper right')
@@ -193,17 +196,19 @@ class TOFMeasL(LoopN):
             np_sdown = numpy.array(self.intensity_minus_sigma, dtype=float)
             np_sum = np_up + np_down
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-            ax.plot(np_time, np_sum, "k-", alpha=0.2)
-            ax.errorbar(np_time, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
-                        label="experiment")
+            ax.fill_between(np_time, (np_sum-np_ssum), (np_sum+np_ssum), color="k", alpha=0.4, label="experiment")
+            # ax.plot(np_time, np_sum, "k-", alpha=0.2)
+            # ax.errorbar(np_time, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+            #             label="experiment")
         elif (self.is_attribute("time") & self.is_attribute("intensity") & 
               self.is_attribute("intensity_sigma")):
             np_time = numpy.array(self.time, dtype=float)
             np_sum = numpy.array(self.intensity, dtype=float)
             np_ssum = numpy.array(self.intensity_sigma, dtype=float)
-            ax.plot(np_time, np_sum, "k-", alpha=0.2)
-            ax.errorbar(np_time, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
-                        label="experiment")
+            ax.fill_between(np_time, (np_sum-np_ssum), (np_sum+np_ssum), color="k", alpha=0.4, label="experiment")
+            # ax.plot(np_time, np_sum, "k-", alpha=0.2)
+            # ax.errorbar(np_time, np_sum, yerr=np_ssum, fmt="ko", alpha=0.2,
+            #             label="experiment")
         ax.legend(loc='upper right')
         fig.tight_layout()
         return (fig, ax)
@@ -230,12 +235,15 @@ class TOFMeasL(LoopN):
         np_sdiff = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
 
         ax.plot([np_time.min(), np_time.max()], [0., 0.], "k:")
-        ax.plot(np_time, np_diff, "k-", alpha=0.2)
-        ax.errorbar(np_time, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
-                    label="experiment")
+        ax.fill_between(np_time, (np_diff-np_sdiff), (np_diff+np_sdiff), color="k", alpha=0.4, label="experiment")
+
+        # ax.plot(np_time, np_diff, "k-", alpha=0.2)
+        # ax.errorbar(np_time, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
+        #             label="experiment")
         ax.legend(loc='upper right')
         fig.tight_layout()
         return (fig, ax)
+
 
 # s_cont = """
 #   loop_

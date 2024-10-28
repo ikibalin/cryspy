@@ -83,7 +83,8 @@ def calc_chi_sq_for_pd_by_dictionary(
     ttheta_zs = ttheta - offset_ttheta
     flags_offset_ttheta = dict_pd["flags_offset_ttheta"]
     if flag_dict:
-        dict_in_out["ttheta"] = ttheta_zs  
+        dict_in_out["ttheta"] = ttheta
+        dict_in_out["ttheta_corrected"] = ttheta_zs  
         dict_in_out["excluded_points"] = excluded_points 
 
 
@@ -131,11 +132,17 @@ def calc_chi_sq_for_pd_by_dictionary(
     flags_pd_phase_ig = dict_pd["flags_phase_ig"] # IG_phase
 
     resolution_parameters = dict_pd["resolution_parameters"] # U, V, W, X, Y
-    asymmetry_parameters = dict_pd["asymmetry_parameters"] # p1, p2, p3, p4
+    if "asymmetry_parameters" in dict_pd_keys:
+        asymmetry_parameters = dict_pd["asymmetry_parameters"] # p1, p2, p3, p4
+        flags_asymmetry_parameters = dict_pd["flags_asymmetry_parameters"] 
+        flag_asymmetry_parameters = numpy.any(flags_asymmetry_parameters)
+        p_1, p_2, p_3, p_4 = asymmetry_parameters[0], asymmetry_parameters[1], asymmetry_parameters[2], asymmetry_parameters[3]
+
+    else:
+        p_1, p_2, p_3, p_4 = 0., 0., 0., 0.
+        flag_asymmetry_parameters = False
 
     flags_resolution_parameters = dict_pd["flags_resolution_parameters"] 
-    flags_asymmetry_parameters = dict_pd["flags_asymmetry_parameters"] 
-    flag_asymmetry_parameters = numpy.any(flags_asymmetry_parameters)
     
     if "texture_name" in dict_pd_keys:
         flag_texture = True
@@ -240,14 +247,14 @@ def calc_chi_sq_for_pd_by_dictionary(
 
         flag_ttheta_hkl = flag_sthovl_hkl or flags_wavelength
         ttheta_hkl = 2*numpy.arcsin(sthovl_hkl*wavelength)
-        dict_in_out_phase["ttheta_hkl"] = ttheta_hkl
+        dict_in_out_phase["ttheta_hkl"] = ttheta_hkl + offset_ttheta
         if radiation[0].startswith("neutrons"):
             f_nucl, dder_f_nucl = calc_f_nucl_by_dictionary(
                 dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
             flag_f_nucl = len(dder_f_nucl.keys()) > 0
 
             flag_para = False
-            if "atom_para_index" in dict_crystal_keys:
+            if (("atom_para_index" in dict_crystal_keys) and ("atom_para_susceptibility" in dict_crystal_keys)):
                 sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
                     dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
                 flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
@@ -347,7 +354,6 @@ def calc_chi_sq_for_pd_by_dictionary(
         
         hh = resolution_parameters + p_resolution
         u, v, w, x, y = hh[0], hh[1], hh[2], hh[3], hh[4]
-        p_1, p_2, p_3, p_4 = asymmetry_parameters[0], asymmetry_parameters[1], asymmetry_parameters[2], asymmetry_parameters[3]
         
         profile_pv, dder_pv = calc_profile_pseudo_voight(ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y,
             p_1, p_2, p_3, p_4, 

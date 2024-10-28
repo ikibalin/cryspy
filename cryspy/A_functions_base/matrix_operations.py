@@ -139,6 +139,30 @@ def calc_vector_product_v1_v2_v1(v1, v2, flag_v1: bool = False, flag_v2: bool = 
     return res, dder
 
 
+def calc_vector_product_v1_v2(v1, v2, flag_v1: bool=False, flag_v2: bool=False):
+    v1_1, v1_2, v1_3 = v1[0], v1[1], v1[2]
+    v2_1, v2_2, v2_3 = v2[0], v2[1], v2[2]
+
+    o_1 = v1_2*v2_3 - v1_3*v2_2
+    o_2 = v1_3*v2_1 - v1_1*v2_3 
+    o_3 = v1_1*v2_2 - v1_2*v2_1
+    res = numpy.stack([o_1, o_2, o_3], axis=0)
+    dder = {}
+    if flag_v1:
+        if v1.dtype == complex:
+            dder["v1_real"] = None
+            dder["v1_imag"] = None
+        else:
+            dder["v1"] = None
+    if flag_v2:
+        if v2.dtype == complex:
+            dder["v2_real"] = None
+            dder["v2_imag"] = None
+        else:
+            dder["v2"] = None
+    return res, dder
+
+
 def calc_m_q_mt(m_ij, q_ij, flag_m: bool = False, flag_q: bool = False):
     """
     q is quadratic form q_11, q_22, q_33, q_12, q_13, q_23
@@ -563,6 +587,83 @@ def calc_vt_m_v(m_ij, v_i, flag_m: bool = False, flag_v: bool = False):
             (2*m_33*v_3+(m_13+m_31)*v_1+(m_23+m_32)*v_2)*numpy.ones_like(v_3)
         ], axis=0)
     return res, dder
+
+
+def calc_vt_q_v(q, v, flag_q: bool = False, flag_v: bool = False):
+    q_11, q_22, q_33 = q[0], q[1], q[2]
+    q_12, q_13, q_23 = q[3], q[4], q[5]
+    v_1 = v[0]
+    v_2 = v[1]
+    v_3 = v[2]
+    res = (q_11*v_1*v_1 + q_22*v_2*v_2 + q_33*v_3*v_3 +
+           2*q_12*v_1*v_2 + 2*q_13*v_1*v_3+2*q_23*v_2*v_3)
+    dder = {}
+    if flag_q:
+        dder["q"] = numpy.stack([
+            v_1*v_1*numpy.ones_like(q_11), v_1*v_2*numpy.ones_like(m_12),
+            v_1*v_3*numpy.ones_like(q_13), v_2*v_1*numpy.ones_like(m_12),
+            v_2*v_2*numpy.ones_like(q_22), v_2*v_3*numpy.ones_like(m_23),
+            v_3*v_1*numpy.ones_like(q_13), v_3*v_2*numpy.ones_like(m_23),
+            v_3*v_3*numpy.ones_like(q_33)], axis=0)
+    if flag_v:
+        dder["v"] = numpy.stack([
+            (2*q_11*v_1+(q_12+q_12)*v_2+(q_13+q_13)*v_3)*numpy.ones_like(v_1),
+            (2*q_22*v_2+(q_12+q_12)*v_1+(q_23+q_23)*v_3)*numpy.ones_like(v_2),
+            (2*q_33*v_3+(q_13+q_13)*v_1+(q_23+q_23)*v_2)*numpy.ones_like(v_3)
+        ], axis=0)
+    return res, dder
+
+
+def calc_q_v(q, v, flag_q: bool = False, flag_v: bool = False):
+    q_11, q_22, q_33 = q[0], q[1], q[2]
+    q_12, q_13, q_23 = q[3], q[4], q[5]
+    v_1 = v[0]
+    v_2 = v[1]
+    v_3 = v[2]
+    o_1 = q_11*v_1 + q_12*v_2 + q_13*v_3
+    o_2 = q_12*v_1 + q_22*v_2 + q_23*v_3
+    o_3 = q_13*v_1 + q_23*v_2 + q_33*v_3
+    res = numpy.stack([o_1, o_2, o_3], axis=0)
+    dder = {}
+    if flag_q:
+        np_ol_v = np_ol(v_1)
+        if q.dtype == complex:
+            dder["q_real"] = numpy.stack([
+                numpy.stack([v_1*np_ol(q_11.real), np_zl(q_22.real), np_zl(q_33.real), v_2*np_ol(q_12.real), v_3*np_ol(q_13.real), np_zl(q_23.real)], axis=0),
+                numpy.stack([np_zl(q_11.real), v_2*np_ol(q_22.real), np_zl(q_33.real), v_1*np_zl(q_12.real), np_zl(q_13.real), v_3*np_zl(q_23.real)], axis=0),
+                numpy.stack([np_zl(q_11.real), np_zl(q_22.real), v_3*np_ol(q_33.real), np_zl(q_12.real), v_1*np_zl(q_13.real), v_2*np_zl(q_23.real)], axis=0)
+            ], axis=0)
+            dder["q_imag"] = numpy.stack([
+                numpy.stack([v_1*1j*np_ol(q_11.real), np_zl(q_22.real), np_zl(q_33.real), v_2*1j*np_ol(q_12.real), v_3*1j*np_ol(q_13.real), np_zl(q_23.real)], axis=0),
+                numpy.stack([np_zl(q_11.real), v_2*1j*np_ol(q_22.real), np_zl(q_33.real), v_1*1j*np_zl(q_12.real), np_zl(q_13.real), v_3*1j*np_zl(q_23.real)], axis=0),
+                numpy.stack([np_zl(q_11.real), np_zl(q_22.real), v_3*1j*np_ol(q_33.real), np_zl(q_12.real), v_1*1j*np_zl(q_13.real), v_2*1j*np_zl(q_23.real)], axis=0)
+            ], axis=0)
+        else:
+            dder["q"] = numpy.stack([
+                numpy.stack([v_1*np_ol(q_11.real), np_zl(q_22.real), np_zl(q_33.real), v_2*np_ol(q_12.real), v_3*np_ol(q_13.real), np_zl(q_23.real)], axis=0),
+                numpy.stack([np_zl(q_11.real), v_2*np_ol(q_22.real), np_zl(q_33.real), v_1*np_zl(q_12.real), np_zl(q_13.real), v_3*np_zl(q_23.real)], axis=0),
+                numpy.stack([np_zl(q_11.real), np_zl(q_22.real), v_3*np_ol(q_33.real), np_zl(q_12.real), v_1*np_zl(q_13.real), v_2*np_zl(q_23.real)], axis=0)
+            ], axis=0)
+    if flag_v:
+        if v.dtype == complex:
+            dder["v_real"] = numpy.stack([
+                numpy.stack([q_11*np_ol(v_1.real), q_12*np_ol(v_2.real), q_13*np_ol(v_3.real)], axis=0),
+                numpy.stack([q_12*np_ol(v_1.real), q_22*np_ol(v_2.real), q_23*np_ol(v_3.real)], axis=0),
+                numpy.stack([q_13*np_ol(v_1.real), q_23*np_ol(v_2.real), q_33*np_ol(v_3.real)], axis=0)
+            ], axis=0)
+            dder["v_imag"] = numpy.stack([
+                numpy.stack([q_11*1j*np_ol(v_1.real), q_12*1j*np_ol(v_2.real), q_13*1j*np_ol(v_3.real)], axis=0),
+                numpy.stack([q_12*1j*np_ol(v_1.real), q_22*1j*np_ol(v_2.real), q_23*1j*np_ol(v_3.real)], axis=0),
+                numpy.stack([q_13*1j*np_ol(v_1.real), q_23*1j*np_ol(v_2.real), q_33*1j*np_ol(v_3.real)], axis=0)
+            ], axis=0)
+        else:
+            dder["v"] = numpy.stack([
+                numpy.stack([q_11*np_ol(v_1), q_12*np_ol(v_2), q_13*np_ol(v_3)], axis=0),
+                numpy.stack([q_12*np_ol(v_1), q_22*np_ol(v_2), q_23*np_ol(v_3)], axis=0),
+                numpy.stack([q_13*np_ol(v_1), q_23*np_ol(v_2), q_33*np_ol(v_3)], axis=0)
+            ], axis=0)
+    return res, dder
+
 
 def calc_m_v(m, v, flag_m: bool = False, flag_v: bool = False):
     m_11, m_12, m_13 = m[0], m[1], m[2]

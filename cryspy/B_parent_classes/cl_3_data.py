@@ -122,7 +122,7 @@ class DataN(object):
             DESCRIPTION.
 
         """
-        for item in self.items:
+        for item in self.__getattribute__('items'): # self.items gives an error during the parallelization process
             if name.lower() == item.get_name():
                 return item
         raise AttributeError(f"Attribute '{name:}' is not defined")
@@ -188,6 +188,7 @@ class DataN(object):
     def add_items(self, items: list):
         """Add items."""
         l_name = [item.get_name() for item in items]
+        
         s_name = set(l_name)
 
         if len(s_name) != len(l_name):
@@ -203,7 +204,8 @@ class DataN(object):
         for ind in l_ind_del:
             self.items.pop(ind)
         for item in items_unique:
-            if isinstance(item, self.CLASSES):
+            # if isinstance(item, self.CLASSES):
+            if isinstance(item, (ItemN, LoopN)):
                 self.items.append(item)
             elif type(self) is DataN:
                 if issubclass(type(item), (ItemN, LoopN)):
@@ -480,8 +482,10 @@ class DataN(object):
         items = []
         flag = True
         n_mandatory = len(cls.CLASSES_MANDATORY)
-        for i_cls, cls_ in enumerate(cls.CLASSES):
-            flag = i_cls >= n_mandatory
+
+        # FIXME: if ItemN is not defined in data class it will be loosed. It should be fixed.        
+        flag = len(cls.CLASSES) >= n_mandatory
+        for cls_ in cls.CLASSES:
             if issubclass(cls_, ItemN):
                 prefix_cls = cls_.PREFIX
                 if cif_items.is_prefix(prefix_cls):
@@ -491,19 +495,24 @@ class DataN(object):
                     if obj_prefix is not None:
                         items.append(obj_prefix)
                         flag = True
-            elif issubclass(cls_, LoopN):
-                prefix_cls = cls_.ITEM_CLASS.PREFIX
-                for cif_loop in cif_loops:
+        
+        for cif_loop in cif_loops:
+            flag_loop = True
+            for i_cls, cls_ in enumerate(cls.CLASSES):
+                if issubclass(cls_, LoopN):
+                    prefix_cls = cls_.ITEM_CLASS.PREFIX
                     if cif_loop.is_prefix("_"+prefix_cls):
                         cif_string = str(cif_loop)
                         obj_prefix = cls_.from_cif(cif_string)
                         if obj_prefix is not None:
                             items.append(obj_prefix)
                             flag = True
-            if (not(flag)):
-                warn(f"Mandatory class: '{cls_.__name__:}' is not given.",
-                     UserWarning)
-                break
+                            flag_loop = False
+            if flag_loop:
+                loopn = LoopN.from_cif(str(cif_loop))
+                if not(loopn is None):
+                    items.append(loopn)
+                    
 
         if not(flag):
             return None
@@ -577,3 +586,21 @@ class DataN(object):
                 else:
                     item.set_variable(".".join(l_name[1:]), index=index)
 
+    def get_dictionary(self):
+        self.form_object()
+        res = {}
+        res["name"] = getattr(self, "data_name")
+        res["type_name"] = self.get_name()
+        for item in self.items:
+            if isinstance(item, (LoopN, ItemN)):
+                dict = item.get_dictionary()
+                res.update(dict)
+        return res
+    
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        """
+        """
+        for item in self.items:
+            if isinstance(item, (LoopN, ItemN)):
+                item.take_parameters_from_dictionary(ddict_diffrn, l_parameter_name=l_parameter_name, l_sigma=l_sigma)
+        return None

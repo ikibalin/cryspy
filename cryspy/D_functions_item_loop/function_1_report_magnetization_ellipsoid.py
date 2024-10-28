@@ -55,13 +55,13 @@ def report_main_axes_of_magnetization_ellipsoids(
         u_ij = magnetization_ellipsoid_by_u_ij(cell, a_s_s)
 
         label = a_s_s.label 
-        ls_out.append(f"For **`{label:}`** the susceptibility is:\n")
+        ls_out.append(f"For **`{label:}`** the principal axes of the atomic susceptibility tensor are:\n")
         # cycle over three main axes
         directions = eig_fields.transpose()
 
         ef = local_susceptibility.calc_ellipsoid_factor(chi_xyz, ucp)
 
-        ls_out.append("|Susceptibility (mu_B/T)|Orientation: |X along inv.a| Y is [inv.a, c]|Z along c|")
+        ls_out.append("|Axes  (mu_B/T)|Orientation: |X along inv.a| Y is [inv.a, c]|Z along c|")
         ls_out.append("|--------------|-------|----------|----------|----------|")
         for _val1, val_sigma, _direction in zip(
                 moments, moments_sigma, directions):
@@ -75,7 +75,7 @@ def report_main_axes_of_magnetization_ellipsoids(
 {_direction[1]: 9.5f}| {_direction[2]: 9.5f}|")
         ls_out.append(f"\nEllipsoid factor {ef:.5f}.\n")
 
-        ls_out.append("\nUse thermal parameters U_ij to plot magn. ellispoid.\n")
+        ls_out.append("\nUse thermal parameters U_ij to plot ellispoid.\n")
         ls_out.append(f"|      U_11|      U_22|      U_33|      U_12|      \
 U_13|      U_23|")
         ls_out.append(f"|----------|----------|----------|----------|------\

@@ -1,0 +1,184 @@
+global_
+
+data_Ho2Ti2O7
+
+_cell_length_a 10.200000
+_cell_length_b 10.200000
+_cell_length_c 10.200000
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 90.000000
+
+_space_group_name_H-M_alt "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+  Ho1   Ho3+   0.500000   0.500000   0.500000   1.0   Uiso   0.0   16   d
+  Ti1   Ti3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   c
+   O1    O2-   0.331920   0.125000   0.125000   1.0   Uiso   0.0   48   f
+   O2    O2-   0.375000   0.375000   0.375000   1.0   Uiso   0.0    8   b
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+  Ho1   Cani   3.329(48)   3.32908   3.32908   3.254(23)   3.25441   3.25441
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  Ho1   Ho3+   1.25   1.0
+
+
+data_Ho2Ti2O7
+
+_setup_wavelength 1.4000
+_setup_field 1.00
+_setup_radiation neutrons
+_setup_K 0.0
+_setup_cthm 0.91000
+
+_diffrn_radiation_polarization -0.87
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 6.59783
+_diffrn_orient_matrix_ub_12 -6.99807
+_diffrn_orient_matrix_ub_13 3.3663
+_diffrn_orient_matrix_ub_21 2.18396
+_diffrn_orient_matrix_ub_22 -2.60871
+_diffrn_orient_matrix_ub_23 -9.5302
+_diffrn_orient_matrix_ub_31 7.4657
+_diffrn_orient_matrix_ub_32 6.94702
+_diffrn_orient_matrix_ub_33 -0.18685
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 2909.563(53)
+_extinction_radius 78.5288(82)
+
+_phase_label Ho2Ti2O7
+
+_refine_ls_goodness_of_fit_all 10.444
+_refine_ls_number_reflns 94
+_refine_ls_weighting_scheme sigma
+
+loop_
+_diffrn_refln_index_h
+_diffrn_refln_index_k
+_diffrn_refln_index_l
+_diffrn_refln_fr
+_diffrn_refln_fr_sigma
+_diffrn_refln_fr_calc
+_diffrn_refln_excluded
+   0    0    8   0.64545   0.01329   0.67767   False
+   2    0    6   1.75682    0.0454   1.74010   False
+   0    2    6   1.67974   0.03711   1.61657   False
+   2    0   10    0.9051   0.02316   0.92303   False
+   0    2   10   0.92428   0.01791   0.93246   False
+   4   -4    0   0.71857   0.01026   0.73712   False
+   6   -6    0   0.44678   0.01115   0.40082   False
+   1   -1    1   0.55702   0.01009   0.50709   False
+  -1    1    1   0.47052   0.01009   0.50797   False
+   1    1    1   0.53666   0.01087   0.48981   False
+  -1    1   -1   0.56008   0.01004   0.50709   False
+   3   -1    1   1.26615   0.01118   1.32041   False
+   1   -1    3   0.54644   0.01049   0.59302   False
+  -1    1    3   0.54844   0.01056   0.59163   False
+  -1    3    1   1.14614   0.01104   1.20426   False
+   1   -1    5   0.28543   0.01051   0.26214   False
+  -1    1    5   0.26649   0.01058   0.26490   False
+   1    1    5   0.82754    0.0127   0.82986   False
+   1   -1    7   0.35757   0.02155   0.33544   False
+  -1    1    7   0.30578   0.01314   0.33381   False
+   1    1    7   1.18066   0.02768   1.12076   False
+   1   -1    9   0.15014   0.01917   0.17857   False
+  -1    1    9   0.17578    0.0133   0.17961   False
+   1    1    9   0.63305   0.03572   0.57089   False
+   1   -1   11   0.27137   0.02112   0.17511   False
+  -1    1   11    0.2734   0.01403   0.17400   False
+   3   -1    3    0.9056   0.01185   0.91998   False
+  -1    3    3   0.86826    0.0117   0.92101   False
+   3   -3    1   0.46076   0.01015   0.46350   False
+  -3    3    1   0.44771   0.01012   0.46216   False
+   5   -3    1   0.92977   0.01107   0.93119   False
+   3   -1    5   1.39964   0.01815   1.31640   False
+  -1    3    5   1.35193   0.01862   1.23254   False
+  -3    5    1   0.90133   0.01075   0.92127   False
+   3   -1    7   1.64651   0.15595   2.02366   False
+  -1    3    7   2.12272   0.12829   2.10801   False
+   3   -1    9   1.31075   0.07739   1.24647   False
+  -1    3    9   1.31879   0.03615   1.19472   False
+   5   -5    1   1.50629   0.01933   1.57578   False
+  -5    5    1   1.53186   0.01441   1.57549   False
+   7   -5    1   1.07597   0.01589   1.04756   False
+  -5    7    1   1.06467   0.01271   1.02448   False
+   7   -7    1    0.7265   0.01227   0.69225   False
+  -7    7    1   0.68022   0.01062   0.69190   False
+   4   -2    2   1.25396   0.01255   1.22323   False
+   2   -2    4   0.30266   0.01133   0.28345   False
+  -2    2    4   0.26318   0.01078   0.28219   False
+  -2    4    2    1.2216   0.01233   1.18998   False
+   2   -2    6   0.17998   0.01217   0.14682   False
+  -2    2    6   0.15166   0.01068   0.14756   False
+   2   -2   10   0.17871   0.01774   0.08987   False
+  -2    2   10   0.20838   0.01222   0.09044   False
+   6   -4    2   0.90454    0.0153   0.89967   False
+   4   -2    6   1.63311    0.0942   1.56179   False
+  -2    4    6   1.30351   0.03692   1.43273   False
+  -4    6    2   0.89297   0.01288   0.91577   False
+   4   -2   10   0.73947   0.06083   0.88814   False
+  -2    4   10   0.85742   0.01961   0.90020   False
+   6   -6    2   0.13772   0.01077   0.07215   False
+  -6    6    2   0.13565   0.01018   0.07263   False
+   8   -6    2   1.09633   0.02295   1.06120   False
+  -6    8    2   1.11519   0.01426   1.05033   False
+   5   -3    3   1.26273   0.01869   1.27124   False
+   3   -3    5   0.56738   0.01288   0.58718   False
+  -3    3    5   0.55767    0.0114   0.58642   False
+  -3    5    3   1.13296   0.01654   1.16315   False
+   3   -3    7   0.78303   0.01983   0.73221   False
+  -3    3    7   0.73006   0.01252   0.73276   False
+   3   -3    9   0.62207   0.02176   0.56720   False
+  -3    3    9   0.57837   0.01136   0.56664   False
+   5   -3    5   0.89216   0.01462   0.91421   False
+  -3    5    5   0.89956   0.01188   0.92236   False
+   5   -5    3     0.325   0.01066   0.30184   False
+  -5    5    3   0.29415   0.01018   0.30080   False
+   7   -5    3   0.96916   0.01397   0.96431   False
+   5   -3    7   1.10058   0.02537   1.05841   False
+  -3    5    7   1.14102   0.01721   1.04006   False
+  -5    7    3   0.95459   0.01121   0.96652   False
+   5   -3    9   0.96812   0.10189   0.81261   False
+  -3    5    9   0.78941   0.01697   0.83356   False
+  -5    9    3   0.18746   0.01091   0.11467   False
+   4   -4    8   0.44092   0.01809   0.47730   False
+  -4    4    8   0.44452   0.01294   0.47818   False
+  -4    8    4   0.45055   0.01067   0.51864   False
+   6   -4    6   1.18541   0.02655   1.11042   False
+  -4    6    6   1.13095   0.01354   1.07843   False
+   5   -5    5   0.73981   0.01327   0.69233   False
+  -5    5    5    0.7156   0.01259   0.69288   False
+   7   -5    5   1.28398   0.04336   1.14666   False
+   5   -5    7   0.13415   0.01798   0.07893   False
+  -5    5    7    0.1338   0.01067   0.07802   False
+  -5    7    5   1.19325   0.01762   1.08327   False
+   6   -6    6   0.17824   0.01427   0.09010   False
+  -6    6    6   0.18108   0.01033   0.09113   False
+

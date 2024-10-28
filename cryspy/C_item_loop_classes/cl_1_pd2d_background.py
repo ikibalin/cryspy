@@ -266,7 +266,7 @@ class Pd2dBackground(ItemN):
 
         ttheta_bkgr = numpy.linspace(gamma.min(), gamma.max(), points_tth, endpoint=True)
         phi_bkgr = numpy.linspace(nu.min(), nu.max(), points_phi, endpoint=True)
-        
+
         flags_tth = numpy.abs(gamma[na, :]-ttheta_bkgr[:, na])<step_gamma
         flags_phi = numpy.abs(nu[na, :]-phi_bkgr[:, na])<step_nu
         flags = flags_tth[:, :, na, na] * flags_phi[na, na, :, :]
@@ -286,4 +286,12 @@ class Pd2dBackground(ItemN):
         self.intensity_sigma = numpy.zeros(int_bkrg.shape, dtype=float)
         self.intensity_mark = numpy.zeros(int_bkrg.shape, dtype=str)
         self.form_gamma_nu_intensity()
-        return 
+        return
+
+    def get_dictionary(self):
+        res = {}
+        res["background_gamma"] = numpy.array(self.gamma, dtype=float)*numpy.pi/180.
+        res["background_nu"] = numpy.array(self.nu, dtype=float)*numpy.pi/180.
+        res["background_intensity"] = numpy.array(self.intensity, dtype=float)
+        res["flags_background_intensity"] = numpy.array(self.intensity_refinement, dtype=bool)
+        return res

@@ -375,7 +375,7 @@ def calc_powder_iint_1d_ordered(f_nucl, f_m_perp,
 
 
 def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flipper, magnetic_field,
-        flag_f_nucl: bool = False, flag_f_m_perp: bool = False, flag_tensor_sigma: bool = False,
+        flag_f_nucl: bool = False, flag_f_m_perp_ordered: bool = False, flag_tensor_sigma: bool = False,
         flag_polarization: bool = False, flag_flipper: bool = False,
         flag_magnetic_field: bool = False):
     """Calculated powderly averaged integrated intensity in case of coexisting paramagnetic and magnetically ordered sublattice at
@@ -389,13 +389,12 @@ def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flippe
     iint_plus_para, iint_minus_para, dder_plus_para, dder_minus_para = calc_powder_iint_1d_para(
         f_nucl, tensor_sigma, polarization, flipper, magnetic_field,
         flag_f_nucl=flag_f_nucl, flag_tensor_sigma=flag_tensor_sigma,
-        flag_polarization=flag_polarization, flag_flipper=flag_flipper,
-        flag_magnetic_field=flag_magnetic_field)
+        flag_polarization=flag_polarization, flag_flipper=flag_flipper)
 
     f_m_perp_sq = numpy.square(numpy.abs(f_m_perp)).sum(axis=0)
 
     m_2, dder_m_2 = calc_chiral_term_sin_sq_mix(
-        tensor_sigma, f_m_perp, flag_tensor_sigma=flag_tensor_sigma, flag_f_m_perp=flag_f_m_perp)
+        tensor_sigma, f_m_perp, flag_tensor_sigma=flag_tensor_sigma, flag_f_m_perp=flag_f_m_perp_ordered)
 
     iint_plus = iint_plus_para + f_m_perp_sq + p_u * magnetic_field * m_2
     iint_minus = iint_minus_para + f_m_perp_sq + p_d * magnetic_field * m_2
@@ -405,11 +404,11 @@ def calc_powder_iint_1d_mix(f_nucl, f_m_perp, tensor_sigma, polarization, flippe
     if flag_f_nucl:
         dder_plus["f_nucl_real"] = dder_plus_para["f_nucl_real"] 
         dder_minus["f_nucl_real"] = dder_minus_para["f_nucl_real"] 
-    if flag_f_m_perp:
-        dder_plus["f_m_perp_real"] = 2*f_m_perp.real + p_u * magnetic_field * dder_m_2["f_m_perp_real"]
-        dder_plus["f_m_perp_imag"] = 2*f_m_perp.imag + p_u * magnetic_field * dder_m_2["f_m_perp_imag"]
-        dder_minus["f_m_perp_real"] = 2*f_m_perp.real + p_d * magnetic_field * dder_m_2["f_m_perp_real"]
-        dder_minus["f_m_perp_imag"] = 2*f_m_perp.imag + p_d * magnetic_field * dder_m_2["f_m_perp_imag"]
+    if flag_f_m_perp_ordered:
+        dder_plus["f_m_perp_ordered_real"] = 2*f_m_perp.real + p_u * magnetic_field * dder_m_2["f_m_perp_real"]
+        dder_plus["f_m_perp_ordered_imag"] = 2*f_m_perp.imag + p_u * magnetic_field * dder_m_2["f_m_perp_imag"]
+        dder_minus["f_m_perp_ordered_real"] = 2*f_m_perp.real + p_d * magnetic_field * dder_m_2["f_m_perp_real"]
+        dder_minus["f_m_perp_ordered_imag"] = 2*f_m_perp.imag + p_d * magnetic_field * dder_m_2["f_m_perp_imag"]
     if flag_tensor_sigma:
         dder_plus["tensor_sigma_real"] = dder_plus_para["tensor_sigma_real"] + p_u * magnetic_field * dder_m_2["tensor_sigma_real"]
         dder_plus["tensor_sigma_imag"] = dder_plus_para["tensor_sigma_imag"] + p_u * magnetic_field * dder_m_2["tensor_sigma_imag"]

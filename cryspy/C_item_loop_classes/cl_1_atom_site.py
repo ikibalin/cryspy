@@ -15,7 +15,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomSite(ItemN):
     """Describe the atom site.
-    
+
     Attributes
     ----------
         - label, type_symbol, fract_x, fract_y, fract_z (mandatory)
@@ -141,8 +141,8 @@ class AtomSite(ItemN):
     def calc_sc_chi(self, space_group, cell):
         """Calc sc_chi
         """
-        if self.is_attribute("sc_chi"):
-            return self.sc_chi
+        # if self.is_attribute("sc_chi"):
+        #     return self.sc_chi
         unit_cell_parameters = cell.get_unit_cell_parameters()
         x, y, z = self.fract_x, self.fract_y, self.fract_z
         o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33, o_3, o_2, o_3 =\
@@ -150,7 +150,7 @@ class AtomSite(ItemN):
         zero_val = numpy.zeros(o_11.shape, dtype=int)
         symm_elems = numpy.array([zero_val, zero_val, zero_val, zero_val,
             o_11, o_12, o_13, o_21, o_22, o_23, o_31, o_32, o_33], dtype=int)
-        
+
         sc_chi = calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
         self.__dict__["sc_chi"] = sc_chi
         return sc_chi
@@ -252,7 +252,9 @@ class AtomSite(ItemN):
 
     def get_flags_atom_b_iso(self):
         res = False
-        if self.adp_type in ["Uiso", "Uovl", "Umpe", ]:
+        if not(self.is_attribute("adp_type")):
+            res = False
+        elif self.adp_type in ["Uiso", "Uovl", "Umpe", ]:
             res = self.u_iso_or_equiv_refinement
         elif self.adp_type in ["Biso", "Bovl", ]:
             res = self.b_iso_or_equiv_refinement
@@ -261,7 +263,7 @@ class AtomSite(ItemN):
 
 class AtomSiteL(LoopN):
     """Describe the atom sites in crystal.
-    
+
     Attributes
     ----------
         - label, type_symbol, fract_x, fract_y, fract_z (mandatory)

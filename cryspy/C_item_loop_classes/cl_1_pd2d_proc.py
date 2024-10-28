@@ -6,6 +6,7 @@ from scipy.optimize import minimize
 
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.widgets as wdg
 
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu
@@ -363,14 +364,14 @@ class Pd2dProc(ItemN):
         cmap_sum = plt.get_cmap("turbo") # BuPu
 
         if flag_polarized:
-            fig, axs = plt.subplots(2,2)
+            fig, axs = plt.subplots(2,2, sharex=True)
             ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
         elif flag_unpolarized:
             fig, axs = plt.subplots(2, 1, sharex=True)
             ax1, ax3= axs[0], axs[1]
 
         norm_1 = matplotlib.colors.Normalize(vmax=max_val, vmin=min_val)
-        ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
+        img_unpol = ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
         ax1.imshow(zz_sum, origin="lower", aspect="auto", alpha=0.8, extent=extent)
 
         ax1.set_xticks([])
@@ -398,14 +399,19 @@ class Pd2dProc(ItemN):
 
         ax1.set_title(r"Unpolarized signal $\chi^2/n=$"+f"{chi_sq_per_n_sum:.2f}")
 
+
         ttheta, signal_projection_sum, signal_projection_exp_sum, signal_projection_exp_sum_sigma, \
             signal_projection_difference, signal_projection_exp_difference, signal_projection_exp_difference_sigma = \
             self.calc_projections_sum_difference()
 
-        ax3.errorbar(
-            ttheta[:gamma.size], signal_projection_exp_sum[:gamma.size],
-            yerr=signal_projection_exp_sum_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
-        ax3.plot(ttheta[:gamma.size], signal_projection_sum[:gamma.size], "b-", label="model", linewidth=2)
+        ax3.fill_between(
+            ttheta[:gamma.size],(signal_projection_exp_sum-signal_projection_exp_sum_sigma)[:gamma.size],
+            (signal_projection_exp_sum+signal_projection_exp_sum_sigma)[:gamma.size], color="k", alpha=0.4, label="experiment")
+
+        # ax3.errorbar(
+        #     ttheta[:gamma.size], signal_projection_exp_sum[:gamma.size],
+        #     yerr=signal_projection_exp_sum_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
+        ax3.plot(ttheta[:gamma.size], signal_projection_sum[:gamma.size], "b-", label="model", linewidth=1)
 
         y_min_d, y_max_d = ax3.get_ylim()
         param = y_min_d-numpy.nanmax((signal_projection_exp_sum-signal_projection_sum)[:gamma.size])
@@ -423,10 +429,14 @@ class Pd2dProc(ItemN):
             chi_sq_per_n_difference = numpy.nansum(numpy.square(
                     (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.product(signal_exp_difference.shape)
             ax2.set_title(r"Polarized signal $\chi^2/n=$"+f"{chi_sq_per_n_difference:.2f}")
-            ax4.errorbar(
-                ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
-                yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
-            ax4.plot(ttheta[:gamma.size], signal_projection_difference[:gamma.size], "b-", label="model", linewidth=2)
+
+            ax4.fill_between(
+                ttheta[:gamma.size], (signal_projection_exp_difference-signal_projection_exp_difference_sigma)[:gamma.size],
+                (signal_projection_exp_difference+signal_projection_exp_difference_sigma)[:gamma.size], color="k", alpha=0.4, label="experiment")
+            # ax4.errorbar(
+            #     ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
+            #     yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2, label="experiment")
+            ax4.plot(ttheta[:gamma.size], signal_projection_difference[:gamma.size], "b-", label="model", linewidth=1)
 
             y_min_d, y_max_d = ax4.get_ylim()
             param = y_min_d-numpy.nanmax((signal_projection_exp_difference-signal_projection_difference)[:gamma.size])

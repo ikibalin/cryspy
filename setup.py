@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2018-2019 Iurii Kibalin   
+# Copyright (c) 2018-2023 Iurii Kibalin   
 # https://github.com/ikibalin/cryspy  
 # All rights reserved.
 # 
@@ -41,7 +41,7 @@ with open(f_name, 'r') as f:
 
 setup(
     name='cryspy',
-    version='0.6.2',
+    version='0.7.7',
     description='PNPD data analysis',
     long_description = long_description,
     author='Iurii Kibalin',
@@ -58,6 +58,8 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Operating System :: OS Independent",
     ],    
     include_package_data=True,

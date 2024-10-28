@@ -14,6 +14,20 @@ from cryspy.A_functions_base.function_1_strings import find_prefix, \
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
 
 
+def string_to_fixed_or_refined(s_value: str):
+    flag_refined = False
+    try:
+        value = float(s_value.split("(")[0])
+        flag = (("(" in s_value) and (")" in s_value))
+        if flag:
+            flag_refined = True
+    except ValueError:
+        value = s_value
+    except AttributeError:
+        value = s_value
+    return value, flag_refined
+
+
 class ItemN(object):
     """Items data.
 
@@ -309,7 +323,37 @@ class ItemN(object):
         -------
         NoReturn
         """
-        pass
+        if ((type(self) == ItemN) and (len(self.ATTR_REF)==0)):
+            l_ATTR_REF, l_ATTR_SIGMA = [], []
+            l_ATTR_CONSTR_FLAG, l_ATTR_REF_FLAG = [], []
+            l_ATTR_CONSTR_MARK = []
+            variable_names = []
+            for name in self.ATTR_NAMES:
+                s_value = getattr(self, name)
+                value, flag_refined = string_to_fixed_or_refined(s_value)
+                if isinstance(value, float):
+                    value, error, mark = string_to_value_error_mark(s_value)
+                    name_sigma = f"{name:}_sigma"
+                    name_constraint = f"{name:}_constraint"
+                    name_refinement = f"{name:}_refinement"
+                    name_mark = f"{name:}_mark"
+
+                    self.__dict__[name] = value
+                    self.__dict__[name_sigma] = error
+                    self.__dict__[name_constraint] = False
+                    self.__dict__[name_refinement] = flag_refined
+                    self.__dict__[name_mark] = mark
+
+                    l_ATTR_REF.append(name)
+                    l_ATTR_SIGMA.append(name_sigma)
+                    l_ATTR_CONSTR_FLAG.append(name_constraint)
+                    l_ATTR_REF_FLAG.append(name_refinement)
+                    l_ATTR_CONSTR_MARK.append(name_mark)
+            self.__dict__["ATTR_REF"] = tuple(l_ATTR_REF)
+            self.__dict__["ATTR_SIGMA"] = tuple(l_ATTR_SIGMA)
+            self.__dict__["ATTR_CONSTR_FLAG"] = tuple(l_ATTR_CONSTR_FLAG)
+            self.__dict__["ATTR_REF_FLAG"] = tuple(l_ATTR_REF_FLAG)
+            self.__dict__["ATTR_CONSTR_MARK"] = tuple(l_ATTR_CONSTR_MARK)
 
     def to_cif(self, separator: str = "_", flag_all_attributes:bool=False) -> str:
         """
@@ -393,11 +437,15 @@ class ItemN(object):
             List of names of variable.
 
         """
+        if type(self) == ItemN:
+            self.form_object()
         atr_ref = self.ATTR_REF
         atr_ref_flag = self.ATTR_REF_FLAG
         prefix = self.PREFIX
-        return [((prefix, None), (name, None)) for name, name_flag in
+        variable_names = [((prefix, None), (name, None)) 
+            for name, name_flag in
                 zip(atr_ref, atr_ref_flag) if getattr(self, name_flag)]
+        return variable_names
 
     def is_variables(self) -> bool:
         """Define is there variables or not."""
@@ -651,4 +699,13 @@ class ItemN(object):
             flag_2 = not(getattr(self, f"{name_sh:}_constraint"))
             if flag_1 & flag_2:
                 setattr(self, f"{name_sh:}_refinement", True)
-        
+    
+    def get_dictionary(self):
+        res = {}
+        return res
+    
+    def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
+        """
+        """
+        pass
+        return None

@@ -22,6 +22,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_moment import \
     AtomSiteMoment, AtomSiteMomentL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibility, AtomSiteSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_site_exchange import \
+    AtomSiteExchange, AtomSiteExchangeL
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
     AtomTypeScat, AtomTypeScatL
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import \
@@ -109,10 +111,6 @@ from cryspy.E_data_classes.cl_2_pd import Pd
 from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 from cryspy.E_data_classes.cl_2_tof import TOF
 
-from cryspy.G_global_classes.cl_1_rhochi import RhoChi
-from cryspy.G_global_classes.cl_1_mem import MEM
-
-
 L_ITEM_CLASS = []
 L_LOOP_CLASS = []
 L_DATA_CLASS = []
@@ -121,9 +119,9 @@ L_FUNCTION_ADD = []
 
 
 L_ITEM_CLASS.extend([
-    AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater, 
+    AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater,
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
-    AtomSiteSusceptibility, AtomType, AtomTypeScat,
+    AtomSiteSusceptibility, AtomSiteExchange, AtomType, AtomTypeScat,
     Cell, ChannelChi, ChannelPlusMinus, Chi2,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
     Exclude, Extinction, MEMParameters, InversedHessian,
@@ -138,9 +136,9 @@ L_ITEM_CLASS.extend([
     TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
 L_LOOP_CLASS.extend([
-    AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL, 
+    AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
-    AtomSiteSusceptibilityL, AtomTypeL, AtomTypeScatL,
+    AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomTypeL, AtomTypeScatL,
     CellL, ChannelChiL, ChannelPlusMinusL, Chi2L,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
     ExtinctionL, ExcludeL, MEMParametersL,
@@ -155,7 +153,7 @@ L_LOOP_CLASS.extend([
 
 L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
-L_GLOBAL_CLASS.extend([]) # MEM, RhoChi
+L_GLOBAL_CLASS.extend([])
 
 F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
 
@@ -203,7 +201,7 @@ does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.")
                 print(f"Module '{module_name:}' in folder: \n {module_way}\n\
 does not contains in 'init.py' parameter 'L_FUNCTION'.")
                 f_ok = False
-        else: 
+        else:
             f_ok = False
         if f_ok:
             l_content_new.append(f_name_sh)
@@ -566,7 +564,7 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
             l_prefix_cif = find_prefixes(l_name_cif)
 
         for prefix in l_prefix_cif:
-            names = [name_cif for name_cif in l_name_cif if 
+            names = [name_cif for name_cif in l_name_cif if
                      name_cif.startswith("_"+prefix)]
             items_small = items_cif.items_with_names(names)
             item_obj = ItemN.from_cif(str(items_small))
@@ -652,6 +650,7 @@ def items_to_datan(data_name: str, items: list, l_data_class):
                          for cls_mand in cls_data.CLASSES_MANDATORY])
         flag_opt = all([class_ in cls_data.CLASSES
                         for class_ in classes])
+
         if (flag_mand & flag_opt):
             data_obj = cls_data()
             data_obj.data_name = data_name

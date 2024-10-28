@@ -1,4 +1,5 @@
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -114,6 +115,18 @@ class Extinction(ItemN):
         else:
             return y_ext
 
+    def get_dictionary(self):
+        res = {}
+        model_extinction = self.model
+        radius = self.radius
+        mosaicity = self.mosaicity
+        res["extinction_model"] = model_extinction
+        res["extinction_radius"] = numpy.array([radius], dtype=float)
+        res["extinction_mosaicity"] = numpy.array([mosaicity], dtype=float)
+        res["flags_extinction_radius"] = numpy.array([self.radius_refinement], dtype=bool)
+        res["flags_extinction_mosaicity"] = numpy.array([self.mosaicity_refinement], dtype=bool)
+        return res
+
 class ExtinctionL(LoopN):
     """
     Description of extinction in loop.
@@ -128,9 +141,9 @@ class ExtinctionL(LoopN):
 
 # s_cont = """
 #   loop_
-#  _extinction_mosaicity 
-#  _extinction_radius    
-#  _extinction_model     
+#  _extinction_mosaicity
+#  _extinction_radius
+#  _extinction_model
 #  100() 50 gauss
 #  3 7() lorentz
 # """

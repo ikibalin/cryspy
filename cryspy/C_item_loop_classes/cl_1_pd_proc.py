@@ -1,6 +1,7 @@
 from typing import NoReturn
 import numpy
 import matplotlib.pyplot as plt
+import matplotlib.widgets as wdg
 import scipy
 import scipy.optimize
 
@@ -57,7 +58,7 @@ class PdProc(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {
+    D_FORMATS = {"ttheta": "{:.2f}",
         "ttheta_corrected": "{:.2f}", "d_spacing": "{:.5f}",
         "intensity_plus_net": "{:.2f}", "intensity_minus_net": "{:.2f}",
         "intensity_plus_total": "{:.2f}", "intensity_minus_total": "{:.2f}",
@@ -113,6 +114,9 @@ class PdProcL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
     
+    def calc_chi_sq(self):
+        pass
+
     def plots(self):
         return [self.plot_sum_diff()]
     
@@ -161,27 +165,34 @@ class PdProcL(LoopN):
             chi_sq_diff_points = numpy.nansum(numpy.square((np_diff - np_diff_mod)/np_ssum))/np_diff_mod.size
 
             ax_1.set_title(f"Unpolarized ($\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
-
-            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
+            if numpy.any(np_excl):
+                ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
+            # ax_button = plt.axes([0.25, 0.1, 0.08, 0.05])
+            # grid_button = wdg.Button(ax_button, 'Grid', color='white', hovercolor='grey')
+            # ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], color="k", alpha=0.2, label="experiment")
+            # ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], color="r", alpha=0.2, label="excluded")
 
             y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-((np_sum - np_sum_mod)[np_notexcl]).max()
             coeff = np_notexcl.astype(int)
-            ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
-            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=2)
+            ax_1.plot(np_tth, np_sum_mod, "-", color="blue", label="model", linewidth=1)
+            ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_1.plot(np_tth, np_bkg, "b:", label="background")
             ax_1.legend(loc='upper right')
 
             ax_2.plot([np_tth.min(), np_tth.max()], [0., 0.], "b:")
-            ax_2.errorbar(np_tth, np_diff, yerr=np_ssum, fmt="ko", alpha=0.2, label="experiment")
+
+            ax_2.fill_between(np_tth, np_diff-np_ssum, np_diff+np_ssum, color="k", alpha=0.4, label="experiment")
+
+            # ax_2.errorbar(np_tth, np_diff, yerr=np_ssum, color="k", alpha=0.2, label="experiment") # fmt="k."
 
             y_min_d, y_max_d = ax_2.get_ylim()
             param = y_min_d-(np_diff-np_diff_mod).max()
             ax_2.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_2.plot(np_tth, np_diff-np_diff_mod+param, "r-", alpha=0.5, label="difference")
-            ax_2.plot(np_tth, np_diff_mod, "b-", label="model", linewidth=2)
+            ax_2.plot(np_tth, np_diff_mod, "b-", label="model", linewidth=1)
             ax_2.legend(loc='upper right')
 
         elif (self.is_attribute("ttheta") and 
@@ -214,8 +225,11 @@ class PdProcL(LoopN):
             chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
             ax_1.set_title(f"Unpolarized signal $\chi^2/n = ${chi_sq_points:.2f}")
 
-            ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="ko", alpha=0.2, label="experiment")
-            ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
+            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
+            ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_excl, color="r", alpha=0.5, label="excluded")
+
+            # ax_1.errorbar(np_tth[np_notexcl], np_sum[np_notexcl], yerr=np_ssum[np_notexcl], fmt="k.", alpha=0.2, label="experiment")
+            # ax_1.errorbar(np_tth[np_excl], np_sum[np_excl], yerr=np_ssum[np_excl], fmt="rs", alpha=0.2, label="excluded")
 
             y_min_d, y_max_d = ax_1.get_ylim()
             param = y_min_d-(np_sum - np_sum_mod).max()
@@ -223,7 +237,7 @@ class PdProcL(LoopN):
 
             ax_1.plot([np_tth.min(), np_tth.max()], [param, param], "k:")
             ax_1.plot(np_tth, coeff*(np_sum - np_sum_mod)+param, "r-", alpha=0.5, label="difference")
-            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=2)
+            ax_1.plot(np_tth, np_sum_mod, "b-", label="model", linewidth=1)
 
             if (self.is_attribute("ttheta") and
                     self.is_attribute("intensity_bkg_calc")):
@@ -267,8 +281,8 @@ class PdProcL(LoopN):
         ax.set_title(f"Polarized signal $\chi^2/n = ${chi_sq_points:.2f}")
 
         ax.plot([np_tth.min(), np_tth.max()], [0., 0.], "b:")
-        ax.errorbar(np_tth, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2,
-                    label="experiment")
+        ax.fill_between(np_tth, (np_diff-np_sdiff), (np_diff+np_sdiff), color="k", alpha=0.4, label="experiment")        
+        # ax.errorbar(np_tth, np_diff, yerr=np_sdiff, fmt="ko", alpha=0.2, label="experiment")
         
         y_min_d, y_max_d = ax.get_ylim()
         param = y_min_d-(np_diff-np_diff_mod).max()

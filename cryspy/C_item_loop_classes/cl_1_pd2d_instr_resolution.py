@@ -160,7 +160,23 @@ tth_hkl in degrees
         
         return h_pv, eta, h_g, h_l, a_g, b_g, a_l, b_l
 
+    def get_dictionary(self):
+        res = {}
+        res["resolution_parameters"] = numpy.array([
+            self.u, self.v, self.w,
+            self.x, self.y], dtype=float)
 
+        res["flags_resolution_parameters"] = numpy.array([
+            self.u_refinement, self.v_refinement, self.w_refinement,
+            self.x_refinement, self.y_refinement], dtype=bool)
+
+        res["resolution_phi_parameter"] = numpy.array([
+            self.phi,], dtype=float)
+        res["flags_resolution_phi_parameter"] = numpy.array([
+            self.phi_refinement,], dtype=float)
+                        
+        return res
+        
 class Pd2dInstrResolutionL(LoopN):
     """
     Description of AtomSite in loop.

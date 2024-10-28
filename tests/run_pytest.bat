@@ -1,0 +1,1 @@
+CALL python -m pytest .\test_scripts.py > result.log

@@ -40,7 +40,7 @@ class Refln(ItemN):
 
     ATTR_OPTIONAL_NAMES = (
         "a_calc", "a_meas", "b_calc", "b_meas", "class_code", "crystal_id",
-        "d_spacing", "f_calc", "f_meas", "f_sigma", "f_squared_calc",
+        "d_spacing", "f_calc", "f_meas", "f_sigma", "f_squared_calc", "f_polarized_squared_calc",
         "f_squared_meas", "f_squared_sigma", "include_status",
         "intensity_calc", "intensity_meas", "intensity_sigma",
         "mean_path_length_tbar", "phase_calc", "phase_meas",
@@ -48,13 +48,13 @@ class Refln(ItemN):
         "symmetry_epsilon", "symmetry_multiplicity", "wavelength",
         "wavelength_id")
     ATTR_OPTIONAL_TYPES = (float, float, float, float, str, str,
-                           float, complex, complex, complex, float,
+                           float, complex, complex, complex, float, float,
                            float, float, str, float, float, float,
                            float, str, str, str, str, float,
                            str, int, float, str)
     ATTR_OPTIONAL_CIF = (
         "a_calc", "a_meas", "b_calc", "b_meas", "class_code", "crystal_id",
-        "d_spacing", "f_calc", "f_meas", "f_sigma", "f_squared_calc",
+        "d_spacing", "f_calc", "f_meas", "f_sigma", "f_squared_calc", "f_polarized_squared_calc",
         "f_squared_meas", "f_squared_sigma", "include_status",
         "intensity_calc", "intensity_meas", "intensity_sigma",
         "mean_path_length_tbar", "phase_calc", "phase_meas",
@@ -78,6 +78,7 @@ class Refln(ItemN):
 
     # formats if cif format
     D_FORMATS = {"f_calc": "{:.2f}", "a_calc": "{:.4f}", "b_calc": "{:.4f}",
+                 "f_squared_calc": "{:.2f}", "f_polarized_squared_calc": "{:.2f}",
                  "sintlambda": "{:.5f}", "d_spacing": "{:.5f}"}
 
     # constraints on the parameters

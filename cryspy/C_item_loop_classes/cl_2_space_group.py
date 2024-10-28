@@ -218,11 +218,9 @@ class SpaceGroup(ItemN):
                 self.name_schoenflies)
         else:
             flag = False
-
         if flag:
             it_coordinate_system_codes = \
                 get_it_coordinate_system_codes_by_it_number(it_number)
-
             self.__dict__["it_number"] = it_number
             if (not(it_coordinate_system_code in it_coordinate_system_codes)):
                 it_coordinate_system_code = \
@@ -230,7 +228,6 @@ class SpaceGroup(ItemN):
                         it_number, it_coordinate_system_codes)
             self.__dict__["it_coordinate_system_code"] = \
                 it_coordinate_system_code
-
         return flag
 
     def form_object_by_it_number_it_coordinate_system_code(self):
@@ -529,9 +526,11 @@ class SpaceGroup(ItemN):
 
         xyz_s_un, unique_inverse = numpy.unique(xyz_s, return_inverse=True,
                                                 axis=1)
+        # Output for unique_inverse in version of numpy 2.0.0 and 1.23.5 is different. 
+        # This line is to unified two versions
+        unique_inverse = unique_inverse.flatten()
         x_s, y_s, z_s = xyz_s_un[0, :], xyz_s_un[1, :], xyz_s_un[2, :]
         ind = (numpy.where((x-x_s)**2+(y-y_s)**2+(z-z_s)**2 < 0.00001))[0][0]
-
         flag = unique_inverse == ind
         o_11, o_12, o_13 = e_11[flag], e_12[flag], e_13[flag]
         o_21, o_22, o_23 = e_21[flag], e_22[flag], e_23[flag]
@@ -837,13 +836,3 @@ class SpaceGroupL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
-
-# s_cont = """
-#     _space_group.IT_number             15
-# """
-
-# obj = SpaceGroup.from_cif(s_cont)
-# print(obj, end="\n\n")
-# print(obj.reduced_space_group_symop, end="\n\n")
-# print(obj.full_space_group_symop, end="\n\n")
-# print(obj.space_group_wyckoff, end="\n\n")

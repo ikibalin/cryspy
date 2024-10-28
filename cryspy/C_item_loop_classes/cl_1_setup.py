@@ -1,5 +1,6 @@
 """Setup and SetupL classes."""
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -28,10 +29,10 @@ class Setup(ItemN):
     ATTR_MANDATORY_CIF = ()
 
     ATTR_OPTIONAL_NAMES = ("wavelength", "field", "offset_ttheta", "offset_phi", "offset_gamma", "offset_nu",
-                           "ratio_lambdaover2", "radiation", "k", "cthm")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str, float, float)
+                           "ratio_lambdaover2", "radiation", "k", "cthm", "temperature")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str, float, float, float)
     ATTR_OPTIONAL_CIF = ("wavelength", "field", "offset_2theta", "offset_phi", "offset_gamma", "offset_nu",
-                         "ratio_lambda/2", "radiation", "K", "cthm")
+                         "ratio_lambda/2", "radiation", "K", "cthm", "temperature")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -52,7 +53,8 @@ class Setup(ItemN):
     D_FORMATS = {'wavelength': "{:.4f}", 'field': "{:.2f}",
                  'offset_ttheta': "{:.3f}", 'offset_phi': "{:.3f}",
                  'offset_gamma': "{:.3f}", 'offset_nu': "{:.3f}",
-                 "ratio_lambdaover2": "{:.3f}", "k": "{:.1f}", "cthm": "{:.5f}"}
+                 "ratio_lambdaover2": "{:.3f}", "k": "{:.1f}", "cthm": "{:.5f}",
+                 'temperature': "{:.2f}",}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"radiation": ["neutrons", "X-rays"]}
@@ -84,6 +86,38 @@ class Setup(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    def get_dictionary(self):
+        res = {}
+        if self.is_attribute("field"):
+            res["magnetic_field"] = numpy.array([self.field], dtype=float)
+        if self.is_attribute("temperature"):
+            res["temperature"] = numpy.array([self.temperature], dtype=float)
+        if self.is_attribute("wavelength"):
+            res["wavelength"] = numpy.array([self.wavelength], dtype=float)
+            res["flags_wavelength"] = numpy.array([self.wavelength_refinement], dtype=bool)
+        if self.is_attribute("offset_ttheta"):
+            if self.offset_ttheta is not None:
+                res["offset_ttheta"] = numpy.array([self.offset_ttheta * numpy.pi/180.], dtype=float)
+                res["flags_offset_ttheta"] = numpy.array([self.offset_ttheta_refinement], dtype=bool)
+        if self.is_attribute("offset_gamma"):
+            if self.offset_gamma is not None:
+                res["offset_gamma"] = numpy.array([self.offset_gamma * numpy.pi/180.], dtype=float)
+                res["flags_offset_gamma"] = numpy.array([self.offset_gamma_refinement], dtype=bool)
+        if self.is_attribute("offset_nu"):
+            if self.offset_nu is not None:
+                res["offset_nu"] = numpy.array([self.offset_nu * numpy.pi/180.], dtype=float)
+                res["flags_offset_nu"] = numpy.array([self.offset_nu_refinement], dtype=bool)
+        if self.is_attribute("radiation"):
+            res["radiation"] = numpy.array([self.radiation], dtype=str)
+        if self.is_attribute("k"):
+            res["k"] = numpy.array([self.k], dtype=float)
+        if self.is_attribute("cthm"):
+            res["cthm"] = numpy.array([self.cthm], dtype=float)
+        if self.is_attribute("ratio_lambdaover2"):
+            res["c_lambda2"] = numpy.array([self.ratio_lambdaover2], dtype=float)
+            res["flags_c_lambda2"] = numpy.array([self.ratio_lambdaover2_refinement], dtype=bool)
+
+        return res
 
 class SetupL(LoopN):
     """Experimental diffraction setup (constant wavelength).

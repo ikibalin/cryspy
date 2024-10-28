@@ -1,7 +1,6 @@
 """DiffrnOrientMatrix and DiffrnOrientMatrixL classes."""
-
-import numpy
 from typing import NoReturn
+import numpy
 
 from cryspy.A_functions_base.function_1_matrices import\
     calc_product_matrices, calc_product_matrix_vector
@@ -332,17 +331,17 @@ class DiffrnOrientMatrix(ItemN):
                    numpy.arctan2(q_ub[1], q_ub[0]))/numpy.pi*180
             [phi, gamma, nu] = [phi if phi > 0. else phi + 360., gamma if
                                 gamma > 0. else gamma + 360., nu]
-            if ((diffracted_beam.strip().lower() == "left") and 
+            if ((diffracted_beam.strip().lower() == "left") and
                 (diffractometer_axes.strip().lower() =="anticlockwise")): # left, anticlockwise
                 pass
-            elif ((diffracted_beam.strip().lower() != "left") and 
+            elif ((diffracted_beam.strip().lower() != "left") and
                 (diffractometer_axes.strip().lower() != "anticlockwise")): # right, clockwise
                 pass
-            elif ((diffracted_beam.strip().lower() == "left") and 
+            elif ((diffracted_beam.strip().lower() == "left") and
                 (diffractometer_axes.strip().lower() !="anticlockwise")): # right, anticlockwise
                 gamma = -gamma
                 phi = -phi
-            elif ((diffracted_beam.strip().lower() != "left") and 
+            elif ((diffracted_beam.strip().lower() != "left") and
                 (diffractometer_axes.strip().lower() == "anticlockwise")): # left, clockwise
                 gamma = -gamma
                 phi = -phi
@@ -383,7 +382,22 @@ axis 'Z' is vertical direction."""
 axis 'X' is along incident beam;<br>
 axis 'Z' is vertical direction."""
         return s_out
-        
+
+    def get_dictionary(self):
+        res = {}
+        u_matrix = self.u
+        e_up = numpy.array([u_matrix[2,0], u_matrix[2,1], u_matrix[2,2]], dtype=float)
+
+        res["matrix_u"] = numpy.array([
+            self.u_11, self.u_12, self.u_13,
+            self.u_21, self.u_22, self.u_23,
+            self.u_31, self.u_32, self.u_33], dtype = float)
+        res["matrix_ub"] = numpy.array([
+            self.ub_11, self.ub_12, self.ub_13,
+            self.ub_21, self.ub_22, self.ub_23,
+            self.ub_31, self.ub_32, self.ub_33], dtype = float)
+        return res
+
 class DiffrnOrientMatrixL(LoopN):
     """Description of DiffrnOrientMatrixL in loop."""
 

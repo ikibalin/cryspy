@@ -4,64 +4,27 @@ Functions
 ---------
     - get_j0_j2_by_symbol
 """
-import os
 import numpy
-import pycifstar
 
-F_FORMMAG = os.path.join(os.path.dirname(__file__), "formmag.tab")
-FORMMAG_data = pycifstar.to_data(F_FORMMAG)
+from cryspy.A_functions_base.database import DATABASE
+from cryspy.A_functions_base.charge_form_factor import get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
 
 
 def get_j0_j2_parameters(symbols):
     """Get <j0>, <j2> parameters by symbols."""
-    s_1 = "_atom_type_scat_symbol"
-
     j0_parameters = numpy.zeros((7, symbols.shape[0]), dtype=float)
     j2_parameters = numpy.zeros((7, symbols.shape[0]), dtype=float)
-
+    d_mff = DATABASE["Magnetic Form Factor, tabulated"]
     for i_symbol, symbol in enumerate(symbols):
-        flag_0, flag_2 = False, False
-        for loop in FORMMAG_data.loops:
-            if "_atom_type_scat_neutron_magnetic_j0_a1" in loop.names:
-                hh = [_i1 for _i1, _1 in enumerate(loop[s_1]) if (_1 == symbol)]
-                if len(hh) > 0:
-                    ind = hh[0]
-                    j0_parameters[0, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_A1"][
-                        ind])
-                    j0_parameters[1, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_a2"][
-                        ind])
-                    j0_parameters[2, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_B1"][
-                        ind])
-                    j0_parameters[3, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_b2"][
-                        ind])
-                    j0_parameters[4, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_C1"][
-                        ind])
-                    j0_parameters[5, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_c2"][
-                        ind])
-                    j0_parameters[6, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j0_D"][
-                        ind])
-                    flag_0 = True
-            if "_atom_type_scat_neutron_magnetic_j2_a1" in loop.names:
-                hh = [_i1 for _i1, _1 in enumerate(loop[s_1]) if (_1 == symbol)]
-                if len(hh) > 0:
-                    ind = hh[0]
-                    j2_parameters[0, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_A1"][
-                        ind])
-                    j2_parameters[1, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_a2"][
-                        ind])
-                    j2_parameters[2, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_B1"][
-                        ind])
-                    j2_parameters[3, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_b2"][
-                        ind])
-                    j2_parameters[4, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_C1"][
-                        ind])
-                    j2_parameters[5, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_c2"][
-                        ind])
-                    j2_parameters[6, i_symbol] = float(loop["_atom_type_scat_neutron_magnetic_j2_D"][
-                        ind])
-                    flag_2 = True
-            if all([flag_0, flag_2]):
-                break
+        atom_name, ion_charge, isotope_number = get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(symbol)
+        try:
+            j0_parameters[:, i_symbol] = d_mff[("j0_AaBbCcD", atom_name, ion_charge)]
+        except KeyError:
+            pass
+        try:
+            j2_parameters[:, i_symbol] = d_mff[("j2_AaBbCcD", atom_name, ion_charge)]
+        except KeyError:
+            pass
     return j0_parameters, j2_parameters
 
 def calc_j0(sthovl, kappa, j0_parameters,

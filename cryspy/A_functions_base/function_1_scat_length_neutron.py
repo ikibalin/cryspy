@@ -7,15 +7,9 @@
 
 
 """
-import os
-import numpy
-import warnings
 
-import pycifstar
-from typing import List, Tuple
-
-F_BSCAT = os.path.join(os.path.dirname(__file__), "bscat.tab")
-BSCAT = pycifstar.to_loop(F_BSCAT)
+from cryspy.A_functions_base.database import DATABASE
+from cryspy.A_functions_base.charge_form_factor import get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
 
 
 def apply_constraint_on_cell_by_type_cell(cell, type_cell:str,
@@ -77,33 +71,14 @@ def apply_constraint_on_cell_by_type_cell(cell, type_cell:str,
         cell.angle_gamma, cell.angle_gamma_refinement, cell.angle_gamma_constraint = 90., False, True
 
 
-def get_scat_length_neutron(type_n):
+def get_scat_length_neutron(type_n: str):
     """
     Take scat_length_neutron.
     """
-    str_1 = type_n.strip().lower()
-    flag_label = False
-    l_hh = []
-    for hh in str_1:
-        if hh.isdigit() and flag_label:
-            break
-        elif hh.isdigit():
-            l_hh.append(hh)
-        else:
-            l_hh.append(hh)
-            flag_label = True
-    str_1 = "".join(l_hh)
-
-    flag = False
-    for _1, _2 in zip(BSCAT["_atom_type_symbol"], BSCAT["_atom_type_cohb"]):
-        if (_1.lower() == str_1):
-            res = 0.1 * complex(_2)  # in 10**-12cm
-            flag = True
-        elif flag:
-            break
-    if not(flag):
-        res = 0.
-        warnings.warn(
-            f"Can not find b_scat for '{type_n:}'.\n It is putted as 0.",
-            UserWarning, stacklevel=2)
+    atomic_symbol, ion_charge, isotope_number = get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(type_n)
+    if isotope_number is None:
+        s_isotope = atomic_symbol
+    else:
+        s_isotope = f"{isotope_number:}{atomic_symbol:}"
+    res = DATABASE["Isotopes"][("b_scat", s_isotope)]
     return res

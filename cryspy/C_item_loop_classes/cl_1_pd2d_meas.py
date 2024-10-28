@@ -419,7 +419,7 @@ class Pd2dMeas(ItemN):
 
         cmap_sum = plt.get_cmap("turbo") # BuPu
         if flag_polarized:
-            fig, axs = plt.subplots(2, 2)
+            fig, axs = plt.subplots(2, 2, sharex=True)
             ax1, ax2, ax3, ax4 = axs[0,0], axs[0,1], axs[1,0], axs[1,1]
         elif flag_unpolarized:
             fig, axs = plt.subplots(2, 1, sharex=True)
@@ -457,17 +457,27 @@ class Pd2dMeas(ItemN):
 
         ax1.set_title(r"Unpolarized signal")
 
-        ax3.errorbar(
-            ttheta[:gamma.size], signal_projection_exp_sum[:gamma.size],
-            yerr=signal_projection_exp_sum_sigma[:gamma.size], fmt="ko", alpha=0.2)
+
+        ax3.fill_between(
+            ttheta[:gamma.size],(signal_projection_exp_sum-signal_projection_exp_sum_sigma)[:gamma.size],
+            (signal_projection_exp_sum+signal_projection_exp_sum_sigma)[:gamma.size], color="k", alpha=0.4)
+
+        # ax3.errorbar(
+        #     ttheta[:gamma.size], signal_projection_exp_sum[:gamma.size],
+        #     yerr=signal_projection_exp_sum_sigma[:gamma.size], fmt="ko", alpha=0.2)
         # ax3.legend()
         ax3.set_xlabel(r"$2\theta$ (deg.)")
 
         if flag_polarized:
             ax2.set_title(r"Polarized signal")
-            ax4.errorbar(
-                ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
-                yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2)
+
+            ax4.fill_between(
+                ttheta[:gamma.size],(signal_projection_exp_difference-signal_projection_exp_difference_sigma)[:gamma.size],
+                (signal_projection_exp_difference+signal_projection_exp_difference_sigma)[:gamma.size], color="k", alpha=0.4)
+
+            # ax4.errorbar(
+            #     ttheta[:gamma.size], signal_projection_exp_difference[:gamma.size],
+            #     yerr=signal_projection_exp_difference_sigma[:gamma.size], fmt="ko", alpha=0.2)
 
             # ax4.legend()
             ax4.set_xlabel(r"$2\theta$ (deg.)")

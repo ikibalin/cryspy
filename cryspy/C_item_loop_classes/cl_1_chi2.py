@@ -72,6 +72,16 @@ class Chi2(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    def get_dictionary(self):
+        res = {}
+        if self.is_attribute("sum"):
+            res["flag_chi_sq_sum"] = self.sum
+        if self.is_attribute("diff"):
+            res["flag_chi_sq_difference"] = self.diff
+        if self.is_attribute("asymmetry"):
+            res["flag_asymmetry"] = self.asymmetry
+        return res
+
 
 class Chi2L(LoopN):
     """
@@ -87,10 +97,10 @@ class Chi2L(LoopN):
 
 # s_cont = """
 # loop_
-#   _chi2_sum  
-#   _chi2_diff 
-#   _chi2_up   
-#   _chi2_down 
+#   _chi2_sum
+#   _chi2_diff
+#   _chi2_up
+#   _chi2_down
 #   False True  False False
 #   False False True True
 # """

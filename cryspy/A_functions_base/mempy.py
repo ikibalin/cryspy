@@ -446,8 +446,9 @@ def calc_model_value_by_precalculated_data(atom_para_susceptibility, unit_cell_p
             flag_cos_2theta=False,
             flag_wavelength=False)
 
+        axis_z = matrix_u[6:9]
         iint_plus, iint_minus, dder_plus, dder_minus = calc_iint(
-            beam_polarization, flipper_efficiency, f_nucl, f_m_perp, matrix_u, func_extinction = func_extinction,
+            beam_polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z, func_extinction = func_extinction,
             flag_beam_polarization = False, flag_flipper_efficiency = False,
             flag_f_nucl = False, flag_f_m_perp = True,
             dict_in_out = dict_in_out, flag_use_precalculated_data = flag_use_precalculated_data)

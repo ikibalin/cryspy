@@ -1,13 +1,11 @@
 """AtomRhoOrbitalRadialSlater and AtomRhoOrbitalRadialSlaterL classes."""
 
 from typing import NoReturn
-import os
-import os.path
 import math
 import numpy
 import scipy
 import scipy.optimize
-from pycifstar import to_data
+
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -205,24 +203,6 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
                 (coeff[:, _i])[numpy.newaxis, :]
         return norm_density
 
-    @classmethod
-    def take_objects_for_atom_type(cls, atom_type: str) -> list:
-        """Take objects for atom type."""
-        l_arors = []
-        f_dir = os.path.dirname(__file__)
-        f_dir = os.path.join(os.path.dirname(f_dir), "A_functions_base")
-        f_name = os.path.join(f_dir, "atom_rho_orbital_radial_slater.rcif")
-
-        obj_rcif = to_data(f_name)
-        s_atom_type = ("".join([_ for _ in atom_type if _.isalpha()])).lower()
-        for loop in obj_rcif.loops:
-            loop_rcif = cls.from_cif(str(loop))
-            if loop_rcif is not None:
-                s_loop_name = loop_rcif.loop_name
-                s_atom_type_loop = (s_loop_name.split("_")[0]).lower()
-                if s_atom_type_loop == s_atom_type:
-                    l_arors.append(loop_rcif)
-        return l_arors
 
     def calc_jl_by_radial_density(self, sthovl, lmax: int, shell: str,
                                   kappa=1.):

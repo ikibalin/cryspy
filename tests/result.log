@@ -1,0 +1,28 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.9, pytest-7.4.3, pluggy-1.0.0
+rootdir: D:\docs\working_comp\cryspy\pytests
+plugins: anyio-3.6.2, dash-2.7.0, hypothesis-6.56.2, nbval-0.9.6, cov-4.0.0
+collected 3 items
+
+test_scritpts.py ...                                                     [100%]
+
+============================== warnings summary ===============================
+test_scritpts.py::test_rietveld_refinement
+test_scritpts.py::test_rietveld_refinement
+  d:\github\cryspy\cryspy\C_item_loop_classes\cl_1_inversed_hessian.py:15: RuntimeWarning: invalid value encountered in divide
+    np_correlation_matrix = inv_hessian / np_sigma_sq_matrix
+
+test_scritpts.py::test_rietveld_refinement
+test_scritpts.py::test_rietveld_refinement
+test_scritpts.py::test_rietveld_refinement
+  d:\github\cryspy\cryspy\A_functions_base\powder_diffraction_tof.py:197: RuntimeWarning: overflow encountered in exp
+    exp_u = exp(u)
+
+test_scritpts.py::test_rietveld_refinement
+test_scritpts.py::test_rietveld_refinement
+test_scritpts.py::test_rietveld_refinement
+  d:\github\cryspy\cryspy\A_functions_base\powder_diffraction_tof.py:198: RuntimeWarning: overflow encountered in exp
+    exp_v = exp(v)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 3 passed, 8 warnings in 1498.77s (0:24:58) ==================

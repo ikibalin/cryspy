@@ -119,10 +119,10 @@ class PdInstrResolution(ItemN):
         hg_4, hl_4 = hg_3*hg, hl_3*hl
         hg_5, hl_5 = hg_4*hg, hl_4*hl
         c_2, c_3, c_4, c_5 = 2.69269, 2.42843, 4.47163, 0.07842
-        hpv = (hg_5 + c_2*hg_4*hl + c_3*hg_3*hl_2 + 
+        hpv = (hg_5 + c_2*hg_4*hl + c_3*hg_3*hl_2 +
                        c_4*hg_2*hl_3 + c_5*hg*hl_4 + hl_5)**0.2
         hh = hl*1./hpv
-        self.hpv = hpv 
+        self.hpv = hpv
         self.eta = 1.36603*hh - 0.47719*hh**2 + 0.11116*hh**3
 
     def calc_agbg(self):
@@ -185,6 +185,18 @@ class PdInstrResolution(ItemN):
     def plots(self):
         return [self.plot_resolution()]
 
+    def get_dictionary(self):
+        res = {}
+        res["resolution_parameters"] = numpy.array([
+            self.u, self.v, self.w,
+            self.x, self.y], dtype=float)
+
+        res["flags_resolution_parameters"] = numpy.array([
+            self.u_refinement, self.v_refinement, self.w_refinement,
+            self.x_refinement, self.y_refinement], dtype=bool)
+        return res
+
+
 class PdInstrResolutionL(LoopN):
     """Resolution of Bragg reflections for several 1d powder diffractometers.
 
@@ -195,16 +207,16 @@ class PdInstrResolutionL(LoopN):
         super(PdInstrResolutionL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
-   
+
 
 # s_cont = """
 #  loop_
 
-#  _pd_instr_resolution_u 
-#  _pd_instr_resolution_v 
+#  _pd_instr_resolution_u
+#  _pd_instr_resolution_v
 #  _pd_instr_resolution_w
-#  _pd_instr_resolution_x 
-#  _pd_instr_resolution_y 
+#  _pd_instr_resolution_x
+#  _pd_instr_resolution_y
 # 16.9776(25) -2.8357 0.5763 0. 0.
 # """
 

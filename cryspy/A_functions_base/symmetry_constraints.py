@@ -1,7 +1,7 @@
 import numpy
 
 from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v, calc_mm_as_m_q_inv_m, calc_mm_as_m1_m2_inv_m1
+from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v, calc_mm_as_m_q_inv_m, calc_mm_as_m1_m2_inv_m1, calc_det_m
 
 def calc_sc_fract_sc_b(symm_elems, atom_fract_xyz):
     sc_fract = (symm_elems[4:13]).sum(axis=1)/symm_elems.shape[1]
@@ -47,12 +47,22 @@ def calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters: boo
         unit_cell_parameters, flag_unit_cell_parameters=False)
 
     r_direct = symm_elems[4:13]
-                    
+
     r_ccs, dder_r_ccs = calc_m1_m2_inv_m1(m_m, r_direct, flag_m1=False, flag_m2=False)
+
+    if symm_elems.shape[0] == 14:
+        theta = numpy.expand_dims(symm_elems[13], axis=(0,1))
+        # det_r_ccs = calc_det_m(r_ccs, flag_m=False)[0]
+        # res = theta_s*det_r_ccs
+    else:
+        theta = numpy.expand_dims(numpy.ones_like(symm_elems[0]), axis=(0,1))
 
     res, dder_mm = calc_mm_as_m_q_inv_m(r_ccs, flag_m= flag_unit_cell_parameters)
 
-    mm = res.sum(axis=2)/res.shape[2]
+    # if r_direct.shape[1] == 2:
+    #     print("r_ccs: ", r_ccs)
+
+    mm = (res*theta).sum(axis=2)/res.shape[2]
 
     sc_chi = numpy.stack([mm[0,:], mm[4,:], mm[8,:], mm[1,:], mm[2,:], mm[5,:]], axis=0)
     dder_sc_chi = {}
@@ -67,12 +77,15 @@ def calc_sc_chi_full(symm_elems, unit_cell_parameters, flag_unit_cell_parameters
         unit_cell_parameters, flag_unit_cell_parameters=False)
 
     r_direct = symm_elems[4:13]
-                    
+    if symm_elems.shape[0] == 14:
+        theta = numpy.expand_dims(symm_elems[13], axis=(0,1))
+    else:
+        theta = numpy.expand_dims(numpy.ones_like(symm_elems[0]), axis=(0,1))
     r_ccs, dder_r_ccs = calc_m1_m2_inv_m1(m_m, r_direct, flag_m1=False, flag_m2=False)
 
     res, dder_mm = calc_mm_as_m1_m2_inv_m1(r_ccs, flag_m1= flag_unit_cell_parameters)
 
-    sc_chi_full = res.sum(axis=2)/res.shape[2]
+    sc_chi_full = (res*theta).sum(axis=2)/res.shape[2]
     dder_sc_chi_full = {}
     return sc_chi_full, dder_sc_chi_full
 

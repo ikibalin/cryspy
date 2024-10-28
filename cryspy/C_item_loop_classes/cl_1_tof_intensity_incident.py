@@ -1,4 +1,5 @@
 import numpy
+import matplotlib.pyplot as plt
 from typing import NoReturn
 
 from cryspy.A_functions_base.function_1_objects import \
@@ -119,6 +120,46 @@ class TOFIntensityIncident(ItemN):
                 self.a7 * exp(-self.a8 * numpy.square(time_sq)) 
         return res
 
+
+    def get_coefficients(self):
+        coefficients = numpy.array([
+            self.a0, self.a1, self.a2, self.a3, 
+            self.a4, self.a5, self.a6, self.a7, 
+            self.a8], dtype=float)
+        return coefficients
+
+    def get_flags_coefficients(self):
+        flags_coefficients = numpy.array([
+            self.a0_refinement, self.a1_refinement, self.a2_refinement, self.a3_refinement, 
+            self.a4_refinement, self.a5_refinement, self.a6_refinement, self.a7_refinement, 
+            self.a8_refinement], dtype=bool)
+        return flags_coefficients
+
+    def plots(self):
+        return [self.plot_spectrum()]
+    
+    def plot_spectrum(self):
+        time_min, time_max = 4000, 18000
+        time = numpy.linspace(time_min, time_max, 100)
+        spectrum = self.calc_spectrum(time)
+        
+        fig, ax = plt.subplots()
+        ax.set_title("Incident spectrum")
+        ax.set_xlabel("time (mc. sec.)")
+        ax.set_xlim(time_min, time_max)
+        ax.set_ylabel('Incident spectrup')
+        ax.plot(time, spectrum, "k-", label=self.spectrum)
+        ax.legend(loc='upper right')
+        fig.tight_layout()
+        return (fig, ax)
+    
+    def get_dictionary(self):
+        res = {}
+        res["spectrum_incident_type"] = tof_intensity_incident.spectrum
+        res["spectrum_incident_coefficients"] = tof_intensity_incident.get_coefficients()
+        res["flags_spectrum_incident_coefficients"] = tof_intensity_incident.get_flags_coefficients()
+        return res
+        
 
 class TOFIntensityIncidentL(LoopN):
     """Correction of incident intensity for time-of-flight experiment.

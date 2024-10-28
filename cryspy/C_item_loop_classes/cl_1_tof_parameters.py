@@ -209,6 +209,27 @@ epithermal neutrons")
         time = self.calc_time_by_d(d)
         return time
 
+    def get_dictionary(self):
+        res = {}
+        res["ttheta_bank"] = getattr(self, "ttheta_bank") * numpy.pi/180
+        res["neutron_type"] = getattr(self, "neutrons")
+        res["zero"] = numpy.array([getattr(self, "zero"), ], dtype=float)
+        res["flags_zero"] = numpy.array([getattr(self, "zero_refinement"), ], dtype=bool)
+        res["dtt1"] = numpy.array([getattr(self, "dtt1"), ], dtype=float)
+        res["flags_dtt1"] = numpy.array([getattr(self, "dtt1_refinement"), ], dtype=bool)
+        if self.is_attribute("dtt2"):
+            res["dtt2"] = numpy.array([getattr(self, "dtt2"), ], dtype=float)
+            res["flags_dtt2"] = numpy.array([getattr(self, "dtt2_refinement"), ], dtype=bool)
+        if self.is_attribute("zerot"):
+            res["zerot"] = numpy.array([getattr(self, "zerot"), ], dtype=float)
+            res["flags_zerot"] = numpy.array([getattr(self, "zerot_refinement"), ], dtype=bool)
+        if self.is_attribute("dtt1t"):
+            res["dtt1t"] = numpy.array([getattr(self, "dtt1t"), ], dtype=float)
+            res["flags_dtt1t"] = numpy.array([getattr(self, "dtt1t_refinement"), ], dtype=bool)
+        if self.is_attribute("dtt2t"):
+            res["dtt2t"] = numpy.array([getattr(self, "dtt2t"), ], dtype=float)
+            res["flags_dtt2t"] = numpy.array([getattr(self, "dtt2t_refinement"), ], dtype=bool)
+        return res
 
 class TOFParametersL(LoopN):
     """Parameters of the reflexion positions in time-of-flight experiments.

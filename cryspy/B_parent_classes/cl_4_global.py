@@ -199,6 +199,7 @@ class GlobalN(object):
 
     def add_items(self, items: list):
         """Add items."""
+        items = [hh for hh in items if hh is not None]
         l_name = [item.get_name() for item in items]
         s_name = set(l_name)
         if len(s_name) != len(l_name):
@@ -605,7 +606,17 @@ class GlobalN(object):
                     linear_constraints.append([(coeff_1, name_1), (coeff_2, name_2)])
         if len(linear_constraints) > 0:
             dict_out["linear_constraints"] = linear_constraints
-
+        try:
+            expression = self.punishment.function
+            d_marked = {}
+            for rcif_name, dict_name in zip(variable_names, dict_names):
+                rcif_name_mark = rcif_name[:-1]+ ((rcif_name[-1][0]+"_mark", rcif_name[-1][1]),)
+                mark = self.get_variable_by_name(rcif_name_mark)
+                if mark != "":
+                    d_marked[mark] = dict_name
+            dict_out["punishment_function"] = (expression, d_marked)
+        except:
+            pass
         return dict_out
 
 
@@ -639,6 +650,8 @@ def transfer_cif_names_to_dict_names(variable_names):
             index = (0,)
         if name == "polarization":
             name = "beam_polarization"
+        elif name == "scale":
+            name = "phase_scale"
         elif name == "efficiency":
             name = "flipper_efficiency"
         elif name == "radius":
@@ -663,5 +676,22 @@ def transfer_cif_names_to_dict_names(variable_names):
         elif name == "chi_23":
             name = "atom_para_susceptibility"
             index = (5, index)
+        elif name == "u":
+            name = "resolution_parameters"
+            index = (0, )
+        elif name == "v":
+            name = "resolution_parameters"
+            index = (1, )
+        elif name == "w":
+            name = "resolution_parameters"
+            index = (2, )
+        elif name == "x":
+            name = "resolution_parameters"
+            index = (3, )
+        elif name == "y":
+            name = "resolution_parameters"
+            index = (4, )
+        if isinstance(index, int):
+            index = (index, )
         dict_names.append((data_block.lower(), name.lower(), index))
     return dict_names

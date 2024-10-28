@@ -1,20 +1,19 @@
 """Description of Crystal class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
-import math
-from matplotlib.pyplot import flag
 import numpy
 
 from typing import NoReturn
 
-from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_scattering_amplitude_tabulated, get_atom_name_ion_charge_shell, D_DISPERSION
+from cryspy.A_functions_base.database import DATABASE
+from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_scattering_amplitude_tabulated, get_atom_name_ion_charge_shell, get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
 from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_b_iso_beta, calc_u_ij_by_beta
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
-from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft
+from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
-from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi
+from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
@@ -25,6 +24,7 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
     AtomSiteAnisoL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_site_exchange import AtomSiteExchangeL
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
     AtomTypeScatL
 from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
@@ -87,7 +87,7 @@ class Crystal(DataN):
 
     CLASSES_MANDATORY = (Cell, AtomSiteL,)
     CLASSES_OPTIONAL = (SpaceGroup,
-        AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteScatL,
+        AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomSiteScatL,
         AtomTypeScatL, AtomLocalAxesL, AtomElectronConfigurationL,
         AtomSiteMomentL, SpaceGroupSymopMagnOperationL, SpaceGroupSymopMagnCenteringL)
     # CLASSES_INTERNAL = ()
@@ -145,6 +145,11 @@ class Crystal(DataN):
                 atom_site_susceptibility = self.atom_site_susceptibility
                 atom_site_susceptibility.apply_chi_iso_constraint(cell)
                 atom_site_susceptibility.apply_space_group_constraint(
+                    atom_site, space_group, cell)
+            if self.is_attribute("atom_site_exchange"):
+                atom_site_exchange = self.atom_site_exchange
+                atom_site_exchange.apply_j_iso_constraint()
+                atom_site_exchange.apply_space_group_constraint(
                     atom_site, space_group, cell)
 
     def calc_b_iso_beta(self):
@@ -550,7 +555,6 @@ class Crystal(DataN):
             res = numpy.zeros((6, len(atom_site.items)), dtype=bool)
         return res
 
-
     def get_dictionary(self):
         """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.
         """
@@ -558,6 +562,7 @@ class Crystal(DataN):
         ddict = {}
         space_group, cell, atom_site = None, None, None
         atom_site_susceptibility, atom_electron_configuration = None, None
+        atom_site_exchange = None
         atom_type_scat = None
         atom_type = None
         atom_site_aniso = None
@@ -597,6 +602,11 @@ class Crystal(DataN):
         l_obj = take_items_by_class(self, (AtomSiteSusceptibilityL,))
         if len(l_obj) > 0:
             atom_site_susceptibility = l_obj[0]
+
+        l_obj = take_items_by_class(self, (AtomSiteExchangeL,))
+        if len(l_obj) > 0:
+            atom_site_exchange = l_obj[0]
+            
 
         l_obj = take_items_by_class(self, (AtomElectronConfigurationL,))
         if len(l_obj) > 0:
@@ -678,7 +688,8 @@ class Crystal(DataN):
 
             atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
             table_sthovl = numpy.linspace(0, 2, 501) # fro0 to 2 Å**-1
-            table_wavelength = D_DISPERSION["table_wavelength"]
+            d_dispersion = DATABASE["Dispersion"]
+            table_wavelength = d_dispersion["table_wavelength"]
             l_table_atom_scattering_amplitude = []
             l_table_atom_dispersion = []
             flag_atom_scattering_amplitude = True
@@ -691,13 +702,13 @@ class Crystal(DataN):
                         scattering_amplitude = calc_scattering_amplitude_tabulated(type_symbol, table_sthovl)[0]
                     except KeyError:
                         flag_atom_scattering_amplitude = False
-                        break
-                l_table_atom_scattering_amplitude.append(scattering_amplitude)
+                if flag_atom_scattering_amplitude:
+                    l_table_atom_scattering_amplitude.append(scattering_amplitude)
 
                 type_atom = get_atom_name_ion_charge_shell(type_symbol)[0]
-                if type_atom in D_DISPERSION.keys():
-                    l_table_atom_dispersion.append(D_DISPERSION[type_atom])
-                else:
+                try:
+                    l_table_atom_dispersion.append(d_dispersion[type_atom.capitalize()])
+                except KeyError:
                     l_table_atom_dispersion.append(numpy.zeros_like(table_wavelength))
             if flag_atom_scattering_amplitude:
                 ddict["table_sthovl"] = table_sthovl
@@ -793,6 +804,62 @@ class Crystal(DataN):
                     l_sc_chi.append(sc_chi)
                 atom_para_sc_chi = numpy.stack(l_sc_chi, axis=-1)
                 ddict["atom_para_sc_chi"] = atom_para_sc_chi
+        
+        if atom_site_exchange is not None:
+            atom_exchange_label = numpy.array(atom_site_exchange.label, dtype=str)
+            atom_exchange_type = numpy.array(atom_site_exchange.j_type, dtype=str)
+            atom_exchange_tensor = numpy.array([
+                atom_site_exchange.j_11, 
+                atom_site_exchange.j_22, 
+                atom_site_exchange.j_33, 
+                atom_site_exchange.j_12, 
+                atom_site_exchange.j_13, 
+                atom_site_exchange.j_23, 
+                ], dtype=float)
+            flags_atom_exchange_tensor = numpy.array([
+                atom_site_exchange.j_11_refinement,
+                atom_site_exchange.j_22_refinement,
+                atom_site_exchange.j_33_refinement,
+                atom_site_exchange.j_12_refinement,
+                atom_site_exchange.j_13_refinement,
+                atom_site_exchange.j_23_refinement,
+                ], dtype=bool)
+            ddict["atom_exchange_label"] = atom_exchange_label
+            ddict["atom_exchange_type"] = atom_exchange_type
+            ddict["atom_exchange_tensor"] = atom_exchange_tensor
+            ddict["flags_atom_exchange_tensor"] = flags_atom_exchange_tensor
+            if "atom_label" in ddict.keys():
+
+                if "full_mcif_elems" in ddict.keys():
+                    elems_fs = ddict["full_mcif_elems"]
+                elif "full_symm_elems" in ddict.keys():
+                    elems_fs = ddict["full_symm_elems"]
+                else:
+                    raise AttributeError("Symmetry elements are not found.")
+
+                flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_exchange_label, axis=0)
+                args = numpy.argwhere(flag_2d)
+                atom_exchange_index = args[args[:,1].argsort()][:,0]
+                ddict["atom_exchange_index"] = atom_exchange_index
+
+                l_sc_exchange = []
+                flag_2d = ddict["atom_symm_elems_flag"][:, atom_exchange_index]
+                for ind in range(atom_exchange_label.size):
+                    if (atom_exchange_type[ind]).lower() == "jiso":
+                        sc_exchange = numpy.array([
+                            [1., 0., 0., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
+                            [1., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.],
+                            [0., 0., 0., 0., 0., 0.]], dtype=float)
+                    else:
+                        sc_exchange = calc_sc_chi(
+                            elems_fs[:, flag_2d[:, ind]],
+                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                    l_sc_exchange.append(sc_exchange)
+                atom_sc_exchange = numpy.stack(l_sc_exchange, axis=-1)
+                ddict["atom_sc_exchange"] = atom_sc_exchange
 
         if atom_site_moment is not None:
             atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)
@@ -894,30 +961,23 @@ class Crystal(DataN):
 
 
         if atom_electron_configuration is not None:
+            d_slater_orbitals = DATABASE["Orbitals by radial Slater functions"]
             for aec_item in atom_electron_configuration.items:
                 aec_label = aec_item.label
                 at_symbol = atom_site[aec_label].type_symbol
+                element_symbol, charge, isotope_number = get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(at_symbol)
                 core_shells_populations = aec_item.get_core_shells_populations()
-                l_arors = AtomRhoOrbitalRadialSlaterL().take_objects_for_atom_type(at_symbol)
-                
                 l_population = []
                 l_n = []
                 l_zeta = []
                 l_coeff = []
                 for sh_pop in core_shells_populations:
                     shell, population = sh_pop
-                    for arors in l_arors:
-                        try:
-                            l_val = getattr(arors, f"coeff_{shell:}")
-                            obj = arors
-                            break
-                        except AttributeError:
-                            pass
-                    if obj is not None:
-                        l_population.append(population)
-                        l_n.append(numpy.array(obj.n0, dtype=int))
-                        l_zeta.append(numpy.array(obj.zeta0, dtype=float))
-                        l_coeff.append(numpy.array(getattr(obj, f"coeff_{shell:}"), dtype=float))
+                    n, dzeta, coeff = d_slater_orbitals[(element_symbol, shell)]
+                    l_population.append(population)
+                    l_n.append(n)
+                    l_zeta.append(dzeta)
+                    l_coeff.append(coeff)
                 if len(l_population) > 0:
                     dict_shell = {"core_population": l_population,
                         "core_n": l_n,
@@ -941,7 +1001,19 @@ class Crystal(DataN):
                 item_ass.chi_12 = mag_atom_susceptibility[3, i_item]
                 item_ass.chi_13 = mag_atom_susceptibility[4, i_item]
                 item_ass.chi_23 = mag_atom_susceptibility[5, i_item]
-        
+
+        if "atom_exchange_tensor" in keys:
+            j_tensor = ddict_crystal["atom_exchange_tensor"]
+            atom_sc_exchange = ddict_crystal["atom_sc_exchange"]
+            j_tensor = numpy.sum(numpy.expand_dims(j_tensor, axis=0)*atom_sc_exchange, axis=1)
+            for i_item, item_ase in enumerate(self.atom_site_exchange.items):
+                item_ase.j_11 = j_tensor[0, i_item]
+                item_ase.j_22 = j_tensor[1, i_item]
+                item_ase.j_33 = j_tensor[2, i_item]
+                item_ase.j_12 = j_tensor[3, i_item]
+                item_ase.j_13 = j_tensor[4, i_item]
+                item_ase.j_23 = j_tensor[5, i_item]
+
         if "atom_ordered_moment_crystalaxis_xyz" in keys:
             hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
             for i_item, item in enumerate(self.atom_site_moment.items):
@@ -975,6 +1047,11 @@ class Crystal(DataN):
             for i_item, item in enumerate(self.atom_site.items):
                 item.occupancy = numpy.round(hh[i_item], decimals=6)
 
+        if "atom_multiplicity" in keys:
+            hh = ddict_crystal["atom_multiplicity"]
+            for i_item, item in enumerate(self.atom_site.items):
+                item.multiplicity = hh[i_item]
+
         if ("atom_b_iso" in keys):
             atom_b_iso = ddict_crystal["atom_b_iso"]
             if "atom_beta" in keys:
@@ -990,6 +1067,11 @@ class Crystal(DataN):
             else:
                 atom_beta = numpy.zeros((6, )+ atom_b_iso.shape, dtype=float)
             unit_cell_parameters = ddict_crystal["unit_cell_parameters"]
+            if not(self.atom_site.is_attribute("adp_type")):
+                for item in self.atom_site:
+                    item.adp_type = "Biso"
+                    if not(item.is_attribute("b_iso_or_equiv")):
+                        item.b_iso_or_equiv = 0.
             atom_adp_type = numpy.array(self.atom_site.adp_type, dtype=str)
             atom_iso_param, atom_aniso_param = calc_param_iso_aniso_by_b_iso_beta(unit_cell_parameters, atom_adp_type, atom_b_iso, atom_beta)
 
@@ -1054,6 +1136,22 @@ class Crystal(DataN):
                 elif ind_chi == 5:
                     item_ass.chi_23_sigma = float(sigma)
             
+            if "atom_exchange_tensor" in parameter_label:
+                ind_j, ind_a = ind_s[0], ind_s[1]
+                item = self.atom_site_exchange.items[ind_a]
+                if ind_j == 0:
+                    item.j_11_sigma = float(sigma)
+                elif ind_j == 1:
+                    item.j_22_sigma = float(sigma)
+                elif ind_j == 2:
+                    item.j_33_sigma = float(sigma)
+                elif ind_j == 3:
+                    item.j_12_sigma = float(sigma)
+                elif ind_j == 4:
+                    item.j_13_sigma = float(sigma)
+                elif ind_j == 5:
+                    item.j_23_sigma = float(sigma)
+            
             if "atom_fract_xyz" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]
                 item = self.atom_site.items[ind_a]
@@ -1063,6 +1161,10 @@ class Crystal(DataN):
                     item.fract_y_sigma = float(sigma)
                 elif ind_p == 2:
                     item.fract_z_sigma = float(sigma)
+            if "atom_occupancy" in parameter_label:
+                ind_a = ind_s[0]
+                item = self.atom_site.items[ind_a]
+                item.occupancy_sigma = float(sigma)
 
             if "atom_b_iso" in parameter_label:
                 ind_a = ind_s[0]
