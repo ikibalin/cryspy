@@ -94,7 +94,7 @@ class TOFBackground(ItemN):
 
     def calc_background(self, time):
         """
-        y = \sum_{i=1}^{18} coeff_i cos (pi i * (time/time_max))
+        y = \\sum_{i=1}^{18} coeff_i cos (pi i * (time/time_max))
 
         Parameters
         ----------
