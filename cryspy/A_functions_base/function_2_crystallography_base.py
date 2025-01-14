@@ -121,7 +121,7 @@ fract_xyz.shape = (pointxs, 3)
 
 r_ij, b_i are elements of symmetry
 
-phase = exp(2\pi i (h*Rs*x + h*bs))
+phase = exp(2\\pi i (h*Rs*x + h*bs))
 
 phase_3d: [hkl, points, symmetry]
     """

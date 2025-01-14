@@ -16,7 +16,7 @@ def calc_extinction(radius:float, mosaicity:float, model:str,
     Isotropical extinction coorection y:
 
     $$
-    |F|^2_{\text{corrected}} = y \cdot |F|^2
+    |F|^2_{\text{corrected}} = y \\cdot |F|^2
     $$
 
     radius primary extinction ???
