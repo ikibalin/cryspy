@@ -102,8 +102,9 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
     delta_2d = time_2d-time_hkl_2d
     y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
-    exp_u = exp(u)
-    exp_v = exp(v)
+    with numpy.errstate(over='ignore'):
+        exp_u = exp(u)
+        exp_v = exp(v)
     exp_u[numpy.isinf(exp_u)] = 1e200
     exp_v[numpy.isinf(exp_v)] = 1e200
 
@@ -123,8 +124,9 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
 
     y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
-    exp_u = exp(u)
-    exp_v = exp(v)
+    with numpy.errstate(over='ignore'):
+        exp_u = exp(u)
+        exp_v = exp(v)
     exp_u[numpy.isinf(exp_u)] = 1e200
     exp_v[numpy.isinf(exp_v)] = 1e200
 
