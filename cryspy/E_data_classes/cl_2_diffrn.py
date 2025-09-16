@@ -96,7 +96,7 @@ class Diffrn(DataN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def estimate_FM(self, crystal, max_abs_f_mag: float = 5,
+    def estimate_FM(self, crystal: Crystal, max_abs_f_mag: float = 5,
                     delta_f_mag: float = 0.001, flag_lambdaover2_correction=False):
         """
         Estimate magnetic structure factor.
