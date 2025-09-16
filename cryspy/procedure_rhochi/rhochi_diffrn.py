@@ -5,7 +5,8 @@ from cryspy.A_functions_base.unit_cell import \
     calc_sthovl_by_unit_cell_parameters
 
 from cryspy.A_functions_base.structure_factor import \
-    calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft
+    calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, \
+    calc_f_m_perp_ordered_by_dictionary
 
 from cryspy.A_functions_base.extinction import \
     calc_extinction_sphere
@@ -58,6 +59,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         dict_in_out_keys = dict_in_out.keys()
 
     dict_diffrn_keys = dict_diffrn.keys()
+    dict_crystal_keys = dict_crystal.keys()
 
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     index_hkl = dict_diffrn["index_hkl"]
@@ -100,7 +102,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         c_lambda2 = None
         flags_c_lambda2 = False
         index_2hkl = None
-
+    dict_in_out["index_hkl"] = dict_diffrn["index_hkl"]
     flag_eq_ccs = flag_unit_cell_parameters
     if (flag_use_precalculated_data and not(flag_eq_ccs) and ("eq_ccs" in dict_in_out_keys)):
         eq_ccs = dict_in_out["eq_ccs"]
@@ -164,15 +166,26 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out_crystal_hkl, flag_use_precalculated_data=flag_use_precalculated_data)
     flag_sft_ccs = len(dder_sft_ccs.keys()) > 0
 
+    flag_ordered = False
+    flag_f_m_perp_o_ccs = False
+    if "atom_ordered_index" in dict_crystal_keys:
+        f_m_perp_o_ccs, dder_f_m_perp_o_ccs = calc_f_m_perp_ordered_by_dictionary(
+            dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+        flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
+        flag_ordered = True
+
     flag_mag_atom_susceptibility = "mag_atom_susceptibility" in dder_sft_ccs.keys()
 
-    flag_f_m_perp = flag_sft_ccs or flag_magnetic_field or flag_eq_ccs
+    flag_f_m_perp = flag_sft_ccs or flag_magnetic_field or flag_eq_ccs or flag_f_m_perp_o_ccs
     
     if (flag_use_precalculated_data and not(flag_f_m_perp) and "f_m_perp" in dict_in_out_keys):
         f_m_perp = dict_in_out["f_m_perp"]
     else:
         f_m_perp, dder_f_m_perp = calc_f_m_perp_by_sft(
                 sft_ccs, magnetic_field, eq_ccs, flag_sft_ccs=flag_sft_ccs, flag_magnetic_field=flag_magnetic_field, flag_eq_ccs=flag_eq_ccs)
+        if flag_ordered:
+            f_m_perp += f_m_perp_o_ccs
+            dder_f_m_perp.update(dder_f_m_perp_o_ccs)
         if flag_dict:
             dict_in_out["f_m_perp"] = f_m_perp
 
