@@ -206,17 +206,18 @@ class Diffrn(DataN):
             mag_loc_1 = u_matrix[2, 0]*f_mag*0.2695
             mag_loc_2 = u_matrix[2, 1]*f_mag*0.2695
             mag_loc_3 = u_matrix[2, 2]*f_mag*0.2695
-            mag_loc = numpy.stack([mag_loc_1, mag_loc_2, mag_loc_3], axis=0)
+            mag_loc = numpy.expand_dims(numpy.stack([mag_loc_1, mag_loc_2, mag_loc_3], axis=0), axis=1)
+
             f_m_perp, dder_fm_perp_loc = calc_vector_product_v1_v2_v1(eq_ccs, mag_loc, flag_v1=False, flag_v2=False)
 
             axis_z = u_matrix[2, :]
             f_r, dder_f_r = calc_flip_ratio_by_structure_factors(
                        polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z, func_extinction=func_extinction,
-                       c_lambda2=ratio_lambdaover2, f_n_2h=f_nucl_2hkl, f_m_perp_2h=fm_perp_loc_2hkl,
-                       flag_polarization=False, flag_flipper=False,
-                       flag_f_n=False, flag_f_m_perp=False,
+                       c_lambda2=ratio_lambdaover2, f_nucl_2hkl=f_nucl_2hkl, f_m_perp_2hkl=fm_perp_loc_2hkl,
+                       flag_beam_polarization=False, flag_flipper_efficiency=False,
+                       flag_f_nucl=False, flag_f_m_perp=False,
                        flag_c_lambda2=False,
-                       flag_f_n_2h=False, flag_f_m_perp_2h=False)
+                       flag_f_nucl_2hkl=False, flag_f_m_perp_2hkl=False)
 
             return f_r
 
