@@ -11,7 +11,10 @@ from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
-from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary
+from cryspy.A_functions_base.structure_factor import \
+    calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, \
+    calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary, \
+    calc_f_m_perp_ordered_by_dictionary
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
 from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full
 
@@ -46,9 +49,6 @@ from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater \
 from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
     SpaceGroupSymopMagnOperationL
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
-
-
-
 
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid \
@@ -210,6 +210,23 @@ class Crystal(DataN):
         dict_in_out = {"index_hkl": index_hkl}
         f_nucl, dder = calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=False)
         return f_nucl
+
+
+    def calc_f_mag(self, index_hkl, magnetic_field_ccs: numpy.ndarray = numpy.array([0.,0.,0.], dtype=float)):
+        flag_use_precalculated_data = False
+        dict_crystal = self.get_dictionary()
+        dict_crystal_keys = dict_crystal.keys() 
+        dict_in_out = {"index_hkl": index_hkl, "flag_only_orbital": False}
+        sft_ccs = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)[0]
+        f_mag = calc_m_v(sft_ccs, magnetic_field_ccs, flag_m=False, flag_v=False)[0]
+        if "atom_ordered_index" in dict_crystal_keys:
+            calc_f_m_perp_ordered_by_dictionary(
+                dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+            if "f_m_o" in dict_in_out.keys():
+                f_m_o = dict_in_out["f_m_o"]
+                f_mag += f_m_o
+        return f_mag
+
 
 
     def calc_refln(self, index_hkl,

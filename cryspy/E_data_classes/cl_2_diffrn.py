@@ -95,9 +95,9 @@ class Diffrn(DataN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
-
+    
     def estimate_FM(self, crystal: Crystal, max_abs_f_mag: float = 5,
-                    delta_f_mag: float = 0.001, flag_lambdaover2_correction=False):
+                    delta_f_mag: float = 0.001, flag_lambdaover2_correction:bool=False, flag_isotropic_moment:bool=True):
         """
         Estimate magnetic structure factor.
 
@@ -170,13 +170,13 @@ class Diffrn(DataN):
         else:
             fm_perp_loc_2hkl = None
 
-        def func_extinction(f_sq, flag_f_sq: bool = False):
+        def func_extinction(ind_hkl, f_sq, flag_f_sq: bool = False):
             model = self.extinction.model
             radius = self.extinction.radius
             mosaicity = self.extinction.mosaicity
             volume_unit_cell = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters)[0]
             wavelength = self.setup.wavelength
-            cos_2theta = 1.-2*numpy.square(sthovl * wavelength)
+            cos_2theta = 1.-2*numpy.square(sthovl[ind_hkl] * wavelength)
             flag_radius = True
             flag_mosaicity = True
             flag_volume_unit_cell = True
@@ -190,7 +190,21 @@ class Diffrn(DataN):
                 flag_cos_2theta=flag_cos_2theta,
                 flag_wavelength=flag_wavelength)
 
-        def function_to_find_fm(f_mag):
+
+        f_mag_model = crystal.calc_f_mag(index_hkl, magnetic_field)
+        if flag_isotropic_moment:
+            eq_mag_model = numpy.expand_dims(u_matrix[2, :], axis=1)*numpy.ones(index_hkl.shape, dtype=float)
+        else:
+            norm_f_mag_model = numpy.sqrt(((f_mag_model * f_mag_model.conjugate()).real).sum(axis=0))
+            flag_zero = norm_f_mag_model < 0.0001
+            norm_f_mag_model[flag_zero] = 1.
+            eq_mag_model = f_mag_model/norm_f_mag_model
+            eq_mag_model[0][flag_zero]= u_matrix[2, 0]
+            eq_mag_model[1][flag_zero]= u_matrix[2, 1]
+            eq_mag_model[2][flag_zero]= u_matrix[2, 2]
+
+
+        def function_to_find_fm(f_mag, i_hkl):
             """Calc flip ratio.
 
             Parameters
@@ -203,16 +217,22 @@ class Diffrn(DataN):
             flip_ratio : float
                 flip ratio.
             """
-            mag_loc_1 = u_matrix[2, 0]*f_mag*0.2695
-            mag_loc_2 = u_matrix[2, 1]*f_mag*0.2695
-            mag_loc_3 = u_matrix[2, 2]*f_mag*0.2695
-            mag_loc = numpy.expand_dims(numpy.stack([mag_loc_1, mag_loc_2, mag_loc_3], axis=0), axis=1)
+            # mag_loc_1 = u_matrix[2, 0]*f_mag*0.2695
+            # mag_loc_2 = u_matrix[2, 1]*f_mag*0.2695
+            # mag_loc_3 = u_matrix[2, 2]*f_mag*0.2695
+            mag_loc_1 = eq_mag_model[0, i_hkl]*f_mag * 0.2695
+            mag_loc_2 = eq_mag_model[1, i_hkl]*f_mag * 0.2695
+            mag_loc_3 = eq_mag_model[2, i_hkl]*f_mag * 0.2695
 
-            f_m_perp, dder_fm_perp_loc = calc_vector_product_v1_v2_v1(eq_ccs, mag_loc, flag_v1=False, flag_v2=False)
 
+            mag_loc = numpy.stack([mag_loc_1, mag_loc_2, mag_loc_3], axis=0)
+
+            f_m_perp, dder_fm_perp_loc = calc_vector_product_v1_v2_v1(eq_ccs[:, i_hkl], mag_loc, flag_v1=False, flag_v2=False)
+            def func_ext_2(f_sq, flag_f_sq: bool = False):
+                return func_extinction(i_hkl, f_sq, flag_f_sq=flag_f_sq)
             axis_z = u_matrix[2, :]
             f_r, dder_f_r = calc_flip_ratio_by_structure_factors(
-                       polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z, func_extinction=func_extinction,
+                       polarization, flipper_efficiency, f_nucl[i_hkl], f_m_perp, axis_z, func_extinction=func_ext_2,
                        c_lambda2=ratio_lambdaover2, f_nucl_2hkl=f_nucl_2hkl, f_m_perp_2hkl=fm_perp_loc_2hkl,
                        flag_beam_polarization=False, flag_flipper_efficiency=False,
                        flag_f_nucl=False, flag_f_m_perp=False,
@@ -225,7 +245,7 @@ class Diffrn(DataN):
         lFMansMin_sigma = []
         for _ind in range(fr_exp.size):
             def f(x):
-                return (function_to_find_fm(x)[_ind] - fr_exp[_ind])
+                return (function_to_find_fm(x, _ind) - fr_exp[_ind])
             FMans = calc_roots(f, -1*max_abs_f_mag-delta_f_mag, max_abs_f_mag+delta_f_mag)
             lFMans.append(FMans)
             if len(FMans) == 0:
@@ -234,19 +254,43 @@ class Diffrn(DataN):
             else:
                 FMans_min = min(FMans)
                 lFMansMin.append(FMans_min)
-                der1 = scipy.misc.derivative(f, FMans_min, 0.1, 1)
+                der1 = float(scipy.misc.derivative(f, FMans_min, 0.1, 1))
                 f_mag_sigma = abs(fr_sigma[_ind] / der1)
                 lFMansMin_sigma.append(f_mag_sigma)
 
         ls_out = [f"loop_{crystal.data_name:}"]
         ls_out.append("_estimate_index_h\n_estimate_index_k")
-        ls_out.append("_estimate_index_l\n_estimate_F_M\n_estimate_F_M_sigma")
-        for ind_h, ind_k, ind_l, f_mag, f_sig in \
-                zip(index_h, index_k, index_l, lFMansMin, lFMansMin_sigma):
-            ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} {f_mag:}  {f_sig:}")
-
+        ls_out.append("_estimate_index_l")
+        if flag_isotropic_moment:
+            ls_out.append("_estimate_F_M\n_estimate_F_M_sigma")
+            ls_out.append("_estimate_aFz_model\n_estimate_bFz_model")
+            ls_out.append("_estimate_aF_M_diff")
+        else:
+            ls_out.append("_estimate_aFx_M\n_estimate_bFx_M")
+            ls_out.append("_estimate_aFy_M\n_estimate_bFy_M")
+            ls_out.append("_estimate_aFz_M\n_estimate_bFz_M\n_estimate_F_M_sigma")
+            ls_out.append("_estimate_aFx_model\n_estimate_bFx_model")
+            ls_out.append("_estimate_aFy_model\n_estimate_bFy_model")
+            ls_out.append("_estimate_aFz_model\n_estimate_bFz_model")
+        inv_u = numpy.linalg.inv(u_matrix)
+        if flag_isotropic_moment:
+            for ind_h, ind_k, ind_l, f_mag, f_sig, f_mag_m in \
+                    zip(index_h, index_k, index_l, lFMansMin, lFMansMin_sigma, f_mag_model.transpose()):
+                f_mm = numpy.matmul(inv_u, f_mag_m)/0.2695
+                try:
+                    ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} {f_mag:.3f}  {f_sig:.3f} {f_mm[2].real:.3f} {f_mm[2].imag:.3f} {f_mm[2].real-f_mag:.3f}")
+                except:
+                    ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} . . . . .")
+        else:
+            for ind_h, ind_k, ind_l, f_mag, f_sig, eq_mag_m, f_mag_m in \
+                    zip(index_h, index_k, index_l, lFMansMin, lFMansMin_sigma, eq_mag_model.transpose(), f_mag_model.transpose()):
+                try:
+                    f_vm = f_mag * numpy.matmul(inv_u, eq_mag_m)
+                    f_mm = numpy.matmul(inv_u, f_mag_m)/0.2695
+                    ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} {f_vm[0].real:.3f} {f_vm[0].imag:.3f} {f_vm[1].real:.3f} {f_vm[1].imag:.3f} {f_vm[2].real:.3f} {f_vm[2].imag:.3f}  {f_sig:.3f} {f_mm[0].real:.3f} {f_mm[0].imag:.3f} {f_mm[1].real:.3f} {f_mm[1].imag:.3f} {f_mm[2].real:.3f} {f_mm[2].imag:.3f}")
+                except:
+                    ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} . . . . . . . . . . . . .")
         res = LoopN.from_cif("\n".join(ls_out))
-
         return res
 
     def apply_constraints(self):
