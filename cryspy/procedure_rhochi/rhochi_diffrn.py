@@ -72,8 +72,13 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flag_magnetic_field=False
 
     matrix_u = dict_diffrn["matrix_u"]
-    wavelength = dict_diffrn["wavelength"]
-    flags_wavelength = dict_diffrn["flags_wavelength"]
+    if "wavelength_hkl" in dict_diffrn.keys():
+        wavelength = dict_diffrn["wavelength_hkl"]
+        flags_wavelength = False
+    else:
+        wavelength = dict_diffrn["wavelength"]
+        flags_wavelength = dict_diffrn["flags_wavelength"]
+
     flip_ratio_excluded = dict_diffrn["flip_ratio_excluded"] # it also work for intensity
 
     flag_unpolarized, flag_asymmetry = False, False
@@ -240,6 +245,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             flag_c_lambda2=flags_c_lambda2,
             flag_f_nucl_2hkl=flag_f_nucl_2hkl, flag_f_m_perp_2hkl=flag_f_m_perp_2hkl,
             dict_in_out=dict_in_out)
+        # iint_plus = iint_plus * numpy.power(wavelength, 4) # FIXME: It should be for the TOF
+        # iint_minus = iint_minus * numpy.power(wavelength, 4)
         if flag_dict:
             dict_in_out["iint_plus"] = iint_plus
             dict_in_out["iint_minus"] = iint_minus
@@ -254,7 +261,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             flag_iint_plus=True, flag_iint_minus=True, 
             flag_c_lambda2=False, flag_iint_2hkl=False)
     elif flag_unpolarized:
-        model_exp = (iint_plus + iint_minus)*phase_scale
+        model_exp = (iint_plus + iint_minus)*phase_scale 
         dict_in_out["intensity_calc"] = model_exp
         exp_value = intensity_es
         dder_model_exp = {

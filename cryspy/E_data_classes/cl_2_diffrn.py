@@ -35,6 +35,7 @@ from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
     ReflnSusceptibilityL
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
+from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import TOFIntensityIncident
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal

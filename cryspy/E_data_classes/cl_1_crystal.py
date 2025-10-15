@@ -494,7 +494,6 @@ class Crystal(DataN):
         except AttributeError:
             return None
 
-
         m_m_norm = cell.m_m_norm
         m_mt_norm_m_norm_field = numpy.matmul(
             numpy.matmul(m_m_norm.transpose(), m_m_norm), np_field)
