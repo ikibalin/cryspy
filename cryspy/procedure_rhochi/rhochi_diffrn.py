@@ -168,8 +168,13 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     f_nucl, dder_f_nucl = calc_f_nucl_by_dictionary(dict_crystal, dict_in_out_crystal_hkl, flag_use_precalculated_data=flag_use_precalculated_data)
     flag_f_nucl = len(dder_f_nucl.keys()) > 0
 
-    sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out_crystal_hkl, flag_use_precalculated_data=flag_use_precalculated_data)
-    flag_sft_ccs = len(dder_sft_ccs.keys()) > 0
+    flag_para = False
+    flag_sft_ccs = False
+    if "atom_para_index" in dict_crystal.keys():
+        sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out_crystal_hkl, flag_use_precalculated_data=flag_use_precalculated_data)
+        flag_sft_ccs = len(dder_sft_ccs.keys()) > 0
+        flag_para = True
+
 
     flag_ordered = False
     flag_f_m_perp_o_ccs = False
@@ -179,22 +184,33 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
         flag_ordered = True
 
-    flag_mag_atom_susceptibility = "mag_atom_susceptibility" in dder_sft_ccs.keys()
+    if flag_para:
+        flag_mag_atom_susceptibility = "mag_atom_susceptibility" in dder_sft_ccs.keys()
 
     flag_f_m_perp = flag_sft_ccs or flag_magnetic_field or flag_eq_ccs or flag_f_m_perp_o_ccs
     
     if (flag_use_precalculated_data and not(flag_f_m_perp) and "f_m_perp" in dict_in_out_keys):
         f_m_perp = dict_in_out["f_m_perp"]
     else:
-        f_m_perp, dder_f_m_perp = calc_f_m_perp_by_sft(
+        if flag_para:
+            f_m_perp, dder_f_m_perp = calc_f_m_perp_by_sft(
                 sft_ccs, magnetic_field, eq_ccs, flag_sft_ccs=flag_sft_ccs, flag_magnetic_field=flag_magnetic_field, flag_eq_ccs=flag_eq_ccs)
+        else:
+            f_m_perp = numpy.zeros(eq_ccs.shape, dtype=complex)
+            dder_f_m_perp = {}
+
         if flag_ordered:
             f_m_perp += f_m_perp_o_ccs
             dder_f_m_perp.update(dder_f_m_perp_o_ccs)
         if flag_dict:
             dict_in_out["f_m_perp"] = f_m_perp
 
-    if c_lambda2 is not None:
+    try:
+        c_lambda2 = float(c_lambda2)*1
+        flag_c_lambda = bool(not numpy.isnan(c_lambda2))
+    except:
+        flag_c_lambda = False
+    if flag_c_lambda:
         if (flag_use_precalculated_data and (f"dict_in_out_2hkl_{dict_crystal['name']:}" in dict_in_out_keys)):
             dict_in_out_crystal_2hkl = dict_in_out[f"dict_in_out_2hkl_{dict_crystal['name']:}"]
             dict_in_out_crystal_2hkl["index_hkl"] = index_2hkl
@@ -207,17 +223,32 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         if flag_dict:
             dict_in_out["f_nucl_2hkl"] = f_nucl_2hkl
 
-        sft_ccs_2hkl, dder_sft_ccs_2hkl = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out_crystal_2hkl, flag_use_precalculated_data=flag_use_precalculated_data)
-        flag_sft_ccs_2hkl = len(dder_sft_ccs_2hkl.keys()) > 0
-        if flag_dict:
-            dict_in_out["sft_ccs_2hkl"] = sft_ccs_2hkl
-
-        flag_f_m_perp_2hkl = flag_sft_ccs_2hkl or flag_magnetic_field or flag_eq_ccs
+        flag_sft_ccs_2hkl = False
+        if flag_para:
+            sft_ccs_2hkl, dder_sft_ccs_2hkl = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out_crystal_2hkl, flag_use_precalculated_data=flag_use_precalculated_data)
+            flag_sft_ccs_2hkl = len(dder_sft_ccs_2hkl.keys()) > 0
+            if flag_dict:
+                dict_in_out["sft_ccs_2hkl"] = sft_ccs_2hkl
+        flag_f_m_perp_o_ccs_2hkl = False
+        if flag_ordered:
+            f_m_perp_o_ccs_2hkl, dder_f_m_perp_o_ccs_2hkl = calc_f_m_perp_ordered_by_dictionary(
+                dict_crystal, dict_in_out_crystal_2hkl, flag_use_precalculated_data=flag_use_precalculated_data)
+            flag_f_m_perp_o_ccs_2hkl =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
+            if flag_dict:
+                dict_in_out["f_m_perp_o_ccs_2hkl"] = f_m_perp_o_ccs_2hkl
+            
+        flag_f_m_perp_2hkl = flag_sft_ccs_2hkl or flag_magnetic_field or flag_eq_ccs or flag_f_m_perp_o_ccs_2hkl
         if (flag_use_precalculated_data and not(flag_f_m_perp) and "f_m_perp_2hkl" in dict_in_out_keys):
             f_m_perp_2hkl = dict_in_out["f_m_perp_2hkl"]
         else:
-            f_m_perp_2hkl, dder_f_m_perp_2hkl = calc_f_m_perp_by_sft(
-                sft_ccs_2hkl, magnetic_field, eq_ccs, flag_sft_ccs=flag_sft_ccs_2hkl, flag_magnetic_field=flag_magnetic_field, flag_eq_ccs=flag_eq_ccs)
+            if flag_para:
+                f_m_perp_2hkl, dder_f_m_perp_2hkl = calc_f_m_perp_by_sft(
+                    sft_ccs_2hkl, magnetic_field, eq_ccs, flag_sft_ccs=flag_sft_ccs_2hkl, flag_magnetic_field=flag_magnetic_field, flag_eq_ccs=flag_eq_ccs)
+            else:
+                f_m_perp_2hkl = numpy.zeros(eq_ccs.shape, dtype=complex)
+            if flag_ordered:
+                f_m_perp_2hkl += f_m_perp_o_ccs_2hkl
+
             if flag_dict:
                 dict_in_out["f_m_perp_2hkl"] = f_m_perp_2hkl
 
@@ -289,6 +320,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     inv_sigma_sq_exp_value = 1./numpy.square(exp_value[1, index_true])
     
     dder_plus_crystal, dder_minus_crystal = {}, {}
+    if not flag_para:
+        flag_mag_atom_susceptibility = False
     if flag_mag_atom_susceptibility:
         dder_f_m_perp_mas = (
             dder_f_m_perp['sft_ccs_real'][:,:, na, :, na]*dder_sft_ccs["mag_atom_susceptibility"].real[na, :, :, : , :]+
