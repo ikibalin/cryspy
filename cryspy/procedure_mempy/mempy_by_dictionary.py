@@ -87,6 +87,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     if "full_symm_elems" in dict_crystal.keys():
         full_symm_elems = dict_crystal["full_symm_elems"]
         flag_mcif = False
+        full_symm_theta = None
     elif "full_mcif_elems" in dict_crystal.keys():
         full_mcif_elems = dict_crystal["full_mcif_elems"]
         full_symm_elems = full_mcif_elems[:-1,:]

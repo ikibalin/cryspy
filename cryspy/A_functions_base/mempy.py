@@ -69,9 +69,13 @@ def calc_mem_col(
     # [hkl, points, symm]
     r_direct = full_symm_elems[4:]
     det_r, der_det_r = calc_det_m(r_direct)
-    theta_s = full_symm_theta
+    if full_symm_theta is None:
+        coeff = 1.
+    else:
+        theta_s = full_symm_theta
+        coeff = numpy.expand_dims(det_r * theta_s, axis=(0,1))
 
-    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) * numpy.expand_dims(det_r * theta_s, axis=(0,1))
+    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) * coeff
     phase_2d = phase_3d.sum(axis=2)
     # [3, hkl, points]
     mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) * 
