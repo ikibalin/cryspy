@@ -3,8 +3,9 @@ from .matrix_operations import calc_m1_m2_inv_m1, \
     calc_m_q_inv_m, calc_m_v, calc_vector_product_v1_v2_v1,\
     calc_mm_as_m_q_inv_m, \
     calc_mm_as_m1_m2_inv_m1, \
-    calc_m_v, calc_m1_m2_inv_m1
-from .symmetry_elements import calc_multiplicity_by_atom_symm_elems, calc_symm_flags
+    calc_m_v, calc_m1_m2_inv_m1, \
+    calc_det_m
+from .symmetry_elements import calc_multiplicity_by_atom_symm_elems, calc_symm_flags, apply_symm_elems_to_index_xyz
 from .unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters,\
     calc_volume_uc_by_unit_cell_parameters, \
     calc_sthovl_by_unit_cell_parameters
@@ -30,7 +31,7 @@ def calc_symm_elem_points_by_index_points(index_point, n_abc):
 
 def calc_mem_col(
         index_hkl, unit_cell_parameters, eh_ccs, full_symm_elems, symm_elem_points,
-        volume_unit_cell, number_unit_cell,
+        volume_unit_cell, number_unit_cell,full_symm_theta=None,
         point_multiplicity=None, dict_in_out: dict=None, flag_use_precalculated_data: bool = False):
     dict_in_out_keys = dict_in_out.keys()
     if (("index_hkl" in dict_in_out_keys) and flag_use_precalculated_data):
@@ -66,7 +67,11 @@ def calc_mem_col(
     hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=1)
     index_hkl_3d = numpy.expand_dims(numpy.expand_dims(index_hkl, axis=2), axis=3)
     # [hkl, points, symm]
-    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2]))
+    r_direct = full_symm_elems[4:]
+    det_r, der_det_r = calc_det_m(r_direct)
+    theta_s = full_symm_theta
+
+    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) * numpy.expand_dims(det_r * theta_s, axis=(0,1))
     phase_2d = phase_3d.sum(axis=2)
     # [3, hkl, points]
     mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) * 
@@ -173,6 +178,31 @@ def get_uniform_density_chi(point_multiplicity, point_atom_label, point_atom_mul
         point_atom_multiplicity,
         volume_unit_cell, points_unit_cell)
     return norm_density_col
+
+def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density_auc, n_abc, full_mcif_elems):
+
+    n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
+
+    point_index = numpy.stack(numpy.meshgrid(
+        numpy.arange(n_a), numpy.arange(n_b), numpy.arange(n_c),
+        indexing="ij"), axis=0)
+    # point_index = point_index.reshape(point_index.shape[0], numpy.prod(point_index.shape[1:]))
+    spin_density_3d = numpy.zeros(point_index.shape[1:], dtype=float)
+
+    elem_r = full_mcif_elems[4:13]
+    symm_elems = full_mcif_elems[:13]
+    theta_s = full_mcif_elems[13]
+    det_r = calc_det_m(elem_r)[0]
+    sign_s = det_r * theta_s
+    for index_xyz, mult, den_plus_minus in zip(index_auc.transpose(), multiplicity_auc, spin_density_auc.transpose()):
+        index_xyz_s = apply_symm_elems_to_index_xyz(symm_elems, index_xyz, n_abc)
+        for ind_xys, coeff in zip(index_xyz_s.transpose(), sign_s):
+            spin_density_3d[ind_xys[0], ind_xys[1], ind_xys[2]] += coeff * (den_plus_minus[0] + den_plus_minus[1]) / mult
+    spin_density = spin_density_3d.reshape(numpy.prod(spin_density_3d.shape))
+    spin_density_out = numpy.stack([spin_density, numpy.zeros_like(spin_density)], axis=0)
+    point_index = point_index.reshape(point_index.shape[0], numpy.prod(point_index.shape[1:]))
+    return point_index, spin_density_out
+
 
 
 def save_spin_density_into_file(

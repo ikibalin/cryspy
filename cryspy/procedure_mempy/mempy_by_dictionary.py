@@ -18,7 +18,8 @@ from cryspy.A_functions_base.mempy import \
     get_uniform_density_chi,\
     renormailize_density_chi, \
     calc_model_value_by_precalculated_data, \
-    calc_chi_atoms
+    calc_chi_atoms, \
+    transform_to_spin_density_for_mcif
 
 from cryspy.A_functions_base.unit_cell import \
     calc_volume_uc_by_unit_cell_parameters, \
@@ -83,18 +84,25 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
     # **Input information about crystal**
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
-    full_symm_elems = dict_crystal["full_symm_elems"]
+    if "full_symm_elems" in dict_crystal.keys():
+        full_symm_elems = dict_crystal["full_symm_elems"]
+        flag_mcif = False
+    elif "full_mcif_elems" in dict_crystal.keys():
+        full_mcif_elems = dict_crystal["full_mcif_elems"]
+        full_symm_elems = full_mcif_elems[:-1,:]
+        full_symm_theta = full_mcif_elems[-1,:]
+        flag_mcif = True
 
     volume_unit_cell = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
 
-    reduced_symm_elems = dict_crystal["reduced_symm_elems"]
-    centrosymmetry = dict_crystal["centrosymmetry"]
-    if centrosymmetry:
-        centrosymmetry_position = dict_crystal["centrosymmetry_position"]
-    else:
-        centrosymmetry_position = None
-    translation_elems = dict_crystal["translation_elems"]
-
+    if not flag_mcif:
+        reduced_symm_elems = dict_crystal["reduced_symm_elems"]
+        centrosymmetry = dict_crystal["centrosymmetry"]
+        if centrosymmetry:
+            centrosymmetry_position = dict_crystal["centrosymmetry_position"]
+        else:
+            centrosymmetry_position = None
+        translation_elems = dict_crystal["translation_elems"]
     atom_label = dict_crystal["atom_label"]
     atom_fract_xyz = dict_crystal["atom_fract_xyz"]
     atom_multiplicity = dict_crystal["atom_multiplicity"]
@@ -222,7 +230,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             
             mem_col = calc_mem_col(
                 index_hkl, unit_cell_parameters, eh_ccs, full_symm_elems, symm_elem_auc_col, 
-                volume_unit_cell, number_unit_cell, 
+                volume_unit_cell, number_unit_cell, full_symm_theta=full_symm_theta,
                 point_multiplicity=point_multiplicity_col,
                 dict_in_out=dict_in_out_col, flag_use_precalculated_data=flag_use_precalculated_data)
             
@@ -467,7 +475,18 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         dict_in_out["density_channel_chi"] = density_chi
 
     # **Save to .den file**
-    if channel_plus_minus and (file_spin_density is not None):
+    if channel_plus_minus and (file_spin_density is not None) and flag_mcif:
+        spin_density_auc = density_col_best * numpy.array([[magnetization_plus, ], [magnetization_minus, ]], dtype=float)
+        index_full, spin_density = transform_to_spin_density_for_mcif(index_auc, point_multiplicity_col, spin_density_auc, n_abc, full_mcif_elems)
+        centrosymmetry = False
+        centrosymmetry_position = None
+        translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
+        one_symm_elems = full_mcif_elems[:13,:1]
+
+        save_spin_density_into_file(file_spin_density, index_full, spin_density, n_abc, unit_cell_parameters,
+                one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
+        print(f"\nReconstructed spin density is written in file '{file_spin_density:}'.")
+    elif channel_plus_minus and (file_spin_density is not None):
         spin_density = density_col_best * numpy.array([[magnetization_plus, ], [magnetization_minus, ]], dtype=float)
         save_spin_density_into_file(file_spin_density, index_auc_col, spin_density, n_abc, unit_cell_parameters,
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
