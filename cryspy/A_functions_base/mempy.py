@@ -56,7 +56,6 @@ def calc_mem_col(
     else:
         dict_in_out["point_multiplicity"] = point_multiplicity
 
-    eh_perp_ccs = calc_vector_product_v1_v2_v1(eq_ccs, numpy.expand_dims(eh_ccs, axis=1), flag_v1=False, flag_v2=False)[0]
     fract_points = symm_elem_points[:3]/numpy.expand_dims(symm_elem_points[3], axis=0)
 
     rr = calc_m_v(
@@ -74,12 +73,30 @@ def calc_mem_col(
     else:
         theta_s = full_symm_theta
         coeff = numpy.expand_dims(det_r * theta_s, axis=(0,1))
-
+        
+    # [hkl,points,symm]
     phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) * coeff
-    phase_2d = phase_3d.sum(axis=2)
+
+    if full_symm_theta is None: # typical two channel MEM, moment is along or opposite to field
+        # [3, hkl, symm]
+        eh_ccs_symm = numpy.expand_dims(eh_ccs, axis=(1,2))
+    else:
+        # [3, hkl, symm]
+        eh_ccs_symm = calc_m_v(numpy.expand_dims(full_symm_elems[4:],axis=1), numpy.expand_dims(eh_ccs, axis=(1,2)), flag_m=False, flag_v=False)[0]
+    # [3, hkl, symm]
+    eh_perp_ccs = calc_vector_product_v1_v2_v1(
+        numpy.expand_dims(eq_ccs, axis=2), 
+        eh_ccs_symm, flag_v1=False, flag_v2=False)[0]
+    
+    # [3, hkl, pointss]
+    m_phase_2d = (numpy.expand_dims(phase_3d, axis=0) * numpy.expand_dims(eh_perp_ccs, axis=2)).sum(axis=3)
+
+    # phase_2d = phase_3d.sum(axis=2)
     # [3, hkl, points]
-    mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) * 
-        numpy.expand_dims(eh_perp_ccs, axis=2))/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
+    # mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) * 
+    #     numpy.expand_dims(eh_perp_ccs, axis=2))/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
+    mem_col = 0.2695*(m_phase_2d*numpy.expand_dims(numpy.expand_dims(point_multiplicity, axis=0),axis=0)
+                      )/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
     return mem_col
 
 
@@ -183,7 +200,7 @@ def get_uniform_density_chi(point_multiplicity, point_atom_label, point_atom_mul
         volume_unit_cell, points_unit_cell)
     return norm_density_col
 
-def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density_auc, n_abc, full_mcif_elems):
+def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density_auc, n_abc, full_mcif_elems, e_h_ccs):
 
     n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
 
@@ -199,8 +216,9 @@ def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density
     det_r = calc_det_m(elem_r)[0]
     sign_s = det_r * theta_s
     for index_xyz, mult, den_plus_minus in zip(index_auc.transpose(), multiplicity_auc, spin_density_auc.transpose()):
+        projection_h_s = sign_s * (calc_m_v(elem_r, e_h_ccs)[0] * numpy.expand_dims(e_h_ccs, axis=1)).sum(axis=0)
         index_xyz_s = apply_symm_elems_to_index_xyz(symm_elems, index_xyz, n_abc)
-        for ind_xys, coeff in zip(index_xyz_s.transpose(), sign_s):
+        for ind_xys, coeff in zip(index_xyz_s.transpose(), projection_h_s):
             spin_density_3d[ind_xys[0], ind_xys[1], ind_xys[2]] += coeff * (den_plus_minus[0] + den_plus_minus[1]) / mult
     spin_density = spin_density_3d.reshape(numpy.prod(spin_density_3d.shape))
     spin_density_out = numpy.stack([spin_density, numpy.zeros_like(spin_density)], axis=0)

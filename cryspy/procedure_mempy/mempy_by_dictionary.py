@@ -478,15 +478,21 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     # **Save to .den file**
     if channel_plus_minus and (file_spin_density is not None) and flag_mcif:
         spin_density_auc = density_col_best * numpy.array([[magnetization_plus, ], [magnetization_minus, ]], dtype=float)
-        index_full, spin_density = transform_to_spin_density_for_mcif(index_auc, point_multiplicity_col, spin_density_auc, n_abc, full_mcif_elems)
-        centrosymmetry = False
-        centrosymmetry_position = None
-        translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
-        one_symm_elems = full_mcif_elems[:13,:1]
+        for dict_diffrn in l_dict_diffrn:
+            eh_ccs = dict_diffrn["matrix_u"][6:]
+            index_full, spin_density = transform_to_spin_density_for_mcif(index_auc, point_multiplicity_col, spin_density_auc, n_abc, full_mcif_elems, eh_ccs)
+            centrosymmetry = False
+            centrosymmetry_position = None
+            translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
+            one_symm_elems = full_mcif_elems[:13,:1]
+            if len(l_dict_diffrn) <= 1:
+                file_spin_density_diffrn = file_spin_density
+            else:
+                file_spin_density_diffrn = ".".join(file_spin_density.split(".")[:-1]) + dict_diffrn['type_name'] + '.den'
 
-        save_spin_density_into_file(file_spin_density, index_full, spin_density, n_abc, unit_cell_parameters,
-                one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
-        print(f"\nReconstructed spin density is written in file '{file_spin_density:}'.")
+            save_spin_density_into_file(file_spin_density_diffrn, index_full, spin_density, n_abc, unit_cell_parameters,
+                    one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
+            print(f"\nReconstructed spin density is written in file '{file_spin_density_diffrn:}'.")
     elif channel_plus_minus and (file_spin_density is not None):
         spin_density = density_col_best * numpy.array([[magnetization_plus, ], [magnetization_minus, ]], dtype=float)
         save_spin_density_into_file(file_spin_density, index_auc_col, spin_density, n_abc, unit_cell_parameters,

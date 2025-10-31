@@ -1287,7 +1287,8 @@ def calc_f_m_perp_ordered(index_hkl,
         flag_m=flag_unit_cell_parameters, flag_v=flag_atom_ordered_moment_crystalaxis_xyz)
     det_r, der_det_r = calc_det_m(r_direct)
     theta_s = full_mcif_elems[13,:] 
-
+    # det_r is taken into account when multiplication on r_direct is performed
+    # moment_ccs = 0.2695*rm_ccs*(theta_s)[na, :, na]
     moment_ccs = 0.2695*rm_ccs*(theta_s*det_r)[na, :, na]
     
     hh_1 = atom_ordered_multiplicity*atom_ordered_occupancy
