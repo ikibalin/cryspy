@@ -8,7 +8,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 import numpy
 
-class ChannelPlusMinus(ItemN):
+class ChannelCol(ItemN):
     """
     Magnetization density in channel plus minus.
 
@@ -61,10 +61,10 @@ class ChannelPlusMinus(ItemN):
     for key in ATTR_CONSTR_MARK:
         D_DEFAULT[key] = ""
 
-    PREFIX = "channel_plus_minus"
+    PREFIX = "channel_col"
 
     def __init__(self, **kwargs) -> NoReturn:
-        super(ChannelPlusMinus, self).__init__()
+        super(ChannelCol, self).__init__()
 
         # defined for any integer and float parameters
         D_MIN = {"density_plus": 0., "density_minus": 0.,
@@ -81,7 +81,7 @@ class ChannelPlusMinus(ItemN):
             setattr(self, key, attr)
 
 
-class ChannelPlusMinusL(LoopN):
+class ChannelColL(LoopN):
     """
     Magnetization density in channel chi in loop
 
@@ -95,11 +95,11 @@ class ChannelPlusMinusL(LoopN):
         - point_multiplicity (optional)
     """
 
-    ITEM_CLASS = ChannelPlusMinus
+    ITEM_CLASS = ChannelCol
     ATTR_INDEX = None
 
     def __init__(self, loop_name: str = None, **kwargs) -> NoReturn:
-        super(ChannelPlusMinusL, self).__init__()
+        super(ChannelColL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 

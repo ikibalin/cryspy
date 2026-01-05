@@ -16,7 +16,7 @@ from cryspy.A_functions_base.structure_factor import \
     calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary, \
     calc_f_m_perp_ordered_by_dictionary
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
-from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full
+from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full, calc_sc_ordered
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
@@ -896,6 +896,21 @@ class Crystal(DataN):
                 atom_ordered_index = args[args[:,1].argsort()][:,0]
                 ddict["atom_ordered_index"] = atom_ordered_index
 
+                if "full_mcif_elems" in ddict.keys():
+                    elems_fs = ddict["full_mcif_elems"]
+                else:
+                    raise AttributeError("Magnetic symmetry elements are not found.")
+                flag_2d = ddict["atom_symm_elems_flag"][:, atom_ordered_index]
+
+                l_sc_ordered = []
+                for ind in range(atom_ordered_label.size):
+                    sc_ordered = calc_sc_ordered(
+                            elems_fs[:, flag_2d[:, ind]],
+                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                    l_sc_ordered.append(sc_ordered)
+                atom_ordered_sc_m = numpy.stack(l_sc_ordered, axis=-1)
+                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m
+
         if isinstance(self, Crystal):
             # FIXME: beta should be defined in atom_site_aniso_beta, b_iso for every atom
             atom_b_iso, atom_beta = self.calc_b_iso_beta()
@@ -1031,7 +1046,8 @@ class Crystal(DataN):
                 item_ase.j_23 = j_tensor[5, i_item]
 
         if "atom_ordered_moment_crystalaxis_xyz" in keys:
-            hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
+            hh = calc_m_v(ddict_crystal["atom_ordered_sc_m"], ddict_crystal["atom_ordered_moment_crystalaxis_xyz"])[0]
+            # hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
             for i_item, item in enumerate(self.atom_site_moment.items):
                 item.crystalaxis_x = hh[0, i_item]
                 item.crystalaxis_y = hh[1, i_item]

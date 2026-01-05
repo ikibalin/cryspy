@@ -20,6 +20,8 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop import SpaceGroupSymopL
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
     AtomSiteSusceptibilityL
+from cryspy.C_item_loop_classes.cl_1_atom_site_moment import \
+    AtomSiteMomentL
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import \
     AtomElectronConfigurationL
 from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
@@ -189,8 +191,8 @@ class DensityPointL(LoopN):
         b_i = (b_1, b_2, b_3)
 
         ind_x_a_u_c, ind_y_a_u_c, ind_z_a_u_c, counts_a_u_c = \
-            calc_asymmetric_unit_cell_indexes(points_a, points_b, points_c,
-                                              r_ij, b_i)
+            calc_asymmetric_unit_cell_indexes(
+                points_a, points_b, points_c, r_ij, b_i)
 
         fract_x_a_u_c = ind_x_a_u_c.astype(float)/float(points_a)
         fract_y_a_u_c = ind_y_a_u_c.astype(float)/float(points_b)
@@ -489,8 +491,7 @@ class DensityPointL(LoopN):
         self.set_core_density(atom_site, atom_electron_configuration,
                               flag_two_channel=flag_two_channel)
 
-    def calc_density_chi(self, cell: Cell,
-                         atom_site_susceptibility: AtomSiteSusceptibilityL):
+    def calc_density_ani(self, cell: Cell, atom_site_susceptibility: AtomSiteSusceptibilityL):
         """Calculate density chi."""
         density = self.density
 
@@ -499,15 +500,23 @@ class DensityPointL(LoopN):
 
         label = self.basin_atom_label
 
-        l_max_moment = [numpy.abs(
-            item.calc_main_axes_of_magnetization_ellipsoid(cell)[0]).max()
-            for item in atom_site_susceptibility.items]
-        l_label_atom = atom_site_susceptibility.label
-
-        l_den_chi = [den*l_max_moment[l_label_atom.index(lab)] if lab in
+        if isinstance(atom_site_susceptibility, AtomSiteSusceptibilityL):
+            l_max_moment = [numpy.abs(
+                item.calc_main_axes_of_magnetization_ellipsoid(cell)[0]).max()
+                for item in atom_site_susceptibility.items]
+            l_label_atom = atom_site_susceptibility.label
+        elif isinstance(atom_site_susceptibility, AtomSiteMomentL):
+            atom_site_moment = atom_site_susceptibility
+            l_max_moment = atom_site_moment.calc_moment(cell)
+            l_label_atom = atom_site_moment.label
+        else:
+            raise UserWarning(
+                "atom_site_susceptibility should be "
+                "AtomSiteSusceptibilityL or AtomSiteMomentL")
+        l_den_ani = [den*l_max_moment[l_label_atom.index(lab)] if lab in
                      l_label_atom else 0. for lab, den in zip(label, density)]
 
-        return numpy.array(l_den_chi, dtype=float)
+        return numpy.array(l_den_ani, dtype=float)
 
     def save_to_file_den(
             self, mem_parameters: MEMParameters, space_group: SpaceGroup,
@@ -525,7 +534,7 @@ class DensityPointL(LoopN):
         index_y = self.index_y
         index_z = self.index_z
         # density = self.density
-        density_chi = self.calc_density_chi(cell, atom_site_susceptibility)
+        density_ani = self.calc_density_ani(cell, cell, atom_site_susceptibility)
         density_ferro = self.density_ferro
         density_antiferro = self.density_antiferro
         ls_out = []
@@ -534,10 +543,10 @@ class DensityPointL(LoopN):
         ls_out.append("{:}".format(len(index_x)))
         ls_out_b.append("{:}".format(len(index_x)))
 
-        for _x, _y, _z, _l, den_chi, den_f, den_a in \
-            zip(index_x, index_y, index_z, numpy_basin_atom_label, density_chi,
+        for _x, _y, _z, _l, den_ani, den_f, den_a in \
+            zip(index_x, index_y, index_z, numpy_basin_atom_label, density_ani,
                 density_ferro, density_antiferro):
-            ls_out.append(f"{_x:4} {_y:4} {_z:4} {den_chi:15.7f}")
+            ls_out.append(f"{_x:4} {_y:4} {_z:4} {den_ani:15.7f}")
             v1 = (chi_iso_ferro*den_f+chi_iso_antiferro*den_a)
             ls_out_b.append(f"{_x:4} {_y:4} {_z:4} {v1:15.7f}")
 
