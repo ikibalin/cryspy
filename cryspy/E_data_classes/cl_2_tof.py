@@ -215,16 +215,16 @@ class TOF(DataN):
 
         if "zero" in keys:
             tof_parameters = self.tof_parameters
-            setattr(tof_parameters, "zero", float(ddict_diffrn["zero"]))
-            setattr(tof_parameters, "dtt1", float(ddict_diffrn["dtt1"]))
+            setattr(tof_parameters, "zero", float(ddict_diffrn["zero"].squeeze()))
+            setattr(tof_parameters, "dtt1", float(ddict_diffrn["dtt1"].squeeze()))
             if "dtt2" in keys:
-                setattr(tof_parameters, "dtt2", float(ddict_diffrn["dtt2"]))
+                setattr(tof_parameters, "dtt2", float(ddict_diffrn["dtt2"].squeeze()))
             if "zerot" in keys:
-                setattr(tof_parameters, "zerot", float(ddict_diffrn["zerot"]))
+                setattr(tof_parameters, "zerot", float(ddict_diffrn["zerot"].squeeze()))
             if "dtt1t" in keys:
-                setattr(tof_parameters, "dtt1t", float(ddict_diffrn["dtt1t"]))
+                setattr(tof_parameters, "dtt1t", float(ddict_diffrn["dtt1t"].squeeze()))
             if "dtt2t" in keys:
-                setattr(tof_parameters, "dtt2t", float(ddict_diffrn["dtt2t"]))
+                setattr(tof_parameters, "dtt2t", float(ddict_diffrn["dtt2t"].squeeze()))
 
         if "background_coefficients" in keys:
             tof_background = self.tof_background

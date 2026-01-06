@@ -1,0 +1,27 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64"]
+
+[dependencies]
+python = "3.13.*"
+
+[pypi-dependencies]
+pip = "*"
+cycler = "*"
+fonttools = "*"
+kiwisolver = "*"
+matplotlib = "*"
+numpy = "*"
+packaging = "*"
+pillow = "*"
+pycifstar = "*"
+pyparsing = "*"
+python-dateutil = "*"
+pytest = "*"
+scipy = "*"
+six = "*"
+cryspy = { path = ".", editable = true }
+
+[tasks]
+unit-tests = "python -m pytest tests/basic_operations/ --color=yes -v"
+func-tests = "python -m pytest tests/test_scripts.py -vv --tb=long --pdb --showlocals"

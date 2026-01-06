@@ -29,13 +29,13 @@ class MEMParameters(ItemN):
     ATTR_MANDATORY_TYPES = (int, int, int, )
     ATTR_MANDATORY_CIF = ("points_a", "points_b", "points_c", )
 
-    ATTR_OPTIONAL_NAMES = ("channel_plus_minus",
-                          "channel_chi", "magnetization_plus", "magnetization_minus",
+    ATTR_OPTIONAL_NAMES = ("channel_col",
+                          "channel_ani", "magnetization_plus", "magnetization_minus",
                           "prior_density", "use_asymmetry", "only_magnetic_basins",
                           "gof_desired", "spin_density_to_den_file", "magnetization_density_to_den_file")
     ATTR_OPTIONAL_TYPES = (bool, bool, float, float, str, bool, bool, float, str, str)
-    ATTR_OPTIONAL_CIF = ("channel_plus_minus",
-                          "channel_chi", "magnetization_plus", "magnetization_minus",
+    ATTR_OPTIONAL_CIF = ("channel_col",
+                          "channel_ani", "magnetization_plus", "magnetization_minus",
                           "prior_density", "use_asymmetry", "only_magnetic_basins",
                           "GoF_desired", "spin_density_to_den_file", "magnetization_density_to_den_file")
 
@@ -63,9 +63,9 @@ class MEMParameters(ItemN):
 
     # default values for the parameters
     D_DEFAULT = {"points_a": 48, "points_b": 48, "points_c": 48,
-                 "channel_plus_minus": True,
+                 "channel_col": True,
                  "magnetization_plus": 4., "magnetization_minus": -1.,
-                 "channel_chi": False,
+                 "channel_ani": False,
                  "only_magnetic_basins": False,
                  "prior_density": "uniform", "use_asymmetry": True,
                  "gof_desired": 1.,
@@ -103,8 +103,8 @@ class MEMParameters(ItemN):
         numb_c = self.points_c
         points_abc = numpy.array([numb_a, numb_b, numb_c], dtype=int)
         
-        channel_plus_minus = self.channel_plus_minus
-        channel_chi = self.channel_chi
+        channel_col = self.channel_col
+        channel_ani = self.channel_ani
         magnetization_plus = self.magnetization_plus
         magnetization_minus = self.magnetization_minus
         flag_uniform_prior_density = self.prior_density == "uniform"
@@ -116,8 +116,8 @@ class MEMParameters(ItemN):
         file_magnetization_density = self.magnetization_density_to_den_file
         dict_mem = {
             'points_abc': points_abc,
-            "channel_plus_minus": channel_plus_minus,
-            "channel_chi": channel_chi,
+            "channel_col": channel_col,
+            "channel_ani": channel_ani,
             "magnetization_plus": magnetization_plus,
             "magnetization_minus": magnetization_minus,
             "flag_uniform_prior_density": flag_uniform_prior_density,

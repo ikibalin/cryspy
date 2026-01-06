@@ -164,10 +164,10 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     ttheta_min = calc_ttheta_phi_by_gamma_nu(gamma_zs.min(), 0., flag_gamma=False, flag_nu=False)[0]
     ttheta_max = calc_ttheta_phi_by_gamma_nu(gamma_zs.max(), nu_zs.max(), flag_gamma=False, flag_nu=False)[0]
 
-    sthovl_min = numpy.sin(0.5*ttheta_min - numpy.pi/90.)/wavelength
+    sthovl_min = numpy.sin(0.5*ttheta_min - numpy.pi/90.)/numpy.max(wavelength)
     if sthovl_min < 0:
         sthovl_min = 0.00001
-    sthovl_max = numpy.sin(0.5*ttheta_max + numpy.pi/90.)/wavelength
+    sthovl_max = numpy.sin(0.5*ttheta_max + numpy.pi/90.)/numpy.min(wavelength)
     
     background_gamma = dict_pd["background_gamma"]
     background_nu = dict_pd["background_nu"]

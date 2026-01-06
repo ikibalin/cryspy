@@ -137,7 +137,7 @@ def calc_section_from_density_point(
     np_ind_z = density_point.numpy_index_z
     np_indexes = (np_ind_x, np_ind_y, np_ind_z)
 
-    den_chi = density_point.calc_density_chi(cell, atom_site_susceptibility)
+    den_ani = density_point.calc_density_ani(cell, atom_site_susceptibility)
     den_f = numpy.array(density_point.density_ferro, dtype=float)
     den_a = numpy.array(density_point.density_antiferro, dtype=float)
 
@@ -148,7 +148,7 @@ def calc_section_from_density_point(
     chi_a = mem_parameters.chi_antiferro
 
     n_xyz = (points_a, points_b, points_c)
-    den_chi_3d = transfer_to_density_3d(np_indexes, den_chi, n_xyz, r_ij, b_i)
+    den_ani_3d = transfer_to_density_3d(np_indexes, den_ani, n_xyz, r_ij, b_i)
 
     den_b = chi_f*den_f + chi_a*den_a
     den_b_3d = transfer_to_density_3d(np_indexes, den_b, n_xyz, r_ij, b_i)
@@ -160,11 +160,11 @@ def calc_section_from_density_point(
     ind_xyz = numpy.array([fract_x_uc*points_a, fract_y_uc*points_b,
                            fract_z_uc*points_c], dtype=float).transpose()
 
-    den_chi_section = tri_linear_interpolation(ind_xyz, den_chi_3d)
+    den_ani_section = tri_linear_interpolation(ind_xyz, den_ani_3d)
     den_b_section = tri_linear_interpolation(ind_xyz, den_b_3d)
 
     points_x = section.points_x
     points_y = section.points_y
-    den_chi_section = den_chi_section.reshape((points_x, points_y))
+    den_ani_section = den_ani_section.reshape((points_x, points_y))
     den_b_section = den_b_section.reshape((points_x, points_y))
-    return den_chi_section, den_b_section
+    return den_ani_section, den_b_section

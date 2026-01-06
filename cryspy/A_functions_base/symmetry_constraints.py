@@ -50,19 +50,20 @@ def calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters: boo
 
     r_ccs, dder_r_ccs = calc_m1_m2_inv_m1(m_m, r_direct, flag_m1=False, flag_m2=False)
 
-    if symm_elems.shape[0] == 14:
-        theta = numpy.expand_dims(symm_elems[13], axis=(0,1))
-        # det_r_ccs = calc_det_m(r_ccs, flag_m=False)[0]
-        # res = theta_s*det_r_ccs
-    else:
-        theta = numpy.expand_dims(numpy.ones_like(symm_elems[0]), axis=(0,1))
+    # if symm_elems.shape[0] == 14:
+    #     theta = numpy.expand_dims(symm_elems[13], axis=(0,1))
+    #     # det_r_ccs = calc_det_m(r_ccs, flag_m=False)[0]
+    #     # res = theta_s*det_r_ccs
+    # else:
+    #     theta = numpy.expand_dims(numpy.ones_like(symm_elems[0]), axis=(0,1))
 
     res, dder_mm = calc_mm_as_m_q_inv_m(r_ccs, flag_m= flag_unit_cell_parameters)
 
     # if r_direct.shape[1] == 2:
     #     print("r_ccs: ", r_ccs)
 
-    mm = (res*theta).sum(axis=2)/res.shape[2]
+    # mm = (res*theta).sum(axis=2)/res.shape[2]
+    mm = (res).sum(axis=2)/res.shape[2]
 
     sc_chi = numpy.stack([mm[0,:], mm[4,:], mm[8,:], mm[1,:], mm[2,:], mm[5,:]], axis=0)
     dder_sc_chi = {}
@@ -71,21 +72,46 @@ def calc_sc_chi(symm_elems, unit_cell_parameters, flag_unit_cell_parameters: boo
 
 def calc_sc_chi_full(symm_elems, unit_cell_parameters, flag_unit_cell_parameters:bool=False):
     """Calculate symmetry constraint matrix for susceptibility
-    It is supposed that determinant of r matrix is 1
+    symm_elems is the symmetry elements that transform atom to the same atom
+    """
+    # [9,]
+    m_m, dder_m_m = calc_m_m_by_unit_cell_parameters(
+        unit_cell_parameters, flag_unit_cell_parameters=False)
+
+    # [9, Ns]
+    r_direct = symm_elems[4:13]
+    r_ccs, dder_r_ccs = calc_m1_m2_inv_m1(m_m, r_direct, flag_m1=False, flag_m2=False)
+    # [9, 9, Ns]
+    res, dder_mm = calc_mm_as_m1_m2_inv_m1(r_ccs, flag_m1= flag_unit_cell_parameters)
+
+    # sc_chi_full = (res*theta).sum(axis=2)/res.shape[2]
+    # [9, 9, ]
+    sc_chi_full = (res).sum(axis=2)/res.shape[2]
+    dder_sc_chi_full = {}
+    return sc_chi_full, dder_sc_chi_full
+
+
+def calc_sc_ordered(mag_symm_elems, unit_cell_parameters, flag_unit_cell_parameters:bool=False):
+    """
+    Docstring for calc_sc_ordered
+    mag_symm_elems is [14, Ns]
+    mag_symm_elems  is the magnetic symmetry elements that transform atom to the same atom
+    sc_ordered is [3,]
     """
     m_m, dder_m_m = calc_m_m_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=False)
 
-    r_direct = symm_elems[4:13]
-    if symm_elems.shape[0] == 14:
-        theta = numpy.expand_dims(symm_elems[13], axis=(0,1))
-    else:
-        theta = numpy.expand_dims(numpy.ones_like(symm_elems[0]), axis=(0,1))
+    r_direct = mag_symm_elems[4:13]
+    # theta_s is [1, Ns]
+    theta_s = numpy.expand_dims(mag_symm_elems[13], axis=(0,))
+    # r_ccs is [9, Ns]
     r_ccs, dder_r_ccs = calc_m1_m2_inv_m1(m_m, r_direct, flag_m1=False, flag_m2=False)
+    
+    # theta_s is [1, Ns]
+    det_r_ccs = numpy.expand_dims(calc_det_m(r_ccs)[0], axis=(0,))
 
-    res, dder_mm = calc_mm_as_m1_m2_inv_m1(r_ccs, flag_m1= flag_unit_cell_parameters)
-
-    sc_chi_full = (res*theta).sum(axis=2)/res.shape[2]
-    dder_sc_chi_full = {}
-    return sc_chi_full, dder_sc_chi_full
-
+    # [9,]
+    # Note that here matrix [3,3] is stored as [9,]
+    sc_ordered = (theta_s * r_ccs * det_r_ccs).sum(axis=1)/r_ccs.shape[1]
+    dder_sc_ordered = {}
+    return sc_ordered, dder_sc_ordered
