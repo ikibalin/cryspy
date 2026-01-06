@@ -24,4 +24,4 @@ cryspy = { path = ".", editable = true }
 
 [tasks]
 unit-tests = "python -m pytest tests/basic_operations/ --color=yes -v"
-func-tests = "python -m pytest tests/test_scripts.py -vv --tb=long --pdb"
+func-tests = "python -m pytest tests/test_scripts.py -vv --tb=long --pdb --showlocals"
