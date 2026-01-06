@@ -613,7 +613,7 @@ def calc_f_charge_by_dictionary(dict_crystal, wavelength:float, dict_in_out, fla
 
     table_wavelength = dict_crystal["table_wavelength"]
     table_atom_dispersion = dict_crystal["table_atom_dispersion"]
-    atom_dispersion = numpy.array([numpy.interp(float(wavelength), table_wavelength, hh) for hh in table_atom_dispersion], dtype=complex)
+    atom_dispersion = numpy.array([numpy.interp(float(wavelength.squeeze()), table_wavelength, hh) for hh in table_atom_dispersion], dtype=complex)
     dict_in_out["atom_dispersion"] = atom_dispersion
 
     atom_b_iso = dict_crystal["atom_b_iso"]

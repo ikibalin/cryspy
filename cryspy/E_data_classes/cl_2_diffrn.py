@@ -6,7 +6,6 @@ from warnings import warn
 from typing import NoReturn, List, Union
 import numpy
 import scipy
-import scipy.misc
 
 from cryspy.A_functions_base.matrix_operations import calc_vector_product_v1_v2_v1
 
@@ -40,6 +39,13 @@ from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import TOFIntensityI
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
+def derivative(f, x, dx=1e-6, n=1): 
+    if n == 1: 
+        return (f(x + dx) - f(x - dx)) / (2 * dx) 
+    elif n == 2: 
+        return (f(x + dx) - 2*f(x) + f(x - dx)) / (dx**2) 
+    else: 
+        raise NotImplementedError("Only n=1 or n=2 supported")
 
 class Diffrn(DataN):
     """
@@ -255,7 +261,7 @@ class Diffrn(DataN):
             else:
                 FMans_min = min(FMans)
                 lFMansMin.append(FMans_min)
-                der1 = float(scipy.misc.derivative(f, FMans_min, 0.1, 1))
+                der1 = float(derivative(f, FMans_min, 0.1, 1))
                 f_mag_sigma = abs(fr_sigma[_ind] / der1)
                 lFMansMin_sigma.append(f_mag_sigma)
 

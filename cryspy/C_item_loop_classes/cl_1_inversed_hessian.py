@@ -11,8 +11,11 @@ def inversed_hessian_to_correlation(inv_hessian):
     np_sigma_sq = numpy.diagonal(inv_hessian)
     np_na = numpy.newaxis
     np_sigma = numpy.sqrt(numpy.abs(np_sigma_sq))
-    np_sigma_sq_matrix = np_sigma[:, np_na] * np_sigma[np_na, :]
-    np_correlation_matrix = inv_hessian / np_sigma_sq_matrix
+    # np_sigma_sq_matrix = np_sigma[:, np_na] * np_sigma[np_na, :]
+    np_sigma_sq_matrix = numpy.outer(np_sigma, np_sigma)
+    eps = 1e-12 
+    np_safe_sigma = numpy.where(np_sigma_sq_matrix == 0, eps, np_sigma_sq_matrix)
+    np_correlation_matrix = inv_hessian / np_safe_sigma
     return np_correlation_matrix, np_sigma
 
 class InversedHessian(ItemN):

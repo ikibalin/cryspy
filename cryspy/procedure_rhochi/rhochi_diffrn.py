@@ -206,7 +206,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dict_in_out["f_m_perp"] = f_m_perp
 
     try:
-        c_lambda2 = float(c_lambda2)*1
+        c_lambda2 = float(c_lambda2.squeeze())*1
         flag_c_lambda = bool(not numpy.isnan(c_lambda2))
     except:
         flag_c_lambda = False

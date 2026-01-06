@@ -1148,13 +1148,13 @@ class Pd2d(DataN):
                 item.igsize = float(hh[i_item])
 
         if "offset_gamma" in keys:
-            self.setup.offset_gamma = float(ddict_diffrn["offset_gamma"]) * 180./numpy.pi
+            self.setup.offset_gamma = float(ddict_diffrn["offset_gamma"].squeeze()) * 180./numpy.pi
 
         if "offset_nu" in keys:
-            self.setup.offset_nu = float(ddict_diffrn["offset_nu"]) * 180./numpy.pi
+            self.setup.offset_nu = float(ddict_diffrn["offset_nu"].squeeze()) * 180./numpy.pi
 
         if "wavelength" in keys:
-            self.setup.wavelength = float(ddict_diffrn["wavelength"])
+            self.setup.wavelength = float(ddict_diffrn["wavelength"].squeeze())
 
         if len(parameter_label) > 0:
             for name, sigma in zip(l_parameter_name, l_sigma):

@@ -249,10 +249,10 @@ class Pd(DataN):
                 item.intensity = float(hh[i_item])
 
         if "offset_ttheta" in keys:
-            self.setup.offset_ttheta = float(ddict_diffrn["offset_ttheta"]) * 180./numpy.pi
+            self.setup.offset_ttheta = float(ddict_diffrn["offset_ttheta"].squeeze()) * 180./numpy.pi
 
         if "wavelength" in keys:
-            self.setup.wavelength = float(ddict_diffrn["wavelength"])
+            self.setup.wavelength = float(ddict_diffrn["wavelength"].squeeze())
 
         if len(parameter_label) > 0:
             for name, sigma in zip(l_parameter_name, l_sigma):
