@@ -60,6 +60,7 @@ def calc_d_by_time_for_thermal_neutrons(time, zero, dtt1, dtt2):
 
 
 def calc_d_min_max_by_time_thermal_neutrons(time, zero, dtt1, dtt2):
+    zero, dtt1, dtt2 = zero.squeeze(), dtt1.squeeze(), dtt2.squeeze()
     time_min = numpy.min(time)
     time_max = numpy.max(time)
     det_sq_min = numpy.square(dtt1) - 4.* dtt2*(zero - time_min)
@@ -69,6 +70,7 @@ def calc_d_min_max_by_time_thermal_neutrons(time, zero, dtt1, dtt2):
     return numpy.stack([d_min, d_max], axis=0)
 
 def calc_d_min_max_by_time_epithermal_neutrons(time, zero, dtt1, zerot, dtt1t, dtt2t):
+    zero, dtt1, zerot, dtt1t, dtt2t = zero.squeeze(), dtt1.squeeze(), zerot.squeeze(), dtt1t.squeeze(), dtt2t.squeeze()
     d_min_max_t = calc_d_min_max_by_time_thermal_neutrons(time, zerot, dtt1t, dtt2t)
     time_min = numpy.min(time)
     time_max = numpy.max(time)
@@ -102,8 +104,9 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
     delta_2d = time_2d-time_hkl_2d
     y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
-    exp_u = exp(u)
-    exp_v = exp(v)
+    with numpy.errstate(over='ignore'):
+        exp_u = exp(u)
+        exp_v = exp(v)
     exp_u[numpy.isinf(exp_u)] = 1e200
     exp_v[numpy.isinf(exp_v)] = 1e200
 
@@ -123,8 +126,9 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
 
     y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
-    exp_u = exp(u)
-    exp_v = exp(v)
+    with numpy.errstate(over='ignore'):
+        exp_u = exp(u)
+        exp_v = exp(v)
     exp_u[numpy.isinf(exp_u)] = 1e200
     exp_v[numpy.isinf(exp_v)] = 1e200
 

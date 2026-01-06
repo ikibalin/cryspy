@@ -6,10 +6,10 @@ def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
     if not(obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
             points_a=48, points_b=48, points_c=48,
-            channel_plus_minus=True, magnetization_plus=4, magnetization_minus=-1)
+            channel_col=True, magnetization_plus=4, magnetization_minus=-1)
         obj.add_items([mem_parameters,])
-    obj.mem_parameters.channel_plus_minus = True
-    obj.mem_parameters.channel_chi = False
+    obj.mem_parameters.channel_col = True
+    obj.mem_parameters.channel_ani = False
 
     res = mempy_reconstruction_with_parameters(obj)
     return res 
@@ -18,10 +18,10 @@ def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
 def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
     if not(obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
-            points_a=48, points_b=48, points_c=48, channel_chi=True, only_magnetic_basins=True)
+            points_a=48, points_b=48, points_c=48, channel_ani=True, only_magnetic_basins=True)
         obj.add_items([mem_parameters,])
-    obj.mem_parameters.channel_plus_minus = False
-    obj.mem_parameters.channel_chi = True
+    obj.mem_parameters.channel_col = False
+    obj.mem_parameters.channel_ani = True
 
     res = mempy_reconstruction_with_parameters(obj)
     return res  
@@ -59,63 +59,73 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
         diffrn_refln.numpy_fr_calc = flip_ratio
         diffrn_refln.numpy_to_items()
 
-    if (("symm_elem_channel_chi" in dict_in_out_keys) and
-            ("density_channel_chi" in dict_in_out_keys) and
-            ("susceptibility_channel_chi" in dict_in_out_keys) and
-            ("atom_multiplicity_channel_chi" in dict_in_out_keys) and
-            ("point_multiplicity_channel_chi" in dict_in_out_keys)):
+    if (("symm_elem_channel_ani" in dict_in_out_keys) and
+            ("density_channel_ani" in dict_in_out_keys) and
+            (("susceptibility_channel_ani" in dict_in_out_keys) or ("moment_channel_ani" in dict_in_out_keys)) and
+            ("atom_multiplicity_channel_ani" in dict_in_out_keys) and
+            ("point_multiplicity_channel_ani" in dict_in_out_keys)):
 
-        symm_elem_channel_chi = dict_in_out["symm_elem_channel_chi"]  
-        density_channel_chi = dict_in_out["density_channel_chi"]
-        susceptibility_channel_chi = dict_in_out["susceptibility_channel_chi"]
-        atom_multiplicity_channel_chi = dict_in_out["atom_multiplicity_channel_chi"]  
-        point_multiplicity_channel_chi = dict_in_out["point_multiplicity_channel_chi"]  
+        symm_elem_channel_ani = dict_in_out["symm_elem_channel_ani"]  
+        density_channel_ani = dict_in_out["density_channel_ani"]
+        
+        atom_multiplicity_channel_ani = dict_in_out["atom_multiplicity_channel_ani"]  
+        point_multiplicity_channel_ani = dict_in_out["point_multiplicity_channel_ani"]  
 
-        channel_chi = cryspy.ChannelChiL(loop_name=dict_crystal["name"])
+        channel_ani = cryspy.ChannelAniL(loop_name=dict_crystal["name"])
 
-        channel_chi.numpy_numerator_x = symm_elem_channel_chi[0]
-        channel_chi.numpy_numerator_y = symm_elem_channel_chi[1]
-        channel_chi.numpy_numerator_z = symm_elem_channel_chi[2]
-        channel_chi.numpy_denominator_xyz = symm_elem_channel_chi[3]
-        channel_chi.numpy_density = density_channel_chi
-        channel_chi.numpy_chi_11 = susceptibility_channel_chi[0]
-        channel_chi.numpy_chi_21 = susceptibility_channel_chi[1]
-        channel_chi.numpy_chi_31 = susceptibility_channel_chi[2]
-        channel_chi.numpy_chi_12 = susceptibility_channel_chi[3]
-        channel_chi.numpy_chi_22 = susceptibility_channel_chi[4]
-        channel_chi.numpy_chi_32 = susceptibility_channel_chi[5]
-        channel_chi.numpy_chi_13 = susceptibility_channel_chi[6]
-        channel_chi.numpy_chi_23 = susceptibility_channel_chi[7]
-        channel_chi.numpy_chi_33 = susceptibility_channel_chi[8]
-        channel_chi.numpy_atom_multiplicity = atom_multiplicity_channel_chi
-        channel_chi.numpy_point_multiplicity = point_multiplicity_channel_chi
-        channel_chi.numpy_to_items()
-        obj.add_items([channel_chi, ])
+        channel_ani.numpy_numerator_x = symm_elem_channel_ani[0]
+        channel_ani.numpy_numerator_y = symm_elem_channel_ani[1]
+        channel_ani.numpy_numerator_z = symm_elem_channel_ani[2]
+        channel_ani.numpy_denominator_xyz = symm_elem_channel_ani[3]
+        channel_ani.numpy_density = density_channel_ani
+        channel_ani.numpy_atom_multiplicity = atom_multiplicity_channel_ani
+        channel_ani.numpy_point_multiplicity = point_multiplicity_channel_ani
 
-    if (("symm_elem_channel_plus_minus" in dict_in_out_keys) and
+        if "susceptibility_channel_ani" in dict_in_out_keys:
+            susceptibility_channel_ani = dict_in_out["susceptibility_channel_ani"]
+            channel_ani.numpy_chi_11 = susceptibility_channel_ani[0]
+            channel_ani.numpy_chi_21 = susceptibility_channel_ani[1]
+            channel_ani.numpy_chi_31 = susceptibility_channel_ani[2]
+            channel_ani.numpy_chi_12 = susceptibility_channel_ani[3]
+            channel_ani.numpy_chi_22 = susceptibility_channel_ani[4]
+            channel_ani.numpy_chi_32 = susceptibility_channel_ani[5]
+            channel_ani.numpy_chi_13 = susceptibility_channel_ani[6]
+            channel_ani.numpy_chi_23 = susceptibility_channel_ani[7]
+            channel_ani.numpy_chi_33 = susceptibility_channel_ani[8]
+
+        if "moment_channel_ani" in dict_in_out_keys:
+            moment_channel_ani = dict_in_out["moment_channel_ani"]
+            channel_ani.numpy_m_x = moment_channel_ani[0]
+            channel_ani.numpy_m_y = moment_channel_ani[1]
+            channel_ani.numpy_m_z = moment_channel_ani[2]
+
+        channel_ani.numpy_to_items()
+        obj.add_items([channel_ani, ])
+
+    if (("symm_elem_channel_col" in dict_in_out_keys) and
             ("magnetization_plus" in dict_in_out_keys) and
             ("magnetization_minus" in dict_in_out_keys) and
-            ("density_channel_plus_minus" in dict_in_out_keys) and
-            ("point_multiplicity_channel_plus_minus" in dict_in_out_keys)):
+            ("density_channel_col" in dict_in_out_keys) and
+            ("point_multiplicity_channel_col" in dict_in_out_keys)):
 
-        symm_elem_channel_plus_minus = dict_in_out["symm_elem_channel_plus_minus"]
-        density_channel_plus_minus = dict_in_out["density_channel_plus_minus"]
+        symm_elem_channel_col = dict_in_out["symm_elem_channel_col"]
+        density_channel_col = dict_in_out["density_channel_col"]
         magnetization_plus = dict_in_out["magnetization_plus"]
         magnetization_minus = dict_in_out["magnetization_minus"]
-        point_multiplicity_channel_plus_minus = dict_in_out["point_multiplicity_channel_plus_minus"]
+        point_multiplicity_channel_col = dict_in_out["point_multiplicity_channel_col"]
 
 
-        channel_plus_minus = cryspy.ChannelPlusMinusL(loop_name=dict_crystal["name"])
+        channel_col = cryspy.ChannelColL(loop_name=dict_crystal["name"])
 
-        channel_plus_minus.numpy_numerator_x = symm_elem_channel_plus_minus[0]
-        channel_plus_minus.numpy_numerator_y = symm_elem_channel_plus_minus[1]
-        channel_plus_minus.numpy_numerator_z = symm_elem_channel_plus_minus[2]
-        channel_plus_minus.numpy_denominator_xyz = symm_elem_channel_plus_minus[3]
-        channel_plus_minus.numpy_density_plus = density_channel_plus_minus[0]
-        channel_plus_minus.numpy_density_minus = density_channel_plus_minus[1]
-        channel_plus_minus.numpy_point_multiplicity = point_multiplicity_channel_plus_minus
-        channel_plus_minus.numpy_to_items()
-        obj.add_items([channel_plus_minus, ])
+        channel_col.numpy_numerator_x = symm_elem_channel_col[0]
+        channel_col.numpy_numerator_y = symm_elem_channel_col[1]
+        channel_col.numpy_numerator_z = symm_elem_channel_col[2]
+        channel_col.numpy_denominator_xyz = symm_elem_channel_col[3]
+        channel_col.numpy_density_plus = density_channel_col[0]
+        channel_col.numpy_density_minus = density_channel_col[1]
+        channel_col.numpy_point_multiplicity = point_multiplicity_channel_col
+        channel_col.numpy_to_items()
+        obj.add_items([channel_col, ])
     return 
 
 
@@ -176,63 +186,73 @@ def mempy_cycle_with_parameters(obj: cryspy.GlobalN,
         diffrn_refln.numpy_fr_calc = flip_ratio
         diffrn_refln.numpy_to_items()
 
-    if (("symm_elem_channel_chi" in dict_in_out_den_keys) and
-            ("density_channel_chi" in dict_in_out_den_keys) and
-            ("susceptibility_channel_chi" in dict_in_out_den_keys) and
-            ("atom_multiplicity_channel_chi" in dict_in_out_den_keys) and
-            ("point_multiplicity_channel_chi" in dict_in_out_den_keys)):
+    if (("symm_elem_channel_ani" in dict_in_out_den_keys) and
+            ("density_channel_ani" in dict_in_out_den_keys) and
+            (("susceptibility_channel_ani" in dict_in_out_den_keys) or ("moment_channel_ani" in dict_in_out_den_keys)) and
+            ("atom_multiplicity_channel_ani" in dict_in_out_den_keys) and
+            ("point_multiplicity_channel_ani" in dict_in_out_den_keys)):
 
-        symm_elem_channel_chi = dict_in_out_den["symm_elem_channel_chi"]  
-        density_channel_chi = dict_in_out_den["density_channel_chi"]
-        susceptibility_channel_chi = dict_in_out_den["susceptibility_channel_chi"]
-        atom_multiplicity_channel_chi = dict_in_out_den["atom_multiplicity_channel_chi"]  
-        point_multiplicity_channel_chi = dict_in_out_den["point_multiplicity_channel_chi"]  
+        symm_elem_channel_ani = dict_in_out_den["symm_elem_channel_ani"]  
+        density_channel_ani = dict_in_out_den["density_channel_ani"]
+        susceptibility_channel_ani = dict_in_out_den["susceptibility_channel_ani"]
+        atom_multiplicity_channel_ani = dict_in_out_den["atom_multiplicity_channel_ani"]  
+        point_multiplicity_channel_ani = dict_in_out_den["point_multiplicity_channel_ani"]  
 
-        channel_chi = cryspy.ChannelChiL(loop_name=dict_crystal["name"])
+        channel_ani = cryspy.ChannelAniL(loop_name=dict_crystal["name"])
 
-        channel_chi.numpy_numerator_x = symm_elem_channel_chi[0]
-        channel_chi.numpy_numerator_y = symm_elem_channel_chi[1]
-        channel_chi.numpy_numerator_z = symm_elem_channel_chi[2]
-        channel_chi.numpy_denominator_xyz = symm_elem_channel_chi[3]
-        channel_chi.numpy_density = density_channel_chi
-        channel_chi.numpy_chi_11 = susceptibility_channel_chi[0]
-        channel_chi.numpy_chi_21 = susceptibility_channel_chi[1]
-        channel_chi.numpy_chi_31 = susceptibility_channel_chi[2]
-        channel_chi.numpy_chi_12 = susceptibility_channel_chi[3]
-        channel_chi.numpy_chi_22 = susceptibility_channel_chi[4]
-        channel_chi.numpy_chi_32 = susceptibility_channel_chi[5]
-        channel_chi.numpy_chi_13 = susceptibility_channel_chi[6]
-        channel_chi.numpy_chi_23 = susceptibility_channel_chi[7]
-        channel_chi.numpy_chi_33 = susceptibility_channel_chi[8]
-        channel_chi.numpy_atom_multiplicity = atom_multiplicity_channel_chi
-        channel_chi.numpy_point_multiplicity = point_multiplicity_channel_chi
-        channel_chi.numpy_to_items()
-        obj.add_items([channel_chi, ])
+        channel_ani.numpy_numerator_x = symm_elem_channel_ani[0]
+        channel_ani.numpy_numerator_y = symm_elem_channel_ani[1]
+        channel_ani.numpy_numerator_z = symm_elem_channel_ani[2]
+        channel_ani.numpy_denominator_xyz = symm_elem_channel_ani[3]
+        channel_ani.numpy_density = density_channel_ani
+        
+        if "moment_channel_ani" in dict_in_out_den_keys:
+            moment_channel_ani = dict_in_out_den["moment_channel_ani"]
+            channel_ani.numpy_m_x = moment_channel_ani[0]
+            channel_ani.numpy_m_y = moment_channel_ani[1]
+            channel_ani.numpy_m_z = moment_channel_ani[2]
+        
+        if "susceptibility_channel_ani" in dict_in_out_den_keys:
+            susceptibility_channel_ani = dict_in_out_den["susceptibility_channel_ani"]
+            channel_ani.numpy_chi_11 = susceptibility_channel_ani[0]
+            channel_ani.numpy_chi_21 = susceptibility_channel_ani[1]
+            channel_ani.numpy_chi_31 = susceptibility_channel_ani[2]
+            channel_ani.numpy_chi_12 = susceptibility_channel_ani[3]
+            channel_ani.numpy_chi_22 = susceptibility_channel_ani[4]
+            channel_ani.numpy_chi_32 = susceptibility_channel_ani[5]
+            channel_ani.numpy_chi_13 = susceptibility_channel_ani[6]
+            channel_ani.numpy_chi_23 = susceptibility_channel_ani[7]
+            channel_ani.numpy_chi_33 = susceptibility_channel_ani[8]
+        
+        channel_ani.numpy_atom_multiplicity = atom_multiplicity_channel_ani
+        channel_ani.numpy_point_multiplicity = point_multiplicity_channel_ani
+        channel_ani.numpy_to_items()
+        obj.add_items([channel_ani, ])
 
-    if (("symm_elem_channel_plus_minus" in dict_in_out_den_keys) and
+    if (("symm_elem_channel_col" in dict_in_out_den_keys) and
             ("magnetization_plus" in dict_in_out_den_keys) and
             ("magnetization_minus" in dict_in_out_den_keys) and
-            ("density_channel_plus_minus" in dict_in_out_den_keys) and
-            ("point_multiplicity_channel_plus_minus" in dict_in_out_den_keys)):
+            ("density_channel_col" in dict_in_out_den_keys) and
+            ("point_multiplicity_channel_col" in dict_in_out_den_keys)):
 
-        symm_elem_channel_plus_minus = dict_in_out_den["symm_elem_channel_plus_minus"]
-        density_channel_plus_minus = dict_in_out_den["density_channel_plus_minus"]
+        symm_elem_channel_col = dict_in_out_den["symm_elem_channel_col"]
+        density_channel_col = dict_in_out_den["density_channel_col"]
         magnetization_plus = dict_in_out_den["magnetization_plus"]
         magnetization_minus = dict_in_out_den["magnetization_minus"]
-        point_multiplicity_channel_plus_minus = dict_in_out_den["point_multiplicity_channel_plus_minus"]
+        point_multiplicity_channel_col = dict_in_out_den["point_multiplicity_channel_col"]
 
 
-        channel_plus_minus = cryspy.ChannelPlusMinusL(loop_name=dict_crystal["name"])
+        channel_col = cryspy.ChannelColL(loop_name=dict_crystal["name"])
 
-        channel_plus_minus.numpy_numerator_x = symm_elem_channel_plus_minus[0]
-        channel_plus_minus.numpy_numerator_y = symm_elem_channel_plus_minus[1]
-        channel_plus_minus.numpy_numerator_z = symm_elem_channel_plus_minus[2]
-        channel_plus_minus.numpy_denominator_xyz = symm_elem_channel_plus_minus[3]
-        channel_plus_minus.numpy_density_plus = density_channel_plus_minus[0]
-        channel_plus_minus.numpy_density_minus = density_channel_plus_minus[1]
-        channel_plus_minus.numpy_point_multiplicity = point_multiplicity_channel_plus_minus
-        channel_plus_minus.numpy_to_items()
-        obj.add_items([channel_plus_minus, ])
+        channel_col.numpy_numerator_x = symm_elem_channel_col[0]
+        channel_col.numpy_numerator_y = symm_elem_channel_col[1]
+        channel_col.numpy_numerator_z = symm_elem_channel_col[2]
+        channel_col.numpy_denominator_xyz = symm_elem_channel_col[3]
+        channel_col.numpy_density_plus = density_channel_col[0]
+        channel_col.numpy_density_minus = density_channel_col[1]
+        channel_col.numpy_point_multiplicity = point_multiplicity_channel_col
+        channel_col.numpy_to_items()
+        obj.add_items([channel_col, ])
     print(70*"*")
     print("End of cycle procedure (MEMPy module)")
     print(70*"*")

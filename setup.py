@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2018-2023 Iurii Kibalin   
+# Copyright (c) 2018-2026 Iurii Kibalin   
 # https://github.com/ikibalin/cryspy  
 # All rights reserved.
 # 
@@ -41,7 +41,7 @@ with open(f_name, 'r') as f:
 
 setup(
     name='cryspy',
-    version='0.7.8',
+    version='0.10.0',
     description='PNPD data analysis',
     long_description = long_description,
     author='Iurii Kibalin',

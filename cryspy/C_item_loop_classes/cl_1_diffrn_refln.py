@@ -29,10 +29,10 @@ class DiffrnRefln(ItemN):
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
     ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity", "intensity_sigma", "intensity_calc",
-                           "excluded", "sintlambda")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, bool, float)
+                           "excluded", "sintlambda", "wavelength")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, bool, float, float)
     ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc", "intensity", "intensity_sigma", "intensity_calc",
-                         "excluded", "sint/lambda")
+                         "excluded", "sint/lambda", "wavelength")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -51,7 +51,8 @@ class DiffrnRefln(ItemN):
     # formats if cif format
     D_FORMATS = {"fr_calc": "{:.5f}", "intensity_calc": "{:.2f}",
                  "sintlambda": "{:.5f}",
-                 "intensity": "{:.2f}", "intensity_sigma": "{:.2f}"}
+                 "intensity": "{:.2f}", "intensity_sigma": "{:.2f}",
+                 "wavelength": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -438,6 +439,11 @@ class DiffrnReflnL(LoopN):
             refln_intensity_es = numpy.array([
                 self.intensity, self.intensity_sigma], dtype=float)
             res["intensity_es"] = refln_intensity_es
+        try:
+            refln_wavelength = numpy.array(self.wavelength, dtype=float)
+            res["wavelength_hkl"] = refln_wavelength
+        except AttributeError:
+            pass
         return res
 
 # s_cont = """

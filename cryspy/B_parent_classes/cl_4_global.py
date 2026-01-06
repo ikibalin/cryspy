@@ -691,6 +691,15 @@ def transfer_cif_names_to_dict_names(variable_names):
         elif name == "y":
             name = "resolution_parameters"
             index = (4, )
+        elif name == "fract_x":
+            name = "atom_fract_xyz"
+            index = (0, index)
+        elif name == "fract_y":
+            name = "atom_fract_xyz"
+            index = (1, index)
+        elif name == "fract_z":
+            name = "atom_fract_xyz"
+            index = (2, index)
         if isinstance(index, int):
             index = (index, )
         dict_names.append((data_block.lower(), name.lower(), index))

@@ -427,7 +427,7 @@ class Pd2dProc(ItemN):
 
         if flag_polarized:
             chi_sq_per_n_difference = numpy.nansum(numpy.square(
-                    (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.product(signal_exp_difference.shape)
+                    (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.prod(signal_exp_difference.shape)
             ax2.set_title(r"Polarized signal $\chi^2/n=$"+f"{chi_sq_per_n_difference:.2f}")
 
             ax4.fill_between(

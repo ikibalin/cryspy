@@ -102,10 +102,10 @@ def calc_chi_sq_for_pd_by_dictionary(
         beam_polarization, flipper_efficiency, magnetic_field = 0., 0., 0.
         flags_beam_polarization, flags_flipper_efficiency = False, False
 
-    sthovl_min = numpy.sin(0.5*ttheta_zs.min() - numpy.pi/90.)/wavelength
+    sthovl_min = numpy.sin(0.5*ttheta_zs.min() - numpy.pi/90.)/numpy.max(wavelength)
     if sthovl_min <= 0:
         sthovl_min = 0.0001
-    sthovl_max = numpy.sin(0.5*ttheta_zs.max() + numpy.pi/90.)/wavelength
+    sthovl_max = numpy.sin(0.5*ttheta_zs.max() + numpy.pi/90.)/numpy.min(wavelength)
     if sthovl_max <= sthovl_min:
         sthovl_max = sthovl_min+0.01
         if sthovl_max >= 1.:

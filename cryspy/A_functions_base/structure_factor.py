@@ -282,7 +282,7 @@ def calc_f_by_f_asym_a_pr(f_asym_a, scattering_length, pr_3, centrosymmetry, pr_
 def calc_sft_ccs_asym_a_by_pr(
         atom_para_multiplicity, debye_waller_factor, atom_para_occupancy,
         atom_para_susceptibility, atom_para_sc_chi,
-        pr_1, pr_2, pr_5, theta=None,
+        pr_1, pr_2, pr_5, # theta=None,
         flag_debye_waller: bool = False,
         flag_atom_para_occupancy: bool = False, flag_atom_para_susceptibility: bool = False,
         flag_pr_1: bool = False, flag_pr_5: bool = False):
@@ -294,10 +294,10 @@ def calc_sft_ccs_asym_a_by_pr(
     mas_constr = (0.2695*atom_para_sc_chi * atom_para_susceptibility[na, :, :]).sum(axis=1)
 
     hh, dder_hh = calc_m_q_inv_m(pr_5[:, :, na], mas_constr[:, na, :], flag_m=False, flag_q=flag_atom_para_susceptibility)
-    if theta is not None:
-        hh *= numpy.expand_dims(theta, axis=(0,2))
-        if flag_atom_para_susceptibility:
-            dder_hh["q"] *= numpy.expand_dims(theta, axis=(0, 1, 3))
+    # if theta is not None:
+    #     hh *= numpy.expand_dims(theta, axis=(0,2))
+    #     if flag_atom_para_susceptibility:
+    #         dder_hh["q"] *= numpy.expand_dims(theta, axis=(0, 1, 3))
 
     hh_1 = atom_para_multiplicity * atom_para_occupancy
     hh_3 = pr_1*debye_waller_factor*hh_1[na, na, :]
@@ -613,7 +613,7 @@ def calc_f_charge_by_dictionary(dict_crystal, wavelength:float, dict_in_out, fla
 
     table_wavelength = dict_crystal["table_wavelength"]
     table_atom_dispersion = dict_crystal["table_atom_dispersion"]
-    atom_dispersion = numpy.array([numpy.interp(float(wavelength), table_wavelength, hh) for hh in table_atom_dispersion], dtype=complex)
+    atom_dispersion = numpy.array([numpy.interp(float(wavelength.squeeze()), table_wavelength, hh) for hh in table_atom_dispersion], dtype=complex)
     dict_in_out["atom_dispersion"] = atom_dispersion
 
     atom_b_iso = dict_crystal["atom_b_iso"]
@@ -1020,13 +1020,13 @@ def calc_sft_ccs(index_hkl,
             not(flag_sft_ccs_asym)):
         sft_ccs_asym = dict_in_out["sft_ccs_asym"]
     else: 
-        theta = None
+        # theta = None
         # if reduced_symm_elems.shape[0] == 14:
         #     theta = reduced_symm_elems[13] # * calc_det_m(reduced_symm_elems[4:13], flag_m=False)[0]
         #     # print("theta: ", theta)
         sft_ccs_asym, dder_sft_ccs_asym = calc_sft_ccs_asym_a_by_pr(
             mag_atom_multiplicity, debye_waller_factor, atom_para_occupancy, atom_para_susceptibility, atom_para_sc_chi,
-            pr_1, pr_2, pr_5, theta=theta,
+            pr_1, pr_2, pr_5, # theta=theta,
             flag_debye_waller=flag_debye_waller, flag_atom_para_occupancy=flag_atom_para_occupancy,
             flag_atom_para_susceptibility = flag_atom_para_susceptibility,
             flag_pr_1=flag_pr_1, flag_pr_5=flag_pr_5)
@@ -1285,9 +1285,14 @@ def calc_f_m_perp_ordered(index_hkl,
     rm_ccs, der_rm_ccs = calc_m_v(
         m_norm, rm,
         flag_m=flag_unit_cell_parameters, flag_v=flag_atom_ordered_moment_crystalaxis_xyz)
-    det_r, der_det_r = calc_det_m(r_direct)
+    
+    m_m = calc_m_m_by_unit_cell_parameters(
+        unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)[0]
+    r_ccs = calc_m1_m2_inv_m1(m_m, r_direct)[0]
+    det_r, der_det_r = calc_det_m(r_ccs)
     theta_s = full_mcif_elems[13,:] 
-
+    # det_r is taken into account when multiplication on r_direct is performed
+    # moment_ccs = 0.2695*rm_ccs*(theta_s)[na, :, na]
     moment_ccs = 0.2695*rm_ccs*(theta_s*det_r)[na, :, na]
     
     hh_1 = atom_ordered_multiplicity*atom_ordered_occupancy

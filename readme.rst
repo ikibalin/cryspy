@@ -17,7 +17,7 @@ Copyright and License
 
 MIT License
 
-Copyright (c) 2018-2024 Iurii Kibalin
+Copyright (c) 2018-2026 Iurii Kibalin
 https://github.com/ikibalin/cryspy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

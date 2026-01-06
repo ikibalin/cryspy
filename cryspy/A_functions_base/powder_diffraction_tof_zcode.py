@@ -56,9 +56,10 @@ def calc_e_beta_g(delta_t, sigma, alpha, beta):
     y = calc_y(delta_t, sigma, alpha)
     z = calc_z(delta_t, sigma, beta)
 
-    exp_u = numpy.exp(u)
+    with numpy.errstate(over='ignore'):
+        exp_u = numpy.exp(u)
+        exp_v = numpy.exp(v)
     exp_u[numpy.isinf(exp_u)] = 1e200
-    exp_v = numpy.exp(v)
     exp_v[numpy.isinf(exp_v)] = 1e200
 
     res = n * (exp_u * erfc(y) + exp_v * erfc(z))

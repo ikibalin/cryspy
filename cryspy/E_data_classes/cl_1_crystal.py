@@ -11,9 +11,12 @@ from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
-from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary
+from cryspy.A_functions_base.structure_factor import \
+    calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, \
+    calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary, \
+    calc_f_m_perp_ordered_by_dictionary
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
-from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full
+from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full, calc_sc_ordered
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
@@ -46,9 +49,6 @@ from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater \
 from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
     SpaceGroupSymopMagnOperationL
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
-
-
-
 
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid \
@@ -210,6 +210,23 @@ class Crystal(DataN):
         dict_in_out = {"index_hkl": index_hkl}
         f_nucl, dder = calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=False)
         return f_nucl
+
+
+    def calc_f_mag(self, index_hkl, magnetic_field_ccs: numpy.ndarray = numpy.array([0.,0.,0.], dtype=float)):
+        flag_use_precalculated_data = False
+        dict_crystal = self.get_dictionary()
+        dict_crystal_keys = dict_crystal.keys() 
+        dict_in_out = {"index_hkl": index_hkl, "flag_only_orbital": False}
+        sft_ccs = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)[0]
+        f_mag = calc_m_v(sft_ccs, magnetic_field_ccs, flag_m=False, flag_v=False)[0]
+        if "atom_ordered_index" in dict_crystal_keys:
+            calc_f_m_perp_ordered_by_dictionary(
+                dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+            if "f_m_o" in dict_in_out.keys():
+                f_m_o = dict_in_out["f_m_o"]
+                f_mag += f_m_o
+        return f_mag
+
 
 
     def calc_refln(self, index_hkl,
@@ -476,7 +493,6 @@ class Crystal(DataN):
             a_s_m_a = self.atom_site_susceptibility
         except AttributeError:
             return None
-
 
         m_m_norm = cell.m_m_norm
         m_mt_norm_m_norm_field = numpy.matmul(
@@ -880,6 +896,21 @@ class Crystal(DataN):
                 atom_ordered_index = args[args[:,1].argsort()][:,0]
                 ddict["atom_ordered_index"] = atom_ordered_index
 
+                if "full_mcif_elems" in ddict.keys():
+                    elems_fs = ddict["full_mcif_elems"]
+                else:
+                    raise AttributeError("Magnetic symmetry elements are not found.")
+                flag_2d = ddict["atom_symm_elems_flag"][:, atom_ordered_index]
+
+                l_sc_ordered = []
+                for ind in range(atom_ordered_label.size):
+                    sc_ordered = calc_sc_ordered(
+                            elems_fs[:, flag_2d[:, ind]],
+                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                    l_sc_ordered.append(sc_ordered)
+                atom_ordered_sc_m = numpy.stack(l_sc_ordered, axis=-1)
+                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m
+
         if isinstance(self, Crystal):
             # FIXME: beta should be defined in atom_site_aniso_beta, b_iso for every atom
             atom_b_iso, atom_beta = self.calc_b_iso_beta()
@@ -1015,7 +1046,8 @@ class Crystal(DataN):
                 item_ase.j_23 = j_tensor[5, i_item]
 
         if "atom_ordered_moment_crystalaxis_xyz" in keys:
-            hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
+            hh = calc_m_v(ddict_crystal["atom_ordered_sc_m"], ddict_crystal["atom_ordered_moment_crystalaxis_xyz"])[0]
+            # hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
             for i_item, item in enumerate(self.atom_site_moment.items):
                 item.crystalaxis_x = hh[0, i_item]
                 item.crystalaxis_y = hh[1, i_item]

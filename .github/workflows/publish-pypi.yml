@@ -1,0 +1,38 @@
+# Builds a Python package and publish it to PyPI when a new tag is
+# created.
+
+name: Publish to PyPI
+
+on:
+  # Runs on creating a new tag starting with 'v', e.g. 'v1.0.3'
+  push:
+    tags: ['**']
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  pypi-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Upgrade package installer for Python
+        run: pip install --upgrade pip
+
+      - name: Install build tool
+        run: pip install --upgrade build
+
+      - name: Create Python package
+        run: python -m build
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_PASSWORD }}

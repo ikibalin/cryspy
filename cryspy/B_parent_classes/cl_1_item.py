@@ -5,6 +5,7 @@ It should be used ass parent to describe new item classes.
 """
 import os
 import os.path
+import numpy
 from typing import NoReturn, Union
 from pycifstar import Data, to_data
 
@@ -211,7 +212,9 @@ class ItemN(object):
         flag_none_string = False
         if isinstance(value, str):
             flag_none_string = ((value == ".") | (value == "?"))
-
+        if isinstance(value, numpy.ndarray):
+            if value.size == 1:
+                value = value[0]
         if (value is None):
             flag, flag_write = True, True
             val_new = None
