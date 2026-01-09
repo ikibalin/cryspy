@@ -158,8 +158,9 @@ def calc_mem_m(
         numpy.expand_dims(fract_points, axis=2), flag_m=False, flag_v=False)[0]
 
     fract_b = full_symm_elems[:3, :]/numpy.expand_dims(full_symm_elems[3, :], axis=0)
+    # hh is [3,1,Npoints, Nsymm]
     hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=1)
-    index_hkl_3d = numpy.expand_dims(numpy.expand_dims(index_hkl, axis=2), axis=3)
+    index_hkl_3d = numpy.expand_dims(index_hkl, axis=(2,3))
 
     # [hkl, points, symm]
     phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) 
@@ -177,24 +178,24 @@ def calc_mem_m(
     # [1, 1, N_symm, ]
     coeff2 = numpy.expand_dims(det_r * theta_s, axis=(0,1))
 
-    # [3, points, symm]
+    # [3, points, Natom, symm]
     m_ccs_s = coeff2 * calc_m_v(
-        numpy.expand_dims(r_ccs, axis=1), 
-        numpy.expand_dims(point_moment, axis=2), 
+        numpy.expand_dims(r_ccs, axis=(1,2)), 
+        numpy.expand_dims(point_moment, axis=3), 
         flag_m=False, 
         flag_v=False
         )[0]
 
-    # [3, hkl, points, symm]
+    # [3, hkl, points, Natom, symm]
     m_perp_ccs = calc_vector_product_v1_v2_v1(
-        numpy.expand_dims(eq_ccs, axis=(2,3)), 
+        numpy.expand_dims(eq_ccs, axis=(2,3,4)), 
         numpy.expand_dims(m_ccs_s, axis=1), 
         flag_v1=False, flag_v2=False)[0]
 
-    # [3, hkl, points]
+    # [3, hkl, points, Natom]
     coeff = 0.2695*volume_unit_cell/(full_symm_elems.shape[1] * number_unit_cell)
-    mem_ani = coeff*((numpy.expand_dims(phase_3d, axis=0) * m_perp_ccs).sum(axis=3)) * \
-        numpy.expand_dims(numpy.expand_dims(point_multiplicity, axis=0), axis=1)
+    mem_ani = coeff*((numpy.expand_dims(phase_3d, axis=(0,3)) * m_perp_ccs).sum(axis=4)) * \
+        numpy.expand_dims(point_multiplicity, axis=(0,1,3))
 
     return mem_ani
 
@@ -320,6 +321,39 @@ def get_uniform_density_ani(point_multiplicity, point_atom_label, point_atom_mul
         volume_unit_cell, points_unit_cell)
     return norm_density_ani
 
+
+
+def get_uniform_density_ani_2(point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, points_unit_cell):
+    # density_ani is [Npoint, Natom] 
+    density_ani = numpy.ones(point_multiplicity.shape + atom_label.shape, dtype=float)
+    norm_density_ani = renormailize_density_ani_2(
+        density_ani, point_multiplicity, atom_label,
+        atom_multiplicity,
+        volume_unit_cell, points_unit_cell)
+    return norm_density_ani
+
+
+def renormailize_density_ani_2(
+        point_density, point_multiplicity, atom_label,
+        atom_multiplicity,
+        volume_unit_cell, points_unit_cell):
+    na = numpy.newaxis
+    coeff = float(points_unit_cell)/volume_unit_cell
+    point_norm_density = numpy.copy(point_density)
+    prod_den_mult = point_density*numpy.expand_dims(point_multiplicity, axis=1)/numpy.expand_dims(atom_multiplicity, axis=0)
+    # m_at is [Natom]
+    m_at = prod_den_mult.sum(axis=0)
+    point_norm_density *= coeff/numpy.expand_dims(m_at, axis=0)
+    # #FIXME: very slow solution. Redo it.
+    # atom_label = numpy.unique(point_atom_label)
+    # flag_2d = point_atom_label[na, :] == atom_label[:, na]
+
+    # for flag_1d in flag_2d:
+    #     m_at = numpy.sum(prod_den_mult, where=flag_1d)
+    #     if numpy.any(flag_1d):
+    #         point_norm_density[flag_1d] *= coeff/float(m_at)
+    return point_norm_density
+
 def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density_auc, n_abc, full_mcif_elems, e_h_ccs):
 
     n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
@@ -443,6 +477,7 @@ def calc_index_atom_symmetry_closest_to_fract_xyz(
 
     return ind_at, ind_sym, distance
 
+
 def form_basins(
         symm_elem_auc, 
         full_symm_elems, unit_cell_parameters,
@@ -474,9 +509,116 @@ def form_basins(
 
 
 
+def calc_index_atom_symmetry_closest_to_fract_xyz_2(
+        fract_xyz, fract_atom_xyz, full_symm_elems, unit_cell_parameters):
+    """
+    Calculate index of atoms and applied symmetry to have closest atoms.
+
+    Basins are defined as closest points to atom
+
+    fract_xyz = [3, n_points]
+    fract_atom_xyz = [3, n_atoms]
+
+    Output:
+        - n_atom_index = [n_points]: integers from 0 until n_atoms
+        - n_symmetry = [n_points]: integers from 0 until n_symmetry
+    """
+    
+    fract_xyz = numpy.mod(fract_xyz, 1.)
+    fract_atom_xyz = fract_atom_xyz
+    
+    elem_r = full_symm_elems[4:13]
+    fract_b = full_symm_elems[:3]/numpy.expand_dims(full_symm_elems[3], axis=0)
+    rr_atom = calc_m_v(
+        numpy.expand_dims(elem_r, axis=1),
+        numpy.expand_dims(fract_atom_xyz, axis=2), flag_m=False, flag_v=False)[0]
+    
+    fract_atom_s = numpy.mod(
+        rr_atom + numpy.expand_dims(fract_b, axis=1), 1.)
+    
+    diff_fract = (numpy.expand_dims(numpy.expand_dims(fract_xyz, axis=2), axis=3) -
+                  numpy.expand_dims(fract_atom_s, axis=1))
+
+    flag_g_half = numpy.abs(diff_fract) > 0.5
+    flag_sign = numpy.where(diff_fract >= 0.0, -1.0, 1.0)
+    diff_fract_1 = numpy.where(flag_g_half, diff_fract+flag_sign, diff_fract)
+    
+    m_m = calc_m_m_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    diff_position_1 = calc_m_v(m_m, diff_fract_1, flag_m=False, flag_v=False)[0]
+    # [Npoints, Natom, Nsym]
+    dist_sq_3d = numpy.square(diff_position_1).sum(axis=0)
+    # [Npoints, Natom] index of symetry giving a minimal distance
+    ind_sym = numpy.argmin(dist_sq_3d, axis=2)
+    # [Npoints, Natom] distance squared 
+    dist_sq_2d = numpy.take_along_axis(dist_sq_3d, numpy.expand_dims(ind_sym, axis=2), axis=2).squeeze(axis=2)
+    distance = numpy.sqrt(dist_sq_2d)
+
+    # dist_sq_2d_over_sym = numpy.min(dist_sq_3d, axis=2)
+    # dist_sq_2d_over_at min value over symmetry: [Npoints, Natom] 
+    # dist_sq_2d_over_at = numpy.min(dist_sq_3d, axis=1)
+    # ind_sym = numpy.argmin(dist_sq_2d_over_at, axis=1)
+    # dist_sq = numpy.min(dist_sq_2d_over_at, axis=1)
+    # distance = numpy.sqrt(dist_sq)
+    
+    # ind_at = numpy.argmin(dist_sq_2d_over_sym, axis=1)
+
+    # dist_sq = numpy.min(dist_sq_2d_over_sym, axis=1)
+    # distance = numpy.sqrt(dist_sq)
+
+    return ind_sym, distance
+
+
+def form_basins_2(
+        symm_elem_auc, 
+        full_symm_elems, unit_cell_parameters,
+        atom_label, atom_fract_xyz, atom_multiplicity, mag_atom_label):
+    """"
+    Output:
+    atom_multiplicity_auc_ani is [Npoint, ]
+    atom_distance_auc_ani is [Nmag_atom, Npoint, ]
+    atom_symm_elems_auc_m is [14, Nmag_atom, Npoint,]
+    fractions in asymmetric unit cell
+    """
+
+    point_fract_xyz_auc = symm_elem_auc[:3, :]/numpy.expand_dims(symm_elem_auc[3, :], axis=0)
+
+    # separate on basins
+    # ind_sym is [Npoint, Natom]
+    # point_atom_distance is [Npoint, Natom]
+    ind_sym, point_atom_distance = calc_index_atom_symmetry_closest_to_fract_xyz_2(
+            point_fract_xyz_auc, atom_fract_xyz, full_symm_elems, unit_cell_parameters)
+
+
+    # point_atom_label = atom_label[ind_at]
+    # point_atom_multiplicity = atom_multiplicity[ind_at]
+    # [14, Npoint, Natom]
+    point_atom_symm_elems = full_symm_elems[:, ind_sym]
+
+    # flag_chi = numpy.sum(
+    #     numpy.expand_dims(point_atom_label, axis=1) == numpy.expand_dims(mag_atom_label, axis=0),
+    #     axis=1).astype(bool)
+
+    # atom_label_auc_chi = point_atom_label[flag_chi]
+    # atom_multiplicity_auc_chi = point_atom_multiplicity[flag_chi]
+    # atom_distance_auc_chi = point_atom_distance[flag_chi]
+    # atom_symm_elems_auc_chi = point_atom_symm_elems[:, flag_chi]
+
+    return point_atom_distance, point_atom_symm_elems
+
+
+
 def calc_point_ordered(
         unit_cell_parameters, atom_symm_elems_m, atom_label_m, atom_ordered_label, atom_ordered_m, atom_ordered_sc_m,
         full_mag_symm_elems, point_symm_elem):
+    """
+    atom_symm_elems_auc_m is given for all magnetic atoms [14, Npoint, Nmag_atom]
+    atom_label_auc_ani is not needed
+    atom_ordered_label is [Natom,]
+    atom_ordered_m is [3, Nmag_atom]
+    atom_ordered_sc_m is [9, Nmag_atom]
+    symm_elem_auc_ani is common for all magnetic atoms as it just position
+    point_ordered is [3, Npoint, Nmag_atom]
+    """
     # TODO: check coordinate system for atom_ordered_m (it should be transformed to XYZ if not yet)
     full_symm_elems = full_mag_symm_elems[:13, :]
     atom_ordered_m_averaged = calc_m_v(atom_ordered_sc_m, atom_ordered_m, flag_m=False, flag_v=False)[0] # SC_a * m_a
@@ -492,7 +634,7 @@ def calc_point_ordered(
     rm_xyz = calc_m_v(r_xyz, point_ordered_m_xyz)[0]
     atom_theta_s = atom_symm_elems_m[13,:]
     point_ordered_m_s = numpy.expand_dims(atom_theta_s * det_r_s,axis=0) * rm_xyz
-
+    # flag_2d is [Nsymm, Npoint] it is bool matrix that for every point shows which symm elemets should be applied to transorm point to point
     flag_2d = calc_symm_flags(
         numpy.expand_dims(full_symm_elems, axis=2), 
         numpy.expand_dims(point_symm_elem, axis=1))
@@ -503,10 +645,10 @@ def calc_point_ordered(
         # [9,]
         scv_m = calc_sc_ordered(mag_symm_elem_direct, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
         l_scv_m.append(scv_m)
-    # [9, Natom]
+    # point scv_m is [9, Natom] symmetry constraint for every point it is not dependent on atom
     point_scv_m = numpy.stack(l_scv_m, axis=-1)
 
-    point_m_aver = calc_m_v(point_scv_m, point_ordered_m_s)[0]
+    point_m_aver = calc_m_v(numpy.expand_dims(point_scv_m, axis=2), point_ordered_m_s)[0]
     return point_m_aver
 
 

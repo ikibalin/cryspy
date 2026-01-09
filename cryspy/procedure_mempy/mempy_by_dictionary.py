@@ -15,10 +15,13 @@ from cryspy.A_functions_base.mempy import \
     renormailize_density_col, \
     save_spin_density_into_file,\
     form_basins,\
+    form_basins_2, \
     calc_point_ordered, \
     calc_point_susceptibility, \
     get_uniform_density_ani,\
+    get_uniform_density_ani_2,\
     renormailize_density_ani, \
+    renormailize_density_ani_2, \
     calc_model_value_by_precalculated_data, \
     calc_chi_atoms, \
     transform_to_spin_density_for_mcif
@@ -126,15 +129,23 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     # **Index in asymmetric unit cell**
     print("Calculation of asymmetric unit cell...", end="\r")
     index_auc, point_multiplicity = calc_asymmetric_unit_cell_indexes(n_abc, full_symm_elems)
+    dict_in_out["point_multiplicity"] = point_multiplicity
     symm_elem_auc = calc_symm_elem_points_by_index_points(index_auc, n_abc)
     print(f"Number of points in asymmetric unit cell is {index_auc.shape[1]:}.", end="\n")
 
     # **Basin devision**
-    if channel_ani and flag_only_magnetic_basins:
+    # This part should be modified: flag_col and flag_ani is not needed
+    if channel_ani:
+        # point_atom_distance is [Npoint, Nmag_atom, ]
+        # point_atom_symm_elems is [14, Npoint, Nmag_atom, ]
+        point_atom_distance_auc, point_atom_symm_elems_auc = \
+            form_basins_2(symm_elem_auc, full_mcif_elems, unit_cell_parameters, atom_label,
+                        atom_fract_xyz, atom_multiplicity, atom_ordered_label)
+    elif channel_ani and flag_only_magnetic_basins:
         print("Devision of asymmetric unit cell on bassins...", end="\r")
         if flag_moment_ordered:
             flag_atom_ordered = numpy.any(numpy.expand_dims(atom_label, axis=1) == numpy.expand_dims(atom_ordered_label, axis=0), axis=1)
-            flag_m, atom_label_auc_ani, atom_multiplicity_auc_ani, atom_distance_auc_ani, atom_symm_elems_auc_m = \
+            flag_ani, atom_label_auc_ani, atom_multiplicity_auc_ani, atom_distance_auc_ani, atom_symm_elems_auc_m = \
                 form_basins(symm_elem_auc, full_mcif_elems, unit_cell_parameters, atom_label[flag_atom_ordered],
                             atom_fract_xyz[:,flag_atom_ordered], atom_multiplicity[flag_atom_ordered], atom_ordered_label)
             dict_in_out["atom_multiplicity_channel_ani"] = atom_multiplicity_auc_ani
@@ -148,7 +159,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     elif channel_ani:
         print("Devision of asymmetric unit cell on bassins...", end="\r")
         if flag_moment_ordered:
-            flag_m, atom_label_auc_ani, atom_multiplicity_auc_ani, atom_distance_auc_ani, atom_symm_elems_auc_m = \
+            flag_ani, atom_label_auc_ani, atom_multiplicity_auc_ani, atom_distance_auc_ani, atom_symm_elems_auc_m = \
                 form_basins(symm_elem_auc, full_mcif_elems, unit_cell_parameters, atom_label,
                             atom_fract_xyz, atom_multiplicity, atom_ordered_label)   
             dict_in_out["atom_multiplicity_channel_ani"] = atom_multiplicity_auc_ani
@@ -157,16 +168,14 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 form_basins(symm_elem_auc, full_symm_elems, unit_cell_parameters, atom_label,
                             atom_fract_xyz, atom_multiplicity, atom_para_label)   
             dict_in_out["atom_multiplicity_channel_ani"] = atom_multiplicity_auc_ani
-        print(f"Magnetic basins occupy area around magnetic atoms.          \n(flag_only_magnetic_basins: {flag_only_magnetic_basins:})\n")
+        print(f"Magnetic basins occupy area only around magnetic atoms.          \n(flag_only_magnetic_basins: {flag_only_magnetic_basins:})\n")
 
-    if channel_ani:
-        if flag_moment_ordered:
-            flag_ani = flag_m
-        index_auc_chi = index_auc[:, flag_ani]
-        point_multiplicity_ani = point_multiplicity[flag_ani]
-        dict_in_out["point_multiplicity_channel_ani"] = point_multiplicity_ani
-        symm_elem_auc_ani = symm_elem_auc[:, flag_ani]
-        dict_in_out["symm_elem_channel_ani"] = symm_elem_auc_ani
+    # if channel_ani:
+    #     index_auc_chi = index_auc[:, flag_ani] # common for all magnetic atoms
+    #     point_multiplicity_ani = point_multiplicity[flag_ani] # common for all magnetic atoms
+    #     dict_in_out["point_multiplicity_channel_ani"] = point_multiplicity_ani
+    #     symm_elem_auc_ani = symm_elem_auc[:, flag_ani] # nx ny nz DEL
+    #     dict_in_out["symm_elem_channel_ani"] = symm_elem_auc_ani
 
     if channel_col and channel_ani:
         flag_col = numpy.logical_not(flag_ani)
@@ -184,26 +193,34 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         dict_in_out["symm_elem_channel_col"] = symm_elem_auc_col
 
     print(f"channel_col: {channel_col:}")
-    print(f"channel_ani:        {channel_ani:}\n")
+    print(f"channel_ani: {channel_ani:}\n")
 
     if channel_col:
         print(f"Magnetization of unit cell: {magnetization_plus+magnetization_minus:.3f}  mu_B")
         print(f"(positive channel {magnetization_plus:.3f} mu_B, negative channel {magnetization_minus:.3f}  mu_B)")
         print(f"\nNumber of density points for channel_col is {index_auc_col.shape[1]}.")
-    if channel_ani:
-        print(f"Number of density points for channel_ani is {index_auc_chi.shape[1]}.")
+    # if channel_ani:
+    #     print(f"Number of density points for channel_ani is {index_auc_chi.shape[1]}.")
 
     # **Susceptibility tensor $(3\times 3)$ for each point in magnetic basin**
     if channel_ani:
-        print("Calculation of restriction on susceptibility...", end="\r")
+        # does not depend from magnetic atom. Thus, common for all magnetic atoms
         if flag_moment_ordered:
-            # [9, Natom]
+            print("Calculation of restriction on moments...", end="\r")
+            # atom_symm_elems_auc_m is given for all magnetic atoms [14, Npoint, Nmag_atom]
+            # atom_label_auc_ani is not needed
+            # atom_ordered_label is [Nmag_atom,]
+            # atom_ordered_m is [3, Nmag_atom]
+            # atom_ordered_sc_m is [9, Nmag_atom]
+            # symm_elem_auc_ani is common for all magnetic atoms as it just position
+            # point_ordered is [3, Npoint, Nmag_atom]
             point_ordered = calc_point_ordered(
-                unit_cell_parameters, atom_symm_elems_auc_m, atom_label_auc_ani,
-                atom_ordered_label, atom_ordered_m, atom_ordered_sc_m, full_mcif_elems, symm_elem_auc_ani)
+                unit_cell_parameters, point_atom_symm_elems_auc, atom_label,
+                atom_ordered_label, atom_ordered_m, atom_ordered_sc_m, full_mcif_elems, symm_elem_auc)
             dict_in_out["moment_channel_ani"] = point_ordered
         else:
-            # [9, 9, Natom]
+            print("Calculation of restriction on susceptibility...", end="\r")
+            # atom_para_sc_chi is [9, 9, Natom]
             point_susceptibility = calc_point_susceptibility(
                 unit_cell_parameters, atom_symm_elems_auc_chi, atom_label_auc_ani,
                 atom_para_label, atom_para_susceptibility, atom_para_sc_chi, full_symm_elems, symm_elem_auc_ani)
@@ -215,7 +232,8 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     print("\nCalculation of prior density...         ", end="\r")
     if channel_ani:
         if flag_uniform_prior_density:
-            density_ani_prior = get_uniform_density_ani(point_multiplicity_ani, atom_label_auc_ani, atom_multiplicity_auc_ani, volume_unit_cell, number_unit_cell)
+            # FIXME: I am nto sure if it is should be atom_label or atom_label_ordered_m
+            density_ani_prior = get_uniform_density_ani_2(point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
             print("Prior density in channel chi is uniform.        ")
         else:
             density_ani_prior = numpy.zeros_like(atom_distance_auc_ani)
@@ -277,9 +295,9 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 diffrn_dict_in_out["dict_in_out_chi"] = dict_in_out_chi
             if flag_moment_ordered:
                 mem_ani = calc_mem_m(
-                    index_hkl, unit_cell_parameters, full_mcif_elems, symm_elem_auc_ani,
+                    index_hkl, unit_cell_parameters, full_mcif_elems, symm_elem_auc,
                     point_ordered, volume_unit_cell, number_unit_cell, 
-                    point_multiplicity=point_multiplicity_ani,
+                    point_multiplicity=point_multiplicity,
                     dict_in_out=dict_in_out_chi, flag_use_precalculated_data=flag_use_precalculated_data)
             else:            
                 mem_ani = calc_mem_chi(
@@ -287,6 +305,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                     point_susceptibility, volume_unit_cell, number_unit_cell, 
                     point_multiplicity=point_multiplicity_ani,
                     dict_in_out=dict_in_out_chi, flag_use_precalculated_data=flag_use_precalculated_data)
+            # mem_ani is [3, Nhkl, Npoint, Natom]
             diffrn_dict_in_out["mem_ani"] = mem_ani
             l_mem_ani.append(mem_ani)
 
@@ -361,7 +380,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
             if channel_ani:
                 mem_ani_exp = diffrn_dict_in_out["mem_ani"]
-                f_m_perp_chi = (density_ani*mem_ani_exp).sum(axis=2)
+                f_m_perp_chi = (density_ani*mem_ani_exp).sum(axis=(2,3))
                 f_m_perp += f_m_perp_chi
 
 
@@ -430,14 +449,15 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 l_der_model_den_pm.append(der_model_den_pm_exp)
 
             if channel_ani:
+                # der_model_den_ani_exp is [Nhkl, Npoints, Natom]
                 der_model_den_ani_exp = (
                     (mem_ani_exp.real*numpy.expand_dims(
                     der_model_int_plus*der_int_plus_fm_perp_real +
-                    der_model_int_minus*der_int_minus_fm_perp_real, axis=2)
+                    der_model_int_minus*der_int_minus_fm_perp_real, axis=(2,3))
                     ).sum(axis=0) +
                     (mem_ani_exp.imag*numpy.expand_dims(
                     der_model_int_plus*der_int_plus_fm_perp_imag +
-                    der_model_int_minus*der_int_minus_fm_perp_imag, axis=2)
+                    der_model_int_minus*der_int_minus_fm_perp_imag, axis=(2,3))
                     ).sum(axis=0))
                 l_der_model_den_ani.append(der_model_den_ani_exp)
 
@@ -455,9 +475,11 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             der_c_den_col = numpy.stack([magnetization_plus * der_c_den_pm, magnetization_minus * der_c_den_pm], axis=0)
 
         if channel_ani:
+            # der_model_den_ani is [Nhkl, Npoint, Natom]
             der_model_den_ani = numpy.concatenate(l_der_model_den_ani, axis=0)
+            # der_c_den_ani is [Npoint, Natom]
             der_c_den_ani = (-2.)/diff_value.shape[0] * (
-                numpy.expand_dims((diff_value/exp_value_sigma[1]),axis=1) *
+                numpy.expand_dims((diff_value/exp_value_sigma[1]),axis=(1,2)) *
                 der_model_den_ani).sum(axis=0)
 
         if c > c_previous:
@@ -488,10 +510,10 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             density_col_next = renormailize_density_col(hh, point_multiplicity_col, volume_unit_cell, number_unit_cell)
 
         if channel_ani:
-            coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))*atom_multiplicity_auc_ani/point_multiplicity_ani
+            coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))*numpy.expand_dims(atom_multiplicity,axis=0)/numpy.expand_dims(point_multiplicity, axis=1)
             hh = (density_ani+delta_density)*numpy.exp(-coeff*der_c_den_ani)-delta_density
             hh = numpy.where(hh>0, hh, 0)
-            density_ani_next = renormailize_density_ani(hh, point_multiplicity_ani, atom_label_auc_ani, atom_multiplicity_auc_ani, volume_unit_cell, number_unit_cell)
+            density_ani_next = renormailize_density_ani_2(hh, point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
 
 
         if iteration >= iteration_max:
@@ -537,22 +559,20 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
         print(f"\nReconstructed spin density is written in file '{file_spin_density:}'.")
     if channel_ani and (file_magnetization_density is not None):
-        spin_density = numpy.stack([density_ani_best, numpy.zeros_like(density_ani_best)], axis=0)
+        # spin_density = numpy.stack([density_ani_best, numpy.zeros_like(density_ani_best)], axis=0)
         if flag_mcif:
             reduced_symm_elems = full_mcif_elems[:13,:] 
             translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
             centrosymmetry = False
             centrosymmetry_position = None
-        save_spin_density_into_file(file_magnetization_density, index_auc_chi, spin_density, n_abc, unit_cell_parameters,
-            reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
-        print(f"\nReconstructed magnetization density is written in file '{file_magnetization_density:}'.")
-        np_atom_label_unique = numpy.unique(atom_label_auc_ani)
-        for label in np_atom_label_unique:
-            flag_atom_unique = atom_label_auc_ani==label
-            index_auc_atom = index_auc_chi[:,flag_atom_unique]
-            spin_density_atom = spin_density[:,flag_atom_unique]
+        # save_spin_density_into_file(file_magnetization_density, index_auc, spin_density, n_abc, unit_cell_parameters,
+        #       reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
+        # print(f"\nReconstructed magnetization density is written in file '{file_magnetization_density:}'.")
+        # np_atom_label_unique = numpy.unique(atom_label_auc_ani)
+        for ind_atom, label in enumerate(atom_label):
+            spin_density_atom = numpy.stack([density_ani_best[:,ind_atom], numpy.zeros_like(density_ani_best[:,ind_atom])], axis=0)
             file_magnetization_density_atom = ".".join(file_magnetization_density.split(".")[:-1]) + "_" + label + '.den'
-            save_spin_density_into_file(file_magnetization_density_atom, index_auc_atom, spin_density_atom, n_abc, unit_cell_parameters,
+            save_spin_density_into_file(file_magnetization_density_atom, index_auc, spin_density_atom, n_abc, unit_cell_parameters,
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
             print(f"Reconstructed magnetization density around atom '{label:}' is written in file '{file_magnetization_density_atom:}'.")
 
