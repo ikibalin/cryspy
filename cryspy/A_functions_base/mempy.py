@@ -381,6 +381,47 @@ def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density
 
 
 
+
+def transform_to_density_auc_to_moments(index_auc, multiplicity_auc, density_auc, n_abc, full_mcif_elems, atom_moment):
+    """
+    density_auc: [Npoints_auc, NMagAtom]  electron density for each magnetic atom in asymmetric unit cell
+    atom_moment: [3, NMagAtom]  magnetic moment direction for each magnetic atom
+    index_auc: [3, Npoints_auc]  index of points in asymmetric unit cell
+    multiplicity_auc: [Npoints_auc] multiplicity of points in asymmetric unit cell
+    n_abc: [3] number of points along a,b,c in full unit cell
+    full_mcif_elems: [14, Nsymm] symmetry elements for magnetic atoms
+    0-3: translation part (b1,b2,b3,den)
+    4-12: rotation part (r11,r21,r31,r12,r22,r32,r13,r23,r33)
+    13: theta_s
+    """
+ 
+    n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
+    point_index = numpy.stack(numpy.meshgrid(
+        numpy.arange(n_a), numpy.arange(n_b), numpy.arange(n_c),
+        indexing="ij"), axis=0)
+    # [3, n_a, n_b, n_c, NMagAtom]
+    moment_3d = numpy.zeros(point_index.shape, dtype=float)
+    elem_r = full_mcif_elems[4:13]
+    symm_elems = full_mcif_elems[:13]
+    theta_s = full_mcif_elems[13]
+    det_r = calc_det_m(elem_r)[0]
+    sign_s = det_r * theta_s
+
+    moment_s = numpy.expand_dims(sign_s, axis=(0,2)) * calc_m_v(numpy.expand_dims(elem_r, axis=2), numpy.expand_dims(atom_moment, axis=1))[0]
+    moment_s = moment_s.swapaxes(0,1)
+    for index_xyz, mult, den_auc in zip(index_auc.transpose(), multiplicity_auc, density_auc):
+        # [3, Nsymm]
+        index_xyz_s = apply_symm_elems_to_index_xyz(symm_elems, index_xyz, n_abc)
+        for ind_xys, m_s in zip(index_xyz_s.transpose(), moment_s):
+
+            moment_3d[:, ind_xys[0], ind_xys[1], ind_xys[2]] = (numpy.expand_dims(den_auc, axis=0) * m_s).sum(axis=1)
+    
+    moment = moment_3d.reshape(moment_3d.shape[0], numpy.prod(moment_3d.shape[1:]))
+    point_index = point_index.reshape(point_index.shape[0], numpy.prod(point_index.shape[1:]))
+    return point_index, moment
+
+
+
 def save_spin_density_into_file(
         f_name: str, index_auc, spin_density, n_abc,
         unit_cell_parameters,
