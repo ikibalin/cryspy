@@ -88,8 +88,8 @@ packages:
   requires_python: '>=3.11'
 - pypi: ./
   name: cryspy
-  version: 0.9.2
-  sha256: 850922bbd246a840b209eb636843668b85fa6f88b4db9d65dabb6034cd2d3583
+  version: 0.10.0
+  sha256: 58f1af928038b23dc4cf0928a643194d4bbdb95c13d9b73f658031ed3bfcfd92
   requires_dist:
   - numpy
   - scipy
