@@ -13,6 +13,9 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import AtomSiteSus
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import AtomElectronConfigurationL
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 
+from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwinL
+
+
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnReflnL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction

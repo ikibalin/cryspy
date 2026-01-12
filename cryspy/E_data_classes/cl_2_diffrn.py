@@ -25,6 +25,7 @@ from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
+from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwinL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
     DiffrnOrientMatrix
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnReflnL
@@ -82,7 +83,7 @@ class Diffrn(DataN):
     CLASSES_MANDATORY = (Setup, DiffrnOrientMatrix,
                          DiffrnReflnL)
     CLASSES_OPTIONAL = (DiffrnRadiation, Extinction, Phase, ReflnL, ReflnSusceptibilityL,
-                        RefineLs, Chi2)
+                        RefineLs, Chi2, JanaTwinL)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -386,6 +387,9 @@ class Diffrn(DataN):
                     self.extinction.radius_sigma = float(sigma)
                 if name[0] == "phase_scale":
                     self.phase.scale_sigma = float(sigma)
+                if name[0] == "twin_fraction":
+                    self.jana_twin.items[name[1][0]].fraction_sigma = float(sigma)
+                    self.jana_twin.items[name[1][0]].fraction = float(ddict_diffrn["twin_fraction"][name[1][0]])
 
         if (("iint_plus" in keys) and ("iint_minus" in keys)):
             diffrn_refln = self.diffrn_refln

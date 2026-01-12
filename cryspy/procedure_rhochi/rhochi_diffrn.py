@@ -1,5 +1,8 @@
 import numpy
 
+from cryspy.A_functions_base.matrix_operations import \
+    calc_m_v
+
 from cryspy.A_functions_base.unit_cell import \
     calc_volume_uc_by_unit_cell_parameters, calc_eq_ccs_by_unit_cell_parameters, \
     calc_sthovl_by_unit_cell_parameters
@@ -63,6 +66,18 @@ def calc_chi_sq_for_diffrn_by_dictionary(
 
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     index_hkl = dict_diffrn["index_hkl"]
+    n_hkl = index_hkl.shape[1]
+    flag_twin = "twin_fraction" in dict_diffrn.keys()
+    flag_twin_fraction = False
+    if flag_twin:
+        twin_fraction = dict_diffrn["twin_fraction"]
+        flags_twin_fraction = dict_diffrn["flags_twin_fraction"]
+        flag_twin_fraction = numpy.any(flags_twin_fraction)
+        twin_fraction = numpy.concatenate(([1-twin_fraction.sum(),],twin_fraction))
+        twin_matrices  = dict_diffrn["twin_matrices"]
+        for twin_m in twin_matrices.transpose():
+            index_hkl_twin = calc_m_v(twin_m, index_hkl)[0]
+            index_hkl = numpy.concatenate((index_hkl, index_hkl_twin), axis=1)
     flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
     flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
     flag_volume_unit_cell = flag_unit_cell_parameters
@@ -107,7 +122,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         c_lambda2 = None
         flags_c_lambda2 = False
         index_2hkl = None
-    dict_in_out["index_hkl"] = dict_diffrn["index_hkl"]
+    dict_in_out["index_hkl"] = index_hkl
     flag_eq_ccs = flag_unit_cell_parameters
     if (flag_use_precalculated_data and not(flag_eq_ccs) and ("eq_ccs" in dict_in_out_keys)):
         eq_ccs = dict_in_out["eq_ccs"]
@@ -260,7 +275,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
 
 
     flag_flip_ratio = flag_extincton or flags_beam_polarization or flags_flipper_efficiency or \
-        flag_f_nucl or flag_f_m_perp or flags_c_lambda2 or flag_f_nucl_2hkl or flag_f_m_perp_2hkl
+        flag_f_nucl or flag_f_m_perp or flags_c_lambda2 or flag_f_nucl_2hkl or flag_f_m_perp_2hkl or\
+        flag_twin_fraction
     if (flag_use_precalculated_data and not(flag_flip_ratio) 
             and "iint_plus" in dict_in_out_keys and "iint_minus" in dict_in_out_keys):
         iint_plus = dict_in_out["iint_plus"]
@@ -276,6 +292,16 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             flag_c_lambda2=flags_c_lambda2,
             flag_f_nucl_2hkl=flag_f_nucl_2hkl, flag_f_m_perp_2hkl=flag_f_m_perp_2hkl,
             dict_in_out=dict_in_out)
+        if flag_twin:
+            iint_plus_twin = iint_plus.reshape((n_hkl, -1), order='F')
+            iint_minus_twin = iint_minus.reshape((n_hkl, -1), order='F')
+            iint_plus = (iint_plus_twin*numpy.expand_dims(twin_fraction, axis=0)).sum(axis=1)
+            iint_minus = (iint_minus_twin*numpy.expand_dims(twin_fraction, axis=0)).sum(axis=1)
+            for key, item in dder_plus.items():
+                
+                dder_plus[key] = (item.reshape(item.shape[:-1]+(n_hkl, -1,), order='F')*numpy.expand_dims(twin_fraction, axis=tuple(range(item.ndim)))).sum(axis=item.ndim)
+            for key, item in dder_minus.items():
+                dder_minus[key] = (item.reshape(item.shape[:-1]+(n_hkl, -1,), order='F')*numpy.expand_dims(twin_fraction, axis=tuple(range(item.ndim)))).sum(axis=item.ndim)
         # iint_plus = iint_plus * numpy.power(wavelength, 4) # FIXME: It should be for the TOF
         # iint_minus = iint_minus * numpy.power(wavelength, 4)
         if flag_dict:
@@ -391,6 +417,9 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             elif name == "phase_scale":#FIXME
                 dder_plus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
                 dder_minus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
+            elif name == "twin_fraction":
+                dder_plus_p = iint_plus_twin[:,1:] - iint_plus_twin[:,0:1]
+                dder_minus_p = iint_minus_twin[:,1:] - iint_minus_twin[:,0:1]
             else:
                 raise AttributeError("It should not be like this.")
             parameter_name = [(diffrn_type_name, ) + way + (tuple(ind_1d[ind,:]), ) for ind in range(ind_1d.shape[0])]
