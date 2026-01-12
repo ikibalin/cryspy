@@ -24,7 +24,8 @@ from cryspy.A_functions_base.mempy import \
     renormailize_density_ani_2, \
     calc_model_value_by_precalculated_data, \
     calc_chi_atoms, \
-    transform_to_spin_density_for_mcif
+    transform_to_spin_density_for_mcif,\
+    transform_to_density_auc_to_moments
 
 from cryspy.A_functions_base.unit_cell import \
     calc_volume_uc_by_unit_cell_parameters, \
@@ -236,17 +237,17 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             density_ani_prior = get_uniform_density_ani_2(point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
             print("Prior density in channel chi is uniform.        ")
         else:
-            density_ani_prior = numpy.zeros_like(atom_distance_auc_ani)
-            for label in atom_para_label:
-                flag_atom = atom_label_auc_ani==label
+            density_ani_prior = numpy.zeros_like(point_atom_distance_auc)
+            for ind_ordered, label in enumerate(atom_ordered_label):
+                flag_atom = atom_label==label
 
                 dict_shell = dict_crystal[f"shell_{label:}"]
-                kappa = float(dict_crystal["mag_atom_kappa"][dict_crystal["mag_atom_label"] == label])
+                kappa = float(dict_crystal["mag_atom_kappa"][dict_crystal["mag_atom_label"] == label].squeeze())
                 den_atom = calc_density_spherical(
-                    atom_distance_auc_ani[flag_atom], dict_shell["core_population"], dict_shell["core_coeff"], dict_shell["core_zeta"],
+                    point_atom_distance_auc[:,ind_ordered], dict_shell["core_population"], dict_shell["core_coeff"], dict_shell["core_zeta"],
                     dict_shell["core_n"], kappa)
-                density_ani_prior[flag_atom] = den_atom
-            density_ani_prior = renormailize_density_ani(density_ani_prior, point_multiplicity_ani, atom_label_auc_ani, atom_multiplicity_auc_ani, volume_unit_cell, number_unit_cell)
+                density_ani_prior[:,ind_ordered] = den_atom
+            density_ani_prior = renormailize_density_ani_2(density_ani_prior, point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
             print("Prior density in channel chi is core.            ")
     if channel_col:
         density_col_prior = get_uniform_density_col(point_multiplicity_col, volume_unit_cell, number_unit_cell)
@@ -560,6 +561,22 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         print(f"\nReconstructed spin density is written in file '{file_spin_density:}'.")
     if channel_ani and (file_magnetization_density is not None):
         # spin_density = numpy.stack([density_ani_best, numpy.zeros_like(density_ani_best)], axis=0)
+        index_full, moment_3d = transform_to_density_auc_to_moments(index_auc, point_multiplicity, density_ani_best, n_abc, full_mcif_elems, atom_ordered_m)
+        m_z = moment_3d[2]
+        sd_hh = numpy.zeros((2,)+m_z.shape, dtype=float)
+        flag_positive = m_z >= 0
+        sd_hh[0, flag_positive] = m_z[flag_positive]
+        sd_hh[1, ~flag_positive] = m_z[~flag_positive]
+        centrosymmetry = False
+        centrosymmetry_position = None
+        translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
+        one_symm_elems = full_mcif_elems[:13,:1]
+        file_magnetization_density_mz = ".".join(file_magnetization_density.split(".")[:-1]) + '_mz.den'
+
+        save_spin_density_into_file(file_magnetization_density_mz, index_full, sd_hh, n_abc, unit_cell_parameters,
+                one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
+        print(f"\nReconstructed spin density is written in file '{file_magnetization_density_mz:}'.")
+
         if flag_mcif:
             reduced_symm_elems = full_mcif_elems[:13,:] 
             translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
@@ -575,9 +592,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             save_spin_density_into_file(file_magnetization_density_atom, index_auc, spin_density_atom, n_abc, unit_cell_parameters,
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
             print(f"Reconstructed magnetization density around atom '{label:}' is written in file '{file_magnetization_density_atom:}'.")
-
         
-
 
 def mempy_susceptibility_refinement(dict_channel_ani, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out):
     print("****************************************")
