@@ -58,7 +58,7 @@ loop_
 _atom_electron_configuration_label
 _atom_electron_configuration_core
  Mn "3d1" 
- F "2p1"
+# F "2p1"
 
 loop_
 _atom_site_label
