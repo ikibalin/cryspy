@@ -232,26 +232,32 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     number_unit_cell = numpy.prod(n_abc)
     print("\nCalculation of prior density...         ", end="\r")
     if channel_ani:
+        # FIXME: I am nto sure if it is should be atom_label or atom_label_ordered_m            
+        density_ani_prior_uniform = get_uniform_density_ani_2(point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
         if flag_uniform_prior_density:
-            # FIXME: I am nto sure if it is should be atom_label or atom_label_ordered_m
-            density_ani_prior = get_uniform_density_ani_2(point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
-            print("Prior density in channel chi is uniform.        ")
+            density_ani_prior = density_ani_prior_uniform
+            print("Prior density in channel ani is uniform.        ")
         else:
+            print("Prior density in channel ani is core.            ")
             density_ani_prior = numpy.zeros_like(point_atom_distance_auc)
             for ind_ordered, label in enumerate(atom_ordered_label):
                 flag_atom = atom_label==label
-
-                dict_shell = dict_crystal[f"shell_{label:}"]
-                kappa = float(dict_crystal["mag_atom_kappa"][dict_crystal["mag_atom_label"] == label].squeeze())
-                den_atom = calc_density_spherical(
-                    point_atom_distance_auc[:,ind_ordered], dict_shell["core_population"], dict_shell["core_coeff"], dict_shell["core_zeta"],
-                    dict_shell["core_n"], kappa)
-                density_ani_prior[:,ind_ordered] = den_atom
+                s_label = f"shell_{label:}"
+                if s_label in dict_crystal.keys():
+                    dict_shell = dict_crystal[s_label]
+                    kappa = float(dict_crystal["mag_atom_kappa"][dict_crystal["mag_atom_label"] == label].squeeze())
+                    den_atom = calc_density_spherical(
+                        point_atom_distance_auc[:,ind_ordered], dict_shell["core_population"], dict_shell["core_coeff"], dict_shell["core_zeta"],
+                        dict_shell["core_n"], kappa)
+                    density_ani_prior[:,ind_ordered] = den_atom
+                else:
+                    print(f"BUT! Prior density of {label} in channel ani is uniform (no information about electron density configuration).")
+                    density_ani_prior[:,ind_ordered] = density_ani_prior_uniform[:,ind_ordered]
             density_ani_prior = renormailize_density_ani_2(density_ani_prior, point_multiplicity, atom_label, atom_multiplicity, volume_unit_cell, number_unit_cell)
-            print("Prior density in channel chi is core.            ")
+            print("Prior density in channel ani is core.            ")
     if channel_col:
         density_col_prior = get_uniform_density_col(point_multiplicity_col, volume_unit_cell, number_unit_cell)
-        print("Prior density in channel plus-minus is uniform.          ")
+        print("Prior density in channel iso is uniform.          ")
 
     # **Input information about experiments**
     flag_use_precalculated_data = False
