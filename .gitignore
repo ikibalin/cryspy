@@ -20,3 +20,4 @@ _site/*
 TestResults/*
 .ipynb_checkpoints
 venv/*
+.DS_Store

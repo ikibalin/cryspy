@@ -11,3 +11,4 @@ def test_calc_FR_2channel():
     
     assert refine_ls.goodness_of_fit_all < 0.986
     assert refine_ls.number_reflns == 142
+test_calc_FR_2channel()

@@ -60,6 +60,7 @@ loop_
 _atom_electron_configuration_label
 _atom_electron_configuration_core
   Mn   3d1
+  F   2p1
 
 loop_
 _atom_site_label
@@ -80,7 +81,7 @@ _atom_site_moment_crystalaxis_x
 _atom_site_moment_crystalaxis_y
 _atom_site_moment_crystalaxis_z
 _atom_site_moment_symmform
-  Mn   0.0   0.0      5.275(21)   0,0,mz
+   Mn   0.0   0.0      5.275(21)   0,0,mz
    F   0.0   0.0   -0.02516(24)   0,0,mz
 
 loop_
