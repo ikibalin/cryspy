@@ -318,9 +318,11 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     if channel_col:
         density_col = numpy.copy(density_col_prior)
         density_col_next = numpy.copy(density_col_prior)
+        density_col_previous = numpy.copy(density_col_prior)
     if channel_ani:
         density_ani = numpy.copy(density_ani_prior)
         density_ani_next = numpy.copy(density_ani_prior)
+        density_ani_previous = numpy.copy(density_ani_prior)
 
     # **MEM iteration**
     print("\nMEM iteration procedure")
@@ -459,6 +461,10 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 numpy.expand_dims((diff_value/exp_value_sigma[1]),axis=(1,2)) *
                 der_model_den_ani).sum(axis=0)
 
+        if iteration >= iteration_max:
+            flag_next = False
+            print(f"Maximal number of iteration is reached ({iteration:}).         ", end='\n')
+        
         if c > c_previous:
             parameter_lambda = 0.5 * parameter_lambda
             c = c_previous
@@ -480,22 +486,19 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
             print(f"Iteration {iteration:5}, lambda {parameter_lambda*1e6:.3f}*10^-6, chi_sq: {c:.2f}              ", end='\r')
 
-        if channel_col:
+        if channel_col and flag_next:
             coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))/point_multiplicity
             hh = (density_col+delta_density)*numpy.exp(-coeff*der_c_den_col)-delta_density
             hh = numpy.where(hh>0, hh, 0)
             density_col_next = renormailize_density_col(hh, point_multiplicity, volume_unit_cell, number_unit_cell)
 
-        if channel_ani:
+        if channel_ani and flag_next:
             coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))*numpy.expand_dims(atom_multiplicity,axis=0)/numpy.expand_dims(point_multiplicity, axis=1)
             hh = (density_ani+delta_density)*numpy.exp(-coeff*der_c_den_ani)-delta_density
             hh = numpy.where(hh>0, hh, 0)
             density_ani_next = renormailize_density_ani_2(hh, point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
 
 
-        if iteration >= iteration_max:
-            flag_next = False
-            print(f"Maximal number of iteration is reached ({iteration:}).         ", end='\n')
         if parameter_lambda < parameter_lambda_min:
             flag_next = False
             print(f"Minimal value of parameter lambda {parameter_lambda*1e6:.3f}*10^-6 is reached at iteration {iteration:}.            ", end='\n')
@@ -510,7 +513,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         dict_in_out["density_channel_col"] = density_col_best
     if channel_ani:
         density_ani_best = numpy.copy(density_ani_previous)
-        dict_in_out["density_channel_ani"] = density_ani
+        dict_in_out["density_channel_ani"] = density_ani_best
 
     # **Save to .den file**
     if channel_col and (file_spin_density is not None) and flag_mcif:
