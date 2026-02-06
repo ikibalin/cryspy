@@ -493,7 +493,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             density_col_next = renormailize_density_col(hh, point_multiplicity, volume_unit_cell, number_unit_cell)
 
         if channel_ani and flag_next:
-            coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))*numpy.expand_dims(atom_multiplicity,axis=0)/numpy.expand_dims(point_multiplicity, axis=1)
+            coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))*numpy.expand_dims(mag_atom_multiplicity,axis=0)/numpy.expand_dims(point_multiplicity, axis=1)
             hh = (density_ani+delta_density)*numpy.exp(-coeff*der_c_den_ani)-delta_density
             hh = numpy.where(hh>0, hh, 0)
             density_ani_next = renormailize_density_ani_2(hh, point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
