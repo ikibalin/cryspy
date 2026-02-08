@@ -1,3 +1,4 @@
+import numpy
 import cryspy
 
 from .mempy_by_dictionary import mempy_reconstruction_by_dictionary, mempy_cycle_density_parameters
@@ -18,7 +19,7 @@ def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
 def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
     if not(obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
-            points_a=48, points_b=48, points_c=48, channel_ani=True, only_magnetic_basins=True)
+            points_a=48, points_b=48, points_c=48, channel_ani=True)
         obj.add_items([mem_parameters,])
     obj.mem_parameters.channel_col = False
     obj.mem_parameters.channel_ani = True
@@ -47,7 +48,7 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
     dict_crystal = l_dict_crystal[0]
     dict_mem_parameters = l_dict_mem_parameters[0]
     dict_in_out = {}
-    mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+    res = mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda=parameter_lambda, iteration_max=iteration_max,
         parameter_lambda_min=parameter_lambda_min, delta_density=delta_density)
 
@@ -58,7 +59,13 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
         diffrn_refln = diffrn.diffrn_refln
         diffrn_refln.numpy_fr_calc = flip_ratio
         diffrn_refln.numpy_to_items()
+        refine_ls = getattr(diffrn, 'refine_ls', None)
+        if refine_ls is None:
+            diffrn.refine_ls = cryspy.RefineLs()
+            refine_ls = diffrn.refine_ls
 
+        refine_ls.goodness_of_fit_all = res
+        refine_ls.number_reflns = numpy.logical_not(diffrn_refln.excluded).sum()
     if (("symm_elem_channel_ani" in dict_in_out_keys) and
             ("density_channel_ani" in dict_in_out_keys) and
             (("susceptibility_channel_ani" in dict_in_out_keys) or ("moment_channel_ani" in dict_in_out_keys)) and
@@ -126,7 +133,7 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
         channel_col.numpy_point_multiplicity = point_multiplicity_channel_col
         channel_col.numpy_to_items()
         obj.add_items([channel_col, ])
-    return 
+    return res
 
 
 

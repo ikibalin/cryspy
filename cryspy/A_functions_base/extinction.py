@@ -56,6 +56,7 @@ def calc_extinction_sphere_secondary_gauss(
     """Secondary Gauss extinction for the sphere (Acta.Cryst.(1974), A30, 129)
     mosaicity are given in minutes
     """
+    f_sq, cos_2theta = numpy.atleast_1d(f_sq), numpy.atleast_1d(cos_2theta)
     mosaicity_rad = mosaicity*numpy.pi/(180*60) #transfer minutes to radians
     if not(radius*mosaicity_rad>0):
         term_1 = numpy.zeros_like(cos_2theta)

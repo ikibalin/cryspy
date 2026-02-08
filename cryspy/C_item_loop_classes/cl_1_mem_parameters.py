@@ -31,12 +31,12 @@ class MEMParameters(ItemN):
 
     ATTR_OPTIONAL_NAMES = ("channel_col",
                           "channel_ani", "magnetization_plus", "magnetization_minus",
-                          "prior_density", "use_asymmetry", "only_magnetic_basins",
+                          "prior_density", "use_asymmetry", 
                           "gof_desired", "spin_density_to_den_file", "magnetization_density_to_den_file")
-    ATTR_OPTIONAL_TYPES = (bool, bool, float, float, str, bool, bool, float, str, str)
+    ATTR_OPTIONAL_TYPES = (bool, bool, float, float, str, bool, float, str, str)
     ATTR_OPTIONAL_CIF = ("channel_col",
                           "channel_ani", "magnetization_plus", "magnetization_minus",
-                          "prior_density", "use_asymmetry", "only_magnetic_basins",
+                          "prior_density", "use_asymmetry", 
                           "GoF_desired", "spin_density_to_den_file", "magnetization_density_to_den_file")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
@@ -66,7 +66,6 @@ class MEMParameters(ItemN):
                  "channel_col": True,
                  "magnetization_plus": 4., "magnetization_minus": -1.,
                  "channel_ani": False,
-                 "only_magnetic_basins": False,
                  "prior_density": "uniform", "use_asymmetry": True,
                  "gof_desired": 1.,
                  # "spin_density_to_den_file": "mem_spin_density.den",
@@ -110,7 +109,6 @@ class MEMParameters(ItemN):
         magnetization_minus = self.magnetization_minus
         flag_uniform_prior_density = self.prior_density == "uniform"
         flag_asymmetry = self.use_asymmetry
-        flag_only_magnetic_basins = self.only_magnetic_basins
         gof_desired = self.gof_desired
 
         file_spin_density = getattr(self, "spin_density_to_den_file", None)
@@ -123,7 +121,6 @@ class MEMParameters(ItemN):
             "magnetization_minus": magnetization_minus,
             "flag_uniform_prior_density": flag_uniform_prior_density,
             "flag_asymmetry": flag_asymmetry,
-            "flag_only_magnetic_basins": flag_only_magnetic_basins,
             "gof_desired": gof_desired,
             "file_spin_density": file_spin_density,
             "file_magnetization_density": file_magnetization_density,

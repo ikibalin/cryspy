@@ -58,7 +58,6 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
 
     if channel_ani:
         flag_uniform_prior_density = dict_mem_parameters["flag_uniform_prior_density"]
-        flag_only_magnetic_basins =  dict_mem_parameters["flag_only_magnetic_basins"]
 
     flag_asymmetry =  dict_mem_parameters["flag_asymmetry"]
 
@@ -335,7 +334,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     channel_col = dict_mem_parameters["channel_col"]
     channel_ani = dict_mem_parameters["channel_ani"]
     if channel_col:
-        density_col_prior = dict_in_out["density_col_prior"]
+        density_col_prior = dict_in_out["density_prior_channel_col"]
         density_col = numpy.copy(density_col_prior)
         density_col_next = numpy.copy(density_col_prior)
         density_col_previous = numpy.copy(density_col_prior)
@@ -561,6 +560,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
     # **Save to .den file**
     save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn)
+    return c_best
 
 def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn):
     dict_in_out_keys = dict_in_out.keys()
@@ -602,8 +602,8 @@ def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_d
     n_abc = dict_mem_parameters["points_abc"]
     number_unit_cell = dict_in_out["number_unit_cell"]
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
-    point_atom_symm_elems_auc = dict_in_out["point_atom_symm_elems_auc"]
 
+    point_atom_symm_elems_auc = dict_in_out.get("point_atom_symm_elems_auc", None)
     atom_ordered_m = dict_crystal.get("atom_ordered_moment_crystalaxis_xyz", None)
     if channel_ani and (atom_ordered_m is not None):
         flag_moment_ordered = True

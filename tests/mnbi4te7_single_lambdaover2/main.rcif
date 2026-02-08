@@ -1,6 +1,6 @@
 global_
 
-data_exp_MnBiTe
+data_MnBiTe
 
 _cell_length_a 4.355000
 _cell_length_b 4.355000
@@ -77,7 +77,7 @@ _extinction_model gauss
 _extinction_mosaicity 0.0
 _extinction_radius 30(4)
 
-_phase_label exp_MnBiTe
+_phase_label MnBiTe
 
 loop_
 _diffrn_refln_index_h

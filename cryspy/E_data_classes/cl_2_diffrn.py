@@ -262,7 +262,7 @@ class Diffrn(DataN):
             else:
                 FMans_min = min(FMans)
                 lFMansMin.append(FMans_min)
-                der1 = float(derivative(f, FMans_min, 0.1, 1))
+                der1 = float(derivative(f, FMans_min, 0.1, 1).squeeze())
                 f_mag_sigma = abs(fr_sigma[_ind] / der1)
                 lFMansMin_sigma.append(f_mag_sigma)
 

@@ -8,8 +8,8 @@ def test_f_mag():
     dir = os.path.dirname(__file__)
     f_name = os.path.join(dir, "1.0.2_URu0.96Rh0.04Si2.mcif")
     globaln = cryspy.file_to_globaln(f_name)
-    mag_cif = globaln.mag_crystal_5yOhtAoR
-    
+    mag_cif = globaln.crystal_5yOhtAoR
+
     index_hkl = numpy.array(
     [[1, 2, 0, 1, 0, 3, 2, 2, 4],
      [0, 0, 0, 1, 1, 0, 0, 1, 0],
@@ -37,6 +37,8 @@ def test_refine_mcif():
     dir = os.path.dirname(__file__)
     f_name = os.path.join(dir, "pd_test.rcif")
     rhochi = cryspy.file_to_globaln(f_name)
-    chi_sq, n_points = rhochi.calc_chi_sq()
+    d_out = cryspy.rhochi_no_refinement(rhochi)
+    chi_sq = d_out["chi_sq"]
+    n_points = d_out["n_point"]
     assert chi_sq < 3036.0
     assert int(n_points) == 4901

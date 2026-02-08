@@ -10,8 +10,8 @@ _mem_parameters_magnetization_minus -1.00000
 _mem_parameters_prior_density uniform
 _mem_parameters_use_asymmetry True
 _mem_parameters_GoF_desired 1.00
-_mem_parameters_spin_density_to_den_file mem_sd.den
-_mem_parameters_magnetization_density_to_den_file mem_md.den
+# _mem_parameters_spin_density_to_den_file mem_sd.den
+# _mem_parameters_magnetization_density_to_den_file mem_md.den
 
 loop_
 _density_point_index_x
