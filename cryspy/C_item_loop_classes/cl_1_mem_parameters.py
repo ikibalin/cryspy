@@ -69,8 +69,9 @@ class MEMParameters(ItemN):
                  "only_magnetic_basins": False,
                  "prior_density": "uniform", "use_asymmetry": True,
                  "gof_desired": 1.,
-                 "spin_density_to_den_file": "mem_spin_density.den",
-                 "magnetization_density_to_den_file": "mem_magnetization_density.den",}
+                 # "spin_density_to_den_file": "mem_spin_density.den",
+                 # "magnetization_density_to_den_file": "mem_magnetization_density.den",
+                 }
     for key in ATTR_SIGMA:
         D_DEFAULT[key] = 0.
     for key in (ATTR_CONSTR_FLAG + ATTR_REF_FLAG):
@@ -112,8 +113,8 @@ class MEMParameters(ItemN):
         flag_only_magnetic_basins = self.only_magnetic_basins
         gof_desired = self.gof_desired
 
-        file_spin_density = self.spin_density_to_den_file
-        file_magnetization_density = self.magnetization_density_to_den_file
+        file_spin_density = getattr(self, "spin_density_to_den_file", None)
+        file_magnetization_density = getattr(self, "magnetization_density_to_den_file", None)
         dict_mem = {
             'points_abc': points_abc,
             "channel_col": channel_col,
