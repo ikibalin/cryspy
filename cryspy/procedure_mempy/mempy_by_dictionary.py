@@ -257,16 +257,28 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
         dict_crystal, diffrn_dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
         diffrn_dict_in_out["f_nucl"] = f_nucl
 
-
-        flip_ratio_es  = dict_diffrn["flip_ratio_es"]
-        if flag_asymmetry:
-            asymmetry_e = (flip_ratio_es[0] -1.)/(flip_ratio_es[0] + 1.)
-            asymmetry_s = numpy.sqrt(2.)*flip_ratio_es[1] * numpy.sqrt(numpy.square(flip_ratio_es[0]) + 1.)/numpy.square(flip_ratio_es[0] + 1.)
-            asymmetry_es = numpy.stack([asymmetry_e, asymmetry_s], axis=0)
-            l_exp_value_sigma.append(asymmetry_es)
+        flag_pol = "flip_ratio_es" in dict_diffrn.keys()
+        if flag_pol:
+            flip_ratio_es  = dict_diffrn["flip_ratio_es"]
         else:
-            l_exp_value_sigma.append(flip_ratio_es)
+            intensity_es = dict_diffrn["intensity_es"]
 
+        if flag_asymmetry:
+            if flag_pol:
+                asymmetry_e = (flip_ratio_es[0] -1.)/(flip_ratio_es[0] + 1.)
+                asymmetry_s = numpy.sqrt(2.)*flip_ratio_es[1] * numpy.sqrt(numpy.square(flip_ratio_es[0]) + 1.)/numpy.square(flip_ratio_es[0] + 1.)
+                asymmetry_es = numpy.stack([asymmetry_e, asymmetry_s], axis=0)
+                l_exp_value_sigma.append(asymmetry_es)
+            else:
+                sqrt_int_e = numpy.sqrt(intensity_es[0])
+                sqrt_int_s = 0.5*intensity_es[1]/sqrt_int_e
+                sqrt_int_es = numpy.stack([sqrt_int_e, sqrt_int_s], axis=0)
+                l_exp_value_sigma.append(sqrt_int_es)
+        else:
+            if flag_pol:
+                l_exp_value_sigma.append(flip_ratio_es)
+            else:
+                l_exp_value_sigma.append(intensity_es)
     exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)    
     dict_in_out["exp_value_sigma"] = exp_value_sigma
     if channel_col:
@@ -405,11 +417,18 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 f_m_perp_chi = (density_ani*mem_ani_exp).sum(axis=(2,3))
                 f_m_perp += f_m_perp_chi
 
+            flag_pol = "flip_ratio_es" in dict_diffrn.keys()
+            if flag_pol:
+                beam_polarization = dict_diffrn["beam_polarization"]
+                flipper_efficiency = dict_diffrn["flipper_efficiency"]
+                flip_ratio_es = dict_diffrn["flip_ratio_es"]
+            else:
+                beam_polarization = 1.
+                flipper_efficiency = 1.
+                phase_scale = dict_diffrn["phase_scale"]
+                intensity_es = dict_diffrn["intensity_es"]
 
-            beam_polarization = dict_diffrn["beam_polarization"]
-            flipper_efficiency = dict_diffrn["flipper_efficiency"]
             matrix_u = dict_diffrn["matrix_u"]
-            flip_ratio_es = dict_diffrn["flip_ratio_es"]
 
             f_nucl = diffrn_dict_in_out["f_nucl"]
 
@@ -435,24 +454,40 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 flag_beam_polarization = False, flag_flipper_efficiency = False,
                 flag_f_nucl = False, flag_f_m_perp = True,
                 dict_in_out = dict_in_out)
-
-            diffrn_dict_in_out["flip_ratio"] = iint_plus/iint_minus
+            if flag_pol:
+                diffrn_dict_in_out["flip_ratio"] = iint_plus/iint_minus
+            else:
+                diffrn_dict_in_out["intensity"] = (iint_plus + iint_minus)*dict_diffrn["phase_scale"]
 
             der_int_plus_fm_perp_real = dder_plus["f_m_perp_real"]
             der_int_plus_fm_perp_imag = dder_plus["f_m_perp_imag"]
             der_int_minus_fm_perp_real = dder_minus["f_m_perp_real"]
             der_int_minus_fm_perp_imag = dder_minus["f_m_perp_imag"]
             
-            if flag_asymmetry:
-                model_exp, dder_model_exp = calc_asymmetry_by_iint(
-                    iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
-                    flag_iint_plus=True, flag_iint_minus=True, 
-                    flag_c_lambda2=False, flag_iint_2hkl=False)
+            if flag_pol:
+                if flag_asymmetry:
+                    model_exp, dder_model_exp = calc_asymmetry_by_iint(
+                        iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
+                        flag_iint_plus=True, flag_iint_minus=True, 
+                        flag_c_lambda2=False, flag_iint_2hkl=False)
+                else:
+                    model_exp, dder_model_exp = calc_flip_ratio_by_iint(
+                        iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
+                        flag_iint_plus=True, flag_iint_minus=True, 
+                        flag_c_lambda2=False, flag_iint_2hkl=False)
             else:
-                model_exp, dder_model_exp = calc_flip_ratio_by_iint(
-                    iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
-                    flag_iint_plus=True, flag_iint_minus=True, 
-                    flag_c_lambda2=False, flag_iint_2hkl=False)
+                if flag_asymmetry:
+                    model_exp = numpy.sqrt((iint_plus +iint_minus)*dict_diffrn["phase_scale"])
+                    dder_model_exp = {
+                        "iint_plus": 0.5*dict_diffrn["phase_scale"]/model_exp,
+                        "iint_minus": 0.5*dict_diffrn["phase_scale"]/model_exp,
+                        }
+                else:
+                    model_exp = (iint_plus + iint_minus)*dict_diffrn["phase_scale"]
+                    dder_model_exp = {
+                        "iint_plus": numpy.ones_like(iint_plus)*dict_diffrn["phase_scale"],
+                        "iint_minus": numpy.ones_like(iint_minus)*dict_diffrn["phase_scale"],
+                        }
 
             l_model_value.append(model_exp)
             der_model_int_plus = numpy.expand_dims(dder_model_exp["iint_plus"], axis=0)

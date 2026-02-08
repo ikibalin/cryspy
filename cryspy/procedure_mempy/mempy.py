@@ -55,9 +55,14 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
     dict_in_out_keys = dict_in_out.keys()
 
     for diffrn in l_diffrn:
-        flip_ratio = dict_in_out["dict_in_out_"+diffrn.get_name()]["flip_ratio"]
+        flag_pol = "flip_ratio" in dict_in_out["dict_in_out_"+diffrn.get_name()].keys()
         diffrn_refln = diffrn.diffrn_refln
-        diffrn_refln.numpy_fr_calc = flip_ratio
+        if flag_pol:
+            flip_ratio = dict_in_out["dict_in_out_"+diffrn.get_name()]["flip_ratio"]
+            diffrn_refln.numpy_fr_calc = flip_ratio
+        else:
+            intensity = dict_in_out["dict_in_out_"+diffrn.get_name()]["intensity"]
+            diffrn_refln.numpy_intensity_calc = intensity
         diffrn_refln.numpy_to_items()
         refine_ls = getattr(diffrn, 'refine_ls', None)
         if refine_ls is None:
