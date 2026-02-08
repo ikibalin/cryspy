@@ -1,6 +1,6 @@
 import cryspy
 
-from .mempy_by_dictionary import mempy_reconstruction_by_dictionary, mempy_cycle_density_susceptibility
+from .mempy_by_dictionary import mempy_reconstruction_by_dictionary, mempy_cycle_density_parameters
 
 def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
     if not(obj.is_attribute("mem_parameters")):
@@ -155,7 +155,7 @@ def mempy_cycle_with_parameters(obj: cryspy.GlobalN,
     
 
     dict_in_out = {}
-    mempy_cycle_density_susceptibility(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+    mempy_cycle_density_parameters(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda=parameter_lambda, iteration_max=iteration_max, parameter_lambda_min=parameter_lambda_min,
         delta_density=delta_density, n_cycle=n_cycle)
 

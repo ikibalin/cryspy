@@ -14,13 +14,10 @@ from cryspy.A_functions_base.mempy import \
     get_uniform_density_col, \
     renormailize_density_col, \
     save_spin_density_into_file,\
-    form_basins,\
     form_basins_2, \
     calc_point_ordered, \
     calc_point_susceptibility, \
-    get_uniform_density_ani,\
     get_uniform_density_ani_2,\
-    renormailize_density_ani, \
     renormailize_density_ani_2, \
     calc_model_value_by_precalculated_data, \
     calc_chi_atoms, \
@@ -43,53 +40,33 @@ from cryspy.A_functions_base.orbital_functions import \
     calc_density_spherical
 
 from cryspy.A_functions_base.matrix_operations import \
-    calc_vv_as_v1_v2_v1, calc_m_v
+    calc_vv_as_v1_v2_v1
 
 from cryspy.A_functions_base.function_1_error_simplex import \
     error_estimation_simplex
 
 
-def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
-        parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5):
-    # **Input information about mem parameters**
-    
-    print("*******************************************")
-    print("MEM reconstruction by CrysPy (module MEMPy)")
-    print("*******************************************\n")
-
-    print("MEM iteration parameters")
-    print("------------------------")
-    print(f" starting lambda parameter:     {parameter_lambda*1e6:.3f}*10^-6")
-    print(f" maximal number of iterations:  {iteration_max:}")
-    print(f" minimal lambda parameter:      {parameter_lambda_min*1e6:}*10^-6")
-    print(f" delta_density:                 {delta_density*1e5:}*10^-5\n")
-
+def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out):
     dict_in_out_keys = dict_in_out.keys()
-    print("Density reconstruction")
-    print("----------------------")
-
+    
     n_abc = dict_mem_parameters["points_abc"]
     print(f"Unit cell is devided on points {n_abc[0]:} x {n_abc[1]:} x {n_abc[2]:}.")
     channel_col = dict_mem_parameters["channel_col"]
     channel_ani = dict_mem_parameters["channel_ani"]
 
-    if channel_col:
-        magnetization_plus = dict_mem_parameters["magnetization_plus"]
-        magnetization_minus = dict_mem_parameters["magnetization_minus"]
-        file_spin_density = dict_mem_parameters["file_spin_density"]
-        dict_in_out["magnetization_plus"] = magnetization_plus
-        dict_in_out["magnetization_minus"] = magnetization_minus
+
 
     if channel_ani:
         flag_uniform_prior_density = dict_mem_parameters["flag_uniform_prior_density"]
         flag_only_magnetic_basins =  dict_mem_parameters["flag_only_magnetic_basins"]
-        file_magnetization_density = dict_mem_parameters["file_magnetization_density"]
 
     flag_asymmetry =  dict_mem_parameters["flag_asymmetry"]
-    gof_desired = dict_mem_parameters["gof_desired"]
 
     # **Input information about crystal**
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+    volume_unit_cell = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    dict_in_out["volume_unit_cell"] = volume_unit_cell
+
     if "full_symm_elems" in dict_crystal.keys():
         full_symm_elems = dict_crystal["full_symm_elems"]
         flag_mcif = False
@@ -100,16 +77,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         full_symm_theta = full_mcif_elems[-1,:]
         flag_mcif = True
 
-    volume_unit_cell = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
 
-    if not flag_mcif:
-        reduced_symm_elems = dict_crystal["reduced_symm_elems"]
-        centrosymmetry = dict_crystal["centrosymmetry"]
-        if centrosymmetry:
-            centrosymmetry_position = dict_crystal["centrosymmetry_position"]
-        else:
-            centrosymmetry_position = None
-        translation_elems = dict_crystal["translation_elems"]
 
     atom_label = dict_crystal["atom_label"]
     atom_fract_xyz = dict_crystal["atom_fract_xyz"]
@@ -130,6 +98,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             mag_atom_label = atom_ordered_label
         mag_atom_fract_xyz = numpy.stack([atom_fract_xyz[:,atom_label==label][:,0] for label in mag_atom_label], axis=1)
         mag_atom_multiplicity = numpy.stack([atom_multiplicity[atom_label==label][0] for label in mag_atom_label], axis=0)
+        dict_in_out["mag_atom_multiplicity"] = mag_atom_multiplicity
 
 
     # **Index in asymmetric unit cell**
@@ -138,6 +107,8 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     dict_in_out["point_multiplicity"] = point_multiplicity
     symm_elem_auc = calc_symm_elem_points_by_index_points(index_auc, n_abc)
     print(f"Number of points in asymmetric unit cell is {index_auc.shape[1]:}.", end="\n")
+    dict_in_out["index_auc"] = index_auc
+    dict_in_out["symm_elem_auc"] = symm_elem_auc
 
     # **Basin devision**
     # This part should be modified: flag_col and flag_ani is not needed
@@ -150,14 +121,10 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         else:
             point_atom_distance_auc, point_atom_symm_elems_auc = \
                 form_basins_2(symm_elem_auc, full_symm_elems, unit_cell_parameters, mag_atom_fract_xyz)
-        
+        dict_in_out["point_atom_symm_elems_auc"] = point_atom_symm_elems_auc
     print(f"channel_col: {channel_col:}")
     print(f"channel_ani: {channel_ani:}\n")
 
-    if channel_col:
-        print(f"Magnetization of unit cell: {magnetization_plus+magnetization_minus:.3f}  mu_B")
-        print(f"(positive channel {magnetization_plus:.3f} mu_B, negative channel {magnetization_minus:.3f}  mu_B)")
-        print(f"\nNumber of density points for channel_col is {index_auc.shape[1]}.")
 
     # **Susceptibility tensor $(3\times 3)$ for each point in magnetic basin**
     if channel_ani:
@@ -186,15 +153,14 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
     # **Prior density**
     number_unit_cell = numpy.prod(n_abc)
+    dict_in_out["number_unit_cell"] = number_unit_cell
     print("\nCalculation of prior density...         ", end="\r")
     if channel_ani:
-        # FIXME: I am nto sure if it is should be atom_label or atom_label_ordered_m            
         density_ani_prior_uniform = get_uniform_density_ani_2(point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
         if flag_uniform_prior_density:
             density_ani_prior = density_ani_prior_uniform
             print("Prior density in channel ani is uniform.        ")
         else:
-            print("Prior density in channel ani is core.            ")
             density_ani_prior = numpy.zeros_like(point_atom_distance_auc)
             for ind_ordered, label in enumerate(mag_atom_label):
                 s_label = f"shell_{label:}"
@@ -210,9 +176,11 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                     density_ani_prior[:,ind_ordered] = density_ani_prior_uniform[:,ind_ordered]
             density_ani_prior = renormailize_density_ani_2(density_ani_prior, point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
             print("Prior density in channel ani is core.            ")
+        dict_in_out["density_prior_channel_ani"] = density_ani_prior
     if channel_col:
         density_col_prior = get_uniform_density_col(point_multiplicity, volume_unit_cell, number_unit_cell)
         print("Prior density in channel iso is uniform.          ")
+        dict_in_out["density_prior_channel_col"] = density_col_prior
 
     # **Input information about experiments**
     flag_use_precalculated_data = False
@@ -239,8 +207,6 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         #     for twin_m in twin_matrices.transpose():
         #         index_hkl_twin = calc_m_v(twin_m, index_hkl)[0]
         #         index_hkl = numpy.concatenate((index_hkl, index_hkl_twin), axis=1)
-
-
 
         h_ccs = dict_diffrn["magnetic_field"]    
         eh_ccs = dict_diffrn["matrix_u"][6:]
@@ -271,12 +237,14 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 dict_in_out_chi = {}
                 diffrn_dict_in_out["dict_in_out_chi"] = dict_in_out_chi
             if flag_moment_ordered:
+                point_ordered = dict_in_out["moment_channel_ani"]
                 mem_ani = calc_mem_m(
                     index_hkl, unit_cell_parameters, full_mcif_elems, symm_elem_auc,
                     point_ordered, volume_unit_cell, number_unit_cell, 
                     point_multiplicity=point_multiplicity,
                     dict_in_out=dict_in_out_chi, flag_use_precalculated_data=flag_use_precalculated_data)
             else:            
+                point_susceptibility = dict_in_out["susceptibility_channel_ani"]
                 mem_ani = calc_mem_chi(
                     index_hkl, unit_cell_parameters, h_ccs, full_symm_elems, symm_elem_auc,
                     point_susceptibility, volume_unit_cell, number_unit_cell, 
@@ -300,9 +268,8 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         else:
             l_exp_value_sigma.append(flip_ratio_es)
 
-        
-
     exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)    
+    dict_in_out["exp_value_sigma"] = exp_value_sigma
     if channel_col:
         mem_col = numpy.concatenate(l_mem_col, axis=1)
     if channel_ani:
@@ -314,21 +281,98 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     else:
         print("Density reconstruction is based on flip ratios.         ")
 
+
+    return 
+
+
+def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+        parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5):
+    # **Input information about mem parameters**
+    
+    print("*******************************************")
+    print("MEM reconstruction by CrysPy (module MEMPy)")
+    print("*******************************************\n")
+
+    print("MEM iteration parameters")
+    print("------------------------")
+    print(f" starting lambda parameter:     {parameter_lambda*1e6:.3f}*10^-6")
+    print(f" maximal number of iterations:  {iteration_max:}")
+    print(f" minimal lambda parameter:      {parameter_lambda_min*1e6:}*10^-6")
+    print(f" delta_density:                 {delta_density*1e5:}*10^-5\n")
+
+    print("Density reconstruction")
+    print("----------------------")
+    
+    calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out)
+    
+    unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+    volume_unit_cell = dict_in_out["volume_unit_cell"]
+    
+
+    if "full_symm_elems" in dict_crystal.keys():
+        full_symm_elems = dict_crystal["full_symm_elems"]
+        flag_mcif = False
+        full_symm_theta = None
+
+        reduced_symm_elems = dict_crystal["reduced_symm_elems"]
+        centrosymmetry = dict_crystal["centrosymmetry"]
+        if centrosymmetry:
+            centrosymmetry_position = dict_crystal["centrosymmetry_position"]
+        else:
+            centrosymmetry_position = None
+        translation_elems = dict_crystal["translation_elems"]
+    elif "full_mcif_elems" in dict_crystal.keys():
+        full_mcif_elems = dict_crystal["full_mcif_elems"]
+        full_symm_elems = full_mcif_elems[:-1,:]
+        full_symm_theta = full_mcif_elems[-1,:]
+        flag_mcif = True
+
+    
+    flag_asymmetry =  dict_mem_parameters["flag_asymmetry"]
+
+    
     # **Preaparation to MEM itertion procedure**
+    channel_col = dict_mem_parameters["channel_col"]
+    channel_ani = dict_mem_parameters["channel_ani"]
     if channel_col:
+        density_col_prior = dict_in_out["density_col_prior"]
         density_col = numpy.copy(density_col_prior)
         density_col_next = numpy.copy(density_col_prior)
         density_col_previous = numpy.copy(density_col_prior)
     if channel_ani:
+        density_ani_prior = dict_in_out["density_prior_channel_ani"]
         density_ani = numpy.copy(density_ani_prior)
         density_ani_next = numpy.copy(density_ani_prior)
         density_ani_previous = numpy.copy(density_ani_prior)
 
+
+    if channel_col:
+        magnetization_plus = dict_mem_parameters["magnetization_plus"]
+        magnetization_minus = dict_mem_parameters["magnetization_minus"]
+        dict_in_out["magnetization_plus"] = magnetization_plus
+        dict_in_out["magnetization_minus"] = magnetization_minus
+
+    index_auc = dict_in_out["index_auc"]
+    symm_elem_auc = dict_in_out["symm_elem_auc"]
+    point_multiplicity = dict_in_out["point_multiplicity"]
+    n_abc = dict_mem_parameters["points_abc"]
+    number_unit_cell = dict_in_out["number_unit_cell"]
+
+    if "mag_atom_multiplicity" in dict_in_out.keys():
+        mag_atom_multiplicity = dict_in_out["mag_atom_multiplicity"]
+
+    if channel_col:
+        print(f"Magnetization of unit cell: {magnetization_plus+magnetization_minus:.3f}  mu_B")
+        print(f"(positive channel {magnetization_plus:.3f} mu_B, negative channel {magnetization_minus:.3f}  mu_B)")
+        print(f"\nNumber of density points for channel_col is {index_auc.shape[1]}.")
+
     # **MEM iteration**
     print("\nMEM iteration procedure")
     print("-----------------------")
+    gof_desired = dict_mem_parameters["gof_desired"]
     print(f"Desired GoF is {gof_desired:.2f}.")
     c_desired = gof_desired
+    exp_value_sigma = dict_in_out["exp_value_sigma"]
 
     c_previous = numpy.inf
     if channel_col:
@@ -399,7 +443,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             der_int_plus_fm_perp_imag = dder_plus["f_m_perp_imag"]
             der_int_minus_fm_perp_real = dder_minus["f_m_perp_real"]
             der_int_minus_fm_perp_imag = dder_minus["f_m_perp_imag"]
-
+            
             if flag_asymmetry:
                 model_exp, dder_model_exp = calc_asymmetry_by_iint(
                     iint_plus, iint_minus, c_lambda2=None, iint_2hkl=None,
@@ -516,7 +560,59 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         dict_in_out["density_channel_ani"] = density_ani_best
 
     # **Save to .den file**
+    save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn)
+
+def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn):
+    dict_in_out_keys = dict_in_out.keys()
+    channel_col = "density_channel_col" in dict_in_out_keys
+    channel_ani = "density_channel_ani" in dict_in_out_keys
+    file_spin_density = dict_mem_parameters["file_spin_density"]
+    file_magnetization_density = dict_mem_parameters["file_magnetization_density"]
+
+    dict_crystal_keys = dict_crystal.keys()
+    if "atom_para_label" in dict_crystal_keys:
+        mag_atom_label = dict_crystal["atom_para_label"]
+    elif "atom_ordered_label" in dict_crystal_keys:
+        mag_atom_label = dict_crystal["atom_ordered_label"]
+    else:
+        mag_atom_label = []
+
+    if "full_symm_elems" in dict_crystal.keys():
+        full_symm_elems = dict_crystal["full_symm_elems"]
+        flag_mcif = False
+        full_symm_theta = None
+
+        reduced_symm_elems = dict_crystal["reduced_symm_elems"]
+        centrosymmetry = dict_crystal["centrosymmetry"]
+        if centrosymmetry:
+            centrosymmetry_position = dict_crystal["centrosymmetry_position"]
+        else:
+            centrosymmetry_position = None
+        translation_elems = dict_crystal["translation_elems"]
+    elif "full_mcif_elems" in dict_crystal.keys():
+        full_mcif_elems = dict_crystal["full_mcif_elems"]
+        full_symm_elems = full_mcif_elems[:-1,:]
+        full_symm_theta = full_mcif_elems[-1,:]
+        flag_mcif = True
+
+
+    index_auc = dict_in_out["index_auc"]
+    symm_elem_auc = dict_in_out["symm_elem_auc"]
+    point_multiplicity = dict_in_out["point_multiplicity"]
+    n_abc = dict_mem_parameters["points_abc"]
+    number_unit_cell = dict_in_out["number_unit_cell"]
+    unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+    point_atom_symm_elems_auc = dict_in_out["point_atom_symm_elems_auc"]
+
+    atom_ordered_m = dict_crystal.get("atom_ordered_moment_crystalaxis_xyz", None)
+    if channel_ani and (atom_ordered_m is not None):
+        flag_moment_ordered = True
+    else:
+        flag_moment_ordered = False
+
+
     if channel_col and (file_spin_density is not None) and flag_mcif:
+        density_col_best = dict_in_out.get("density_channel_col", None)
         spin_density_auc = density_col_best * numpy.array([[magnetization_plus, ], [magnetization_minus, ]], dtype=float)
         for dict_diffrn in l_dict_diffrn:
             eh_ccs = dict_diffrn["matrix_u"][6:]
@@ -534,11 +630,15 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                     one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
             print(f"\nReconstructed spin density is written in file '{file_spin_density_diffrn:}'.")
     elif channel_col and (file_spin_density is not None):
+        density_col_best = dict_in_out.get("density_channel_col", None)
         spin_density = density_col_best * numpy.array([[magnetization_plus, ], [magnetization_minus, ]], dtype=float)
         save_spin_density_into_file(file_spin_density, index_auc, spin_density, n_abc, unit_cell_parameters,
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
         print(f"\nReconstructed spin density is written in file '{file_spin_density:}'.")
+    
     if channel_ani and (file_magnetization_density is not None):
+        density_ani_best = dict_in_out.get("density_channel_ani", None)
+
         # spin_density = numpy.stack([density_ani_best, numpy.zeros_like(density_ani_best)], axis=0)
         if flag_moment_ordered:
             index_full, moment_3d = transform_to_density_auc_to_moments(index_auc, point_atom_symm_elems_auc, point_multiplicity, density_ani_best, n_abc, full_mcif_elems, atom_ordered_m, unit_cell_parameters)
@@ -574,11 +674,12 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             save_spin_density_into_file(file_magnetization_density_atom, index_auc, spin_density_atom, n_abc, unit_cell_parameters,
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
             print(f"Reconstructed magnetization density around atom '{label:}' is written in file '{file_magnetization_density_atom:}'.")
-        
+    return
 
-def mempy_susceptibility_refinement(dict_channel_ani, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out):
+
+def mempy_parameters_refinement(dict_channel_ani, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out):
     print("****************************************")
-    print("Susceptibility refinement (module MEMPy)")
+    print("Parameters refinement (module MEMPy)")
     print("****************************************")
 
     number_points = numpy.prod(dict_mem_parameters["points_abc"])
@@ -725,7 +826,7 @@ def mempy_susceptibility_refinement(dict_channel_ani, dict_crystal, dict_mem_par
     return 
 
 
-def mempy_cycle_density_susceptibility(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+def mempy_cycle_density_parameters(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5, n_cycle:int=10):
     print(70*"*")
     print("MEMPy: cycle iteration")
@@ -750,7 +851,7 @@ def mempy_cycle_density_susceptibility(dict_crystal, dict_mem_parameters, l_dict
         }
     
         dict_in_out_susc = {} 
-        mempy_susceptibility_refinement(dict_channel_ani, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out_susc)
+        mempy_parameters_refinement(dict_channel_ani, dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out_susc)
         print(70*" ")
     
     dict_in_out["dict_in_out_den"] = dict_in_out_den
