@@ -12,7 +12,7 @@ from cryspy.A_functions_base.structure_factor import \
     calc_f_m_perp_ordered_by_dictionary
 
 from cryspy.A_functions_base.extinction import \
-    calc_extinction_sphere
+    calc_extinction_sphere, calc_extinction_qani
 
 from cryspy.A_functions_base.flip_ratio import \
     calc_intensities_by_structure_factors, calc_flip_ratio_by_iint, \
@@ -132,12 +132,30 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dict_in_out["eq_ccs"] = eq_ccs
 
     flags_extinction_radius, flags_extinction_mosaicity = False, False
+    flags_extinction_q_hh, flags_extinction_q_kk, flags_extinction_q_ll,  = False, False, False
+    flags_extinction_q_hk, flags_extinction_q_hl, flags_extinction_q_kl = False, False, False
     if "extinction_model" in dict_diffrn_keys:
         extinction_model = dict_diffrn["extinction_model"]
-        extinction_radius = dict_diffrn["extinction_radius"]
-        flags_extinction_radius = dict_diffrn["flags_extinction_radius"]
-        extinction_mosaicity = dict_diffrn["extinction_mosaicity"]
-        flags_extinction_mosaicity = dict_diffrn["flags_extinction_mosaicity"]
+        if extinction_model == 'qani':
+            q_hh = dict_diffrn["extinction_q_hh"]
+            flags_extinction_q_hh = dict_diffrn["flags_extinction_q_hh"]
+            q_kk = dict_diffrn["extinction_q_kk"]
+            flags_extinction_q_kk = dict_diffrn["flags_extinction_q_kk"]
+            q_ll = dict_diffrn["extinction_q_ll"]
+            flags_extinction_q_ll = dict_diffrn["flags_extinction_q_ll"]
+            q_hk = dict_diffrn["extinction_q_hk"]
+            flags_extinction_q_hk = dict_diffrn["flags_extinction_q_hk"]
+            q_hl = dict_diffrn["extinction_q_hl"]
+            flags_extinction_q_hl = dict_diffrn["flags_extinction_q_hl"]
+            q_kl = dict_diffrn["extinction_q_kl"]
+            flags_extinction_q_kl = dict_diffrn["flags_extinction_q_kl"]
+            flag_extincton = flags_extinction_q_hh or flags_extinction_q_kk or flags_extinction_q_ll or flags_extinction_q_hk or flags_extinction_q_hl or flags_extinction_q_kl
+        else:
+            extinction_radius = dict_diffrn["extinction_radius"]
+            flags_extinction_radius = dict_diffrn["flags_extinction_radius"]
+            extinction_mosaicity = dict_diffrn["extinction_mosaicity"]
+            flags_extinction_mosaicity = dict_diffrn["flags_extinction_mosaicity"]
+            flag_extincton = flags_extinction_radius or flags_extinction_mosaicity
 
         flag_sthovl = flag_unit_cell_parameters
         if (flag_use_precalculated_data and not(flag_sthovl) and ("sthovl" in dict_in_out_keys)):
@@ -155,16 +173,24 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             if flag_dict:
                 dict_in_out["cos_2theta"] = cos_2theta
 
-        flag_extincton = flags_extinction_radius or flags_extinction_mosaicity or flags_wavelength
+        flag_extincton = flag_extincton or flags_wavelength
 
         def func_extinction(f_sq, flag_f_sq: bool = False):
-            return calc_extinction_sphere(
-                f_sq, extinction_radius, extinction_mosaicity, volume_unit_cell, cos_2theta, wavelength,
-                extinction_model, flag_f_sq=flag_f_sq, flag_radius=flags_extinction_radius,
-                flag_mosaicity=flags_extinction_mosaicity,
-                flag_volume_unit_cell=flag_volume_unit_cell,
-                flag_cos_2theta=flag_cos_2theta,
-                flag_wavelength=flags_wavelength)
+            if extinction_model == 'qani':return calc_extinction_qani(index_hkl,
+                    f_sq, q_hh, q_kk, q_ll, q_hk, q_hl, q_kl, cos_2theta, wavelength,
+                    flag_f_sq=flag_f_sq,
+                    flag_cos_2theta=flag_cos_2theta, flag_wavelength=flags_wavelength,
+                    flag_q_hh=flags_extinction_q_hh, flag_q_kk=flags_extinction_q_kk, flag_q_ll=flags_extinction_q_ll,
+                    flag_q_hk=flags_extinction_q_hk, flag_q_hl=flags_extinction_q_hl, flag_q_kl=flags_extinction_q_kl)
+                   
+            else:
+                return calc_extinction_sphere(
+                    f_sq, extinction_radius, extinction_mosaicity, volume_unit_cell, cos_2theta, wavelength,
+                    extinction_model, flag_f_sq=flag_f_sq, flag_radius=flags_extinction_radius,
+                    flag_mosaicity=flags_extinction_mosaicity,
+                    flag_volume_unit_cell=flag_volume_unit_cell,
+                    flag_cos_2theta=flag_cos_2theta,
+                    flag_wavelength=flags_wavelength)
     else:
         extinction_model = ""
         extinction_radius = None
@@ -380,6 +406,24 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     if flags_extinction_radius:
         dder_plus_diffrn["extinction_radius"] = dder_plus["radius"][:, na]
         dder_minus_diffrn["extinction_radius"] = dder_minus["radius"][:, na]
+    if flags_extinction_q_hh:
+        dder_plus_diffrn["extinction_q_hh"] = dder_plus["q_hh"][:, na]
+        dder_minus_diffrn["extinction_q_hh"] = dder_minus["q_hh"][:, na]
+    if flags_extinction_q_kk:
+        dder_plus_diffrn["extinction_q_kk"] = dder_plus["q_kk"][:, na]
+        dder_minus_diffrn["extinction_q_kk"] = dder_minus["q_kk"][:, na]
+    if flags_extinction_q_ll:
+        dder_plus_diffrn["extinction_q_ll"] = dder_plus["q_ll"][:, na]
+        dder_minus_diffrn["extinction_q_ll"] = dder_minus["q_ll"][:, na]
+    if flags_extinction_q_hk:
+        dder_plus_diffrn["extinction_q_hk"] = dder_plus["q_hk"][:, na]
+        dder_minus_diffrn["extinction_q_hk"] = dder_minus["q_hk"][:, na]
+    if flags_extinction_q_hl:
+        dder_plus_diffrn["extinction_q_hl"] = dder_plus["q_hl"][:, na]
+        dder_minus_diffrn["extinction_q_hl"] = dder_minus["q_hl"][:, na]
+    if flags_extinction_q_kl:
+        dder_plus_diffrn["extinction_q_kl"] = dder_plus["q_kl"][:, na]
+        dder_minus_diffrn["extinction_q_kl"] = dder_minus["q_kl"][:, na]
     if flags_extinction_mosaicity:
         dder_plus_diffrn["extinction_mosaicity"] = dder_plus["mosaicity"][:, na]
         dder_minus_diffrn["extinction_mosaicity"] = dder_minus["mosaicity"][:, na]
