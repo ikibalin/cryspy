@@ -378,8 +378,8 @@ def define_bravais_type_by_symm_elems(symm_elems):
     
     flag_triclinic = n_elems == 1
     flag_monoclinic = n_elems == 2
-    flag_orthorombic = n_elems == 4
-    flag_tetragonal = n_elems == 8
+    flag_orthorombic = n_elems >= 4 and flag_no_mix
+    flag_tetragonal = n_elems == 8 and not(flag_no_mix)
     
     flag_hexagonal_trigonal = numpy.all([not(flag_rhombohedral), n_elems%3==0])
     
