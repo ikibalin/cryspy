@@ -58,6 +58,13 @@ class AtomSiteMoment(ItemN):
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
+    # formats if cif format
+    D_FORMATS = {
+        "crystalaxis_x": "{:.5f}", 
+        "crystalaxis_y": "{:.5f}", 
+        "crystalaxis_z": "{:.5f}",
+        }
+
     # constraints on the parameters
     D_CONSTRAINTS = {"modulation_flag": ["yes", "y", "no", "n"],
                      "refinement_flags_magnetic": ["S", "M", "A", "SM", "SA",
