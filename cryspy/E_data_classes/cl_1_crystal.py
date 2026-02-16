@@ -10,11 +10,16 @@ from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_sca
 from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_b_iso_beta, calc_u_ij_by_beta
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
-from cryspy.A_functions_base.unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_reciprocal_by_unit_cell_parameters
+from cryspy.A_functions_base.unit_cell import \
+    calc_eq_ccs_by_unit_cell_parameters, \
+    calc_reciprocal_by_unit_cell_parameters, calc_m_inv_m_norm_by_unit_cell_parameters, calc_m_m_norm_by_unit_cell_parameters
 from cryspy.A_functions_base.structure_factor import \
     calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, \
     calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary, \
     calc_f_m_perp_ordered_by_dictionary
+
+
+
 from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems
 from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full, calc_sc_ordered
 
@@ -689,6 +694,7 @@ class Crystal(DataN):
             ddict["v_uc"] = v_uc
             
             ddict["unit_cell_parameters"] = numpy.dot(sc_uc, unit_cell_parameters)+v_uc
+            unit_cell_parameters = ddict["unit_cell_parameters"]
             ddict["flags_unit_cell_parameters"] = cell.get_flags_unit_cell_parameters()
 
         if atom_site is not None:
@@ -879,17 +885,19 @@ class Crystal(DataN):
 
         if atom_site_moment is not None:
             atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)
-            atom_ordered_moment_crystalaxis_xyz = numpy.array([
+            
+            atom_ordered_moment_crystalaxis_dn = numpy.array([
                 atom_site_moment.crystalaxis_x, 
                 atom_site_moment.crystalaxis_y, 
                 atom_site_moment.crystalaxis_z], dtype=float)
-            flags_atom_ordered_moment_crystalaxis_xyz = numpy.array([
+            
+            flags_atom_ordered_moment_crystalaxis_dn = numpy.array([
                 atom_site_moment.crystalaxis_x_refinement, 
                 atom_site_moment.crystalaxis_y_refinement, 
                 atom_site_moment.crystalaxis_z_refinement], dtype=bool)
             ddict["atom_ordered_label"] = atom_ordered_label
-            ddict["atom_ordered_moment_crystalaxis_xyz"] = atom_ordered_moment_crystalaxis_xyz
-            ddict["flags_atom_ordered_moment_crystalaxis_xyz"] = flags_atom_ordered_moment_crystalaxis_xyz
+            ddict["atom_ordered_moment_crystalaxis_dn"] = atom_ordered_moment_crystalaxis_dn
+            ddict["flags_atom_ordered_moment_crystalaxis_dn"] = flags_atom_ordered_moment_crystalaxis_dn
             if "atom_label" in ddict.keys():
                 flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_ordered_label, axis=0)
                 args = numpy.argwhere(flag_2d)
@@ -908,8 +916,10 @@ class Crystal(DataN):
                             elems_fs[:, flag_2d[:, ind]],
                             unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
                     l_sc_ordered.append(sc_ordered)
-                atom_ordered_sc_m = numpy.stack(l_sc_ordered, axis=-1)
-                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m
+                atom_ordered_sc_m_dn = numpy.stack(l_sc_ordered, axis=-1)
+                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m_dn # in dn
+                ddict["atom_ordered_moment_crystalaxis_dn"] = calc_m_v(ddict["atom_ordered_sc_m"], ddict["atom_ordered_moment_crystalaxis_dn"], flag_m=False, flag_v=False)[0]
+                
 
         if isinstance(self, Crystal):
             # FIXME: beta should be defined in atom_site_aniso_beta, b_iso for every atom
@@ -1045,8 +1055,8 @@ class Crystal(DataN):
                 item_ase.j_13 = j_tensor[4, i_item]
                 item_ase.j_23 = j_tensor[5, i_item]
 
-        if "atom_ordered_moment_crystalaxis_xyz" in keys:
-            hh = calc_m_v(ddict_crystal["atom_ordered_sc_m"], ddict_crystal["atom_ordered_moment_crystalaxis_xyz"])[0]
+        if "atom_ordered_moment_crystalaxis_dn" in keys:
+            hh = calc_m_v(ddict_crystal["atom_ordered_sc_m"], ddict_crystal["atom_ordered_moment_crystalaxis_dn"])[0]
             # hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
             for i_item, item in enumerate(self.atom_site_moment.items):
                 item.crystalaxis_x = hh[0, i_item]
@@ -1241,7 +1251,7 @@ class Crystal(DataN):
                         item.u_23_sigma = float(sigma*coeff_hh[5])
 
 
-            if "atom_ordered_moment_crystalaxis_xyz" in parameter_label:
+            if "atom_ordered_moment_crystalaxis_dn" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]
                 item = self.atom_site_moment.items[ind_a]
                 if ind_p == 0:

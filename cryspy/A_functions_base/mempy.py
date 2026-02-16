@@ -655,8 +655,8 @@ def calc_point_ordered(
     symm_elem_auc_ani is common for all magnetic atoms as it just position
     point_ordered is [3, Npoint, Nmag_atom]
     """
-    # TODO: check coordinate system for atom_ordered_m (it should be transformed to XYZ if not yet)
     full_symm_elems = full_mag_symm_elems[:13, :]
+    # in dn
     atom_ordered_m_averaged = calc_m_v(atom_ordered_sc_m, atom_ordered_m, flag_m=False, flag_v=False)[0] # SC_a * m_a
     
     r_xyz = calc_m_r_inv_m(unit_cell_parameters, atom_symm_elems_m, flag_unit_cell_parameters=False)[0]
@@ -681,7 +681,7 @@ def calc_point_ordered(
         l_scv_m.append(scv_m)
     # point scv_m is [9, Natom] symmetry constraint for every point it is not dependent on atom
     point_scv_m = numpy.stack(l_scv_m, axis=-1)
-
+    # in dn
     point_m_aver = calc_m_v(numpy.expand_dims(point_scv_m, axis=2), point_ordered_m_s)[0]
     return point_m_aver
 

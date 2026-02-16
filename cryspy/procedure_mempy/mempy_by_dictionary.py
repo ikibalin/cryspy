@@ -91,7 +91,7 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
             mag_atom_label = atom_para_label
         else:
             atom_ordered_label = dict_crystal["atom_ordered_label"]
-            atom_ordered_m = dict_crystal["atom_ordered_moment_crystalaxis_xyz"]
+            atom_ordered_m = dict_crystal["atom_ordered_moment_crystalaxis_dn"]
             atom_ordered_sc_m = dict_crystal["atom_ordered_sc_m"]
             flag_moment_ordered = True
             mag_atom_label = atom_ordered_label
@@ -136,7 +136,7 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
             # atom_ordered_m is [3, Nmag_atom]
             # atom_ordered_sc_m is [9, Nmag_atom]
             # symm_elem_auc_ani is common for all magnetic atoms as it just position
-            # point_ordered is [3, Npoint, Nmag_atom]
+            # point_ordered is [3, Npoint, Nmag_atom] in dn
             point_ordered = calc_point_ordered(
                 unit_cell_parameters, point_atom_symm_elems_auc, atom_ordered_m, atom_ordered_sc_m, full_mcif_elems, symm_elem_auc)
             dict_in_out["moment_channel_ani"] = point_ordered
@@ -639,8 +639,8 @@ def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_d
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
 
     point_atom_symm_elems_auc = dict_in_out.get("point_atom_symm_elems_auc", None)
-    atom_ordered_m = dict_crystal.get("atom_ordered_moment_crystalaxis_xyz", None)
-    if channel_ani and (atom_ordered_m is not None):
+    atom_ordered_m_dn = dict_crystal.get("atom_ordered_moment_crystalaxis_dn", None)
+    if channel_ani and (atom_ordered_m_dn is not None):
         flag_moment_ordered = True
     else:
         flag_moment_ordered = False
@@ -676,7 +676,7 @@ def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_d
 
         # spin_density = numpy.stack([density_ani_best, numpy.zeros_like(density_ani_best)], axis=0)
         if flag_moment_ordered:
-            index_full, moment_3d = transform_to_density_auc_to_moments(index_auc, point_atom_symm_elems_auc, point_multiplicity, density_ani_best, n_abc, full_mcif_elems, atom_ordered_m, unit_cell_parameters)
+            index_full, moment_3d = transform_to_density_auc_to_moments(index_auc, point_atom_symm_elems_auc, point_multiplicity, density_ani_best, n_abc, full_mcif_elems, atom_ordered_m_dn, unit_cell_parameters)
 
             centrosymmetry = False
             centrosymmetry_position = None

@@ -15,6 +15,6 @@ def test_mem_magnetization_density_for_momemts_unpol_SC():
     f_name = os.path.join(os.path.dirname(__file__), "mnf2_unpol_SC.rcif")
     rcif_obj = cryspy.load_file(f_name)
     res = cryspy.rhochi_rietveld_refinement(rcif_obj)
-    assert res["chi_sq"] < 1322600
+    assert res["chi_sq"] < 80600
     res = cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
-    assert res < 702
+    assert res < 80

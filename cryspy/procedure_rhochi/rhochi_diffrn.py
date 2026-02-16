@@ -222,7 +222,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     if "atom_ordered_index" in dict_crystal_keys:
         f_m_perp_o_ccs, dder_f_m_perp_o_ccs = calc_f_m_perp_ordered_by_dictionary(
             dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
-        flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
+        flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"].any()
         flag_ordered = True
 
     if flag_para:
@@ -274,7 +274,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         if flag_ordered:
             f_m_perp_o_ccs_2hkl, dder_f_m_perp_o_ccs_2hkl = calc_f_m_perp_ordered_by_dictionary(
                 dict_crystal, dict_in_out_crystal_2hkl, flag_use_precalculated_data=flag_use_precalculated_data)
-            flag_f_m_perp_o_ccs_2hkl =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
+            flag_f_m_perp_o_ccs_2hkl =  dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"].any()
             if flag_dict:
                 dict_in_out["f_m_perp_o_ccs_2hkl"] = f_m_perp_o_ccs_2hkl
             

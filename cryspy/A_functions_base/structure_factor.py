@@ -1160,8 +1160,8 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
     atom_ordered_j0_parameters = dict_crystal["mag_atom_j0_parameters"][:, mag_atom_ordered_index]
     atom_ordered_j2_parameters = dict_crystal["mag_atom_j2_parameters"][:, mag_atom_ordered_index]
 
-    atom_ordered_moment_crystalaxis_xyz = dict_crystal["atom_ordered_moment_crystalaxis_xyz"]
-    flags_atom_ordered_moment_crystalaxis_xyz = dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"]
+    atom_ordered_moment_crystalaxis_dn = dict_crystal["atom_ordered_moment_crystalaxis_dn"]
+    flags_atom_ordered_moment_crystalaxis_dn = dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"]
     flag_unit_cell_parameters = numpy.any(dict_crystal["flags_unit_cell_parameters"])
     flag_atom_ordered_fract_xyz = numpy.any(dict_crystal["flags_atom_fract_xyz"][:, atom_ordered_index])
     flag_atom_ordered_occupancy = numpy.any(dict_crystal["flags_atom_occupancy"][atom_ordered_index])
@@ -1172,14 +1172,14 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
 
     
 
-    flag_atom_ordered_moment_crystalaxis_xyz = numpy.any(flags_atom_ordered_moment_crystalaxis_xyz)
+    flag_atom_ordered_moment_crystalaxis_dn = numpy.any(flags_atom_ordered_moment_crystalaxis_dn)
     f_m_perp_o, dder = calc_f_m_perp_ordered(index_hkl,
         full_mcif_elems,
-        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_xyz, atom_ordered_b_iso, atom_ordered_beta,
+        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_dn, atom_ordered_b_iso, atom_ordered_beta,
         atom_ordered_lande_factor, atom_ordered_kappa, atom_ordered_j0_parameters, atom_ordered_j2_parameters, 
         dict_in_out=dict_in_out, flag_only_orbital=flag_only_orbital,
         flag_unit_cell_parameters=flag_unit_cell_parameters, flag_atom_ordered_fract_xyz=flag_atom_ordered_fract_xyz,
-        flag_atom_ordered_occupancy=flag_atom_ordered_occupancy, flag_atom_ordered_moment_crystalaxis_xyz=flag_atom_ordered_moment_crystalaxis_xyz,
+        flag_atom_ordered_occupancy=flag_atom_ordered_occupancy, flag_atom_ordered_moment_crystalaxis_dn=flag_atom_ordered_moment_crystalaxis_dn,
         flag_atom_ordered_b_iso=flag_atom_ordered_b_iso, flag_atom_ordered_beta=flag_atom_ordered_beta,
         flag_atom_ordered_lande_factor=flag_atom_ordered_lande_factor, flag_atom_ordered_kappa=flag_atom_ordered_kappa, 
         flag_use_precalculated_data=flag_use_precalculated_data)
@@ -1188,11 +1188,11 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
 
 def calc_f_m_perp_ordered(index_hkl,
         full_mcif_elems,
-        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_xyz, atom_ordered_b_iso, atom_ordered_beta,
+        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_dn, atom_ordered_b_iso, atom_ordered_beta,
         atom_ordered_lande_factor, atom_ordered_kappa, atom_ordered_j0_parameters, atom_ordered_j2_parameters, 
         dict_in_out: dict = None, flag_only_orbital: bool = False,
         flag_unit_cell_parameters: bool = False, flag_atom_ordered_fract_xyz: bool = False,
-        flag_atom_ordered_occupancy: bool = False, flag_atom_ordered_moment_crystalaxis_xyz: bool = False,
+        flag_atom_ordered_occupancy: bool = False, flag_atom_ordered_moment_crystalaxis_dn: bool = False,
         flag_atom_ordered_b_iso: bool = False, flag_atom_ordered_beta: bool = False,
         flag_atom_ordered_lande_factor: bool = False, flag_atom_ordered_kappa: bool = False, 
         flag_use_precalculated_data: bool = False):
@@ -1277,7 +1277,8 @@ def calc_f_m_perp_ordered(index_hkl,
 
     m_norm, der_m_norm = calc_m_m_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
-
+    atom_ordered_moment_crystalaxis_xyz = calc_m_v(m_norm, atom_ordered_moment_crystalaxis_dn, flag_m=False, flag_v=False)[0]
+    flag_atom_ordered_moment_crystalaxis_xyz = flag_atom_ordered_moment_crystalaxis_dn
     r_direct = full_mcif_elems[4:13, :] 
     rm, der_rm = calc_m_v(
         r_direct[:, :, na], atom_ordered_moment_crystalaxis_xyz[:, na, :],
@@ -1310,7 +1311,7 @@ def calc_f_m_perp_ordered(index_hkl,
     dict_in_out["f_m_perp_o"] = f_m_perp_o
     dder = {}
     if flag_atom_ordered_moment_crystalaxis_xyz:
-        dder["atom_ordered_moment_crystalaxis_xyz"] = None
+        dder["atom_ordered_moment_crystalaxis_dn"] = None
 
     dder = {}
     return f_m_perp_o, dder
