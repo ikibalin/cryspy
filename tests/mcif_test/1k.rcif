@@ -60,8 +60,8 @@ _atom_site_moment_crystalaxis_x
 _atom_site_moment_crystalaxis_y
 _atom_site_moment_crystalaxis_z
 _atom_site_moment_symmform
-  Gd_1                   0.0                  0.0                       0.0    0,0,0
-  Gd_2   -2.0055225000000054   1.1578889552408538   -1.4180050028037846e-16   Mx,0,0
+  Gd_1      0.00000   0.00000    0.00000    0,0,0
+  Gd_2   -2.00552()   1.15789   -0.00000   Mx,0,0
 
 loop_
 _atom_site_scat_label

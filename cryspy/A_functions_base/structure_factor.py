@@ -1313,7 +1313,6 @@ def calc_f_m_perp_ordered(index_hkl,
     if flag_atom_ordered_moment_crystalaxis_xyz:
         dder["atom_ordered_moment_crystalaxis_dn"] = None
 
-    dder = {}
     return f_m_perp_o, dder
 
 
