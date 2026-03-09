@@ -8,7 +8,7 @@ def test_mem_magnetization_density_for_momemts():
     # cryspy.rhochi_rietveld_refinement(rcif_obj)
     res =cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
     # cryspy.mempy_spin_density_reconstruction(rcif_obj)
-    assert res < 2.76
+    assert res["chi_sq"] < 2.76
 
 
 def test_mem_magnetization_density_for_momemts_unpol_SC():
@@ -17,4 +17,4 @@ def test_mem_magnetization_density_for_momemts_unpol_SC():
     res = cryspy.rhochi_rietveld_refinement(rcif_obj)
     assert res["chi_sq"] < 80600
     res = cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
-    assert res < 80
+    assert res["chi_sq"] < 80

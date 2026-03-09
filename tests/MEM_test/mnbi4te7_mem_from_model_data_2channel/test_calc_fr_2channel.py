@@ -6,7 +6,7 @@ def test_calc_FR_2channel():
     f_name = os.path.join(dir, "main.rcif")
     mem = cryspy.file_to_globaln(f_name)
     res = cryspy.mempy_magnetization_density_reconstruction(mem)
-    assert res < 1.00
+    assert res["chi_sq"] < 1.00
 
     diffrn = mem.diffrn_exp_mnbite
     refine_ls = diffrn.refine_ls

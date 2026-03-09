@@ -595,7 +595,8 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
     # **Save to .den file**
     save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn)
-    return c_best
+    res = {"chi_sq": c_best, "iteration": iteration+1}
+    return res
 
 def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_dict_diffrn):
     dict_in_out_keys = dict_in_out.keys()

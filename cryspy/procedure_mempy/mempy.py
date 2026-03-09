@@ -69,7 +69,7 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
             diffrn.refine_ls = cryspy.RefineLs()
             refine_ls = diffrn.refine_ls
 
-        refine_ls.goodness_of_fit_all = res
+        refine_ls.goodness_of_fit_all = res["chi_sq"]
         refine_ls.number_reflns = numpy.logical_not(diffrn_refln.excluded).sum()
     if (("symm_elem_channel_ani" in dict_in_out_keys) and
             ("density_channel_ani" in dict_in_out_keys) and

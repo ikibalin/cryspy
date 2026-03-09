@@ -7,5 +7,5 @@ def test_mem_spin_density():
     rcif_obj = cryspy.load_file(f_name)
     # cryspy.rhochi_rietveld_refinement(rcif_obj)
     # cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
-    chi_sq = cryspy.mempy_spin_density_reconstruction(rcif_obj)
-    assert chi_sq < 17.89
+    res = cryspy.mempy_spin_density_reconstruction(rcif_obj)
+    assert res["chi_sq"] < 17.89
