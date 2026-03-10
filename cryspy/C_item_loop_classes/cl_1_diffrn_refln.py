@@ -161,7 +161,7 @@ class DiffrnReflnL(LoopN):
                 # print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))
                 # print("ag_f_exp: {:.3f} ".format(ag_f_exp))
         ls_out = ["# Experimental agreement factor\n"]
-        n = n_0s + n_1s + n_2s + n_3s
+        n = len(l_hkl)
         ls_out.append(f"\n| Number of measured reflections:| {n:4}|")
         ls_out.append(f"  |    range of h is |{min([_[0] for _ in l_hkl]):3},{max([_[0] for _ in l_hkl]):3} |")
         ls_out.append(f"  |             k is |{min([_[1] for _ in l_hkl]):3},{max([_[1] for _ in l_hkl]):3} |")
