@@ -81,22 +81,30 @@ def calc_extinction_sphere_secondary_gauss(
             wavelength*radius/volume_unit_cell)*term_1*ones_f_sq
     if flag_radius:
         ones_radius = numpy.ones_like(radius)
-        dder["radius"] = der_ys_x*(2*radius*1.5 * f_sq * wavelength * \
-            numpy.square(wavelength/volume_unit_cell)*term_1+
-            1.5 * f_sq * wavelength * \
-            numpy.square(wavelength*radius/volume_unit_cell) * mosaicity_rad / \
-            numpy.power(numpy.sqrt(numpy.square(mosaicity_rad * wavelength) + \
-            9./8. * numpy.square(radius) * (1.- numpy.square(cos_2theta))),3) *
-            9./8. * 2*radius * (1.- numpy.square(cos_2theta))
-            )
+        denom = numpy.power(numpy.sqrt(numpy.square(mosaicity_rad * wavelength) + \
+            9./8. * numpy.square(radius) * (1.- numpy.square(cos_2theta))),3)
+        if not(radius*mosaicity_rad>0):
+            dder["radius"] = 0*der_ys_x*f_sq * wavelength
+        else:
+            dder["radius"] = der_ys_x*(2*radius*1.5 * f_sq * wavelength * \
+                numpy.square(wavelength/volume_unit_cell)*term_1+
+                1.5 * f_sq * wavelength * \
+                numpy.square(wavelength*radius/volume_unit_cell) * mosaicity_rad / \
+                denom *
+                9./8. * 2*radius * (1.- numpy.square(cos_2theta))
+                )
     if flag_mosaicity:
-        dder["mosaicity"] = numpy.pi/(180*60)*der_ys_x*1.5 * f_sq * wavelength * \
-            numpy.square(wavelength*radius/volume_unit_cell)*(
-                 1./ numpy.sqrt(numpy.square(mosaicity_rad * wavelength) +
-                    9./8. * numpy.square(radius) *(1.- numpy.square(cos_2theta))) + 
-                                            mosaicity_rad / \
-            numpy.power(numpy.sqrt(numpy.square(mosaicity_rad * wavelength) + \
-            9./8. * numpy.square(radius) * (1.- numpy.square(cos_2theta))),3)*2.*numpy.square(wavelength)*mosaicity_rad)
+        denom = numpy.power(numpy.sqrt(numpy.square(mosaicity_rad * wavelength) + \
+            9./8. * numpy.square(radius) * (1.- numpy.square(cos_2theta))),3)
+        if not(radius*mosaicity_rad>0):
+            dder["mosaicity"] = 0*der_ys_x*f_sq * wavelength
+        else:
+            dder["mosaicity"] = numpy.pi/(180*60)*der_ys_x*1.5 * f_sq * wavelength * \
+                numpy.square(wavelength*radius/volume_unit_cell)*(
+                     1./ numpy.sqrt(numpy.square(mosaicity_rad * wavelength) +
+                        9./8. * numpy.square(radius) *(1.- numpy.square(cos_2theta))) + 
+                                                mosaicity_rad / \
+                denom*2.*numpy.square(wavelength)*mosaicity_rad)
     if flag_volume_unit_cell:
         ones_volume_unit_cell = numpy.ones_like(volume_unit_cell)
         dder["volume_unit_cell"] = 0*ones_volume_unit_cell
