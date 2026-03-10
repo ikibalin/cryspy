@@ -108,43 +108,55 @@ class DiffrnReflnL(LoopN):
         Make a report about experimental agreement factor in string format.
         """
 
-        l_chi_sq_exp, l_ag_f_exp = [], []
+        l_chi_sq_exp, l_ag_exp = [], []
         l_diff = []
         n_3s, n_2s, n_1s, n_0s = 0, 0, 0, 0
         l_hkl = [(int(_1), int(_2), int(_3)) for _1, _2, _3 in
                  zip(self.index_h, self.index_k, self.index_l)]
-        for _hkl, _fr_1, _fr_sigma_1 in zip(l_hkl, self.fr, self.fr_sigma):
-            _diff = abs(_fr_1-1.)/float(_fr_sigma_1)
-            if _diff >= 3.:
-                n_3s += 1
-            elif _diff >= 2.:
-                n_2s += 1
-            elif _diff >= 1.:
-                n_1s += 1
-            else:
-                n_0s += 1
-            if _fr_1 <= 1.:
-                if math.isclose(_fr_1, 0.):
-                    l_diff.append(1./(_fr_1+_fr_sigma_1)-1.)
+        flag_fr = self.is_attribute("fr") and self.is_attribute("fr_sigma")
+        flag_intensity = self.is_attribute("intensity") and self.is_attribute("intensity_sigma")    
+        if flag_fr:
+            l_val = self.fr
+            l_sval = self.fr_sigma
+        elif flag_intensity:
+            l_val = self.intensity
+            l_sval = self.intensity_sigma
+        else:
+            return "No experimental agreement factor can be calculated because no flip ratio or intensity is given."
+        
+        for _hkl, _val_1, _sval_1 in zip(l_hkl, l_val, l_sval):
+            if flag_fr:
+                _diff = abs(_val_1-1.)/float(_sval_1)
+                if _diff >= 3.:
+                    n_3s += 1
+                elif _diff >= 2.:
+                    n_2s += 1
+                elif _diff >= 1.:
+                    n_1s += 1
                 else:
-                    l_diff.append(1./_fr_1-1.)
-            else:
-                l_diff.append(_fr_1-1.)
+                    n_0s += 1
+                if _val_1 <= 1.:
+                    if math.isclose(_val_1, 0.):
+                        l_diff.append(1./(_val_1+_sval_1)-1.)
+                    else:
+                        l_diff.append(1./_val_1-1.)
+                else:
+                    l_diff.append(_val_1-1.)
 
             _mhkl = (-1 * _hkl[0], -1 * _hkl[1], -1 * _hkl[2])
             if _mhkl in l_hkl:
                 ind_mhkl = l_hkl.index(_mhkl)
-                _fr_2, _fr_sigma_2 = self.fr[ind_mhkl], self.fr_sigma[ind_mhkl]
-                _fr_sigma = 1. / (_fr_sigma_1 ** (-2) + _fr_sigma_2 ** (-2)) ** 0.5
-                _fr_average = (_fr_1 * _fr_sigma_1 ** (-2) + _fr_2 * _fr_sigma_2 ** (-2)) * _fr_sigma ** 2
-                delta_fr = abs(_fr_1 - _fr_average)
-                chi_sq_exp = (delta_fr / _fr_sigma_1) ** 2
+                _val_2, _sval_2 = l_val[ind_mhkl], l_sval[ind_mhkl]
+                _sval = 1. / (_sval_1 ** (-2) + _sval_2 ** (-2)) ** 0.5
+                _val_average = (_val_1 * _sval_1 ** (-2) + _val_2 * _sval_2 ** (-2)) * _sval ** 2
+                delta_val = abs(_val_1 - _val_average)
+                chi_sq_exp = (delta_val / _sval_1) ** 2
                 l_chi_sq_exp.append(chi_sq_exp)
-                if math.isclose(_fr_1-1., 0):
-                    ag_f_exp = abs((_fr_1 - _fr_average) / (_fr_1 - 1.+_fr_sigma_1))
+                if math.isclose(_val_1-1., 0):
+                    ag_exp = abs((_val_1 - _val_average) / (_val_1 - 1.+_sval_1))
                 else:
-                    ag_f_exp = abs((_fr_1 - _fr_average) / (_fr_1 - 1.))
-                l_ag_f_exp.append(ag_f_exp)
+                    ag_exp = abs((_val_1 - _val_average) / (_val_1 - 1.+_sval_1))
+                l_ag_exp.append(ag_exp)
                 # print("hkl: {:4} {:4} {:4}".format(_hkl[0], _hkl[1], _hkl[2]))
                 # print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))
                 # print("ag_f_exp: {:.3f} ".format(ag_f_exp))
@@ -154,18 +166,19 @@ class DiffrnReflnL(LoopN):
         ls_out.append(f"  |    range of h is |{min([_[0] for _ in l_hkl]):3},{max([_[0] for _ in l_hkl]):3} |")
         ls_out.append(f"  |             k is |{min([_[1] for _ in l_hkl]):3},{max([_[1] for _ in l_hkl]):3} |")
         ls_out.append(f"  |             l is |{min([_[2] for _ in l_hkl]):3},{max([_[2] for _ in l_hkl]):3} |")
-        ls_out.append(f" |max(FR_exp - 1) is |{max(l_diff):5.3f} |")
-        ls_out.append("\n N+1 > abs(FR_exp - 1)/FR_sigma > N: ")
-        ls_out.append(f" |abs(FR_exp - 1)/FR_sigma < 1: |{n_0s:4}| {100*float(n_0s)/float(n):5.1f}% | ")
-        ls_out.append(f" |                    N = 1: |{n_1s:4}| {100*float(n_1s)/float(n):5.1f}%  |")
-        ls_out.append(f" |                    N = 2: |{n_2s:4}| {100 * float(n_2s) / float(n):5.1f}% |")
-        ls_out.append(f" |abs(FR_exp - 1)/FR_sigma > 3: |{n_3s:4}| {100 * float(n_3s) / float(n):5.1f}% |")
+        if flag_fr:
+            ls_out.append(f" |max(FR_exp - 1) is |{max(l_diff):5.3f} |")
+            ls_out.append("\n N+1 > abs(FR_exp - 1)/FR_sigma > N: ")
+            ls_out.append(f" |abs(FR_exp - 1)/FR_sigma < 1: |{n_0s:4}| {100*float(n_0s)/float(n):5.1f}% | ")
+            ls_out.append(f" |                    N = 1: |{n_1s:4}| {100*float(n_1s)/float(n):5.1f}%  |")
+            ls_out.append(f" |                    N = 2: |{n_2s:4}| {100 * float(n_2s) / float(n):5.1f}% |")
+            ls_out.append(f" |abs(FR_exp - 1)/FR_sigma > 3: |{n_3s:4}| {100 * float(n_3s) / float(n):5.1f}% |")
 
         n_friedel = len(l_chi_sq_exp)
         ls_out.append(f"\n|Total number of Friedel reflections is |{n_friedel:}.|")
         if n_friedel != 0:
             ls_out.append(f"|  (abs(FR_exp-FR_av.)/FR_sigma)^2  is| {sum(l_chi_sq_exp) / n_friedel:.2f}|")
-            ls_out.append(f"|   abs(FR_exp-FR_av.)/abs(FR_exp-1) per reflection is |{(100*sum(l_ag_f_exp)/n_friedel):.2f}% |")
+            ls_out.append(f"|   abs(FR_exp-FR_av.)/abs(FR_exp-1) per reflection is |{(100*sum(l_ag_exp)/n_friedel):.2f}% |")
 
         return "\n".join(ls_out)
 
@@ -198,21 +211,26 @@ class DiffrnReflnL(LoopN):
         """
         ls_out = []
         l_hkl = [(_1, _2, _3) for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)]
-        l_fr, l_fr_sigma, l_fr_calc = self.fr, self.fr_sigma, self.fr_calc
-        if (l_fr is None) & (l_fr_sigma is None) & (l_fr_calc is None):
+        flag_fr = self.is_attribute("fr") and self.is_attribute("fr_sigma") and self.is_attribute("fr_calc")
+        flag_intensity = self.is_attribute("intensity") and self.is_attribute("intensity_sigma") and self.is_attribute("intensity_calc")
+        if flag_fr:
+            l_val, l_sval, l_val_calc = self.fr, self.fr_sigma, self.fr_calc
+        elif flag_intensity:
+            l_val, l_sval, l_val_calc = self.intensity, self.intensity_sigma, self.intensity_calc
+        else:
             return "\n".join(ls_out)
-        n = len(l_fr)
+        n = len(l_val)
         n_1s, n_2s, n_3s = 0, 0, 0
         l_chi_sq, l_worsest, l_af_f, l_af_r = [], [], [], []
-        for _hkl, _fr, _fr_sigma, _fr_calc in zip(l_hkl, l_fr, l_fr_sigma, l_fr_calc):
-            _diff = abs(float(_fr-_fr_calc)/float(_fr_sigma))
+        for _hkl, _val, _sval, _val_calc in zip(l_hkl, l_val, l_sval, l_val_calc):
+            _diff = abs(float(_val-_val_calc)/float(_sval))
             l_chi_sq.append(_diff**2)
-            if math.isclose(_fr, 0.):
-                l_af_f.append(abs(float(_fr - _fr_calc) / float(_fr_sigma)))
+            if math.isclose(_val, 0.) and not math.isclose(_sval, 0.):
+                l_af_f.append(abs(float(_val - _val_calc) / float(_sval)))
             else:
-                l_af_f.append(abs(float(_fr - _fr_calc) / float(_fr)))
-            if not(math.isclose(_fr, 1.)):
-                l_af_r.append(abs(float(_fr-_fr_calc)/float(_fr-1.)))
+                l_af_f.append(abs(float(_val - _val_calc) / float(_val)))
+            if not(math.isclose(_val, 1.)) and flag_fr:
+                l_af_r.append(abs(float(_val-_val_calc)/float(_val-1.)))
             if _diff <= 1.:
                 n_1s +=1
             elif _diff <= 2.:
@@ -220,16 +238,23 @@ class DiffrnReflnL(LoopN):
             elif _diff <= 3.:
                 n_3s += 1
             else:
-                l_worsest.append((_hkl, _fr, _fr_sigma, _fr_calc, _diff))
+                l_worsest.append((_hkl, _val, _sval, _val_calc, _diff))
         ls_out.append("# Chi_sq experimental")
         ls_out.append(f"Total number of reflections is {n:}")
-        ls_out.append(f"|  (abs(FR_exp-FR_mod)/FR_sigma)^2 per reflection is |{sum(l_chi_sq)/float(n):.2f}|")
-        ls_out.append(f"|   abs(FR_exp-FR_mod)/FR_exp      per reflection is |{100*sum(l_af_f) / float(n):.2f}%|")
-        ls_out.append(f"|   abs(FR_exp-FR_mod)/abs(FR_exp-1)    per reflection is |{100*sum(l_af_r) / float(n):.2f}%|")
-        ls_out.append("           (reflections with FR_exp = 1 are excluded)")
+        if flag_fr:
+            ls_out.append(f"|  (abs(FR_exp-FR_mod)/FR_sigma)^2 per reflection is |{sum(l_chi_sq)/float(n):.2f}|")
+            ls_out.append(f"|   abs(FR_exp-FR_mod)/FR_exp      per reflection is |{100*sum(l_af_f) / float(n):.2f}%|")
+            ls_out.append(f"|   abs(FR_exp-FR_mod)/abs(FR_exp-1)    per reflection is |{100*sum(l_af_r) / float(n):.2f}%|")
+            ls_out.append("           (reflections with FR_exp = 1 are excluded)")
+        elif flag_intensity:
+            ls_out.append(f"|  (abs(Int_exp-Int_mod)/Int_sigma)^2 per reflection is |{sum(l_chi_sq)/float(n):.2f}|")
+            ls_out.append(f"|   abs(Int_exp-Int_mod)/Int_exp      per reflection is |{100*sum(l_af_f) / float(n):.2f}%|")
         n_worsest = len(l_worsest)
         ls_out.append("\n## Reflections in range  ")
-        ls_out.append(" (N-1)*FR_sigma < abs(FR_exp - FR_mod) < N*FR_sigma: ")
+        if flag_fr:
+            ls_out.append(" (N-1)*FR_sigma < abs(FR_exp - FR_mod) < N*FR_sigma: ")
+        elif flag_intensity:
+            ls_out.append(" (N-1)*Int_sigma < abs(Int_exp - Int_mod) < N*Int_sigma: ")
         ls_out.append(f"|      N = 1:| {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, three sigma rule) |")
         ls_out.append(f"|      N = 2:| {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, three sigma rule)|")
         ls_out.append(f"|      N = 3:| {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, three sigma rule)|")
@@ -238,7 +263,10 @@ class DiffrnReflnL(LoopN):
         if len(l_worsest) > 1:
             if n_worsest > 10: n_worsest = 10
             ls_out.append("\n## The ten worsest reflections:")
-            ls_out.append("|  h | k | l  |     FR |FR_sigma | FR_calc | diff|")
+            if flag_fr:
+                ls_out.append("|  h | k | l  |     FR |FR_sigma | FR_calc | diff|")
+            elif flag_intensity:
+                ls_out.append("|  h | k | l  |     Int |Int_sigma | Int_calc | diff|")
             for (_hkl, _fr, _fr_sigma, _fr_calc, _diff) in l_worsest[:n_worsest]:
                 ls_out.append(f"|{_hkl[0]:3}|{_hkl[1]:3}|{_hkl[2]:3}|{_fr:9.5f}|{_fr_sigma:9.5f}|{_fr_calc:9.5f}|{_diff:6.1f}|")
         if cell is not None:
@@ -247,9 +275,9 @@ class DiffrnReflnL(LoopN):
             np_l = numpy.array(self.index_l, dtype=int)
             np_sthovl = cell.calc_sthovl(index_h=np_h, index_k=np_k,
                                          index_l=np_l)
-            np_fr, np_fr_sigma = numpy.array(l_fr, dtype=float), numpy.array(l_fr_sigma, dtype=float) 
-            np_fr_calc = numpy.array(l_fr_calc, dtype=float)
-            np_diff = numpy.abs((np_fr-np_fr_calc)/np_fr_sigma)
+            np_val, np_sval = numpy.array(l_val, dtype=float), numpy.array(l_sval, dtype=float) 
+            np_val_calc = numpy.array(l_val_calc, dtype=float)
+            np_diff = numpy.abs((np_val-np_val_calc)/np_sval)
             n_bins = 10
             np_val, np_sthovl_bins = numpy.histogram(np_sthovl, bins=n_bins)
             ls_out.append("\n## Distribution of reflection in sin(theta)/lambda range")
