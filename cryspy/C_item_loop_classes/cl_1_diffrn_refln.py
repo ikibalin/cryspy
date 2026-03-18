@@ -8,7 +8,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-
+from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 
 class DiffrnRefln(ItemN):
     """
@@ -29,10 +29,10 @@ class DiffrnRefln(ItemN):
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
     ATTR_OPTIONAL_NAMES = ("fr", "fr_sigma", "fr_calc", "intensity", "intensity_sigma", "intensity_calc",
-                           "excluded", "sintlambda", "wavelength")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, bool, float, float)
+                           "excluded", "sintlambda", "wavelength", "d_spacing")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, bool, float, float, float)
     ATTR_OPTIONAL_CIF = ("fr", "fr_sigma", "fr_calc", "intensity", "intensity_sigma", "intensity_calc",
-                         "excluded", "sint/lambda", "wavelength")
+                         "excluded", "sint/lambda", "wavelength", "d_spacing")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -86,7 +86,10 @@ class DiffrnRefln(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
-
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflection
+        """
+        calc_d_sthovl_for_hkl(cell, self)
 
 class DiffrnReflnL(LoopN):
     """
@@ -473,7 +476,12 @@ class DiffrnReflnL(LoopN):
         except AttributeError:
             pass
         return res
-
+    
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflections in the loop.
+        """
+        calc_d_sthovl_for_hkl(cell, self)
+        
 # s_cont = """
 #   loop_
 #   _diffrn_refln_index_h

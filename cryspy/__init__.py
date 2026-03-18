@@ -137,6 +137,8 @@ from cryspy.D_functions_item_loop.function_1_section_from_density_point \
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import \
     magnetization_ellipsoid_by_u_ij, report_main_axes_of_magnetization_ellipsoids
 
+from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
+
 # from cryspy.D_functions_item_loop.structure_factor import \
 #     calculate_nuclear_structure_factor, calculate_structure_factor_tensor
 
@@ -234,6 +236,7 @@ L_FUNCTION = [
     transform_r_b_to_string,
     tof_Jorgensen,
     tof_Jorgensen_VonDreele,
+    calc_d_sthovl_for_hkl,
     calc_volume_uc_by_abc_cosines,
     calc_volume_uc_by_abc_angles,
     calc_inverse_d_by_hkl_abc_cosines,
