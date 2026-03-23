@@ -597,7 +597,12 @@ class Cell(ItemN):
             self.angle_beta_refinement, self.angle_gamma_refinement], dtype=bool)
         return flags_unit_cell_parameters
 
-                
+    def get_dictionary(self):
+        self.form_object()
+        d_out = super(Cell, self).get_dictionary()
+        d_out["unit_cell_parameters"] = self.get_unit_cell_parameters()
+        d_out["flags_unit_cell_parameters"] = self.get_flags_unit_cell_parameters()
+        return d_out        
 
 class CellL(LoopN):
     """

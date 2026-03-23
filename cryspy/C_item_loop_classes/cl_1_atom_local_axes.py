@@ -1,5 +1,5 @@
 from typing import NoReturn
-
+import numpy
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
@@ -68,8 +68,8 @@ class AtomLocalAxes(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
-    D_CONSTRAINTS = {"ax1": ["X", "Y", "Z", "-X", "-Y", "-Z"],
-                     "ax2": ["X", "Y", "Z", "-X", "-Y", "-Z"]}
+    D_CONSTRAINTS = {"ax1": ["X", "Y", "Z", "x", "y", "z"],
+                     "ax2": ["X", "Y", "Z", "x", "y", "z"]}
 
     # default values for the parameters
     D_DEFAULT = {}
@@ -133,6 +133,11 @@ class AtomLocalAxesL(LoopN):
         super(AtomLocalAxesL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
+
+    def get_dictionary(self):
+        d_out = super(AtomLocalAxesL, self).get_dictionary()
+        d_out["atom_local_axes_label"] = numpy.array( self.atom_label, dtype=str)
+        return d_out
 
 # s_cont = """
 #   loop_

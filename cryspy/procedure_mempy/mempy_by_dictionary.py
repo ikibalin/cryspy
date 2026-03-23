@@ -45,6 +45,8 @@ from cryspy.A_functions_base.matrix_operations import \
 from cryspy.A_functions_base.function_1_error_simplex import \
     error_estimation_simplex
 
+from cryspy.A_functions_base.multipoles import \
+    calc_multipole_density
 
 def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out):
     dict_in_out_keys = dict_in_out.keys()
@@ -154,6 +156,32 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
     number_unit_cell = numpy.prod(n_abc)
     dict_in_out["number_unit_cell"] = number_unit_cell
     print("\nCalculation of prior density...         ", end="\r")
+    flag_multipole = all([hh in dict_crystal.keys() for hh in ['atom_rho_multipole_label', 'atom_local_axes_label']])
+    if flag_multipole and channel_ani:
+        atom_rho_multipole_label = dict_crystal['atom_rho_multipole_label']
+        atom_local_axes_label = dict_crystal['atom_local_axes_label']
+        atom_local_axes_matrix =  dict_crystal["atom_local_axes_matrix"]
+        l_hh_1,l_hh_2 = [], []
+        for label in atom_rho_multipole_label:
+            ind_1 = numpy.squeeze(numpy.argwhere(atom_label==label))
+            ind_2 = numpy.squeeze(numpy.argwhere(atom_local_axes_label==label))
+            l_hh_1.append(atom_fract_xyz[...,ind_1])
+            l_hh_2.append(atom_local_axes_matrix[...,ind_2])
+        atom_rho_multipole_fract_xyz = numpy.stack(l_hh_1, axis=-1)
+        atom_rho_multipole_transformation_matrix = numpy.stack(l_hh_2, axis=-1)
+        atom_rho_multipole_plm = dict_crystal["atom_rho_multipole_plm"]
+        atom_rho_multipole_lm = dict_crystal["atom_rho_multipole_lm"]
+        l_kappa = dict_crystal["atom_rho_multipole_kappa"]
+
+        l_n, l_zeta, l_coeff = dict_crystal["atom_rho_multipole_n_zeta_coeff"]
+        
+        multipole_density_prior = calc_multipole_density(
+            point_atom_symm_elems_auc, symm_elem_auc, unit_cell_parameters, 
+            atom_rho_multipole_fract_xyz, atom_rho_multipole_transformation_matrix,
+            atom_rho_multipole_lm, atom_rho_multipole_plm, l_n, l_zeta, l_coeff, l_kappa )
+
+    else:
+        atom_rho_multipole_label = []
     if channel_ani:
         density_ani_prior_uniform = get_uniform_density_ani_2(point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
         if flag_uniform_prior_density:
@@ -163,13 +191,18 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
             density_ani_prior = numpy.zeros_like(point_atom_distance_auc)
             for ind_ordered, label in enumerate(mag_atom_label):
                 s_label = f"shell_{label:}"
-                if s_label in dict_crystal.keys():
+                if flag_multipole and label in atom_rho_multipole_label:
+                    print(f"Prior density of {label} in channel ani is defined by multipoles.")
+                    ind = numpy.squeeze(numpy.argwhere(atom_rho_multipole_label==label))
+                    density_ani_prior[:,ind_ordered] = multipole_density_prior[:,ind]
+                elif s_label in dict_crystal.keys():
                     dict_shell = dict_crystal[s_label]
                     kappa = float(dict_crystal["mag_atom_kappa"][dict_crystal["mag_atom_label"] == label].squeeze())
                     den_atom = calc_density_spherical(
                         point_atom_distance_auc[:,ind_ordered], dict_shell["core_population"], dict_shell["core_coeff"], dict_shell["core_zeta"],
                         dict_shell["core_n"], kappa)
                     density_ani_prior[:,ind_ordered] = den_atom
+                    print(f"Prior density of {label} in channel ani is spherical.")
                 else:
                     print(f"BUT! Prior density of {label} in channel ani is uniform (no information about electron density configuration).")
                     density_ani_prior[:,ind_ordered] = density_ani_prior_uniform[:,ind_ordered]
@@ -313,7 +346,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
 
     print("Density reconstruction")
     print("----------------------")
-    
+    flag_multipole =  all([hh in dict_crystal.keys() for hh in ['atom_rho_multipole_label', 'atom_local_axes_label']])
     calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out)
     
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
@@ -573,7 +606,13 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         if channel_ani and flag_next:
             coeff = (parameter_lambda*number_unit_cell/(c_desired*volume_unit_cell))*numpy.expand_dims(mag_atom_multiplicity,axis=0)/numpy.expand_dims(point_multiplicity, axis=1)
             hh = (density_ani+delta_density)*numpy.exp(-coeff*der_c_den_ani)-delta_density
-            hh = numpy.where(hh>0, hh, 0)
+            if not flag_multipole:
+                hh = numpy.where(hh>0, hh, 0)
+            else:
+                flag_pos = density_ani >= 0
+                hh[flag_pos] = numpy.where(hh[flag_pos]>=0, hh[flag_pos], 0)
+                hh[numpy.logical_not(flag_pos)] = numpy.where(hh[numpy.logical_not(flag_pos)]<0, hh[numpy.logical_not(flag_pos)], 0)
+
             density_ani_next = renormailize_density_ani_2(hh, point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
 
 

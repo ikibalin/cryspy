@@ -346,3 +346,15 @@ class AtomSiteSusceptibilityL(LoopN):
         flags_susceptibility = numpy.stack([item.get_flags_susceptibility() for item in self.items], axis=0).transpose()
         return flags_susceptibility
 
+    def get_dictionary(self):
+        d_out = super(AtomSiteSusceptibilityL, self).get_dictionary()
+        atom_para_label = numpy.array(self.label, dtype=str)
+        atom_para_susceptibility = numpy.array([
+            self.chi_11, self.chi_22,
+            self.chi_33, self.chi_12,
+            self.chi_13, self.chi_23],
+            dtype=float)
+        d_out["atom_para_label"] = atom_para_label
+        d_out["atom_para_susceptibility"] = atom_para_susceptibility
+        d_out["flags_atom_para_susceptibility"] = self.get_flags_susceptibility()           
+        return d_out

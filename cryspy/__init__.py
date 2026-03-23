@@ -101,7 +101,7 @@ from cryspy.A_functions_base.function_2_crystallography_base import \
     ortogonalize_matrix
 
 from cryspy.A_functions_base.function_2_mem import \
-    calc_asymmetric_unit_cell_indexes, calc_index_atom_symmetry_closest_to_fract_xyz, \
+    calc_index_atom_symmetry_closest_to_fract_xyz, \
     calc_factor_in_front_of_density_for_fm, calc_moment_perp,\
     transfer_to_density_3d, transfer_to_chi_3d
 
@@ -127,8 +127,11 @@ from cryspy.A_functions_base.function_3_mcif import \
 from cryspy.A_functions_base.function_4_flip_ratio import \
     calc_f_plus_sq, calc_f_minus_sq, calc_flip_ratio
 
+from cryspy.A_functions_base.symmetry_elements import calc_asymmetric_unit_cell_indexes
+
 from cryspy.B_parent_classes.cl_2_loop import \
  get_prefix_of_loop
+
 
 from cryspy.D_functions_item_loop.function_1_section_from_density_point \
     import calc_section_from_density_point

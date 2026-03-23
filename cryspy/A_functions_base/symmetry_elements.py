@@ -411,3 +411,19 @@ def define_bravais_type_by_symm_elems(symm_elems):
         bravais_type = None
     
     return bravais_type, it_coordinate_system_code
+
+def apply_symm_elem_to_v_xyz(symm_elem, v_xyz):
+    r = symm_elem[4:13]
+    return calc_m_v(r, v_xyz, flag_m=False, flag_v=False)[0]
+
+def apply_symm_elem_to_xyz(symm_elem, xyz):
+    """Apply symmetry element to coordinates.\n
+    Input parameters:\n
+    symm_elem -- symmetry element in form of 4x4 matrix\n
+    xyz -- coordinates in form of list or array of 3 values\n
+    Output parameters:\n
+    symm_xyz -- coordinates after applying symmetry element"""
+    v = apply_symm_elem_to_v_xyz(symm_elem, xyz)
+    b = symm_elem[0:3]/numpy.expand_dims(symm_elem[3], axis=0)
+    symm_xyz = v + b
+    return symm_xyz
