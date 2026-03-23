@@ -608,10 +608,10 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             hh = (density_ani+delta_density)*numpy.exp(-coeff*der_c_den_ani)-delta_density
             if not flag_multipole:
                 hh = numpy.where(hh>0, hh, 0)
-            else:
-                flag_pos = density_ani >= 0
-                hh[flag_pos] = numpy.where(hh[flag_pos]>=0, hh[flag_pos], 0)
-                hh[numpy.logical_not(flag_pos)] = numpy.where(hh[numpy.logical_not(flag_pos)]<0, hh[numpy.logical_not(flag_pos)], 0)
+            # else:
+            #     flag_pos = density_ani >= 0
+            #     hh[flag_pos] = numpy.where(hh[flag_pos]>=0, hh[flag_pos], 0)
+            #     hh[numpy.logical_not(flag_pos)] = numpy.where(hh[numpy.logical_not(flag_pos)]<0, hh[numpy.logical_not(flag_pos)], 0)
 
             density_ani_next = renormailize_density_ani_2(hh, point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
 

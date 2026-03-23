@@ -343,7 +343,8 @@ def renormailize_density_ani_2(
     point_norm_density = numpy.copy(point_density)
     prod_den_mult = point_density*numpy.expand_dims(point_multiplicity, axis=1)/numpy.expand_dims(atom_multiplicity, axis=0)
     # m_at is [Natom]
-    m_at = prod_den_mult.sum(axis=0)
+    # m_at = prod_den_mult.sum(axis=0)
+    m_at = numpy.abs(prod_den_mult).sum(axis=0) # FIXME: it is done for multipolar model. In other cases density should be only positive and therefore the expression is as before. 
     point_norm_density *= coeff/numpy.expand_dims(m_at, axis=0)
     # #FIXME: very slow solution. Redo it.
     # atom_label = numpy.unique(point_atom_label)
