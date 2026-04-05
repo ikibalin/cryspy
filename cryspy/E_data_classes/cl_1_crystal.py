@@ -1353,7 +1353,7 @@ class Crystal(DataN):
 
 
 
-    def save_atom_rho_multipole_density_to_den(self, file_den:str='', Na:int=48, Nb:int=48, Nc:int=48,):
+    def save_atom_rho_multipole_density_to_den(self, file_den:str='file.den', Na:int=48, Nb:int=48, Nc:int=48,):
         """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
         Nx, Ny, Nz is the number of points along axis a,b,c
         Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
