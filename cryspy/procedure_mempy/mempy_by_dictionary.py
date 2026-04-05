@@ -643,6 +643,8 @@ def save_density_to_den_file(dict_in_out, dict_mem_parameters, dict_crystal, l_d
     channel_ani = "density_channel_ani" in dict_in_out_keys
     file_spin_density = dict_mem_parameters["file_spin_density"]
     file_magnetization_density = dict_mem_parameters["file_magnetization_density"]
+    magnetization_plus = dict_in_out.get("magnetization_plus", None)
+    magnetization_minus = dict_in_out.get("magnetization_minus", None)
 
     dict_crystal_keys = dict_crystal.keys()
     if "atom_para_label" in dict_crystal_keys:
