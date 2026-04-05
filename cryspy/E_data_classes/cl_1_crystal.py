@@ -984,6 +984,12 @@ class Crystal(DataN):
                 mag_atom_ordered_index = args[args[:,1].argsort()][:,0]
                 ddict["mag_atom_ordered_index"] = mag_atom_ordered_index
 
+            if "atom_rho_multipole_label" in ddict.keys():
+                flag_2d = numpy.expand_dims(ddict["atom_rho_multipole_label"], axis=0) == numpy.expand_dims(mag_atom_label, axis=1)
+                args = numpy.argwhere(flag_2d)
+                mag_atom_rho_multipole_index = args[args[:,1].argsort()][:,0]
+                ddict["mag_atom_rho_multipole_index"] = mag_atom_rho_multipole_index
+
         if atom_type is not None:
             pass
 
@@ -1197,6 +1203,16 @@ class Crystal(DataN):
             cell.angle_beta = numpy.round(hhh[4]*180./numpy.pi, decimals=5)
             cell.angle_gamma = numpy.round(hhh[5]*180./numpy.pi, decimals=5)
 
+        if "atom_rho_multipole_kappa" in keys:
+            hh = ddict_crystal["atom_rho_multipole_kappa"]
+            for i_item, item in enumerate(self.atom_rho_multipole.items):
+                item.kappa = numpy.round(hh[i_item], decimals=6)
+
+        if "atom_rho_multipole_plm" in keys:
+            hh = ddict_crystal["atom_rho_multipole_plm"]
+            for i_item, item in enumerate(self.atom_rho_multipole.items):
+                item.load_plm_from_dictionary(numpy.round(hh[:,i_item], decimals=6))
+
         for name, sigma in zip(l_parameter_name, l_sigma):
             parameter_label, ind_s = name
             if "atom_para_susceptibility" in parameter_label:
@@ -1323,6 +1339,19 @@ class Crystal(DataN):
                     item.angle_beta_sigma = float(sigma)*180./numpy.pi
                 elif ind_p == 5:
                     item.angle_gamma_sigma = float(sigma)*180./numpy.pi
+
+            if "atom_rho_multipole_kappa" in parameter_label:
+                ind_a = ind_s[0]
+                item = self.atom_rho_multipole.items[ind_a]
+                item.kappa_sigma = float(sigma)
+
+            if "atom_rho_multipole_plm" in parameter_label:
+                ind_p = ind_s[0]
+                ind_a = ind_s[1]
+                item = self.atom_rho_multipole.items[ind_a]
+                item.set_plm_sigma_by_index(ind_p, float(sigma))
+
+
 
     def save_atom_rho_multipole_density_to_den(self, file_den:str='', Na:int=48, Nb:int=48, Nc:int=48,):
         """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.

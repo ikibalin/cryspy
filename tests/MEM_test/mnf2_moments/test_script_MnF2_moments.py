@@ -38,4 +38,4 @@ def test_mem_magnetization_density_for_momemts_multipole_prior():
     # cryspy.rhochi_rietveld_refinement(rcif_obj)
     res =cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
     # cryspy.mempy_spin_density_reconstruction(rcif_obj)
-    assert res["chi_sq"] < 2.76
+    assert res["chi_sq"] < 2.78

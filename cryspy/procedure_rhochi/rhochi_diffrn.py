@@ -223,6 +223,12 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         f_m_perp_o_ccs, dder_f_m_perp_o_ccs = calc_f_m_perp_ordered_by_dictionary(
             dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
         flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"].any()
+        if "flags_atom_rho_multipole_plm" in dict_crystal_keys:
+            flag_f_m_perp_o_ccs = flag_f_m_perp_o_ccs or dict_crystal["flags_atom_rho_multipole_plm"].any() 
+        if "flags_atom_rho_multipole_kappa" in dict_crystal_keys:
+            flag_f_m_perp_o_ccs = flag_f_m_perp_o_ccs or dict_crystal["flags_atom_rho_multipole_kappa"].any() 
+        
+
         flag_ordered = True
 
     if flag_para:

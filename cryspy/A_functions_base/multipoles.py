@@ -5,6 +5,98 @@ from cryspy.A_functions_base.orbital_functions import calc_rho_normalized
 from cryspy.A_functions_base.symmetry_elements import apply_symm_elem_to_xyz
 from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
 
+INV_PI = 1./numpy.pi
+INV_PI_SQRT = numpy.sqrt(INV_PI)
+
+A_PLUS = numpy.sqrt((30+numpy.sqrt(480))/70.)
+A_MINUS = numpy.sqrt((30-numpy.sqrt(480))/70.)
+N_ANG = 0.5*INV_PI/(
+    14*(numpy.power(A_MINUS, 5)-numpy.power(A_PLUS, 5))-
+    20*(numpy.power(A_MINUS, 3)-numpy.power(A_PLUS, 3))-
+    6*(A_MINUS-A_PLUS))
+
+# Order lm:
+# 00, 11+, 11-, 10, 20 ,21+, 21-, 22+, 22-, 30, 31+, 31-, 32+, 32-, 33+, 33-, 40, 41+, 41-, 42+, 42-, 43+, 43-, 44+, 44-
+NORMALIZATION_DENSITY_FUNCTION = numpy.array([
+    0.25*INV_PI, # l = 0
+    INV_PI, INV_PI, INV_PI, # l = 1
+    0.125*3*numpy.sqrt(3)*INV_PI, 0.75, 0.75, 0.75, 0.75, # l = 2
+    10.*INV_PI/13., 1./(numpy.arctan(2.)+2.8-0.25*numpy.pi), 1./(numpy.arctan(2.)+2.8-0.25*numpy.pi), 1., 1., 4.*INV_PI/3., 4.*INV_PI/3., # l = 3
+    N_ANG, 735./(512*numpy.sqrt(7)-196), 735./(512*numpy.sqrt(7)-196), 0.25*105.*numpy.sqrt(7.)/(136.+28.*numpy.sqrt(7.)), 0.25*105.*numpy.sqrt(7.)/(136.+28.*numpy.sqrt(7.)), 1.25, 1.25, 15./32., 15./32. # l = 4
+], dtype=float)
+
+NORMALIZATION_WAFE_FUNCTION = numpy.sqrt(INV_PI*numpy.array([
+    0.25, # l = 0
+    0.75, 0.75, 0.75, # l = 1
+    5./16., 15./4., 15./4., 15./4., 15./4., # l = 2
+    7./16., 21./32., 21./32., 105./16., 105./16., 35./32., 35./32.,# l = 3
+    9./256., 45./32., 45./32., 45./64., 45./64., 315./32., 315./32., 315./256., 315./256. # l = 4
+], dtype=float))
+
+
+# def calc_real_spherical_harmonic_functions(Plm, xyz, l_max:int = 4, flag_density_function: bool=True):
+#     """
+#     Order lm in Plm parameters:
+#     00, 11+, 11-, 10, 20 ,21+, 21-, 22+, 22-, 30, 31+, 31-, 32+, 32-, 33+, 33-, 40, 41+, 41-, 42+, 42-, 43+, 43-, 44+, 44-
+    
+#     Calculate 
+#     sum_{m=-l}^{l} P_lm y_lm for l = 0, 1, 2, 3, 4
+    
+#     Output size [l_max, n_xyz]
+#     Order of Plm parameters 
+#     """
+#     n_xyz = tuple([hh for hh in range(1, len(xyz.shape), 1)])
+
+#     n_lm = Plm.shape[0]
+#     if flag_density_function:
+#         coeff = NORMALIZATION_DENSITY_FUNCTION
+#     else:
+#         coeff = NORMALIZATION_WAFE_FUNCTION
+#     y_l_0 = numpy.stack([numpy.ones(shape=xyz.shape[1:], dtype=float)], axis=0)
+#     res_l_0 = numpy.sum(numpy.expand_dims(coeff[:1]*Plm[:1], axis=n_xyz) * y_l_0, axis=0)
+#     l_res = [res_l_0]
+#     if l_max >= 1:
+#         x, y, z = xyz[0], xyz[1], xyz[2]
+#         y_l_1 = numpy.stack([x, y, z], axis=0)
+#         res_l_1 = numpy.sum(numpy.expand_dims(coeff[1:4]*Plm[1:4], axis=n_xyz) * y_l_1, axis=0)
+#         l_res.append(res_l_1)
+#     if l_max >= 2:
+#         x_sq, y_sq, z_sq = numpy.square(x), numpy.square(y), numpy.square(z)
+#         x_sq_minus_y_sq = x_sq - y_sq
+#         y_l_2 = numpy.stack([2.*z_sq - x_sq - y_sq, z*x, z*y, x*y, 0.5*x_sq_minus_y_sq], axis=0)
+#         res_l_2 = numpy.sum(numpy.expand_dims(coeff[4:9]*Plm[4:9], axis=n_xyz) * y_l_2, axis=0)
+#         l_res.append(res_l_2)
+#     if l_max >= 3:
+#         x_cube, y_cube, z_cube = x_sq*x, y_sq*y, z_sq*z
+#         x_sq_plus_y_sq = x_sq + y_sq
+#         y_l_3 = numpy.stack([
+#             2.*z_cube - 3.*z*x_sq_plus_y_sq, 
+#             x*(4.*z_sq-x_sq_plus_y_sq),
+#             y*(4.*z_sq-x_sq_plus_y_sq),
+#             z*x_sq_minus_y_sq,
+#             2.*x*y*z,
+#             x_cube-3.*x*y_sq,
+#             y_cube-3.*y*x_sq,
+#         ], axis=0)
+#         res_l_3 = numpy.sum(numpy.expand_dims(coeff[9:16]*Plm[9:16], axis=n_xyz) * y_l_3, axis=0)
+#         l_res.append(res_l_3)
+#     if l_max >= 4:
+#         y_l_4 = numpy.stack([
+#             8.*z_sq*z_sq-24.*z_sq*x_sq_plus_y_sq + 3.*x_sq_plus_y_sq*x_sq_plus_y_sq,
+#             x*(4.*z_cube-3.*z*x_sq_plus_y_sq),
+#             y*(4.*z_cube-3.*z*x_sq_plus_y_sq),
+#             x_sq_minus_y_sq*(6.*z_sq-x_sq_plus_y_sq),
+#             2*x*y*(6.*z_sq-x_sq_plus_y_sq),
+#             z*y_l_3[5], 
+#             z*y_l_3[6],
+#             x_sq*x_sq-6.*x_sq*y_sq+y_sq*y_sq,
+#             4.*(x_cube*y-x*y_cube)
+#         ], axis=0)
+#         res_l_4 = numpy.sum(numpy.expand_dims(coeff[16:25]*Plm[16:25], axis=n_xyz) * y_l_4, axis=0)
+#         l_res.append(res_l_4)
+#     res = numpy.stack(l_res, axis=0)
+#     return res
+
 
 
 
@@ -14,11 +106,12 @@ def realsphharm2df(n,m,theta,phi):
     m is in range [-n:n]\n
     theta  -- polar angle in range [0:180]\n
     phi -- azimuthal angle in range [0:360]"""
+    one = numpy.ones_like(theta)
     x=numpy.sin(theta)*numpy.cos(phi)
     y=numpy.sin(theta)*numpy.sin(phi)
     z=numpy.cos(theta)
     if (n,m)==(0,0):                                                          
-        res=1.                        *(1./(4.*numpy.pi))
+        res=one                       *(1./(4.*numpy.pi))
     elif (n,m)==(1,1):
         res=x                         *(1./(numpy.pi))
     elif (n,m)==(1,-1):
@@ -78,8 +171,9 @@ def realsphharm2wfXYZ(n,m,dcosxyz):
     theta  -- polar angle in range [0:180]\n
     phi -- azimuthal angle in range [0:360]"""
     x,y,z=dcosxyz[0],dcosxyz[1],dcosxyz[2]
+    one = numpy.ones_like(x)
     if ((n,m)==(0,0)):
-        res=1.                        /((4.*numpy.pi)**0.5)
+        res=one                        /((4.*numpy.pi)**0.5)
     elif (n==1):
         if (m==1):
             res=x                         *(3./(4*numpy.pi))**0.5
@@ -153,8 +247,9 @@ def realsphharm2wf(n,m,theta,phi):
     x=numpy.sin(theta)*numpy.cos(phi)
     y=numpy.sin(theta)*numpy.sin(phi)
     z=numpy.cos(theta)
+    one = numpy.ones_like(x)
     if ((n,m)==(0,0)):
-        res=1.                        /((4.*numpy.pi)**0.5)
+        res=one                        /((4.*numpy.pi)**0.5)
     elif (n==1):
         if (m==1):
             res=x                         *(3./(4*numpy.pi))**0.5
