@@ -13,11 +13,13 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
 
 class AtomSiteMoment(ItemN):
-    """AtomSiteMoment describes the ordered magnetic moment of an atom.
+    """AtomSiteMoment describes an atom’s ordered magnetic moment.
 
 Instead of specifying the crystal space group, define the magnetic space group using space_group_symop_magn_operation and space_group_symop_magn_centering.
 
 To express the magnetic moment in terms of crystal axes, use crystalaxis_x, crystalaxis_y and crystalaxis_z. These are refined parameters.
+
+The symmform parameter defines the symmetry of the moment. For example, if the moment is along the x-axis, symmform can be “mx,0,0”.  If it’s in the xy-plane and mx=my, symmform can be “mx,mx,0”. This parameter is used to set constraints on the refined parameters.
 
 Ensure the ion label matches the label in the atom_site loop.
     """
@@ -134,11 +136,13 @@ Ensure the ion label matches the label in the atom_site loop.
         return super(AtomSiteMoment, self).to_cif(separator=separator)
 
 class AtomSiteMomentL(LoopN):
-    """AtomSiteMoment describes the ordered magnetic moment of an atom.
+    """AtomSiteMoment describes an atom’s ordered magnetic moment.
 
 Instead of specifying the crystal space group, define the magnetic space group using space_group_symop_magn_operation and space_group_symop_magn_centering.
 
 To express the magnetic moment in terms of crystal axes, use crystalaxis_x, crystalaxis_y and crystalaxis_z. These are refined parameters.
+
+The symmform parameter defines the symmetry of the moment. For example, if the moment is along the x-axis, symmform can be “mx,0,0”.  If it’s in the xy-plane and mx=my, symmform can be “mx,mx,0”. This parameter is used to set constraints on the refined parameters.
 
 Ensure the ion label matches the label in the atom_site loop.
     """

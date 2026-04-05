@@ -83,7 +83,9 @@ The atom_site_moment loop describes the ordered magnetic moments of the crystal 
 
 To define the magnetic form factor in the dipolar approximation, use the atom_site_scat loop.
 
-The anisotropic magnetic form factor can be defined using the multipole model. In this case, use the atom_rho_multipole loop and the atom_local_axes loop. The latter is necessary to define the local coordinate system in which the multipole functions are defined.
+The anisotropic magnetic form factor can be defined using the multipole model.
+ In this case, use the atom_rho_multipole loop and the atom_local_axes loop. 
+ The latter is necessary to define the local coordinate system in which the multipole functions are defined.
 
 Please note that the programme currently does not check the symmetry constraint on multipole parameters. Therefore, the user should verify this themselves.
     """
