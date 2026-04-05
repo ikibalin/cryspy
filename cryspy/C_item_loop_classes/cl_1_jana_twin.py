@@ -11,17 +11,13 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class JanaTwin(ItemN):
-    """
-    Jana Twin class.
+    """Twins that defined like in Jana2006.
 
-    Attributes
-    ----------
-        - mosaicity 100.0 # in minutes
-        - radius    50.0 # in micrometers
-        - model     "gauss" or "lorentz"
+Matrix_ij gives the transformation of Miller indices from the first domain to the second one. 
+Fraction gives the twin fraction of the second domain. 
+The twin fraction of the first domain is 1 - fraction.
 
-
-
+Twin fraction is refined parameters.
     """
 
     ATTR_MANDATORY_NAMES = ( "id","matrix_11", "matrix_12", "matrix_13",
@@ -84,9 +80,13 @@ class JanaTwin(ItemN):
 
 
 class JanaTwinL(LoopN):
-    """
-    Description of extinction in loop.
+    """Twins are defined like in Jana2006.
 
+Matrix_ij gives the transformation of Miller indices from the first domain to this one. 
+Fraction gives the twin fraction of this domain. 
+The twin fraction of the first domain is 1 minus sum of all fractions.
+
+Twin fractions are refined parameters.
     """
     ITEM_CLASS = JanaTwin
     ATTR_INDEX = "id"

@@ -68,32 +68,26 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid \
 na = numpy.newaxis
 
 class Crystal(DataN):
-    """
-    Crystal structure description.
+    """The block 'Crystal' describes the crystal structure.
 
-    Data items in the CRYSTAL category record details about
-    crystal structure.
+- atom_site loop gives the positions of the atoms in the unit cell,
+- cell describes the primitive unit cell. 
 
-    Methods
-    -------
-        - calc_b_iso_beta
-        - calc_f_nucl
-        - calc_susceptibility_moment_tensor
-        - calc_magnetic_moments_with_field_loc
-        - report_main_axes_of_magnetization_ellipsoids
-        - calc_main_axes_of_magnetization_ellipsoids
-        - calc_magnetization_ellipsoid
-        - calc_hkl_in_range
-        - calc_hkl
-        - calc_refln_susceptibility
-        - calc_refln
+The space group can be given by 
+- space_group for the crystal structures
+or
+- space_group_symop_magn_operation and space_group_symop_magn_centering for the magnetic structures (mcif format).
 
-    Attributes
-    ----------
-        - space_group, cell, atom_site (mandatory)
-        - atom_type, atom_site_aniso, atom_site_susceptibility,
-          atom_site_scat, atom_type_scat, atom_local_axes,
-          atom_electron_confiduration (optional)
+atom_site_susceptibility loop describes the paramagnetic properties of the crystal. It can be defined as in nuclear as well as in magnetic space groups
+
+atom_site_moment loop describes the ordered magnetic moments of the crystal. It should be defined only if magnetic space group (mcif format) is defined.
+
+To define magnetic form-factor in dipolar approximation use atom_site_scat loop.
+
+The anisotropic magnetic form-factor can be define in frame of multipole model. In this case use atom_rho_multipole loop and atom_local_axes loop.
+The last one is required to define local coordinate system in which the multipole functions are defined.
+
+Attention that currently the program does not check the symmetry constraint on multipole parameters. So, the user should check it by himself.
     """
 
     CLASSES_MANDATORY = (Cell, AtomSiteL,)

@@ -15,12 +15,10 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
 
 
 class SpaceGroupSymopMagnOperation(ItemN):
-    """Magnetic space-group symmetry operation.
+    """SpaceGroupSymopMagnOperation describes magnetic space-group symmetry operation.
+Use together with space_group_symop_magn_centering to define magnetic space group in mcif format.
 
-    Attributes
-    ----------
-    - xyz (mandatory)
-    - description, id (optioanl)
+The symmetry operation is given in the form of xyz string. For example, "x,y,z,+1" or "-y,x-y+1/2,z,-1".
     """
 
     ATTR_MANDATORY_NAMES = ("xyz", )
@@ -127,7 +125,11 @@ class SpaceGroupSymopMagnOperation(ItemN):
 
 
 class SpaceGroupSymopMagnOperationL(LoopN):
-    """Magnetic space-group symmetry operations."""
+    """SpaceGroupSymopMagnOperation describes magnetic space-group symmetry operation.
+Use together with space_group_symop_magn_centering to define magnetic space group in mcif format.
+
+The symmetry operation is given in the form of xyz string. For example, "x,y,z,+1" or "-y,x-y+1/2,z,-1".
+    """
 
     ITEM_CLASS = SpaceGroupSymopMagnOperation
     ATTR_INDEX = "id"

@@ -18,26 +18,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class SpaceGroupSymop(ItemN):
-    """Symmetry space group operation.
-    
-    Contains information about the symmetry operations of the
-    space group.
-
-    Attributes
-    ----------
-        - operation_xyz (mandatory)
-        - id, operation_description, generator_xyz, sg_id (optional)
-        - r, b, r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33, b_1, b_2,
-          b_3 (internal attributes)
-
-    Methods
-    -------------
-        - define_by_el_symm() (class method)
-        - get_symop_inversed()
-        - get_symops_by_centring_type()
-        - get_symops_by_generator_xyz()
-        - get_coords_xyz_by_coord_xyz()
-        
+    """SpaceGroupSymop contains information about the symmetry operations of the space group.
     """
     ATTR_MANDATORY_NAMES = ("operation_xyz", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -189,9 +170,7 @@ class SpaceGroupSymop(ItemN):
 
 
 class SpaceGroupSymopL(LoopN):
-    """Symmetry space group operations.
-
-    Contains information about the symmetry operations of the space group.
+    """SpaceGroupSymop contains information about the symmetry operations of the space group.
     """
     ITEM_CLASS = SpaceGroupSymop
     ATTR_INDEX = "id"

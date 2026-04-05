@@ -11,17 +11,14 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Extinction(ItemN):
-    """
-    Extinction class.
+    """Extinction.
 
-    Attributes
-    ----------
-        - mosaicity 100.0 # in minutes
-        - radius    50.0 # in micrometers
-        - model     "gauss" or "lorentz"
+If model is "gauss" or "lorentz", then the following parameters are considered: 
+    - mosaicity in minutes
+    - radius in micrometers
 
-
-
+If model is "qani", then the following parameters are considered:
+    - q_hh, q_kk, q_ll, q_hk, q_hl, q_kl
     """
 
     ATTR_MANDATORY_NAMES = ("model", )
@@ -142,9 +139,14 @@ class Extinction(ItemN):
         return res
 
 class ExtinctionL(LoopN):
-    """
-    Description of extinction in loop.
+    """Description of extinction in loop.
+    
+if model is "gauss" or "lorentz", then the following parameters are considered: 
+    - mosaicity in minutes
+    - radius in micrometers
 
+if model is "qani", then the following parameters are considered:
+    - q_hh, q_kk, q_ll, q_hk, q_hl, q_kl
     """
     ITEM_CLASS = Extinction
     ATTR_INDEX = None

@@ -13,18 +13,15 @@ from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat, AtomTyp
 
 
 class AtomSiteScat(ItemN):
-    """Description of magnetic structure factor.
+    """AtomSiteScat describes magnetic form-factor by Lande factor and kappa.
 
-    Attributes
-    ----------
-        - label (mandatory)
-        - lande, kappa, type_symbol (optional)
-        - atom_type_scat (internal protected attribute)
+f = <j0> + (2/L-1) <j2> 
 
-    Method
-    ------
-        - calc_form_factor(sthovl, flag_only_orbital=False)
-        - load_atom_type_scat_by_symbol(symbol:str)
+type_symbol defines <j0> and <j2>.
+
+Magnetic form-factor is calculated in dipolar approximation and it is spherical.
+
+The label of ion should be the same as label in atom_site_susceptibility loop (for paramagnetic compounds) or atom_site_moment loop (for ordered magnetic moments).
     """
 
     ATTR_MANDATORY_NAMES = ("label", )
@@ -131,14 +128,15 @@ class AtomSiteScat(ItemN):
         return res
 
 class AtomSiteScatL(LoopN):
-    """
-    Description of magnetic structure factor by Lande factor and kappa.
+    """AtomSiteScat describes magnetic form-factor by Lande factor and kappa.
 
-    Methods
-    -------
-        - calc_form_factor(sthovl, flag_only_orbital=False)
-        - load_atom_type_scat_by_atom_site(atom_site)
+f = <j0> + (2/L-1) <j2> 
 
+type_symbol defines <j0> and <j2>.
+
+Magnetic form-factor is calculated in dipolar approximation and it is spherical.
+
+The label of ion should be the same as label in atom_site_susceptibility loop (for paramagnetic compounds) or atom_site_moment loop (for ordered magnetic moments).
     """
 
     ITEM_CLASS = AtomSiteScat

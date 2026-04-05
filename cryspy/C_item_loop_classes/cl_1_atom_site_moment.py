@@ -13,20 +13,14 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
 
 class AtomSiteMoment(ItemN):
-    """AtomSiteMoment class.
+    """AtomSiteMoment presents the ordered magnetic moment of atom.
 
-    This category provides a loop for presenting the magnetic moments
-    of atoms in one of several coordinate systems. This is a child category
-    of the AtomSite category, so that the magnetic moments can either be
-    listed alongside the non-magnetic atom properties in the main AtomSite loop
-    (not realized) or be listed in a separate loop (realized)
+The magnetic space group should be defined instead the crystal space group by space_group:symop_magn_operation and  symop_magn_centering.  
 
-    Attributes
-    ----------
-        - label, symmform (mandatory)
-        - cartn_x, cartn_y, cartn_z, crystalaxis_x, crystalaxis_y,
-          crystalaxis_z, modulation_flag, refinement_flags_magnetic,
-          spherical_azimuthal, spherical_modulus, spherical_polar
+Use crystalaxis_x, crystalaxis_y, crystalaxis_z to define the vaclue of magnetic moment in crystal axes. 
+These parameters are refined parameters. 
+
+The label of ion should be the same as label in atom_site loop.
     """
 
     ATTR_MANDATORY_NAMES = ("label",)
@@ -141,13 +135,14 @@ class AtomSiteMoment(ItemN):
         return super(AtomSiteMoment, self).to_cif(separator=separator)
 
 class AtomSiteMomentL(LoopN):
-    """AtomSiteMomentL class.
+    """AtomSiteMoment presents the ordered magnetic moment of atom.
 
-    AtomSiteMomentL category provides a loop for presenting the magnetic
-    moments  of atoms in one of several coordinate systems. This is a child
-    category of the AtomSite category, so that the magnetic moments can either
-    be listed alongside the non-magnetic atom properties in the main AtomSite
-    loop (not realized) or be listed in a separate loop (realized)
+The magnetic space group should be defined instead the crystal space group by space_group:symop_magn_operation and  symop_magn_centering.  
+
+Use crystalaxis_x, crystalaxis_y, crystalaxis_z to define the vaclue of magnetic moment in crystal axes. 
+These parameters are refined parameters. 
+
+The label of ion should be the same as label in atom_site loop.
     """
 
     ITEM_CLASS = AtomSiteMoment

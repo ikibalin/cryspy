@@ -8,40 +8,15 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class AtomLocalAxes(ItemN):
-    """
-    This category allows the definition of local axes around each
-    atom in terms of vectors between neighbouring atoms.
-    High-resolution X-ray diffraction methods enable the
-    determination of the electron density distribution in crystal
-    lattices and molecules, which in turn allows for a
-    characterization of chemical interactions (Coppens, 1997;
-    Koritsanszky & Coppens, 2001). This is accomplished by the
-    construction of a mathematical model of the charge density
-    in a crystal and then by fitting the parameters of such a
-    model to the experimental pattern of diffracted X-rays. The
-    model on which this dictionary is based is the so-called
-    multipole formalism proposed by Hansen & Coppens (1978). In
-    this model, the electron density in a crystal is described
-    by a sum of aspherical "pseudoatoms" where the pseudoatom
-    density has the form defined in the _atom_rho_multipole_* items.
-    Each pseudoatom density consists of terms representing the
-    core density, the spherical part of the valence density and
-    the deviation of the valence density from sphericity. The
-    continuous electron density in the crystal is then modelled
-    as a sum of atom-centred charge distributions. Once the
-    experimental electron density has been established, the
-    "atoms in molecules" theory of Bader (1990) provides tools for
-    the interpretation of the density distribution in terms of its
-    topological properties.
+    """AtomLocalAxes defines local axes  around each atom in terms of vectors between neighbouring atoms.
+    
+It is used for a characterization of chemical interactions (Coppens, 1997; Koritsanszky & Coppens, 2001). 
+This is accomplished by the construction of a mathematical model of the charge density (not realized yet) or magnetisation denisty in a crystal and then by fitting the parameters of such a model.
+The model on which this dictionary is based is the so-called multipole formalism proposed by Hansen & Coppens (1978). 
 
-    Mandatory attributes:
-        - wavelength
+In this model, the electron density in a crystal is described by a sum of aspherical "pseudoatoms" where the pseudoatom density has the form defined in the atom_rho_multipole loop.
 
-    Optional attributes:
-        - field
-        - offset_ttheta
-        - offset_phi
-
+Use Dummy atoms (define it is atom_site loop) for more precise definition of local axes.
     """
     ATTR_MANDATORY_NAMES = ("atom_label", "atom0", "ax1", "atom1", "atom2",
                             "ax2")
@@ -100,32 +75,15 @@ class AtomLocalAxes(ItemN):
 
 
 class AtomLocalAxesL(LoopN):
-    """
-    This category allows the definition of local axes around each
-    atom in terms of vectors between neighbouring atoms.
-    High-resolution X-ray diffraction methods enable the
-    determination of the electron density distribution in crystal
-    lattices and molecules, which in turn allows for a
-    characterization of chemical interactions (Coppens, 1997;
-    Koritsanszky & Coppens, 2001). This is accomplished by the
-    construction of a mathematical model of the charge density
-    in a crystal and then by fitting the parameters of such a
-    model to the experimental pattern of diffracted X-rays. The
-    model on which this dictionary is based is the so-called
-    multipole formalism proposed by Hansen & Coppens (1978). In
-    this model, the electron density in a crystal is described
-    by a sum of aspherical "pseudoatoms" where the pseudoatom
-    density has the form defined in the _atom_rho_multipole_* items.
-    Each pseudoatom density consists of terms representing the
-    core density, the spherical part of the valence density and
-    the deviation of the valence density from sphericity. The
-    continuous electron density in the crystal is then modelled
-    as a sum of atom-centred charge distributions. Once the
-    experimental electron density has been established, the
-    "atoms in molecules" theory of Bader (1990) provides tools for
-    the interpretation of the density distribution in terms of its
-    topological properties.
+    """AtomLocalAxes defines local axes  around each atom in terms of vectors between neighbouring atoms.
+    
+It is used for a characterization of chemical interactions (Coppens, 1997; Koritsanszky & Coppens, 2001). 
+This is accomplished by the construction of a mathematical model of the charge density (not realized yet) or magnetisation denisty in a crystal and then by fitting the parameters of such a model.
+The model on which this dictionary is based is the so-called multipole formalism proposed by Hansen & Coppens (1978). 
 
+In this model, the electron density in a crystal is described by a sum of aspherical "pseudoatoms" where the pseudoatom density has the form defined in the atom_rho_multipole loop.
+
+Use Dummy atoms (define it is atom_site loop) for more precise definition of local axes.
     """
     ITEM_CLASS = AtomLocalAxes
     ATTR_INDEX = "atom_label"

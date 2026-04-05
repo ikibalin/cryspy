@@ -9,14 +9,10 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class AtomElectronConfiguration(ItemN):
-    """
-    Define the electron configuration for atoms.
-    The elcetron configuration is separated on the core part which is spherical
-    and non-spherical valence part. 
+    """AtomElectronConfiguration defines the electron configuration for atoms.
+The elcetron configuration is separated on the core part which is spherical and non-spherical valence part. 
 
-    The orientation and population of valence part is described in the object
-    AtomRhoOrbitalValence of cryspy library.
-
+The orientation and population of valence part is described in the object AtomRhoOrbitalValence (not realized yet).
     """
     ATTR_MANDATORY_NAMES = ("label", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -99,13 +95,10 @@ class AtomElectronConfiguration(ItemN):
         return l_res
 
 class AtomElectronConfigurationL(LoopN):
-    """
-    Define the electron configuration for atoms.
-    The elcetron configuration is separated on the core part which is spherical
-    and non-spherical valence part. 
+    """AtomElectronConfiguration defines the electron configuration for atoms.
+The elcetron configuration is separated on the core part which is spherical and non-spherical valence part. 
 
-    The orientation and population of valence part is described in the object
-    AtomRhoOrbitalValence of cryspy library.
+The orientation and population of valence part is described in the object AtomRhoOrbitalValence (not realized yet).
     """
     ITEM_CLASS = AtomElectronConfiguration
     ATTR_INDEX = "label"

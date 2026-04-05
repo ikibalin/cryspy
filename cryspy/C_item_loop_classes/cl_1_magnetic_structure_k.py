@@ -13,12 +13,7 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
 
 class MagneticStructureK(ItemN):
-    """MagneticStructureK class.
-
-
-    Attributes
-    ----------
-        - number, vector_1, vector_2, vector_3 (mandatory)
+    """MagneticStructureK is a non standard category to define the list of magnetic propagation vectors.
     """
 
     ATTR_MANDATORY_NAMES = ("number", "vector_1", "vector_2", "vector_3")
@@ -77,7 +72,7 @@ class MagneticStructureK(ItemN):
         return super(MagneticStructureK, self).to_cif(separator=separator)
 
 class MagneticStructureKL(LoopN):
-    """MagneticStructureKL class.
+    """MagneticStructureK is a non standard category to define the list of magnetic propagation vectors.
     """
 
     ITEM_CLASS = MagneticStructureK

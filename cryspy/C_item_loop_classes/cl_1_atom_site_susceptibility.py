@@ -50,14 +50,14 @@ def calc_constr_matrix(matrix):
     return res
 
 class AtomSiteSusceptibility(ItemN):
-    """Magnetic properties of the atom that occupy the atom site.
+    """AtomSiteSusceptibility describes paramagnetic properties of the ions that occupy the atom sites.
+Thus, the label of ion should be the same as in atom_site loop.
 
-    Data items in the ATOM_SITE_MAGNETISM_ANISO category record details about
-    magnetic properties of the atoms that occupy the atom sites.
+The susceptibility is given by 3x3 matrix. It can be isotropic (type 'Ciso') or anisotropic (type 'Cani'). 
+In the first case, only chi_11 is considered and other parameters are calculated from it. 
+In the second case, all parameters are considered as independent and only symmetry constraints are applied.
 
-    Attributes
-    ----------
-        -
+The susceptibility tensor is given in Cartezian coordinate system (x||a*, z||c).
     """
 
     ATTR_MANDATORY_NAMES = ("label", )
@@ -285,12 +285,14 @@ class AtomSiteSusceptibility(ItemN):
 
 
 class AtomSiteSusceptibilityL(LoopN):
-    """Magnetic properties of the atoms that occupy the atom sites.
+    """AtomSiteSusceptibility describes paramagnetic properties of the ions that occupy the atom sites.
+Thus, the label of ion should be the same as in atom_site loop.
 
-    Methods
-    -------
-        - apply_space_group_constraint
-        - apply_chi_iso_constraint
+The susceptibility is given by 3x3 matrix. It can be isotropic (type 'Ciso') or anisotropic (type 'Cani'). 
+In the first case, only chi_11 is considered and other parameters are calculated from it. 
+In the second case, all parameters are considered as independent and only symmetry constraints are applied.
+
+The susceptibility tensor is given in Cartezian coordinate system (x||a*, z||c).
     """
 
     ITEM_CLASS = AtomSiteSusceptibility

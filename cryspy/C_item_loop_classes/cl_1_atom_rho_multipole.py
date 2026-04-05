@@ -26,23 +26,9 @@ INDEX_PLM = numpy.array([[0,0],[1,1],[1,-1],[1,0],
                      [4,0],[4,1],[4,-1],[4,2],[4,-2],[4,3],[4,-3],[4,4],[4,-4]],dtype=int)
 
 class AtomRhoMultipole(ItemN):
-    """   This category contains information about the multipole
-   coefficients used to describe the electron density.
+    """AtomRhoMultipole contains information about the multipole coefficients used to describe the electron density.
 
-   This definition is not the standard one defined for Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
-
-    Mandatory attributes:
-        - atom_label
-        - atom_type_symbol
-        - orbital
-
-    Optional attributes:
-        - kappa
-        - P00
-        - P11, P1-1, P10
-        - P20, P21, P2-1, P22, P2-2
-        - P30, P31, P3-1, P32, P3-2, P33, P3-3
-        - P40, P41, P4-1, P42, P4-2, P43, P4-3, P44, P4-4
+It should be noted that used parameters in this block are different from parameters defined in Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
     """
     ATTR_MANDATORY_NAMES = ("atom_label", "atom_type_symbol", "orbital")
     ATTR_MANDATORY_TYPES = (str, str, str)
@@ -198,7 +184,9 @@ class AtomRhoMultipole(ItemN):
         return (fig, ax)
     
 class AtomRhoMultipoleL(LoopN):
-    """Details about properties of the atoms.
+    """AtomRhoMultipole contains information about the multipole coefficients used to describe the electron density.
+
+It should be noted that used parameters in this block are different from parameters defined in Electron density CIF: https://www.iucr.org/__data/iucr/cifdic_html/1/cif_rho.dic/Catom_rho_multipole.html
     """
     ITEM_CLASS = AtomRhoMultipole
     ATTR_INDEX = "atom_label"
