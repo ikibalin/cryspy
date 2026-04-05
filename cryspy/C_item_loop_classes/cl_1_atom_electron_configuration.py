@@ -9,10 +9,9 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class AtomElectronConfiguration(ItemN):
-    """AtomElectronConfiguration defines the electron configuration for atoms.
-The elcetron configuration is separated on the core part which is spherical and non-spherical valence part. 
-
-The orientation and population of valence part is described in the object AtomRhoOrbitalValence (not realized yet).
+    """An atom’s electron configuration is defined by AtomElectronConfiguration, which is divided into the core and valence parts.
+The core is spherical while the valence is non-spherical.
+The orientation and population of the valence region are described by AtomRhoOrbitalValence (this is not yet realised).
     """
     ATTR_MANDATORY_NAMES = ("label", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -95,10 +94,9 @@ The orientation and population of valence part is described in the object AtomRh
         return l_res
 
 class AtomElectronConfigurationL(LoopN):
-    """AtomElectronConfiguration defines the electron configuration for atoms.
-The elcetron configuration is separated on the core part which is spherical and non-spherical valence part. 
-
-The orientation and population of valence part is described in the object AtomRhoOrbitalValence (not realized yet).
+    """An atom’s electron configuration is defined by AtomElectronConfiguration, which is divided into the core and valence parts.
+The core is spherical while the valence is non-spherical.
+The orientation and population of the valence region are described by AtomRhoOrbitalValence (this is not yet realised).
     """
     ITEM_CLASS = AtomElectronConfiguration
     ATTR_INDEX = "label"

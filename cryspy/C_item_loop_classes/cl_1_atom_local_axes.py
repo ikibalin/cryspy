@@ -8,15 +8,16 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class AtomLocalAxes(ItemN):
-    """AtomLocalAxes defines local axes  around each atom in terms of vectors between neighbouring atoms.
-    
-It is used for a characterization of chemical interactions (Coppens, 1997; Koritsanszky & Coppens, 2001). 
-This is accomplished by the construction of a mathematical model of the charge density (not realized yet) or magnetisation denisty in a crystal and then by fitting the parameters of such a model.
-The model on which this dictionary is based is the so-called multipole formalism proposed by Hansen & Coppens (1978). 
+    """AtomLocalAxes defines local axes around each atom using vectors between neighbouring atoms.
 
-In this model, the electron density in a crystal is described by a sum of aspherical "pseudoatoms" where the pseudoatom density has the form defined in the atom_rho_multipole loop.
+This is used to characterise chemical interactions (Coppens, 1997; Koritsanszky & Coppens, 2001).  
+The process involves constructing a mathematical model of the charge or magnetisation density within a crystal and then fitting the model’s parameters. 
+This dictionary is based on the multipole formalism proposed by Hansen and Coppens in 1978.
 
-Use Dummy atoms (define it is atom_site loop) for more precise definition of local axes.
+In this model, the electron density within a crystal is described as a sum of aspherical “pseudoatoms”.  
+The pseudoatom density is defined in the atom_rho_multipole loop. 
+
+For a more precise definition of local axes, dummy atoms (defined in the atom_site loop) can be used.
     """
     ATTR_MANDATORY_NAMES = ("atom_label", "atom0", "ax1", "atom1", "atom2",
                             "ax2")
@@ -75,15 +76,16 @@ Use Dummy atoms (define it is atom_site loop) for more precise definition of loc
 
 
 class AtomLocalAxesL(LoopN):
-    """AtomLocalAxes defines local axes  around each atom in terms of vectors between neighbouring atoms.
-    
-It is used for a characterization of chemical interactions (Coppens, 1997; Koritsanszky & Coppens, 2001). 
-This is accomplished by the construction of a mathematical model of the charge density (not realized yet) or magnetisation denisty in a crystal and then by fitting the parameters of such a model.
-The model on which this dictionary is based is the so-called multipole formalism proposed by Hansen & Coppens (1978). 
+    """AtomLocalAxes defines local axes around each atom using vectors between neighbouring atoms.
 
-In this model, the electron density in a crystal is described by a sum of aspherical "pseudoatoms" where the pseudoatom density has the form defined in the atom_rho_multipole loop.
+This is used to characterise chemical interactions (Coppens, 1997; Koritsanszky & Coppens, 2001).  
+The process involves constructing a mathematical model of the charge or magnetisation density within a crystal and then fitting the model’s parameters. 
+This dictionary is based on the multipole formalism proposed by Hansen and Coppens in 1978.
 
-Use Dummy atoms (define it is atom_site loop) for more precise definition of local axes.
+In this model, the electron density within a crystal is described as a sum of aspherical “pseudoatoms”.  
+The pseudoatom density is defined in the atom_rho_multipole loop. 
+
+For a more precise definition of local axes, dummy atoms (defined in the atom_site loop) can be used.
     """
     ITEM_CLASS = AtomLocalAxes
     ATTR_INDEX = "atom_label"

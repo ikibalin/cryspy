@@ -13,14 +13,13 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
 
 class AtomSiteMoment(ItemN):
-    """AtomSiteMoment presents the ordered magnetic moment of atom.
+    """AtomSiteMoment describes the ordered magnetic moment of an atom.
 
-The magnetic space group should be defined instead the crystal space group by space_group:symop_magn_operation and  symop_magn_centering.  
+Instead of specifying the crystal space group, define the magnetic space group using space_group_symop_magn_operation and space_group_symop_magn_centering.
 
-Use crystalaxis_x, crystalaxis_y, crystalaxis_z to define the vaclue of magnetic moment in crystal axes. 
-These parameters are refined parameters. 
+To express the magnetic moment in terms of crystal axes, use crystalaxis_x, crystalaxis_y and crystalaxis_z. These are refined parameters.
 
-The label of ion should be the same as label in atom_site loop.
+Ensure the ion label matches the label in the atom_site loop.
     """
 
     ATTR_MANDATORY_NAMES = ("label",)
@@ -135,14 +134,13 @@ The label of ion should be the same as label in atom_site loop.
         return super(AtomSiteMoment, self).to_cif(separator=separator)
 
 class AtomSiteMomentL(LoopN):
-    """AtomSiteMoment presents the ordered magnetic moment of atom.
+    """AtomSiteMoment describes the ordered magnetic moment of an atom.
 
-The magnetic space group should be defined instead the crystal space group by space_group:symop_magn_operation and  symop_magn_centering.  
+Instead of specifying the crystal space group, define the magnetic space group using space_group_symop_magn_operation and space_group_symop_magn_centering.
 
-Use crystalaxis_x, crystalaxis_y, crystalaxis_z to define the vaclue of magnetic moment in crystal axes. 
-These parameters are refined parameters. 
+To express the magnetic moment in terms of crystal axes, use crystalaxis_x, crystalaxis_y and crystalaxis_z. These are refined parameters.
 
-The label of ion should be the same as label in atom_site loop.
+Ensure the ion label matches the label in the atom_site loop.
     """
 
     ITEM_CLASS = AtomSiteMoment

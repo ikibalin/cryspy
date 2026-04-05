@@ -68,26 +68,24 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid \
 na = numpy.newaxis
 
 class Crystal(DataN):
-    """The block 'Crystal' describes the crystal structure.
+    """The block ‘Crystal’ describes the crystal structure.
 
-- atom_site loop gives the positions of the atoms in the unit cell,
-- cell describes the primitive unit cell. 
+- The atom_site loop provides the positions of atoms within the unit cell.
+- The cell defines the unit cell.
 
-The space group can be given by 
-- space_group for the crystal structures
-or
-- space_group_symop_magn_operation and space_group_symop_magn_centering for the magnetic structures (mcif format).
+The space group can be specified using:
+- space_group for crystal structures.
+- space_group_symop_magn_operation and space_group_symop_magn_centering for magnetic structures (MCIF format).
 
-atom_site_susceptibility loop describes the paramagnetic properties of the crystal. It can be defined as in nuclear as well as in magnetic space groups
+The atom_site_susceptibility loop describes the paramagnetic properties of the crystal and can be defined in both nuclear and magnetic space groups.
 
-atom_site_moment loop describes the ordered magnetic moments of the crystal. It should be defined only if magnetic space group (mcif format) is defined.
+The atom_site_moment loop describes the ordered magnetic moments of the crystal and is only required if the magnetic space group (MCIF format) is defined.
 
-To define magnetic form-factor in dipolar approximation use atom_site_scat loop.
+To define the magnetic form factor in the dipolar approximation, use the atom_site_scat loop.
 
-The anisotropic magnetic form-factor can be define in frame of multipole model. In this case use atom_rho_multipole loop and atom_local_axes loop.
-The last one is required to define local coordinate system in which the multipole functions are defined.
+The anisotropic magnetic form factor can be defined using the multipole model. In this case, use the atom_rho_multipole loop and the atom_local_axes loop. The latter is necessary to define the local coordinate system in which the multipole functions are defined.
 
-Attention that currently the program does not check the symmetry constraint on multipole parameters. So, the user should check it by himself.
+Please note that the programme currently does not check the symmetry constraint on multipole parameters. Therefore, the user should verify this themselves.
     """
 
     CLASSES_MANDATORY = (Cell, AtomSiteL,)
