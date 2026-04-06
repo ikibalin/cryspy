@@ -169,6 +169,12 @@ from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruc
     mempy_cycle_with_parameters
 
 
+from cryspy.procedure_simulation.simulation import  \
+    simulation_polarized_neutron_powder_diffraction, \
+    simulation_unpolarized_neutron_powder_diffraction, \
+    simulation_fliping_ratio,\
+    simulation_single_crystal
+
 
 
 def repr_function(function, flag_long: bool = False):
@@ -279,7 +285,12 @@ L_FUNCTION = [
     mempy_spin_density_reconstruction,
     mempy_reconstruction_with_parameters,
     mempy_cycle_with_parameters,
-    get_prefix_of_loop]
+    get_prefix_of_loop,
+    simulation_single_crystal,
+    simulation_fliping_ratio, 
+    simulation_unpolarized_neutron_powder_diffraction, 
+    simulation_polarized_neutron_powder_diffraction, 
+    ]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD

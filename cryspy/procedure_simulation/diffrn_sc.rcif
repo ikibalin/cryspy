@@ -1,0 +1,53 @@
+data_sc
+
+_setup_wavelength 1.4000
+_setup_field 1.00
+_setup_radiation neutrons
+_setup_K 0.0
+_setup_cthm 0.91000
+
+_diffrn_orient_matrix_ub_11 0.098039
+_diffrn_orient_matrix_ub_12 -0.0
+_diffrn_orient_matrix_ub_13 -0.0
+_diffrn_orient_matrix_ub_21 0.0
+_diffrn_orient_matrix_ub_22 0.098039
+_diffrn_orient_matrix_ub_23 -0.0
+_diffrn_orient_matrix_ub_31 0.0
+_diffrn_orient_matrix_ub_32 0.0
+_diffrn_orient_matrix_ub_33 0.098039
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 0.0
+_extinction_q_hh .
+_extinction_q_kk .
+_extinction_q_ll .
+_extinction_q_hk .
+_extinction_q_hl .
+_extinction_q_kl .
+
+_phase_label Ho2Ti2O7
+_phase_scale 1.0
+_phase_igsize .
+_phase_X .
+_phase_Y .
+_phase_U .
+_phase_V .
+_phase_W .
+
+loop_
+_diffrn_refln_index_h
+_diffrn_refln_index_k
+_diffrn_refln_index_l
+_diffrn_refln_intensity
+_diffrn_refln_intensity_sigma
+_diffrn_refln_intensity_calc
+_diffrn_refln_excluded
+  1   1   1   4.62   0.01   4.62   False
+  2   0   0   1.00   0.01   1.00   False
+  2   2   0   1.00   0.01   1.00   False
+  3   1   1   2.06   0.01   2.06   False
+  2   2   2   5.02   0.01   5.02   False
+  4   0   0   0.13   0.01   0.13   False
+  3   3   1   1.93   0.01   1.93   False
