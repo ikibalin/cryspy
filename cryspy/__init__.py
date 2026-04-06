@@ -173,7 +173,8 @@ from cryspy.procedure_simulation.simulation import  \
     simulation_polarized_neutron_powder_diffraction, \
     simulation_unpolarized_neutron_powder_diffraction, \
     simulation_fliping_ratio,\
-    simulation_single_crystal
+    simulation_single_crystal, \
+    simulation_current_experiments
 
 
 
@@ -290,6 +291,7 @@ L_FUNCTION = [
     simulation_fliping_ratio, 
     simulation_unpolarized_neutron_powder_diffraction, 
     simulation_polarized_neutron_powder_diffraction, 
+    simulation_current_experiments,
     ]
 
 def functions(s_name: str = "", flag_long: bool = False):
