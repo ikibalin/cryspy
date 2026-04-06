@@ -21,7 +21,7 @@ class AtomType(ItemN):
         "cromer_mann_b3", "cromer_mann_b4", "cromer_mann_c",
         "scat_dispersion_real", "scat_dispersion_imag", "dispersion_source",
         "scat_length_neutron", "scat_source", "scat_versus_stol_list")
-    ATTR_OPTIONAL_TYPES = (float, str, int, float, float, float, float, float,
+    ATTR_OPTIONAL_TYPES = (float, str, float, float, float, float, float, float,
                            float, float, float, float, float, float, float,
                            float, float, str, complex, str, float)
     ATTR_OPTIONAL_CIF = (
