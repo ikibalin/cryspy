@@ -170,6 +170,8 @@ from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruc
 
 
 from cryspy.procedure_simulation.simulation import  \
+    simulation_paramagnetic_crystal, \
+    simulation_magnetic_crystal, \
     simulation_polarized_neutron_powder_diffraction, \
     simulation_unpolarized_neutron_powder_diffraction, \
     simulation_fliping_ratio,\
@@ -287,6 +289,8 @@ L_FUNCTION = [
     mempy_reconstruction_with_parameters,
     mempy_cycle_with_parameters,
     get_prefix_of_loop,
+    simulation_paramagnetic_crystal,
+    simulation_magnetic_crystal,
     simulation_single_crystal,
     simulation_fliping_ratio, 
     simulation_unpolarized_neutron_powder_diffraction, 

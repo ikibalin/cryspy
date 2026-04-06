@@ -37,6 +37,23 @@ na = numpy.newaxis
 
 DIR = os.path.dirname(__file__)
 
+
+def simulation_paramagnetic_crystal(cryspy_object: cryspy.GlobalN):
+    """Add example of paramagnetic crystal to the cryspy object
+    """
+    f_crystal_para = os.path.join(DIR, "crystal_Ho2Ti2O7.rcif")
+    rcif_crystal = cryspy.load_file(f_crystal_para).crystal_ho2Ti2o7
+    cryspy_object.add_items([rcif_crystal, ])
+
+
+def simulation_magnetic_crystal(cryspy_object: cryspy.GlobalN):
+    """Add example of magnetic crystal to the cryspy object
+    """
+    f_crystal_mag = os.path.join(DIR, "crystal_URu0.96Rh0.04Si2.rcif")
+    rcif_crystal = cryspy.load_file(f_crystal_mag).crystal_ururhsi
+    cryspy_object.add_items([rcif_crystal, ])
+
+
 def simulation_polarized_neutron_powder_diffraction(cryspy_object: cryspy.GlobalN):
     """Simulate PNPD experiment with default parameters
     """
