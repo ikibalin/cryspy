@@ -139,11 +139,17 @@ def simulation_single_crystal(cryspy_object: cryspy.GlobalN):
 
     l_diffrn = []
     l_name = []
+    i_crystal = 0
     for item in cryspy_object.items:
         if isinstance(item, cryspy.Crystal):
+            i_crystal += 1
             d_crystal = item.get_dictionary()
 
             rcif_diffrn = cryspy.load_file(f_diffrn_sc).diffrn_sc
+            if i_crystal == 1:
+                rcif_diffrn.data_name = f"sc"
+            else:
+                rcif_diffrn.data_name = f"sc{i_crystal}"
             rcif_diffrn.phase.label = item.data_name
             wavelength = rcif_diffrn.setup.wavelength
 
@@ -199,11 +205,17 @@ def simulation_fliping_ratio(cryspy_object: cryspy.GlobalN):
 
     l_diffrn = []
     l_name = []
+    i_crystal = 0
     for item in cryspy_object.items:
         if isinstance(item, cryspy.Crystal):
+            i_crystal += 1
             d_crystal = item.get_dictionary()
 
             rcif_diffrn = cryspy.load_file(f_diffrn_fr).diffrn_fr
+            if i_crystal == 1:
+                rcif_diffrn.data_name = f"fr"
+            else:
+                rcif_diffrn.data_name = f"fr{i_crystal}"
             rcif_diffrn.phase.label = item.data_name
             wavelength = rcif_diffrn.setup.wavelength
 
