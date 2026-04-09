@@ -103,6 +103,8 @@ class Cell(ItemN):
         flag_2 = not(self.is_attribute("it_coordinate_system_code"))
         if (flag_1 | flag_2):
             return
+        if self.type_cell is None or self.it_coordinate_system_code is None:
+            return
         cell_p = (self.length_a, self.length_b, self.length_c,
                   self.angle_alpha, self.angle_beta, self.angle_gamma)
         cell_s = (self.length_a_sigma, self.length_b_sigma,

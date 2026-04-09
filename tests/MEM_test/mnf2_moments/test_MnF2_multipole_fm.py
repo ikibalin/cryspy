@@ -15,3 +15,9 @@ def test_fm_by_multipole_for_mnf2():
     # res =calculate_moments_by_multipole_for_mnf2(rcif_obj)
     assert chi_sq < 800.
 
+def test_model_magnetization_density():
+    f_name = os.path.join(os.path.dirname(__file__), "MnF2_multipole_prior.rcif")
+    rcif_obj = cryspy.load_file(f_name)
+    crystal_obj = rcif_obj.crystal_mnf2
+    crystal_obj.save_atom_rho_multipole_magnetization_density_to_den(file_den="", Na=48, Nb=48, Nc=48)
+    assert True

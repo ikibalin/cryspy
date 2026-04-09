@@ -21,8 +21,9 @@ from cryspy.A_functions_base.structure_factor import \
     calc_f_m_perp_ordered_by_dictionary
 
 from cryspy.A_functions_base.function_3_mcif import calc_multiplicity
-from cryspy.A_functions_base.mempy import form_basins_2, calc_symm_elem_points_by_index_points, save_spin_density_into_file
-
+from cryspy.A_functions_base.mempy import \
+    form_basins_2, calc_symm_elem_points_by_index_points, save_spin_density_into_file, \
+    transform_to_density_auc_to_moments
 from cryspy.A_functions_base.symmetry_elements import calc_asymmetric_unit_cell_indexes
 
 
@@ -1348,7 +1349,7 @@ Please note that the programme currently does not check the symmetry constraint 
 
 
     def save_atom_rho_multipole_density_to_den(self, file_den:str='file.den', Na:int=48, Nb:int=48, Nc:int=48,):
-        """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
+        """Calculate multipole density in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
         Nx, Ny, Nz is the number of points along axis a,b,c
         Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
         """
@@ -1360,7 +1361,7 @@ Please note that the programme currently does not check the symmetry constraint 
         flag_mcif = False
         if "full_mcif_elems" in d_crystal.keys():
             full_mcif_elems = d_crystal["full_mcif_elems"]
-            full_symm_elems = full_mcif_elems[:13,:]
+            full_symm_elems = full_mcif_elems # [:13,:]
             flag_mcif = True
         else:
             full_symm_elems = d_crystal["full_symm_elems"]
@@ -1419,7 +1420,41 @@ Please note that the programme currently does not check the symmetry constraint 
             save_spin_density_into_file(
                 file_den, index_auc, spin_density, n_abc, unit_cell_parameters,
                 reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
-        return multipole_density, file_den
+        return index_auc, point_atom_symm_elems_auc, point_multiplicity, multipole_density, unit_cell_parameters
+
+    def save_atom_rho_multipole_magnetization_density_to_den(self, file_den:str='file.den', Na:int=48, Nb:int=48, Nc:int=48,):
+        """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
+        Nx, Ny, Nz is the number of points along axis a,b,c
+        Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
+        """
+        n_abc = numpy.array([Na, Nb, Nc], dtype=int)
+        index_auc, point_atom_symm_elems_auc, point_multiplicity, multipole_density, unit_cell_parameters = self.save_atom_rho_multipole_density_to_den(file_den=file_den, Na=Na, Nb=Nb, Nc=Nc)
+        d_crystal = self.get_dictionary()
+        flag_moment_ordered = "atom_ordered_moment_crystalaxis_dn" in d_crystal.keys()
+        if flag_moment_ordered:
+            full_mcif_elems = d_crystal["full_mcif_elems"]
+            atom_ordered_m_dn = d_crystal["atom_ordered_moment_crystalaxis_dn"]
+            index_full, moment_3d = transform_to_density_auc_to_moments(
+                index_auc, point_atom_symm_elems_auc, point_multiplicity, multipole_density, 
+                n_abc, full_mcif_elems, atom_ordered_m_dn, unit_cell_parameters
+                )
+
+            centrosymmetry = False
+            centrosymmetry_position = None
+            translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
+            one_symm_elems = full_mcif_elems[:13,:1]
+            for ind, lab in enumerate(['mx', 'my', 'mz']):
+                moment_component = moment_3d[ind]
+                spin_density_component = numpy.zeros((2,)+moment_component.shape, dtype=float)
+                flag_positive = moment_component >= 0
+                spin_density_component[0, flag_positive] = moment_component[flag_positive]
+                spin_density_component[1, ~flag_positive] = moment_component[~flag_positive]
+                if file_den != "":
+                    file_magnetization_density_component = ".".join(file_den.split(".")[:-1]) + f'_{lab:}.den'
+                    save_spin_density_into_file(file_magnetization_density_component, index_full, spin_density_component, n_abc, unit_cell_parameters,
+                        one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
+                    print(f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'.")
+
 
 def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: str):
     """
@@ -1430,6 +1465,8 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
     v_uc = numpy.zeros((6,), dtype=float)
 
     if type_cell == "aP":
+        pass
+    elif type_cell is None:
         pass
     elif type_cell.startswith("m"):
         sc_uc[3, 3] = 0.
