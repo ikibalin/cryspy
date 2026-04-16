@@ -7,10 +7,7 @@ from cryspy.A_functions_base.debye_waller_factor import \
     calc_power_dwf_iso, \
     calc_power_dwf_aniso, \
     calc_dwf
-from cryspy.A_functions_base.unit_cell import (
-    calc_reciprocal_by_unit_cell_parameters,
-    calc_sthovl_by_unit_cell_parameters,
-)
+
 
 na = numpy.newaxis
 
