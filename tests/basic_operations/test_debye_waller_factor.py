@@ -41,7 +41,12 @@ index_hkl = numpy.array([
     [0, 2, 0, 2, 2, 2, 2, 2, 3, 3, 3],
     [2, 0, 0, 2, 3, 4, 5, 6, 3, 2, 3]], dtype=int)
 
-
+symm_elems_t = numpy.array([
+    [0, 0, 0, 0],  # b_1
+    [0, 0, 0, 0],  # b_2
+    [0, 0, 0, 0],  # b_3
+    [1, 1, 1, 1],  # b_d
+], dtype=int)
 
 symm_elems_r = numpy.array([
     [1,-1,-1, 1],
@@ -54,6 +59,7 @@ symm_elems_r = numpy.array([
     [0, 0, 0, 0],
     [1,-1, 1,-1]], dtype=int)
 
+symm_elems = numpy.vstack([symm_elems_t, symm_elems_r])
 
 beta_ij = numpy.array(
     [0.17765288,  0.01063943,  0.37899281,  0.01658094, -0.16580935, -0.11053957],
@@ -270,7 +276,7 @@ def test_calc_power_dwf_iso():
 
 
 def test_calc_power_dwf_aniso():
-    res, dder = calc_power_dwf_aniso(index_hkl[:, :, na, na], beta[:, na, :, na], symm_elems_r[:, na, na, :], flag_beta=True)
+    res, dder = calc_power_dwf_aniso(index_hkl[:, :, na, na], beta[:, na, :, na], symm_elems[:, na, na, :], flag_beta=True)
     print("res: ", res)
     print(power_dwf_aniso)
 
@@ -279,7 +285,7 @@ def test_calc_power_dwf_aniso():
 
 def test_calc_dwf():
     res, dder = calc_dwf(
-        index_hkl[:, :, na, na], sthovl[:, na, na], b_iso[na, :, na], beta[:, na, :, na], symm_elems_r[:, na, na, :],
+        index_hkl[:, :, na, na], sthovl[:, na, na], b_iso[na, :, na], beta[:, na, :, na], symm_elems[:, na, na, :],
         flag_sthovl=True, flag_b_iso=True, flag_beta=True)
     print("res: ", res)
     print(dwf)
