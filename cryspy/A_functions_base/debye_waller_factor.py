@@ -185,9 +185,9 @@ def calc_power_dwf_aniso(
     k = index_hkl[1]
     l = index_hkl[2]
 
-    r_11, r_12, r_13 = symm_elems_r[0], symm_elems_r[1], symm_elems_r[2]
-    r_21, r_22, r_23 = symm_elems_r[3], symm_elems_r[4], symm_elems_r[5]
-    r_31, r_32, r_33 = symm_elems_r[6], symm_elems_r[7], symm_elems_r[8]
+    r_11, r_12, r_13 = symm_elems_r[4], symm_elems_r[5], symm_elems_r[6]
+    r_21, r_22, r_23 = symm_elems_r[7], symm_elems_r[8], symm_elems_r[9]
+    r_31, r_32, r_33 = symm_elems_r[10], symm_elems_r[11], symm_elems_r[12]
 
     h_s = h*r_11 + k*r_21 + l*r_31
     k_s = h*r_12 + k*r_22 + l*r_32
