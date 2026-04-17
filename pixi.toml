@@ -18,6 +18,7 @@ pycifstar = "*"
 pyparsing = "*"
 python-dateutil = "*"
 pytest = "*"
+pytest-xdist = "*"
 scipy = "*"
 six = "*"
 cryspy = { path = ".", editable = true }
