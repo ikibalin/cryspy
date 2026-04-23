@@ -279,6 +279,68 @@ def calc_mem_chi(
     return mem_ani
 
 
+
+def calc_mem_nucl(
+        index_hkl, unit_cell_parameters, full_symm_elems, symm_elem_points,
+        volume_unit_cell, number_unit_cell, scattering_amplitude, 
+        point_multiplicity=None, dict_in_out: dict=None, flag_use_precalculated_data: bool = False):
+    dict_in_out_keys = dict_in_out.keys()
+    if (("index_hkl" in dict_in_out_keys) and flag_use_precalculated_data):
+        if numpy.any(dict_in_out["index_hkl"] != index_hkl):
+            flag_use_precalculated_data = False
+            dict_in_out["index_hkl"] = index_hkl
+    else:
+        dict_in_out["index_hkl"] = index_hkl
+
+    if (("eq_ccs" in dict_in_out_keys) and flag_use_precalculated_data):
+        eq_ccs = dict_in_out["eq_ccs"]
+    else:
+        eq_ccs = calc_eq_ccs_by_unit_cell_parameters(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+        dict_in_out["eq_ccs"] = eq_ccs
+
+    if point_multiplicity is None:
+        if (("point_multiplicity" in dict_in_out_keys) and flag_use_precalculated_data):
+            point_multiplicity = dict_in_out["point_multiplicity"]
+        else:
+            point_multiplicity = calc_multiplicity_by_atom_symm_elems(full_symm_elems, symm_elem_points)
+            dict_in_out["point_multiplicity"] = point_multiplicity
+    else:
+        dict_in_out["point_multiplicity"] = point_multiplicity
+
+    fract_points = symm_elem_points[:3]/numpy.expand_dims(symm_elem_points[3], axis=0)
+
+    rr = calc_m_v(
+        numpy.expand_dims(full_symm_elems[4:13], axis=1),
+        numpy.expand_dims(fract_points, axis=2), flag_m=False, flag_v=False)[0]
+
+    fract_b = full_symm_elems[:3]/numpy.expand_dims(full_symm_elems[3], axis=0)
+    hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=1)
+    index_hkl_3d = numpy.expand_dims(numpy.expand_dims(index_hkl, axis=2), axis=3)
+    # [hkl, points, symm]
+    r_direct = full_symm_elems[4:]
+    m_m = calc_m_m_by_unit_cell_parameters(
+        unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    r_ccs = calc_m1_m2_inv_m1(m_m, r_direct)[0]
+
+    det_r = calc_det_m(r_ccs)[0]
+        
+    # [hkl,points,symm]
+    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) 
+
+    
+    # [3, hkl, pointss]
+    m_phase_2d = (phase_3d).sum(axis=2)
+
+    # phase_2d = phase_3d.sum(axis=2)
+    # [3, hkl, points]
+    # mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) * 
+    #     numpy.expand_dims(eh_perp_ccs, axis=2))/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
+    mem_nucl = scattering_amplitude * (m_phase_2d*numpy.expand_dims(numpy.expand_dims(point_multiplicity, axis=0),axis=0)
+                      )/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
+    return mem_nucl
+
+
+
 def renormailize_density_col(
         density_col, point_multiplicity,
         volume_unit_cell, points_unit_cell):

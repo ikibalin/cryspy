@@ -10,6 +10,7 @@ from cryspy.A_functions_base.mempy import \
     calc_mem_col, \
     calc_mem_m, \
     calc_mem_chi, \
+    calc_mem_nucl, \
     calc_symm_elem_points_by_index_points, \
     get_uniform_density_col, \
     renormailize_density_col, \
@@ -55,10 +56,10 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
     print(f"Unit cell is devided on points {n_abc[0]:} x {n_abc[1]:} x {n_abc[2]:}.")
     channel_col = dict_mem_parameters["channel_col"]
     channel_ani = dict_mem_parameters["channel_ani"]
+    channel_nucl = dict_mem_parameters["channel_nucl"]
 
 
-
-    if channel_ani:
+    if channel_ani or channel_nucl:
         flag_uniform_prior_density = dict_mem_parameters["flag_uniform_prior_density"]
 
     flag_asymmetry =  dict_mem_parameters["flag_asymmetry"]
@@ -100,7 +101,7 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
         mag_atom_fract_xyz = numpy.stack([atom_fract_xyz[:,atom_label==label][:,0] for label in mag_atom_label], axis=1)
         mag_atom_multiplicity = numpy.stack([atom_multiplicity[atom_label==label][0] for label in mag_atom_label], axis=0)
         dict_in_out["mag_atom_multiplicity"] = mag_atom_multiplicity
-
+        
 
     # **Index in asymmetric unit cell**
     print("Calculation of asymmetric unit cell...", end="\r")
@@ -123,8 +124,18 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
             point_atom_distance_auc, point_atom_symm_elems_auc = \
                 form_basins_2(symm_elem_auc, full_symm_elems, unit_cell_parameters, mag_atom_fract_xyz)
         dict_in_out["point_atom_symm_elems_auc"] = point_atom_symm_elems_auc
+    if channel_nucl:
+        if flag_moment_ordered:
+            point_atom_nucl_distance_auc, point_atom_nucl_symm_elems_auc = \
+                form_basins_2(symm_elem_auc, full_mcif_elems, unit_cell_parameters, atom_fract_xyz)
+        else:
+            point_atom_nucl_distance_auc, point_atom_nucl_symm_elems_auc = \
+                form_basins_2(symm_elem_auc, full_symm_elems, unit_cell_parameters, atom_fract_xyz)
+        dict_in_out["point_atom_nucl_symm_elems_auc"] = point_atom_nucl_symm_elems_auc
+
     print(f"channel_col: {channel_col:}")
     print(f"channel_ani: {channel_ani:}\n")
+    print(f"channel_nucl: {channel_nucl:}\n")
 
 
     # **Susceptibility tensor $(3\times 3)$ for each point in magnetic basin**
@@ -182,6 +193,7 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
 
     else:
         atom_rho_multipole_label = []
+
     if channel_ani:
         density_ani_prior_uniform = get_uniform_density_ani_2(point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
         if flag_uniform_prior_density:
@@ -209,6 +221,11 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
             density_ani_prior = renormailize_density_ani_2(density_ani_prior, point_multiplicity, mag_atom_multiplicity, volume_unit_cell, number_unit_cell)
             print("Prior density in channel ani is core.            ")
         dict_in_out["density_prior_channel_ani"] = density_ani_prior
+
+    if channel_nucl:
+        density_nucl_prior_uniform = get_uniform_density_ani_2(point_multiplicity, atom_multiplicity, volume_unit_cell, number_unit_cell)
+        dict_in_out["density_prior_channel_nucl"] = density_nucl_prior_uniform
+
     if channel_col:
         density_col_prior = get_uniform_density_col(point_multiplicity, volume_unit_cell, number_unit_cell)
         print("Prior density in channel iso is uniform.          ")
@@ -217,7 +234,7 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
     # **Input information about experiments**
     flag_use_precalculated_data = False
     l_exp_value_sigma = []
-    l_mem_col, l_mem_ani = [], []
+    l_mem_col, l_mem_ani, l_mem_nucl = [], [], []
     print(f"Number of experiments is {len(l_dict_diffrn):}.           ")
     for dict_diffrn in l_dict_diffrn:
         if "dict_in_out_"+dict_diffrn["type_name"] in dict_in_out_keys:
@@ -286,6 +303,22 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
             diffrn_dict_in_out["mem_ani"] = mem_ani
             l_mem_ani.append(mem_ani)
 
+        if channel_nucl:
+            if "dict_in_out_nucl" in diffrn_dict_in_out_keys:
+                dict_in_out_nucl = diffrn_dict_in_out["dict_in_out_nucl"]
+            else:
+                dict_in_out_nucl = {}
+                diffrn_dict_in_out["dict_in_out_nucl"] = dict_in_out_nucl
+            
+            mem_nucl = calc_mem_nucl(
+                index_hkl, unit_cell_parameters, eh_ccs, full_symm_elems, symm_elem_auc, 
+                volume_unit_cell, number_unit_cell,
+                point_multiplicity=point_multiplicity,
+                dict_in_out=dict_in_out_nucl, flag_use_precalculated_data=flag_use_precalculated_data)
+            
+            diffrn_dict_in_out["mem_nucl"] = mem_nucl
+            l_mem_nucl.append(mem_nucl)
+
         f_nucl, dder = calc_f_nucl_by_dictionary(
         dict_crystal, diffrn_dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
         diffrn_dict_in_out["f_nucl"] = f_nucl
@@ -318,6 +351,8 @@ def calc_preliminary_information_by_dictionary(dict_crystal, dict_mem_parameters
         mem_col = numpy.concatenate(l_mem_col, axis=1)
     if channel_ani:
         mem_ani = numpy.concatenate(l_mem_ani, axis=1)
+    if channel_nucl:
+        mem_nucl = numpy.concatenate(l_mem_nucl, axis=1)
 
     print(f"Total number of reflections is {exp_value_sigma.shape[1]: }.              ")
     if flag_asymmetry:
@@ -378,6 +413,7 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
     # **Preaparation to MEM itertion procedure**
     channel_col = dict_mem_parameters["channel_col"]
     channel_ani = dict_mem_parameters["channel_ani"]
+    channel_nucl = dict_mem_parameters["channel_nucl"]
     if channel_col:
         density_col_prior = dict_in_out["density_prior_channel_col"]
         density_col = numpy.copy(density_col_prior)
@@ -388,6 +424,11 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         density_ani = numpy.copy(density_ani_prior)
         density_ani_next = numpy.copy(density_ani_prior)
         density_ani_previous = numpy.copy(density_ani_prior)
+    if channel_nucl:
+        density_nucl_prior = dict_in_out["density_prior_channel_nucl"]
+        density_nucl = numpy.copy(density_nucl_prior)
+        density_nucl_next = numpy.copy(density_nucl_prior)
+        density_nucl_previous = numpy.copy(density_nucl_prior)
 
 
     if channel_col:
@@ -423,6 +464,8 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
         der_c_den_col_previous = numpy.zeros_like(density_col_prior)
     if channel_ani:
         der_c_den_ani_previous = numpy.zeros_like(density_ani_prior)
+    if channel_nucl:
+        der_c_den_nucl_previous = numpy.zeros_like(density_nucl_prior)
     iteration = 0
     flag_next = True
     while flag_next:
@@ -432,6 +475,8 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
             density_col = numpy.copy(density_col_next)
         if channel_ani:
             density_ani = numpy.copy(density_ani_next)
+        if channel_nucl:
+            density_nucl = numpy.copy(density_nucl_next)
         l_model_value = []
         l_der_model_den_pm, l_der_model_den_ani = [], []
         for dict_diffrn in l_dict_diffrn:
@@ -449,6 +494,11 @@ def mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict
                 mem_ani_exp = diffrn_dict_in_out["mem_ani"]
                 f_m_perp_chi = (density_ani*mem_ani_exp).sum(axis=(2,3))
                 f_m_perp += f_m_perp_chi
+
+            if channel_nucl:
+                mem_nucl_exp = diffrn_dict_in_out["mem_nucl"]
+                f_nucl_exp = (density_nucl*mem_nucl_exp).sum(axis=(2,3))
+                f_nucl += f_nucl_exp
 
             flag_pol = "flip_ratio_es" in dict_diffrn.keys()
             if flag_pol:

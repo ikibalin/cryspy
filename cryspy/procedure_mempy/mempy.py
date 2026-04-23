@@ -27,6 +27,19 @@ def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
     res = mempy_reconstruction_with_parameters(obj)
     return res  
 
+
+def mempy_nuclear_density_reconstruction(obj: cryspy.GlobalN):
+    if not(obj.is_attribute("mem_parameters")):
+        mem_parameters = cryspy.MEMParameters(
+            points_a=48, points_b=48, points_c=48, channel_nucl=True)
+        obj.add_items([mem_parameters,])
+    obj.mem_parameters.channel_col = False
+    obj.mem_parameters.channel_ani = False
+    obj.mem_parameters.channel_nucl = True
+
+    res = mempy_reconstruction_with_parameters(obj)
+    return res  
+
 def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
         parameter_lambda:float=1.e-5, iteration_max:int=1000, parameter_lambda_min:float=1.e-9, delta_density:float=1.e-5):
     l_diffrn = [item for item in obj.items if isinstance(item, cryspy.Diffrn)]
