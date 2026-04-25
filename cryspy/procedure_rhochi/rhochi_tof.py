@@ -196,7 +196,13 @@ def calc_chi_sq_for_tof_by_dictionary(
     flags_phase_ig = dict_tof["flags_phase_ig"]  # IG_phase
 
     profile_peak_shape = dict_tof["profile_peak_shape"]
-    if profile_peak_shape == "pseudo-Voigt":
+    if profile_peak_shape == "non-conv-pseudo-Voigt":
+        profile_sigmas = dict_tof["profile_sigmas"]
+        profile_gammas = dict_tof["profile_gammas"]
+        flag_profile_shape = (
+            numpy.any(dict_tof["flags_profile_sigmas"]) or
+            numpy.any(dict_tof["flags_profile_gammas"]))
+    elif profile_peak_shape == "pseudo-Voigt":
         profile_alphas = dict_tof["profile_alphas"]
         profile_betas = dict_tof["profile_betas"]
         profile_sigmas = dict_tof["profile_sigmas"]
@@ -379,7 +385,12 @@ def calc_chi_sq_for_tof_by_dictionary(
                 flag_use_precalculated_data and not(flag_profile_tof)):
             profile_tof = dict_in_out_phase["profile_tof"]
         else:
-            if profile_peak_shape == "pseudo-Voigt":
+            if profile_peak_shape == "non-conv-pseudo-Voigt":
+                profile_tof = calc_peak_shape_function(
+                    None, None, profile_sigmas,
+                    d, time, time_hkl,
+                    gammas=profile_gammas, peak_shape=profile_peak_shape)
+            elif profile_peak_shape == "pseudo-Voigt":
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
                     d, time, time_hkl,
