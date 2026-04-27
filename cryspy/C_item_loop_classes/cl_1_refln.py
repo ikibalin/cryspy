@@ -7,6 +7,7 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 
 class Refln(ItemN):
     """Nuclear structure factor of reflection.
@@ -111,6 +112,10 @@ class Refln(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflection.
+        """
+        calc_d_sthovl_for_hkl(cell, self)
 
 
 class ReflnL(LoopN):
@@ -123,7 +128,10 @@ class ReflnL(LoopN):
         super(ReflnL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
-
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflections in the loop.
+        """
+        calc_d_sthovl_for_hkl(cell, self)
 
 # s_cont = """
 #   loop_

@@ -12,34 +12,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class AtomSiteAniso(ItemN):
-    """
-    AtomSiteAniso class.
-
-    Mandatory attributes:
-        - label
-        - type_symbol
-        - fract_x
-        - fract_y
-        - fract_z
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    """AtomSiteAniso defines anisotropic atomic displacement parameters (ADPs) for an atom.
     """
 
     ATTR_MANDATORY_NAMES = ("label", )
@@ -188,7 +161,8 @@ class AtomSiteAniso(ItemN):
 
 
 class AtomSiteAnisoL(LoopN):
-    """Description of AtomSite in loop."""
+    """AtomSiteAniso defines anisotropic atomic displacement parameters (ADPs) for an atom.
+    """
 
     ITEM_CLASS = AtomSiteAniso
     ATTR_INDEX = "label"

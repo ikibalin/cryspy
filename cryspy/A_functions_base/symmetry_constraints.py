@@ -1,6 +1,7 @@
 import numpy
 
-from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
+from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters, \
+    calc_m_m_norm_by_unit_cell_parameters, calc_m_inv_m_norm_by_unit_cell_parameters
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v, calc_mm_as_m_q_inv_m, calc_mm_as_m1_m2_inv_m1, calc_det_m
 
 def calc_sc_fract_sc_b(symm_elems, atom_fract_xyz):
@@ -112,6 +113,9 @@ def calc_sc_ordered(mag_symm_elems, unit_cell_parameters, flag_unit_cell_paramet
 
     # [9,]
     # Note that here matrix [3,3] is stored as [9,]
-    sc_ordered = (theta_s * r_ccs * det_r_ccs).sum(axis=1)/r_ccs.shape[1]
+    sc_ordered_xyz = (theta_s * r_ccs * det_r_ccs).sum(axis=1)/r_ccs.shape[1]
+    m_m_norm_inv =calc_m_inv_m_norm_by_unit_cell_parameters(unit_cell_parameters)[0]
+    sc_ordered_dn = calc_m1_m2_inv_m1(m_m_norm_inv, sc_ordered_xyz, flag_m1=False, flag_m2=False)[0]
     dder_sc_ordered = {}
-    return sc_ordered, dder_sc_ordered
+
+    return sc_ordered_dn, dder_sc_ordered

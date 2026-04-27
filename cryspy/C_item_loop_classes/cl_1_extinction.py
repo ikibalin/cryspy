@@ -11,26 +11,23 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Extinction(ItemN):
-    """
-    Extinction class.
+    """Extinction.
 
-    Attributes
-    ----------
-        - mosaicity 100.0 # in minutes
-        - radius    50.0 # in micrometers
-        - model     "gauss" or "lorentz"
+If model is "gauss" or "lorentz", then the following parameters are considered: 
+    - mosaicity in minutes
+    - radius in micrometers
 
-
-
+If model is "qani", then the following parameters are considered:
+    - q_hh, q_kk, q_ll, q_hk, q_hl, q_kl
     """
 
-    ATTR_MANDATORY_NAMES = ("model", "mosaicity", "radius")
-    ATTR_MANDATORY_TYPES = (str, float, float)
-    ATTR_MANDATORY_CIF = ("model", "mosaicity", "radius")
+    ATTR_MANDATORY_NAMES = ("model", )
+    ATTR_MANDATORY_TYPES = (str, )
+    ATTR_MANDATORY_CIF = ("model", )
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("mosaicity", "radius", "q_hh", "q_kk", "q_ll", "q_hk", "q_hl", "q_kl")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, float)
+    ATTR_OPTIONAL_CIF = ("mosaicity", "radius", "q_hh", "q_kk", "q_ll", "q_hk", "q_hl", "q_kl")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -40,14 +37,14 @@ class Extinction(ItemN):
     ATTR_INT_PROTECTED_NAMES = ()
 
     # parameters considered are refined parameters
-    ATTR_REF = ("mosaicity", "radius")
+    ATTR_REF = ("mosaicity", "radius", "q_hh", "q_kk", "q_ll", "q_hk", "q_hl", "q_kl")
     ATTR_SIGMA = tuple([f"{_h:}_sigma" for _h in ATTR_REF])
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # constraints on the parameters
-    D_CONSTRAINTS = {"model": ["gauss", "lorentz"]}
+    D_CONSTRAINTS = {"model": ["gauss", "lorentz", "qani"]}
 
     # default values for the parameters
     D_DEFAULT = {}
@@ -76,61 +73,80 @@ class Extinction(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    def calc_extinction(self, cell, h, k, l, f_sq, wavelength:float,
-                        flag_derivatives:bool=False):
-        """
-        f_sq in 10-12cm
-        extinction for spherical model
+    # def calc_extinction(self, cell, h, k, l, f_sq, wavelength:float,
+    #                     flag_derivatives:bool=False):
+    #     """
+    #     f_sq in 10-12cm
+    #     extinction for spherical model
 
-        Parameters
-        ----------
-        cell : TYPE
-            DESCRIPTION.
-        h : TYPE
-            DESCRIPTION.
-        k : TYPE
-            DESCRIPTION.
-        l : TYPE
-            DESCRIPTION.
-        f_sq : TYPE
-            DESCRIPTION.
-        wavelength : TYPE
-            DESCRIPTION.
-        flag_derivatives : TYPE, optional
-            DESCRIPTION. The default is False.
+    #     Parameters
+    #     ----------
+    #     cell : TYPE
+    #         DESCRIPTION.
+    #     h : TYPE
+    #         DESCRIPTION.
+    #     k : TYPE
+    #         DESCRIPTION.
+    #     l : TYPE
+    #         DESCRIPTION.
+    #     f_sq : TYPE
+    #         DESCRIPTION.
+    #     wavelength : TYPE
+    #         DESCRIPTION.
+    #     flag_derivatives : TYPE, optional
+    #         DESCRIPTION. The default is False.
 
-        Returns
-        -------
-        TYPE
-            DESCRIPTION.
+    #     Returns
+    #     -------
+    #     TYPE
+    #         DESCRIPTION.
 
-        """
-        radius, mosaicity, model = self.radius, self.mosaicity, self.model
-        volume_unit_cell = cell.volume
-        sthovl = cell.calc_sthovl(h, k, l)
-        y_ext, dder = calc_extinction_2(radius, mosaicity, model, f_sq,
-                                        volume_unit_cell, sthovl, wavelength)
-        if flag_derivatives:
-            return y_ext, dder
-        else:
-            return y_ext
+    #     """
+    #     radius, mosaicity, model = self.radius, self.mosaicity, self.model
+    #     volume_unit_cell = cell.volume
+    #     sthovl = cell.calc_sthovl(h, k, l)
+    #     y_ext, dder = calc_extinction_2(radius, mosaicity, model, f_sq,
+    #                                     volume_unit_cell, sthovl, wavelength)
+    #     if flag_derivatives:
+    #         return y_ext, dder
+    #     else:
+    #         return y_ext
 
     def get_dictionary(self):
         res = {}
         model_extinction = self.model
-        radius = self.radius
-        mosaicity = self.mosaicity
         res["extinction_model"] = model_extinction
-        res["extinction_radius"] = numpy.array([radius], dtype=float)
-        res["extinction_mosaicity"] = numpy.array([mosaicity], dtype=float)
-        res["flags_extinction_radius"] = numpy.array([self.radius_refinement], dtype=bool)
-        res["flags_extinction_mosaicity"] = numpy.array([self.mosaicity_refinement], dtype=bool)
+        if model_extinction == "qani":
+            res["extinction_q_hh"] = numpy.array([self.q_hh], dtype=float)
+            res["extinction_q_kk"] = numpy.array([self.q_kk], dtype=float)
+            res["extinction_q_ll"] = numpy.array([self.q_ll], dtype=float)
+            res["extinction_q_hk"] = numpy.array([self.q_hk], dtype=float)
+            res["extinction_q_hl"] = numpy.array([self.q_hl], dtype=float)
+            res["extinction_q_kl"] = numpy.array([self.q_kl], dtype=float)
+            res["flags_extinction_q_hh"] = numpy.array([self.q_hh_refinement], dtype=bool)
+            res["flags_extinction_q_kk"] = numpy.array([self.q_kk_refinement], dtype=bool)
+            res["flags_extinction_q_ll"] = numpy.array([self.q_ll_refinement], dtype=bool)
+            res["flags_extinction_q_hk"] = numpy.array([self.q_hk_refinement], dtype=bool)
+            res["flags_extinction_q_hl"] = numpy.array([self.q_hl_refinement], dtype=bool)
+            res["flags_extinction_q_kl"] = numpy.array([self.q_kl_refinement], dtype=bool)
+        else:
+            radius = self.radius
+            mosaicity = self.mosaicity
+            res["extinction_radius"] = numpy.array([radius], dtype=float)
+            res["extinction_mosaicity"] = numpy.array([mosaicity], dtype=float)
+            res["flags_extinction_radius"] = numpy.array([self.radius_refinement], dtype=bool)
+            res["flags_extinction_mosaicity"] = numpy.array([self.mosaicity_refinement], dtype=bool)
         return res
 
 class ExtinctionL(LoopN):
-    """
-    Description of extinction in loop.
+    """Description of extinction in loop.
+    
+if model is "gauss" or "lorentz", then the following parameters are considered: 
+    - mosaicity in minutes
+    - radius in micrometers
 
+if model is "qani", then the following parameters are considered:
+    - q_hh, q_kk, q_ll, q_hk, q_hl, q_kl
     """
     ITEM_CLASS = Extinction
     ATTR_INDEX = None

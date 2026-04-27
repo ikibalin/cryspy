@@ -12,8 +12,10 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.A_functions_base.function_1_strings import transform_string_to_r_b
 
 from cryspy.A_functions_base.function_2_mem import \
-    calc_asymmetric_unit_cell_indexes, calc_factor_in_front_of_density_for_fm,\
+    calc_factor_in_front_of_density_for_fm,\
     calc_index_atom_symmetry_closest_to_fract_xyz, calc_moment_perp
+from cryspy.A_functions_base.symmetry_elements import calc_asymmetric_unit_cell_indexes
+
 
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_space_group_symop import SpaceGroupSymopL

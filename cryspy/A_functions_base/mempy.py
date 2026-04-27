@@ -158,8 +158,9 @@ def calc_mem_m(
         numpy.expand_dims(fract_points, axis=2), flag_m=False, flag_v=False)[0]
 
     fract_b = full_symm_elems[:3, :]/numpy.expand_dims(full_symm_elems[3, :], axis=0)
+    # hh is [3,1,Npoints, Nsymm]
     hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=1)
-    index_hkl_3d = numpy.expand_dims(numpy.expand_dims(index_hkl, axis=2), axis=3)
+    index_hkl_3d = numpy.expand_dims(index_hkl, axis=(2,3))
 
     # [hkl, points, symm]
     phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) 
@@ -177,24 +178,24 @@ def calc_mem_m(
     # [1, 1, N_symm, ]
     coeff2 = numpy.expand_dims(det_r * theta_s, axis=(0,1))
 
-    # [3, points, symm]
+    # [3, points, Natom, symm]
     m_ccs_s = coeff2 * calc_m_v(
-        numpy.expand_dims(r_ccs, axis=1), 
-        numpy.expand_dims(point_moment, axis=2), 
+        numpy.expand_dims(r_ccs, axis=(1,2)), 
+        numpy.expand_dims(point_moment, axis=3), 
         flag_m=False, 
         flag_v=False
         )[0]
 
-    # [3, hkl, points, symm]
+    # [3, hkl, points, Natom, symm]
     m_perp_ccs = calc_vector_product_v1_v2_v1(
-        numpy.expand_dims(eq_ccs, axis=(2,3)), 
+        numpy.expand_dims(eq_ccs, axis=(2,3,4)), 
         numpy.expand_dims(m_ccs_s, axis=1), 
         flag_v1=False, flag_v2=False)[0]
 
-    # [3, hkl, points]
+    # [3, hkl, points, Natom]
     coeff = 0.2695*volume_unit_cell/(full_symm_elems.shape[1] * number_unit_cell)
-    mem_ani = coeff*((numpy.expand_dims(phase_3d, axis=0) * m_perp_ccs).sum(axis=3)) * \
-        numpy.expand_dims(numpy.expand_dims(point_multiplicity, axis=0), axis=1)
+    mem_ani = coeff*((numpy.expand_dims(phase_3d, axis=(0,3)) * m_perp_ccs).sum(axis=4)) * \
+        numpy.expand_dims(point_multiplicity, axis=(0,1,3))
 
     return mem_ani
 
@@ -245,17 +246,18 @@ def calc_mem_chi(
         dict_in_out["point_multiplicity"] = point_multiplicity
 
     rs_xyz = calc_m_r_inv_m(unit_cell_parameters, full_symm_elems, flag_unit_cell_parameters=False)[0]
+    # [9, points, Nmag, Nsymm]
     point_susceptibility_2d_ccs = calc_m1_m2_inv_m1(
-        numpy.expand_dims(rs_xyz, axis=1),
-        numpy.expand_dims(point_susceptibility, axis=2), flag_m1=False, flag_m2=False)[0]
+        numpy.expand_dims(rs_xyz, axis=(1,2)),
+        numpy.expand_dims(point_susceptibility, axis=3), flag_m1=False, flag_m2=False)[0]
 
-    # [3, points, symm]
+    # [3, points, Nmag, symm]
     m_ccs = calc_m_v(point_susceptibility_2d_ccs, 
-        numpy.expand_dims(numpy.expand_dims(h_ccs, axis=1), axis=2), flag_m=False, flag_v=False)[0]
+        numpy.expand_dims(h_ccs, axis=(1,2,3)), flag_m=False, flag_v=False)[0]
 
-    # [3, hkl, points, symm]
+    # [3, hkl, points, Nmag, symm]
     m_perp_ccs = calc_vector_product_v1_v2_v1(
-        numpy.expand_dims(numpy.expand_dims(eq_ccs, axis=2), axis=3), 
+        numpy.expand_dims(eq_ccs, axis=(2,3,4)), 
         numpy.expand_dims(m_ccs, axis=1), flag_v1=False, flag_v2=False)[0]
 
     # [symm]
@@ -265,16 +267,78 @@ def calc_mem_chi(
         numpy.expand_dims(fract_points, axis=2), flag_m=False, flag_v=False)[0]
 
     fract_b = full_symm_elems[:3]/numpy.expand_dims(full_symm_elems[3], axis=0)
+    hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=(1,3))
+    index_hkl_3d = numpy.expand_dims(index_hkl, axis=(2,3,4))
+    # [hkl, points, Nmag, symm]
+    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2]))
+
+    # [3, hkl, points, Natom]
+    coeff = 0.2695*volume_unit_cell/(full_symm_elems.shape[1] * number_unit_cell)
+    mem_ani = coeff*((numpy.expand_dims(phase_3d, axis=0) * m_perp_ccs).sum(axis=4)) * \
+        numpy.expand_dims(point_multiplicity, axis=(0,1,3))
+    return mem_ani
+
+
+
+def calc_mem_nucl(
+        index_hkl, unit_cell_parameters, full_symm_elems, symm_elem_points,
+        volume_unit_cell, number_unit_cell, scattering_amplitude, 
+        point_multiplicity=None, dict_in_out: dict=None, flag_use_precalculated_data: bool = False):
+    dict_in_out_keys = dict_in_out.keys()
+    if (("index_hkl" in dict_in_out_keys) and flag_use_precalculated_data):
+        if numpy.any(dict_in_out["index_hkl"] != index_hkl):
+            flag_use_precalculated_data = False
+            dict_in_out["index_hkl"] = index_hkl
+    else:
+        dict_in_out["index_hkl"] = index_hkl
+
+    if (("eq_ccs" in dict_in_out_keys) and flag_use_precalculated_data):
+        eq_ccs = dict_in_out["eq_ccs"]
+    else:
+        eq_ccs = calc_eq_ccs_by_unit_cell_parameters(index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+        dict_in_out["eq_ccs"] = eq_ccs
+
+    if point_multiplicity is None:
+        if (("point_multiplicity" in dict_in_out_keys) and flag_use_precalculated_data):
+            point_multiplicity = dict_in_out["point_multiplicity"]
+        else:
+            point_multiplicity = calc_multiplicity_by_atom_symm_elems(full_symm_elems, symm_elem_points)
+            dict_in_out["point_multiplicity"] = point_multiplicity
+    else:
+        dict_in_out["point_multiplicity"] = point_multiplicity
+
+    fract_points = symm_elem_points[:3]/numpy.expand_dims(symm_elem_points[3], axis=0)
+
+    rr = calc_m_v(
+        numpy.expand_dims(full_symm_elems[4:13], axis=1),
+        numpy.expand_dims(fract_points, axis=2), flag_m=False, flag_v=False)[0]
+
+    fract_b = full_symm_elems[:3]/numpy.expand_dims(full_symm_elems[3], axis=0)
     hh = numpy.expand_dims(rr + numpy.expand_dims(fract_b, axis=1), axis=1)
     index_hkl_3d = numpy.expand_dims(numpy.expand_dims(index_hkl, axis=2), axis=3)
     # [hkl, points, symm]
-    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2]))
+    r_direct = full_symm_elems[4:]
+    m_m = calc_m_m_by_unit_cell_parameters(
+        unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    r_ccs = calc_m1_m2_inv_m1(m_m, r_direct)[0]
 
+    det_r = calc_det_m(r_ccs)[0]
+        
+    # [hkl,points,symm]
+    phase_3d = numpy.exp(-2.*numpy.pi * 1j*(hh[0] * index_hkl_3d[0] + hh[1] * index_hkl_3d[1] + hh[2] * index_hkl_3d[2])) 
+
+    
+    # [3, hkl, pointss]
+    m_phase_2d = (phase_3d).sum(axis=2)
+
+    # phase_2d = phase_3d.sum(axis=2)
     # [3, hkl, points]
-    coeff = 0.2695*volume_unit_cell/(full_symm_elems.shape[1] * number_unit_cell)
-    mem_ani = coeff*((numpy.expand_dims(phase_3d, axis=0) * m_perp_ccs).sum(axis=3)) * \
-        numpy.expand_dims(numpy.expand_dims(point_multiplicity, axis=0), axis=1)
-    return mem_ani
+    # mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) * 
+    #     numpy.expand_dims(eh_perp_ccs, axis=2))/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
+    mem_nucl = scattering_amplitude * (m_phase_2d*numpy.expand_dims(numpy.expand_dims(point_multiplicity, axis=0),axis=0)
+                      )/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
+    return mem_nucl
+
 
 
 def renormailize_density_col(
@@ -320,6 +384,40 @@ def get_uniform_density_ani(point_multiplicity, point_atom_label, point_atom_mul
         volume_unit_cell, points_unit_cell)
     return norm_density_ani
 
+
+
+def get_uniform_density_ani_2(point_multiplicity, atom_multiplicity, volume_unit_cell, points_unit_cell):
+    # density_ani is [Npoint, Natom] 
+    density_ani = numpy.ones(point_multiplicity.shape + atom_multiplicity.shape, dtype=float)
+    norm_density_ani = renormailize_density_ani_2(
+        density_ani, point_multiplicity,
+        atom_multiplicity,
+        volume_unit_cell, points_unit_cell)
+    return norm_density_ani
+
+
+def renormailize_density_ani_2(
+        point_density, point_multiplicity,
+        atom_multiplicity,
+        volume_unit_cell, points_unit_cell):
+    na = numpy.newaxis
+    coeff = float(points_unit_cell)/volume_unit_cell
+    point_norm_density = numpy.copy(point_density)
+    prod_den_mult = point_density*numpy.expand_dims(point_multiplicity, axis=1)/numpy.expand_dims(atom_multiplicity, axis=0)
+    # m_at is [Natom]
+    # m_at = prod_den_mult.sum(axis=0)
+    m_at = numpy.abs(prod_den_mult).sum(axis=0) # FIXME: it is done for multipolar model. In other cases density should be only positive and therefore the expression is as before. 
+    point_norm_density *= coeff/numpy.expand_dims(m_at, axis=0)
+    # #FIXME: very slow solution. Redo it.
+    # atom_label = numpy.unique(point_atom_label)
+    # flag_2d = point_atom_label[na, :] == atom_label[:, na]
+
+    # for flag_1d in flag_2d:
+    #     m_at = numpy.sum(prod_den_mult, where=flag_1d)
+    #     if numpy.any(flag_1d):
+    #         point_norm_density[flag_1d] *= coeff/float(m_at)
+    return point_norm_density
+
 def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density_auc, n_abc, full_mcif_elems, e_h_ccs):
 
     n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
@@ -339,11 +437,60 @@ def transform_to_spin_density_for_mcif(index_auc, multiplicity_auc, spin_density
         projection_h_s = sign_s * (calc_m_v(elem_r, e_h_ccs)[0] * numpy.expand_dims(e_h_ccs, axis=1)).sum(axis=0)
         index_xyz_s = apply_symm_elems_to_index_xyz(symm_elems, index_xyz, n_abc)
         for ind_xys, coeff in zip(index_xyz_s.transpose(), projection_h_s):
-            spin_density_3d[ind_xys[0], ind_xys[1], ind_xys[2]] += coeff * (den_plus_minus[0] + den_plus_minus[1]) / mult
+            # spin_density_3d[ind_xys[0], ind_xys[1], ind_xys[2]] += coeff * (den_plus_minus[0] + den_plus_minus[1]) / mult
+            spin_density_3d[ind_xys[0], ind_xys[1], ind_xys[2]] = coeff * (den_plus_minus[0] + den_plus_minus[1])
     spin_density = spin_density_3d.reshape(numpy.prod(spin_density_3d.shape))
     spin_density_out = numpy.stack([spin_density, numpy.zeros_like(spin_density)], axis=0)
     point_index = point_index.reshape(point_index.shape[0], numpy.prod(point_index.shape[1:]))
     return point_index, spin_density_out
+
+
+
+
+def transform_to_density_auc_to_moments(index_auc, point_atom_symm_elems_auc, multiplicity_auc, density_auc, n_abc, full_mcif_elems, atom_moment, unit_cell_parameters):
+    """
+    density_auc: [Npoints_auc, NMagAtom]  electron density for each magnetic atom in asymmetric unit cell
+    atom_moment: [3, NMagAtom]  magnetic moment direction for each magnetic atom
+    index_auc: [3, Npoints_auc]  index of points in asymmetric unit cell
+    multiplicity_auc: [Npoints_auc] multiplicity of points in asymmetric unit cell
+    n_abc: [3] number of points along a,b,c in full unit cell
+    full_mcif_elems: [14, Nsymm] symmetry elements for magnetic atoms
+    0-3: translation part (b1,b2,b3,den)
+    4-12: rotation part (r11,r21,r31,r12,r22,r32,r13,r23,r33)
+    13: theta_s
+    """
+    atom_symm_elems_auc = numpy.swapaxes(point_atom_symm_elems_auc, 0, 1)
+    n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
+    point_index = numpy.stack(numpy.meshgrid(
+        numpy.arange(n_a), numpy.arange(n_b), numpy.arange(n_c),
+        indexing="ij"), axis=0)
+    # [3, n_a, n_b, n_c, NMagAtom]
+    moment_3d = numpy.zeros(point_index.shape, dtype=float)
+    elem_r = full_mcif_elems[4:13]
+    symm_elems = full_mcif_elems[:13]
+    theta_s = full_mcif_elems[13]
+    m_m =calc_m_m_by_unit_cell_parameters(unit_cell_parameters)[0]
+    r_xyz = calc_m1_m2_inv_m1(m_m, elem_r)[0]
+    det_r = calc_det_m(r_xyz)[0]
+    sign_s = det_r * theta_s
+
+    for index_xyz, atom_symm_elems, mult, den_auc in zip(index_auc.transpose(), atom_symm_elems_auc, multiplicity_auc, density_auc, ):
+        # [3, Nsymm]
+        index_xyz_s = apply_symm_elems_to_index_xyz(symm_elems, index_xyz, n_abc)
+        r_at = atom_symm_elems[4:13]
+        theta_s_at = atom_symm_elems[13]
+        r_xyz_at = calc_m1_m2_inv_m1(m_m, r_at)[0]
+        det_r_at = calc_det_m(r_xyz_at)[0]
+        sign_s_at = det_r_at * theta_s_at
+        atom_moment_in_auc = sign_s_at * calc_m_v(r_at, atom_moment)[0]
+        moment_s = numpy.expand_dims(sign_s, axis=(0,2)) * calc_m_v(numpy.expand_dims(elem_r, axis=2), numpy.expand_dims(atom_moment_in_auc, axis=1))[0]
+        moment_s = moment_s.swapaxes(0,1)
+        for ind_xys, m_s in zip(index_xyz_s.transpose(), moment_s):
+            moment_3d[:, ind_xys[0], ind_xys[1], ind_xys[2]] = (numpy.expand_dims(den_auc, axis=0) * m_s).sum(axis=1)
+    
+    moment = moment_3d.reshape(moment_3d.shape[0], numpy.prod(moment_3d.shape[1:]))
+    point_index = point_index.reshape(point_index.shape[0], numpy.prod(point_index.shape[1:]))
+    return point_index, moment
 
 
 
@@ -443,6 +590,7 @@ def calc_index_atom_symmetry_closest_to_fract_xyz(
 
     return ind_at, ind_sym, distance
 
+
 def form_basins(
         symm_elem_auc, 
         full_symm_elems, unit_cell_parameters,
@@ -474,25 +622,116 @@ def form_basins(
 
 
 
+def calc_index_atom_symmetry_closest_to_fract_xyz_2(
+        fract_xyz, fract_atom_xyz, full_symm_elems, unit_cell_parameters):
+    """
+    Calculate index of atoms and applied symmetry to have closest atoms.
+
+    Basins are defined as closest points to atom
+
+    fract_xyz = [3, n_points]
+    fract_atom_xyz = [3, n_atoms]
+
+    Output:
+        - n_atom_index = [n_points]: integers from 0 until n_atoms
+        - n_symmetry = [n_points]: integers from 0 until n_symmetry
+    """
+    
+    fract_xyz = numpy.mod(fract_xyz, 1.)
+    fract_atom_xyz = fract_atom_xyz
+    
+    elem_r = full_symm_elems[4:13]
+    fract_b = full_symm_elems[:3]/numpy.expand_dims(full_symm_elems[3], axis=0)
+    rr_atom = calc_m_v(
+        numpy.expand_dims(elem_r, axis=1),
+        numpy.expand_dims(fract_atom_xyz, axis=2), flag_m=False, flag_v=False)[0]
+    
+    fract_atom_s = numpy.mod(
+        rr_atom + numpy.expand_dims(fract_b, axis=1), 1.)
+    
+    diff_fract = (numpy.expand_dims(numpy.expand_dims(fract_xyz, axis=2), axis=3) -
+                  numpy.expand_dims(fract_atom_s, axis=1))
+
+    flag_g_half = numpy.abs(diff_fract) > 0.5
+    flag_sign = numpy.where(diff_fract >= 0.0, -1.0, 1.0)
+    diff_fract_1 = numpy.where(flag_g_half, diff_fract+flag_sign, diff_fract)
+    
+    m_m = calc_m_m_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    diff_position_1 = calc_m_v(m_m, diff_fract_1, flag_m=False, flag_v=False)[0]
+    # [Npoints, Natom, Nsym]
+    dist_sq_3d = numpy.square(diff_position_1).sum(axis=0)
+    # [Npoints, Natom] index of symetry giving a minimal distance
+    ind_sym = numpy.argmin(dist_sq_3d, axis=2)
+    # [Npoints, Natom] distance squared 
+    dist_sq_2d = numpy.take_along_axis(dist_sq_3d, numpy.expand_dims(ind_sym, axis=2), axis=2).squeeze(axis=2)
+    distance = numpy.sqrt(dist_sq_2d)
+
+    # dist_sq_2d_over_sym = numpy.min(dist_sq_3d, axis=2)
+    # dist_sq_2d_over_at min value over symmetry: [Npoints, Natom] 
+    # dist_sq_2d_over_at = numpy.min(dist_sq_3d, axis=1)
+    # ind_sym = numpy.argmin(dist_sq_2d_over_at, axis=1)
+    # dist_sq = numpy.min(dist_sq_2d_over_at, axis=1)
+    # distance = numpy.sqrt(dist_sq)
+    
+    # ind_at = numpy.argmin(dist_sq_2d_over_sym, axis=1)
+
+    # dist_sq = numpy.min(dist_sq_2d_over_sym, axis=1)
+    # distance = numpy.sqrt(dist_sq)
+
+    return ind_sym, distance
+
+
+def form_basins_2(symm_elem_auc, full_symm_elems, unit_cell_parameters, mag_atom_fract_xyz):
+    """"
+    Output:
+    atom_multiplicity_auc_ani is [Npoint, ]
+    atom_distance_auc_ani is [Nmag_atom, Npoint, ]
+    atom_symm_elems_auc_m is [14, Nmag_atom, Npoint,]
+    fractions in asymmetric unit cell
+    """
+
+    point_fract_xyz_auc = symm_elem_auc[:3, :]/numpy.expand_dims(symm_elem_auc[3, :], axis=0)
+
+    # separate on basins
+    # ind_sym is [Npoint, Natom]
+    # point_atom_distance is [Npoint, Natom]
+    ind_sym, point_atom_distance = calc_index_atom_symmetry_closest_to_fract_xyz_2(
+            point_fract_xyz_auc, mag_atom_fract_xyz, full_symm_elems, unit_cell_parameters)
+
+
+    point_atom_symm_elems = full_symm_elems[:, ind_sym]
+
+
+    return point_atom_distance, point_atom_symm_elems
+
+
+
 def calc_point_ordered(
-        unit_cell_parameters, atom_symm_elems_m, atom_label_m, atom_ordered_label, atom_ordered_m, atom_ordered_sc_m,
+        unit_cell_parameters, atom_symm_elems_m, atom_ordered_m, atom_ordered_sc_m,
         full_mag_symm_elems, point_symm_elem):
-    # TODO: check coordinate system for atom_ordered_m (it should be transformed to XYZ if not yet)
+    """
+    atom_symm_elems_auc_m is given for all magnetic atoms [14, Npoint, Nmag_atom]
+    atom_label_auc_ani is not needed
+    atom_ordered_label is [Natom,]
+    atom_ordered_m is [3, Nmag_atom]
+    atom_ordered_sc_m is [9, Nmag_atom]
+    symm_elem_auc_ani is common for all magnetic atoms as it just position
+    point_ordered is [3, Npoint, Nmag_atom]
+    """
     full_symm_elems = full_mag_symm_elems[:13, :]
+    # in dn
     atom_ordered_m_averaged = calc_m_v(atom_ordered_sc_m, atom_ordered_m, flag_m=False, flag_v=False)[0] # SC_a * m_a
     
     r_xyz = calc_m_r_inv_m(unit_cell_parameters, atom_symm_elems_m, flag_unit_cell_parameters=False)[0]
     m_m_norm = calc_m_m_norm_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
 
-    flag_mag = numpy.expand_dims(atom_label_m, axis=1) == numpy.expand_dims(atom_ordered_label, axis=0)
-    ind_mag_atom = numpy.argmax(flag_mag, axis=1)
-    point_ordered_m_a = atom_ordered_m_averaged[:, ind_mag_atom]
+    point_ordered_m_a = atom_ordered_m_averaged
     point_ordered_m_xyz = calc_m_v(m_m_norm, point_ordered_m_a)[0]
     det_r_s = calc_det_m(r_xyz)[0]
     rm_xyz = calc_m_v(r_xyz, point_ordered_m_xyz)[0]
     atom_theta_s = atom_symm_elems_m[13,:]
     point_ordered_m_s = numpy.expand_dims(atom_theta_s * det_r_s,axis=0) * rm_xyz
-
+    # flag_2d is [Nsymm, Npoint] it is bool matrix that for every point shows which symm elemets should be applied to transorm point to point
     flag_2d = calc_symm_flags(
         numpy.expand_dims(full_symm_elems, axis=2), 
         numpy.expand_dims(point_symm_elem, axis=1))
@@ -503,21 +742,19 @@ def calc_point_ordered(
         # [9,]
         scv_m = calc_sc_ordered(mag_symm_elem_direct, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
         l_scv_m.append(scv_m)
-    # [9, Natom]
+    # point scv_m is [9, Natom] symmetry constraint for every point it is not dependent on atom
     point_scv_m = numpy.stack(l_scv_m, axis=-1)
-
-    point_m_aver = calc_m_v(point_scv_m, point_ordered_m_s)[0]
+    # in dn
+    point_m_aver = calc_m_v(numpy.expand_dims(point_scv_m, axis=2), point_ordered_m_s)[0]
     return point_m_aver
 
 
 def calc_point_susceptibility(
-        unit_cell_parameters, atom_symm_elems_chi, atom_label_chi, atom_para_label, atom_para_susceptibility, atom_para_sc_chi,
+        unit_cell_parameters, atom_symm_elems_chi, atom_para_susceptibility, atom_para_sc_chi,
         full_symm_elems, point_symm_elem):
     atom_para_susceptibility_averaged = (atom_para_sc_chi * numpy.expand_dims(atom_para_susceptibility,axis=0)).sum(axis=1) # SC_a * chi_a
     m_r_inv_m = calc_m_r_inv_m(unit_cell_parameters, atom_symm_elems_chi, flag_unit_cell_parameters=False)[0] # R_(a,s, XYZ) = M R_(a,s) M^-1
-    flag_mag = numpy.expand_dims(atom_label_chi, axis=1) == numpy.expand_dims(atom_para_label, axis=0)
-    ind_mag_atom = numpy.argmax(flag_mag, axis=1)
-    point_susceptibility_a = atom_para_susceptibility_averaged[:, ind_mag_atom]
+    point_susceptibility_a = atom_para_susceptibility_averaged
     point_susceptibility = calc_m_q_inv_m(m_r_inv_m, point_susceptibility_a, flag_m=False, flag_q=False)[0] # chi_i
 
     flag_2d = calc_symm_flags(
@@ -534,7 +771,7 @@ def calc_point_susceptibility(
     # [9, 9, Natom]
     point_scm_chi = numpy.stack(l_scm_chi, axis=-1)
 
-    point_susceptibility_aver = (point_scm_chi * numpy.expand_dims(point_susceptibility,axis=0)).sum(axis=1) # SC_i * chi_(i,s)
+    point_susceptibility_aver = (numpy.expand_dims(point_scm_chi, axis=3) * numpy.expand_dims(point_susceptibility,axis=0)).sum(axis=1) # SC_i * chi_(i,s)
     return point_susceptibility_aver
 
 

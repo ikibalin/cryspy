@@ -13,20 +13,15 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
 
 class AtomSiteMoment(ItemN):
-    """AtomSiteMoment class.
+    """AtomSiteMoment describes an atom’s ordered magnetic moment.
 
-    This category provides a loop for presenting the magnetic moments
-    of atoms in one of several coordinate systems. This is a child category
-    of the AtomSite category, so that the magnetic moments can either be
-    listed alongside the non-magnetic atom properties in the main AtomSite loop
-    (not realized) or be listed in a separate loop (realized)
+Instead of specifying the crystal space group, define the magnetic space group using space_group_symop_magn_operation and space_group_symop_magn_centering.
 
-    Attributes
-    ----------
-        - label, symmform (mandatory)
-        - cartn_x, cartn_y, cartn_z, crystalaxis_x, crystalaxis_y,
-          crystalaxis_z, modulation_flag, refinement_flags_magnetic,
-          spherical_azimuthal, spherical_modulus, spherical_polar
+To express the magnetic moment in terms of crystal axes, use crystalaxis_x, crystalaxis_y and crystalaxis_z. These are refined parameters.
+
+The symmform parameter defines the symmetry of the moment. For example, if the moment is along the x-axis, symmform can be “mx,0,0”.  If it’s in the xy-plane and mx=my, symmform can be “mx,mx,0”. This parameter is used to set constraints on the refined parameters.
+
+Ensure the ion label matches the label in the atom_site loop.
     """
 
     ATTR_MANDATORY_NAMES = ("label",)
@@ -57,6 +52,13 @@ class AtomSiteMoment(ItemN):
     ATTR_CONSTR_FLAG = tuple([f"{_h:}_constraint" for _h in ATTR_REF])
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
+
+    # formats if cif format
+    D_FORMATS = {
+        "crystalaxis_x": "{:.5f}", 
+        "crystalaxis_y": "{:.5f}", 
+        "crystalaxis_z": "{:.5f}",
+        }
 
     # constraints on the parameters
     D_CONSTRAINTS = {"modulation_flag": ["yes", "y", "no", "n"],
@@ -134,13 +136,15 @@ class AtomSiteMoment(ItemN):
         return super(AtomSiteMoment, self).to_cif(separator=separator)
 
 class AtomSiteMomentL(LoopN):
-    """AtomSiteMomentL class.
+    """AtomSiteMoment describes an atom’s ordered magnetic moment.
 
-    AtomSiteMomentL category provides a loop for presenting the magnetic
-    moments  of atoms in one of several coordinate systems. This is a child
-    category of the AtomSite category, so that the magnetic moments can either
-    be listed alongside the non-magnetic atom properties in the main AtomSite
-    loop (not realized) or be listed in a separate loop (realized)
+Instead of specifying the crystal space group, define the magnetic space group using space_group_symop_magn_operation and space_group_symop_magn_centering.
+
+To express the magnetic moment in terms of crystal axes, use crystalaxis_x, crystalaxis_y and crystalaxis_z. These are refined parameters.
+
+The symmform parameter defines the symmetry of the moment. For example, if the moment is along the x-axis, symmform can be “mx,0,0”.  If it’s in the xy-plane and mx=my, symmform can be “mx,mx,0”. This parameter is used to set constraints on the refined parameters.
+
+Ensure the ion label matches the label in the atom_site loop.
     """
 
     ITEM_CLASS = AtomSiteMoment

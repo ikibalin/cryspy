@@ -14,16 +14,18 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomSite(ItemN):
-    """Describe the atom site.
+    """AtomSite describes position of atom in unit cell together with type of atomic vibations.
 
-    Attributes
-    ----------
-        - label, type_symbol, fract_x, fract_y, fract_z (mandatory)
-        - occupancy, adp_type, u_iso_or_equiv, u_equiv_geom_mean,
-          b_iso_or_equiv, multiplicity, wyckoff_symbol, cartn_x, cartn_y,
-          cartn_z (optional)
-        - scat_length_neutron (internal)
-        - space_group_wyckoff, constr_number (internal protected)
+Dummy atoms can be defined by type_symbol "Dummy". 
+They are not considered in scattering (scattering is zero) but can be used for definition of local coordinate system of magnetic scattering only.
+
+For isotropic atomic vibrations, adp_type is "Uiso" or "Biso" and the value of u_iso_or_equiv or b_iso_or_equiv is considered as isotropic atomic displacement parameter.
+
+For anisotropic atomic vibrations, adp_type is "Uani" or "Bani". In this case atom_site_aniso loop should be used to define anisotropic atomic displacement parameters. The value of u_iso_or_equiv or b_iso_or_equiv is not considered in this case but should be defined as zero to avoid errors in scattering calculations.
+
+The refined parameters are fract_x, fract_y, fract_z, occupancy, u_iso_or_equiv, b_iso_or_equiv.
+
+All other parameters can be calculated.
     """
     ATTR_MANDATORY_NAMES = ("label", "type_symbol", "fract_x", "fract_y",
                             "fract_z")
@@ -262,16 +264,18 @@ class AtomSite(ItemN):
 
 
 class AtomSiteL(LoopN):
-    """Describe the atom sites in crystal.
+    """AtomSite describes position of atom in unit cell together with type of atomic vibations.
 
-    Attributes
-    ----------
-        - label, type_symbol, fract_x, fract_y, fract_z (mandatory)
-        - occupancy, adp_type, u_iso_or_equiv, u_equiv_geom_mean,
-          b_iso_or_equiv, multiplicity, wyckoff_symbol, cartn_x, cartn_y,
-          cartn_z (optional)
-        - scat_length_neutron (internal)
-        - space_group_wyckoff, constr_number (internal protected)
+Dummy atoms can be defined by type_symbol "Dummy". 
+They are not considered in scattering (scattering is zero) but can be used for definition of local coordinate system of magnetic scattering only.
+
+For isotropic atomic vibrations, adp_type is "Uiso" or "Biso" and the value of u_iso_or_equiv or b_iso_or_equiv is considered as isotropic atomic displacement parameter.
+
+For anisotropic atomic vibrations, adp_type is "Uani" or "Bani". In this case atom_site_aniso loop should be used to define anisotropic atomic displacement parameters. The value of u_iso_or_equiv or b_iso_or_equiv is not considered in this case but should be defined as zero to avoid errors in scattering calculations.
+
+The refined parameters are fract_x, fract_y, fract_z, occupancy, u_iso_or_equiv, b_iso_or_equiv.
+
+All other parameters can be calculated.
     """
     ITEM_CLASS = AtomSite
     ATTR_INDEX = "label"

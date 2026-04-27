@@ -1,6 +1,7 @@
+import numpy
 import cryspy
 
-from .mempy_by_dictionary import mempy_reconstruction_by_dictionary, mempy_cycle_density_susceptibility
+from .mempy_by_dictionary import mempy_reconstruction_by_dictionary, mempy_cycle_density_parameters
 
 def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
     if not(obj.is_attribute("mem_parameters")):
@@ -18,10 +19,23 @@ def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
 def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
     if not(obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
-            points_a=48, points_b=48, points_c=48, channel_ani=True, only_magnetic_basins=True)
+            points_a=48, points_b=48, points_c=48, channel_ani=True)
         obj.add_items([mem_parameters,])
     obj.mem_parameters.channel_col = False
     obj.mem_parameters.channel_ani = True
+
+    res = mempy_reconstruction_with_parameters(obj)
+    return res  
+
+
+def mempy_nuclear_density_reconstruction(obj: cryspy.GlobalN):
+    if not(obj.is_attribute("mem_parameters")):
+        mem_parameters = cryspy.MEMParameters(
+            points_a=48, points_b=48, points_c=48, channel_nucl=True)
+        obj.add_items([mem_parameters,])
+    obj.mem_parameters.channel_col = False
+    obj.mem_parameters.channel_ani = False
+    obj.mem_parameters.channel_nucl = True
 
     res = mempy_reconstruction_with_parameters(obj)
     return res  
@@ -47,18 +61,29 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
     dict_crystal = l_dict_crystal[0]
     dict_mem_parameters = l_dict_mem_parameters[0]
     dict_in_out = {}
-    mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+    res = mempy_reconstruction_by_dictionary(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda=parameter_lambda, iteration_max=iteration_max,
         parameter_lambda_min=parameter_lambda_min, delta_density=delta_density)
 
     dict_in_out_keys = dict_in_out.keys()
 
     for diffrn in l_diffrn:
-        flip_ratio = dict_in_out["dict_in_out_"+diffrn.get_name()]["flip_ratio"]
+        flag_pol = "flip_ratio" in dict_in_out["dict_in_out_"+diffrn.get_name()].keys()
         diffrn_refln = diffrn.diffrn_refln
-        diffrn_refln.numpy_fr_calc = flip_ratio
+        if flag_pol:
+            flip_ratio = dict_in_out["dict_in_out_"+diffrn.get_name()]["flip_ratio"]
+            diffrn_refln.numpy_fr_calc = flip_ratio
+        else:
+            intensity = dict_in_out["dict_in_out_"+diffrn.get_name()]["intensity"]
+            diffrn_refln.numpy_intensity_calc = intensity
         diffrn_refln.numpy_to_items()
+        refine_ls = getattr(diffrn, 'refine_ls', None)
+        if refine_ls is None:
+            diffrn.refine_ls = cryspy.RefineLs()
+            refine_ls = diffrn.refine_ls
 
+        refine_ls.goodness_of_fit_all = res["chi_sq"]
+        refine_ls.number_reflns = numpy.logical_not(diffrn_refln.excluded).sum()
     if (("symm_elem_channel_ani" in dict_in_out_keys) and
             ("density_channel_ani" in dict_in_out_keys) and
             (("susceptibility_channel_ani" in dict_in_out_keys) or ("moment_channel_ani" in dict_in_out_keys)) and
@@ -126,7 +151,7 @@ def mempy_reconstruction_with_parameters(obj: cryspy.GlobalN,
         channel_col.numpy_point_multiplicity = point_multiplicity_channel_col
         channel_col.numpy_to_items()
         obj.add_items([channel_col, ])
-    return 
+    return res
 
 
 
@@ -155,7 +180,7 @@ def mempy_cycle_with_parameters(obj: cryspy.GlobalN,
     
 
     dict_in_out = {}
-    mempy_cycle_density_susceptibility(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
+    mempy_cycle_density_parameters(dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out,
         parameter_lambda=parameter_lambda, iteration_max=iteration_max, parameter_lambda_min=parameter_lambda_min,
         delta_density=delta_density, n_cycle=n_cycle)
 

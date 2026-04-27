@@ -1,0 +1,45 @@
+data_ho2ti2o7
+
+_cell_length_a 10.268610
+_cell_length_b 10.268610
+_cell_length_c 10.268610
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 90.000000
+
+_space_group_name_H-M_alt "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+  Ho   Ho3+   0.500000   0.500000   0.500000   1.0   Uiso   0.0   16   d
+  Ti   Ti3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   c
+  O1    O2-   0.329600   0.125000   0.125000   1.0   Uiso   0.0   48   f
+  O2    O2-   0.375000   0.375000   0.375000   1.0   Uiso   0.0    8   b
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+  Ho   Cani   3.63700   3.63700   3.63700   3.55900   3.55900   3.55900
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  Ho   Ho3+   1.207   1.0

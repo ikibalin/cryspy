@@ -11,17 +11,9 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class SpaceGroupSymopMagnCentering(ItemN):
-    """Centring translation in description of a magnetic space group.
-    
-    Centering or anti-centering translation.
-
-    Given in a BNS-supercell description of a magnetic space group.
-
-    Attributes
-    ----------
-    - xyz (mandatory)
-    - description, id (optioanl)
-    """
+    """SpaceGroupSymopMagnCentering describes centring translation in description of a magnetic space group.
+Use together with space_group_symop_magn_operation to define magnetic space group in mcif format.
+   """
 
     ATTR_MANDATORY_NAMES = ("xyz", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -121,38 +113,22 @@ class SpaceGroupSymopMagnCentering(ItemN):
 
 
 class SpaceGroupSymopMagnCenteringL(LoopN):
-    """Centring translation in description of a magnetic space group.
-    
-     This loop provides a list of centering or anti-centering
-     translation in a BNS-supercell description of a magnetic space
-     group.
+    """SpaceGroupSymopMagnCentering describes centring translation in description of a magnetic space group.
+Use together with space_group_symop_magn_operation to define magnetic space group in mcif format.
 
-     Keeping the centering and anti-centering translations in a
-     separate loop leaves only representative point operations in the
-     main SPACE_GROUP_SYMOP_MAGN_OPERATION loop. The direct sum of
-     the two loops produces the full set of representative operations
-     of the magnetic space group.  This centering loop is optional, so
-     that it is always possible to include all of the symmetry
-     operations in the main loop.
+This loop provides a list of centering or anti-centering translation in a BNS-supercell description of a magnetic space group.
 
-     When this centering loop is employed, the representative point
-     operations in the main SPACE_GROUP_SYMOP_MAGN_OPERATION loop may
-     not form a closed subgroup, but instead  generate some of the
-     fractional translations of the centering loop.  Despite this
-     annoyance, a separate centering loop is important because
-     magnetic structures tend to have a relatively large number of
-     centering and anti-centering translations, which can make the
-     resulting list of operators very long and unintuitive, especially
-     when working  in non-standard settings.
+Keeping the centering and anti-centering translations in a separate loop leaves only representative point operations in the main SPACE_GROUP_SYMOP_MAGN_OPERATION loop. 
+The direct sum of the two loops produces the full set of representative operations of the magnetic space group.  
+This centering loop is optional, so that it is always possible to include all of the symmetry operations in the main loop.
 
-     One could argue that anti-centering operations belong in the main
-     representative- point-operation loop since they are not actually
-     translations of the magnetic lattice.   In fact, a pure time
-     reversal is a generator of the magnetic point group of a  type-4
-     magnetic space group.  Nevertheless, this centering loop is
-     defined to  include the anti-centerings due to the common
-     practice of referring to a "black and white" lattice of
-     centerings and anti-centerings."""
+When this centering loop is employed, the representative point operations in the main SPACE_GROUP_SYMOP_MAGN_OPERATION loop may not form a closed subgroup, but instead  generate some of the fractional translations of the centering loop. 
+Despite this annoyance, a separate centering loop is important because magnetic structures tend to have a relatively large number of centering and anti-centering translations, which can make the resulting list of operators very long and unintuitive, especially when working  in non-standard settings.
+
+One could argue that anti-centering operations belong in the main representative- point-operation loop since they are not actually translations of the magnetic lattice.   
+In fact, a pure time reversal is a generator of the magnetic point group of a  type-4 magnetic space group. 
+Nevertheless, this centering loop is defined to  include the anti-centerings due to the common practice of referring to a "black and white" lattice of centerings and anti-centerings.
+    """
 
     ITEM_CLASS = SpaceGroupSymopMagnCentering
     ATTR_INDEX = "id"

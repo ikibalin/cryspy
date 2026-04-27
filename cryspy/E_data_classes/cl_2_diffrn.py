@@ -9,7 +9,7 @@ import scipy
 
 from cryspy.A_functions_base.matrix_operations import calc_vector_product_v1_v2_v1
 
-from cryspy.A_functions_base.extinction import calc_extinction_sphere
+from cryspy.A_functions_base.extinction import calc_extinction_sphere, calc_extinction_qani
 from cryspy.A_functions_base.flip_ratio import calc_flip_ratio_by_structure_factors
 from cryspy.A_functions_base.unit_cell import calc_sthovl_by_unit_cell_parameters, calc_volume_uc_by_unit_cell_parameters, \
     calc_eq_ccs_by_unit_cell_parameters
@@ -25,6 +25,7 @@ from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
+from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwinL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
     DiffrnOrientMatrix
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnReflnL
@@ -82,7 +83,7 @@ class Diffrn(DataN):
     CLASSES_MANDATORY = (Setup, DiffrnOrientMatrix,
                          DiffrnReflnL)
     CLASSES_OPTIONAL = (DiffrnRadiation, Extinction, Phase, ReflnL, ReflnSusceptibilityL,
-                        RefineLs, Chi2)
+                        RefineLs, Chi2, JanaTwinL)
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -261,7 +262,7 @@ class Diffrn(DataN):
             else:
                 FMans_min = min(FMans)
                 lFMansMin.append(FMans_min)
-                der1 = float(derivative(f, FMans_min, 0.1, 1))
+                der1 = float(derivative(f, FMans_min, 0.1, 1).squeeze())
                 f_mag_sigma = abs(fr_sigma[_ind] / der1)
                 lFMansMin_sigma.append(f_mag_sigma)
 
@@ -366,6 +367,18 @@ class Diffrn(DataN):
             self.diffrn_radiation.efficiency = ddict_diffrn["flipper_efficiency"]
         if "extinction_mosaicity" in keys:
             self.extinction.mosaicity = ddict_diffrn["extinction_mosaicity"]
+        if "extinction_q_hh" in keys:
+            self.extinction.q_hh = ddict_diffrn["extinction_q_hh"]
+        if "extinction_q_kk" in keys:
+            self.extinction.q_kk = ddict_diffrn["extinction_q_kk"]
+        if "extinction_q_ll" in keys:
+            self.extinction.q_ll = ddict_diffrn["extinction_q_ll"]
+        if "extinction_q_hk" in keys:
+            self.extinction.q_hk = ddict_diffrn["extinction_q_hk"]
+        if "extinction_q_hl" in keys:
+            self.extinction.q_hl = ddict_diffrn["extinction_q_hl"]
+        if "extinction_q_kl" in keys:
+            self.extinction.q_kl = ddict_diffrn["extinction_q_kl"]
         if "extinction_radius" in keys:
             self.extinction.radius = ddict_diffrn["extinction_radius"]
         if "phase_scale" in keys:
@@ -384,8 +397,23 @@ class Diffrn(DataN):
                     self.extinction.mosaicity_sigma = float(sigma)
                 if name[0] == "extinction_radius":
                     self.extinction.radius_sigma = float(sigma)
+                if name[0] == "extinction_q_hh":
+                    self.extinction.q_hh_sigma = float(sigma)
+                if name[0] == "extinction_q_kk":
+                    self.extinction.q_kk_sigma = float(sigma)
+                if name[0] == "extinction_q_ll":
+                    self.extinction.q_ll_sigma = float(sigma)
+                if name[0] == "extinction_q_hk":
+                    self.extinction.q_hk_sigma = float(sigma)
+                if name[0] == "extinction_q_hl":
+                    self.extinction.q_hl_sigma = float(sigma)
+                if name[0] == "extinction_q_kl":
+                    self.extinction.q_kl_sigma = float(sigma)
                 if name[0] == "phase_scale":
                     self.phase.scale_sigma = float(sigma)
+                if name[0] == "twin_fraction":
+                    self.jana_twin.items[name[1][0]].fraction_sigma = float(sigma)
+                    self.jana_twin.items[name[1][0]].fraction = float(ddict_diffrn["twin_fraction"][name[1][0]])
 
         if (("iint_plus" in keys) and ("iint_minus" in keys)):
             diffrn_refln = self.diffrn_refln

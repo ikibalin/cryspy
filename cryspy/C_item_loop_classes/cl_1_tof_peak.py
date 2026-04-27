@@ -7,6 +7,7 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 
 class TOFPeak(ItemN):
     """Integrated intensities for time-of-flight experiments.
@@ -31,10 +32,10 @@ class TOFPeak(ItemN):
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
     ATTR_OPTIONAL_NAMES = ("index_mult", "time", "intensity_plus",
-                           "intensity_minus", "width_time")
-    ATTR_OPTIONAL_TYPES = (int, float, float, float, float)
+                           "intensity_minus", "width_time","sintlambda", "d_spacing",)
+    ATTR_OPTIONAL_TYPES = (int, float, float, float, float, float, float)
     ATTR_OPTIONAL_CIF = ("index_mult", "time", "intensity_plus",
-                         "intensity_minus", "width_time")
+                         "intensity_minus", "width_time", "sint/lambda", "d_spacing")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -83,7 +84,10 @@ class TOFPeak(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
-
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflection.
+        """
+        calc_d_sthovl_for_hkl(cell, self)
 
 class TOFPeakL(LoopN):
     """Integrated intensities for time-of-flight experiments.
@@ -110,7 +114,10 @@ class TOFPeakL(LoopN):
         super(TOFPeakL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
-
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflections in the loop.
+        """
+        calc_d_sthovl_for_hkl(cell, self)
 
 # s_cont = """
 #   loop_

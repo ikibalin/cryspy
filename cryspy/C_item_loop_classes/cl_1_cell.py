@@ -14,22 +14,10 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 
 class Cell(ItemN):
-    """Unit cell description.
+    """Cell
 
-    Attributes
-    ----------
-        - length_a, length_b, length_c, angle_alpha, angle_beta, angle_gamma
-          (mandatory)
-        - m_g, m_g_reciprocal, m_b, m_b_norm, m_m, m_m_norm,
-          cos_a, cos_b, cos_g, sin_a, sin_b, sin_g, cos_a_sq,
-          cos_b_sq, cos_g_sq, sin_a_sq, sin_b_sq, sin_g_sq, cos_ia,
-          cos_ib, cos_ig, sin_ia, sin_ib, sin_ig, cos_ia_sq,
-          cos_ib_sq, cos_ig_sq, sin_ia_sq, sin_ib_sq, sin_ig_sq,
-          reciprocal_length_a, reciprocal_length_b, reciprocal_length_c,
-          reciprocal_angle_alpha, reciprocal_angle_beta,
-          reciprocal_angle_gamma, volume (internal)
-        - type_cell, it_coordinate_system_code, formula_units_z
-          (internal, protected)
+- length_a, length_b, length_c are given in angstrems;
+- angle_alpha, angle_beta, angle_gamma are given in degrees.
     """
     ATTR_MANDATORY_NAMES = ("length_a", "length_b", "length_c",
                             "angle_alpha", "angle_beta", "angle_gamma")
@@ -114,6 +102,8 @@ class Cell(ItemN):
         flag_1 = not(self.is_attribute("type_cell"))
         flag_2 = not(self.is_attribute("it_coordinate_system_code"))
         if (flag_1 | flag_2):
+            return
+        if self.type_cell is None or self.it_coordinate_system_code is None:
             return
         cell_p = (self.length_a, self.length_b, self.length_c,
                   self.angle_alpha, self.angle_beta, self.angle_gamma)
@@ -597,12 +587,18 @@ class Cell(ItemN):
             self.angle_beta_refinement, self.angle_gamma_refinement], dtype=bool)
         return flags_unit_cell_parameters
 
-                
+    def get_dictionary(self):
+        self.form_object()
+        d_out = super(Cell, self).get_dictionary()
+        d_out["unit_cell_parameters"] = self.get_unit_cell_parameters()
+        d_out["flags_unit_cell_parameters"] = self.get_flags_unit_cell_parameters()
+        return d_out        
 
 class CellL(LoopN):
-    """
-    Description of unit cell in loop.
+    """Description of unit cell in loop.
 
+- length_a, length_b, length_c are given in angstrems;
+- angle_alpha, angle_beta, angle_gamma are given in degrees.
     """
     ITEM_CLASS = Cell
     ATTR_INDEX = None

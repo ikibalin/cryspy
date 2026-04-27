@@ -7,65 +7,65 @@ import numpy
 from cryspy.A_functions_base.function_1_matrices import \
     calc_product_matrix_vector, calc_vector_product, calc_mRmCmRT
 
-#FIXME delete as it is doubled in symmetry_elements
-def calc_asymmetric_unit_cell_indexes(n_x: int, n_y: int, n_z: int, r_ij, b_i)\
-       -> NoReturn:
-    """
-    Calculate indexes of asymmetric unit cell.
-
-    Input parameters:
-        - symmetry elements;
-        - points number.
-
-    Multiplication of points number on corresponding symmetry element should
-    give integer number.
-
-    """
-    r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33 = r_ij
-    b_1, b_2, b_3 = b_i
-
-    ind_x = numpy.array(range(n_x), dtype=int)
-    ind_y = numpy.array(range(n_y), dtype=int)
-    ind_z = numpy.array(range(n_z), dtype=int)
-
-    ind_2d_x, ind_2d_y, ind_2d_z = numpy.meshgrid(ind_x, ind_y, ind_z,
-                                                  indexing="ij")
-
-    ind_x, ind_y = ind_2d_x.flatten(), ind_2d_y.flatten()
-    ind_z = ind_2d_z.flatten()
-
-    r_ij_2d = (
-        r_11[numpy.newaxis, :], r_12[numpy.newaxis, :], r_13[numpy.newaxis, :],
-        r_21[numpy.newaxis, :], r_22[numpy.newaxis, :], r_23[numpy.newaxis, :],
-        r_31[numpy.newaxis, :], r_32[numpy.newaxis, :], r_33[numpy.newaxis, :])
-    nb_i_2d = (numpy.around(n_x*b_1, 0).astype(int)[numpy.newaxis, :],
-               numpy.around(n_y*b_2, 0).astype(int)[numpy.newaxis, :],
-               numpy.around(n_z*b_3, 0).astype(int)[numpy.newaxis, :])
-
-    ind_xyz = (ind_x[:, numpy.newaxis], ind_y[:, numpy.newaxis],
-               ind_z[:, numpy.newaxis])
-
-    ind_2d_a, ind_2d_b, ind_2d_c = calc_product_matrix_vector(r_ij_2d, ind_xyz)
-
-    ind_2d_a += nb_i_2d[0]
-    ind_2d_b += nb_i_2d[1]
-    ind_2d_c += nb_i_2d[2]
-    ind_2d_a = numpy.mod(ind_2d_a.astype(int), n_x)
-    ind_2d_b = numpy.mod(ind_2d_b.astype(int), n_y)
-    ind_2d_c = numpy.mod(ind_2d_c.astype(int), n_z)
-
-    ind_2d_abc = n_z*n_y*ind_2d_a + n_z*ind_2d_b + ind_2d_c
-
-    ind_2d_abc_sorted = numpy.sort(ind_2d_abc, axis=1)
-    a, ind_a_u_c, counts_a_u_c = numpy.unique(
-        ind_2d_abc_sorted[:, 0], return_index=True, return_counts=True)
-
-    ind_x_a_u_c = ind_x[ind_a_u_c]
-    ind_y_a_u_c = ind_y[ind_a_u_c]
-    ind_z_a_u_c = ind_z[ind_a_u_c]
-
-    return ind_x_a_u_c, ind_y_a_u_c, ind_z_a_u_c, counts_a_u_c
-
+# #FIXME delete as it is doubled in symmetry_elements
+# def calc_asymmetric_unit_cell_indexes(n_x: int, n_y: int, n_z: int, r_ij, b_i)\
+#        -> NoReturn:
+#     """
+#     Calculate indexes of asymmetric unit cell.
+# 
+#     Input parameters:
+#         - symmetry elements;
+#         - points number.
+# 
+#     Multiplication of points number on corresponding symmetry element should
+#     give integer number.
+# 
+#     """
+#     r_11, r_12, r_13, r_21, r_22, r_23, r_31, r_32, r_33 = r_ij
+#     b_1, b_2, b_3 = b_i
+# 
+#     ind_x = numpy.array(range(n_x), dtype=int)
+#     ind_y = numpy.array(range(n_y), dtype=int)
+#     ind_z = numpy.array(range(n_z), dtype=int)
+# 
+#     ind_2d_x, ind_2d_y, ind_2d_z = numpy.meshgrid(ind_x, ind_y, ind_z,
+#                                                   indexing="ij")
+# 
+#     ind_x, ind_y = ind_2d_x.flatten(), ind_2d_y.flatten()
+#     ind_z = ind_2d_z.flatten()
+# 
+#     r_ij_2d = (
+#         r_11[numpy.newaxis, :], r_12[numpy.newaxis, :], r_13[numpy.newaxis, :],
+#         r_21[numpy.newaxis, :], r_22[numpy.newaxis, :], r_23[numpy.newaxis, :],
+#         r_31[numpy.newaxis, :], r_32[numpy.newaxis, :], r_33[numpy.newaxis, :])
+#     nb_i_2d = (numpy.around(n_x*b_1, 0).astype(int)[numpy.newaxis, :],
+#                numpy.around(n_y*b_2, 0).astype(int)[numpy.newaxis, :],
+#                numpy.around(n_z*b_3, 0).astype(int)[numpy.newaxis, :])
+# 
+#     ind_xyz = (ind_x[:, numpy.newaxis], ind_y[:, numpy.newaxis],
+#                ind_z[:, numpy.newaxis])
+# 
+#     ind_2d_a, ind_2d_b, ind_2d_c = calc_product_matrix_vector(r_ij_2d, ind_xyz)
+# 
+#     ind_2d_a += nb_i_2d[0]
+#     ind_2d_b += nb_i_2d[1]
+#     ind_2d_c += nb_i_2d[2]
+#     ind_2d_a = numpy.mod(ind_2d_a.astype(int), n_x)
+#     ind_2d_b = numpy.mod(ind_2d_b.astype(int), n_y)
+#     ind_2d_c = numpy.mod(ind_2d_c.astype(int), n_z)
+# 
+#     ind_2d_abc = n_z*n_y*ind_2d_a + n_z*ind_2d_b + ind_2d_c
+# 
+#     ind_2d_abc_sorted = numpy.sort(ind_2d_abc, axis=1)
+#     a, ind_a_u_c, counts_a_u_c = numpy.unique(
+#         ind_2d_abc_sorted[:, 0], return_index=True, return_counts=True)
+# 
+#     ind_x_a_u_c = ind_x[ind_a_u_c]
+#     ind_y_a_u_c = ind_y[ind_a_u_c]
+#     ind_z_a_u_c = ind_z[ind_a_u_c]
+# 
+#     return ind_x_a_u_c, ind_y_a_u_c, ind_z_a_u_c, counts_a_u_c
+# 
 
 def calc_index_atom_symmetry_closest_to_fract_xyz(
         fract_xyz, fract_atom_xyz, r_ij, b_i, cell):

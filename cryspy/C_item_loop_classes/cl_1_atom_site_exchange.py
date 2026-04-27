@@ -20,7 +20,7 @@ na = numpy.newaxis
 
 
 class AtomSiteExchange(ItemN):
-    """Exchange interaction (only in case of G-tensor)
+    """AtomSiteExchange defines exchange interaction only if the G-tensor is used to describe paramagnetic propeties of the crystal instead of atom_site_susceptibility.
     """
 
     ATTR_MANDATORY_NAMES = ("label", )
@@ -202,12 +202,7 @@ class AtomSiteExchange(ItemN):
 
 
 class AtomSiteExchangeL(LoopN):
-    """Exchange parameters for magnetic atoms.
-
-    Methods
-    -------
-        - apply_space_group_constraint
-        - apply_chi_iso_constraint
+    """AtomSiteExchange defines exchange interaction only if the G-tensor is used to describe paramagnetic propeties of the crystal instead of atom_site_susceptibility.
     """
 
     ITEM_CLASS = AtomSiteExchange

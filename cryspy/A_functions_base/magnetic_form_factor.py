@@ -9,6 +9,14 @@ import numpy
 from cryspy.A_functions_base.database import DATABASE
 from cryspy.A_functions_base.charge_form_factor import get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
 
+from cryspy.A_functions_base.matrix_operations import calc_m_v, calc_inv_m, calc_m1_m2_inv_m1
+from cryspy.A_functions_base.orbital_functions import calc_jl
+
+
+from cryspy.A_functions_base.unit_cell import calc_m_b_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_q_ccs_by_unit_cell_parameters
+
+
+from cryspy.A_functions_base.multipoles import cartesian_to_spherical, realsphharm2df
 
 def get_j0_j2_parameters(symbols):
     """Get <j0>, <j2> parameters by symbols."""
@@ -125,3 +133,45 @@ def calc_form_factor(
     if flag_lande_factor:
         dder["lande_factor"]=-2.0*j2_av/numpy.square(lande_factor)
     return form_factor, dder
+
+
+
+def calc_magnetic_form_factor_by_multipole_model(index_hkl, r_d, 
+        atom_rho_multipole_transformation_matrix, atom_rho_multipole_plm, atom_rho_multipole_lm, 
+        l_kappa, l_n, l_zeta, l_coeff, unit_cell_parameters):   
+    
+    q_ccs = calc_q_ccs_by_unit_cell_parameters(unit_cell_parameters=unit_cell_parameters, index_hkl=index_hkl)[0]
+    sthovl = 0.5*numpy.sqrt(numpy.sum(numpy.square(q_ccs), axis=0))
+    eq_ccs = q_ccs/numpy.expand_dims(2.*sthovl, axis=0)
+    m_m = calc_m_m_by_unit_cell_parameters(unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    r_xyz = calc_m1_m2_inv_m1(m_m, r_d)[0]
+
+    l_ff = []
+    l_max = 4
+    for kappa, n, zeta, coeff, transformation_matrix, np_plm in zip(l_kappa, l_n, l_zeta, l_coeff, atom_rho_multipole_transformation_matrix.T, atom_rho_multipole_plm.T):
+        inv_r_g_to_l = calc_inv_m(transformation_matrix)[0]
+        # for coordinate the inversed one is used
+        eq_ccs_local = calc_m_v(inv_r_g_to_l, eq_ccs, flag_m=False, flag_v=False)[0]
+
+        # FIXME: it should be checked
+        trt_xyz = calc_m1_m2_inv_m1(transformation_matrix, r_xyz)[0]
+
+        # [3, N_hkl, N_symm]
+        eq_ccs_local_s = calc_m_v(
+            numpy.expand_dims(trt_xyz, axis=1), 
+            numpy.expand_dims(eq_ccs_local, axis=2), 
+            flag_m=False, flag_v=False)[0]
+        
+        r_sph, theta_sph, phi_sph = cartesian_to_spherical(eq_ccs_local_s[0], eq_ccs_local_s[1], eq_ccs_local_s[2])
+        np_ff = numpy.zeros(shape=r_sph.shape, dtype=float)
+        jl = calc_jl(sthovl, coeff, n, zeta, kappa=kappa, l_max = l_max).transpose()
+        for lm, plm in zip(atom_rho_multipole_lm, np_plm):
+            if numpy.any(numpy.logical_not(numpy.isclose(plm,0)),axis=0):
+                np_orient = plm * realsphharm2df(int(lm[0]), int(lm[1]), theta_sph, phi_sph)
+                # FIXME: .real is not correct but for 0,2,4,6 should be ok
+                np_ff +=  numpy.power(1j,lm[0]).real * np_orient * numpy.expand_dims(jl[int(lm[0])], axis=1) *  4 * numpy.pi
+        l_ff.append(np_ff)
+    # [N_hkl, N_symm, N_atom_rho_multipole]
+    magnetic_form_factor = numpy.stack(l_ff, axis=2)
+    dder = {}
+    return magnetic_form_factor, dder

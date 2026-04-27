@@ -19,19 +19,7 @@ from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat
 
 
 class AtomRhoOrbitalRadialSlater(ItemN):
-    """Description of radial Slater functions.
-
-    These items are used when the radial dependence of the
-    electron density, R(k(l), l, r), of the atom specified in
-    _atom_rho_orbital_atom_label is expressed as a Slater-type
-    function [Hansen & Coppens (1978), equation (3)]:
-
-    Attributes
-        - n0, zeta0 (mandatory)
-        - "coeff_1s", "coeff_2s", "coeff_3s", "coeff_4s", "coeff_5s", "coeff_6s",
-          "coeff_2p", "coeff_3p", "coeff_4p", "coeff_5p", "coeff_6p",
-          "coeff_3d", "coeff_4d", "coeff_5d", "coeff_6d",
-          "coeff_4f", "coeff_5f", "coeff_6f" (optional)
+    """AtomRhoOrbitalRadialSlater is used when the radial dependence of the electron density, R(k(l), l, r), of the atom specified is expressed as a Slater-type function [Hansen & Coppens (1978), equation (3)]:
     """
 
     ATTR_MANDATORY_NAMES = ("n0", "zeta0")
@@ -142,12 +130,7 @@ class AtomRhoOrbitalRadialSlater(ItemN):
 
 
 class AtomRhoOrbitalRadialSlaterL(LoopN):
-    """Description of radial Slater functions.
-
-    These items are used when the radial dependence of the
-    electron density, R(k(l), l, r), of the atom specified in
-    _atom_rho_orbital_atom_label is expressed as a Slater-type
-    function [Hansen & Coppens (1978), equation (3)]:
+    """AtomRhoOrbitalRadialSlater is used when the radial dependence of the electron density, R(k(l), l, r), of the atom specified is expressed as a Slater-type function [Hansen & Coppens (1978), equation (3)]:
     """
 
     ITEM_CLASS = AtomRhoOrbitalRadialSlater
