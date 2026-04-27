@@ -135,8 +135,11 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     z1_2d = alpha[:, na]*delta_2d + (1j*0.5*alpha*gamma)[:, na]
     z2_2d = -beta[:, na]*delta_2d + (1j*0.5*beta*gamma)[:, na]
 
-    fz1_2d = exp1(z1_2d)
-    fz2_2d = exp1(z2_2d)
+    # The Lorentzian term is exp(z) * E1(z); omitting exp(z) breaks
+    # the pseudo-Voigt tails for non-zero gamma.
+    with numpy.errstate(over='ignore', invalid='ignore'):
+        fz1_2d = exp(z1_2d) * exp1(z1_2d)
+        fz2_2d = exp(z2_2d) * exp1(z2_2d)
 
     # FIXME: check it
     fz1_2d[numpy.isnan(fz1_2d)] = 0.
