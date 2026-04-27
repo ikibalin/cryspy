@@ -63,10 +63,8 @@ def calc_d_min_max_by_time_thermal_neutrons(time, zero, dtt1, dtt2):
     zero, dtt1, dtt2 = zero.squeeze(), dtt1.squeeze(), dtt2.squeeze()
     time_min = numpy.min(time)
     time_max = numpy.max(time)
-    det_sq_min = numpy.square(dtt1) - 4.* dtt2*(zero - time_min)
-    det_sq_max = numpy.square(dtt1) - 4.* dtt2*(zero - time_max)
-    d_max = (-dtt1+numpy.sqrt(det_sq_max))/(2.*dtt2)
-    d_min = (-dtt1+numpy.sqrt(det_sq_min))/(2.*dtt2)
+    d_min = calc_d_by_time_for_thermal_neutrons(time_min, zero, dtt1, dtt2)
+    d_max = calc_d_by_time_for_thermal_neutrons(time_max, zero, dtt1, dtt2)
     return numpy.stack([d_min, d_max], axis=0)
 
 def calc_d_min_max_by_time_epithermal_neutrons(time, zero, dtt1, zerot, dtt1t, dtt2t):
