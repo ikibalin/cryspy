@@ -163,7 +163,9 @@ from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement, \
     rhochi_no_refinement, rhochi_inversed_hessian
 
 
-from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruction, \
+from cryspy.procedure_mempy.mempy import \
+    mempy_nuclear_density_reconstruction, \
+    mempy_magnetization_density_reconstruction, \
     mempy_spin_density_reconstruction,\
     mempy_reconstruction_with_parameters,\
     mempy_cycle_with_parameters
@@ -284,6 +286,7 @@ L_FUNCTION = [
     rhochi_rietveld_refinement_with_parameters, 
     rhochi_no_refinement,
     rhochi_inversed_hessian,
+    mempy_nuclear_density_reconstruction, 
     mempy_magnetization_density_reconstruction, 
     mempy_spin_density_reconstruction,
     mempy_reconstruction_with_parameters,
