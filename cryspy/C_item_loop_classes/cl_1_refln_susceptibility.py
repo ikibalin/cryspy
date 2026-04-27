@@ -9,6 +9,7 @@ from cryspy.A_functions_base.matrix_operations import calc_m1_m2, calc_vt_m_v
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import DiffrnOrientMatrix
 
@@ -108,6 +109,10 @@ class ReflnSusceptibility(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflection.
+        """
+        calc_d_sthovl_for_hkl(cell, self)
 
 
 class ReflnSusceptibilityL(LoopN):
@@ -135,4 +140,7 @@ class ReflnSusceptibilityL(LoopN):
         f_mag_sq = calc_vt_m_v(m_3_ij, e_up).real
         f_mag = numpy.sqrt(f_mag_sq)
         return f_mag
-
+    def calc_d_sthovl(self, cell:ItemN):
+        """Calculate d and sin(theta)/lambda for the reflections in the loop.
+        """
+        calc_d_sthovl_for_hkl(cell, self)

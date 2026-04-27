@@ -10,7 +10,7 @@ from .matrix_operations import calc_det_m, calc_m1_m2, calc_m1_m2_inv_m1, calc_m
 from .unit_cell import calc_eq_ccs_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_m_m_norm_by_unit_cell_parameters, calc_sthovl_by_unit_cell_parameters
 from .debye_waller_factor import calc_dwf
 from .symmetry_elements import calc_multiplicity_by_atom_symm_elems, calc_full_symm_elems_by_reduced, calc_equivalent_reflections
-from .magnetic_form_factor import calc_form_factor
+from .magnetic_form_factor import calc_form_factor, calc_magnetic_form_factor_by_multipole_model
 from .local_susceptibility import calc_m_r_inv_m
 
 na = numpy.newaxis
@@ -502,7 +502,7 @@ def calc_f_nucl(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_b_iso[na, na, :],
-            atom_beta[:, na, na, :], reduced_symm_elems[:, na, :, na],
+            atom_beta[:, na, na, :], reduced_symm_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_b_iso, flag_beta=flag_atom_beta)
         if flag_dict:
             dict_in_out["debye_waller_factor"] = debye_waller_factor
@@ -729,7 +729,7 @@ def calc_f_charge(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_b_iso[na, na, :],
-            atom_beta[:, na, na, :], reduced_symm_elems[:, na, :, na],
+            atom_beta[:, na, na, :], reduced_symm_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_b_iso, flag_beta=flag_atom_beta)
         if flag_dict:
             dict_in_out["debye_waller_factor"] = debye_waller_factor
@@ -1007,7 +1007,7 @@ def calc_sft_ccs(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_para_b_iso[na, na, :],
-            atom_para_beta[:, na, na, :], reduced_symm_elems[:13, na, :, na],
+            atom_para_beta[:, na, na, :], reduced_symm_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_para_b_iso, flag_beta=flag_atom_para_beta)
         if flag_dict:
             dict_in_out["atom_para_debye_waller_factor"] = debye_waller_factor
@@ -1160,8 +1160,8 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
     atom_ordered_j0_parameters = dict_crystal["mag_atom_j0_parameters"][:, mag_atom_ordered_index]
     atom_ordered_j2_parameters = dict_crystal["mag_atom_j2_parameters"][:, mag_atom_ordered_index]
 
-    atom_ordered_moment_crystalaxis_xyz = dict_crystal["atom_ordered_moment_crystalaxis_xyz"]
-    flags_atom_ordered_moment_crystalaxis_xyz = dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"]
+    atom_ordered_moment_crystalaxis_dn = dict_crystal["atom_ordered_moment_crystalaxis_dn"]
+    flags_atom_ordered_moment_crystalaxis_dn = dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"]
     flag_unit_cell_parameters = numpy.any(dict_crystal["flags_unit_cell_parameters"])
     flag_atom_ordered_fract_xyz = numpy.any(dict_crystal["flags_atom_fract_xyz"][:, atom_ordered_index])
     flag_atom_ordered_occupancy = numpy.any(dict_crystal["flags_atom_occupancy"][atom_ordered_index])
@@ -1171,15 +1171,62 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
     flag_atom_ordered_kappa = numpy.any(dict_crystal["flags_mag_atom_kappa"][mag_atom_ordered_index])
 
     
+    flag_multipole = all([hh in dict_crystal.keys() for hh in ['mag_atom_rho_multipole_index', 'atom_local_axes_label']])
+    # flag_multipole = False
+    if flag_multipole :
+        atom_label = dict_crystal['atom_label']
+        mag_atom_rho_multipole_index = dict_crystal["mag_atom_rho_multipole_index"]
+        # atom_rho_multipole_label = dict_crystal['atom_rho_multipole_label']
+        # atom_local_axes_label = dict_crystal['atom_local_axes_label'][mag_atom_rho_multipole_index]
+        # atom_local_axes_matrix =  dict_crystal["atom_local_axes_matrix"][:, mag_atom_rho_multipole_index]
+        # l_hh_1,l_hh_2 = [], []
+        # for label in atom_rho_multipole_label:
+        #     ind_1 = numpy.squeeze(numpy.argwhere(atom_label==label))
+        #     ind_2 = numpy.squeeze(numpy.argwhere(atom_local_axes_label==label))
+        #     l_hh_1.append(atom_ordered_fract_xyz[...,ind_1])
+        #     l_hh_2.append(atom_local_axes_matrix[...,ind_2])
+        # atom_rho_multipole_fract_xyz = numpy.stack(l_hh_1, axis=-1)
+        # atom_rho_multipole_transformation_matrix = numpy.stack(l_hh_2, axis=-1)
+        atom_rho_multipole_transformation_matrix = dict_crystal["atom_local_axes_matrix"][:, mag_atom_rho_multipole_index]
+        atom_rho_multipole_plm = dict_crystal["atom_rho_multipole_plm"][:, mag_atom_rho_multipole_index]
+        atom_rho_multipole_lm = dict_crystal["atom_rho_multipole_lm"]
+        l_kappa = dict_crystal["atom_rho_multipole_kappa"][mag_atom_rho_multipole_index]
+        l_n_hh, l_zeta_hh, l_coeff_hh = dict_crystal["atom_rho_multipole_n_zeta_coeff"]
+        # FIXME: not sure that it is needed
+        l_n = [l_n_hh[hh] for hh in mag_atom_rho_multipole_index]
+        l_zeta = [l_zeta_hh[hh] for hh in mag_atom_rho_multipole_index]
+        l_coeff = [l_coeff_hh[hh] for hh in mag_atom_rho_multipole_index]
 
-    flag_atom_ordered_moment_crystalaxis_xyz = numpy.any(flags_atom_ordered_moment_crystalaxis_xyz)
+        magnetic_form_factor, dder = calc_magnetic_form_factor_by_multipole_model(
+        index_hkl, full_mcif_elems[4:-1,:], 
+        atom_rho_multipole_transformation_matrix, atom_rho_multipole_plm, atom_rho_multipole_lm, 
+        l_kappa, l_n, l_zeta, l_coeff, unit_cell_parameters)
+    else:
+        flag_sthovl = flag_unit_cell_parameters
+        if (flag_use_precalculated_data and ("sthovl" in dict_in_out_keys) and not(flag_sthovl)):
+            sthovl = dict_in_out["sthovl"] 
+        else:
+            sthovl, dder_sthovl = calc_sthovl_by_unit_cell_parameters(
+                index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
+            dict_in_out["sthovl"] = sthovl  
+
+        atom_ordered_form_factor, dder_ff = calc_form_factor(
+            sthovl[:, na], atom_ordered_lande_factor[na, :], atom_ordered_kappa[na, :], 
+            atom_ordered_j0_parameters[:, na, :], atom_ordered_j2_parameters[:, na, :],
+            flag_lande_factor=flag_atom_ordered_lande_factor,
+            flag_only_orbital=flag_only_orbital,
+            flag_sthovl=flag_sthovl, 
+            flag_kappa=flag_atom_ordered_kappa)
+        magnetic_form_factor = numpy.expand_dims(atom_ordered_form_factor, axis=1)
+
+    flag_atom_ordered_moment_crystalaxis_dn = numpy.any(flags_atom_ordered_moment_crystalaxis_dn)
     f_m_perp_o, dder = calc_f_m_perp_ordered(index_hkl,
         full_mcif_elems,
-        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_xyz, atom_ordered_b_iso, atom_ordered_beta,
-        atom_ordered_lande_factor, atom_ordered_kappa, atom_ordered_j0_parameters, atom_ordered_j2_parameters, 
+        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_dn, atom_ordered_b_iso, atom_ordered_beta,
+        atom_ordered_lande_factor, atom_ordered_kappa, atom_ordered_j0_parameters, atom_ordered_j2_parameters, magnetic_form_factor,
         dict_in_out=dict_in_out, flag_only_orbital=flag_only_orbital,
         flag_unit_cell_parameters=flag_unit_cell_parameters, flag_atom_ordered_fract_xyz=flag_atom_ordered_fract_xyz,
-        flag_atom_ordered_occupancy=flag_atom_ordered_occupancy, flag_atom_ordered_moment_crystalaxis_xyz=flag_atom_ordered_moment_crystalaxis_xyz,
+        flag_atom_ordered_occupancy=flag_atom_ordered_occupancy, flag_atom_ordered_moment_crystalaxis_dn=flag_atom_ordered_moment_crystalaxis_dn,
         flag_atom_ordered_b_iso=flag_atom_ordered_b_iso, flag_atom_ordered_beta=flag_atom_ordered_beta,
         flag_atom_ordered_lande_factor=flag_atom_ordered_lande_factor, flag_atom_ordered_kappa=flag_atom_ordered_kappa, 
         flag_use_precalculated_data=flag_use_precalculated_data)
@@ -1188,11 +1235,11 @@ def calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out, flag_use_prec
 
 def calc_f_m_perp_ordered(index_hkl,
         full_mcif_elems,
-        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_xyz, atom_ordered_b_iso, atom_ordered_beta,
-        atom_ordered_lande_factor, atom_ordered_kappa, atom_ordered_j0_parameters, atom_ordered_j2_parameters, 
+        unit_cell_parameters, atom_ordered_fract_xyz, atom_ordered_occupancy, atom_ordered_moment_crystalaxis_dn, atom_ordered_b_iso, atom_ordered_beta,
+        atom_ordered_lande_factor, atom_ordered_kappa, atom_ordered_j0_parameters, atom_ordered_j2_parameters, magnetic_form_factor,
         dict_in_out: dict = None, flag_only_orbital: bool = False,
         flag_unit_cell_parameters: bool = False, flag_atom_ordered_fract_xyz: bool = False,
-        flag_atom_ordered_occupancy: bool = False, flag_atom_ordered_moment_crystalaxis_xyz: bool = False,
+        flag_atom_ordered_occupancy: bool = False, flag_atom_ordered_moment_crystalaxis_dn: bool = False,
         flag_atom_ordered_b_iso: bool = False, flag_atom_ordered_beta: bool = False,
         flag_atom_ordered_lande_factor: bool = False, flag_atom_ordered_kappa: bool = False, 
         flag_use_precalculated_data: bool = False):
@@ -1268,7 +1315,7 @@ def calc_f_m_perp_ordered(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_ordered_b_iso[na, na, :],
-            atom_ordered_beta[:, na, na, :], full_mcif_elems[:13, na, :, na],
+            atom_ordered_beta[:, na, na, :], full_mcif_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_ordered_b_iso, flag_beta=flag_atom_ordered_beta)
         if flag_dict:
             dict_in_out["atom_ordered_debye_waller_factor"] = debye_waller_factor
@@ -1277,7 +1324,8 @@ def calc_f_m_perp_ordered(index_hkl,
 
     m_norm, der_m_norm = calc_m_m_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
-
+    atom_ordered_moment_crystalaxis_xyz = calc_m_v(m_norm, atom_ordered_moment_crystalaxis_dn, flag_m=False, flag_v=False)[0]
+    flag_atom_ordered_moment_crystalaxis_xyz = flag_atom_ordered_moment_crystalaxis_dn
     r_direct = full_mcif_elems[4:13, :] 
     rm, der_rm = calc_m_v(
         r_direct[:, :, na], atom_ordered_moment_crystalaxis_xyz[:, na, :],
@@ -1295,9 +1343,14 @@ def calc_f_m_perp_ordered(index_hkl,
     # moment_ccs = 0.2695*rm_ccs*(theta_s)[na, :, na]
     moment_ccs = 0.2695*rm_ccs*(theta_s*det_r)[na, :, na]
     
+    # [N_atom]
     hh_1 = atom_ordered_multiplicity*atom_ordered_occupancy
-    hh_2 = atom_ordered_form_factor*hh_1[na, :]
-    hh_3 = pr_1*debye_waller_factor*hh_2[:, na, :]
+    # [N_hkl, N_atom]
+    # hh_2 = atom_ordered_form_factor*hh_1[na, :]
+    hh_2 = hh_1[na, :]
+    # [N_hkl, N_s, N_atom]
+    hh_3 = pr_1*debye_waller_factor*magnetic_form_factor*hh_2[:, na, :]
+    # [3, N_hkl]
     f_m = (pr_2[na, :, :] * (hh_3[na, :, :, :] * moment_ccs[:, na, :, :]).sum(axis=3)).sum(axis=2)/pr_2.shape[-1]
     eq_ccs, dder_eq_ccs = calc_eq_ccs_by_unit_cell_parameters(
         index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
@@ -1310,9 +1363,8 @@ def calc_f_m_perp_ordered(index_hkl,
     dict_in_out["f_m_perp_o"] = f_m_perp_o
     dder = {}
     if flag_atom_ordered_moment_crystalaxis_xyz:
-        dder["atom_ordered_moment_crystalaxis_xyz"] = None
+        dder["atom_ordered_moment_crystalaxis_dn"] = None
 
-    dder = {}
     return f_m_perp_o, dder
 
 

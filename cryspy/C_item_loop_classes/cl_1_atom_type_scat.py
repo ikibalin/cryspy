@@ -11,40 +11,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomTypeScat(ItemN):
-    """
-    AtomTypeScat class.
-
-    Data items in the ATOM_TYPE_SCAT category describe atomic
-    scattering information used in crystallographic structure studies.
-    This category is fully defined in the core CIF dictionary.
-
-    Attributes
-    ----------
-        - symbol (mandatory)
-        - neutron_magnetic_j0_a1, neutron_magnetic_j0_a2
-        - neutron_magnetic_j0_b1, neutron_magnetic_j0_b2
-        - neutron_magnetic_j0_c1, neutron_magnetic_j0_c2
-        - neutron_magnetic_j0_d
-        - neutron_magnetic_j2_a1, neutron_magnetic_j2_a2
-        - neutron_magnetic_j2_b1, neutron_magnetic_j2_b2
-        - neutron_magnetic_j2_c1, neutron_magnetic_j2_c2
-        - neutron_magnetic_j2_d
-        - neutron_magnetic_j4_a1, neutron_magnetic_j4_a2
-        - neutron_magnetic_j4_b1, neutron_magnetic_j4_b2
-        - neutron_magnetic_j4_c1, neutron_magnetic_j4_c2
-        - neutron_magnetic_j4_d
-        - neutron_magnetic_j6_a1, neutron_magnetic_j6_a2
-        - neutron_magnetic_j6_b1, neutron_magnetic_j6_b2
-        - neutron_magnetic_j6_c1, neutron_magnetic_j6_c2
-        - neutron_magnetic_j6_d
-
-    Methods
-    -------
-        - calc_form_factor
-        - calc_j0
-        - calc_j2
-        - load_by_symbol
-        - form_by_symbol (classmethod)
+    """AtomTypeScat describes atomic scattering information used in crystallographic structure studies.
     """
 
     ATTR_MANDATORY_NAMES = ("symbol", )

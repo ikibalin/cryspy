@@ -1,5 +1,8 @@
 import numpy
 
+from cryspy.A_functions_base.matrix_operations import \
+    calc_m_v
+
 from cryspy.A_functions_base.unit_cell import \
     calc_volume_uc_by_unit_cell_parameters, calc_eq_ccs_by_unit_cell_parameters, \
     calc_sthovl_by_unit_cell_parameters
@@ -9,7 +12,7 @@ from cryspy.A_functions_base.structure_factor import \
     calc_f_m_perp_ordered_by_dictionary
 
 from cryspy.A_functions_base.extinction import \
-    calc_extinction_sphere
+    calc_extinction_sphere, calc_extinction_qani
 
 from cryspy.A_functions_base.flip_ratio import \
     calc_intensities_by_structure_factors, calc_flip_ratio_by_iint, \
@@ -63,6 +66,18 @@ def calc_chi_sq_for_diffrn_by_dictionary(
 
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     index_hkl = dict_diffrn["index_hkl"]
+    n_hkl = index_hkl.shape[1]
+    flag_twin = "twin_fraction" in dict_diffrn.keys()
+    flag_twin_fraction = False
+    if flag_twin:
+        twin_fraction = dict_diffrn["twin_fraction"]
+        flags_twin_fraction = dict_diffrn["flags_twin_fraction"]
+        flag_twin_fraction = numpy.any(flags_twin_fraction)
+        twin_fraction = numpy.concatenate(([1-twin_fraction.sum(),],twin_fraction))
+        twin_matrices  = dict_diffrn["twin_matrices"]
+        for twin_m in twin_matrices.transpose():
+            index_hkl_twin = calc_m_v(twin_m, index_hkl)[0]
+            index_hkl = numpy.concatenate((index_hkl, index_hkl_twin), axis=1)
     flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
     flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
     flag_volume_unit_cell = flag_unit_cell_parameters
@@ -107,7 +122,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         c_lambda2 = None
         flags_c_lambda2 = False
         index_2hkl = None
-    dict_in_out["index_hkl"] = dict_diffrn["index_hkl"]
+    dict_in_out["index_hkl"] = index_hkl
     flag_eq_ccs = flag_unit_cell_parameters
     if (flag_use_precalculated_data and not(flag_eq_ccs) and ("eq_ccs" in dict_in_out_keys)):
         eq_ccs = dict_in_out["eq_ccs"]
@@ -117,12 +132,30 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dict_in_out["eq_ccs"] = eq_ccs
 
     flags_extinction_radius, flags_extinction_mosaicity = False, False
+    flags_extinction_q_hh, flags_extinction_q_kk, flags_extinction_q_ll,  = False, False, False
+    flags_extinction_q_hk, flags_extinction_q_hl, flags_extinction_q_kl = False, False, False
     if "extinction_model" in dict_diffrn_keys:
         extinction_model = dict_diffrn["extinction_model"]
-        extinction_radius = dict_diffrn["extinction_radius"]
-        flags_extinction_radius = dict_diffrn["flags_extinction_radius"]
-        extinction_mosaicity = dict_diffrn["extinction_mosaicity"]
-        flags_extinction_mosaicity = dict_diffrn["flags_extinction_mosaicity"]
+        if extinction_model == 'qani':
+            q_hh = dict_diffrn["extinction_q_hh"]
+            flags_extinction_q_hh = dict_diffrn["flags_extinction_q_hh"]
+            q_kk = dict_diffrn["extinction_q_kk"]
+            flags_extinction_q_kk = dict_diffrn["flags_extinction_q_kk"]
+            q_ll = dict_diffrn["extinction_q_ll"]
+            flags_extinction_q_ll = dict_diffrn["flags_extinction_q_ll"]
+            q_hk = dict_diffrn["extinction_q_hk"]
+            flags_extinction_q_hk = dict_diffrn["flags_extinction_q_hk"]
+            q_hl = dict_diffrn["extinction_q_hl"]
+            flags_extinction_q_hl = dict_diffrn["flags_extinction_q_hl"]
+            q_kl = dict_diffrn["extinction_q_kl"]
+            flags_extinction_q_kl = dict_diffrn["flags_extinction_q_kl"]
+            flag_extincton = flags_extinction_q_hh or flags_extinction_q_kk or flags_extinction_q_ll or flags_extinction_q_hk or flags_extinction_q_hl or flags_extinction_q_kl
+        else:
+            extinction_radius = dict_diffrn["extinction_radius"]
+            flags_extinction_radius = dict_diffrn["flags_extinction_radius"]
+            extinction_mosaicity = dict_diffrn["extinction_mosaicity"]
+            flags_extinction_mosaicity = dict_diffrn["flags_extinction_mosaicity"]
+            flag_extincton = flags_extinction_radius or flags_extinction_mosaicity
 
         flag_sthovl = flag_unit_cell_parameters
         if (flag_use_precalculated_data and not(flag_sthovl) and ("sthovl" in dict_in_out_keys)):
@@ -140,16 +173,24 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             if flag_dict:
                 dict_in_out["cos_2theta"] = cos_2theta
 
-        flag_extincton = flags_extinction_radius or flags_extinction_mosaicity or flags_wavelength
+        flag_extincton = flag_extincton or flags_wavelength
 
         def func_extinction(f_sq, flag_f_sq: bool = False):
-            return calc_extinction_sphere(
-                f_sq, extinction_radius, extinction_mosaicity, volume_unit_cell, cos_2theta, wavelength,
-                extinction_model, flag_f_sq=flag_f_sq, flag_radius=flags_extinction_radius,
-                flag_mosaicity=flags_extinction_mosaicity,
-                flag_volume_unit_cell=flag_volume_unit_cell,
-                flag_cos_2theta=flag_cos_2theta,
-                flag_wavelength=flags_wavelength)
+            if extinction_model == 'qani':return calc_extinction_qani(index_hkl,
+                    f_sq, q_hh, q_kk, q_ll, q_hk, q_hl, q_kl, cos_2theta, wavelength,
+                    flag_f_sq=flag_f_sq,
+                    flag_cos_2theta=flag_cos_2theta, flag_wavelength=flags_wavelength,
+                    flag_q_hh=flags_extinction_q_hh, flag_q_kk=flags_extinction_q_kk, flag_q_ll=flags_extinction_q_ll,
+                    flag_q_hk=flags_extinction_q_hk, flag_q_hl=flags_extinction_q_hl, flag_q_kl=flags_extinction_q_kl)
+                   
+            else:
+                return calc_extinction_sphere(
+                    f_sq, extinction_radius, extinction_mosaicity, volume_unit_cell, cos_2theta, wavelength,
+                    extinction_model, flag_f_sq=flag_f_sq, flag_radius=flags_extinction_radius,
+                    flag_mosaicity=flags_extinction_mosaicity,
+                    flag_volume_unit_cell=flag_volume_unit_cell,
+                    flag_cos_2theta=flag_cos_2theta,
+                    flag_wavelength=flags_wavelength)
     else:
         extinction_model = ""
         extinction_radius = None
@@ -181,7 +222,13 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     if "atom_ordered_index" in dict_crystal_keys:
         f_m_perp_o_ccs, dder_f_m_perp_o_ccs = calc_f_m_perp_ordered_by_dictionary(
             dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
-        flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
+        flag_f_m_perp_o_ccs =  dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"].any()
+        if "flags_atom_rho_multipole_plm" in dict_crystal_keys:
+            flag_f_m_perp_o_ccs = flag_f_m_perp_o_ccs or dict_crystal["flags_atom_rho_multipole_plm"].any() 
+        if "flags_atom_rho_multipole_kappa" in dict_crystal_keys:
+            flag_f_m_perp_o_ccs = flag_f_m_perp_o_ccs or dict_crystal["flags_atom_rho_multipole_kappa"].any() 
+        
+
         flag_ordered = True
 
     if flag_para:
@@ -233,7 +280,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         if flag_ordered:
             f_m_perp_o_ccs_2hkl, dder_f_m_perp_o_ccs_2hkl = calc_f_m_perp_ordered_by_dictionary(
                 dict_crystal, dict_in_out_crystal_2hkl, flag_use_precalculated_data=flag_use_precalculated_data)
-            flag_f_m_perp_o_ccs_2hkl =  dict_crystal["flags_atom_ordered_moment_crystalaxis_xyz"].any()
+            flag_f_m_perp_o_ccs_2hkl =  dict_crystal["flags_atom_ordered_moment_crystalaxis_dn"].any()
             if flag_dict:
                 dict_in_out["f_m_perp_o_ccs_2hkl"] = f_m_perp_o_ccs_2hkl
             
@@ -260,7 +307,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
 
 
     flag_flip_ratio = flag_extincton or flags_beam_polarization or flags_flipper_efficiency or \
-        flag_f_nucl or flag_f_m_perp or flags_c_lambda2 or flag_f_nucl_2hkl or flag_f_m_perp_2hkl
+        flag_f_nucl or flag_f_m_perp or flags_c_lambda2 or flag_f_nucl_2hkl or flag_f_m_perp_2hkl or\
+        flag_twin_fraction
     if (flag_use_precalculated_data and not(flag_flip_ratio) 
             and "iint_plus" in dict_in_out_keys and "iint_minus" in dict_in_out_keys):
         iint_plus = dict_in_out["iint_plus"]
@@ -276,6 +324,16 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             flag_c_lambda2=flags_c_lambda2,
             flag_f_nucl_2hkl=flag_f_nucl_2hkl, flag_f_m_perp_2hkl=flag_f_m_perp_2hkl,
             dict_in_out=dict_in_out)
+        if flag_twin:
+            iint_plus_twin = iint_plus.reshape((n_hkl, -1), order='F')
+            iint_minus_twin = iint_minus.reshape((n_hkl, -1), order='F')
+            iint_plus = (iint_plus_twin*numpy.expand_dims(twin_fraction, axis=0)).sum(axis=1)
+            iint_minus = (iint_minus_twin*numpy.expand_dims(twin_fraction, axis=0)).sum(axis=1)
+            for key, item in dder_plus.items():
+                
+                dder_plus[key] = (item.reshape(item.shape[:-1]+(n_hkl, -1,), order='F')*numpy.expand_dims(twin_fraction, axis=tuple(range(item.ndim)))).sum(axis=item.ndim)
+            for key, item in dder_minus.items():
+                dder_minus[key] = (item.reshape(item.shape[:-1]+(n_hkl, -1,), order='F')*numpy.expand_dims(twin_fraction, axis=tuple(range(item.ndim)))).sum(axis=item.ndim)
         # iint_plus = iint_plus * numpy.power(wavelength, 4) # FIXME: It should be for the TOF
         # iint_minus = iint_minus * numpy.power(wavelength, 4)
         if flag_dict:
@@ -354,6 +412,24 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     if flags_extinction_radius:
         dder_plus_diffrn["extinction_radius"] = dder_plus["radius"][:, na]
         dder_minus_diffrn["extinction_radius"] = dder_minus["radius"][:, na]
+    if flags_extinction_q_hh:
+        dder_plus_diffrn["extinction_q_hh"] = dder_plus["q_hh"][:, na]
+        dder_minus_diffrn["extinction_q_hh"] = dder_minus["q_hh"][:, na]
+    if flags_extinction_q_kk:
+        dder_plus_diffrn["extinction_q_kk"] = dder_plus["q_kk"][:, na]
+        dder_minus_diffrn["extinction_q_kk"] = dder_minus["q_kk"][:, na]
+    if flags_extinction_q_ll:
+        dder_plus_diffrn["extinction_q_ll"] = dder_plus["q_ll"][:, na]
+        dder_minus_diffrn["extinction_q_ll"] = dder_minus["q_ll"][:, na]
+    if flags_extinction_q_hk:
+        dder_plus_diffrn["extinction_q_hk"] = dder_plus["q_hk"][:, na]
+        dder_minus_diffrn["extinction_q_hk"] = dder_minus["q_hk"][:, na]
+    if flags_extinction_q_hl:
+        dder_plus_diffrn["extinction_q_hl"] = dder_plus["q_hl"][:, na]
+        dder_minus_diffrn["extinction_q_hl"] = dder_minus["q_hl"][:, na]
+    if flags_extinction_q_kl:
+        dder_plus_diffrn["extinction_q_kl"] = dder_plus["q_kl"][:, na]
+        dder_minus_diffrn["extinction_q_kl"] = dder_minus["q_kl"][:, na]
     if flags_extinction_mosaicity:
         dder_plus_diffrn["extinction_mosaicity"] = dder_plus["mosaicity"][:, na]
         dder_minus_diffrn["extinction_mosaicity"] = dder_minus["mosaicity"][:, na]
@@ -391,6 +467,9 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             elif name == "phase_scale":#FIXME
                 dder_plus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
                 dder_minus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
+            elif name == "twin_fraction":
+                dder_plus_p = iint_plus_twin[:,1:] - iint_plus_twin[:,0:1]
+                dder_minus_p = iint_minus_twin[:,1:] - iint_minus_twin[:,0:1]
             else:
                 raise AttributeError("It should not be like this.")
             parameter_name = [(diffrn_type_name, ) + way + (tuple(ind_1d[ind,:]), ) for ind in range(ind_1d.shape[0])]

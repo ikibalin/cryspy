@@ -36,12 +36,12 @@ For more information please see the site: https://www.cryspy.fr/
 __author__ = 'Iurii KIBALIN'
 __copyright__   = "Copyright 2026, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
-__license__ = "GPL"
-__version__ = "0.10.0"
+__license__ = "MIT"
+__version__ = "0.11.0"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@ess.eu"
 __status__ = "Development"
-__date__ = "06.01.2026"
+__date__ = "27.04.2026"
 name = "cryspy"
 
 
@@ -85,9 +85,10 @@ from cryspy.A_functions_base.function_1_strings import value_error_mark_to_strin
     transform_fraction_with_label_to_string, transform_digits_to_string,\
     transform_r_b_to_string
 
-from cryspy.A_functions_base.powder_diffraction_tof import tof_Jorgensen, \
+from cryspy.A_functions_base.powder_diffraction_tof import \
+    tof_non_convoluted_pseudo_voigt, \
+    tof_Jorgensen, \
     tof_Jorgensen_VonDreele
-
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_volume_uc_by_abc_cosines,\
@@ -101,7 +102,7 @@ from cryspy.A_functions_base.function_2_crystallography_base import \
     ortogonalize_matrix
 
 from cryspy.A_functions_base.function_2_mem import \
-    calc_asymmetric_unit_cell_indexes, calc_index_atom_symmetry_closest_to_fract_xyz, \
+    calc_index_atom_symmetry_closest_to_fract_xyz, \
     calc_factor_in_front_of_density_for_fm, calc_moment_perp,\
     transfer_to_density_3d, transfer_to_chi_3d
 
@@ -127,8 +128,11 @@ from cryspy.A_functions_base.function_3_mcif import \
 from cryspy.A_functions_base.function_4_flip_ratio import \
     calc_f_plus_sq, calc_f_minus_sq, calc_flip_ratio
 
+from cryspy.A_functions_base.symmetry_elements import calc_asymmetric_unit_cell_indexes
+
 from cryspy.B_parent_classes.cl_2_loop import \
  get_prefix_of_loop
+
 
 from cryspy.D_functions_item_loop.function_1_section_from_density_point \
     import calc_section_from_density_point
@@ -136,6 +140,8 @@ from cryspy.D_functions_item_loop.function_1_section_from_density_point \
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import \
     magnetization_ellipsoid_by_u_ij, report_main_axes_of_magnetization_ellipsoids
+
+from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 
 # from cryspy.D_functions_item_loop.structure_factor import \
 #     calculate_nuclear_structure_factor, calculate_structure_factor_tensor
@@ -163,6 +169,15 @@ from cryspy.procedure_mempy.mempy import  mempy_magnetization_density_reconstruc
     mempy_reconstruction_with_parameters,\
     mempy_cycle_with_parameters
 
+
+from cryspy.procedure_simulation.simulation import  \
+    simulation_paramagnetic_crystal, \
+    simulation_magnetic_crystal, \
+    simulation_polarized_neutron_powder_diffraction, \
+    simulation_unpolarized_neutron_powder_diffraction, \
+    simulation_fliping_ratio,\
+    simulation_single_crystal, \
+    simulation_current_experiments
 
 
 
@@ -234,6 +249,8 @@ L_FUNCTION = [
     transform_r_b_to_string,
     tof_Jorgensen,
     tof_Jorgensen_VonDreele,
+    tof_non_convoluted_pseudo_voigt,
+    calc_d_sthovl_for_hkl,
     calc_volume_uc_by_abc_cosines,
     calc_volume_uc_by_abc_angles,
     calc_inverse_d_by_hkl_abc_cosines,
@@ -273,7 +290,15 @@ L_FUNCTION = [
     mempy_spin_density_reconstruction,
     mempy_reconstruction_with_parameters,
     mempy_cycle_with_parameters,
-    get_prefix_of_loop]
+    get_prefix_of_loop,
+    simulation_paramagnetic_crystal,
+    simulation_magnetic_crystal,
+    simulation_single_crystal,
+    simulation_fliping_ratio, 
+    simulation_unpolarized_neutron_powder_diffraction, 
+    simulation_polarized_neutron_powder_diffraction, 
+    simulation_current_experiments,
+    ]
 
 def functions(s_name: str = "", flag_long: bool = False):
     l_function = L_FUNCTION + L_FUNCTION_ADD

@@ -70,20 +70,15 @@ def test_mem():
         f_dir_examples,
         os.path.join("mempy_spin_density_YTiO3",
                      "mempy_spin_density_YTiO3.rcif"))
-    try:
-        rcif_obj = cryspy.load_file(f_name)
-        cryspy.mempy_spin_density_reconstruction(rcif_obj)
-        assert True
-    except:
-        assert False
+    rcif_obj = cryspy.load_file(f_name)
+    res = cryspy.mempy_spin_density_reconstruction(rcif_obj)
+    assert res["chi_sq"] < 18
 
     f_name = os.path.join(
         f_dir_examples,
         os.path.join("mempy_magnetization_density_Yb2Ti2O7_2K_1T",
                      "mempy_magnetization_density_Yb2Ti2O7_2K_1T.rcif"))
-    try:
-        rcif_obj = cryspy.load_file(f_name)
-        cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
-        assert True
-    except:
-        assert False
+
+    rcif_obj = cryspy.load_file(f_name)
+    res = cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
+    assert res["chi_sq"] < 7.35

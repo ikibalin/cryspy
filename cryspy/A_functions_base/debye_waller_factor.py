@@ -238,4 +238,3 @@ def calc_dwf(index_hkl, sthovl, b_iso, beta, symm_elems_r,
     if flag_beta:
         dder["beta"] = None
     return dwf, dder
-

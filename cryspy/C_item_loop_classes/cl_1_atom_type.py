@@ -8,37 +8,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 class AtomType(ItemN):
-    """Details about properties of the atom.
-
-    Data items in the ATOM_TYPE category record details about
-    properties of the atoms that occupy the atom sites, such as the
-    atomic scattering factors.
-
-    Mandatory attributes:
-        - label
-        - type_symbol
-        - fract_x
-        - fract_y
-        - fract_z
-
-    Optional attributes:
-        - occupancy
-        - adp_type
-        - u_iso_or_equiv
-        - u_equiv_geom_mean
-        - b_iso_or_equiv
-        - multiplicity
-        - wyckoff_symbol
-        - cartn_x
-        - cartn_y
-        - cartn_z
-
-    Internal attributes:
-        - scat_length_neutron
-
-    Internal protected attributes:
-        - space_group_wyckoff
-        - constr_number
+    """AtomType records details about properties of the atoms that occupy the atom sites, such as the atomic scattering factors.
     """
     ATTR_MANDATORY_NAMES = ("symbol", )
     ATTR_MANDATORY_TYPES = (str, )
@@ -51,7 +21,7 @@ class AtomType(ItemN):
         "cromer_mann_b3", "cromer_mann_b4", "cromer_mann_c",
         "scat_dispersion_real", "scat_dispersion_imag", "dispersion_source",
         "scat_length_neutron", "scat_source", "scat_versus_stol_list")
-    ATTR_OPTIONAL_TYPES = (float, str, int, float, float, float, float, float,
+    ATTR_OPTIONAL_TYPES = (float, str, float, float, float, float, float, float,
                            float, float, float, float, float, float, float,
                            float, float, str, complex, str, float)
     ATTR_OPTIONAL_CIF = (
@@ -109,7 +79,7 @@ class AtomType(ItemN):
 
 
 class AtomTypeL(LoopN):
-    """Details about properties of the atoms.
+    """AtomType records details about properties of the atoms that occupy the atom sites, such as the atomic scattering factors.
     """
     ITEM_CLASS = AtomType
     ATTR_INDEX = "symbol"

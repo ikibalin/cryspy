@@ -1,0 +1,337 @@
+global_
+
+_mem_parameters_points_a 48
+_mem_parameters_points_b 48
+_mem_parameters_points_c 48
+_mem_parameters_channel_col True
+_mem_parameters_channel_ani False
+_mem_parameters_magnetization_plus 1.00000
+_mem_parameters_magnetization_minus -6.00000
+_mem_parameters_prior_density core
+_mem_parameters_use_asymmetry True
+_mem_parameters_GoF_desired 1.00
+# _mem_parameters_spin_density_to_den_file mem_sd.den
+# _mem_parameters_magnetization_density_to_den_file mem_md.den
+
+_inversed_hessian_with_labels
+;
+exp1,fraction,(np.int64(0),) 0.0002643233 0.0049125807 0.0001623599 -0.0000005022
+exp1,radius,(np.int64(0),) 0.0049125807 0.3154413118 0.0102150178 -0.0000321824
+mnf2,ordered_moment_crystalaxis_xyz,(np.int64(2),np.int64(0)) 0.0001623599 0.0102150178 0.0004280798 -0.0000010222
+mnf2,ordered_moment_crystalaxis_xyz,(np.int64(2),np.int64(1)) -0.0000005022 -0.0000321824 -0.0000010222 0.0000000588
+;
+
+data_mnf2
+
+_cell_length_a 4.873600
+_cell_length_b 4.873600
+_cell_length_c 3.300000
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 90.000000
+
+loop_
+_space_group_symop_magn_operation_xyz
+_space_group_symop_magn_operation_id
+                x,y,z,+1    1
+             -x,-y,-z,+1    2
+               x,y,-z,+1    3
+              -x,-y,z,+1    4
+                y,x,z,-1    5
+              -y,-x,z,-1    6
+             -y,-x,-z,-1    7
+               y,x,-z,-1    8
+   -x+1/2,y+1/2,z+1/2,+1    9
+  x+1/2,-y+1/2,-z+1/2,+1   10
+  -x+1/2,y+1/2,-z+1/2,+1   11
+   x+1/2,-y+1/2,z+1/2,+1   12
+   y+1/2,-x+1/2,z+1/2,-1   13
+  -y+1/2,x+1/2,-z+1/2,-1   14
+  y+1/2,-x+1/2,-z+1/2,-1   15
+   -y+1/2,x+1/2,z+1/2,-1   16
+
+loop_
+_space_group_symop_magn_centering_xyz
+_space_group_symop_magn_centering_id
+  x,y,z,+1   1
+
+loop_
+_atom_electron_configuration_label
+_atom_electron_configuration_core
+  Mn   3d1
+  F   2p1
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+  Mn   Mn2+   0.000000   0.000000   0.000000   1.0   Biso   0.0   2
+   F    F1-   0.303691   0.303691   0.000000   1.0   Biso   0.0   4
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+_atom_site_moment_symmform
+   Mn   0.0   0.0      5.275(21)   0,0,mz
+   F   0.0   0.0   -0.02516(24)   0,0,mz
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  Mn   Mn2+   2.0   1.0
+   F   Mn2+   1.0   1.0
+
+
+data_exp1
+
+_setup_wavelength 0.8200
+_setup_field 1.00
+_setup_radiation neutrons
+_setup_K 0.0
+_setup_cthm 0.91000
+_setup_temperature 2.00
+
+_diffrn_orient_matrix_ub_11 0.1168
+_diffrn_orient_matrix_ub_12 -0.16797
+_diffrn_orient_matrix_ub_13 0.02524
+_diffrn_orient_matrix_ub_21 -0.16796
+_diffrn_orient_matrix_ub_22 -0.11776
+_diffrn_orient_matrix_ub_23 -0.01339
+_diffrn_orient_matrix_ub_31 0.01729
+_diffrn_orient_matrix_ub_32 -0.00885
+_diffrn_orient_matrix_ub_33 -0.30075
+_diffrn_orient_matrix_type CCSL
+
+_diffrn_radiation_polarization 0.94
+_diffrn_radiation_efficiency 1.0
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 61.85(56)
+
+_phase_label mnf2
+_phase_scale 0.0
+
+_chi2_asymmetry True
+
+loop_
+_jana_twin_id
+_jana_twin_matrix[1][1]
+_jana_twin_matrix[1][2]
+_jana_twin_matrix[1][3]
+_jana_twin_matrix[2][1]
+_jana_twin_matrix[2][2]
+_jana_twin_matrix[2][3]
+_jana_twin_matrix[3][1]
+_jana_twin_matrix[3][2]
+_jana_twin_matrix[3][3]
+_jana_twin_fraction
+  1   0.0   1.0   0.0   1.0   0.0   0.0   0.0   0.0   1.0   0.124(16)
+
+loop_
+_diffrn_refln_index_h
+_diffrn_refln_index_k
+_diffrn_refln_index_l
+_diffrn_refln_fr
+_diffrn_refln_fr_sigma
+_diffrn_refln_fr_calc
+_diffrn_refln_excluded
+    2    1   0    0.0781   0.0099    0.08996   False
+    1    2   0    0.0802   0.0099    0.08996   False
+   -3    2   0    0.0452   0.0024    0.03935   False
+   -2    3   0    0.0403   0.0027    0.03935   False
+    3    1   1    0.1984   0.0023    0.20076   False
+   -2    2   1    0.1846   0.0026    0.18662   False
+    1    3   1    0.2308   0.0026    0.22720   False
+   -3    3   1    0.1272   0.0066    0.15750   False
+    4    2   1    0.5653   0.0042    0.56728   False
+    2    4   1     0.576   0.0044    0.57337   False
+   -4    1   0    0.5982   0.0043    0.60074   False
+   -1    4   0    0.5925   0.0045    0.60074   False
+    1    5   1    0.1124   0.0102    0.05941   False
+    4    3   0    0.5349   0.0054    0.52567   False
+    3    4   0    0.5405   0.0055    0.52567   False
+   -1    2   0   13.6803   0.1544   11.11659   False
+   -2    5   0    0.1172   0.0127    0.05926   False
+   -3    1   1    4.1588   0.0504    3.90516   False
+    4    1   0    1.7061   0.0121    1.66461   False
+   -1    3   1     3.706   0.0504    4.07646   False
+    1    4   0    1.6672   0.0127    1.66461   False
+   -3    4   0    1.8696   0.0171    1.90233   False
+   -1    1   0    0.8574   0.0029    0.87099   False
+    2   -1   0   15.6413   0.3735   11.11659   False
+   -1    1   0    0.8634   0.0037    0.87099   False
+    1    1   0    1.1314    0.004    1.14812   False
+   -2    4   1    1.6195   0.0206    1.71818   False
+    1    1   0    1.1371   0.0047    1.14812   False
+   -4    4   1    0.8786   0.0062    0.89133   False
+    4    4   1      1.14   0.0083    1.12536   False
+   -6    1   0    1.1425   0.0088    1.12316   False
+    4    5   0    0.4299   0.0371    0.30800   False
+    6    2   1     1.142   0.0125    1.13529   False
+    2    6   1    1.1203   0.0121    1.13325   False
+   -5    1   1     8.786   0.8897   14.48716   False
+    3    6   0    1.1594   0.0191    1.12529   False
+    1    0   1    0.9811   0.0031    1.00000   False
+    1    0   1    0.9824   0.0032    1.00000   False
+    4    2   0     0.961   0.0073    0.98799   False
+   -4    2   0    1.0482   0.0091    1.01216   False
+    1    3   0    0.9773   0.0047    0.98878   False
+    2    4   0    0.9582   0.0087    0.98799   False
+    4    2   0     0.959   0.0087    0.98799   False
+   -2    4   0    1.0478   0.0104    1.01216   False
+   -4    2   0    1.0424   0.0093    1.01216   False
+    4    2   0    0.9603   0.0088    0.98799   False
+    2    4   0    0.9671   0.0077    0.98799   False
+    1    7   1    1.0468    0.011    1.02466   False
+    3    3   0    1.0404   0.0106    0.99119   False
+   -2    4   0     1.036   0.0097    1.01216   False
+    3    1   0    0.9827   0.0049    0.98878   False
+    5    4   1    0.9628   0.0107    0.99913   False
+    0    2   0    0.9928   0.0021    1.00000   False
+    3    1   0    0.9837    0.005    0.98878   False
+    3    7   1     1.072   0.0222    1.02606   False
+    3    1   0    0.9864   0.0042    0.98878   False
+    3    9   1     0.858   0.0447    0.93052   False
+   -4    1   1    0.9693   0.0109    0.97758   False
+   -4    1   1    0.9708   0.0104    0.97758   False
+    1    3   0    0.9852   0.0054    0.98878   False
+   -3    1   0    1.0119   0.0045    1.01134   False
+    4    1   1    1.0261   0.0099    1.02408   False
+   -4    3   1    1.0594    0.023    1.03729   False
+   -1    3   0    1.0117   0.0046    1.01134   False
+    4    9   1    0.7841   0.0864    0.99604   False
+   -1    4   1    0.9735   0.0107    0.97733   False
+    2    4   0    0.9785   0.0091    0.98799   False
+   -1    4   1    0.9712   0.0123    0.97733   False
+   -2    2   0     1.017   0.0073    1.03165   False
+   -2    4   0    1.0218   0.0095    1.01216   False
+    5    6   1    1.0238   0.0104    1.00030   False
+    3    2   1     1.009    0.004    1.00255   False
+    7    2   1    0.9774   0.0101    0.99873   False
+   -3    3   0    0.9765   0.0106    1.00889   False
+    1    4   1    1.0237   0.0109    1.02348   False
+   -3    3   0    0.9773   0.0107    1.00889   False
+   -3    3   0    0.9779   0.0105    1.00889   False
+    2    1   1    0.9252   0.0359    0.84557   False
+   -4    6   0    1.0966   0.0474    1.01802   False
+    0    2   0   0.99641   0.0018    1.00000   False
+    4    5   1    0.9786   0.0108    0.99914   False
+    1    9   1    1.0393   0.0209    1.03103   False
+   -4    1   1    0.9801   0.0109    0.97758   False
+   -2    8   0    1.0539    0.031    0.99805   False
+    3    0   1    1.0083   0.0048    1.00000   False
+    1    4   1    1.0186   0.0108    1.02348   False
+   -1    3   0    1.0094   0.0055    1.01134   False
+   -3    8   1    1.0308   0.0185    1.00031   False
+   -1    7   0    0.9816    0.012    0.99574   False
+    0    9   1    1.0895   0.0585    1.00000   False
+    3    0   1     1.009    0.006    1.00000   False
+    2    7   1    0.9865   0.0092    0.99874   False
+   -4    6   0    1.0668   0.0469    1.01802   False
+   -2    1   1    1.0812   0.0575    1.16707   False
+  -10    1   0    1.4308   0.3211    1.27268   False
+   -3    5   0    0.9942   0.0044    0.99977   False
+    5    8   1    0.9372   0.0482    1.00012   False
+   -5    8   1    0.9188    0.063    0.99988   False
+    3    8   1    1.0197   0.0153    0.99968   False
+    6    4   1    0.9886   0.0089    0.99079   False
+   -4    2   0    1.0113   0.0091    1.01216   False
+  -10    0   0     1.129   0.1057    1.00000   False
+   -5    8   1     0.921   0.0648    0.99988   False
+    2    0   0    0.9972   0.0023    1.00000   False
+   -4    4   0    0.9872   0.0106    0.97236   False
+    4    8   1    0.9387   0.0515    0.91482   False
+   -4    9   1    1.2092   0.1801    1.00394   False
+    8    3   1    0.9784   0.0186    0.99968   False
+   -7    1   0    0.9854   0.0127    0.99574   False
+   -6    8   0    0.9254   0.0651    1.00061   False
+    4    6   1    0.9899   0.0089    0.99084   False
+    6    6   1    0.9759   0.0215    0.97025   False
+   -6    0   0    1.0795   0.0711    1.00000   False
+    5    0   1    0.9957    0.004    1.00000   False
+    7    3   0    1.1458   0.1379    1.00556   False
+   -4    3   1    1.0282   0.0267    1.03729   False
+    7    3   1    1.0214   0.0215    1.02632   False
+   -2    2   0    1.0074   0.0076    1.03165   False
+    0    3   1    1.0069   0.0072    1.00000   False
+   -7    4   1    0.9716   0.0297    0.98716   False
+    2    8   1    1.0728   0.0764    1.13077   False
+   -6    4   0    0.9615   0.0408    1.01802   False
+   -5    4   1    1.0103   0.0112    1.00084   False
+    1    6   1    0.9916   0.0098    0.99113   False
+   -5    0   1    1.0028   0.0033    1.00000   False
+   -1    6   1    1.0094   0.0116    1.00890   False
+   -9    1   0    1.2167   0.2677    1.00700   False
+   -8    0   0    1.0069   0.0086    1.00000   False
+    2    9   1    0.8913   0.1356    1.00506   False
+   -9    0   1    1.1032    0.134    1.00000   False
+   -2    8   0    1.0232   0.0303    0.99805   False
+    7    0   1    0.9736   0.0346    1.00000   False
+   -5    7   0    1.0291   0.0384    1.00013   False
+   -7    5   0      1.04    0.053    1.00013   False
+    6    5   1    1.0073   0.0101    1.00030   False
+    2    2   0    0.9952   0.0069    0.96932   False
+    4    7   1    1.0223   0.0348    1.01321   False
+    8    4   2    0.9697   0.0478    1.00113   False
+    1    2   1     1.025   0.0406    0.84950   False
+    7    1   1    0.9923   0.0127    1.02509   False
+    7    4   1    1.0213   0.0354    1.01330   False
+    7    7   1    0.9622   0.0636    0.92220   False
+    8    4   1    0.9618   0.0669    0.91424   False
+    2    7   1    0.9946   0.0096    0.99874   False
+   -5    5   0    1.0066   0.0121    1.00007   False
+   -7    3   0     0.978   0.0411    0.99447   False
+    3    2   1    0.9975   0.0048    1.00255   False
+   -9    4   1    1.1813   0.3492    1.00393   False
+    9    4   1    1.0956   0.1863    0.99601   False
+    9    0   1    1.0477   0.1004    1.00000   False
+   -2    7   1    1.0039   0.0087    1.00125   False
+   -6    6   0    0.9104    0.202    0.98167   False
+   -3    7   0    0.9797   0.0458    0.99447   False
+    2    1   1    0.9835   0.0381    0.84557   False
+   -3    1   0     0.998   0.0047    1.01134   False
+   -8    4   0    1.0332   0.0808    0.99854   False
+   -3    8   1    0.9926   0.0192    1.00031   False
+   -4    7   1    1.0114   0.0308    0.98712   False
+    2    3   1    1.0015   0.0041    1.00253   False
+    2    0   0    0.9992   0.0022    1.00000   False
+   -7    0   1    1.0089   0.0294    1.00000   False
+    8    2   1    0.9729   0.0985    1.13253   False
+   -1    7   0    0.9967   0.0124    0.99574   False
+    4    3   1    1.0069   0.0273    0.96288   False
+    0    9   1    0.9876   0.0498    1.00000   False
+    1    7   0    1.0032   0.0131    1.00428   False
+    6    1   1    1.0024   0.0105    0.99096   False
+   -4    5   1    0.9975   0.0111    1.00085   False
+   -3    0   1    1.0013   0.0062    1.00000   False
+    9    2   1    0.9807   0.0944    1.00512   False
+   -3    4   1     0.995   0.0246    1.03738   False
+   -1    2   1    1.0174   0.0867    1.16940   False
+    0    7   1    0.9945   0.0276    1.00000   False
+   -4    8   0    1.0118     0.06    0.99854   False
+   -5    6   1    1.0015   0.0096    0.99971   False
+   -6    1   1    0.9985   0.0103    1.00883   False
+    3    8   1    1.0019   0.0147    0.99968   False
+    1    8   1    1.0342   0.2933    1.04835   False
+   -2    9   1    0.9912   0.0823    0.99499   False
+    0    4   0     0.997   0.0308    1.00000   False
+    0    5   1    0.9997   0.0032    1.00000   False
+   -6    5   1    0.9991   0.0097    0.99971   False
+   -8    3   1    1.0026   0.0291    1.00031   False
+   -2    3   1    1.0004   0.0051    0.99756   False
+  -10    0   0    0.9923   0.0999    1.00000   False
+   -9    3   0     0.987   0.2026    0.99792   False
+   -8    2   0    0.9981   0.0309    0.99805   False
+   -1    5   0    0.9883   0.2077    3.59579   False
+   -4    3   1    0.9986   0.0265    1.03729   False

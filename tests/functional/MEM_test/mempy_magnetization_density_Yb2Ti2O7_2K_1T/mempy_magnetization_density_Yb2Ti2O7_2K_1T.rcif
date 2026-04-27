@@ -1,0 +1,188 @@
+global_
+
+_mem_parameters_points_a 96
+_mem_parameters_points_b 96
+_mem_parameters_points_c 96
+_mem_parameters_channel_col False
+_mem_parameters_channel_chi True
+_mem_parameters_magnetization_plus 4.00000
+_mem_parameters_magnetization_minus -1.00000
+_mem_parameters_prior_density uniform
+_mem_parameters_use_asymmetry True
+_mem_parameters_GoF_desired 1.00
+# _mem_parameters_spin_density_to_den_file mem_sd.den
+# _mem_parameters_magnetization_density_to_den_file mem_md.den
+ 
+data_5c1110
+
+_setup_wavelength 0.8400
+_setup_field 1.00
+_setup_radiation neutrons
+_setup_K 0.0
+_setup_cthm 0.91000
+
+_diffrn_radiation_polarization -0.91
+_diffrn_radiation_efficiency 1.0
+
+_diffrn_orient_matrix_ub_11 -0.05383
+_diffrn_orient_matrix_ub_12 0.06311
+_diffrn_orient_matrix_ub_13 0.05549
+_diffrn_orient_matrix_ub_21 0.0406
+_diffrn_orient_matrix_ub_22 -0.03817
+_diffrn_orient_matrix_ub_23 0.08279
+_diffrn_orient_matrix_ub_31 0.07358
+_diffrn_orient_matrix_ub_32 0.06723
+_diffrn_orient_matrix_ub_33 -0.00509
+_diffrn_orient_matrix_type CCSL
+
+_extinction_model gauss
+_extinction_mosaicity 0.0
+_extinction_radius 100.0
+
+_phase_label ybti
+
+_refine_ls_goodness_of_fit_all 10.255
+_refine_ls_number_reflns 79
+_refine_ls_weighting_scheme sigma
+
+loop_
+_diffrn_refln_index_h
+_diffrn_refln_index_k
+_diffrn_refln_index_l
+_diffrn_refln_fr
+_diffrn_refln_fr_sigma
+_diffrn_refln_fr_calc
+_diffrn_refln_excluded
+  -4    4    0   0.77695   0.01068   0.75176   False
+   4   -4    0   0.76409   0.01126   0.75176   False
+   3   -5    1   0.68764   0.10804   0.58380   False
+   3    3   -1    0.9376   0.02261   0.98047   False
+  -3    3   -1   0.80429    0.0138   0.83958   False
+   3   -3    1   0.79126   0.01533   0.83958   False
+   5   -3    1    0.5825   0.03739   0.61623   False
+   5    1   -1   0.85653   0.02883   0.92421   False
+   1   -1    1   0.56208   0.00664   0.56751   False
+   5   -1    1   0.84747   0.03211   0.87432   False
+   7   -1   -1    0.7676   0.05674   0.83318   False
+   5   -1   -1   0.85682   0.03213   0.88157   False
+   1   -1   -1   0.56538   0.00724   0.56923   False
+   5   -3   -1   0.64322   0.04101   0.60043   False
+   3   -3   -1   0.79026   0.01518   0.84026   False
+  -3    3    1   0.81077    0.0159   0.84026   False
+   6   -2    2   0.57722   0.04467   0.57144   False
+   6   -2   -2   0.51089    0.0405   0.58624   False
+   3   -5    3   0.44607   0.20587   0.23491   False
+   1    3   -3   0.86405   0.01817   0.90773   False
+  -1    3   -3   0.75895   0.01374   0.79702   False
+   1   -3    3   0.78554   0.01284   0.79702   False
+   5   -3    3   0.41815   0.11889   0.21148   False
+   7   -3    3   0.88387   0.03645   0.88222   False
+   5    1   -3   0.72235   0.08012   0.76918   False
+   3    1   -3   0.84649    0.0168   0.91775   False
+   3   -1    3   0.80805   0.01795   0.80453   False
+   5   -1    3   0.68868   0.05336   0.77754   False
+   5   -1   -3   0.64226   0.04559   0.79073   False
+   3   -1   -3   0.74886   0.01412   0.80754   False
+  -3    1    3   0.75389   0.01346   0.80754   False
+   3    1    3   0.94504   0.02492   0.90039   False
+   7   -3   -3   0.90328   0.04941   0.88684   False
+   5   -3   -3    0.5719   0.10102   0.24592   False
+  -5    3    3    0.6735    0.2035   0.24592   False
+   3   -3   -3   2.08152   0.44734   3.42015   False
+  -1    3    3   0.80481   0.01351   0.79550   False
+   1    3    3   0.94796    0.0172   0.89065   False
+  -5    5    3   0.69833   0.10302   0.83519   False
+   0    4   -4   0.77247   0.01026   0.81573   False
+   4    0   -4   0.74795   0.01019   0.82752   False
+   4    0    4   0.84685   0.01183   0.80948   False
+   0    4    4   0.86995   0.00916   0.79907   False
+  -3    5   -5   0.70084   0.05474   0.74483   False
+   3    3   -5   0.58985   0.23445   0.40431   False
+   1    3   -5   0.67764   0.04756   0.78147   False
+  -1    3   -5   0.52475   0.03049   0.58215   False
+   1   -3    5   0.54202   0.03076   0.58215   False
+   5   -3    5   0.76902   0.07228   0.75838   False
+   3    1   -5   0.70273   0.04405   0.78619   False
+   1    1   -5   0.68453     0.023   0.76883   False
+  -1   -1    5   0.70386   0.02031   0.76883   False
+   1   -1    5   0.75311   0.02351   0.81646   False
+   3   -1    5    0.5967   0.05292   0.55757   False
+   3   -1   -5   0.56211   0.03297   0.58671   False
+  -3    1    5   0.57583   0.03283   0.58671   False
+  -1    1    5   0.82587   0.02314   0.81678   False
+   1    1    5   0.71872   0.02478   0.76174   False
+   3    1    5   0.87777   0.05404   0.76096   False
+  -5    3    5   0.64289   0.05584   0.75425   False
+  -3    3    5    0.4368   0.18813   0.43292   False
+  -1    3    5   0.62783   0.03364   0.55510   False
+   1    3    5   0.77668   0.02971   0.75887   False
+  -3    5    5   0.79268   0.08949   0.75067   False
+   2    2   -6   0.49013   0.04408   0.57870   False
+   2   -2    6   0.62897   0.03535   0.45378   False
+  -2    2    6   0.51325   0.03697   0.45596   False
+   3    3   -7   0.85295   0.07635   0.88686   False
+   3   -3    7   0.90685   0.03652   0.85978   False
+   1    1   -7   0.67021   0.03523   0.73437   False
+  -1   -1    7    0.6827   0.04099   0.73437   False
+   1   -1    7   0.77956   0.04427   0.82322   False
+  -1    1    7   0.81429   0.04795   0.82395   False
+   1    1    7   0.82415   0.05136   0.71822   False
+   0    0    8   0.75731   0.02667   0.74319   False
+   0   -2    2   0.79859   0.04839   0.86932   False
+   0    0    4   2.36919   0.09634   2.89733   False
+   4    0    0   1.73758   0.07904   1.45756   False
+   2    0   -6   0.65728   0.11112   0.93362   False
+ 
+
+data_ybti
+
+_cell_length_a 10.030000
+_cell_length_b 10.030000
+_cell_length_c 10.030000
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 90.000000
+
+_space_group_name_H-M_alt "F d -3 m"
+_space_group_IT_coordinate_system_code 2
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_U_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+  Yb   Yb3+   0.500000   0.500000   0.500000   1.0   Uiso   0.0   16   d
+  Ti   Ti3+   0.000000   0.000000   0.000000   1.0   Uiso   0.0   16   c
+  O1    O2-   0.328350   0.125000   0.125000   1.0   Uiso   0.0   48   f
+  O2    O2-   0.375000   0.375000   0.375000   1.0   Uiso   0.0    8   b
+
+loop_
+_atom_site_susceptibility_label
+_atom_site_susceptibility_chi_type
+_atom_site_susceptibility_chi_11
+_atom_site_susceptibility_chi_22
+_atom_site_susceptibility_chi_33
+_atom_site_susceptibility_chi_12
+_atom_site_susceptibility_chi_13
+_atom_site_susceptibility_chi_23
+  Yb   Cani   1.724(11)   1.72384   1.72384   -0.385(26)   -0.38523   -0.38523
+
+loop_
+_atom_electron_configuration_label
+_atom_electron_configuration_core
+  Yb   4f1
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  Yb   Yb3+   1.14   1.0
+  O2    O2-    2.0   1.0
+

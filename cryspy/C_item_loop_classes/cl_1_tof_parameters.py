@@ -154,10 +154,8 @@ epithermal neutrons")
             d_min = (time_min-self.zero)/self.dtt1
             d_max = (time_max-self.zero)/self.dtt1
         else:  # self.neutrons == "thermal"
-            det_sq_min = self.dtt1**2 - 4.*self.dtt2*(self.zero - time_min)
-            det_sq_max = self.dtt1**2 - 4.*self.dtt2*(self.zero - time_max)
-            d_max = (-self.dtt1+det_sq_max**0.5)/(2.*self.dtt2)
-            d_min = (-self.dtt1+det_sq_min**0.5)/(2.*self.dtt2)
+            d_min = self.calc_d_by_time(time_min)
+            d_max = self.calc_d_by_time(time_max)
         return d_min, d_max
     
     def calc_d_by_time(self, time):

@@ -1,0 +1,58 @@
+data_ururhsi
+
+_cell_length_a 12.426000
+_cell_length_b 4.142000
+_cell_length_c 9.624000
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 90.000000
+
+loop_
+_space_group_symop_magn_centering_xyz
+_space_group_symop_magn_centering_id
+              x,y,z,+1   1
+  x+1/2,y+1/2,z+1/2,+1   2
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  U_1   2.0   1.0
+  U_2   2.0   1.0
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+_atom_site_moment_symmform
+  U_1   0.00000   0.00000   -0.630    0,0,mz
+  U_2   0.00000   0.00000    0.505    0,0,mz
+
+loop_
+_space_group_symop_magn_operation_xyz
+_space_group_symop_magn_operation_id
+     x,y,z,+1   1
+   -x,-y,z,+1   2
+  -x,-y,-z,+1   3
+    x,y,-z,+1   4
+   x,-y,-z,-1   5
+   -x,y,-z,-1   6
+    -x,y,z,-1   7
+    x,-y,z,-1   8
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+   U_1   U3+   0.000000   0.000000   0.000000    1.0
+   U_2   U3+   0.333330   0.000000   0.000000    1.0
+  Rh_1    Rh   0.500000   0.000000   0.250000   0.04
+  Rh_2    Rh   0.166670   0.000000   0.250000   0.04
+  Ru_1    Ru   0.500000   0.000000   0.250000   0.96
+  Ru_2    Ru   0.166670   0.000000   0.250000   0.96
+  Si_1    Si   0.000000   0.000000   0.629000    1.0
+  Si_2    Si   0.333330   0.000000   0.629000    1.0

@@ -41,7 +41,7 @@ with open(f_name, 'r') as f:
 
 setup(
     name='cryspy',
-    version='0.10.0',
+    version='0.11.0',
     description='PNPD data analysis',
     long_description = long_description,
     author='Iurii Kibalin',
@@ -60,6 +60,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Operating System :: OS Independent",
     ],    
     include_package_data=True,
