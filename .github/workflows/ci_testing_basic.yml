@@ -3,7 +3,7 @@ name: CI Testing - Basic Operations
 on: [push, pull_request]
 
 jobs:
-  pytest_job:
+  pytest_basic:
     timeout-minutes: 60
 
     strategy:

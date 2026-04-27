@@ -1,9 +1,9 @@
-name: CI Testing - Functional
+name: CI Testing - Example Scripts
 
 on: [push, pull_request]
 
 jobs:
-  pytest_job:
+  pytest_examples:
     timeout-minutes: 60
 
     strategy:
