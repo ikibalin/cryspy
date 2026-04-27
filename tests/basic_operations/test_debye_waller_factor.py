@@ -1,11 +1,13 @@
 import numpy
 
+from cryspy import Cell, SpaceGroup, AtomSiteL, AtomSiteAnisoL, Crystal
 from cryspy.A_functions_base.debye_waller_factor import \
     calc_beta_by_u_ij, \
     calc_b_iso_beta, \
     calc_power_dwf_iso, \
     calc_power_dwf_aniso, \
     calc_dwf
+
 
 na = numpy.newaxis
 
@@ -36,8 +38,6 @@ index_hkl = numpy.array([
     [0, 2, 0, 2, 2, 2, 2, 2, 3, 3, 3],
     [2, 0, 0, 2, 3, 4, 5, 6, 3, 2, 3]], dtype=int)
 
-
-
 symm_elems_r = numpy.array([
     [1,-1,-1, 1],
     [0, 0, 0, 0],
@@ -48,7 +48,6 @@ symm_elems_r = numpy.array([
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [1,-1, 1,-1]], dtype=int)
-
 
 beta_ij = numpy.array(
     [0.17765288,  0.01063943,  0.37899281,  0.01658094, -0.16580935, -0.11053957],
@@ -251,7 +250,7 @@ def test_calc_b_iso_beta():
     print(b_iso_out)
     print("res_beta: ", res_beta)
     print(beta_out)
-    
+
     assert numpy.all(numpy.isclose(res_b_iso, b_iso_out))
     assert numpy.all(numpy.isclose(res_beta, beta_out))
 
@@ -278,5 +277,65 @@ def test_calc_dwf():
         flag_sthovl=True, flag_b_iso=True, flag_beta=True)
     print("res: ", res)
     print(dwf)
-    
+
     assert numpy.all(numpy.isclose(res, dwf))
+
+
+def test_dwf_iso_equals_dwf_aniso_for_fd3m_8b_special_position():
+    space_group = SpaceGroup(
+        name_hm_alt="F d -3 m",
+        it_coordinate_system_code="2",
+    )
+
+    crystal_iso = Crystal(
+        cell=Cell(),
+        space_group=space_group,
+        atom_site=AtomSiteL(
+            label=["C"],
+            type_symbol=["C"],
+            fract_x=[0.375],
+            fract_y=[0.375],
+            fract_z=[0.375],
+            adp_type=["Uiso"],
+            u_iso_or_equiv=[0.01],
+        ),
+    )
+    crystal_iso.apply_constraints()
+
+    crystal_ani = Crystal(
+        cell=Cell(),
+        space_group=space_group,
+        atom_site=AtomSiteL(
+            label=["C"],
+            type_symbol=["C"],
+            fract_x=[0.375],
+            fract_y=[0.375],
+            fract_z=[0.375],
+            adp_type=["Uani"],
+        ),
+        atom_site_aniso=AtomSiteAnisoL(
+            label=["C"],
+            u_11=[0.01],
+            u_22=[0.02],
+            u_33=[0.03],
+            u_12=[0.004],
+            u_13=[0.005],
+            u_23=[0.006],
+        ),
+    )
+    crystal_ani.apply_constraints()
+
+    u_iso = crystal_iso.atom_site["C"].u_iso_or_equiv
+    ani = crystal_ani.atom_site_aniso["C"]
+
+    # Special-position constraints should force isotropic U
+    assert ani.u_11 == ani.u_22 == ani.u_33 == u_iso
+    assert ani.u_12 == ani.u_13 == ani.u_23 == 0.0
+
+    index_hkl = numpy.array([[1], [1], [1]], dtype=int)
+
+    f_nuc_iso = crystal_iso.calc_f_nucl(index_hkl)
+    f_nuc_ani = crystal_ani.calc_f_nucl(index_hkl)
+
+    # Nuclear structure factors should be the same
+    assert numpy.allclose(f_nuc_iso, f_nuc_ani, atol=1e-12)

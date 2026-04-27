@@ -85,9 +85,10 @@ from cryspy.A_functions_base.function_1_strings import value_error_mark_to_strin
     transform_fraction_with_label_to_string, transform_digits_to_string,\
     transform_r_b_to_string
 
-from cryspy.A_functions_base.powder_diffraction_tof import tof_Jorgensen, \
+from cryspy.A_functions_base.powder_diffraction_tof import \
+    tof_non_convoluted_pseudo_voigt, \
+    tof_Jorgensen, \
     tof_Jorgensen_VonDreele
-
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_volume_uc_by_abc_cosines,\
@@ -248,6 +249,7 @@ L_FUNCTION = [
     transform_r_b_to_string,
     tof_Jorgensen,
     tof_Jorgensen_VonDreele,
+    tof_non_convoluted_pseudo_voigt,
     calc_d_sthovl_for_hkl,
     calc_volume_uc_by_abc_cosines,
     calc_volume_uc_by_abc_angles,

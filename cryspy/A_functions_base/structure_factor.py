@@ -502,7 +502,7 @@ def calc_f_nucl(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_b_iso[na, na, :],
-            atom_beta[:, na, na, :], reduced_symm_elems[:, na, :, na],
+            atom_beta[:, na, na, :], reduced_symm_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_b_iso, flag_beta=flag_atom_beta)
         if flag_dict:
             dict_in_out["debye_waller_factor"] = debye_waller_factor
@@ -729,7 +729,7 @@ def calc_f_charge(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_b_iso[na, na, :],
-            atom_beta[:, na, na, :], reduced_symm_elems[:, na, :, na],
+            atom_beta[:, na, na, :], reduced_symm_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_b_iso, flag_beta=flag_atom_beta)
         if flag_dict:
             dict_in_out["debye_waller_factor"] = debye_waller_factor
@@ -1007,7 +1007,7 @@ def calc_sft_ccs(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_para_b_iso[na, na, :],
-            atom_para_beta[:, na, na, :], reduced_symm_elems[:13, na, :, na],
+            atom_para_beta[:, na, na, :], reduced_symm_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_para_b_iso, flag_beta=flag_atom_para_beta)
         if flag_dict:
             dict_in_out["atom_para_debye_waller_factor"] = debye_waller_factor
@@ -1315,7 +1315,7 @@ def calc_f_m_perp_ordered(index_hkl,
     else:
         debye_waller_factor, dder_dw = calc_dwf(
             index_hkl[:, :, na, na], sthovl[:, na, na], atom_ordered_b_iso[na, na, :],
-            atom_ordered_beta[:, na, na, :], full_mcif_elems[:13, na, :, na],
+            atom_ordered_beta[:, na, na, :], full_mcif_elems[4:13, na, :, na],
             flag_sthovl=flag_sthovl, flag_b_iso=flag_atom_ordered_b_iso, flag_beta=flag_atom_ordered_beta)
         if flag_dict:
             dict_in_out["atom_ordered_debye_waller_factor"] = debye_waller_factor
