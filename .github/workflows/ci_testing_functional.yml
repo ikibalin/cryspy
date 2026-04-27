@@ -9,7 +9,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        python-version: [3.12]
+        python-version: [3.14]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
@@ -30,4 +30,4 @@ jobs:
           pip install pytest      # testing packages
 
       - name: Run functional tests
-        run: pytest tests/test_scripts.py -vv --color=yes
+        run: pytest tests/functional/ --color=yes -v -n auto

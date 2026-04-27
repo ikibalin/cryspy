@@ -1,4 +1,4 @@
-name: CI Testing - Basic Operations
+name: CI Testing - Functional
 
 on: [push, pull_request]
 
@@ -29,5 +29,5 @@ jobs:
           pip install matplotlib  # extra packages
           pip install pytest      # testing packages
 
-      - name: Run unit tests
-        run: pytest tests/basic_operations/ --color=yes -v
+      - name: Run example scripts tests
+        run: pytest tests/test_scripts.py -vv --color=yes
