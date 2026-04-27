@@ -155,6 +155,24 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     return tof_peak_2d
 
 
+def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl):
+    """Direct symmetric pseudo-Voigt profile in TOF coordinates."""
+    h_g = numpy.sqrt(8.*numpy.log(2.))*sigma
+    h_pv, eta = calc_hpv_eta(h_g, gamma)
+    time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
+    delta_2d = time_2d-time_hkl_2d
+    delta_over_h_pv = delta_2d/h_pv[:, na]
+
+    profile_g_2d = (
+        2./h_pv*numpy.sqrt(numpy.log(2.)/numpy.pi))[:, na] * numpy.exp(
+            -4.*numpy.log(2.)*numpy.square(delta_over_h_pv))
+    profile_l_2d = (
+        2./(numpy.pi*h_pv))[:, na] / (
+            1. + 4.*numpy.square(delta_over_h_pv))
+
+    return eta[:, na] * profile_l_2d + (1.-eta)[:, na] * profile_g_2d
+
+
 
 inv_8ln2 = 0.18033688011112042591999058512524
 
@@ -245,23 +263,42 @@ def calc_peak_shape_function(alphas, betas, sigmas,
     z = (beta * sigma**2 - DELTA)/(sigma * 2**0.5)
     DELTA = time - time_hkl
     """
-    alpha0, alpha1 = alphas[0], alphas[1]
-    beta0, beta1 = betas[0], betas[1]
-    alpha = alpha0 + alpha1 / d
-    beta = beta0 + beta1 / d**4
+    sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
 
-    if peak_shape == "Gauss":
-        sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
-        sigma = calc_sigma(d, sigma0, sigma1, sigma2, size_g=size_g, strain_g=strain_g)
-        res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
-    else:  # peak_shape == "pseudo-Voigt"
-        sigma0, sigma1, sigma2 = sigmas[0], sigmas[1], sigmas[2]
+    if peak_shape == "Gauss" or peak_shape == "pseudo-Voigt":
+        alpha0, alpha1 = alphas[0], alphas[1]
+        beta0, beta1 = betas[0], betas[1]
+        alpha = alpha0 + alpha1 / d
+        beta = beta0 + beta1 / d**4
+
+        if peak_shape == "Gauss":
+            sigma = calc_sigma(
+                d, sigma0, sigma1, sigma2, size_g=size_g, strain_g=strain_g)
+
+            res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
+
+        elif peak_shape == "pseudo-Voigt":
+            gamma0, gamma1, gamma2 = gammas[0], gammas[1], gammas[2]
+
+            sigma, gamma = calc_sigma_gamma(
+                d, sigma0, sigma1, sigma2, gamma0,
+                gamma1, gamma2, size_g=size_g, size_l=size_l,
+                strain_g=strain_g, strain_l=strain_l)
+
+            res_2d = tof_Jorgensen_VonDreele(
+                alpha, beta, sigma, gamma, time, time_hkl)
+
+    elif peak_shape == "non-conv-pseudo-Voigt":
         gamma0, gamma1, gamma2 = gammas[0], gammas[1], gammas[2]
-        sigma, gamma = calc_sigma_gamma(
-            d, sigma0, sigma1, sigma2, gamma0,
-            gamma1, gamma2, size_g=size_g, size_l=size_l,
-            strain_g=strain_g, strain_l=strain_l)
 
-        res_2d = tof_Jorgensen_VonDreele(
-            alpha, beta, sigma, gamma, time, time_hkl)
+        sigma, gamma = calc_sigma_gamma(
+            d, sigma0, sigma1, sigma2, gamma0, gamma1, gamma2,
+            size_g=0., size_l=0., strain_g=0., strain_l=0.)
+
+        res_2d = tof_non_convoluted_pseudo_voigt(
+            sigma, gamma, time, time_hkl)
+
+    else:
+        raise ValueError(f"Unknown peak shape: {peak_shape}")
+
     return res_2d
