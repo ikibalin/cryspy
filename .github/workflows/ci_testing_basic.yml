@@ -3,13 +3,13 @@ name: CI Testing - Basic Operations
 on: [push, pull_request]
 
 jobs:
-  pytest_job:
+  pytest_basic:
     timeout-minutes: 60
 
     strategy:
       max-parallel: 3
       matrix:
-        python-version: [3.12]
+        python-version: [3.14]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
@@ -30,4 +30,4 @@ jobs:
           pip install pytest      # testing packages
 
       - name: Run unit tests
-        run: pytest tests/basic_operations/ --color=yes
+        run: pytest tests/basic_operations/ --color=yes -v

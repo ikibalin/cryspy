@@ -18,10 +18,12 @@ pycifstar = "*"
 pyparsing = "*"
 python-dateutil = "*"
 pytest = "*"
+pytest-xdist = "*"
 scipy = "*"
 six = "*"
 cryspy = { path = ".", editable = true }
 
 [tasks]
 unit-tests = "python -m pytest tests/basic_operations/ --color=yes -v"
-func-tests = "python -m pytest tests/test_scripts.py -vv --tb=long --pdb --showlocals"
+functional-tests = "python -m pytest tests/functional/ --color=yes -v -n auto"
+integration-tests = "python -m pytest tests/test_scripts.py -vv --tb=long --pdb --showlocals"

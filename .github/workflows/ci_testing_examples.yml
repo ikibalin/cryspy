@@ -1,9 +1,9 @@
-name: CI Testing - Functional
+name: CI Testing - Example Scripts
 
 on: [push, pull_request]
 
 jobs:
-  pytest_functional:
+  pytest_examples:
     timeout-minutes: 60
 
     strategy:
@@ -25,9 +25,9 @@ jobs:
 
       - name: Set-up Python dependences
         run: |
-          pip install -e .                # from setup.py
-          pip install matplotlib          # extra packages
-          pip install pytest pytest-xdist # testing packages
+          pip install -e .        # from setup.py
+          pip install matplotlib  # extra packages
+          pip install pytest      # testing packages
 
-      - name: Run functional tests
-        run: pytest tests/functional/ --color=yes -v -n auto
+      - name: Run example scripts tests
+        run: pytest tests/test_scripts.py -vv --color=yes

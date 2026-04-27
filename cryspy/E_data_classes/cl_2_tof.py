@@ -239,12 +239,22 @@ class TOF(DataN):
 
         if "profile_peak_shape" in keys:
             profile_peak_shape = ddict_diffrn["profile_peak_shape"]
-            if profile_peak_shape == "pseudo-Voigt":
+            tof_profile = self.tof_profile
+            setattr(tof_profile, "peak_shape", profile_peak_shape)
+            if profile_peak_shape == "non-conv-pseudo-Voigt":
+                profile_sigmas = ddict_diffrn["profile_sigmas"]
+                profile_gammas = ddict_diffrn["profile_gammas"]
+                setattr(tof_profile, "sigma0", profile_sigmas[0])
+                setattr(tof_profile, "sigma1", profile_sigmas[1])
+                setattr(tof_profile, "sigma2", profile_sigmas[2])
+                setattr(tof_profile, "gamma0", profile_gammas[0])
+                setattr(tof_profile, "gamma1", profile_gammas[1])
+                setattr(tof_profile, "gamma2", profile_gammas[2])
+            elif profile_peak_shape == "pseudo-Voigt":
                 profile_sigmas = ddict_diffrn["profile_sigmas"]
                 profile_alphas = ddict_diffrn["profile_alphas"]
                 profile_betas = ddict_diffrn["profile_betas"]
                 profile_gammas = ddict_diffrn["profile_gammas"]
-                tof_profile = self.tof_profile
                 setattr(tof_profile, "alpha0", profile_alphas[0])
                 setattr(tof_profile, "alpha1", profile_alphas[1])
                 setattr(tof_profile, "beta0", profile_betas[0])
@@ -259,7 +269,6 @@ class TOF(DataN):
                 profile_sigmas = ddict_diffrn["profile_sigmas"]
                 profile_alphas = ddict_diffrn["profile_alphas"]
                 profile_betas = ddict_diffrn["profile_betas"]
-                tof_profile = self.tof_profile
                 setattr(tof_profile, "alpha0", profile_alphas[0])
                 setattr(tof_profile, "alpha1", profile_alphas[1])
                 setattr(tof_profile, "beta0", profile_betas[0])
@@ -273,7 +282,6 @@ class TOF(DataN):
                 profile_sigmas = ddict_diffrn["profile_sigmas"]
                 profile_gammas = ddict_diffrn["profile_gammas"]
                 profile_rs = ddict_diffrn["profile_rs"]
-                tof_profile = self.tof_profile
                 setattr(tof_profile, "alpha1", profile_alphas[0])
                 setattr(tof_profile, "alpha2", profile_alphas[1])
                 setattr(tof_profile, "beta00", profile_betas[0])
