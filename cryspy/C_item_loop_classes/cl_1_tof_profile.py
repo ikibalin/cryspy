@@ -82,7 +82,7 @@ class TOFProfile(ItemN):
                  "alpha2": "{:.5f}"}
 
     # constraints on the parameters
-    D_CONSTRAINTS = {"peak_shape": ["pseudo-Voigt", "Gauss", "type0m"]}
+    D_CONSTRAINTS = {"peak_shape": ["non-conv-pseudo-Voigt", "pseudo-Voigt", "Gauss", "type0m"]}
 
     # default values for the parameters
     D_DEFAULT = {"peak_shape": "pseudo-Voigt"}
@@ -117,6 +117,10 @@ class TOFProfile(ItemN):
         Redefined function to_cif
         """
         d_attributes_peak_shape =  {
+            "non-conv-pseudo-Voigt": [
+                "peak_shape",
+                "sigma0", "sigma1", "sigma2",
+                "gamma0", "gamma1", "gamma2"],
             "pseudo-Voigt": [
                 "peak_shape",
                 "sigma0", "sigma1", "sigma2", "size_g", "strain_g",
@@ -183,7 +187,7 @@ class TOFProfile(ItemN):
                 break
         res["profile_sigmas"] = numpy.array(l_sigma, dtype=float)
         res["flags_profile_sigmas"] = numpy.array(l_sigma_refinement, dtype=float)
-        if peak_shape in ["pseudo-Voigt", "type0m"]:
+        if peak_shape in ["non-conv-pseudo-Voigt", "pseudo-Voigt", "type0m"]:
             l_gamma = []
             l_gamma_refinement = []
             for numb in range(3):
