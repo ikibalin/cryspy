@@ -115,7 +115,7 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
 
 
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
-    two_over_pi = 2.*numpy.pi
+    two_over_pi = 2./numpy.pi
     norm = 0.5*alpha*beta/(alpha+beta)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
