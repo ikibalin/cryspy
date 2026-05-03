@@ -927,7 +927,8 @@ def mempy_reconstruction_by_dictionary(
                         * der_int_minus_f_nucl_real,
                         axis=(1, 2),
                     )
-                ).sum(axis=0) + (
+                    +
+                    # ).sum(axis=0) + (
                     mem_nucl_exp.imag
                     * numpy.expand_dims(
                         der_model_int_plus[0, :] * der_int_plus_f_nucl_imag
@@ -935,9 +936,7 @@ def mempy_reconstruction_by_dictionary(
                         * der_int_minus_f_nucl_imag,
                         axis=(1, 2),
                     )
-                ).sum(
-                    axis=0
-                )
+                )  # .sum(axis=0)
                 l_der_model_den_nucl.append(der_model_den_nucl)
 
         model_value = numpy.concatenate(l_model_value, axis=0)
@@ -1136,10 +1135,12 @@ def save_density_to_den_file(
     dict_in_out_keys = dict_in_out.keys()
     channel_col = "density_channel_col" in dict_in_out_keys
     channel_ani = "density_channel_ani" in dict_in_out_keys
+    channel_nucl = "density_channel_nucl" in dict_in_out_keys
     file_spin_density = dict_mem_parameters["file_spin_density"]
     file_magnetization_density = dict_mem_parameters[
         "file_magnetization_density"
     ]
+    file_nuclear_density = dict_mem_parameters["file_nuclear_density"]
     magnetization_plus = dict_in_out.get("magnetization_plus", None)
     magnetization_minus = dict_in_out.get("magnetization_minus", None)
 
@@ -1279,6 +1280,56 @@ def save_density_to_den_file(
         )
         print(
             f"\nReconstructed spin density is written in file '{file_spin_density:}'."
+        )
+    if channel_nucl and (file_nuclear_density is not None):
+        density_nucl_best = dict_in_out.get("density_channel_nucl", None)
+        atom_scat_length_neutron = dict_crystal["atom_scat_length_neutron"]
+        scattering_density_real = (
+            (
+                density_nucl_best
+                * numpy.expand_dims(atom_scat_length_neutron, axis=0)
+            )
+            .sum(axis=1)
+            .real
+        )
+        hh = numpy.stack(
+            [scattering_density_real, 0 * scattering_density_real], axis=0
+        )
+
+        if flag_mcif:
+            reduced_symm_elems = full_mcif_elems[:13, :]
+            translation_elems = numpy.array(
+                [
+                    [
+                        0,
+                    ],
+                    [
+                        0,
+                    ],
+                    [
+                        0,
+                    ],
+                    [
+                        1,
+                    ],
+                ],
+                dtype=int,
+            )
+            centrosymmetry = False
+            centrosymmetry_position = None
+        save_spin_density_into_file(
+            file_nuclear_density,
+            index_auc,
+            hh,
+            n_abc,
+            unit_cell_parameters,
+            reduced_symm_elems,
+            translation_elems,
+            centrosymmetry,
+            centrosymmetry_position,
+        )
+        print(
+            f"\nReconstructed nuclear density is written in file '{file_nuclear_density:}'."
         )
 
     if channel_ani and (file_magnetization_density is not None):

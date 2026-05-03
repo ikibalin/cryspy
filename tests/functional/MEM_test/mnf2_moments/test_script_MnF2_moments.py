@@ -24,10 +24,7 @@ def test_mem_nuclear_density_for_momemts_unpol_SC():
     f_name = os.path.join(os.path.dirname(__file__), "mnF2_80K.rcif")
     rcif_obj = cryspy.load_file(f_name)
     res = cryspy.mempy_nuclear_density_reconstruction(rcif_obj)
-    assert res["chi_sq"] < 2495
-
-
-test_mem_nuclear_density_for_momemts_unpol_SC()
+    assert res["chi_sq"] < 622
 
 
 def test_unpol_SC_to_html():

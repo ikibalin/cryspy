@@ -7,11 +7,12 @@ _mem_parameters_channel_col False
 _mem_parameters_channel_ani True
 _mem_parameters_magnetization_plus 1.00000
 _mem_parameters_magnetization_minus -6.00000
-_mem_parameters_prior_density core
+_mem_parameters_prior_density uniform
 _mem_parameters_use_asymmetry True
 _mem_parameters_GoF_desired 1.00
 _mem_parameters_spin_density_to_den_file .
-_mem_parameters_magnetization_density_to_den_file out.den
+_mem_parameters_magnetization_density_to_den_file .
+_mem_parameters_nuclear_density_to_den_file .
 
 _inversed_hessian_with_labels
 ;
