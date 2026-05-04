@@ -1284,16 +1284,28 @@ def save_density_to_den_file(
     if channel_nucl and (file_nuclear_density is not None):
         density_nucl_best = dict_in_out.get("density_channel_nucl", None)
         atom_scat_length_neutron = dict_crystal["atom_scat_length_neutron"]
-        scattering_density_real = (
-            (
-                density_nucl_best
-                * numpy.expand_dims(atom_scat_length_neutron, axis=0)
-            )
-            .sum(axis=1)
-            .real
+        as_real = numpy.expand_dims(atom_scat_length_neutron.real, axis=0)
+        as_pos_real = numpy.where(as_real > 0, as_real, 0)
+        as_neg_real = numpy.where(as_real < 0, as_real, 0)
+
+        as_imag = numpy.expand_dims(atom_scat_length_neutron.imag, axis=0)
+        as_pos_imag = numpy.where(as_imag > 0, as_imag, 0)
+        as_neg_imag = numpy.where(as_imag < 0, as_imag, 0)
+
+        scattering_density_real = numpy.stack(
+            [
+                (density_nucl_best * as_pos_real).sum(axis=1),
+                (density_nucl_best * as_neg_real).sum(axis=1),
+            ],
+            axis=0,
         )
-        hh = numpy.stack(
-            [scattering_density_real, 0 * scattering_density_real], axis=0
+
+        scattering_density_imag = numpy.stack(
+            [
+                (density_nucl_best * as_pos_imag).sum(axis=1),
+                (density_nucl_best * as_neg_imag).sum(axis=1),
+            ],
+            axis=0,
         )
 
         if flag_mcif:
@@ -1317,10 +1329,23 @@ def save_density_to_den_file(
             )
             centrosymmetry = False
             centrosymmetry_position = None
+        file_real = file_nuclear_density.split(".den")[0] + "_real.den"
+        file_imag = file_nuclear_density.split(".den")[0] + "_imag.den"
         save_spin_density_into_file(
-            file_nuclear_density,
+            file_real,
             index_auc,
-            hh,
+            scattering_density_real,
+            n_abc,
+            unit_cell_parameters,
+            reduced_symm_elems,
+            translation_elems,
+            centrosymmetry,
+            centrosymmetry_position,
+        )
+        save_spin_density_into_file(
+            file_imag,
+            index_auc,
+            scattering_density_imag,
             n_abc,
             unit_cell_parameters,
             reduced_symm_elems,
@@ -1329,7 +1354,7 @@ def save_density_to_den_file(
             centrosymmetry_position,
         )
         print(
-            f"\nReconstructed nuclear density is written in file '{file_nuclear_density:}'."
+            f"\nReconstructed nuclear density is written in files '{file_real:}', '{file_imag:}'."
         )
 
     if channel_ani and (file_magnetization_density is not None):
