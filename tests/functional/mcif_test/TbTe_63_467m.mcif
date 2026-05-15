@@ -1,0 +1,68 @@
+global_
+
+data_tbte
+
+_cell_length_a 8.600000
+_cell_length_b 50.600000
+_cell_length_c 4.280000
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 90.000000
+
+loop_
+_space_group_symop_magn_operation_xyz
+_space_group_symop_magn_operation_id
+        x,y,z,+1   1
+      x,-y,-z,+1   2
+  -x,y,-z+1/2,+1   3
+  -x,-y,z+1/2,+1   4
+     -x,-y,-z,+1   5
+       -x,y,z,+1   6
+   x,-y,z+1/2,+1   7
+   x,y,-z+1/2,+1   8
+
+loop_
+_space_group_symop_magn_centering_xyz
+_space_group_symop_magn_centering_id
+          x,y,z,+1   1
+      x+1/2,y,z,-1   2
+  x+1/2,y+1/2,z,+1   3
+      x,y+1/2,z,-1   4
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_multiplicity
+_atom_site_Wyckoff_symbol
+   Tb_1   Tb3+   0.250000   0.585040   0.250000   1.0   Biso   0.0   8   f
+   Tb_2   Tb3+   0.000000   0.835040   0.250000   1.0   Biso   0.0   8   e
+  Te1_1     Te   0.250000   0.647280   0.250000   1.0   Biso   0.0   8   f
+  Te1_2     Te   0.000000   0.897280   0.250000   1.0   Biso   0.0   8   e
+  Te2_1     Te   0.250000   0.285910   0.250000   1.0   Biso   0.0   8   f
+  Te2_2     Te   0.000000   0.535910   0.250000   1.0   Biso   0.0   8   e
+  Te3_1     Te   0.250000   0.464140   0.250000   1.0   Biso   0.0   8   f
+  Te3_2     Te   0.000000   0.714140   0.250000   1.0   Biso   0.0   8   e
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+_atom_site_moment_symmform
+  Tb_1   0.00000   0.00000   2.50000   0,0,Mz
+  Tb_2   0.00000   0.00000   0.00000    0,0,0
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  Tb_1   Tb3+   2.0   1.0
+  Tb_2   Tb3+   2.0   1.0
+
