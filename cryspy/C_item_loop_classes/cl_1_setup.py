@@ -1,4 +1,5 @@
 """Setup and SetupL classes."""
+
 from typing import NoReturn
 import numpy
 
