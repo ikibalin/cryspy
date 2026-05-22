@@ -111,7 +111,7 @@ def calc_chi_sq_for_pd_by_dictionary(
     ttheta_zs = ttheta - (
         offset_ttheta
         + numpy.radians(offset_sycos) * numpy.cos(0.5 * ttheta)
-        + numpy.radians(offset_sysin) * numpy.sin(0.5 * ttheta)
+        + numpy.radians(offset_sysin) * numpy.sin(ttheta)
     )
     flags_offset_ttheta = dict_pd["flags_offset_ttheta"]
     flags_offset_sycos = dict_pd["flags_offset_sycos"]
