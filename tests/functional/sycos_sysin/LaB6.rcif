@@ -42,7 +42,7 @@ data_unpd
 
 _setup_wavelength 1.6225
 _setup_field .
-_setup_offset_2theta -0.267
+_setup_offset_2theta -0.267()
 _setup_offset_SyCos 0.0()
 _setup_offset_SySin 0.0()
 _setup_offset_phi .
