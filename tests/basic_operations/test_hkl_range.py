@@ -49,3 +49,53 @@ def test_calc_index_hkl_multiplicity_in_range():
     )
 
     assert hkl_1.shape[1] != hkl_2.shape[1]
+
+
+def test_hkl_range_for_p21():
+
+    sthovl_min = 0.0001
+    sthovl_max = 0.1
+    unit_cell_parameters = numpy.array(
+        [10.26861, 10.26861, 10.26861, 1.57079633, 1.57079633, 1.57079633],
+        dtype=float,
+    )
+    reduced_symm_elems = numpy.array(
+        [
+            [0, 0],
+            [0, 1],
+            [0, 0],
+            [1, 2],
+            [1, -1],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [1, 1],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [1, -1],
+        ],
+        dtype=int,
+    )
+    translation_elems = numpy.array([[0], [0], [0], [1]], dtype=int)
+    centrosymmetry = False
+
+    flag_only_nuclear = True
+
+    res = calc_index_hkl_multiplicity_in_range(
+        sthovl_min,
+        sthovl_max,
+        unit_cell_parameters,
+        reduced_symm_elems,
+        translation_elems,
+        centrosymmetry,
+        flag_only_nuclear,
+    )
+
+    assert numpy.all(
+        numpy.array(((1,), (1,), (0,)), dtype=int) == res[0], axis=0
+    ).any()
+
+    assert not numpy.all(
+        numpy.array(((0,), (1,), (0,)), dtype=int) == res[0], axis=0
+    ).any()
