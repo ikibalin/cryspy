@@ -116,8 +116,8 @@ def calc_chi_sq_for_pd_by_dictionary(
     flags_offset_ttheta = dict_pd["flags_offset_ttheta"]
     flags_offset_sycos = dict_pd["flags_offset_sycos"]
     flags_offset_sysin = dict_pd["flags_offset_sysin"]
-    flag_offset = numpy.logical_or(
-        flags_offset_ttheta, flags_offset_sycos, flags_offset_sysin
+    flag_offset = numpy.logical_or.reduce(
+        (flags_offset_ttheta, flags_offset_sycos, flags_offset_sysin)
     )
     if flag_dict:
         dict_in_out["ttheta"] = ttheta
