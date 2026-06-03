@@ -381,7 +381,12 @@ def calc_chi_sq_for_pd_by_dictionary(
 
         flag_ttheta_hkl = flag_sthovl_hkl or flags_wavelength
         ttheta_hkl = 2 * numpy.arcsin(sthovl_hkl * wavelength)
-        dict_in_out_phase["ttheta_hkl"] = ttheta_hkl + offset_ttheta
+        ttheta_hkl_shift = (
+            offset_ttheta
+            + numpy.radians(offset_sycos) * numpy.cos(0.5 * ttheta_hkl)
+            + numpy.radians(offset_sysin) * numpy.sin(ttheta_hkl)
+        )
+        dict_in_out_phase["ttheta_hkl"] = ttheta_hkl + ttheta_hkl_shift
         if radiation[0].startswith("neutrons"):
             f_nucl, dder_f_nucl = calc_f_nucl_by_dictionary(
                 dict_crystal,
