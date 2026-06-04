@@ -10,6 +10,7 @@ jobs:
     timeout-minutes: 60
 
     strategy:
+      fail-fast: false
       max-parallel: 3
       matrix:
         python-version: [3.14]
@@ -33,4 +34,4 @@ jobs:
           pip install pytest pytest-xdist # testing packages
 
       - name: Run functional tests
-        run: pytest tests/functional/ --color=yes -v -n auto
+        run: pytest tests/functional/ --color=yes -v -n 2
