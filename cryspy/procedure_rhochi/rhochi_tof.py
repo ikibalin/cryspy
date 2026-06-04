@@ -285,7 +285,7 @@ def calc_chi_sq_for_tof_by_dictionary(
             v_uc = dict_crystal["v_uc"]
             unit_cell_parameters = numpy.dot(
                 sc_uc, unit_cell_parameters) + v_uc
-
+        flag_only_nuclear = dict_in_out_phase.get("flag_only_nuclear", False)
         if (flag_use_precalculated_data and
                 ("index_hkl" in dict_in_out_phase_keys) and
                 ("multiplicity_hkl" in dict_in_out_phase_keys) and not(flag_unit_cell_parameters)):
@@ -298,10 +298,10 @@ def calc_chi_sq_for_tof_by_dictionary(
                 translation_elems_p1 = numpy.array(
                     [[0], [0], [0], [1]], dtype=int)
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, centrosymmetry)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, centrosymmetry, flag_only_nuclear=flag_only_nuclear)
             else:
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry, flag_only_nuclear=flag_only_nuclear)
 
             if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
