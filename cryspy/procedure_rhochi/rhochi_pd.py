@@ -210,7 +210,7 @@ def calc_chi_sq_for_pd_by_dictionary(
             v_uc = dict_crystal["v_uc"]
             unit_cell_parameters = numpy.dot(sc_uc, unit_cell_parameters) + v_uc
 
-        flag_only_nuclear = dict_in_out_phase.get("flag_only_nuclear", False)
+        flag_only_nuclear = dict_crystal.get("flag_only_nuclear", False)
         if (flag_use_precalculated_data and 
                 ("index_hkl" in dict_in_out_phase_keys) and 
                 ("multiplicity_hkl" in dict_in_out_phase_keys) and not(flag_unit_cell_parameters or flags_offset_ttheta)):
