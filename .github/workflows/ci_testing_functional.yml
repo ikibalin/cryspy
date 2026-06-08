@@ -1,12 +1,16 @@
 name: CI Testing - Functional
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches: [master]
 
 jobs:
   pytest_functional:
     timeout-minutes: 60
 
     strategy:
+      fail-fast: false
       max-parallel: 3
       matrix:
         python-version: [3.14]
@@ -16,10 +20,10 @@ jobs:
 
     steps:
       - name: Check-out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -30,4 +34,4 @@ jobs:
           pip install pytest pytest-xdist # testing packages
 
       - name: Run functional tests
-        run: pytest tests/functional/ --color=yes -v -n auto
+        run: pytest tests/functional/ --color=yes -v -n 2
