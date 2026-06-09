@@ -298,68 +298,21 @@ def calc_chi_sq_for_pd_by_dictionary(
             multiplicity_hkl = dict_in_out_phase["multiplicity_hkl"]
         else:
             if flag_phase_texture:
-                reduced_symm_elems_p1 = numpy.array(
-                    [
-                        [0],
-                        [0],
-                        [0],
-                        [1],
-                        [1],
-                        [0],
-                        [0],
-                        [0],
-                        [1],
-                        [0],
-                        [0],
-                        [0],
-                        [1],
-                    ],
-                    dtype=int,
-                )
-                translation_elems_p1 = numpy.array(
-                    [[0], [0], [0], [1]], dtype=int
-                )
-                index_hkl, multiplicity_hkl = (
-                    calc_index_hkl_multiplicity_in_range(
-                        sthovl_min,
-                        sthovl_max,
-                        unit_cell_parameters,
-                        reduced_symm_elems_p1,
-                        translation_elems_p1,
-                        False,
-                    )
-                )
+                reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
+                translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
+                index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
             else:
                 if "reduced_symm_elems" in dict_crystal_keys:
                     centrosymmetry = dict_crystal["centrosymmetry"]
-                    index_hkl, multiplicity_hkl = (
-                        calc_index_hkl_multiplicity_in_range(
-                            sthovl_min,
-                            sthovl_max,
-                            unit_cell_parameters,
-                            reduced_symm_elems,
-                            translation_elems,
-                            centrosymmetry,
-                        )
-                    )
+                    index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
+                        sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry, flag_only_nuclear=flag_only_nuclear)
                 else:
-                    translation_elems_p1 = numpy.array(
-                        [[0], [0], [0], [1]], dtype=int
-                    )
-                    index_hkl, multiplicity_hkl = (
-                        calc_index_hkl_multiplicity_in_range(
-                            sthovl_min,
-                            sthovl_max,
-                            unit_cell_parameters,
-                            full_mcif_elems[:13],
-                            translation_elems_p1,
-                            False,
-                        )
-                    )
+                    translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
+                    index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
+                        sthovl_min, sthovl_max, unit_cell_parameters, full_mcif_elems[:13], translation_elems_p1, False, flag_only_nuclear=flag_only_nuclear)
 
-            if (
-                "index_hkl" in dict_in_out_phase_keys
-            ) and flag_use_precalculated_data:
+            if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
                     flag_use_precalculated_data = False
                 else:
