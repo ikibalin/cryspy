@@ -383,7 +383,7 @@ def calc_chi_sq_for_pd_by_dictionary(
         ttheta_hkl = 2 * numpy.arcsin(sthovl_hkl * wavelength)
         ttheta_hkl_shift = (
             offset_ttheta
-            + numpy.radians(offset_sycos) * numpy.cos(0.5 * ttheta_hkl)
+            + numpy.radians(offset_sycos) * numpy.cos(ttheta_hkl)
             + numpy.radians(offset_sysin) * numpy.sin(ttheta_hkl)
         )
         dict_in_out_phase["ttheta_hkl"] = ttheta_hkl + ttheta_hkl_shift
