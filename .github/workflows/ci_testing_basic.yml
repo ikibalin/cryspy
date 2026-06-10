@@ -3,7 +3,7 @@ name: CI Testing - Basic Operations
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [master, develop]
 
 jobs:
   pytest_basic:
