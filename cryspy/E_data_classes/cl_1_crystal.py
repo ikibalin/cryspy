@@ -603,7 +603,7 @@ class Crystal(DataN):
             return None
 
         m_m_norm = cell.m_m_norm
-        np_field_xyz = calc_m_v(m_m_norm, np_field)[0]
+        np_field_xyz = numpy.matmul(m_m_norm, np_field)
         norm_field = numpy.sqrt(numpy.square(np_field_xyz).sum())
         if norm_field == 0.0:
             norm_field = 1.0
