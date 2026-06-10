@@ -297,6 +297,7 @@ def calc_chi_sq_for_pd_by_dictionary(
             index_hkl = dict_in_out_phase["index_hkl"]
             multiplicity_hkl = dict_in_out_phase["multiplicity_hkl"]
         else:
+            flag_only_nuclear = dict_crystal.get('flag_only_nuclear', False)
             if flag_phase_texture:
                 reduced_symm_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]], dtype=int)
                 translation_elems_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
