@@ -68,9 +68,11 @@ def test_tof_jorgensen_von_dreele_matches_expected_lorentz_term():
 
     actual = tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl)
 
-    gaussian = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
-    _, eta = calc_hpv_eta(sigma, gamma)
-    lorentz = _expected_lorentz_profile(alpha, beta, gamma, time, time_hkl)
+    h_g_fwhm = sigma * numpy.sqrt(8.0 * numpy.log(2.0))
+    h_pv, eta = calc_hpv_eta(h_g_fwhm, gamma)
+    sigma_c = h_pv / numpy.sqrt(8.0 * numpy.log(2.0))
+    gaussian = tof_Jorgensen(alpha, beta, sigma_c, time, time_hkl)
+    lorentz = _expected_lorentz_profile(alpha, beta, h_pv, time, time_hkl)
     expected = (1.0 - eta)[:, numpy.newaxis] * gaussian + eta[:, numpy.newaxis] * lorentz
 
     numpy.testing.assert_allclose(actual, expected)
