@@ -1,0 +1,63 @@
+[project]
+name = 'cryspy'
+dynamic = ['version']
+description = 'PNPD data analysis'
+readme = 'readme.rst'
+license = 'MIT'
+authors = [{ name = 'Iurii Kibalin', email = 'yurikibalin@outlook.com' }]
+keywords = ['Polarized Neutron Diffraction Data Analysis']
+requires-python = '>=3.9'
+classifiers = [
+  'Operating System :: OS Independent',
+  'Programming Language :: Python :: 3 :: Only',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: 3.12',
+  'Programming Language :: Python :: 3.13',
+  'Programming Language :: Python :: 3.14',
+]
+dependencies = [
+  'numpy',
+  'scipy',
+  'pycifstar',
+  'matplotlib',
+]
+
+[project.optional-dependencies]
+dev = [
+  'pytest',       # Testing
+  'pytest-xdist', # Parallel test execution
+  'build',        # Building the package
+  'versioningit', # Automatic versioning from git tags
+]
+
+[project.urls]
+Homepage = 'https://github.com/ikibalin/cryspy'
+'Source Code' = 'https://github.com/ikibalin/cryspy'
+'Issue Tracker' = 'https://github.com/ikibalin/cryspy/issues'
+
+[build-system]
+build-backend = 'hatchling.build'
+requires = ['hatchling', 'versioningit']
+
+[tool.hatch.version]
+source = 'versioningit'
+
+[tool.hatch.build.targets.wheel]
+packages = ['cryspy']
+
+[tool.hatch.build.targets.sdist]
+include = ['cryspy', 'readme.rst']
+
+# Versioningit derives the version from git tags, so it does not need to
+# be stored in the source. cryspy tags are plain (e.g. 0.11.0).
+[tool.versioningit.vcs]
+method = 'git'
+default-tag = '0.11.0'
+
+[tool.versioningit.format]
+distance = '{base_version}+dev{distance}'
+dirty = '{base_version}+dirty{distance}'
+distance-dirty = '{base_version}+devdirty{distance}'

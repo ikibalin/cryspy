@@ -38,7 +38,11 @@ __author__ = "Iurii KIBALIN"
 __copyright__ = "Copyright 2026, "
 __credits__ = ["Iurii KIBALIN", "Andrew SAZONOV", "Arsen GOUKASSOV"]
 __license__ = "MIT"
-__version__ = "0.11.0"
+from importlib.metadata import PackageNotFoundError, version as _version
+try:
+    __version__ = _version("cryspy")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
 __maintainer__ = "Iurii KIBALIN"
 __email__ = "iurii.kibalin@ess.eu"
 __status__ = "Development"
