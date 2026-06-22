@@ -2,6 +2,8 @@ import numpy
 import scipy
 import scipy.special
 
+from .powder_diffraction_cutoff import cutoff_place, cutoff_select
+
 na = numpy.newaxis
 
 
@@ -111,37 +113,13 @@ def calc_hpv_eta(h_g, h_l):
     return h_pv, eta
 
 
-def _cutoff_select(delta_2d, cutoff_fwhm, half_width, params):
-    """Restrict each peak to its cutoff window (FullProf "WDT").
-
-    Returns ``(None, params, delta_2d)`` when ``cutoff_fwhm`` is ``inf`` (no
-    cutoff). Otherwise returns the boolean mask, the per-point ``params``
-    gathered onto the in-window points, and the in-window deltas as a
-    column, so the kernels run only there (faster for a tighter cutoff).
-    """
-    if numpy.isinf(cutoff_fwhm):
-        return None, params, delta_2d
-    keep = numpy.abs(delta_2d) <= half_width[:, na]
-    row = numpy.nonzero(keep)[0]
-    return keep, tuple(p[row] for p in params), delta_2d[keep][:, na]
-
-
-def _cutoff_place(keep, res):
-    """Scatter column results back onto the full grid (pass-through if no cutoff)."""
-    if keep is None:
-        return res
-    out = numpy.zeros(keep.shape)
-    out[keep] = res[:, 0]
-    return out
-
-
 def tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=0.):
     cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     norm = 0.5*alpha*beta/(alpha+beta)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
     half_width = cutoff_fwhm * (sigma*numpy.sqrt(8.*numpy.log(2.)) + 1./alpha + 1./beta)
-    keep, (alpha, beta, sigma, norm), delta_2d = _cutoff_select(
+    keep, (alpha, beta, sigma, norm), delta_2d = cutoff_select(
         delta_2d, cutoff_fwhm, half_width, (alpha, beta, sigma, norm))
     y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
 
@@ -152,7 +130,7 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=0.):
     exp_v[numpy.isinf(exp_v)] = 1e200
 
     profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
-    return _cutoff_place(keep, profile_g_2d)
+    return cutoff_place(keep, profile_g_2d)
 
 
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl, cutoff_fwhm=0.):
@@ -171,7 +149,7 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl, cutoff_fw
     gamma_c = h_pv
 
     half_width = cutoff_fwhm * (h_pv + 1./alpha + 1./beta)
-    keep, (alpha, beta, norm, eta, sigma_c, gamma_c), delta_2d = _cutoff_select(
+    keep, (alpha, beta, norm, eta, sigma_c, gamma_c), delta_2d = cutoff_select(
         delta_2d, cutoff_fwhm, half_width, (alpha, beta, norm, eta, sigma_c, gamma_c))
 
     y, z, u, v = calc_y_z_u_v(alpha, beta, sigma_c, delta_2d)
@@ -204,7 +182,7 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl, cutoff_fw
     profile_l_2d = norm[:, na] * (oml_a_2d + oml_b_2d)
     one_e = 1. - eta
     tof_peak_2d = one_e[:, na] * profile_g_2d + eta[:, na] * profile_l_2d
-    return _cutoff_place(keep, tof_peak_2d)
+    return cutoff_place(keep, tof_peak_2d)
 
 
 def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl, cutoff_fwhm=0.):
@@ -215,7 +193,7 @@ def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl, cutoff_fwhm=0.
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
     half_width = cutoff_fwhm * h_pv
-    keep, (h_pv, eta), delta_2d = _cutoff_select(
+    keep, (h_pv, eta), delta_2d = cutoff_select(
         delta_2d, cutoff_fwhm, half_width, (h_pv, eta))
     delta_over_h_pv = delta_2d/h_pv[:, na]
 
@@ -227,7 +205,7 @@ def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl, cutoff_fwhm=0.
             1. + 4.*numpy.square(delta_over_h_pv))
 
     res_2d = eta[:, na] * profile_l_2d + (1.-eta)[:, na] * profile_g_2d
-    return _cutoff_place(keep, res_2d)
+    return cutoff_place(keep, res_2d)
 
 
 

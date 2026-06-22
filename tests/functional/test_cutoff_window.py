@@ -13,9 +13,10 @@ import pytest
 from cryspy.A_functions_base import powder_diffraction_tof as tof
 from cryspy.A_functions_base.powder_diffraction_tof import (
     tof_Jorgensen, tof_Jorgensen_VonDreele, tof_non_convoluted_pseudo_voigt,
-    calc_hpv_eta, _cutoff_select)
+    calc_hpv_eta)
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
     calc_profile_pseudo_voight, calc_h_g, calc_h_l, calc_h_pv)
+from cryspy.A_functions_base.powder_diffraction_cutoff import cutoff_select
 
 na = numpy.newaxis
 SQRT_8LN2 = numpy.sqrt(8. * numpy.log(2.))
@@ -101,12 +102,12 @@ def test_cutoff_select_gathers_in_window_subset_as_column():
     # No cutoff (callers pass inf) passes everything through unchanged.
     delta = numpy.array([[0., 5., 100.], [200., 0., 3.]])
     half_width = numpy.array([10., 10.])
-    keep, params, out_delta = _cutoff_select(delta, numpy.inf, half_width, (numpy.arange(2),))
+    keep, params, out_delta = cutoff_select(delta, numpy.inf, half_width, (numpy.arange(2),))
     assert keep is None
     assert out_delta is delta
 
     # Finite cutoff: only in-window points, gathered as a column.
-    keep, (gathered,), out_delta = _cutoff_select(
+    keep, (gathered,), out_delta = cutoff_select(
         delta, 1., half_width, (numpy.array([10., 20.]),))
     expected = numpy.abs(delta) <= half_width[:, na]
     assert numpy.array_equal(keep, expected)
