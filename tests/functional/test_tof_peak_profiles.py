@@ -228,3 +228,20 @@ def test_tof_size_strain_coefficients_match_sigma_gamma_paths():
 
     numpy.testing.assert_allclose(actual_gauss, expected_gauss)
     numpy.testing.assert_allclose(actual_pv, expected_pv)
+
+
+def test_tof_cutoff_fwhm_truncates_far_points():
+    alpha = numpy.array([0.4])
+    beta = numpy.array([0.2])
+    sigma = numpy.array([2.0])
+    time = numpy.array([0.0, 100.0])
+    time_hkl = numpy.array([0.0])
+
+    full = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
+    cut = tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=1.0)
+
+    numpy.testing.assert_allclose(cut[0], full[0])
+    assert full[1, 0] != 0.0
+    assert cut[1, 0] == 0.0
+    numpy.testing.assert_allclose(
+        tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=0.0), full)

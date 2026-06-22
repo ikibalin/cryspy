@@ -395,7 +395,8 @@ def calc_chi_sq_for_tof_by_dictionary(
                 profile_tof = calc_peak_shape_function(
                     None, None, profile_sigmas,
                     d, time, time_hkl,
-                    gammas=profile_gammas, peak_shape=profile_peak_shape)
+                    gammas=profile_gammas, peak_shape=profile_peak_shape,
+                    cutoff_fwhm=dict_tof.get("profile_cutoff_fwhm", 0.))
             elif profile_peak_shape == "pseudo-Voigt":
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
@@ -404,7 +405,8 @@ def calc_chi_sq_for_tof_by_dictionary(
                     size_l=dict_tof.get("profile_size_l", 0.),
                     strain_g=dict_tof.get("profile_strain_g", 0.),
                     strain_l=dict_tof.get("profile_strain_l", 0.),
-                    peak_shape=profile_peak_shape)
+                    peak_shape=profile_peak_shape,
+                    cutoff_fwhm=dict_tof.get("profile_cutoff_fwhm", 0.))
             elif profile_peak_shape == "Gauss":
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
@@ -413,7 +415,8 @@ def calc_chi_sq_for_tof_by_dictionary(
                     size_l=dict_tof.get("profile_size_l", 0.),
                     strain_g=dict_tof.get("profile_strain_g", 0.),
                     strain_l=dict_tof.get("profile_strain_l", 0.),
-                    peak_shape=profile_peak_shape)
+                    peak_shape=profile_peak_shape,
+                    cutoff_fwhm=dict_tof.get("profile_cutoff_fwhm", 0.))
             elif profile_peak_shape == "type0m":
                 time_2d = numpy.expand_dims(time, axis=1)
                 time_hkl_2d = numpy.expand_dims(time_hkl, axis=0)

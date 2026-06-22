@@ -198,7 +198,7 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
         flag_ttheta_hkl: bool=False, flag_u: bool=False,
         flag_v: bool=False, flag_w: bool=False, flag_i_g: bool=False, flag_x: bool=False,
         flag_y: bool=False, flag_p_1: bool = False, flag_p_2: bool = False,
-        flag_p_3: bool = False, flag_p_4: bool = False):
+        flag_p_3: bool = False, flag_p_4: bool = False, cutoff_fwhm: float = 0.):
     """Calculate profile as psevdo-Voight function defined by parameters.
     For more documentation see documentation module "Powder diffraction at constant wavelenght".
     """
@@ -231,6 +231,8 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
         delta_angle, h_pv, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv)
 
     res = (numpy.expand_dims(eta, axis=1) * profile_l + numpy.expand_dims((1.-eta), axis=1)*profile_g)*af
+    if cutoff_fwhm > 0.:
+        res = res * (numpy.abs(z) <= cutoff_fwhm)
     dder = {}
     return res, dder
 
