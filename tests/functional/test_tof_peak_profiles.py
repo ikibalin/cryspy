@@ -127,3 +127,104 @@ def test_tof_profile_dictionary_non_convoluted_pseudo_voigt_has_no_alpha_beta():
     assert "profile_gammas" in profile_dict
     assert "profile_alphas" not in profile_dict
     assert "profile_betas" not in profile_dict
+
+
+def test_tof_profile_dictionary_exports_size_strain_coefficients():
+    profile = TOFProfile(
+        peak_shape="pseudo-Voigt",
+        sigma0=0.81,
+        sigma1=0.,
+        sigma2=0.,
+        gamma0=0.35,
+        gamma1=0.,
+        gamma2=0.,
+        alpha0=0.,
+        alpha1=0.2971,
+        beta0=0.04182,
+        beta1=0.00224,
+        size_g=0.25,
+        strain_g=0.50,
+        size_l=0.75,
+        strain_l=1.00,
+        size_g_refinement=True,
+        strain_l_refinement=True,
+    )
+
+    profile_dict = profile.get_dictionary()
+
+    numpy.testing.assert_allclose(profile_dict["profile_size_g"], [0.25])
+    numpy.testing.assert_allclose(profile_dict["profile_strain_g"], [0.50])
+    numpy.testing.assert_allclose(profile_dict["profile_size_l"], [0.75])
+    numpy.testing.assert_allclose(profile_dict["profile_strain_l"], [1.00])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_size_g"], [True])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_strain_g"], [False])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_size_l"], [False])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_strain_l"], [True])
+
+
+def test_tof_profile_dictionary_missing_size_strain_defaults_to_zero():
+    profile = TOFProfile(
+        peak_shape="pseudo-Voigt",
+        sigma0=0.81,
+        sigma1=0.,
+        sigma2=0.,
+        gamma0=0.35,
+        gamma1=0.,
+        gamma2=0.,
+        alpha0=0.,
+        alpha1=0.2971,
+        beta0=0.04182,
+        beta1=0.00224,
+        size_g=None,
+        strain_g=None,
+    )
+
+    profile_dict = profile.get_dictionary()
+
+    numpy.testing.assert_allclose(profile_dict["profile_size_g"], [0.])
+    numpy.testing.assert_allclose(profile_dict["profile_strain_g"], [0.])
+    numpy.testing.assert_allclose(profile_dict["profile_size_l"], [0.])
+    numpy.testing.assert_allclose(profile_dict["profile_strain_l"], [0.])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_size_g"], [False])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_strain_g"], [False])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_size_l"], [False])
+    numpy.testing.assert_array_equal(profile_dict["flags_profile_strain_l"], [False])
+
+
+def test_tof_size_strain_coefficients_match_sigma_gamma_paths():
+    time = numpy.linspace(-3., 3., 41)
+    time_hkl = numpy.array([0.25])
+    d = numpy.array([1.2])
+    alphas = numpy.array([0.4, 0.])
+    betas = numpy.array([0.2, 0.])
+
+    sigmas = numpy.array([0.81, 0.10, 0.20])
+    size_g = numpy.array([0.05])
+    strain_g = numpy.array([0.07])
+
+    actual_gauss = calc_peak_shape_function(
+        alphas, betas, sigmas, d, time, time_hkl,
+        gammas=None, size_g=size_g, strain_g=strain_g,
+        peak_shape="Gauss")
+    expected_gauss = calc_peak_shape_function(
+        alphas, betas,
+        numpy.array([sigmas[0], sigmas[1] + strain_g[0], sigmas[2] + size_g[0]]),
+        d, time, time_hkl, gammas=None, peak_shape="Gauss")
+
+    gammas = numpy.array([0.35, 0.04, 0.03])
+    size_l = numpy.array([0.06])
+    strain_l = numpy.array([0.08])
+
+    actual_pv = calc_peak_shape_function(
+        alphas, betas, sigmas, d, time, time_hkl,
+        gammas=gammas, size_g=size_g, strain_g=strain_g,
+        size_l=size_l, strain_l=strain_l, peak_shape="pseudo-Voigt")
+    expected_pv = calc_peak_shape_function(
+        alphas, betas,
+        numpy.array([sigmas[0], sigmas[1] + strain_g[0], sigmas[2] + size_g[0]]),
+        d, time, time_hkl,
+        gammas=numpy.array([gammas[0], gammas[1] + strain_l[0], gammas[2] + size_l[0]]),
+        peak_shape="pseudo-Voigt")
+
+    numpy.testing.assert_allclose(actual_gauss, expected_gauss)
+    numpy.testing.assert_allclose(actual_pv, expected_pv)

@@ -211,7 +211,11 @@ def calc_chi_sq_for_tof_by_dictionary(
             numpy.any(dict_tof["flags_profile_alphas"]) or
             numpy.any(dict_tof["flags_profile_betas"]) or
             numpy.any(dict_tof["flags_profile_sigmas"]) or
-            numpy.any(dict_tof["flags_profile_gammas"]))
+            numpy.any(dict_tof["flags_profile_gammas"]) or
+            numpy.any(dict_tof["flags_profile_size_g"]) or
+            numpy.any(dict_tof["flags_profile_strain_g"]) or
+            numpy.any(dict_tof["flags_profile_size_l"]) or
+            numpy.any(dict_tof["flags_profile_strain_l"]))
     elif profile_peak_shape == "Gauss":
         profile_alphas = dict_tof["profile_alphas"]
         profile_betas = dict_tof["profile_betas"]
@@ -219,7 +223,9 @@ def calc_chi_sq_for_tof_by_dictionary(
         flag_profile_shape = (
             numpy.any(dict_tof["flags_profile_alphas"]) or
             numpy.any(dict_tof["flags_profile_betas"]) or
-            numpy.any(dict_tof["flags_profile_sigmas"]))
+            numpy.any(dict_tof["flags_profile_sigmas"]) or
+            numpy.any(dict_tof["flags_profile_size_g"]) or
+            numpy.any(dict_tof["flags_profile_strain_g"]))
     elif profile_peak_shape == "type0m":
         profile_alphas = dict_tof["profile_alphas"]
         profile_betas = dict_tof["profile_betas"]
@@ -394,14 +400,20 @@ def calc_chi_sq_for_tof_by_dictionary(
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
                     d, time, time_hkl,
-                    gammas=profile_gammas, size_g=0., size_l=0.,
-                    strain_g=0., strain_l=0., peak_shape=profile_peak_shape)
+                    gammas=profile_gammas, size_g=dict_tof.get("profile_size_g", 0.),
+                    size_l=dict_tof.get("profile_size_l", 0.),
+                    strain_g=dict_tof.get("profile_strain_g", 0.),
+                    strain_l=dict_tof.get("profile_strain_l", 0.),
+                    peak_shape=profile_peak_shape)
             elif profile_peak_shape == "Gauss":
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
                     d, time, time_hkl,
-                    gammas=None, size_g=0., size_l=0.,
-                    strain_g=0., strain_l=0., peak_shape=profile_peak_shape)
+                    gammas=None, size_g=dict_tof.get("profile_size_g", 0.),
+                    size_l=dict_tof.get("profile_size_l", 0.),
+                    strain_g=dict_tof.get("profile_strain_g", 0.),
+                    strain_l=dict_tof.get("profile_strain_l", 0.),
+                    peak_shape=profile_peak_shape)
             elif profile_peak_shape == "type0m":
                 time_2d = numpy.expand_dims(time, axis=1)
                 time_hkl_2d = numpy.expand_dims(time_hkl, axis=0)
