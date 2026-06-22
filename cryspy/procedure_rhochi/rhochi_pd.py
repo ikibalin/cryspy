@@ -587,6 +587,7 @@ def calc_chi_sq_for_pd_by_dictionary(
             flag_p_2=flag_asymmetry_parameters,
             flag_p_3=flag_asymmetry_parameters,
             flag_p_4=flag_asymmetry_parameters,
+            cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.),
         )
         dict_in_out_phase["profile_pv"] = profile_pv
 
