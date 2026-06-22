@@ -112,6 +112,7 @@ def calc_hpv_eta(h_g, h_l):
 
 
 def tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=0.):
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     norm = 0.5*alpha*beta/(alpha+beta)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
@@ -124,13 +125,13 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=0.):
     exp_v[numpy.isinf(exp_v)] = 1e200
 
     profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
-    if cutoff_fwhm > 0.:
-        half_width = cutoff_fwhm * (sigma*numpy.sqrt(8.*numpy.log(2.)) + 1./alpha + 1./beta)
-        profile_g_2d = profile_g_2d * (numpy.abs(delta_2d) <= half_width[:, na])
+    half_width = cutoff_fwhm * (sigma*numpy.sqrt(8.*numpy.log(2.)) + 1./alpha + 1./beta)
+    profile_g_2d = profile_g_2d * (numpy.abs(delta_2d) <= half_width[:, na])
     return profile_g_2d
 
 
 def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl, cutoff_fwhm=0.):
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     two_over_pi = 2./numpy.pi
     norm = 0.5*alpha*beta/(alpha+beta)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
@@ -174,14 +175,14 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl, cutoff_fw
     profile_l_2d = norm[:, na] * (oml_a_2d + oml_b_2d)
     one_e = 1. - eta
     tof_peak_2d = one_e[:, na] * profile_g_2d + eta[:, na] * profile_l_2d
-    if cutoff_fwhm > 0.:
-        half_width = cutoff_fwhm * (h_pv + 1./alpha + 1./beta)
-        tof_peak_2d = tof_peak_2d * (numpy.abs(delta_2d) <= half_width[:, na])
+    half_width = cutoff_fwhm * (h_pv + 1./alpha + 1./beta)
+    tof_peak_2d = tof_peak_2d * (numpy.abs(delta_2d) <= half_width[:, na])
     return tof_peak_2d
 
 
 def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl, cutoff_fwhm=0.):
     """Direct symmetric pseudo-Voigt profile in TOF coordinates."""
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     h_g = numpy.sqrt(8.*numpy.log(2.))*sigma
     h_pv, eta = calc_hpv_eta(h_g, gamma)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
@@ -196,8 +197,7 @@ def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl, cutoff_fwhm=0.
             1. + 4.*numpy.square(delta_over_h_pv))
 
     res_2d = eta[:, na] * profile_l_2d + (1.-eta)[:, na] * profile_g_2d
-    if cutoff_fwhm > 0.:
-        res_2d = res_2d * (numpy.abs(delta_over_h_pv) <= cutoff_fwhm)
+    res_2d = res_2d * (numpy.abs(delta_over_h_pv) <= cutoff_fwhm)
     return res_2d
 
 
