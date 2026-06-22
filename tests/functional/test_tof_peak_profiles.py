@@ -4,6 +4,7 @@ import scipy.special
 from cryspy.A_functions_base.powder_diffraction_tof import (
     calc_d_min_max_by_time_thermal_neutrons,
     calc_hpv_eta,
+    calc_lorentz_factor,
     calc_peak_shape_function,
     tof_Jorgensen,
     tof_Jorgensen_VonDreele,
@@ -34,6 +35,15 @@ def test_calc_d_min_max_by_time_thermal_neutrons_supports_zero_dtt2():
         ttheta_bank=145.0,
     )
     numpy.testing.assert_allclose(tof_parameters.calc_d_min_max(time), expected)
+
+
+def test_tof_lorentz_factor_uses_bank_angle():
+    ttheta_bank = numpy.deg2rad(numpy.array([60.0, 100.0], dtype=float))
+
+    actual, dder = calc_lorentz_factor(ttheta_bank, flag_ttheta=True)
+
+    numpy.testing.assert_allclose(actual, numpy.sin(ttheta_bank))
+    numpy.testing.assert_allclose(dder["ttheta"], numpy.cos(ttheta_bank))
 
 
 def _expected_lorentz_profile(alpha, beta, gamma, time, time_hkl):
@@ -127,6 +137,135 @@ def test_tof_profile_dictionary_non_convoluted_pseudo_voigt_has_no_alpha_beta():
     assert "profile_gammas" in profile_dict
     assert "profile_alphas" not in profile_dict
     assert "profile_betas" not in profile_dict
+
+
+def test_rhochi_tof_lorentz_factor_matches_cfml_convention(monkeypatch):
+    from cryspy.procedure_rhochi import rhochi_tof
+
+    time = numpy.array([1.0, 2.0, 3.0], dtype=float)
+    ttheta_bank = numpy.deg2rad(100.0)
+    d_hkl = numpy.array([2.0], dtype=float)
+    multiplicity = numpy.array([2.0], dtype=float)
+    iint_plus = numpy.array([3.0], dtype=float)
+    iint_minus = numpy.array([5.0], dtype=float)
+    phase_scale = numpy.array([7.0], dtype=float)
+
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_index_hkl_multiplicity_in_range",
+        lambda *args, **kwargs: (
+            numpy.array([[1], [0], [0]], dtype=int),
+            multiplicity,
+        ),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_sthovl_by_unit_cell_parameters",
+        lambda *args, **kwargs: (0.5 / d_hkl, {}),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_f_nucl_by_dictionary",
+        lambda *args, **kwargs: (numpy.array([1.0], dtype=float), {}),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_sft_ccs_by_dictionary",
+        lambda *args, **kwargs: (numpy.zeros((3, 3, 1), dtype=float), {}),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_matrix_t",
+        lambda *args, **kwargs: (numpy.zeros((3, 3, 1), dtype=float), {}),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_m1_m2_m1t",
+        lambda *args, **kwargs: (numpy.zeros((3, 3, 1), dtype=float), {}),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_powder_iint_1d_para",
+        lambda *args, **kwargs: (iint_plus, iint_minus, {}, {}),
+    )
+    monkeypatch.setattr(
+        rhochi_tof,
+        "calc_peak_shape_function",
+        lambda *args, **kwargs: numpy.ones((time.size, d_hkl.size), dtype=float),
+    )
+
+    dict_tof = {
+        "excluded_points": numpy.zeros(time.shape, dtype=bool),
+        "time": time,
+        "neutron_type": "thermal",
+        "zero": numpy.array([0.0], dtype=float),
+        "dtt1": numpy.array([1.0], dtype=float),
+        "dtt2": numpy.array([0.0], dtype=float),
+        "flags_zero": numpy.array([False], dtype=bool),
+        "flags_dtt1": numpy.array([False], dtype=bool),
+        "flags_dtt2": numpy.array([False], dtype=bool),
+        "ttheta_bank": ttheta_bank,
+        "phase_name": numpy.array(["phase"]),
+        "phase_scale": phase_scale,
+        "phase_ig": numpy.array([0.0], dtype=float),
+        "flags_phase_scale": numpy.array([False], dtype=bool),
+        "flags_phase_ig": numpy.array([False], dtype=bool),
+        "profile_peak_shape": "Gauss",
+        "profile_alphas": numpy.array([0.0, 0.0], dtype=float),
+        "profile_betas": numpy.array([0.0, 0.0], dtype=float),
+        "profile_sigmas": numpy.array([1.0, 0.0, 0.0], dtype=float),
+        "flags_profile_alphas": numpy.array([False, False], dtype=bool),
+        "flags_profile_betas": numpy.array([False, False], dtype=bool),
+        "flags_profile_sigmas": numpy.array([False, False, False], dtype=bool),
+        "profile_size_g": numpy.array([0.0], dtype=float),
+        "profile_strain_g": numpy.array([0.0], dtype=float),
+        "profile_size_l": numpy.array([0.0], dtype=float),
+        "profile_strain_l": numpy.array([0.0], dtype=float),
+        "flags_profile_size_g": numpy.array([False], dtype=bool),
+        "flags_profile_strain_g": numpy.array([False], dtype=bool),
+        "flags_profile_size_l": numpy.array([False], dtype=bool),
+        "flags_profile_strain_l": numpy.array([False], dtype=bool),
+        "signal_exp": numpy.stack(
+            [numpy.zeros(time.shape, dtype=float), numpy.ones(time.shape, dtype=float)],
+            axis=0,
+        ),
+        "type_name": "tof",
+    }
+    dict_crystal = {
+        "name": "phase",
+        "type_name": "crystal",
+        "reduced_symm_elems": numpy.zeros((13, 1), dtype=int),
+        "translation_elems": numpy.zeros((4, 1), dtype=int),
+        "centrosymmetry": False,
+        "unit_cell_parameters": numpy.ones(6, dtype=float),
+        "flags_unit_cell_parameters": numpy.zeros(6, dtype=bool),
+    }
+    dict_in_out = {}
+
+    rhochi_tof.calc_chi_sq_for_tof_by_dictionary(
+        dict_tof,
+        [dict_crystal],
+        dict_in_out=dict_in_out,
+    )
+
+    expected_plus = (
+        0.5 * phase_scale * iint_plus * multiplicity *
+        numpy.power(d_hkl, 4) * numpy.sin(ttheta_bank)
+    )
+    expected_minus = (
+        0.5 * phase_scale * iint_minus * multiplicity *
+        numpy.power(d_hkl, 4) * numpy.sin(ttheta_bank)
+    )
+    dict_phase = dict_in_out["dict_in_out_phase"]
+
+    numpy.testing.assert_allclose(
+        dict_phase["iint_plus_with_factors"], expected_plus)
+    numpy.testing.assert_allclose(
+        dict_phase["iint_minus_with_factors"], expected_minus)
+    numpy.testing.assert_allclose(
+        dict_phase["signal_plus"], numpy.full(time.shape, expected_plus[0]))
+    numpy.testing.assert_allclose(
+        dict_phase["signal_minus"], numpy.full(time.shape, expected_minus[0]))
 
 
 def test_tof_profile_dictionary_exports_size_strain_coefficients():
