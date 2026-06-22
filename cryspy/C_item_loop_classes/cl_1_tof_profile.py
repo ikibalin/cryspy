@@ -187,6 +187,16 @@ class TOFProfile(ItemN):
                 break
         res["profile_sigmas"] = numpy.array(l_sigma, dtype=float)
         res["flags_profile_sigmas"] = numpy.array(l_sigma_refinement, dtype=float)
+        for _nm in ("size_g", "strain_g", "size_l", "strain_l"):
+            _value = getattr(self, _nm) if self.is_attribute(_nm) else None
+            if _value is not None:
+                _value = float(_value)
+            if (_value is not None) and numpy.isfinite(_value):
+                res[f"profile_{_nm}"] = numpy.array([_value], dtype=float)
+                res[f"flags_profile_{_nm}"] = numpy.array([getattr(self, f"{_nm}_refinement")], dtype=bool)
+            else:
+                res[f"profile_{_nm}"] = numpy.array([0.0], dtype=float)
+                res[f"flags_profile_{_nm}"] = numpy.array([False], dtype=bool)
         if peak_shape in ["non-conv-pseudo-Voigt", "pseudo-Voigt", "type0m"]:
             l_gamma = []
             l_gamma_refinement = []

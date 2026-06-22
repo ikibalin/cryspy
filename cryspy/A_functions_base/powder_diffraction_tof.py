@@ -132,11 +132,15 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
 
-    # FIXME: it has to be checked
-    # sigma = gamma*(inv_8ln2)**0.5
-    h_pv, eta = calc_hpv_eta(sigma, gamma)
+    # Match FullProf/CrysFML: build one Thompson-Cox-Hastings pseudo-Voigt
+    # FWHM from the Gaussian FWHM and Lorentzian FWHM, then use that common
+    # width for both the Gaussian and Lorentzian components.
+    h_g_fwhm = sigma*numpy.sqrt(8.*numpy.log(2.))
+    h_pv, eta = calc_hpv_eta(h_g_fwhm, gamma)
+    sigma_c = h_pv*numpy.sqrt(inv_8ln2)
+    gamma_c = h_pv
 
-    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
+    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma_c, delta_2d)
 
     with numpy.errstate(over='ignore'):
         exp_u = exp(u)
@@ -146,8 +150,8 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
 
     profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
 
-    z1_2d = alpha[:, na]*delta_2d + (1j*0.5*alpha*gamma)[:, na]
-    z2_2d = -beta[:, na]*delta_2d + (1j*0.5*beta*gamma)[:, na]
+    z1_2d = alpha[:, na]*delta_2d + (1j*0.5*alpha*gamma_c)[:, na]
+    z2_2d = -beta[:, na]*delta_2d + (1j*0.5*beta*gamma_c)[:, na]
 
     # The Lorentzian term is exp(z) * E1(z); omitting exp(z) breaks
     # the pseudo-Voigt tails for non-zero gamma.
