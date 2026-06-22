@@ -6,6 +6,21 @@ na = numpy.newaxis
 
 
 
+def calc_lorentz_factor(ttheta, flag_ttheta: bool = False):
+    """Angular (bank-angle) part of the TOF Lorentz factor.
+
+    Returns ``sin(ttheta)`` for the fixed detector bank angle ``ttheta``
+    (the full scattering angle ``2theta_bank``). The reflection-dependent
+    ``d**4`` part is applied separately, so the complete TOF Lorentz
+    factor is ``d**4 * sin(ttheta)`` (cf. CrysFML ``lorentz = dsp4 * sina``).
+    """
+    res = numpy.sin(ttheta)
+    dder = {}
+    if flag_ttheta:
+        dder["ttheta"] = numpy.cos(ttheta)
+    return res, dder
+
+
 def calc_spectrum(time, spectrum_type, spectrum_parameters, flag_spectrum_parameters=False):
     exp = numpy.exp
     time_sq = numpy.square(time)
@@ -96,7 +111,8 @@ def calc_hpv_eta(h_g, h_l):
     return h_pv, eta
 
 
-def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
+def tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=0.):
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     norm = 0.5*alpha*beta/(alpha+beta)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
@@ -109,20 +125,27 @@ def tof_Jorgensen(alpha, beta, sigma, time, time_hkl):
     exp_v[numpy.isinf(exp_v)] = 1e200
 
     profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
+    half_width = cutoff_fwhm * (sigma*numpy.sqrt(8.*numpy.log(2.)) + 1./alpha + 1./beta)
+    profile_g_2d = profile_g_2d * (numpy.abs(delta_2d) <= half_width[:, na])
     return profile_g_2d
 
 
-def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
+def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl, cutoff_fwhm=0.):
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     two_over_pi = 2./numpy.pi
     norm = 0.5*alpha*beta/(alpha+beta)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
     delta_2d = time_2d-time_hkl_2d
 
-    # FIXME: it has to be checked
-    # sigma = gamma*(inv_8ln2)**0.5
-    h_pv, eta = calc_hpv_eta(sigma, gamma)
+    # Match FullProf/CrysFML: build one Thompson-Cox-Hastings pseudo-Voigt
+    # FWHM from the Gaussian FWHM and Lorentzian FWHM, then use that common
+    # width for both the Gaussian and Lorentzian components.
+    h_g_fwhm = sigma*numpy.sqrt(8.*numpy.log(2.))
+    h_pv, eta = calc_hpv_eta(h_g_fwhm, gamma)
+    sigma_c = h_pv*numpy.sqrt(inv_8ln2)
+    gamma_c = h_pv
 
-    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma, delta_2d)
+    y, z, u, v = calc_y_z_u_v(alpha, beta, sigma_c, delta_2d)
 
     with numpy.errstate(over='ignore'):
         exp_u = exp(u)
@@ -132,8 +155,8 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
 
     profile_g_2d = norm[:, na] * (exp_u * erfc(y) + exp_v * erfc(z))
 
-    z1_2d = alpha[:, na]*delta_2d + (1j*0.5*alpha*gamma)[:, na]
-    z2_2d = -beta[:, na]*delta_2d + (1j*0.5*beta*gamma)[:, na]
+    z1_2d = alpha[:, na]*delta_2d + (1j*0.5*alpha*gamma_c)[:, na]
+    z2_2d = -beta[:, na]*delta_2d + (1j*0.5*beta*gamma_c)[:, na]
 
     # The Lorentzian term is exp(z) * E1(z); omitting exp(z) breaks
     # the pseudo-Voigt tails for non-zero gamma.
@@ -152,11 +175,14 @@ def tof_Jorgensen_VonDreele(alpha, beta, sigma, gamma, time, time_hkl):
     profile_l_2d = norm[:, na] * (oml_a_2d + oml_b_2d)
     one_e = 1. - eta
     tof_peak_2d = one_e[:, na] * profile_g_2d + eta[:, na] * profile_l_2d
+    half_width = cutoff_fwhm * (h_pv + 1./alpha + 1./beta)
+    tof_peak_2d = tof_peak_2d * (numpy.abs(delta_2d) <= half_width[:, na])
     return tof_peak_2d
 
 
-def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl):
+def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl, cutoff_fwhm=0.):
     """Direct symmetric pseudo-Voigt profile in TOF coordinates."""
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     h_g = numpy.sqrt(8.*numpy.log(2.))*sigma
     h_pv, eta = calc_hpv_eta(h_g, gamma)
     time_2d, time_hkl_2d = numpy.meshgrid(time, time_hkl, indexing="ij")
@@ -170,7 +196,9 @@ def tof_non_convoluted_pseudo_voigt(sigma, gamma, time, time_hkl):
         2./(numpy.pi*h_pv))[:, na] / (
             1. + 4.*numpy.square(delta_over_h_pv))
 
-    return eta[:, na] * profile_l_2d + (1.-eta)[:, na] * profile_g_2d
+    res_2d = eta[:, na] * profile_l_2d + (1.-eta)[:, na] * profile_g_2d
+    res_2d = res_2d * (numpy.abs(delta_over_h_pv) <= cutoff_fwhm)
+    return res_2d
 
 
 
@@ -248,7 +276,7 @@ def tof_Carpenter():
 
 def calc_peak_shape_function(alphas, betas, sigmas,
         d, time, time_hkl, gammas = None, size_g: float = 0., strain_g: float = 0.,
-        size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt"):
+        size_l: float = 0., strain_l: float = 0., peak_shape: str = "pseudo-Voigt", cutoff_fwhm: float = 0.):
     """Calculate peak-shape function F(DELTA)
     For Gauss peak-shape:
         F(DELTA) = alpha * beta / (alpha+beta) * [exp(u) erfc(y) + exp(v) erfc(z)]
@@ -275,7 +303,7 @@ def calc_peak_shape_function(alphas, betas, sigmas,
             sigma = calc_sigma(
                 d, sigma0, sigma1, sigma2, size_g=size_g, strain_g=strain_g)
 
-            res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl)
+            res_2d = tof_Jorgensen(alpha, beta, sigma, time, time_hkl, cutoff_fwhm=cutoff_fwhm)
 
         elif peak_shape == "pseudo-Voigt":
             gamma0, gamma1, gamma2 = gammas[0], gammas[1], gammas[2]
@@ -286,7 +314,7 @@ def calc_peak_shape_function(alphas, betas, sigmas,
                 strain_g=strain_g, strain_l=strain_l)
 
             res_2d = tof_Jorgensen_VonDreele(
-                alpha, beta, sigma, gamma, time, time_hkl)
+                alpha, beta, sigma, gamma, time, time_hkl, cutoff_fwhm=cutoff_fwhm)
 
     elif peak_shape == "non-conv-pseudo-Voigt":
         gamma0, gamma1, gamma2 = gammas[0], gammas[1], gammas[2]
@@ -296,7 +324,7 @@ def calc_peak_shape_function(alphas, betas, sigmas,
             size_g=0., size_l=0., strain_g=0., strain_l=0.)
 
         res_2d = tof_non_convoluted_pseudo_voigt(
-            sigma, gamma, time, time_hkl)
+            sigma, gamma, time, time_hkl, cutoff_fwhm=cutoff_fwhm)
 
     else:
         raise ValueError(f"Unknown peak shape: {peak_shape}")

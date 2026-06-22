@@ -1,101 +1,164 @@
 """Description of Crystal class."""
-__author__ = 'ikibalin'
+
+__author__ = "ikibalin"
 __version__ = "2020_08_19"
 import numpy
 
 from typing import NoReturn
 
 from cryspy.A_functions_base.database import DATABASE
-from cryspy.A_functions_base.charge_form_factor import calc_jl_for_ion, calc_scattering_amplitude_tabulated, get_atom_name_ion_charge_shell, get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol
-from cryspy.A_functions_base.debye_waller_factor import calc_param_iso_aniso_by_b_iso_beta, calc_u_ij_by_beta
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v
+from cryspy.A_functions_base.charge_form_factor import (
+    calc_jl_for_ion,
+    calc_scattering_amplitude_tabulated,
+    get_atom_name_ion_charge_shell,
+    get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol,
+)
+from cryspy.A_functions_base.debye_waller_factor import (
+    calc_param_iso_aniso_by_b_iso_beta,
+    calc_u_ij_by_beta,
+)
+from cryspy.A_functions_base.matrix_operations import (
+    calc_m1_m2_inv_m1,
+    calc_m_v,
+)
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
-from cryspy.A_functions_base.multipoles import calc_transformation_matrix_from_global_to_local, calc_multipole_density
-from cryspy.A_functions_base.unit_cell import \
-    calc_eq_ccs_by_unit_cell_parameters, \
-    calc_reciprocal_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, \
-    calc_m_m_norm_by_unit_cell_parameters
-from cryspy.A_functions_base.structure_factor import \
-    calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, \
-    calc_f_m_perp_by_sft, calc_bulk_susceptibility_by_dictionary, \
-    calc_f_m_perp_ordered_by_dictionary
+from cryspy.A_functions_base.multipoles import (
+    calc_transformation_matrix_from_global_to_local,
+    calc_multipole_density,
+)
+from cryspy.A_functions_base.unit_cell import (
+    calc_eq_ccs_by_unit_cell_parameters,
+    calc_reciprocal_by_unit_cell_parameters,
+    calc_m_m_by_unit_cell_parameters,
+    calc_m_m_norm_by_unit_cell_parameters,
+)
+from cryspy.A_functions_base.structure_factor import (
+    calc_f_nucl_by_dictionary,
+    calc_sft_ccs_by_dictionary,
+    calc_f_m_perp_by_sft,
+    calc_bulk_susceptibility_by_dictionary,
+    calc_f_m_perp_ordered_by_dictionary,
+)
 
 from cryspy.A_functions_base.function_3_mcif import calc_multiplicity
-from cryspy.A_functions_base.mempy import \
-    form_basins_2, calc_symm_elem_points_by_index_points, save_spin_density_into_file, \
-    transform_to_density_auc_to_moments
-from cryspy.A_functions_base.symmetry_elements import calc_asymmetric_unit_cell_indexes
+from cryspy.A_functions_base.mempy import (
+    form_basins_2,
+    calc_symm_elem_points_by_index_points,
+    save_spin_density_into_file,
+    transform_to_density_auc_to_moments,
+)
+from cryspy.A_functions_base.symmetry_elements import (
+    calc_asymmetric_unit_cell_indexes,
+)
 
 
-from cryspy.A_functions_base.symmetry_elements import calc_full_mag_elems, calc_symm_flags, define_bravais_type_by_symm_elems, apply_symm_elem_to_xyz
-from cryspy.A_functions_base.symmetry_constraints import calc_sc_beta, calc_sc_fract_sc_b, calc_sc_chi, calc_sc_chi_full, calc_sc_ordered
+from cryspy.A_functions_base.symmetry_elements import (
+    calc_full_mag_elems,
+    calc_symm_flags,
+    define_bravais_type_by_symm_elems,
+    apply_symm_elem_to_xyz,
+)
+from cryspy.A_functions_base.symmetry_constraints import (
+    calc_sc_beta,
+    calc_sc_fract_sc_b,
+    calc_sc_chi,
+    calc_sc_chi_full,
+    calc_sc_ordered,
+)
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import AtomLocalAxesL
-from cryspy.C_item_loop_classes.cl_1_atom_rho_multipole import AtomRhoMultipoleL
+from cryspy.C_item_loop_classes.cl_1_atom_rho_multipole import (
+    AtomRhoMultipoleL,
+)
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_atom_type import AtomTypeL
-from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import \
-    AtomSiteAnisoL
-from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import \
-    AtomSiteSusceptibilityL
-from cryspy.C_item_loop_classes.cl_1_atom_site_exchange import AtomSiteExchangeL
-from cryspy.C_item_loop_classes.cl_1_atom_type_scat import \
-    AtomTypeScatL
-from cryspy.C_item_loop_classes.cl_2_atom_site_scat import \
-    AtomSiteScatL
-from cryspy.C_item_loop_classes.cl_1_atom_site_moment import AtomSiteMoment, AtomSiteMomentL
-from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
-    ReflnSusceptibilityL
-from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration \
-    import AtomElectronConfigurationL
+from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import AtomSiteAnisoL
+from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import (
+    AtomSiteSusceptibilityL,
+)
+from cryspy.C_item_loop_classes.cl_1_atom_site_exchange import (
+    AtomSiteExchangeL,
+)
+from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScatL
+from cryspy.C_item_loop_classes.cl_2_atom_site_scat import AtomSiteScatL
+from cryspy.C_item_loop_classes.cl_1_atom_site_moment import (
+    AtomSiteMoment,
+    AtomSiteMomentL,
+)
+from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import (
+    ReflnSusceptibilityL,
+)
+from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import (
+    AtomElectronConfigurationL,
+)
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
-    SpaceGroupSymopMagnCenteringL
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
+    SpaceGroupSymopMagnCenteringL,
+)
 
-from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater \
-    import AtomRhoOrbitalRadialSlaterL
-from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
-    SpaceGroupSymopMagnOperationL
+from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import (
+    AtomRhoOrbitalRadialSlaterL,
+)
+from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import (
+    SpaceGroupSymopMagnOperationL,
+)
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 
 
-from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid \
-    import magnetization_ellipsoid_by_u_ij, report_main_axes_of_magnetization_ellipsoids
+from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import (
+    magnetization_ellipsoid_by_u_ij,
+    report_main_axes_of_magnetization_ellipsoids,
+)
 
 na = numpy.newaxis
+
 
 class Crystal(DataN):
     """The block ‘Crystal’ describes the crystal structure.
 
-- The atom_site loop provides the positions of atoms within the unit cell.
-- The cell defines the unit cell.
+    - The atom_site loop provides the positions of atoms within the unit cell.
+    - The cell defines the unit cell.
 
-The space group can be specified using:
-- space_group for crystal structures.
-- space_group_symop_magn_operation and space_group_symop_magn_centering for magnetic structures (MCIF format).
+    The space group can be specified using:
+    - space_group for crystal structures.
+    - space_group_symop_magn_operation and space_group_symop_magn_centering for magnetic structures (MCIF format).
 
-The atom_site_susceptibility loop describes the paramagnetic properties of the crystal and can be defined in both nuclear and magnetic space groups.
+    The atom_site_susceptibility loop describes the paramagnetic properties of the crystal and can be defined in both nuclear and magnetic space groups.
 
-The atom_site_moment loop describes the ordered magnetic moments of the crystal and is only required if the magnetic space group (MCIF format) is defined.
+    The atom_site_moment loop describes the ordered magnetic moments of the crystal and is only required if the magnetic space group (MCIF format) is defined.
 
-To define the magnetic form factor in the dipolar approximation, use the atom_site_scat loop.
+    To define the magnetic form factor in the dipolar approximation, use the atom_site_scat loop.
 
-The anisotropic magnetic form factor can be defined using the multipole model.
- In this case, use the atom_rho_multipole loop and the atom_local_axes loop. 
- The latter is necessary to define the local coordinate system in which the multipole functions are defined.
+    The anisotropic magnetic form factor can be defined using the multipole model.
+     In this case, use the atom_rho_multipole loop and the atom_local_axes loop.
+     The latter is necessary to define the local coordinate system in which the multipole functions are defined.
 
-Please note that the programme currently does not check the symmetry constraint on multipole parameters. Therefore, the user should verify this themselves.
+    Please note that the programme currently does not check the symmetry constraint on multipole parameters. Therefore, the user should verify this themselves.
     """
 
-    CLASSES_MANDATORY = (Cell, AtomSiteL,)
-    CLASSES_OPTIONAL = (SpaceGroup,
-        AtomTypeL, AtomSiteAnisoL, AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomSiteScatL,
-        AtomTypeScatL, AtomLocalAxesL, AtomElectronConfigurationL,
-        AtomSiteMomentL, SpaceGroupSymopMagnOperationL, SpaceGroupSymopMagnCenteringL, AtomRhoMultipoleL)
+    CLASSES_MANDATORY = (
+        Cell,
+        AtomSiteL,
+    )
+    CLASSES_OPTIONAL = (
+        SpaceGroup,
+        AtomTypeL,
+        AtomSiteAnisoL,
+        AtomSiteSusceptibilityL,
+        AtomSiteExchangeL,
+        AtomSiteScatL,
+        AtomTypeScatL,
+        AtomLocalAxesL,
+        AtomElectronConfigurationL,
+        AtomSiteMomentL,
+        SpaceGroupSymopMagnOperationL,
+        SpaceGroupSymopMagnCenteringL,
+        AtomRhoMultipoleL,
+    )
     # CLASSES_INTERNAL = ()
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -133,30 +196,35 @@ Please note that the programme currently does not check the symmetry constraint 
         if self.is_attribute("space_group"):
             space_group = self.space_group
             space_group_wyckoff = space_group.space_group_wyckoff
-    
+
             cell = self.cell
             cell.type_cell = space_group.bravais_type
-            cell.it_coordinate_system_code = space_group.it_coordinate_system_code
+            cell.it_coordinate_system_code = (
+                space_group.it_coordinate_system_code
+            )
             cell.apply_constraints()
-    
+
             atom_site = self.atom_site
             atom_site.apply_constraints(space_group_wyckoff)
-    
+
             if self.is_attribute("atom_site_aniso"):
                 atom_site_aniso = self.atom_site_aniso
                 atom_site_aniso.apply_space_group_constraint(
-                    atom_site, space_group)
-    
+                    atom_site, space_group
+                )
+
             if self.is_attribute("atom_site_susceptibility"):
                 atom_site_susceptibility = self.atom_site_susceptibility
                 atom_site_susceptibility.apply_chi_iso_constraint(cell)
                 atom_site_susceptibility.apply_space_group_constraint(
-                    atom_site, space_group, cell)
+                    atom_site, space_group, cell
+                )
             if self.is_attribute("atom_site_exchange"):
                 atom_site_exchange = self.atom_site_exchange
                 atom_site_exchange.apply_j_iso_constraint()
                 atom_site_exchange.apply_space_group_constraint(
-                    atom_site, space_group, cell)
+                    atom_site, space_group, cell
+                )
 
     def calc_b_iso_beta(self):
         """
@@ -170,7 +238,7 @@ Please note that the programme currently does not check the symmetry constraint 
         except AttributeError:
             a_s_a = None
         l_b_iso, l_beta = [], []
-        coeff = float(8.*numpy.pi**2)
+        coeff = float(8.0 * numpy.pi**2)
         cell = self.cell
         for item_a_s in a_s.items:
             label_atom = item_a_s.label
@@ -178,21 +246,21 @@ Please note that the programme currently does not check the symmetry constraint 
                 adp_type = item_a_s.adp_type
             except AttributeError:
                 adp_type = None
-            b_iso = 0.
-            beta = (0., 0., 0., 0., 0., 0.)
+            b_iso = 0.0
+            beta = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
             if adp_type == "Uiso":
                 u_iso = float(item_a_s.u_iso_or_equiv)
-                b_iso = float(8.*numpy.pi**2*u_iso)
+                b_iso = float(8.0 * numpy.pi**2 * u_iso)
             elif adp_type == "Biso":
                 b_iso = float(item_a_s.b_iso_or_equiv)
             elif adp_type == "Uovl":
                 # FIXME: correct it
                 u_iso = float(item_a_s.u_iso_or_equiv)
-                b_iso = coeff*u_iso
+                b_iso = coeff * u_iso
             elif adp_type == "Umpe":
                 # FIXME: correct it
                 u_iso = float(item_a_s.u_iso_or_equiv)
-                b_iso = float(8.*numpy.pi**2*u_iso)
+                b_iso = float(8.0 * numpy.pi**2 * u_iso)
             elif adp_type == "Uani":
                 item_a_s_a = a_s_a[label_atom]
                 beta = item_a_s_a.calc_beta(cell)
@@ -201,42 +269,63 @@ Please note that the programme currently does not check the symmetry constraint 
                 b_iso = float(item_a_s.b_iso_or_equiv)
             elif adp_type == "Bani":
                 item_a_s_a = a_s_a[label_atom]
-                beta = (float(item_a_s_a.b_11), float(item_a_s_a.b_22),
-                        float(item_a_s_a.b_33), float(item_a_s_a.b_12),
-                        float(item_a_s_a.b_13), float(item_a_s_a.b_23))
+                beta = (
+                    float(item_a_s_a.b_11),
+                    float(item_a_s_a.b_22),
+                    float(item_a_s_a.b_33),
+                    float(item_a_s_a.b_12),
+                    float(item_a_s_a.b_13),
+                    float(item_a_s_a.b_23),
+                )
             l_b_iso.append(b_iso)
             l_beta.append(beta)
         np_b_iso = numpy.array(l_b_iso, dtype=float)
         np_beta = numpy.array(l_beta, dtype=float)
         return np_b_iso, np_beta
 
-
     def calc_f_nucl(self, index_hkl):
         dict_crystal = self.get_dictionary()
         dict_in_out = {"index_hkl": index_hkl}
-        f_nucl, dder = calc_f_nucl_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=False)
+        f_nucl, dder = calc_f_nucl_by_dictionary(
+            dict_crystal, dict_in_out, flag_use_precalculated_data=False
+        )
         return f_nucl
 
-
-    def calc_f_mag(self, index_hkl, magnetic_field_ccs: numpy.ndarray = numpy.array([0.,0.,0.], dtype=float)):
+    def calc_f_mag(
+        self,
+        index_hkl,
+        magnetic_field_ccs: numpy.ndarray = numpy.array(
+            [0.0, 0.0, 0.0], dtype=float
+        ),
+    ):
         flag_use_precalculated_data = False
         dict_crystal = self.get_dictionary()
-        dict_crystal_keys = dict_crystal.keys() 
+        dict_crystal_keys = dict_crystal.keys()
         dict_in_out = {"index_hkl": index_hkl, "flag_only_orbital": False}
-        sft_ccs = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)[0]
-        f_mag = calc_m_v(sft_ccs, magnetic_field_ccs, flag_m=False, flag_v=False)[0]
+
+        f_mag = numpy.zeros(index_hkl.shape, dtype=numpy.complex128)
+        if "atom_para_index" in dict_crystal_keys:
+            sft_ccs = calc_sft_ccs_by_dictionary(
+                dict_crystal,
+                dict_in_out,
+                flag_use_precalculated_data=flag_use_precalculated_data,
+            )[0]
+            f_mag_para = calc_m_v(
+                sft_ccs, magnetic_field_ccs, flag_m=False, flag_v=False
+            )[0]
+            f_mag += f_mag_para
         if "atom_ordered_index" in dict_crystal_keys:
             calc_f_m_perp_ordered_by_dictionary(
-                dict_crystal, dict_in_out, flag_use_precalculated_data=flag_use_precalculated_data)
+                dict_crystal,
+                dict_in_out,
+                flag_use_precalculated_data=flag_use_precalculated_data,
+            )
             if "f_m_o" in dict_in_out.keys():
                 f_m_o = dict_in_out["f_m_o"]
                 f_mag += f_m_o
         return f_mag
 
-
-
-    def calc_refln(self, index_hkl,
-                   flag_internal: bool = True):
+    def calc_refln(self, index_hkl, flag_internal: bool = True):
         """
         Calculate Refln cryspy object where nuclear structure factor is stored.
 
@@ -280,23 +369,34 @@ Please note that the programme currently does not check the symmetry constraint 
         return res
 
     def calc_structure_factor_tensor_ccs(
-            self, index_hkl, flag_only_orbital: bool = False, dict_in_out: dict = None):
+        self,
+        index_hkl,
+        flag_only_orbital: bool = False,
+        dict_in_out: dict = None,
+    ):
         """Calculate structure factor tensor in CCS coordinate (X||a*, Z||c)."""
-        
+
         dict_crystal = self.get_dictionary()
         if dict_in_out is None:
-            dict_in_out = {"index_hkl": index_hkl, "flag_only_orbital": flag_only_orbital}
+            dict_in_out = {
+                "index_hkl": index_hkl,
+                "flag_only_orbital": flag_only_orbital,
+            }
         else:
             dict_in_out["index_hkl"] = index_hkl
             dict_in_out["flag_only_orbital"] = flag_only_orbital
 
-        sft_ccs, dder = calc_sft_ccs_by_dictionary(dict_crystal, dict_in_out, flag_use_precalculated_data=False)
+        sft_ccs, dder = calc_sft_ccs_by_dictionary(
+            dict_crystal, dict_in_out, flag_use_precalculated_data=False
+        )
         return sft_ccs, dder
 
-
     def calc_refln_susceptibility(
-            self, index_hkl, flag_internal: bool = True,
-            flag_only_orbital: bool = False):
+        self,
+        index_hkl,
+        flag_internal: bool = True,
+        flag_only_orbital: bool = False,
+    ):
         """
         Calculate susceptibility tensor and moment tensor.
 
@@ -317,14 +417,15 @@ Please note that the programme currently does not check the symmetry constraint 
                           np.array([1,0],dtype=int)
             >>> refln_suscept = crystal.calc_refln_susceptibility(h, k, l)
         """
-        
+
         sft_ccs, dder = self.calc_structure_factor_tensor_ccs(
-            index_hkl, flag_only_orbital=flag_only_orbital)
+            index_hkl, flag_only_orbital=flag_only_orbital
+        )
 
         res = ReflnSusceptibilityL(loop_name=self.data_name)
-        res.numpy_index_h = index_hkl[0,:]
-        res.numpy_index_k = index_hkl[1,:]
-        res.numpy_index_l = index_hkl[2,:]
+        res.numpy_index_h = index_hkl[0, :]
+        res.numpy_index_k = index_hkl[1, :]
+        res.numpy_index_l = index_hkl[2, :]
         res.numpy_chi_11_calc = sft_ccs[0, :]
         res.numpy_chi_12_calc = sft_ccs[1, :]
         res.numpy_chi_13_calc = sft_ccs[2, :]
@@ -338,21 +439,28 @@ Please note that the programme currently does not check the symmetry constraint 
             res.numpy_to_items()
         return res
 
-    def calc_f_m_perp(self, index_hkl, magnetic_field, dict_in_out: dict = None):
-        """Calculate F_M_perpendicular
-        """
-        sft_ccs, dder_sft_ccs = self.calc_structure_factor_tensor_ccs(index_hkl, dict_in_out=dict_in_out)
+    def calc_f_m_perp(
+        self, index_hkl, magnetic_field, dict_in_out: dict = None
+    ):
+        """Calculate F_M_perpendicular"""
+        sft_ccs, dder_sft_ccs = self.calc_structure_factor_tensor_ccs(
+            index_hkl, dict_in_out=dict_in_out
+        )
         unit_cell_parameters = self.cell.get_unit_cell_parameters()
-        eq_ccs, dder_eq_ccs = calc_eq_ccs_by_unit_cell_parameters(index_hkl, unit_cell_parameters)
+        eq_ccs, dder_eq_ccs = calc_eq_ccs_by_unit_cell_parameters(
+            index_hkl, unit_cell_parameters
+        )
         f_m_perp, dder_f_m_perp = calc_f_m_perp_by_sft(
-            sft_ccs, magnetic_field, eq_ccs,
+            sft_ccs,
+            magnetic_field,
+            eq_ccs,
             flag_sft_ccs=False,
             flag_magnetic_field=False,
-            flag_eq_ccs=False)
+            flag_eq_ccs=False,
+        )
         return f_m_perp
 
-
-    def calc_hkl(self, sthol_min: float = 0., sthovl_max: float = 1.):
+    def calc_hkl(self, sthol_min: float = 0.0, sthovl_max: float = 1.0):
         """
         Calculate hkl and multiplicity taking into account the symmetry
         constraints.
@@ -375,8 +483,9 @@ Please note that the programme currently does not check the symmetry constraint 
         res = cell.calc_hkl(space_group, sthol_min, sthovl_max)
         return res
 
-
-    def calc_hkl_in_range(self, sthol_min: float = 0., sthovl_max: float = 1.):
+    def calc_hkl_in_range(
+        self, sthol_min: float = 0.0, sthovl_max: float = 1.0
+    ):
         """
         Give hkl without taking symmetry into account.
 
@@ -397,7 +506,6 @@ Please note that the programme currently does not check the symmetry constraint 
         res = cell.calc_hkl_in_range(sthol_min, sthovl_max)
         return res
 
-
     def calc_magnetization_ellipsoid(self):
         """
         Magnetization ellipsoids.
@@ -417,7 +525,6 @@ Please note that the programme currently does not check the symmetry constraint 
             chi_as_u_loc = magnetization_ellipsoid_by_u_ij(cell, item)
             l_res.append(chi_as_u_loc)
         return l_res
-
 
     def calc_main_axes_of_magnetization_ellipsoids(self):
         """Susceptibility along the main axes of magnetization ellipsoid.
@@ -442,10 +549,10 @@ Please note that the programme currently does not check the symmetry constraint 
         except AttributeError:
             return ll_moments, ll_directions
 
-        l_moments, l_moments_sigma, l_rot_matrix = \
+        l_moments, l_moments_sigma, l_rot_matrix = (
             a_s_s.calc_main_axes_of_magnetization_ellipsoid(cell)
+        )
         return l_moments, l_moments_sigma, l_rot_matrix
-
 
     def report_main_axes_of_magnetization_ellipsoids(self):
         """
@@ -464,11 +571,9 @@ Please note that the programme currently does not check the symmetry constraint 
             return ""
 
         cell = self.cell
-        s_out = report_main_axes_of_magnetization_ellipsoids(
-            cell, a_s_m_a)
+        s_out = report_main_axes_of_magnetization_ellipsoids(cell, a_s_m_a)
 
         return s_out
-
 
     def calc_magnetic_moments_with_field_loc(self, field_abc):
         """Orientation of magetic moment for atoms at applied magnetic field.
@@ -477,7 +582,7 @@ Please note that the programme currently does not check the symmetry constraint 
         (a/|a|, b/|b|, c/|c|)
         The output magnetic moment are given in normalized unit cell
         (a/|a|, b/|b|, c/|c|)
-        
+
         Output
         ------
         l_lab_out - label of atoms
@@ -488,7 +593,9 @@ Please note that the programme currently does not check the symmetry constraint 
         np_field = numpy.array(field_abc, dtype=float)
 
         try:
-            spgr = self.space_group # FIXME: it should be also the case of magnetic space group
+            spgr = (
+                self.space_group
+            )  # FIXME: it should be also the case of magnetic space group
             cell = self.cell
             a_s = self.atom_site
             a_s_m_a = self.atom_site_susceptibility
@@ -496,24 +603,32 @@ Please note that the programme currently does not check the symmetry constraint 
             return None
 
         m_m_norm = cell.m_m_norm
-        np_field_xyz = calc_m_v(m_m_norm, np_field)[0]
+        np_field_xyz = numpy.matmul(m_m_norm, np_field)
         norm_field = numpy.sqrt(numpy.square(np_field_xyz).sum())
-        if norm_field == 0.: 
-            norm_field = 1.
-        np_field = np_field/norm_field
+        if norm_field == 0.0:
+            norm_field = 1.0
+        np_field = np_field / norm_field
         l_lab_out, l_xyz_out, l_moment_out = [], [], []
 
         m_mt_norm_m_norm_field = numpy.matmul(
-            numpy.matmul(m_m_norm.transpose(), m_m_norm), np_field)
+            numpy.matmul(m_m_norm.transpose(), m_m_norm), np_field
+        )
 
         as_p1 = []
         asm_p1 = []
         for _l, _11, _22, _33, _12, _13, _23 in zip(
-                a_s_m_a.label, a_s_m_a.chi_11, a_s_m_a.chi_22, a_s_m_a.chi_33,
-                a_s_m_a.chi_12, a_s_m_a.chi_13, a_s_m_a.chi_23):
-            m_chi = numpy.array([[_11, _12, _13],
-                                 [_12, _22, _23],
-                                 [_13, _23, _33]], dtype=float)
+            a_s_m_a.label,
+            a_s_m_a.chi_11,
+            a_s_m_a.chi_22,
+            a_s_m_a.chi_33,
+            a_s_m_a.chi_12,
+            a_s_m_a.chi_13,
+            a_s_m_a.chi_23,
+        ):
+            m_chi = numpy.array(
+                [[_11, _12, _13], [_12, _22, _23], [_13, _23, _33]],
+                dtype=float,
+            )
             x, y, z = a_s[_l].fract_x, a_s[_l].fract_y, a_s[_l].fract_z
             l_out = spgr.calc_rotated_matrix_for_position(m_chi, x, y, z)
             for _i_out, _out in enumerate(l_out):
@@ -524,13 +639,22 @@ Please note that the programme currently does not check the symmetry constraint 
                 l_lab_out.append(label_p1)
                 l_xyz_out.append(_xyz)
                 l_moment_out.append(_moment)
-                as_p1.append(AtomSite(label=label_p1, fract_x=_xyz[0], fract_y=_xyz[1], fract_z=_xyz[2]))
-                asm_p1.append(AtomSiteMoment(
-                    label=label_p1,
-                    crystalaxis_x=numpy.round(_moment[0], 5),
-                    crystalaxis_y=numpy.round(_moment[1], 5),
-                    crystalaxis_z=numpy.round(_moment[2], 5)))
-
+                as_p1.append(
+                    AtomSite(
+                        label=label_p1,
+                        fract_x=_xyz[0],
+                        fract_y=_xyz[1],
+                        fract_z=_xyz[2],
+                    )
+                )
+                asm_p1.append(
+                    AtomSiteMoment(
+                        label=label_p1,
+                        crystalaxis_x=numpy.round(_moment[0], 5),
+                        crystalaxis_y=numpy.round(_moment[1], 5),
+                        crystalaxis_z=numpy.round(_moment[2], 5),
+                    )
+                )
 
         spgr_p1 = SpaceGroup(it_number=1)
         spgr_p1.form_object()
@@ -539,18 +663,20 @@ Please note that the programme currently does not check the symmetry constraint 
         atom_site_moment_p1 = AtomSiteMomentL()
         atom_site_moment_p1.items = asm_p1
 
-        cryspy_p1 = Crystal(space_group = spgr_p1, cell=cell, atom_site=atom_site_p1, atom_site_moment=atom_site_moment_p1)
+        cryspy_p1 = Crystal(
+            space_group=spgr_p1,
+            cell=cell,
+            atom_site=atom_site_p1,
+            atom_site_moment=atom_site_moment_p1,
+        )
 
         return cryspy_p1
-
 
     def report(self):
         return self.report_main_axes_of_magnetization_ellipsoids()
 
-
     def plots(self):
         return []
-
 
     def get_flags_atom_beta(self):
         atom_site = self.atom_site
@@ -561,17 +687,33 @@ Please note that the programme currently does not check the symmetry constraint 
                 if item_as.adp_type == "Bani":
                     item_asa = atom_site_aniso[item_as.label]
                     l_f.append(
-                        numpy.array([
-                            item_asa.b_11_refinement, item_asa.b_22_refinement, item_asa.b_33_refinement,
-                            item_asa.b_12_refinement, item_asa.b_13_refinement, item_asa.b_23_refinement],
-                            dtype=bool))
+                        numpy.array(
+                            [
+                                item_asa.b_11_refinement,
+                                item_asa.b_22_refinement,
+                                item_asa.b_33_refinement,
+                                item_asa.b_12_refinement,
+                                item_asa.b_13_refinement,
+                                item_asa.b_23_refinement,
+                            ],
+                            dtype=bool,
+                        )
+                    )
                 elif item_as.adp_type == "Uani":
                     item_asa = atom_site_aniso[item_as.label]
                     l_f.append(
-                        numpy.array([
-                            item_asa.u_11_refinement, item_asa.u_22_refinement, item_asa.u_33_refinement,
-                            item_asa.u_12_refinement, item_asa.u_13_refinement, item_asa.u_23_refinement],
-                            dtype=bool))
+                        numpy.array(
+                            [
+                                item_asa.u_11_refinement,
+                                item_asa.u_22_refinement,
+                                item_asa.u_33_refinement,
+                                item_asa.u_12_refinement,
+                                item_asa.u_13_refinement,
+                                item_asa.u_23_refinement,
+                            ],
+                            dtype=bool,
+                        )
+                    )
                 else:
                     l_f.append(numpy.zeros((6,), dtype=bool))
             res = numpy.stack(l_f, axis=0).transpose()
@@ -580,8 +722,7 @@ Please note that the programme currently does not check the symmetry constraint 
         return res
 
     def get_dictionary(self):
-        """Form dictionary. See documentation moduel CrysPy using Jupyter notebook.
-        """
+        """Form dictionary. See documentation moduel CrysPy using Jupyter notebook."""
         self.form_object()
         ddict = super(Crystal, self).get_dictionary()
         space_group, cell, atom_site = None, None, None
@@ -632,7 +773,6 @@ Please note that the programme currently does not check the symmetry constraint 
         l_obj = take_items_by_class(self, (AtomSiteExchangeL,))
         if len(l_obj) > 0:
             atom_site_exchange = l_obj[0]
-            
 
         l_obj = take_items_by_class(self, (AtomElectronConfigurationL,))
         if len(l_obj) > 0:
@@ -661,17 +801,23 @@ Please note that the programme currently does not check the symmetry constraint 
         ddict["name"] = self.data_name
         ddict["type_name"] = self.get_name()
         ind_mag = None
-        rad = numpy.pi/180.
+        rad = numpy.pi / 180.0
         if space_group is not None:
-            full_symm_elems = space_group.full_space_group_symop.get_symm_elems()
+            full_symm_elems = (
+                space_group.full_space_group_symop.get_symm_elems()
+            )
             ddict["full_symm_elems"] = full_symm_elems
-            reduced_symm_elems = space_group.reduced_space_group_symop.get_symm_elems()
+            reduced_symm_elems = (
+                space_group.reduced_space_group_symop.get_symm_elems()
+            )
             ddict["reduced_symm_elems"] = reduced_symm_elems
             ddict["centrosymmetry"] = space_group.centrosymmetry
             if ddict["centrosymmetry"]:
                 p_centr = space_group.pcentr
                 lcm = numpy.lcm.reduce([fr.denominator for fr in p_centr])
-                vals = [int(fr.numerator * lcm / fr.denominator) for fr in p_centr]
+                vals = [
+                    int(fr.numerator * lcm / fr.denominator) for fr in p_centr
+                ]
                 vals.append(lcm)
                 ddict["centrosymmetry_position"] = numpy.array(vals, dtype=int)
 
@@ -679,55 +825,80 @@ Please note that the programme currently does not check the symmetry constraint 
             l_vals = []
             for ind in range(len(shift)):
                 lcm = numpy.lcm.reduce([fr.denominator for fr in shift[ind]])
-                vals = [int(fr.numerator * lcm / fr.denominator) for fr in shift[ind]]
+                vals = [
+                    int(fr.numerator * lcm / fr.denominator)
+                    for fr in shift[ind]
+                ]
                 vals.append(lcm)
                 l_vals.append(vals)
-            ddict["translation_elems"] = numpy.array(l_vals, dtype=int).transpose()
+            ddict["translation_elems"] = numpy.array(
+                l_vals, dtype=int
+            ).transpose()
 
         if space_group_symop_magn_operation is not None:
             if space_group_symop_magn_centering is not None:
-                se_sgsmo = self.space_group_symop_magn_operation.get_sym_elems()
-                se_sgsmc = self.space_group_symop_magn_centering.get_sym_elems()
+                se_sgsmo = (
+                    self.space_group_symop_magn_operation.get_sym_elems()
+                )
+                se_sgsmc = (
+                    self.space_group_symop_magn_centering.get_sym_elems()
+                )
                 full_mcif_elems = calc_full_mag_elems(se_sgsmo, se_sgsmc)
                 ddict["full_mcif_elems"] = full_mcif_elems
 
         if cell is not None:
             if cell.is_attribute("type_cell"):
-                type_cell, it_coordinate_system_code = cell.type_cell, cell.it_coordinate_system_code
-            elif "full_mcif_elems" in ddict.keys(): 
-                type_cell, it_coordinate_system_code = define_bravais_type_by_symm_elems(full_mcif_elems)
+                type_cell, it_coordinate_system_code = (
+                    cell.type_cell,
+                    cell.it_coordinate_system_code,
+                )
+            elif "full_mcif_elems" in ddict.keys():
+                type_cell, it_coordinate_system_code = (
+                    define_bravais_type_by_symm_elems(full_mcif_elems)
+                )
                 cell.type_cell = type_cell
                 cell.it_coordinate_system_code = it_coordinate_system_code
                 cell.apply_constraints()
 
             unit_cell_parameters = ddict["unit_cell_parameters"]
-            
-            sc_uc, v_uc = calc_sc_v_unit_cell_parameters(type_cell, it_coordinate_system_code)
+
+            sc_uc, v_uc = calc_sc_v_unit_cell_parameters(
+                type_cell, it_coordinate_system_code
+            )
             ddict["sc_uc"] = sc_uc
             ddict["v_uc"] = v_uc
-            
-            ddict["unit_cell_parameters"] = numpy.dot(sc_uc, unit_cell_parameters)+v_uc
+
+            ddict["unit_cell_parameters"] = (
+                numpy.dot(sc_uc, unit_cell_parameters) + v_uc
+            )
             unit_cell_parameters = ddict["unit_cell_parameters"]
             # ddict["flags_unit_cell_parameters"] = cell.get_flags_unit_cell_parameters() : it should be already defined from cell.get_dictionary()
 
         if atom_site is not None:
             atom_label = numpy.array(atom_site.label, dtype=str)
             atom_occupancy = numpy.array(atom_site.occupancy, dtype=float)
-            atom_fract_xyz = numpy.array([atom_site.fract_x,
-                                          atom_site.fract_y,
-                                          atom_site.fract_z], dtype=float)
-            atom_fract_xyz = numpy.mod(atom_fract_xyz, 1.)
+            atom_fract_xyz = numpy.array(
+                [atom_site.fract_x, atom_site.fract_y, atom_site.fract_z],
+                dtype=float,
+            )
+            atom_fract_xyz = numpy.mod(atom_fract_xyz, 1.0)
             if "full_mcif_elems" in ddict.keys():
-                atom_multiplicity = calc_multiplicity(ddict["full_mcif_elems"], atom_fract_xyz)
+                atom_multiplicity = calc_multiplicity(
+                    ddict["full_mcif_elems"], atom_fract_xyz
+                )
                 ddict["atom_multiplicity"] = atom_multiplicity
             elif "full_symm_elems" in ddict.keys():
-                atom_multiplicity = calc_multiplicity(ddict["full_symm_elems"], atom_fract_xyz)
+                atom_multiplicity = calc_multiplicity(
+                    ddict["full_symm_elems"], atom_fract_xyz
+                )
                 ddict["atom_multiplicity"] = atom_multiplicity
             elif atom_site.is_attribute("multiplicity"):
-                atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
+                atom_multiplicity = numpy.array(
+                    atom_site.multiplicity, dtype=int
+                )
                 ddict["atom_multiplicity"] = atom_multiplicity
             atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
-            table_sthovl = numpy.linspace(0, 2, 501) # fro0 to 2 Å**-1
+            table_sthovl = numpy.linspace(0, 2, 501)  # fro0 to 2 Å**-1
             d_dispersion = DATABASE["Dispersion"]
             table_wavelength = d_dispersion["table_wavelength"]
             l_table_atom_scattering_amplitude = []
@@ -736,38 +907,58 @@ Please note that the programme currently does not check the symmetry constraint 
             for type_symbol in atom_type_symbol:
                 try:
                     jl = calc_jl_for_ion(table_sthovl, type_symbol)
-                    scattering_amplitude = jl[:,0]
+                    scattering_amplitude = jl[:, 0]
                 except UserWarning:
                     try:
-                        scattering_amplitude = calc_scattering_amplitude_tabulated(type_symbol, table_sthovl)[0]
+                        scattering_amplitude = (
+                            calc_scattering_amplitude_tabulated(
+                                type_symbol, table_sthovl
+                            )[0]
+                        )
                     except KeyError:
                         flag_atom_scattering_amplitude = False
                 if flag_atom_scattering_amplitude:
-                    l_table_atom_scattering_amplitude.append(scattering_amplitude)
+                    l_table_atom_scattering_amplitude.append(
+                        scattering_amplitude
+                    )
 
                 type_atom = get_atom_name_ion_charge_shell(type_symbol)[0]
                 try:
-                    l_table_atom_dispersion.append(d_dispersion[type_atom.capitalize()])
+                    l_table_atom_dispersion.append(
+                        d_dispersion[type_atom.capitalize()]
+                    )
                 except KeyError:
-                    l_table_atom_dispersion.append(numpy.zeros_like(table_wavelength))
+                    l_table_atom_dispersion.append(
+                        numpy.zeros_like(table_wavelength)
+                    )
             if flag_atom_scattering_amplitude:
                 ddict["table_sthovl"] = table_sthovl
-                ddict["table_atom_scattering_amplitude"] = numpy.stack(l_table_atom_scattering_amplitude, axis=0)
+                ddict["table_atom_scattering_amplitude"] = numpy.stack(
+                    l_table_atom_scattering_amplitude, axis=0
+                )
             ddict["table_wavelength"] = table_wavelength
-            ddict["table_atom_dispersion"] = numpy.stack(l_table_atom_dispersion, axis=0)
+            ddict["table_atom_dispersion"] = numpy.stack(
+                l_table_atom_dispersion, axis=0
+            )
 
-            atom_b_scat = numpy.array(atom_site.scat_length_neutron, dtype=complex)
+            atom_b_scat = numpy.array(
+                atom_site.scat_length_neutron, dtype=complex
+            )
 
-            b_d  = 3*10**6*numpy.ones(atom_fract_xyz.shape[1:], dtype=int) #10**6 it is precision
-            b_elem = (atom_fract_xyz*b_d[na, :]).astype(int)
-            gcd = numpy.gcd.reduce(numpy.gcd(b_elem, b_d[na,:]))
+            b_d = (
+                3 * 10**6 * numpy.ones(atom_fract_xyz.shape[1:], dtype=int)
+            )  # 10**6 it is precision
+            b_elem = (atom_fract_xyz * b_d[na, :]).astype(int)
+            gcd = numpy.gcd.reduce(numpy.gcd(b_elem, b_d[na, :]))
 
-            atom_symm_elems = numpy.concatenate([
-                numpy.floor_divide(b_elem, gcd[na, :]),
-                numpy.floor_divide(b_d, gcd)[na, :],
-                numpy.zeros((9, ) + atom_fract_xyz.shape[1:], dtype=int)],
-                axis=0)
-
+            atom_symm_elems = numpy.concatenate(
+                [
+                    numpy.floor_divide(b_elem, gcd[na, :]),
+                    numpy.floor_divide(b_d, gcd)[na, :],
+                    numpy.zeros((9,) + atom_fract_xyz.shape[1:], dtype=int),
+                ],
+                axis=0,
+            )
 
             if "full_mcif_elems" in ddict.keys():
                 elems_fs = ddict["full_mcif_elems"]
@@ -776,39 +967,53 @@ Please note that the programme currently does not check the symmetry constraint 
             else:
                 raise AttributeError("Symmetry elements are not found.")
 
-            flag_2d = calc_symm_flags(elems_fs[:, :, na], atom_symm_elems[:, na, :])
-
+            flag_2d = calc_symm_flags(
+                elems_fs[:, :, na], atom_symm_elems[:, na, :]
+            )
 
             l_sc_fract, l_sc_b = [], []
             for ind in range(atom_label.size):
                 symm_elems = elems_fs[:, flag_2d[:, ind]]
-                sc_fract, sc_b = calc_sc_fract_sc_b(symm_elems, atom_fract_xyz[:, ind])
+                sc_fract, sc_b = calc_sc_fract_sc_b(
+                    symm_elems, atom_fract_xyz[:, ind]
+                )
                 l_sc_fract.append(sc_fract)
                 l_sc_b.append(sc_b)
             atom_site_sc_fract = numpy.stack(l_sc_fract, axis=-1)
 
-            ddict["atom_site_sc_fract"] = atom_site_sc_fract 
+            ddict["atom_site_sc_fract"] = atom_site_sc_fract
             ddict["atom_site_sc_b"] = numpy.stack(l_sc_b, axis=-1)
 
             flags_atom_fract_xyz = atom_site.get_flags_atom_fract_xyz()
-            flags_atom_fract_xyz_constr = calc_m_v(atom_site_sc_fract, flags_atom_fract_xyz, flag_m=False, flag_v=False)[0].astype(bool)
+            flags_atom_fract_xyz_constr = calc_m_v(
+                atom_site_sc_fract,
+                flags_atom_fract_xyz,
+                flag_m=False,
+                flag_v=False,
+            )[0].astype(bool)
 
             ddict["atom_label"] = atom_label
             ddict["atom_fract_xyz"] = atom_fract_xyz
-            ddict["flags_atom_fract_xyz"] = flags_atom_fract_xyz_constr 
+            ddict["flags_atom_fract_xyz"] = flags_atom_fract_xyz_constr
             ddict["atom_scat_length_neutron"] = atom_b_scat
             ddict["atom_occupancy"] = atom_occupancy
-            ddict["flags_atom_occupancy"] = atom_site.get_flags_atom_occupancy()
+            ddict["flags_atom_occupancy"] = (
+                atom_site.get_flags_atom_occupancy()
+            )
             ddict["flags_atom_b_iso"] = atom_site.get_flags_atom_b_iso()
             ddict["atom_symm_elems_flag"] = flag_2d
 
         if atom_site_susceptibility is not None:
             atom_para_label = ddict["atom_para_label"]
-            atom_para_chi_type = numpy.array(atom_site_susceptibility.chi_type, dtype=str)
+            atom_para_chi_type = numpy.array(
+                atom_site_susceptibility.chi_type, dtype=str
+            )
             if "atom_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_para_label, axis=0)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_label"], axis=1
+                ) == numpy.expand_dims(atom_para_label, axis=0)
                 args = numpy.argwhere(flag_2d)
-                atom_para_index = args[args[:,1].argsort()][:,0]
+                atom_para_index = args[args[:, 1].argsort()][:, 0]
                 ddict["atom_para_index"] = atom_para_index
 
                 if "full_mcif_elems" in ddict.keys():
@@ -822,40 +1027,56 @@ Please note that the programme currently does not check the symmetry constraint 
                 l_sc_chi = []
                 for ind in range(atom_para_label.size):
                     if (atom_para_chi_type[ind]).lower() == "ciso":
-                        sc_chi = numpy.array([
-                            [1., 0., 0., 0., 0., 0.],
-                            [1., 0., 0., 0., 0., 0.],
-                            [1., 0., 0., 0., 0., 0.],
-                            [0., 0., 0., 0., 0., 0.],
-                            [0., 0., 0., 0., 0., 0.],
-                            [0., 0., 0., 0., 0., 0.]], dtype=float)
+                        sc_chi = numpy.array(
+                            [
+                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                            ],
+                            dtype=float,
+                        )
                     else:
                         sc_chi = calc_sc_chi(
                             elems_fs[:, flag_2d[:, ind]],
-                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                            unit_cell_parameters=unit_cell_parameters,
+                            flag_unit_cell_parameters=False,
+                        )[0]
                     l_sc_chi.append(sc_chi)
                 atom_para_sc_chi = numpy.stack(l_sc_chi, axis=-1)
                 ddict["atom_para_sc_chi"] = atom_para_sc_chi
-        
+
         if atom_site_exchange is not None:
-            atom_exchange_label = numpy.array(atom_site_exchange.label, dtype=str)
-            atom_exchange_type = numpy.array(atom_site_exchange.j_type, dtype=str)
-            atom_exchange_tensor = numpy.array([
-                atom_site_exchange.j_11, 
-                atom_site_exchange.j_22, 
-                atom_site_exchange.j_33, 
-                atom_site_exchange.j_12, 
-                atom_site_exchange.j_13, 
-                atom_site_exchange.j_23, 
-                ], dtype=float)
-            flags_atom_exchange_tensor = numpy.array([
-                atom_site_exchange.j_11_refinement,
-                atom_site_exchange.j_22_refinement,
-                atom_site_exchange.j_33_refinement,
-                atom_site_exchange.j_12_refinement,
-                atom_site_exchange.j_13_refinement,
-                atom_site_exchange.j_23_refinement,
-                ], dtype=bool)
+            atom_exchange_label = numpy.array(
+                atom_site_exchange.label, dtype=str
+            )
+            atom_exchange_type = numpy.array(
+                atom_site_exchange.j_type, dtype=str
+            )
+            atom_exchange_tensor = numpy.array(
+                [
+                    atom_site_exchange.j_11,
+                    atom_site_exchange.j_22,
+                    atom_site_exchange.j_33,
+                    atom_site_exchange.j_12,
+                    atom_site_exchange.j_13,
+                    atom_site_exchange.j_23,
+                ],
+                dtype=float,
+            )
+            flags_atom_exchange_tensor = numpy.array(
+                [
+                    atom_site_exchange.j_11_refinement,
+                    atom_site_exchange.j_22_refinement,
+                    atom_site_exchange.j_33_refinement,
+                    atom_site_exchange.j_12_refinement,
+                    atom_site_exchange.j_13_refinement,
+                    atom_site_exchange.j_23_refinement,
+                ],
+                dtype=bool,
+            )
             ddict["atom_exchange_label"] = atom_exchange_label
             ddict["atom_exchange_type"] = atom_exchange_type
             ddict["atom_exchange_tensor"] = atom_exchange_tensor
@@ -869,67 +1090,97 @@ Please note that the programme currently does not check the symmetry constraint 
                 else:
                     raise AttributeError("Symmetry elements are not found.")
 
-                flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_exchange_label, axis=0)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_label"], axis=1
+                ) == numpy.expand_dims(atom_exchange_label, axis=0)
                 args = numpy.argwhere(flag_2d)
-                atom_exchange_index = args[args[:,1].argsort()][:,0]
+                atom_exchange_index = args[args[:, 1].argsort()][:, 0]
                 ddict["atom_exchange_index"] = atom_exchange_index
 
                 l_sc_exchange = []
                 flag_2d = ddict["atom_symm_elems_flag"][:, atom_exchange_index]
                 for ind in range(atom_exchange_label.size):
                     if (atom_exchange_type[ind]).lower() == "jiso":
-                        sc_exchange = numpy.array([
-                            [1., 0., 0., 0., 0., 0.],
-                            [1., 0., 0., 0., 0., 0.],
-                            [1., 0., 0., 0., 0., 0.],
-                            [0., 0., 0., 0., 0., 0.],
-                            [0., 0., 0., 0., 0., 0.],
-                            [0., 0., 0., 0., 0., 0.]], dtype=float)
+                        sc_exchange = numpy.array(
+                            [
+                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                            ],
+                            dtype=float,
+                        )
                     else:
                         sc_exchange = calc_sc_chi(
                             elems_fs[:, flag_2d[:, ind]],
-                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                            unit_cell_parameters=unit_cell_parameters,
+                            flag_unit_cell_parameters=False,
+                        )[0]
                     l_sc_exchange.append(sc_exchange)
                 atom_sc_exchange = numpy.stack(l_sc_exchange, axis=-1)
                 ddict["atom_sc_exchange"] = atom_sc_exchange
 
         if atom_site_moment is not None:
             atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)
-            
-            atom_ordered_moment_crystalaxis_dn = numpy.array([
-                atom_site_moment.crystalaxis_x, 
-                atom_site_moment.crystalaxis_y, 
-                atom_site_moment.crystalaxis_z], dtype=float)
-            
-            flags_atom_ordered_moment_crystalaxis_dn = numpy.array([
-                atom_site_moment.crystalaxis_x_refinement, 
-                atom_site_moment.crystalaxis_y_refinement, 
-                atom_site_moment.crystalaxis_z_refinement], dtype=bool)
+
+            atom_ordered_moment_crystalaxis_dn = numpy.array(
+                [
+                    atom_site_moment.crystalaxis_x,
+                    atom_site_moment.crystalaxis_y,
+                    atom_site_moment.crystalaxis_z,
+                ],
+                dtype=float,
+            )
+
+            flags_atom_ordered_moment_crystalaxis_dn = numpy.array(
+                [
+                    atom_site_moment.crystalaxis_x_refinement,
+                    atom_site_moment.crystalaxis_y_refinement,
+                    atom_site_moment.crystalaxis_z_refinement,
+                ],
+                dtype=bool,
+            )
             ddict["atom_ordered_label"] = atom_ordered_label
-            ddict["atom_ordered_moment_crystalaxis_dn"] = atom_ordered_moment_crystalaxis_dn
-            ddict["flags_atom_ordered_moment_crystalaxis_dn"] = flags_atom_ordered_moment_crystalaxis_dn
+            ddict["atom_ordered_moment_crystalaxis_dn"] = (
+                atom_ordered_moment_crystalaxis_dn
+            )
+            ddict["flags_atom_ordered_moment_crystalaxis_dn"] = (
+                flags_atom_ordered_moment_crystalaxis_dn
+            )
             if "atom_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_ordered_label, axis=0)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_label"], axis=1
+                ) == numpy.expand_dims(atom_ordered_label, axis=0)
                 args = numpy.argwhere(flag_2d)
-                atom_ordered_index = args[args[:,1].argsort()][:,0]
+                atom_ordered_index = args[args[:, 1].argsort()][:, 0]
                 ddict["atom_ordered_index"] = atom_ordered_index
 
                 if "full_mcif_elems" in ddict.keys():
                     elems_fs = ddict["full_mcif_elems"]
                 else:
-                    raise AttributeError("Magnetic symmetry elements are not found.")
+                    raise AttributeError(
+                        "Magnetic symmetry elements are not found."
+                    )
                 flag_2d = ddict["atom_symm_elems_flag"][:, atom_ordered_index]
 
                 l_sc_ordered = []
                 for ind in range(atom_ordered_label.size):
                     sc_ordered = calc_sc_ordered(
-                            elems_fs[:, flag_2d[:, ind]],
-                            unit_cell_parameters=unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+                        elems_fs[:, flag_2d[:, ind]],
+                        unit_cell_parameters=unit_cell_parameters,
+                        flag_unit_cell_parameters=False,
+                    )[0]
                     l_sc_ordered.append(sc_ordered)
                 atom_ordered_sc_m_dn = numpy.stack(l_sc_ordered, axis=-1)
-                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m_dn # in dn
-                ddict["atom_ordered_moment_crystalaxis_dn"] = calc_m_v(ddict["atom_ordered_sc_m"], ddict["atom_ordered_moment_crystalaxis_dn"], flag_m=False, flag_v=False)[0]
-                
+                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m_dn  # in dn
+                ddict["atom_ordered_moment_crystalaxis_dn"] = calc_m_v(
+                    ddict["atom_ordered_sc_m"],
+                    ddict["atom_ordered_moment_crystalaxis_dn"],
+                    flag_m=False,
+                    flag_v=False,
+                )[0]
 
         if isinstance(self, Crystal):
             # FIXME: beta should be defined in atom_site_aniso_beta, b_iso for every atom
@@ -940,7 +1191,9 @@ Please note that the programme currently does not check the symmetry constraint 
 
         if atom_site_scat is not None:
             mag_atom_label = numpy.array(atom_site_scat.label, dtype=str)
-            mag_atom_lande_factor = numpy.array(atom_site_scat.lande, dtype=float)
+            mag_atom_lande_factor = numpy.array(
+                atom_site_scat.lande, dtype=float
+            )
             mag_atom_kappa = numpy.array(atom_site_scat.kappa, dtype=float)
             flags_mag_atom_lande_factor = atom_site_scat.get_flags_lande()
             flags_mag_atom_kappa = atom_site_scat.get_flags_kappa()
@@ -952,38 +1205,52 @@ Please note that the programme currently does not check the symmetry constraint 
             ddict["flags_mag_atom_kappa"] = flags_mag_atom_kappa
             # l_ats = atom_site_scat.atom_type_scat
             if "atom_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(mag_atom_label, axis=0)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_label"], axis=1
+                ) == numpy.expand_dims(mag_atom_label, axis=0)
                 args = numpy.argwhere(flag_2d)
-                mag_atom_index = args[args[:,1].argsort()][:,0]
+                mag_atom_index = args[args[:, 1].argsort()][:, 0]
                 ddict["mag_atom_index"] = mag_atom_index
 
                 if atom_site_scat.is_attribute("type_symbol"):
-                    mag_type_symbol = numpy.array(atom_site_scat.type_symbol, dtype=str)
+                    mag_type_symbol = numpy.array(
+                        atom_site_scat.type_symbol, dtype=str
+                    )
                 else:
                     as_tsymbol = numpy.array(atom_site.type_symbol, dtype=str)
-                    mag_type_symbol = as_tsymbol[mag_atom_index] 
+                    mag_type_symbol = as_tsymbol[mag_atom_index]
 
-                j0_parameters, j2_parameters = get_j0_j2_parameters(mag_type_symbol)
+                j0_parameters, j2_parameters = get_j0_j2_parameters(
+                    mag_type_symbol
+                )
                 ddict["mag_atom_j0_parameters"] = j0_parameters
                 ddict["mag_atom_j2_parameters"] = j2_parameters
-            
+
             if "atom_para_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(ddict["atom_para_label"], axis=0) == numpy.expand_dims(mag_atom_label, axis=1)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_para_label"], axis=0
+                ) == numpy.expand_dims(mag_atom_label, axis=1)
                 args = numpy.argwhere(flag_2d)
-                mag_atom_para_index = args[args[:,1].argsort()][:,0]
+                mag_atom_para_index = args[args[:, 1].argsort()][:, 0]
                 ddict["mag_atom_para_index"] = mag_atom_para_index
 
             if "atom_ordered_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(ddict["atom_ordered_label"], axis=0) == numpy.expand_dims(mag_atom_label, axis=1)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_ordered_label"], axis=0
+                ) == numpy.expand_dims(mag_atom_label, axis=1)
                 args = numpy.argwhere(flag_2d)
-                mag_atom_ordered_index = args[args[:,1].argsort()][:,0]
+                mag_atom_ordered_index = args[args[:, 1].argsort()][:, 0]
                 ddict["mag_atom_ordered_index"] = mag_atom_ordered_index
 
             if "atom_rho_multipole_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(ddict["atom_rho_multipole_label"], axis=0) == numpy.expand_dims(mag_atom_label, axis=1)
+                flag_2d = numpy.expand_dims(
+                    ddict["atom_rho_multipole_label"], axis=0
+                ) == numpy.expand_dims(mag_atom_label, axis=1)
                 args = numpy.argwhere(flag_2d)
-                mag_atom_rho_multipole_index = args[args[:,1].argsort()][:,0]
-                ddict["mag_atom_rho_multipole_index"] = mag_atom_rho_multipole_index
+                mag_atom_rho_multipole_index = args[args[:, 1].argsort()][:, 0]
+                ddict["mag_atom_rho_multipole_index"] = (
+                    mag_atom_rho_multipole_index
+                )
 
         if atom_type is not None:
             pass
@@ -992,12 +1259,16 @@ Please note that the programme currently does not check the symmetry constraint 
             pass
 
         if atom_site_aniso is not None:
-            atom_site_aniso_label = numpy.array(atom_site_aniso.label, dtype=str)
-            flag_2d = numpy.expand_dims(ddict["atom_label"], axis=1) == numpy.expand_dims(atom_site_aniso_label, axis=0)
+            atom_site_aniso_label = numpy.array(
+                atom_site_aniso.label, dtype=str
+            )
+            flag_2d = numpy.expand_dims(
+                ddict["atom_label"], axis=1
+            ) == numpy.expand_dims(atom_site_aniso_label, axis=0)
             args = numpy.argwhere(flag_2d)
-            atom_site_aniso_index = args[args[:,1].argsort()][:,0]
+            atom_site_aniso_index = args[args[:, 1].argsort()][:, 0]
             ddict["atom_site_aniso_index"] = atom_site_aniso_index
-            #FIXME: add transformation U_ani and others to beta
+            # FIXME: add transformation U_ani and others to beta
 
             if "full_mcif_elems" in ddict.keys():
                 elems_fs = ddict["full_mcif_elems"]
@@ -1008,7 +1279,9 @@ Please note that the programme currently does not check the symmetry constraint 
 
             flag_2d = ddict["atom_symm_elems_flag"][:, atom_site_aniso_index]
             l_sc_beta = []
-            atom_site_aniso_label = numpy.array(atom_site_aniso.label, dtype=str)
+            atom_site_aniso_label = numpy.array(
+                atom_site_aniso.label, dtype=str
+            )
 
             for ind in range(atom_site_aniso_label.size):
                 symm_elems = elems_fs[:, flag_2d[:, ind]]
@@ -1016,46 +1289,72 @@ Please note that the programme currently does not check the symmetry constraint 
                 l_sc_beta.append(sc_beta)
             ddict["atom_site_aniso_sc_beta"] = numpy.stack(l_sc_beta, axis=-1)
 
-
         if atom_electron_configuration is not None:
             d_slater_orbitals = DATABASE["Orbitals by radial Slater functions"]
             for aec_item in atom_electron_configuration.items:
                 aec_label = aec_item.label
                 at_symbol = atom_site[aec_label].type_symbol
-                element_symbol, charge, isotope_number = get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(at_symbol)
-                core_shells_populations = aec_item.get_core_shells_populations()
+                element_symbol, charge, isotope_number = (
+                    get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(
+                        at_symbol
+                    )
+                )
+                core_shells_populations = (
+                    aec_item.get_core_shells_populations()
+                )
                 l_population = []
                 l_n = []
                 l_zeta = []
                 l_coeff = []
                 for sh_pop in core_shells_populations:
                     shell, population = sh_pop
-                    n, dzeta, coeff = d_slater_orbitals[(element_symbol, shell)]
+                    n, dzeta, coeff = d_slater_orbitals[
+                        (element_symbol, shell)
+                    ]
                     l_population.append(population)
                     l_n.append(n)
                     l_zeta.append(dzeta)
                     l_coeff.append(coeff)
                 if len(l_population) > 0:
-                    dict_shell = {"core_population": l_population,
+                    dict_shell = {
+                        "core_population": l_population,
                         "core_n": l_n,
                         "core_zeta": l_zeta,
-                        "core_coeff": l_coeff}
+                        "core_coeff": l_coeff,
+                    }
                     ddict[f"shell_{aec_label:}"] = dict_shell
-        
+
         if atom_local_axes is not None:
             l_hh = []
             for item_ala in atom_local_axes.items:
                 label_ax1 = item_ala.ax1.lower()
                 label_ax2 = item_ala.ax2.lower()
-                index_atom_origin_ax1 = numpy.squeeze(numpy.argwhere(ddict["atom_label"]==item_ala.atom_label))
-                index_atom_end_ax1 = numpy.squeeze(numpy.argwhere(ddict["atom_label"]==item_ala.atom0))
-                index_atom_origin_ax2 = numpy.squeeze(numpy.argwhere(ddict["atom_label"]==item_ala.atom1))
-                index_atom_end_ax2 = numpy.squeeze(numpy.argwhere(ddict["atom_label"]==item_ala.atom2))
-                matrix_m = calc_m_m_by_unit_cell_parameters(ddict["unit_cell_parameters"])[0]
-                atom_local_axes_matrix = calc_transformation_matrix_from_global_to_local(
-                    index_atom_origin_ax1=index_atom_origin_ax1, index_atom_end_ax1=index_atom_end_ax1, label_ax1=label_ax1, 
-                    index_atom_origin_ax2=index_atom_origin_ax2, index_atom_end_ax2=index_atom_end_ax2, label_ax2=label_ax2,
-                    atom_fract_xyz=atom_fract_xyz, matrix_m=matrix_m,
+                index_atom_origin_ax1 = numpy.squeeze(
+                    numpy.argwhere(ddict["atom_label"] == item_ala.atom_label)
+                )
+                index_atom_end_ax1 = numpy.squeeze(
+                    numpy.argwhere(ddict["atom_label"] == item_ala.atom0)
+                )
+                index_atom_origin_ax2 = numpy.squeeze(
+                    numpy.argwhere(ddict["atom_label"] == item_ala.atom1)
+                )
+                index_atom_end_ax2 = numpy.squeeze(
+                    numpy.argwhere(ddict["atom_label"] == item_ala.atom2)
+                )
+                matrix_m = calc_m_m_by_unit_cell_parameters(
+                    ddict["unit_cell_parameters"]
+                )[0]
+                atom_local_axes_matrix = (
+                    calc_transformation_matrix_from_global_to_local(
+                        index_atom_origin_ax1=index_atom_origin_ax1,
+                        index_atom_end_ax1=index_atom_end_ax1,
+                        label_ax1=label_ax1,
+                        index_atom_origin_ax2=index_atom_origin_ax2,
+                        index_atom_end_ax2=index_atom_end_ax2,
+                        label_ax2=label_ax2,
+                        atom_fract_xyz=atom_fract_xyz,
+                        matrix_m=matrix_m,
+                    )
                 )
                 l_hh.append(atom_local_axes_matrix)
             ddict["atom_local_axes_matrix"] = numpy.stack(l_hh, axis=1)
@@ -1065,15 +1364,25 @@ Please note that the programme currently does not check the symmetry constraint 
 
         return ddict
 
-    def take_parameters_from_dictionary(self, ddict_crystal, l_parameter_name: list=None, l_sigma: list=None):
+    def take_parameters_from_dictionary(
+        self,
+        ddict_crystal,
+        l_parameter_name: list = None,
+        l_sigma: list = None,
+    ):
         keys = ddict_crystal.keys()
         if l_parameter_name is None:
             l_parameter_name = []
             l_sigma = []
 
         if "atom_para_susceptibility" in keys:
-            mag_atom_susceptibility = (ddict_crystal["atom_para_sc_chi"]  * ddict_crystal["atom_para_susceptibility"][na, :, :]).sum(axis=1)
-            for i_item, item_ass in enumerate(self.atom_site_susceptibility.items):
+            mag_atom_susceptibility = (
+                ddict_crystal["atom_para_sc_chi"]
+                * ddict_crystal["atom_para_susceptibility"][na, :, :]
+            ).sum(axis=1)
+            for i_item, item_ass in enumerate(
+                self.atom_site_susceptibility.items
+            ):
                 item_ass.chi_11 = mag_atom_susceptibility[0, i_item]
                 item_ass.chi_22 = mag_atom_susceptibility[1, i_item]
                 item_ass.chi_33 = mag_atom_susceptibility[2, i_item]
@@ -1084,7 +1393,9 @@ Please note that the programme currently does not check the symmetry constraint 
         if "atom_exchange_tensor" in keys:
             j_tensor = ddict_crystal["atom_exchange_tensor"]
             atom_sc_exchange = ddict_crystal["atom_sc_exchange"]
-            j_tensor = numpy.sum(numpy.expand_dims(j_tensor, axis=0)*atom_sc_exchange, axis=1)
+            j_tensor = numpy.sum(
+                numpy.expand_dims(j_tensor, axis=0) * atom_sc_exchange, axis=1
+            )
             for i_item, item_ase in enumerate(self.atom_site_exchange.items):
                 item_ase.j_11 = j_tensor[0, i_item]
                 item_ase.j_22 = j_tensor[1, i_item]
@@ -1094,7 +1405,10 @@ Please note that the programme currently does not check the symmetry constraint 
                 item_ase.j_23 = j_tensor[5, i_item]
 
         if "atom_ordered_moment_crystalaxis_dn" in keys:
-            hh = calc_m_v(ddict_crystal["atom_ordered_sc_m"], ddict_crystal["atom_ordered_moment_crystalaxis_dn"])[0]
+            hh = calc_m_v(
+                ddict_crystal["atom_ordered_sc_m"],
+                ddict_crystal["atom_ordered_moment_crystalaxis_dn"],
+            )[0]
             # hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
             for i_item, item in enumerate(self.atom_site_moment.items):
                 item.crystalaxis_x = hh[0, i_item]
@@ -1113,14 +1427,28 @@ Please note that the programme currently does not check the symmetry constraint 
 
         if "atom_fract_xyz" in keys:
             hh = ddict_crystal["atom_fract_xyz"]
-            atom_site_sc_fract = ddict_crystal["atom_site_sc_fract"] 
-            atom_site_sc_b = ddict_crystal["atom_site_sc_b"] 
-            hh = calc_m_v(atom_site_sc_fract, numpy.mod(hh, 1), flag_m=False, flag_v=False)[0] + atom_site_sc_b
+            atom_site_sc_fract = ddict_crystal["atom_site_sc_fract"]
+            atom_site_sc_b = ddict_crystal["atom_site_sc_b"]
+            hh = (
+                calc_m_v(
+                    atom_site_sc_fract,
+                    numpy.mod(hh, 1),
+                    flag_m=False,
+                    flag_v=False,
+                )[0]
+                + atom_site_sc_b
+            )
 
             for i_item, item in enumerate(self.atom_site.items):
-                item.fract_x = numpy.round(numpy.mod(hh[0, i_item], 1.), decimals=6)
-                item.fract_y = numpy.round(numpy.mod(hh[1, i_item], 1.), decimals=6)
-                item.fract_z = numpy.round(numpy.mod(hh[2, i_item], 1.), decimals=6)
+                item.fract_x = numpy.round(
+                    numpy.mod(hh[0, i_item], 1.0), decimals=6
+                )
+                item.fract_y = numpy.round(
+                    numpy.mod(hh[1, i_item], 1.0), decimals=6
+                )
+                item.fract_z = numpy.round(
+                    numpy.mod(hh[2, i_item], 1.0), decimals=6
+                )
 
         if "atom_occupancy" in keys:
             hh = ddict_crystal["atom_occupancy"]
@@ -1132,29 +1460,42 @@ Please note that the programme currently does not check the symmetry constraint 
             for i_item, item in enumerate(self.atom_site.items):
                 item.multiplicity = hh[i_item]
 
-        if ("atom_b_iso" in keys):
+        if "atom_b_iso" in keys:
             atom_b_iso = ddict_crystal["atom_b_iso"]
             if "atom_beta" in keys:
                 atom_beta = ddict_crystal["atom_beta"]
 
                 if "atom_site_aniso_sc_beta" in keys:
-                    atom_site_aniso_sc_beta = ddict_crystal["atom_site_aniso_sc_beta"]
-                    atom_site_aniso_index = ddict_crystal["atom_site_aniso_index"]
-                    atom_sc_beta = numpy.zeros((6,)+atom_beta.shape, dtype=float)
-                    atom_sc_beta[:, :, atom_site_aniso_index] = atom_site_aniso_sc_beta
-                    atom_beta = (atom_sc_beta*numpy.expand_dims(atom_beta, axis=0)).sum(axis=1)
+                    atom_site_aniso_sc_beta = ddict_crystal[
+                        "atom_site_aniso_sc_beta"
+                    ]
+                    atom_site_aniso_index = ddict_crystal[
+                        "atom_site_aniso_index"
+                    ]
+                    atom_sc_beta = numpy.zeros(
+                        (6,) + atom_beta.shape, dtype=float
+                    )
+                    atom_sc_beta[:, :, atom_site_aniso_index] = (
+                        atom_site_aniso_sc_beta
+                    )
+                    atom_beta = (
+                        atom_sc_beta * numpy.expand_dims(atom_beta, axis=0)
+                    ).sum(axis=1)
 
             else:
-                atom_beta = numpy.zeros((6, )+ atom_b_iso.shape, dtype=float)
+                atom_beta = numpy.zeros((6,) + atom_b_iso.shape, dtype=float)
             unit_cell_parameters = ddict_crystal["unit_cell_parameters"]
-            if not(self.atom_site.is_attribute("adp_type")):
+            if not (self.atom_site.is_attribute("adp_type")):
                 for item in self.atom_site:
                     item.adp_type = "Biso"
-                    if not(item.is_attribute("b_iso_or_equiv")):
-                        item.b_iso_or_equiv = 0.
+                    if not (item.is_attribute("b_iso_or_equiv")):
+                        item.b_iso_or_equiv = 0.0
             atom_adp_type = numpy.array(self.atom_site.adp_type, dtype=str)
-            atom_iso_param, atom_aniso_param = calc_param_iso_aniso_by_b_iso_beta(unit_cell_parameters, atom_adp_type, atom_b_iso, atom_beta)
-
+            atom_iso_param, atom_aniso_param = (
+                calc_param_iso_aniso_by_b_iso_beta(
+                    unit_cell_parameters, atom_adp_type, atom_b_iso, atom_beta
+                )
+            )
 
             if self.is_attribute("atom_site"):
                 atom_site = self.atom_site
@@ -1165,19 +1506,23 @@ Please note that the programme currently does not check the symmetry constraint 
                         item.b_iso_or_equiv = atom_iso_param[i_item]
 
                 if self.is_attribute("atom_site_aniso"):
-                    atom_site_aniso_index = ddict_crystal["atom_site_aniso_index"]
+                    atom_site_aniso_index = ddict_crystal[
+                        "atom_site_aniso_index"
+                    ]
 
-                    for item, index_as in zip(self.atom_site_aniso.items, atom_site_aniso_index):
+                    for item, index_as in zip(
+                        self.atom_site_aniso.items, atom_site_aniso_index
+                    ):
                         aniso_param = atom_aniso_param[:, index_as]
                         item_as = self.atom_site.items[index_as]
-                        if item_as.adp_type in ("Uani", ):
+                        if item_as.adp_type in ("Uani",):
                             item.u_11 = aniso_param[0]
                             item.u_22 = aniso_param[1]
                             item.u_33 = aniso_param[2]
                             item.u_12 = aniso_param[3]
                             item.u_13 = aniso_param[4]
                             item.u_23 = aniso_param[5]
-                        elif item_as.adp_type in ("Bani", ):
+                        elif item_as.adp_type in ("Bani",):
                             item.b_11 = aniso_param[0]
                             item.b_22 = aniso_param[1]
                             item.b_33 = aniso_param[2]
@@ -1194,9 +1539,15 @@ Please note that the programme currently does not check the symmetry constraint 
             cell.length_a = hhh[0]
             cell.length_b = hhh[1]
             cell.length_c = hhh[2]
-            cell.angle_alpha = numpy.round(hhh[3]*180./numpy.pi, decimals=5)
-            cell.angle_beta = numpy.round(hhh[4]*180./numpy.pi, decimals=5)
-            cell.angle_gamma = numpy.round(hhh[5]*180./numpy.pi, decimals=5)
+            cell.angle_alpha = numpy.round(
+                hhh[3] * 180.0 / numpy.pi, decimals=5
+            )
+            cell.angle_beta = numpy.round(
+                hhh[4] * 180.0 / numpy.pi, decimals=5
+            )
+            cell.angle_gamma = numpy.round(
+                hhh[5] * 180.0 / numpy.pi, decimals=5
+            )
 
         if "atom_rho_multipole_kappa" in keys:
             hh = ddict_crystal["atom_rho_multipole_kappa"]
@@ -1206,7 +1557,9 @@ Please note that the programme currently does not check the symmetry constraint 
         if "atom_rho_multipole_plm" in keys:
             hh = ddict_crystal["atom_rho_multipole_plm"]
             for i_item, item in enumerate(self.atom_rho_multipole.items):
-                item.load_plm_from_dictionary(numpy.round(hh[:,i_item], decimals=6))
+                item.load_plm_from_dictionary(
+                    numpy.round(hh[:, i_item], decimals=6)
+                )
 
         for name, sigma in zip(l_parameter_name, l_sigma):
             parameter_label, ind_s = name
@@ -1225,7 +1578,7 @@ Please note that the programme currently does not check the symmetry constraint 
                     item_ass.chi_13_sigma = float(sigma)
                 elif ind_chi == 5:
                     item_ass.chi_23_sigma = float(sigma)
-            
+
             if "atom_exchange_tensor" in parameter_label:
                 ind_j, ind_a = ind_s[0], ind_s[1]
                 item = self.atom_site_exchange.items[ind_a]
@@ -1241,7 +1594,7 @@ Please note that the programme currently does not check the symmetry constraint 
                     item.j_13_sigma = float(sigma)
                 elif ind_j == 5:
                     item.j_23_sigma = float(sigma)
-            
+
             if "atom_fract_xyz" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]
                 item = self.atom_site.items[ind_a]
@@ -1260,14 +1613,16 @@ Please note that the programme currently does not check the symmetry constraint 
                 ind_a = ind_s[0]
                 item = self.atom_site.items[ind_a]
                 if item.adp_type in ("Uiso", "Uovl", "Umpe"):
-                    item.u_iso_or_equiv_sigma = float(sigma)/float(8.*numpy.square(numpy.pi))
+                    item.u_iso_or_equiv_sigma = float(sigma) / float(
+                        8.0 * numpy.square(numpy.pi)
+                    )
                 elif item.adp_type in ("Biso", "Bovl", "Bmpe"):
                     item.b_iso_or_equiv_sigma = float(sigma)
 
             if "atom_beta" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]
                 item = self.atom_site_aniso[self.atom_site.items[ind_a].label]
-                if self.atom_site[item.label].adp_type in ("Bani", ):
+                if self.atom_site[item.label].adp_type in ("Bani",):
                     if ind_p == 0:
                         item.b_11_sigma = float(sigma)
                     elif ind_p == 1:
@@ -1281,23 +1636,31 @@ Please note that the programme currently does not check the symmetry constraint 
                     elif ind_p == 5:
                         item.b_23_sigma = float(sigma)
 
-                if self.atom_site[item.label].adp_type in ("Uani", ):
-                    reciprocal_unit_cell_parameters = calc_reciprocal_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
-                    beta_hh = numpy.zeros((6,1), dtype=float)
-                    coeff_hh = calc_u_ij_by_beta(beta_hh, reciprocal_unit_cell_parameters, flag_beta=True)[1]["beta"]
+                if self.atom_site[item.label].adp_type in ("Uani",):
+                    reciprocal_unit_cell_parameters = (
+                        calc_reciprocal_by_unit_cell_parameters(
+                            unit_cell_parameters,
+                            flag_unit_cell_parameters=False,
+                        )[0]
+                    )
+                    beta_hh = numpy.zeros((6, 1), dtype=float)
+                    coeff_hh = calc_u_ij_by_beta(
+                        beta_hh,
+                        reciprocal_unit_cell_parameters,
+                        flag_beta=True,
+                    )[1]["beta"]
                     if ind_p == 0:
-                        item.u_11_sigma = float(sigma*coeff_hh[0])
+                        item.u_11_sigma = float(sigma * coeff_hh[0])
                     elif ind_p == 1:
-                        item.u_22_sigma = float(sigma*coeff_hh[1])
+                        item.u_22_sigma = float(sigma * coeff_hh[1])
                     elif ind_p == 2:
-                        item.u_33_sigma = float(sigma*coeff_hh[2])
+                        item.u_33_sigma = float(sigma * coeff_hh[2])
                     elif ind_p == 3:
-                        item.u_12_sigma = float(sigma*coeff_hh[3])
+                        item.u_12_sigma = float(sigma * coeff_hh[3])
                     elif ind_p == 4:
-                        item.u_13_sigma = float(sigma*coeff_hh[4])
+                        item.u_13_sigma = float(sigma * coeff_hh[4])
                     elif ind_p == 5:
-                        item.u_23_sigma = float(sigma*coeff_hh[5])
-
+                        item.u_23_sigma = float(sigma * coeff_hh[5])
 
             if "atom_ordered_moment_crystalaxis_dn" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]
@@ -1329,11 +1692,11 @@ Please note that the programme currently does not check the symmetry constraint 
                 elif ind_p == 2:
                     item.length_c_sigma = float(sigma)
                 elif ind_p == 3:
-                    item.angle_alpha_sigma = float(sigma)*180./numpy.pi
+                    item.angle_alpha_sigma = float(sigma) * 180.0 / numpy.pi
                 elif ind_p == 4:
-                    item.angle_beta_sigma = float(sigma)*180./numpy.pi
+                    item.angle_beta_sigma = float(sigma) * 180.0 / numpy.pi
                 elif ind_p == 5:
-                    item.angle_gamma_sigma = float(sigma)*180./numpy.pi
+                    item.angle_gamma_sigma = float(sigma) * 180.0 / numpy.pi
 
             if "atom_rho_multipole_kappa" in parameter_label:
                 ind_a = ind_s[0]
@@ -1346,9 +1709,13 @@ Please note that the programme currently does not check the symmetry constraint 
                 item = self.atom_rho_multipole.items[ind_a]
                 item.set_plm_sigma_by_index(ind_p, float(sigma))
 
-
-
-    def save_atom_rho_multipole_density_to_den(self, file_den:str='file.den', Na:int=48, Nb:int=48, Nc:int=48,):
+    def save_atom_rho_multipole_density_to_den(
+        self,
+        file_den: str = "file.den",
+        Na: int = 48,
+        Nb: int = 48,
+        Nc: int = 48,
+    ):
         """Calculate multipole density in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
         Nx, Ny, Nz is the number of points along axis a,b,c
         Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
@@ -1361,7 +1728,7 @@ Please note that the programme currently does not check the symmetry constraint 
         flag_mcif = False
         if "full_mcif_elems" in d_crystal.keys():
             full_mcif_elems = d_crystal["full_mcif_elems"]
-            full_symm_elems = full_mcif_elems # [:13,:]
+            full_symm_elems = full_mcif_elems  # [:13,:]
             flag_mcif = True
         else:
             full_symm_elems = d_crystal["full_symm_elems"]
@@ -1373,40 +1740,54 @@ Please note that the programme currently does not check the symmetry constraint 
         atom_local_axes_matrix = d_crystal["atom_local_axes_matrix"]
         atom_local_axes_label = d_crystal["atom_local_axes_label"]
 
-        l_hh_1,l_hh_2 = [], []
+        l_hh_1, l_hh_2 = [], []
         for label in atom_rho_multipole_label:
-            ind_1 = numpy.squeeze(numpy.argwhere(atom_label==label))
-            ind_2 = numpy.squeeze(numpy.argwhere(atom_local_axes_label==label))
-            l_hh_1.append(atom_fract_xyz[...,ind_1])
-            l_hh_2.append(atom_local_axes_matrix[...,ind_2])
+            ind_1 = numpy.squeeze(numpy.argwhere(atom_label == label))
+            ind_2 = numpy.squeeze(
+                numpy.argwhere(atom_local_axes_label == label)
+            )
+            l_hh_1.append(atom_fract_xyz[..., ind_1])
+            l_hh_2.append(atom_local_axes_matrix[..., ind_2])
         atom_rho_multipole_fract_xyz = numpy.stack(l_hh_1, axis=-1)
         atom_rho_multipole_transformation_matrix = numpy.stack(l_hh_2, axis=-1)
 
-        index_auc, point_multiplicity = calc_asymmetric_unit_cell_indexes(n_abc, full_symm_elems)
+        index_auc, point_multiplicity = calc_asymmetric_unit_cell_indexes(
+            n_abc, full_symm_elems
+        )
         symm_elem_auc = calc_symm_elem_points_by_index_points(index_auc, n_abc)
 
-
         point_atom_distance_auc, point_atom_symm_elems_auc = form_basins_2(
-            symm_elem_auc, full_symm_elems, unit_cell_parameters, atom_rho_multipole_fract_xyz)
-        
+            symm_elem_auc,
+            full_symm_elems,
+            unit_cell_parameters,
+            atom_rho_multipole_fract_xyz,
+        )
+
         atom_rho_multipole_plm = d_crystal["atom_rho_multipole_plm"]
         atom_rho_multipole_lm = d_crystal["atom_rho_multipole_lm"]
         l_kappa = d_crystal["atom_rho_multipole_kappa"]
 
         l_n, l_zeta, l_coeff = d_crystal["atom_rho_multipole_n_zeta_coeff"]
         multipole_density = calc_multipole_density(
-            point_atom_symm_elems_auc, symm_elem_auc, unit_cell_parameters, 
-            atom_rho_multipole_fract_xyz, atom_rho_multipole_transformation_matrix,
-            atom_rho_multipole_lm, atom_rho_multipole_plm, 
-            l_n, l_zeta, l_coeff, l_kappa
-            )
+            point_atom_symm_elems_auc,
+            symm_elem_auc,
+            unit_cell_parameters,
+            atom_rho_multipole_fract_xyz,
+            atom_rho_multipole_transformation_matrix,
+            atom_rho_multipole_lm,
+            atom_rho_multipole_plm,
+            l_n,
+            l_zeta,
+            l_coeff,
+            l_kappa,
+        )
         print(f"file den is '{file_den}'")
         if file_den != "":
             hh = numpy.sum(multipole_density, axis=1)
-            flag_pos = hh >= 0.
-            spin_density = numpy.zeros(shape=(2,)+hh.shape, dtype=float)
-            spin_density[0,flag_pos] = hh[flag_pos]
-            spin_density[1,~flag_pos] = hh[~flag_pos]
+            flag_pos = hh >= 0.0
+            spin_density = numpy.zeros(shape=(2,) + hh.shape, dtype=float)
+            spin_density[0, flag_pos] = hh[flag_pos]
+            spin_density[1, ~flag_pos] = hh[~flag_pos]
             if "reduced_symm_elems" in d_crystal.keys():
                 reduced_symm_elems = d_crystal["reduced_symm_elems"]
                 centrosymmetry = d_crystal["centrosymmetry"]
@@ -1415,51 +1796,139 @@ Please note that the programme currently does not check the symmetry constraint 
             else:
                 reduced_symm_elems = full_symm_elems
                 centrosymmetry = False
-                centrosymmetry_position = numpy.array([0,0,0,1])
-                translation_elems = numpy.array([[0,],[0,],[0,],[1,]])
+                centrosymmetry_position = numpy.array([0, 0, 0, 1])
+                translation_elems = numpy.array(
+                    [
+                        [
+                            0,
+                        ],
+                        [
+                            0,
+                        ],
+                        [
+                            0,
+                        ],
+                        [
+                            1,
+                        ],
+                    ]
+                )
             save_spin_density_into_file(
-                file_den, index_auc, spin_density, n_abc, unit_cell_parameters,
-                reduced_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
-        return index_auc, point_atom_symm_elems_auc, point_multiplicity, multipole_density, unit_cell_parameters
+                file_den,
+                index_auc,
+                spin_density,
+                n_abc,
+                unit_cell_parameters,
+                reduced_symm_elems,
+                translation_elems,
+                centrosymmetry,
+                centrosymmetry_position,
+            )
+        return (
+            index_auc,
+            point_atom_symm_elems_auc,
+            point_multiplicity,
+            multipole_density,
+            unit_cell_parameters,
+        )
 
-    def save_atom_rho_multipole_magnetization_density_to_den(self, file_den:str='file.den', Na:int=48, Nb:int=48, Nc:int=48,):
+    def save_atom_rho_multipole_magnetization_density_to_den(
+        self,
+        file_den: str = "file.den",
+        Na: int = 48,
+        Nb: int = 48,
+        Nc: int = 48,
+    ):
         """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
         Nx, Ny, Nz is the number of points along axis a,b,c
         Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
         """
         n_abc = numpy.array([Na, Nb, Nc], dtype=int)
-        index_auc, point_atom_symm_elems_auc, point_multiplicity, multipole_density, unit_cell_parameters = self.save_atom_rho_multipole_density_to_den(file_den=file_den, Na=Na, Nb=Nb, Nc=Nc)
+        (
+            index_auc,
+            point_atom_symm_elems_auc,
+            point_multiplicity,
+            multipole_density,
+            unit_cell_parameters,
+        ) = self.save_atom_rho_multipole_density_to_den(
+            file_den=file_den, Na=Na, Nb=Nb, Nc=Nc
+        )
         d_crystal = self.get_dictionary()
-        flag_moment_ordered = "atom_ordered_moment_crystalaxis_dn" in d_crystal.keys()
+        flag_moment_ordered = (
+            "atom_ordered_moment_crystalaxis_dn" in d_crystal.keys()
+        )
         if flag_moment_ordered:
             full_mcif_elems = d_crystal["full_mcif_elems"]
             atom_ordered_m_dn = d_crystal["atom_ordered_moment_crystalaxis_dn"]
             index_full, moment_3d = transform_to_density_auc_to_moments(
-                index_auc, point_atom_symm_elems_auc, point_multiplicity, multipole_density, 
-                n_abc, full_mcif_elems, atom_ordered_m_dn, unit_cell_parameters
-                )
+                index_auc,
+                point_atom_symm_elems_auc,
+                point_multiplicity,
+                multipole_density,
+                n_abc,
+                full_mcif_elems,
+                atom_ordered_m_dn,
+                unit_cell_parameters,
+            )
 
             centrosymmetry = False
             centrosymmetry_position = None
-            translation_elems = numpy.array([[0,],[0,],[0,],[1,]], dtype=int)
-            one_symm_elems = full_mcif_elems[:13,:1]
-            for ind, lab in enumerate(['mx', 'my', 'mz']):
+            translation_elems = numpy.array(
+                [
+                    [
+                        0,
+                    ],
+                    [
+                        0,
+                    ],
+                    [
+                        0,
+                    ],
+                    [
+                        1,
+                    ],
+                ],
+                dtype=int,
+            )
+            one_symm_elems = full_mcif_elems[:13, :1]
+            for ind, lab in enumerate(["mx", "my", "mz"]):
                 moment_component = moment_3d[ind]
-                spin_density_component = numpy.zeros((2,)+moment_component.shape, dtype=float)
+                spin_density_component = numpy.zeros(
+                    (2,) + moment_component.shape, dtype=float
+                )
                 flag_positive = moment_component >= 0
-                spin_density_component[0, flag_positive] = moment_component[flag_positive]
-                spin_density_component[1, ~flag_positive] = moment_component[~flag_positive]
+                spin_density_component[0, flag_positive] = moment_component[
+                    flag_positive
+                ]
+                spin_density_component[1, ~flag_positive] = moment_component[
+                    ~flag_positive
+                ]
                 if file_den != "":
-                    file_magnetization_density_component = ".".join(file_den.split(".")[:-1]) + f'_{lab:}.den'
-                    save_spin_density_into_file(file_magnetization_density_component, index_full, spin_density_component, n_abc, unit_cell_parameters,
-                        one_symm_elems, translation_elems, centrosymmetry, centrosymmetry_position)
-                    print(f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'.")
+                    file_magnetization_density_component = (
+                        ".".join(file_den.split(".")[:-1]) + f"_{lab:}.den"
+                    )
+                    save_spin_density_into_file(
+                        file_magnetization_density_component,
+                        index_full,
+                        spin_density_component,
+                        n_abc,
+                        unit_cell_parameters,
+                        one_symm_elems,
+                        translation_elems,
+                        centrosymmetry,
+                        centrosymmetry_position,
+                    )
+                    print(
+                        f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'."
+                    )
 
 
-def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: str):
+def calc_sc_v_unit_cell_parameters(
+    type_cell: str, it_coordinate_system_code: str
+):
     """
-       Calculate symmetry constraints on unit_cell_parameters as
-       unit_cell_parameters = sc_uc * unit_cell_parameters + v_uc
+    Calculate symmetry constraints on unit_cell_parameters as
+    unit_cell_parameters = sc_uc * unit_cell_parameters + v_uc
     """
     sc_uc = numpy.eye(6, dtype=float)
     v_uc = numpy.zeros((6,), dtype=float)
@@ -1469,70 +1938,72 @@ def calc_sc_v_unit_cell_parameters(type_cell: str, it_coordinate_system_code: st
     elif type_cell is None:
         pass
     elif type_cell.startswith("m"):
-        sc_uc[3, 3] = 0.
-        sc_uc[5, 5] = 0.
-        v_uc[3] = numpy.pi/2.
-        v_uc[5] = numpy.pi/2.
+        sc_uc[3, 3] = 0.0
+        sc_uc[5, 5] = 0.0
+        v_uc[3] = numpy.pi / 2.0
+        v_uc[5] = numpy.pi / 2.0
     elif type_cell.startswith("o"):
-        sc_uc[3, 3] = 0.
-        sc_uc[4, 4] = 0.
-        sc_uc[5, 5] = 0.
-        v_uc[3] = numpy.pi/2.
-        v_uc[4] = numpy.pi/2.
-        v_uc[5] = numpy.pi/2.
-    elif ((type_cell.startswith("t"))):  # FIXME: check  | (type_cell == "hP")
-        sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
-        sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
-        sc_uc[3, 3] = 0.
-        sc_uc[4, 4] = 0.
-        sc_uc[5, 5] = 0.
-        v_uc[3] = numpy.pi/2.
-        v_uc[4] = numpy.pi/2.
-        v_uc[5] = numpy.pi/2.
-    elif ((type_cell.startswith("hP"))):
+        sc_uc[3, 3] = 0.0
+        sc_uc[4, 4] = 0.0
+        sc_uc[5, 5] = 0.0
+        v_uc[3] = numpy.pi / 2.0
+        v_uc[4] = numpy.pi / 2.0
+        v_uc[5] = numpy.pi / 2.0
+    elif type_cell.startswith("t"):  # FIXME: check  | (type_cell == "hP")
+        sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
+        sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
+        sc_uc[3, 3] = 0.0
+        sc_uc[4, 4] = 0.0
+        sc_uc[5, 5] = 0.0
+        v_uc[3] = numpy.pi / 2.0
+        v_uc[4] = numpy.pi / 2.0
+        v_uc[5] = numpy.pi / 2.0
+    elif type_cell.startswith("hP"):
         if it_coordinate_system_code.lower() == "h":
-            sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
-            sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
-            sc_uc[3, 3] = 0.
-            sc_uc[4, 4] = 0.
-            sc_uc[5, 5] = 0.
-            v_uc[3] = numpy.pi/2.
-            v_uc[4] = numpy.pi/2.
-            v_uc[5] = numpy.pi*2./3.
+            sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
+            sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
+            sc_uc[3, 3] = 0.0
+            sc_uc[4, 4] = 0.0
+            sc_uc[5, 5] = 0.0
+            v_uc[3] = numpy.pi / 2.0
+            v_uc[4] = numpy.pi / 2.0
+            v_uc[5] = numpy.pi * 2.0 / 3.0
         else:
-            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1., 0., 0.
-            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1., 0., 0.
-            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1., 0., 0.
-            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1., 0., 0.
-            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1., 0., 0.
-            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1., 0., 0.
-    elif (type_cell == "hR"):
+            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1.0, 0.0, 0.0
+            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1.0, 0.0, 0.0
+            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1.0, 0.0, 0.0
+            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1.0, 0.0, 0.0
+            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1.0, 0.0, 0.0
+            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1.0, 0.0, 0.0
+    elif type_cell == "hR":
         if it_coordinate_system_code.lower() == "h":
-            sc_uc[0, 0], sc_uc[0, 1] = 1., 0.
-            sc_uc[1, 0], sc_uc[1, 1] = 1., 0.
-            sc_uc[3, 3] = 0.
-            sc_uc[4, 4] = 0.
-            sc_uc[5, 5] = 0.
-            v_uc[3] = numpy.pi/2.
-            v_uc[4] = numpy.pi/2.
-            v_uc[5] = numpy.pi*2./3.
+            sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
+            sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
+            sc_uc[3, 3] = 0.0
+            sc_uc[4, 4] = 0.0
+            sc_uc[5, 5] = 0.0
+            v_uc[3] = numpy.pi / 2.0
+            v_uc[4] = numpy.pi / 2.0
+            v_uc[5] = numpy.pi * 2.0 / 3.0
         else:
-            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1., 0., 0.
-            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1., 0., 0.
-            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1., 0., 0.
-            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1., 0., 0.
-            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1., 0., 0.
-            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1., 0., 0.
+            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1.0, 0.0, 0.0
+            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1.0, 0.0, 0.0
+            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1.0, 0.0, 0.0
+            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1.0, 0.0, 0.0
+            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1.0, 0.0, 0.0
+            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1.0, 0.0, 0.0
     elif type_cell.startswith("c"):
-        sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1., 0., 0.
-        sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1., 0., 0.
-        sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1., 0., 0.
-        sc_uc[3, 3] = 0.
-        sc_uc[4, 4] = 0.
-        sc_uc[5, 5] = 0.
-        v_uc[3] = numpy.pi/2.
-        v_uc[4] = numpy.pi/2.
-        v_uc[5] = numpy.pi/2.
-    
+        sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1.0, 0.0, 0.0
+        sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1.0, 0.0, 0.0
+        sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1.0, 0.0, 0.0
+        sc_uc[3, 3] = 0.0
+        sc_uc[4, 4] = 0.0
+        sc_uc[5, 5] = 0.0
+        v_uc[3] = numpy.pi / 2.0
+        v_uc[4] = numpy.pi / 2.0
+        v_uc[5] = numpy.pi / 2.0
+
     return sc_uc, v_uc
+
+
 # %%

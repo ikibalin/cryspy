@@ -17,13 +17,10 @@ from cryspy.A_functions_base.integrated_intensity_powder_diffraction import \
 
 from cryspy.A_functions_base.preferred_orientation import calc_preferred_orientation_pd
 
-from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
-    calc_lorentz_factor
-
 from cryspy.A_functions_base.powder_diffraction_tof import \
     calc_spectrum, calc_time_for_epithermal_neutrons_by_d, calc_time_for_thermal_neutrons_by_d, \
     calc_d_by_time_for_thermal_neutrons, calc_d_min_max_by_time_thermal_neutrons, \
-    calc_d_min_max_by_time_epithermal_neutrons, calc_peak_shape_function
+    calc_d_min_max_by_time_epithermal_neutrons, calc_lorentz_factor, calc_peak_shape_function
 
 from cryspy.A_functions_base.powder_diffraction_tof_zcode import \
     calc_profile_by_zcode_parameters
@@ -211,7 +208,11 @@ def calc_chi_sq_for_tof_by_dictionary(
             numpy.any(dict_tof["flags_profile_alphas"]) or
             numpy.any(dict_tof["flags_profile_betas"]) or
             numpy.any(dict_tof["flags_profile_sigmas"]) or
-            numpy.any(dict_tof["flags_profile_gammas"]))
+            numpy.any(dict_tof["flags_profile_gammas"]) or
+            numpy.any(dict_tof["flags_profile_size_g"]) or
+            numpy.any(dict_tof["flags_profile_strain_g"]) or
+            numpy.any(dict_tof["flags_profile_size_l"]) or
+            numpy.any(dict_tof["flags_profile_strain_l"]))
     elif profile_peak_shape == "Gauss":
         profile_alphas = dict_tof["profile_alphas"]
         profile_betas = dict_tof["profile_betas"]
@@ -219,7 +220,9 @@ def calc_chi_sq_for_tof_by_dictionary(
         flag_profile_shape = (
             numpy.any(dict_tof["flags_profile_alphas"]) or
             numpy.any(dict_tof["flags_profile_betas"]) or
-            numpy.any(dict_tof["flags_profile_sigmas"]))
+            numpy.any(dict_tof["flags_profile_sigmas"]) or
+            numpy.any(dict_tof["flags_profile_size_g"]) or
+            numpy.any(dict_tof["flags_profile_strain_g"]))
     elif profile_peak_shape == "type0m":
         profile_alphas = dict_tof["profile_alphas"]
         profile_betas = dict_tof["profile_betas"]
@@ -285,7 +288,7 @@ def calc_chi_sq_for_tof_by_dictionary(
             v_uc = dict_crystal["v_uc"]
             unit_cell_parameters = numpy.dot(
                 sc_uc, unit_cell_parameters) + v_uc
-
+        flag_only_nuclear = dict_crystal.get("flag_only_nuclear", False)
         if (flag_use_precalculated_data and
                 ("index_hkl" in dict_in_out_phase_keys) and
                 ("multiplicity_hkl" in dict_in_out_phase_keys) and not(flag_unit_cell_parameters)):
@@ -298,10 +301,10 @@ def calc_chi_sq_for_tof_by_dictionary(
                 translation_elems_p1 = numpy.array(
                     [[0], [0], [0], [1]], dtype=int)
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, centrosymmetry)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems_p1, translation_elems_p1, centrosymmetry, flag_only_nuclear=flag_only_nuclear)
             else:
                 index_hkl, multiplicity_hkl = calc_index_hkl_multiplicity_in_range(
-                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry)
+                    sthovl_min, sthovl_max, unit_cell_parameters, reduced_symm_elems, translation_elems, centrosymmetry, flag_only_nuclear=flag_only_nuclear)
 
             if (("index_hkl" in dict_in_out_phase_keys) and flag_use_precalculated_data):
                 if index_hkl.shape != dict_in_out_phase["index_hkl"].shape:
@@ -325,8 +328,7 @@ def calc_chi_sq_for_tof_by_dictionary(
             time_hkl = calc_time_for_epithermal_neutrons_by_d(
                 d_hkl, zero, dtt1, zerot, dtt1t, dtt2t)
 
-        wavelength_hkl = 2.*d_hkl*numpy.sin(0.5*ttheta_bank)
-        wavelength_4_hkl = numpy.power(wavelength_hkl, 4)
+        d_4_hkl = numpy.power(d_hkl, 4)
 
         flag_time_hkl = flag_sthovl_hkl
         dict_in_out_phase["time_hkl"] = time_hkl
@@ -389,19 +391,28 @@ def calc_chi_sq_for_tof_by_dictionary(
                 profile_tof = calc_peak_shape_function(
                     None, None, profile_sigmas,
                     d, time, time_hkl,
-                    gammas=profile_gammas, peak_shape=profile_peak_shape)
+                    gammas=profile_gammas, peak_shape=profile_peak_shape,
+                    cutoff_fwhm=dict_tof.get("profile_cutoff_fwhm", 0.))
             elif profile_peak_shape == "pseudo-Voigt":
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
                     d, time, time_hkl,
-                    gammas=profile_gammas, size_g=0., size_l=0.,
-                    strain_g=0., strain_l=0., peak_shape=profile_peak_shape)
+                    gammas=profile_gammas, size_g=dict_tof.get("profile_size_g", 0.),
+                    size_l=dict_tof.get("profile_size_l", 0.),
+                    strain_g=dict_tof.get("profile_strain_g", 0.),
+                    strain_l=dict_tof.get("profile_strain_l", 0.),
+                    peak_shape=profile_peak_shape,
+                    cutoff_fwhm=dict_tof.get("profile_cutoff_fwhm", 0.))
             elif profile_peak_shape == "Gauss":
                 profile_tof = calc_peak_shape_function(
                     profile_alphas, profile_betas, profile_sigmas,
                     d, time, time_hkl,
-                    gammas=None, size_g=0., size_l=0.,
-                    strain_g=0., strain_l=0., peak_shape=profile_peak_shape)
+                    gammas=None, size_g=dict_tof.get("profile_size_g", 0.),
+                    size_l=dict_tof.get("profile_size_l", 0.),
+                    strain_g=dict_tof.get("profile_strain_g", 0.),
+                    strain_l=dict_tof.get("profile_strain_l", 0.),
+                    peak_shape=profile_peak_shape,
+                    cutoff_fwhm=dict_tof.get("profile_cutoff_fwhm", 0.))
             elif profile_peak_shape == "type0m":
                 time_2d = numpy.expand_dims(time, axis=1)
                 time_hkl_2d = numpy.expand_dims(time_hkl, axis=0)
@@ -423,26 +434,26 @@ def calc_chi_sq_for_tof_by_dictionary(
         iint_m_minus = iint_minus * multiplicity_hkl
 
         dict_in_out_phase["iint_plus_with_factors"] = 0.5 * \
-            p_scale * iint_m_plus*lorentz_factor*wavelength_4_hkl
+            p_scale * iint_m_plus*lorentz_factor*d_4_hkl
         dict_in_out_phase["iint_minus_with_factors"] = 0.5 * \
-            p_scale * iint_m_minus*lorentz_factor*wavelength_4_hkl
+            p_scale * iint_m_minus*lorentz_factor*d_4_hkl
         if flag_texture:
             # 0.5 to have the same meaning for the scale factor as in FullProf
             signal_plus = 0.5 * p_scale * lorentz_factor * \
-                (profile_tof * (iint_m_plus * wavelength_4_hkl *
+                (profile_tof * (iint_m_plus * d_4_hkl *
                  preferred_orientation)[na, :]).sum(axis=1)  # sum over hkl
             signal_minus = 0.5 * p_scale * lorentz_factor * \
-                (profile_tof * (iint_m_minus * wavelength_4_hkl *
+                (profile_tof * (iint_m_minus * d_4_hkl *
                  preferred_orientation)[na, :]).sum(axis=1)
             dict_in_out_phase["iint_plus_with_factors"] *= preferred_orientation
             dict_in_out_phase["iint_minus_with_factors"] *= preferred_orientation
         else:
             signal_plus = 0.5 * p_scale * lorentz_factor * \
-                (profile_tof * (iint_m_plus * wavelength_4_hkl)
+                (profile_tof * (iint_m_plus * d_4_hkl)
                  [na, :]).sum(axis=1)
             signal_minus = 0.5 * p_scale * lorentz_factor * \
                 (profile_tof * (iint_m_minus *
-                 wavelength_4_hkl)[na, :]).sum(axis=1)
+                 d_4_hkl)[na, :]).sum(axis=1)
 
         dict_in_out_phase["signal_plus"] = signal_plus
         dict_in_out_phase["signal_minus"] = signal_minus

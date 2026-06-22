@@ -21,3 +21,4 @@ TestResults/*
 .ipynb_checkpoints
 venv/*
 .DS_Store
+tmp/*
