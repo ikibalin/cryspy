@@ -5,6 +5,14 @@ import scipy.special
 na = numpy.newaxis
 
 
+def calc_lorentz_factor(ttheta, flag_ttheta: bool = False):
+    """Lorentz factor for TOF powder diffraction."""
+    res = numpy.sin(ttheta)
+    dder = {}
+    if flag_ttheta:
+        dder["ttheta"] = numpy.cos(ttheta)
+    return res, dder
+
 
 def calc_spectrum(time, spectrum_type, spectrum_parameters, flag_spectrum_parameters=False):
     exp = numpy.exp
