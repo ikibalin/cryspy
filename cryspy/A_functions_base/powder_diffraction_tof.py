@@ -6,7 +6,13 @@ na = numpy.newaxis
 
 
 def calc_lorentz_factor(ttheta, flag_ttheta: bool = False):
-    """Lorentz factor for TOF powder diffraction."""
+    """Angular (bank-angle) part of the TOF Lorentz factor.
+
+    Returns ``sin(ttheta)`` for the fixed detector bank angle ``ttheta``
+    (the full scattering angle ``2theta_bank``). The reflection-dependent
+    ``d**4`` part is applied separately, so the complete TOF Lorentz
+    factor is ``d**4 * sin(ttheta)`` (cf. CrysFML ``lorentz = dsp4 * sina``).
+    """
     res = numpy.sin(ttheta)
     dder = {}
     if flag_ttheta:
