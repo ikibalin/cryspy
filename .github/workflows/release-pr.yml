@@ -1,0 +1,42 @@
+# Manually create a release pull request from the source branch into the
+# default branch, labelled `[bot] release` so it is excluded from
+# changelog/version logic.
+
+name: Release PR (develop → master)
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Source branch to create PR from'
+        required: false
+        default: 'develop'
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+  SOURCE_BRANCH: ${{ inputs.source_branch || 'develop' }}
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out ${{ env.SOURCE_BRANCH }}
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.SOURCE_BRANCH }}
+
+      - name: Create PR from ${{ env.SOURCE_BRANCH }} to ${{ env.DEFAULT_BRANCH }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base "${{ env.DEFAULT_BRANCH }}" \
+            --head "${{ env.SOURCE_BRANCH }}" \
+            --title "🎉 Release: merge ${{ env.SOURCE_BRANCH }} into ${{ env.DEFAULT_BRANCH }}" \
+            --label "[bot] release" \
+            --body "Automated release PR merging \`${{ env.SOURCE_BRANCH }}\` into \`${{ env.DEFAULT_BRANCH }}\`. Labelled \`[bot] release\` and excluded from release notes / version bump logic."
