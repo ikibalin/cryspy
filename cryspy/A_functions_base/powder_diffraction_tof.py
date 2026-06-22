@@ -5,6 +5,7 @@ import scipy.special
 na = numpy.newaxis
 
 
+
 def calc_lorentz_factor(ttheta, flag_ttheta: bool = False):
     """Angular (bank-angle) part of the TOF Lorentz factor.
 
