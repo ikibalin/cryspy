@@ -1,0 +1,40 @@
+# Run the test suite via pixi, reusing the same tasks developers run
+# locally (`pixi run test`).
+
+name: Tests
+
+on:
+  push:
+    branches-ignore: [master] # already verified in the PR
+    tags-ignore: ['*'] # tags are handled by publish-pypi.yml
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [unit, functional, examples]
+    name: ${{ matrix.suite }}-tests
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history + tags for versioningit
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: latest
+
+      - name: Run ${{ matrix.suite }} tests
+        run: pixi run ${{ matrix.suite }}-tests
