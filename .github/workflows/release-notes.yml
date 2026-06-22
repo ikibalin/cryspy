@@ -1,0 +1,58 @@
+# Drafts the next release notes as pull requests are merged into the
+# default branch, and keeps a GitHub draft release up to date. The next
+# version is computed from the [scope] labels of the merged PRs.
+
+name: Release draft update
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history with tags for the version number
+
+      - name: Draft the next release notes
+        id: draft
+        uses: enhantica/drafterino@v2
+        with:
+          config: |
+            title: 'cryspy $COMPUTED_VERSION'
+            tag: '$COMPUTED_VERSION'
+            note-template: '- $PR_TITLE (#$PR_NUMBER)'
+
+            default-bump: post
+
+            major-bump-labels: ['[scope] significant']
+            minor-bump-labels: ['[scope] enhancement']
+            patch-bump-labels: ['[scope] bug', '[scope] maintenance']
+            post-bump-labels: ['[scope] documentation']
+
+            release-notes:
+              - title: 'Added'
+                labels: ['[scope] significant', '[scope] enhancement']
+              - title: 'Fixed'
+                labels: ['[scope] bug']
+              - title: 'Changed'
+                labels: ['[scope] maintenance', '[scope] documentation']
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub draft release
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          tag_name: ${{ steps.draft.outputs.tag_name }}
+          name: ${{ steps.draft.outputs.release_name }}
+          body: ${{ steps.draft.outputs.release_notes }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
