@@ -1,5 +1,7 @@
 import numpy
 
+from .powder_diffraction_cutoff import cutoff_place, cutoff_select
+
 na = numpy.newaxis
 
 
@@ -220,6 +222,10 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
 
     eta, dder_eta = calc_eta(h_l, h_pv, flag_h_l=flag_h_l, flag_h_pv=flag_h_pv)
 
+    half_width = cutoff_fwhm * h_pv * numpy.pi/180.
+    keep, (h_pv, eta, ttheta), delta_angle = cutoff_select(
+        delta_angle, cutoff_fwhm, half_width, (h_pv, eta, ttheta))
+
     z = (delta_angle*180./numpy.pi)/numpy.expand_dims(h_pv, axis=1)
     flag_z = flag_h_pv or flag_ttheta_hkl or flag_ttheta
     af, dder_af  = calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4, 
@@ -232,7 +238,7 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
         delta_angle, h_pv, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv)
 
     res = (numpy.expand_dims(eta, axis=1) * profile_l + numpy.expand_dims((1.-eta), axis=1)*profile_g)*af
-    res = res * (numpy.abs(z) <= cutoff_fwhm)
+    res = cutoff_place(keep, res)
     dder = {}
     return res, dder
 

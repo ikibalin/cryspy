@@ -1,6 +1,7 @@
-# Automatically merge `master` back into `develop` after a release, so
-# develop stays in sync. Can also be run manually. On a merge conflict it
-# opens (or reuses) a tracker issue for manual resolution.
+# After a release, open a pull request merging `master` back into
+# `develop` so develop stays in sync. Can also be run manually. The PR
+# is labelled `[bot] backmerge` so it is excluded from release notes /
+# version bump logic; merge conflicts are surfaced in the PR itself.
 
 name: Backmerge (master → develop)
 
@@ -10,8 +11,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
+  pull-requests: write
 
 concurrency:
   group: backmerge-master-into-develop
@@ -27,64 +28,45 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Set merge message
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "MESSAGE=Backmerge: master into develop (manual) [skip ci]" >> "$GITHUB_ENV"
-          else
-            echo "MESSAGE=Backmerge: master (${{ github.event.release.tag_name }}) into develop [skip ci]" >> "$GITHUB_ENV"
-          fi
-
       - name: Prepare branches
-        run: |
-          git fetch origin master develop
-          git checkout -B develop origin/develop
+        run: git fetch origin master develop
 
-      - name: Check if develop is already up-to-date
+      - name: Check if develop already contains master
         id: up_to_date
         run: |
-          if git merge-base --is-ancestor origin/master develop; then
+          if git merge-base --is-ancestor origin/master origin/develop; then
             echo "value=true" >> "$GITHUB_OUTPUT"
           else
             echo "value=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Try merge master into develop
-        id: merge
+      - name: Set PR title and body
         if: steps.up_to_date.outputs.value == 'false'
-        continue-on-error: true
         run: |
-          if git merge origin/master --no-ff -m "${MESSAGE}"; then
-            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "TITLE=Backmerge: master into develop (manual)" >> "$GITHUB_ENV"
+            echo "BODY=Automated backmerge PR merging \`master\` into \`develop\`. Labelled \`[bot] backmerge\` and excluded from release notes / version bump logic." >> "$GITHUB_ENV"
           else
-            echo "conflict=true" >> "$GITHUB_OUTPUT"
-            git merge --abort || true
-            exit 0
+            echo "TITLE=Backmerge: master (${{ github.event.release.tag_name }}) into develop" >> "$GITHUB_ENV"
+            echo "BODY=Automated backmerge PR merging \`master\` (${{ github.event.release.tag_name }}) into \`develop\`. Labelled \`[bot] backmerge\` and excluded from release notes / version bump logic." >> "$GITHUB_ENV"
           fi
 
-      - name: Push to develop (if merge succeeded)
-        if: steps.up_to_date.outputs.value == 'false' && steps.merge.outputs.conflict == 'false'
-        run: git push origin develop
-
-      - name: Open issue (if merge failed with conflicts)
-        if: steps.merge.outputs.conflict == 'true'
+      - name: Create or reuse backmerge PR
+        if: steps.up_to_date.outputs.value == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          title="Backmerge conflict: master → develop"
-          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          body=$'Automatic backmerge failed due to merge conflicts.\n\nWorkflow run: '"$run_url"$'\n\nManual resolution required.'
-          existing=$(gh issue list --repo "$REPO" --state all --search "in:title \"$title\"" \
-            --json number,title --jq "map(select(.title==\"$title\")) | .[0].number // empty")
+          existing=$(gh pr list --repo "$REPO" --base develop --head master --state open \
+            --json number --jq '.[0].number // empty')
           if [ -n "$existing" ]; then
-            gh issue reopen "$existing" --repo "$REPO" 2>/dev/null || true
-            gh issue comment "$existing" --repo "$REPO" --body "$body"
-          else
-            gh issue create --repo "$REPO" --title "$title" --label "[bot] backmerge" --body "$body"
+            echo "Backmerge PR #$existing already open; nothing to do."
+            exit 0
           fi
+          gh pr create \
+            --repo "$REPO" \
+            --base develop \
+            --head master \
+            --title "${TITLE}" \
+            --label "[bot] backmerge" \
+            --body "${BODY}"
