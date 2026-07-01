@@ -1,4 +1,5 @@
 import numpy
+import pytest
 import scipy.special
 
 from cryspy.A_functions_base.powder_diffraction_tof import (
@@ -140,7 +141,8 @@ def test_tof_profile_dictionary_non_convoluted_pseudo_voigt_has_no_alpha_beta():
     assert "profile_betas" not in profile_dict
 
 
-def test_rhochi_tof_lorentz_factor_uses_bank_half_angle(monkeypatch):
+@pytest.mark.parametrize("profile_peak_shape", ["Gauss", "pseudo-Voigt"], ids=["Jorgensen", "JvD"])
+def test_rhochi_tof_lorentz_factor_uses_bank_half_angle(monkeypatch, profile_peak_shape):
     from cryspy.procedure_rhochi import rhochi_tof
 
     time = numpy.array([1.0, 2.0, 3.0], dtype=float)
@@ -211,13 +213,15 @@ def test_rhochi_tof_lorentz_factor_uses_bank_half_angle(monkeypatch):
         "phase_ig": numpy.array([0.0], dtype=float),
         "flags_phase_scale": numpy.array([False], dtype=bool),
         "flags_phase_ig": numpy.array([False], dtype=bool),
-        "profile_peak_shape": "Gauss",
+        "profile_peak_shape": profile_peak_shape,
         "profile_alphas": numpy.array([0.0, 0.0], dtype=float),
         "profile_betas": numpy.array([0.0, 0.0], dtype=float),
         "profile_sigmas": numpy.array([1.0, 0.0, 0.0], dtype=float),
+        "profile_gammas": numpy.array([0.1, 0.0, 0.0], dtype=float),
         "flags_profile_alphas": numpy.array([False, False], dtype=bool),
         "flags_profile_betas": numpy.array([False, False], dtype=bool),
         "flags_profile_sigmas": numpy.array([False, False, False], dtype=bool),
+        "flags_profile_gammas": numpy.array([False, False, False], dtype=bool),
         "profile_size_g": numpy.array([0.0], dtype=float),
         "profile_strain_g": numpy.array([0.0], dtype=float),
         "profile_size_l": numpy.array([0.0], dtype=float),
