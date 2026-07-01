@@ -452,11 +452,21 @@ class DiffrnReflnL(LoopN):
             self.is_attribute("fr")
             & self.is_attribute("fr_sigma")
             & self.is_attribute("fr_calc")
+            & self.is_attribute("index_h")
+            & self.is_attribute("index_k")
+            & self.is_attribute("index_l")
         ):
             return
-
-        fig, ax = plt.subplots()
+        
         np_excl = numpy.array(self.excluded, dtype=bool)
+        np_fr = numpy.array(self.fr, dtype=float)
+        np_fr_calc = numpy.array(self.fr_calc, dtype=float)
+        np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)
+        l_label = [f"({h:} {k:} {l:})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
+    
+        fig = plot_scatters_with_labels(np_fr_calc, np_fr, sy=np_fr_sigma, exclude=np_excl, labels=l_label,size=8, n_visible=10)
+        ax = fig.axes[0]
+
         flag_in = numpy.logical_not(np_excl)
         if numpy.all(np_excl):
             ax.set_title("Flip Ratio: I_plus / I_minus")
@@ -478,35 +488,19 @@ class DiffrnReflnL(LoopN):
 
             np_fr_1 = np_fr - np_fr_sigma
             np_fr_2 = np_fr + np_fr_sigma
-
             fr_min = min([min(np_fr_1), min(self.fr_calc)])
             fr_max = max([max(np_fr_2), max(self.fr_calc)])
             ax.plot([fr_min, fr_max], [fr_min, fr_max], "k:")
-            ax.errorbar(
-                np_fr_calc, np_fr, yerr=np_fr_sigma, fmt="ko", alpha=0.2
-            )
+            ax.set_xlim(fr_min, fr_max)
 
-        flag_excl = numpy.logical_not(flag_in)
-        np_fr_excl = numpy.array(self.fr, dtype=float)[flag_excl]
-        np_fr_calc_excl = numpy.array(self.fr_calc, dtype=float)[flag_excl]
-        np_fr_sigma_excl = numpy.array(self.fr_sigma, dtype=float)[flag_excl]
-        ax.errorbar(
-            np_fr_calc_excl,
-            np_fr_excl,
-            yerr=np_fr_sigma_excl,
-            fmt="rs",
-            alpha=0.2,
-            label="excluded",
-        )
-
-        ax.set_xlim(fr_min, fr_max)
         ax.set_ylim(fr_min, fr_max)
 
         ax.set_xlabel("Flip ratio (model)")
         ax.set_ylabel("Flip ratio (experiment)")
-        ax.set_aspect(1)
         fig.tight_layout()
-        return (fig, ax)
+
+        return (fig,ax)
+    
 
     def plot_asymmetry_vs_asymmetry_calc(self):
         """Plot experimental fr vs. fr_calc"""
@@ -514,8 +508,49 @@ class DiffrnReflnL(LoopN):
             self.is_attribute("fr")
             & self.is_attribute("fr_sigma")
             & self.is_attribute("fr_calc")
+            & self.is_attribute("index_h")
+            & self.is_attribute("index_k")
+            & self.is_attribute("index_l")
         ):
             return
+        np_excl = numpy.array(self.excluded, dtype=bool)
+        np_fr = numpy.array(self.fr, dtype=float)
+        np_fr_calc = numpy.array(self.fr_calc, dtype=float)
+        np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)
+        l_label = [f"({h:} {k:} {l:})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
+
+        asymmetry = (np_fr - 1.0) / (np_fr + 1.0)
+        asymmetry_sigma = (
+            np_fr_sigma
+            * numpy.sqrt(2.0)
+            * numpy.sqrt(numpy.square(np_fr) + 1.0)
+            / numpy.square(np_fr + 1.0)
+        )
+        asymmetry_calc = (np_fr_calc - 1.0) / (np_fr_calc + 1.0)
+
+        fig = plot_scatters_with_labels(asymmetry_calc, asymmetry, sy=asymmetry_sigma, exclude=np_excl, labels=l_label,size=8, n_visible=10)
+        ax = fig.axes[0]
+
+        flag_in = numpy.logical_not(np_excl)
+        chi_sq_per_n = (
+            numpy.square((asymmetry[flag_in] - asymmetry_calc[flag_in]) / asymmetry_sigma[flag_in]).sum()
+            / asymmetry[flag_in].size
+        )
+
+        ax.set_title(
+            r"Asymmetry parameter: $\frac{I_{plus}-I_{minus}}{I_{plus}+I_{minus}}$, $\chi^2/n=$"
+            + f"{chi_sq_per_n:.2f}."
+        )        
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 1)
+        
+        ax.plot([-1, 1], [-1, 1], "k:")
+
+        ax.set_xlabel("Asymmetry (model)")
+        ax.set_ylabel("Asymmetry (experiment)")
+        fig.tight_layout()
+
+        return (fig, ax)
 
         fig, ax = plt.subplots()
         np_excl = numpy.array(self.excluded, dtype=bool)
@@ -627,7 +662,7 @@ class DiffrnReflnL(LoopN):
         )
 
         ax.set_xlim(0, asymmetry_calc.size)
-        ax.set_ylim(-1, 1)
+        # ax.set_ylim(-1, 1)
 
         ax.set_xlabel("Peaks")
         ax.set_ylabel("Asymmetry")
@@ -641,11 +676,21 @@ class DiffrnReflnL(LoopN):
             self.is_attribute("intensity")
             & self.is_attribute("intensity_sigma")
             & self.is_attribute("intensity_calc")
+            & self.is_attribute("index_h")
+            & self.is_attribute("index_k")
+            & self.is_attribute("index_l")
         ):
             return
 
-        fig, ax = plt.subplots()
         np_excl = numpy.array(self.excluded, dtype=bool)
+        np_intensity = numpy.array(self.intensity, dtype=float)
+        np_intensity_calc = numpy.array(self.intensity_calc, dtype=float)
+        np_intensity_sigma = numpy.array(self.intensity_sigma, dtype=float)
+        l_label = [f"({h:} {k:} {l:})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
+
+        fig = plot_scatters_with_labels(np_intensity_calc, np_intensity, sy=np_intensity_sigma, exclude=np_excl, labels=l_label, size=8, n_visible=10)
+        ax = fig.axes[0]
+
         flag_in = numpy.logical_not(np_excl)
         if numpy.all(np_excl):
             ax.set_title("Intensity")
@@ -692,38 +737,14 @@ class DiffrnReflnL(LoopN):
                 [intensity_min, intensity_max],
                 "k:",
             )
-            ax.errorbar(
-                np_intensity_calc,
-                np_intensity,
-                yerr=np_intensity_sigma,
-                fmt="ko",
-                alpha=0.2,
-            )
-
-        flag_excl = numpy.logical_not(flag_in)
-        np_intensity_excl = numpy.array(self.intensity, dtype=float)[flag_excl]
-        np_intensity_calc_excl = numpy.array(self.intensity_calc, dtype=float)[
-            flag_excl
-        ]
-        np_intensity_sigma_excl = numpy.array(
-            self.intensity_sigma, dtype=float
-        )[flag_excl]
-        ax.errorbar(
-            np_intensity_calc_excl,
-            np_intensity_excl,
-            yerr=np_intensity_sigma_excl,
-            fmt="rs",
-            alpha=0.2,
-            label="excluded",
-        )
-
         ax.set_xlim(intensity_min, intensity_max)
         ax.set_ylim(intensity_min, intensity_max)
 
         ax.set_xlabel("Intensity (model)")
         ax.set_ylabel("Intensity (experiment)")
-        ax.set_aspect(1)
+        # ax.set_aspect(1)
         fig.tight_layout()
+
         return (fig, ax)
 
     def include_all_points(self):
@@ -795,3 +816,92 @@ class DiffrnReflnL(LoopN):
 # print(obj, end="\n\n")
 # print(obj.report_agreement_factor_exp(), end="\n\n")
 # print(obj.numpy_fr_sigma, end="\n\n")
+
+
+
+def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='black', size=4, n_visible=10):
+    x = numpy.asarray(x)
+    y = numpy.asarray(y)
+    if not (sy is None):
+        sy = numpy.asarray(sy)
+    if not (labels is None):
+        labels = numpy.asarray(labels)
+
+    flag_in = numpy.ones(x.shape, dtype=bool)
+    if not (exclude is None):
+        flag_in = numpy.logical_not(exclude)
+
+    fig, ax = plt.subplots(figsize=(6, 5))
+    
+    if sy is None:
+        sc = ax.scatter(x[flag_in], y[flag_in], s=size, color=color, alpha=0.2)
+    else:
+        sc = ax.errorbar(
+            x[flag_in],
+            y[flag_in],
+            yerr=sy[flag_in],
+            fmt="o",
+            mfc=color,
+            ecolor=color,
+            alpha=0.2,
+            )
+
+    flag_excl = numpy.logical_not(flag_in)
+    if numpy.any(flag_excl) and not(sy is None):
+        sc2 =ax.errorbar(
+            x[flag_excl],
+            y[flag_excl],
+            yerr=sy[flag_excl],
+            fmt="x",
+            mfc=color,
+            ecolor=color,
+            alpha=0.2,
+            label="excluded",
+        )
+
+    active_texts = []
+
+
+    def update_labels(event=None):
+        nonlocal active_texts
+
+        # Remove old labels
+        for t in active_texts:
+            t.remove()
+        active_texts = []
+
+        xmin, xmax = ax.get_xlim()
+        ymin, ymax = ax.get_ylim()
+
+        mask = (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)
+        idx = numpy.where(mask)[0]
+
+        # Only label if few points are visible
+        if len(idx) <= n_visible:
+
+            # --- GROUP POINTS BY (x, y) ---
+            groups = {}
+            for i in idx:
+                key = (numpy.round(x[i],3), numpy.round(y[i],3))
+                if key not in groups:
+                    groups[key] = []
+                groups[key].append(labels[i])
+
+            # --- CREATE ONE LABEL PER GROUP ---
+            for (xi, yi), labs in groups.items():
+                # Split into chunks of 5 labels
+                chunks = [labs[i:i+5] for i in range(0, len(labs), 5)]
+                # Join each chunk with commas, then join chunks with newlines
+                merged_label = "\n".join(", ".join(chunk) for chunk in chunks)                
+                # merged_label = ", ".join(labs)
+                t = ax.text(xi, yi, " "+merged_label,
+                            fontsize=10, color='black')
+                active_texts.append(t)
+        # fig.canvas.draw_idle()
+
+    fig.canvas.mpl_connect("draw_event", update_labels)
+    fig.canvas.mpl_connect("button_release_event", update_labels)
+    fig.canvas.mpl_connect("scroll_event", update_labels)
+
+    update_labels()
+    return fig
