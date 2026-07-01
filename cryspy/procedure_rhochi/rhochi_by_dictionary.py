@@ -183,7 +183,10 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
     #    if hess_inv is not None:
     #        res["hess_inv"] = hess_inv
     #else:
-    res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
+    if method == "basinhopping":
+        res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10, T=10, stepsize=0.1, interval=20, disp=True)
+    else:
+        res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
     print("Optimization is done.                          ", end="\n")
 
     print("Calculations for optimal parameters... ", end="\r")
