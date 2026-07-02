@@ -1,4 +1,5 @@
 from typing import Callable
+import re
 import numpy
 import scipy
 import scipy.optimize
@@ -183,7 +184,21 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
     #    if hess_inv is not None:
     #        res["hess_inv"] = hess_inv
     #else:
-    res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
+    if method.lower().startswith("basinhopping"):
+        print("Basinhopping method is used for minimization.")
+        niter=10
+        T = 10.
+        if len(method)>len('basinhopping '):
+            for hh in re.split(r"[ ,)]", method[len('basinhopping '):]):
+                if hh.lower().startswith("t="):
+                    T = float(hh[len('t='):])
+                elif hh.lower().startswith("niter="):
+                    niter = int(hh[len('niter='):])
+        res = scipy.optimize.basinhopping(tempfunc, param_0, niter=niter, T=T, stepsize=0.1, interval=20, disp=True)
+        tempfunc(res.x)
+    else:
+        print(f"{method:} method is used for minimization.")
+        res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
     print("Optimization is done.                          ", end="\n")
 
     print("Calculations for optimal parameters... ", end="\r")

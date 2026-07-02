@@ -1650,17 +1650,17 @@ class Crystal(DataN):
                         flag_beta=True,
                     )[1]["beta"]
                     if ind_p == 0:
-                        item.u_11_sigma = float(sigma * coeff_hh[0])
+                        item.u_11_sigma = float(sigma * coeff_hh[0].squeeze())
                     elif ind_p == 1:
-                        item.u_22_sigma = float(sigma * coeff_hh[1])
+                        item.u_22_sigma = float(sigma * coeff_hh[1].squeeze())
                     elif ind_p == 2:
-                        item.u_33_sigma = float(sigma * coeff_hh[2])
+                        item.u_33_sigma = float(sigma * coeff_hh[2].squeeze())
                     elif ind_p == 3:
-                        item.u_12_sigma = float(sigma * coeff_hh[3])
+                        item.u_12_sigma = float(sigma * coeff_hh[3].squeeze())
                     elif ind_p == 4:
-                        item.u_13_sigma = float(sigma * coeff_hh[4])
+                        item.u_13_sigma = float(sigma * coeff_hh[4].squeeze())
                     elif ind_p == 5:
-                        item.u_23_sigma = float(sigma * coeff_hh[5])
+                        item.u_23_sigma = float(sigma * coeff_hh[5].squeeze())
 
             if "atom_ordered_moment_crystalaxis_dn" in parameter_label:
                 ind_p, ind_a = ind_s[0], ind_s[1]

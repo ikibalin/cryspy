@@ -404,7 +404,10 @@ class Diffrn(DataN):
             if self.is_attribute("chi2"):
                 chi2 = self.chi2
                 if chi2.is_attribute("asymmetry"):
-                    flag_asymmetry = chi2.asymmetry
+                    # IK: Asymetry parameter only for FR and not for Intensity 
+                    # probably later it can be changed and instead of intensity use square root of intensity
+                    # but there are potential problem with negative intensities
+                    flag_asymmetry = chi2.asymmetry and diffrn_refln.is_attribute("fr") 
 
             if flag_asymmetry:
                 fig_ax = diffrn_refln.plot_asymmetry_vs_asymmetry_calc()
@@ -413,7 +416,7 @@ class Diffrn(DataN):
             else:
                 fig_ax = diffrn_refln.plot_intensity_vs_intensity_calc()
 
-            if fig_ax is not None:
+            if not (fig_ax is None):
                 fig, ax = fig_ax
                 ax.set_title(self.data_name + " - " + ax.title.get_text())
                 l_res.append((fig, ax))
