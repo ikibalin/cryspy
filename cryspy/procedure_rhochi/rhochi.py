@@ -81,6 +81,7 @@ def rhochi_rietveld_refinement_with_parameters(
         cryspy_object: cryspy.GlobalN,
         optimization_method: str = "BFGS") -> dict:
     """Run refinement by RhoChi procedure with non-default parameters.
+    optimization_method can be 'BFGS', 'basinhopping' or other (see: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html)
     """
 
     # check object
