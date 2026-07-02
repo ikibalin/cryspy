@@ -552,47 +552,6 @@ class DiffrnReflnL(LoopN):
 
         return (fig, ax)
 
-        fig, ax = plt.subplots()
-        np_excl = numpy.array(self.excluded, dtype=bool)
-        flag_in = numpy.logical_not(np_excl)
-        np_fr = numpy.array(self.fr, dtype=float)[flag_in]
-        np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
-        np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
-
-        asymmetry = (np_fr - 1.0) / (np_fr + 1.0)
-        asymmetry_sigma = (
-            np_fr_sigma
-            * numpy.sqrt(2.0)
-            * numpy.sqrt(numpy.square(np_fr) + 1.0)
-            / numpy.square(np_fr + 1.0)
-        )
-        asymmetry_calc = (np_fr_calc - 1.0) / (np_fr_calc + 1.0)
-        chi_sq_per_n = (
-            numpy.square((asymmetry - asymmetry_calc) / asymmetry_sigma).sum()
-            / asymmetry.size
-        )
-
-        ax.set_title(
-            r"Asymmetry parameter: $\frac{I_{plus}-I_{minus}}{I_{plus}+I_{minus}}$, $\chi^2/n=$"
-            + f"{chi_sq_per_n:.2f}."
-        )
-
-        ax.plot([-1, 1], [-1, 1], "k:")
-        ax.errorbar(
-            asymmetry_calc,
-            asymmetry,
-            yerr=asymmetry_sigma,
-            fmt="ko",
-            alpha=0.2,
-        )
-        ax.set_xlim(-1, 1)
-        ax.set_ylim(-1, 1)
-
-        ax.set_xlabel("Asymmetry (model)")
-        ax.set_ylabel("Asymmetry (experiment)")
-        ax.set_aspect(1)
-        fig.tight_layout()
-        return (fig, ax)
 
     def plot_hist_asymmetry_calc(self):
         """Plot experimental fr vs. fr_calc"""
