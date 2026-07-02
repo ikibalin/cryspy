@@ -104,7 +104,7 @@ Only one site can be given for each special position but the remainder can be ge
                            fract_z: float, tol=10 ** -5) -> bool:
         fract_x, fract_y = float(fract_x), float(fract_y)
         fract_z = float(fract_z)
-        nval = int(tol ** -1)
+        nval = int(numpy.round(tol ** -1,0))
         flag_res = False
         for r, b in zip(self.full_r, self.full_b):
             flag_res = is_good_for_mask(
