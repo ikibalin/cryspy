@@ -819,10 +819,11 @@ def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='b
         )
 
     active_texts = []
+    redraw_pending = False
 
 
     def update_labels(event=None):
-        nonlocal active_texts
+        nonlocal active_texts, redraw_pending
 
         # Remove old labels
         for t in active_texts:
@@ -856,7 +857,17 @@ def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='b
                 t = ax.text(xi, yi, " "+merged_label,
                             fontsize=10, color='black')
                 active_texts.append(t)
-        # fig.canvas.draw_idle()
+
+        if getattr(event, "name", None) == "draw_event":
+            if redraw_pending:
+                redraw_pending = False
+            else:
+                redraw_pending = True
+                fig.canvas.draw_idle()
+        else:
+            if not redraw_pending:
+                redraw_pending = True
+                fig.canvas.draw_idle()
 
     fig.canvas.mpl_connect("draw_event", update_labels)
     fig.canvas.mpl_connect("button_release_event", update_labels)
