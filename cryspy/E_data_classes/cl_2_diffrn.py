@@ -511,6 +511,7 @@ class Diffrn(DataN):
         ax.grid(True, which='both', linestyle='--', linewidth=0.7)
         ax.set_xlabel(x_label)
         ax.set_ylabel(y_label)
+        ax.set_zlabel(z_label)
         ax.set_title(r"$\Re (F_M) \sim \Re (F_N) \cdot (R-1)/(R+1)$")
         fig.tight_layout()
         return (fig, ax)
