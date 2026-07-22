@@ -7,6 +7,7 @@ from warnings import warn
 from typing import NoReturn, List, Union
 import numpy
 import scipy
+import matplotlib.pyplot as plt
 
 from cryspy.A_functions_base.matrix_operations import (
     calc_vector_product_v1_v2_v1,
@@ -420,7 +421,100 @@ class Diffrn(DataN):
                 fig, ax = fig_ax
                 ax.set_title(self.data_name + " - " + ax.title.get_text())
                 l_res.append((fig, ax))
+            fig_ax = self.plot_circles_fm()
+            if not(fig_ax is None):
+                l_res.append(fig_ax)
         return l_res
+    
+    def plot_circles_fm(self):
+        flag = self.is_attribute("diffrn_refln")
+        if not flag:
+            return None
+        flag = self.is_attribute("phase")
+        if not flag:
+            return None
+        refln_name = f'refln_{self.phase.label:}'
+        flag = self.is_attribute(refln_name)
+        if not flag:
+            return None
+        
+        l_data = []
+        for item_fr, item_n in zip(getattr(self, "diffrn_refln").items, getattr(self, refln_name).items):
+            if item_fr.index_h != item_n.index_h:
+                continue
+            elif item_fr.index_k != item_n.index_k:
+                continue
+            elif item_fr.index_l != item_n.index_l:
+                continue
+            l_data.append((item_fr.index_h, item_fr.index_k, item_fr.index_l, item_fr.fr, item_fr.fr_calc, item_n.a_calc, item_n.b_calc))
+        np_data = numpy.array(l_data, dtype=[('h',int),('k',int),('l',int),('fr',float),('fr_calc',float),('a_calc',float),('b_calc',float)])
+        asym = (np_data['fr'] - 1)/(np_data['fr'] + 1)
+        asym_calc = (np_data['fr_calc'] - 1)/(np_data['fr_calc'] + 1)
+        y = asym * np_data['a_calc']
+        y_calc = asym_calc * np_data['a_calc']
+        fig, ax = plt.subplots(figsize=(6, 6))
+        ax = fig.add_subplot(projection='3d')
+        ax.set_proj_type('ortho')
+        max_size = 700
+        sizes = max_size * ((numpy.abs(y) / numpy.max(y)))
+        sizes_model = max_size * ((numpy.abs(y_calc) / numpy.max(y)))
+        ax.set_aspect('equal')
+        
+        flag_plus = y>0
+        flag_model_plus = y_calc > 0
+        diff_h = np_data['h'].max()-np_data['h'].min()
+        diff_k = np_data['k'].max()-np_data['k'].min()
+        diff_l = np_data['l'].max()-np_data['l'].min()
+        x,y,z=np_data['h'],np_data['k'],np_data['l']
+        x_label, y_label, z_label = "Index H", "Index K", "Index L" 
+        
+        if diff_l <= min([diff_h, diff_k]):
+            ax.view_init(elev=-90, azim=0)
+        elif diff_h <= min([diff_k, diff_l]): 
+            ax.view_init(elev=0, azim=0)
+        else: 
+            ax.view_init(elev=0, azim=-90)
+
+        # Predefined ticks
+        xticks = numpy.arange(x.min(), x.max()+1, 1)
+        yticks = numpy.arange(y.min(), y.max()+1, 1)
+        zticks = numpy.arange(z.min(), z.max()+1, 1)
+
+        ax.set_xticks(xticks)
+        ax.set_yticks(yticks)
+        ax.set_zticks(zticks)
+
+        # # Draw 3D grid lines manually
+        # for x0 in xticks:
+        #     ax.plot([x0, x0], [yticks[0], yticks[-1]], [zticks[0], zticks[0]], 
+        #             color='gray', alpha=0.4)
+        #     ax.plot([x0, x0], [yticks[0], yticks[0]], [zticks[0], zticks[-1]], 
+        #             color='gray', alpha=0.4)
+
+        # for y0 in yticks:
+        #     ax.plot([xticks[0], xticks[-1]], [y0, y0], [zticks[0], zticks[0]], 
+        #             color='gray', alpha=0.4)
+        #     ax.plot([xticks[0], xticks[0]], [y0, y0], [zticks[0], zticks[-1]], 
+        #             color='gray', alpha=0.4)
+
+        # for z0 in zticks:
+        #     ax.plot([xticks[0], xticks[-1]], [yticks[0], yticks[0]], [z0, z0], 
+        #             color='gray', alpha=0.4)
+        #     ax.plot([xticks[0], xticks[0]], [yticks[0], yticks[-1]], [z0, z0], 
+        #             color='gray', alpha=0.4)
+
+        ax.scatter(x[flag_plus], y[flag_plus], z[flag_plus], s=sizes[flag_plus], c="salmon", alpha=1, cmap='coolwarm', edgecolor=None)
+        ax.scatter(x[~flag_plus], y[~flag_plus], z[~flag_plus], s=sizes[~flag_plus], c="lightskyblue", alpha=1, cmap='coolwarm', edgecolor=None)
+
+        ax.scatter(x[flag_model_plus], y[flag_model_plus], z[flag_model_plus], s=sizes_model[flag_model_plus], facecolors="none", edgecolor='crimson', marker='o', alpha=1.0, linewidths=2, cmap='coolwarm', )
+        ax.scatter(x[~flag_model_plus], y[~flag_model_plus], z[~flag_model_plus], s=sizes_model[~flag_model_plus], facecolors="none", edgecolor='blue', marker='o', alpha=0.5, linewidths=2, cmap='coolwarm', )
+        ax.grid(True, which='both', linestyle='--', linewidth=0.7)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.set_zlabel(z_label)
+        ax.set_title(r"$\Re (F_M) \sim \Re (F_N) \cdot (R-1)/(R+1)$")
+        fig.tight_layout()
+        return (fig, ax)
 
     def report(self):
         if self.is_attribute("diffrn_refln"):
