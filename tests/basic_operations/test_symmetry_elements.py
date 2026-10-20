@@ -1,5 +1,3 @@
-import os
-import math
 import numpy
 
 from cryspy.A_functions_base.symmetry_elements import \

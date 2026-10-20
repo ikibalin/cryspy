@@ -1,6 +1,4 @@
 import numpy
-import scipy
-import scipy.special
 from typing import NoReturn
 
 from cryspy.A_functions_base.function_1_objects import \

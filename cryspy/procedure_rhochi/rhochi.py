@@ -1,27 +1,15 @@
-from typing import List, Union
 import numpy
-import scipy
-import scipy.optimize
 
-from warnings import warn
 
 
 from cryspy.A_functions_base.function_1_inversed_hessian import \
     estimate_inversed_hessian_matrix
-from cryspy.A_functions_base.function_1_error_simplex import \
-    error_estimation_simplex
 
-from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian, inversed_hessian_to_correlation
 
-from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
-from cryspy.E_data_classes.cl_2_diffrn import Diffrn
-from cryspy.E_data_classes.cl_2_pd import Pd
-from cryspy.E_data_classes.cl_2_pd2d import Pd2d
-from cryspy.E_data_classes.cl_2_tof import TOF
 
 from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\

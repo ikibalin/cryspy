@@ -10,7 +10,6 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import DiffrnOrientMatrix
 
 class ReflnSusceptibility(ItemN):

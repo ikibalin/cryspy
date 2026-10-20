@@ -3,10 +3,8 @@
 __author__ = "ikibalin"
 __version__ = "2020_08_19"
 
-from warnings import warn
-from typing import NoReturn, List, Union
+from typing import NoReturn
 import numpy
-import scipy
 import matplotlib.pyplot as plt
 
 from cryspy.A_functions_base.matrix_operations import (
@@ -15,13 +13,11 @@ from cryspy.A_functions_base.matrix_operations import (
 
 from cryspy.A_functions_base.extinction import (
     calc_extinction_sphere,
-    calc_extinction_qani,
 )
 from cryspy.A_functions_base.flip_ratio import (
     calc_flip_ratio_by_structure_factors,
 )
 from cryspy.A_functions_base.unit_cell import (
-    calc_sthovl_by_unit_cell_parameters,
     calc_volume_uc_by_unit_cell_parameters,
     calc_eq_ccs_by_unit_cell_parameters,
 )
@@ -31,7 +27,6 @@ from cryspy.A_functions_base.function_1_roots import calc_roots
 
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
-from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
@@ -48,9 +43,6 @@ from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import (
     ReflnSusceptibilityL,
 )
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
-from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import (
-    TOFIntensityIncident,
-)
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
@@ -368,7 +360,7 @@ class Diffrn(DataN):
                     ls_out.append(
                         f"{ind_h:} {ind_k:} {ind_l:} {f_mag:.3f}  {f_sig:.3f} {f_mm[2].real:.3f} {f_mm[2].imag:.3f} {f_mm[2].real-f_mag:.3f}"
                     )
-                except:
+                except Exception:
                     ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} . . . . .")
         else:
             for ind_h, ind_k, ind_l, f_mag, f_sig, eq_mag_m, f_mag_m in zip(
@@ -386,7 +378,7 @@ class Diffrn(DataN):
                     ls_out.append(
                         f"{ind_h:} {ind_k:} {ind_l:} {f_vm[0].real:.3f} {f_vm[0].imag:.3f} {f_vm[1].real:.3f} {f_vm[1].imag:.3f} {f_vm[2].real:.3f} {f_vm[2].imag:.3f}  {f_sig:.3f} {f_mm[0].real:.3f} {f_mm[0].imag:.3f} {f_mm[1].real:.3f} {f_mm[1].imag:.3f} {f_mm[2].real:.3f} {f_mm[2].imag:.3f}"
                     )
-                except:
+                except Exception:
                     ls_out.append(
                         f"{ind_h:} {ind_k:} {ind_l:} . . . . . . . . . . . . ."
                     )

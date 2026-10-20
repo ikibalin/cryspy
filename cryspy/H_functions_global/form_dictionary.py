@@ -1,26 +1,11 @@
 import numpy
-from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
 
-from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
-from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
-from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import AtomSiteAnisoL
-from cryspy.C_item_loop_classes.cl_2_atom_site_scat import AtomSiteScatL
-from cryspy.C_item_loop_classes.cl_1_atom_type import AtomTypeL
-from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScatL
-from cryspy.C_item_loop_classes.cl_1_atom_site_susceptibility import AtomSiteSusceptibilityL
-from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import AtomElectronConfigurationL
-from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 
-from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwinL
 
 
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
-from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnReflnL
-from cryspy.C_item_loop_classes.cl_1_extinction import Extinction
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import DiffrnRadiation
-from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import DiffrnOrientMatrix
 
 
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL

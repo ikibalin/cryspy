@@ -1,6 +1,4 @@
 import numpy
-import scipy
-import scipy.interpolate
 
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t, calc_m_v
 
