@@ -122,6 +122,9 @@ Public API is re-exported from `cryspy/__init__.py`.
 
 ## Git workflow
 
+The full contributor workflow (labels, version bumps, releases) is in
+`CONTRIBUTING.md`; the essentials:
+
 - `master` is the release branch; `develop` is the integration branch.
   Branch off `develop` and open PRs into `develop`.
 - Branch names are kebab-case, optionally prefixed by the issue number
