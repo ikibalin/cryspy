@@ -374,7 +374,7 @@ def calc_chi_sq_for_tof_by_dictionary(
                     not(flag_hh)):
                 preferred_orientation = dict_in_out_phase["preferred_orientation"]
             else:
-                preferred_orientation, dder_po = calc_preferred_orientation_tof(
+                preferred_orientation, dder_po = calc_preferred_orientation_pd(
                     index_hkl, texture_g1, texture_g2, texture_axis, unit_cell_parameters,
                     flag_texture_g1=flag_texture_g1 and flag_calc_analytical_derivatives,
                     flag_texture_g2=flag_texture_g2 and flag_calc_analytical_derivatives,

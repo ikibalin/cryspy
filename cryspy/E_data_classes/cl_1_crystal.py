@@ -518,7 +518,7 @@ class Crystal(DataN):
             cell = self.cell
             a_s_m_a = self.atom_site_susceptibility
         except AttributeError:
-            return l_res
+            return []
 
         l_res = []
         for item in a_s_m_a.items:
