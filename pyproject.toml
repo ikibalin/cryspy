@@ -6,23 +6,25 @@ readme = 'readme.rst'
 license = 'MIT'
 authors = [{ name = 'Iurii Kibalin', email = 'yurikibalin@outlook.com' }]
 keywords = ['Polarized Neutron Diffraction Data Analysis']
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 classifiers = [
   'Operating System :: OS Independent',
   'Programming Language :: Python :: 3 :: Only',
   'Programming Language :: Python :: 3',
-  'Programming Language :: Python :: 3.9',
   'Programming Language :: Python :: 3.10',
   'Programming Language :: Python :: 3.11',
   'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: 3.13',
   'Programming Language :: Python :: 3.14',
 ]
+# Lower bounds: the bundled database (A_functions_base/database.pickle)
+# is pickled with numpy 2 and does not load with numpy 1.x; scipy and
+# matplotlib are the first versions built for numpy 2.
 dependencies = [
-  'numpy',
-  'scipy',
+  'numpy>=2.0',
+  'scipy>=1.13',
   'pycifstar',
-  'matplotlib',
+  'matplotlib>=3.9',
 ]
 
 [project.optional-dependencies]
