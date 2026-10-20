@@ -155,9 +155,9 @@ class TOFIntensityIncident(ItemN):
     
     def get_dictionary(self):
         res = {}
-        res["spectrum_incident_type"] = tof_intensity_incident.spectrum
-        res["spectrum_incident_coefficients"] = tof_intensity_incident.get_coefficients()
-        res["flags_spectrum_incident_coefficients"] = tof_intensity_incident.get_flags_coefficients()
+        res["spectrum_incident_type"] = self.spectrum
+        res["spectrum_incident_coefficients"] = self.get_coefficients()
+        res["flags_spectrum_incident_coefficients"] = self.get_flags_coefficients()
         return res
         
 

@@ -75,9 +75,12 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         flag_twin_fraction = numpy.any(flags_twin_fraction)
         twin_fraction = numpy.concatenate(([1-twin_fraction.sum(),],twin_fraction))
         twin_matrices  = dict_diffrn["twin_matrices"]
+        # Each twin law maps the measured hkl of the first domain, so it is
+        # applied to the original indices: N laws give N+1 blocks of n_hkl.
+        index_hkl_domains = [index_hkl, ]
         for twin_m in twin_matrices.transpose():
-            index_hkl_twin = calc_m_v(twin_m, index_hkl)[0]
-            index_hkl = numpy.concatenate((index_hkl, index_hkl_twin), axis=1)
+            index_hkl_domains.append(calc_m_v(twin_m, index_hkl)[0])
+        index_hkl = numpy.concatenate(index_hkl_domains, axis=1)
     flags_unit_cell_parameters = dict_crystal["flags_unit_cell_parameters"]
     flag_unit_cell_parameters = numpy.any(flags_unit_cell_parameters)
     flag_volume_unit_cell = flag_unit_cell_parameters
@@ -468,8 +471,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
                 dder_plus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
                 dder_minus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
             elif name == "twin_fraction":
-                dder_plus_p = iint_plus_twin[:,1:] - iint_plus_twin[:,0:1]
-                dder_minus_p = iint_minus_twin[:,1:] - iint_minus_twin[:,0:1]
+                dder_plus_p = (iint_plus_twin[:,1:] - iint_plus_twin[:,0:1])[:, flags]
+                dder_minus_p = (iint_minus_twin[:,1:] - iint_minus_twin[:,0:1])[:, flags]
             else:
                 raise AttributeError("It should not be like this.")
             parameter_name = [(diffrn_type_name, ) + way + (tuple(ind_1d[ind,:]), ) for ind in range(ind_1d.shape[0])]
@@ -504,6 +507,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dder_minus_p = numpy.concatenate(l_dder_minus_p, axis=1)
 
             der_model_p = der_model_int_plus[:, na]*dder_plus_p + der_model_int_minus[:, na]*dder_minus_p
+            # chi_sq is summed over the reflections that are not excluded only
+            der_model_p = der_model_p[index_true]
             der_chi_sq = -2.* (diff_exp_model[:, na] * inv_sigma_sq_exp_value[:, na] * der_model_p).sum(axis=0)
             dder_chi_sq = 2.* (inv_sigma_sq_exp_value[:, na, na]*(der_model_p[:, na, :]*der_model_p[:, :, na])).sum(axis=0) #w_diff is equal to zero
 

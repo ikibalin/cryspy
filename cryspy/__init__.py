@@ -18,6 +18,9 @@ To search the specific function or the class key words should be used:
     >>> cryspy.functions("flip ratio")
     >>> cryspy.classes("tof")
 
+Help on rcif categories and on how to describe a model:
+    >>> print(cryspy.get_help("thermal vibrations"))
+
 To load data from ".cif" file use the function:
     >>> data = cryspy.load_file(file_name)
 
@@ -269,6 +272,17 @@ from cryspy.procedure_simulation.simulation import (
     simulation_current_experiments,
 )
 
+from cryspy.procedure_assistant.help import (
+    get_help,
+    help_topics,
+)
+
+from cryspy.procedure_assistant.tools import (
+    assistant_tools,
+    assistant_tools_as_text,
+    call_assistant_tool,
+)
+
 
 def repr_function(function, flag_long: bool = False):
     ls_out = []
@@ -432,6 +446,11 @@ L_FUNCTION = [
     simulation_unpolarized_neutron_powder_diffraction,
     simulation_polarized_neutron_powder_diffraction,
     simulation_current_experiments,
+    get_help,
+    help_topics,
+    assistant_tools,
+    assistant_tools_as_text,
+    call_assistant_tool,
 ]
 
 

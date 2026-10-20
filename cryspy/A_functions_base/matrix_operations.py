@@ -27,8 +27,8 @@ def transpose_m(m, flag_m: bool = False):
     if flag_m:
         # FIXME correct derivatives
         if m.dtype == complex:
-            dder["m_real"] = numpy.zeros(m.shape[:1] + m.shape, dtype=real) 
-            dder["m_imag"] = numpy.zeros(m.shape[:1] + m.shape, dtype=real)
+            dder["m_real"] = numpy.zeros(m.shape[:1] + m.shape, dtype=float)
+            dder["m_imag"] = numpy.zeros(m.shape[:1] + m.shape, dtype=float)
         else:
             dder["m"] = numpy.zeros(m.shape[:1] + m.shape, dtype=m.dtype)
     return res, dder
@@ -599,12 +599,11 @@ def calc_vt_q_v(q, v, flag_q: bool = False, flag_v: bool = False):
            2*q_12*v_1*v_2 + 2*q_13*v_1*v_3+2*q_23*v_2*v_3)
     dder = {}
     if flag_q:
+        # q is a quadratic form stored as 11, 22, 33, 12, 13, 23
         dder["q"] = numpy.stack([
-            v_1*v_1*numpy.ones_like(q_11), v_1*v_2*numpy.ones_like(m_12),
-            v_1*v_3*numpy.ones_like(q_13), v_2*v_1*numpy.ones_like(m_12),
-            v_2*v_2*numpy.ones_like(q_22), v_2*v_3*numpy.ones_like(m_23),
-            v_3*v_1*numpy.ones_like(q_13), v_3*v_2*numpy.ones_like(m_23),
-            v_3*v_3*numpy.ones_like(q_33)], axis=0)
+            v_1*v_1*numpy.ones_like(q_11), v_2*v_2*numpy.ones_like(q_22),
+            v_3*v_3*numpy.ones_like(q_33), 2*v_1*v_2*numpy.ones_like(q_12),
+            2*v_1*v_3*numpy.ones_like(q_13), 2*v_2*v_3*numpy.ones_like(q_23)], axis=0)
     if flag_v:
         dder["v"] = numpy.stack([
             (2*q_11*v_1+(q_12+q_12)*v_2+(q_13+q_13)*v_3)*numpy.ones_like(v_1),
