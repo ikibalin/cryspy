@@ -1,5 +1,6 @@
 
 
+import logging
 import numpy
 from typing import NoReturn
 
@@ -13,6 +14,8 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
 
 PARAM_PLM = [
             "coeff_P00", "coeff_P11", "coeff_P1m1", "coeff_P10", 
@@ -170,7 +173,7 @@ It should be noted that used parameters in this block are different from paramet
         try:
             l_res = self.calc_jl_p(sthovl, l_max = 4)
         except AttributeError as e:
-            print(f"Error occurred while calculating form factor for {self.label}: {e}")
+            logger.warning(f"Error occurred while calculating form factor for {self.label}: {e}")
             return
         label = self.atom_label
         fig, ax = plt.subplots()
@@ -257,7 +260,7 @@ It should be noted that used parameters in this block are different from paramet
                 label = item.atom_label
                 l_res = item.calc_jl_p(sthovl, l_max = 4)
             except AttributeError as e:
-                print(f"Error occurred while calculating form factor for {self.atom_label}: {e}")
+                logger.warning(f"Error occurred while calculating form factor for {self.atom_label}: {e}")
                 continue
             for (l, m), res in l_res:
                 ax.plot(sthovl, res, label=label+f" j_{l},{m} / (4*pi)") 
