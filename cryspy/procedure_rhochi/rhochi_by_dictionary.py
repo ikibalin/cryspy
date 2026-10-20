@@ -369,7 +369,9 @@ def rhochi_calc_chi_sq_by_dictionary(
     chi_sq_sum = sum(l_chi_sq) #Unity weighting scheme
     n_point_sum = sum(l_n_point)
 
-    parameter_name_sum = list(set(parameter_name_full))
+    # dict keeps the first-seen order; set order depends on PYTHONHASHSEED
+    # and made the refinement path differ from one Python run to the next
+    parameter_name_sum = list(dict.fromkeys(parameter_name_full))
     der_chi_sq_sum = numpy.zeros((len(parameter_name_sum),), dtype=float)
     dder_chi_sq_sum = numpy.zeros((len(parameter_name_sum), len(parameter_name_sum)), dtype=float)
     if flag_calc_analytical_derivatives:
