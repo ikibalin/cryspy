@@ -430,6 +430,10 @@ class Diffrn(DataN):
         flag = self.is_attribute("diffrn_refln")
         if not flag:
             return None
+        # The plot is built from flip ratios; unpolarised data (intensity) have no fr.
+        diffrn_refln = self.diffrn_refln
+        if not (diffrn_refln.is_attribute("fr") and diffrn_refln.is_attribute("fr_calc")):
+            return None
         flag = self.is_attribute("phase")
         if not flag:
             return None
