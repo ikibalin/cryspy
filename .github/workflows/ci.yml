@@ -103,3 +103,28 @@ jobs:
           else
             gh api "repos/${{ github.repository }}/issues/$pr/comments" -F body=@coverage.md > /dev/null
           fi
+
+  unit-tests-os:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.14']
+    name: unit-tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history + tags for versioningit
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install cryspy with the dev extra
+        run: python -m pip install -e .[dev]
+
+      - name: Run unit tests
+        run: python -m pytest tests/basic_operations/ --color=yes -v
