@@ -65,7 +65,7 @@ class TOF(DataN):
 
     CLASSES_MANDATORY = (TOFParameters, TOFProfile, PhaseL, TOFMeasL)
     CLASSES_OPTIONAL = (TOFBackground, TOFBackgroundPointL, DiffrnRadiation, Chi2, Range,
-                        Texture, TOFIntensityIncident, ExcludeL, TOFProcL,
+                        TextureL, TOFIntensityIncident, ExcludeL, TOFProcL,
                         TOFPeakL, RefineLs, ReflnL, ReflnSusceptibilityL, Setup)
     # CLASSES_INTERNAL = ()
 
