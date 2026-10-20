@@ -507,6 +507,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dder_minus_p = numpy.concatenate(l_dder_minus_p, axis=1)
 
             der_model_p = der_model_int_plus[:, na]*dder_plus_p + der_model_int_minus[:, na]*dder_minus_p
+            # chi_sq is summed over the reflections that are not excluded only
+            der_model_p = der_model_p[index_true]
             der_chi_sq = -2.* (diff_exp_model[:, na] * inv_sigma_sq_exp_value[:, na] * der_model_p).sum(axis=0)
             dder_chi_sq = 2.* (inv_sigma_sq_exp_value[:, na, na]*(der_model_p[:, na, :]*der_model_p[:, :, na])).sum(axis=0) #w_diff is equal to zero
 
