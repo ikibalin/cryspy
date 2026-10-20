@@ -62,8 +62,17 @@ def rhochi_check_items(cryspy_object: cryspy.GlobalN):
 
 
 
-def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN) -> dict:
+# `callback` is keyword-only and has no annotation on purpose: CrysPy Editor
+# builds its menus and argument widgets from the positional arguments and
+# their annotations, so the procedure stays a one-click (autorun) procedure.
+def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN, *, callback=None) -> dict:
     """Run refinement by RhoChi procedure.
+
+    callback (keyword-only, optional) is called after every iteration of the
+    minimizer as callback(info); info is a dict with "iteration", "chi_sq",
+    "n_point", "chi_sq_per_n", "parameter_names" and "parameter_values".
+    Returning False stops the refinement: the object keeps the parameters
+    of the last completed iteration and the output dict has "stopped": True.
     """
     # check object
     rhochi_check_items(cryspy_object)
@@ -72,16 +81,18 @@ def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN) -> dict:
 
     dict_out = rhochi_rietveld_refinement_with_parameters(
         cryspy_object,
-        optimization_method=method) 
+        optimization_method=method, callback=callback)
 
     return dict_out
 
 
 def rhochi_rietveld_refinement_with_parameters(
         cryspy_object: cryspy.GlobalN,
-        optimization_method: str = "BFGS") -> dict:
+        optimization_method: str = "BFGS", *, callback=None) -> dict:
     """Run refinement by RhoChi procedure with non-default parameters.
     optimization_method can be 'BFGS', 'basinhopping' or other (see: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html)
+
+    callback (keyword-only, optional): see rhochi_rietveld_refinement.
     """
 
     # check object
@@ -89,13 +100,16 @@ def rhochi_rietveld_refinement_with_parameters(
 
     obj_dict = cryspy_object.get_dictionary()
     flag_scipy_refinements = True
+    flag_stopped = False
     if flag_scipy_refinements:
         
         DICT_PARAMS["previous_arg"] = ()
         DICT_PARAMS["iteration"] = 0
         chi_sq, parameter_name, dict_in_out, res = rhochi_rietveld_refinement_by_dictionary(
-            obj_dict, method=optimization_method, callback=_f_callback)
-        dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name}
+            obj_dict, method=optimization_method, callback=_f_callback,
+            progress_callback=callback)
+        flag_stopped = bool(res.get("stopped", False))
+        dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name, "stopped": flag_stopped}
         if "hess_inv" in res.keys():
             hess_inv = res["hess_inv"]
             sigma_p = numpy.sqrt(numpy.abs(numpy.diag(hess_inv)))
@@ -121,7 +135,11 @@ def rhochi_rietveld_refinement_with_parameters(
         correlation_matrix[numpy.isnan(correlation_matrix)] = 0.
         dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name,"der_chi_sq":der_chi_sq,
             "dder_chi_sq": dder_chi_sq, "correlation_matrix": correlation_matrix}
-    cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
+    if flag_stopped:
+        # sigmas of a stopped refinement are unknown: keep the previous ones
+        cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = None, l_sigma=None)
+    else:
+        cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
     
     var_names = cryspy_object.get_variable_names()
@@ -131,6 +149,8 @@ def rhochi_rietveld_refinement_with_parameters(
         value = cryspy_object.get_variable_by_name(name)
         print(f" - {name[-1][0]:} {value:.5f}")
     
+    if flag_stopped:
+        return dict_out
     print("Errors are estimating by numerical derivatives.")
     rhochi_inversed_hessian(cryspy_object)
     return dict_out
