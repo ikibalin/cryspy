@@ -29,6 +29,7 @@ dependencies = [
 dev = [
   'pytest',       # Testing
   'pytest-xdist', # Parallel test execution
+  'pytest-cov',   # Test coverage
   'build',        # Building the package
   'versioningit', # Automatic versioning from git tags
 ]
