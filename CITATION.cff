@@ -1,0 +1,26 @@
+# Citation metadata: GitHub shows a "Cite this repository" button from it,
+# and Zenodo uses it for the DOI of every GitHub release.
+# The version is not written here: it comes from the git tag of a release.
+cff-version: 1.2.0
+message: "If you use CrysPy in your research, please cite it as below."
+type: software
+title: "CrysPy: crystallographic library for polarized and unpolarized neutron diffraction data analysis"
+authors:
+  - family-names: Kibalin
+    given-names: Iurii
+abstract: >-
+  CrysPy is a Python library for the analysis of polarized and unpolarized
+  neutron diffraction and X-ray diffraction data of powders and single
+  crystals: nuclear and magnetic structure refinement, local magnetic
+  susceptibility, and spin and magnetization density reconstruction by the
+  maximum entropy method.
+license: MIT
+repository-code: "https://github.com/ikibalin/cryspy"
+url: "https://www.cryspy.fr"
+keywords:
+  - crystallography
+  - neutron diffraction
+  - polarized neutrons
+  - magnetic structure
+  - Rietveld refinement
+  - maximum entropy method
