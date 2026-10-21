@@ -291,9 +291,11 @@ from cryspy.procedure_assistant.help import (
 )
 
 from cryspy.procedure_assistant.tools import (
+    ArgumentsNeeded,
     assistant_tools,
     assistant_tools_as_text,
     call_assistant_tool,
+    convert_assistant_answer,
 )
 
 
@@ -464,6 +466,8 @@ L_FUNCTION = [
     assistant_tools,
     assistant_tools_as_text,
     call_assistant_tool,
+    convert_assistant_answer,
+    ArgumentsNeeded,
     load_cif_from_cod,
     cif_to_crystal,
 ]

@@ -12,6 +12,21 @@ tools:
 
 assistant_tools() describes the tools in the JSON schema format used by
 chat models ("tools" of OpenAI and llama.cpp).
+
+A tool that lacks information only the user knows (unit cell, wavelength,
+...) does not fail: the result has the key 'missing', a list of the
+arguments to ask the user (as "elicitation" of the Model Context Protocol).
+The program asks them, checks each answer with convert_assistant_answer and
+calls the tool again with the answers added to the arguments:
+
+    >>> result = cryspy.call_assistant_tool(obj, name, arguments)
+    >>> for d_missing in result["missing"]:
+    ...     arguments[d_missing["name"]] = cryspy.convert_assistant_answer(
+    ...         d_missing, input(d_missing["question"]))
+    >>> result = cryspy.call_assistant_tool(obj, name, arguments)
+
+A required argument is asked from the user when its description has
+"question"; a tool asks for other values by raising ArgumentsNeeded.
 """
 import inspect
 import re
@@ -31,6 +46,23 @@ from cryspy.procedure_assistant.parameters import (
 
 MAX_PARAMETERS_IN_LIST = 200
 CORRELATION_LIMIT = 0.7
+MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "hint",
+                "proposal", "s_proposal")
+
+
+class ArgumentsNeeded(Exception):
+    """Raised by a tool for the values to ask the user.
+
+    l_missing: dicts with "name" (argument of the tool), "question" (what
+    is asked, e.g. "the unit cell parameters") and optional JSON schema
+    keys of the value ("type", "items", "minItems", "maxItems", "enum"),
+    "hint" (format of the answer), "proposal" (a value known already, the
+    user confirms it), "s_proposal" (its text)."""
+
+    def __init__(self, l_missing: List[dict], message: str = ""):
+        super().__init__(message)
+        self.l_missing = l_missing
+        self.message = message
 
 
 class AssistantTool:
@@ -585,16 +617,71 @@ def assistant_tools_as_text() -> str:
 
 
 def convert_argument(value, d_param: dict):
+    """Value of the argument of the type given by its JSON schema; raises
+    ValueError or TypeError when it does not fit."""
     s_type = d_param.get("type", "string")
-    if s_type == "number":
-        return float(value)
-    if s_type == "integer":
-        return int(value)
-    if s_type == "boolean":
+    if s_type == "array":
+        if isinstance(value, str):
+            value = [word for word in re.split(r"[\s,;]+", value.strip(" []()"))
+                     if word != ""]
+        l_value = [convert_argument(item, d_param.get("items", {}))
+                   for item in value]
+        n_min = d_param.get("minItems", 0)
+        n_max = d_param.get("maxItems", len(l_value))
+        if not n_min <= len(l_value) <= n_max:
+            s_number = (f"{n_min:}" if n_min == n_max
+                        else f"from {n_min:} to {n_max:}")
+            raise ValueError(f"{s_number:} values are expected, "
+                             f"{len(l_value):} are given.")
+        return l_value
+    if s_type in ("number", "integer"):
+        try:
+            out = float(value) if s_type == "number" else int(value)
+        except ValueError:
+            s_kind = "a number" if s_type == "number" else "an integer"
+            raise ValueError(f"'{value:}' is not {s_kind:}.") from None
+    elif s_type == "boolean":
         if isinstance(value, str):
             return value.strip().lower() in ("true", "yes", "1")
         return bool(value)
-    return str(value)
+    else:
+        out = str(value)
+    if "enum" in d_param:
+        d_enum = {str(item).lower(): item for item in d_param["enum"]}
+        if str(out).lower() not in d_enum:
+            raise ValueError(f"'{out:}' is not one of: "
+                             f"{', '.join(str(item) for item in d_param['enum']):}.")
+        out = d_enum[str(out).lower()]
+    return out
+
+
+def convert_assistant_answer(d_missing: dict, text: str):
+    """Value of the answer of the user to a question of 'missing' (see
+    call_assistant_tool). Raises ValueError with a message for the user
+    when the answer does not fit."""
+    try:
+        return convert_argument(text.strip(), d_missing)
+    except (TypeError, ValueError) as error:
+        message = str(error)
+        if d_missing.get("hint"):
+            message = f"{message:} Expected: {d_missing['hint']:}."
+        raise ValueError(message) from error
+
+
+def form_missing(name: str, d_param: dict) -> dict:
+    """The dict of 'missing' for the argument of a tool."""
+    d_missing = {"name": name,
+                 "question": d_param.get("question", f"the {name:}")}
+    d_missing.update({key: d_param[key] for key in MISSING_KEYS
+                      if key in d_param})
+    return d_missing
+
+
+def form_missing_text(name: str, l_missing: List[dict],
+                      message: str = "") -> str:
+    s_question = "; ".join(d_missing["question"] for d_missing in l_missing)
+    s_text = f"{name:} needs to know: {s_question:}."
+    return f"{message:}\n{s_text:}" if message else s_text
 
 
 def call_assistant_tool(cryspy_object, name: str,
@@ -604,12 +691,15 @@ def call_assistant_tool(cryspy_object, name: str,
     Never raises: errors are returned as text, so that the model can read
     them and correct the call.
 
-    Returns dict with keys 'text', 'flag_object_changed' and 'flag_error'
+    Returns dict with keys 'text', 'flag_object_changed', 'flag_error'
     (True if the tool did not do what was asked: the text starts with
-    "Error"; a chat program must not report such a call as done).
+    "Error"; a chat program must not report such a call as done) and
+    'missing' (the arguments to ask the user, see the module docstring;
+    an empty list when nothing is missing).
     """
     result = run_assistant_tool(cryspy_object, name, arguments)
     result["flag_error"] = str(result["text"]).startswith("Error")
+    result.setdefault("missing", [])
     return result
 
 
@@ -634,11 +724,19 @@ def run_assistant_tool(cryspy_object, name: str,
         return {"text": f"Error in arguments of {name:}: {error:}",
                 "flag_object_changed": False}
     l_missing = [key for key in tool.required if key not in kwargs]
-    if len(l_missing) > 0:
+    l_ask = [key for key in l_missing if "question" in tool.parameters[key]]
+    if len(l_missing) > len(l_ask):
         return {"text": f"Error: {name:} needs arguments: {', '.join(l_missing):}",
                 "flag_object_changed": False}
+    if len(l_ask) > 0:
+        l_missing = [form_missing(key, tool.parameters[key]) for key in l_ask]
+        return {"text": form_missing_text(name, l_missing),
+                "flag_object_changed": False, "missing": l_missing}
     try:
         text = tool.function(cryspy_object, **kwargs)
+    except ArgumentsNeeded as error:
+        return {"text": form_missing_text(name, error.l_missing, error.message),
+                "flag_object_changed": False, "missing": error.l_missing}
     except Exception as error:
         return {"text": f"Error in {name:}: {type(error).__name__:}: {error:}",
                 "flag_object_changed": tool.flag_object_changed}
