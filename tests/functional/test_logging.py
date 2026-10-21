@@ -19,3 +19,15 @@ def test_refinement_logs_and_does_not_print(capsys, caplog):
     assert all(record.name.startswith("cryspy.") for record in caplog.records)
     assert "Rietveld refinement by CrysPy (module RhoChi)" in messages
     assert "Optimal parameters:" in messages
+
+
+def test_progress_lines_are_marked(caplog):
+    """Iteration lines carry progress=True so that a program can replace
+    the previous one instead of adding a line per iteration."""
+    logger = logging.getLogger("cryspy.test")
+    with caplog.at_level(logging.INFO, logger="cryspy"):
+        logger.info("Iteration 1", extra=cryspy.PROGRESS)
+        logger.info("Done")
+    progress, done = caplog.records
+    assert cryspy.is_progress_record(progress)
+    assert not cryspy.is_progress_record(done)

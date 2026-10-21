@@ -57,6 +57,9 @@ import logging as _logging
 # never prints by itself. The application decides where messages go, e.g.
 # logging.basicConfig(level=logging.INFO, format="%(message)s") in a script.
 _logging.getLogger("cryspy").addHandler(_logging.NullHandler())
+# Progress lines (one per iteration) carry progress=True, so that a program
+# can replace the previous one: logger.info(text, extra=PROGRESS).
+from cryspy.A_functions_base.progress import PROGRESS, is_progress_record
 
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
