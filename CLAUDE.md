@@ -62,6 +62,14 @@ Public API is re-exported from `cryspy/__init__.py`.
 - Every new public function gets a docstring with parameters, shapes and units,
   and a reference (paper, International Tables, FullProf/Jana convention) when
   implementing a published formula.
+- Procedures (functions in `L_FUNCTION`/`L_FUNCTION_ADD` that take the object
+  `GlobalN` or CIF items/loops) are shown in the menus of CrysPy Editor, in
+  forms of their parameters and by AI assistants from their type hints and
+  docstring only (`cryspy.describe_procedure`). Write their docstring in the
+  numpydoc format: a one-line summary, then `Parameters` with `name : type`
+  and an indented description for every parameter except keyword-only ones
+  such as `callback`. The first sentence of the description is the question
+  asked from the user ("Maximal number of iterations."); give units there.
 
 ## Software engineering practices
 

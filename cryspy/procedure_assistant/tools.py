@@ -28,7 +28,6 @@ calls the tool again with the answers added to the arguments:
 A required argument is asked from the user when its description has
 "question"; a tool asks for other values by raising ArgumentsNeeded.
 """
-import inspect
 import re
 from typing import Callable, Dict, List, Optional
 
@@ -40,14 +39,19 @@ from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 from cryspy.procedure_assistant.help import get_help
+from cryspy.procedure_assistant.procedures import (
+    describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
+    take_procedures)
 from cryspy.procedure_assistant.parameters import (
     find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
 
 MAX_PARAMETERS_IN_LIST = 200
 CORRELATION_LIMIT = 0.7
-MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "hint",
-                "proposal", "s_proposal")
+MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "aliases",
+                "minimum", "maximum", "hint", "proposal", "s_proposal")
+NULL_WORDS = ("none", "null", "identity", "-")
+RE_NUMBER = re.compile(r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
 
 
 class ArgumentsNeeded(Exception):
@@ -71,7 +75,8 @@ class AssistantTool:
     def __init__(self, name: str, description: str, function: Callable,
                  parameters: Optional[Dict[str, dict]] = None,
                  required: tuple = (), flag_object_changed: bool = False,
-                 flag_object_needed: bool = True):
+                 flag_object_needed: bool = True,
+                 flag_extra_arguments: bool = False):
         self.name = name
         self.description = description
         self.function = function
@@ -79,6 +84,8 @@ class AssistantTool:
         self.required = required
         self.flag_object_changed = flag_object_changed
         self.flag_object_needed = flag_object_needed
+        # arguments not in parameters are given to the function as they are
+        self.flag_extra_arguments = flag_extra_arguments
 
     def to_dict(self) -> dict:
         """Description in the 'tools' format of chat completion APIs."""
@@ -429,50 +436,76 @@ def tool_add_crystal_from_cod(cryspy_object, formula: str = "",
             f"{len(crystal.atom_site.items):} atoms.")
 
 
-def take_procedures() -> Dict[str, Callable]:
-    """CrysPy procedures that need only the object (as in CrysPy Editor menus)."""
-    import cryspy
-    d_procedure = {}
-    for function in cryspy.L_FUNCTION + cryspy.L_FUNCTION_ADD:
-        try:
-            signature = inspect.signature(function)
-        except (TypeError, ValueError):
-            continue
-        l_param = list(signature.parameters.values())
-        if len(l_param) == 0:
-            continue
-        if l_param[0].annotation is not GlobalN:
-            continue
-        if any(param.default is inspect.Parameter.empty
-               for param in l_param[1:]):
-            continue
-        d_procedure[function.__name__] = function
-    return d_procedure
-
-
 def tool_list_procedures(cryspy_object) -> str:
     ls_out = []
-    for name, function in sorted(take_procedures().items()):
-        doc = (function.__doc__ or "").strip().split("\n")[0]
-        ls_out.append(f"- {name:}: {doc:}")
+    for d_procedure in describe_procedures():
+        ls_param = []
+        for d_param in d_procedure["parameters"]:
+            if d_param["kind"] == "global":
+                continue
+            s_type = d_param.get("type") or "|".join(d_param.get("classes", []))
+            s_default = f"={d_param['default']!r:}" if "default" in d_param else ""
+            ls_param.append(f"{d_param['name']:}: {s_type:}{s_default:}")
+        ls_out.append(f"- {d_procedure['name']:}({', '.join(ls_param):}): {d_procedure['summary']:}")
     return "\n".join(ls_out)
 
 
-def tool_run_procedure(cryspy_object, name: str) -> str:
-    d_procedure = take_procedures()
-    if name not in d_procedure:
-        return (f"Error: procedure '{name:}' is not known. Available:\n"
-                + tool_list_procedures(cryspy_object))
-    result = d_procedure[name](cryspy_object)
+def form_procedure_result(name: str, result, cryspy_object) -> str:
+    from cryspy.B_parent_classes.cl_1_item import ItemN
+    from cryspy.B_parent_classes.cl_2_loop import LoopN
     if isinstance(result, dict) and "chi_sq" in result:
         return f"{name:} finished.\n" + format_rhochi_result(
             result, cryspy_object)
     if result is None:
         return f"{name:} finished."
-    text = str(result)
+    if isinstance(result, (ItemN, LoopN, DataN, GlobalN)):
+        text = result.to_cif()
+    elif isinstance(result, (list, tuple)) and len(result) > 0 and all(
+            isinstance(item, (ItemN, LoopN, DataN)) for item in result):
+        text = "\n\n".join(item.to_cif() for item in result)
+    else:
+        text = str(result)
     if len(text) > 4000:
         text = text[:4000] + "\n[... the rest is cut ...]"
     return f"{name:} finished.\n{text:}"
+
+
+def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
+    """Run a procedure: the object, and the items of the object found by
+    their classes, are given at once; values without a default and items
+    found more than once are asked from the user (ArgumentsNeeded) with
+    the questions made from the docstring of the procedure."""
+    d_function = take_procedures()
+    if name not in d_function:
+        return (f"Error: procedure '{name:}' is not known. Available:\n"
+                + tool_list_procedures(cryspy_object))
+    function = d_function[name]
+    d_param_type = {param: types for param, _, types, _ in take_procedure_parameters(function)}
+    kwargs, l_missing = {}, []
+    for d_param in describe_procedure(function)["parameters"]:
+        param, kind = d_param["name"], d_param["kind"]
+        d_ask = {"name": param, "question": d_param.get("question", param)}
+        if kind == "global":
+            kwargs[param] = cryspy_object
+        elif kind == "basic":
+            if param in arguments:
+                kwargs[param] = convert_argument(arguments[param], d_param)
+            elif "default" not in d_param:
+                l_missing.append(dict(d_ask, type=d_param["type"], hint=param))
+        elif kind == "cif":
+            d_found = find_cif_objects(cryspy_object, d_param_type[param])
+            s_type = " or ".join(d_param["classes"])
+            if param in arguments and str(arguments[param]) in d_found:
+                kwargs[param] = d_found[str(arguments[param])]
+            elif len(d_found) == 1:
+                kwargs[param] = list(d_found.values())[0]
+            elif len(d_found) == 0:
+                return f"Error: {name:} needs {s_type:} ({param:}), the object has none."
+            else:
+                l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
+    if l_missing:
+        raise ArgumentsNeeded(l_missing)
+    return form_procedure_result(name, function(**kwargs), cryspy_object)
 
 
 S_PATH = ("Parameter path or pattern: 'crystal_pbso4.cell.length_a', "
@@ -592,10 +625,13 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         tool_list_procedures),
     AssistantTool(
         "run_procedure",
-        "Run a CrysPy procedure from list_procedures by its name.",
+        "Run a CrysPy procedure from list_procedures by its name; its "
+        "parameters are further arguments (e.g. \"iteration_max\": 500). "
+        "Missing values are asked from the user; results that are rcif "
+        "objects are given in rcif format.",
         tool_run_procedure,
         {"name": {"type": "string"}}, required=("name", ),
-        flag_object_changed=True),
+        flag_object_changed=True, flag_extra_arguments=True),
 ]
 
 
@@ -618,8 +654,20 @@ def assistant_tools_as_text() -> str:
 
 def convert_argument(value, d_param: dict):
     """Value of the argument of the type given by its JSON schema; raises
-    ValueError or TypeError when it does not fit."""
+    ValueError or TypeError when it does not fit.
+
+    Keys of d_param: "type" (a list with "null" accepts None, also given as
+    'none', 'null', 'identity' or '-'), "items", "minItems", "maxItems"
+    (arrays), "minimum", "maximum" (numbers), "enum" and "aliases" ({item
+    of enum: [words]}: the item whose word is in the answer)."""
     s_type = d_param.get("type", "string")
+    if isinstance(s_type, list):
+        if "null" in s_type and (value is None or (
+                isinstance(value, str) and value.strip().lower() in NULL_WORDS)):
+            return None
+        l_type = [item for item in s_type if item != "null"]
+        d_param = dict(d_param, type=l_type[0] if l_type else "string")
+        return convert_argument(value, d_param)
     if s_type == "array":
         if isinstance(value, str):
             value = [word for word in re.split(r"[\s,;]+", value.strip(" []()"))
@@ -635,11 +683,19 @@ def convert_argument(value, d_param: dict):
                              f"{len(l_value):} are given.")
         return l_value
     if s_type in ("number", "integer"):
+        s_kind = "a number" if s_type == "number" else "an integer"
+        if isinstance(value, str):  # '2.36 A': the only number with its unit
+            l_number = RE_NUMBER.findall(value)
+            if len(l_number) == 1:
+                value = l_number[0]
         try:
             out = float(value) if s_type == "number" else int(value)
         except ValueError:
-            s_kind = "a number" if s_type == "number" else "an integer"
             raise ValueError(f"'{value:}' is not {s_kind:}.") from None
+        if "minimum" in d_param and out < d_param["minimum"]:
+            raise ValueError(f"{out:g} is less than {d_param['minimum']:g}.")
+        if "maximum" in d_param and out > d_param["maximum"]:
+            raise ValueError(f"{out:g} is more than {d_param['maximum']:g}.")
     elif s_type == "boolean":
         if isinstance(value, str):
             return value.strip().lower() in ("true", "yes", "1")
@@ -649,6 +705,11 @@ def convert_argument(value, d_param: dict):
     if "enum" in d_param:
         d_enum = {str(item).lower(): item for item in d_param["enum"]}
         if str(out).lower() not in d_enum:
+            s_lower = str(out).lower()
+            for item, l_word in d_param.get("aliases", {}).items():
+                if any(re.search(rf"(?<!\w){re.escape(str(word).lower()):}(?!\w)", s_lower)
+                       for word in l_word):
+                    return item
             raise ValueError(f"'{out:}' is not one of: "
                              f"{', '.join(str(item) for item in d_param['enum']):}.")
         out = d_enum[str(out).lower()]
@@ -720,6 +781,8 @@ def run_assistant_tool(cryspy_object, name: str,
         for key, value in arguments.items():
             if key in tool.parameters:
                 kwargs[key] = convert_argument(value, tool.parameters[key])
+            elif tool.flag_extra_arguments:
+                kwargs[key] = value
     except (TypeError, ValueError) as error:
         return {"text": f"Error in arguments of {name:}: {error:}",
                 "flag_object_changed": False}
