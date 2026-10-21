@@ -49,6 +49,18 @@ D_PATTERN_ALIASES = {
     "moment": ("atom_site_moment", ),
     "magnetic_moment": ("atom_site_moment", ),
     "susceptibility": ("atom_site_susceptibility", ),
+    # Ciso and Cani are types of the tensor (set_chi_type), not parameters
+    "ciso": ("atom_site_susceptibility.chi_11", ),
+    "chi_iso": ("atom_site_susceptibility.chi_11", ),
+    "isotropic_susceptibility": ("atom_site_susceptibility.chi_11", ),
+    "atom_site_susceptibility.ciso": ("atom_site_susceptibility.chi_11", ),
+    "atom_site_susceptibility.chi_iso": ("atom_site_susceptibility.chi_11", ),
+    "cani": ("atom_site_susceptibility", ),
+    "chi_aniso": ("atom_site_susceptibility", ),
+    "anisotropic_susceptibility": ("atom_site_susceptibility", ),
+    "atom_site_susceptibility.cani": ("atom_site_susceptibility", ),
+    "atom_site_susceptibility.chi_aniso": ("atom_site_susceptibility", ),
+    "susceptibility_tensor": ("atom_site_susceptibility", ),
 }
 
 
