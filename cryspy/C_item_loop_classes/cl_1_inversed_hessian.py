@@ -1,8 +1,6 @@
 """Pd2dBackground class."""
 import numpy
-import scipy
-import scipy.interpolate
-from typing import NoReturn, Union
+from typing import NoReturn
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 

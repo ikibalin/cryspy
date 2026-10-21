@@ -1,7 +1,4 @@
 import numpy
-import scipy
-import scipy.interpolate
-import scipy.special
 
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
 
@@ -18,7 +15,7 @@ from cryspy.A_functions_base.integrated_intensity_powder_diffraction import \
 from cryspy.A_functions_base.preferred_orientation import calc_preferred_orientation_pd
 
 from cryspy.A_functions_base.powder_diffraction_tof import \
-    calc_spectrum, calc_time_for_epithermal_neutrons_by_d, calc_time_for_thermal_neutrons_by_d, \
+    calc_time_for_epithermal_neutrons_by_d, calc_time_for_thermal_neutrons_by_d, \
     calc_d_by_time_for_thermal_neutrons, calc_d_min_max_by_time_thermal_neutrons, \
     calc_d_min_max_by_time_epithermal_neutrons, calc_lorentz_factor, calc_peak_shape_function
 

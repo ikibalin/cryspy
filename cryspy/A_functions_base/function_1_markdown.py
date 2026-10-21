@@ -21,7 +21,7 @@ def md_to_html(s_content: str):
                 elif i_val%2 == 1:
                     ls_line.append(f"</b>{val:}")
             if i_val%2 == 0:
-                ls_line.append(f"</b>")
+                ls_line.append("</b>")
             s_line = "".join(ls_line)
 
         if s_line.find("*") != -1:
@@ -32,7 +32,7 @@ def md_to_html(s_content: str):
                 elif i_val%2 == 1:
                     ls_line.append(f"</i>{val:}")
             if i_val%2 == 0:
-                ls_line.append(f"</i>")
+                ls_line.append("</i>")
             s_line = "".join(ls_line)
 
         if s_line.startswith("# "):

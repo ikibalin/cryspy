@@ -12,7 +12,7 @@ the same in a script, in CrysPy Editor and with a local language model.
 """
 import os
 import re
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 DIR_HELP_PAGES = os.path.join(os.path.dirname(__file__), "help_pages")
 

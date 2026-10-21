@@ -1,5 +1,3 @@
-import os
-import math
 import numpy
 
 import cryspy

@@ -9,7 +9,6 @@ import numpy
 
 from .matrix_operations import (
     calc_det_m,
-    calc_m1_m2,
     calc_m1_m2_inv_m1,
     calc_m_v,
     transpose_m,

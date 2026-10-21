@@ -84,7 +84,7 @@ class ItemN(object):
         if report != "":
             ls_html.append(f"<h3>Description </h3> {report:}")
 
-        ls_html.append(f"<h3>Attributes and methods</h3>")
+        ls_html.append("<h3>Attributes and methods</h3>")
         try:
             names = sorted(self.ATTR_MANDATORY_NAMES)
             if len(names) != 0:

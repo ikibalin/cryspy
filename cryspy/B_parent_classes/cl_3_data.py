@@ -51,7 +51,7 @@ class DataN(object):
         if report != "":
             ls_html.append(f"<h2>Description </h2> {report:}")
 
-        ls_html.append(f"<h2>Classes and methods</h2>")
+        ls_html.append("<h2>Classes and methods</h2>")
         try:
             names = sorted([obj.__name__ for obj in self.CLASSES_MANDATORY])
             if len(names) != 0:
