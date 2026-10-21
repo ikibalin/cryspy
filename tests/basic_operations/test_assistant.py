@@ -220,3 +220,87 @@ def test_structure_factor_of_one_reflection():
     f_text = float(re.search(r"F_N = (-?[\d.]+)", text_1).group(1))
     assert f_text == pytest.approx(f_110, abs=2e-3)
     assert call(obj, "calculate_structure_factor", {"hkl": "1 0"})["flag_error"]
+
+
+# Arguments asked from the user ("missing", as MCP elicitation)
+
+def tool_plan(cryspy_object, cell: list, geometry: str,
+              wavelength: float = 0.) -> str:
+    if wavelength == 0.:
+        raise cryspy.ArgumentsNeeded(
+            [{"name": "wavelength", "question": "the wavelength",
+              "type": "number", "hint": "Å", "proposal": 1.26}],
+            message="The wavelength is not given in the data.")
+    return (f"Plan for {' '.join(f'{value:g}' for value in cell):} in "
+            f"{geometry:} geometry at {wavelength:g} Å.")
+
+
+@pytest.fixture
+def plan_tool(monkeypatch):
+    from cryspy.procedure_assistant import tools
+    tool = tools.AssistantTool(
+        "plan_measurement", "Plan of the measurement.", tool_plan,
+        {"cell": {"type": "array", "items": {"type": "number"},
+                  "minItems": 6, "maxItems": 6,
+                  "question": "the unit cell parameters",
+                  "hint": "a b c alpha beta gamma"},
+         "geometry": {"type": "string", "enum": ["normal beam", "four circle"],
+                      "question": "the geometry of measurements"},
+         "wavelength": {"type": "number"}},
+        required=("cell", "geometry"), flag_object_needed=False)
+    monkeypatch.setattr(tools, "L_ASSISTANT_TOOLS",
+                        tools.L_ASSISTANT_TOOLS + [tool])
+    return tool
+
+
+def test_missing_arguments_are_asked(plan_tool):
+    result = cryspy.call_assistant_tool(None, "plan_measurement", {})
+    assert not result["flag_error"] and not result["flag_object_changed"]
+    assert result["text"] == ("plan_measurement needs to know: the unit cell "
+                              "parameters; the geometry of measurements.")
+    assert [d_missing["name"] for d_missing in result["missing"]] == [
+        "cell", "geometry"]
+    d_cell = result["missing"][0]
+    assert d_cell["hint"] == "a b c alpha beta gamma" and d_cell["minItems"] == 6
+    json.dumps(result["missing"])  # plain data for any program
+
+    arguments = {"cell": cryspy.convert_assistant_answer(d_cell, "5 6 4 90 90 90"),
+                 "geometry": cryspy.convert_assistant_answer(
+                     result["missing"][1], "Normal Beam")}
+    assert arguments == {"cell": [5., 6., 4., 90., 90., 90.],
+                         "geometry": "normal beam"}
+    # the tool asks for a value it finds missing itself
+    result = cryspy.call_assistant_tool(None, "plan_measurement", arguments)
+    assert result["text"] == ("The wavelength is not given in the data.\n"
+                              "plan_measurement needs to know: the wavelength.")
+    assert result["missing"] == [{"name": "wavelength", "question": "the wavelength",
+                                  "type": "number", "hint": "Å", "proposal": 1.26}]
+    arguments["wavelength"] = 1.26
+    result = cryspy.call_assistant_tool(None, "plan_measurement", arguments)
+    assert result["text"] == "Plan for 5 6 4 90 90 90 in normal beam geometry at 1.26 Å."
+    assert result["missing"] == []
+
+
+@pytest.mark.parametrize("text, message", [
+    ("5 6 4", "6 values are expected, 3 are given."),
+    ("5 6 4 90 90 x", "'x' is not a number."),
+])
+def test_wrong_answer_is_explained(plan_tool, text, message):
+    d_cell = cryspy.call_assistant_tool(None, "plan_measurement", {})["missing"][0]
+    with pytest.raises(ValueError, match=re.escape(message)):
+        cryspy.convert_assistant_answer(d_cell, text)
+
+
+def test_answer_types():
+    convert = cryspy.convert_assistant_answer
+    assert convert({"type": "integer"}, " 63 ") == 63
+    assert convert({"type": "array", "items": {"type": "number"}}, "[5, 6; 4]") == [5., 6., 4.]
+    with pytest.raises(ValueError, match="'Cmcm' is not an integer. Expected: number of the space group."):
+        convert({"type": "integer", "hint": "number of the space group"}, "Cmcm")
+    with pytest.raises(ValueError, match="is not one of: Biso, Uiso"):
+        convert({"type": "string", "enum": ["Biso", "Uiso"]}, "Bani")
+
+
+def test_required_argument_without_question_stays_error():
+    result = cryspy.call_assistant_tool(take_object(), "set_parameter", {"value": 1})
+    assert result["flag_error"] and result["missing"] == []
