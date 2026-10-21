@@ -28,12 +28,12 @@ jobs:
     name: ${{ matrix.suite }}-tests
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history + tags for versioningit
 
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.8
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
           pixi-version: latest
 
@@ -43,7 +43,7 @@ jobs:
           COVERAGE_FILE: .coverage.${{ matrix.suite }}
 
       - name: Upload coverage data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-${{ matrix.suite }}
           path: .coverage.${{ matrix.suite }}
@@ -58,10 +58,10 @@ jobs:
       pull-requests: write # comment with the coverage table
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
 
@@ -69,7 +69,7 @@ jobs:
         run: python -m pip install coverage
 
       - name: Download coverage data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: coverage-*
           merge-multiple: true
@@ -84,7 +84,7 @@ jobs:
       - name: Upload HTML report
         run: coverage html -d coverage-html
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: coverage-html
           path: coverage-html
@@ -114,12 +114,12 @@ jobs:
     name: unit-tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history + tags for versioningit
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
