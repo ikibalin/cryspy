@@ -1,3 +1,4 @@
+import logging
 import numpy
 import cryspy
 
@@ -5,6 +6,8 @@ from cryspy.procedure_mempy.mempy_by_dictionary import (
     mempy_reconstruction_by_dictionary,
     mempy_cycle_density_parameters,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
@@ -417,6 +420,6 @@ def mempy_cycle_with_parameters(
                 channel_col,
             ]
         )
-    print(70 * "*")
-    print("End of cycle procedure (MEMPy module)")
-    print(70 * "*")
+    logger.info(70 * "*")
+    logger.info("End of cycle procedure (MEMPy module)")
+    logger.info(70 * "*")

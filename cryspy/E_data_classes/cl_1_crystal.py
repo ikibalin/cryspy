@@ -2,6 +2,7 @@
 
 __author__ = "ikibalin"
 __version__ = "2020_08_19"
+import logging
 import numpy
 
 from typing import NoReturn
@@ -105,6 +106,8 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid impo
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
 )
+
+logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
 
@@ -1773,7 +1776,7 @@ class Crystal(DataN):
             l_coeff,
             l_kappa,
         )
-        print(f"file den is '{file_den}'")
+        logger.info(f"file den is '{file_den}'")
         if file_den != "":
             hh = numpy.sum(multipole_density, axis=1)
             flag_pos = hh >= 0.0
@@ -1910,9 +1913,7 @@ class Crystal(DataN):
                         centrosymmetry,
                         centrosymmetry_position,
                     )
-                    print(
-                        f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'."
-                    )
+                    logger.info(f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'.")
 
 
 def calc_sc_v_unit_cell_parameters(

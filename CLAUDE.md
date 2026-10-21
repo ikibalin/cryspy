@@ -112,6 +112,11 @@ Public API is re-exported from `cryspy/__init__.py`.
 - Keep functions short and single-purpose; split long formulas into named
   intermediate quantities.
 - Delete dead code instead of commenting it out; git keeps history.
+- Don't `print` inside the library. Report progress with
+  `logger = logging.getLogger(__name__)` (`logger.info`, `logger.debug`),
+  problems the user should fix in the input with `warnings.warn`, and
+  errors with exceptions. CrysPy Editor and PyColl5 show the log in their
+  own windows.
 
 **Security and hygiene**
 - Never commit secrets, credentials or personal data.
