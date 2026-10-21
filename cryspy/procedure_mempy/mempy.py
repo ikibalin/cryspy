@@ -1,5 +1,7 @@
+import warnings
 import numpy
 import cryspy
+from cryspy.exceptions import CrysPyWarning, RefinementError
 
 from cryspy.procedure_mempy.mempy_by_dictionary import (
     mempy_reconstruction_by_dictionary,
@@ -89,15 +91,15 @@ def mempy_reconstruction_with_parameters(
     ]
 
     if len(l_dict_crystal) == 0:
-        raise KeyError("The crystal is not found")
+        raise RefinementError("The crystal is not found")
 
     elif len(l_dict_crystal) > 1:
-        raise UserWarning(
-            "The first crystal will be used for MEM reconstruction procedure"
-        )
+        warnings.warn(
+            "The first crystal will be used for MEM reconstruction procedure",
+            CrysPyWarning, stacklevel=2)
 
     if len(l_dict_diffrn) == 0:
-        raise KeyError(
+        raise RefinementError(
             "The single crystall polarized experiments are not found"
         )
 
@@ -262,15 +264,15 @@ def mempy_cycle_with_parameters(
     ]
 
     if len(l_dict_crystal) == 0:
-        raise KeyError("The crystal is not found")
+        raise RefinementError("The crystal is not found")
 
     elif len(l_dict_crystal) > 1:
-        raise UserWarning(
-            "The first crystal will be used for MEM reconstruction procedure"
-        )
+        warnings.warn(
+            "The first crystal will be used for MEM reconstruction procedure",
+            CrysPyWarning, stacklevel=2)
 
     if len(l_dict_diffrn) == 0:
-        raise KeyError(
+        raise RefinementError(
             "The single crystall polarized experiments are not found"
         )
 

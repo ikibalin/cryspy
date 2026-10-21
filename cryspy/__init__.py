@@ -58,6 +58,14 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
+from cryspy.exceptions import (
+    CrysPyError,
+    RcifFormatError,
+    RcifFileNotFoundError,
+    RefinementError,
+    CrysPyWarning,
+)
+
 
 from cryspy.A_functions_base.function_1_algebra import (
     calc_scalar_product_by_vectors,

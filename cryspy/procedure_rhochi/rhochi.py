@@ -13,6 +13,7 @@ from cryspy.A_functions_base.function_1_error_simplex import \
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+from cryspy.exceptions import RefinementError
 
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian, inversed_hessian_to_correlation
 
@@ -39,7 +40,7 @@ def rhochi_check_items(cryspy_object: cryspy.GlobalN):
     f_crystal, f_experiment = False, False
 
     if not(isinstance(cryspy_object, cryspy.GlobalN)):
-        raise AttributeError("Incorrect type of object")
+        raise RefinementError("Incorrect type of object: GlobalN is expected")
 
     cl_crysts = (cryspy.Crystal, ) #cryspy.MagCrystal
     cl_exps = (cryspy.Diffrn, cryspy.Pd, cryspy.Pd2d, cryspy.TOF)
@@ -55,10 +56,10 @@ def rhochi_check_items(cryspy_object: cryspy.GlobalN):
             break
 
     if not(f_crystal):
-        raise AttributeError("Crystal is not defined")
+        raise RefinementError("Crystal is not defined")
 
     if not(f_experiment):
-        raise AttributeError("Experiment is not defined")
+        raise RefinementError("Experiment is not defined")
 
 
 

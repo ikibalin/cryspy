@@ -2,6 +2,7 @@
 from typing import NoReturn
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.exceptions import CrysPyError
 
 import numpy
 
@@ -123,7 +124,8 @@ class DensityPoint(ItemN):
                                                 fract_z)[0].size
         mult_2 = int(len(space_group.full_space_group_symop.items)/el_2)
         if mult != mult_2:
-            raise UserWarning(
+            raise CrysPyError(
+                "Multiplicity of the density point is not consistent: "
                 f"{fract_x:.5f} {fract_y:.5f} {fract_z:.5f} {mult:} {mult_2:}")
         self.multiplicity = mult
 
@@ -512,7 +514,7 @@ class DensityPointL(LoopN):
             l_max_moment = atom_site_moment.calc_moment(cell)
             l_label_atom = atom_site_moment.label
         else:
-            raise UserWarning(
+            raise TypeError(
                 "atom_site_susceptibility should be "
                 "AtomSiteSusceptibilityL or AtomSiteMomentL")
         l_den_ani = [den*l_max_moment[l_label_atom.index(lab)] if lab in

@@ -11,6 +11,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+from cryspy.exceptions import RcifFileNotFoundError, RcifFormatError
 
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, \
     AtomSiteL
@@ -259,9 +260,11 @@ def file_to_globaln(file_name: str, item_classes=(), loop_classes=(),
                     data_classes=(), global_classes=()) -> GlobalN:
     """Transfer file content of cif format to cryspy objects."""
     if not(os.path.isfile(file_name)):
-        raise UserWarning(f"File '{file_name:}' is not found")
-        return
-    s_cont = str(to_global(file_name))
+        raise RcifFileNotFoundError(f"File '{file_name:}' is not found")
+    try:
+        s_cont = str(to_global(file_name))
+    except ValueError as error:
+        raise RcifFormatError(f"File '{file_name:}': {error}") from error
     res = str_to_globaln(s_cont, item_classes=item_classes,
                          loop_classes=loop_classes, data_classes=data_classes,
                          global_classes=global_classes)
@@ -271,7 +274,10 @@ def file_to_globaln(file_name: str, item_classes=(), loop_classes=(),
 def str_to_items(s_cont: str, item_classes=(), loop_classes=()) -> list:
     """Transfer string of cif format to cryspy objects."""
     data_cif = Data()
-    data_cif.take_from_string(s_cont)
+    try:
+        data_cif.take_from_string(s_cont)
+    except ValueError as error:
+        raise RcifFormatError(str(error)) from error
     l_item_class = L_ITEM_CLASS + list(item_classes)
     l_loop_class = L_LOOP_CLASS + list(loop_classes)
 
@@ -286,7 +292,10 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                    data_classes=(), global_classes=()) -> GlobalN:
     """Transfer string of cif format to cryspy objects."""
     global_cif = Global()
-    global_cif.take_from_string(s_cont)
+    try:
+        global_cif.take_from_string(s_cont)
+    except ValueError as error:
+        raise RcifFormatError(str(error)) from error
     l_global_item = []
     l_cls_global = []
     l_item_class = L_ITEM_CLASS + list(item_classes)

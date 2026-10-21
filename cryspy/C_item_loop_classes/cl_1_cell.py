@@ -1,6 +1,5 @@
 from typing import NoReturn
 import numpy
-import warnings
 
 from cryspy.A_functions_base.function_1_atomic_vibrations import \
     apply_constraint_on_cell_by_type_cell
@@ -11,6 +10,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.exceptions import CrysPyError
 
 
 class Cell(ItemN):
@@ -361,9 +361,9 @@ class Cell(ItemN):
 
         flag = (((sa*sb-k_x)**2+(-ca*sb-k_y)**2+(cb-k_z)**2) > 0.0001)
         if any(flag):
-            warnings.warn("Mistake with k_loc\nProgram is stopped",
-                          UserWarning, stacklevel=2)
-            quit()
+            raise CrysPyError(
+                "Mistake with k_loc: the rotation matrix does not reproduce "
+                "the given direction")
         return t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33
 
     def calc_hkl(self, space_group, sthovl_min, sthovl_max):

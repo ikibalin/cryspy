@@ -11,6 +11,7 @@ from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
 from cryspy.A_functions_base.function_1_inversed_hessian import \
     estimate_inversed_hessian_matrix
+from cryspy.exceptions import RefinementError
 
 na = numpy.newaxis
 
@@ -297,7 +298,7 @@ def rhochi_calc_chi_sq_by_dictionary(
                 (len(l_dict_crystal)+len(l_dict_magcrystal)) > 0):
             name_key_crystal, dict_crystal = (l_dict_crystal+l_dict_magcrystal)[0]
         else:
-            raise AttributeError(f"Phase {phase_label:} is not found")
+            raise RefinementError(f"Phase {phase_label:} is not found")
 
         chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_name = calc_chi_sq_for_diffrn_by_dictionary(
             dict_diffrn, dict_crystal, dict_in_out=dict_in_out_diffrn,
