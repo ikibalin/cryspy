@@ -3,6 +3,7 @@ import json
 import os
 import re
 
+import numpy
 import pytest
 
 import cryspy
@@ -162,3 +163,60 @@ def test_calculate_powder_example():
     obj = cryspy.load_file(f_name)
     result = cryspy.call_assistant_tool(obj, "calculate")
     assert "chi_sq" in result["text"]
+
+
+@pytest.mark.parametrize("pattern, n_record", [
+    ("atom_site.fract_x", 2),  # labels left out, as models write it
+    ("atomic positions", 6),
+    ("fract_x, fract_y", 4),
+    ("b_iso | cell.length_a", 3),
+    ("unit cell", 6),
+])
+def test_patterns_of_requests(pattern, n_record):
+    assert len(find_parameter_records(take_object(), pattern)) == n_record
+
+
+def test_no_match_is_error_with_names():
+    obj = take_object()
+    result = cryspy.call_assistant_tool(
+        obj, "refine_parameters", {"pattern": "scale_factor"})
+    assert result["flag_error"]
+    assert result["text"].startswith("Error: no parameters match")
+    assert "atom_site.fract_x" in result["text"]
+    result = cryspy.call_assistant_tool(
+        obj, "refine_parameters", {"pattern": "atom_site[O].fract"})
+    # all coordinates of O are fixed by symmetry: nothing is done
+    assert result["flag_error"]
+    result = cryspy.call_assistant_tool(
+        obj, "refine_parameters", {"pattern": "cell.length_a"})
+    assert not result["flag_error"]
+
+
+def test_fix_all_parameters():
+    obj = take_object()
+    call = cryspy.call_assistant_tool
+    call(obj, "refine_parameters", {"pattern": "cell.length_a, b_iso"})
+    assert len(obj.get_variable_names()) == 3
+    result = call(obj, "fix_parameters", {"pattern": ""})
+    assert "All 3 refined parameters" in result["text"]
+    assert len(obj.get_variable_names()) == 0
+    assert not call(obj, "fix_parameters", {})["flag_error"]
+    assert call(obj, "fix_parameters", {"pattern": "polarization"})["flag_error"]
+
+
+def test_structure_factor_of_one_reflection():
+    obj = take_object()
+    call = cryspy.call_assistant_tool
+    # Pm-3m, Fe at 0 0 0 and O on 3d (1/2 0 0), (0 1/2 0), (0 0 1/2):
+    # F(110) = b(Fe) T(Fe) + b(O) T(O) (-1 - 1 + 1)
+    text_1 = call(obj, "calculate_structure_factor",
+                  {"h": 1, "k": 1, "l": 0})["text"]
+    text_2 = call(obj, "calculate_structure_factor", {"hkl": "(1 1 0)"})["text"]
+    assert text_1 == text_2
+    b_fe, b_o = 0.9450, 0.5803  # 10^-12 cm
+    sthovl_sq = 2 / (2 * 5.0)**2
+    f_110 = (b_fe * numpy.exp(-0.3 * sthovl_sq)
+             - b_o * numpy.exp(-0.5 * sthovl_sq))
+    f_text = float(re.search(r"F_N = (-?[\d.]+)", text_1).group(1))
+    assert f_text == pytest.approx(f_110, abs=2e-3)
+    assert call(obj, "calculate_structure_factor", {"hkl": "1 0"})["flag_error"]
