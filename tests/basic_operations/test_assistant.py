@@ -408,3 +408,24 @@ def test_procedures_are_documented():
         for d_param in d_procedure["parameters"]:
             if d_param["kind"] != "global":
                 assert d_param["description"], (d_procedure["name"], d_param["name"])
+
+
+def test_answer_with_unit_limits_null_and_aliases():
+    convert = cryspy.convert_assistant_answer
+    assert convert({"type": "number", "hint": "Å"}, "2.36 A") == 2.36
+    assert convert({"type": "number"}, "1e-5") == 1e-5
+    with pytest.raises(ValueError, match="'1.2 or 2.4' is not a number"):
+        convert({"type": "number"}, "1.2 or 2.4")
+    with pytest.raises(ValueError, match="-1 is less than 0."):
+        convert({"type": "number", "minimum": 0}, "-1")
+    with pytest.raises(ValueError, match="1200 is more than 1000."):
+        convert({"type": "integer", "maximum": 1000}, "1200")
+    d_ub = {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 9, "maxItems": 9}
+    assert convert(d_ub, "identity") is None and convert(d_ub, "None") is None
+    assert convert(d_ub, "1 0 0 0 1 0 0 0 1") == [1., 0., 0., 0., 1., 0., 0., 0., 1.]
+    d_geometry = {"type": "string", "enum": ["NB", "4C"],
+                  "aliases": {"NB": ["normal beam", "normal"], "4C": ["four circle", "eulerian"]}}
+    assert convert(d_geometry, "Normal beam geometry") == "NB"
+    assert convert(d_geometry, "4c") == "4C"
+    with pytest.raises(ValueError, match="is not one of: NB, 4C"):
+        convert(d_geometry, "kappa")

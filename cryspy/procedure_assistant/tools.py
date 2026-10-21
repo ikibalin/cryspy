@@ -48,8 +48,10 @@ from cryspy.procedure_assistant.parameters import (
 
 MAX_PARAMETERS_IN_LIST = 200
 CORRELATION_LIMIT = 0.7
-MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "hint",
-                "proposal", "s_proposal")
+MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "aliases",
+                "minimum", "maximum", "hint", "proposal", "s_proposal")
+NULL_WORDS = ("none", "null", "identity", "-")
+RE_NUMBER = re.compile(r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
 
 
 class ArgumentsNeeded(Exception):
@@ -652,8 +654,20 @@ def assistant_tools_as_text() -> str:
 
 def convert_argument(value, d_param: dict):
     """Value of the argument of the type given by its JSON schema; raises
-    ValueError or TypeError when it does not fit."""
+    ValueError or TypeError when it does not fit.
+
+    Keys of d_param: "type" (a list with "null" accepts None, also given as
+    'none', 'null', 'identity' or '-'), "items", "minItems", "maxItems"
+    (arrays), "minimum", "maximum" (numbers), "enum" and "aliases" ({item
+    of enum: [words]}: the item whose word is in the answer)."""
     s_type = d_param.get("type", "string")
+    if isinstance(s_type, list):
+        if "null" in s_type and (value is None or (
+                isinstance(value, str) and value.strip().lower() in NULL_WORDS)):
+            return None
+        l_type = [item for item in s_type if item != "null"]
+        d_param = dict(d_param, type=l_type[0] if l_type else "string")
+        return convert_argument(value, d_param)
     if s_type == "array":
         if isinstance(value, str):
             value = [word for word in re.split(r"[\s,;]+", value.strip(" []()"))
@@ -669,11 +683,19 @@ def convert_argument(value, d_param: dict):
                              f"{len(l_value):} are given.")
         return l_value
     if s_type in ("number", "integer"):
+        s_kind = "a number" if s_type == "number" else "an integer"
+        if isinstance(value, str):  # '2.36 A': the only number with its unit
+            l_number = RE_NUMBER.findall(value)
+            if len(l_number) == 1:
+                value = l_number[0]
         try:
             out = float(value) if s_type == "number" else int(value)
         except ValueError:
-            s_kind = "a number" if s_type == "number" else "an integer"
             raise ValueError(f"'{value:}' is not {s_kind:}.") from None
+        if "minimum" in d_param and out < d_param["minimum"]:
+            raise ValueError(f"{out:g} is less than {d_param['minimum']:g}.")
+        if "maximum" in d_param and out > d_param["maximum"]:
+            raise ValueError(f"{out:g} is more than {d_param['maximum']:g}.")
     elif s_type == "boolean":
         if isinstance(value, str):
             return value.strip().lower() in ("true", "yes", "1")
@@ -683,6 +705,11 @@ def convert_argument(value, d_param: dict):
     if "enum" in d_param:
         d_enum = {str(item).lower(): item for item in d_param["enum"]}
         if str(out).lower() not in d_enum:
+            s_lower = str(out).lower()
+            for item, l_word in d_param.get("aliases", {}).items():
+                if any(re.search(rf"(?<!\w){re.escape(str(word).lower()):}(?!\w)", s_lower)
+                       for word in l_word):
+                    return item
             raise ValueError(f"'{out:}' is not one of: "
                              f"{', '.join(str(item) for item in d_param['enum']):}.")
         out = d_enum[str(out).lower()]
