@@ -819,16 +819,23 @@ def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='b
         )
 
     active_texts = []
-    redraw_pending = False
 
+    def update_labels(ax_changed=None):
+        """Show hkl when few points are in the visible area.
 
-    def update_labels(event=None):
-        nonlocal active_texts, redraw_pending
+        Called when the axis limits change (zoom, pan, set_xlim), before the
+        figure is drawn, so the labels appear in the same redraw. Labels
+        made in a draw_event or button_release_event appeared only at the
+        next zoom: the zoom of the toolbar sets the limits after those
+        events, and texts added during a draw are not drawn.
+        """
+        nonlocal active_texts
 
-        # Remove old labels
         for t in active_texts:
             t.remove()
         active_texts = []
+        if labels is None:
+            return
 
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
@@ -852,26 +859,13 @@ def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='b
                 # Split into chunks of 5 labels
                 chunks = [labs[i:i+5] for i in range(0, len(labs), 5)]
                 # Join each chunk with commas, then join chunks with newlines
-                merged_label = "\n".join(", ".join(chunk) for chunk in chunks)                
-                # merged_label = ", ".join(labs)
+                merged_label = "\n".join(", ".join(chunk) for chunk in chunks)
                 t = ax.text(xi, yi, " "+merged_label,
                             fontsize=10, color='black')
                 active_texts.append(t)
 
-        if getattr(event, "name", None) == "draw_event":
-            if redraw_pending:
-                redraw_pending = False
-            else:
-                redraw_pending = True
-                fig.canvas.draw_idle()
-        else:
-            if not redraw_pending:
-                redraw_pending = True
-                fig.canvas.draw_idle()
-
-    fig.canvas.mpl_connect("draw_event", update_labels)
-    fig.canvas.mpl_connect("button_release_event", update_labels)
-    fig.canvas.mpl_connect("scroll_event", update_labels)
+    ax.callbacks.connect("xlim_changed", update_labels)
+    ax.callbacks.connect("ylim_changed", update_labels)
 
     update_labels()
     return fig
