@@ -13,6 +13,14 @@ on:
 jobs:
   pypi-publish:
     runs-on: ubuntu-latest
+    # Trusted Publishing: PyPI accepts the short-lived OIDC token of this job
+    # instead of a stored API token. The publisher on PyPI is registered for
+    # this workflow file and the `pypi` environment.
+    environment:
+      name: pypi
+      url: https://pypi.org/project/cryspy/
+    permissions:
+      id-token: write
 
     steps:
       - name: Check-out repository
@@ -26,13 +34,14 @@ jobs:
       - name: Upgrade package installer for Python
         run: pip install --upgrade pip
 
-      - name: Install build tool
-        run: pip install --upgrade build
+      - name: Install build tools
+        run: pip install --upgrade build twine
 
       - name: Create Python package
         run: python -m build
 
+      - name: Check package metadata
+        run: twine check --strict dist/*
+
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_PASSWORD }}
