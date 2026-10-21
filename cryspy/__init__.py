@@ -301,6 +301,7 @@ from cryspy.procedure_assistant.procedures import (
     describe_procedure,
     describe_procedures,
 )
+from cryspy.procedure_assistant.recipes import run_recipe
 
 
 def repr_function(function, flag_long: bool = False):
@@ -473,6 +474,7 @@ L_FUNCTION = [
     convert_assistant_answer,
     describe_procedure,
     describe_procedures,
+    run_recipe,
     load_cif_from_cod,
     cif_to_crystal,
 ]

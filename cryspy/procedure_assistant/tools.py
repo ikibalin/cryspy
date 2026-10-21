@@ -42,6 +42,9 @@ from cryspy.procedure_assistant.help import get_help
 from cryspy.procedure_assistant.procedures import (
     describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
     take_procedures)
+from cryspy.procedure_assistant.history import (
+    form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
+from cryspy.procedure_assistant.recipes import recipes_as_text, take_recipe
 from cryspy.procedure_assistant.parameters import (
     find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
@@ -302,19 +305,72 @@ def tool_set_parameter(cryspy_object, path: str, value: float) -> str:
             f"{format_value(record.value):}")
 
 
-def tool_calculate(cryspy_object) -> str:
+def tool_calculate(cryspy_object) -> dict:
     from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    history = take_history(cryspy_object)
     result = rhochi_no_refinement(cryspy_object)
-    return "Calculation finished.\n" + format_rhochi_result(result, cryspy_object)
+    d_metrics = form_metrics(result, cryspy_object, d_previous=history.d_metrics)
+    keep_checkpoint(cryspy_object, d_metrics)
+    return {"text": form_calculation_text("Calculation finished.", result, cryspy_object, d_metrics),
+            "metrics": d_metrics}
 
 
-def tool_refine(cryspy_object) -> str:
+def form_calculation_text(title: str, result: dict, cryspy_object, d_metrics: dict) -> str:
+    # the change of chi_sq/n, R_F2 and the warnings first: a long table of parameters may be cut
+    ls_out = [title, format_metrics(d_metrics), format_rhochi_result(result, cryspy_object)]
+    return "\n".join(line for line in ls_out if line != "")
+
+
+def tool_refine(cryspy_object) -> dict:
     from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement
     if len(cryspy_object.get_variable_names()) == 0:
-        return ("Error: no parameters are marked for refinement. "
-                "Use refine_parameters first.")
-    result = rhochi_rietveld_refinement(cryspy_object)
-    return "Refinement finished.\n" + format_rhochi_result(result, cryspy_object)
+        return {"text": "Error: no parameters are marked for refinement. Use refine_parameters first."}
+    history = take_history(cryspy_object)
+    d_last = {}  # the last iteration of the minimizer: chi_sq and the number of points
+    keep_snapshot(cryspy_object)
+    try:
+        result = rhochi_rietveld_refinement(cryspy_object, callback=d_last.update)
+    except Exception:
+        history.l_snapshot.pop()  # nothing is changed: nothing to undo
+        raise
+    d_metrics = form_metrics(result, cryspy_object, n_point=d_last.get("n_point"),
+                             d_previous=history.d_metrics)
+    if "n_point" in d_metrics:
+        result = dict(result, n_point=d_metrics["n_point"])
+    keep_checkpoint(cryspy_object, d_metrics)
+    return {"text": form_calculation_text("Refinement finished.", result, cryspy_object, d_metrics),
+            "metrics": d_metrics}
+
+
+def tool_undo_refinement(cryspy_object) -> dict:
+    from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    snapshot = restore_snapshot(cryspy_object)
+    if snapshot is None:
+        return {"text": "Error: there is no refinement to undo."}
+    # the calculated data of the object are those of the undone refinement
+    result = rhochi_no_refinement(cryspy_object)
+    d_metrics = form_metrics(result, cryspy_object)
+    keep_checkpoint(cryspy_object, d_metrics)
+    n_refined = sum(1 for _, flag in snapshot["flags"] if flag)
+    text = (f"The parameters and their refinement flags are returned to the state before the "
+            f"last refinement ({n_refined:} marked for refinement).\n"
+            + format_rhochi_result(result, cryspy_object))
+    s_metrics = format_metrics(d_metrics, flag_undo_hint=False)
+    if s_metrics != "":
+        text = f"{text:}\n{s_metrics:}"
+    return {"text": text, "metrics": d_metrics}
+
+
+def tool_list_recipes(cryspy_object) -> str:
+    return ("Recipes (typical algorithms of analysis; get_recipe gives the steps):\n"
+            + recipes_as_text())
+
+
+def tool_get_recipe(cryspy_object, name: str) -> str:
+    recipe = take_recipe(name)
+    if recipe is None:
+        return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
+    return recipe.to_text()
 
 
 def take_data_block(cryspy_object, name: str):
@@ -564,8 +620,28 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
     AssistantTool(
         "refine",
         "Refine the parameters marked for refinement (RhoChi); returns "
-        "chi-square, refined values and strong correlations.",
+        "chi-square, the change of chi_sq/n (and of R_F2 for single crystals) "
+        "since the previous calculation, refined values, strong correlations "
+        "and warnings (unphysical values).",
         tool_refine, flag_object_changed=True),
+    AssistantTool(
+        "undo_refinement",
+        "Return the parameters and their refinement flags to the state "
+        "before the last refinement (e.g. when chi-square got worse or a "
+        "value is unphysical).",
+        tool_undo_refinement, flag_object_changed=True),
+    AssistantTool(
+        "list_recipes",
+        "List the recipes: typical algorithms of analysis (e.g. the "
+        "step-by-step structure refinement).",
+        tool_list_recipes, flag_object_needed=False),
+    AssistantTool(
+        "get_recipe",
+        "Steps of a recipe: for each step the actions, what counts as "
+        "success and what to do otherwise. Follow them one action at a time.",
+        tool_get_recipe,
+        {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
+        required=("name", ), flag_object_needed=False),
     AssistantTool(
         "show_model",
         "Show the object, or one data block, in rcif format.",
@@ -756,11 +832,17 @@ def call_assistant_tool(cryspy_object, name: str,
     (True if the tool did not do what was asked: the text starts with
     "Error"; a chat program must not report such a call as done) and
     'missing' (the arguments to ask the user, see the module docstring;
-    an empty list when nothing is missing).
+    an empty list when nothing is missing), 'metrics' (numbers of the
+    result: "chi_sq", "n_point", "chi_sq_per_n", "chi_sq_per_n_previous",
+    "chi_sq_per_n_change", "r_f2" and "r_f2_previous" ({data block: R_F2}
+    of single crystals), "n_refined", "max_correlation", "warnings"; see
+    history.form_metrics; empty for tools without numbers) and, when the
+    tool raised an exception, 'error_type' (its class name).
     """
     result = run_assistant_tool(cryspy_object, name, arguments)
     result["flag_error"] = str(result["text"]).startswith("Error")
     result.setdefault("missing", [])
+    result.setdefault("metrics", {})
     return result
 
 
@@ -802,5 +884,9 @@ def run_assistant_tool(cryspy_object, name: str,
                 "flag_object_changed": False, "missing": error.l_missing}
     except Exception as error:
         return {"text": f"Error in {name:}: {type(error).__name__:}: {error:}",
-                "flag_object_changed": tool.flag_object_changed}
+                "flag_object_changed": tool.flag_object_changed,
+                "error_type": type(error).__name__}
+    if isinstance(text, dict):  # a tool with numbers: {"text", "metrics"}
+        return {"text": text["text"], "flag_object_changed": tool.flag_object_changed,
+                "metrics": text.get("metrics", {})}
     return {"text": text, "flag_object_changed": tool.flag_object_changed}
