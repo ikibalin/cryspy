@@ -304,3 +304,56 @@ def test_answer_types():
 def test_required_argument_without_question_stays_error():
     result = cryspy.call_assistant_tool(take_object(), "set_parameter", {"value": 1})
     assert result["flag_error"] and result["missing"] == []
+
+
+# Procedures of the menus of CrysPy Editor run by the assistant
+
+RCIF_TWO = RCIF + RCIF.replace("global_\n", "").replace("data_fe", "data_fe2")
+
+
+def scale_cell(cell: cryspy.Cell, factor: float):
+    """Test procedure: a copy of the cell scaled by the factor."""
+    return cryspy.Cell(length_a=cell.length_a * factor, length_b=cell.length_b * factor,
+                       length_c=cell.length_c * factor)
+
+
+@pytest.fixture
+def scale_procedure(monkeypatch):
+    monkeypatch.setattr(cryspy, "L_FUNCTION_ADD", cryspy.L_FUNCTION_ADD + [scale_cell])
+
+
+def test_procedures_with_parameters_are_listed():
+    text = cryspy.call_assistant_tool(take_object(), "list_procedures", {})["text"]
+    assert "- rhochi_rietveld_refinement(): " in text
+    assert "mempy_cycle_with_parameters(parameter_lambda: number=1e-05, iteration_max: integer=1000" in text
+    assert "report_main_axes_of_magnetization_ellipsoids(cell: Cell, atom_site_susceptibility: " in text
+
+
+def test_procedure_asks_value_and_object(scale_procedure):
+    obj = cryspy.str_to_globaln(RCIF_TWO)
+    assert "scale_cell(cell: Cell, factor: number): Test procedure" in \
+        cryspy.call_assistant_tool(obj, "list_procedures", {})["text"]
+    result = cryspy.call_assistant_tool(obj, "run_procedure", {"name": "scale_cell"})
+    assert not result["flag_error"]
+    assert result["missing"] == [
+        {"name": "cell", "question": "the Cell for cell", "type": "string",
+         "enum": ["fe.cell", "fe2.cell"], "hint": "fe.cell, fe2.cell"},
+        {"type": "number", "name": "factor", "question": "the factor"}]
+    arguments = {"name": "scale_cell", "factor": "2",
+                 "cell": cryspy.convert_assistant_answer(result["missing"][0], "FE2.cell")}
+    result = cryspy.call_assistant_tool(obj, "run_procedure", arguments)
+    # the result is given in rcif format
+    assert result["text"].startswith("scale_cell finished.\n_cell_length_a 10.0")
+    assert result["missing"] == []
+
+
+def test_procedure_takes_the_only_object(scale_procedure):
+    result = cryspy.call_assistant_tool(take_object(), "run_procedure", {"name": "scale_cell", "factor": 3})
+    assert result["missing"] == [] and "_cell_length_a 15.0" in result["text"]
+
+
+def test_procedure_without_object_is_error():
+    obj = cryspy.str_to_globaln(RCIF)
+    result = cryspy.call_assistant_tool(obj, "run_procedure",
+                                        {"name": "report_main_axes_of_magnetization_ellipsoids"})
+    assert result["flag_error"] and "the object has none" in result["text"]

@@ -71,7 +71,8 @@ class AssistantTool:
     def __init__(self, name: str, description: str, function: Callable,
                  parameters: Optional[Dict[str, dict]] = None,
                  required: tuple = (), flag_object_changed: bool = False,
-                 flag_object_needed: bool = True):
+                 flag_object_needed: bool = True,
+                 flag_extra_arguments: bool = False):
         self.name = name
         self.description = description
         self.function = function
@@ -79,6 +80,8 @@ class AssistantTool:
         self.required = required
         self.flag_object_changed = flag_object_changed
         self.flag_object_needed = flag_object_needed
+        # arguments not in parameters are given to the function as they are
+        self.flag_extra_arguments = flag_extra_arguments
 
     def to_dict(self) -> dict:
         """Description in the 'tools' format of chat completion APIs."""
@@ -429,50 +432,161 @@ def tool_add_crystal_from_cod(cryspy_object, formula: str = "",
             f"{len(crystal.atom_site.items):} atoms.")
 
 
+D_BASIC_TYPE = {float: "number", int: "integer", bool: "boolean", str: "string"}
+
+
+def take_annotation_types(annotation) -> tuple:
+    """Classes of an annotation: (A, ) for A, (A, B) for Union[A, B]."""
+    l_type = getattr(annotation, "__args__", None)
+    if l_type is None or getattr(annotation, "__origin__", None) is None:
+        return (annotation, )
+    return tuple(l_type)
+
+
+def take_procedure_parameters(function: Callable) -> Optional[List[tuple]]:
+    """(name, kind, types, default) of the parameters of a CrysPy function,
+    None if the assistant cannot run it. kind: "global" (the object),
+    "basic" (number, integer, boolean, string), "cif" (an item, loop or
+    data block of the object), "skip" (keyword with a default: callback,
+    d_info)."""
+    from cryspy.B_parent_classes.cl_1_item import ItemN
+    from cryspy.B_parent_classes.cl_2_loop import LoopN
+    try:
+        signature = inspect.signature(function)
+    except (TypeError, ValueError):
+        return None
+    l_out = []
+    for param in signature.parameters.values():
+        if param.kind in (param.VAR_POSITIONAL, param.VAR_KEYWORD):
+            return None
+        types = take_annotation_types(param.annotation)
+        if GlobalN in types:
+            kind = "global"
+        elif len(types) == 1 and types[0] in D_BASIC_TYPE:
+            kind = "basic"
+        elif all(isinstance(item, type) and issubclass(item, (ItemN, LoopN, DataN))
+                 and item not in (ItemN, LoopN, DataN) for item in types):
+            kind = "cif"
+        elif param.default is not inspect.Parameter.empty:
+            kind = "skip"
+        else:
+            return None
+        l_out.append((param.name, kind, types, param.default))
+    return l_out
+
+
 def take_procedures() -> Dict[str, Callable]:
-    """CrysPy procedures that need only the object (as in CrysPy Editor menus)."""
+    """CrysPy procedures of the menus of CrysPy Editor that the assistant
+    can run: their parameters are the object, numbers, strings, booleans,
+    or items, loops and data blocks of the object (as Cell)."""
     import cryspy
     d_procedure = {}
     for function in cryspy.L_FUNCTION + cryspy.L_FUNCTION_ADD:
-        try:
-            signature = inspect.signature(function)
-        except (TypeError, ValueError):
+        name = getattr(function, "__name__", "")
+        if name.startswith(("check_", "plot_", "get_")):
             continue
-        l_param = list(signature.parameters.values())
-        if len(l_param) == 0:
+        l_param = take_procedure_parameters(function)
+        if l_param is None or len(l_param) == 0:
             continue
-        if l_param[0].annotation is not GlobalN:
+        l_kind = [kind for _, kind, _, _ in l_param]
+        if "global" not in l_kind and "cif" not in l_kind:
             continue
-        if any(param.default is inspect.Parameter.empty
-               for param in l_param[1:]):
-            continue
-        d_procedure[function.__name__] = function
-    return d_procedure
+        d_procedure[name] = function
+    return {name: d_procedure[name] for name in sorted(d_procedure)}
+
+
+def form_procedure_signature(function: Callable) -> str:
+    ls_param = []
+    for name, kind, types, default in take_procedure_parameters(function):
+        if kind == "basic":
+            s_default = "" if default is inspect.Parameter.empty else f"={default!r:}"
+            ls_param.append(f"{name:}: {D_BASIC_TYPE[types[0]]:}{s_default:}")
+        elif kind == "cif":
+            ls_param.append(f"{name:}: {'|'.join(item.__name__ for item in types):}")
+    return f"({', '.join(ls_param):})"
 
 
 def tool_list_procedures(cryspy_object) -> str:
     ls_out = []
-    for name, function in sorted(take_procedures().items()):
+    for name, function in take_procedures().items():
         doc = (function.__doc__ or "").strip().split("\n")[0]
-        ls_out.append(f"- {name:}: {doc:}")
+        ls_out.append(f"- {name:}{form_procedure_signature(function):}: {doc:}")
     return "\n".join(ls_out)
 
 
-def tool_run_procedure(cryspy_object, name: str) -> str:
-    d_procedure = take_procedures()
-    if name not in d_procedure:
-        return (f"Error: procedure '{name:}' is not known. Available:\n"
-                + tool_list_procedures(cryspy_object))
-    result = d_procedure[name](cryspy_object)
+def find_cif_objects(cryspy_object, types: tuple) -> Dict[str, object]:
+    """{label: object} of the items, loops and data blocks of the object
+    of the given classes; labels as 'crystal_name.cell'."""
+    d_found = {}
+    if cryspy_object is None:
+        return d_found
+    for item in cryspy_object.items:
+        if isinstance(item, DataN):
+            if isinstance(item, types):
+                d_found[item.data_name] = item
+            for sub_item in item.items:
+                if isinstance(sub_item, types):
+                    d_found[f"{item.data_name:}.{sub_item.get_name():}"] = sub_item
+        elif isinstance(item, types):
+            d_found[item.get_name()] = item
+    return d_found
+
+
+def form_procedure_result(name: str, result, cryspy_object) -> str:
+    from cryspy.B_parent_classes.cl_1_item import ItemN
+    from cryspy.B_parent_classes.cl_2_loop import LoopN
     if isinstance(result, dict) and "chi_sq" in result:
         return f"{name:} finished.\n" + format_rhochi_result(
             result, cryspy_object)
     if result is None:
         return f"{name:} finished."
-    text = str(result)
+    if isinstance(result, (ItemN, LoopN, DataN, GlobalN)):
+        text = result.to_cif()
+    elif isinstance(result, (list, tuple)) and len(result) > 0 and all(
+            isinstance(item, (ItemN, LoopN, DataN)) for item in result):
+        text = "\n\n".join(item.to_cif() for item in result)
+    else:
+        text = str(result)
     if len(text) > 4000:
         text = text[:4000] + "\n[... the rest is cut ...]"
     return f"{name:} finished.\n{text:}"
+
+
+def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
+    """Run a procedure: the object, and the items of the object found by
+    their classes, are given at once; values without a default and items
+    found more than once are asked from the user (ArgumentsNeeded)."""
+    d_procedure = take_procedures()
+    if name not in d_procedure:
+        return (f"Error: procedure '{name:}' is not known. Available:\n"
+                + tool_list_procedures(cryspy_object))
+    function = d_procedure[name]
+    kwargs, l_missing = {}, []
+    for param, kind, types, default in take_procedure_parameters(function):
+        if kind == "global":
+            kwargs[param] = cryspy_object
+        elif kind == "basic":
+            d_param = {"type": D_BASIC_TYPE[types[0]]}
+            if param in arguments:
+                kwargs[param] = convert_argument(arguments[param], d_param)
+            elif default is inspect.Parameter.empty:
+                l_missing.append(dict(d_param, name=param, question=f"the {param.replace('_', ' '):}"))
+        elif kind == "cif":
+            d_found = find_cif_objects(cryspy_object, types)
+            s_type = " or ".join(item.__name__ for item in types)
+            if param in arguments and str(arguments[param]) in d_found:
+                kwargs[param] = d_found[str(arguments[param])]
+            elif len(d_found) == 1:
+                kwargs[param] = list(d_found.values())[0]
+            elif len(d_found) == 0:
+                return f"Error: {name:} needs {s_type:} ({param:}), the object has none."
+            else:
+                l_missing.append({"name": param, "question": f"the {s_type:} for {param:}",
+                                  "type": "string", "enum": list(d_found),
+                                  "hint": ", ".join(d_found)})
+    if l_missing:
+        raise ArgumentsNeeded(l_missing)
+    return form_procedure_result(name, function(**kwargs), cryspy_object)
 
 
 S_PATH = ("Parameter path or pattern: 'crystal_pbso4.cell.length_a', "
@@ -592,10 +706,13 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         tool_list_procedures),
     AssistantTool(
         "run_procedure",
-        "Run a CrysPy procedure from list_procedures by its name.",
+        "Run a CrysPy procedure from list_procedures by its name; its "
+        "parameters are further arguments (e.g. \"iteration_max\": 500). "
+        "Missing values are asked from the user; results that are rcif "
+        "objects are given in rcif format.",
         tool_run_procedure,
         {"name": {"type": "string"}}, required=("name", ),
-        flag_object_changed=True),
+        flag_object_changed=True, flag_extra_arguments=True),
 ]
 
 
@@ -720,6 +837,8 @@ def run_assistant_tool(cryspy_object, name: str,
         for key, value in arguments.items():
             if key in tool.parameters:
                 kwargs[key] = convert_argument(value, tool.parameters[key])
+            elif tool.flag_extra_arguments:
+                kwargs[key] = value
     except (TypeError, ValueError) as error:
         return {"text": f"Error in arguments of {name:}: {error:}",
                 "flag_object_changed": False}
