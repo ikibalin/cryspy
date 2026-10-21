@@ -220,3 +220,212 @@ def test_structure_factor_of_one_reflection():
     f_text = float(re.search(r"F_N = (-?[\d.]+)", text_1).group(1))
     assert f_text == pytest.approx(f_110, abs=2e-3)
     assert call(obj, "calculate_structure_factor", {"hkl": "1 0"})["flag_error"]
+
+
+# Arguments asked from the user ("missing", as MCP elicitation)
+
+def tool_plan(cryspy_object, cell: list, geometry: str,
+              wavelength: float = 0.) -> str:
+    if wavelength == 0.:
+        raise cryspy.ArgumentsNeeded(
+            [{"name": "wavelength", "question": "the wavelength",
+              "type": "number", "hint": "Å", "proposal": 1.26}],
+            message="The wavelength is not given in the data.")
+    return (f"Plan for {' '.join(f'{value:g}' for value in cell):} in "
+            f"{geometry:} geometry at {wavelength:g} Å.")
+
+
+@pytest.fixture
+def plan_tool(monkeypatch):
+    from cryspy.procedure_assistant import tools
+    tool = tools.AssistantTool(
+        "plan_measurement", "Plan of the measurement.", tool_plan,
+        {"cell": {"type": "array", "items": {"type": "number"},
+                  "minItems": 6, "maxItems": 6,
+                  "question": "the unit cell parameters",
+                  "hint": "a b c alpha beta gamma"},
+         "geometry": {"type": "string", "enum": ["normal beam", "four circle"],
+                      "question": "the geometry of measurements"},
+         "wavelength": {"type": "number"}},
+        required=("cell", "geometry"), flag_object_needed=False)
+    monkeypatch.setattr(tools, "L_ASSISTANT_TOOLS",
+                        tools.L_ASSISTANT_TOOLS + [tool])
+    return tool
+
+
+def test_missing_arguments_are_asked(plan_tool):
+    result = cryspy.call_assistant_tool(None, "plan_measurement", {})
+    assert not result["flag_error"] and not result["flag_object_changed"]
+    assert result["text"] == ("plan_measurement needs to know: the unit cell "
+                              "parameters; the geometry of measurements.")
+    assert [d_missing["name"] for d_missing in result["missing"]] == [
+        "cell", "geometry"]
+    d_cell = result["missing"][0]
+    assert d_cell["hint"] == "a b c alpha beta gamma" and d_cell["minItems"] == 6
+    json.dumps(result["missing"])  # plain data for any program
+
+    arguments = {"cell": cryspy.convert_assistant_answer(d_cell, "5 6 4 90 90 90"),
+                 "geometry": cryspy.convert_assistant_answer(
+                     result["missing"][1], "Normal Beam")}
+    assert arguments == {"cell": [5., 6., 4., 90., 90., 90.],
+                         "geometry": "normal beam"}
+    # the tool asks for a value it finds missing itself
+    result = cryspy.call_assistant_tool(None, "plan_measurement", arguments)
+    assert result["text"] == ("The wavelength is not given in the data.\n"
+                              "plan_measurement needs to know: the wavelength.")
+    assert result["missing"] == [{"name": "wavelength", "question": "the wavelength",
+                                  "type": "number", "hint": "Å", "proposal": 1.26}]
+    arguments["wavelength"] = 1.26
+    result = cryspy.call_assistant_tool(None, "plan_measurement", arguments)
+    assert result["text"] == "Plan for 5 6 4 90 90 90 in normal beam geometry at 1.26 Å."
+    assert result["missing"] == []
+
+
+@pytest.mark.parametrize("text, message", [
+    ("5 6 4", "6 values are expected, 3 are given."),
+    ("5 6 4 90 90 x", "'x' is not a number."),
+])
+def test_wrong_answer_is_explained(plan_tool, text, message):
+    d_cell = cryspy.call_assistant_tool(None, "plan_measurement", {})["missing"][0]
+    with pytest.raises(ValueError, match=re.escape(message)):
+        cryspy.convert_assistant_answer(d_cell, text)
+
+
+def test_answer_types():
+    convert = cryspy.convert_assistant_answer
+    assert convert({"type": "integer"}, " 63 ") == 63
+    assert convert({"type": "array", "items": {"type": "number"}}, "[5, 6; 4]") == [5., 6., 4.]
+    with pytest.raises(ValueError, match="'Cmcm' is not an integer. Expected: number of the space group."):
+        convert({"type": "integer", "hint": "number of the space group"}, "Cmcm")
+    with pytest.raises(ValueError, match="is not one of: Biso, Uiso"):
+        convert({"type": "string", "enum": ["Biso", "Uiso"]}, "Bani")
+
+
+def test_required_argument_without_question_stays_error():
+    result = cryspy.call_assistant_tool(take_object(), "set_parameter", {"value": 1})
+    assert result["flag_error"] and result["missing"] == []
+
+
+# Procedures of the menus of CrysPy Editor run by the assistant
+
+RCIF_TWO = RCIF + RCIF.replace("global_\n", "").replace("data_fe", "data_fe2")
+
+
+def scale_cell(cell: cryspy.Cell, factor: float):
+    """Test procedure: a copy of the cell scaled by the factor.
+
+    Parameters
+    ----------
+    cell : Cell
+        Unit cell to scale.
+    factor : float
+        Scale factor of the lengths. It is
+        applied to a, b and c.
+
+    Returns
+    -------
+    Cell
+        The scaled cell.
+    """
+    return cryspy.Cell(length_a=cell.length_a * factor, length_b=cell.length_b * factor,
+                       length_c=cell.length_c * factor)
+
+
+@pytest.fixture
+def scale_procedure(monkeypatch):
+    monkeypatch.setattr(cryspy, "L_FUNCTION_ADD", cryspy.L_FUNCTION_ADD + [scale_cell])
+
+
+def test_procedures_with_parameters_are_listed():
+    text = cryspy.call_assistant_tool(take_object(), "list_procedures", {})["text"]
+    assert "- rhochi_rietveld_refinement(): " in text
+    assert "mempy_cycle_with_parameters(parameter_lambda: number=1e-05, iteration_max: integer=1000" in text
+    assert "report_main_axes_of_magnetization_ellipsoids(cell: Cell, atom_site_susceptibility: " in text
+
+
+def test_procedure_asks_value_and_object(scale_procedure):
+    obj = cryspy.str_to_globaln(RCIF_TWO)
+    assert "scale_cell(cell: Cell, factor: number): Test procedure" in \
+        cryspy.call_assistant_tool(obj, "list_procedures", {})["text"]
+    result = cryspy.call_assistant_tool(obj, "run_procedure", {"name": "scale_cell"})
+    assert not result["flag_error"]
+    assert result["missing"] == [
+        {"name": "cell", "question": "the unit cell to scale", "type": "string",
+         "enum": ["fe.cell", "fe2.cell"], "hint": "fe.cell, fe2.cell"},
+        {"name": "factor", "question": "the scale factor of the lengths", "type": "number",
+         "hint": "factor"}]
+    arguments = {"name": "scale_cell", "factor": "2",
+                 "cell": cryspy.convert_assistant_answer(result["missing"][0], "FE2.cell")}
+    result = cryspy.call_assistant_tool(obj, "run_procedure", arguments)
+    # the result is given in rcif format
+    assert result["text"].startswith("scale_cell finished.\n_cell_length_a 10.0")
+    assert result["missing"] == []
+
+
+def test_procedure_takes_the_only_object(scale_procedure):
+    result = cryspy.call_assistant_tool(take_object(), "run_procedure", {"name": "scale_cell", "factor": 3})
+    assert result["missing"] == [] and "_cell_length_a 15.0" in result["text"]
+
+
+def test_procedure_without_object_is_error():
+    obj = cryspy.str_to_globaln(RCIF)
+    result = cryspy.call_assistant_tool(obj, "run_procedure",
+                                        {"name": "report_main_axes_of_magnetization_ellipsoids"})
+    assert result["flag_error"] and "the object has none" in result["text"]
+
+
+def test_description_from_docstring(scale_procedure):
+    from cryspy.procedure_assistant.procedures import describe_procedure
+    d_procedure = describe_procedure(scale_cell)
+    assert d_procedure["title"] == "Scale Cell" and d_procedure["group"] == "Scale"
+    assert d_procedure["summary"] == "Test procedure: a copy of the cell scaled by the factor."
+    assert d_procedure["returns"] == "Cell\n    The scaled cell."
+    assert d_procedure["parameters"] == [
+        {"name": "cell", "kind": "cif", "description": "Unit cell to scale.", "classes": ["Cell"],
+         "question": "the unit cell to scale"},
+        {"name": "factor", "kind": "basic", "description": "Scale factor of the lengths. It is applied to a, b and c.",
+         "type": "number", "question": "the scale factor of the lengths"}]
+
+
+def test_description_without_docstring_sections():
+    import cryspy.procedure_mempy.mempy as mempy
+    from cryspy.procedure_assistant.procedures import describe_procedure, form_title
+    assert form_title("rhochi_no_refinement") == "RhoChi No Refinement"
+    assert form_title("mempy_cycle_with_parameters") == "MEMPy Cycle With Parameters"
+    d_procedure = describe_procedure(cryspy.rhochi_rietveld_refinement_with_parameters)
+    assert d_procedure["summary"].startswith("Run refinement by RhoChi")
+    assert [d_param["name"] for d_param in d_procedure["parameters"]] == [
+        "cryspy_object", "optimization_method"]  # callback is not a parameter of the menu
+    assert describe_procedure(mempy.mempy_cycle_with_parameters)["parameters"][-1]["default"] == 10
+
+
+def test_procedures_are_documented():
+    """Every procedure of the menus has a summary and a description of its
+    parameters (they become the menus, the forms and the questions)."""
+    from cryspy.procedure_assistant.procedures import describe_procedures
+    for d_procedure in describe_procedures():
+        assert d_procedure["summary"], d_procedure["name"]
+        for d_param in d_procedure["parameters"]:
+            if d_param["kind"] != "global":
+                assert d_param["description"], (d_procedure["name"], d_param["name"])
+
+
+def test_answer_with_unit_limits_null_and_aliases():
+    convert = cryspy.convert_assistant_answer
+    assert convert({"type": "number", "hint": "Å"}, "2.36 A") == 2.36
+    assert convert({"type": "number"}, "1e-5") == 1e-5
+    with pytest.raises(ValueError, match="'1.2 or 2.4' is not a number"):
+        convert({"type": "number"}, "1.2 or 2.4")
+    with pytest.raises(ValueError, match="-1 is less than 0."):
+        convert({"type": "number", "minimum": 0}, "-1")
+    with pytest.raises(ValueError, match="1200 is more than 1000."):
+        convert({"type": "integer", "maximum": 1000}, "1200")
+    d_ub = {"type": ["array", "null"], "items": {"type": "number"}, "minItems": 9, "maxItems": 9}
+    assert convert(d_ub, "identity") is None and convert(d_ub, "None") is None
+    assert convert(d_ub, "1 0 0 0 1 0 0 0 1") == [1., 0., 0., 0., 1., 0., 0., 0., 1.]
+    d_geometry = {"type": "string", "enum": ["NB", "4C"],
+                  "aliases": {"NB": ["normal beam", "normal"], "4C": ["four circle", "eulerian"]}}
+    assert convert(d_geometry, "Normal beam geometry") == "NB"
+    assert convert(d_geometry, "4c") == "4C"
+    with pytest.raises(ValueError, match="is not one of: NB, 4C"):
+        convert(d_geometry, "kappa")

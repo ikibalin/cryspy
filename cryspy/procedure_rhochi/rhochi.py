@@ -19,6 +19,8 @@ from cryspy.procedure_rhochi.rhochi_by_dictionary import \
 
 import cryspy
 
+from cryspy.A_functions_base.progress import PROGRESS
+
 logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
@@ -82,9 +84,17 @@ def rhochi_rietveld_refinement_with_parameters(
         cryspy_object: cryspy.GlobalN,
         optimization_method: str = "BFGS", *, callback=None) -> dict:
     """Run refinement by RhoChi procedure with non-default parameters.
-    optimization_method can be 'BFGS', 'basinhopping' or other (see: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html)
 
     callback (keyword-only, optional): see rhochi_rietveld_refinement.
+
+    Parameters
+    ----------
+    cryspy_object : GlobalN
+        The object with the crystals and the experiments.
+    optimization_method : str, optional
+        Minimization method: 'BFGS', 'basinhopping' or other methods of
+        scipy.optimize.minimize
+        (https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html).
     """
 
     # check object
@@ -179,7 +189,7 @@ def _f_callback(*arg, d_info: dict = None) -> bool:
         DICT_PARAMS["iteration"] += 1
         diff = numpy.array(res_x, dtype=float) - numpy.array(DICT_PARAMS["previous_arg"], dtype=float)
         shift = numpy.sqrt(numpy.square(diff).sum()) * 100
-        logger.info(f"Average shift of parameters is {shift:.5f} ({DICT_PARAMS['iteration']:}).")
+        logger.info(f"Average shift of parameters is {shift:.5f} ({DICT_PARAMS['iteration']:}).", extra=PROGRESS)
         DICT_PARAMS["previous_arg"] = res_x
     return flag_out
     # ls_out = ["{:12.5f}".format(_1) for _1 in res_x]

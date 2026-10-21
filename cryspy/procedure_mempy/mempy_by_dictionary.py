@@ -54,6 +54,8 @@ from cryspy.A_functions_base.function_1_error_simplex import (
 
 from cryspy.A_functions_base.multipoles import calc_multipole_density
 
+from cryspy.A_functions_base.progress import PROGRESS
+
 logger = logging.getLogger(__name__)
 
 
@@ -1005,7 +1007,7 @@ def mempy_reconstruction_by_dictionary(
                 density_nucl_previous = numpy.copy(density_nucl)
                 der_c_den_nucl_previous = der_c_den_nucl
 
-            logger.info(f"Iteration {iteration:5}, lambda {parameter_lambda*1e6:.3f}*10^-6, chi_sq: {c:.2f}")
+            logger.info(f"Iteration {iteration:5}, lambda {parameter_lambda*1e6:.3f}*10^-6, chi_sq: {c:.2f}", extra=PROGRESS)
 
         if channel_col and flag_next:
             coeff = (
