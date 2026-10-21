@@ -4,6 +4,7 @@
 cff-version: 1.2.0
 message: "If you use CrysPy in your research, please cite it as below."
 type: software
+doi: 10.5281/zenodo.4271776
 title: "CrysPy: crystallographic library for polarized and unpolarized neutron diffraction data analysis"
 authors:
   - family-names: Kibalin
