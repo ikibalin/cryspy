@@ -49,19 +49,24 @@ D_PATTERN_ALIASES = {
     "moment": ("atom_site_moment", ),
     "magnetic_moment": ("atom_site_moment", ),
     "susceptibility": ("atom_site_susceptibility", ),
-    # Ciso and Cani are types of the tensor (set_chi_type), not parameters
-    "ciso": ("atom_site_susceptibility.chi_11", ),
-    "chi_iso": ("atom_site_susceptibility.chi_11", ),
-    "isotropic_susceptibility": ("atom_site_susceptibility.chi_11", ),
-    "atom_site_susceptibility.ciso": ("atom_site_susceptibility.chi_11", ),
-    "atom_site_susceptibility.chi_iso": ("atom_site_susceptibility.chi_11", ),
-    "cani": ("atom_site_susceptibility", ),
-    "chi_aniso": ("atom_site_susceptibility", ),
-    "anisotropic_susceptibility": ("atom_site_susceptibility", ),
-    "atom_site_susceptibility.cani": ("atom_site_susceptibility", ),
-    "atom_site_susceptibility.chi_aniso": ("atom_site_susceptibility", ),
-    "susceptibility_tensor": ("atom_site_susceptibility", ),
 }
+
+# values of non-refinable attributes that a model writes as parameters:
+# word of the pattern -> explanation for the error
+D_VALUE_WORDS = {
+    "ciso": "Ciso and Cani are values of atom_site_susceptibility.chi_type of each atom, not "
+            "parameters: set them with set_chi_type. With Ciso only the scalar "
+            "atom_site_susceptibility.chi_11 is refined, with Cani the components of the tensor "
+            "(atom_site_susceptibility.chi_11, chi_22, chi_33, chi_12, chi_13, chi_23).",
+}
+D_VALUE_WORDS["cani"] = D_VALUE_WORDS["ciso"]
+
+
+def explain_value_words(pattern: str) -> str:
+    """Explanation when the pattern names a value of an attribute (e.g.
+    'atom_site_susceptibility.Ciso'), else an empty string."""
+    l_word = re.split(r"[^a-z0-9]+", pattern.lower())
+    return " ".join(dict.fromkeys(D_VALUE_WORDS[word] for word in l_word if word in D_VALUE_WORDS))
 
 
 class ParameterRecord:

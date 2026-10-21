@@ -48,7 +48,7 @@ from cryspy.procedure_assistant.history import (
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
 from cryspy.procedure_assistant.parameters import (
-    find_parameter_records, suggest_parameter_names, take_parameter_record,
+    explain_value_words, find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
 
 MAX_PARAMETERS_IN_LIST = 200
@@ -212,7 +212,9 @@ def form_no_match_error(cryspy_object, pattern: str) -> str:
     """Error text with the names the model can use in the next call."""
     l_name = suggest_parameter_names(cryspy_object, pattern)
     s_name = ", ".join(l_name) if len(l_name) > 0 else "none"
-    return (f"Error: no parameters match '{pattern:}'. Parameters of this "
+    s_explanation = explain_value_words(pattern)
+    s_explanation = f" {s_explanation:}" if s_explanation else ""
+    return (f"Error: no parameters match '{pattern:}'.{s_explanation:} Parameters of this "
             f"object look like: {s_name:}.")
 
 

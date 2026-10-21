@@ -55,19 +55,20 @@ def test_recipe_refines_susceptibility_from_scratch():
     assert "at the end" in result["text"]
 
 
-def test_ciso_and_cani_in_patterns():
-    """A model writes the type of the tensor as a parameter:
-    'atom_site_susceptibility.Ciso' is chi_11, 'Cani' is the whole tensor."""
+def test_ciso_and_cani_are_not_parameters():
+    """Ciso and Cani are values of chi_type, not parameters: a pattern
+    'atom_site_susceptibility.Ciso' is an error that says how to set them."""
     obj = cryspy.load_file(F_HOTI)
     call = cryspy.call_assistant_tool
     call(obj, "fix_parameters", {})
-    result = call(obj, "refine_parameters", {"pattern": "atom_site_susceptibility.Ciso"})
-    assert not result["flag_error"], result["text"]
-    assert [name for name in result["text"].split("\n")[1:]] == ["crystal_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11"]
-    call(obj, "fix_parameters", {})
-    result = call(obj, "refine_parameters", {"pattern": "Cani"})
-    assert not result["flag_error"], result["text"]
-    assert "chi_12" in result["text"]
+    for pattern in ("atom_site_susceptibility.Ciso", "Cani"):
+        result = call(obj, "refine_parameters", {"pattern": pattern})
+        assert result["flag_error"]
+        assert "values of atom_site_susceptibility.chi_type" in result["text"]
+        assert "set_chi_type" in result["text"]
+    assert len(obj.get_variable_names()) == 0
+    result = call(obj, "refine_parameters", {"pattern": "chi_11"})
+    assert "values of atom_site_susceptibility.chi_type" not in result["text"]
 
 
 def test_set_chi_type_is_not_a_worse_refinement():
