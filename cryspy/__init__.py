@@ -52,11 +52,25 @@ __status__ = "Development"
 __date__ = "27.04.2026"
 name = "cryspy"
 
+import logging as _logging
+# The library reports progress and problems through the "cryspy" logger and
+# never prints by itself. The application decides where messages go, e.g.
+# logging.basicConfig(level=logging.INFO, format="%(message)s") in a script.
+_logging.getLogger("cryspy").addHandler(_logging.NullHandler())
+
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+
+from cryspy.exceptions import (
+    CrysPyError,
+    RcifFormatError,
+    RcifFileNotFoundError,
+    RefinementError,
+    CrysPyWarning,
+)
 
 
 from cryspy.A_functions_base.function_1_algebra import (
@@ -68,7 +82,6 @@ from cryspy.A_functions_base.function_1_algebra import (
 from cryspy.A_functions_base.function_1_atomic_vibrations import (
     calc_beta_by_u,
     vibration_constraints,
-    apply_constraint_on_cell_by_type_cell,
 )
 from cryspy.A_functions_base.function_1_error_simplex import (
     error_estimation_simplex,
@@ -89,11 +102,6 @@ from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_matrices import (
     calc_chi_sq,
     tri_linear_interpolation,
-    transform_string_to_r_b,
-    transform_string_to_digits,
-    transform_fraction_with_label_to_string,
-    transform_digits_to_string,
-    transform_r_b_to_string,
     calc_mRmCmRT,
     calc_rotation_matrix_ij_by_euler_angles,
     calc_euler_angles_by_rotation_matrix_ij,
@@ -106,9 +114,6 @@ from cryspy.A_functions_base.function_1_matrices import (
     calc_vector_product,
     scalar_product,
     calc_rotation_matrix_by_two_vectors,
-    ortogonalize_matrix,
-    calc_moment_2d_by_susceptibility,
-    calc_phase_3d,
 )
 from cryspy.A_functions_base.function_1_objects import (
     get_functions_of_objet,

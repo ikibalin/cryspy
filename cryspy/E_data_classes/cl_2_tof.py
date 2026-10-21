@@ -5,20 +5,13 @@ __version__ = "2020_08_19"
 import numpy
 from typing import NoReturn
 
-from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_cos_ang
 
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
-from cryspy.A_functions_base.unit_cell import calc_matrix_t
 
-from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
-from cryspy.C_item_loop_classes.cl_1_extinction import Extinction
 from cryspy.C_item_loop_classes.cl_1_phase import PhaseL
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
@@ -27,7 +20,7 @@ from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
-from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
+from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground
@@ -40,7 +33,6 @@ from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeakL
 from cryspy.C_item_loop_classes.cl_1_tof_proc import TOFProcL
 from cryspy.C_item_loop_classes.cl_1_tof_profile import TOFProfile
 
-from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
 

@@ -2,6 +2,7 @@
 
 __author__ = "ikibalin"
 __version__ = "2020_08_19"
+import logging
 import numpy
 
 from typing import NoReturn
@@ -18,7 +19,6 @@ from cryspy.A_functions_base.debye_waller_factor import (
     calc_u_ij_by_beta,
 )
 from cryspy.A_functions_base.matrix_operations import (
-    calc_m1_m2_inv_m1,
     calc_m_v,
 )
 from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
@@ -30,13 +30,11 @@ from cryspy.A_functions_base.unit_cell import (
     calc_eq_ccs_by_unit_cell_parameters,
     calc_reciprocal_by_unit_cell_parameters,
     calc_m_m_by_unit_cell_parameters,
-    calc_m_m_norm_by_unit_cell_parameters,
 )
 from cryspy.A_functions_base.structure_factor import (
     calc_f_nucl_by_dictionary,
     calc_sft_ccs_by_dictionary,
     calc_f_m_perp_by_sft,
-    calc_bulk_susceptibility_by_dictionary,
     calc_f_m_perp_ordered_by_dictionary,
 )
 
@@ -56,13 +54,11 @@ from cryspy.A_functions_base.symmetry_elements import (
     calc_full_mag_elems,
     calc_symm_flags,
     define_bravais_type_by_symm_elems,
-    apply_symm_elem_to_xyz,
 )
 from cryspy.A_functions_base.symmetry_constraints import (
     calc_sc_beta,
     calc_sc_fract_sc_b,
     calc_sc_chi,
-    calc_sc_chi_full,
     calc_sc_ordered,
 )
 
@@ -100,19 +96,19 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
     SpaceGroupSymopMagnCenteringL,
 )
 
-from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import (
-    AtomRhoOrbitalRadialSlaterL,
-)
 from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import (
     SpaceGroupSymopMagnOperationL,
 )
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+from cryspy.exceptions import RcifFormatError
 
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import (
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
 )
+
+logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
 
@@ -908,7 +904,7 @@ class Crystal(DataN):
                 try:
                     jl = calc_jl_for_ion(table_sthovl, type_symbol)
                     scattering_amplitude = jl[:, 0]
-                except UserWarning:
+                except RcifFormatError:
                     try:
                         scattering_amplitude = (
                             calc_scattering_amplitude_tabulated(
@@ -1781,7 +1777,7 @@ class Crystal(DataN):
             l_coeff,
             l_kappa,
         )
-        print(f"file den is '{file_den}'")
+        logger.info(f"file den is '{file_den}'")
         if file_den != "":
             hh = numpy.sum(multipole_density, axis=1)
             flag_pos = hh >= 0.0
@@ -1918,9 +1914,7 @@ class Crystal(DataN):
                         centrosymmetry,
                         centrosymmetry_position,
                     )
-                    print(
-                        f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'."
-                    )
+                    logger.info(f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'.")
 
 
 def calc_sc_v_unit_cell_parameters(

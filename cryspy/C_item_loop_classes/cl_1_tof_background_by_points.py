@@ -1,6 +1,5 @@
 import numpy
 from typing import NoReturn
-import scipy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -8,7 +7,6 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeasL
 
 na = numpy.newaxis
 

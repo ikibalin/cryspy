@@ -1,3 +1,5 @@
+import logging
+import warnings
 from typing import Callable
 import re
 import numpy
@@ -9,8 +11,9 @@ from .rhochi_pd import calc_chi_sq_for_pd_by_dictionary
 from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
-from cryspy.A_functions_base.function_1_inversed_hessian import \
-    estimate_inversed_hessian_matrix
+from cryspy.exceptions import RefinementError
+
+logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
 
@@ -105,15 +108,51 @@ def rhochi_one_iteration_by_dictionary(
     return chi_sq_sum, n_point_sum, delta_p, parameter_name_sum, der_chi_sq_sum, dder_chi_sq_sum
 
 
-def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "BFGS", callback: Callable = None):
-    print("*********************************************")
-    print("Rietveld refinement by CrysPy (module RhoChi)")
-    print("*********************************************\n")
-    print("Derivatives are calculated numerically.")
+class _RefinementStopped(Exception):
+    """Raised inside the minimizer when the progress callback asks to stop."""
+
+
+def rhochi_rietveld_refinement_by_dictionary(
+        global_dict: dict, method: str = "BFGS", callback: Callable = None,
+        *, progress_callback: Callable = None):
+    """Refine the parameters of global_dict by minimization of chi_sq.
+
+    Parameters
+    ----------
+    global_dict : dict
+        Dictionary of the global object (``GlobalN.get_dictionary()``),
+        refined in place.
+    method : str
+        Minimization method of ``scipy.optimize.minimize`` or
+        ``"basinhopping [T=..., niter=...]"``.
+    callback : callable, optional
+        Passed to ``scipy.optimize.minimize`` unchanged, called as
+        ``callback(xk)``.
+    progress_callback : callable, optional
+        Called after every iteration of the minimizer as
+        ``progress_callback(info)``. ``info`` is a dict with keys
+        ``"iteration"`` (int, from 1), ``"chi_sq"`` (chi_sq of the current
+        parameters, punishment function included), ``"n_point"``,
+        ``"chi_sq_per_n"``, ``"parameter_names"`` (dictionary ways of the
+        free parameters) and ``"parameter_values"`` (numpy array).
+        Returning ``False`` stops the refinement; the parameters of the
+        last completed iteration are kept and ``res["stopped"]`` is True.
+        Any other return value (``None`` too) continues the refinement.
+
+    Returns
+    -------
+    chi_sq, parameter_names, dict_in_out, res
+        ``res`` is the result of the minimizer (``scipy.optimize.OptimizeResult``)
+        or an empty dict when nothing is refined.
+    """
+    logger.info("*********************************************")
+    logger.info("Rietveld refinement by CrysPy (module RhoChi)")
+    logger.info("*********************************************\n")
+    logger.info("Derivatives are calculated numerically.")
     dict_in_out = {}
     flag_use_precalculated_data = False
     flag_calc_analytical_derivatives = False
-    print("Preliminary calculations...", end="\r")
+    logger.info("Preliminary calculations...")
     chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_names = rhochi_calc_chi_sq_by_dictionary(
         global_dict,
         dict_in_out=dict_in_out,
@@ -135,25 +174,27 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
     parameter_names_fixed = [linear_constraint[1][1] for linear_constraint in linear_constraints]
     parameter_names_free = [way for way  in parameter_names if not(way in parameter_names_fixed)]
     param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names_free]
-    print(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.         ")
+    logger.info(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.")
     if len(param_0) == 0:
         res = {}
-        print(r"<b>UNSUCCESSFULL TRY<\b>")
-        print("\nFor refinement procedure some parameters have to be set as refined.")
-        print("Print parenthesis after parameter which heve to be refined.")
-        print("Example: 1.23()")
+        warnings.warn(
+            "Nothing is refined: mark the parameters to refine with parentheses "
+            "after the value, for example 1.23()", stacklevel=2)
         return chi_sq, parameter_names, dict_in_out, res
-    print(f"Number of fitting parameters {len(param_0):}")
+    logger.info(f"Number of fitting parameters {len(param_0):}")
     for name, val in zip(parameter_names_free, param_0):
-        print(f" - {name:}  {val:.5f}")
+        logger.info(f" - {name:}  {val:.5f}")
 
     if len(parameter_names_fixed) >0:
-        print(f"Number of constrained parameters:")
+        logger.info("Number of constrained parameters:")
     for name in parameter_names_fixed:
-        print(f" - {name:}")
+        logger.info(f" - {name:}")
 
 
     flag_use_precalculated_data = True
+    # chi_sq of the recent evaluations, to report the accepted point to
+    # progress_callback without recalculating it
+    d_recent_chi_sq = {}
     def tempfunc(l_param):
         for way, param in zip(parameter_names_free, l_param):
             global_dict[way[0]][way[1]][way[2]] = param
@@ -172,10 +213,33 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
             flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[0]
         
         chi_sq_punishement = calc_punishement_function(global_dict)
+        if progress_callback is not None:
+            d_recent_chi_sq[tuple(numpy.asarray(l_param, dtype=float))] = chi_sq + chi_sq_punishement
         return chi_sq + chi_sq_punishement
 
+    d_progress = {"iteration": 0, "x": numpy.array(param_0, dtype=float), "chi_sq": chi_sq}
+    def callback_minimizer(xk, *arg):
+        if callback is not None:
+            callback(xk, *arg)
+        if progress_callback is None:
+            return
+        x = numpy.array(xk, dtype=float)
+        d_progress["iteration"] += 1
+        d_progress["x"] = x
+        d_progress["chi_sq"] = d_recent_chi_sq.get(tuple(x), d_progress["chi_sq"])
+        d_recent_chi_sq.clear()
+        info = {
+            "iteration": d_progress["iteration"],
+            "chi_sq": float(d_progress["chi_sq"]),
+            "n_point": int(n_point),
+            "chi_sq_per_n": float(d_progress["chi_sq"] / n_point),
+            "parameter_names": parameter_names_free,
+            "parameter_values": x.copy()}
+        if progress_callback(info) is False:
+            raise _RefinementStopped()
 
-    print("\nMinimization procedure of chi_sq is running... ", end="\r")
+
+    logger.info("\nMinimization procedure of chi_sq is running... ")
     #if linear_constraint is not None:
     #    method="SLSQP"
     #    print(f"User constraints are used in the refinement by method '{method:}'.")
@@ -185,7 +249,7 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
     #        res["hess_inv"] = hess_inv
     #else:
     if method.lower().startswith("basinhopping"):
-        print("Basinhopping method is used for minimization.")
+        logger.info("Basinhopping method is used for minimization.")
         niter=10
         T = 10.
         if len(method)>len('basinhopping '):
@@ -194,33 +258,54 @@ def rhochi_rietveld_refinement_by_dictionary(global_dict: dict, method: str = "B
                     T = float(hh[len('t='):])
                 elif hh.lower().startswith("niter="):
                     niter = int(hh[len('niter='):])
-        res = scipy.optimize.basinhopping(tempfunc, param_0, niter=niter, T=T, stepsize=0.1, interval=20, disp=True)
+        try:
+            res = scipy.optimize.basinhopping(
+                tempfunc, param_0, niter=niter, T=T, stepsize=0.1, interval=20, disp=True,
+                minimizer_kwargs={"callback": callback_minimizer})
+            res["stopped"] = False
+        except _RefinementStopped:
+            res = _result_of_stopped_refinement(d_progress)
         tempfunc(res.x)
     else:
-        print(f"{method:} method is used for minimization.")
-        res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback)
-    print("Optimization is done.                          ", end="\n")
+        logger.info(f"{method:} method is used for minimization.")
+        try:
+            res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback_minimizer)
+            res["stopped"] = False
+        except _RefinementStopped:
+            res = _result_of_stopped_refinement(d_progress)
+            # the last evaluation may be a finite-difference step
+            tempfunc(res.x)
+    if res["stopped"]:
+        logger.info(f"Refinement is stopped by the callback after {d_progress['iteration']:} iterations.")
+    else:
+        logger.info("Optimization is done.")
 
-    print("Calculations for optimal parameters... ", end="\r")
+    logger.info("Calculations for optimal parameters... ")
     dict_in_out = {}
     flag_use_precalculated_data = False
     chi_sq, n_point = rhochi_calc_chi_sq_by_dictionary(
         global_dict,
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[:2]
-    print(f"Optimal chi_sq per n is {chi_sq/n_point:.2f}", end="\n")
+    logger.info(f"Optimal chi_sq per n is {chi_sq/n_point:.2f}")
 
     return chi_sq, parameter_names, dict_in_out, res
 
+def _result_of_stopped_refinement(d_progress: dict):
+    return scipy.optimize.OptimizeResult(
+        x=d_progress["x"], fun=d_progress["chi_sq"], nit=d_progress["iteration"],
+        success=False, stopped=True, message="Refinement is stopped by the callback.")
+
+
 def func_callback(*arg):
-    print(arg)
+    logger.debug(arg)
 
 def rhochi_lsq_by_dictionary(global_dict):
-    print("*********************************************")
-    print("Rietveld refinement by CrysPy (module RhoChi)")
-    print("*********************************************\n")
-    print("Derivatives are calculated analytically.")
-    print("User constraints are working.")
+    logger.info("*********************************************")
+    logger.info("Rietveld refinement by CrysPy (module RhoChi)")
+    logger.info("*********************************************\n")
+    logger.info("Derivatives are calculated analytically.")
+    logger.info("User constraints are working.")
 
     dict_in_out = {}
     dict_in_out_2 = {}
@@ -297,7 +382,7 @@ def rhochi_calc_chi_sq_by_dictionary(
                 (len(l_dict_crystal)+len(l_dict_magcrystal)) > 0):
             name_key_crystal, dict_crystal = (l_dict_crystal+l_dict_magcrystal)[0]
         else:
-            raise AttributeError(f"Phase {phase_label:} is not found")
+            raise RefinementError(f"Phase {phase_label:} is not found")
 
         chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_name = calc_chi_sq_for_diffrn_by_dictionary(
             dict_diffrn, dict_crystal, dict_in_out=dict_in_out_diffrn,

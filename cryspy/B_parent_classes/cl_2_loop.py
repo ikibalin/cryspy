@@ -5,18 +5,17 @@ It should be used ass parent to describe new loop classes.
 """
 import os
 import os.path
-import copy
 from typing import NoReturn, Union
 import numpy
 from pycifstar import Data, to_data
 
 from cryspy.A_functions_base.function_1_markdown import md_to_html
-from cryspy.A_functions_base.function_1_strings import find_prefix, \
-    string_to_value_error_mark
+from cryspy.A_functions_base.function_1_strings import find_prefix
 from cryspy.A_functions_base.function_1_objects import \
     get_functions_of_objet, get_table_html_for_variables
 
-from cryspy.B_parent_classes.cl_1_item import ItemN
+from cryspy.B_parent_classes.cl_1_item import ItemN, value_error_mark_from_cif
+from cryspy.exceptions import RcifFileNotFoundError
 
 
 class LoopN(object):
@@ -55,7 +54,7 @@ class LoopN(object):
         if report != "":
             ls_html.append(f"<h3>Description </h3> {report:}")
 
-        ls_html.append(f"<h3>Methods</h3>")
+        ls_html.append("<h3>Methods</h3>")
         method = self.methods_html()
         if method != "":
             ls_html.append(f"<b>Methods: </b> {method:}")
@@ -318,7 +317,7 @@ class LoopN(object):
                                     item = item_class()
 
                                 if _name_short_obj in item.ATTR_REF:
-                                    value, error, mark = string_to_value_error_mark(_val)
+                                    value, error, mark = value_error_mark_from_cif(_val, _name)
                                     
                                     setattr(item, _name_short_obj, value)
                                     if error is not None:
@@ -336,7 +335,7 @@ class LoopN(object):
                         else:
                             for _val, item in zip(cif_loop[_name], items):
                                 if _name_short_obj in item.ATTR_REF:
-                                    value, error, mark = string_to_value_error_mark(_val)
+                                    value, error, mark = value_error_mark_from_cif(_val, _name)
                                     setattr(item, _name_short_obj, value)
                                     if error is not None:
                                         setattr(item, f"{_name_short_obj:}_sigma", error)
@@ -678,7 +677,7 @@ class LoopN(object):
     def from_cif_file(cls, f_name: str):
         """Read from cif file."""
         if not(os.path.isfile(f_name)):
-            raise UserWarning(f"File {f_name:} is not found.")
+            raise RcifFileNotFoundError(f"File {f_name:} is not found.")
             return None
         str_from_cif = str(to_data(f_name))
         obj = cls.from_cif(str_from_cif)

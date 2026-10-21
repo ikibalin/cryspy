@@ -258,7 +258,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     try:
         c_lambda2 = float(c_lambda2.squeeze())*1
         flag_c_lambda = bool(not numpy.isnan(c_lambda2))
-    except:
+    except Exception:
         flag_c_lambda = False
     if flag_c_lambda:
         if (flag_use_precalculated_data and (f"dict_in_out_2hkl_{dict_crystal['name']:}" in dict_in_out_keys)):

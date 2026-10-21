@@ -1,6 +1,4 @@
-import os
 import math
-import numpy
 
 import cryspy
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl

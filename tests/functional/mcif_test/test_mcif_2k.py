@@ -6,7 +6,6 @@ from cryspy.A_functions_base.structure_factor import (
     calc_f_m_perp_ordered_by_dictionary,
 )
 
-from cryspy.procedure_simulation.simulation import simulation_single_crystal
 
 
 def test_tbte_mcif():

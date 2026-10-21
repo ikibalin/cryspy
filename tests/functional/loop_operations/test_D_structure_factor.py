@@ -1,8 +1,5 @@
 import os
-import numpy
 
-from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
-from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import ReflnSusceptibilityL
 
 # from cryspy.D_functions_item_loop.structure_factor import \
 #     calc_b_iso_beta, \

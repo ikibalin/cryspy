@@ -1,0 +1,60 @@
+name: Bug report
+description: CrysPy gives a wrong result, an error or a crash.
+labels: ["[scope] bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the report. A small `.rcif` file and a short script
+        that show the problem help most.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: |
+        A minimal script, and the `.rcif` file attached (drag it here, or
+        zip it first). Remove what is not needed to show the problem.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Error message
+      description: The full traceback or output, if there is one.
+      render: text
+  - type: input
+    id: cryspy-version
+    attributes:
+      label: CrysPy version
+      description: "`python -c \"import cryspy; print(cryspy.__version__)\"`"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Python version and operating system
+      placeholder: Python 3.13, Windows 11
+    validations:
+      required: true
+  - type: dropdown
+    id: experiment
+    attributes:
+      label: Type of data
+      multiple: true
+      options:
+        - single crystal, polarized neutrons
+        - single crystal, unpolarized neutrons
+        - powder 1D
+        - powder 2D
+        - time of flight
+        - X-rays
+        - MEM (spin / magnetization density)
+        - not related to data
