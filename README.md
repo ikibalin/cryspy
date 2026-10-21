@@ -4,6 +4,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/cryspy.svg)](https://pypi.org/project/cryspy/)
 [![Tests](https://github.com/ikibalin/cryspy/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/ikibalin/cryspy/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/178411703.svg)](https://doi.org/10.5281/zenodo.4271776)
 
 **CrysPy** is a crystallographic Python library for the analysis of
 polarized and unpolarized neutron diffraction data, and of X-ray diffraction
