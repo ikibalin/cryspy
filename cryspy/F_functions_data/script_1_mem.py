@@ -24,6 +24,8 @@ from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.D_functions_item_loop.function_1_flip_ratio import \
     calc_fm_perp_loc, calc_e_up_loc
 
+from cryspy.A_functions_base.progress import PROGRESS
+
 logger = logging.getLogger(__name__)
 
 
@@ -240,7 +242,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         chi_sq_n = chi_sq/float(total_peaks)
         if disp:
             logger.info(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} \
-{c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}")
+{c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}", extra=PROGRESS)
         if flag_info:
             d_info["print"] = f"""Iteration {i_cycle:5}:
     chi_sq/n: {chi_sq_n:.2f};
@@ -577,7 +579,7 @@ def func_temp(*argv, param_name: List[tuple] = None, d_info: dict = None) \
     flag_out = False
     l_param = argv[0]
     s_out = " ".join([f"{_:10.5f}" for _ in l_param])
-    logger.info(f"{s_out:}")
+    logger.info(f"{s_out:}", extra=PROGRESS)
     if d_info is not None:
         if param_name is not None:
             ls_out = [f"{name[-1][0]:}: {param: 10.5f}" for name, param in
@@ -611,7 +613,7 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
     flag_info = d_info is not None
 
     for i_cycle in range(n_cycle):
-        logger.info(f"Cycle {(i_cycle+1):4}. Entropy maximization")
+        logger.info(f"Cycle {(i_cycle+1):4}. Entropy maximization", extra=PROGRESS)
 
         if flag_info:
             d_info["print"] = f"""Cycle {(i_cycle+1):4}/{n_cycle:}:
@@ -629,7 +631,7 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
             if d_info["stop"]:
                 d_info["stop"] = False
                 break
-        logger.info(f"Cycle {(i_cycle+1):4}. Chi refinement")
+        logger.info(f"Cycle {(i_cycle+1):4}. Chi refinement", extra=PROGRESS)
         refine_susceptibility(crystal, l_diffrn, density_point, mem_parameters,
                               disp=disp, d_info=d_info_2)
     return density_point
