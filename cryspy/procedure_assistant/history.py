@@ -142,10 +142,12 @@ def calc_change(value: float, previous: float) -> Optional[float]:
 
 
 def form_metrics(result: dict, cryspy_object, n_point: Optional[int] = None,
-                 d_previous: Optional[dict] = None) -> dict:
+                 d_previous: Optional[dict] = None, flag_model_change: bool = False) -> dict:
     """Numbers of a calculation or refinement for the assistant and for
     the checks of a recipe; d_previous: the metrics of the previous
-    calculation, compared by chi_sq/n and R_F2."""
+    calculation, compared by chi_sq/n and R_F2. flag_model_change: the
+    model was changed on purpose (e.g. the type of a tensor), so a worse
+    chi_sq/n is not a warning."""
     d_metrics = {}
     d_previous = d_previous or {}
     chi_sq = float(result["chi_sq"]) if "chi_sq" in result else None
@@ -178,21 +180,22 @@ def form_metrics(result: dict, cryspy_object, n_point: Optional[int] = None,
         d_metrics["max_correlation"] = max_correlation
     if result.get("stopped", False):
         d_metrics["stopped"] = True
-    d_metrics["warnings"] = find_warnings(d_metrics, cryspy_object)
+    d_metrics["warnings"] = find_warnings(d_metrics, cryspy_object, flag_compare=not flag_model_change)
     return d_metrics
 
 
-def find_warnings(d_metrics: dict, cryspy_object) -> List[str]:
+def find_warnings(d_metrics: dict, cryspy_object, flag_compare: bool = True) -> List[str]:
     """Signs that the result is wrong or unphysical, as text for the
-    assistant; it decides whether to undo the refinement."""
+    assistant; it decides whether to undo the refinement. flag_compare:
+    a worse chi_sq/n or R_F2 than in the previous calculation is a sign."""
     l_warning = []
     chi_sq = d_metrics.get("chi_sq", None)
     if chi_sq is not None and not math.isfinite(chi_sq):
         l_warning.append("chi_sq is not a finite number: the refinement diverged.")
-    change = d_metrics.get("chi_sq_per_n_change", None)
+    change = d_metrics.get("chi_sq_per_n_change", None) if flag_compare else None
     if change is not None and change > CHI_SQ_TOLERANCE:
         l_warning.append(f"chi_sq/n got worse by {100 * change:.2g} % since the previous calculation.")
-    for name, previous in d_metrics.get("r_f2_previous", {}).items():
+    for name, previous in (d_metrics.get("r_f2_previous", {}) if flag_compare else {}).items():
         change = calc_change(d_metrics["r_f2"][name], previous)
         if change is not None and change > CHI_SQ_TOLERANCE:
             l_warning.append(f"R_F2 of {name:} got worse by {100 * change:.2g} % since the previous calculation.")

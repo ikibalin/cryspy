@@ -51,7 +51,7 @@ from cryspy.procedure_assistant.history import (
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
 from cryspy.procedure_assistant.parameters import (
-    find_parameter_records, suggest_parameter_names, take_parameter_record,
+    explain_value_words, find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
 
 MAX_PARAMETERS_IN_LIST = 200
@@ -215,7 +215,9 @@ def form_no_match_error(cryspy_object, pattern: str) -> str:
     """Error text with the names the model can use in the next call."""
     l_name = suggest_parameter_names(cryspy_object, pattern)
     s_name = ", ".join(l_name) if len(l_name) > 0 else "none"
-    return (f"Error: no parameters match '{pattern:}'. Parameters of this "
+    s_explanation = explain_value_words(pattern)
+    s_explanation = f" {s_explanation:}" if s_explanation else ""
+    return (f"Error: no parameters match '{pattern:}'.{s_explanation:} Parameters of this "
             f"object look like: {s_name:}.")
 
 
@@ -310,14 +312,21 @@ def tool_set_parameter(cryspy_object, path: str, value: float) -> str:
             f"{format_value(record.value):}")
 
 
-def tool_calculate(cryspy_object) -> dict:
+def tool_calculate(cryspy_object, flag_model_change: bool = False) -> dict:
+    """flag_model_change: the model was changed on purpose before the
+    calculation (set_chi_type): a worse chi_sq/n is expected, the next
+    refinement is compared with this calculation."""
     from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
     history = take_history(cryspy_object)
     result = rhochi_no_refinement(cryspy_object)
-    d_metrics = form_metrics(result, cryspy_object, d_previous=history.d_metrics)
+    d_metrics = form_metrics(result, cryspy_object, d_previous=history.d_metrics,
+                             flag_model_change=flag_model_change)
     keep_checkpoint(cryspy_object, d_metrics)
-    return {"text": form_calculation_text("Calculation finished.", result, cryspy_object, d_metrics),
-            "metrics": d_metrics}
+    text = form_calculation_text("Calculation finished.", result, cryspy_object, d_metrics)
+    if flag_model_change:
+        text += ("\nThe model is changed, not refined: the change of chi_sq/n comes from the change; "
+                 "do not undo it. Refine the parameters of the new model next.")
+    return {"text": text, "metrics": d_metrics}
 
 
 def form_calculation_text(title: str, result: dict, cryspy_object, d_metrics: dict) -> str:
@@ -508,7 +517,7 @@ def tool_set_chi_type(cryspy_object, chi_type: str, atoms: str = "") -> dict:
             return {"text": "Error: no atom has a susceptibility tensor (atom_site_susceptibility)."}
         return {"text": f"The susceptibility tensors are {chi_type:} already."}
     # the model is changed: the next refinement is compared with this calculation
-    result = tool_calculate(cryspy_object)
+    result = tool_calculate(cryspy_object, flag_model_change=True)
     return {"text": f"Susceptibility type {chi_type:} is set for:\n" + "\n".join(l_changed)
                     + "\n" + result["text"],
             "metrics": result["metrics"]}

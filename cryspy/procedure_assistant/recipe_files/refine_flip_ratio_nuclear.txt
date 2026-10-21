@@ -16,9 +16,7 @@ For: flip_ratio, nuclear
    Actions: refine_parameters {"pattern": "kappa"}; refine
 5. polarization: Polarization of the beam.
    Actions: refine_parameters {"pattern": "polarization"}; refine
-6. positions: Free atomic positions.
-   Actions: refine_parameters {"pattern": "atomic positions"}; refine
-7. extinction: Extinction.
+6. extinction: Extinction.
    Actions: refine_parameters {"pattern": "extinction"}; refine
 
 Final answer: chi_sq/n of the start model and at the end, the susceptibility tensors of the magnetic atoms with sigmas, the steps done, skipped and undone with the reason, and the warnings that remain.
