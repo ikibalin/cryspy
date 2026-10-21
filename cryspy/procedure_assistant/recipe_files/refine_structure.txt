@@ -1,0 +1,24 @@
+# Step-by-step refinement of a crystal structure on unpolarized data.
+Recipe refine_structure: Step-by-step refinement of a crystal structure
+Requests: refine the structure, refine from scratch, improve the fit of the model to the data
+For: unpolarized
+
+1. start: Fix all parameters and calculate the start model.
+   Actions: fix_parameters; calculate
+   Success: chi_sq/n of the start model is a number.
+   Otherwise: Stop and explain the error: the model or the data must be corrected first.
+2. scale: Scale factor.
+   Actions: refine_parameters {"pattern": "scale"}; refine
+   Otherwise: Stop: without a scale factor the next steps make no sense.
+3. background: Background and zero shift of the powder pattern.
+   When: powder experiments (pd, tof); single crystals have no background
+   Actions: refine_parameters {"pattern": "pd_background, pd_*.setup.offset_ttheta, pd_*.setup.offset_sycos, pd_*.setup.offset_sysin"}; refine
+4. positions: Free atomic positions.
+   Actions: refine_parameters {"pattern": "atomic positions"}; refine
+5. adp: Isotropic thermal parameters.
+   Actions: refine_parameters {"pattern": "b_iso_or_equiv, u_iso_or_equiv"}; refine
+6. extinction: Extinction.
+   When: single crystal experiments
+   Actions: refine_parameters {"pattern": "extinction"}; refine
+
+Final answer: chi_sq/n (and R_F2 for single crystals) of the start model and at the end, the steps done, skipped and undone with the reason, and the warnings that remain.

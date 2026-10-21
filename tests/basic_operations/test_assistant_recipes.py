@@ -2,7 +2,7 @@
 import cryspy
 from cryspy.procedure_assistant import history
 from cryspy.procedure_assistant.parameters import take_parameter_record
-from cryspy.procedure_assistant.recipes import L_RECIPES, take_recipe
+from cryspy.procedure_assistant.recipes import check_recipe, take_recipe, take_recipes
 from cryspy.procedure_assistant.tools import take_assistant_tool
 
 RCIF = """global_
@@ -31,7 +31,11 @@ _atom_site_B_iso_or_equiv
 
 
 def test_recipe_actions_are_tools():
-    for recipe in L_RECIPES:
+    l_recipe = take_recipes()
+    assert {"refine_structure", "refine_flip_ratio_nuclear", "choose_recipes"} <= {
+        recipe.name for recipe in l_recipe}
+    for recipe in l_recipe:
+        assert check_recipe(recipe) == []
         assert len(recipe.steps) > 0
         for step in recipe.steps:
             for name, arguments in step.actions:
@@ -152,3 +156,10 @@ def test_tools_without_numbers_have_empty_metrics():
     obj = cryspy.str_to_globaln(RCIF)
     result = cryspy.call_assistant_tool(obj, "summarize_object")
     assert result["metrics"] == {}
+
+
+def test_run_recipe_reports_each_step():
+    obj = cryspy.str_to_globaln(RCIF)
+    l_step = []
+    result = cryspy.run_recipe(obj, "refine_structure", callback=lambda *args: l_step.append(args))
+    assert [args[:2] for args in l_step] == [(name, status) for name, status, _ in result["steps"]]

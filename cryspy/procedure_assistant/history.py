@@ -25,6 +25,7 @@ MAX_SNAPSHOTS = 10
 CHI_SQ_TOLERANCE = 1e-3  # relative increase of chi_sq/n or R_F2 taken as "not worse"
 CORRELATION_WARNING = 0.95
 OCCUPANCY_MAX = 1.05  # partial occupancies may slightly exceed 1 within sigma
+KAPPA_RANGE = (0.5, 2.)  # the magnetic form factor is rarely expanded or contracted more
 
 D_HISTORY = weakref.WeakKeyDictionary()
 
@@ -207,6 +208,16 @@ def find_warnings(d_metrics: dict, cryspy_object) -> List[str]:
                    and not 0. <= record.value <= OCCUPANCY_MAX]
     if len(l_occupancy) > 0:
         l_warning.append("Occupancies outside [0, 1]: " + ", ".join(l_occupancy[:10]) + ".")
+    l_kappa = [record.path for record in l_refined if record.attribute == "kappa"
+               and not KAPPA_RANGE[0] <= record.value <= KAPPA_RANGE[1]]
+    if len(l_kappa) > 0:
+        l_warning.append(f"kappa outside [{KAPPA_RANGE[0]:}, {KAPPA_RANGE[1]:}] (unphysical "
+                         "magnetic form factor): " + ", ".join(l_kappa[:10]) + ".")
+    l_polarization = [record.path for record in l_refined
+                      if record.attribute in ("polarization", "efficiency") and abs(record.value) > 1.]
+    if len(l_polarization) > 0:
+        l_warning.append("Polarization or flipper efficiency outside [-1, 1]: "
+                         + ", ".join(l_polarization[:10]) + ".")
     max_correlation = d_metrics.get("max_correlation", None)
     if max_correlation is not None and max_correlation >= CORRELATION_WARNING:
         l_warning.append(f"Strong correlation of refined parameters (|r| = {max_correlation:.3f}).")
