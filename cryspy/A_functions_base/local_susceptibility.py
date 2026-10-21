@@ -10,12 +10,9 @@ import numpy.linalg
 na = numpy.newaxis
 
 from .matrix_operations import \
-    calc_m_q_inv_m, calc_mt_m, calc_m1_m2, calc_m1_m2_inv_m1, calc_q_sq, calc_mt_q_m
+    calc_m_q_inv_m, calc_m1_m2_inv_m1, calc_q_sq, calc_mt_q_m
 
 from .unit_cell import \
-    calc_m_inv_m_norm_by_unit_cell_parameters, \
-    calc_m_m_norm_by_unit_cell_parameters, \
-    calc_m_g_norm_by_unit_cell_parameters, \
     calc_m_m_by_unit_cell_parameters,\
     calc_m_reciprocal_g_norm_by_unit_cell_parameters, \
     calc_m_inv_b_norm_by_unit_cell_parameters

@@ -1,8 +1,6 @@
 import numpy
 from .matrix_operations import (
-    calc_m1_m2_inv_m1,
     calc_m_q_inv_m,
-    calc_m_v,
     calc_vector_product_v1_v2_v1,
     calc_mm_as_m_q_inv_m,
     calc_mm_as_m1_m2_inv_m1,

@@ -1,30 +1,15 @@
 import os
-from typing import List, Union
 import numpy
-import scipy
-import scipy.optimize
-
-from warnings import warn
 
 
-from cryspy.A_functions_base.function_1_inversed_hessian import \
-    estimate_inversed_hessian_matrix
-from cryspy.A_functions_base.function_1_error_simplex import \
-    error_estimation_simplex
 
-from cryspy.B_parent_classes.cl_3_data import DataN
-from cryspy.B_parent_classes.cl_4_global import GlobalN
+
 
 from cryspy.C_item_loop_classes.cl_1_phase import Phase, PhaseL
 from cryspy.C_item_loop_classes.cl_1_pd_meas import PdMeas, PdMeasL
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, DiffrnReflnL
-from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.A_functions_base.unit_cell import calc_m_b_by_unit_cell_parameters
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
-from cryspy.E_data_classes.cl_2_diffrn import Diffrn
-from cryspy.E_data_classes.cl_2_pd import Pd
-from cryspy.E_data_classes.cl_2_pd2d import Pd2d
-from cryspy.E_data_classes.cl_2_tof import TOF
 
 from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
 
@@ -147,7 +132,7 @@ def simulation_single_crystal(cryspy_object: cryspy.GlobalN):
 
             rcif_diffrn = cryspy.load_file(f_diffrn_sc).diffrn_sc
             if i_crystal == 1:
-                rcif_diffrn.data_name = f"sc"
+                rcif_diffrn.data_name = "sc"
             else:
                 rcif_diffrn.data_name = f"sc{i_crystal}"
             rcif_diffrn.phase.label = item.data_name
@@ -213,7 +198,7 @@ def simulation_fliping_ratio(cryspy_object: cryspy.GlobalN):
 
             rcif_diffrn = cryspy.load_file(f_diffrn_fr).diffrn_fr
             if i_crystal == 1:
-                rcif_diffrn.data_name = f"fr"
+                rcif_diffrn.data_name = "fr"
             else:
                 rcif_diffrn.data_name = f"fr{i_crystal}"
             rcif_diffrn.phase.label = item.data_name

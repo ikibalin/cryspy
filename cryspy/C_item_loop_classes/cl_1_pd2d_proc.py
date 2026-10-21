@@ -2,17 +2,13 @@ from typing import NoReturn
 import numpy
 import scipy
 from scipy.interpolate import interp2d
-from scipy.optimize import minimize
 
 import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.widgets as wdg
 
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu
 
-from cryspy.A_functions_base.function_1_gamma_nu import \
-    recal_int_to_gammanu_grid
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 

@@ -1,20 +1,13 @@
 """Description of Pd2d class."""
 __author__ = 'ikibalin'
 __version__ = "2020_08_19"
-from warnings import warn
 import numpy
-from typing import List, NoReturn
+from typing import NoReturn
 
-from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_cos_ang
 
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
-from cryspy.A_functions_base.unit_cell import calc_matrix_t
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu
 
-from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
@@ -42,7 +35,6 @@ from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
-from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 na = numpy.newaxis
 
