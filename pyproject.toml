@@ -61,3 +61,18 @@ default-tag = '0.11.0'
 distance = '{base_version}+dev{distance}'
 dirty = '{base_version}+dirty{distance}'
 distance-dirty = '{base_version}+devdirty{distance}'
+
+# Linting (roadmap Phase 5a): pyflakes rules and bare `except:` first,
+# more rule sets later. Run `ruff check .` or `pre-commit run --all-files`.
+[tool.ruff]
+extend-exclude = ['*.ipynb']
+
+[tool.ruff.lint]
+select = ['F', 'E722']
+# 157 unused local variables: removing them is not always side-effect free,
+# so they are cleaned up separately before this rule is enabled.
+ignore = ['F841']
+
+[tool.ruff.lint.per-file-ignores]
+# the package namespace re-exports the public API
+'**/__init__.py' = ['F401']

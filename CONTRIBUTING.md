@@ -30,6 +30,16 @@ pip install -e .[dev]
 python -m pytest tests/
 ```
 
+The code is checked by [ruff](https://docs.astral.sh/ruff/) (rules in
+`[tool.ruff]` of `pyproject.toml`; CI runs it on every push and PR).
+Run it before committing, or let pre-commit do it for you:
+
+```bash
+ruff check .                               # report
+ruff check --fix .                         # fix what is safe to fix
+pip install pre-commit && pre-commit install   # check on every commit
+```
+
 Dependencies are declared only in `pyproject.toml`; after changing them,
 update `pixi.lock` with `pixi install`. The version is computed from git
 tags by `versioningit`; never write a version number by hand.
@@ -68,7 +78,7 @@ Delete the branch after its PR is merged.
    `[bot] release` and `[bot] backmerge` are reserved for the automated PRs.
 6. The PR title becomes a line of the release notes, so write it as a short
    imperative sentence ("Fix TOF Lorentz half-angle scale convention").
-7. CI runs the unit, functional and examples tests; keep them green.
+7. CI runs ruff and the unit, functional and examples tests; keep them green.
 
 ## Releases
 

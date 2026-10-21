@@ -11,8 +11,6 @@ from .rhochi_pd import calc_chi_sq_for_pd_by_dictionary
 from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
-from cryspy.A_functions_base.function_1_inversed_hessian import \
-    estimate_inversed_hessian_matrix
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +185,7 @@ def rhochi_rietveld_refinement_by_dictionary(
         logger.info(f" - {name:}  {val:.5f}")
 
     if len(parameter_names_fixed) >0:
-        logger.info(f"Number of constrained parameters:")
+        logger.info("Number of constrained parameters:")
     for name in parameter_names_fixed:
         logger.info(f" - {name:}")
 

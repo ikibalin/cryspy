@@ -15,12 +15,6 @@ import numpy
 
 from cryspy.A_functions_base.function_3_extinction import calc_extinction_2
 
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
-from cryspy.C_item_loop_classes.cl_1_extinction import Extinction
-from cryspy.C_item_loop_classes.cl_1_setup import Setup
-from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import DiffrnRadiation
-from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import \
-    DiffrnOrientMatrix
 
 
 def calc_flip_ratio(

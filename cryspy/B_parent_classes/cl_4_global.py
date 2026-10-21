@@ -615,7 +615,7 @@ class GlobalN(object):
                 if mark != "":
                     d_marked[mark] = dict_name
             dict_out["punishment_function"] = (expression, d_marked)
-        except:
+        except Exception:
             pass
         return dict_out
 

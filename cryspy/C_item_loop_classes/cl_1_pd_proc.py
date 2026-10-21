@@ -1,7 +1,6 @@
 from typing import NoReturn
 import numpy
 import matplotlib.pyplot as plt
-import matplotlib.widgets as wdg
 import scipy
 import scipy.optimize
 

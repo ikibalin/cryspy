@@ -1,11 +1,10 @@
 """Common functions from MEM calculations.
 """
 
-from typing import NoReturn
 import numpy
 
 from cryspy.A_functions_base.function_1_matrices import \
-    calc_product_matrix_vector, calc_vector_product, calc_mRmCmRT
+    calc_vector_product, calc_mRmCmRT
 
 # #FIXME delete as it is doubled in symmetry_elements
 # def calc_asymmetric_unit_cell_indexes(n_x: int, n_y: int, n_z: int, r_ij, b_i)\
