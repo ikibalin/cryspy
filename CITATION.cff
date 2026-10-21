@@ -29,3 +29,18 @@ keywords:
   - magnetic structure
   - Rietveld refinement
   - maximum entropy method
+preferred-citation:
+  type: article
+  title: "Local magnetic anisotropy by polarized neutron powder diffraction: Application of magnetically induced preferred crystallite orientation"
+  authors:
+    - family-names: Kibalin
+      given-names: Iurii A.
+      orcid: "https://orcid.org/0000-0003-2398-2652"
+    - family-names: Gukasov
+      given-names: Arsen
+  journal: "Physical Review Research"
+  volume: 1
+  issue: 3
+  start: "033100"
+  year: 2019
+  doi: "10.1103/PhysRevResearch.1.033100"
