@@ -36,6 +36,7 @@ import numpy
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite
+from cryspy.C_item_loop_classes.cl_1_inversed_hessian import inversed_hessian_to_correlation
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 from cryspy.procedure_assistant.help import get_help
@@ -44,7 +45,8 @@ from cryspy.procedure_assistant.procedures import (
     take_procedures)
 from cryspy.procedure_assistant.history import (
     form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
-from cryspy.procedure_assistant.recipes import recipes_as_text, take_recipe
+from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
+from cryspy.procedure_assistant import experiments
 from cryspy.procedure_assistant.parameters import (
     find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
@@ -321,6 +323,20 @@ def form_calculation_text(title: str, result: dict, cryspy_object, d_metrics: di
     return "\n".join(line for line in ls_out if line != "")
 
 
+def take_numerical_correlation(cryspy_object, result: dict) -> dict:
+    """The result with the correlations of the inversed Hessian estimated by
+    numerical derivatives at the minimum (the sigmas of the refined values
+    are from it too); the matrix of BFGS is accumulated along the path of
+    the minimizer and may show |r| = 1 for independent parameters."""
+    if not cryspy_object.is_attribute("inversed_hessian"):
+        return result
+    matrix = getattr(cryspy_object.inversed_hessian, "matrix", None)
+    if matrix is None or len(matrix) != len(result.get("parameter_name", [])):
+        return result
+    correlation_matrix, _ = inversed_hessian_to_correlation(numpy.array(matrix, dtype=float))
+    return dict(result, correlation_matrix=correlation_matrix)
+
+
 def tool_refine(cryspy_object) -> dict:
     from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement
     if len(cryspy_object.get_variable_names()) == 0:
@@ -333,6 +349,7 @@ def tool_refine(cryspy_object) -> dict:
     except Exception:
         history.l_snapshot.pop()  # nothing is changed: nothing to undo
         raise
+    result = take_numerical_correlation(cryspy_object, result)
     d_metrics = form_metrics(result, cryspy_object, n_point=d_last.get("n_point"),
                              d_previous=history.d_metrics)
     if "n_point" in d_metrics:
@@ -371,6 +388,127 @@ def tool_get_recipe(cryspy_object, name: str) -> str:
     if recipe is None:
         return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
     return recipe.to_text()
+
+
+def tool_suggest_recipes(cryspy_object) -> str:
+    d_kind = experiments.take_object_kinds(cryspy_object)
+    if len(d_kind) == 0:
+        return "Error: the object has no experiments."
+    ls_out, d_name = [], {}
+    for name, l_kind in d_kind.items():
+        l_recipe = suggest_recipes(l_kind)
+        s_recipe = ", ".join(recipe.name for recipe in l_recipe) if l_recipe else "no recipe"
+        ls_out.append(f"{name:} ({', '.join(l_kind):}): {s_recipe:}")
+        if l_recipe:
+            d_name.setdefault(l_recipe[0].name, []).append(name)
+    if d_name:
+        ls_out.append("Run: " + "; ".join(f"{recipe:} for {', '.join(l_name):}"
+                                          for recipe, l_name in d_name.items())
+                      + " (get_recipe gives the steps).")
+    return "\n".join(ls_out)
+
+
+def tool_check_flip_ratio_model(cryspy_object, experiment: str = "",
+                                field: Optional[float] = None,
+                                polarization: Optional[float] = None,
+                                magnetic_atoms: Optional[List[str]] = None,
+                                lande: Optional[float] = None) -> dict:
+    l_experiment = experiments.take_flip_ratio_experiments(cryspy_object, experiment)
+    if len(l_experiment) == 0:
+        return {"text": "Error: no experiment with flip ratios (diffrn_refln_fr)"
+                        + (f" named '{experiment:}'." if experiment.strip() else ".")}
+    ls_change = []
+    for diffrn in l_experiment:
+        if field is not None and experiments.take_field(diffrn) == 0.:
+            experiments.set_field(diffrn, field)
+            ls_change.append(f"{diffrn.data_name:}: magnetic field = {field:} T")
+        if polarization is not None and experiments.take_polarization(diffrn) == 0.:
+            experiments.set_polarization(diffrn, polarization)
+            ls_change.append(f"{diffrn.data_name:}: polarization = {polarization:}")
+        for crystal in experiments.take_experiment_crystals(cryspy_object, diffrn):
+            if magnetic_atoms and len(experiments.take_susceptible_atoms(crystal)) == 0:
+                l_label = [str(item.label) for item in crystal.atom_site.items]
+                for label in magnetic_atoms:
+                    if label in l_label:
+                        ls_change.append(experiments.add_susceptibility(
+                            crystal, label, 2. if lande is None else lande))
+    l_missing = []
+    for diffrn in l_experiment:
+        if experiments.take_field(diffrn) == 0.:
+            l_missing.append({
+                "name": "field", "question": f"the magnetic field of {diffrn.data_name:} in tesla",
+                "type": "number", "hint": "a number in T, e.g. 1.0"})
+        if experiments.take_polarization(diffrn) == 0.:
+            l_missing.append({
+                "name": "polarization", "question": f"the polarization of the beam of {diffrn.data_name:}",
+                "type": "number", "minimum": -1., "maximum": 1., "hint": "a number from -1 to 1, e.g. 0.9"})
+        for crystal in experiments.take_experiment_crystals(cryspy_object, diffrn):
+            if len(experiments.take_susceptible_atoms(crystal)) == 0:
+                l_label = [str(item.label) for item in crystal.atom_site.items]
+                l_missing.append({
+                    "name": "magnetic_atoms",
+                    "question": f"which atoms of {crystal.data_name:} are magnetic",
+                    "type": "array", "items": {"type": "string", "enum": l_label}, "minItems": 1,
+                    "hint": "labels of atoms: " + ", ".join(l_label)})
+                l_missing.append({
+                    "name": "lande", "question": "the Lande factor of the magnetic atoms",
+                    "type": "number", "proposal": 2., "s_proposal": "2.0 (spin only)",
+                    "hint": "a number, e.g. 2.0 for spin only"})
+    l_missing = list({d_missing["name"]: d_missing for d_missing in l_missing}.values())
+    if len(l_missing) > 0:
+        l_problem = []
+        for diffrn in l_experiment:
+            l_problem.extend(experiments.find_flip_ratio_problems(cryspy_object, diffrn))
+        raise ArgumentsNeeded(l_missing, "The model gives no magnetic scattering: "
+                                         + "; ".join(l_problem) + ".")
+    # new tensors and zero ones (FR = 1, no derivative step) get the best start value
+    l_item, l_label = [], []
+    for diffrn in l_experiment:
+        for crystal in experiments.take_experiment_crystals(cryspy_object, diffrn):
+            for item in crystal.atom_site_susceptibility.items:
+                if (str(item.label) in (magnetic_atoms or []) and item.chi_type == "Ciso") or all(
+                        float(getattr(item, f"chi_{ij:}", 0.)) == 0. for ij in ("11", "22", "33")):
+                    if item.chi_type != "Ciso":
+                        item.chi_type = "Ciso"
+                    if item not in l_item:
+                        l_item.append(item)
+                        l_label.append(f"{crystal.data_name:}: {item.label:}")
+    if len(l_item) > 0:
+        chi_start = experiments.scan_chi_start(cryspy_object, l_item)
+        ls_change.append(f"start value chi_11 = {chi_start:g} mu_B/T (Ciso), the best of "
+                         f"{', '.join(f'{chi:g}' for chi in experiments.L_CHI_START):} for "
+                         + ", ".join(l_label))
+    result = tool_calculate(cryspy_object)
+    ls_out = ["Changed:\n" + "\n".join(ls_change)] if ls_change else []
+    flag_magnetic = True
+    for diffrn in l_experiment:
+        deviation = experiments.calc_flip_ratio_deviation(diffrn)
+        if deviation is None or deviation < experiments.FLIP_RATIO_TOLERANCE:
+            flag_magnetic = False
+            ls_out.append(f"{diffrn.data_name:}: all calculated flip ratios are equal to 1 although "
+                          "the field, the polarization and the magnetic atoms are given: check the "
+                          "magnetic atoms and the reflections.")
+        else:
+            ls_out.append(f"{diffrn.data_name:}: the calculated flip ratios differ from 1 "
+                          f"(max |FR_calc - 1| = {deviation:.3g}): the model gives magnetic scattering.")
+    if not flag_magnetic:
+        ls_out.insert(0, "Error: the model gives no magnetic scattering.")
+    ls_out.append(result["text"])
+    return {"text": "\n".join(ls_out), "metrics": result["metrics"]}
+
+
+def tool_set_chi_type(cryspy_object, chi_type: str, atoms: str = "") -> dict:
+    l_changed = experiments.set_chi_type(cryspy_object, chi_type, atoms)
+    if len(l_changed) == 0:
+        if not any(crystal.is_attribute("atom_site_susceptibility")
+                   for crystal in experiments.take_crystals(cryspy_object)):
+            return {"text": "Error: no atom has a susceptibility tensor (atom_site_susceptibility)."}
+        return {"text": f"The susceptibility tensors are {chi_type:} already."}
+    # the model is changed: the next refinement is compared with this calculation
+    result = tool_calculate(cryspy_object)
+    return {"text": f"Susceptibility type {chi_type:} is set for:\n" + "\n".join(l_changed)
+                    + "\n" + result["text"],
+            "metrics": result["metrics"]}
 
 
 def take_data_block(cryspy_object, name: str):
@@ -642,6 +780,35 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         tool_get_recipe,
         {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
         required=("name", ), flag_object_needed=False),
+    AssistantTool(
+        "suggest_recipes",
+        "Kinds of the experiments of the object (single crystal, powder, flip ratios, "
+        "polarized or not, nuclear or magnetic crystals) and the recipes for them.",
+        tool_suggest_recipes),
+    AssistantTool(
+        "check_flip_ratio_model",
+        "Calculate the model of the flip ratio experiments and check that it gives "
+        "magnetic scattering (not all calculated flip ratios equal to 1); asks the user for "
+        "a zero magnetic field or polarization and for the magnetic atoms when no atom has a "
+        "susceptibility tensor.",
+        tool_check_flip_ratio_model,
+        {"experiment": {"type": "string",
+                        "description": "Name of the experiment; empty for all with flip ratios."},
+         "field": {"type": "number", "description": "Magnetic field, T."},
+         "polarization": {"type": "number", "description": "Polarization of the beam."},
+         "magnetic_atoms": {"type": "array", "items": {"type": "string"},
+                            "description": "Labels of the magnetic atoms."},
+         "lande": {"type": "number", "description": "Lande factor of the magnetic atoms."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "set_chi_type",
+        "Set the type of the susceptibility tensors: 'Ciso' (isotropic, only chi_11 is "
+        "refined) or 'Cani' (anisotropic, the components allowed by the symmetry of the site).",
+        tool_set_chi_type,
+        {"chi_type": {"type": "string", "enum": ["Ciso", "Cani"]},
+         "atoms": {"type": "string",
+                   "description": "Labels of the atoms; empty for all atoms with a susceptibility."}},
+        required=("chi_type", ), flag_object_changed=True),
     AssistantTool(
         "show_model",
         "Show the object, or one data block, in rcif format.",
