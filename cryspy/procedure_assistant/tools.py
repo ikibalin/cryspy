@@ -28,7 +28,6 @@ calls the tool again with the answers added to the arguments:
 A required argument is asked from the user when its description has
 "question"; a tool asks for other values by raising ArgumentsNeeded.
 """
-import inspect
 import re
 from typing import Callable, Dict, List, Optional
 
@@ -40,6 +39,9 @@ from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 from cryspy.procedure_assistant.help import get_help
+from cryspy.procedure_assistant.procedures import (
+    describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
+    take_procedures)
 from cryspy.procedure_assistant.parameters import (
     find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
@@ -432,104 +434,18 @@ def tool_add_crystal_from_cod(cryspy_object, formula: str = "",
             f"{len(crystal.atom_site.items):} atoms.")
 
 
-D_BASIC_TYPE = {float: "number", int: "integer", bool: "boolean", str: "string"}
-
-
-def take_annotation_types(annotation) -> tuple:
-    """Classes of an annotation: (A, ) for A, (A, B) for Union[A, B]."""
-    l_type = getattr(annotation, "__args__", None)
-    if l_type is None or getattr(annotation, "__origin__", None) is None:
-        return (annotation, )
-    return tuple(l_type)
-
-
-def take_procedure_parameters(function: Callable) -> Optional[List[tuple]]:
-    """(name, kind, types, default) of the parameters of a CrysPy function,
-    None if the assistant cannot run it. kind: "global" (the object),
-    "basic" (number, integer, boolean, string), "cif" (an item, loop or
-    data block of the object), "skip" (keyword with a default: callback,
-    d_info)."""
-    from cryspy.B_parent_classes.cl_1_item import ItemN
-    from cryspy.B_parent_classes.cl_2_loop import LoopN
-    try:
-        signature = inspect.signature(function)
-    except (TypeError, ValueError):
-        return None
-    l_out = []
-    for param in signature.parameters.values():
-        if param.kind in (param.VAR_POSITIONAL, param.VAR_KEYWORD):
-            return None
-        types = take_annotation_types(param.annotation)
-        if GlobalN in types:
-            kind = "global"
-        elif len(types) == 1 and types[0] in D_BASIC_TYPE:
-            kind = "basic"
-        elif all(isinstance(item, type) and issubclass(item, (ItemN, LoopN, DataN))
-                 and item not in (ItemN, LoopN, DataN) for item in types):
-            kind = "cif"
-        elif param.default is not inspect.Parameter.empty:
-            kind = "skip"
-        else:
-            return None
-        l_out.append((param.name, kind, types, param.default))
-    return l_out
-
-
-def take_procedures() -> Dict[str, Callable]:
-    """CrysPy procedures of the menus of CrysPy Editor that the assistant
-    can run: their parameters are the object, numbers, strings, booleans,
-    or items, loops and data blocks of the object (as Cell)."""
-    import cryspy
-    d_procedure = {}
-    for function in cryspy.L_FUNCTION + cryspy.L_FUNCTION_ADD:
-        name = getattr(function, "__name__", "")
-        if name.startswith(("check_", "plot_", "get_")):
-            continue
-        l_param = take_procedure_parameters(function)
-        if l_param is None or len(l_param) == 0:
-            continue
-        l_kind = [kind for _, kind, _, _ in l_param]
-        if "global" not in l_kind and "cif" not in l_kind:
-            continue
-        d_procedure[name] = function
-    return {name: d_procedure[name] for name in sorted(d_procedure)}
-
-
-def form_procedure_signature(function: Callable) -> str:
-    ls_param = []
-    for name, kind, types, default in take_procedure_parameters(function):
-        if kind == "basic":
-            s_default = "" if default is inspect.Parameter.empty else f"={default!r:}"
-            ls_param.append(f"{name:}: {D_BASIC_TYPE[types[0]]:}{s_default:}")
-        elif kind == "cif":
-            ls_param.append(f"{name:}: {'|'.join(item.__name__ for item in types):}")
-    return f"({', '.join(ls_param):})"
-
-
 def tool_list_procedures(cryspy_object) -> str:
     ls_out = []
-    for name, function in take_procedures().items():
-        doc = (function.__doc__ or "").strip().split("\n")[0]
-        ls_out.append(f"- {name:}{form_procedure_signature(function):}: {doc:}")
+    for d_procedure in describe_procedures():
+        ls_param = []
+        for d_param in d_procedure["parameters"]:
+            if d_param["kind"] == "global":
+                continue
+            s_type = d_param.get("type") or "|".join(d_param.get("classes", []))
+            s_default = f"={d_param['default']!r:}" if "default" in d_param else ""
+            ls_param.append(f"{d_param['name']:}: {s_type:}{s_default:}")
+        ls_out.append(f"- {d_procedure['name']:}({', '.join(ls_param):}): {d_procedure['summary']:}")
     return "\n".join(ls_out)
-
-
-def find_cif_objects(cryspy_object, types: tuple) -> Dict[str, object]:
-    """{label: object} of the items, loops and data blocks of the object
-    of the given classes; labels as 'crystal_name.cell'."""
-    d_found = {}
-    if cryspy_object is None:
-        return d_found
-    for item in cryspy_object.items:
-        if isinstance(item, DataN):
-            if isinstance(item, types):
-                d_found[item.data_name] = item
-            for sub_item in item.items:
-                if isinstance(sub_item, types):
-                    d_found[f"{item.data_name:}.{sub_item.get_name():}"] = sub_item
-        elif isinstance(item, types):
-            d_found[item.get_name()] = item
-    return d_found
 
 
 def form_procedure_result(name: str, result, cryspy_object) -> str:
@@ -555,25 +471,28 @@ def form_procedure_result(name: str, result, cryspy_object) -> str:
 def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
     """Run a procedure: the object, and the items of the object found by
     their classes, are given at once; values without a default and items
-    found more than once are asked from the user (ArgumentsNeeded)."""
-    d_procedure = take_procedures()
-    if name not in d_procedure:
+    found more than once are asked from the user (ArgumentsNeeded) with
+    the questions made from the docstring of the procedure."""
+    d_function = take_procedures()
+    if name not in d_function:
         return (f"Error: procedure '{name:}' is not known. Available:\n"
                 + tool_list_procedures(cryspy_object))
-    function = d_procedure[name]
+    function = d_function[name]
+    d_param_type = {param: types for param, _, types, _ in take_procedure_parameters(function)}
     kwargs, l_missing = {}, []
-    for param, kind, types, default in take_procedure_parameters(function):
+    for d_param in describe_procedure(function)["parameters"]:
+        param, kind = d_param["name"], d_param["kind"]
+        d_ask = {"name": param, "question": d_param.get("question", param)}
         if kind == "global":
             kwargs[param] = cryspy_object
         elif kind == "basic":
-            d_param = {"type": D_BASIC_TYPE[types[0]]}
             if param in arguments:
                 kwargs[param] = convert_argument(arguments[param], d_param)
-            elif default is inspect.Parameter.empty:
-                l_missing.append(dict(d_param, name=param, question=f"the {param.replace('_', ' '):}"))
+            elif "default" not in d_param:
+                l_missing.append(dict(d_ask, type=d_param["type"], hint=param))
         elif kind == "cif":
-            d_found = find_cif_objects(cryspy_object, types)
-            s_type = " or ".join(item.__name__ for item in types)
+            d_found = find_cif_objects(cryspy_object, d_param_type[param])
+            s_type = " or ".join(d_param["classes"])
             if param in arguments and str(arguments[param]) in d_found:
                 kwargs[param] = d_found[str(arguments[param])]
             elif len(d_found) == 1:
@@ -581,9 +500,7 @@ def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
             elif len(d_found) == 0:
                 return f"Error: {name:} needs {s_type:} ({param:}), the object has none."
             else:
-                l_missing.append({"name": param, "question": f"the {s_type:} for {param:}",
-                                  "type": "string", "enum": list(d_found),
-                                  "hint": ", ".join(d_found)})
+                l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
     if l_missing:
         raise ArgumentsNeeded(l_missing)
     return form_procedure_result(name, function(**kwargs), cryspy_object)

@@ -312,7 +312,21 @@ RCIF_TWO = RCIF + RCIF.replace("global_\n", "").replace("data_fe", "data_fe2")
 
 
 def scale_cell(cell: cryspy.Cell, factor: float):
-    """Test procedure: a copy of the cell scaled by the factor."""
+    """Test procedure: a copy of the cell scaled by the factor.
+
+    Parameters
+    ----------
+    cell : Cell
+        Unit cell to scale.
+    factor : float
+        Scale factor of the lengths. It is
+        applied to a, b and c.
+
+    Returns
+    -------
+    Cell
+        The scaled cell.
+    """
     return cryspy.Cell(length_a=cell.length_a * factor, length_b=cell.length_b * factor,
                        length_c=cell.length_c * factor)
 
@@ -336,9 +350,10 @@ def test_procedure_asks_value_and_object(scale_procedure):
     result = cryspy.call_assistant_tool(obj, "run_procedure", {"name": "scale_cell"})
     assert not result["flag_error"]
     assert result["missing"] == [
-        {"name": "cell", "question": "the Cell for cell", "type": "string",
+        {"name": "cell", "question": "the unit cell to scale", "type": "string",
          "enum": ["fe.cell", "fe2.cell"], "hint": "fe.cell, fe2.cell"},
-        {"type": "number", "name": "factor", "question": "the factor"}]
+        {"name": "factor", "question": "the scale factor of the lengths", "type": "number",
+         "hint": "factor"}]
     arguments = {"name": "scale_cell", "factor": "2",
                  "cell": cryspy.convert_assistant_answer(result["missing"][0], "FE2.cell")}
     result = cryspy.call_assistant_tool(obj, "run_procedure", arguments)
@@ -357,3 +372,39 @@ def test_procedure_without_object_is_error():
     result = cryspy.call_assistant_tool(obj, "run_procedure",
                                         {"name": "report_main_axes_of_magnetization_ellipsoids"})
     assert result["flag_error"] and "the object has none" in result["text"]
+
+
+def test_description_from_docstring(scale_procedure):
+    from cryspy.procedure_assistant.procedures import describe_procedure
+    d_procedure = describe_procedure(scale_cell)
+    assert d_procedure["title"] == "Scale Cell" and d_procedure["group"] == "Scale"
+    assert d_procedure["summary"] == "Test procedure: a copy of the cell scaled by the factor."
+    assert d_procedure["returns"] == "Cell\n    The scaled cell."
+    assert d_procedure["parameters"] == [
+        {"name": "cell", "kind": "cif", "description": "Unit cell to scale.", "classes": ["Cell"],
+         "question": "the unit cell to scale"},
+        {"name": "factor", "kind": "basic", "description": "Scale factor of the lengths. It is applied to a, b and c.",
+         "type": "number", "question": "the scale factor of the lengths"}]
+
+
+def test_description_without_docstring_sections():
+    import cryspy.procedure_mempy.mempy as mempy
+    from cryspy.procedure_assistant.procedures import describe_procedure, form_title
+    assert form_title("rhochi_no_refinement") == "RhoChi No Refinement"
+    assert form_title("mempy_cycle_with_parameters") == "MEMPy Cycle With Parameters"
+    d_procedure = describe_procedure(cryspy.rhochi_rietveld_refinement_with_parameters)
+    assert d_procedure["summary"].startswith("Run refinement by RhoChi")
+    assert [d_param["name"] for d_param in d_procedure["parameters"]] == [
+        "cryspy_object", "optimization_method"]  # callback is not a parameter of the menu
+    assert describe_procedure(mempy.mempy_cycle_with_parameters)["parameters"][-1]["default"] == 10
+
+
+def test_procedures_are_documented():
+    """Every procedure of the menus has a summary and a description of its
+    parameters (they become the menus, the forms and the questions)."""
+    from cryspy.procedure_assistant.procedures import describe_procedures
+    for d_procedure in describe_procedures():
+        assert d_procedure["summary"], d_procedure["name"]
+        for d_param in d_procedure["parameters"]:
+            if d_param["kind"] != "global":
+                assert d_param["description"], (d_procedure["name"], d_param["name"])

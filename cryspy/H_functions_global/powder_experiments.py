@@ -68,6 +68,18 @@ def calc_density_of_crystal(crystal: Crystal) -> float:
 
 
 def report_powder_experiments(rcif_object: GlobalN):
+    """Report about the powder and single crystal experiments.
+
+    Parameters
+    ----------
+    rcif_object : GlobalN
+        The object with the crystals and the experiments.
+
+    Returns
+    -------
+    str
+        Report in markdown for every experiment and its phases.
+    """
     d_elements = DATABASE["Elements"]
     ls_out = []
     rcif_dict = rcif_object.get_dictionary()

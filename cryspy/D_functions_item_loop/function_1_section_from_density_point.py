@@ -105,15 +105,31 @@ def calc_section_from_density_point(
         atom_site_susceptibility: AtomSiteSusceptibilityL):
     """Calculate section in density point.
 
-    Arguments
-    ---------
-        - section
-        - density_point
-        - cell
-        - space_group_symop
+    The magnetization density of the density points (the result of MEM) is
+    interpolated on the plane of the section.
 
-    Output:
-        - matrix_chi, matrix_b
+    Parameters
+    ----------
+    section : Section
+        Section: its center, axes, size and number of points.
+    density_point : DensityPointL
+        Density points of the asymmetric part of the unit cell.
+    mem_parameters : MEMParameters
+        MEM parameters: number of points along a, b, c and susceptibilities.
+    cell : Cell
+        Unit cell of the crystal.
+    space_group_symop : SpaceGroupSymopL
+        Symmetry operations of the space group.
+    atom_site : AtomSiteL
+        Atoms of the crystal (the center and the axes of the section).
+    atom_site_susceptibility : AtomSiteSusceptibilityL
+        Atomic susceptibilities of the crystal.
+
+    Returns
+    -------
+    den_ani_section, den_b_section : numpy.ndarray
+        Densities of the anisotropic and of the collinear channels on the
+        section, shape (points_x, points_y).
     """
     r_11 = numpy.array(space_group_symop.r_11, dtype=int)
     r_12 = numpy.array(space_group_symop.r_12, dtype=int)
