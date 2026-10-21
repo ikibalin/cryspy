@@ -1,0 +1,46 @@
+# Citation metadata: GitHub shows a "Cite this repository" button from it,
+# and Zenodo uses it for the DOI of every GitHub release.
+# The version is not written here: it comes from the git tag of a release.
+cff-version: 1.2.0
+message: "If you use CrysPy in your research, please cite it as below."
+type: software
+title: "CrysPy: crystallographic library for polarized and unpolarized neutron diffraction data analysis"
+authors:
+  - family-names: Kibalin
+    given-names: Iurii
+    orcid: "https://orcid.org/0000-0003-2398-2652"
+  - family-names: Gukasov
+    given-names: Arsen
+  - family-names: Sazonov
+    given-names: Andrew
+abstract: >-
+  CrysPy is a Python library for the analysis of polarized and unpolarized
+  neutron diffraction and X-ray diffraction data of powders and single
+  crystals: nuclear and magnetic structure refinement, local magnetic
+  susceptibility, and spin and magnetization density reconstruction by the
+  maximum entropy method.
+license: MIT
+repository-code: "https://github.com/ikibalin/cryspy"
+url: "https://www.cryspy.fr"
+keywords:
+  - crystallography
+  - neutron diffraction
+  - polarized neutrons
+  - magnetic structure
+  - Rietveld refinement
+  - maximum entropy method
+preferred-citation:
+  type: article
+  title: "Local magnetic anisotropy by polarized neutron powder diffraction: Application of magnetically induced preferred crystallite orientation"
+  authors:
+    - family-names: Kibalin
+      given-names: Iurii A.
+      orcid: "https://orcid.org/0000-0003-2398-2652"
+    - family-names: Gukasov
+      given-names: Arsen
+  journal: "Physical Review Research"
+  volume: 1
+  issue: 3
+  start: "033100"
+  year: 2019
+  doi: "10.1103/PhysRevResearch.1.033100"
