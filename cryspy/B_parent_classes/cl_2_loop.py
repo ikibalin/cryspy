@@ -5,7 +5,6 @@ It should be used ass parent to describe new loop classes.
 """
 import os
 import os.path
-import copy
 from typing import NoReturn, Union
 import numpy
 from pycifstar import Data, to_data
@@ -55,7 +54,7 @@ class LoopN(object):
         if report != "":
             ls_html.append(f"<h3>Description </h3> {report:}")
 
-        ls_html.append(f"<h3>Methods</h3>")
+        ls_html.append("<h3>Methods</h3>")
         method = self.methods_html()
         if method != "":
             ls_html.append(f"<b>Methods: </b> {method:}")

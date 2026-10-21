@@ -1,0 +1,5 @@
+#!/home/user/cryspy/.pixi/envs/default/bin/python3.14
+
+import pydoc
+if __name__ == '__main__':
+    pydoc.cli()

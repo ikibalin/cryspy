@@ -6,20 +6,9 @@ __version__ = "2020_08_19"
 import numpy
 from typing import NoReturn
 
-from cryspy.A_functions_base.function_2_crystallography_base import (
-    calc_cos_ang,
-)
 
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
-from cryspy.A_functions_base.unit_cell import calc_matrix_t
 
-from cryspy.A_functions_base.integrated_intensity_powder_diffraction import (
-    calc_powder_iint_1d_para,
-    calc_powder_iint_1d_ordered,
-)
 
-from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
@@ -44,10 +33,9 @@ from cryspy.C_item_loop_classes.cl_1_pd_proc import PdProcL
 from cryspy.C_item_loop_classes.cl_1_pd_peak import PdPeakL
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
-from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
+from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
-from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 

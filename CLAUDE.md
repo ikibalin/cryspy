@@ -9,7 +9,7 @@ diffraction data: polarized/unpolarized single crystal and powder refinement
 (RhoChi), TOF, magnetic space groups (mcif), and MEM reconstruction of
 magnetization/spin density. Input and output are CIF-like `.rcif` files parsed
 with `pycifstar`. Runtime dependencies: `numpy`, `scipy`, `pycifstar`,
-`matplotlib`. Supported Python: 3.9+.
+`matplotlib`. Supported Python: 3.10+ (numpy >= 2.0).
 
 ## Commands
 

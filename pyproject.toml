@@ -2,33 +2,36 @@
 name = 'cryspy'
 dynamic = ['version']
 description = 'PNPD data analysis'
-readme = 'readme.rst'
+readme = 'README.md'
 license = 'MIT'
 authors = [{ name = 'Iurii Kibalin', email = 'yurikibalin@outlook.com' }]
 keywords = ['Polarized Neutron Diffraction Data Analysis']
-requires-python = '>=3.9'
+requires-python = '>=3.10'
 classifiers = [
   'Operating System :: OS Independent',
   'Programming Language :: Python :: 3 :: Only',
   'Programming Language :: Python :: 3',
-  'Programming Language :: Python :: 3.9',
   'Programming Language :: Python :: 3.10',
   'Programming Language :: Python :: 3.11',
   'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: 3.13',
   'Programming Language :: Python :: 3.14',
 ]
+# Lower bounds: the bundled database (A_functions_base/database.pickle)
+# is pickled with numpy 2 and does not load with numpy 1.x; scipy and
+# matplotlib are the first versions built for numpy 2.
 dependencies = [
-  'numpy',
-  'scipy',
+  'numpy>=2.0',
+  'scipy>=1.13',
   'pycifstar',
-  'matplotlib',
+  'matplotlib>=3.9',
 ]
 
 [project.optional-dependencies]
 dev = [
   'pytest',       # Testing
   'pytest-xdist', # Parallel test execution
+  'pytest-cov',   # Test coverage
   'build',        # Building the package
   'versioningit', # Automatic versioning from git tags
 ]
@@ -49,7 +52,7 @@ source = 'versioningit'
 packages = ['cryspy']
 
 [tool.hatch.build.targets.sdist]
-include = ['cryspy', 'readme.rst']
+include = ['cryspy', 'README.md']
 
 # Versioningit derives the version from git tags, so it does not need to
 # be stored in the source. cryspy tags are plain (e.g. 0.11.0).
@@ -61,3 +64,18 @@ default-tag = '0.11.0'
 distance = '{base_version}+dev{distance}'
 dirty = '{base_version}+dirty{distance}'
 distance-dirty = '{base_version}+devdirty{distance}'
+
+# Linting (roadmap Phase 5a): pyflakes rules and bare `except:` first,
+# more rule sets later. Run `ruff check .` or `pre-commit run --all-files`.
+[tool.ruff]
+extend-exclude = ['*.ipynb']
+
+[tool.ruff.lint]
+select = ['F', 'E722']
+# 157 unused local variables: removing them is not always side-effect free,
+# so they are cleaned up separately before this rule is enabled.
+ignore = ['F841']
+
+[tool.ruff.lint.per-file-ignores]
+# the package namespace re-exports the public API
+'**/__init__.py' = ['F401']

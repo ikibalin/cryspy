@@ -1,5 +1,6 @@
 # Run the test suite via pixi, reusing the same tasks developers run
-# locally (`pixi run test`).
+# locally (`pixi run test`), with coverage; and the unit tests on
+# Linux, Windows and macOS with the oldest and newest supported Python.
 
 name: Tests
 
@@ -37,4 +38,93 @@ jobs:
           pixi-version: latest
 
       - name: Run ${{ matrix.suite }} tests
-        run: pixi run ${{ matrix.suite }}-tests
+        run: pixi run ${{ matrix.suite }}-tests --cov=cryspy --cov-report=
+        env:
+          COVERAGE_FILE: .coverage.${{ matrix.suite }}
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.suite }}
+          path: .coverage.${{ matrix.suite }}
+          include-hidden-files: true
+          if-no-files-found: error
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # comment with the coverage table
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install coverage
+        run: python -m pip install coverage
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+
+      - name: Combine and report
+        run: |
+          coverage combine .coverage.*
+          coverage json -o coverage.json
+          python .github/scripts/coverage_summary.py coverage.json > coverage.md
+          cat coverage.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload HTML report
+        run: coverage html -d coverage-html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: coverage-html
+
+      # forks get a read-only token, so only PRs from this repository
+      - name: Comment on the pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          id=$(gh api "repos/${{ github.repository }}/issues/$pr/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- cryspy-coverage -->")) | .id' | tail -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$id" -F body=@coverage.md > /dev/null
+          else
+            gh api "repos/${{ github.repository }}/issues/$pr/comments" -F body=@coverage.md > /dev/null
+          fi
+
+  unit-tests-os:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.14']
+    name: unit-tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # full history + tags for versioningit
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install cryspy with the dev extra
+        run: python -m pip install -e .[dev]
+
+      - name: Run unit tests
+        run: python -m pytest tests/basic_operations/ --color=yes -v

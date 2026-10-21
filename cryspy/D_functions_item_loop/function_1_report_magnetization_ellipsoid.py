@@ -76,9 +76,9 @@ def report_main_axes_of_magnetization_ellipsoids(
         ls_out.append(f"\nEllipsoid factor {ef:.5f}.\n")
 
         ls_out.append("\nUse thermal parameters U_ij to plot ellispoid.\n")
-        ls_out.append(f"|      U_11|      U_22|      U_33|      U_12|      \
+        ls_out.append("|      U_11|      U_22|      U_33|      U_12|      \
 U_13|      U_23|")
-        ls_out.append(f"|----------|----------|----------|----------|------\
+        ls_out.append("|----------|----------|----------|----------|------\
 ----|----------|")
         ls_out.append(
                 f"|{u_ij[0]:9.3f}|{u_ij[1]:9.3f}|\

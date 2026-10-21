@@ -1,0 +1,11 @@
+prefix=/home/user/cryspy/.pixi/envs/default
+exec_prefix=/home/user/cryspy/.pixi/envs/default
+libdir=/home/user/cryspy/.pixi/envs/default/lib
+includedir=/home/user/cryspy/.pixi/envs/default/include
+
+Name: uuid
+Description: Universally unique id library
+Version: 2.42.2
+Cflags: -I${includedir}/uuid
+Libs.private:  -lpthread
+Libs: -L${libdir} -luuid

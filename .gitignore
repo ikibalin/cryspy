@@ -22,4 +22,5 @@ TestResults/*
 venv/*
 .DS_Store
 tmp/*
+.pixi/
 site/

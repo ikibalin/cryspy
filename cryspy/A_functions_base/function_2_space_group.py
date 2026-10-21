@@ -1353,7 +1353,7 @@ def auto_choose_it_coordinate_system_code(it_number:int, it_coordinate_system_co
     if len(it_coordinate_system_codes) == 0:
         it_coordinate_system_code = None
     elif len(it_coordinate_system_codes) > 1:
-        print(f"Several values of it_coordinate_system_code have been defined:")
+        print("Several values of it_coordinate_system_code have been defined:")
         print_long_list(it_coordinate_system_codes)
         default_i_c_s_c = get_default_it_coordinate_system_code_by_it_number(it_number)
         if default_i_c_s_c in it_coordinate_system_codes:

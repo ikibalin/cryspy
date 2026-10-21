@@ -5,12 +5,9 @@ from typing import NoReturn
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
-from cryspy.A_functions_base.matrix_operations import calc_m_v
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.C_item_loop_classes.cl_1_cell import Cell
-from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
 
 class MagneticStructureK(ItemN):
     """MagneticStructureK is a non standard category to define the list of magnetic propagation vectors.
