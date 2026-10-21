@@ -3,10 +3,10 @@
 Expression for unit cell parameters are presented.
 For details see documentation.
 """
-import warnings
 import numpy 
 
 from .matrix_operations import calc_m_q_mt
+from cryspy.exceptions import CrysPyError
 
 
 def calc_reciprocal_by_unit_cell_parameters(
@@ -1057,9 +1057,9 @@ def calc_matrix_t(index_hkl, unit_cell_parameters, flag_unit_cell_parameters: bo
     t_13, t_23, t_33 = sb*sg, sb*cg, cb
     flag = (((sa*sb-k_x)**2+(-ca*sb-k_y)**2+(cb-k_z)**2) > 0.0001)
     if any(flag):
-        warnings.warn("Mistake with eq\nProgram is stopped",
-                      UserWarning, stacklevel=2)
-        quit()
+        raise CrysPyError(
+            "Mistake with eq: the rotation matrix does not reproduce the "
+            "given direction")
     m_t_ij  = numpy.stack([t_11, t_12, t_13, t_21, t_22, t_23, t_31, t_32, t_33], axis=0)
 
     dder = {}

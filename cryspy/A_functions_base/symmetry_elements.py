@@ -23,6 +23,7 @@ from .function_1_strings import transform_string_to_digits
 from cryspy.A_functions_base.function_2_sym_elems import calc_numerators_and_common_denominator
 
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2, calc_m_v
+from cryspy.exceptions import CrysPyError
 
 na = numpy.newaxis
 
@@ -352,7 +353,7 @@ def define_bravais_type_by_symm_elems(symm_elems):
     n_elems = n_symm_elems // (n_centrosymmetry * n_centring_type)
     
     if n_symm_elems % (n_centrosymmetry * n_centring_type) != 0:
-        raise UserWarning("Error in number of symmetry elements")
+        raise CrysPyError("Error in number of symmetry elements")
         
     
     flag_1y = numpy.any(symm_elems[5,:] != 0)

@@ -5,6 +5,7 @@ It should be used ass parent to describe new item classes.
 """
 import os
 import os.path
+import warnings
 import numpy
 from typing import NoReturn, Union
 from pycifstar import Data, to_data
@@ -13,6 +14,7 @@ from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_strings import find_prefix, \
     string_to_value_error_mark, value_error_mark_to_string
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
+from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError, RcifFormatError
 
 
 def string_to_fixed_or_refined(s_value: str):
@@ -27,6 +29,22 @@ def string_to_fixed_or_refined(s_value: str):
     except AttributeError:
         value = s_value
     return value, flag_refined
+
+
+def value_error_mark_from_cif(string: str, cif_name: str):
+    """Value, sigma and constraint mark of a refinable rcif value.
+
+    "." and "?" give None. A value that is not a number raises
+    RcifFormatError naming the tag, instead of being silently dropped.
+    """
+    try:
+        value, error, mark = string_to_value_error_mark(string)
+    except ValueError as error_value:
+        raise RcifFormatError(
+            f"Value '{string:}' of '{cif_name:}' is not a number.") from error_value
+    if value is None and string.strip() not in (".", "?"):
+        raise RcifFormatError(f"Value '{string:}' of '{cif_name:}' is not a number.")
+    return value, error, mark
 
 
 class ItemN(object):
@@ -227,12 +245,21 @@ class ItemN(object):
             if ((val_type is bool) and (isinstance(value, str))):
                 val_new = value == "True"
             else:
-                val_new = val_type(value)
+                try:
+                    val_new = val_type(value)
+                except (TypeError, ValueError) as error_value:
+                    raise RcifFormatError(
+                        f"Value '{value:}' of '{name:}' in {type(self).__name__:} "
+                        f"is not {val_type.__name__:}.") from error_value
             flag, flag_write = True, True
 
             if name in self.D_CONSTRAINTS.keys():
                 if val_new not in self.D_CONSTRAINTS[name]:
                     flag_write = False
+                    warnings.warn(
+                        f"Value '{val_new:}' of '{name:}' in {type(self).__name__:} "
+                        f"is ignored: allowed values are {', '.join(str(_) for _ in self.D_CONSTRAINTS[name]):}.",
+                        CrysPyWarning, stacklevel=2)
             if name in self.D_MIN.keys():
                 if val_new < self.D_MIN[name]:
                     val_new = self.D_MIN[name]
@@ -624,9 +651,8 @@ class ItemN(object):
                     _cif_attr_full = "_" + prefix + separator + _cif_attr
                     if cif_data.is_value(_cif_attr_full):
                         if _attr in attr_ref:
-                            value, error, mark = \
-                                string_to_value_error_mark(
-                                    cif_data[_cif_attr_full].value)
+                            value, error, mark = value_error_mark_from_cif(
+                                cif_data[_cif_attr_full].value, _cif_attr_full)
                             setattr(item, _attr, value)
                             if error is not None:
                                 setattr(item, f"{_attr:}_sigma", error)
@@ -650,7 +676,7 @@ class ItemN(object):
     def from_cif_file(cls, f_name: str):
         """Read from cif file."""
         if not(os.path.isfile(f_name)):
-            raise UserWarning(f"File {f_name:} is not found.")
+            raise RcifFileNotFoundError(f"File {f_name:} is not found.")
             return None
         str_from_cif = str(to_data(f_name))
         obj = cls.from_cif(str_from_cif)

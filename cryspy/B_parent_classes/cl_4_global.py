@@ -11,6 +11,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError
 from cryspy.B_parent_classes.cl_3_data import DataN
 
 
@@ -173,7 +174,7 @@ class GlobalN(object):
                 self.items.append(value)
                 flag_items, flag_direct = True, False
                 if name_new != name:
-                    warn(f"Access to variable by '{name_new:}'.", UserWarning)
+                    warn(f"Access to variable by '{name_new:}'.", CrysPyWarning)
 
         if flag_items:
             pass
@@ -203,7 +204,7 @@ class GlobalN(object):
         l_name = [item.get_name() for item in items]
         s_name = set(l_name)
         if len(s_name) != len(l_name):
-            warn("Double items were given.", UserWarning)
+            warn("Double items were given.", CrysPyWarning)
             items_unique = [items[l_name.index(name)] for name in s_name]
         else:
             items_unique = items
@@ -411,11 +412,11 @@ class GlobalN(object):
                 flag = False
                 if isinstance(item, (ItemN, DataN)):
                     warn(f"Item {item.PREFIX:} is not fully described.",
-                         UserWarning)
+                         CrysPyWarning)
                     break
                 elif isinstance(item, LoopN):
                     warn(f"Item {item.ITEM_CLASS.PREFIX:} is not fully described.",
-                         UserWarning)
+                         CrysPyWarning)
                     break
         if flag:
             cls_items = [type(item) for item in self.items]
@@ -423,7 +424,7 @@ class GlobalN(object):
                 if not(cls_mand in cls_items):
                     flag = False
                     warn(f"The object of {cls_mand.__name__:} is not defined.",
-                         UserWarning)
+                         CrysPyWarning)
                     break
         return flag
 
@@ -517,7 +518,7 @@ class GlobalN(object):
                         flag = True
             if not(flag):
                 warn(f"Mandatory class: '{cls_.__name__:}' is not given.",
-                     UserWarning)
+                     CrysPyWarning)
                 break
 
         if not(flag):
@@ -532,7 +533,7 @@ class GlobalN(object):
     def from_cif_file(cls, f_name: str):
         """Read from cif file."""
         if not(os.path.isfile(f_name)):
-            raise UserWarning(f"File {f_name:} is not found.")
+            raise RcifFileNotFoundError(f"File {f_name:} is not found.")
             return None
         str_from_cif = str(to_global(f_name))
         obj = cls.from_cif(str_from_cif)

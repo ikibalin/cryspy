@@ -100,6 +100,7 @@ from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import (
     SpaceGroupSymopMagnOperationL,
 )
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+from cryspy.exceptions import RcifFormatError
 
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import (
@@ -903,7 +904,7 @@ class Crystal(DataN):
                 try:
                     jl = calc_jl_for_ion(table_sthovl, type_symbol)
                     scattering_amplitude = jl[:, 0]
-                except UserWarning:
+                except RcifFormatError:
                     try:
                         scattering_amplitude = (
                             calc_scattering_amplitude_tabulated(

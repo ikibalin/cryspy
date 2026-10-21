@@ -11,6 +11,7 @@ from .rhochi_pd import calc_chi_sq_for_pd_by_dictionary
 from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
+from cryspy.exceptions import RefinementError
 
 logger = logging.getLogger(__name__)
 
@@ -381,7 +382,7 @@ def rhochi_calc_chi_sq_by_dictionary(
                 (len(l_dict_crystal)+len(l_dict_magcrystal)) > 0):
             name_key_crystal, dict_crystal = (l_dict_crystal+l_dict_magcrystal)[0]
         else:
-            raise AttributeError(f"Phase {phase_label:} is not found")
+            raise RefinementError(f"Phase {phase_label:} is not found")
 
         chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_name = calc_chi_sq_for_diffrn_by_dictionary(
             dict_diffrn, dict_crystal, dict_in_out=dict_in_out_diffrn,
