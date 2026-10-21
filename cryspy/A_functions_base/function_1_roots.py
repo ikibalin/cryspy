@@ -1,5 +1,8 @@
 """Functions to find roots."""
+import logging
 import math
+
+logger = logging.getLogger(__name__)
 
 def rootsearch(f, a: float, b: float, dx: float):
     """Seacrh one root in range [a, b]."""
@@ -32,7 +35,7 @@ def bisect(f, x1: float, x2: float, switch: int = 0, epsilon: float = 1.0e-12):
     if f2 == 0.0:
         return x2
     if f1*f2 > 0.0:
-        print('Root is not bracketed')
+        logger.warning('Root is not bracketed')
         return None
     n = int(math.ceil(math.log(abs(x2 - x1)/epsilon)/math.log(2.0)))
     for i in range(n):

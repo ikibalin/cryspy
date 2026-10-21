@@ -32,6 +32,7 @@ get_name_hall_by_it_number(it_number:int)->str
 
 
 """
+import logging
 import os
 from numpy import array, transpose, zeros
 from fractions import Fraction
@@ -39,6 +40,8 @@ from cryspy.A_functions_base.function_1_strings import \
     transform_string_to_r_b, transform_r_b_to_string
 
 from typing import Tuple
+
+logger = logging.getLogger(__name__)
 
 F_ITABLES = os.path.join(os.path.dirname(__file__), "itables.txt")
 F_WYCKOFF = os.path.join(os.path.dirname(__file__), "wyckoff.dat")
@@ -766,7 +769,7 @@ def get_it_number_it_coordinate_system_codes_by_name_hm_extended(name: str) -> i
             it_number = _it_number
             it_coordinate_system_codes.append(_it_coordinate_system_code)
     if not (flag):
-        print(f"For some reason for hm_name_extended \"{name:}\" it_number is not unique")
+        logger.warning(f"For some reason for hm_name_extended \"{name:}\" it_number is not unique")
     return it_number, tuple(it_coordinate_system_codes)
 
 
@@ -1353,12 +1356,12 @@ def auto_choose_it_coordinate_system_code(it_number:int, it_coordinate_system_co
     if len(it_coordinate_system_codes) == 0:
         it_coordinate_system_code = None
     elif len(it_coordinate_system_codes) > 1:
-        print("Several values of it_coordinate_system_code have been defined:")
+        logger.info("Several values of it_coordinate_system_code have been defined:")
         print_long_list(it_coordinate_system_codes)
         default_i_c_s_c = get_default_it_coordinate_system_code_by_it_number(it_number)
         if default_i_c_s_c in it_coordinate_system_codes:
             it_coordinate_system_code = default_i_c_s_c
-            print(f"The default value has been choosen:'{it_coordinate_system_code:}'.")
+            logger.info(f"The default value has been choosen:'{it_coordinate_system_code:}'.")
         else:
             l_1 = [_ for _ in it_coordinate_system_codes if not ("-" in _)]
             if len(l_1) != 0:
@@ -1366,7 +1369,7 @@ def auto_choose_it_coordinate_system_code(it_number:int, it_coordinate_system_co
             else:
                 _choice = it_coordinate_system_codes[0]
             it_coordinate_system_code = _choice
-            print(f"The \"{it_coordinate_system_code:}\" has been choosen.")
+            logger.info(f"The \"{it_coordinate_system_code:}\" has been choosen.")
     else:
         it_coordinate_system_code = it_coordinate_system_codes[0]
     return it_coordinate_system_code

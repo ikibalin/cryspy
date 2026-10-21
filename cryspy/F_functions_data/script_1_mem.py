@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """The MEM algorithm is described."""
+import logging
 from typing import List
 import numpy
 import scipy
@@ -22,6 +23,8 @@ from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 
 from cryspy.D_functions_item_loop.function_1_flip_ratio import \
     calc_fm_perp_loc, calc_e_up_loc
+
+logger = logging.getLogger(__name__)
 
 
 def choose_max_clambda(c_lambda: float, den: numpy.ndarray, der: numpy.ndarray,
@@ -117,7 +120,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         l_magnetic_labes  = []
     density_point = DensityPointL()
     if prior_density == "core":
-        print("The prior density is core's one.", end="\r")
+        logger.info("The prior density is core's one.")
         if flag_info:
             d_info["print"] = "The prior density is core's one."
 
@@ -127,7 +130,7 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
             points_a=points_a, points_b=points_b, points_c=points_c,
             flag_two_channel=flag_two_channel)
     else:
-        print("The prior density is uniform.", end="\r")
+        logger.info("The prior density is uniform.")
         if flag_info:
             d_info["print"] = "The prior density is uniform."
         density_point.create_flat_density(
@@ -236,9 +239,8 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
 
         chi_sq_n = chi_sq/float(total_peaks)
         if disp:
-            print(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} \
-{c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}",
-                  end="\r")
+            logger.info(f"cycle {i_cycle:5}. chi_sq/n: {chi_sq_n:.2f} \
+{c_lambda*10**5:.3f} {chi_sq_n_diff:.4f}")
         if flag_info:
             d_info["print"] = f"""Iteration {i_cycle:5}:
     chi_sq/n: {chi_sq_n:.2f};
@@ -267,17 +269,15 @@ def maximize_entropy(crystal: Crystal, l_diffrn: List[Diffrn],
         delta_chi_sq_a_best = copy.deepcopy(delta_chi_sq_a)
 
         if chi_sq_n < gof_desired:
-            print(f"OUT: cycle {i_cycle:5} chi_sq/n is less than \
-{gof_desired:.2f}",
-                  end="\r")
+            logger.info(f"OUT: cycle {i_cycle:5} chi_sq/n is less than \
+{gof_desired:.2f}")
             if flag_info:
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:
     chi_sq/n is less than {gof_desired:.2f}."""
             break
         elif ((c_lambda < c_lambda_min) & False):
-            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f}. \
-c_lambda: {c_lambda:}",
-                  end="\r")
+            logger.info(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f}. \
+c_lambda: {c_lambda:}")
             if flag_info:
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:
     chi_sq/n is {chi_sq_n:.2f}. c_lambda less minimal"""
@@ -290,9 +290,8 @@ c_lambda: {c_lambda:}",
                 flag_two_channel=flag_two_channel)
             break
         elif ((chi_sq_n_diff < 0.001) and (i_cycle > 10)):
-            print(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff \
-of GoF is less than 0.001.",
-                  end="\r")
+            logger.info(f"OUT: cycle {i_cycle:5} chi_sq/n is {chi_sq_n:.2f} as diff \
+of GoF is less than 0.001.")
             if flag_info:
                 d_info["print"] = f"""OUT on iteration {i_cycle:5}:
     chi_sq/n is {chi_sq_n:.2f};
@@ -534,8 +533,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
         return sum(l_chi_sq)
 
     chi_sq = temp_func(l_par_0)
-    print(f"Chi_sq before optimization {chi_sq/total_peaks:.5f}.           ",
-          end="\r")
+    logger.info(f"Chi_sq before optimization {chi_sq/total_peaks:.5f}.")
     if flag_info:
         d_info["print"] = \
             f"Chi_sq/n before optimization {chi_sq/total_peaks:.5f}."
@@ -551,8 +549,7 @@ def refine_susceptibility(crystal: Crystal, l_diffrn: List[Diffrn],
     hess_inv = res["hess_inv"]
     sigma = (abs(numpy.diag(hess_inv)))**0.5
 
-    print(f"Chi_sq after optimization {chi_sq_new/total_peaks:.5f}.          ",
-          end="\r")
+    logger.info(f"Chi_sq after optimization {chi_sq_new/total_peaks:.5f}.")
     if flag_info:
         d_info["print"] = \
             f"Chi_sq/n after optimization {chi_sq_new/total_peaks:.5f}."
@@ -580,7 +577,7 @@ def func_temp(*argv, param_name: List[tuple] = None, d_info: dict = None) \
     flag_out = False
     l_param = argv[0]
     s_out = " ".join([f"{_:10.5f}" for _ in l_param])
-    print(f"{s_out:}", end="\r")
+    logger.info(f"{s_out:}")
     if d_info is not None:
         if param_name is not None:
             ls_out = [f"{name[-1][0]:}: {param: 10.5f}" for name, param in
@@ -614,8 +611,7 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
     flag_info = d_info is not None
 
     for i_cycle in range(n_cycle):
-        print(f"Cycle {(i_cycle+1):4}. Entropy maximization                  ",
-              end="\r")
+        logger.info(f"Cycle {(i_cycle+1):4}. Entropy maximization")
 
         if flag_info:
             d_info["print"] = f"""Cycle {(i_cycle+1):4}/{n_cycle:}:
@@ -633,8 +629,7 @@ def make_cycle(crystal: Crystal, l_diffrn: List[Diffrn],
             if d_info["stop"]:
                 d_info["stop"] = False
                 break
-        print(f"Cycle {(i_cycle+1):4}. Chi refinement                        ",
-              end="\r")
+        logger.info(f"Cycle {(i_cycle+1):4}. Chi refinement")
         refine_susceptibility(crystal, l_diffrn, density_point, mem_parameters,
                               disp=disp, d_info=d_info_2)
     return density_point

@@ -1,3 +1,5 @@
+import logging
+import warnings
 from typing import Callable
 import re
 import numpy
@@ -10,6 +12,8 @@ from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
 from cryspy.exceptions import RefinementError
+
+logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
 
@@ -141,14 +145,14 @@ def rhochi_rietveld_refinement_by_dictionary(
         ``res`` is the result of the minimizer (``scipy.optimize.OptimizeResult``)
         or an empty dict when nothing is refined.
     """
-    print("*********************************************")
-    print("Rietveld refinement by CrysPy (module RhoChi)")
-    print("*********************************************\n")
-    print("Derivatives are calculated numerically.")
+    logger.info("*********************************************")
+    logger.info("Rietveld refinement by CrysPy (module RhoChi)")
+    logger.info("*********************************************\n")
+    logger.info("Derivatives are calculated numerically.")
     dict_in_out = {}
     flag_use_precalculated_data = False
     flag_calc_analytical_derivatives = False
-    print("Preliminary calculations...", end="\r")
+    logger.info("Preliminary calculations...")
     chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_names = rhochi_calc_chi_sq_by_dictionary(
         global_dict,
         dict_in_out=dict_in_out,
@@ -170,22 +174,21 @@ def rhochi_rietveld_refinement_by_dictionary(
     parameter_names_fixed = [linear_constraint[1][1] for linear_constraint in linear_constraints]
     parameter_names_free = [way for way  in parameter_names if not(way in parameter_names_fixed)]
     param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names_free]
-    print(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.         ")
+    logger.info(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.")
     if len(param_0) == 0:
         res = {}
-        print(r"<b>UNSUCCESSFULL TRY<\b>")
-        print("\nFor refinement procedure some parameters have to be set as refined.")
-        print("Print parenthesis after parameter which heve to be refined.")
-        print("Example: 1.23()")
+        warnings.warn(
+            "Nothing is refined: mark the parameters to refine with parentheses "
+            "after the value, for example 1.23()", stacklevel=2)
         return chi_sq, parameter_names, dict_in_out, res
-    print(f"Number of fitting parameters {len(param_0):}")
+    logger.info(f"Number of fitting parameters {len(param_0):}")
     for name, val in zip(parameter_names_free, param_0):
-        print(f" - {name:}  {val:.5f}")
+        logger.info(f" - {name:}  {val:.5f}")
 
     if len(parameter_names_fixed) >0:
-        print("Number of constrained parameters:")
+        logger.info("Number of constrained parameters:")
     for name in parameter_names_fixed:
-        print(f" - {name:}")
+        logger.info(f" - {name:}")
 
 
     flag_use_precalculated_data = True
@@ -236,7 +239,7 @@ def rhochi_rietveld_refinement_by_dictionary(
             raise _RefinementStopped()
 
 
-    print("\nMinimization procedure of chi_sq is running... ", end="\r")
+    logger.info("\nMinimization procedure of chi_sq is running... ")
     #if linear_constraint is not None:
     #    method="SLSQP"
     #    print(f"User constraints are used in the refinement by method '{method:}'.")
@@ -246,7 +249,7 @@ def rhochi_rietveld_refinement_by_dictionary(
     #        res["hess_inv"] = hess_inv
     #else:
     if method.lower().startswith("basinhopping"):
-        print("Basinhopping method is used for minimization.")
+        logger.info("Basinhopping method is used for minimization.")
         niter=10
         T = 10.
         if len(method)>len('basinhopping '):
@@ -264,7 +267,7 @@ def rhochi_rietveld_refinement_by_dictionary(
             res = _result_of_stopped_refinement(d_progress)
         tempfunc(res.x)
     else:
-        print(f"{method:} method is used for minimization.")
+        logger.info(f"{method:} method is used for minimization.")
         try:
             res = scipy.optimize.minimize(tempfunc, param_0, method=method, callback=callback_minimizer)
             res["stopped"] = False
@@ -273,18 +276,18 @@ def rhochi_rietveld_refinement_by_dictionary(
             # the last evaluation may be a finite-difference step
             tempfunc(res.x)
     if res["stopped"]:
-        print(f"Refinement is stopped by the callback after {d_progress['iteration']:} iterations.", end="\n")
+        logger.info(f"Refinement is stopped by the callback after {d_progress['iteration']:} iterations.")
     else:
-        print("Optimization is done.                          ", end="\n")
+        logger.info("Optimization is done.")
 
-    print("Calculations for optimal parameters... ", end="\r")
+    logger.info("Calculations for optimal parameters... ")
     dict_in_out = {}
     flag_use_precalculated_data = False
     chi_sq, n_point = rhochi_calc_chi_sq_by_dictionary(
         global_dict,
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[:2]
-    print(f"Optimal chi_sq per n is {chi_sq/n_point:.2f}", end="\n")
+    logger.info(f"Optimal chi_sq per n is {chi_sq/n_point:.2f}")
 
     return chi_sq, parameter_names, dict_in_out, res
 
@@ -295,14 +298,14 @@ def _result_of_stopped_refinement(d_progress: dict):
 
 
 def func_callback(*arg):
-    print(arg)
+    logger.debug(arg)
 
 def rhochi_lsq_by_dictionary(global_dict):
-    print("*********************************************")
-    print("Rietveld refinement by CrysPy (module RhoChi)")
-    print("*********************************************\n")
-    print("Derivatives are calculated analytically.")
-    print("User constraints are working.")
+    logger.info("*********************************************")
+    logger.info("Rietveld refinement by CrysPy (module RhoChi)")
+    logger.info("*********************************************\n")
+    logger.info("Derivatives are calculated analytically.")
+    logger.info("User constraints are working.")
 
     dict_in_out = {}
     dict_in_out_2 = {}

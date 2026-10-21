@@ -1,4 +1,6 @@
 """Transform data to objects of cryspy library."""
+import logging
+import warnings
 import os
 import os.path
 from typing import List
@@ -164,6 +166,8 @@ F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
 import sys
 from importlib import import_module
 
+logger = logging.getLogger(__name__)
+
 
 def load_packages():
     """Load external packages."""
@@ -196,14 +200,14 @@ def load_packages():
                         if not(obj in L_GLOBAL_CLASS):
                             L_GLOBAL_CLASS.append(obj)
             except AttributeError:
-                print(f"Module '{module_name:}' in folder: \n {module_way}\n\
-does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.")
+                warnings.warn(f"Module '{module_name:}' in folder: \n {module_way}\n\
+does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.", stacklevel=2)
                 f_ok = False
             try:
                 L_FUNCTION_ADD.extend(module.L_FUNCTION)
             except AttributeError:
-                print(f"Module '{module_name:}' in folder: \n {module_way}\n\
-does not contains in 'init.py' parameter 'L_FUNCTION'.")
+                warnings.warn(f"Module '{module_name:}' in folder: \n {module_way}\n\
+does not contains in 'init.py' parameter 'L_FUNCTION'.", stacklevel=2)
                 f_ok = False
         else:
             f_ok = False
@@ -508,7 +512,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
         if not(loopn is None):
             l_loopn.append(loopn)
         else:
-            print("l_loop_name_cif: \n", l_loop_name_cif)
+            logger.debug("l_loop_name_cif: %s", l_loop_name_cif)
     return l_loopn
 
 

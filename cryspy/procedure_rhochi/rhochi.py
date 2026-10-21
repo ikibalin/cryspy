@@ -1,3 +1,4 @@
+import logging
 import numpy
 
 
@@ -17,6 +18,8 @@ from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     rhochi_calc_chi_sq_by_dictionary
 
 import cryspy
+
+logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
 
@@ -133,14 +136,14 @@ def rhochi_rietveld_refinement_with_parameters(
     
     var_names = cryspy_object.get_variable_names()
     if len(var_names) > 0:
-        print("Optimal parameters:")
+        logger.info("Optimal parameters:")
     for name in var_names:
         value = cryspy_object.get_variable_by_name(name)
-        print(f" - {name[-1][0]:} {value:.5f}")
+        logger.info(f" - {name[-1][0]:} {value:.5f}")
     
     if flag_stopped:
         return dict_out
-    print("Errors are estimating by numerical derivatives.")
+    logger.info("Errors are estimating by numerical derivatives.")
     rhochi_inversed_hessian(cryspy_object)
     return dict_out
 
@@ -176,7 +179,7 @@ def _f_callback(*arg, d_info: dict = None) -> bool:
         DICT_PARAMS["iteration"] += 1
         diff = numpy.array(res_x, dtype=float) - numpy.array(DICT_PARAMS["previous_arg"], dtype=float)
         shift = numpy.sqrt(numpy.square(diff).sum()) * 100
-        print(f"Average shift of parameters is {shift:.5f} ({DICT_PARAMS['iteration']:}).                ", end="\r")
+        logger.info(f"Average shift of parameters is {shift:.5f} ({DICT_PARAMS['iteration']:}).")
         DICT_PARAMS["previous_arg"] = res_x
     return flag_out
     # ls_out = ["{:12.5f}".format(_1) for _1 in res_x]

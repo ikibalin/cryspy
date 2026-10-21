@@ -52,6 +52,12 @@ __status__ = "Development"
 __date__ = "27.04.2026"
 name = "cryspy"
 
+import logging as _logging
+# The library reports progress and problems through the "cryspy" logger and
+# never prints by itself. The application decides where messages go, e.g.
+# logging.basicConfig(level=logging.INFO, format="%(message)s") in a script.
+_logging.getLogger("cryspy").addHandler(_logging.NullHandler())
+
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN

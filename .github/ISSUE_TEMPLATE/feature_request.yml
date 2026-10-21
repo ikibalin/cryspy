@@ -1,0 +1,26 @@
+name: Feature request
+description: A new model, data type, output or API that CrysPy should have.
+labels: ["[scope] enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you need
+      description: The analysis you want to do and what is missing for it.
+    validations:
+      required: true
+  - type: textarea
+    id: physics
+    attributes:
+      label: Formulas and references
+      description: |
+        The formula or convention to implement, with a reference (paper,
+        International Tables, FullProf / Jana manual). Coordinate systems
+        and units help.
+  - type: textarea
+    id: data
+    attributes:
+      label: Test data
+      description: |
+        Data or a known result to check the implementation against
+        (for example a FullProf refinement of the same data).
