@@ -309,14 +309,14 @@ def tool_calculate(cryspy_object) -> dict:
     from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
     history = take_history(cryspy_object)
     result = rhochi_no_refinement(cryspy_object)
-    d_metrics = form_metrics(result, cryspy_object, chi_sq_previous=history.chi_sq)
-    keep_checkpoint(cryspy_object, d_metrics.get("chi_sq"))
+    d_metrics = form_metrics(result, cryspy_object, d_previous=history.d_metrics)
+    keep_checkpoint(cryspy_object, d_metrics)
     return {"text": form_calculation_text("Calculation finished.", result, cryspy_object, d_metrics),
             "metrics": d_metrics}
 
 
 def form_calculation_text(title: str, result: dict, cryspy_object, d_metrics: dict) -> str:
-    # the change of chi_sq and the warnings first: a long table of parameters may be cut
+    # the change of chi_sq/n, R_F2 and the warnings first: a long table of parameters may be cut
     ls_out = [title, format_metrics(d_metrics), format_rhochi_result(result, cryspy_object)]
     return "\n".join(line for line in ls_out if line != "")
 
@@ -334,10 +334,10 @@ def tool_refine(cryspy_object) -> dict:
         history.l_snapshot.pop()  # nothing is changed: nothing to undo
         raise
     d_metrics = form_metrics(result, cryspy_object, n_point=d_last.get("n_point"),
-                             chi_sq_previous=history.chi_sq)
+                             d_previous=history.d_metrics)
     if "n_point" in d_metrics:
         result = dict(result, n_point=d_metrics["n_point"])
-    keep_checkpoint(cryspy_object, d_metrics.get("chi_sq"))
+    keep_checkpoint(cryspy_object, d_metrics)
     return {"text": form_calculation_text("Refinement finished.", result, cryspy_object, d_metrics),
             "metrics": d_metrics}
 
@@ -350,13 +350,14 @@ def tool_undo_refinement(cryspy_object) -> dict:
     # the calculated data of the object are those of the undone refinement
     result = rhochi_no_refinement(cryspy_object)
     d_metrics = form_metrics(result, cryspy_object)
-    keep_checkpoint(cryspy_object, d_metrics.get("chi_sq"))
+    keep_checkpoint(cryspy_object, d_metrics)
     n_refined = sum(1 for _, flag in snapshot["flags"] if flag)
     text = (f"The parameters and their refinement flags are returned to the state before the "
             f"last refinement ({n_refined:} marked for refinement).\n"
             + format_rhochi_result(result, cryspy_object))
-    if d_metrics["warnings"]:
-        text += "\n" + "\n".join(f"Warning: {warning:}" for warning in d_metrics["warnings"])
+    s_metrics = format_metrics(d_metrics, flag_undo_hint=False)
+    if s_metrics != "":
+        text = f"{text:}\n{s_metrics:}"
     return {"text": text, "metrics": d_metrics}
 
 
@@ -619,8 +620,9 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
     AssistantTool(
         "refine",
         "Refine the parameters marked for refinement (RhoChi); returns "
-        "chi-square and its change since the previous calculation, refined "
-        "values, strong correlations and warnings (unphysical values).",
+        "chi-square, the change of chi_sq/n (and of R_F2 for single crystals) "
+        "since the previous calculation, refined values, strong correlations "
+        "and warnings (unphysical values).",
         tool_refine, flag_object_changed=True),
     AssistantTool(
         "undo_refinement",
@@ -831,8 +833,9 @@ def call_assistant_tool(cryspy_object, name: str,
     "Error"; a chat program must not report such a call as done) and
     'missing' (the arguments to ask the user, see the module docstring;
     an empty list when nothing is missing), 'metrics' (numbers of the
-    result: "chi_sq", "n_point", "chi_sq_per_n", "chi_sq_previous",
-    "chi_sq_change", "n_refined", "max_correlation", "warnings"; see
+    result: "chi_sq", "n_point", "chi_sq_per_n", "chi_sq_per_n_previous",
+    "chi_sq_per_n_change", "r_f2" and "r_f2_previous" ({data block: R_F2}
+    of single crystals), "n_refined", "max_correlation", "warnings"; see
     history.form_metrics; empty for tools without numbers) and, when the
     tool raised an exception, 'error_type' (its class name).
     """

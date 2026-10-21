@@ -1,36 +1,41 @@
-"""The recipe of structure refinement on a real single crystal data set."""
+"""The recipe of structure refinement on real single crystal data sets."""
 import os
-
-import numpy
 
 import cryspy
 from cryspy.procedure_assistant.parameters import take_parameter_record
 
-F_NAME = os.path.join(os.path.dirname(__file__), "twin_tbte3", "main.rcif")
+DIR = os.path.dirname(__file__)
+F_MNF2 = os.path.join(DIR, "MEM_test", "mnf2_moments", "mnf2_unpol_SC.rcif")
+F_MNBITE = os.path.join(DIR, "mnbi4te7_single_lambdaover2", "main.rcif")
 
 
-def test_refine_tool_compares_with_previous_calculation():
-    obj = cryspy.file_to_globaln(F_NAME)
+def test_refine_tool_compares_chi_sq_per_point_and_r_f2():
+    obj = cryspy.file_to_globaln(F_MNF2)
     cryspy.call_assistant_tool(obj, "fix_parameters")
-    start = cryspy.call_assistant_tool(obj, "calculate")
+    start = cryspy.call_assistant_tool(obj, "calculate")["metrics"]
+    assert set(start["r_f2"]) == {"exp1"}
     cryspy.call_assistant_tool(obj, "refine_parameters", {"pattern": "scale"})
     result = cryspy.call_assistant_tool(obj, "refine")
     d_metrics = result["metrics"]
-    assert d_metrics["chi_sq_previous"] == start["metrics"]["chi_sq"]
-    assert d_metrics["chi_sq"] < d_metrics["chi_sq_previous"]
-    assert d_metrics["n_point"] == start["metrics"]["n_point"]
+    assert d_metrics["chi_sq_per_n_previous"] == start["chi_sq_per_n"]
+    assert d_metrics["chi_sq_per_n"] < start["chi_sq_per_n"]
+    assert d_metrics["r_f2_previous"] == start["r_f2"]
+    assert d_metrics["r_f2"]["exp1"] < start["r_f2"]["exp1"]
     assert d_metrics["n_refined"] == 1
-    assert "better" in result["text"]
+    assert d_metrics["warnings"] == []
+    assert "R_F2 of exp1:" in result["text"] and "better" in result["text"]
 
 
 def test_run_recipe_undoes_negative_adp():
-    """TbTe3: free U_iso become negative, the recipe takes the step back."""
-    obj = cryspy.file_to_globaln(F_NAME)
+    """MnBi4Te7: free U_iso of Te become negative, the recipe takes the step
+    back; single crystal: no background step."""
+    obj = cryspy.file_to_globaln(F_MNBITE)
     result = cryspy.run_recipe(obj, "refine_structure")
     d_status = {name: status for name, status, _ in result["steps"]}
-    assert d_status == {"start": "done", "scale": "done", "background": "skipped",
-                        "positions": "done", "adp": "undone", "extinction": "done"}
-    record = take_parameter_record(obj, "crystal_tbte3.atom_site[Tb].u_iso_or_equiv")
-    assert numpy.isclose(record.value, 0.)
+    assert d_status["background"] == "skipped"
+    assert d_status["positions"] == "done"
+    assert d_status["adp"] == "undone"
+    record = take_parameter_record(obj, "crystal_mnbite.atom_site[Te1].u_iso_or_equiv")
+    assert record.value >= 0.
     assert not record.flag_refinement
-    assert take_parameter_record(obj, "crystal_tbte3.atom_site[Tb].fract_y").flag_refinement
+    assert take_parameter_record(obj, "crystal_mnbite.atom_site[Bi1].fract_z").flag_refinement

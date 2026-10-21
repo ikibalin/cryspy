@@ -33,7 +33,8 @@ class RecipeStep:
     name: str
     goal: str
     actions: Tuple[Tuple[str, dict], ...]
-    success: str = "chi_sq is better or unchanged and there are no warnings."
+    success: str = ("chi_sq/n (and R_F2 for single crystals) is better or unchanged and there "
+                    "are no warnings.")
     on_fail: str = S_UNDO
     condition: str = ""
 
@@ -94,18 +95,19 @@ L_RECIPES: List[Recipe] = [
             RecipeStep(
                 "start", "Fix all parameters and calculate the start model.",
                 (("fix_parameters", {}), ("calculate", {})),
-                success="chi_sq of the start model is a number.",
+                success="chi_sq/n of the start model is a number.",
                 on_fail="Stop and explain the error: the model or the data must be corrected first."),
             refine_step("scale", "Scale factor.", "scale",
                         on_fail="Stop: without a scale factor the next steps make no sense."),
             refine_step("background", "Background and zero shift of the powder pattern.",
-                        "pd_background, offset_ttheta", condition="powder experiments (pd, tof)"),
+                        "pd_background, pd_*.setup.offset_ttheta, pd_*.setup.offset_sycos, pd_*.setup.offset_sysin",
+                        condition="powder experiments (pd, tof); single crystals have no background"),
             refine_step("positions", "Free atomic positions.", "atomic positions"),
             refine_step("adp", "Isotropic thermal parameters.", "b_iso_or_equiv, u_iso_or_equiv"),
             refine_step("extinction", "Extinction.", "extinction",
                         condition="single crystal experiments"),
         ],
-        report="chi_sq of the start model and at the end, the steps done, skipped and undone "
+        report="chi_sq/n (and R_F2 for single crystals) of the start model and at the end, the steps done, skipped and undone "
                "with the reason, and the warnings that remain."),
 ]
 
@@ -138,7 +140,7 @@ def run_recipe(cryspy_object, name: str) -> dict:
     if recipe is None:
         raise ValueError(f"Recipe '{name:}' is not known; known: "
                          + ", ".join(recipe.name for recipe in L_RECIPES))
-    l_step, l_chi_sq = [], []
+    l_step, l_metrics = [], []
     for step in recipe.steps:
         status, text = "done", ""
         for action, arguments in step.actions:
@@ -147,21 +149,27 @@ def run_recipe(cryspy_object, name: str) -> dict:
             if result["flag_error"] or result["missing"]:
                 status = "skipped" if action == "refine_parameters" else "failed"
                 break
-            if "chi_sq" in result["metrics"]:
-                l_chi_sq.append(result["metrics"]["chi_sq"])
+            if "chi_sq_per_n" in result["metrics"]:
+                l_metrics.append(result["metrics"])
             if result["metrics"].get("warnings") and action == "refine":
                 status = "undone" if step.on_fail == S_UNDO else "failed"
                 if status == "undone":
                     result = call_assistant_tool(cryspy_object, "undo_refinement")
                     text = f"{text:}\n{result['text']:}"
-                    if "chi_sq" in result["metrics"]:
-                        l_chi_sq.append(result["metrics"]["chi_sq"])
+                    if "chi_sq_per_n" in result["metrics"]:
+                        l_metrics.append(result["metrics"])
                 break
         l_step.append((step.name, status, text))
         if status == "failed":
             break
     ls_out = [f"Recipe {recipe.name:}:"]
     ls_out.extend(f"- {name:}: {status:}" for name, status, _ in l_step)
-    if len(l_chi_sq) > 0:
-        ls_out.append(f"chi_sq: {l_chi_sq[0]:.5g} at the start, {l_chi_sq[-1]:.5g} at the end.")
+    if len(l_metrics) > 0:
+        d_start, d_end = l_metrics[0], l_metrics[-1]
+        ls_out.append(f"chi_sq/n: {d_start['chi_sq_per_n']:.5g} at the start, "
+                      f"{d_end['chi_sq_per_n']:.5g} at the end.")
+        for name, r_f2 in d_end.get("r_f2", {}).items():
+            if name in d_start.get("r_f2", {}):
+                ls_out.append(f"R_F2 of {name:}: {d_start['r_f2'][name]:.4f} at the start, "
+                              f"{r_f2:.4f} at the end.")
     return {"text": "\n".join(ls_out), "steps": l_step}
