@@ -2,7 +2,7 @@
 name = 'cryspy'
 dynamic = ['version']
 description = 'PNPD data analysis'
-readme = 'readme.rst'
+readme = 'README.md'
 license = 'MIT'
 authors = [{ name = 'Iurii Kibalin', email = 'yurikibalin@outlook.com' }]
 keywords = ['Polarized Neutron Diffraction Data Analysis']
@@ -49,7 +49,7 @@ source = 'versioningit'
 packages = ['cryspy']
 
 [tool.hatch.build.targets.sdist]
-include = ['cryspy', 'readme.rst']
+include = ['cryspy', 'README.md']
 
 # Versioningit derives the version from git tags, so it does not need to
 # be stored in the source. cryspy tags are plain (e.g. 0.11.0).
