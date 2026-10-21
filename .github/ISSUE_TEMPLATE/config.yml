@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: CrysPy Editor (graphical interface)
+    url: https://github.com/ikibalin/cryspy_editor/issues
+    about: Problems with windows, menus and plots of CrysPy Editor go there.
+  - name: Documentation and tutorials
+    url: https://www.cryspy.fr
+    about: How to use CrysPy.
