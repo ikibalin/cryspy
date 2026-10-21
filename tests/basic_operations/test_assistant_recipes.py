@@ -156,3 +156,10 @@ def test_tools_without_numbers_have_empty_metrics():
     obj = cryspy.str_to_globaln(RCIF)
     result = cryspy.call_assistant_tool(obj, "summarize_object")
     assert result["metrics"] == {}
+
+
+def test_run_recipe_reports_each_step():
+    obj = cryspy.str_to_globaln(RCIF)
+    l_step = []
+    result = cryspy.run_recipe(obj, "refine_structure", callback=lambda *args: l_step.append(args))
+    assert [args[:2] for args in l_step] == [(name, status) for name, status, _ in result["steps"]]

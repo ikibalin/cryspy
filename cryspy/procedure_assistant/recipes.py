@@ -386,11 +386,15 @@ def suggest_recipes(l_kind: List[str]) -> List[Recipe]:
     return sorted(l_recipe, key=lambda recipe: -len(recipe.kinds))
 
 
-def run_recipe(cryspy_object, name: str) -> dict:
+def run_recipe(cryspy_object, name: str, *, callback=None) -> dict:
     """Run a recipe without a language model: the actions of every step as
     they are written; a step is skipped when its parameters are not found
     or it has no actions, undone when its refinement gives warnings, and
     the recipe stops when a step without undo fails.
+
+    callback (keyword-only, optional) is called after every step as
+    callback(name of the step, status, text of the last action), e.g. to
+    show the course of the work.
 
     Returns dict with keys 'text' (the report) and 'steps': a list of
     (name of the step, status: 'done', 'skipped', 'undone' or 'failed',
@@ -421,6 +425,8 @@ def run_recipe(cryspy_object, name: str) -> dict:
                         l_metrics.append(result["metrics"])
                 break
         l_step.append((step.name, status, text))
+        if callback is not None:
+            callback(step.name, status, text)
         if status == "failed":
             break
     ls_out = [f"Recipe {recipe.name:}:"]
