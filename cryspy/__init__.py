@@ -246,6 +246,11 @@ from cryspy.H_functions_global.function_1_cryspy_objects import (
     L_FUNCTION_ADD,
 )
 
+from cryspy.H_functions_global.cod import (
+    add_crystal_from_cod,
+    cif_to_crystal,
+    load_cif_from_cod,
+)
 from cryspy.H_functions_global.powder_experiments import (
     report_powder_experiments,
 )
@@ -456,6 +461,8 @@ L_FUNCTION = [
     assistant_tools,
     assistant_tools_as_text,
     call_assistant_tool,
+    load_cif_from_cod,
+    cif_to_crystal,
 ]
 
 

@@ -14,6 +14,7 @@ assistant_tools() describes the tools in the JSON schema format used by
 chat models ("tools" of OpenAI and llama.cpp).
 """
 import inspect
+import re
 from typing import Callable, Dict, List, Optional
 
 import numpy
@@ -25,7 +26,8 @@ from cryspy.E_data_classes.cl_1_crystal import Crystal
 
 from cryspy.procedure_assistant.help import get_help
 from cryspy.procedure_assistant.parameters import (
-    find_parameter_records, take_parameter_record, take_parameter_records)
+    find_parameter_records, suggest_parameter_names, take_parameter_record,
+    take_parameter_records)
 
 MAX_PARAMETERS_IN_LIST = 200
 CORRELATION_LIMIT = 0.7
@@ -162,12 +164,25 @@ def tool_summarize_object(cryspy_object) -> str:
     return "\n".join(ls_out)
 
 
+def form_no_match_error(cryspy_object, pattern: str) -> str:
+    """Error text with the names the model can use in the next call."""
+    l_name = suggest_parameter_names(cryspy_object, pattern)
+    s_name = ", ".join(l_name) if len(l_name) > 0 else "none"
+    return (f"Error: no parameters match '{pattern:}'. Parameters of this "
+            f"object look like: {s_name:}.")
+
+
 def tool_list_parameters(cryspy_object, pattern: str = "",
                          refined_only: bool = False) -> str:
     l_record = find_parameter_records(
         cryspy_object, pattern, flag_refined_only=refined_only)
     if len(l_record) == 0:
-        return f"No parameters match '{pattern:}'."
+        if not refined_only or len(find_parameter_records(
+                cryspy_object, pattern)) == 0:
+            return form_no_match_error(cryspy_object, pattern)
+        if pattern.strip() == "":
+            return "No parameters are marked for refinement."
+        return "No parameters matching the pattern are marked for refinement."
     ls_out = ["path | value | sigma | refined | constrained"]
     for record in l_record[:MAX_PARAMETERS_IN_LIST]:
         ls_out.append(
@@ -182,10 +197,10 @@ def tool_list_parameters(cryspy_object, pattern: str = "",
 
 def tool_refine_parameters(cryspy_object, pattern: str) -> str:
     if pattern.strip() == "":
-        return "Give a pattern of the parameters to refine."
+        return "Error: give a pattern of the parameters to refine."
     l_record = find_parameter_records(cryspy_object, pattern)
     if len(l_record) == 0:
-        return f"No parameters match '{pattern:}'."
+        return form_no_match_error(cryspy_object, pattern)
     l_free, l_constrained = [], []
     for record in l_record:
         if record.set_refinement(True):
@@ -198,16 +213,33 @@ def tool_refine_parameters(cryspy_object, pattern: str) -> str:
     if len(l_constrained) > 0:
         ls_out.append("Not refinable because of constraints:\n"
                       + "\n".join(l_constrained))
+    if len(l_free) == 0:
+        ls_out.insert(0, "Error: none of the matching parameters can be "
+                         "refined.")
     return "\n".join(ls_out)
 
 
 def tool_fix_parameters(cryspy_object, pattern: str = "") -> str:
-    l_record = find_parameter_records(
-        cryspy_object, pattern, flag_refined_only=True)
+    if pattern.strip() in ("", "*", "all"):
+        l_record = find_parameter_records(
+            cryspy_object, "", flag_refined_only=True)
+        n_variable = len(cryspy_object.get_variable_names())
+        # also the refined parameters without a path (e.g. of nested loops)
+        cryspy_object.fix_variables()
+        if n_variable == 0:
+            return "No parameters were marked for refinement: all are fixed."
+        ls_out = [f"All {n_variable:} refined parameters are fixed now."]
+        ls_out.extend(record.path for record in l_record)
+        return "\n".join(ls_out)
+    l_match = find_parameter_records(cryspy_object, pattern)
+    if len(l_match) == 0:
+        return form_no_match_error(cryspy_object, pattern)
+    l_record = [record for record in l_match if record.flag_refinement]
     for record in l_record:
         record.set_refinement(False)
     if len(l_record) == 0:
-        return "No refined parameters match the pattern."
+        return (f"The {len(l_match):} parameters matching '{pattern:}' "
+                "were not refined: nothing to fix.")
     return "Fixed:\n" + "\n".join(record.path for record in l_record)
 
 
@@ -218,12 +250,13 @@ def tool_set_parameter(cryspy_object, path: str, value: float) -> str:
         if len(l_record) == 1:
             record = l_record[0]
         elif len(l_record) > 1:
-            return ("The path is ambiguous, give one of:\n"
+            return ("Error: the path is ambiguous, give one of:\n"
                     + "\n".join(record.path for record in l_record[:20]))
         else:
-            return f"Parameter '{path:}' is not found."
+            return form_no_match_error(cryspy_object, path)
     if record.flag_constraint:
-        return f"{record.path:} is constrained by symmetry and cannot be set."
+        return (f"Error: {record.path:} is constrained by symmetry and "
+                "cannot be set.")
     old_value = record.value
     record.set_value(value)
     return (f"{record.path:}: {format_value(old_value):} -> "
@@ -239,7 +272,7 @@ def tool_calculate(cryspy_object) -> str:
 def tool_refine(cryspy_object) -> str:
     from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement
     if len(cryspy_object.get_variable_names()) == 0:
-        return ("No parameters are marked for refinement. "
+        return ("Error: no parameters are marked for refinement. "
                 "Use refine_parameters first.")
     result = rhochi_rietveld_refinement(cryspy_object)
     return "Refinement finished.\n" + format_rhochi_result(result, cryspy_object)
@@ -261,7 +294,7 @@ def tool_show_model(cryspy_object, block: str = "",
     else:
         data = take_data_block(cryspy_object, block)
         if data is None:
-            return f"Data block '{block:}' is not found."
+            return f"Error: data block '{block:}' is not found."
         text = data.to_cif()
     if len(text) > max_length:
         text = text[:max_length] + "\n[... the rest is cut ...]"
@@ -274,17 +307,17 @@ def tool_add_atom(cryspy_object, crystal: str, label: str, type_symbol: str,
                   b_iso_or_equiv: float = 0.) -> str:
     data = take_data_block(cryspy_object, crystal)
     if not isinstance(data, Crystal):
-        return f"Crystal '{crystal:}' is not found."
+        return f"Error: crystal '{crystal:}' is not found."
     atom_site = data.atom_site
     if label in [str(item.label) for item in atom_site.items]:
-        return f"Atom '{label:}' already exists in '{crystal:}'."
+        return f"Error: atom '{label:}' already exists in '{crystal:}'."
     if adp_type == "":
         # the same kind of isotropic parameter as the other atoms
         l_adp_type = [item.adp_type for item in atom_site.items
                       if item.is_attribute("adp_type")]
         adp_type = "Uiso" if "Uiso" in l_adp_type else "Biso"
     if adp_type not in ("Biso", "Uiso"):
-        return ("adp_type should be 'Biso' or 'Uiso'; "
+        return ("Error: adp_type should be 'Biso' or 'Uiso'; "
                 "anisotropic parameters are set in atom_site_aniso.")
     atom = AtomSite(label=label, type_symbol=type_symbol, fract_x=fract_x,
                     fract_y=fract_y, fract_z=fract_z, occupancy=occupancy,
@@ -302,6 +335,66 @@ def tool_add_atom(cryspy_object, crystal: str, label: str, type_symbol: str,
     data.apply_constraints()
     return (f"Atom {label:} ({type_symbol:}) is added to {crystal:} at "
             f"({fract_x:}, {fract_y:}, {fract_z:}).")
+
+
+def take_hkl(h, k, l, hkl: str):
+    """numpy array (3, 1) of the indices given as h, k, l or as '5 0 3'."""
+    if hkl.strip() != "":
+        l_index = re.findall(r"-?\d+(?:\.\d*)?", hkl)
+        if len(l_index) != 3:
+            raise ValueError(f"hkl '{hkl:}' should have three indices.")
+        h, k, l = (float(index) for index in l_index)
+    if h is None or k is None or l is None:
+        raise ValueError("give the indices h, k, l (or hkl as '5 0 3').")
+    return numpy.array([[h], [k], [l]], dtype=float)
+
+
+def tool_calculate_structure_factor(
+        cryspy_object, h: float = None, k: float = None, l: float = None,
+        hkl: str = "", crystal: str = "") -> str:
+    try:
+        index_hkl = take_hkl(h, k, l, hkl)
+    except ValueError as error:
+        return f"Error: {error:}"
+    if crystal.strip() == "":
+        l_crystal = [item for item in cryspy_object.items
+                     if isinstance(item, Crystal)]
+    else:
+        l_crystal = [take_data_block(cryspy_object, crystal)]
+        if not isinstance(l_crystal[0], Crystal):
+            return f"Error: crystal '{crystal:}' is not found."
+    if len(l_crystal) == 0:
+        return "Error: the object has no crystal."
+    s_hkl = " ".join(f"{index:g}" for index in index_hkl[:, 0])
+    ls_out = [f"Nuclear structure factor F_N of the reflection ({s_hkl:}), "
+              "in 10^-12 cm (per unit cell, with the Debye-Waller factor):"]
+    for item in l_crystal:
+        f_nucl = complex(numpy.asarray(item.calc_f_nucl(index_hkl)).ravel()[0])
+        sthovl = float(numpy.asarray(item.cell.calc_sthovl(
+            *index_hkl[:, 0])).ravel()[0])
+        ls_out.append(
+            f"{item.data_name:}: F_N = {f_nucl.real:.5f} {f_nucl.imag:+.5f}i, "
+            f"|F_N| = {abs(f_nucl):.5f}, |F_N|^2 = {abs(f_nucl)**2:.5f}, "
+            f"sin(theta)/lambda = {sthovl:.5f} 1/Å")
+    return "\n".join(ls_out)
+
+
+def tool_add_crystal_from_cod(cryspy_object, formula: str = "",
+                              cod_id: str = "", name: str = "") -> str:
+    from cryspy.H_functions_global.cod import add_crystal_from_cod
+    if formula.strip() == "" and str(cod_id).strip() == "":
+        return "Error: give the chemical formula or the COD number."
+    try:
+        crystal = add_crystal_from_cod(
+            cryspy_object, formula=formula, cod_id=str(cod_id),
+            data_name=name)
+    except ValueError as error:
+        return f"Error: {error:}"
+    cell = crystal.cell
+    return (f"Crystal {crystal.data_name:} is added from COD: space group "
+            f"{crystal.space_group.name_hm_alt:}, a, b, c = {cell.length_a:g}, "
+            f"{cell.length_b:g}, {cell.length_c:g} Å, "
+            f"{len(crystal.atom_site.items):} atoms.")
 
 
 def take_procedures() -> Dict[str, Callable]:
@@ -336,7 +429,7 @@ def tool_list_procedures(cryspy_object) -> str:
 def tool_run_procedure(cryspy_object, name: str) -> str:
     d_procedure = take_procedures()
     if name not in d_procedure:
-        return (f"Procedure '{name:}' is not known. Available:\n"
+        return (f"Error: procedure '{name:}' is not known. Available:\n"
                 + tool_list_procedures(cryspy_object))
     result = d_procedure[name](cryspy_object)
     if isinstance(result, dict) and "chi_sq" in result:
@@ -352,7 +445,10 @@ def tool_run_procedure(cryspy_object, name: str) -> str:
 
 S_PATH = ("Parameter path or pattern: 'crystal_pbso4.cell.length_a', "
           "'atom_site[Fe].fract_x', 'b_iso', '*.pd_background[*].intensity'. "
-          "Without '*' any path containing the text matches.")
+          "Without '*' any path containing the text matches; the labels "
+          "may be left out ('atom_site.fract_x'). Several patterns are "
+          "separated by ','. Words work too: 'atomic positions', "
+          "'scale factor', 'polarization', 'unit cell', 'adp'.")
 
 L_ASSISTANT_TOOLS: List[AssistantTool] = [
     AssistantTool(
@@ -430,6 +526,34 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                   "fract_z"),
         flag_object_changed=True),
     AssistantTool(
+        "calculate_structure_factor",
+        "Nuclear structure factor F_N (complex, |F_N|, |F_N|^2) of one "
+        "reflection hkl for the crystals of the object.",
+        tool_calculate_structure_factor,
+        {"h": {"type": "number"}, "k": {"type": "number"},
+         "l": {"type": "number"},
+         "hkl": {"type": "string",
+                 "description": "The indices as text, e.g. '5 0 3'; "
+                                "instead of h, k, l."},
+         "crystal": {"type": "string",
+                     "description": "Name of the crystal; empty for all."}}),
+    AssistantTool(
+        "add_crystal_from_cod",
+        "Download a crystal structure from the Crystallography Open "
+        "Database (COD, needs internet) and add it to the object as a "
+        "crystal data block.",
+        tool_add_crystal_from_cod,
+        {"formula": {"type": "string",
+                     "description": "Chemical formula, e.g. 'Al', 'TiO2'; "
+                                    "the first COD entry is taken."},
+         "cod_id": {"type": "string",
+                    "description": "COD number, e.g. '9008460'; instead of "
+                                   "the formula."},
+         "name": {"type": "string",
+                  "description": "Name of the new data block; by default "
+                                 "the formula."}},
+        flag_object_changed=True),
+    AssistantTool(
         "list_procedures",
         "List CrysPy procedures that can be run on the object "
         "(MEM, simulations, reports, ...).",
@@ -480,8 +604,17 @@ def call_assistant_tool(cryspy_object, name: str,
     Never raises: errors are returned as text, so that the model can read
     them and correct the call.
 
-    Returns dict with keys 'text' and 'flag_object_changed'.
+    Returns dict with keys 'text', 'flag_object_changed' and 'flag_error'
+    (True if the tool did not do what was asked: the text starts with
+    "Error"; a chat program must not report such a call as done).
     """
+    result = run_assistant_tool(cryspy_object, name, arguments)
+    result["flag_error"] = str(result["text"]).startswith("Error")
+    return result
+
+
+def run_assistant_tool(cryspy_object, name: str,
+                       arguments: Optional[dict] = None) -> dict:
     tool = take_assistant_tool(name)
     if tool is None:
         return {"text": f"Error: unknown tool '{name:}'. Known tools: "
