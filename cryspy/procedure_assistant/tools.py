@@ -26,7 +26,10 @@ calls the tool again with the answers added to the arguments:
     >>> result = cryspy.call_assistant_tool(obj, name, arguments)
 
 A required argument is asked from the user when its description has
-"question"; a tool asks for other values by raising ArgumentsNeeded.
+"question"; a tool asks for other values by raising ArgumentsNeeded. When
+the user calls a tool directly (e.g. '@set_parameter' typed in a chat)
+call_assistant_tool(..., ask_required=True) asks every required argument
+that is not given; a chat model gets an error instead and corrects its call.
 """
 import re
 from typing import Callable, Dict, List, Optional
@@ -616,7 +619,12 @@ def tool_add_crystal_from_cod(cryspy_object, formula: str = "",
                               cod_id: str = "", name: str = "") -> str:
     from cryspy.H_functions_global.cod import add_crystal_from_cod
     if formula.strip() == "" and str(cod_id).strip() == "":
-        return "Error: give the chemical formula or the COD number."
+        raise ArgumentsNeeded([{
+            "name": "formula", "type": "string",
+            "question": "the chemical formula of the crystal or its COD number",
+            "hint": "e.g. TiO2 or 9008460"}])
+    if formula.strip().isdigit() and str(cod_id).strip() == "":  # the COD number as the answer
+        formula, cod_id = "", formula.strip()
     try:
         crystal = add_crystal_from_cod(
             cryspy_object, formula=formula, cod_id=str(cod_id),
@@ -975,9 +983,11 @@ def convert_assistant_answer(d_missing: dict, text: str):
 def form_missing(name: str, d_param: dict) -> dict:
     """The dict of 'missing' for the argument of a tool."""
     d_missing = {"name": name,
-                 "question": d_param.get("question", f"the {name:}")}
+                 "question": d_param.get("question", f"the {name.replace('_', ' '):}")}
     d_missing.update({key: d_param[key] for key in MISSING_KEYS
                       if key in d_param})
+    if "hint" not in d_missing and d_param.get("description"):
+        d_missing["hint"] = d_param["description"]
     return d_missing
 
 
@@ -989,8 +999,13 @@ def form_missing_text(name: str, l_missing: List[dict],
 
 
 def call_assistant_tool(cryspy_object, name: str,
-                        arguments: Optional[dict] = None) -> dict:
+                        arguments: Optional[dict] = None, *,
+                        ask_required: bool = False) -> dict:
     """Run a tool by name with arguments from a chat model.
+
+    ask_required: the user called the tool (not a model), so every
+    required argument that is not given is asked ('missing'), not only
+    those with "question".
 
     Never raises: errors are returned as text, so that the model can read
     them and correct the call.
@@ -1006,7 +1021,7 @@ def call_assistant_tool(cryspy_object, name: str,
     history.form_metrics; empty for tools without numbers) and, when the
     tool raised an exception, 'error_type' (its class name).
     """
-    result = run_assistant_tool(cryspy_object, name, arguments)
+    result = run_assistant_tool(cryspy_object, name, arguments, ask_required=ask_required)
     result["flag_error"] = str(result["text"]).startswith("Error")
     result.setdefault("missing", [])
     result.setdefault("metrics", {})
@@ -1014,7 +1029,7 @@ def call_assistant_tool(cryspy_object, name: str,
 
 
 def run_assistant_tool(cryspy_object, name: str,
-                       arguments: Optional[dict] = None) -> dict:
+                       arguments: Optional[dict] = None, ask_required: bool = False) -> dict:
     tool = take_assistant_tool(name)
     if tool is None:
         return {"text": f"Error: unknown tool '{name:}'. Known tools: "
@@ -1036,7 +1051,7 @@ def run_assistant_tool(cryspy_object, name: str,
         return {"text": f"Error in arguments of {name:}: {error:}",
                 "flag_object_changed": False}
     l_missing = [key for key in tool.required if key not in kwargs]
-    l_ask = [key for key in l_missing if "question" in tool.parameters[key]]
+    l_ask = [key for key in l_missing if ask_required or "question" in tool.parameters[key]]
     if len(l_missing) > len(l_ask):
         return {"text": f"Error: {name:} needs arguments: {', '.join(l_missing):}",
                 "flag_object_changed": False}
