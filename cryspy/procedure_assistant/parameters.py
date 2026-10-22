@@ -51,6 +51,23 @@ D_PATTERN_ALIASES = {
     "susceptibility": ("atom_site_susceptibility", ),
 }
 
+# values of non-refinable attributes that a model writes as parameters:
+# word of the pattern -> explanation for the error
+D_VALUE_WORDS = {
+    "ciso": "Ciso and Cani are values of atom_site_susceptibility.chi_type of each atom, not "
+            "parameters: set them with set_chi_type. With Ciso only the scalar "
+            "atom_site_susceptibility.chi_11 is refined, with Cani the components of the tensor "
+            "(atom_site_susceptibility.chi_11, chi_22, chi_33, chi_12, chi_13, chi_23).",
+}
+D_VALUE_WORDS["cani"] = D_VALUE_WORDS["ciso"]
+
+
+def explain_value_words(pattern: str) -> str:
+    """Explanation when the pattern names a value of an attribute (e.g.
+    'atom_site_susceptibility.Ciso'), else an empty string."""
+    l_word = re.split(r"[^a-z0-9]+", pattern.lower())
+    return " ".join(dict.fromkeys(D_VALUE_WORDS[word] for word in l_word if word in D_VALUE_WORDS))
+
 
 class ParameterRecord:
     """One refinable parameter: its path and where it is stored."""
@@ -158,6 +175,14 @@ def form_path_regex(pattern: str):
     return re.compile(re.escape(pattern_sh))
 
 
+def remove_value_marks(path: str) -> str:
+    """Path without the rcif marks of refinement written after a name:
+    'cell.length_a()' or 'cell.length_a(3)' -> 'cell.length_a' (a model
+    copies '()' from the rcif text into the path)."""
+    # only after a name: the label 'O(1)' in 'atom_site[O(1)]' stays
+    return re.sub(r"(?<=\w)\([^()]*\)(?=$|[.,;|\s])", "", path)
+
+
 def remove_labels(path: str) -> str:
     """Path without the labels of loop items: 'b.atom_site[Fe].fract_x' ->
     'b.atom_site.fract_x' (a model often writes the path this way)."""
@@ -165,7 +190,7 @@ def remove_labels(path: str) -> str:
 
 
 def normalize_pattern(pattern: str) -> str:
-    pattern_sh = pattern.strip().lower()
+    pattern_sh = remove_value_marks(pattern).strip().lower()
     pattern_sh = re.sub(r"[\s\-]+", "_", pattern_sh).strip("_")
     for prefix in ("all_", "the_"):
         if pattern_sh.startswith(prefix):
@@ -250,10 +275,31 @@ def suggest_parameter_names(cryspy_object, pattern: str,
     return l_suggestion[:n_max]
 
 
+def take_data_name_aliases(cryspy_object) -> dict:
+    """Name of each data block in the paths -> its data name: the block
+    'diffrn_exp1' of the class Diffrn is often called 'exp1'."""
+    l_data = cryspy_object.items if isinstance(cryspy_object, GlobalN) else [cryspy_object]
+    return {data.get_name().lower(): str(data.data_name).lower()
+            for data in l_data if isinstance(data, DataN)}
+
+
+def form_path_aliases(path: str, d_data_name: dict) -> List[str]:
+    """The path (lower case) and the same path with the data name of its
+    data block: 'diffrn_exp1.setup.field' -> also 'exp1.setup.field'."""
+    path = path.lower()
+    l_head_tail = path.split(".", 1)
+    l_path = [path]
+    if l_head_tail[0] in d_data_name:
+        l_path.append(".".join([d_data_name[l_head_tail[0]]] + l_head_tail[1:]))
+    return l_path
+
+
 def take_parameter_record(cryspy_object, path: str) -> Optional[ParameterRecord]:
-    """Parameter with exactly this path, or None."""
-    path_sh = path.strip().lower()
+    """Parameter with exactly this path (the data block may be given by its
+    data name), or None."""
+    path_sh = remove_value_marks(path).strip().lower()
+    d_data_name = take_data_name_aliases(cryspy_object)
     for record in take_parameter_records(cryspy_object):
-        if record.path.lower() == path_sh:
+        if path_sh in form_path_aliases(record.path, d_data_name):
             return record
     return None

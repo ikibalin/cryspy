@@ -285,6 +285,13 @@ from cryspy.procedure_simulation.simulation import (
     simulation_current_experiments,
 )
 
+from cryspy.B_parent_classes.attributes import (
+    describe_attributes,
+    next_value_choice,
+    take_refinable_cif_tags,
+    take_value_choices,
+)
+
 from cryspy.procedure_assistant.help import (
     get_help,
     help_topics,
@@ -301,6 +308,7 @@ from cryspy.procedure_assistant.procedures import (
     describe_procedure,
     describe_procedures,
 )
+from cryspy.procedure_assistant.recipes import run_recipe, set_user_recipe_folder
 
 
 def repr_function(function, flag_long: bool = False):
@@ -473,6 +481,8 @@ L_FUNCTION = [
     convert_assistant_answer,
     describe_procedure,
     describe_procedures,
+    run_recipe,
+    set_user_recipe_folder,
     load_cif_from_cod,
     cif_to_crystal,
 ]

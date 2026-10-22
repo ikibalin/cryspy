@@ -429,3 +429,37 @@ def test_answer_with_unit_limits_null_and_aliases():
     assert convert(d_geometry, "4c") == "4C"
     with pytest.raises(ValueError, match="is not one of: NB, 4C"):
         convert(d_geometry, "kappa")
+
+
+def test_missing_required_argument_is_asked_from_user():
+    """A tool called by the user ('@set_parameter' typed in a chat) asks
+    the required arguments that are not given; a model gets an error."""
+    obj = take_object()
+    result = cryspy.call_assistant_tool(obj, "set_parameter", {"path": "cell.length_a"}, ask_required=True)
+    assert not result["flag_error"]
+    assert [d_missing["name"] for d_missing in result["missing"]] == ["value"]
+    assert result["missing"][0]["question"] == "the value"
+    assert result["missing"][0]["hint"] != ""  # the description of the argument
+    result = cryspy.call_assistant_tool(obj, "refine_parameters", {}, ask_required=True)
+    assert [d_missing["name"] for d_missing in result["missing"]] == ["pattern"]
+    assert cryspy.call_assistant_tool(obj, "refine_parameters", {})["flag_error"]
+
+
+def test_cod_asks_formula(monkeypatch):
+    from cryspy.H_functions_global import cod
+    obj = take_object()
+    result = cryspy.call_assistant_tool(obj, "add_crystal_from_cod", {})
+    assert not result["flag_error"]
+    assert [d_missing["name"] for d_missing in result["missing"]] == ["formula"]
+    assert "COD number" in result["missing"][0]["question"]
+    l_call = []
+
+    def fake_add_crystal_from_cod(cryspy_object, formula="", cod_id="", data_name=""):
+        l_call.append((formula, cod_id))
+        raise ValueError("no internet in the test")
+
+    monkeypatch.setattr(cod, "add_crystal_from_cod", fake_add_crystal_from_cod)
+    # the answer to the question may be the COD number
+    cryspy.call_assistant_tool(obj, "add_crystal_from_cod", {"formula": "9008460"})
+    cryspy.call_assistant_tool(obj, "add_crystal_from_cod", {"formula": "TiO2"})
+    assert l_call == [("", "9008460"), ("TiO2", "")]
