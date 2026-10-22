@@ -599,10 +599,21 @@ def tool_set_attribute(cryspy_object, path: str, value: str) -> str:
 
 def tool_show_item(cryspy_object, path: str, max_length: int = 8000) -> str:
     block = take_block(cryspy_object, path)
-    if block is None:
-        return (f"Error: '{path:}' is not found. Give a data block, a category or "
-                "an item of a loop: 'crystal', 'crystal.cell', 'crystal.atom_site[Fe]'.")
-    text = block.to_cif()
+    s_value = ""
+    if block is None:  # the path of one attribute: its value and its item
+        record = take_attribute_record(cryspy_object, path)
+        if record is None:
+            l_record = find_attribute_records(cryspy_object, path)
+            record = l_record[0] if len(l_record) == 1 else None
+        if record is None:
+            l_name = [str(data.get_name()) for data in getattr(cryspy_object, "items", [])]
+            return (f"Error: '{path:}' is not found. Give a data block, a category, an item of a "
+                    "loop or an attribute: 'crystal_fe', 'crystal_fe.cell', "
+                    "'crystal_fe.atom_site[Fe]', 'diffrn_exp1.setup.field'. The object has: "
+                    f"{', '.join(l_name):}. list_attributes finds the paths of attributes.")
+        block = record.item
+        s_value = f"{record.path:} = {format_value(record.value):}\n\n"
+    text = s_value + block.to_cif()
     if len(text) > max_length:
         text = text[:max_length] + "\n[... the rest is cut ...]"
     return text
@@ -864,10 +875,12 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         required=("path", "value"), flag_object_changed=True),
     AssistantTool(
         "show_item",
-        "Show in rcif format one data block, category (item or loop) or one item of a loop.",
+        "Show in rcif format one data block, category (item or loop) or one item of a loop; "
+        "for the path of an attribute its value and its item.",
         tool_show_item,
         {"path": {"type": "string", "description": (
-            "'crystal', 'crystal.cell', 'crystal.atom_site' or 'crystal.atom_site[Fe]'.")}},
+            "'crystal_fe', 'crystal_fe.cell', 'crystal_fe.atom_site[Fe]' or an attribute "
+            "'diffrn_exp1.setup.field'; the data block may be given by its data name ('exp1').")}},
         required=("path", )),
     AssistantTool(
         "describe_category",

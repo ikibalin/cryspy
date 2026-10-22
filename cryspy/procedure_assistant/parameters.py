@@ -267,10 +267,31 @@ def suggest_parameter_names(cryspy_object, pattern: str,
     return l_suggestion[:n_max]
 
 
+def take_data_name_aliases(cryspy_object) -> dict:
+    """Name of each data block in the paths -> its data name: the block
+    'diffrn_exp1' of the class Diffrn is often called 'exp1'."""
+    l_data = cryspy_object.items if isinstance(cryspy_object, GlobalN) else [cryspy_object]
+    return {data.get_name().lower(): str(data.data_name).lower()
+            for data in l_data if isinstance(data, DataN)}
+
+
+def form_path_aliases(path: str, d_data_name: dict) -> List[str]:
+    """The path (lower case) and the same path with the data name of its
+    data block: 'diffrn_exp1.setup.field' -> also 'exp1.setup.field'."""
+    path = path.lower()
+    l_head_tail = path.split(".", 1)
+    l_path = [path]
+    if l_head_tail[0] in d_data_name:
+        l_path.append(".".join([d_data_name[l_head_tail[0]]] + l_head_tail[1:]))
+    return l_path
+
+
 def take_parameter_record(cryspy_object, path: str) -> Optional[ParameterRecord]:
-    """Parameter with exactly this path, or None."""
+    """Parameter with exactly this path (the data block may be given by its
+    data name), or None."""
     path_sh = path.strip().lower()
+    d_data_name = take_data_name_aliases(cryspy_object)
     for record in take_parameter_records(cryspy_object):
-        if record.path.lower() == path_sh:
+        if path_sh in form_path_aliases(record.path, d_data_name):
             return record
     return None

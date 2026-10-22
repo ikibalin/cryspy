@@ -21,7 +21,8 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.procedure_assistant.parameters import (
-    form_path_regex, remove_labels, split_pattern, take_item_label)
+    form_path_aliases, form_path_regex, remove_labels, split_pattern, take_data_name_aliases,
+    take_item_label)
 
 
 class AttributeRecord:
@@ -147,9 +148,12 @@ def find_attribute_records(cryspy_object, pattern: str = "",
 
 def take_attribute_record(cryspy_object, path: str,
                           flag_defined_only: bool = False) -> Optional[AttributeRecord]:
+    """Attribute with this path; the data block may be given by its data
+    name ('exp1.setup.field' for 'diffrn_exp1.setup.field')."""
     path_sh = path.strip().lower()
+    d_data_name = take_data_name_aliases(cryspy_object)
     for record in take_attribute_records(cryspy_object, flag_defined_only):
-        if record.path.lower() == path_sh:
+        if path_sh in form_path_aliases(record.path, d_data_name):
             return record
     return None
 
@@ -158,17 +162,12 @@ def take_block(cryspy_object, path: str):
     """Data block, loop or item with this path (labels may be left out
     when there is only one such item), or None."""
     path_sh = path.strip().lower()
-    l_data = cryspy_object.items if isinstance(cryspy_object, GlobalN) else [cryspy_object]
     # the data block 'crystal_fe' may be called by its data name 'fe'
-    d_data_name = {data.get_name().lower(): str(data.data_name).lower()
-                   for data in l_data if isinstance(data, DataN)}
+    d_data_name = take_data_name_aliases(cryspy_object)
     l_match = []
     for block_path, block in iterate_blocks(cryspy_object):
         block_path = block_path.lower()
-        l_head_tail = block_path.split(".", 1)
-        l_path = [block_path]
-        if l_head_tail[0] in d_data_name:
-            l_path.append(".".join([d_data_name[l_head_tail[0]]] + l_head_tail[1:]))
+        l_path = form_path_aliases(block_path, d_data_name)
         if path_sh in l_path:
             return block
         if path_sh in [remove_labels(_) for _ in l_path] + [block_path.split(".", 1)[-1]]:
