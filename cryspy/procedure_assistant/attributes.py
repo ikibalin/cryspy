@@ -21,8 +21,8 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.procedure_assistant.parameters import (
-    form_path_aliases, form_path_regex, remove_labels, split_pattern, take_data_name_aliases,
-    take_item_label)
+    form_path_aliases, form_path_regex, remove_labels, remove_value_marks, split_pattern,
+    take_data_name_aliases, take_item_label)
 
 
 class AttributeRecord:
@@ -150,7 +150,7 @@ def take_attribute_record(cryspy_object, path: str,
                           flag_defined_only: bool = False) -> Optional[AttributeRecord]:
     """Attribute with this path; the data block may be given by its data
     name ('exp1.setup.field' for 'diffrn_exp1.setup.field')."""
-    path_sh = path.strip().lower()
+    path_sh = remove_value_marks(path).strip().lower()
     d_data_name = take_data_name_aliases(cryspy_object)
     for record in take_attribute_records(cryspy_object, flag_defined_only):
         if path_sh in form_path_aliases(record.path, d_data_name):

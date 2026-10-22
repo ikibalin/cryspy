@@ -220,7 +220,8 @@ def form_no_match_error(cryspy_object, pattern: str) -> str:
     s_name = ", ".join(l_name) if len(l_name) > 0 else "none"
     s_explanation = explain_value_words(pattern)
     if s_explanation == "":
-        l_word = [word for word in re.split(r"[^A-Za-z0-9+\-]+", pattern) if word != ""]
+        # '_' stays in a word: 'a' of 'length_a' is not the value 'A'
+        l_word = [word for word in re.split(r"[^A-Za-z0-9_+\-]+", pattern) if word != ""]
         s_explanation = " ".join(dict.fromkeys(
             explain_allowed_value(word) for word in l_word if explain_allowed_value(word)))
     s_explanation = f" {s_explanation:}" if s_explanation else ""
@@ -812,7 +813,8 @@ S_PATH = ("Parameter path or pattern: 'crystal_pbso4.cell.length_a', "
           "Without '*' any path containing the text matches; the labels "
           "may be left out ('atom_site.fract_x'). Several patterns are "
           "separated by ','. Words work too: 'atomic positions', "
-          "'scale factor', 'polarization', 'unit cell', 'adp'.")
+          "'scale factor', 'polarization', 'unit cell', 'adp'. "
+          "Write the path only, without the value or '()' of rcif.")
 
 L_ASSISTANT_TOOLS: List[AssistantTool] = [
     AssistantTool(
@@ -838,7 +840,9 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                           "description": "Only the parameters marked for refinement."}}),
     AssistantTool(
         "refine_parameters",
-        "Mark the parameters matching the pattern for refinement.",
+        "Mark the parameters matching the pattern for refinement (as '()' "
+        "after a value in rcif); to try one parameter give its path from "
+        "list_parameters, e.g. 'crystal_fe.cell.length_a'.",
         tool_refine_parameters,
         {"pattern": {"type": "string", "description": S_PATH}},
         required=("pattern", ), flag_object_changed=True),
