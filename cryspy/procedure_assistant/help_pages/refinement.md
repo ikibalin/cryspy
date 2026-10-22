@@ -9,6 +9,8 @@ of the object at once.
 1. Mark parameters: write `()` after the value in rcif (`_cell_length_a 5.43()`),
    or in Python `item.<attribute>_refinement = True`, or use
    `refine_all_variables()` / `fix_variables()` of an item, loop or data block.
+   The assistant marks them with the tool `refine_parameters` and the path
+   from `list_parameters` without `()`: `crystal_fe.cell.length_a`.
 2. Run `cryspy.rhochi_rietveld_refinement(obj)`; it returns a dictionary with
    `chi_sq`, `parameter_name` and, if available, `correlation_matrix`. The
    object is updated in place, the inverse Hessian is stored in the

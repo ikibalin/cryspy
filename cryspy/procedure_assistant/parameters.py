@@ -175,6 +175,14 @@ def form_path_regex(pattern: str):
     return re.compile(re.escape(pattern_sh))
 
 
+def remove_value_marks(path: str) -> str:
+    """Path without the rcif marks of refinement written after a name:
+    'cell.length_a()' or 'cell.length_a(3)' -> 'cell.length_a' (a model
+    copies '()' from the rcif text into the path)."""
+    # only after a name: the label 'O(1)' in 'atom_site[O(1)]' stays
+    return re.sub(r"(?<=\w)\([^()]*\)(?=$|[.,;|\s])", "", path)
+
+
 def remove_labels(path: str) -> str:
     """Path without the labels of loop items: 'b.atom_site[Fe].fract_x' ->
     'b.atom_site.fract_x' (a model often writes the path this way)."""
@@ -182,7 +190,7 @@ def remove_labels(path: str) -> str:
 
 
 def normalize_pattern(pattern: str) -> str:
-    pattern_sh = pattern.strip().lower()
+    pattern_sh = remove_value_marks(pattern).strip().lower()
     pattern_sh = re.sub(r"[\s\-]+", "_", pattern_sh).strip("_")
     for prefix in ("all_", "the_"):
         if pattern_sh.startswith(prefix):
@@ -289,7 +297,7 @@ def form_path_aliases(path: str, d_data_name: dict) -> List[str]:
 def take_parameter_record(cryspy_object, path: str) -> Optional[ParameterRecord]:
     """Parameter with exactly this path (the data block may be given by its
     data name), or None."""
-    path_sh = path.strip().lower()
+    path_sh = remove_value_marks(path).strip().lower()
     d_data_name = take_data_name_aliases(cryspy_object)
     for record in take_parameter_records(cryspy_object):
         if path_sh in form_path_aliases(record.path, d_data_name):

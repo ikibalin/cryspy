@@ -1,5 +1,7 @@
 """Attributes of any ItemN/LoopN class: allowed values, refinable tags,
 generic access of the assistant tools (also for classes defined here)."""
+import os
+
 import cryspy
 from cryspy.B_parent_classes.attributes import take_item_classes
 from cryspy.B_parent_classes.cl_1_item import ItemN
@@ -130,14 +132,17 @@ def test_value_of_attribute_is_explained():
     assert "extinction.model" in text and "set_attribute" in text
 
 
+def load_example():
+    dir_cryspy = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    return cryspy.load_file(os.path.join(
+        dir_cryspy, "examples", "mempy_magnetization_density_Yb2Ti2O7_2K_1T",
+        "mempy_magnetization_density_Yb2Ti2O7_2K_1T.rcif"))
+
+
 def test_paths_with_the_data_name_of_an_experiment():
     """A model calls the Diffrn block 'diffrn_5c1110' by its data name
     '5c1110' and asks for one attribute with show_item."""
-    import os
-    dir_cryspy = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    obj = cryspy.load_file(os.path.join(
-        dir_cryspy, "examples", "mempy_magnetization_density_Yb2Ti2O7_2K_1T",
-        "mempy_magnetization_density_Yb2Ti2O7_2K_1T.rcif"))
+    obj = load_example()
     for path in ("5c1110.setup.field", "diffrn_5c1110.setup.field", "setup.field"):
         result = call(obj, "show_item", path=path)
         assert not result["flag_error"], path
@@ -148,3 +153,22 @@ def test_paths_with_the_data_name_of_an_experiment():
     assert not result["flag_error"] and obj.diffrn_5c1110.setup.field == 2.5
     result = call(obj, "show_item", path="5c1110.nothing")
     assert result["flag_error"] and "diffrn_5c1110" in result["text"]
+
+
+def test_rcif_marks_in_paths_are_ignored():
+    """A model copies '()' of rcif into the path: 'cell.length_a()'."""
+    obj = load_example()
+    result = call(obj, "refine_parameters", pattern="crystal_ybti.cell.length_a()")
+    assert not result["flag_error"], result["text"]
+    assert obj.crystal_ybti.cell.length_a_refinement
+    result = call(obj, "set_parameter", path="crystal_ybti.cell.length_a(3)", value=10.1)
+    assert not result["flag_error"] and obj.crystal_ybti.cell.length_a == 10.1
+    assert "cell.length_a" in call(obj, "list_attributes", pattern="cell.length_a()")["text"]
+    # 'a' of 'length_q' is not explained as the value 'A' of other attributes
+    text = call(obj, "refine_parameters", pattern="cell.length_q()")["text"]
+    assert "centring_type" not in text
+
+
+def test_label_with_brackets_is_kept():
+    from cryspy.procedure_assistant.parameters import remove_value_marks
+    assert remove_value_marks("atom_site[O(1)].fract_x()") == "atom_site[O(1)].fract_x"
