@@ -285,6 +285,13 @@ from cryspy.procedure_simulation.simulation import (
     simulation_current_experiments,
 )
 
+from cryspy.B_parent_classes.attributes import (
+    describe_attributes,
+    next_value_choice,
+    take_refinable_cif_tags,
+    take_value_choices,
+)
+
 from cryspy.procedure_assistant.help import (
     get_help,
     help_topics,
