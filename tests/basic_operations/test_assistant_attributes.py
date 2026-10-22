@@ -128,3 +128,23 @@ def test_value_of_attribute_is_explained():
         "global_\n\ndata_fe\n_cell_length_a 5.0\n_cell_angle_alpha 90\n")
     text = call(obj, "list_parameters", pattern="lorentz")["text"]
     assert "extinction.model" in text and "set_attribute" in text
+
+
+def test_paths_with_the_data_name_of_an_experiment():
+    """A model calls the Diffrn block 'diffrn_5c1110' by its data name
+    '5c1110' and asks for one attribute with show_item."""
+    import os
+    dir_cryspy = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    obj = cryspy.load_file(os.path.join(
+        dir_cryspy, "examples", "mempy_magnetization_density_Yb2Ti2O7_2K_1T",
+        "mempy_magnetization_density_Yb2Ti2O7_2K_1T.rcif"))
+    for path in ("5c1110.setup.field", "diffrn_5c1110.setup.field", "setup.field"):
+        result = call(obj, "show_item", path=path)
+        assert not result["flag_error"], path
+        assert result["text"].startswith("diffrn_5c1110.setup.field = 1\n")
+        assert "_setup_wavelength" in result["text"]
+    assert "_setup_field" in call(obj, "show_item", path="5c1110.setup")["text"]
+    result = call(obj, "set_attribute", path="5c1110.setup.field", value="2.5")
+    assert not result["flag_error"] and obj.diffrn_5c1110.setup.field == 2.5
+    result = call(obj, "show_item", path="5c1110.nothing")
+    assert result["flag_error"] and "diffrn_5c1110" in result["text"]
