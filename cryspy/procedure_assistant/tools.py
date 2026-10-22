@@ -42,6 +42,9 @@ from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import inversed_hessian_to_correlation
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
+from cryspy.procedure_assistant.attributes import (
+    describe_item_class, explain_allowed_value, find_attribute_records, find_item_classes,
+    take_attribute_record, take_block, take_object_item_classes)
 from cryspy.procedure_assistant.help import get_help
 from cryspy.procedure_assistant.procedures import (
     describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
@@ -216,6 +219,10 @@ def form_no_match_error(cryspy_object, pattern: str) -> str:
     l_name = suggest_parameter_names(cryspy_object, pattern)
     s_name = ", ".join(l_name) if len(l_name) > 0 else "none"
     s_explanation = explain_value_words(pattern)
+    if s_explanation == "":
+        l_word = [word for word in re.split(r"[^A-Za-z0-9+\-]+", pattern) if word != ""]
+        s_explanation = " ".join(dict.fromkeys(
+            explain_allowed_value(word) for word in l_word if explain_allowed_value(word)))
     s_explanation = f" {s_explanation:}" if s_explanation else ""
     return (f"Error: no parameters match '{pattern:}'.{s_explanation:} Parameters of this "
             f"object look like: {s_name:}.")
@@ -546,6 +553,76 @@ def tool_show_model(cryspy_object, block: str = "",
     return text
 
 
+def tool_list_attributes(cryspy_object, pattern: str = "") -> str:
+    l_record = find_attribute_records(cryspy_object, pattern)
+    if len(l_record) == 0:
+        s_explanation = explain_allowed_value(pattern)
+        if s_explanation:
+            return f"Error: no attributes match '{pattern:}'. {s_explanation:}"
+        return (f"Error: no attributes match '{pattern:}'. Use summarize_object to see "
+                "the data blocks and describe_category for the attributes of a category.")
+    ls_out = ["path | value | allowed values"]
+    for record in l_record[:MAX_PARAMETERS_IN_LIST]:
+        allowed = record.allowed_values
+        s_allowed = ""
+        if allowed is not None and len(allowed) <= 30:
+            s_allowed = ", ".join(str(_) for _ in allowed)
+        elif allowed is not None:
+            s_allowed = f"{len(allowed):} values"
+        ls_out.append(f"{record.path:} | {format_value(record.value):} | {s_allowed:}")
+    if len(l_record) > MAX_PARAMETERS_IN_LIST:
+        ls_out.append(f"... {len(l_record) - MAX_PARAMETERS_IN_LIST:} more, "
+                      "give a narrower pattern.")
+    return "\n".join(ls_out)
+
+
+def tool_set_attribute(cryspy_object, path: str, value: str) -> str:
+    record = take_attribute_record(cryspy_object, path)
+    if record is None:
+        l_record = find_attribute_records(cryspy_object, path, flag_defined_only=False)
+        if len(l_record) == 1:
+            record = l_record[0]
+        elif len(l_record) > 1:
+            return ("Error: the path is ambiguous, give one of:\n"
+                    + "\n".join(record.path for record in l_record[:20]))
+        else:
+            return (f"Error: no attribute '{path:}'. Use list_attributes to find the path.")
+    if record.flag_constraint:
+        return f"Error: {record.path:} is constrained by symmetry and cannot be set."
+    old_value = record.value
+    try:
+        record.set_value(value)
+    except ValueError as error:
+        return f"Error: {error:}"
+    return f"{record.path:}: {format_value(old_value):} -> {format_value(record.value):}"
+
+
+def tool_show_item(cryspy_object, path: str, max_length: int = 8000) -> str:
+    block = take_block(cryspy_object, path)
+    if block is None:
+        return (f"Error: '{path:}' is not found. Give a data block, a category or "
+                "an item of a loop: 'crystal', 'crystal.cell', 'crystal.atom_site[Fe]'.")
+    text = block.to_cif()
+    if len(text) > max_length:
+        text = text[:max_length] + "\n[... the rest is cut ...]"
+    return text
+
+
+def tool_describe_category(cryspy_object, name: str = "") -> str:
+    if name.strip() == "":
+        l_class = take_object_item_classes(cryspy_object) if cryspy_object is not None else []
+        if len(l_class) == 0:
+            return "Error: give the name of a category, e.g. 'cell' or 'atom_site'."
+    else:
+        l_class = find_item_classes(name)
+        if len(l_class) == 0:
+            return f"Error: there is no category '{name:}'."
+        if len(l_class) > 10:
+            return ("Several categories match, give one of: "
+                    + ", ".join(item_class.PREFIX for item_class in l_class))
+    return "\n\n".join(describe_item_class(item_class) for item_class in l_class)
+
+
 def tool_add_atom(cryspy_object, crystal: str, label: str, type_symbol: str,
                   fract_x: float, fract_y: float, fract_z: float,
                   occupancy: float = 1., adp_type: str = "",
@@ -768,6 +845,38 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         {"path": {"type": "string", "description": S_PATH},
          "value": {"type": "number", "description": "New value."}},
         required=("path", "value"), flag_object_changed=True),
+    AssistantTool(
+        "list_attributes",
+        "List all attributes of the object (also text ones such as "
+        "atom_site_susceptibility.chi_type or extinction.model) with their values "
+        "and allowed values.",
+        tool_list_attributes,
+        {"pattern": {"type": "string", "description": (
+            "Path or pattern: 'chi_type', '*.extinction.model', "
+            "'atom_site[Fe]'; empty for all.")}}),
+    AssistantTool(
+        "set_attribute",
+        "Set the value of one attribute of any category (text, integer or number), "
+        "e.g. 'exp.extinction.model' to 'gauss'; text values must be allowed values.",
+        tool_set_attribute,
+        {"path": {"type": "string", "description": "Path from list_attributes."},
+         "value": {"type": "string", "description": "New value."}},
+        required=("path", "value"), flag_object_changed=True),
+    AssistantTool(
+        "show_item",
+        "Show in rcif format one data block, category (item or loop) or one item of a loop.",
+        tool_show_item,
+        {"path": {"type": "string", "description": (
+            "'crystal', 'crystal.cell', 'crystal.atom_site' or 'crystal.atom_site[Fe]'.")}},
+        required=("path", )),
+    AssistantTool(
+        "describe_category",
+        "Attributes of a category (any CrysPy item or loop class) with types, "
+        "refinable ones and allowed values; without a name the categories of the object.",
+        tool_describe_category,
+        {"name": {"type": "string", "description": (
+            "Category, e.g. 'cell', 'atom_site_susceptibility', 'extinction'.")}},
+        flag_object_needed=False),
     AssistantTool(
         "calculate",
         "Calculate the model without refinement: chi-square and calculated data.",
