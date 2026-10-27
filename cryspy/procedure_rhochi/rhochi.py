@@ -19,6 +19,7 @@ from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     set_dependent_parameters, calc_punishement_function
 
 import cryspy
+from cryspy.procedure_assistant.parameters import take_parameter_records
 
 from cryspy.A_functions_base.progress import PROGRESS
 
@@ -145,18 +146,27 @@ def rhochi_rietveld_refinement_with_parameters(
         cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
     
-    var_names = cryspy_object.get_variable_names()
-    if len(var_names) > 0:
-        logger.info("Optimal parameters:")
-    for name in var_names:
-        value = cryspy_object.get_variable_by_name(name)
-        logger.info(f" - {name[-1][0]:} {value:.5f}")
-    
     if flag_stopped:
+        log_refined_parameters(cryspy_object)
         return dict_out
     logger.info("Errors are estimating by numerical derivatives.")
     rhochi_inversed_hessian(cryspy_object)
+    log_refined_parameters(cryspy_object)
     return dict_out
+
+
+def log_refined_parameters(cryspy_object: GlobalN):
+    """Log the refined parameters by their full paths
+    ('crystal_fe.atom_site[Fe1].occupancy'), with sigmas and marks."""
+    l_record = [record for record in take_parameter_records(cryspy_object)
+                if record.flag_refinement]
+    if len(l_record) == 0:
+        return
+    logger.info("Optimal parameters:")
+    for record in l_record:
+        mark = str(getattr(record.item, f"{record.attribute:}_mark", ""))
+        s_mark = f" [{mark:}]" if mark != "" else ""
+        logger.info(f" - {record.path:} {record.value:.5f} ± {record.sigma:.5f}{s_mark:}")
 
 
 def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:

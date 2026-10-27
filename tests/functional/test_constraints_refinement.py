@@ -1,4 +1,5 @@
 """Refinement with a linear constraint between two parameters (x+y=b)."""
+import logging
 import os
 
 import numpy
@@ -8,7 +9,7 @@ import cryspy
 F_NAME = os.path.join(os.path.dirname(__file__), "twin_tbte3", "main.rcif")
 
 
-def test_refinement_keeps_linear_constraint():
+def test_refinement_keeps_linear_constraint(caplog):
     obj = cryspy.load_file(F_NAME)
     # only the two coordinates: the extinction radius 0 of the file makes
     # the Hessian of all parameters singular
@@ -19,7 +20,11 @@ def test_refinement_keeps_linear_constraint():
     # the start values do not satisfy the constraint
     assert not numpy.isclose(atom_site["Te1"].fract_y + atom_site["Te2"].fract_y, 1.5)
 
-    cryspy.rhochi_rietveld_refinement(obj)
+    with caplog.at_level(logging.INFO, logger="cryspy"):
+        cryspy.rhochi_rietveld_refinement(obj)
+    # optimal parameters are logged by their full paths and marks
+    assert any(record.getMessage().startswith(" - crystal_tbte3.atom_site[Te2].fract_y ")
+               and record.getMessage().endswith("[y2]") for record in caplog.records)
 
     y_1, y_2 = atom_site["Te1"].fract_y, atom_site["Te2"].fract_y
     assert numpy.isclose(y_1 + y_2, 1.5, atol=1e-10)
