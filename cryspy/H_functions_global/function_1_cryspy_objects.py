@@ -108,6 +108,9 @@ from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
     DensityPointL
 
+from cryspy.C_item_loop_classes.cl_1_constraint import Constraint, \
+    ConstraintL
+
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
@@ -126,7 +129,7 @@ L_ITEM_CLASS.extend([
     AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater,
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
     AtomSiteSusceptibility, AtomSiteExchange, AtomType, AtomTypeScat,
-    Cell, ChannelAni, ChannelCol, Chi2,
+    Cell, ChannelAni, ChannelCol, Chi2, Constraint,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
     Exclude, Extinction, MEMParameters, InversedHessian,
     JanaTwin,
@@ -144,7 +147,7 @@ L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
     AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomTypeL, AtomTypeScatL,
-    CellL, ChannelAniL, ChannelColL, Chi2L,
+    CellL, ChannelAniL, ChannelColL, Chi2L, ConstraintL,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
     ExtinctionL, ExcludeL, MEMParametersL,
     JanaTwinL,

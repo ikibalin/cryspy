@@ -106,6 +106,37 @@ _atom_site_moment_crystalaxis_y  2.1()a     # always equal to the x component
 _atom_site_moment_crystalaxis_z -2.1()a-    # always the opposite
 ```
 
+A linear constraint between different marks, for example a sum of two
+occupancies equal to 1, is written in the loop `constraint` of the global
+object; the equation holds exactly during the refinement:
+
+```text
+global_
+
+loop_
+_constraint_id
+_constraint_expression
+1 "x+y=1"
+
+data_fe_co
+...
+loop_
+_atom_site_label
+_atom_site_occupancy
+Fe1  0.7()x
+Co1  0.3()y
+```
+
+An expression may use numbers, marks, `+`, `-`, `*` and `/` by numbers and
+parentheses (`"2*a-b=0"`).
+
+A constraint with `_constraint_sigma` is soft (a restraint): `f = g` adds
+`((f-g)/sigma)**2` to chi-square and may be any formula of the marks
+(`**`, `sqrt`, `exp`, `log`, `abs`, `sin`, `cos`, `tan`, `sind`, `cosd`),
+for example `"sqrt(a**2+b**2)=2.5"` with sigma `0.05`; a hard constraint has
+`.` as its sigma. In CrysPy Editor the right-click menu of the object tree
+has "Add constraint...", with the check box "Soft constraint" for a soft one.
+
 Marks are also the names of the parameters in a punishment function: a
 Python expression in `_punishment_function` that is added to chi-square
 (for example a soft restraint `"(a-2.0)**2"`).

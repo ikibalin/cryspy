@@ -11,6 +11,8 @@ from .rhochi_pd import calc_chi_sq_for_pd_by_dictionary
 from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
+from cryspy.A_functions_base.linear_constraints import \
+    calc_dependent_parameters, calc_soft_constraint_chi_sq, form_linear_system
 from cryspy.exceptions import RefinementError
 
 logger = logging.getLogger(__name__)
@@ -67,7 +69,64 @@ def calc_punishement_function(dict_obj):
             way = d_marked[mark]
             d_value[mark] = dict_obj[way[0]][way[1]][way[2]]
         chi_sq_punishement += eval(expression, {}, d_value)
+    # soft constraints of the constraint loop: ((lhs - rhs)/sigma)**2
+    for expression, sigma, d_mark_way in dict_obj.get("soft_constraints", []):
+        d_value = {mark: sign * dict_obj[way[0]][way[1]][way[2]]
+                   for mark, (sign, way) in d_mark_way.items()}
+        chi_sq_punishement += calc_soft_constraint_chi_sq(expression, sigma, d_value)
     return chi_sq_punishement
+
+
+def take_linear_equations(global_dict: dict, parameter_names: list) -> list:
+    """Equations ``([(coeff, way), ...], const)`` between the refined
+    parameters: equal marks (``a``, ``a-``) and the constraint loop
+    (``x+y=1``)."""
+    l_equation = []
+    for (coeff_1, name_1), (coeff_2, name_2) in global_dict.get("linear_constraints", []):
+        l_equation.append(([(coeff_1, name_1), (coeff_2, name_2)], 0.))
+    l_equation.extend(global_dict.get("linear_equations", []))
+    for l_term, const in l_equation:
+        for coeff, name in l_term:
+            if name not in parameter_names:
+                raise RefinementError(
+                    f"The constrained parameter {name:} is not refined.")
+    return l_equation
+
+
+def split_parameters_by_constraints(global_dict: dict, parameter_names: list):
+    """Free and dependent refined parameters.
+
+    Returns
+    -------
+    names_free, names_dep : list
+        Ways of the free and of the dependent parameters.
+    matrix_m : numpy.ndarray
+        Shape (n_dep, n_free): ``p_dep = vector_c + matrix_m p_free``.
+    vector_c : numpy.ndarray
+        Shape (n_dep,).
+    """
+    l_equation = take_linear_equations(global_dict, parameter_names)
+    if len(l_equation) == 0:
+        return (list(parameter_names), [],
+                numpy.zeros((0, len(parameter_names)), dtype=float),
+                numpy.zeros((0,), dtype=float))
+    matrix_a, vector_b = form_linear_system(l_equation, list(parameter_names))
+    try:
+        index_free, index_dep, matrix_m, vector_c = calc_dependent_parameters(matrix_a, vector_b)
+    except ValueError as error:
+        raise RefinementError(f"Constraints cannot be applied: {error:}.") from None
+    names_free = [parameter_names[ind] for ind in index_free]
+    names_dep = [parameter_names[ind] for ind in index_dep]
+    return names_free, names_dep, matrix_m, vector_c
+
+
+def set_dependent_parameters(global_dict: dict, names_dep: list, matrix_m, vector_c, param_free):
+    """Write the dependent parameters calculated from the free ones."""
+    if len(names_dep) == 0:
+        return
+    param_dep = vector_c + matrix_m.dot(numpy.asarray(param_free, dtype=float))
+    for way, param in zip(names_dep, param_dep):
+        global_dict[way[0]][way[1]][way[2]] = param
 
 
 def calc_shift_p_by_constraints_hamilton(delta_p, dder_chi_sq, matrix_q):
@@ -112,9 +171,18 @@ class _RefinementStopped(Exception):
     """Raised inside the minimizer when the progress callback asks to stop."""
 
 
+def form_parameter_name(way: tuple, parameter_paths: dict = None) -> str:
+    """Path of the parameter for the log, or its way
+    ('crystal_fe, atom_occupancy, (0,)') when the path is unknown."""
+    way_sh = (way[0], way[1], tuple(int(hh) for hh in way[2]))
+    if parameter_paths is not None and way_sh in parameter_paths:
+        return parameter_paths[way_sh]
+    return f"{way_sh[0]:}, {way_sh[1]:}, {way_sh[2]:}"
+
+
 def rhochi_rietveld_refinement_by_dictionary(
         global_dict: dict, method: str = "BFGS", callback: Callable = None,
-        *, progress_callback: Callable = None):
+        *, progress_callback: Callable = None, parameter_paths: dict = None):
     """Refine the parameters of global_dict by minimization of chi_sq.
 
     Parameters
@@ -138,6 +206,9 @@ def rhochi_rietveld_refinement_by_dictionary(
         Returning ``False`` stops the refinement; the parameters of the
         last completed iteration are kept and ``res["stopped"]`` is True.
         Any other return value (``None`` too) continues the refinement.
+    parameter_paths : dict, optional
+        Readable names of the parameters in the log: way -> path
+        (``cryspy.procedure_assistant.parameters.take_dict_paths``).
 
     Returns
     -------
@@ -159,20 +230,10 @@ def rhochi_rietveld_refinement_by_dictionary(
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
 
 
-    if "linear_constraints" in global_dict.keys():
-        linear_constraints = global_dict["linear_constraints"]
-        # try:
-        #     matrix_q = form_matrix_q(linear_constraints, parameter_names)
-        #     lb = numpy.zeros((matrix_q.shape[0],), dtype=float)
-        #     ub = numpy.zeros((matrix_q.shape[0],), dtype=float)
-        #     linear_constraint = scipy.optimize.LinearConstraint(matrix_q, lb, ub)
-        # except ValueError:
-        #     print(f"User constraints are not used.")
-    else:
-        linear_constraints = []
-
-    parameter_names_fixed = [linear_constraint[1][1] for linear_constraint in linear_constraints]
-    parameter_names_free = [way for way  in parameter_names if not(way in parameter_names_fixed)]
+    # equal marks and the constraint loop: the dependent parameters are
+    # calculated from the free ones
+    parameter_names_free, parameter_names_fixed, matrix_m, vector_c = \
+        split_parameters_by_constraints(global_dict, parameter_names)
     param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names_free]
     logger.info(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.")
     if len(param_0) == 0:
@@ -183,12 +244,12 @@ def rhochi_rietveld_refinement_by_dictionary(
         return chi_sq, parameter_names, dict_in_out, res
     logger.info(f"Number of fitting parameters {len(param_0):}")
     for name, val in zip(parameter_names_free, param_0):
-        logger.info(f" - {name:}  {val:.5f}")
+        logger.info(f" - {form_parameter_name(name, parameter_paths):} {val:.5f}")
 
     if len(parameter_names_fixed) >0:
         logger.info("Number of constrained parameters:")
     for name in parameter_names_fixed:
-        logger.info(f" - {name:}")
+        logger.info(f" - {form_parameter_name(name, parameter_paths):}")
 
 
     flag_use_precalculated_data = True
@@ -198,13 +259,7 @@ def rhochi_rietveld_refinement_by_dictionary(
     def tempfunc(l_param):
         for way, param in zip(parameter_names_free, l_param):
             global_dict[way[0]][way[1]][way[2]] = param
-        # linear constraint on one parameter (temporary solution)
-        for linear_constraint in linear_constraints:
-            first_name = linear_constraint[0][1]
-            second_name = linear_constraint[1][1]
-            coeff = -linear_constraint[1][0]/linear_constraint[0][0]
-            constr_param = coeff*l_param[parameter_names_free.index(first_name)]
-            global_dict[second_name[0]][second_name[1]][second_name[2]] = constr_param
+        set_dependent_parameters(global_dict, parameter_names_fixed, matrix_m, vector_c, l_param)
 
         chi_sq = rhochi_calc_chi_sq_by_dictionary(
             global_dict,

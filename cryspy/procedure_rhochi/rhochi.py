@@ -15,9 +15,12 @@ from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian, in
 
 from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
-    rhochi_calc_chi_sq_by_dictionary
+    rhochi_calc_chi_sq_by_dictionary, split_parameters_by_constraints, \
+    set_dependent_parameters, calc_punishement_function
 
 import cryspy
+from cryspy.procedure_assistant.parameters import (
+    is_number, take_dict_paths, take_parameter_records)
 
 from cryspy.A_functions_base.progress import PROGRESS
 
@@ -109,7 +112,8 @@ def rhochi_rietveld_refinement_with_parameters(
         DICT_PARAMS["iteration"] = 0
         chi_sq, parameter_name, dict_in_out, res = rhochi_rietveld_refinement_by_dictionary(
             obj_dict, method=optimization_method, callback=_f_callback,
-            progress_callback=callback)
+            progress_callback=callback,
+            parameter_paths=take_dict_paths(cryspy_object, obj_dict))
         flag_stopped = bool(res.get("stopped", False))
         dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name, "stopped": flag_stopped}
         if "hess_inv" in res.keys():
@@ -144,18 +148,31 @@ def rhochi_rietveld_refinement_with_parameters(
         cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
     
-    var_names = cryspy_object.get_variable_names()
-    if len(var_names) > 0:
-        logger.info("Optimal parameters:")
-    for name in var_names:
-        value = cryspy_object.get_variable_by_name(name)
-        logger.info(f" - {name[-1][0]:} {value:.5f}")
-    
     if flag_stopped:
+        log_refined_parameters(cryspy_object)
         return dict_out
     logger.info("Errors are estimating by numerical derivatives.")
     rhochi_inversed_hessian(cryspy_object)
+    log_refined_parameters(cryspy_object)
     return dict_out
+
+
+def log_refined_parameters(cryspy_object: GlobalN):
+    """Log the refined parameters by their full paths
+    ('crystal_fe.atom_site[Fe1].occupancy'), with sigmas and marks."""
+    l_record = [record for record in take_parameter_records(cryspy_object)
+                if record.flag_refinement]
+    if len(l_record) == 0:
+        return
+    logger.info("Optimal parameters:")
+    for record in l_record:
+        mark = str(getattr(record.item, f"{record.attribute:}_mark", ""))
+        s_mark = f" [{mark:}]" if mark != "" else ""
+        if is_number(record.value):
+            s_value = f"{record.value:.5f} ± {record.sigma:.5f}"
+        else:
+            s_value = str(record.value)
+        logger.info(f" - {record.path:} {s_value:}{s_mark:}")
 
 
 def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
@@ -215,22 +232,36 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
     
-    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names]
+    # constrained parameters (equal marks, constraint loop) follow the free ones
+    names_free, names_dep, matrix_m, vector_c = split_parameters_by_constraints(
+        global_dict, parameter_names)
+    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in names_free]
 
     flag_use_precalculated_data = True
     def tempfunc(l_param):
-        for way, param in zip(parameter_names, l_param):
+        for way, param in zip(names_free, l_param):
             global_dict[way[0]][way[1]][way[2]] = param
+        set_dependent_parameters(global_dict, names_dep, matrix_m, vector_c, l_param)
         chi_sq = rhochi_calc_chi_sq_by_dictionary(
             global_dict,
             dict_in_out=dict_in_out,
             flag_use_precalculated_data=flag_use_precalculated_data,
             flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)[0]
-        return chi_sq
+        # restraints narrow the errors as they narrow the minimum
+        return chi_sq + calc_punishement_function(global_dict)
 
     hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
-    if (numpy.all(hess_inv == numpy.zeros_like(hess_inv)) or (hess_inv is None)):
+    if (hess_inv is None) or numpy.all(hess_inv == numpy.zeros_like(hess_inv)):
         return 
+    if len(names_dep) > 0:
+        # covariance of all parameters: p = J p_free
+        jacobian = numpy.zeros((len(parameter_names), len(names_free)), dtype=float)
+        for i_name, name in enumerate(parameter_names):
+            if name in names_free:
+                jacobian[i_name, names_free.index(name)] = 1.
+            else:
+                jacobian[i_name] = matrix_m[names_dep.index(name)]
+        hess_inv = jacobian.dot(hess_inv).dot(jacobian.transpose())
     corr_matrix, sigmas = inversed_hessian_to_correlation(hess_inv) 
     global_object.take_parameters_from_dictionary(
         global_dict, l_parameter_name = parameter_names, l_sigma=sigmas)
