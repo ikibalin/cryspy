@@ -10,6 +10,9 @@ F_NAME = os.path.join(os.path.dirname(__file__), "twin_tbte3", "main.rcif")
 
 def test_refinement_keeps_linear_constraint():
     obj = cryspy.load_file(F_NAME)
+    # only the two coordinates: the extinction radius 0 of the file makes
+    # the Hessian of all parameters singular
+    obj.fix_variables()
     cryspy.add_constraint(obj, "y1 + y2 = 1.5", {
         "y1": "tbte3.atom_site[Te1].fract_y", "y2": "tbte3.atom_site[Te2].fract_y"})
     atom_site = obj.crystal_tbte3.atom_site
