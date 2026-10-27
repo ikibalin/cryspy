@@ -53,6 +53,8 @@ from cryspy.procedure_assistant.history import (
     form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
+from cryspy.procedure_assistant.constraints import (
+    add_constraint, take_constraints, take_marked_parameters)
 from cryspy.procedure_assistant.parameters import (
     explain_value_words, find_parameter_records, suggest_parameter_names, take_parameter_record,
     take_parameter_records)
@@ -318,6 +320,42 @@ def tool_set_parameter(cryspy_object, path: str, value: float) -> str:
     record.set_value(value)
     return (f"{record.path:}: {format_value(old_value):} -> "
             f"{format_value(record.value):}")
+
+
+def parse_mark_paths(parameters: str) -> Dict[str, str]:
+    """'x=path_1, y=path_2' (or 'x: path_1; y: path_2') -> {'x': path_1, ...}."""
+    d_mark_path = {}
+    for part in re.split(r"\s*[,;\n]\s*", parameters.strip()):
+        if part == "":
+            continue
+        l_mark_path = re.split(r"\s*[=:]\s*", part, maxsplit=1)
+        if len(l_mark_path) != 2:
+            raise ValueError(f"'{part:}' is not 'mark=path'")
+        d_mark_path[l_mark_path[0]] = l_mark_path[1]
+    return d_mark_path
+
+
+def tool_list_constraints(cryspy_object) -> str:
+    l_expression = take_constraints(cryspy_object)
+    l_marked = [d_par for d_par in take_marked_parameters(cryspy_object) if d_par["mark"] != ""]
+    ls_out = ["Constraints:"] + [f"  {expression:}" for expression in l_expression]
+    if len(l_expression) == 0:
+        ls_out = ["No constraints."]
+    if len(l_marked) > 0:
+        ls_out.append("Marked parameters:")
+        ls_out.extend(f"  {d_par['mark']:} = {d_par['path']:} ({format_value(d_par['value']):})"
+                      for d_par in l_marked)
+    return "\n".join(ls_out)
+
+
+def tool_add_constraint(cryspy_object, expression: str, parameters: str = "",
+                        sigma: Optional[float] = None) -> str:
+    try:
+        d_mark_path = parse_mark_paths(parameters)
+        item = add_constraint(cryspy_object, expression, d_mark_path, sigma=sigma)
+    except ValueError as error:
+        return f"Error: {error:}"
+    return f"Constraint {item.id:} added: {item.expression:}\n" + tool_list_constraints(cryspy_object)
 
 
 def tool_calculate(cryspy_object, flag_model_change: bool = False) -> dict:
@@ -877,6 +915,28 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         {"path": {"type": "string", "description": "Path from list_attributes."},
          "value": {"type": "string", "description": "New value."}},
         required=("path", "value"), flag_object_changed=True),
+    AssistantTool(
+        "list_constraints",
+        "List the constraints between refined parameters (x+y=1, hard or soft) and "
+        "the marks of the parameters used in them.",
+        tool_list_constraints),
+    AssistantTool(
+        "add_constraint",
+        "Add a constraint between refined parameters, e.g. 'x+y=1' "
+        "to keep the sum of two occupancies; the parameters are named by "
+        "marks, given in 'parameters' as 'x=path_1, y=path_2' (they are "
+        "refined then). Without sigma the equation is linear and holds "
+        "exactly; with sigma it is soft (restraint, any formula of the marks).",
+        tool_add_constraint,
+        {"expression": {"type": "string",
+                        "description": "Linear equation of the marks: 'x+y=1', '2*a-b=0'."},
+         "parameters": {"type": "string",
+                        "description": ("Marks of the parameters: 'x=crystal_fe.atom_site[Fe1].occupancy, "
+                                        "y=crystal_fe.atom_site[Co1].occupancy'; empty if "
+                                        "the parameters are marked already.")},
+         "sigma": {"type": "number",
+                   "description": "Allowed deviation of a soft constraint; omit for a hard one."}},
+        required=("expression", ), flag_object_changed=True),
     AssistantTool(
         "show_item",
         "Show in rcif format one data block, category (item or loop) or one item of a loop; "

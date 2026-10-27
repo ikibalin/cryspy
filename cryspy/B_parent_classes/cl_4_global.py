@@ -1,19 +1,53 @@
 """Parent class DataN."""
 import os
+import numpy
 import os.path
 from warnings import warn
 from typing import Union, NoReturn
 from pycifstar import Global, to_global
 
 from cryspy.A_functions_base.function_1_markdown import md_to_html
+from cryspy.A_functions_base.linear_constraints import parse_soft_constraint
 from cryspy.A_functions_base.function_1_objects import \
     get_functions_of_objet, get_table_html_for_variables
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError
+from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError, RcifFormatError
 from cryspy.B_parent_classes.cl_3_data import DataN
 
+
+
+def find_changed_dict_name(block, block_name: str, d_before: dict, set_value, value: float):
+    """Way (block name, key, index) of a refined parameter of the data
+    block in its dictionary d_before, None if it is not found.
+
+    set_value(new_value) changes the parameter a little, and the refined
+    entry of the dictionary of the block that changes with it is the way;
+    the value is restored afterwards.
+    """
+    # both directions: a value at its limit (occupancy 1) cannot grow
+    for sign in (1., -1.):
+        try:
+            set_value(value + sign * 0.01 * (abs(value) + 1.))
+            d_after = block.get_dictionary()
+        finally:
+            set_value(value)
+        for key, flags in d_before.items():
+            if not key.startswith("flags_") or key[len("flags_"):] not in d_before:
+                continue
+            key_value = key[len("flags_"):]
+            try:
+                array_before = numpy.asarray(d_before[key_value], dtype=float)
+                array_after = numpy.asarray(d_after[key_value], dtype=float)
+                flag_changed = numpy.logical_and(
+                    numpy.asarray(flags, dtype=bool), array_before != array_after)
+            except (KeyError, TypeError, ValueError):
+                continue
+            l_index = numpy.argwhere(flag_changed)
+            if len(l_index) > 0:
+                return (block_name, key_value, tuple(int(hh) for hh in l_index[0]))
+    return None
 
 class GlobalN(object):
     """Data container of data bloks, loops and items."""
@@ -586,6 +620,14 @@ class GlobalN(object):
 
         mark_names = [hh[:-1] + ((f"{hh[-1][0]:}_mark", hh[-1][1]), ) for hh in variable_names]
         marks = [self.get_variable_by_name(hh) for hh in mark_names]
+        # the table of transfer_cif_names_to_dict_names does not know every
+        # parameter (occupancy, cell lengths, ...): marked parameters are
+        # found in the dictionary of their data block
+        for ind, (variable_name, mark) in enumerate(zip(variable_names, marks)):
+            if mark != "":
+                dict_name = self.find_dict_name(variable_name, dict_out)
+                if dict_name is not None:
+                    dict_names[ind] = dict_name
         constraint_labels = [hh.rstrip("-+") for hh in marks]
         linear_constraints = []
         for constraint_label in set(constraint_labels).difference([""]):
@@ -607,6 +649,11 @@ class GlobalN(object):
                     linear_constraints.append([(coeff_1, name_1), (coeff_2, name_2)])
         if len(linear_constraints) > 0:
             dict_out["linear_constraints"] = linear_constraints
+        linear_equations, soft_constraints = self.get_constraints(marks, dict_names)
+        if len(linear_equations) > 0:
+            dict_out["linear_equations"] = linear_equations
+        if len(soft_constraints) > 0:
+            dict_out["soft_constraints"] = soft_constraints
         try:
             expression = self.punishment.function
             d_marked = {}
@@ -621,6 +668,82 @@ class GlobalN(object):
         return dict_out
 
 
+
+    def find_dict_name(self, variable_name: tuple, dict_global: dict):
+        """Way (block name, key, index) of a refined parameter in the
+        dictionary of the object, None if it is not found.
+
+        The value is changed a little, and the refined entry of the
+        dictionary of its data block that changes with it is the way.
+        """
+        block_name = "_".join(str(hh) for hh in variable_name[1] if hh not in (None, ""))
+        if block_name not in dict_global:
+            return None
+        l_block = [item for item in self.items if item.get_name() == block_name]
+        if len(l_block) != 1:
+            return None
+        value = self.get_variable_by_name(variable_name)
+        return find_changed_dict_name(
+            l_block[0], block_name, dict_global[block_name],
+            lambda new_value: self.set_variable_by_name(variable_name, new_value), value)
+
+    def get_constraints(self, marks: list, dict_names: list):
+        """Constraints of the constraint loops.
+
+        Returns
+        -------
+        linear_equations : list
+            Hard constraints (x+y=1) as ``[([(coeff, dict_name), ...], const), ...]``.
+        soft_constraints : list
+            Soft constraints as ``[(expression, sigma, {mark: (sign, dict_name)}), ...]``.
+
+        marks and dict_names belong to the refined parameters. A mark
+        ``a`` names the first refined value marked ``a``; when only
+        ``a-`` is written, the value is the opposite of ``a``.
+        """
+        d_mark_name = {}
+        for mark, dict_name in zip(marks, dict_names):
+            if mark == "":
+                continue
+            label = mark.rstrip("-+")
+            sign = -1. if mark.endswith("-") else 1.
+            if label not in d_mark_name or (d_mark_name[label][0] < 0. and sign > 0.):
+                d_mark_name[label] = (sign, dict_name)
+
+        def check_marks(constraint, l_label):
+            l_unknown = [label for label in l_label if label not in d_mark_name]
+            if len(l_unknown) > 0:
+                raise RcifFormatError(
+                    f"_constraint_expression '{constraint.expression:}': "
+                    f"no refined value is marked {', '.join(l_unknown):} "
+                    "(write the mark after the parentheses, e.g. 0.5()x)")
+
+        linear_equations, soft_constraints = [], []
+        for item in self.items:
+            if not callable(type(item).__dict__.get("get_linear_equations")):
+                continue
+            for constraint in item.items:
+                try:
+                    if constraint.is_soft():
+                        if not constraint.sigma > 0.:
+                            raise ValueError("sigma must be positive")
+                        l_label = parse_soft_constraint(constraint.expression)[1]
+                    else:
+                        d_coeff, const = constraint.get_linear_equation()
+                        l_label = list(d_coeff)
+                except ValueError as error:
+                    raise RcifFormatError(
+                        f"_constraint_expression '{constraint.expression:}': {error:}") from None
+                check_marks(constraint, l_label)
+                if constraint.is_soft():
+                    soft_constraints.append((
+                        constraint.expression, float(constraint.sigma),
+                        {label: d_mark_name[label] for label in l_label}))
+                else:
+                    l_term = [(coeff * d_mark_name[label][0], d_mark_name[label][1])
+                              for label, coeff in d_coeff.items()]
+                    linear_equations.append((l_term, const))
+        return linear_equations, soft_constraints
 
     def take_parameters_from_dictionary(self, dict_global, l_parameter_name: list=None, l_sigma: list=None):
         keys = dict_global.keys()
