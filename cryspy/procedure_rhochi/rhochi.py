@@ -19,7 +19,7 @@ from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     set_dependent_parameters, calc_punishement_function
 
 import cryspy
-from cryspy.procedure_assistant.parameters import take_parameter_records
+from cryspy.procedure_assistant.parameters import take_dict_paths, take_parameter_records
 
 from cryspy.A_functions_base.progress import PROGRESS
 
@@ -111,7 +111,8 @@ def rhochi_rietveld_refinement_with_parameters(
         DICT_PARAMS["iteration"] = 0
         chi_sq, parameter_name, dict_in_out, res = rhochi_rietveld_refinement_by_dictionary(
             obj_dict, method=optimization_method, callback=_f_callback,
-            progress_callback=callback)
+            progress_callback=callback,
+            parameter_paths=take_dict_paths(cryspy_object, obj_dict))
         flag_stopped = bool(res.get("stopped", False))
         dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name, "stopped": flag_stopped}
         if "hess_inv" in res.keys():

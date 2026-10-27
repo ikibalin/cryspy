@@ -5,6 +5,7 @@ import os
 import numpy
 
 import cryspy
+from cryspy.procedure_assistant.parameters import take_dict_paths
 
 F_NAME = os.path.join(os.path.dirname(__file__), "twin_tbte3", "main.rcif")
 
@@ -22,6 +23,11 @@ def test_refinement_keeps_linear_constraint(caplog):
 
     with caplog.at_level(logging.INFO, logger="cryspy"):
         cryspy.rhochi_rietveld_refinement(obj)
+    l_message = [record.getMessage() for record in caplog.records]
+    # fitting and constrained parameters are logged by their full paths
+    i_fit = l_message.index("Number of fitting parameters 1")
+    assert l_message[i_fit + 1].startswith(" - crystal_tbte3.atom_site[Te1].fract_y ")
+    assert " - crystal_tbte3.atom_site[Te2].fract_y" in l_message
     # optimal parameters are logged by their full paths and marks
     assert any(record.getMessage().startswith(" - crystal_tbte3.atom_site[Te2].fract_y ")
                and record.getMessage().endswith("[y2]") for record in caplog.records)
@@ -50,3 +56,21 @@ def test_refinement_with_soft_constraint():
     # lets the data decide
     assert abs(refine(1e-5) - 1.5) < 1e-3
     assert refine(1e-2) > 1.55
+
+
+def test_dict_paths_of_refined_parameters():
+    obj = cryspy.load_file(F_NAME)
+    obj.fix_variables()
+    crystal = obj.crystal_tbte3
+    crystal.atom_site["Te1"].occupancy_refinement = True
+    crystal.atom_site["Te2"].fract_y_refinement = True
+    crystal.cell.length_c_refinement = True
+    value_before = crystal.atom_site["Te1"].occupancy
+    d_path = take_dict_paths(obj, obj.get_dictionary())
+    assert sorted(d_path.values()) == [
+        "crystal_tbte3.atom_site[Te1].occupancy", "crystal_tbte3.atom_site[Te2].fract_y",
+        "crystal_tbte3.cell.length_c"]
+    # the ways are those of the refinement
+    assert d_path[("crystal_tbte3", "unit_cell_parameters", (2, ))] == "crystal_tbte3.cell.length_c"
+    # values are restored after the search
+    assert numpy.isclose(crystal.atom_site["Te1"].occupancy, value_before, rtol=0., atol=1e-12)

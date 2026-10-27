@@ -17,6 +17,38 @@ from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError, RcifFormatEr
 from cryspy.B_parent_classes.cl_3_data import DataN
 
 
+
+def find_changed_dict_name(block, block_name: str, d_before: dict, set_value, value: float):
+    """Way (block name, key, index) of a refined parameter of the data
+    block in its dictionary d_before, None if it is not found.
+
+    set_value(new_value) changes the parameter a little, and the refined
+    entry of the dictionary of the block that changes with it is the way;
+    the value is restored afterwards.
+    """
+    # both directions: a value at its limit (occupancy 1) cannot grow
+    for sign in (1., -1.):
+        try:
+            set_value(value + sign * 0.01 * (abs(value) + 1.))
+            d_after = block.get_dictionary()
+        finally:
+            set_value(value)
+        for key, flags in d_before.items():
+            if not key.startswith("flags_") or key[len("flags_"):] not in d_before:
+                continue
+            key_value = key[len("flags_"):]
+            try:
+                array_before = numpy.asarray(d_before[key_value], dtype=float)
+                array_after = numpy.asarray(d_after[key_value], dtype=float)
+                flag_changed = numpy.logical_and(
+                    numpy.asarray(flags, dtype=bool), array_before != array_after)
+            except (KeyError, TypeError, ValueError):
+                continue
+            l_index = numpy.argwhere(flag_changed)
+            if len(l_index) > 0:
+                return (block_name, key_value, tuple(int(hh) for hh in l_index[0]))
+    return None
+
 class GlobalN(object):
     """Data container of data bloks, loops and items."""
 
@@ -650,30 +682,10 @@ class GlobalN(object):
         l_block = [item for item in self.items if item.get_name() == block_name]
         if len(l_block) != 1:
             return None
-        block, d_before = l_block[0], dict_global[block_name]
         value = self.get_variable_by_name(variable_name)
-        # both directions: a value at its limit (occupancy 1) cannot grow
-        for sign in (1., -1.):
-            try:
-                self.set_variable_by_name(variable_name, value + sign * 0.01 * (abs(value) + 1.))
-                d_after = block.get_dictionary()
-            finally:
-                self.set_variable_by_name(variable_name, value)
-            for key, flags in d_before.items():
-                if not key.startswith("flags_") or key[len("flags_"):] not in d_before:
-                    continue
-                key_value = key[len("flags_"):]
-                try:
-                    array_before = numpy.asarray(d_before[key_value], dtype=float)
-                    array_after = numpy.asarray(d_after[key_value], dtype=float)
-                    flag_changed = numpy.logical_and(
-                        numpy.asarray(flags, dtype=bool), array_before != array_after)
-                except (KeyError, TypeError, ValueError):
-                    continue
-                l_index = numpy.argwhere(flag_changed)
-                if len(l_index) > 0:
-                    return (block_name, key_value, tuple(int(hh) for hh in l_index[0]))
-        return None
+        return find_changed_dict_name(
+            l_block[0], block_name, dict_global[block_name],
+            lambda new_value: self.set_variable_by_name(variable_name, new_value), value)
 
     def get_constraints(self, marks: list, dict_names: list):
         """Constraints of the constraint loops.

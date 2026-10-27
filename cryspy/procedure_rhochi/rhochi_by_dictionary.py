@@ -171,9 +171,18 @@ class _RefinementStopped(Exception):
     """Raised inside the minimizer when the progress callback asks to stop."""
 
 
+def form_parameter_name(way: tuple, parameter_paths: dict = None) -> str:
+    """Path of the parameter for the log, or its way
+    ('crystal_fe, atom_occupancy, (0,)') when the path is unknown."""
+    way_sh = (way[0], way[1], tuple(int(hh) for hh in way[2]))
+    if parameter_paths is not None and way_sh in parameter_paths:
+        return parameter_paths[way_sh]
+    return f"{way_sh[0]:}, {way_sh[1]:}, {way_sh[2]:}"
+
+
 def rhochi_rietveld_refinement_by_dictionary(
         global_dict: dict, method: str = "BFGS", callback: Callable = None,
-        *, progress_callback: Callable = None):
+        *, progress_callback: Callable = None, parameter_paths: dict = None):
     """Refine the parameters of global_dict by minimization of chi_sq.
 
     Parameters
@@ -197,6 +206,9 @@ def rhochi_rietveld_refinement_by_dictionary(
         Returning ``False`` stops the refinement; the parameters of the
         last completed iteration are kept and ``res["stopped"]`` is True.
         Any other return value (``None`` too) continues the refinement.
+    parameter_paths : dict, optional
+        Readable names of the parameters in the log: way -> path
+        (``cryspy.procedure_assistant.parameters.take_dict_paths``).
 
     Returns
     -------
@@ -232,12 +244,12 @@ def rhochi_rietveld_refinement_by_dictionary(
         return chi_sq, parameter_names, dict_in_out, res
     logger.info(f"Number of fitting parameters {len(param_0):}")
     for name, val in zip(parameter_names_free, param_0):
-        logger.info(f" - {name:}  {val:.5f}")
+        logger.info(f" - {form_parameter_name(name, parameter_paths):} {val:.5f}")
 
     if len(parameter_names_fixed) >0:
         logger.info("Number of constrained parameters:")
     for name in parameter_names_fixed:
-        logger.info(f" - {name:}")
+        logger.info(f" - {form_parameter_name(name, parameter_paths):}")
 
 
     flag_use_precalculated_data = True

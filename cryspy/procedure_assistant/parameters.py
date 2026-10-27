@@ -18,7 +18,7 @@ from typing import List, Optional
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
-from cryspy.B_parent_classes.cl_4_global import GlobalN
+from cryspy.B_parent_classes.cl_4_global import GlobalN, find_changed_dict_name
 
 L_LABEL_ATTRIBUTES = ("label", "atom_label", "id")
 
@@ -162,6 +162,41 @@ def take_parameter_records(cryspy_object) -> List[ParameterRecord]:
         l_record.extend(form_block_records(cryspy_object, ""))
     return l_record
 
+
+
+def take_dict_paths(cryspy_object, dict_global: dict) -> dict:
+    """Paths of the refined parameters by their ways in the dictionary.
+
+    Parameters
+    ----------
+    cryspy_object : GlobalN
+        Object with the crystals and the experiments.
+    dict_global : dict
+        Its dictionary (``cryspy_object.get_dictionary()``).
+
+    Returns
+    -------
+    dict
+        Way (block name, key, index) -> path
+        ('crystal_fe.atom_site[Fe1].occupancy'), for the refinement log.
+    """
+    d_path = {}
+    if not isinstance(cryspy_object, GlobalN):
+        return d_path
+    for data in cryspy_object.items:
+        if not isinstance(data, DataN) or data.get_name() not in dict_global:
+            continue
+        data_name = data.get_name()
+        for block in data.items:
+            for record in form_block_records(block, data_name):
+                if not record.flag_refinement:
+                    continue
+                way = find_changed_dict_name(
+                    data, data_name, dict_global[data_name], record.set_value,
+                    float(record.value))
+                if way is not None:
+                    d_path[way] = record.path
+    return d_path
 
 def form_path_regex(pattern: str):
     """Compile a path pattern: '*' is any text, otherwise a substring.
