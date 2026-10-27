@@ -113,3 +113,27 @@ def test_add_soft_constraint_and_dictionary():
     text = cryspy.call_assistant_tool(
         obj, "add_constraint", {"expression": "y1**2 = 0.86", "sigma": 0.001})["text"]
     assert "(sigma 0.001)" in text
+
+
+def test_marked_parameters_are_found_in_dictionary():
+    """Occupancies and cell lengths are not in the table of
+    transfer_cif_names_to_dict_names: their ways are found in the
+    dictionary of the data block (the refinement failed with
+    'The constrained parameter ... is not refined')."""
+    s_cont = open(F_NAME).read()
+    s_cont = s_cont.replace("Te1     Te   0.000000   0.928930   0.250000   1.0",
+                            "Te1     Te   0.000000   0.928930   0.250000   0.79()occ1")
+    s_cont = s_cont.replace("Te2     Te   0.000000   0.571030   0.250000   1.0",
+                            "Te2     Te   0.000000   0.571030   0.250000   1.0()occ2")
+    s_cont = s_cont.replace("_cell_length_c 4.290300", "_cell_length_c 4.290300()c")
+    s_cont = s_cont.replace("global_", 'global_\n\nloop_\n_constraint_id\n_constraint_expression\n'
+                            '1 "occ1+occ2=1"\n2 "c=4.3"\n', 1)
+    obj = cryspy.str_to_globaln(s_cont)
+    d_global = obj.get_dictionary()
+    assert d_global["linear_equations"] == [
+        ([(1., ("crystal_tbte3", "atom_occupancy", (1, ))),
+          (1., ("crystal_tbte3", "atom_occupancy", (2, )))], 1.),
+        ([(1., ("crystal_tbte3", "unit_cell_parameters", (2, )))], 4.3)]
+    # the object is not changed by the search
+    assert obj.crystal_tbte3.atom_site["Te2"].occupancy == 1.
+    assert obj.crystal_tbte3.cell.length_c == 4.2903

@@ -1,5 +1,6 @@
 """Parent class DataN."""
 import os
+import numpy
 import os.path
 from warnings import warn
 from typing import Union, NoReturn
@@ -587,6 +588,14 @@ class GlobalN(object):
 
         mark_names = [hh[:-1] + ((f"{hh[-1][0]:}_mark", hh[-1][1]), ) for hh in variable_names]
         marks = [self.get_variable_by_name(hh) for hh in mark_names]
+        # the table of transfer_cif_names_to_dict_names does not know every
+        # parameter (occupancy, cell lengths, ...): marked parameters are
+        # found in the dictionary of their data block
+        for ind, (variable_name, mark) in enumerate(zip(variable_names, marks)):
+            if mark != "":
+                dict_name = self.find_dict_name(variable_name, dict_out)
+                if dict_name is not None:
+                    dict_names[ind] = dict_name
         constraint_labels = [hh.rstrip("-+") for hh in marks]
         linear_constraints = []
         for constraint_label in set(constraint_labels).difference([""]):
@@ -627,6 +636,44 @@ class GlobalN(object):
         return dict_out
 
 
+
+    def find_dict_name(self, variable_name: tuple, dict_global: dict):
+        """Way (block name, key, index) of a refined parameter in the
+        dictionary of the object, None if it is not found.
+
+        The value is changed a little, and the refined entry of the
+        dictionary of its data block that changes with it is the way.
+        """
+        block_name = "_".join(str(hh) for hh in variable_name[1] if hh not in (None, ""))
+        if block_name not in dict_global:
+            return None
+        l_block = [item for item in self.items if item.get_name() == block_name]
+        if len(l_block) != 1:
+            return None
+        block, d_before = l_block[0], dict_global[block_name]
+        value = self.get_variable_by_name(variable_name)
+        # both directions: a value at its limit (occupancy 1) cannot grow
+        for sign in (1., -1.):
+            try:
+                self.set_variable_by_name(variable_name, value + sign * 0.01 * (abs(value) + 1.))
+                d_after = block.get_dictionary()
+            finally:
+                self.set_variable_by_name(variable_name, value)
+            for key, flags in d_before.items():
+                if not key.startswith("flags_") or key[len("flags_"):] not in d_before:
+                    continue
+                key_value = key[len("flags_"):]
+                try:
+                    array_before = numpy.asarray(d_before[key_value], dtype=float)
+                    array_after = numpy.asarray(d_after[key_value], dtype=float)
+                    flag_changed = numpy.logical_and(
+                        numpy.asarray(flags, dtype=bool), array_before != array_after)
+                except (KeyError, TypeError, ValueError):
+                    continue
+                l_index = numpy.argwhere(flag_changed)
+                if len(l_index) > 0:
+                    return (block_name, key_value, tuple(int(hh) for hh in l_index[0]))
+        return None
 
     def get_constraints(self, marks: list, dict_names: list):
         """Constraints of the constraint loops.
