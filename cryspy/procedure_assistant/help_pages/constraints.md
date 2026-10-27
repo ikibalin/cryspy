@@ -51,4 +51,4 @@ The assistant adds a constraint with the tool `add_constraint`, e.g.
 expression `x+y=1` and parameters
 `x=fe_co.atom_site[Fe1].occupancy, y=fe_co.atom_site[Co1].occupancy`
 (plus `sigma` for a soft one). In CrysPy Editor: right-click the object
-tree, "Add constraint..." or "Add soft constraint...".
+tree, "Add constraint..." (tick "Soft constraint" for a soft one).

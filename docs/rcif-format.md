@@ -135,7 +135,7 @@ A constraint with `_constraint_sigma` is soft (a restraint): `f = g` adds
 (`**`, `sqrt`, `exp`, `log`, `abs`, `sin`, `cos`, `tan`, `sind`, `cosd`),
 for example `"sqrt(a**2+b**2)=2.5"` with sigma `0.05`; a hard constraint has
 `.` as its sigma. In CrysPy Editor the right-click menu of the object tree
-has "Add constraint..." and "Add soft constraint...".
+has "Add constraint...", with the check box "Soft constraint" for a soft one.
 
 Marks are also the names of the parameters in a punishment function: a
 Python expression in `_punishment_function` that is added to chi-square
