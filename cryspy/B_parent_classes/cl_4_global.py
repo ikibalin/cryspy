@@ -6,6 +6,7 @@ from typing import Union, NoReturn
 from pycifstar import Global, to_global
 
 from cryspy.A_functions_base.function_1_markdown import md_to_html
+from cryspy.A_functions_base.linear_constraints import parse_soft_constraint
 from cryspy.A_functions_base.function_1_objects import \
     get_functions_of_objet, get_table_html_for_variables
 
@@ -607,9 +608,11 @@ class GlobalN(object):
                     linear_constraints.append([(coeff_1, name_1), (coeff_2, name_2)])
         if len(linear_constraints) > 0:
             dict_out["linear_constraints"] = linear_constraints
-        linear_equations = self.get_linear_equations(marks, dict_names)
+        linear_equations, soft_constraints = self.get_constraints(marks, dict_names)
         if len(linear_equations) > 0:
             dict_out["linear_equations"] = linear_equations
+        if len(soft_constraints) > 0:
+            dict_out["soft_constraints"] = soft_constraints
         try:
             expression = self.punishment.function
             d_marked = {}
@@ -625,9 +628,15 @@ class GlobalN(object):
 
 
 
-    def get_linear_equations(self, marks: list, dict_names: list) -> list:
-        """Linear constraints of the constraint loops (x+y=1) as
-        ``[([(coeff, dict_name), ...], const), ...]``.
+    def get_constraints(self, marks: list, dict_names: list):
+        """Constraints of the constraint loops.
+
+        Returns
+        -------
+        linear_equations : list
+            Hard constraints (x+y=1) as ``[([(coeff, dict_name), ...], const), ...]``.
+        soft_constraints : list
+            Soft constraints as ``[(expression, sigma, {mark: (sign, dict_name)}), ...]``.
 
         marks and dict_names belong to the refined parameters. A mark
         ``a`` names the first refined value marked ``a``; when only
@@ -641,21 +650,41 @@ class GlobalN(object):
             sign = -1. if mark.endswith("-") else 1.
             if label not in d_mark_name or (d_mark_name[label][0] < 0. and sign > 0.):
                 d_mark_name[label] = (sign, dict_name)
-        linear_equations = []
+
+        def check_marks(constraint, l_label):
+            l_unknown = [label for label in l_label if label not in d_mark_name]
+            if len(l_unknown) > 0:
+                raise RcifFormatError(
+                    f"_constraint_expression '{constraint.expression:}': "
+                    f"no refined value is marked {', '.join(l_unknown):} "
+                    "(write the mark after the parentheses, e.g. 0.5()x)")
+
+        linear_equations, soft_constraints = [], []
         for item in self.items:
             if not callable(type(item).__dict__.get("get_linear_equations")):
                 continue
-            for constraint, (d_coeff, const) in zip(item.items, item.get_linear_equations()):
-                l_unknown = [label for label in d_coeff if label not in d_mark_name]
-                if len(l_unknown) > 0:
+            for constraint in item.items:
+                try:
+                    if constraint.is_soft():
+                        if not constraint.sigma > 0.:
+                            raise ValueError("sigma must be positive")
+                        l_label = parse_soft_constraint(constraint.expression)[1]
+                    else:
+                        d_coeff, const = constraint.get_linear_equation()
+                        l_label = list(d_coeff)
+                except ValueError as error:
                     raise RcifFormatError(
-                        f"_constraint_expression '{constraint.expression:}': "
-                        f"no refined value is marked {', '.join(l_unknown):} "
-                        "(write the mark after the parentheses, e.g. 0.5()x)")
-                l_term = [(coeff * d_mark_name[label][0], d_mark_name[label][1])
-                          for label, coeff in d_coeff.items()]
-                linear_equations.append((l_term, const))
-        return linear_equations
+                        f"_constraint_expression '{constraint.expression:}': {error:}") from None
+                check_marks(constraint, l_label)
+                if constraint.is_soft():
+                    soft_constraints.append((
+                        constraint.expression, float(constraint.sigma),
+                        {label: d_mark_name[label] for label in l_label}))
+                else:
+                    l_term = [(coeff * d_mark_name[label][0], d_mark_name[label][1])
+                              for label, coeff in d_coeff.items()]
+                    linear_equations.append((l_term, const))
+        return linear_equations, soft_constraints
 
     def take_parameters_from_dictionary(self, dict_global, l_parameter_name: list=None, l_sigma: list=None):
         keys = dict_global.keys()

@@ -1,8 +1,10 @@
 """Linear constraints between refined parameters (``x + y = 2``).
 
 A constraint is written with the marks of the refined values, the letters
-after the parentheses in rcif (``0.7()x``). It is a linear equation:
-``sum_i c_i * p_i = b``.
+after the parentheses in rcif (``0.7()x``). A hard constraint is a linear
+equation ``sum_i c_i * p_i = b`` that holds exactly; a soft constraint
+(restraint) is any equation ``f(p) = g(p)`` that adds
+``((f - g) / sigma)**2`` to chi-square.
 """
 import ast
 from typing import Dict, List, Tuple
@@ -168,3 +170,100 @@ def form_linear_system(
             matrix_a[i_eq, parameter_names.index(name)] += coeff
         vector_b[i_eq] = const
     return matrix_a, vector_b
+
+
+D_SOFT_FUNCTIONS = {
+    "sqrt": numpy.sqrt, "exp": numpy.exp, "log": numpy.log, "abs": numpy.abs,
+    "sin": numpy.sin, "cos": numpy.cos, "tan": numpy.tan,
+    "sind": lambda x: numpy.sin(numpy.radians(x)),
+    "cosd": lambda x: numpy.cos(numpy.radians(x)),
+}
+D_SOFT_OPERATIONS = {
+    ast.Add: lambda a, b: a + b, ast.Sub: lambda a, b: a - b,
+    ast.Mult: lambda a, b: a * b, ast.Div: lambda a, b: a / b,
+    ast.Pow: lambda a, b: a ** b}
+
+
+def _check_soft_node(node, expression: str) -> set:
+    """Marks used in the node; ValueError for anything but numbers, marks,
+    + - * / **, parentheses and the functions of D_SOFT_FUNCTIONS."""
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) \
+            and not isinstance(node.value, bool):
+        return set()
+    if isinstance(node, ast.Name):
+        if node.id in D_SOFT_FUNCTIONS:
+            raise ValueError(f"'{node.id:}' is a function, write {node.id:}(...)")
+        return {node.id}
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
+        return _check_soft_node(node.operand, expression)
+    if isinstance(node, ast.BinOp) and type(node.op) in D_SOFT_OPERATIONS:
+        return _check_soft_node(node.left, expression) | _check_soft_node(node.right, expression)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) \
+            and node.func.id in D_SOFT_FUNCTIONS and len(node.args) == 1 \
+            and len(node.keywords) == 0:
+        return _check_soft_node(node.args[0], expression)
+    raise ValueError(f"'{ast.unparse(node):}' is not allowed in a constraint")
+
+
+def parse_soft_constraint(expression: str):
+    """Parse a soft constraint (restraint) ``f(marks) = g(marks)``.
+
+    Unlike a linear constraint, any arithmetic of the marks is allowed:
+    numbers, marks, ``+ - * / **``, parentheses and the functions
+    sqrt, exp, log, abs, sin, cos, tan (radians), sind, cosd (degrees).
+
+    Parameters
+    ----------
+    expression : str
+        Equation such as ``"x + y = 1"`` or ``"sqrt(a**2 + b**2) = 2.5"``;
+        without ``=`` the expression is equal to zero.
+
+    Returns
+    -------
+    node : ast.expr
+        Tree of ``lhs - rhs``.
+    marks : set of str
+        Marks used in the expression.
+
+    Raises
+    ------
+    ValueError
+        The expression cannot be read or uses something not allowed.
+    """
+    l_part = expression.split("=")
+    if len(l_part) > 2:
+        raise ValueError(f"constraint '{expression:}' has more than one '='")
+    l_node = []
+    for part in l_part:
+        if part.strip() == "":
+            raise ValueError(f"constraint '{expression:}' has an empty side")
+        try:
+            l_node.append(ast.parse(part.strip(), mode="eval").body)
+        except SyntaxError:
+            raise ValueError(f"constraint '{expression:}' cannot be read") from None
+    node = l_node[0] if len(l_node) == 1 else ast.BinOp(l_node[0], ast.Sub(), l_node[1])
+    marks = _check_soft_node(node, expression)
+    if len(marks) == 0:
+        raise ValueError(f"constraint '{expression:}' has no parameters")
+    return node, marks
+
+
+def _calc_soft_node(node, d_value: dict) -> float:
+    if isinstance(node, ast.Constant):
+        return float(node.value)
+    if isinstance(node, ast.Name):
+        return d_value[node.id]
+    if isinstance(node, ast.UnaryOp):
+        value = _calc_soft_node(node.operand, d_value)
+        return -value if isinstance(node.op, ast.USub) else value
+    if isinstance(node, ast.BinOp):
+        return D_SOFT_OPERATIONS[type(node.op)](
+            _calc_soft_node(node.left, d_value), _calc_soft_node(node.right, d_value))
+    return D_SOFT_FUNCTIONS[node.func.id](_calc_soft_node(node.args[0], d_value))
+
+
+def calc_soft_constraint_chi_sq(expression: str, sigma: float, d_value: dict) -> float:
+    """Contribution ``((lhs - rhs) / sigma)**2`` of a soft constraint to
+    chi-square; d_value gives the value of each mark."""
+    node = parse_soft_constraint(expression)[0]
+    return float((_calc_soft_node(node, d_value) / sigma) ** 2)

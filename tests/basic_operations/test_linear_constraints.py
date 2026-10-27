@@ -6,7 +6,8 @@ import pytest
 
 import cryspy
 from cryspy.A_functions_base.linear_constraints import (
-    calc_dependent_parameters, parse_linear_constraint)
+    calc_dependent_parameters, calc_soft_constraint_chi_sq, parse_linear_constraint,
+    parse_soft_constraint)
 
 F_NAME = os.path.join(os.path.dirname(__file__), "..", "functional", "twin_tbte3", "main.rcif")
 PATH_1 = "tbte3.atom_site[Te1].fract_y"
@@ -84,3 +85,31 @@ def test_assistant_tools():
     assert "Constraint 1 added" in text
     text = cryspy.call_assistant_tool(obj, "list_constraints", {})["text"]
     assert "y1+y2=1.5" in text and "y2 = crystal_tbte3.atom_site[Te2].fract_y" in text
+
+
+def test_soft_constraint_expression():
+    node, marks = parse_soft_constraint("sqrt(a**2 + b**2) = 2.5")
+    assert marks == {"a", "b"}
+    assert calc_soft_constraint_chi_sq("sqrt(a**2 + b**2) = 2.5", 0.1, {"a": 1.5, "b": 2.1}) == \
+        pytest.approx(((numpy.hypot(1.5, 2.1) - 2.5) / 0.1) ** 2)
+    assert calc_soft_constraint_chi_sq("cosd(t) = 0.5", 0.01, {"t": 60.}) == pytest.approx(0., abs=1e-20)
+    for expression in ("__import__('os')", "a.real = 1", "sqrt = 1", "max(a, b) = 1", "1 = 2"):
+        with pytest.raises(ValueError):
+            parse_soft_constraint(expression)
+
+
+def test_add_soft_constraint_and_dictionary():
+    obj = cryspy.load_file(F_NAME)
+    cryspy.add_constraint(obj, "y1 + y2 = 1.5", {"y1": PATH_1, "y2": PATH_2}, sigma=0.01)
+    cryspy.add_constraint(obj, "y1 - y2 = 0.36")
+    assert cryspy.take_constraints(obj) == ["y1 + y2 = 1.5 (sigma 0.01)", "y1 - y2 = 0.36"]
+    obj_2 = cryspy.str_to_globaln(obj.to_cif())
+    d_global = obj_2.get_dictionary()
+    assert len(d_global["linear_equations"]) == 1
+    expression, sigma, d_mark_way = d_global["soft_constraints"][0]
+    assert (expression, sigma, sorted(d_mark_way)) == ("y1 + y2 = 1.5", 0.01, ["y1", "y2"])
+    with pytest.raises(cryspy.RcifFormatError):
+        cryspy.add_constraint(obj, "y1 = 1", sigma=0.)
+    text = cryspy.call_assistant_tool(
+        obj, "add_constraint", {"expression": "y1**2 = 0.86", "sigma": 0.001})["text"]
+    assert "(sigma 0.001)" in text

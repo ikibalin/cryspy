@@ -348,10 +348,11 @@ def tool_list_constraints(cryspy_object) -> str:
     return "\n".join(ls_out)
 
 
-def tool_add_constraint(cryspy_object, expression: str, parameters: str = "") -> str:
+def tool_add_constraint(cryspy_object, expression: str, parameters: str = "",
+                        sigma: Optional[float] = None) -> str:
     try:
         d_mark_path = parse_mark_paths(parameters)
-        item = add_constraint(cryspy_object, expression, d_mark_path)
+        item = add_constraint(cryspy_object, expression, d_mark_path, sigma=sigma)
     except ValueError as error:
         return f"Error: {error:}"
     return f"Constraint {item.id:} added: {item.expression:}\n" + tool_list_constraints(cryspy_object)
@@ -916,22 +917,25 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         required=("path", "value"), flag_object_changed=True),
     AssistantTool(
         "list_constraints",
-        "List the linear constraints between refined parameters (x+y=1) and "
+        "List the constraints between refined parameters (x+y=1, hard or soft) and "
         "the marks of the parameters used in them.",
         tool_list_constraints),
     AssistantTool(
         "add_constraint",
-        "Add a linear constraint between refined parameters, e.g. 'x+y=1' "
+        "Add a constraint between refined parameters, e.g. 'x+y=1' "
         "to keep the sum of two occupancies; the parameters are named by "
         "marks, given in 'parameters' as 'x=path_1, y=path_2' (they are "
-        "refined then).",
+        "refined then). Without sigma the equation is linear and holds "
+        "exactly; with sigma it is soft (restraint, any formula of the marks).",
         tool_add_constraint,
         {"expression": {"type": "string",
                         "description": "Linear equation of the marks: 'x+y=1', '2*a-b=0'."},
          "parameters": {"type": "string",
                         "description": ("Marks of the parameters: 'x=crystal_fe.atom_site[Fe1].occupancy, "
                                         "y=crystal_fe.atom_site[Co1].occupancy'; empty if "
-                                        "the parameters are marked already.")}},
+                                        "the parameters are marked already.")},
+         "sigma": {"type": "number",
+                   "description": "Allowed deviation of a soft constraint; omit for a hard one."}},
         required=("expression", ), flag_object_changed=True),
     AssistantTool(
         "show_item",

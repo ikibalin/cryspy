@@ -15,7 +15,8 @@ add_constraint, so the marks and the loop are always consistent.
 import re
 from typing import Dict, List, Optional
 
-from cryspy.A_functions_base.linear_constraints import parse_linear_constraint
+from cryspy.A_functions_base.linear_constraints import (
+    parse_linear_constraint, parse_soft_constraint)
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.C_item_loop_classes.cl_1_constraint import Constraint, ConstraintL
 from cryspy.exceptions import RcifFormatError
@@ -44,13 +45,15 @@ def take_constraint_loop(cryspy_object: GlobalN) -> Optional[ConstraintL]:
 
 
 def take_constraints(cryspy_object) -> List[str]:
-    """Expressions of the constraints of the object."""
+    """Expressions of the constraints of the object; a soft one ends with
+    its sigma: 'x+y=1 (sigma 0.01)'."""
     if not isinstance(cryspy_object, GlobalN):
         return []
     loop = take_constraint_loop(cryspy_object)
     if loop is None:
         return []
-    return [str(item.expression) for item in loop.items]
+    return [str(item.expression) + (f" (sigma {item.sigma:g})" if item.is_soft() else "")
+            for item in loop.items]
 
 
 def take_marked_parameters(cryspy_object) -> List[dict]:
@@ -134,17 +137,25 @@ def set_parameter_marks(cryspy_object, d_mark_path: Dict[str, str]) -> List[Para
 
 
 def add_constraint(cryspy_object: GlobalN, expression: str,
-                   d_mark_path: Optional[Dict[str, str]] = None) -> Constraint:
-    """Add a linear constraint 'x+y=1' to the loop of constraints.
+                   d_mark_path: Optional[Dict[str, str]] = None,
+                   sigma: Optional[float] = None) -> Constraint:
+    """Add a constraint 'x+y=1' to the loop of constraints.
+
+    Without sigma the constraint is hard: a linear equation that holds
+    exactly. With sigma it is soft (a restraint): any equation f = g of
+    the marks (``sqrt(a**2+b**2)=2.5``) adds ((f-g)/sigma)**2 to chi-square.
 
     Parameters
     ----------
     cryspy_object : GlobalN
         Object with the crystals and the experiments.
     expression : str
-        Linear equation of the marks of refined parameters.
+        Equation of the marks of refined parameters.
     d_mark_path : dict, optional
         Marks to give first: mark -> path of the parameter.
+    sigma : float, optional
+        Allowed deviation of the soft constraint, in the units of the
+        expression; None for a hard constraint.
 
     Returns
     -------
@@ -159,14 +170,20 @@ def add_constraint(cryspy_object: GlobalN, expression: str,
     if not isinstance(cryspy_object, GlobalN):
         raise RcifFormatError("Constraints are kept in the global object only.")
     try:
-        d_coeff, const = parse_linear_constraint(expression)
+        if sigma is None:
+            l_label = list(parse_linear_constraint(expression)[0])
+        else:
+            sigma = float(sigma)
+            if not sigma > 0.:
+                raise ValueError("sigma must be positive")
+            l_label = sorted(parse_soft_constraint(expression)[1])
     except ValueError as error:
         raise RcifFormatError(f"Constraint '{expression:}': {error:}.") from None
     if d_mark_path:
         set_parameter_marks(cryspy_object, d_mark_path)
     l_mark = {take_mark(record).rstrip("-+") for record in take_parameter_records(cryspy_object)
               if record.flag_refinement}
-    l_unknown = [mark for mark in d_coeff if mark not in l_mark]
+    l_unknown = [mark for mark in l_label if mark not in l_mark]
     if len(l_unknown) > 0:
         raise RcifFormatError(
             f"Constraint '{expression:}': no refined parameter is marked "
@@ -180,6 +197,8 @@ def add_constraint(cryspy_object: GlobalN, expression: str,
     while str(index) in l_id:
         index += 1
     item = Constraint(id=str(index), expression=expression.strip())
+    if sigma is not None:
+        item.sigma = sigma
     loop.items.append(item)
     return item
 

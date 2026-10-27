@@ -27,3 +27,21 @@ def test_refinement_keeps_linear_constraint():
     # dependent parameter: sigma from the covariance of the free one
     assert atom_site["Te2"].fract_y_sigma > 0.
     assert numpy.isclose(atom_site["Te1"].fract_y_sigma, atom_site["Te2"].fract_y_sigma)
+
+
+def test_refinement_with_soft_constraint():
+    def refine(sigma):
+        obj = cryspy.load_file(F_NAME)
+        obj.fix_variables()
+        cryspy.add_constraint(obj, "y1 + y2 = 1.5", {
+            "y1": "tbte3.atom_site[Te1].fract_y", "y2": "tbte3.atom_site[Te2].fract_y"},
+            sigma=sigma)
+        cryspy.rhochi_rietveld_refinement(obj)
+        atom_site = obj.crystal_tbte3.atom_site
+        return atom_site["Te1"].fract_y + atom_site["Te2"].fract_y
+
+    # the data alone move the sum to 1.569 (the other parameters are fixed,
+    # chi_sq ~ 1e7): a tight restraint keeps the start sum 1.5, a loose one
+    # lets the data decide
+    assert abs(refine(1e-5) - 1.5) < 1e-3
+    assert refine(1e-2) > 1.55

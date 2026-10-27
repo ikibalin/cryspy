@@ -12,7 +12,7 @@ from .rhochi_pd2d import calc_chi_sq_for_pd2d_by_dictionary
 from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
 from cryspy.A_functions_base.linear_constraints import \
-    calc_dependent_parameters, form_linear_system
+    calc_dependent_parameters, calc_soft_constraint_chi_sq, form_linear_system
 from cryspy.exceptions import RefinementError
 
 logger = logging.getLogger(__name__)
@@ -69,6 +69,11 @@ def calc_punishement_function(dict_obj):
             way = d_marked[mark]
             d_value[mark] = dict_obj[way[0]][way[1]][way[2]]
         chi_sq_punishement += eval(expression, {}, d_value)
+    # soft constraints of the constraint loop: ((lhs - rhs)/sigma)**2
+    for expression, sigma, d_mark_way in dict_obj.get("soft_constraints", []):
+        d_value = {mark: sign * dict_obj[way[0]][way[1]][way[2]]
+                   for mark, (sign, way) in d_mark_way.items()}
+        chi_sq_punishement += calc_soft_constraint_chi_sq(expression, sigma, d_value)
     return chi_sq_punishement
 
 
