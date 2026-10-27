@@ -15,7 +15,8 @@ from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian, in
 
 from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
-    rhochi_calc_chi_sq_by_dictionary
+    rhochi_calc_chi_sq_by_dictionary, split_parameters_by_constraints, \
+    set_dependent_parameters
 
 import cryspy
 
@@ -215,12 +216,16 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
     
-    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names]
+    # constrained parameters (equal marks, constraint loop) follow the free ones
+    names_free, names_dep, matrix_m, vector_c = split_parameters_by_constraints(
+        global_dict, parameter_names)
+    param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in names_free]
 
     flag_use_precalculated_data = True
     def tempfunc(l_param):
-        for way, param in zip(parameter_names, l_param):
+        for way, param in zip(names_free, l_param):
             global_dict[way[0]][way[1]][way[2]] = param
+        set_dependent_parameters(global_dict, names_dep, matrix_m, vector_c, l_param)
         chi_sq = rhochi_calc_chi_sq_by_dictionary(
             global_dict,
             dict_in_out=dict_in_out,
@@ -229,8 +234,17 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         return chi_sq
 
     hess_inv, np_first_der = estimate_inversed_hessian_matrix(tempfunc, param_0)
-    if (numpy.all(hess_inv == numpy.zeros_like(hess_inv)) or (hess_inv is None)):
+    if (hess_inv is None) or numpy.all(hess_inv == numpy.zeros_like(hess_inv)):
         return 
+    if len(names_dep) > 0:
+        # covariance of all parameters: p = J p_free
+        jacobian = numpy.zeros((len(parameter_names), len(names_free)), dtype=float)
+        for i_name, name in enumerate(parameter_names):
+            if name in names_free:
+                jacobian[i_name, names_free.index(name)] = 1.
+            else:
+                jacobian[i_name] = matrix_m[names_dep.index(name)]
+        hess_inv = jacobian.dot(hess_inv).dot(jacobian.transpose())
     corr_matrix, sigmas = inversed_hessian_to_correlation(hess_inv) 
     global_object.take_parameters_from_dictionary(
         global_dict, l_parameter_name = parameter_names, l_sigma=sigmas)

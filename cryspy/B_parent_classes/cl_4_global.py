@@ -11,7 +11,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError
+from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError, RcifFormatError
 from cryspy.B_parent_classes.cl_3_data import DataN
 
 
@@ -607,6 +607,9 @@ class GlobalN(object):
                     linear_constraints.append([(coeff_1, name_1), (coeff_2, name_2)])
         if len(linear_constraints) > 0:
             dict_out["linear_constraints"] = linear_constraints
+        linear_equations = self.get_linear_equations(marks, dict_names)
+        if len(linear_equations) > 0:
+            dict_out["linear_equations"] = linear_equations
         try:
             expression = self.punishment.function
             d_marked = {}
@@ -621,6 +624,38 @@ class GlobalN(object):
         return dict_out
 
 
+
+    def get_linear_equations(self, marks: list, dict_names: list) -> list:
+        """Linear constraints of the constraint loops (x+y=1) as
+        ``[([(coeff, dict_name), ...], const), ...]``.
+
+        marks and dict_names belong to the refined parameters. A mark
+        ``a`` names the first refined value marked ``a``; when only
+        ``a-`` is written, the value is the opposite of ``a``.
+        """
+        d_mark_name = {}
+        for mark, dict_name in zip(marks, dict_names):
+            if mark == "":
+                continue
+            label = mark.rstrip("-+")
+            sign = -1. if mark.endswith("-") else 1.
+            if label not in d_mark_name or (d_mark_name[label][0] < 0. and sign > 0.):
+                d_mark_name[label] = (sign, dict_name)
+        linear_equations = []
+        for item in self.items:
+            if not callable(type(item).__dict__.get("get_linear_equations")):
+                continue
+            for constraint, (d_coeff, const) in zip(item.items, item.get_linear_equations()):
+                l_unknown = [label for label in d_coeff if label not in d_mark_name]
+                if len(l_unknown) > 0:
+                    raise RcifFormatError(
+                        f"_constraint_expression '{constraint.expression:}': "
+                        f"no refined value is marked {', '.join(l_unknown):} "
+                        "(write the mark after the parentheses, e.g. 0.5()x)")
+                l_term = [(coeff * d_mark_name[label][0], d_mark_name[label][1])
+                          for label, coeff in d_coeff.items()]
+                linear_equations.append((l_term, const))
+        return linear_equations
 
     def take_parameters_from_dictionary(self, dict_global, l_parameter_name: list=None, l_sigma: list=None):
         keys = dict_global.keys()
