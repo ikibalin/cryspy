@@ -15,6 +15,8 @@ import difflib
 import re
 from typing import List, Optional
 
+import numpy
+
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
@@ -164,6 +166,11 @@ def take_parameter_records(cryspy_object) -> List[ParameterRecord]:
 
 
 
+def is_number(value) -> bool:
+    return isinstance(value, (int, float, numpy.integer, numpy.floating)) and \
+        not isinstance(value, bool)
+
+
 def take_dict_paths(cryspy_object, dict_global: dict) -> dict:
     """Paths of the refined parameters by their ways in the dictionary.
 
@@ -189,11 +196,12 @@ def take_dict_paths(cryspy_object, dict_global: dict) -> dict:
         data_name = data.get_name()
         for block in data.items:
             for record in form_block_records(block, data_name):
-                if not record.flag_refinement:
+                # loops unknown to CrysPy keep their values as text
+                if not record.flag_refinement or not is_number(record.value):
                     continue
                 way = find_changed_dict_name(
                     data, data_name, dict_global[data_name], record.set_value,
-                    float(record.value))
+                    record.value)
                 if way is not None:
                     d_path[way] = record.path
     return d_path

@@ -19,7 +19,8 @@ from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     set_dependent_parameters, calc_punishement_function
 
 import cryspy
-from cryspy.procedure_assistant.parameters import take_dict_paths, take_parameter_records
+from cryspy.procedure_assistant.parameters import (
+    is_number, take_dict_paths, take_parameter_records)
 
 from cryspy.A_functions_base.progress import PROGRESS
 
@@ -167,7 +168,11 @@ def log_refined_parameters(cryspy_object: GlobalN):
     for record in l_record:
         mark = str(getattr(record.item, f"{record.attribute:}_mark", ""))
         s_mark = f" [{mark:}]" if mark != "" else ""
-        logger.info(f" - {record.path:} {record.value:.5f} ± {record.sigma:.5f}{s_mark:}")
+        if is_number(record.value):
+            s_value = f"{record.value:.5f} ± {record.sigma:.5f}"
+        else:
+            s_value = str(record.value)
+        logger.info(f" - {record.path:} {s_value:}{s_mark:}")
 
 
 def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:

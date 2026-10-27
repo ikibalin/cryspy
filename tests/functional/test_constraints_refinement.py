@@ -5,7 +5,8 @@ import os
 import numpy
 
 import cryspy
-from cryspy.procedure_assistant.parameters import take_dict_paths
+from cryspy.procedure_assistant.parameters import take_dict_paths, take_parameter_records
+from cryspy.procedure_rhochi.rhochi import log_refined_parameters
 
 F_NAME = os.path.join(os.path.dirname(__file__), "twin_tbte3", "main.rcif")
 
@@ -74,3 +75,23 @@ def test_dict_paths_of_refined_parameters():
     assert d_path[("crystal_tbte3", "unit_cell_parameters", (2, ))] == "crystal_tbte3.cell.length_c"
     # values are restored after the search
     assert numpy.isclose(crystal.atom_site["Te1"].occupancy, value_before, rtol=0., atol=1e-12)
+
+
+def test_log_with_text_values(caplog):
+    # loops unknown to the data block (atom_site_susceptibility of a diffrn
+    # block) keep the values written by a refinement as text
+    f_name = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "examples",
+        "rhochi_single_susceptibility_Ho2Ti2O7", "rhochi_single_susceptibility_Ho2Ti2O7.rcif")
+    obj = cryspy.load_file(f_name)
+    dict_global = obj.get_dictionary()
+    record = [record for record in take_parameter_records(obj)
+              if record.path == "diffrn_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11"][0]
+    setattr(record.item, record.attribute, "3.329")
+    d_path = take_dict_paths(obj, dict_global)
+    assert "crystal_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11" in d_path.values()
+    assert record.value == "3.329"
+    with caplog.at_level(logging.INFO, logger="cryspy"):
+        log_refined_parameters(obj)
+    assert " - diffrn_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11 3.329" in \
+        [record.getMessage() for record in caplog.records]
