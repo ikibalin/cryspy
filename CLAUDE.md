@@ -74,6 +74,12 @@ Public API is re-exported from `cryspy/__init__.py`.
   and an indented description for every parameter except keyword-only ones
   such as `callback`. The first sentence of the description is the question
   asked from the user ("Maximal number of iterations."); give units there.
+- Public methods of the classes derived from `DataN`, `LoopN`, `ItemN`
+  (`Pd.define_background_points`, `PdBackgroundL.define_points`) are called
+  by AI assistants the same way (`procedure_assistant/methods.py`, tools
+  `list_methods`, `call_method`): give them type hints and a numpydoc
+  docstring that says what they really do. A method without a docstring is
+  not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
 
 ## Software engineering practices
 
