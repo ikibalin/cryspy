@@ -11,6 +11,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class DiffrnOrientMatrix(ItemN):
@@ -348,6 +349,7 @@ class DiffrnOrientMatrix(ItemN):
 
             return gamma, nu, phi
 
+    @deprecated
     def calc_q2(self, index_h: numpy.ndarray, index_k: numpy.ndarray,
                 index_l: numpy.ndarray, cell: Cell) -> numpy.ndarray:
         r"""Calculate q2 = (sin \alpha)^2.

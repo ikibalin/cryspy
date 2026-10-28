@@ -6,6 +6,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class AtomElectronConfiguration(ItemN):
@@ -79,6 +80,7 @@ The orientation and population of the valence region are described by AtomRhoOrb
                     l_res.append(res)
         return l_res
 
+    @deprecated
     def get_valence_shells(self):
         """
         Give list of shels for valence part

@@ -9,6 +9,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 class AtomTypeScat(ItemN):
     """AtomTypeScat describes atomic scattering information used in crystallographic structure studies.
@@ -158,6 +159,7 @@ class AtomTypeScat(ItemN):
                  j2_C*numpy.exp(-j2_c*_h) + j2_D)*_h
         return j2_av
 
+    @deprecated
     def load_by_symbol(self, symbol: str = None) -> NoReturn:
         """Load by symbol."""
         if symbol is None:

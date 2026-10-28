@@ -12,6 +12,7 @@ from cryspy.A_functions_base.function_1_gamma_nu import \
     recal_int_to_gammanu_grid
     
 from cryspy.B_parent_classes.cl_1_item import ItemN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 na = numpy.newaxis
 
@@ -310,6 +311,7 @@ class Pd2dMeas(ItemN):
             self.__dict__["gamma_nu_intensity_sigma"] = "\n".join(ls_out)
 
 
+    @deprecated
     def recalc_to_gamma_nu_grid(self):
         l_tth_grid = numpy.array(self.ttheta)*numpy.pi/180.
         l_phi_grid = numpy.array(self.phi)*numpy.pi/180.

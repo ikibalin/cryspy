@@ -9,6 +9,7 @@ from cryspy.A_functions_base.function_1_objects import form_items_by_dictionary
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class DiffrnRefln(ItemN):
@@ -129,6 +130,7 @@ class DiffrnRefln(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
+    @deprecated
     def calc_d_sthovl(self, cell: ItemN):
         """Calculate d and sin(theta)/lambda for the reflection"""
         calc_d_sthovl_for_hkl(cell, self)
@@ -266,6 +268,7 @@ class DiffrnReflnL(LoopN):
 
         return "\n".join(ls_out)
 
+    @deprecated
     def calc_chi_sq_points(self) -> (float, int):
         """Calculate chi_sq and points if fr, fr_sigma, fr_calc are given."""
         if (
@@ -707,6 +710,7 @@ class DiffrnReflnL(LoopN):
 
         return (fig, ax)
 
+    @deprecated
     def include_all_points(self):
         for item in self.items:
             item.excluded = False
@@ -714,6 +718,7 @@ class DiffrnReflnL(LoopN):
         if name in self.__dict__.keys():
             del self.__dict__[name]
 
+    @deprecated
     def exclude_by_fr_max(self, fr_max: float = 3.0):
         """Exclude points by rules
         1./fr_max <= FR <= fr_max
@@ -756,6 +761,7 @@ class DiffrnReflnL(LoopN):
             pass
         return res
 
+    @deprecated
     def calc_d_sthovl(self, cell: ItemN):
         """Calculate d and sin(theta)/lambda for the reflections in the loop."""
         calc_d_sthovl_for_hkl(cell, self)

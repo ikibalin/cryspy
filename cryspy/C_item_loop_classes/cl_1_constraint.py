@@ -8,6 +8,7 @@ from cryspy.A_functions_base.linear_constraints import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class Constraint(ItemN):
@@ -104,6 +105,7 @@ class ConstraintL(LoopN):
         constraint."""
         return [item.get_linear_equation() for item in self.items if not item.is_soft()]
 
+    @deprecated
     def get_soft_constraints(self) -> List[Tuple[str, float, set]]:
         """Expression, sigma and marks of each soft constraint."""
         return [(item.expression, float(item.sigma), parse_soft_constraint(item.expression)[1])

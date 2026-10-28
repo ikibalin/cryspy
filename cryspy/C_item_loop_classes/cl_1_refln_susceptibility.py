@@ -11,6 +11,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import DiffrnOrientMatrix
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 class ReflnSusceptibility(ItemN):
     """Susceptibility structure factor tensor.
@@ -108,6 +109,7 @@ class ReflnSusceptibility(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
+    @deprecated
     def calc_d_sthovl(self, cell:ItemN):
         """Calculate d and sin(theta)/lambda for the reflection.
         """
@@ -139,6 +141,7 @@ class ReflnSusceptibilityL(LoopN):
         f_mag_sq = calc_vt_m_v(m_3_ij, e_up).real
         f_mag = numpy.sqrt(f_mag_sq)
         return f_mag
+    @deprecated
     def calc_d_sthovl(self, cell:ItemN):
         """Calculate d and sin(theta)/lambda for the reflections in the loop.
         """
