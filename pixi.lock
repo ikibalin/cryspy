@@ -925,7 +925,7 @@ packages:
   - py3dmol>=2.4 ; extra == 'view3d'
   - ipywidgets>=8 ; extra == 'view3d'
   - cryspy[plot,view3d] ; extra == 'all'
-  - cryspy[all] ; extra == 'dev'
+  - cryspy[plot] ; extra == 'dev'
   - build ; extra == 'dev'
   - pytest ; extra == 'dev'
   - pytest-cov ; extra == 'dev'
