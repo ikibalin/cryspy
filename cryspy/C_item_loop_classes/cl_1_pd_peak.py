@@ -7,7 +7,6 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 class PdPeak(ItemN):
     """Peak information calculated for diffraction pattern.
@@ -93,7 +92,6 @@ class PdPeak(ItemN):
             setattr(self, key, attr)
         for key, attr in kwargs.items():
             setattr(self, key, attr)
-    @deprecated
     def calc_d_sthovl(self, cell:ItemN):
         """Calculate d and sin(theta)/lambda for the reflection.
         """
@@ -125,7 +123,6 @@ class PdPeakL(LoopN):
         super(PdPeakL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
-    @deprecated
     def calc_d_sthovl(self, cell:ItemN):
         """Calculate d and sin(theta)/lambda for the reflections in the loop.
         """

@@ -12,7 +12,6 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
     SpaceGroupSymopMagnCentering
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class SpaceGroupSymopMagnOperation(ItemN):
@@ -118,7 +117,6 @@ The symmetry operation is given in the form of xyz string. For example, "x,y,z,+
         #     theta*r_11, theta*r_12, theta*r_13, theta*r_21, theta*r_22,
         #     theta*r_23, theta*r_31, theta*r_32, theta*r_33], dtype=int)
 
-    @deprecated
     def get_symop_magn_operation_by_magn_centering(
             self, space_group_symop_magn_centering:
             SpaceGroupSymopMagnCentering):

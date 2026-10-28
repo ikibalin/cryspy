@@ -395,7 +395,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         """Get default it coordinate system code by it number."""
         return get_default_it_coordinate_system_code_by_it_number(it_number)
 
-    @deprecated
     def calc_hkl_equiv(self, index_h, index_k, index_l):
         """Gequivalent reflections of hkl and its multiplicity."""
         r_11 = numpy.array(self.reduced_space_group_symop.r_11, dtype=Fraction)
@@ -448,7 +447,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
 
         return x_s, y_s, z_s, multiplicity
 
-    @deprecated
     def calc_symop_for_xyz(self, x_in, y_in, z_in):
         """Calculate symop for xyz."""
         x, y, z = x_in % 1., y_in % 1., z_in % 1.

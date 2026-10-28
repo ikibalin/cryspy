@@ -9,7 +9,6 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 # FIXME: estimate d by time for epithermal neutrons
@@ -195,7 +194,6 @@ epithermal neutrons")
                 d = (time - self.zero)/self.dtt1
         return d
 
-    @deprecated
     def calc_time_by_sthovl(self, sthovl):
         """Calculate time by given sin(theta)/lambda
         

@@ -16,16 +16,21 @@ def test_deprecated_function_warns_and_returns_value():
 
 
 def test_deprecated_method_keeps_result():
-    cell = cryspy.Cell(length_a=2., length_b=2., length_c=2.,
-                       angle_alpha=90., angle_beta=90., angle_gamma=90.)
-    with pytest.warns(DeprecationWarning, match="Cell.calc_length_sq"):
-        length_sq = cell.calc_length_sq(1., 0., 0.)
-    assert length_sq == pytest.approx(4.)
+    class Sample:
+        @deprecated
+        def calc_half(self, value):
+            return value / 2
+
+    with pytest.warns(DeprecationWarning, match="Sample.calc_half"):
+        assert Sample().calc_half(3.) == pytest.approx(1.5)
 
 
-def test_not_deprecated_method_is_silent():
+def test_kept_wrapper_methods_are_silent():
+    # methods of items and loops which call the base functions are kept
     cell = cryspy.Cell(length_a=2., length_b=2., length_c=2.,
                        angle_alpha=90., angle_beta=90., angle_gamma=90.)
     with warnings.catch_warnings():
         warnings.simplefilter("error", DeprecationWarning)
         cell.calc_sthovl(1, 0, 0)
+        assert cell.calc_length_sq(1., 0., 0.) == pytest.approx(4.)
+        assert cell.calc_reciprocal_length_sq(1., 0., 0.) == pytest.approx(0.25)

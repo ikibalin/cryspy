@@ -12,7 +12,6 @@ from cryspy.A_functions_base.function_1_gamma_nu import \
     recal_int_to_gammanu_grid
     
 from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 na = numpy.newaxis
 
@@ -311,8 +310,19 @@ class Pd2dMeas(ItemN):
             self.__dict__["gamma_nu_intensity_sigma"] = "\n".join(ls_out)
 
 
-    @deprecated
     def recalc_to_gamma_nu_grid(self):
+        """Recalculate the measured intensities from the (2θ, φ) grid to a
+        regular grid of the detector angles γ, ν (ν from -10 to 15 degrees).
+
+        Returns
+        -------
+        gamma : numpy.ndarray
+            Grid of γ, degrees.
+        nu : numpy.ndarray
+            Grid of ν, degrees.
+        l_intensity : list of numpy.ndarray
+            Intensities up, down, their sum and difference on the grid.
+        """
         l_tth_grid = numpy.array(self.ttheta)*numpy.pi/180.
         l_phi_grid = numpy.array(self.phi)*numpy.pi/180.
         int_u = numpy.array(self.intensity_plus, dtype=float).transpose()

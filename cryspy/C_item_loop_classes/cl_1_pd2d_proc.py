@@ -16,7 +16,6 @@ from cryspy.A_functions_base.function_1_agreement_factors import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 from .cl_1_pd2d_background import Pd2dBackground
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 na = numpy.newaxis
 
@@ -538,7 +537,6 @@ class Pd2dProc(ItemN):
         return ttheta, signal_projection_sum, signal_projection_exp_sum, signal_projection_exp_sum_sigma, \
             signal_projection_difference, signal_projection_exp_difference, signal_projection_exp_difference_sigma
 
-    @deprecated
     def plot_diff_total(self):
         if not(self.is_attribute("gamma") & self.is_attribute("nu") &
                self.is_attribute("intensity_plus_total") & 
@@ -573,8 +571,16 @@ class Pd2dProc(ItemN):
         return (fig, ax)
 
 
-    @deprecated
     def estimate_gamma_nu_offsets(self):
+        """Estimate the offsets of γ and ν (degrees) which minimize χ² of
+        the sum (and of the difference for polarized data) of the measured
+        and calculated intensities, by the Nelder-Mead method.
+
+        Returns
+        -------
+        scipy.optimize.OptimizeResult
+            res.x is [offset_gamma, offset_nu].
+        """
         coeff_difference = 0.5
         gamma = self.gamma
         nu = self.nu

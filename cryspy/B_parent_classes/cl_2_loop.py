@@ -16,7 +16,6 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN, value_error_mark_from_cif
 from cryspy.exceptions import RcifFileNotFoundError
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class LoopN(object):
@@ -213,7 +212,6 @@ class LoopN(object):
         pass
 
     @classmethod
-    @deprecated
     def define_by_items(cls, l_item: list, loop_name: str = ""):
         """Define LoopN by defined items.
         
@@ -465,7 +463,6 @@ class LoopN(object):
         ls_html.append("</table>")
         return " ".join(ls_html)
 
-    @deprecated
     def save_to_csv(self, file_name: str = "output.csv", delimiter: str = ";")\
             -> NoReturn:
         """
