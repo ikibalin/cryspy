@@ -11,6 +11,8 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu
 
 
+from cryspy.A_functions_base.function_1_agreement_factors import \
+    calc_agreement_factors
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 from .cl_1_pd2d_background import Pd2dBackground
@@ -392,8 +394,9 @@ class Pd2dProc(ItemN):
 
         ax1.set_ylabel("  Model       Experiment")
 
-        chi_sq_per_n_sum = numpy.nansum(numpy.square(
-                (signal_exp_sum-signal_sum)*included_points/signal_exp_sum_sigma))/numpy.sum(included_points)
+        chi_sq_per_n_sum = calc_agreement_factors(
+            signal_exp_sum, signal_exp_sum_sigma, signal_sum,
+            flag_in=included_points)["chi_sq_per_n"]
 
         ax1.set_title(r"Unpolarized signal $\chi^2/n=$"+f"{chi_sq_per_n_sum:.2f}")
 
@@ -424,8 +427,9 @@ class Pd2dProc(ItemN):
         # ax3.get_yaxis().set_visible(False)
 
         if flag_polarized:
-            chi_sq_per_n_difference = numpy.nansum(numpy.square(
-                    (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.prod(signal_exp_difference.shape)
+            chi_sq_per_n_difference = calc_agreement_factors(
+                signal_exp_difference, signal_exp_sum_sigma,
+                signal_difference)["chi_sq_per_n"]
             ax2.set_title(r"Polarized signal $\chi^2/n=$"+f"{chi_sq_per_n_difference:.2f}")
 
             ax4.fill_between(

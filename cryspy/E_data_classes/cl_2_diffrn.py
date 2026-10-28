@@ -524,7 +524,10 @@ class Diffrn(DataN):
                     rep_2 = diffrn_refln.report_chi_sq_exp(cell=cell)
             if rep_2 == "":
                 rep_2 = diffrn_refln.report_chi_sq_exp()
-            return rep_1 + "\n" + rep_2
+            ls_out = [rep for rep in (rep_1, rep_2) if rep != ""]
+            if self.is_attribute("refine_ls"):
+                ls_out.append(self.refine_ls.report())
+            return "\n\n".join(ls_out)
         return ""
 
     def get_dictionary(self):
