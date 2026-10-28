@@ -3,7 +3,7 @@ from cryspy.A_functions_base.database import DATABASE
 from cryspy.A_functions_base.charge_form_factor import get_atom_name_ion_charge_shell
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-from cryspy.A_functions_base.structure_factor import calc_bulk_susceptibility_by_dictionary
+from cryspy.A_functions_base.structure_factor_magnetic import calc_bulk_susceptibility_by_dictionary
 from cryspy.A_functions_base.unit_cell import calc_volume_uc_by_unit_cell_parameters
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_pd import Pd
