@@ -922,7 +922,9 @@ packages:
   - pycifstar
   - scipy>=1.13
   - matplotlib>=3.9 ; extra == 'plot'
-  - cryspy[plot] ; extra == 'all'
+  - py3dmol>=2.4 ; extra == 'view3d'
+  - ipywidgets>=8 ; extra == 'view3d'
+  - cryspy[plot,view3d] ; extra == 'all'
   - cryspy[all] ; extra == 'dev'
   - build ; extra == 'dev'
   - pytest ; extra == 'dev'

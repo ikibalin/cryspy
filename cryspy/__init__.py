@@ -222,6 +222,10 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid impo
     report_main_axes_of_magnetization_ellipsoids,
 )
 
+from cryspy.D_functions_item_loop.function_1_view_structure import (
+    StructureViewSettings,
+)
+
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 
 # from cryspy.D_functions_item_loop.structure_factor import \
