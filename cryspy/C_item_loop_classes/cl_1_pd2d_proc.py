@@ -11,11 +11,18 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu
 
 
+from cryspy.A_functions_base.function_1_agreement_factors import \
+    report_powder_agreement
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 from .cl_1_pd2d_background import Pd2dBackground
 
 na = numpy.newaxis
+
+REPORT_SIGNAL_NAMES = (
+    "intensity_plus_net", "intensity_minus_net", "intensity_bkg_calc",
+    "intensity", "intensity_sigma", "intensity_plus", "intensity_plus_sigma",
+    "intensity_minus", "intensity_minus_sigma")
 
 class Pd2dProc(ItemN):
     """
@@ -295,6 +302,20 @@ class Pd2dProc(ItemN):
                 ls_out.append("{:12.2f} ".format(nu) + " ".join(["{:12}".format(_) for _ in l_intensity]))
             self.__dict__["gamma_nu_intensity_sigma"] = "\n".join(ls_out)
 
+
+    def report_agreement(self, flag_sum: bool = True, flag_diff: bool = None) -> str:
+        """Report (markdown) on agreement of the profile with the model."""
+        dict_signal = {}
+        for name in REPORT_SIGNAL_NAMES:
+            if self.is_attribute(name):
+                dict_signal[name] = numpy.array(getattr(self, name), dtype=float)
+        if self.is_attribute("excluded_points"):
+            dict_signal["excluded"] = numpy.array(self.excluded_points, dtype=bool)
+        return report_powder_agreement(
+            dict_signal, flag_sum=flag_sum, flag_diff=flag_diff)
+
+    def report(self):
+        return self.report_agreement()
 
     def plots(self):
         return [self.plot_gamma_nu()]

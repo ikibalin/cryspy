@@ -10,6 +10,8 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+from cryspy.A_functions_base.function_1_markdown import HTML_TABLE_OPEN
+
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
@@ -372,16 +374,22 @@ axis 'Z' is vertical direction."""
         return s_out
 
     def report_html(self):
-        s_out = f"""<b>Orientation matrix U:</b><br>
-        <table>
-<tr><th></th><th>a*</th><th>[c,  a*]</th><th>c</th></tr>
-<tr><th>X:</th><td>{self.u_11: 8.5f}</td><td>{self.u_12: 8.5f}</td><td>{self.u_13: 8.5f}</td></tr>
-<tr><th>Y:</th><td>{self.u_21: 8.5f}</td><td>{self.u_22: 8.5f}</td><td>{self.u_23: 8.5f}</td></tr>
-<tr><th>Z:</th><td>{self.u_31: 8.5f}</td><td>{self.u_32: 8.5f}</td><td>{self.u_33: 8.5f}</td></tr>
-        </table>
-axis 'X' is along incident beam;<br>
-axis 'Z' is vertical direction."""
-        return s_out
+        ls_out = ["<h3>Orientation matrix U</h3>", HTML_TABLE_OPEN]
+        ls_out.append(
+            "<tr><th></th><th align='right'>a*</th>"
+            "<th align='right'>[c, a*]</th><th align='right'>c</th></tr>")
+        for s_axis, l_val in zip(
+                "XYZ", ((self.u_11, self.u_12, self.u_13),
+                        (self.u_21, self.u_22, self.u_23),
+                        (self.u_31, self.u_32, self.u_33))):
+            ls_out.append(f"<tr><th>{s_axis:}</th>" + "".join(
+                [f"<td align='right'>{val:.5f}</td>" for val in l_val]) +
+                "</tr>")
+        ls_out.append("</table>")
+        ls_out.append(
+            "<p>Axis X is along the incident beam;<br>"
+            "axis Z is the vertical direction.</p>")
+        return "".join(ls_out)
 
     def get_dictionary(self):
         res = {}

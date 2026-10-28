@@ -6,9 +6,16 @@ plt = optional_module("matplotlib.pyplot")
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
+from cryspy.A_functions_base.function_1_agreement_factors import \
+    report_powder_agreement
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
+
+REPORT_SIGNAL_NAMES = (
+    "intensity_plus_net", "intensity_minus_net", "intensity_bkg_calc",
+    "intensity", "intensity_sigma", "intensity_plus", "intensity_plus_sigma",
+    "intensity_minus", "intensity_minus_sigma")
 
 class TOFProc(ItemN):
     """Calculated intensity for time-of-flight experiment.
@@ -150,6 +157,20 @@ class TOFProcL(LoopN):
                       numpy.array(self.intensity_sigma, dtype=float))
             np_y = numpy.fmax(np_y, np_exp)
         return np_x, np_y
+
+    def report_agreement(self, flag_sum: bool = True, flag_diff: bool = None) -> str:
+        """Report (markdown) on agreement of the profile with the model."""
+        dict_signal = {}
+        for name in REPORT_SIGNAL_NAMES:
+            if self.is_attribute(name):
+                dict_signal[name] = numpy.array(getattr(self, name), dtype=float)
+        if self.is_attribute("excluded"):
+            dict_signal["excluded"] = numpy.array(self.excluded, dtype=bool)
+        return report_powder_agreement(
+            dict_signal, flag_sum=flag_sum, flag_diff=flag_diff)
+
+    def report(self):
+        return self.report_agreement()
 
     def plots(self):
         return [self.plot_sum_diff()]
