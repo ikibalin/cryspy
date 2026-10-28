@@ -31,12 +31,14 @@ the user calls a tool directly (e.g. '@set_parameter' typed in a chat)
 call_assistant_tool(..., ask_required=True) asks every required argument
 that is not given; a chat model gets an error instead and corrects its call.
 """
+import json
 import os
 import re
 from typing import Callable, Dict, List, Optional
 
 import numpy
 
+from cryspy.B_parent_classes.attributes import take_allowed_values
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite
@@ -47,8 +49,9 @@ from cryspy.procedure_assistant.attributes import (
     describe_item_class, explain_allowed_value, find_attribute_records, find_item_classes,
     take_attribute_record, take_block, take_object_item_classes)
 from cryspy.procedure_assistant.help import get_help
+from cryspy.procedure_assistant import items
 from cryspy.procedure_assistant.procedures import (
-    describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
+    D_BASIC_TYPE, describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
     take_procedures)
 from cryspy.procedure_assistant.methods import (
     describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
@@ -807,6 +810,44 @@ def tool_add_atom(cryspy_object, crystal: str, label: str, type_symbol: str,
             f"({fract_x:}, {fract_y:}, {fract_z:}).")
 
 
+def tool_add_item(cryspy_object, category: str, block: str = "",
+                  values: Optional[dict] = None, **extra_values) -> str:
+    # the values may come as a dict or as separate arguments
+    d_value = dict(values or {}, **extra_values)
+    try:
+        path, container = items.add_item(cryspy_object, category, d_value, block)
+    except items.BlockNeeded as error:
+        raise ArgumentsNeeded([{
+            "name": "block", "type": "string", "enum": list(error.args[0]),
+            "question": f"the data block where {category.strip():} is added"}]) from error
+    except items.ValuesNeeded as error:
+        item_class = items.take_category_class(category)
+        l_missing = []
+        for name in error.args:
+            d_missing = {"name": name, "question": f"the {name:} of {item_class.PREFIX:}",
+                         "type": D_BASIC_TYPE.get(
+                             item_class.ATTR_TYPES[item_class.ATTR_NAMES.index(name)], "string")}
+            allowed = take_allowed_values(item_class, name)
+            if allowed is not None and len(allowed) <= 30:
+                d_missing["enum"] = [str(value) for value in allowed]
+            l_missing.append(d_missing)
+        raise ArgumentsNeeded(l_missing, f"{item_class.PREFIX:} needs these values.") from error
+    except ValueError as error:
+        return f"Error: {error:}"
+    text = container.to_cif()
+    if len(text) > 3000:
+        text = text[:3000] + "\n[... the rest is cut ...]"
+    return f"{path:} is added:\n{text:}"
+
+
+def tool_remove_item(cryspy_object, path: str) -> str:
+    try:
+        removed = items.remove_item(cryspy_object, path)
+    except ValueError as error:
+        return f"Error: {error:}"
+    return f"{removed:} is removed."
+
+
 def take_hkl(h, k, l, hkl: str):
     """numpy array (3, 1) of the indices given as h, k, l or as '5 0 3'."""
     if hkl.strip() != "":
@@ -1351,6 +1392,29 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                   "fract_z"),
         flag_object_changed=True),
     AssistantTool(
+        "add_item",
+        "Add a row to a loop of a data block (the loop is created when there is none) or "
+        "a single item, of any category: atom_rho_multipole, atom_local_axes, "
+        "atom_site_scat, atom_site_susceptibility, extinction, ... describe_category "
+        "gives the attributes of a category; the values are given by their names. "
+        "Mandatory values that are not given are asked from the user.",
+        tool_add_item,
+        {"category": {"type": "string", "description": "Name of the category, e.g. atom_rho_multipole."},
+         "block": {"type": "string",
+                   "description": "Data block; empty when only one data block can have the category."},
+         "values": {"type": "object",
+                    "description": 'Values of the attributes, e.g. {"atom_label": "Fe", '
+                                   '"atom_type_symbol": "Fe3+", "orbital": "3d"}.'}},
+        required=("category", ), flag_object_changed=True, flag_extra_arguments=True),
+    AssistantTool(
+        "remove_item",
+        "Remove a row of a loop, a whole loop or a single item from a data block.",
+        tool_remove_item,
+        {"path": {"type": "string",
+                  "description": "e.g. crystal_fe.atom_rho_multipole[Fe] for a row, "
+                                 "crystal_fe.atom_rho_multipole for the loop."}},
+        required=("path", ), flag_object_changed=True),
+    AssistantTool(
         "calculate_structure_factor",
         "Nuclear structure factor F_N (complex, |F_N|, |F_N|^2) of one "
         "reflection hkl for the crystals of the object.",
@@ -1501,6 +1565,15 @@ def convert_argument(value, d_param: dict):
             raise ValueError(f"{s_number:} values are expected, "
                              f"{len(l_value):} are given.")
         return l_value
+    if s_type == "object":
+        if isinstance(value, str):  # '{"atom_label": "Fe"}' written as text
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                raise ValueError(f"'{value:}' is not a JSON object.") from None
+        if not isinstance(value, dict):
+            raise ValueError(f"'{value:}' is not a JSON object.")
+        return value
     if s_type in ("number", "integer"):
         s_kind = "a number" if s_type == "number" else "an integer"
         if isinstance(value, str):  # '2.36 A': the only number with its unit
