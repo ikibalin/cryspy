@@ -8,6 +8,8 @@ from typing import NoReturn
 
 
 from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.D_functions_item_loop.function_1_report_powder import \
+    report_powder_experiment
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
@@ -86,6 +88,10 @@ class TOF(DataN):
         pass
         # if self.pd_meas is not None:
         #     self.pd_meas.apply_constraints()
+
+    def report(self):
+        """Agreement with the model, phases and refinement summary."""
+        return report_powder_experiment(self)
 
     def plots(self):
         if self.is_attribute("tof_proc"):

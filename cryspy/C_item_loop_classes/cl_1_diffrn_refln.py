@@ -6,6 +6,8 @@ plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.function_1_objects import form_items_by_dictionary
 
+from cryspy.A_functions_base.function_1_agreement_factors import \
+    calc_agreement_factors
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
@@ -224,45 +226,39 @@ class DiffrnReflnL(LoopN):
                 # print("hkl: {:4} {:4} {:4}".format(_hkl[0], _hkl[1], _hkl[2]))
                 # print("chi_sq_exp: {:.3f} ".format(chi_sq_exp))
                 # print("ag_f_exp: {:.3f} ".format(ag_f_exp))
-        ls_out = ["# Experimental agreement factor\n"]
+        s_val = "FR" if flag_fr else "I"
         n = len(l_hkl)
-        ls_out.append(f"\n| Number of measured reflections:| {n:4}|")
-        ls_out.append(
-            f"  |    range of h is |{min([_[0] for _ in l_hkl]):3},{max([_[0] for _ in l_hkl]):3} |"
-        )
-        ls_out.append(
-            f"  |             k is |{min([_[1] for _ in l_hkl]):3},{max([_[1] for _ in l_hkl]):3} |"
-        )
-        ls_out.append(
-            f"  |             l is |{min([_[2] for _ in l_hkl]):3},{max([_[2] for _ in l_hkl]):3} |"
-        )
+        ls_out = ["# Measured reflections", ""]
+        ls_out.append(f"| Number of reflections | {n:} |")
+        for i_hkl, s_hkl in enumerate("hkl"):
+            ls_out.append(
+                f"| Range of {s_hkl:} | {min([_[i_hkl] for _ in l_hkl]):} … "
+                f"{max([_[i_hkl] for _ in l_hkl]):} |")
         if flag_fr:
-            ls_out.append(f" |max(FR_exp - 1) is |{max(l_diff):5.3f} |")
-            ls_out.append("\n N+1 > abs(FR_exp - 1)/FR_sigma > N: ")
-            ls_out.append(
-                f" |abs(FR_exp - 1)/FR_sigma < 1: |{n_0s:4}| {100*float(n_0s)/float(n):5.1f}% | "
-            )
-            ls_out.append(
-                f" |                    N = 1: |{n_1s:4}| {100*float(n_1s)/float(n):5.1f}%  |"
-            )
-            ls_out.append(
-                f" |                    N = 2: |{n_2s:4}| {100 * float(n_2s) / float(n):5.1f}% |"
-            )
-            ls_out.append(
-                f" |abs(FR_exp - 1)/FR_sigma > 3: |{n_3s:4}| {100 * float(n_3s) / float(n):5.1f}% |"
-            )
+            ls_out.append(f"| max abs(FR − 1) | {max(l_diff):.3f} |")
+            ls_out.append("")
+            ls_out.append("## Magnetic signal: abs(FR − 1)/σ(FR)")
+            ls_out.append("")
+            ls_out.append("| abs(FR − 1)/σ(FR) | Reflections | Share |")
+            ls_out.append("|:---|---:|---:|")
+            for s_range, n_s in zip(
+                    ("< 1", "1 … 2", "2 … 3", "≥ 3"),
+                    (n_0s, n_1s, n_2s, n_3s)):
+                ls_out.append(
+                    f"| {s_range:} | {n_s:} | {100*float(n_s)/float(n):.1f}% |")
 
         n_friedel = len(l_chi_sq_exp)
-        ls_out.append(
-            f"\n|Total number of Friedel reflections is |{n_friedel:}.|"
-        )
+        ls_out.append("")
+        ls_out.append("## Friedel pairs (hkl and −h−k−l)")
+        ls_out.append("")
+        ls_out.append(f"| Reflections with a measured Friedel mate | {n_friedel:} |")
         if n_friedel != 0:
             ls_out.append(
-                f"|  (abs(FR_exp-FR_av.)/FR_sigma)^2  is| {sum(l_chi_sq_exp) / n_friedel:.2f}|"
-            )
+                f"| ⟨(({s_val:} − {s_val:}_av)/σ)²⟩ | "
+                f"{sum(l_chi_sq_exp) / n_friedel:.2f} |")
             ls_out.append(
-                f"|   abs(FR_exp-FR_av.)/abs(FR_exp-1) per reflection is |{(100*sum(l_ag_exp)/n_friedel):.2f}% |"
-            )
+                f"| ⟨abs({s_val:} − {s_val:}_av)/abs({s_val:} − 1)⟩ | "
+                f"{(100*sum(l_ag_exp)/n_friedel):.2f}% |")
 
         return "\n".join(ls_out)
 
@@ -324,12 +320,11 @@ class DiffrnReflnL(LoopN):
             return "\n".join(ls_out)
         n = len(l_val)
         n_1s, n_2s, n_3s = 0, 0, 0
-        l_chi_sq, l_worsest, l_af_f, l_af_r = [], [], [], []
+        l_worsest, l_af_f, l_af_r = [], [], []
         for _hkl, _val, _sval, _val_calc in zip(
             l_hkl, l_val, l_sval, l_val_calc
         ):
             _diff = abs(float(_val - _val_calc) / float(_sval))
-            l_chi_sq.append(_diff**2)
             if math.isclose(_val, 0.0) and not math.isclose(_sval, 0.0):
                 l_af_f.append(abs(float(_val - _val_calc) / float(_sval)))
             else:
@@ -344,66 +339,51 @@ class DiffrnReflnL(LoopN):
                 n_3s += 1
             else:
                 l_worsest.append((_hkl, _val, _sval, _val_calc, _diff))
-        ls_out.append("# Chi_sq experimental")
-        ls_out.append(f"Total number of reflections is {n:}")
+        if flag_fr:
+            s_val = "FR"
+        else:
+            s_val = "I"
+        ls_out.append("# Agreement with the model")
+        ls_out.append("")
+        ls_out.append(f"| Number of reflections | {n:} |")
+        ls_out.append(
+            f"| χ²/n = ⟨(({s_val:}_exp − {s_val:}_calc)/σ)²⟩ | "
+            f"{calc_agreement_factors(l_val, l_sval, l_val_calc)['chi_sq_per_n']:.2f} |")
+        ls_out.append(
+            f"| ⟨abs({s_val:}_exp − {s_val:}_calc)/{s_val:}_exp⟩ | "
+            f"{100*sum(l_af_f) / float(n):.2f}% |")
         if flag_fr:
             ls_out.append(
-                f"|  (abs(FR_exp-FR_mod)/FR_sigma)^2 per reflection is |{sum(l_chi_sq)/float(n):.2f}|"
-            )
-            ls_out.append(
-                f"|   abs(FR_exp-FR_mod)/FR_exp      per reflection is |{100*sum(l_af_f) / float(n):.2f}%|"
-            )
-            ls_out.append(
-                f"|   abs(FR_exp-FR_mod)/abs(FR_exp-1)    per reflection is |{100*sum(l_af_r) / float(n):.2f}%|"
-            )
-            ls_out.append(
-                "           (reflections with FR_exp = 1 are excluded)"
-            )
-        elif flag_intensity:
-            ls_out.append(
-                f"|  (abs(Int_exp-Int_mod)/Int_sigma)^2 per reflection is |{sum(l_chi_sq)/float(n):.2f}|"
-            )
-            ls_out.append(
-                f"|   abs(Int_exp-Int_mod)/Int_exp      per reflection is |{100*sum(l_af_f) / float(n):.2f}%|"
-            )
+                "| ⟨abs(FR_exp − FR_calc)/abs(FR_exp − 1)⟩, FR_exp ≠ 1 | "
+                f"{100*sum(l_af_r) / float(n):.2f}% |")
         n_worsest = len(l_worsest)
-        ls_out.append("\n## Reflections in range  ")
-        if flag_fr:
+        ls_out.append("")
+        ls_out.append(f"## Deviation abs({s_val:}_exp − {s_val:}_calc)/σ")
+        ls_out.append("")
+        ls_out.append("| Deviation | Reflections | Share | Normal distribution |")
+        ls_out.append("|:---|---:|---:|---:|")
+        for s_range, n_s, s_normal in zip(
+                ("≤ 1σ", "1σ … 2σ", "2σ … 3σ", "> 3σ"),
+                (n_1s, n_2s, n_3s, n_worsest),
+                ("68.3%", "27.2%", "4.3%", "0.3%")):
             ls_out.append(
-                " (N-1)*FR_sigma < abs(FR_exp - FR_mod) < N*FR_sigma: "
-            )
-        elif flag_intensity:
-            ls_out.append(
-                " (N-1)*Int_sigma < abs(Int_exp - Int_mod) < N*Int_sigma: "
-            )
-        ls_out.append(
-            f"|      N = 1:| {n_1s:}/{n:} ={100*float(n_1s)/float(n):5.1f}% ({2*34.1:4.1f}%, three sigma rule) |"
-        )
-        ls_out.append(
-            f"|      N = 2:| {n_2s:}/{n:} ={100 * float(n_2s) / float(n):5.1f}% ({2*(13.6):4.1f}%, three sigma rule)|"
-        )
-        ls_out.append(
-            f"|      N = 3:| {n_3s:}/{n:} ={100 * float(n_3s) / float(n):5.1f}% ({2*(2.1):4.1f}%, three sigma rule)|"
-        )
-        ls_out.append(
-            f"|      N > 3:| {n_worsest:}/{n:} ={100 * float(n_worsest) / float(n):5.1f}% ({2*(0.1):4.1f}%, three sigma rule)|"
-        )
+                f"| {s_range:} | {n_s:} | {100*float(n_s)/float(n):.1f}% | "
+                f"{s_normal:} |")
         l_worsest.sort(key=lambda x: x[4], reverse=True)
-        if len(l_worsest) > 1:
+        if len(l_worsest) > 0:
             if n_worsest > 10:
                 n_worsest = 10
-            ls_out.append("\n## The ten worsest reflections:")
-            if flag_fr:
-                ls_out.append(
-                    "|  h | k | l  |     FR |FR_sigma | FR_calc | diff|"
-                )
-            elif flag_intensity:
-                ls_out.append(
-                    "|  h | k | l  |     Int |Int_sigma | Int_calc | diff|"
-                )
+            ls_out.append("")
+            ls_out.append("## The worst reflections (deviation > 3σ, at most 10)")
+            ls_out.append("")
+            ls_out.append(
+                f"| h | k | l | {s_val:}_exp | σ | {s_val:}_calc | "
+                "abs(exp − calc)/σ |")
+            ls_out.append("|---:|---:|---:|---:|---:|---:|---:|")
             for _hkl, _fr, _fr_sigma, _fr_calc, _diff in l_worsest[:n_worsest]:
                 ls_out.append(
-                    f"|{_hkl[0]:3}|{_hkl[1]:3}|{_hkl[2]:3}|{_fr:9.5f}|{_fr_sigma:9.5f}|{_fr_calc:9.5f}|{_diff:6.1f}|"
+                    f"| {_hkl[0]:} | {_hkl[1]:} | {_hkl[2]:} | {_fr:.5f} | "
+                    f"{_fr_sigma:.5f} | {_fr_calc:.5f} | {_diff:.1f} |"
                 )
         if cell is not None:
             np_h = numpy.array(self.index_h, dtype=int)
@@ -419,24 +399,24 @@ class DiffrnReflnL(LoopN):
             np_diff = numpy.abs((np_val - np_val_calc) / np_sval)
             n_bins = 10
             np_val, np_sthovl_bins = numpy.histogram(np_sthovl, bins=n_bins)
+            ls_out.append("")
+            ls_out.append("## Deviation over sin(θ)/λ")
+            ls_out.append("")
             ls_out.append(
-                "\n## Distribution of reflection in sin(theta)/lambda range"
-            )
-            ls_out.append("|sthovl_1 |sthovl_2 | (Exp-Mod)/Sigma |n_points|")
+                "| sin(θ)/λ from, Å⁻¹ | to, Å⁻¹ | ⟨abs(exp − calc)/σ⟩ | "
+                "Reflections |")
+            ls_out.append("|---:|---:|---:|---:|")
             for _1, _2, _3 in zip(
                 np_sthovl_bins[:-1], np_sthovl_bins[1:], np_val
             ):
-                np_flag = numpy.logical_and(np_sthovl >= _1, np_sthovl < _2)
+                np_flag = numpy.logical_and(np_sthovl >= _1, np_sthovl <= _2)
                 res = np_diff[np_flag]
                 if res.size == 0:
-                    ls_out.append(
-                        f"|{_1:8.3f} |{_2:8.3f}|       None    |      0|"
-                    )
+                    ls_out.append(f"| {_1:.3f} | {_2:.3f} | – | 0 |")
                 else:
                     ls_out.append(
-                        f"|{_1:8.3f} |{_2:8.3f}|    {np_diff[np_flag].mean():7.3f} |{_3:10}|"
+                        f"| {_1:.3f} | {_2:.3f} | {res.mean():.3f} | {_3:} |"
                     )
-            numpy.histogram(np_sthovl, bins=n_bins)
         return "\n".join(ls_out)
 
     def plots(self):

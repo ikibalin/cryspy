@@ -3,6 +3,7 @@ import html
 import numpy
 from typing import NoReturn
 
+from cryspy.A_functions_base.function_1_markdown import HTML_TABLE_OPEN
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 def inversed_hessian_to_correlation(inv_hessian):
@@ -187,7 +188,7 @@ class InversedHessian(ItemN):
         np_sigma = self.sigma
         np_label = self.label
         l_number = [str(i_n+1) for i_n in range(np_label.size)]
-        s_table = "<table border='1' cellspacing='0' cellpadding='4'>"
+        s_table = HTML_TABLE_OPEN
 
         ls_html = ["<h3>Sigmas and correlation matrix</h3>", s_table]
         ls_html.append("<tr><th>#</th><th align='left'>Parameter</th><th>Sigma</th></tr>")
