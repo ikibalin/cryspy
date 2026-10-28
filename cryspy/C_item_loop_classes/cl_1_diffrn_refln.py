@@ -1,6 +1,7 @@
 from typing import NoReturn
 import math
 import numpy
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.optional_import import optional_module
 plt = optional_module("matplotlib.pyplot")
 
@@ -279,9 +280,7 @@ class DiffrnReflnL(LoopN):
             np_fr_calc = numpy.array(self.fr_calc, dtype=float)[flag_in]
             np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
 
-            chi_sq = numpy.sum(
-                numpy.square((np_fr - np_fr_calc) / np_fr_sigma)
-            )
+            chi_sq = calc_chi_sq_by_signal(np_fr, np_fr_sigma, np_fr_calc)[0]
             points = np_fr.size
             return chi_sq, points
 
@@ -459,7 +458,7 @@ class DiffrnReflnL(LoopN):
             np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)[flag_in]
 
             chi_sq_per_n = (
-                numpy.square((np_fr - np_fr_calc) / np_fr_sigma).sum()
+                calc_chi_sq_by_signal(np_fr, np_fr_sigma, np_fr_calc)[0]
                 / np_fr.shape[0]
             )
             ax.set_title(
@@ -514,7 +513,8 @@ class DiffrnReflnL(LoopN):
 
         flag_in = numpy.logical_not(np_excl)
         chi_sq_per_n = (
-            numpy.square((asymmetry[flag_in] - asymmetry_calc[flag_in]) / asymmetry_sigma[flag_in]).sum()
+            calc_chi_sq_by_signal(asymmetry, asymmetry_sigma, asymmetry_calc,
+                                  included_points=flag_in)[0]
             / asymmetry[flag_in].size
         )
 
@@ -566,7 +566,7 @@ class DiffrnReflnL(LoopN):
         )
         asymmetry_calc = (np_fr_calc - 1.0) / (np_fr_calc + 1.0)
         chi_sq_per_n = (
-            numpy.square((asymmetry - asymmetry_calc) / asymmetry_sigma).sum()
+            calc_chi_sq_by_signal(asymmetry, asymmetry_sigma, asymmetry_calc)[0]
             / asymmetry.size
         )
 

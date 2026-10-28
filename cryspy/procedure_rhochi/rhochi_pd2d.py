@@ -1,5 +1,6 @@
 import numpy
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t, calc_m_v
 
 from cryspy.A_functions_base.unit_cell import \
@@ -494,7 +495,9 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         total_signal_sum = (total_signal_plus + total_signal_minus)
         diff_signal_sum = signal_exp_sum - total_signal_sum - signal_background
         inv_sigma_sq_sum = numpy.square(1./signal_sigma_sum)
-        chi_sq_sum = numpy.sum(numpy.square(diff_signal_sum[in_points])*inv_sigma_sq_sum[in_points])
+        chi_sq_sum = calc_chi_sq_by_signal(
+            signal_exp_sum, signal_sigma_sum, total_signal_sum + signal_background,
+            included_points=in_points)[0]
         chi_sq += chi_sq_sum
         n_point += numpy.sum(in_points)
 
@@ -504,7 +507,9 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         total_signal_diff = total_signal_plus - total_signal_minus
         nan_points_diff = numpy.logical_not(numpy.isnan(signal_exp_diff))
 
-        chi_sq_diff = numpy.sum(numpy.square((signal_exp_diff - total_signal_diff)[nan_points_diff]/signal_sigma_diff[nan_points_diff]))
+        chi_sq_diff = calc_chi_sq_by_signal(
+            signal_exp_diff, signal_sigma_diff, total_signal_diff,
+            included_points=nan_points_diff)[0]
         chi_sq += chi_sq_diff
         n_point += numpy.sum(nan_points_diff)
 

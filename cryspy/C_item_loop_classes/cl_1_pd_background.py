@@ -2,6 +2,7 @@ import numpy
 from typing import NoReturn
 import scipy
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
@@ -193,8 +194,6 @@ def estimate_background(y_exp, step_n: int = 10):
 
 
 def calc_chi_sq(y_bkg, y_exp, sy_exp, delta):
-    y_diff = (y_exp-(y_bkg+delta))/sy_exp
-    flag = y_diff > 1
-    y_diff[flag] = 1.
-    wss = numpy.sum(numpy.square(y_diff))
-    return wss
+    """Chi-square of the background shifted by delta; points above it by
+    more than one sigma (peaks) count as one sigma."""
+    return calc_chi_sq_by_signal(y_exp, sy_exp, y_bkg + delta, residual_max=1.)[0]

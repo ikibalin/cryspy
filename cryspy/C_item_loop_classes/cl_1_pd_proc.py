@@ -1,5 +1,6 @@
 from typing import NoReturn
 import numpy
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.optional_import import optional_module
 plt = optional_module("matplotlib.pyplot")
 import scipy
@@ -362,7 +363,9 @@ class PdProcL(LoopN):
             for name, value in zip(variable_names, param):
                 pd_background.set_variable_by_name(name, value)
             model_bkgr = pd_background.interpolate_by_points(ttheta+offset_ttheta)
-            chi_sq_sum = numpy.nansum(numpy.square((signal_exp_sum - signal_sum_net - model_bkgr)/signal_exp_sum_sigma)[included_points])
+            chi_sq_sum = calc_chi_sq_by_signal(
+                signal_exp_sum, signal_exp_sum_sigma, signal_sum_net + model_bkgr,
+                included_points=included_points, flag_skip_nan=True)[0]
             return chi_sq_sum
         
         res = scipy.optimize.minimize(temp_func, param_0, method="Nelder-Mead")
