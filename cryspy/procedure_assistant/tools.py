@@ -31,6 +31,7 @@ the user calls a tool directly (e.g. '@set_parameter' typed in a chat)
 call_assistant_tool(..., ask_required=True) asks every required argument
 that is not given; a chat model gets an error instead and corrects its call.
 """
+import os
 import re
 from typing import Callable, Dict, List, Optional
 
@@ -51,6 +52,7 @@ from cryspy.procedure_assistant.procedures import (
     take_procedures)
 from cryspy.procedure_assistant.history import (
     form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
+from cryspy.procedure_assistant import recipes
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
 from cryspy.procedure_assistant.constraints import (
@@ -470,6 +472,82 @@ def tool_suggest_recipes(cryspy_object) -> str:
         ls_out.append("Run: " + "; ".join(f"{recipe:} for {', '.join(l_name):}"
                                           for recipe, l_name in d_name.items())
                       + " (get_recipe gives the steps).")
+    return "\n".join(ls_out)
+
+
+def tool_get_recipe_guide(cryspy_object) -> str:
+    return recipes.form_recipe_guide()
+
+
+def tool_check_recipe_text(cryspy_object, text: str) -> str:
+    return recipes.check_recipe_text(text)
+
+
+def tool_save_recipe(cryspy_object, text: str, **answers) -> str:
+    """Save a recipe of the user; replacing a recipe of the user is asked
+    from the user (the answer comes as 'replace', never from the model's
+    description of the tool)."""
+    folder = recipes.take_user_recipe_folder()
+    if folder is None:
+        return "Error: the folder of the recipes of the user is not set; the recipe is not saved."
+    s_check = recipes.check_recipe_text(text)
+    if s_check.startswith("Error"):
+        return f"{s_check:} The recipe is not saved."
+    name = recipes.parse_recipe(text).name
+    path = os.path.join(folder, f"{name:}{recipes.RECIPE_EXTENSION:}")
+    if os.path.isfile(path):
+        if "replace" not in answers:
+            raise ArgumentsNeeded([{
+                "name": "replace", "type": "boolean", "hint": "yes or no",
+                "question": f"Replace your recipe {name:} in the CookBook by the new text?"}],
+                f"Your CookBook has the recipe {name:} already ({path:}).")
+        if not convert_argument(answers["replace"], {"type": "boolean"}):
+            return (f"Error: the recipe {name:} is not saved: the user keeps the old one. "
+                    "Give the recipe another name to save it.")
+    path = recipes.save_user_recipe(text)
+    return f"Recipe {name:} is saved: {path:}. The assistant uses it from the next request."
+
+
+ANSWER_PREFIX = "answer_"
+MAX_USER_QUESTIONS = 5
+
+
+def take_option(answer, l_option: List[str]):
+    """The option given by its number ('2'), else the answer itself."""
+    text = str(answer).strip()
+    if l_option and text.isdigit() and 1 <= int(text) <= len(l_option):
+        return l_option[int(text) - 1]
+    return text
+
+
+def tool_ask_user(cryspy_object, question: str = "", questions: Optional[List[str]] = None,
+                  options: Optional[List[str]] = None, **answers) -> str:
+    """Questions of the model to the user, asked as 'missing' (the user
+    answers them in the dialog of the program, the answers come back as
+    answer_1, answer_2, ...); the result gives the answers to the model."""
+    l_question = [str(item).strip() for item in (questions or []) if str(item).strip() != ""]
+    if question.strip() != "":
+        l_question.insert(0, question.strip())
+    if len(l_question) == 0:
+        return "Error: ask_user needs the question."
+    l_question = l_question[:MAX_USER_QUESTIONS]
+    l_option = [str(item).strip() for item in (options or []) if str(item).strip() != ""]
+    if len(l_question) > 1:
+        l_option = []  # the options are of a single question
+    l_name = [f"{ANSWER_PREFIX:}{number:}" for number in range(1, len(l_question) + 1)]
+    if not all(name in answers for name in l_name):
+        l_missing = []
+        for name, text in zip(l_name, l_question):
+            d_missing = {"name": name, "type": "string",
+                         "question": text if text.endswith("?") else f"{text:}?"}
+            if l_option:
+                d_missing["hint"] = "; ".join(f"{number:}: {option:}" for number, option in
+                                              enumerate(l_option, start=1)) + "; or your own answer"
+            l_missing.append(d_missing)
+        raise ArgumentsNeeded(l_missing)
+    ls_out = ["The user answered:"]
+    for name, text in zip(l_name, l_question):
+        ls_out.append(f"- {text:} -> {take_option(answers[name], l_option):}")
     return "\n".join(ls_out)
 
 
@@ -1084,6 +1162,40 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "polarized or not, nuclear or magnetic crystals) and the recipes for them.",
         tool_suggest_recipes),
     AssistantTool(
+        "ask_user",
+        "Ask the user when the request is not clear or only the user knows the answer "
+        "(which parameters, a condition, a choice); the result is the answers. Ask all "
+        "questions of the moment at once; never ask what another action can find.",
+        tool_ask_user,
+        {"question": {"type": "string", "description": "The question to the user."},
+         "questions": {"type": "array", "items": {"type": "string"},
+                       "description": f"Several questions (at most {MAX_USER_QUESTIONS:}), "
+                                      "instead of question."},
+         "options": {"type": "array", "items": {"type": "string"},
+                     "description": "Possible answers of a single question; the user may "
+                                    "give another one."}},
+        flag_object_needed=False, flag_extra_arguments=True),
+    AssistantTool(
+        "get_recipe_guide",
+        "How to write a recipe (a typical algorithm of the CookBook) from the words "
+        "of the user: the format, the kinds of experiments, the recipes as examples "
+        "and the way of work.",
+        tool_get_recipe_guide, flag_object_needed=False),
+    AssistantTool(
+        "check_recipe_text",
+        "Check the text of a recipe: errors with their lines (format, unknown tools "
+        "or arguments) or the steps of the correct recipe with remarks.",
+        tool_check_recipe_text,
+        {"text": {"type": "string", "description": "The whole text of the recipe."}},
+        required=("text", ), flag_object_needed=False),
+    AssistantTool(
+        "save_recipe",
+        "Save a correct recipe to the CookBook of the user (asks before replacing "
+        "a recipe of the user); only after the user agrees with the text.",
+        tool_save_recipe,
+        {"text": {"type": "string", "description": "The whole text of the recipe."}},
+        required=("text", ), flag_object_needed=False, flag_extra_arguments=True),
+    AssistantTool(
         "check_flip_ratio_model",
         "Calculate the model of the flip ratio experiments and check that it gives "
         "magnetic scattering (not all calculated flip ratios equal to 1); asks the user for "
@@ -1320,7 +1432,7 @@ def form_missing(name: str, d_param: dict) -> dict:
 def form_missing_text(name: str, l_missing: List[dict],
                       message: str = "") -> str:
     s_question = "; ".join(d_missing["question"] for d_missing in l_missing)
-    s_text = f"{name:} needs to know: {s_question:}."
+    s_text = f"{name:} needs to know: {s_question:}{'' if s_question.endswith('?') else '.':}"
     return f"{message:}\n{s_text:}" if message else s_text
 
 
