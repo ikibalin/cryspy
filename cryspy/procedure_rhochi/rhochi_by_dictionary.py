@@ -352,9 +352,6 @@ def _result_of_stopped_refinement(d_progress: dict):
         success=False, stopped=True, message="Refinement is stopped by the callback.")
 
 
-def func_callback(*arg):
-    logger.debug(arg)
-
 def rhochi_lsq_by_dictionary(global_dict):
     logger.info("*********************************************")
     logger.info("Rietveld refinement by CrysPy (module RhoChi)")

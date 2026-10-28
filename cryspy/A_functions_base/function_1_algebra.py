@@ -2,29 +2,11 @@
 
 Functions
 ---------
-    - calc_m_sigma
     - calc_scalar_product_by_vectors
     - calc_scalar_product_by_complex_vectors
     - calc_modulus_sq_by_complex_vector
 
 """
-import numpy
-
-
-def calc_m_sigma(np_M, np_sigma):
-    """Estimate errors for equation.
-
-    np_M * np_val * np_M^T
-    """
-    np_sig_1 = numpy.zeros((3, 3), dtype=float)
-    for _i in range(3):
-        for _j in range(3):
-            res = []
-            for _k in range(3):
-                for _l in range(3):
-                    res.append((np_sigma[_k, _l]*np_M[_i, _k]*np_M[_j, _l])**2)
-            np_sig_1[_i, _j] = sum(res)
-    return numpy.sqrt(np_sig_1)
 
 
 def calc_scalar_product_by_vectors(vector_1, vector_2, flag_vector_1=False,

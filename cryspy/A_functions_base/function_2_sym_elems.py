@@ -21,7 +21,6 @@ Functions
     - form_symm_elems_by_b_i_r_ij
     - calc_numerators_denominator_for_b_i
     - calc_common_denominator
-    - calc_rational_sum
     - transform_to_p1
 
 """
@@ -73,57 +72,6 @@ def form_symm_elems_by_b_i_r_ij(b_i, r_ij):
     return sym_elems
 
 
-def calc_sym_elems_b_with_common_denominator(*argv):
-    """Brings elements of several sym_elems_b to a common denominator
-
-    Parameters
-    ----------
-    *argv : sym_elems_b [4, n_sym_elems]
-        
-
-    Returns
-    -------
-    normalized sym_elems_b [3, n_sym_elems]
-        DESCRIPTION.
-    denom_common : int
-        common denominator.
-
-    """
-    l_norm_sym_elems_b, l_norm_denom = [], []
-    for sym_elems_b in argv:
-        norm_sym_elems_b, norm_denom = calc_normalized_sym_elems_b(sym_elems_b)
-        l_norm_sym_elems_b.append(norm_sym_elems_b)
-        l_norm_denom.append(norm_denom)
-    denom_common = numpy.lcm.reduce(l_norm_denom)
-    t_res = tuple([norm_sym_elems_b * (denom_common // norm_denom) 
-                   for norm_sym_elems_b, norm_denom
-                   in zip(l_norm_sym_elems_b, l_norm_denom)])
-    return (*t_res, denom_common)
-        
-
-def calc_normalized_sym_elems_b(sym_elems_b):
-    """Brings elements of sym_elems_b to a common denominator
-
-    Parameters
-    ----------
-    sym_elems_b : [{"num_x", "num_y", "num_z", "denominator"}, n_symm_elems]
-        DESCRIPTION.
-
-    Returns
-    -------
-    normalized_sym_elems_b : [{"num_x", "num_y", "num_z"}, n_symm_elems],
-    common_denominator
-
-    """
-    sym_elems_b_denom = sym_elems_b[3, :]
-    denom_common = numpy.lcm.reduce(sym_elems_b_denom)
-    coeff = denom_common // sym_elems_b_denom
-    norm_sym_elems_b = numpy.stack([sym_elems_b[0, :]*coeff,
-                                    sym_elems_b[1, :]*coeff,
-                                    sym_elems_b[2, :]*coeff], axis=0)
-    return norm_sym_elems_b, denom_common
-
-
 def calc_numerators_denominator_for_b_i(b_1, b_2, b_3):
     # 6*8 = 48
     den_max =  48
@@ -163,20 +111,6 @@ def calc_numerators_and_common_denominator(*argv):
         coeff = den_common//denom
         l_res.append(num*coeff)
     return (*l_res, den_common)
-
-
-def calc_rational_sum(*argv):
-    """Calculate sum of rational numbers given by numerator and denominator
-    
-    given parameters:
-        numerator_1, denominator_1, numerator_2, denominator_2 and so on
-
-    """
-    denom_nums = calc_numerators_and_common_denominator(*argv)
-    den_common = denom_nums[-1]
-    sum_num = numpy.sum(denom_nums[:-1], axis=0)
-    gcd = numpy.gcd(sum_num, den_common)
-    return sum_num // gcd, den_common // gcd
 
 
 def transform_to_p1(points_abc, sym_elems, shift, centrosymmetry, indexes_xyz,
