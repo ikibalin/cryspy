@@ -53,6 +53,9 @@ from cryspy.procedure_assistant import items
 from cryspy.procedure_assistant.procedures import (
     D_BASIC_TYPE, describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
     take_procedures)
+from cryspy.procedure_assistant.methods import (
+    describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
+    take_methods)
 from cryspy.procedure_assistant.history import (
     form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
 from cryspy.procedure_assistant import recipes
@@ -458,6 +461,16 @@ def tool_get_recipe(cryspy_object, name: str) -> str:
     if recipe is None:
         return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
     return recipe.to_text()
+
+
+def tool_use_recipe(cryspy_object, name: str) -> str:
+    """The steps of a recipe used by a step of another recipe: they are
+    done now, then the work goes on with the next step of that recipe."""
+    recipe = take_recipe(name)
+    if recipe is None:
+        return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
+    return (f"Do the steps of recipe {recipe.name:} now; after its last step go on with the "
+            f"next step of the recipe that uses it.\n{recipe.to_text():}")
 
 
 def tool_suggest_recipes(cryspy_object) -> str:
@@ -1060,6 +1073,93 @@ def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
     return form_procedure_result(name, function(**kwargs), cryspy_object)
 
 
+MAX_METHOD_BLOCKS = 40
+
+
+def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
+    """The methods of the data blocks, loops and items (methods.py), the
+    same methods of blocks of one class listed once; without path and
+    pattern only their names (the object has many), with them also their
+    arguments and descriptions."""
+    l_block = find_method_blocks(cryspy_object, path)
+    if len(l_block) == 0:
+        return (f"Error: '{path:}' is not a data block, loop or item of the object; "
+                "summarize_object gives them.")
+    word = pattern.strip().lower()
+    ls_out, d_class = [], {}
+    for block_path, block in l_block:
+        d_class.setdefault(type(block), []).append(block_path)
+    flag_short = path.strip() == "" and word == ""
+    for cls, l_path in d_class.items():
+        s_path = " ".join(l_path).lower()
+        d_method = {name: function for name, function in take_methods(cls).items()
+                    if word == "" or word in name.lower() or word in s_path
+                    or word in describe_method(function)["summary"].lower()}
+        if len(d_method) == 0:
+            continue
+        s_path = ", ".join(l_path[:5]) + (f", ... ({len(l_path):})" if len(l_path) > 5 else "")
+        if flag_short:
+            ls_out.append(f"{s_path:} ({cls.__name__:}): {', '.join(d_method):}")
+            continue
+        ls_out.append(f"{s_path:} ({cls.__name__:}):")
+        ls_out.extend(f"  {format_method(describe_method(function)):}" for function in d_method.values())
+    if len(ls_out) == 0:
+        s_word = f" with '{pattern:}'" if word else ""
+        return f"Error: no methods{s_word:} in {path or 'the object':}."
+    if flag_short:
+        ls_out.append("list_methods with a path or a pattern gives the arguments and descriptions.")
+    ls_out.append("Call one with call_method {\"path\": <block>, \"method\": <name>, <its arguments>}.")
+    return "\n".join(ls_out)
+
+
+def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) -> str:
+    """Call a method of the blocks given by the path (every block that has
+    it when the path is a class, a category or empty); items of the object
+    for its parameters are found by their classes, the other values
+    without a default are asked from the user (ArgumentsNeeded)."""
+    if isinstance(arguments.get("arguments"), dict):  # {"arguments": {...}} of a model
+        arguments.update(arguments.pop("arguments"))
+    l_block = find_method_blocks(cryspy_object, path, method)
+    if len(l_block) == 0:
+        l_all = find_method_blocks(cryspy_object, "", method)
+        s_where = (f"; it is a method of {', '.join(block_path for block_path, _ in l_all[:5]):}"
+                   if l_all else "; list_methods gives the methods")
+        return f"Error: {path or 'the object':} has no method '{method:}'{s_where:}."
+    l_text = []
+    for block_path, block in l_block[:MAX_METHOD_BLOCKS]:
+        function = take_methods(type(block))[method]
+        d_param_type = {param: types for param, _, types, _ in take_method_parameters(function)}
+        kwargs, l_missing = {}, []
+        for d_param in describe_method(function)["parameters"]:
+            param = d_param["name"]
+            d_ask = {"name": param, "question": d_param["question"]}
+            if d_param["kind"] == "basic":
+                if param in arguments:
+                    kwargs[param] = convert_argument(arguments[param], d_param)
+                elif "default" not in d_param:
+                    l_missing.append(dict(d_ask, type=d_param["type"], hint=d_param["description"] or param))
+                continue
+            d_found = find_parameter_blocks(cryspy_object, block, param, d_param_type[param])
+            s_type = " or ".join(d_param["classes"])
+            if param in arguments and str(arguments[param]) in d_found:
+                kwargs[param] = d_found[str(arguments[param])]
+            elif len(d_found) == 1:
+                kwargs[param] = list(d_found.values())[0]
+            elif len(d_found) == 0:
+                if "default" in d_param:
+                    continue
+                return f"Error: {method:} of {block_path:} needs {s_type:} ({param:}), the object has none."
+            else:
+                l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
+        if l_missing:
+            raise ArgumentsNeeded(l_missing)
+        result = getattr(block, method)(**kwargs)
+        l_text.append(form_procedure_result(f"{block_path:}.{method:}", result, cryspy_object))
+    if len(l_block) > MAX_METHOD_BLOCKS:
+        l_text.append(f"Only the first {MAX_METHOD_BLOCKS:} of {len(l_block):} blocks; give the path.")
+    return "\n".join(l_text)
+
+
 S_PATH = ("Parameter path or pattern: 'crystal_pbso4.cell.length_a', "
           "'atom_site[Fe].fract_x', 'b_iso', '*.pd_background[*].intensity'. "
           "Without '*' any path containing the text matches; the labels "
@@ -1195,6 +1295,13 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "Steps of a recipe: for each step the actions, what counts as "
         "success and what to do otherwise. Follow them one action at a time.",
         tool_get_recipe,
+        {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
+        required=("name", ), flag_object_needed=False),
+    AssistantTool(
+        "use_recipe",
+        "Inside a recipe: do the steps of another recipe of the CookBook here (recipes are "
+        "built from recipes), then go on with the next step.",
+        tool_use_recipe,
         {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
         required=("name", ), flag_object_needed=False),
     AssistantTool(
@@ -1371,6 +1478,29 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                   "description": "Name of the new data block; by default "
                                  "the formula."}},
         flag_object_changed=True),
+    AssistantTool(
+        "list_methods",
+        "List the methods of the data blocks, loops and items of the object (e.g. "
+        "define_background_points of a powder experiment, define_points of pd_background) "
+        "with their arguments; call one with call_method.",
+        tool_list_methods,
+        {"path": {"type": "string", "description": (
+            "Data block, loop or item: 'pnd', 'pnd.pd_background'; or a class or "
+            "category for all of them: 'Pd', 'pd_background'; empty for all.")},
+         "pattern": {"type": "string",
+                     "description": ("A word of the name or the description of the method, "
+                                     "or of the block, e.g. 'background'.")}}),
+    AssistantTool(
+        "call_method",
+        "Call a method from list_methods of a data block, loop or item; its arguments "
+        "are further arguments (e.g. \"step_ttheta\": 2). Items of the object the method "
+        "needs (as pd_meas) are found by themselves, missing values are asked from the user.",
+        tool_call_method,
+        {"method": {"type": "string", "description": "Name of the method."},
+         "path": {"type": "string", "description": (
+             "Data block, loop or item: 'pnd', 'pnd.pd_background'; or a class or category "
+             "('Pd', 'pd_background') or empty to call it for every block that has it.")}},
+        required=("method", ), flag_object_changed=True, flag_extra_arguments=True),
     AssistantTool(
         "list_procedures",
         "List CrysPy procedures that can be run on the object "

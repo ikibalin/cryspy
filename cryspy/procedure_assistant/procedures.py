@@ -131,14 +131,17 @@ def parse_docstring(doc: str) -> dict:
         if line.strip() == "":
             continue
         if not line.startswith((" ", "\t")):
-            match = re.match(r"\s*-?\s*(\w+)\s*(?::\s*(.*))?$", line)
+            # 'name : type' or 'Na, Nb, Nc : int' (several with one description)
+            match = re.match(r"\s*-?\s*(\w+(?:\s*,\s*\w+)*)\s*(?::\s*(.*))?$", line)
             if match is None:
                 continue
-            name = match.group(1)
+            l_name = [word.strip() for word in match.group(1).split(",")]
             s_type = (match.group(2) or "").strip()
             flag_optional = bool(re.search(r"\boptional\b", s_type))
             s_type = re.sub(r",?\s*optional\b", "", s_type).strip(" ,")
-            d_parameter[name] = {"type": s_type, "optional": flag_optional, "description": ""}
+            d_description = {"type": s_type, "optional": flag_optional, "description": ""}
+            for name in l_name:
+                d_parameter[name] = d_description
         elif name is not None:
             text = d_parameter[name]["description"]
             d_parameter[name]["description"] = f"{text:} {line.strip():}".strip()

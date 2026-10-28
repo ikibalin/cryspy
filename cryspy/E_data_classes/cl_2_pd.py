@@ -39,7 +39,6 @@ from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 from cryspy.A_functions_base.plot_peak_labels import (
     add_interactive_peak_labels, form_hkl_labels)
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -504,8 +503,23 @@ class Pd(DataN):
         if len(l_refln) > 0:
             self.add_items(l_refln)
 
-    @deprecated
-    def define_background_points(self, step_ttheta: float = 1.0):
+    def define_background_points(self, step_ttheta: float = 1.0) -> None:
+        """Define the background points from the measured profile.
+
+        The peaks of the measured intensity (pd_meas; for polarized data
+        the sum of up and down) are cut off by smoothing in a window of
+        step_ttheta, and the result, shifted to fit the profile best,
+        becomes the background: one point at every measured 2theta. It is
+        written to pd_background, which is created when the experiment has
+        none; the old points are replaced. The intensities of the points
+        are then refined as usual ('pd_background.intensity').
+
+        Parameters
+        ----------
+        step_ttheta : float, optional
+            Width of the smoothing window in 2theta, degrees: wider than
+            the peaks, narrower than the changes of the background.
+        """
         if self.is_attribute("pd_background"):
             pd_background = self.pd_background
         else:
@@ -516,6 +530,17 @@ class Pd(DataN):
         return
 
     def estimate_background(self):
+        """Estimate the intensities of the background points.
+
+        The 2theta of the points of pd_background are kept; their
+        intensities are found from the difference of the measured and the
+        calculated profiles (pd_proc, so the model must be calculated
+        first). The flags of refinement of the intensities are kept.
+
+        Returns
+        -------
+        The result of the minimization of PdProcL.estimate_background.
+        """
         pd_background = self.pd_background
         intensity_refinement = numpy.copy(
             numpy.array(pd_background.intensity_refinement, dtype=bool)
