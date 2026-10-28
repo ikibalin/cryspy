@@ -117,6 +117,45 @@ class PdProcL(LoopN):
     def calc_chi_sq(self):
         pass
 
+    def calc_upper_curve(self):
+        """Upper envelope of the unpolarized model and experiment.
+
+        The model is I_plus_net + I_minus_net + background, the experiment
+        is I_plus + I_minus (or I) plus its sigma. Labels of peaks are put
+        above this curve in the plots.
+
+        Returns
+        -------
+        tuple
+            (ttheta in degrees, intensity) as numpy arrays of float, shape (n_point,),
+            or (None, None) when the calculated intensities are not given.
+        """
+        if not (self.is_attribute("ttheta") and
+                self.is_attribute("intensity_plus_net") and
+                self.is_attribute("intensity_minus_net") and
+                self.is_attribute("intensity_bkg_calc")):
+            return None, None
+        np_x = numpy.array(self.ttheta, dtype=float)
+        np_y = (numpy.array(self.intensity_plus_net, dtype=float) +
+                numpy.array(self.intensity_minus_net, dtype=float) +
+                numpy.array(self.intensity_bkg_calc, dtype=float))
+        if (self.is_attribute("intensity_plus") and
+                self.is_attribute("intensity_plus_sigma") and
+                self.is_attribute("intensity_minus") and
+                self.is_attribute("intensity_minus_sigma")):
+            np_exp = (numpy.array(self.intensity_plus, dtype=float) +
+                      numpy.array(self.intensity_minus, dtype=float) +
+                      numpy.sqrt(
+                          numpy.square(numpy.array(self.intensity_plus_sigma, dtype=float)) +
+                          numpy.square(numpy.array(self.intensity_minus_sigma, dtype=float))))
+            np_y = numpy.fmax(np_y, np_exp)
+        elif (self.is_attribute("intensity") and
+                self.is_attribute("intensity_sigma")):
+            np_exp = (numpy.array(self.intensity, dtype=float) +
+                      numpy.array(self.intensity_sigma, dtype=float))
+            np_y = numpy.fmax(np_y, np_exp)
+        return np_x, np_y
+
     def plots(self):
         return [self.plot_sum_diff()]
     

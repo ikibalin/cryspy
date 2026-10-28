@@ -35,6 +35,8 @@ from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
+from cryspy.A_functions_base.plot_peak_labels import (
+    add_interactive_peak_labels, form_hkl_labels)
 
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -136,18 +138,27 @@ class Pd(DataN):
 
             flag_d = False
 
+            l_peaks = []
             for item in self.items:
                 if isinstance(item, PdPeakL):
                     np_tth = item.numpy_ttheta
-                    ax_hkl.plot(
+                    lines = ax_hkl.plot(
                         np_tth,
                         0.0 * np_tth + y_min_s - y_step_s,
                         "|",
                         label=item.loop_name,
                     )
                     y_step_s += 0.05 * y_dist_s
+                    l_peaks.append((
+                        np_tth,
+                        form_hkl_labels(item.index_h, item.index_k, item.index_l),
+                        lines[0].get_color()))
             res = []
             ax_s.legend(loc="upper right")
+            np_tth_curve, np_curve = pd_proc.calc_upper_curve()
+            add_interactive_peak_labels(
+                ax_s, l_peaks, x_curve=np_tth_curve, y_curve=np_curve,
+                n_visible=5)
             res.append((fig_s, ax_s))
             return res
         elif self.is_attribute("pd_meas"):
