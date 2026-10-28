@@ -50,3 +50,14 @@ _atom_rho_multipole_coeff_P22
 `kappa` and the `coeff_P...` values can be refined against flip ratios.
 The model is also used as a prior density for MEM (`_mem_parameters_prior_density core`).
 For a spherical form factor in the dipole approximation use `atom_site_scat` instead.
+
+To add the multipoles of an atom to a loaded object, add a row to each of
+the two loops (the AI assistant does it with the action `add_item`; a
+loop is created when the crystal has none):
+
+```
+add_item {"category": "atom_local_axes", "values": {"atom_label": "Fe", "atom0": "D1", "ax1": "Z", "atom1": "Fe", "atom2": "D2", "ax2": "X"}}
+add_item {"category": "atom_rho_multipole", "values": {"atom_label": "Fe", "atom_type_symbol": "Fe3+", "orbital": "3d"}}
+```
+
+`remove_item {"path": "crystal_fe.atom_rho_multipole[Fe]"}` removes the row again.
