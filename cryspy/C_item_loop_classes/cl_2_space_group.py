@@ -47,6 +47,7 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
 from cryspy.C_item_loop_classes.cl_1_space_group_wyckoff import \
     SpaceGroupWyckoff, SpaceGroupWyckoffL
 from cryspy.A_functions_base.function_1_deprecation import deprecated
+from cryspy.exceptions import RcifFormatError
 
 
 class SpaceGroup(ItemN):
@@ -97,6 +98,18 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         set(ACCESIBLE_NAME_HM_SHORT) | set(ACCESIBLE_NAME_HM_FULL) |
         set(ACCESIBLE_NAME_HM_EXTENDED))
 
+    # Hermann-Mauguin symbols written without spaces ("Ia-3d" in many CIF
+    # files) are read as the symbol with spaces ("I a -3 d") when only one
+    # allowed symbol has these characters.
+    D_NAME_HM_WITHOUT_SPACES = {}
+    for _name in ACCESIBLE_NAME_HM_ALT:
+        D_NAME_HM_WITHOUT_SPACES.setdefault(
+            "".join(_name.split()), set()).add(_name)
+    D_NAME_HM_WITHOUT_SPACES = {
+        _key: _names.pop() for _key, _names in D_NAME_HM_WITHOUT_SPACES.items()
+        if len(_names) == 1}
+    del _name
+
     # constraints on the parameters
     D_CONSTRAINTS = {
         "it_number": ACCESIBLE_IT_NUMBER,
@@ -146,8 +159,22 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         if flag_form_object:
             self.form_object()
 
+    def __setattr__(self, name: str, value) -> NoReturn:
+        if ((name in ("name_hm_alt", "name_hm_ref", "name_hm_full")) and
+                isinstance(value, str) and
+                (value not in self.D_CONSTRAINTS[name])):
+            name_hm = self.D_NAME_HM_WITHOUT_SPACES.get("".join(value.split()))
+            if name_hm in self.D_CONSTRAINTS[name]:
+                value = name_hm
+        super(SpaceGroup, self).__setattr__(name, value)
+
     def form_object(self) -> NoReturn:
         """Form object."""
+        self.define_it_number_and_it_coordinate_system_code()
+        if not self.is_attribute("it_number"):
+            raise RcifFormatError(
+                "The space group is not recognized: give a known "
+                "_space_group_name_H-M_alt or _space_group_IT_number.")
         self.form_object_by_it_number_it_coordinate_system_code()
         self.__dict__["shift"] = get_shift_by_centring_type(self.centring_type)
 
@@ -227,7 +254,7 @@ To defince magnetic space group instead this item use two loops: space_group_sym
             crystal_system = None, None, None, None, None
         name_hm_extended, name_hm_full, name_hm_short = None, None, None
         name_hall, name_schoenflies, point_group_hm = None, None, None
-        pcentr = None
+        pcentr, centrosymmetry = None, None
         reduced_space_group_symop, full_space_group_symop = None, None
         space_group_wyckoff = None
 
