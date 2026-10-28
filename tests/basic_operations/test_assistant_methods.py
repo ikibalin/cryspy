@@ -29,7 +29,7 @@ def test_methods_from_classes_without_internal_and_deprecated():
     assert "define_background_points" in d_method and "estimate_background" in d_method
     assert not any(name.startswith(("plot", "get_", "_", "to_")) for name in d_method)
     assert "add_items" not in d_method  # a method of DataN
-    assert "calc_length_sq" not in take_methods(cryspy.Cell)  # deprecated
+    assert "calc_asymmetric_cell" not in take_methods(cryspy.SpaceGroup)  # deprecated
     assert "calc_sthovl" in take_methods(cryspy.Cell)
 
 
