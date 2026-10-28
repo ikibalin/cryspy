@@ -8,12 +8,15 @@ import pytest
 from cryspy.A_functions_base.optional_import import (
     MissingOptionalDependency, optional_module)
 
-# Run in a fresh interpreter where importing matplotlib fails.
+# Run in a fresh interpreter where importing matplotlib and the packages
+# it brings along fails (cryspy must not use them indirectly either).
 BLOCK_MATPLOTLIB = """
 import sys
+BLOCKED = ("matplotlib", "pyparsing", "cycler", "kiwisolver", "PIL",
+           "dateutil", "fontTools", "contourpy")
 class Block:
     def find_spec(self, name, path=None, target=None):
-        if name == "matplotlib" or name.startswith("matplotlib."):
+        if name.split(".")[0] in BLOCKED:
             raise ImportError("blocked " + name)
 sys.meta_path.insert(0, Block())
 """
