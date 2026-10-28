@@ -31,7 +31,10 @@ suggest_recipes finds it. The names of the recipe and of the steps are
 words of letters, digits and '_'; a name written in several words
 ('1. Define background: ...') is joined ('define_background'). 'Actions:'
 are tool calls separated by ';', each a tool name with its arguments in
-JSON; methods of the object are called with call_method (methods.py). A step may have 'When:' (the
+JSON; methods of the object are called with call_method (methods.py), and
+use_recipe {"name": ...} does the steps of another recipe in the place of
+the step, so that bigger recipes are built from smaller ones (check_recipe
+rejects unknown recipes and recipes that use each other in a circle). A step may have 'When:' (the
 condition), 'Success:' and 'Otherwise:' (by default: chi_sq/n, and R_F2 for
 single crystals, is better or unchanged without warnings; otherwise undo).
 
@@ -52,7 +55,7 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from cryspy.procedure_assistant.experiments import KINDS
 
@@ -86,6 +89,8 @@ RE_STEP = re.compile(r"^\s*(\d+)[.)]\s*([A-Za-z][\w\s\-]*?)\s*:\s*(.*)$")
 RE_STEP_FIELD = re.compile(r"^\s+(When|Actions|Success|Otherwise)\s*:\s*(.*)$")
 RE_RECIPE_FIELD = re.compile(r"^(Requests|For|Final answer)\s*:\s*(.*)$")
 RE_TOOL_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+USE_RECIPE = "use_recipe"  # the action of a step that does the steps of another recipe
+MAX_RECIPE_DEPTH = 5  # recipes used inside recipes inside ...
 
 D_USER_FOLDER = {"path": None}
 
@@ -279,6 +284,9 @@ def check_recipe(recipe: Recipe) -> List[str]:
             if tool is None:
                 l_problem.append(f"step {step.name:}: unknown tool {name:}{explain_method_name(name):}")
                 continue
+            if name == USE_RECIPE and not isinstance(arguments.get("name"), str):
+                l_problem.append(f"step {step.name:}: use_recipe needs the name of the recipe: "
+                                 'use_recipe {"name": "<recipe>"}')
             if name == "call_method" and str(arguments.get("method", "")) not in take_method_names():
                 l_problem.append(f"step {step.name:}: call_method: no CrysPy class has the method "
                                  f"'{arguments.get('method', ''):}' (list_methods gives them)")
@@ -286,6 +294,58 @@ def check_recipe(recipe: Recipe) -> List[str]:
             if len(l_argument) > 0 and not tool.flag_extra_arguments:
                 l_problem.append(f"step {step.name:}: {name:} has no arguments "
                                  f"{', '.join(l_argument):}")
+    if take_used_recipe_names(recipe):
+        l_problem.extend(find_recipe_problems_of_use(recipe))
+    return l_problem
+
+
+def read_recipes_unchecked() -> Dict[str, Recipe]:
+    """{name: recipe} of the recipe files that parse, without check_recipe
+    (which uses it); a recipe of the user replaces the one of CrysPy."""
+    d_recipe = {}
+    for path in take_recipe_paths():
+        try:
+            recipe = read_recipe_file(path)
+        except (OSError, UnicodeDecodeError, ValueError):
+            continue
+        d_recipe[recipe.name] = recipe
+    return d_recipe
+
+
+def take_used_recipe_names(recipe: Recipe) -> List[str]:
+    """Names of the recipes used by the steps (use_recipe)."""
+    return [str(arguments.get("name", "")) for step in recipe.steps
+            for action, arguments in step.actions if action == USE_RECIPE]
+
+
+def find_recipe_problems_of_use(recipe: Recipe) -> List[str]:
+    """Recipes used by the steps that are not in the CookBook, recipes that
+    use each other in a circle and too deep nesting."""
+    d_recipe = read_recipes_unchecked()
+    d_recipe[recipe.name] = recipe
+    l_problem = [f"use_recipe: recipe '{name:}' is not in the CookBook (list_recipes)"
+                 for name in take_used_recipe_names(recipe) if name not in d_recipe]
+
+    def find_chain(name: str, l_chain: List[str]) -> Optional[List[str]]:
+        if name in l_chain:  # a circle
+            return l_chain + [name]
+        if name not in d_recipe:
+            return None
+        if len(l_chain) > MAX_RECIPE_DEPTH:  # too deep
+            return l_chain + [name]
+        for inner in take_used_recipe_names(d_recipe[name]):
+            chain = find_chain(inner, l_chain + [name])
+            if chain is not None:
+                return chain
+        return None
+
+    chain = find_chain(recipe.name, [])
+    if chain is not None:
+        s_chain = " -> ".join(chain)
+        if chain[-1] in chain[:-1]:
+            l_problem.append(f"recipes use each other in a circle: {s_chain:}")
+        else:
+            l_problem.append(f"recipes are used inside recipes deeper than {MAX_RECIPE_DEPTH:}: {s_chain:}")
     return l_problem
 
 
@@ -466,7 +526,9 @@ Parameters are chosen by refine_parameters {"pattern": ...}: words ('scale',
 Methods of the data blocks, loops and items (list_methods), e.g. the method
 define_background_points of powder experiments, are tools too:
 call_method {"method": "define_background_points", "step_ttheta": 2}
-(for every block that has it; "path": "<block>" for one)."""
+(for every block that has it; "path": "<block>" for one).
+A step may do a whole recipe of the CookBook: use_recipe {"name": "<recipe>"};
+so small recipes are bricks of bigger ones (no recipe may use itself)."""
 
 S_RECIPE_WRITING = """How to write a recipe from the words of the user:
 1. Think over the algorithm: its steps in their order, the parameters of every step,
@@ -476,8 +538,9 @@ S_RECIPE_WRITING = """How to write a recipe from the words of the user:
    questions of the moment together; never ask what a tool can find.
 3. Write every step with the tools of the assistant only; an operation the user
    names that is not a tool is often a method of the object: list_methods
-   {"pattern": "<a word of it>"} finds it, call_method calls it. get_recipe <name>
-   shows a recipe of the CookBook as an example.
+   {"pattern": "<a word of it>"} finds it, call_method calls it. A part that a
+   recipe of the CookBook does already is one step with use_recipe {"name": ...}.
+   get_recipe <name> shows a recipe of the CookBook as an example.
 4. Check the text with check_recipe_text and correct it until it is correct.
 5. Show the recipe to the user and ask with ask_user whether to save it or what to
    change; save it with save_recipe only after the user agrees.
@@ -523,29 +586,27 @@ def suggest_recipes(l_kind: List[str]) -> List[Recipe]:
     return sorted(l_recipe, key=lambda recipe: -len(recipe.kinds))
 
 
-def run_recipe(cryspy_object, name: str, *, callback=None) -> dict:
-    """Run a recipe without a language model: the actions of every step as
-    they are written; a step is skipped when its parameters are not found
-    or it has no actions, undone when its refinement gives warnings, and
-    the recipe stops when a step without undo fails.
-
-    callback (keyword-only, optional) is called after every step as
-    callback(name of the step, status, text of the last action), e.g. to
-    show the course of the work.
-
-    Returns dict with keys 'text' (the report) and 'steps': a list of
-    (name of the step, status: 'done', 'skipped', 'undone' or 'failed',
-    text of the last action).
-    """
+def run_recipe_steps(cryspy_object, recipe: Recipe, l_step: list, l_metrics: list, callback=None,
+                     prefix: str = "", depth: int = 0) -> bool:
+    """Do the steps of the recipe (run_recipe); the steps of a recipe used
+    by a step (use_recipe) are done in their place and reported as
+    'step/inner step'. Adds (name, status, text) to l_step and the
+    metrics to l_metrics; False when a step failed (the recipe stops)."""
     from cryspy.procedure_assistant.tools import call_assistant_tool
-    recipe = take_recipe(name)
-    if recipe is None:
-        raise ValueError(f"Recipe '{name:}' is not known; known: "
-                         + ", ".join(recipe.name for recipe in take_recipes()))
-    l_step, l_metrics = [], []
     for step in recipe.steps:
         status, text = ("done", "") if len(step.actions) > 0 else ("skipped", "No actions.")
         for action, arguments in step.actions:
+            if action == USE_RECIPE:
+                inner = take_recipe(str(arguments.get("name", "")))
+                if inner is None or depth >= MAX_RECIPE_DEPTH:
+                    status, text = "failed", f"Recipe '{arguments.get('name', ''):}' cannot be used here."
+                    break
+                if not run_recipe_steps(cryspy_object, inner, l_step, l_metrics, callback,
+                                        f"{prefix:}{step.name:}/", depth + 1):
+                    status, text = "failed", f"Recipe {inner.name:} stopped."
+                    break
+                text = f"Recipe {inner.name:} is done."
+                continue
             result = call_assistant_tool(cryspy_object, action, dict(arguments))
             text = str(result["text"])
             if result["flag_error"] or result["missing"]:
@@ -561,11 +622,36 @@ def run_recipe(cryspy_object, name: str, *, callback=None) -> dict:
                     if "chi_sq_per_n" in result["metrics"]:
                         l_metrics.append(result["metrics"])
                 break
-        l_step.append((step.name, status, text))
+        l_step.append((f"{prefix:}{step.name:}", status, text))
         if callback is not None:
-            callback(step.name, status, text)
+            callback(f"{prefix:}{step.name:}", status, text)
         if status == "failed":
-            break
+            return False
+    return True
+
+
+def run_recipe(cryspy_object, name: str, *, callback=None) -> dict:
+    """Run a recipe without a language model: the actions of every step as
+    they are written; a step is skipped when its parameters are not found
+    or it has no actions, undone when its refinement gives warnings, and
+    the recipe stops when a step without undo fails. A step with the
+    action use_recipe does the steps of that recipe in its place; they are
+    reported as 'step/inner step'.
+
+    callback (keyword-only, optional) is called after every step as
+    callback(name of the step, status, text of the last action), e.g. to
+    show the course of the work.
+
+    Returns dict with keys 'text' (the report) and 'steps': a list of
+    (name of the step, status: 'done', 'skipped', 'undone' or 'failed',
+    text of the last action).
+    """
+    recipe = take_recipe(name)
+    if recipe is None:
+        raise ValueError(f"Recipe '{name:}' is not known; known: "
+                         + ", ".join(recipe.name for recipe in take_recipes()))
+    l_step, l_metrics = [], []
+    run_recipe_steps(cryspy_object, recipe, l_step, l_metrics, callback)
     ls_out = [f"Recipe {recipe.name:}:"]
     ls_out.extend(f"- {name:}: {status:}" for name, status, _ in l_step)
     if len(l_metrics) > 0:

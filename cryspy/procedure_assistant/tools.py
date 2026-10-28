@@ -460,6 +460,16 @@ def tool_get_recipe(cryspy_object, name: str) -> str:
     return recipe.to_text()
 
 
+def tool_use_recipe(cryspy_object, name: str) -> str:
+    """The steps of a recipe used by a step of another recipe: they are
+    done now, then the work goes on with the next step of that recipe."""
+    recipe = take_recipe(name)
+    if recipe is None:
+        return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
+    return (f"Do the steps of recipe {recipe.name:} now; after its last step go on with the "
+            f"next step of the recipe that uses it.\n{recipe.to_text():}")
+
+
 def tool_suggest_recipes(cryspy_object) -> str:
     d_kind = experiments.take_object_kinds(cryspy_object)
     if len(d_kind) == 0:
@@ -1244,6 +1254,13 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "Steps of a recipe: for each step the actions, what counts as "
         "success and what to do otherwise. Follow them one action at a time.",
         tool_get_recipe,
+        {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
+        required=("name", ), flag_object_needed=False),
+    AssistantTool(
+        "use_recipe",
+        "Inside a recipe: do the steps of another recipe of the CookBook here (recipes are "
+        "built from recipes), then go on with the next step.",
+        tool_use_recipe,
         {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
         required=("name", ), flag_object_needed=False),
     AssistantTool(
