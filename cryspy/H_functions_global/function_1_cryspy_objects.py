@@ -3,6 +3,7 @@ import logging
 import warnings
 import os
 import os.path
+import sys
 from typing import List
 
 from pycifstar import Global, to_global, Items, Loop, Data
@@ -164,20 +165,70 @@ L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
 L_GLOBAL_CLASS.extend([])
 
-F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
+def take_packages_file() -> str:
+    """File with the folders of the user's packages (see add_package).
 
-import sys
+    It is in the user's folder, as the package folder may be read-only
+    (a program built with PyInstaller, a system installation):
+    %APPDATA%\\CrysPy\\packages.dat on Windows,
+    ~/Library/Application Support/CrysPy/packages.dat on macOS,
+    ~/.config/cryspy/packages.dat on Linux ($XDG_CONFIG_HOME is respected).
+    The environment variable CRYSPY_PACKAGES_FILE sets another file.
+    """
+    f_env = os.environ.get("CRYSPY_PACKAGES_FILE", "")
+    if f_env != "":
+        return f_env
+    if sys.platform == "win32":
+        dir_base = os.path.join(
+            os.environ.get("APPDATA", os.path.expanduser("~")), "CrysPy")
+    elif sys.platform == "darwin":
+        dir_base = os.path.join(os.path.expanduser("~"), "Library",
+                                "Application Support", "CrysPy")
+    else:
+        dir_base = os.environ.get("XDG_CONFIG_HOME", "")
+        if dir_base == "":
+            dir_base = os.path.join(os.path.expanduser("~"), ".config")
+        dir_base = os.path.join(dir_base, "cryspy")
+    return os.path.join(dir_base, "packages.dat")
+
+
+F_PACKAGES = take_packages_file()
+# older versions kept the list in the package folder; it is read
+# while the user's file does not exist yet
+F_OLD_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
+
 from importlib import import_module
 
 logger = logging.getLogger(__name__)
 
 
+def read_package_lines() -> list:
+    """Lines of the file of the user's packages (empty if there is none)."""
+    for f_name in (F_PACKAGES, F_OLD_PACKAGES):
+        if os.path.isfile(f_name):
+            with open(f_name, "r") as fid:
+                return fid.readlines()
+    return []
+
+
+def write_package_lines(l_line: list):
+    """Save the folders of the user's packages; a file that cannot be
+    written (read-only folder) is reported, not raised."""
+    try:
+        dir_name = os.path.dirname(F_PACKAGES)
+        if dir_name != "":
+            os.makedirs(dir_name, exist_ok=True)
+        with open(F_PACKAGES, "w") as fid:
+            fid.write("\n".join(l_line) + "\n")
+    except OSError as error:
+        warnings.warn(f"The list of packages is not saved: {error}",
+                      stacklevel=2)
+
+
 def load_packages():
     """Load external packages."""
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, "r") as fid:
-            l_content = fid.readlines()
-    else:
+    l_content = read_package_lines()
+    if len(l_content) == 0:
         return
     l_content_new = []
     for f_name in l_content:
@@ -216,43 +267,30 @@ does not contains in 'init.py' parameter 'L_FUNCTION'.", stacklevel=2)
             f_ok = False
         if f_ok:
             l_content_new.append(f_name_sh)
-    with open(F_PACKAGES, "w") as fid:
-        fid.write("\n".join(l_content_new)+"\n")
+    # packages that are not found any more are removed from the list
+    if l_content_new != [hh.strip() for hh in l_content if hh.strip() != ""]:
+        write_package_lines(l_content_new)
 
 
 def add_package(f_name: str):
     """Add packages to cryspy library."""
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, 'r') as fid:
-            l_cont = fid.readlines()
-        if not(f_name+"\n" in l_cont):
-            with open(F_PACKAGES, 'a') as fid:
-                fid.write(f_name+"\n")
-    else:
-        with open(F_PACKAGES, 'a') as fid:
-            fid.write(f_name+"\n")
+    l_line = [hh.strip() for hh in read_package_lines() if hh.strip() != ""]
+    if f_name.strip() not in l_line:
+        l_line.append(f_name.strip())
+        write_package_lines(l_line)
 
 
 def packages():
     """Give list of installed packages."""
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, "r") as fid:
-            l_content = fid.readlines()
-        l_res = [hh for hh in l_content if hh.strip() != ""]
-    else:
-        l_res = []
-    return l_res
+    return [hh for hh in read_package_lines() if hh.strip() != ""]
 
 
 def delete_package(f_name: str):
     """Delete from the list of installed packages."""
     f_name_sh = f_name.strip()
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, "r") as fid:
-            l_content = fid.readlines()
-        l_res = [hh for hh in l_content if hh.strip() != f_name_sh]
-        with open(F_PACKAGES, "w") as fid:
-            fid.write("\n".join(l_res) + "\n")
+    l_line = [hh.strip() for hh in read_package_lines() if hh.strip() != ""]
+    if f_name_sh in l_line:
+        write_package_lines([hh for hh in l_line if hh != f_name_sh])
 
 
 def is_in_rcif_block(rcif_block, cryspy_obj):
