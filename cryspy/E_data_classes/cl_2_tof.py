@@ -30,6 +30,8 @@ from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
 from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeasL
 from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters
 from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeakL
+from cryspy.A_functions_base.plot_peak_labels import (
+    add_interactive_peak_labels, form_hkl_labels)
 from cryspy.C_item_loop_classes.cl_1_tof_proc import TOFProcL
 from cryspy.C_item_loop_classes.cl_1_tof_profile import TOFProfile
 
@@ -95,14 +97,23 @@ class TOF(DataN):
             y_min_s, y_max_s = ax_hkl.get_ylim()
             y_dist_s = y_max_s-y_min_s
             y_step_s = 0.
+            l_peaks = []
             for item in self.items:
                 if isinstance(item, TOFPeakL):
                     np_time = item.numpy_time
-                    ax_hkl.plot(np_time, 0.*np_time+y_min_s -
-                                y_step_s, "|", label=item.loop_name)
+                    lines = ax_hkl.plot(np_time, 0.*np_time+y_min_s -
+                                        y_step_s, "|", label=item.loop_name)
                     y_step_s += 0.05*y_dist_s
+                    l_peaks.append((
+                        np_time,
+                        form_hkl_labels(item.index_h, item.index_k, item.index_l),
+                        lines[0].get_color()))
             res = []
             ax_s.legend(loc='upper right')
+            np_time_curve, np_curve = tof_proc.calc_upper_curve()
+            add_interactive_peak_labels(
+                ax_s, l_peaks, x_curve=np_time_curve, y_curve=np_curve,
+                n_visible=5)
             res.append((fig_s, ax_s))
             return res
         elif self.is_attribute("tof_meas"):
