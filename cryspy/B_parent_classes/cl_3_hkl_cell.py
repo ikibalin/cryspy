@@ -1,5 +1,5 @@
 # calculate d, sthovl based on hkl and cell for objects that supprot it
-from pyparsing.common import Union
+from typing import Union
 
 import numpy
 from cryspy.B_parent_classes.cl_2_loop import LoopN

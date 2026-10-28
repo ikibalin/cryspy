@@ -8,8 +8,12 @@ CrysPy is a Python library for crystallographic analysis of neutron (and X-ray)
 diffraction data: polarized/unpolarized single crystal and powder refinement
 (RhoChi), TOF, magnetic space groups (mcif), and MEM reconstruction of
 magnetization/spin density. Input and output are CIF-like `.rcif` files parsed
-with `pycifstar`. Runtime dependencies: `numpy`, `scipy`, `pycifstar`,
-`matplotlib`. Supported Python: 3.10+ (numpy >= 2.0).
+with `pycifstar`. Runtime dependencies: `numpy`, `scipy`, `pycifstar`;
+visualization libraries are optional extras (`cryspy[plot]` = `matplotlib`,
+`cryspy[all]`). Import them only through
+`cryspy.A_functions_base.optional_import.optional_module` (lazy, with a clear
+message), never at module level, so `import cryspy` works without them.
+Supported Python: 3.10+ (numpy >= 2.0).
 
 ## Commands
 

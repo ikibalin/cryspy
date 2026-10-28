@@ -5,7 +5,8 @@ __version__ = "2020_08_19"
 
 from typing import NoReturn
 import numpy
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.matrix_operations import (
     calc_vector_product_v1_v2_v1,
