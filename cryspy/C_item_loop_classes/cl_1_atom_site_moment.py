@@ -11,7 +11,6 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.A_functions_base.unit_cell import calc_m_m_norm_by_unit_cell_parameters
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 class AtomSiteMoment(ItemN):
     """AtomSiteMoment describes an atom’s ordered magnetic moment.
@@ -112,7 +111,6 @@ Ensure the ion label matches the label in the atom_site loop.
                                numpy.square(m_xyz[2]))
         return np_moment
 
-    @deprecated
     def calc_zeeman(self, field_cryst, cell:Cell):
         """Calc Zeeman energy.
 

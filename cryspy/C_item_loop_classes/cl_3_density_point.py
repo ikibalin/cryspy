@@ -1046,7 +1046,6 @@ class DensityPointL(LoopN):
             (k_hkl_1[:, na], k_hkl_2[:, na], k_hkl_3[:, na]), v_antiferro)
         return v_hkl_perp_2d_i, v_perp_ferro, v_perp_antiferro
 
-    @deprecated
     def calc_electrons_per_unit_cell(self):
         """
         Calculate electrons per unit cell.

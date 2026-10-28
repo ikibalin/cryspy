@@ -536,7 +536,6 @@ class Crystal(DataN):
             l_res.append(chi_as_u_loc)
         return l_res
 
-    @deprecated
     def calc_main_axes_of_magnetization_ellipsoids(self):
         """Susceptibility along the main axes of magnetization ellipsoid.
 
@@ -586,7 +585,6 @@ class Crystal(DataN):
 
         return s_out
 
-    @deprecated
     def calc_magnetic_moments_with_field_loc(self, field_abc):
         """Orientation of magetic moment for atoms at applied magnetic field.
 

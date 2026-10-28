@@ -14,7 +14,6 @@ from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
     SpaceGroupSymop, SpaceGroupSymopL
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class Section(ItemN):
@@ -172,7 +171,6 @@ class Section(ItemN):
             pos_xyz[0, :], pos_xyz[1, :], pos_xyz[2, :])
         return fract_x, fract_y, fract_z
 
-    @deprecated
     def calc_atoms(self, cell: Cell, atom_site: AtomSiteL,
                    space_group_symop: SpaceGroupSymopL, distance_min=0.3):
         """Calculate position of atoms in the section plane.

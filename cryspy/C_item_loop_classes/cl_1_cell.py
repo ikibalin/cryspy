@@ -11,7 +11,6 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.exceptions import CrysPyError
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class Cell(ItemN):
@@ -91,7 +90,6 @@ class Cell(ItemN):
         for key, attr in kwargs.items():
             setattr(self, key, attr)
 
-    @deprecated
     def apply_constraints_by_type_cell_it_coordinate_system_code(
             self, type_cell: str, it_coordinate_system_code: str) -> NoReturn:
         """Apply constraints."""
@@ -473,7 +471,6 @@ class Cell(ItemN):
         z = m_im[2, 0]*p_x + m_im[2, 1]*p_y + m_im[2, 2]*p_z
         return x, y, z
 
-    @deprecated
     def calc_length_sq(self, x, y, z):
         """
         According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
@@ -488,7 +485,6 @@ class Cell(ItemN):
                 2.*x*y*a*b*c_g + 2.*x*z*a*c*c_b + 2.*y*z*b*c*c_a)
         return t_sq
 
-    @deprecated
     def closest_distance_between_fractions(self, fract_1: numpy.ndarray, fract_2: numpy.ndarray) -> numpy.ndarray:
         """
         Give closest distance between two fractions
@@ -512,7 +508,6 @@ class Cell(ItemN):
         distance = numpy.sqrt((numpy.square(diff_pos)).sum(axis=0))
         return distance
 
-    @deprecated
     def calc_reciprocal_length_sq(self, h, k, l):
         """
         According to IT_C Section 1.1.2 Lattice vectors, point rows and net planes
