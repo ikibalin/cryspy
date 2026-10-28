@@ -32,6 +32,10 @@ each a tool name with its arguments in JSON. A step may have 'When:' (the
 condition), 'Success:' and 'Otherwise:' (by default: chi_sq/n, and R_F2 for
 single crystals, is better or unchanged without warnings; otherwise undo).
 
+An assistant writes a recipe from the words of the user with the tools
+get_recipe_guide (form_recipe_guide: the format and the way of work),
+ask_user (its questions to the user), check_recipe_text and save_recipe.
+
 run_recipe follows a recipe without a model, taking the tool calls of the
 steps as they are and undoing a refinement with warnings; it checks that
 the recipes work and runs them from scripts:
@@ -359,6 +363,90 @@ def delete_user_recipe(name: str) -> bool:
         return False
     os.remove(path)
     return True
+
+
+def find_recipe_advice(recipe: Recipe) -> List[str]:
+    """Remarks on a correct recipe that are not errors: what a recipe
+    written from the words of the user often misses."""
+    l_advice = []
+    for ind, step in enumerate(recipe.steps):
+        l_name = [name for name, _ in step.actions]
+        if "refine_parameters" in l_name and "refine" not in l_name[l_name.index("refine_parameters"):]:
+            l_later = [name for later in recipe.steps[ind + 1:] for name, _ in later.actions]
+            if "refine" not in l_later:
+                l_advice.append(f"step {step.name:} marks parameters for refinement, but no step "
+                                "refines them (refine)")
+        if len(step.actions) == 0 and step.success == S_SUCCESS:
+            l_advice.append(f"step {step.name:} has no actions: the assistant does it by its goal; "
+                            "write in 'Success:' what it should give")
+    l_cryspy = [os.path.splitext(name)[0] for name in os.listdir(DIR_RECIPE_FILES)
+                if name.endswith(RECIPE_EXTENSION)]
+    if recipe.name in l_cryspy:
+        l_advice.append(f"the name {recipe.name:} is the one of a recipe of CrysPy: yours replaces it")
+    return l_advice
+
+
+def check_recipe_text(text: str) -> str:
+    """Check the text of a recipe: 'Error: ...' (where and what is wrong)
+    or the short contents of the correct recipe with remarks."""
+    try:
+        recipe = parse_recipe(text)
+    except ValueError as error:
+        return f"Error: {error:}. The format: get_recipe_guide."
+    l_problem = check_recipe(recipe)
+    if len(l_problem) > 0:
+        return f"Error in recipe {recipe.name:}: {'; '.join(l_problem):}."
+    ls_out = [f"Recipe {recipe.name:} is correct: {len(recipe.steps):} steps "
+              f"({', '.join(step.name for step in recipe.steps):})."]
+    if not recipe.kinds:
+        ls_out.append("It has no 'For:', so it is not suggested for any experiment.")
+    l_advice = find_recipe_advice(recipe)
+    if l_advice:
+        ls_out.append("Remarks: " + "; ".join(l_advice) + ".")
+    return "\n".join(ls_out)
+
+
+S_RECIPE_FORMAT = """The format of a recipe (lines starting with '#' are comments):
+Recipe <name>: <title>              name: letters, digits and '_'
+Requests: <words of the requests of the user the recipe is for>
+For: <kinds of experiments, all must apply>
+<number>. <step name>: <goal of the step>
+   When: <condition of the step, optional>
+   Actions: <tool> {<arguments in JSON>}; <tool>; ...   (tools of the assistant)
+   Success: <what the results should show, optional>
+   Otherwise: <what to do when they do not, optional>
+Final answer: <what the answer to the user contains>
+By default a step is good when chi_sq/n (and R_F2 for single crystals) is better or
+unchanged without warnings; otherwise the refinement is undone (undo_refinement).
+Parameters are chosen by refine_parameters {"pattern": ...}: words ('scale',
+'atomic positions', 'adp', 'extinction', 'unit cell', 'polarization') or paths
+('atom_site.fract_x', '*.pd_background[*].intensity'); then refine."""
+
+S_RECIPE_WRITING = """How to write a recipe from the words of the user:
+1. Think over the algorithm: its steps in their order, the parameters of every step,
+   the conditions ('When:'), what counts as success and what to do otherwise.
+2. When something is not clear (which parameters, a condition, the kinds of
+   experiments, what to do on a failure), ask the user with ask_user, all the
+   questions of the moment together; never ask what a tool can find.
+3. Write every step with the tools of the assistant only; get_recipe <name> shows
+   a recipe of the CookBook as an example.
+4. Check the text with check_recipe_text and correct it until it is correct.
+5. Show the recipe to the user and ask with ask_user whether to save it or what to
+   change; save it with save_recipe only after the user agrees.
+6. Final answer: the name of the recipe, the file where it is saved and its text."""
+
+
+def form_recipe_guide() -> str:
+    """Everything a language model needs to write a recipe: the format, the
+    kinds of experiments, the recipes of the CookBook, a template and the
+    way of work."""
+    return "\n\n".join([
+        S_RECIPE_FORMAT,
+        f"Kinds of experiments for 'For:': {', '.join(KINDS + (KIND_ANY, )):} "
+        f"('{KIND_ANY:}': never suggested for an experiment).",
+        f"Recipes of the CookBook (examples, get_recipe gives the steps):\n{recipes_as_text():}",
+        f"A template:\n{S_TEMPLATE.strip():}",
+        S_RECIPE_WRITING])
 
 
 def take_recipe(name: str) -> Optional[Recipe]:

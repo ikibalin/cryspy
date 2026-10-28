@@ -1,6 +1,6 @@
 ---
 title: Recipes of the AI assistant (typical algorithms of analysis)
-keywords: recipe, recipes, algorithm, step by step, write a recipe, new recipe, edit recipe, рецепт, рецепты, алгоритм, по шагам
+keywords: recipe, recipes, cookbook, algorithm, step by step, write a recipe, new recipe, edit recipe, compose a recipe, рецепт, рецепты, алгоритм, по шагам, написать рецепт, составить рецепт
 categories:
 ---
 A recipe is a text file with the steps of an analysis. The assistant reads
@@ -8,7 +8,7 @@ it (tool `get_recipe`) and calls the tools of each step itself, judging the
 results; `cryspy.run_recipe(obj, name)` runs it without a model. The recipes
 of CrysPy are in `cryspy/procedure_assistant/recipe_files/`; the recipes of
 the user are in the folder given by `cryspy.set_user_recipe_folder(path)`
-(CrysPy Editor: AI assistant → Recipes...). A recipe of the user replaces
+(CrysPy Editor: AI assistant → CookBook...). A recipe of the user replaces
 the one of CrysPy with the same name.
 
 ```
@@ -39,3 +39,11 @@ Final answer: chi_sq/n at the start and at the end.
 - `Success:` and `Otherwise:` are optional; by default a step is good when
   chi_sq/n (and R_F2 for single crystals) is better or unchanged without
   warnings, otherwise the refinement is undone (`undo_refinement`).
+
+The assistant writes a recipe from an algorithm described in words: it
+reads the format (tool `get_recipe_guide`), asks the user what is not clear
+(tool `ask_user`, the questions come as `missing` like the other questions
+of the tools), checks its text (tool `check_recipe_text`), shows it and,
+when the user agrees, saves it to the folder of the user (tool
+`save_recipe`, which asks before replacing a recipe of the user). A step of
+a recipe may ask the user too: `Actions: ask_user {"question": "..."}`.
