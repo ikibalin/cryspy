@@ -2,6 +2,7 @@
 
 __author__ = "ikibalin"
 __version__ = "2020_08_19"
+import dataclasses
 import logging
 import numpy
 
@@ -39,6 +40,15 @@ from cryspy.A_functions_base.structure_factor import (
 )
 
 from cryspy.A_functions_base.function_3_mcif import calc_multiplicity
+from cryspy.A_functions_base.structure_scene import calc_structure_scene
+from cryspy.D_functions_item_loop.function_1_view_structure import (
+    StructureViewSettings,
+    ipywidgets,
+    make_settings_widgets,
+    make_structure_view,
+    make_structure_view_html,
+    take_element,
+)
 from cryspy.A_functions_base.mempy import (
     form_basins_2,
     calc_symm_elem_points_by_index_points,
@@ -673,6 +683,136 @@ class Crystal(DataN):
 
     def plots(self):
         return []
+
+    def get_structure_scene(self, settings=None):
+        """Atoms, magnetic moments and cell edges for a 3D view.
+
+        Symmetry comes from the magnetic space group (mcif operations and
+        centrings, with time reversal) or from the space group; moments
+        from ``atom_site_moment`` (μB along a/|a|, b/|b|, c/|c|).
+
+        Parameters
+        ----------
+        settings : StructureViewSettings
+            Number of cells and what to show; the defaults if None.
+
+        Returns
+        -------
+        scene : dict
+            See ``structure_scene.calc_structure_scene``; also
+            ``atom_element`` and ``atom_label`` of the asymmetric unit.
+        """
+        if settings is None:
+            settings = StructureViewSettings()
+        cell, atom_site = self.cell, self.atom_site
+        rad = numpy.pi / 180.0
+        unit_cell_parameters = numpy.array([
+            cell.length_a, cell.length_b, cell.length_c,
+            cell.angle_alpha * rad, cell.angle_beta * rad,
+            cell.angle_gamma * rad], dtype=float)
+        if (self.is_attribute("space_group_symop_magn_operation") and
+                self.is_attribute("space_group_symop_magn_centering")):
+            full_symm_elems = calc_full_mag_elems(
+                self.space_group_symop_magn_operation.get_sym_elems(),
+                self.space_group_symop_magn_centering.get_sym_elems())
+        elif self.is_attribute("space_group"):
+            full_symm_elems = (
+                self.space_group.full_space_group_symop.get_symm_elems())
+        else:
+            full_symm_elems = numpy.array(
+                [[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]],
+                dtype=int)
+        atom_label = numpy.array(atom_site.label, dtype=str)
+        atom_fract_xyz = numpy.array(
+            [atom_site.fract_x, atom_site.fract_y, atom_site.fract_z],
+            dtype=float)
+        atom_moment = None
+        if self.is_attribute("atom_site_moment"):
+            atom_moment = numpy.full(atom_fract_xyz.shape, numpy.nan)
+            for moment in self.atom_site_moment.items:
+                flags = atom_label == moment.label
+                atom_moment[:, flags] = numpy.array([
+                    moment.crystalaxis_x, moment.crystalaxis_y,
+                    moment.crystalaxis_z], dtype=float)[:, numpy.newaxis]
+        scene = calc_structure_scene(
+            unit_cell_parameters, full_symm_elems, atom_fract_xyz,
+            atom_moment_crystalaxis=atom_moment, n_cells=settings.n_cells,
+            flag_boundary=settings.show_boundary_atoms,
+            flag_inner_edges=settings.show_inner_cells)
+        if atom_site.is_attribute("type_symbol"):
+            symbols = atom_site.type_symbol
+        else:
+            symbols = atom_site.label
+        scene["atom_element"] = [take_element(symbol) for symbol in symbols]
+        scene["atom_label"] = list(atom_label)
+        return scene
+
+    def view_structure(
+            self, settings=None, interactive: bool = False, js: str = None,
+            **kwargs):
+        """Interactive 3D view of the crystal structure (py3Dmol).
+
+        Needs the optional extra ``pip install cryspy[view3d]``. In a
+        Jupyter notebook the returned view shows itself; with
+        ``interactive=True`` sliders and check boxes for the settings are
+        shown above it.
+
+        Parameters
+        ----------
+        settings : StructureViewSettings
+            Settings of the view; the defaults if None.
+        interactive : bool
+            Show widgets to change the settings (Jupyter, ipywidgets).
+        js : str
+            URL of 3Dmol-min.js; the py3Dmol default (CDN) if None.
+        **kwargs
+            Fields of ``StructureViewSettings`` to change, e.g.
+            ``n_cells_a=2, show_labels=True``.
+
+        Returns
+        -------
+        py3Dmol.view, or ipywidgets.VBox when ``interactive`` is True.
+        """
+        if settings is None:
+            settings = StructureViewSettings()
+        settings = dataclasses.replace(settings, **kwargs)
+        if not interactive:
+            scene = self.get_structure_scene(settings)
+            return make_structure_view(
+                scene, scene["atom_element"], scene["atom_label"],
+                settings=settings, js=js)
+
+        widgets = make_settings_widgets(settings)
+        output = ipywidgets.Output()
+
+        def redraw(change=None):
+            new = StructureViewSettings(
+                **{name: widget.value for name, widget in widgets.items()})
+            output.clear_output(wait=True)
+            with output:
+                self.view_structure(settings=new, js=js).show()
+
+        for widget in widgets.values():
+            widget.observe(redraw, names="value")
+        redraw()
+        return ipywidgets.VBox([
+            ipywidgets.HBox(list(widgets.values()),
+                            layout=ipywidgets.Layout(flex_flow="row wrap")),
+            output])
+
+    def get_structure_view_html(self, settings=None, js: str = None) -> str:
+        """HTML page with the 3D view of the structure (for a web view).
+
+        Parameters
+        ----------
+        settings : StructureViewSettings
+            Settings of the view; the defaults if None.
+        js : str
+            URL of 3Dmol-min.js, e.g. a local file for work offline; the
+            py3Dmol default (CDN) if None.
+        """
+        view = self.view_structure(settings=settings, js=js)
+        return make_structure_view_html(view)
 
     def get_flags_atom_beta(self):
         atom_site = self.atom_site

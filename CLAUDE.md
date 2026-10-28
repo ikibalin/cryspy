@@ -10,7 +10,7 @@ diffraction data: polarized/unpolarized single crystal and powder refinement
 magnetization/spin density. Input and output are CIF-like `.rcif` files parsed
 with `pycifstar`. Runtime dependencies: `numpy`, `scipy`, `pycifstar`;
 visualization libraries are optional extras (`cryspy[plot]` = `matplotlib`,
-`cryspy[all]`). Import them only through
+`cryspy[view3d]` = `py3Dmol`, `ipywidgets`; `cryspy[all]`). Import them only through
 `cryspy.A_functions_base.optional_import.optional_module` (lazy, with a clear
 message), never at module level, so `import cryspy` works without them.
 Supported Python: 3.10+ (numpy >= 2.0).
