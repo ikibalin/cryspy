@@ -480,9 +480,6 @@ class LoopN(object):
         NoReturn
 
         """
-        item_class = self.ITEM_CLASS
-        l_attr_print = item_class.ATTR_NAMES
-        l_cif_attr = item_class.ATTR_NAMES_CIF
         """
         l_flag = [all([_item.is_defined_attribute(_attr) for _item in self.item]) for _attr in l_attr_print]
         l_attr_print = [_ for _, _flag in zip(l_attr_print, l_flag) if _flag]

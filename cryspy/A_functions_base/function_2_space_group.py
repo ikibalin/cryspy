@@ -113,7 +113,6 @@ def read_wyckoff():
         data = {"it_number": int(l_param[0]), "choice": int(l_param[1]), "centr_000": int(l_param[3] == 1),
                 "hm_full": hm_full.strip(), "wyckoff": []}
         l_cont_2 = l_cont[(_numb_b + 1):_numb_e]
-        l_wyckoff_symop = []
         l_d_card = []
         d_card = None
         for _line in l_cont_2:
@@ -1130,7 +1129,6 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
     FIXME: HOW it works for 166 space group
     crystal system should be trigonal or hexagonal
     """
-    crystal_system = get_crystal_system_by_it_number(it_number)
     if it_coordinate_system_code is None:
         choice = "1"
     elif "3" in it_coordinate_system_code:

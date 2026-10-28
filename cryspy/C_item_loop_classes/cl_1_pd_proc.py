@@ -354,7 +354,6 @@ class PdProcL(LoopN):
         signal_sum_net = numpy.array(self.intensity_plus_net, dtype=float) + \
             numpy.array(self.intensity_minus_net, dtype=float) 
         included_points = numpy.logical_not(numpy.array(self.excluded, dtype=bool))
-        model_bkgr = numpy.array(self.intensity_bkg_calc, dtype=float)
 
         variable_names = pd_background.get_variable_names()
         param_0 = [pd_background.get_variable_by_name(name) for name in variable_names]

@@ -99,11 +99,9 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     """Calculate chi_sq for diffrn experiment.
     """
     if dict_in_out is None:
-        flag_dict = False
         flag_use_precalculated_data = False
         dict_in_out_keys = []
     else:
-        flag_dict = True
         dict_in_out_keys = dict_in_out.keys()
     dict_pd_keys = dict_pd.keys()
 
@@ -248,8 +246,6 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         if "reduced_symm_elems" in dict_crystal_keys:
             reduced_symm_elems  = dict_crystal["reduced_symm_elems"]
             translation_elems = dict_crystal["translation_elems"]
-        elif "full_symm_elems" in dict_crystal_keys:
-            full_symm_elems = dict_crystal["full_symm_elems"]
         elif "full_mcif_elems" in dict_crystal_keys:
             full_mcif_elems  = dict_crystal["full_mcif_elems"]
 
@@ -312,7 +308,6 @@ def calc_chi_sq_for_pd2d_by_dictionary(
             sft_ccs, dder_sft_ccs = calc_sft_ccs_by_dictionary(
                 dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
             flag_sft_ccs  = len(dder_sft_ccs.keys()) > 0
-            flag_matrix_t = flag_unit_cell_parameters
             matrix_t, dder_matrix_t = calc_matrix_t(
                 index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
@@ -327,7 +322,6 @@ def calc_chi_sq_for_pd2d_by_dictionary(
             flag_f_m_perp_o =  len(dder_f_m_perp_o_ccs.keys()) > 0
             flag_ordered = True
 
-            flag_matrix_t = flag_unit_cell_parameters
             matrix_t, dder_matrix_t = calc_matrix_t(
                 index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
             f_m_perp_o, dder_f_m_perp_o = calc_m_v(matrix_t, f_m_perp_o_ccs, flag_m=flag_unit_cell_parameters, flag_v=flag_f_m_perp_o)
@@ -515,14 +509,12 @@ def calc_chi_sq_for_pd2d_by_dictionary(
     l_flags_crystal = [get_flags(dict_crystal) for dict_crystal in dict_crystals]
 
     dder_signal_pd2d_sum = {}
-    dder_signal_pd2d_difference = {}
 
     if flag_calc_analytical_derivatives:
         if flag_background_intensity:
             dder_signal_pd2d_sum['background_intensity'] = dder_s_bkgr['background_intensity']
 
     dder_signal_pd2d_sum_keys = dder_signal_pd2d_sum.keys()
-    dder_signal_pd2d_difference_keys = dder_signal_pd2d_difference.keys()
 
     l_dder_plus_p = []
     l_parameter_name = []

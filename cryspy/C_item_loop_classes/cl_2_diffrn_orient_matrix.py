@@ -378,8 +378,6 @@ class DiffrnOrientMatrix(ItemN):
 
     def get_dictionary(self):
         res = {}
-        u_matrix = self.u
-        e_up = numpy.array([u_matrix[2,0], u_matrix[2,1], u_matrix[2,2]], dtype=float)
 
         res["matrix_u"] = numpy.array([
             self.u_11, self.u_12, self.u_13,

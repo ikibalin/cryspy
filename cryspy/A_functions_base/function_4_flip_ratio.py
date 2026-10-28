@@ -99,9 +99,6 @@ def calc_flip_ratio(
         der_f_mag_perp_vert__f_mag_perp_im = \
             dder_f_mag_perp_vert["der__vector_1_im"]
 
-    if flag_e_up:
-        der_f_mag_perp_vert__e_up = dder_f_mag_perp_vert["der__vector_2_re"]
-
     flag_f_mag_perp_vert = any([flag_f_mag_perp, flag_e_up])
 
     f_plus_sq, dder_f_plus_sq = calc_f_plus_sq(
@@ -109,15 +106,6 @@ def calc_flip_ratio(
     f_minus_sq, dder_f_minus_sq = calc_f_minus_sq(
         f_nucl, f_mag_perp_vert, flag_f_nucl, flag_f_mag_perp_vert)
 
-    if flag_f_nucl:
-        der_f_plus_sq__f_nucl_re = \
-            dder_f_plus_sq["der__f_nucl_re"]
-        der_f_plus_sq__f_nucl_im = \
-            dder_f_plus_sq["der__f_nucl_im"]
-        der_f_minus_sq__f_nucl_re = \
-            dder_f_minus_sq["der__f_nucl_re"]
-        der_f_minus_sq__f_nucl_im = \
-            dder_f_minus_sq["der__f_nucl_im"]
     if flag_f_mag_perp_vert:
         der_f_plus_sq__f_mag_perp_vert_re = \
             dder_f_plus_sq["der__f_mag_perp_vert_re"]
@@ -180,14 +168,12 @@ def calc_flip_ratio(
     if flag_derivatives:
         der_int_up__f_plus_sq = part_u_u*(1.+0.*f_plus_sq)*y_plus
         der_int_up__f_minus_sq = part_u_d*(1.+0.*f_minus_sq)*y_minus
-        der_int_up__f_mag_sq = (1.+0.*f_mag_sq)*y_mag
         der_int_up__y_plus = part_u_u*f_plus_sq*(1.+0.*y_plus)
         der_int_up__y_minus = part_u_d*f_minus_sq*(1.+0.*y_minus)
         der_int_up__y_mag = f_mag_sq*(1.+0.*y_mag)
 
         der_int_down__f_plus_sq = part_d_u*(1.+0.*f_plus_sq)*y_plus
         der_int_down__f_minus_sq = part_d_d*(1.+0.*f_minus_sq)*y_minus
-        der_int_down__f_mag_sq = der_int_up__f_mag_sq
         der_int_down__y_plus = part_d_u*f_plus_sq*(1.+0.*y_plus)
         der_int_down__y_minus = part_d_d*f_minus_sq*(1.+0.*y_minus)
         der_int_down__y_mag = der_int_up__y_mag

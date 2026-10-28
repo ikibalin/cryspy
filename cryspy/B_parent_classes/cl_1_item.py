@@ -357,7 +357,6 @@ class ItemN(object):
             l_ATTR_REF, l_ATTR_SIGMA = [], []
             l_ATTR_CONSTR_FLAG, l_ATTR_REF_FLAG = [], []
             l_ATTR_CONSTR_MARK = []
-            variable_names = []
             for name in self.ATTR_NAMES:
                 s_value = getattr(self, name)
                 value, flag_refined = string_to_fixed_or_refined(s_value)

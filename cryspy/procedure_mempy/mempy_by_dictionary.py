@@ -86,13 +86,11 @@ def calc_preliminary_information_by_dictionary(
 
     if "full_symm_elems" in dict_crystal.keys():
         full_symm_elems = dict_crystal["full_symm_elems"]
-        flag_mcif = False
         full_symm_theta = None
     elif "full_mcif_elems" in dict_crystal.keys():
         full_mcif_elems = dict_crystal["full_mcif_elems"]
         full_symm_elems = full_mcif_elems[:-1, :]
         full_symm_theta = full_mcif_elems[-1, :]
-        flag_mcif = True
 
     atom_label = dict_crystal["atom_label"]
     atom_fract_xyz = dict_crystal["atom_fract_xyz"]
@@ -569,24 +567,6 @@ def mempy_reconstruction_by_dictionary(
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     volume_unit_cell = dict_in_out["volume_unit_cell"]
 
-    if "full_symm_elems" in dict_crystal.keys():
-        full_symm_elems = dict_crystal["full_symm_elems"]
-        flag_mcif = False
-        full_symm_theta = None
-
-        reduced_symm_elems = dict_crystal["reduced_symm_elems"]
-        centrosymmetry = dict_crystal["centrosymmetry"]
-        if centrosymmetry:
-            centrosymmetry_position = dict_crystal["centrosymmetry_position"]
-        else:
-            centrosymmetry_position = None
-        translation_elems = dict_crystal["translation_elems"]
-    elif "full_mcif_elems" in dict_crystal.keys():
-        full_mcif_elems = dict_crystal["full_mcif_elems"]
-        full_symm_elems = full_mcif_elems[:-1, :]
-        full_symm_theta = full_mcif_elems[-1, :]
-        flag_mcif = True
-
     flag_asymmetry = dict_mem_parameters["flag_asymmetry"]
 
     # **Preaparation to MEM itertion procedure**
@@ -616,9 +596,7 @@ def mempy_reconstruction_by_dictionary(
         dict_in_out["magnetization_minus"] = magnetization_minus
 
     index_auc = dict_in_out["index_auc"]
-    symm_elem_auc = dict_in_out["symm_elem_auc"]
     point_multiplicity = dict_in_out["point_multiplicity"]
-    n_abc = dict_mem_parameters["points_abc"]
     number_unit_cell = dict_in_out["number_unit_cell"]
 
     if "mag_atom_multiplicity" in dict_in_out.keys():
@@ -1124,9 +1102,7 @@ def save_density_to_den_file(
         mag_atom_label = []
 
     if "full_symm_elems" in dict_crystal.keys():
-        full_symm_elems = dict_crystal["full_symm_elems"]
         flag_mcif = False
-        full_symm_theta = None
 
         reduced_symm_elems = dict_crystal["reduced_symm_elems"]
         centrosymmetry = dict_crystal["centrosymmetry"]
@@ -1137,15 +1113,11 @@ def save_density_to_den_file(
         translation_elems = dict_crystal["translation_elems"]
     elif "full_mcif_elems" in dict_crystal.keys():
         full_mcif_elems = dict_crystal["full_mcif_elems"]
-        full_symm_elems = full_mcif_elems[:-1, :]
-        full_symm_theta = full_mcif_elems[-1, :]
         flag_mcif = True
 
     index_auc = dict_in_out["index_auc"]
-    symm_elem_auc = dict_in_out["symm_elem_auc"]
     point_multiplicity = dict_in_out["point_multiplicity"]
     n_abc = dict_mem_parameters["points_abc"]
-    number_unit_cell = dict_in_out["number_unit_cell"]
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
 
     point_atom_symm_elems_auc = dict_in_out.get(
@@ -1464,14 +1436,7 @@ def mempy_parameters_refinement(
 
     logger.info(f"Flag asymmetry is {flag_asymmetry:}")
 
-    if channel_col:
-        magnetization_plus = dict_mem_parameters["magnetization_plus"]
-        magnetization_minus = dict_mem_parameters["magnetization_minus"]
-
     symm_elem_channel_ani = dict_channel_ani["symm_elem_channel_ani"]
-    atom_multiplicity_channel_ani = dict_channel_ani[
-        "atom_multiplicity_channel_ani"
-    ]
     density_channel_ani = dict_channel_ani["density_channel_ani"]
     point_multiplicity_channel_ani = dict_channel_ani[
         "point_multiplicity_channel_ani"
@@ -1494,7 +1459,6 @@ def mempy_parameters_refinement(
 
     atom_para_fract_xyz = atom_fract_xyz[:, atom_para_index]
 
-    n_atom_para = atom_para_susceptibility.shape[1]
 
     logger.info("Preliminary calculations of chi atoms ...")
 

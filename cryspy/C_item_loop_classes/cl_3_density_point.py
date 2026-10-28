@@ -393,7 +393,7 @@ class DensityPointL(LoopN):
                 obj = None
                 for arors in l_arors:
                     try:
-                        l_val = getattr(arors, f"coeff_{shell:}")
+                        getattr(arors, f"coeff_{shell:}")  # AttributeError if the shell is not given
                         obj = arors
                         break
                     except AttributeError:

@@ -37,11 +37,7 @@ def calc_extinction(radius:float, mosaicity:float, model:str,
     flag_derivative_f_sq
     flag_derivative_wavelength
     """
-    r = float(radius)
-    g = float(mosaicity)
-    g_sq = numpy.square(g)
 
-    kk = 1.
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
     
     volume_unit_cell = calc_volume_uc_by_abc_cosines(a, b, c, c_a, c_b, c_g)

@@ -1261,8 +1261,6 @@ class Crystal(DataN):
 
         ddict["name"] = self.data_name
         ddict["type_name"] = self.get_name()
-        ind_mag = None
-        rad = numpy.pi / 180.0
         if space_group is not None:
             full_symm_elems = (
                 space_group.full_space_group_symop.get_symm_elems()
@@ -1959,7 +1957,6 @@ class Crystal(DataN):
             )
 
             if self.is_attribute("atom_site"):
-                atom_site = self.atom_site
                 for i_item, item in enumerate(self.atom_site.items):
                     if item.adp_type in ("Uiso", "Uovl", "Umpe"):
                         item.u_iso_or_equiv = atom_iso_param[i_item]
@@ -2195,11 +2192,9 @@ class Crystal(DataN):
         d_crystal = self.get_dictionary()
         unit_cell_parameters = d_crystal["unit_cell_parameters"]
 
-        flag_mcif = False
         if "full_mcif_elems" in d_crystal.keys():
             full_mcif_elems = d_crystal["full_mcif_elems"]
             full_symm_elems = full_mcif_elems  # [:13,:]
-            flag_mcif = True
         else:
             full_symm_elems = d_crystal["full_symm_elems"]
 

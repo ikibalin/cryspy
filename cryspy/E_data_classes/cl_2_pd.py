@@ -125,15 +125,6 @@ class Pd(DataN):
     def plots(self):
         if self.is_attribute("pd_proc"):
             pd_proc = self.pd_proc
-            if self.is_attribute("chi2"):
-                flag_up = self.chi2.up
-                flag_down = self.chi2.down
-                flag_sum = self.chi2.sum
-                flag_diff = self.chi2.diff
-            else:
-                flag_up, flag_down, flag_sum = False, False, True
-                flag_diff = False
-
             fig_s, ax_s = pd_proc.plot_sum_diff()
             ax_s = fig_s.axes[0]
             ax_hkl = fig_s.axes[1]
@@ -141,8 +132,6 @@ class Pd(DataN):
             y_min_s, y_max_s = ax_hkl.get_ylim()
             y_dist_s = y_max_s - y_min_s
             y_step_s = 0.0
-
-            flag_d = False
 
             l_peaks = []
             for item in self.items:

@@ -744,7 +744,6 @@ class Pd2d(DataN):
                     if (pd_peak.is_attribute("intensity_plus") and pd_peak.is_attribute("intensity_minus")):
                         i_plus = numpy.array(pd_peak.intensity_plus, dtype=float)
                         i_minus = numpy.array(pd_peak.intensity_minus, dtype=float)
-                        inv_lf = numpy.sin(gamma*numpy.pi/180)*numpy.sin(0.5*gamma*numpy.pi/180)
                         i_sum = numpy.abs(i_plus*flag_gn+i_minus*flag_gn)
                         i_difference = numpy.abs(i_plus*flag_gn-i_minus*flag_gn)
                         flag_i_plus = (i_sum-i_sum.min()) > 0.01 * (i_sum.max() - i_sum.min())
@@ -760,7 +759,6 @@ class Pd2d(DataN):
                     if (pd_peak.is_attribute("intensity_plus") and pd_peak.is_attribute("intensity_minus")):
                         i_plus = numpy.array(pd_peak.intensity_plus, dtype=float)
                         i_minus = numpy.array(pd_peak.intensity_minus, dtype=float)
-                        inv_lf = numpy.sin(gamma*numpy.pi/180)*numpy.sin(0.5*gamma*numpy.pi/180)
                         i_sum = numpy.abs(i_plus*flag_gn+i_minus*flag_gn)
                         i_difference = numpy.abs(i_plus*flag_gn-i_minus*flag_gn)
                         flag_i_plus = (i_sum-i_sum.min()) > 0.2 * (i_sum.max() - i_sum.min())
@@ -779,48 +777,6 @@ class Pd2d(DataN):
                             ax2.text(i_g, 0.5*(-i_n+nu_max)+nu_min, s_text, alpha=0.5, color="k")
                             l_gn.append((i_g, i_n))
             return [(fig, ax1), ]
-            if self.is_attribute("chi2"):
-                flag_up = self.chi2.up
-                flag_down = self.chi2.down
-                flag_sum = self.chi2.sum
-                flag_diff = self.chi2.diff
-            else:
-                flag_up, flag_down, flag_sum = False, False, True
-                flag_diff = False
-
-            if flag_sum:
-                fig_s, ax_s = pd2d_proc.plot_projection_sum()
-                ax_s.set_title(self.data_name + " - "+ax_s.title.get_text())
-                y_min_s, y_max_s = ax_s.get_ylim()
-                y_dist_s = y_max_s-y_min_s
-                y_step_s = 0.
-
-            if flag_diff:
-                fig_d, ax_d = pd2d_proc.plot_projection_diff()
-                ax_d.set_title(self.data_name + " - "+ax_d.title.get_text())
-                y_min_d, y_max_d = ax_d.get_ylim()
-                y_dist_d = y_max_d-y_min_d
-                y_step_d = 0.
-
-            for item in self.items:
-                if isinstance(item, Pd2dPeakL):
-                    np_tth = item.numpy_ttheta
-                    if flag_sum:
-                        ax_s.plot(np_tth, 0.*np_tth+y_min_s-y_step_s, "|",
-                                  label=item.loop_name)
-                        y_step_s += 0.05*y_dist_s
-                    if flag_diff:
-                        ax_d.plot(np_tth, 0.*np_tth+y_min_d-y_step_d, "|",
-                                  label=item.loop_name)
-                        y_step_d += 0.05*y_dist_d
-            res = []
-            if flag_sum:
-                ax_s.legend(loc='upper right')
-                res.append((fig_s, ax_s))
-            if flag_diff:
-                ax_d.legend(loc='upper right')
-                res.append((fig_d, ax_d))
-            return res
         elif self.is_attribute("pd2d_meas"):
             return self.pd2d_meas.plots()
         return []
@@ -912,7 +868,6 @@ class Pd2d(DataN):
                 nu_deg >= nu_min_deg,
                 nu_deg <= nu_max_deg)
 
-            flag_in = flag_gamma_in[:, na] * flag_nu_in[na, :]
 
             # ddict["ttheta"] = ttheta_deg[flag_in] * numpy.pi/180.
             ddict["gamma"] = gamma_deg[flag_gamma_in] * numpy.pi/180.

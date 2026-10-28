@@ -29,7 +29,6 @@ from cryspy.A_functions_base.function_2_space_group import \
     get_name_schoenflies_by_it_number, \
     get_laue_class_by_name_schoenflies, \
     get_point_group_hm_short_by_name_schoenflies, \
-    get_generators_by_point_group_hm, \
     get_patterson_name_hm_by_lattice_type_laue_class, \
     ACCESIBLE_IT_NUMBER, ACCESIBLE_BRAVAIS_TYPE, \
     ACCESIBLE_IT_COORDINATE_SYSTEM_CODE, ACCESIBLE_LAUE_CLASS, \
@@ -232,7 +231,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         space_group_wyckoff = None
 
         lattice_type = None
-        generators = ()
         self.define_it_number_and_it_coordinate_system_code()
         try:
             it_number = self.it_number
@@ -269,8 +267,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
             laue_class = get_laue_class_by_name_schoenflies(name_schoenflies)
             point_group_hm = get_point_group_hm_short_by_name_schoenflies(
                 name_schoenflies)
-            if point_group_hm is not None:
-                generators = get_generators_by_point_group_hm(point_group_hm)
             if ((lattice_type is not None) & (laue_class is not None)):
                 patterson_name_hm = \
                     get_patterson_name_hm_by_lattice_type_laue_class(

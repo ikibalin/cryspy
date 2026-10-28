@@ -498,13 +498,9 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
     s_loop_prefix_in = set(l_loop_prefix_in)
     l_loopn = []
     for prefix in s_loop_prefix_in:
-        item_cls = ItemN
         loop_cls = LoopN
         if prefix in l_loop_prefix:
             loop_cls = l_loop_class[l_loop_prefix.index(prefix)]
-        elif prefix in l_item_prefix:
-            # for future
-            item_cls = l_item_class[l_loop_prefix.index(prefix)]
 
         l_loop_name_cif = []
         ll_val_cif = []

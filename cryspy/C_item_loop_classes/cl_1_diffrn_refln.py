@@ -546,10 +546,6 @@ class DiffrnReflnL(LoopN):
         ):
             return
 
-        ls_label = [
-            f"{h} {k} {l}"
-            for h, k, l in zip(self.index_h, self.index_k, self.index_l)
-        ]
         fig, ax = plt.subplots()
         np_excl = numpy.array(self.excluded, dtype=bool)
         flag_in = numpy.logical_not(np_excl)
@@ -776,9 +772,9 @@ def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='b
     fig, ax = plt.subplots(figsize=(6, 5))
     
     if sy is None:
-        sc = ax.scatter(x[flag_in], y[flag_in], s=size, color=color, alpha=0.2)
+        ax.scatter(x[flag_in], y[flag_in], s=size, color=color, alpha=0.2)
     else:
-        sc = ax.errorbar(
+        ax.errorbar(
             x[flag_in],
             y[flag_in],
             yerr=sy[flag_in],
@@ -790,7 +786,7 @@ def plot_scatters_with_labels(x, y, sy=None, exclude=None, labels=None, color='b
 
     flag_excl = numpy.logical_not(flag_in)
     if numpy.any(flag_excl) and not(sy is None):
-        sc2 =ax.errorbar(
+        ax.errorbar(
             x[flag_excl],
             y[flag_excl],
             yerr=sy[flag_excl],
