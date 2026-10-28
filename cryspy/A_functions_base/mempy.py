@@ -168,10 +168,7 @@ def calc_mem_col(
         * numpy.expand_dims(eh_perp_ccs, axis=2)
     ).sum(axis=3)
 
-    # phase_2d = phase_3d.sum(axis=2)
     # [3, hkl, points]
-    # mem_col = 0.2695*(numpy.expand_dims(phase_2d*numpy.expand_dims(point_multiplicity, axis=0),axis=0) *
-    #     numpy.expand_dims(eh_perp_ccs, axis=2))/full_symm_elems.shape[1]*volume_unit_cell/number_unit_cell
     mem_col = (
         0.2695
         * (
@@ -608,19 +605,10 @@ def renormailize_density_ani_2(
         / numpy.expand_dims(atom_multiplicity, axis=0)
     )
     # m_at is [Natom]
-    # m_at = prod_den_mult.sum(axis=0)
     m_at = numpy.abs(prod_den_mult).sum(
         axis=0
     )  # FIXME: it is done for multipolar model. In other cases density should be only positive and therefore the expression is as before.
     point_norm_density *= coeff / numpy.expand_dims(m_at, axis=0)
-    # #FIXME: very slow solution. Redo it.
-    # atom_label = numpy.unique(point_atom_label)
-    # flag_2d = point_atom_label[na, :] == atom_label[:, na]
-
-    # for flag_1d in flag_2d:
-    #     m_at = numpy.sum(prod_den_mult, where=flag_1d)
-    #     if numpy.any(flag_1d):
-    #         point_norm_density[flag_1d] *= coeff/float(m_at)
     return point_norm_density
 
 
@@ -928,18 +916,6 @@ def calc_index_atom_symmetry_closest_to_fract_xyz_2(
         dist_sq_3d, numpy.expand_dims(ind_sym, axis=2), axis=2
     ).squeeze(axis=2)
     distance = numpy.sqrt(dist_sq_2d)
-
-    # dist_sq_2d_over_sym = numpy.min(dist_sq_3d, axis=2)
-    # dist_sq_2d_over_at min value over symmetry: [Npoints, Natom]
-    # dist_sq_2d_over_at = numpy.min(dist_sq_3d, axis=1)
-    # ind_sym = numpy.argmin(dist_sq_2d_over_at, axis=1)
-    # dist_sq = numpy.min(dist_sq_2d_over_at, axis=1)
-    # distance = numpy.sqrt(dist_sq)
-
-    # ind_at = numpy.argmin(dist_sq_2d_over_sym, axis=1)
-
-    # dist_sq = numpy.min(dist_sq_2d_over_sym, axis=1)
-    # distance = numpy.sqrt(dist_sq)
 
     return ind_sym, distance
 
@@ -1348,8 +1324,3 @@ def calc_model_value_by_precalculated_data(
         l_model_value.append(model_exp)
     model_value = numpy.concatenate(l_model_value, axis=0)
     return model_value
-
-
-# FIXME delete
-# FIXME delete
-# FIXME delete
