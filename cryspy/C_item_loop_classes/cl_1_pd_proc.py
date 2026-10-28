@@ -1,6 +1,7 @@
 from typing import NoReturn
 import numpy
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 import scipy
 import scipy.optimize
 

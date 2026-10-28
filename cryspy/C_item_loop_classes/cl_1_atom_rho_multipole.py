@@ -13,7 +13,8 @@ from cryspy.A_functions_base.orbital_functions import calc_jl
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 
 logger = logging.getLogger(__name__)
 

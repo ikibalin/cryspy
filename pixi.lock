@@ -918,10 +918,12 @@ packages:
 - pypi: ./
   name: cryspy
   requires_dist:
-  - matplotlib>=3.9
   - numpy>=2.0
   - pycifstar
   - scipy>=1.13
+  - matplotlib>=3.9 ; extra == 'plot'
+  - cryspy[plot] ; extra == 'all'
+  - cryspy[all] ; extra == 'dev'
   - build ; extra == 'dev'
   - pytest ; extra == 'dev'
   - pytest-cov ; extra == 'dev'

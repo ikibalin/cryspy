@@ -3,8 +3,9 @@ import numpy
 import scipy
 from scipy.interpolate import interp2d
 
-import matplotlib
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+matplotlib = optional_module("matplotlib")
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu

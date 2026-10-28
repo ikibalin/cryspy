@@ -29,7 +29,9 @@ magnetization densities by the maximum entropy method.
 ## Installation
 
 ```bash
-pip install cryspy
+pip install cryspy          # calculations only
+pip install cryspy[plot]    # + matplotlib for the plot_* methods (Jupyter)
+pip install cryspy[all]     # every optional extra
 ```
 
 ## Example
