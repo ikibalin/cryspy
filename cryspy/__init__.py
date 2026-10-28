@@ -267,6 +267,7 @@ from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement_with_parameters,
     rhochi_no_refinement,
     rhochi_inversed_hessian,
+    report_refined_parameters,
 )
 
 
