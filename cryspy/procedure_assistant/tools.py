@@ -169,7 +169,7 @@ def format_rhochi_result(result: dict, cryspy_object) -> str:
     table = form_refined_parameter_table(cryspy_object)
     if table != "":
         ls_out.append("Refined parameters:\n" + table)
-    names = result.get("parameter_name", [])
+    names = result.get("parameter_path", result.get("parameter_name", []))
     matrix = result.get("correlation_matrix", None)
     if matrix is not None and len(names) == len(matrix):
         l_pair = []
@@ -391,7 +391,14 @@ def take_numerical_correlation(cryspy_object, result: dict) -> dict:
     matrix = getattr(cryspy_object.inversed_hessian, "matrix", None)
     if matrix is None or len(matrix) != len(result.get("parameter_name", [])):
         return result
-    correlation_matrix, _ = inversed_hessian_to_correlation(numpy.array(matrix, dtype=float))
+    matrix = numpy.array(matrix, dtype=float)
+    # the matrix and the result may list the parameters in other orders
+    l_label = [str(label) for label in getattr(cryspy_object.inversed_hessian, "label", [])]
+    l_path = list(result.get("parameter_path", []))
+    if len(l_path) == len(l_label) and sorted(l_path) == sorted(l_label):
+        l_index = [l_label.index(path) for path in l_path]
+        matrix = matrix[l_index, :][:, l_index]
+    correlation_matrix, _ = inversed_hessian_to_correlation(matrix)
     return dict(result, correlation_matrix=correlation_matrix)
 
 

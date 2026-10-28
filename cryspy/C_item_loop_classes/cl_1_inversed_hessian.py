@@ -1,4 +1,5 @@
-"""Pd2dBackground class."""
+"""InversedHessian class."""
+import html
 import numpy
 from typing import NoReturn
 
@@ -99,11 +100,10 @@ class InversedHessian(ItemN):
             l_label.append(str(l_1[0]))
             l_matrix.append(l_1[1:])
 
+        # the order of the parameters is kept: it is the order of the log
+        # of the refinement
         np_label = numpy.array(l_label, dtype=str)
-        arg_sort = numpy.argsort(np_label)
-        np_label = np_label[arg_sort]
         np_matrix = numpy.array(l_matrix, dtype=float)
-        np_matrix = np_matrix[arg_sort,:][:, arg_sort]
         np_correlation_matrix, np_sigma = inversed_hessian_to_correlation(np_matrix)
         
         self.set_labels(np_label)
@@ -134,26 +134,8 @@ class InversedHessian(ItemN):
         f_hessian = self.is_attribute("matrix")
         f_correlation = self.is_attribute("correlation_matrix")
         f_sigma = self.is_attribute("sigma")
-        if f_label:
-            np_label = numpy.array(self.label, dtype=str)
-            arg_sort = numpy.argsort(np_label)
-            np_label = np_label[arg_sort]
-            self.set_labels(np_label)
-
-            if f_hessian:
-                np_matrix = numpy.array(self.matrix, dtype=float)
-                np_matrix = np_matrix[arg_sort, :][:, arg_sort]
-                self.set_inversed_hessian(np_matrix)            
-            if f_correlation:
-                np_cmatrix = numpy.array(self.correlation_matrix, dtype=float)
-                np_cmatrix = np_cmatrix[arg_sort, :][:, arg_sort]
-                self.set_correlation_matrix(np_cmatrix)            
-            if f_sigma:
-                np_sigma = numpy.array(self.sigma, dtype=float)[arg_sort]
-                self.set_sigmas(np_sigma)
-
         if f_label & f_hessian:
-            ls_out = [f"{lab:7} "+" ".join([f"{val:.10f}" for val in hess])
+            ls_out = [f"{lab:7} "+" ".join([f"{val:.10e}" for val in hess])
                       for lab, hess in zip(self.label, self.matrix)]
             self.with_labels = "\n".join(ls_out)
 
@@ -164,60 +146,72 @@ class InversedHessian(ItemN):
             np_na = numpy.newaxis
             np_hessian = np_correlation*np_sigma[:, np_na]*np_sigma[np_na, :]
             self.set_inversed_hessian(np_hessian)
-            ls_out = [f"{lab:7} "+" ".join([f"{val:.10f}" for val in hess])
+            ls_out = [f"{lab:7} "+" ".join([f"{val:.10e}" for val in hess])
                       for lab, hess in zip(self.label, self.matrix)]
             self.with_labels = "\n".join(ls_out)
 
     def report(self):
-        if self.is_defined():
-            self.form_object()
-            np_correlation = self.correlation_matrix
-            np_sigma = self.sigma
-            np_label = self.label
-            np_numbers = numpy.arange(1,np_label.size+1).astype(str)
-            ls_out = ["# Sigmas and correlation matrix"]
-            ls_out.append("|SIGMAS | Cor.Matrix:|"+"|".join(np_numbers) + "|")
-            ls_out.append("|-----|-----|"+"|".join(["-----" for hh in
-                                                    np_numbers]) + "|")
-            
-            for i1, lab, mat, sig in zip(range(len(np_numbers)), np_numbers,
-                                         np_correlation, np_sigma):
-                ls_out.append(f"|{sig:.5f}|{lab:}|"+"|".join([
-                    f"{val:5.2f}" for i2, val in enumerate(mat)]) + "|")
-            ls_out.append("\nParameters:")
-            for numb, label in zip(np_numbers, np_label):
-                ls_out.append(f" - {numb:}. {label:}")
-            # ls_out.extend([f"{i_n+1:2} -- {lab:7}: {sig:.5f}" for i_n, lab, sig in zip(
-            #     range(len(np_sigma)), np_label, np_sigma)])
-            # ls_out.append("\nCorrelation matrix:")
-            # ls_out.extend([f" {i_n+1:2}: "+" ".join([
-            #     f"{val:5.2f}" for val in mat]) for i_n, mat in enumerate(np_correlation)])
-            return "\n".join(ls_out)
+        """Sigmas and correlation matrix in markdown."""
+        if not self.is_defined():
+            return ""
+        self.form_object()
+        np_correlation = self.correlation_matrix
+        np_sigma = self.sigma
+        np_label = self.label
+        l_number = [str(i_n+1) for i_n in range(np_label.size)]
+        ls_out = ["# Sigmas and correlation matrix", ""]
+        ls_out.append("| # | Parameter | Sigma |")
+        ls_out.append("|---|---|---|")
+        for numb, lab, sig in zip(l_number, np_label, np_sigma):
+            ls_out.append(f"| {numb:} | {lab:} | {sig:.5g} |")
+        ls_out.append("")
+        ls_out.append("**Correlation matrix:**")
+        ls_out.append("")
+        ls_out.append("| # | " + " | ".join(l_number) + " |")
+        ls_out.append("|---|" + "|".join(["---" for hh in l_number]) + "|")
+        for numb, mat in zip(l_number, np_correlation):
+            ls_out.append(f"| {numb:} | " + " | ".join(
+                [f"{val:.2f}" for val in mat]) + " |")
+        return "\n".join(ls_out)
 
     def report_html(self):
-        ls_html = []
-        if self.is_defined():
-            self.form_object()
-            np_correlation = self.correlation_matrix
-            np_sigma = self.sigma
-            np_label = self.label
-            np_numbers = numpy.arange(1,np_label.size+1).astype(str)
-            
-            ls_html.append("<table>")
-            ls_html.append("<tr><th>Number</th><th>Parameter</th><th>Sigma</th>")
-            for numb, lab, sig in zip(np_numbers, np_label, np_sigma):
-                ls_html.append(f"<tr><td>{numb:}.</td><td>{lab:}</td><td>{sig:.5f}</td></tr>")
-            ls_html.append("</table>")
-            ls_html.append("<br>")
-            ls_html.append("<b>Correlation matrix:</b>")
-            ls_html.append("<table>")
-            ls_html.append("<th>Number</th>"+"".join(
-                [f"<th>{lab:}</th>" for lab in np_numbers]) + "</tr>")
-            for i1, lab, mat in zip(range(len(np_numbers)), np_numbers, np_correlation):
-                ls_html.append(f"<tr><th>{lab:}</th>"+"".join([
-                    f"<td bgcolor='#ff2200'>{val:5.2f}</td>" if ((abs(val)>0.7) & (i1 != i2 ))
-                    else f"<td>{val:5.2f}</td>" for i2, val in enumerate(mat)]) + "</tr>")
-            ls_html.append("</table>")
+        """Sigmas and correlation matrix in html (Qt rich text).
 
+        Strong correlations (|r| > 0.7, off the diagonal) are on a red
+        background with white text, readable in light and dark themes.
+        """
+        if not self.is_defined():
+            return ""
+        self.form_object()
+        np_correlation = self.correlation_matrix
+        np_sigma = self.sigma
+        np_label = self.label
+        l_number = [str(i_n+1) for i_n in range(np_label.size)]
+        s_table = "<table border='1' cellspacing='0' cellpadding='4'>"
+
+        ls_html = ["<h3>Sigmas and correlation matrix</h3>", s_table]
+        ls_html.append("<tr><th>#</th><th align='left'>Parameter</th><th>Sigma</th></tr>")
+        for numb, lab, sig in zip(l_number, np_label, np_sigma):
+            ls_html.append(
+                f"<tr><td align='right'>{numb:}</td><td>{html.escape(str(lab)):}</td>"
+                f"<td align='right'>{sig:.5g}</td></tr>")
+        ls_html.append("</table>")
+
+        ls_html.append("<p><b>Correlation matrix</b> (|r| &gt; 0.7 is marked):</p>")
+        ls_html.append(s_table)
+        ls_html.append("<tr><th>#</th>" + "".join(
+            [f"<th>{numb:}</th>" for numb in l_number]) + "</tr>")
+        for i1, numb, mat in zip(range(len(l_number)), l_number, np_correlation):
+            l_td = []
+            for i2, val in enumerate(mat):
+                if i1 == i2:
+                    l_td.append(f"<td align='right'>{val:.2f}</td>")
+                elif abs(val) > 0.7:
+                    l_td.append(
+                        "<td align='right' bgcolor='#c62828'>"
+                        f"<font color='#ffffff'><b>{val:.2f}</b></font></td>")
+                else:
+                    l_td.append(f"<td align='right'>{val:.2f}</td>")
+            ls_html.append(f"<tr><th>{numb:}</th>" + "".join(l_td) + "</tr>")
+        ls_html.append("</table>")
         return "".join(ls_html)
-            
