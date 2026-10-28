@@ -21,7 +21,6 @@ from .unit_cell import (
     calc_sthovl_by_unit_cell_parameters,
 )
 from .local_susceptibility import (
-    calc_chi_direct_norm_with_symmetry,
     calc_m_r_inv_m,
 )
 
@@ -576,50 +575,6 @@ def get_uniform_density_col(
     return norm_density_col
 
 
-def renormailize_density_ani(
-    point_density,
-    point_multiplicity,
-    point_atom_label,
-    point_atom_multiplicity,
-    volume_unit_cell,
-    points_unit_cell,
-):
-    na = numpy.newaxis
-    coeff = float(points_unit_cell) / volume_unit_cell
-    point_norm_density = numpy.copy(point_density)
-    prod_den_mult = (
-        point_density * point_multiplicity / point_atom_multiplicity
-    )
-    # FIXME: very slow solution. Redo it.
-    atom_label = numpy.unique(point_atom_label)
-    flag_2d = point_atom_label[na, :] == atom_label[:, na]
-
-    for flag_1d in flag_2d:
-        m_at = numpy.sum(prod_den_mult, where=flag_1d)
-        if numpy.any(flag_1d):
-            point_norm_density[flag_1d] *= coeff / float(m_at)
-    return point_norm_density
-
-
-def get_uniform_density_ani(
-    point_multiplicity,
-    point_atom_label,
-    point_atom_multiplicity,
-    volume_unit_cell,
-    points_unit_cell,
-):
-    density_ani = numpy.ones(point_multiplicity.shape, dtype=float)
-    norm_density_ani = renormailize_density_ani(
-        density_ani,
-        point_multiplicity,
-        point_atom_label,
-        point_atom_multiplicity,
-        volume_unit_cell,
-        points_unit_cell,
-    )
-    return norm_density_ani
-
-
 def get_uniform_density_ani_2(
     point_multiplicity, atom_multiplicity, volume_unit_cell, points_unit_cell
 ):
@@ -916,56 +871,6 @@ def calc_index_atom_symmetry_closest_to_fract_xyz(
     distance = numpy.sqrt(dist_sq)
 
     return ind_at, ind_sym, distance
-
-
-def form_basins(
-    symm_elem_auc,
-    full_symm_elems,
-    unit_cell_parameters,
-    atom_label,
-    atom_fract_xyz,
-    atom_multiplicity,
-    mag_atom_label,
-):
-
-    # fractions in asymmetric unit cell
-    point_fract_xyz_auc = symm_elem_auc[:3, :] / numpy.expand_dims(
-        symm_elem_auc[3, :], axis=0
-    )
-
-    # separate on basins
-    ind_at, ind_sym, point_atom_distance = (
-        calc_index_atom_symmetry_closest_to_fract_xyz(
-            point_fract_xyz_auc,
-            atom_fract_xyz,
-            full_symm_elems,
-            unit_cell_parameters,
-        )
-    )
-
-    point_atom_label = atom_label[ind_at]
-    point_atom_multiplicity = atom_multiplicity[ind_at]
-
-    point_atom_symm_elems = full_symm_elems[:, ind_sym]
-
-    flag_chi = numpy.sum(
-        numpy.expand_dims(point_atom_label, axis=1)
-        == numpy.expand_dims(mag_atom_label, axis=0),
-        axis=1,
-    ).astype(bool)
-
-    atom_label_auc_chi = point_atom_label[flag_chi]
-    atom_multiplicity_auc_chi = point_atom_multiplicity[flag_chi]
-    atom_distance_auc_chi = point_atom_distance[flag_chi]
-    atom_symm_elems_auc_chi = point_atom_symm_elems[:, flag_chi]
-
-    return (
-        flag_chi,
-        atom_label_auc_chi,
-        atom_multiplicity_auc_chi,
-        atom_distance_auc_chi,
-        atom_symm_elems_auc_chi,
-    )
 
 
 def calc_index_atom_symmetry_closest_to_fract_xyz_2(
@@ -1446,98 +1351,5 @@ def calc_model_value_by_precalculated_data(
 
 
 # FIXME delete
-def calc_point_chi_direct(
-    mag_atom_label,
-    atom_chi,
-    symm_elems,
-    symm_flag_point_to_point,
-    point_atom_label,
-    point_atom_symm_elems,
-    unit_cell_parameters,
-):
-    """Calculate susceptibility of point i in direct unit cell.
-    mag_atom_label[n_mag_atom] is label of magnetic atoms
-    atom_chi[6, n_mag_atom] is local susceptibility of magnetic atoms
-    symm_elems[13, n_el_symm] is symmetry operations
-    symm_flag_point_to_point[] is flag of symmetry operations which transform point to point
-    point_atom_label[n_point] is the label of atom to whom the point is belongs
-    point_atom_symm_elems[n_point, ] is the symmetry elements
-
-    Output:
-    point_chi_direct[6, n_point] is the susceptibility parameters in direct unit cell
-    """
-
-    flag_2d = point_atom_label[:, na] == mag_atom_label[na, :]
-    index_susc = numpy.argmax(flag_2d, axis=1)
-    chi_recip_norm = atom_chi[:, index_susc]
-    p_a_s_el_r = point_atom_symm_elems[4:, :]
-
-    chi_s_direct, dder_ = calc_chi_direct_norm_with_symmetry(
-        chi_recip_norm, p_a_s_el_r
-    )
-
-    symm_elems_r = symm_elems[4:, :]
-    chi_s_direct_2d = calc_m1_m2_inv_m1(
-        symm_elems_r[:, :, na],
-        chi_s_direct[:, na, :],
-        flag_m1=False,
-        flag_m2=False,
-    )[0]
-    hh = symm_flag_point_to_point.astype(int)
-    n_at = (hh.sum(axis=0)).astype(float)
-    point_chi_direct = (chi_s_direct_2d * hh[na, :, :]).sum(axis=1) / n_at
-
-    return point_chi_direct
-
-
 # FIXME delete
-def calc_point_chi_ccs(
-    mag_atom_label,
-    atom_chi,
-    symm_elems,
-    symm_flag_point_to_point,
-    point_atom_label,
-    point_atom_symm_elems,
-    unit_cell_parameters,
-):
-    """Calculate susceptibility of point i in cartesian coordinate system.
-    mag_atom_label[n_mag_atom] is label of magnetic atoms
-    atom_chi[6, n_mag_atom] is local susceptibility of magnetic atoms
-    symm_elems[13, n_el_symm] is symmetry operations
-    symm_flag_point_to_point[] is flag of symmetry operations which transform point to point
-    point_atom_label[n_point] is the label of atom to whom the point is belongs
-    point_atom_symm_elems[n_point, ] is the symmetry elements
-
-    Output:
-    point_chi_direct[6, n_point] is the susceptibility parameters in cartesian coordinate system
-    """
-
-    point_chi_ccs = calc_point_chi_direct(
-        mag_atom_label,
-        atom_chi,
-        symm_elems,
-        symm_flag_point_to_point,
-        point_atom_label,
-        point_atom_symm_elems,
-        unit_cell_parameters,
-    )
-    # point_chi_ccs, dder_ = calc_susceptibility_ccs(point_chi_direct, unit_cell_parameters)
-    return point_chi_ccs
-
-
 # FIXME delete
-def calc_point_moment_ccs_by_point_chi_direct(
-    symm_elems, point_chi_ccs, field_ccs, unit_cell_parameters
-):
-    """Calculate magnetic moments [3, n_points, n_symm_elems]"""
-    chi_s_ccs_2d = calc_m1_m2_inv_m1(
-        symm_elems[4:, :, na],
-        point_chi_ccs[:, na, :],
-        flag_m1=False,
-        flag_m2=False,
-    )[0]
-    # chi_s_ccs_2d, dder_ = calc_susceptibility_ccs(chi_s_direct_2d, unit_cell_parameters)
-    moment_ccs = calc_m_v(chi_s_ccs_2d, field_ccs, flag_m=False, flag_v=False)[
-        0
-    ]
-    return moment_ccs

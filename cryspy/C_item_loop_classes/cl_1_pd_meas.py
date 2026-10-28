@@ -8,6 +8,7 @@ from cryspy.A_functions_base.function_1_objects import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class PdMeas(ItemN):
@@ -119,6 +120,7 @@ class PdMeasL(LoopN):
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
 
+    @deprecated
     def is_polarized(self):
         """Give True if polaraized data are defined."""
         flag = False

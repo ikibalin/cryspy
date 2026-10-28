@@ -64,10 +64,3 @@ def optional_module(name: str, extra: str = "plot") -> OptionalModule:
     return OptionalModule(name, extra)
 
 
-def is_available(name: str) -> bool:
-    """Check whether an optional module can be imported."""
-    try:
-        importlib.import_module(name)
-    except ImportError:
-        return False
-    return True

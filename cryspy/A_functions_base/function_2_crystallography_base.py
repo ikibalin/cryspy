@@ -233,63 +233,6 @@ def calc_dwf(cell, index_hkl, b_iso, beta, r_11, r_12, r_13, r_21, r_22, r_23,
     return dwf_3d
 
 
-def calc_form_factor_tensor_susceptibility(
-        chi_11, chi_22, chi_33, chi_12, chi_13, chi_23, space_group_symop,
-        form_factor, cell, h, k, l):
-    """Give components of form factor tensor for susceptibility.
-
-    fft_11, fft_12, fft_13
-    fft_21, fft_22, fft_23
-    fft_31, fft_32, fft_33
-
-    in 3 dimension (hkl, atoms, symmetry elements).
-    """
-    ff = numpy.array(form_factor, dtype=float)
-    sthovl = cell.calc_sthovl(h, k, l)
-    # dimension (hkl, atoms)
-    
-    r_11 = numpy.array(space_group_symop.r_11, dtype=float)
-    r_12 = numpy.array(space_group_symop.r_12, dtype=float)
-    r_13 = numpy.array(space_group_symop.r_13, dtype=float)
-    r_21 = numpy.array(space_group_symop.r_21, dtype=float)
-    r_22 = numpy.array(space_group_symop.r_22, dtype=float)
-    r_23 = numpy.array(space_group_symop.r_23, dtype=float)
-    r_31 = numpy.array(space_group_symop.r_31, dtype=float)
-    r_32 = numpy.array(space_group_symop.r_32, dtype=float)
-    r_33 = numpy.array(space_group_symop.r_33, dtype=float)
-
-    chi_21, chi_31, chi_32 = chi_12, chi_13, chi_23
-
-    c11, r11 = numpy.meshgrid(chi_11, r_11, indexing="ij")
-    c22, r22 = numpy.meshgrid(chi_22, r_22, indexing="ij")
-    c33, r33 = numpy.meshgrid(chi_33, r_33, indexing="ij")
-    c12, r12 = numpy.meshgrid(chi_12, r_12, indexing="ij")
-    c13, r13 = numpy.meshgrid(chi_13, r_13, indexing="ij")
-    c23, r23 = numpy.meshgrid(chi_23, r_23, indexing="ij")
-    c21, r21 = numpy.meshgrid(chi_21, r_21, indexing="ij")
-    c31, r31 = numpy.meshgrid(chi_31, r_31, indexing="ij")
-    c32, r32 = numpy.meshgrid(chi_32, r_32, indexing="ij")
-
-    rcrt_11, rcrt_12, rcrt_13, rcrt_21, rcrt_22, rcrt_23, rcrt_31, rcrt_32, \
-        rcrt_33 = calc_mRmCmRT(
-            (r11, r12, r13, r21, r22, r23, r31, r32, r33),
-            (c11, c12, c13, c21, c22, c23, c31, c32, c33))
-
-    # dimension (hkl, atoms, symmetry)
-    n_a = numpy.newaxis
-    fft_11 = ff[:, :, n_a] * rcrt_11[n_a, :, :]
-    fft_12 = ff[:, :, n_a] * rcrt_12[n_a, :, :]
-    fft_13 = ff[:, :, n_a] * rcrt_13[n_a, :, :]
-    fft_21 = ff[:, :, n_a] * rcrt_21[n_a, :, :]
-    fft_22 = ff[:, :, n_a] * rcrt_22[n_a, :, :]
-    fft_23 = ff[:, :, n_a] * rcrt_23[n_a, :, :]
-    fft_31 = ff[:, :, n_a] * rcrt_31[n_a, :, :]
-    fft_32 = ff[:, :, n_a] * rcrt_32[n_a, :, :]
-    fft_33 = ff[:, :, n_a] * rcrt_33[n_a, :, :]
-    # ortogonalization should be done
-    return fft_11, fft_12, fft_13, fft_21, fft_22, fft_23, fft_31, fft_32, \
-        fft_33
-
 def calc_moment_2d_by_susceptibility(r_ij, susc_i, m_norm_ij, h_loc):
     """Recalculate chi_i given according to symmetry elements for each point.
 

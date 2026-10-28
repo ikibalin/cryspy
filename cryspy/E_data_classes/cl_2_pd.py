@@ -39,6 +39,7 @@ from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 from cryspy.A_functions_base.plot_peak_labels import (
     add_interactive_peak_labels, form_hkl_labels)
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -503,6 +504,7 @@ class Pd(DataN):
         if len(l_refln) > 0:
             self.add_items(l_refln)
 
+    @deprecated
     def define_background_points(self, step_ttheta: float = 1.0):
         if self.is_attribute("pd_background"):
             pd_background = self.pd_background

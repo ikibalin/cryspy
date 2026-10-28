@@ -15,6 +15,7 @@ from cryspy.A_functions_base.function_2_sym_elems import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class SpaceGroupSymop(ItemN):
@@ -97,6 +98,7 @@ class SpaceGroupSymop(ItemN):
         self.__dict__["b_3"] = b[2]
 
     @classmethod
+    @deprecated
     def define_by_el_symm(cls, el_symm):
         """Define object by element of symmetry (class method).
         
@@ -180,6 +182,7 @@ class SpaceGroupSymopL(LoopN):
         self.__dict__["loop_name"] = loop_name
 
     @classmethod
+    @deprecated
     def create_by_generators_xyz(cls, generators_xyz: List):
         """
         Create list of symmetry operators by generators.
@@ -239,6 +242,7 @@ class SpaceGroupSymopL(LoopN):
             res.extend(_item.get_coords_xyz_by_coord_xyz(coord_xyz))
         return tuple(frozenset(res))
 
+    @deprecated
     def get_symop_for_x1_x2(self, fract_xyz_1: numpy.ndarray,
                             fract_xyz_2: numpy.ndarray):
         """

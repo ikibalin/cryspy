@@ -11,6 +11,7 @@ from cryspy.A_functions_base.function_2_space_group import \
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class SpaceGroupWyckoff(ItemN):
@@ -260,6 +261,7 @@ Only one site can be given for each special position but the remainder can be ge
         out = sorted(l_res, key=lambda x: x[1])  # sort by multiplicity
         return out[0][0]
 
+    @deprecated
     def get_letter_for_fract(self, fract_x: float, fract_y: float, fract_z: float, tol=10 ** -5) -> str:
         _id = self.get_id_for_fract(fract_x, fract_y, fract_z)
         res = self[_id].letter

@@ -70,7 +70,6 @@ class Diffrn(DataN):
     -------
         - calc_iint_u_d_flip_ratio
         - calc_fr
-        - calc_fm_perp_loc
         - calc_chi_sq
         - params_to_cif
         - data_to_cif

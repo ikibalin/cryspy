@@ -25,14 +25,6 @@ def calc_h_g(sigma):
     y = numpy.sqrt(8*numpy.log(2)) * sigma
     return y
 
-def calc_gaussian(delta_t, sigma):
-    y = numpy.exp(-0.5 * numpy.square(delta_t/sigma)) / (numpy.sqrt(2 * numpy.pi) * sigma)
-    return y
-
-def calc_lorentz(delta_t, h_l):
-    y = h_l / (2 * numpy.pi * (numpy.square(delta_t) + numpy.square(0.5*h_l)))
-    return y
-
 def calc_u(delta_t, sigma, alpha):
     y = 0.5 * alpha * (alpha * numpy.square(sigma) + 2*delta_t)
     return y

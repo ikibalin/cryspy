@@ -4,14 +4,12 @@ Functions
 ---------
     - read_den_file
     - save_to_den_file
-    - recalc_den_file_to_p1
 
 """
 import numpy
 
 from cryspy.A_functions_base.function_2_sym_elems import \
-    form_symm_elems_by_b_i_r_ij, calc_numerators_denominator_for_b_i, \
-    transform_to_p1
+    form_symm_elems_by_b_i_r_ij, calc_numerators_denominator_for_b_i
 
 
 def read_den_file(file_name: str):
@@ -189,17 +187,3 @@ def save_to_den_file(
     with open(file_name, "w") as fid:
         fid.write("\n".join(ls_out))
 
-def recalc_den_file_to_p1(den_file_input: str, den_file_output: str):
-    points_abc, cell_parameters, sym_elems, indexes_xyz, densities, \
-        centrosymmetry, np_shift = read_den_file(den_file_input)
-
-    sym_elems_p1 = numpy.array([[0], [0], [0], [1], [1], [0], [0], [0], [1],
-                                [0], [0], [0], [1]], dtype=int)
-
-    np_shift_p1 = numpy.array([[0], [0], [0], [1]], dtype=int)
-    indexes_xyz_p1, densities_p1 = transform_to_p1(
-        points_abc, sym_elems, np_shift, centrosymmetry, indexes_xyz, densities)
-
-    save_to_den_file(
-        den_file_output, points_abc, cell_parameters, sym_elems_p1,
-        indexes_xyz_p1, densities_p1, False, np_shift_p1)

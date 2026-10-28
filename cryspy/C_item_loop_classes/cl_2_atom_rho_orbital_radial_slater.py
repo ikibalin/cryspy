@@ -16,6 +16,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
 from cryspy.C_item_loop_classes.cl_1_atom_type_scat import AtomTypeScat
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class AtomRhoOrbitalRadialSlater(ItemN):
@@ -206,6 +207,7 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
 
         return jl
 
+    @deprecated
     def refine_coefficients_by_jl(self, atom_type: str, shell: str,
                                   sthovl_min=0.0, sthovl_max=2.0, lande=2.,
                                   kappa=1., sthvl_num=100):

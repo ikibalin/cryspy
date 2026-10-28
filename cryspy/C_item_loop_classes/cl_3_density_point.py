@@ -31,6 +31,7 @@ from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import \
     AtomRhoOrbitalRadialSlaterL
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class DensityPoint(ItemN):
@@ -433,6 +434,7 @@ class DensityPointL(LoopN):
         self.numpy_to_items()
 
 
+    @deprecated
     def create_flat_density(self, space_group_symop: SpaceGroupSymopL,
                             cell: Cell, atom_site: AtomSiteL,
                             l_magnetic_labes: list, points_a: int = 48,
@@ -453,6 +455,7 @@ class DensityPointL(LoopN):
         self.set_flat_density(l_magnetic_labes,
                               flag_two_channel=flag_two_channel)
 
+    @deprecated
     def create_core_density(
             self, space_group_symop: SpaceGroupSymopL, cell: Cell,
             atom_site: AtomSiteL, atom_electron_configuration:
@@ -522,6 +525,7 @@ class DensityPointL(LoopN):
 
         return numpy.array(l_den_ani, dtype=float)
 
+    @deprecated
     def save_to_file_den(
             self, mem_parameters: MEMParameters, space_group: SpaceGroup,
             cell: Cell, f_name: str = "file.den",
@@ -1042,6 +1046,7 @@ class DensityPointL(LoopN):
             (k_hkl_1[:, na], k_hkl_2[:, na], k_hkl_3[:, na]), v_antiferro)
         return v_hkl_perp_2d_i, v_perp_ferro, v_perp_antiferro
 
+    @deprecated
     def calc_electrons_per_unit_cell(self):
         """
         Calculate electrons per unit cell.

@@ -119,6 +119,7 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid impo
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
 )
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -447,6 +448,7 @@ class Crystal(DataN):
             res.numpy_to_items()
         return res
 
+    @deprecated
     def calc_f_m_perp(
         self, index_hkl, magnetic_field, dict_in_out: dict = None
     ):
@@ -534,6 +536,7 @@ class Crystal(DataN):
             l_res.append(chi_as_u_loc)
         return l_res
 
+    @deprecated
     def calc_main_axes_of_magnetization_ellipsoids(self):
         """Susceptibility along the main axes of magnetization ellipsoid.
 
@@ -583,6 +586,7 @@ class Crystal(DataN):
 
         return s_out
 
+    @deprecated
     def calc_magnetic_moments_with_field_loc(self, field_abc):
         """Orientation of magetic moment for atoms at applied magnetic field.
 

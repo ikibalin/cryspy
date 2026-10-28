@@ -15,58 +15,6 @@ from cryspy.E_data_classes.cl_2_tof import TOF
 COEFF_N_A_MU_B = 6.022*0.927*1000.
 
 
-def calc_unit_cell_weight(crystal: Crystal) -> float:
-    """
-    Calculate the weight of unit cell for crystal.
-
-    Parameters
-    ----------
-    crystal : Crystal
-        description of the crystals.
-
-    Returns
-    -------
-    float
-        unit cell in atomic weight.
-    """
-    d_elements = DATABASE["Elements"]
-    crystal.apply_constraints()
-    atom_site = crystal.atom_site
-    atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
-    atom_occupancy = numpy.array(atom_site.occupancy, dtype=float)
-    l_atom_type_symbol = [get_atom_name_ion_charge_shell(
-        ion_name)[0].capitalize() for ion_name in atom_site.type_symbol]
-    atomic_weight = numpy.array([float(d_elements[(
-        "Atomic weight", atom_type)]) for atom_type in l_atom_type_symbol],
-        dtype=float)
-
-    unit_cell_weight = numpy.sum(
-        atom_multiplicity*atom_occupancy*atomic_weight)
-    return unit_cell_weight
-
-
-def calc_density_of_crystal(crystal: Crystal) -> float:
-    """
-    Calculate the density of crystal.
-
-    Parameters
-    ----------
-    crystal : Crystal
-        description of the crystals.
-
-    Returns
-    -------
-    float
-        density in g/cm^3.
-    """
-    unit_cell_weight = calc_unit_cell_weight(crystal)
-    unit_cell_parameters = crystal.cell.get_unit_cell_parameters()
-    unit_cell_volume = calc_volume_uc_by_unit_cell_parameters(
-        unit_cell_parameters, flag_unit_cell_parameters=False)[0]
-    density = unit_cell_weight/(unit_cell_volume*0.6022)  # g/cm^3
-    return density
-
-
 def report_powder_experiments(rcif_object: GlobalN):
     """Report about the powder and single crystal experiments.
 
