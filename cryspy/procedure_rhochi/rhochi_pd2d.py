@@ -493,11 +493,9 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         in_points = numpy.logical_and(in_points, nan_points_sum)
 
         total_signal_sum = (total_signal_plus + total_signal_minus)
-        diff_signal_sum = signal_exp_sum - total_signal_sum - signal_background
-        inv_sigma_sq_sum = numpy.square(1./signal_sigma_sum)
-        chi_sq_sum = calc_chi_sq_by_signal(
+        chi_sq_sum, dder_chi_sq_sum = calc_chi_sq_by_signal(
             signal_exp_sum, signal_sigma_sum, total_signal_sum + signal_background,
-            included_points=in_points)[0]
+            included_points=in_points, flag_signal_model=flag_calc_analytical_derivatives)
         chi_sq += chi_sq_sum
         n_point += numpy.sum(in_points)
 
@@ -557,8 +555,10 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         if len(l_dder_plus_p) > 0:
             dder_plus_p = numpy.concatenate(l_dder_plus_p, axis=2)
             if flag_chi_sq_sum:
-                der_chi_sq = (((-2.*diff_signal_sum*inv_sigma_sq_sum)[:, :, na] * dder_plus_p).sum(axis=1)).sum(axis=0)
-                dder_chi_sq = ((2*dder_plus_p[:, :, :, na] * dder_plus_p[:, :, na, :]).sum(axis=1)).sum(axis=0)
+                # Gauss-Newton: the second derivatives of the signal are neglected
+                der_chi_sq = (dder_chi_sq_sum["signal_model"][:, :, na] * dder_plus_p).sum(axis=(0, 1))
+                dder_chi_sq = (dder_chi_sq_sum["signal_model_signal_model"][:, :, na, na]
+                               * dder_plus_p[:, :, :, na] * dder_plus_p[:, :, na, :]).sum(axis=(0, 1))
 
     return chi_sq, n_point, der_chi_sq, dder_chi_sq, l_parameter_name
     
