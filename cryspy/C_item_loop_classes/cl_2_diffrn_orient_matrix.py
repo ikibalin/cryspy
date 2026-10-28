@@ -10,8 +10,6 @@ from cryspy.A_functions_base.function_1_objects import \
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-from cryspy.A_functions_base.function_1_markdown import HTML_TABLE_OPEN
-
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 
 
@@ -363,33 +361,20 @@ class DiffrnOrientMatrix(ItemN):
         return res
 
     def report(self):
-        s_out = f"""Orientation matrix U:
-          a* [c,  a*]        c
- X: {self.u_11: 8.5f} {self.u_12: 8.5f} {self.u_13: 8.5f}
- Y: {self.u_21: 8.5f} {self.u_22: 8.5f} {self.u_23: 8.5f}
- Z: {self.u_31: 8.5f} {self.u_32: 8.5f} {self.u_33: 8.5f}
-
-axis 'X' is along incident beam;
-axis 'Z' is vertical direction."""
-        return s_out
-
-    def report_html(self):
-        ls_out = ["<h3>Orientation matrix U</h3>", HTML_TABLE_OPEN]
-        ls_out.append(
-            "<tr><th></th><th align='right'>a*</th>"
-            "<th align='right'>[c, a*]</th><th align='right'>c</th></tr>")
+        """Orientation matrix U in markdown."""
+        ls_out = ["# Orientation matrix U", ""]
+        ls_out.append("| | a* | [c, a*] | c |")
+        ls_out.append("|---|---:|---:|---:|")
         for s_axis, l_val in zip(
                 "XYZ", ((self.u_11, self.u_12, self.u_13),
                         (self.u_21, self.u_22, self.u_23),
                         (self.u_31, self.u_32, self.u_33))):
-            ls_out.append(f"<tr><th>{s_axis:}</th>" + "".join(
-                [f"<td align='right'>{val:.5f}</td>" for val in l_val]) +
-                "</tr>")
-        ls_out.append("</table>")
-        ls_out.append(
-            "<p>Axis X is along the incident beam;<br>"
-            "axis Z is the vertical direction.</p>")
-        return "".join(ls_out)
+            ls_out.append(f"| **{s_axis:}** | " + " | ".join(
+                [f"{val:.5f}" for val in l_val]) + " |")
+        ls_out.append("")
+        ls_out.append("Axis X is along the incident beam;")
+        ls_out.append("axis Z is the vertical direction.")
+        return "\n".join(ls_out)
 
     def get_dictionary(self):
         res = {}

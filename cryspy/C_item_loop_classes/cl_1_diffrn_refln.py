@@ -6,6 +6,8 @@ plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.function_1_objects import form_items_by_dictionary
 
+from cryspy.A_functions_base.function_1_agreement_factors import \
+    calc_agreement_factors
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
@@ -318,12 +320,11 @@ class DiffrnReflnL(LoopN):
             return "\n".join(ls_out)
         n = len(l_val)
         n_1s, n_2s, n_3s = 0, 0, 0
-        l_chi_sq, l_worsest, l_af_f, l_af_r = [], [], [], []
+        l_worsest, l_af_f, l_af_r = [], [], []
         for _hkl, _val, _sval, _val_calc in zip(
             l_hkl, l_val, l_sval, l_val_calc
         ):
             _diff = abs(float(_val - _val_calc) / float(_sval))
-            l_chi_sq.append(_diff**2)
             if math.isclose(_val, 0.0) and not math.isclose(_sval, 0.0):
                 l_af_f.append(abs(float(_val - _val_calc) / float(_sval)))
             else:
@@ -347,7 +348,7 @@ class DiffrnReflnL(LoopN):
         ls_out.append(f"| Number of reflections | {n:} |")
         ls_out.append(
             f"| χ²/n = ⟨(({s_val:}_exp − {s_val:}_calc)/σ)²⟩ | "
-            f"{sum(l_chi_sq)/float(n):.2f} |")
+            f"{calc_agreement_factors(l_val, l_sval, l_val_calc)['chi_sq_per_n']:.2f} |")
         ls_out.append(
             f"| ⟨abs({s_val:}_exp − {s_val:}_calc)/{s_val:}_exp⟩ | "
             f"{100*sum(l_af_f) / float(n):.2f}% |")

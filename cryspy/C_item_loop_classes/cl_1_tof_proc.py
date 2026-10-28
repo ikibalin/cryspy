@@ -7,15 +7,10 @@ from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
 from cryspy.A_functions_base.function_1_agreement_factors import \
-    report_powder_agreement
+    calc_agreement_factors
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
-
-REPORT_SIGNAL_NAMES = (
-    "intensity_plus_net", "intensity_minus_net", "intensity_bkg_calc",
-    "intensity", "intensity_sigma", "intensity_plus", "intensity_plus_sigma",
-    "intensity_minus", "intensity_minus_sigma")
 
 class TOFProc(ItemN):
     """Calculated intensity for time-of-flight experiment.
@@ -158,20 +153,6 @@ class TOFProcL(LoopN):
             np_y = numpy.fmax(np_y, np_exp)
         return np_x, np_y
 
-    def report_agreement(self, flag_sum: bool = True, flag_diff: bool = None) -> str:
-        """Report (markdown) on agreement of the profile with the model."""
-        dict_signal = {}
-        for name in REPORT_SIGNAL_NAMES:
-            if self.is_attribute(name):
-                dict_signal[name] = numpy.array(getattr(self, name), dtype=float)
-        if self.is_attribute("excluded"):
-            dict_signal["excluded"] = numpy.array(self.excluded, dtype=bool)
-        return report_powder_agreement(
-            dict_signal, flag_sum=flag_sum, flag_diff=flag_diff)
-
-    def report(self):
-        return self.report_agreement()
-
     def plots(self):
         return [self.plot_sum_diff()]
     
@@ -216,8 +197,10 @@ class TOFProcL(LoopN):
             np_diff = np_up - np_down 
             np_diff_mod = np_up_mod - np_down_mod
             np_ssum = numpy.sqrt(numpy.square(np_sup)+numpy.square(np_sdown))
-            chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
-            chi_sq_diff_points = numpy.nansum(numpy.square((np_diff - np_diff_mod)/np_ssum))/np_diff_mod.size
+            chi_sq_points = calc_agreement_factors(
+                np_sum, np_ssum, np_sum_mod, flag_in=np_notexcl)["chi_sq_per_n"]
+            chi_sq_diff_points = calc_agreement_factors(
+                np_diff, np_ssum, np_diff_mod)["chi_sq_per_n"]
 
             ax_1.set_title(f"Unpolarized ($\\chi^2/n = ${chi_sq_points:.2f}) and polarized ($\\chi^2/n = ${chi_sq_diff_points:.2f}) signals")
             ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
@@ -273,7 +256,8 @@ class TOFProcL(LoopN):
             np_bkg = numpy.array(self.intensity_bkg_calc, dtype=float)
             np_sum_mod = np_up_mod + np_down_mod + np_bkg
 
-            chi_sq_points = numpy.nansum(numpy.square((np_sum - np_sum_mod)/np_ssum)[np_notexcl])/numpy.sum(np_notexcl) 
+            chi_sq_points = calc_agreement_factors(
+                np_sum, np_ssum, np_sum_mod, flag_in=np_notexcl)["chi_sq_per_n"]
             ax_1.set_title(f"Unpolarized signal $\\chi^2/n = ${chi_sq_points:.2f}")
 
             ax_1.fill_between(np_tth, (np_sum-np_ssum), (np_sum+np_ssum), where=np_notexcl, color="k", alpha=0.4, label="experiment")
