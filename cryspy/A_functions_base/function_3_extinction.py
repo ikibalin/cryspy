@@ -4,9 +4,10 @@ Module gives correction on extinction in case of isotropical case.
 
 import numpy
 
-from .function_2_crystallography_base import \
-    calc_volume_uc_by_abc_cosines,\
-    calc_sthovl_by_hkl_abc_cosines
+from cryspy.A_functions_base.unit_cell import (
+    calc_sthovl_by_unit_cell_parameters,
+    calc_volume_uc_by_unit_cell_parameters,
+)
 
 def calc_extinction(radius:float, mosaicity:float, model:str,
                     a:float, b:float, c:float, alpha:float, beta:float, gamma:float,
@@ -42,11 +43,9 @@ def calc_extinction(radius:float, mosaicity:float, model:str,
     g_sq = numpy.square(g)
 
     kk = 1.
-    c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    
-    volume_unit_cell = calc_volume_uc_by_abc_cosines(a, b, c, c_a, c_b, c_g)
-    
-    sthovl = calc_sthovl_by_hkl_abc_cosines(h, k, l, a, b, c, c_a, c_b, c_g)
+    unit_cell_parameters = (a, b, c, alpha, beta, gamma)
+    volume_unit_cell = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters)[0]
+    sthovl = calc_sthovl_by_unit_cell_parameters((h, k, l), unit_cell_parameters)[0]
 
     yext, dder  = calc_extinction_2(radius, mosaicity, model,
                                 f_sq, volume_unit_cell, sthovl, wavelength) 
