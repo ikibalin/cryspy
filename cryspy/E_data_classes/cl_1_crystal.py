@@ -2177,9 +2177,18 @@ class Crystal(DataN):
         Nb: int = 48,
         Nc: int = 48,
     ):
-        """Calculate multipole density in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
-        Nx, Ny, Nz is the number of points along axis a,b,c
-        Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
+        """Save the multipole electron density of the atoms to a .den file.
+
+        The density is calculated on a grid of the unit cell in the
+        Cartesian coordinate system with Z along the axis c and X along the
+        reciprocal axis a*.
+
+        Parameters
+        ----------
+        file_den : str, optional
+            The file to write.
+        Na, Nb, Nc : int, optional
+            Numbers of points along the axes a, b, c.
         """
         self.form_object()
         n_abc = numpy.array([Na, Nb, Nc], dtype=int)
@@ -2300,9 +2309,18 @@ class Crystal(DataN):
         Nb: int = 48,
         Nc: int = 48,
     ):
-        """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
-        Nx, Ny, Nz is the number of points along axis a,b,c
-        Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
+        """Save the multipole magnetization density (mx, my, mz) to a .den file.
+
+        The density is calculated on a grid of the unit cell in the
+        Cartesian coordinate system with Z along the axis c and X along the
+        reciprocal axis a*, from the ordered moments of the atoms.
+
+        Parameters
+        ----------
+        file_den : str, optional
+            The file to write.
+        Na, Nb, Nc : int, optional
+            Numbers of points along the axes a, b, c.
         """
         n_abc = numpy.array([Na, Nb, Nc], dtype=int)
         (

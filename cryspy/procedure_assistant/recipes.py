@@ -27,8 +27,11 @@ name. The format (lines starting with '#' are comments):
 
 'For:' names the kinds of experiments the recipe is for (experiments.py:
 single_crystal, powder, flip_ratio, nuclear, magnetic, ...), so that
-suggest_recipes finds it. 'Actions:' are tool calls separated by ';',
-each a tool name with its arguments in JSON. A step may have 'When:' (the
+suggest_recipes finds it. The names of the recipe and of the steps are
+words of letters, digits and '_'; a name written in several words
+('1. Define background: ...') is joined ('define_background'). 'Actions:'
+are tool calls separated by ';', each a tool name with its arguments in
+JSON; methods of the object are called with call_method (methods.py). A step may have 'When:' (the
 condition), 'Success:' and 'Otherwise:' (by default: chi_sq/n, and R_F2 for
 single crystals, is better or unchanged without warnings; otherwise undo).
 
@@ -76,8 +79,10 @@ For: single_crystal, unpolarized
 Final answer: chi_sq/n at the start and at the end, the steps done, skipped and undone.
 """
 
-RE_HEADER = re.compile(r"^Recipe\s+([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.+)$")
-RE_STEP = re.compile(r"^(\d+)\.\s*([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.*)$")
+# names of recipes and steps are words of letters, digits and '_'; a name
+# written in several words ('Define background') is joined (form_name)
+RE_HEADER = re.compile(r"^Recipe\s+([A-Za-z][\w\s\-]*?)\s*:\s*(.+)$")
+RE_STEP = re.compile(r"^\s*(\d+)[.)]\s*([A-Za-z][\w\s\-]*?)\s*:\s*(.*)$")
 RE_STEP_FIELD = re.compile(r"^\s+(When|Actions|Success|Otherwise)\s*:\s*(.*)$")
 RE_RECIPE_FIELD = re.compile(r"^(Requests|For|Final answer)\s*:\s*(.*)$")
 RE_TOOL_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
@@ -182,6 +187,16 @@ def parse_actions(text: str) -> Tuple[Tuple[str, dict], ...]:
     return tuple(l_action)
 
 
+def form_name(words: str) -> str:
+    """Name of a recipe or a step from its words: 'Define background
+    points' -> 'define_background_points'; a name already in one word
+    stays as it is."""
+    words = words.strip()
+    if re.fullmatch(r"[A-Za-z]\w*", words):
+        return words
+    return re.sub(r"[\s\-]+", "_", words).strip("_").lower()
+
+
 def parse_recipe(text: str, path: str = "") -> Recipe:
     """The recipe of the text (the format is in the module docstring);
     raises ValueError with the number of the wrong line."""
@@ -195,13 +210,13 @@ def parse_recipe(text: str, path: str = "") -> Recipe:
                 match = RE_HEADER.match(line.strip())
                 if match is None:
                     raise ValueError("the recipe starts with 'Recipe <name>: <title>'")
-                recipe = {"name": match.group(1), "title": match.group(2).strip().rstrip("."),
+                recipe = {"name": form_name(match.group(1)), "title": match.group(2).strip().rstrip("."),
                           "Requests": "", "For": "", "Final answer": ""}
                 d_field, s_field = recipe, "title"
                 continue
             match = RE_STEP.match(line)
             if match is not None:
-                d_step = {"name": match.group(2), "goal": match.group(3).strip(), "line": number}
+                d_step = {"name": form_name(match.group(2)), "goal": match.group(3).strip(), "line": number}
                 l_step.append(d_step)
                 d_field, s_field = d_step, "goal"
                 continue
@@ -220,8 +235,11 @@ def parse_recipe(text: str, path: str = "") -> Recipe:
             if line[0] in " \t":  # the continuation of the field above
                 d_field[s_field] = f"{d_field[s_field]:} {line.strip():}".strip()
                 continue
-            raise ValueError(f"unexpected line '{line.strip():}': a step starts with "
-                             "'<number>. <name>: <goal>', its fields are indented")
+            raise ValueError(
+                f"unexpected line '{line.strip():}': a line is 'Requests:', 'For:', "
+                "'Final answer:', a step '<number>. <step_name>: <goal>' (e.g. '1. background: "
+                "Define the background points.') or an indented field of the step ('   Actions: "
+                "...'); a long text goes on indented lines")
         except ValueError as error:
             raise ValueError(f"line {number:}: {error:}") from None
     if recipe is None:
@@ -259,13 +277,37 @@ def check_recipe(recipe: Recipe) -> List[str]:
         for name, arguments in step.actions:
             tool = take_assistant_tool(name)
             if tool is None:
-                l_problem.append(f"step {step.name:}: unknown tool {name:}")
+                l_problem.append(f"step {step.name:}: unknown tool {name:}{explain_method_name(name):}")
                 continue
+            if name == "call_method" and str(arguments.get("method", "")) not in take_method_names():
+                l_problem.append(f"step {step.name:}: call_method: no CrysPy class has the method "
+                                 f"'{arguments.get('method', ''):}' (list_methods gives them)")
             l_argument = [key for key in arguments if key not in tool.parameters]
             if len(l_argument) > 0 and not tool.flag_extra_arguments:
                 l_problem.append(f"step {step.name:}: {name:} has no arguments "
                                  f"{', '.join(l_argument):}")
     return l_problem
+
+
+def take_method_names() -> dict:
+    """{name of a method: names of the classes with it} of the methods an
+    assistant may call (methods.py)."""
+    from cryspy.procedure_assistant.methods import take_classes_with_methods, take_methods
+    d_name = {}
+    for cls in take_classes_with_methods():
+        for name in take_methods(cls):
+            d_name.setdefault(name, []).append(cls.__name__)
+    return d_name
+
+
+def explain_method_name(name: str) -> str:
+    """'; it is a method of Pd: call_method {...}' for the name of a method
+    written as a tool, else ''."""
+    l_class = take_method_names().get(name)
+    if l_class is None:
+        return ""
+    return (f"; it is a method of {', '.join(l_class[:5]):}: write call_method "
+            f"{{\"method\": \"{name:}\"}} (with its arguments; \"path\" to call it for one block only)")
 
 
 def set_user_recipe_folder(path: Optional[str]):
@@ -410,7 +452,7 @@ S_RECIPE_FORMAT = """The format of a recipe (lines starting with '#' are comment
 Recipe <name>: <title>              name: letters, digits and '_'
 Requests: <words of the requests of the user the recipe is for>
 For: <kinds of experiments, all must apply>
-<number>. <step name>: <goal of the step>
+<number>. <step_name>: <goal of the step>   step_name: one word, e.g. background
    When: <condition of the step, optional>
    Actions: <tool> {<arguments in JSON>}; <tool>; ...   (tools of the assistant)
    Success: <what the results should show, optional>
@@ -420,7 +462,11 @@ By default a step is good when chi_sq/n (and R_F2 for single crystals) is better
 unchanged without warnings; otherwise the refinement is undone (undo_refinement).
 Parameters are chosen by refine_parameters {"pattern": ...}: words ('scale',
 'atomic positions', 'adp', 'extinction', 'unit cell', 'polarization') or paths
-('atom_site.fract_x', '*.pd_background[*].intensity'); then refine."""
+('atom_site.fract_x', '*.pd_background[*].intensity'); then refine.
+Methods of the data blocks, loops and items (list_methods), e.g. the method
+define_background_points of powder experiments, are tools too:
+call_method {"method": "define_background_points", "step_ttheta": 2}
+(for every block that has it; "path": "<block>" for one)."""
 
 S_RECIPE_WRITING = """How to write a recipe from the words of the user:
 1. Think over the algorithm: its steps in their order, the parameters of every step,
@@ -428,8 +474,10 @@ S_RECIPE_WRITING = """How to write a recipe from the words of the user:
 2. When something is not clear (which parameters, a condition, the kinds of
    experiments, what to do on a failure), ask the user with ask_user, all the
    questions of the moment together; never ask what a tool can find.
-3. Write every step with the tools of the assistant only; get_recipe <name> shows
-   a recipe of the CookBook as an example.
+3. Write every step with the tools of the assistant only; an operation the user
+   names that is not a tool is often a method of the object: list_methods
+   {"pattern": "<a word of it>"} finds it, call_method calls it. get_recipe <name>
+   shows a recipe of the CookBook as an example.
 4. Check the text with check_recipe_text and correct it until it is correct.
 5. Show the recipe to the user and ask with ask_user whether to save it or what to
    change; save it with save_recipe only after the user agrees.
@@ -440,13 +488,14 @@ def form_recipe_guide() -> str:
     """Everything a language model needs to write a recipe: the format, the
     kinds of experiments, the recipes of the CookBook, a template and the
     way of work."""
+    # the most needed first: a program may give a model only the start of a long result
     return "\n\n".join([
         S_RECIPE_FORMAT,
+        f"A template:\n{S_TEMPLATE.strip():}",
+        S_RECIPE_WRITING,
         f"Kinds of experiments for 'For:': {', '.join(KINDS + (KIND_ANY, )):} "
         f"('{KIND_ANY:}': never suggested for an experiment).",
-        f"Recipes of the CookBook (examples, get_recipe gives the steps):\n{recipes_as_text():}",
-        f"A template:\n{S_TEMPLATE.strip():}",
-        S_RECIPE_WRITING])
+        f"Recipes of the CookBook (examples, get_recipe gives the steps):\n{recipes_as_text():}"])
 
 
 def take_recipe(name: str) -> Optional[Recipe]:

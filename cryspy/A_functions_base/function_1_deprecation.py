@@ -16,4 +16,5 @@ def deprecated(func):
             f"{func.__qualname__} is deprecated and will be removed in "
             "the next CrysPy release.", DeprecationWarning, stacklevel=2)
         return func(*args, **kwargs)
+    wrapper.__deprecated__ = True  # left out of the methods for AI assistants
     return wrapper
