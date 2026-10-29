@@ -130,7 +130,6 @@ class Pd2d(DataN):
                     if (pd_peak.is_attribute("intensity_plus") and pd_peak.is_attribute("intensity_minus")):
                         i_plus = numpy.array(pd_peak.intensity_plus, dtype=float)
                         i_minus = numpy.array(pd_peak.intensity_minus, dtype=float)
-                        inv_lf = numpy.sin(gamma*numpy.pi/180)*numpy.sin(0.5*gamma*numpy.pi/180)
                         i_sum = numpy.abs(i_plus*flag_gn+i_minus*flag_gn)
                         i_difference = numpy.abs(i_plus*flag_gn-i_minus*flag_gn)
                         flag_i_plus = (i_sum-i_sum.min()) > 0.01 * (i_sum.max() - i_sum.min())
@@ -146,7 +145,6 @@ class Pd2d(DataN):
                     if (pd_peak.is_attribute("intensity_plus") and pd_peak.is_attribute("intensity_minus")):
                         i_plus = numpy.array(pd_peak.intensity_plus, dtype=float)
                         i_minus = numpy.array(pd_peak.intensity_minus, dtype=float)
-                        inv_lf = numpy.sin(gamma*numpy.pi/180)*numpy.sin(0.5*gamma*numpy.pi/180)
                         i_sum = numpy.abs(i_plus*flag_gn+i_minus*flag_gn)
                         i_difference = numpy.abs(i_plus*flag_gn-i_minus*flag_gn)
                         flag_i_plus = (i_sum-i_sum.min()) > 0.2 * (i_sum.max() - i_sum.min())
@@ -205,7 +203,6 @@ class Pd2d(DataN):
                 nu_deg >= nu_min_deg,
                 nu_deg <= nu_max_deg)
 
-            flag_in = flag_gamma_in[:, na] * flag_nu_in[na, :]
 
             ddict["gamma"] = gamma_deg[flag_gamma_in] * numpy.pi/180.
             ddict["nu"] = nu_deg[flag_nu_in] * numpy.pi/180.

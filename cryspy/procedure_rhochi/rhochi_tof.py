@@ -313,7 +313,6 @@ def calc_chi_sq_for_tof_by_dictionary(
             dict_in_out_phase["index_hkl"] = index_hkl
             dict_in_out_phase["multiplicity_hkl"] = multiplicity_hkl
 
-        flag_sthovl_hkl = flag_unit_cell_parameters
         sthovl_hkl, dder_sthovl_hkl = calc_sthovl_by_unit_cell_parameters(index_hkl,
                                                                           unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
@@ -327,7 +326,6 @@ def calc_chi_sq_for_tof_by_dictionary(
 
         d_4_hkl = numpy.power(d_hkl, 4)
 
-        flag_time_hkl = flag_sthovl_hkl
         dict_in_out_phase["time_hkl"] = time_hkl
         dict_in_out_phase["d_hkl"] = d_hkl
 
@@ -339,7 +337,6 @@ def calc_chi_sq_for_tof_by_dictionary(
             dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
         flag_sft_ccs = len(dder_sft_ccs.keys()) > 0
 
-        flag_matrix_t = flag_unit_cell_parameters
         matrix_t, dder_matrix_t = calc_matrix_t(
             index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 

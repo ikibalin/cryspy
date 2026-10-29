@@ -71,8 +71,6 @@ def calc_background(
     # intensity = f(ttheta)
     dder = {}
     if flag_background_intensity:
-        ttheta_shift = ttheta[:, na] - background_ttheta[na, :]
-        diff_b_tth = background_ttheta[1:] - background_ttheta[:-1]
         # y_n + (y_np1-y_np)*(x-x_n)/(x_np1-x_n)
         # 1  -(x-x_n)/(x_np1-x_n) + (x-x_nm1)/(x_n-x_nm1)
         dder_bkgr = numpy.zeros(
@@ -270,8 +268,6 @@ def calc_chi_sq_for_pd_by_dictionary(
         if "reduced_symm_elems" in dict_crystal_keys:
             reduced_symm_elems = dict_crystal["reduced_symm_elems"]
             translation_elems = dict_crystal["translation_elems"]
-        elif "full_symm_elems" in dict_crystal_keys:
-            full_symm_elems = dict_crystal["full_symm_elems"]
         elif "full_mcif_elems" in dict_crystal_keys:
             full_mcif_elems = dict_crystal["full_mcif_elems"]
 
@@ -358,7 +354,6 @@ def calc_chi_sq_for_pd_by_dictionary(
                 )
                 flag_sft_ccs = len(dder_sft_ccs.keys()) > 0
 
-                flag_matrix_t = flag_unit_cell_parameters
                 matrix_t, dder_matrix_t = calc_matrix_t(
                     index_hkl,
                     unit_cell_parameters,
@@ -386,7 +381,6 @@ def calc_chi_sq_for_pd_by_dictionary(
                 flag_f_m_perp_o = len(dder_f_m_perp_o_ccs.keys()) > 0
                 flag_ordered = True
 
-                flag_matrix_t = flag_unit_cell_parameters
                 matrix_t, dder_matrix_t = calc_matrix_t(
                     index_hkl,
                     unit_cell_parameters,
@@ -510,7 +504,6 @@ def calc_chi_sq_for_pd_by_dictionary(
                 dict_in_out_phase,
                 flag_use_precalculated_data=flag_use_precalculated_data,
             )
-            flag_f_charge = len(dder_f_charge.keys()) > 0
 
             iint = numpy.square(numpy.abs(f_charge))
             # FIXME: preparation for XMD

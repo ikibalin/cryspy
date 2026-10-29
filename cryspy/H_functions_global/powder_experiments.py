@@ -30,12 +30,6 @@ def report_powder_experiments(rcif_object: GlobalN):
     """
     d_elements = DATABASE["Elements"]
     ls_out = []
-    rcif_dict = rcif_object.get_dictionary()
-    rcif_dict_keys = rcif_dict.keys()
-    l_crystal_dict_keys = [
-        hh for hh in rcif_dict_keys if hh.startswith("crystal_")]
-    l_pd_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("pd_")]
-    l_pd2d_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("pd2d_")]
 
     l_crystal = [
         item for item in rcif_object.items if isinstance(item, Crystal)]
@@ -56,7 +50,6 @@ def report_powder_experiments(rcif_object: GlobalN):
             field = item.setup.field
             ls_out.append(f"In experiment '{item.data_name:}' \n")
 
-            m_chi_total = numpy.zeros((3, 3), dtype=float)
             l_s_v_sq, l_v_uc, l_m_uc = [], [], []
             l_m_chi, l_s_v_m = [], []
             l_m_chi_ion = []

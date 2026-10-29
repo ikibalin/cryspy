@@ -111,7 +111,6 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     elif "intensity_es" in dict_diffrn_keys:
         intensity_es = dict_diffrn["intensity_es"]
         phase_scale = dict_diffrn["phase_scale"]
-        flags_phase_scale = dict_diffrn["flags_phase_scale"]
         beam_polarization = 1.
         flipper_efficiency = 1.
         flag_unpolarized = True

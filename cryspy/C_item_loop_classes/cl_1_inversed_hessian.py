@@ -9,7 +9,6 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 def inversed_hessian_to_correlation(inv_hessian):
     """Calculate correlation matrix and sigmas for inversed hessian matrix."""
     np_sigma_sq = numpy.diagonal(inv_hessian)
-    np_na = numpy.newaxis
     np_sigma = numpy.sqrt(numpy.abs(np_sigma_sq))
     # np_sigma_sq_matrix = np_sigma[:, np_na] * np_sigma[np_na, :]
     np_sigma_sq_matrix = numpy.outer(np_sigma, np_sigma)

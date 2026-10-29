@@ -389,7 +389,6 @@ def calc_f_by_f_asym_a_pr(
         res = f_h
     dder = {}
     if flag_f_asym_a:
-        ofh = numpy.ones(f_h.shape, dtype=float)
         if centrosymmetry:
             hhh_real = pr_3 + pr_4 * pr_3.conjugate()
             hhh_imag = pr_3 - pr_4 * pr_3.conjugate()
@@ -1199,7 +1198,6 @@ def calc_f_charge(
             numpy.interp(sthovl, table_sthovl, table_sc_ampl)
             for table_sc_ampl in table_atom_scattering_amplitude
         ]
-        hh = numpy.stack(l_scat_length_xray, axis=1)
         scat_length_xray = numpy.stack(
             l_scat_length_xray, axis=1
         ) + numpy.expand_dims(atom_dispersion, axis=0)
@@ -1657,7 +1655,6 @@ def calc_sft_ccs(
         if flag_dict:
             dict_in_out["atom_para_debye_waller_factor"] = debye_waller_factor
 
-    flag_scat_length_neutron = False
     flag_debye_waller = flag_atom_para_b_iso or flag_atom_para_beta
 
     flag_sft_ccs_asym = (
@@ -2000,7 +1997,6 @@ def calc_f_m_perp_ordered_by_dictionary(
     )
     # flag_multipole = False
     if flag_multipole:
-        atom_label = dict_crystal["atom_label"]
         mag_atom_rho_multipole_index = dict_crystal[
             "mag_atom_rho_multipole_index"
         ]
@@ -2165,7 +2161,6 @@ def calc_f_m_perp_ordered(
                 atom_ordered_multiplicity
             )
 
-    flag_pr_1 = flag_atom_ordered_fract_xyz
     if (
         flag_use_precalculated_data
         and ("pr_1_atom_ordered" in dict_in_out_keys)
@@ -2205,11 +2200,6 @@ def calc_f_m_perp_ordered(
         if flag_dict:
             dict_in_out["sthovl"] = sthovl
 
-    flag_mag_atom_form_factor = (
-        flag_sthovl
-        or flag_atom_ordered_lande_factor
-        or flag_atom_ordered_kappa
-    )
     flag_hh = True
     if "flag_only_orbital" in dict_in_out_keys:
         flag_hh = flag_only_orbital == dict_in_out["flag_only_orbital"]
@@ -2268,7 +2258,6 @@ def calc_f_m_perp_ordered(
                 debye_waller_factor
             )
 
-    flag_debye_waller = flag_atom_ordered_b_iso or flag_atom_ordered_beta
 
     m_norm, der_m_norm = calc_m_m_norm_by_unit_cell_parameters(
         unit_cell_parameters,
@@ -2342,7 +2331,6 @@ def calc_bulk_susceptibility_by_dictionary(
     dict_crystal, dict_in_out, flag_use_precalculated_data: bool = False
 ):
     dict_crystal_keys = dict_crystal.keys()
-    dict_in_out_keys = dict_in_out.keys()
 
     necessary_crystal_keys = set(
         [

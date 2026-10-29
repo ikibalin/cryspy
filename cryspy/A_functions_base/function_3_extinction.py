@@ -38,11 +38,7 @@ def calc_extinction(radius:float, mosaicity:float, model:str,
     flag_derivative_f_sq
     flag_derivative_wavelength
     """
-    r = float(radius)
-    g = float(mosaicity)
-    g_sq = numpy.square(g)
 
-    kk = 1.
     unit_cell_parameters = (a, b, c, alpha, beta, gamma)
     volume_unit_cell = calc_volume_uc_by_unit_cell_parameters(unit_cell_parameters)[0]
     sthovl = calc_sthovl_by_unit_cell_parameters((h, k, l), unit_cell_parameters)[0]

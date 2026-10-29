@@ -107,8 +107,6 @@ def calc_volume_uc_by_unit_cell_parameters(
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    c_a_sq, c_b_sq = numpy.square(c_a), numpy.square(c_b)
-    c_g_sq = numpy.square(c_g)
     phi, dder_phi = calc_phi_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters)
     volume_uc = a*b*c*phi
     dder = {}
@@ -234,8 +232,7 @@ def calc_m_reciprocal_g_by_unit_cell_parameters(
 
 def calc_m_reciprocal_g_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters: bool = False):
-    a, b = unit_cell_parameters[0], unit_cell_parameters[1]
-    c = unit_cell_parameters[2]
+    a = unit_cell_parameters[0]
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
@@ -348,7 +345,7 @@ def calc_m_inv_b_by_unit_cell_parameters(
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    s_a, s_b, s_g = numpy.sin(alpha), numpy.sin(beta), numpy.sin(gamma)
+    s_a = numpy.sin(alpha)
 
     phi, dder_phi = calc_phi_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters) 
@@ -379,8 +376,6 @@ def calc_m_inv_b_by_unit_cell_parameters(
 
 def calc_m_b_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters: bool = False):
-    a, b = unit_cell_parameters[0], unit_cell_parameters[1]
-    c = unit_cell_parameters[2]
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
@@ -418,8 +413,6 @@ def calc_m_b_norm_by_unit_cell_parameters(
 
 def calc_m_inv_b_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters: bool = False):
-    a, b = unit_cell_parameters[0], unit_cell_parameters[1]
-    c = unit_cell_parameters[2]
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
@@ -465,7 +458,7 @@ def calc_m_m_by_unit_cell_parameters(
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    s_a, s_b, s_g = numpy.sin(alpha), numpy.sin(beta), numpy.sin(gamma)
+    s_a = numpy.sin(alpha)
 
     phi, dder_phi = calc_phi_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters) 
@@ -502,7 +495,7 @@ def calc_m_inv_m_by_unit_cell_parameters(
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    s_a, s_b, s_g = numpy.sin(alpha), numpy.sin(beta), numpy.sin(gamma)
+    s_a = numpy.sin(alpha)
 
     phi, dder_phi = calc_phi_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters) 
@@ -535,8 +528,6 @@ def calc_m_inv_m_by_unit_cell_parameters(
 def calc_m_m_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters: bool = False):
     """nM matrix."""
-    a, b = unit_cell_parameters[0], unit_cell_parameters[1]
-    c = unit_cell_parameters[2]
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
@@ -582,12 +573,10 @@ def calc_m_m_norm_by_unit_cell_parameters(
 def calc_m_inv_m_norm_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters: bool = False):
     """nM matrix."""
-    a, b = unit_cell_parameters[0], unit_cell_parameters[1]
-    c = unit_cell_parameters[2]
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    s_a, s_b, s_g = numpy.sin(alpha), numpy.sin(beta), numpy.sin(gamma)
+    s_a = numpy.sin(alpha)
 
     phi, dder_phi = calc_phi_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters) 

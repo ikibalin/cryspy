@@ -17,7 +17,7 @@ def estimate_inversed_hessian_matrix(func, param_0):
     n_param = len(param_0)
     np_hessian = numpy.zeros(shape=(n_param, n_param), dtype=float)
     np_first_der = numpy.zeros(shape=(n_param,), dtype=float)
-    chi_sq = func(param_0)
+    func(param_0)
     perc = 0.01
     
     for i_p_1, p_1 in enumerate(param_0):

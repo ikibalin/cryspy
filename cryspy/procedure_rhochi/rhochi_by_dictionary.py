@@ -412,8 +412,7 @@ def rhochi_calc_chi_sq_by_dictionary(
     l_chi_sq, l_der_chi_sq, l_dder_chi_sq = [], [], []
     l_n_point = []
     l_parameter_name, parameter_name_full = [], []
-    dder = {}
-    l_experiments, l_diff_chi = [], []
+    l_experiments = []
     for name_key_diffrn, dict_diffrn in l_dict_diffrn:
         if flag_use_precalculated_data and (name_key_diffrn in dict_in_out_keys):
             dict_in_out_diffrn = dict_in_out[name_key_diffrn]
