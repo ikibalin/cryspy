@@ -107,8 +107,6 @@ def calc_volume_uc_by_unit_cell_parameters(
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    c_a_sq, c_b_sq = numpy.square(c_a), numpy.square(c_b)
-    c_g_sq = numpy.square(c_g)
     phi, dder_phi = calc_phi_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters)
     volume_uc = a*b*c*phi
     dder = {}
