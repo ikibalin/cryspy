@@ -160,22 +160,36 @@ def rhochi_rietveld_refinement_with_parameters(
     return dict_out
 
 
-def log_refined_parameters(cryspy_object: GlobalN):
-    """Log the refined parameters by their full paths
-    ('crystal_fe.atom_site[Fe1].occupancy'), with sigmas and marks."""
-    l_record = [record for record in take_parameter_records(cryspy_object)
-                if record.flag_refinement]
-    if len(l_record) == 0:
-        return
-    logger.info("Optimal parameters:")
-    for record in l_record:
+def report_refined_parameters(cryspy_object: GlobalN) -> str:
+    """Lines ' - path value ± sigma [mark]' of the refined parameters by
+    their full paths ('crystal_fe.atom_site[Fe1].occupancy').
+
+    The refinement logs them, CrysPy Editor shows them when a file is
+    opened; an empty string when nothing is refined.
+    """
+    ls_line = []
+    for record in take_parameter_records(cryspy_object):
+        if not record.flag_refinement:
+            continue
         mark = str(getattr(record.item, f"{record.attribute:}_mark", ""))
         s_mark = f" [{mark:}]" if mark != "" else ""
         if is_number(record.value):
             s_value = f"{record.value:.5f} ± {record.sigma:.5f}"
         else:
             s_value = str(record.value)
-        logger.info(f" - {record.path:} {s_value:}{s_mark:}")
+        ls_line.append(f" - {record.path:} {s_value:}{s_mark:}")
+    return "\n".join(ls_line)
+
+
+def log_refined_parameters(cryspy_object: GlobalN):
+    """Log the refined parameters by their full paths
+    ('crystal_fe.atom_site[Fe1].occupancy'), with sigmas and marks."""
+    report = report_refined_parameters(cryspy_object)
+    if report == "":
+        return
+    logger.info("Optimal parameters:")
+    for line in report.split("\n"):
+        logger.info(line)
 
 
 def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
