@@ -12,17 +12,9 @@ UNIT_CELL_PARAMETERS = numpy.array([5.1, 6.3, 7.7, *numpy.radians([81.0, 97.5, 1
 INDEX_HKL = numpy.array([[1, 0, 2], [0, 1, 1], [0, 0, -2]])
 STEP = 1e-6
 
-# derivatives found wrong on 2026-10-28; fix them and remove from this list
-WRONG_DERIVATIVES = {
-    "calc_eq_ccs_by_unit_cell_parameters", "calc_m_b_by_unit_cell_parameters",
-    "calc_m_b_norm_by_unit_cell_parameters", "calc_m_g_norm_by_unit_cell_parameters",
-    "calc_m_inv_b_by_unit_cell_parameters", "calc_m_inv_b_norm_by_unit_cell_parameters",
-    "calc_m_inv_b_norm_m_by_unit_cell_parameters", "calc_m_inv_m_b_norm_by_unit_cell_parameters",
-    "calc_m_inv_m_by_unit_cell_parameters", "calc_m_inv_m_norm_by_unit_cell_parameters",
-    "calc_m_m_by_unit_cell_parameters", "calc_m_m_norm_by_unit_cell_parameters",
-    "calc_m_reciprocal_g_by_unit_cell_parameters", "calc_q_ccs_by_unit_cell_parameters",
-    "calc_reciprocal_by_unit_cell_parameters",
-}
+# derivatives found wrong on 2026-10-28 and fixed since; keep the list for
+# the next wrong ones
+WRONG_DERIVATIVES = set()
 
 NAMES = sorted(name for name in dir(unit_cell)
                if name.startswith("calc_") and name.endswith("_by_unit_cell_parameters"))

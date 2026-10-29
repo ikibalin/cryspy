@@ -9,6 +9,45 @@ from .matrix_operations import calc_m_q_mt
 from cryspy.exceptions import CrysPyError
 
 
+# Matrices are stored as 9 components m_11, m_12, ..., m_33 along the first
+# axis; their derivatives over the unit cell parameters have the shape
+# (9, 6) + shape of one parameter.
+def _dder_m1_m2(m1, dder_m1, m2, dder_m2):
+    """Derivative of the product M1 M2."""
+    m1_3x3 = m1.reshape((3, 3) + m1.shape[1:])
+    m2_3x3 = m2.reshape((3, 3) + m2.shape[1:])
+    dder_m1_3x3 = dder_m1.reshape((3, 3) + dder_m1.shape[1:])
+    dder_m2_3x3 = dder_m2.reshape((3, 3) + dder_m2.shape[1:])
+    res = (numpy.einsum("ikp...,kj...->ijp...", dder_m1_3x3, m2_3x3) +
+           numpy.einsum("ik...,kjp...->ijp...", m1_3x3, dder_m2_3x3))
+    return res.reshape((9, ) + res.shape[2:])
+
+
+def _dder_inv_m(inv_m, dder_m):
+    """Derivative of M^-1 from the derivative of M: -M^-1 dM M^-1."""
+    inv_m_3x3 = inv_m.reshape((3, 3) + inv_m.shape[1:])
+    dder_m_3x3 = dder_m.reshape((3, 3) + dder_m.shape[1:])
+    res = -numpy.einsum("ik...,klp...,lj...->ijp...", inv_m_3x3, dder_m_3x3, inv_m_3x3)
+    return res.reshape((9, ) + res.shape[2:])
+
+
+def _dder_transposed_m(dder_m):
+    """Derivative of M^T."""
+    dder_m_3x3 = dder_m.reshape((3, 3) + dder_m.shape[1:])
+    return numpy.swapaxes(dder_m_3x3, 0, 1).reshape(dder_m.shape)
+
+
+def _der_arccos_cos_ratio(c_p, s_p, c_q, s_q, c_r, s_r):
+    """Derivatives of arccos(x), x = (cos q cos r - cos p)/(sin q sin r),
+    over the angles p, q, r (reciprocal cell angles)."""
+    x = (c_q*c_r-c_p)/(s_q*s_r)
+    coeff = -1./numpy.sqrt(1.-numpy.square(x))
+    der_p = coeff*s_p/(s_q*s_r)
+    der_q = coeff*(-c_r/s_r-x*c_q/s_q)
+    der_r = coeff*(-c_q/s_q-x*c_r/s_r)
+    return der_p, der_q, der_r
+
+
 def calc_reciprocal_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters: bool = False):
     a, b = unit_cell_parameters[0], unit_cell_parameters[1]
@@ -33,23 +72,15 @@ def calc_reciprocal_by_unit_cell_parameters(
     if flag_unit_cell_parameters:
         d_v = dder_vol["unit_cell_parameters"]
         zeros = numpy.zeros(unit_cell_parameters[0].shape, dtype=float)
-        i_vol_sq = 1./numpy.square(vol)
-        der_ia = numpy.stack([b*c*s_a*d_v[0]*i_vol_sq,
-                              c*s_a/vol+b*c*s_a*d_v[1]*i_vol_sq,
-                              b*s_a/vol+b*c*s_a*d_v[2]*i_vol_sq,
-                              b*c*c_a/vol+b*c*s_a*d_v[3]*i_vol_sq,
-                              b*c*s_a*d_v[4]*i_vol_sq,
-                              b*c*s_a*d_v[5]*i_vol_sq], axis=0)
-        der_ib = numpy.stack([c*s_b/vol+c*a*s_b*i_vol_sq*d_v[0],
-                              c*a*s_b*i_vol_sq*d_v[1],
-                              a*s_b/vol+c*a*s_b*i_vol_sq*d_v[2],
-                              c*a*s_b*i_vol_sq*d_v[3],
-                              c*a*c_b/vol+c*a*s_b*i_vol_sq*d_v[4],
-                              c*a*s_b*i_vol_sq*d_v[5]], axis=0)
-        der_ic = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_ial = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_ibe = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_iga = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
+        der_ia = numpy.stack([zeros, c*s_a, b*s_a, b*c*c_a, zeros, zeros], axis=0)/vol - ia*d_v/vol
+        der_ib = numpy.stack([c*s_b, zeros, a*s_b, zeros, c*a*c_b, zeros], axis=0)/vol - ib*d_v/vol
+        der_ic = numpy.stack([b*s_g, a*s_g, zeros, zeros, zeros, a*b*c_g], axis=0)/vol - ic*d_v/vol
+        der_ial_al, der_ial_be, der_ial_ga = _der_arccos_cos_ratio(c_a, s_a, c_b, s_b, c_g, s_g)
+        der_ibe_be, der_ibe_ga, der_ibe_al = _der_arccos_cos_ratio(c_b, s_b, c_g, s_g, c_a, s_a)
+        der_iga_ga, der_iga_al, der_iga_be = _der_arccos_cos_ratio(c_g, s_g, c_a, s_a, c_b, s_b)
+        der_ial = numpy.stack([zeros, zeros, zeros, der_ial_al, der_ial_be, der_ial_ga], axis=0)
+        der_ibe = numpy.stack([zeros, zeros, zeros, der_ibe_al, der_ibe_be, der_ibe_ga], axis=0)
+        der_iga = numpy.stack([zeros, zeros, zeros, der_iga_al, der_iga_be, der_iga_ga], axis=0)
 
         dder["unit_cell_parameters"] = numpy.stack([
             der_ia, der_ib, der_ic, der_ial, der_ibe, der_iga], axis=0)
@@ -181,10 +212,10 @@ def calc_m_g_norm_by_unit_cell_parameters(
 
         s_a, s_b, s_g = numpy.sin(alpha), numpy.sin(beta), numpy.sin(gamma)
         der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([c_g, c_g, zeros, zeros, zeros, -s_g], axis=0)
-        der_13 = numpy.stack([c_b, zeros, c_b, zeros, -s_b, zeros], axis=0)
+        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, -s_g], axis=0)
+        der_13 = numpy.stack([zeros, zeros, zeros, zeros, -s_b, zeros], axis=0)
         der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, c_a, c_a, -s_a, zeros, zeros], axis=0)
+        der_23 = numpy.stack([zeros, zeros, zeros, -s_a, zeros, zeros], axis=0)
         der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
 
         dder["unit_cell_parameters"] = numpy.stack([
@@ -217,16 +248,14 @@ def calc_m_reciprocal_g_by_unit_cell_parameters(
         axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        zeros = numpy.zeros_like(unit_cell_parameters[0])
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_22, der_33, der_12, der_13, der_23], axis=0)
+        # G* = G^-1; the six components 11, 22, 33, 12, 13, 23 are
+        # expanded to the full matrix and back
+        m_g, dder_m_g = calc_m_g_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        ind_full = [0, 3, 4, 3, 1, 5, 4, 5, 2]
+        m_reciprocal_g_full = m_reciprocal_g_ij[ind_full]
+        dder_full = _dder_inv_m(m_reciprocal_g_full, dder_m_g["unit_cell_parameters"][ind_full])
+        dder["unit_cell_parameters"] = dder_full[[0, 4, 8, 1, 2, 5]]
     return m_reciprocal_g_ij, dder
 
 
@@ -280,7 +309,7 @@ def calc_m_b_by_unit_cell_parameters(
     alpha, beta = unit_cell_parameters[3], unit_cell_parameters[4]
     gamma = unit_cell_parameters[5]
     c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    s_a, s_b, s_g = numpy.sin(alpha), numpy.sin(beta), numpy.sin(gamma)
+    s_a = numpy.sin(alpha)
 
     phi, dder_phi = calc_phi_by_unit_cell_parameters(
         unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters) 
@@ -293,48 +322,10 @@ def calc_m_b_by_unit_cell_parameters(
               zeros,     zeros, 1./c], axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        der_11_a = - m_b_ij[0]/a - m_b_ij[0]/phi*dder_phi["unit_cell_parameters"][0]
-        der_11_b = - m_b_ij[0]/phi*dder_phi["unit_cell_parameters"][1]
-        der_11_c = - m_b_ij[0]/phi*dder_phi["unit_cell_parameters"][2]
-        der_11_al = c_a/(a*phi) - m_b_ij[0]/phi*dder_phi["unit_cell_parameters"][3]
-        der_11_be = - m_b_ij[0]/phi*dder_phi["unit_cell_parameters"][4]
-        der_11_ga = - m_b_ij[0]/phi*dder_phi["unit_cell_parameters"][5]
-        der_11 = numpy.stack([der_11_a, der_11_b, der_11_c, der_11_al, der_11_be, der_11_ga], axis=0)
-
-        der_12_a = - m_b_ij[1]/phi*dder_phi["unit_cell_parameters"][0]
-        der_12_b = - m_b_ij[1]/b - m_b_ij[1]/phi*dder_phi["unit_cell_parameters"][1]
-        der_12_c = - m_b_ij[1]/phi*dder_phi["unit_cell_parameters"][2]
-        der_12_al = (c_a*c_g-c_b)/(numpy.square(s_a)*b*phi) - m_b_ij[1]/phi*dder_phi["unit_cell_parameters"][3]
-        der_12_be = c_a*s_b/(b*phi*s_a) - m_b_ij[1]/phi*dder_phi["unit_cell_parameters"][4]
-        der_12_ga = s_g/(b*phi*s_a) - m_b_ij[1]/phi*dder_phi["unit_cell_parameters"][5]
-        der_12 = numpy.stack([der_12_a, der_12_b, der_12_c, der_12_al, der_12_be, der_12_ga], axis=0)
-
-        der_13_a = - m_b_ij[2]/phi*dder_phi["unit_cell_parameters"][0]
-        der_13_b = - m_b_ij[2]/phi*dder_phi["unit_cell_parameters"][1]
-        der_13_c = -m_b_ij[2]/c - m_b_ij[2]/phi*dder_phi["unit_cell_parameters"][2]
-        der_13_al = (c_a*c_b-c_g)/(numpy.square(s_a)*c*phi) - m_b_ij[2]/phi*dder_phi["unit_cell_parameters"][3]
-        der_13_be = s_b/(c*phi*s_a) - m_b_ij[2]/phi*dder_phi["unit_cell_parameters"][4]
-        der_13_ga = -s_g*c_a/(c*phi*s_a) - m_b_ij[2]/phi*dder_phi["unit_cell_parameters"][5]
-        der_13 = numpy.stack([der_13_a, der_13_b, der_13_c, der_13_al, der_13_be, der_13_ga], axis=0)
-
-        der_22_b =  -m_b_ij[4]/b
-        der_22_al = -m_b_ij[4]*c_a/numpy.square(s_a)
-        der_22 = numpy.stack([zeros, der_22_b, zeros, der_22_al, zeros, zeros], axis=0)
-
-        der_23_c =  -m_b_ij[5]/c
-        der_23_al = 1/(numpy.square(s_a)*c)
-        der_23 = numpy.stack([zeros, zeros, der_23_c, der_23_al, zeros, zeros], axis=0)
-
-        der_33_c =  -1/numpy.square(c)
-        der_33 = numpy.stack([zeros, zeros, der_33_c, zeros, zeros, zeros], axis=0)
-
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32,
-            der_33], axis=0)
+        # B = (B^-1)^-1
+        m_inv_b, dder_m_inv_b = calc_m_inv_b_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_inv_m(m_b_ij, dder_m_inv_b["unit_cell_parameters"])
     return m_b_ij, dder
 
 
@@ -358,19 +349,10 @@ def calc_m_inv_b_by_unit_cell_parameters(
               zeros,               zeros, c], axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32,
-            der_33], axis=0)
+        # B^-1 = M^T
+        m_m, dder_m_m = calc_m_m_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_transposed_m(dder_m_m["unit_cell_parameters"])
     return m_inv_b_ij, dder
 
 
@@ -395,19 +377,11 @@ def calc_m_b_norm_by_unit_cell_parameters(
  
     dder = {}
     if flag_unit_cell_parameters:
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32,
-            der_33], axis=0)
+        # nB = (nB^-1)^-1
+        m_inv_b_norm, dder_m_inv_b_norm = calc_m_inv_b_norm_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_inv_m(
+            m_b_norm_ij, dder_m_inv_b_norm["unit_cell_parameters"])
     return m_b_norm_ij, dder
 
 
@@ -444,6 +418,8 @@ def calc_m_inv_b_norm_by_unit_cell_parameters(
         der_32_1 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
 
         dder_2 = -numpy.expand_dims(m_inv_b_norm/phi, axis=1)*numpy.expand_dims(dder_phi["unit_cell_parameters"], axis=0)
+        # the component 11 is one, it does not depend on phi
+        dder_2[0] = 0.
 
         dder["unit_cell_parameters"] = numpy.stack([
             der_11_1, der_12_1, der_13_1, der_21_1, der_22_1, der_23_1, der_31_1, der_32_1,
@@ -472,19 +448,14 @@ def calc_m_m_by_unit_cell_parameters(
         a*c_b, b*c_a, c], axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32,
-            der_33], axis=0)
+        # M = nM diag(a, b, c)
+        m_m_norm, dder_m_m_norm = calc_m_m_norm_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        a_b_c = numpy.stack([a, zeros, zeros, zeros, b, zeros, zeros, zeros, c], axis=0)
+        dder_a_b_c = numpy.zeros((9, 6) + a.shape, dtype=float)
+        dder_a_b_c[0, 0], dder_a_b_c[4, 1], dder_a_b_c[8, 2] = 1., 1., 1.
+        dder["unit_cell_parameters"] = _dder_m1_m2(
+            m_m_norm, dder_m_m_norm["unit_cell_parameters"], a_b_c, dder_a_b_c)
     return m_m_ij, dder
 
 
@@ -509,19 +480,10 @@ def calc_m_inv_m_by_unit_cell_parameters(
         (c_a*c_g-c_b)/(c*phi*s_a), -c_a/(c*s_a), 1/c], axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32,
-            der_33], axis=0)
+        # M^-1 = B^T
+        m_b, dder_m_b = calc_m_b_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_transposed_m(dder_m_b["unit_cell_parameters"])
     return m_inv_m_ij, dder
 
 
@@ -546,22 +508,19 @@ def calc_m_m_norm_by_unit_cell_parameters(
 
     dder = {}
     if flag_unit_cell_parameters:
+        d_phi = dder_phi["unit_cell_parameters"]
         s_a_sq = numpy.square(s_a)
-        c_a_sq = numpy.square(c_a)
-        der_11 = numpy.stack([
-            zeros, zeros, zeros,
-            -0.5/phi * (2*c_a-2.*c_b*c_g) - phi*c_a/s_a_sq,
-            -0.5/phi * (2*c_b-2.*c_a*c_g)*s_b/s_a,
-            -0.5/phi * (2*c_g-2.*c_a*c_b)*s_g/s_a], axis=0)
+        n_12 = c_g-c_a*c_b
+        der_11 = d_phi/s_a + numpy.stack([
+            zeros, zeros, zeros, -phi*c_a/s_a_sq, zeros, zeros], axis=0)
         der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
         der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
         der_21 = numpy.stack([
-            zeros, zeros, zeros, c_b-(c_g*c_a-c_a_sq*c_b)/s_a_sq, c_a*s_b/s_a,
-            -s_g/s_a], axis=0)
+            zeros, zeros, zeros, c_b-n_12*c_a/s_a_sq, c_a*s_b/s_a, -s_g/s_a], axis=0)
         der_22 = numpy.stack([zeros, zeros, zeros, c_a, zeros, zeros], axis=0)
         der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, -1*s_b, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, -1*s_a, zeros, zeros], axis=0)
+        der_31 = numpy.stack([zeros, zeros, zeros, zeros, -s_b, zeros], axis=0)
+        der_32 = numpy.stack([zeros, zeros, zeros, -s_a, zeros, zeros], axis=0)
         der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
 
         dder["unit_cell_parameters"] = numpy.stack([
@@ -591,19 +550,11 @@ def calc_m_inv_m_norm_by_unit_cell_parameters(
 
     dder = {}
     if flag_unit_cell_parameters:
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32,
-            der_33], axis=0)
+        # nM^-1 = (nM)^-1
+        m_m_norm, dder_m_m_norm = calc_m_m_norm_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_inv_m(
+            m_inv_m_norm_ij, dder_m_m_norm["unit_cell_parameters"])
     return m_inv_m_norm_ij, dder
 
 
@@ -958,18 +909,14 @@ def calc_m_inv_m_b_norm_by_unit_cell_parameters(
         axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        zeros = numpy.zeros_like(a)
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32, der_33], axis=0)
+        # M^-1 nB
+        m_inv_m, dder_m_inv_m = calc_m_inv_m_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        m_b_norm, dder_m_b_norm = calc_m_b_norm_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_m1_m2(
+            m_inv_m, dder_m_inv_m["unit_cell_parameters"],
+            m_b_norm, dder_m_b_norm["unit_cell_parameters"])
     return inv_m_b_norm, dder
 
 def calc_m_inv_b_norm_m_by_unit_cell_parameters(
@@ -999,18 +946,14 @@ def calc_m_inv_b_norm_m_by_unit_cell_parameters(
         axis=0)
     dder = {}
     if flag_unit_cell_parameters:
-        zeros = numpy.zeros_like(a)
-        der_11 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_12 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_13 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_21 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_22 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_23 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_31 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_32 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        der_33 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
-        dder["unit_cell_parameters"] = numpy.stack([
-            der_11, der_12, der_13, der_21, der_22, der_23, der_31, der_32, der_33], axis=0)
+        # nB^-1 M
+        m_inv_b_norm, dder_m_inv_b_norm = calc_m_inv_b_norm_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        m_m, dder_m_m = calc_m_m_by_unit_cell_parameters(
+            unit_cell_parameters, flag_unit_cell_parameters=True)
+        dder["unit_cell_parameters"] = _dder_m1_m2(
+            m_inv_b_norm, dder_m_inv_b_norm["unit_cell_parameters"],
+            m_m, dder_m_m["unit_cell_parameters"])
     return inv_b_norm_m, dder
 
 
