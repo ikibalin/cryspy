@@ -1,8 +1,63 @@
 """Agreement factors between experimental and calculated profiles.
 
-Used by the reports of the powder experiments (1d, 2d, TOF).
+calc_chi_sq_by_signal is the one chi-square used by the refinement
+(RhoChi), the background fits and the reports of the experiments.
 """
 import numpy
+
+
+def calc_chi_sq_by_signal(
+        signal_exp: numpy.ndarray, signal_sigma: numpy.ndarray,
+        signal_model: numpy.ndarray, included_points: numpy.ndarray = None,
+        residual_max: float = None, flag_skip_nan: bool = False,
+        flag_signal_model: bool = False):
+    """Chi-square of a signal: sum of ((exp - model)/sigma)^2.
+
+    Parameters
+    ----------
+    signal_exp, signal_sigma, signal_model : numpy.ndarray
+        Experimental signal, its sigma and the model (any shape, the same
+        for all three or broadcastable, arbitrary units).
+    included_points : numpy.ndarray, optional
+        Boolean mask of the points taken into account (not excluded, not
+        NaN); all points by default.
+    residual_max : float, optional
+        Residuals (exp - model)/sigma above it are taken equal to it, so
+        that the points far above the model (peaks over a background)
+        weigh as residual_max^2 only.
+    flag_skip_nan : bool
+        Leave out the points where the residual is NaN (not measured
+        points of 2d patterns).
+    flag_signal_model : bool
+        Calculate the derivatives over signal_model.
+
+    Returns
+    -------
+    chi_sq : float
+    dder : dict
+        With flag_signal_model, "signal_model" is d chi_sq/d model and
+        "signal_model_signal_model" the diagonal of the second derivative
+        (2/sigma^2); both have the shape of the signal and are zero at
+        the excluded points and at the clipped residuals.
+    """
+    residual = (signal_exp - signal_model) / signal_sigma
+    if included_points is None:
+        included_points = numpy.ones(residual.shape, dtype=bool)
+    else:
+        included_points = numpy.broadcast_to(included_points, residual.shape)
+    if flag_skip_nan:
+        included_points = numpy.logical_and(included_points, numpy.logical_not(numpy.isnan(residual)))
+    flag_free = included_points
+    if residual_max is not None:
+        flag_free = numpy.logical_and(included_points, residual <= residual_max)
+        residual = numpy.minimum(residual, residual_max)
+    chi_sq = numpy.sum(numpy.square(residual[included_points]))
+    dder = {}
+    if flag_signal_model:
+        dder["signal_model"] = numpy.where(flag_free, -2. * residual / signal_sigma, 0.)
+        dder["signal_model_signal_model"] = numpy.where(
+            flag_free, 2. / numpy.square(signal_sigma), 0.)
+    return chi_sq, dder
 
 
 def calc_agreement_factors(
@@ -40,7 +95,7 @@ def calc_agreement_factors(
         return res
     y_exp, y_sigma, y_calc = signal_exp[flag], signal_sigma[flag], signal_calc[flag]
     weight = 1./numpy.square(y_sigma)
-    chi_sq = float(numpy.sum(numpy.square((y_exp - y_calc)/y_sigma)))
+    chi_sq = float(calc_chi_sq_by_signal(y_exp, y_sigma, y_calc)[0])
     res["chi_sq"] = chi_sq
     res["chi_sq_per_n"] = chi_sq/n_point
     denom_p = numpy.sum(numpy.abs(y_exp))

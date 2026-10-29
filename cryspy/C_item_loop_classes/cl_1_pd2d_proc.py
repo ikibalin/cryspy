@@ -3,6 +3,7 @@ import numpy
 import scipy
 from scipy.interpolate import interp2d
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.optional_import import optional_module
 matplotlib = optional_module("matplotlib")
 plt = optional_module("matplotlib.pyplot")
@@ -609,12 +610,16 @@ class Pd2dProc(ItemN):
             offset_nu = param[1]
             f_sum = interp2d(gamma, nu, signal_sum.transpose(), kind="linear")
             model_sum = f_sum(gamma-offset_gamma, nu-offset_nu).transpose()
-            chi_sq_sum = numpy.nansum(numpy.square((model_sum-signal_exp_sum)/signal_exp_sum_sigma)[included_points])
+            chi_sq_sum = calc_chi_sq_by_signal(
+                signal_exp_sum, signal_exp_sum_sigma, model_sum,
+                included_points=included_points, flag_skip_nan=True)[0]
             
             if flag_polarized:
                 f_difference = interp2d(gamma, nu, signal_difference.transpose(), kind="linear")
                 model_difference = f_difference(gamma-offset_gamma, nu-offset_nu).transpose()
-                chi_sq_difference = numpy.nansum(numpy.square((model_difference-signal_exp_difference)/signal_exp_sum_sigma))
+                chi_sq_difference = calc_chi_sq_by_signal(
+                    signal_exp_difference, signal_exp_sum_sigma, model_difference,
+                    flag_skip_nan=True)[0]
                 chi_sq = (1. - coeff_difference) * chi_sq_sum + coeff_difference* chi_sq_difference
             elif flag_unpolarized:
                 chi_sq = chi_sq_sum
@@ -648,7 +653,9 @@ class Pd2dProc(ItemN):
                 pd2d_background.set_variable_by_name(name, value)
             model_bkgr = pd2d_background.interpolate_by_points(
                 gamma+offset_gamma, nu+offset_nu)
-            chi_sq_sum = numpy.nansum(numpy.square((signal_exp_sum - signal_sum_net - model_bkgr)/signal_exp_sum_sigma)[included_points])
+            chi_sq_sum = calc_chi_sq_by_signal(
+                signal_exp_sum, signal_exp_sum_sigma, signal_sum_net + model_bkgr,
+                included_points=included_points, flag_skip_nan=True)[0]
             return chi_sq_sum
 
         res = scipy.optimize.minimize(temp_func, param_0, method="Nelder-Mead")

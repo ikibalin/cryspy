@@ -4,6 +4,7 @@ import numpy
 import scipy
 import scipy.optimize
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.symmetry_elements import (
     calc_asymmetric_unit_cell_indexes,
 )
@@ -1525,10 +1526,7 @@ def mempy_parameters_refinement(
             l_dict_diffrn,
         )
 
-        chi_sq = numpy.square(
-            (model_value - exp_value_sigma[0]) / exp_value_sigma[1]
-        ).sum()
-        return chi_sq
+        return calc_chi_sq_by_signal(exp_value_sigma[0], exp_value_sigma[1], model_value)[0]
 
     param_0 = atom_para_susceptibility[flags_atom_para_susceptibility]
     chi_sq_per_n = calc_chi_sq(param_0) / exp_value_sigma.shape[1]

@@ -1,5 +1,6 @@
 import numpy
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.matrix_operations import \
     calc_m_v
 
@@ -367,7 +368,9 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         exp_value = flip_ratio_es
 
     index_true = numpy.logical_not(flip_ratio_excluded)
-    chi_sq = numpy.square((exp_value[0, index_true]-model_exp[index_true])/exp_value[1, index_true]).sum(axis=0)
+    chi_sq, dder_chi_sq_model = calc_chi_sq_by_signal(
+        exp_value[0], exp_value[1], model_exp, included_points=index_true,
+        flag_signal_model=True)
     der_model_int_plus = dder_model_exp["iint_plus"]
     der_model_int_minus = dder_model_exp["iint_minus"]
 
@@ -376,8 +379,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         dict_in_out["chi_sq"] = chi_sq
         dict_in_out["n_hkl"] = n_hkl
 
-    diff_exp_model = (exp_value[0, index_true]-model_exp[index_true])
-    inv_sigma_sq_exp_value = 1./numpy.square(exp_value[1, index_true])
+    der_chi_sq_model = dder_chi_sq_model["signal_model"][index_true]
+    dder_chi_sq_model_model = dder_chi_sq_model["signal_model_signal_model"][index_true]
     
     dder_plus_crystal, dder_minus_crystal = {}, {}
     if not flag_para:
@@ -508,19 +511,10 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             der_model_p = der_model_int_plus[:, na]*dder_plus_p + der_model_int_minus[:, na]*dder_minus_p
             # chi_sq is summed over the reflections that are not excluded only
             der_model_p = der_model_p[index_true]
-            der_chi_sq = -2.* (diff_exp_model[:, na] * inv_sigma_sq_exp_value[:, na] * der_model_p).sum(axis=0)
-            dder_chi_sq = 2.* (inv_sigma_sq_exp_value[:, na, na]*(der_model_p[:, na, :]*der_model_p[:, :, na])).sum(axis=0) #w_diff is equal to zero
+            der_chi_sq = (der_chi_sq_model[:, na] * der_model_p).sum(axis=0)
+            # Gauss-Newton: the term with the second derivative of the model is left out
+            dder_chi_sq = (dder_chi_sq_model_model[:, na, na]*(der_model_p[:, na, :]*der_model_p[:, :, na])).sum(axis=0)
 
-            # iint_minus_sq = numpy.square(iint_minus)
-            # der_fr_p = (iint_minus[:, na] * dder_plus_p - iint_plus[:, na] * dder_minus_p) / iint_minus_sq[:, na]
-            
-            # dder_fr_p = (2*iint_minus[:, na, na] * dder_minus_p[:, :, na] * dder_minus_p[:, na, :] - 
-            #    iint_minus_sq[:, na, na] * dder_plus_p[:, :, na] * dder_minus_p[:, na, :] - 
-            #    dder_minus_p[:, :, na] * dder_plus_p[:, na, :]) / numpy.square(iint_minus_sq)[:, na, na]
-    
-            # der_chi_sq = -2.* (diff_exp_model[:, na] * inv_sigma_sq_exp_value[:, na] * der_fr_p).sum(axis=0)
-            # dder_chi_sq = 2.* (inv_sigma_sq_exp_value[:, na, na]*(der_fr_p[:, na, :]*der_fr_p[:, :, na] - 
-            #     0*diff_exp_model[:, na, na]*dder_fr_p)).sum(axis=0) #w_diff is equal to zero
 
     return chi_sq, n_hkl, der_chi_sq, dder_chi_sq, l_parameter_name
     

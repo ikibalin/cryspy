@@ -1,5 +1,6 @@
 import numpy
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t, calc_m_v
 
 from cryspy.A_functions_base.unit_cell import (
@@ -679,12 +680,8 @@ def calc_chi_sq_for_pd_by_dictionary(
         total_signal_sum = (
             total_signal_plus + total_signal_minus + signal_background
         )
-        chi_sq_sum = (
-            (
-                numpy.square((signal_exp - total_signal_sum) / signal_sigma)
-                * in_points
-            )
-        ).sum(axis=0)
+        chi_sq_sum = calc_chi_sq_by_signal(
+            signal_exp, signal_sigma, total_signal_sum, included_points=in_points)[0]
         chi_sq += chi_sq_sum
         n_point += numpy.sum(in_points)
 
@@ -695,11 +692,8 @@ def calc_chi_sq_for_pd_by_dictionary(
             + numpy.square(signal_exp_minus[1, :])
         )
         total_signal_diff = total_signal_plus - total_signal_minus
-        chi_sq_diff = (
-            numpy.square(
-                (signal_exp_diff - total_signal_diff) / signal_sigma_diff
-            )
-        ).sum(axis=0)
+        chi_sq_diff = calc_chi_sq_by_signal(
+            signal_exp_diff, signal_sigma_diff, total_signal_diff)[0]
         chi_sq += chi_sq_diff
         n_point += signal_exp_diff.shape[0]
     if numpy.isnan(chi_sq):
