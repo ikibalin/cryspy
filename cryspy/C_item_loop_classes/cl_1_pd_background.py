@@ -2,6 +2,7 @@ import numpy
 from typing import NoReturn
 import scipy
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
@@ -89,7 +90,23 @@ class PdBackgroundL(LoopN):
             int_1d = numpy.interp(tth, tth_b, int_b)
         return int_1d
 
-    def define_points(self, pd_meas: PdMeasL, step_ttheta: float = 10.):
+    def define_points(self, pd_meas: PdMeasL, step_ttheta: float = 10.) -> None:
+        """Define the background points from a measured profile.
+
+        The peaks of the measured intensity (for polarized data the sum of
+        up and down) are cut off by smoothing in a window of step_ttheta,
+        and the result, shifted to fit the profile best, becomes the
+        background: one point at every measured 2theta. The old points are
+        replaced.
+
+        Parameters
+        ----------
+        pd_meas : PdMeasL
+            The measured profile of the experiment.
+        step_ttheta : float, optional
+            Width of the smoothing window in 2theta, degrees: wider than
+            the peaks, narrower than the changes of the background.
+        """
         ttheta = numpy.array(pd_meas.ttheta, dtype=float)
         if pd_meas.items[0].is_attribute("intensity_plus"):
             intensity = (
@@ -177,8 +194,6 @@ def estimate_background(y_exp, step_n: int = 10):
 
 
 def calc_chi_sq(y_bkg, y_exp, sy_exp, delta):
-    y_diff = (y_exp-(y_bkg+delta))/sy_exp
-    flag = y_diff > 1
-    y_diff[flag] = 1.
-    wss = numpy.sum(numpy.square(y_diff))
-    return wss
+    """Chi-square of the background shifted by delta; points above it by
+    more than one sigma (peaks) count as one sigma."""
+    return calc_chi_sq_by_signal(y_exp, sy_exp, y_bkg + delta, residual_max=1.)[0]

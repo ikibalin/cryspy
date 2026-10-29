@@ -8,8 +8,12 @@ CrysPy is a Python library for crystallographic analysis of neutron (and X-ray)
 diffraction data: polarized/unpolarized single crystal and powder refinement
 (RhoChi), TOF, magnetic space groups (mcif), and MEM reconstruction of
 magnetization/spin density. Input and output are CIF-like `.rcif` files parsed
-with `pycifstar`. Runtime dependencies: `numpy`, `scipy`, `pycifstar`,
-`matplotlib`. Supported Python: 3.10+ (numpy >= 2.0).
+with `pycifstar`. Runtime dependencies: `numpy`, `scipy`, `pycifstar`;
+visualization libraries are optional extras (`cryspy[plot]` = `matplotlib`,
+`cryspy[view3d]` = `py3Dmol`, `ipywidgets`; `cryspy[all]`). Import them only through
+`cryspy.A_functions_base.optional_import.optional_module` (lazy, with a clear
+message), never at module level, so `import cryspy` works without them.
+Supported Python: 3.10+ (numpy >= 2.0).
 
 ## Commands
 
@@ -70,6 +74,12 @@ Public API is re-exported from `cryspy/__init__.py`.
   and an indented description for every parameter except keyword-only ones
   such as `callback`. The first sentence of the description is the question
   asked from the user ("Maximal number of iterations."); give units there.
+- Public methods of the classes derived from `DataN`, `LoopN`, `ItemN`
+  (`Pd.define_background_points`, `PdBackgroundL.define_points`) are called
+  by AI assistants the same way (`procedure_assistant/methods.py`, tools
+  `list_methods`, `call_method`): give them type hints and a numpydoc
+  docstring that says what they really do. A method without a docstring is
+  not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
 
 ## Software engineering practices
 

@@ -3,13 +3,17 @@ import numpy
 import scipy
 from scipy.interpolate import interp2d
 
-import matplotlib
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
+from cryspy.A_functions_base.optional_import import optional_module
+matplotlib = optional_module("matplotlib")
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_ttheta_phi_by_gamma_nu
 
 
+from cryspy.A_functions_base.function_1_agreement_factors import \
+    calc_agreement_factors
 from cryspy.B_parent_classes.cl_1_item import ItemN
 
 from .cl_1_pd2d_background import Pd2dBackground
@@ -344,7 +348,6 @@ class Pd2dProc(ItemN):
         max_val = max([numpy.nanmax(signal_exp_sum[included_points]), numpy.nanmax(signal_sum[included_points])])
         min_val = numpy.nanmin(signal_em_sum)
         max_val = max_val - (max_val-min_val)*0.25
-        n_sigma_threshold = 20.
         
         alpha_excl_points = numpy.zeros(signal_exp_sum.shape, dtype=int)
         alpha_excl_points[excluded_points]=200
@@ -367,7 +370,7 @@ class Pd2dProc(ItemN):
             ax1, ax3= axs[0], axs[1]
 
         norm_1 = matplotlib.colors.Normalize(vmax=max_val, vmin=min_val)
-        img_unpol = ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
+        ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
         ax1.imshow(zz_sum, origin="lower", aspect="auto", alpha=0.8, extent=extent)
 
         ax1.set_xticks([])
@@ -390,8 +393,9 @@ class Pd2dProc(ItemN):
 
         ax1.set_ylabel("  Model       Experiment")
 
-        chi_sq_per_n_sum = numpy.nansum(numpy.square(
-                (signal_exp_sum-signal_sum)*included_points/signal_exp_sum_sigma))/numpy.sum(included_points)
+        chi_sq_per_n_sum = calc_agreement_factors(
+            signal_exp_sum, signal_exp_sum_sigma, signal_sum,
+            flag_in=included_points)["chi_sq_per_n"]
 
         ax1.set_title(r"Unpolarized signal $\chi^2/n=$"+f"{chi_sq_per_n_sum:.2f}")
 
@@ -422,8 +426,9 @@ class Pd2dProc(ItemN):
         # ax3.get_yaxis().set_visible(False)
 
         if flag_polarized:
-            chi_sq_per_n_difference = numpy.nansum(numpy.square(
-                    (signal_exp_difference-signal_difference)/signal_exp_sum_sigma))/numpy.prod(signal_exp_difference.shape)
+            chi_sq_per_n_difference = calc_agreement_factors(
+                signal_exp_difference, signal_exp_sum_sigma,
+                signal_difference)["chi_sq_per_n"]
             ax2.set_title(r"Polarized signal $\chi^2/n=$"+f"{chi_sq_per_n_difference:.2f}")
 
             ax4.fill_between(
@@ -567,6 +572,15 @@ class Pd2dProc(ItemN):
 
 
     def estimate_gamma_nu_offsets(self):
+        """Estimate the offsets of γ and ν (degrees) which minimize χ² of
+        the sum (and of the difference for polarized data) of the measured
+        and calculated intensities, by the Nelder-Mead method.
+
+        Returns
+        -------
+        scipy.optimize.OptimizeResult
+            res.x is [offset_gamma, offset_nu].
+        """
         coeff_difference = 0.5
         gamma = self.gamma
         nu = self.nu
@@ -596,12 +610,16 @@ class Pd2dProc(ItemN):
             offset_nu = param[1]
             f_sum = interp2d(gamma, nu, signal_sum.transpose(), kind="linear")
             model_sum = f_sum(gamma-offset_gamma, nu-offset_nu).transpose()
-            chi_sq_sum = numpy.nansum(numpy.square((model_sum-signal_exp_sum)/signal_exp_sum_sigma)[included_points])
+            chi_sq_sum = calc_chi_sq_by_signal(
+                signal_exp_sum, signal_exp_sum_sigma, model_sum,
+                included_points=included_points, flag_skip_nan=True)[0]
             
             if flag_polarized:
                 f_difference = interp2d(gamma, nu, signal_difference.transpose(), kind="linear")
                 model_difference = f_difference(gamma-offset_gamma, nu-offset_nu).transpose()
-                chi_sq_difference = numpy.nansum(numpy.square((model_difference-signal_exp_difference)/signal_exp_sum_sigma))
+                chi_sq_difference = calc_chi_sq_by_signal(
+                    signal_exp_difference, signal_exp_sum_sigma, model_difference,
+                    flag_skip_nan=True)[0]
                 chi_sq = (1. - coeff_difference) * chi_sq_sum + coeff_difference* chi_sq_difference
             elif flag_unpolarized:
                 chi_sq = chi_sq_sum
@@ -635,7 +653,9 @@ class Pd2dProc(ItemN):
                 pd2d_background.set_variable_by_name(name, value)
             model_bkgr = pd2d_background.interpolate_by_points(
                 gamma+offset_gamma, nu+offset_nu)
-            chi_sq_sum = numpy.nansum(numpy.square((signal_exp_sum - signal_sum_net - model_bkgr)/signal_exp_sum_sigma)[included_points])
+            chi_sq_sum = calc_chi_sq_by_signal(
+                signal_exp_sum, signal_exp_sum_sigma, signal_sum_net + model_bkgr,
+                included_points=included_points, flag_skip_nan=True)[0]
             return chi_sq_sum
 
         res = scipy.optimize.minimize(temp_func, param_0, method="Nelder-Mead")

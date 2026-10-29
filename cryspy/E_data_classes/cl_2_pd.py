@@ -10,6 +10,8 @@ from typing import NoReturn
 
 
 from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.D_functions_item_loop.function_1_report_powder import \
+    report_powder_experiment
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
@@ -35,6 +37,8 @@ from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
+from cryspy.A_functions_base.plot_peak_labels import (
+    add_interactive_peak_labels, form_hkl_labels)
 
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
@@ -49,16 +53,10 @@ class Pd(DataN):
 
     Methods
     -------
-        - calc_profile
-        - calc_chi_sq
-        - calc_iint
-        - _gauss_pd
-        - _lor_pd
-        - calc_shape_profile
-        - params_to_cif
-        - data_to_cif
-        - calc_to_cif
-        - apply_constraints
+        - define_background_points
+        - estimate_background
+        - plots
+        - report
 
     Attributes
     ----------
@@ -114,18 +112,13 @@ class Pd(DataN):
         if self.pd_meas is not None:
             self.pd_meas.apply_constraints()
 
+    def report(self):
+        """Agreement with the model, phases and refinement summary."""
+        return report_powder_experiment(self)
+
     def plots(self):
         if self.is_attribute("pd_proc"):
             pd_proc = self.pd_proc
-            if self.is_attribute("chi2"):
-                flag_up = self.chi2.up
-                flag_down = self.chi2.down
-                flag_sum = self.chi2.sum
-                flag_diff = self.chi2.diff
-            else:
-                flag_up, flag_down, flag_sum = False, False, True
-                flag_diff = False
-
             fig_s, ax_s = pd_proc.plot_sum_diff()
             ax_s = fig_s.axes[0]
             ax_hkl = fig_s.axes[1]
@@ -134,20 +127,27 @@ class Pd(DataN):
             y_dist_s = y_max_s - y_min_s
             y_step_s = 0.0
 
-            flag_d = False
-
+            l_peaks = []
             for item in self.items:
                 if isinstance(item, PdPeakL):
                     np_tth = item.numpy_ttheta
-                    ax_hkl.plot(
+                    lines = ax_hkl.plot(
                         np_tth,
                         0.0 * np_tth + y_min_s - y_step_s,
                         "|",
                         label=item.loop_name,
                     )
                     y_step_s += 0.05 * y_dist_s
+                    l_peaks.append((
+                        np_tth,
+                        form_hkl_labels(item.index_h, item.index_k, item.index_l),
+                        lines[0].get_color()))
             res = []
             ax_s.legend(loc="upper right")
+            np_tth_curve, np_curve = pd_proc.calc_upper_curve()
+            add_interactive_peak_labels(
+                ax_s, l_peaks, x_curve=np_tth_curve, y_curve=np_curve,
+                n_visible=5)
             res.append((fig_s, ax_s))
             return res
         elif self.is_attribute("pd_meas"):
@@ -486,7 +486,23 @@ class Pd(DataN):
         if len(l_refln) > 0:
             self.add_items(l_refln)
 
-    def define_background_points(self, step_ttheta: float = 1.0):
+    def define_background_points(self, step_ttheta: float = 1.0) -> None:
+        """Define the background points from the measured profile.
+
+        The peaks of the measured intensity (pd_meas; for polarized data
+        the sum of up and down) are cut off by smoothing in a window of
+        step_ttheta, and the result, shifted to fit the profile best,
+        becomes the background: one point at every measured 2theta. It is
+        written to pd_background, which is created when the experiment has
+        none; the old points are replaced. The intensities of the points
+        are then refined as usual ('pd_background.intensity').
+
+        Parameters
+        ----------
+        step_ttheta : float, optional
+            Width of the smoothing window in 2theta, degrees: wider than
+            the peaks, narrower than the changes of the background.
+        """
         if self.is_attribute("pd_background"):
             pd_background = self.pd_background
         else:
@@ -497,6 +513,17 @@ class Pd(DataN):
         return
 
     def estimate_background(self):
+        """Estimate the intensities of the background points.
+
+        The 2theta of the points of pd_background are kept; their
+        intensities are found from the difference of the measured and the
+        calculated profiles (pd_proc, so the model must be calculated
+        first). The flags of refinement of the intensities are kept.
+
+        Returns
+        -------
+        The result of the minimization of PdProcL.estimate_background.
+        """
         pd_background = self.pd_background
         intensity_refinement = numpy.copy(
             numpy.array(pd_background.intensity_refinement, dtype=bool)

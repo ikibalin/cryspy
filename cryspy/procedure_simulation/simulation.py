@@ -123,7 +123,6 @@ def simulation_single_crystal(cryspy_object: cryspy.GlobalN):
     f_diffrn_sc = os.path.join(DIR, "diffrn_sc.rcif")
 
     l_diffrn = []
-    l_name = []
     i_crystal = 0
     for item in cryspy_object.items:
         if isinstance(item, cryspy.Crystal):
@@ -189,7 +188,6 @@ def simulation_fliping_ratio(cryspy_object: cryspy.GlobalN):
     f_diffrn_fr = os.path.join(DIR, "diffrn_fr.rcif")
 
     l_diffrn = []
-    l_name = []
     i_crystal = 0
     for item in cryspy_object.items:
         if isinstance(item, cryspy.Crystal):

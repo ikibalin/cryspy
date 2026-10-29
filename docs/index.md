@@ -18,10 +18,15 @@ graphical user interface for CrysPy.
 ## Installation
 
 ```bash
-pip install cryspy
+pip install cryspy          # calculations only
+pip install cryspy[plot]    # + matplotlib for the plot_* methods (Jupyter)
+pip install cryspy[view3d]  # + py3Dmol: crystal.view_structure() in 3D
+pip install cryspy[all]     # every optional extra
 ```
 
-CrysPy needs Python 3.10 or newer, numpy, scipy, matplotlib and pycifstar.
+CrysPy needs Python 3.10 or newer, numpy, scipy and pycifstar.
+Plots of data blocks, items and loops (`plots()`, `plot_*`) need matplotlib,
+an optional extra: without it they raise an error that says what to install.
 
 ## First refinement
 

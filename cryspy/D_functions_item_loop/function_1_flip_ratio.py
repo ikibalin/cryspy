@@ -4,9 +4,6 @@ Functions
 ---------
     - calc_flip_ratio
     - calc_intensity_plus_down
-    - calc_fm_perp_loc
-    - calc_fm_perp_for_fm_loc
-    - calc_fm_loc
     - calc_e_up_loc
     - calc_rotated_ub
 
@@ -119,63 +116,6 @@ def calc_intensity_plus_down(
     # print("iint_d_2\n", iint_d, "\n")
 
     return iint_u, iint_d, dder
-
-
-def calc_fm_perp_loc(e_up_loc: numpy.ndarray, field_norm: float,
-                     k_loc_i: tuple, sft_ij: tuple, sftm_ij: tuple):
-    """Calculate the magnetic structure factor perpendicular to hkl.
-
-    Cartezian coordinate system is defined such way that
-    (x||a*), (z||c).
-    """
-
-    fm_loc = calc_fm_loc(e_up_loc, sft_ij, sftm_ij, field_norm)
-    fm_perp = calc_fm_perp_for_fm_loc(k_loc_i, fm_loc)
-    mag_p_1, mag_p_2, mag_p_3 = fm_perp
-
-    return mag_p_1, mag_p_2, mag_p_3
-
-
-def calc_fm_perp_for_fm_loc(k_loc_i, fm_loc):
-    """Calculate perpendicular component of fm to scattering vector."""
-    k_1, k_2, k_3 = k_loc_i[0], k_loc_i[1], k_loc_i[2]
-    mag_1, mag_2, mag_3 = fm_loc[0], fm_loc[1], fm_loc[2]
-    mag_p_1 = (k_3*mag_1 - k_1*mag_3)*k_3 - (k_1*mag_2 - k_2*mag_1)*k_2
-    mag_p_2 = (k_1*mag_2 - k_2*mag_1)*k_1 - (k_2*mag_3 - k_3*mag_2)*k_3
-    mag_p_3 = (k_2*mag_3 - k_3*mag_2)*k_2 - (k_3*mag_1 - k_1*mag_3)*k_1
-    return mag_p_1, mag_p_2, mag_p_3
-
-
-def calc_fm_loc(e_up_loc: numpy.ndarray, sft_ij: tuple, sftm_ij: tuple,
-                field_norm: float):
-    """Calculate the magnetic structure factor for hkl.
-
-    Output
-    ------
-        x, y and z coordinates of FM_perp
-
-    Cartezian coordinate system is defined such way that
-    (x||a*), (z||c).
-    """
-    sft_11, sft_12, sft_13, sft_21, sft_22, sft_23, sft_31, sft_32, sft_33 = \
-        sft_ij
-    sftm_11, sftm_12, sftm_13, sftm_21, sftm_22, sftm_23, sftm_31, sftm_32, \
-        sftm_33 = sftm_ij
-
-    field_loc = field_norm * e_up_loc
-
-    # not sure about e_u_loc at field < 0
-    mag_1 = sft_11*field_loc[0] + sft_12*field_loc[1] + \
-        sft_13*field_loc[2] + sftm_11*e_up_loc[0] + sftm_12*e_up_loc[1] + \
-        sftm_13*e_up_loc[2]
-    mag_2 = sft_21*field_loc[0] + sft_22*field_loc[1] + \
-        sft_23*field_loc[2] + sftm_21*e_up_loc[0] + sftm_22*e_up_loc[1] + \
-        sftm_23*e_up_loc[2]
-    mag_3 = sft_31*field_loc[0] + sft_32*field_loc[1] + \
-        sft_33*field_loc[2] + sftm_31*e_up_loc[0] + sftm_32*e_up_loc[1] + \
-        sftm_33*e_up_loc[2]
-
-    return mag_1, mag_2, mag_3
 
 
 def calc_e_up_loc(phi_d: float, chi_d: float, omega_d: float,

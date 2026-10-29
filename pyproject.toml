@@ -20,15 +20,23 @@ classifiers = [
 # Lower bounds: the bundled database (A_functions_base/database.pickle)
 # is pickled with numpy 2 and does not load with numpy 1.x; scipy and
 # matplotlib are the first versions built for numpy 2.
+# Visualization is optional: `pip install cryspy[plot]` adds matplotlib for
+# the plot_* methods, `pip install cryspy[view3d]` py3Dmol and ipywidgets
+# for the 3D view of crystal structures, `pip install cryspy[all]` every extra.
 dependencies = [
   'numpy>=2.0',
   'scipy>=1.13',
   'pycifstar',
-  'matplotlib>=3.9',
 ]
 
 [project.optional-dependencies]
+plot = ['matplotlib>=3.9']
+view3d = ['py3Dmol>=2.4', 'ipywidgets>=8']
+all = ['cryspy[plot,view3d]']
 dev = [
+  # Tests cover the plots. view3d (py3Dmol) is not in dev until pixi.lock
+  # is regenerated with it; its tests are skipped without py3Dmol.
+  'cryspy[all]',
   'pytest',       # Testing
   'pytest-xdist', # Parallel test execution
   'pytest-cov',   # Test coverage
@@ -72,9 +80,6 @@ extend-exclude = ['*.ipynb']
 
 [tool.ruff.lint]
 select = ['F', 'E722']
-# 157 unused local variables: removing them is not always side-effect free,
-# so they are cleaned up separately before this rule is enabled.
-ignore = ['F841']
 
 [tool.ruff.lint.per-file-ignores]
 # the package namespace re-exports the public API

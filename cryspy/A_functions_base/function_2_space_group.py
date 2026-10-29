@@ -113,7 +113,6 @@ def read_wyckoff():
         data = {"it_number": int(l_param[0]), "choice": int(l_param[1]), "centr_000": int(l_param[3] == 1),
                 "hm_full": hm_full.strip(), "wyckoff": []}
         l_cont_2 = l_cont[(_numb_b + 1):_numb_e]
-        l_wyckoff_symop = []
         l_d_card = []
         d_card = None
         for _line in l_cont_2:
@@ -254,28 +253,6 @@ ACCESIBLE_IT_COORDINATE_SYSTEM_CODE = ("b1", "b2", "b3", "-b1", "-b2", "-b3", "c
                                        "h", "r")
 
 ACCESIBLE_CRYSTAL_SYSTEM = ("triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic")
-
-
-def get_it_coordinate_system_codes_by_crystal_system(crystal_system: str) -> str:
-    if crystal_system.startswith("tric"):
-        it_coordinate_system_codes = ()
-    elif crystal_system.startswith("m"):
-        it_coordinate_system_codes = ("b1", "b2", "b3", "-b1", "-b2", "-b3", "c1", "c2", "c3", "-c1", "-c2", "-c3",
-                                      "a1", "a2", "a3", "-a1", "-a2", "-a3")
-    elif crystal_system.startswith("o"):
-        it_coordinate_system_codes = ("abc", "ba-c", "cab", "-cba", "bca", "a-cb", "1abc", "1ba-c", "1cab", "1-cba",
-                                      "1bca", "1a-cb", "2abc", "2ba-c", "2cab", "2-cba", "2bca", "2a-cb")
-    elif crystal_system.startswith("te"):
-        it_coordinate_system_codes = ("1", "2")
-    elif crystal_system.startswith("trig"):
-        it_coordinate_system_codes = ("h", "r")
-    elif crystal_system.startswith("h"):
-        it_coordinate_system_codes = ("h",)
-    elif crystal_system.startswith("c"):
-        it_coordinate_system_codes = ("1", "2")
-    else:
-        it_coordinate_system_codes = ()
-    return it_coordinate_system_codes
 
 
 ACCESIBLE_LAUE_CLASS = ("-1", "2/m", "mmm", "4/m", "4/mmm", "-3", "-3m", "6/m", "6/mmm", "m-3", "m-3m")
@@ -1007,59 +984,6 @@ def get_bravais_type_by_centring_type_crystal_system(centring_type: str, crystal
     return bravais_type
 
 
-def get_bravais_types_by_crystal_system(crystal_system: str) -> str:
-    if crystal_system.startswith("tric"):
-        bravais_types = ("aP",)
-    elif crystal_system.startswith("m"):
-        bravais_types = ("mP", "mS")
-    elif crystal_system.startswith("o"):
-        bravais_types = ("oP", "oS", "oI", "oF")
-    elif crystal_system.startswith("te"):
-        bravais_types = ("tI", "tF")
-    elif crystal_system.startswith("h"):
-        bravais_types = ("hP",)
-    elif crystal_system.startswith("trig"):
-        bravais_types = ("hR",)
-    elif crystal_system.startswith("c"):
-        bravais_types = ("cP", "cI", "cF")
-    else:
-        bravais_types = ()
-    return bravais_types
-
-
-def get_centring_types_by_bravais_type(_bravais_type: str) -> str:
-    if _bravais_type.endswith("P"):
-        centring_types = ("P",)
-    elif _bravais_type.endswith("I"):
-        centring_types = ("I",)
-    elif _bravais_type.endswith("F"):
-        centring_types = ("F",)
-    elif _bravais_type.endswith("S"):
-        centring_types = ("A", "B", "C")
-    elif _bravais_type.endswith("R"):
-        centring_types = ("R", "Rrev", "H",)
-    return centring_types
-
-
-def get_crystal_system_by_bravais_type(_bravais_type: str) -> str:
-    crystal_system = None
-    if _bravais_type.startswith("a"):
-        crystal_system = "triclinic"
-    elif _bravais_type.startswith("m"):
-        crystal_system = "monoclinic"
-    elif _bravais_type.startswith("o"):
-        crystal_system = "orthorhombic"
-    elif _bravais_type.startswith("t"):
-        crystal_system = "tetragonal"
-    elif _bravais_type == "hP":
-        crystal_system = "hexagonal"
-    elif _bravais_type == "hR":
-        crystal_system = "trigonal"
-    elif _bravais_type.startswith("c"):
-        crystal_system = "cubic"
-    return crystal_system
-
-
 def get_type_hm(_name: str) -> str:
     l_res = []
     if _name in ACCESIBLE_NAME_HM_SHORT:
@@ -1182,16 +1106,6 @@ def get_laue_class_by_name_schoenflies(name: str) -> str:
     return laue_class
 
 
-def get_point_group_hm_full_by_name_schoenflies(name: str) -> str:
-    point_group_hm_full = None
-    symb = name.split(".")[0]
-    for _1, _2, _3, _4, _5 in REFERENCE_TABLE_LAUE_CLASS_SHORT_FULL_POINT_GROUP_HM_SYMBOL_SHORT_FULL_SCHOENFLIES:
-        if _5 == symb:
-            point_group_hm_full = _4
-            break
-    return point_group_hm_full
-
-
 def get_point_group_hm_short_by_name_schoenflies(name: str) -> str:
     point_group_hm_short = None
     symb = name.split(".")[0]
@@ -1202,49 +1116,11 @@ def get_point_group_hm_short_by_name_schoenflies(name: str) -> str:
     return point_group_hm_short
 
 
-def get_name_schoenfliess_by_laue_class(laue_class: str) -> Tuple[str]:
-    l_symb = [_5 for _1, _2, _3, _4, _5 in
-              REFERENCE_TABLE_LAUE_CLASS_SHORT_FULL_POINT_GROUP_HM_SYMBOL_SHORT_FULL_SCHOENFLIES if _1 == laue_class]
-    l_res = []
-    for symb in l_symb:
-        for _name_schoenflies in ACCESIBLE_NAME_SCHOENFLIES:
-            _symb = _name_schoenflies.split(".")[0]
-            if symb == _symb:
-                l_res.append(_name_schoenflies)
-    return tuple(l_res)
-
-
-def get_name_schoenfliess_by_point_group_hm_short(point_group: str) -> Tuple[str]:
-    l_symb = [_5 for _1, _2, _3, _4, _5 in
-              REFERENCE_TABLE_LAUE_CLASS_SHORT_FULL_POINT_GROUP_HM_SYMBOL_SHORT_FULL_SCHOENFLIES if _3 == point_group]
-    l_res = []
-    for symb in l_symb:
-        for _name_schoenflies in ACCESIBLE_NAME_SCHOENFLIES:
-            _symb = _name_schoenflies.split(".")[0]
-            if symb == _symb:
-                l_res.append(_name_schoenflies)
-    return tuple(l_res)
-
-
 def get_centrosymmetry_by_name_hall(name: str) -> str:
     centrosymmetry = name.startswith("-")
     if not (name in ACCESIBLE_NAME_HALL_SHORT):
         centrosymmetry = None
     return centrosymmetry
-
-
-def separate_notation_it_coordinate_system_code(name: str):
-    l_h = name.strip().split(":")
-    notation = l_h[0].strip()
-    if notation.isdigit():
-        notation = int(notation)
-    if len(l_h) == 1:
-        it_coordinate_system_code = None
-    else:
-        it_coordinate_system_code = l_h[1].strip()
-        if not (it_coordinate_system_code in ACCESIBLE_IT_COORDINATE_SYSTEM_CODE):
-            it_coordinate_system_code = None
-    return notation, it_coordinate_system_code
 
 
 def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
@@ -1253,7 +1129,6 @@ def get_symop_pcentr_multiplicity_letter_site_symmetry_coords_xyz_2(
     FIXME: HOW it works for 166 space group
     crystal system should be trigonal or hexagonal
     """
-    crystal_system = get_crystal_system_by_it_number(it_number)
     if it_coordinate_system_code is None:
         choice = "1"
     elif "3" in it_coordinate_system_code:
@@ -1317,13 +1192,6 @@ def transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz: str, P, p) -> s
     r_new = QWP
     b_new = QWp + Qw + q
     _s = transform_r_b_to_string(r_new, b_new, ("x", "y", "z"))
-    return _s
-
-
-def transform_symop_operation_xyz_by_Qq_xyz(symop_operation_xyz: str, Q, q) -> str:
-    P = transpose(q)  # TODO: here is proposed that Q^T = Q**-1, but I am not sure that it is true.
-    p = -1 * mult_matrix_vector(P, q)
-    _s = transform_symop_operation_xyz_by_pp_abc(symop_operation_xyz, P, p)
     return _s
 
 

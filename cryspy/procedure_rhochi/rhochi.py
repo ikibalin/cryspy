@@ -110,19 +110,22 @@ def rhochi_rietveld_refinement_with_parameters(
         
         DICT_PARAMS["previous_arg"] = ()
         DICT_PARAMS["iteration"] = 0
+        d_path = take_dict_paths(cryspy_object, obj_dict)
         chi_sq, parameter_name, dict_in_out, res = rhochi_rietveld_refinement_by_dictionary(
             obj_dict, method=optimization_method, callback=_f_callback,
-            progress_callback=callback,
-            parameter_paths=take_dict_paths(cryspy_object, obj_dict))
+            progress_callback=callback, parameter_paths=d_path)
         flag_stopped = bool(res.get("stopped", False))
-        dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name, "stopped": flag_stopped}
+        # paths as in the log of the refinement, in the order of parameter_name
+        dict_out = {"chi_sq": chi_sq, "parameter_name": parameter_name,
+                    "parameter_path": form_hessian_labels(parameter_name, d_path),
+                    "stopped": flag_stopped}
         if "hess_inv" in res.keys():
             hess_inv = res["hess_inv"]
             sigma_p = numpy.sqrt(numpy.abs(numpy.diag(hess_inv)))
             correlation_matrix = hess_inv/(sigma_p[:, na]*sigma_p[na, :])
             dict_out["correlation_matrix"] = correlation_matrix
 
-            l_label = [hh[-1][0] for hh in parameter_name]
+            l_label = dict_out["parameter_path"]
             if len(l_label) == hess_inv.shape[0]:
                 inv_hessian = InversedHessian()
                 inv_hessian.set_labels(l_label)
@@ -157,22 +160,36 @@ def rhochi_rietveld_refinement_with_parameters(
     return dict_out
 
 
-def log_refined_parameters(cryspy_object: GlobalN):
-    """Log the refined parameters by their full paths
-    ('crystal_fe.atom_site[Fe1].occupancy'), with sigmas and marks."""
-    l_record = [record for record in take_parameter_records(cryspy_object)
-                if record.flag_refinement]
-    if len(l_record) == 0:
-        return
-    logger.info("Optimal parameters:")
-    for record in l_record:
+def report_refined_parameters(cryspy_object: GlobalN) -> str:
+    """Lines ' - path value ± sigma [mark]' of the refined parameters by
+    their full paths ('crystal_fe.atom_site[Fe1].occupancy').
+
+    The refinement logs them, CrysPy Editor shows them when a file is
+    opened; an empty string when nothing is refined.
+    """
+    ls_line = []
+    for record in take_parameter_records(cryspy_object):
+        if not record.flag_refinement:
+            continue
         mark = str(getattr(record.item, f"{record.attribute:}_mark", ""))
         s_mark = f" [{mark:}]" if mark != "" else ""
         if is_number(record.value):
             s_value = f"{record.value:.5f} ± {record.sigma:.5f}"
         else:
             s_value = str(record.value)
-        logger.info(f" - {record.path:} {s_value:}{s_mark:}")
+        ls_line.append(f" - {record.path:} {s_value:}{s_mark:}")
+    return "\n".join(ls_line)
+
+
+def log_refined_parameters(cryspy_object: GlobalN):
+    """Log the refined parameters by their full paths
+    ('crystal_fe.atom_site[Fe1].occupancy'), with sigmas and marks."""
+    report = report_refined_parameters(cryspy_object)
+    if report == "":
+        return
+    logger.info("Optimal parameters:")
+    for line in report.split("\n"):
+        logger.info(line)
 
 
 def rhochi_no_refinement(cryspy_object: cryspy.GlobalN) -> dict:
@@ -214,6 +231,29 @@ def _f_callback(*arg, d_info: dict = None) -> bool:
     # return flag_out
 
 
+def form_hessian_labels(parameter_names, parameter_paths: dict = None) -> list:
+    """Labels of the parameters of the inversed Hessian matrix.
+
+    The label is the path of the parameter as in the log of the refinement
+    ('crystal_fe.atom_site[Fe1].occupancy'). A parameter without a known
+    path keeps the old label 'fe,atom_occupancy,(0,)'. Spaces are removed:
+    the labels are separated by spaces in the rcif text of the matrix.
+    """
+    l_label = []
+    for way in parameter_names:
+        way_sh = (way[0], way[1], tuple(int(hh) for hh in way[2]))
+        if parameter_paths is not None and way_sh in parameter_paths:
+            label = parameter_paths[way_sh]
+        else:
+            l_h = str(way_sh[0]).split("_")
+            s_1 = "_".join(l_h[1:]) if len(l_h) > 1 else l_h[0]
+            l_h = str(way_sh[1]).split("_")
+            s_2 = "_".join(l_h[1:]) if len(l_h) > 1 else l_h[0]
+            label = f"{s_1:},{s_2:},{way_sh[2]:}"
+        l_label.append("".join(str(label).split()))
+    return l_label
+
+
 def rhochi_inversed_hessian(global_object: GlobalN):
     """Estimate inversed Hessian matrix."""
     if global_object.is_attribute("inversed_hessian"):
@@ -226,6 +266,8 @@ def rhochi_inversed_hessian(global_object: GlobalN):
 
     obj_dict = global_object.get_dictionary()
     dict_in_out = {}
+    # paths are found before the values in global_dict are changed
+    d_path = take_dict_paths(global_object, global_dict)
 
     chi_sq, n_point, der_chi_sq, dder_chi_sq, parameter_names = rhochi_calc_chi_sq_by_dictionary(
         obj_dict,
@@ -266,27 +308,13 @@ def rhochi_inversed_hessian(global_object: GlobalN):
     global_object.take_parameters_from_dictionary(
         global_dict, l_parameter_name = parameter_names, l_sigma=sigmas)
     
-    l_label = []
-    for way in parameter_names:
-        way_1, way_2, way_3 = way[0], way[1], way[2]
-        l_h = way_1.split("_")
-        if len(l_h) > 1:
-            s_1 = "_".join(l_h[1:])
-        else:
-            s_1 = l_h[0]
-
-        l_h = way_2.split("_")
-        if len(l_h) > 1:
-            s_2 = "_".join(l_h[1:])
-        else:
-            s_2 = l_h[0]
-
-        s_3 = str(way_3).replace(" ", "")
-
-        l_label.append(f"{s_1:},{s_2:},{s_3:}")
-
-
-    # l_label = [f"{str(var_name).replace(' ',''):}" for i_param, var_name in enumerate(parameter_names)]
+    # the order of the log of the refinement ('Optimal parameters')
+    l_label = form_hessian_labels(parameter_names, d_path)
+    l_path = list(d_path.values())
+    l_order = sorted(range(len(l_label)), key=lambda ind: (
+        l_path.index(l_label[ind]) if l_label[ind] in l_path else len(l_path), ind))
+    l_label = [l_label[ind] for ind in l_order]
+    hess_inv = hess_inv[l_order, :][:, l_order]
 
     inv_hessian = InversedHessian()
     inv_hessian.set_labels(l_label)

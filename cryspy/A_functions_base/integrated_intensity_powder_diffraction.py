@@ -492,7 +492,6 @@ def calc_powder_iint_2d_ordered(f_nucl, f_m_perp, beam_polarization, flipper_eff
     p_u = beam_polarization
     p_d = beam_polarization*(2.*flipper_efficiency-1.)    
 
-    s_a_sq = numpy.square(numpy.sin(alpha_det))[:, :, na]
     c_a = numpy.cos(alpha_det)[:, :, na]
 
     f_nucl_sq = numpy.square(numpy.abs(f_nucl))

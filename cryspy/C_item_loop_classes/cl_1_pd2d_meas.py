@@ -1,7 +1,8 @@
 from typing import NoReturn
 import numpy
-import matplotlib
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+matplotlib = optional_module("matplotlib")
+plt = optional_module("matplotlib.pyplot")
 
 
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
@@ -310,6 +311,18 @@ class Pd2dMeas(ItemN):
 
 
     def recalc_to_gamma_nu_grid(self):
+        """Recalculate the measured intensities from the (2θ, φ) grid to a
+        regular grid of the detector angles γ, ν (ν from -10 to 15 degrees).
+
+        Returns
+        -------
+        gamma : numpy.ndarray
+            Grid of γ, degrees.
+        nu : numpy.ndarray
+            Grid of ν, degrees.
+        l_intensity : list of numpy.ndarray
+            Intensities up, down, their sum and difference on the grid.
+        """
         l_tth_grid = numpy.array(self.ttheta)*numpy.pi/180.
         l_phi_grid = numpy.array(self.phi)*numpy.pi/180.
         int_u = numpy.array(self.intensity_plus, dtype=float).transpose()
@@ -318,7 +331,6 @@ class Pd2dMeas(ItemN):
         int_diff = int_u - int_d
 
         min_tth, max_tth = min(l_tth_grid), max(l_tth_grid)
-        min_phi, max_phi = min(l_phi_grid), max(l_phi_grid)
 
         min_gamma, max_gamma = min_tth, max_tth
         num_gamma = len(l_tth_grid)

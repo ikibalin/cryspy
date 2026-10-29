@@ -2,68 +2,43 @@
 
 __author__ = "ikibalin"
 __version__ = "2020_08_19"
+import dataclasses
 import logging
 import numpy
 
 from typing import NoReturn
 
-from cryspy.A_functions_base.database import DATABASE
-from cryspy.A_functions_base.charge_form_factor import (
-    calc_jl_for_ion,
-    calc_scattering_amplitude_tabulated,
-    get_atom_name_ion_charge_shell,
-    get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol,
-)
-from cryspy.A_functions_base.debye_waller_factor import (
-    calc_param_iso_aniso_by_b_iso_beta,
-    calc_u_ij_by_beta,
-)
 from cryspy.A_functions_base.matrix_operations import (
     calc_m_v,
 )
-from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
-from cryspy.A_functions_base.multipoles import (
-    calc_transformation_matrix_from_global_to_local,
-    calc_multipole_density,
-)
 from cryspy.A_functions_base.unit_cell import (
-    calc_eq_ccs_by_unit_cell_parameters,
     calc_reciprocal_by_unit_cell_parameters,
     calc_m_m_by_unit_cell_parameters,
 )
 from cryspy.A_functions_base.structure_factor import (
     calc_f_nucl_by_dictionary,
     calc_sft_ccs_by_dictionary,
-    calc_f_m_perp_by_sft,
     calc_f_m_perp_ordered_by_dictionary,
 )
 
-from cryspy.A_functions_base.function_3_mcif import calc_multiplicity
-from cryspy.A_functions_base.mempy import (
-    form_basins_2,
-    calc_symm_elem_points_by_index_points,
-    save_spin_density_into_file,
-    transform_to_density_auc_to_moments,
-)
-from cryspy.A_functions_base.symmetry_elements import (
-    calc_asymmetric_unit_cell_indexes,
+from cryspy.A_functions_base.structure_scene import (
+    calc_atoms_in_unit_cell, calc_structure_scene, calc_tensors_xyz_by_symmetry)
+from cryspy.D_functions_item_loop.function_1_view_structure import (
+    ATOM_DISPLAY_ADP, ATOM_DISPLAY_SUSCEPTIBILITY,
+    StructureViewSettings,
+    ipywidgets,
+    make_settings_widgets,
+    make_structure_view,
+    make_structure_view_html,
+    take_element,
 )
 
 
 from cryspy.A_functions_base.symmetry_elements import (
     calc_full_mag_elems,
-    calc_symm_flags,
-    define_bravais_type_by_symm_elems,
-)
-from cryspy.A_functions_base.symmetry_constraints import (
-    calc_sc_beta,
-    calc_sc_fract_sc_b,
-    calc_sc_chi,
-    calc_sc_ordered,
 )
 
 from cryspy.B_parent_classes.cl_3_data import DataN
-from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import AtomLocalAxesL
 from cryspy.C_item_loop_classes.cl_1_atom_rho_multipole import (
@@ -100,12 +75,19 @@ from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import (
     SpaceGroupSymopMagnOperationL,
 )
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
-from cryspy.exceptions import RcifFormatError
 
 
 from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid import (
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
+)
+
+from cryspy.E_data_classes.cl_1_crystal_dictionary import (
+    calc_sc_v_unit_cell_parameters,  # noqa: F401 (kept importable from here)
+    form_crystal_dictionary,
+    save_crystal_multipole_density_to_den,
+    save_crystal_multipole_magnetization_density_to_den,
+    take_crystal_parameters_from_dictionary,
 )
 
 logger = logging.getLogger(__name__)
@@ -435,27 +417,6 @@ class Crystal(DataN):
             res.numpy_to_items()
         return res
 
-    def calc_f_m_perp(
-        self, index_hkl, magnetic_field, dict_in_out: dict = None
-    ):
-        """Calculate F_M_perpendicular"""
-        sft_ccs, dder_sft_ccs = self.calc_structure_factor_tensor_ccs(
-            index_hkl, dict_in_out=dict_in_out
-        )
-        unit_cell_parameters = self.cell.get_unit_cell_parameters()
-        eq_ccs, dder_eq_ccs = calc_eq_ccs_by_unit_cell_parameters(
-            index_hkl, unit_cell_parameters
-        )
-        f_m_perp, dder_f_m_perp = calc_f_m_perp_by_sft(
-            sft_ccs,
-            magnetic_field,
-            eq_ccs,
-            flag_sft_ccs=False,
-            flag_magnetic_field=False,
-            flag_eq_ccs=False,
-        )
-        return f_m_perp
-
     def calc_hkl(self, sthol_min: float = 0.0, sthovl_max: float = 1.0):
         """
         Calculate hkl and multiplicity taking into account the symmetry
@@ -674,6 +635,457 @@ class Crystal(DataN):
     def plots(self):
         return []
 
+    def get_structure_scene(self, settings=None):
+        """Atoms, magnetic moments and cell edges for a 3D view.
+
+        Symmetry comes from the magnetic space group (mcif operations and
+        centrings, with time reversal) or from the space group; moments
+        from ``atom_site_moment`` (μB along a/|a|, b/|b|, c/|c|).
+
+        Parameters
+        ----------
+        settings : StructureViewSettings
+            Number of cells and what to show; the defaults if None.
+
+        Returns
+        -------
+        scene : dict
+            See ``structure_scene.calc_structure_scene``; also
+            ``atom_element`` and ``atom_label`` of the shown atoms of the
+            asymmetric unit (``atom_index`` refers to them).
+        """
+        if settings is None:
+            settings = StructureViewSettings()
+        atom_site = self.atom_site
+        unit_cell_parameters = self.cell.get_unit_cell_parameters()
+        full_symm_elems = self.get_full_symm_elems()
+        atom_label = numpy.array(atom_site.label, dtype=str)
+        atom_fract_xyz = numpy.array(
+            [atom_site.fract_x, atom_site.fract_y, atom_site.fract_z],
+            dtype=float)
+        atom_moment = self.calc_moments_crystalaxis()
+        atom_tensor = None
+        if settings.atom_display == ATOM_DISPLAY_ADP:
+            atom_tensor = self.calc_adp_tensors_xyz()
+        elif settings.atom_display == ATOM_DISPLAY_SUSCEPTIBILITY:
+            atom_tensor = self.calc_susceptibility_tensors_xyz()
+        if atom_site.is_attribute("type_symbol"):
+            symbols = numpy.array(atom_site.type_symbol, dtype=str)
+        else:
+            symbols = atom_label
+        # dummy atoms (type_symbol 'Dummy', e.g. for local axes) are hidden
+        flags = numpy.ones(atom_label.size, dtype=bool)
+        if settings.hide_dummy_atoms:
+            flags = numpy.char.lower(symbols) != "dummy"
+            if not numpy.any(flags):
+                flags[:] = True
+        scene = calc_structure_scene(
+            unit_cell_parameters, full_symm_elems, atom_fract_xyz[:, flags],
+            atom_moment_crystalaxis=(
+                None if atom_moment is None else atom_moment[:, flags]),
+            atom_tensor_xyz=(
+                None if atom_tensor is None else atom_tensor[:, :, flags]),
+            n_cells=settings.n_cells,
+            flag_boundary=settings.show_boundary_atoms,
+            flag_inner_edges=settings.show_inner_cells)
+        scene["atom_element"] = [take_element(symbol) for symbol in symbols[flags]]
+        scene["atom_label"] = list(atom_label[flags])
+        return scene
+
+    def get_full_symm_elems(self):
+        """Symmetry elements with centring for the atoms of the cell.
+
+        From the magnetic space group (mcif operations and centrings, 14
+        rows with time reversal), else from the space group (13 rows), else
+        the identity.
+        """
+        if (self.is_attribute("space_group_symop_magn_operation") and
+                self.is_attribute("space_group_symop_magn_centering")):
+            return calc_full_mag_elems(
+                self.space_group_symop_magn_operation.get_sym_elems(),
+                self.space_group_symop_magn_centering.get_sym_elems())
+        if self.is_attribute("space_group"):
+            return self.space_group.full_space_group_symop.get_symm_elems()
+        return numpy.array(
+            [[0], [0], [0], [1], [1], [0], [0], [0], [1], [0], [0], [0], [1]],
+            dtype=int)
+
+    def calc_moments_crystalaxis(self):
+        """Ordered moments of the atoms from ``atom_site_moment``.
+
+        Returns
+        -------
+        numpy.ndarray, shape (3, n_atom), or None without atom_site_moment
+            μB along a/|a|, b/|b|, c/|c|; NaN for atoms without a moment.
+        """
+        if not self.is_attribute("atom_site_moment"):
+            return None
+        atom_label = numpy.array(self.atom_site.label, dtype=str)
+        res = numpy.full((3, atom_label.size), numpy.nan)
+        for moment in self.atom_site_moment.items:
+            res[:, atom_label == moment.label] = numpy.array([
+                moment.crystalaxis_x, moment.crystalaxis_y,
+                moment.crystalaxis_z], dtype=float)[:, numpy.newaxis]
+        return res
+
+    def calc_atoms_in_unit_cell(self) -> dict:
+        """All atoms of the unit cell, made by the symmetry elements.
+
+        Positions, ordered moments (axial vectors, with time reversal of
+        the magnetic space group), displacement tensors and susceptibility
+        tensors of the atoms equivalent to every atom of ``atom_site``.
+
+        Returns
+        -------
+        dict
+            ``label`` (n,) new labels 'Fe1_1', 'Fe1_2', ...;
+            ``atom_index`` (n,) index in ``atom_site``;
+            ``fract_xyz`` (3, n) in [0, 1);
+            ``moment_crystalaxis`` (3, n) μB along a/|a|, b/|b|, c/|c| or None;
+            ``u_xyz`` (3, 3, n) U in Å², Cartesian (x || a*, z || c);
+            ``chi_xyz`` (3, 3, n) χ in μB/T, Cartesian;
+            NaN where the atom has no such value.
+        """
+        ucp = self.cell.get_unit_cell_parameters()
+        full_symm_elems = self.get_full_symm_elems()
+        atom_site = self.atom_site
+        atom_fract_xyz = numpy.array(
+            [atom_site.fract_x, atom_site.fract_y, atom_site.fract_z],
+            dtype=float)
+        moment = self.calc_moments_crystalaxis()
+        moment_fract = None if moment is None else moment / ucp[:3, numpy.newaxis]
+        fract_xyz, atom_index, moment_cell, symm_index = calc_atoms_in_unit_cell(
+            full_symm_elems, atom_fract_xyz, moment_fract)
+        l_label, d_count = [], {}
+        for i_atom in atom_index:
+            label = atom_site.label[i_atom]
+            d_count[label] = d_count.get(label, 0) + 1
+            l_label.append(f"{label}_{d_count[label]}")
+        tensors = {}
+        for key, tensor in (("u_xyz", self.calc_adp_tensors_xyz()),
+                            ("chi_xyz", self.calc_susceptibility_tensors_xyz())):
+            tensors[key] = calc_tensors_xyz_by_symmetry(
+                ucp, full_symm_elems, symm_index, tensor[:, :, atom_index])
+        return {
+            "label": l_label,
+            "atom_index": atom_index,
+            "fract_xyz": fract_xyz,
+            "moment_crystalaxis": (None if moment_cell is None else
+                                   moment_cell * ucp[:3, numpy.newaxis]),
+            **tensors}
+
+    def to_p1(self, data_name: str = None):
+        """The crystal with all atoms of the unit cell in space group P1.
+
+        The atoms equivalent by symmetry become separate atoms 'Fe1_1',
+        'Fe1_2', ... with their positions, occupancies, displacement
+        parameters (anisotropic ones rotated), ordered moments (a magnetic
+        crystal gets the magnetic group P1 with x,y,z,+1), susceptibility
+        tensors (rotated, type Cani) and ``atom_site_scat``. Multipoles and
+        local axes are not converted.
+
+        Parameters
+        ----------
+        data_name : str
+            Data name of the new crystal; the old one with '_p1' if None.
+
+        Returns
+        -------
+        Crystal
+        """
+        from cryspy.H_functions_global.function_1_cryspy_objects import str_to_globaln
+        if data_name is None:
+            data_name = f"{self.data_name}_p1"
+        cell, atom_site = self.cell, self.atom_site
+        ucp = cell.get_unit_cell_parameters()
+        atoms = self.calc_atoms_in_unit_cell()
+        index, labels = atoms["atom_index"], atoms["label"]
+        m_m = calc_m_m_by_unit_cell_parameters(ucp)[0].reshape(3, 3)
+        inv_m = numpy.linalg.inv(m_m)
+        rec = calc_reciprocal_by_unit_cell_parameters(ucp)[0][:3]
+
+        ls_out = [f"data_{data_name}", "", cell.to_cif(), ""]
+        magnetic = atoms["moment_crystalaxis"] is not None
+        if magnetic:
+            ls_out += ["loop_", "_space_group_symop_magn_operation.xyz",
+                       "_space_group_symop_magn_operation.id", "x,y,z,+1 1", "",
+                       "loop_", "_space_group_symop_magn_centering.xyz",
+                       "_space_group_symop_magn_centering.id", "x,y,z,+1 1", ""]
+        else:
+            ls_out += ['_space_group_name_H-M_alt "P 1"', ""]
+
+        ls_site = ["loop_", "_atom_site_label", "_atom_site_type_symbol",
+                   "_atom_site_fract_x", "_atom_site_fract_y",
+                   "_atom_site_fract_z", "_atom_site_occupancy",
+                   "_atom_site_adp_type", "_atom_site_B_iso_or_equiv"]
+        ls_aniso = ["loop_", "_atom_site_aniso_label"] + [
+            f"_atom_site_aniso_U_{ij}" for ij in ("11", "22", "33", "12", "13", "23")]
+        b_iso = self.calc_b_iso_beta()[0]
+        for label, i_atom, xyz, u_xyz in zip(
+                labels, index, atoms["fract_xyz"].transpose(),
+                numpy.moveaxis(atoms["u_xyz"], 2, 0)):
+            item = atom_site.items[i_atom]
+            occupancy = item.occupancy if item.is_attribute("occupancy") else 1.
+            type_symbol = item.type_symbol if item.is_attribute("type_symbol") else item.label
+            adp_type = item.adp_type if item.is_attribute("adp_type") else "Biso"
+            if adp_type in ("Uani", "Bani") and not numpy.any(numpy.isnan(u_xyz)):
+                sigma = inv_m @ u_xyz @ inv_m.transpose()
+                u_cif = sigma / (rec[:, numpy.newaxis] * rec[numpy.newaxis, :])
+                ls_aniso.append(f"{label} " + " ".join(
+                    f"{u_cif[i, j]:.6f}" for i, j in
+                    ((0, 0), (1, 1), (2, 2), (0, 1), (0, 2), (1, 2))))
+                adp_type, b_value = "Uani", 0.
+            else:
+                adp_type, b_value = "Biso", b_iso[i_atom]
+            ls_site.append(
+                f"{label} {type_symbol} {xyz[0]:.6f} {xyz[1]:.6f} {xyz[2]:.6f} "
+                f"{occupancy:.6f} {adp_type} {b_value:.6f}")
+        ls_out += ls_site + [""]
+        if len(ls_aniso) > 8:
+            ls_out += ls_aniso + [""]
+        if magnetic:
+            ls_moment = ["loop_", "_atom_site_moment_label",
+                         "_atom_site_moment_crystalaxis_x",
+                         "_atom_site_moment_crystalaxis_y",
+                         "_atom_site_moment_crystalaxis_z"]
+            for label, moment in zip(labels, atoms["moment_crystalaxis"].transpose()):
+                if not numpy.any(numpy.isnan(moment)):
+                    ls_moment.append(f"{label} " + " ".join(f"{m:.6f}" for m in moment))
+            if len(ls_moment) > 5:
+                ls_out += ls_moment + [""]
+        ls_chi = ["loop_", "_atom_site_susceptibility_label",
+                  "_atom_site_susceptibility_chi_type"] + [
+            f"_atom_site_susceptibility_chi_{ij}" for ij in ("11", "22", "33", "12", "13", "23")]
+        for label, chi in zip(labels, numpy.moveaxis(atoms["chi_xyz"], 2, 0)):
+            if not numpy.any(numpy.isnan(chi)):
+                ls_chi.append(f"{label} Cani " + " ".join(
+                    f"{chi[i, j]:.6f}" for i, j in
+                    ((0, 0), (1, 1), (2, 2), (0, 1), (0, 2), (1, 2))))
+        if len(ls_chi) > 9:
+            ls_out += ls_chi + [""]
+        if self.is_attribute("atom_site_scat"):
+            scat = self.atom_site_scat
+            d_scat = {item.label: item for item in scat.items}
+            l_item = []
+            for label, i_atom in zip(labels, index):
+                item = d_scat.get(atom_site.items[i_atom].label)
+                if item is not None:
+                    l_item.append(f"{label} " + " ".join(
+                        str(getattr(item, name)) for name in item.ATTR_NAMES[1:]
+                        if item.is_attribute(name)))
+            if len(l_item) > 0:
+                names = [name for name in scat.items[0].ATTR_NAMES[1:]
+                         if scat.items[0].is_attribute(name)]
+                ls_out += ["loop_", "_atom_site_scat_label"] + [
+                    f"_atom_site_scat_{scat.items[0].ATTR_CIF[scat.items[0].ATTR_NAMES.index(name)]}"
+                    for name in names] + l_item + [""]
+        obj = str_to_globaln("\n".join(ls_out))
+        return obj.items[0]
+
+    def report_ellipsoids(self, kind: str = "ADP", flag_unit_cell: bool = False,
+                          field: float = 1.) -> str:
+        """Principal axes of the atomic ellipsoids in markdown.
+
+        Parameters
+        ----------
+        kind : str
+            'ADP': displacement ellipsoids (U_i in Å², rms displacements);
+            'susceptibility': magnetization ellipsoids (|χ_i| in μB/T and
+            the moments induced by ``field``).
+        flag_unit_cell : bool
+            For every atom of the unit cell (orientations of the equivalent
+            atoms) instead of the atoms of ``atom_site``.
+        field : float
+            Magnetic field, T, for the induced moments.
+
+        Returns
+        -------
+        str
+            Directions are unit vectors in Cartesian axes (x || a*, z || c)
+            and in the crystal axes [u v w] (fractions of a, b, c).
+        """
+        kind_low = kind.strip().lower()
+        if kind_low.startswith("adp") or kind_low.startswith("u") or kind_low.startswith("therm"):
+            flag_adp = True
+        elif kind_low.startswith("sus") or kind_low.startswith("chi") or kind_low.startswith("magn"):
+            flag_adp = False
+        else:
+            raise ValueError(f"kind is '{kind}', not 'ADP' or 'susceptibility'.")
+        if flag_unit_cell:
+            atoms = self.calc_atoms_in_unit_cell()
+            labels = atoms["label"]
+            tensors = atoms["u_xyz"] if flag_adp else atoms["chi_xyz"]
+        else:
+            labels = list(self.atom_site.label)
+            tensors = (self.calc_adp_tensors_xyz() if flag_adp else
+                       self.calc_susceptibility_tensors_xyz())
+        m_m = calc_m_m_by_unit_cell_parameters(
+            self.cell.get_unit_cell_parameters())[0].reshape(3, 3)
+        inv_m = numpy.linalg.inv(m_m)
+        if flag_adp:
+            ls_out = ["Displacement ellipsoids: U_i (Å²) and rms displacement "
+                      "sqrt(U_i) (Å) along the principal axes.", "",
+                      "| atom | U_eq, Å² | U_i, Å² | rms, Å | axis xyz (x||a*, z||c) | axis [u v w] |",
+                      "|---|---|---|---|---|---|"]
+        else:
+            ls_out = ["Magnetization ellipsoids: |χ_i| (μB/T) along the principal "
+                      f"axes and the induced moment at {field:g} T (μB).", "",
+                      "| atom | |χ_i|, μB/T | M_i, μB | axis xyz (x||a*, z||c) | axis [u v w] |",
+                      "|---|---|---|---|---|"]
+        n_atom = 0
+        for label, tensor in zip(labels, numpy.moveaxis(tensors, 2, 0)):
+            if numpy.any(numpy.isnan(tensor)):
+                continue
+            n_atom += 1
+            if flag_adp:
+                val, vec = numpy.linalg.eigh(0.5 * (tensor + tensor.transpose()))
+            else:
+                val, vec = numpy.linalg.eigh(tensor.transpose() @ tensor)
+                val = numpy.sqrt(numpy.clip(val, 0., None))
+            for i_axis in range(3):
+                axis = vec[:, i_axis]
+                uvw = inv_m @ axis
+                uvw = uvw / numpy.abs(uvw).max()
+                s_xyz = " ".join(f"{v:.3f}" for v in axis)
+                s_uvw = " ".join(f"{v:.3f}" for v in uvw)
+                s_label = label if i_axis == 0 else ""
+                if flag_adp:
+                    s_eq = f"{numpy.trace(tensor) / 3.:.5f}" if i_axis == 0 else ""
+                    rms = numpy.sqrt(max(val[i_axis], 0.))
+                    ls_out.append(f"| {s_label} | {s_eq} | {val[i_axis]:.5f} | "
+                                  f"{rms:.4f} | {s_xyz} | {s_uvw} |")
+                else:
+                    ls_out.append(f"| {s_label} | {val[i_axis]:.4f} | "
+                                  f"{val[i_axis] * field:.4f} | {s_xyz} | {s_uvw} |")
+        if n_atom == 0:
+            if flag_adp:
+                return "No atom has displacement parameters."
+            return "No atom has a susceptibility tensor (atom_site_susceptibility)."
+        if flag_adp:
+            ls_out.append("")
+            ls_out.append("A negative U_i means non-positive definite displacement parameters.")
+        return "\n".join(ls_out)
+
+    def calc_adp_tensors_xyz(self):
+        """Atomic displacement tensors U of the atoms in Cartesian axes.
+
+        From ``adp_type`` of ``atom_site`` (Uiso, Biso, Uani, Bani, ...)
+        and ``atom_site_aniso``, as the structure factor uses them.
+
+        Returns
+        -------
+        numpy.ndarray, shape (3, 3, n_atom)
+            U in Å², x || a*, z || c; NaN for atoms without displacement
+            parameters.
+        """
+        b_iso, beta = self.calc_b_iso_beta()
+        m_m = calc_m_m_by_unit_cell_parameters(
+            self.cell.get_unit_cell_parameters())[0].reshape(3, 3)
+        res = numpy.full((3, 3, b_iso.size), numpy.nan)
+        for i_atom, (b, bb) in enumerate(zip(b_iso, beta)):
+            if numpy.any(bb != 0.):
+                beta_m = numpy.array([[bb[0], bb[3], bb[4]],
+                                      [bb[3], bb[1], bb[5]],
+                                      [bb[4], bb[5], bb[2]]], dtype=float)
+                # exp(-h^T beta h): beta = 2 pi^2 Sigma_fract
+                res[:, :, i_atom] = m_m @ beta_m @ m_m.transpose() / (2. * numpy.pi**2)
+            elif b > 0.:
+                res[:, :, i_atom] = numpy.eye(3) * b / (8. * numpy.pi**2)
+        return res
+
+    def calc_susceptibility_tensors_xyz(self):
+        """Susceptibility tensors of the atoms in Cartesian axes.
+
+        From ``atom_site_susceptibility`` (given in x || a*, z || c).
+
+        Returns
+        -------
+        numpy.ndarray, shape (3, 3, n_atom)
+            χ in μB/T; NaN for atoms without susceptibility.
+        """
+        atom_label = numpy.array(self.atom_site.label, dtype=str)
+        res = numpy.full((3, 3, atom_label.size), numpy.nan)
+        if not self.is_attribute("atom_site_susceptibility"):
+            return res
+        for item in self.atom_site_susceptibility.items:
+            if (item.is_attribute("chi_type") and
+                    item.chi_type.lower().startswith("ciso")):
+                chi = numpy.eye(3) * float(item.chi_11)
+            else:
+                chi = numpy.array([
+                    [item.chi_11, item.chi_12, item.chi_13],
+                    [item.chi_12, item.chi_22, item.chi_23],
+                    [item.chi_13, item.chi_23, item.chi_33]], dtype=float)
+            res[:, :, atom_label == item.label] = chi[:, :, numpy.newaxis]
+        return res
+
+    def view_structure(
+            self, settings=None, interactive: bool = False, js: str = None,
+            **kwargs):
+        """Interactive 3D view of the crystal structure (py3Dmol).
+
+        Needs the optional extra ``pip install cryspy[view3d]``. In a
+        Jupyter notebook the returned view shows itself; with
+        ``interactive=True`` sliders and check boxes for the settings are
+        shown above it.
+
+        Parameters
+        ----------
+        settings : StructureViewSettings
+            Settings of the view; the defaults if None.
+        interactive : bool
+            Show widgets to change the settings (Jupyter, ipywidgets).
+        js : str
+            URL of 3Dmol-min.js; the py3Dmol default (CDN) if None.
+        **kwargs
+            Fields of ``StructureViewSettings`` to change, e.g.
+            ``n_cells_a=2, show_labels=True``.
+
+        Returns
+        -------
+        py3Dmol.view, or ipywidgets.VBox when ``interactive`` is True.
+        """
+        if settings is None:
+            settings = StructureViewSettings()
+        settings = dataclasses.replace(settings, **kwargs)
+        if not interactive:
+            scene = self.get_structure_scene(settings)
+            return make_structure_view(
+                scene, scene["atom_element"], scene["atom_label"],
+                settings=settings, js=js)
+
+        widgets = make_settings_widgets(settings)
+        output = ipywidgets.Output()
+
+        def redraw(change=None):
+            new = StructureViewSettings(
+                **{name: widget.value for name, widget in widgets.items()})
+            output.clear_output(wait=True)
+            with output:
+                self.view_structure(settings=new, js=js).show()
+
+        for widget in widgets.values():
+            widget.observe(redraw, names="value")
+        redraw()
+        return ipywidgets.VBox([
+            ipywidgets.HBox(list(widgets.values()),
+                            layout=ipywidgets.Layout(flex_flow="row wrap")),
+            output])
+
+    def get_structure_view_html(self, settings=None, js: str = None) -> str:
+        """HTML page with the 3D view of the structure (for a web view).
+
+        Parameters
+        ----------
+        settings : StructureViewSettings
+            Settings of the view; the defaults if None.
+        js : str
+            URL of 3Dmol-min.js, e.g. a local file for work offline; the
+            py3Dmol default (CDN) if None.
+        """
+        view = self.view_structure(settings=settings, js=js)
+        return make_structure_view_html(view)
+
     def get_flags_atom_beta(self):
         atom_site = self.atom_site
         if self.is_attribute("atom_site_aniso"):
@@ -721,644 +1133,7 @@ class Crystal(DataN):
         """Form dictionary. See documentation moduel CrysPy using Jupyter notebook."""
         self.form_object()
         ddict = super(Crystal, self).get_dictionary()
-        space_group, cell, atom_site = None, None, None
-        atom_site_susceptibility, atom_electron_configuration = None, None
-        atom_site_exchange = None
-        atom_type_scat = None
-        atom_type = None
-        atom_site_aniso = None
-        atom_site_scat = None
-        atom_site_moment = None
-        space_group_symop_magn_centering = None
-        space_group_symop_magn_operation = None
-        atom_rho_multipole = None
-        atom_local_axes = None
-
-        l_obj = take_items_by_class(self, (SpaceGroup,))
-        if len(l_obj) > 0:
-            space_group = l_obj[0]
-
-        l_obj = take_items_by_class(self, (Cell,))
-        if len(l_obj) > 0:
-            cell = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomSiteL,))
-        if len(l_obj) > 0:
-            atom_site = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomSiteAnisoL,))
-        if len(l_obj) > 0:
-            atom_site_aniso = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomSiteScatL,))
-        if len(l_obj) > 0:
-            atom_site_scat = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomTypeL,))
-        if len(l_obj) > 0:
-            atom_type = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomTypeScatL,))
-        if len(l_obj) > 0:
-            atom_type_scat = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomSiteSusceptibilityL,))
-        if len(l_obj) > 0:
-            atom_site_susceptibility = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomSiteExchangeL,))
-        if len(l_obj) > 0:
-            atom_site_exchange = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomElectronConfigurationL,))
-        if len(l_obj) > 0:
-            atom_electron_configuration = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomSiteMomentL,))
-        if len(l_obj) > 0:
-            atom_site_moment = l_obj[0]
-
-        l_obj = take_items_by_class(self, (SpaceGroupSymopMagnCenteringL,))
-        if len(l_obj) > 0:
-            space_group_symop_magn_centering = l_obj[0]
-
-        l_obj = take_items_by_class(self, (SpaceGroupSymopMagnOperationL,))
-        if len(l_obj) > 0:
-            space_group_symop_magn_operation = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomRhoMultipoleL,))
-        if len(l_obj) > 0:
-            atom_rho_multipole = l_obj[0]
-
-        l_obj = take_items_by_class(self, (AtomLocalAxesL,))
-        if len(l_obj) > 0:
-            atom_local_axes = l_obj[0]
-
-        ddict["name"] = self.data_name
-        ddict["type_name"] = self.get_name()
-        ind_mag = None
-        rad = numpy.pi / 180.0
-        if space_group is not None:
-            full_symm_elems = (
-                space_group.full_space_group_symop.get_symm_elems()
-            )
-            ddict["full_symm_elems"] = full_symm_elems
-            reduced_symm_elems = (
-                space_group.reduced_space_group_symop.get_symm_elems()
-            )
-            ddict["reduced_symm_elems"] = reduced_symm_elems
-            ddict["centrosymmetry"] = space_group.centrosymmetry
-            if ddict["centrosymmetry"]:
-                p_centr = space_group.pcentr
-                lcm = numpy.lcm.reduce([fr.denominator for fr in p_centr])
-                vals = [
-                    int(fr.numerator * lcm / fr.denominator) for fr in p_centr
-                ]
-                vals.append(lcm)
-                ddict["centrosymmetry_position"] = numpy.array(vals, dtype=int)
-
-            shift = space_group.shift
-            l_vals = []
-            for ind in range(len(shift)):
-                lcm = numpy.lcm.reduce([fr.denominator for fr in shift[ind]])
-                vals = [
-                    int(fr.numerator * lcm / fr.denominator)
-                    for fr in shift[ind]
-                ]
-                vals.append(lcm)
-                l_vals.append(vals)
-            ddict["translation_elems"] = numpy.array(
-                l_vals, dtype=int
-            ).transpose()
-
-        if space_group_symop_magn_operation is not None:
-            if space_group_symop_magn_centering is not None:
-                se_sgsmo = (
-                    self.space_group_symop_magn_operation.get_sym_elems()
-                )
-                se_sgsmc = (
-                    self.space_group_symop_magn_centering.get_sym_elems()
-                )
-                full_mcif_elems = calc_full_mag_elems(se_sgsmo, se_sgsmc)
-                ddict["full_mcif_elems"] = full_mcif_elems
-
-        if cell is not None:
-            if cell.is_attribute("type_cell"):
-                type_cell, it_coordinate_system_code = (
-                    cell.type_cell,
-                    cell.it_coordinate_system_code,
-                )
-            elif "full_mcif_elems" in ddict.keys():
-                type_cell, it_coordinate_system_code = (
-                    define_bravais_type_by_symm_elems(full_mcif_elems)
-                )
-                cell.type_cell = type_cell
-                cell.it_coordinate_system_code = it_coordinate_system_code
-                cell.apply_constraints()
-
-            unit_cell_parameters = ddict["unit_cell_parameters"]
-
-            sc_uc, v_uc = calc_sc_v_unit_cell_parameters(
-                type_cell, it_coordinate_system_code
-            )
-            ddict["sc_uc"] = sc_uc
-            ddict["v_uc"] = v_uc
-
-            ddict["unit_cell_parameters"] = (
-                numpy.dot(sc_uc, unit_cell_parameters) + v_uc
-            )
-            unit_cell_parameters = ddict["unit_cell_parameters"]
-            # ddict["flags_unit_cell_parameters"] = cell.get_flags_unit_cell_parameters() : it should be already defined from cell.get_dictionary()
-
-        if atom_site is not None:
-            atom_label = numpy.array(atom_site.label, dtype=str)
-            atom_occupancy = numpy.array(atom_site.occupancy, dtype=float)
-            atom_fract_xyz = numpy.array(
-                [atom_site.fract_x, atom_site.fract_y, atom_site.fract_z],
-                dtype=float,
-            )
-            atom_fract_xyz = numpy.mod(atom_fract_xyz, 1.0)
-            if "full_mcif_elems" in ddict.keys():
-                atom_multiplicity = calc_multiplicity(
-                    ddict["full_mcif_elems"], atom_fract_xyz
-                )
-                ddict["atom_multiplicity"] = atom_multiplicity
-            elif "full_symm_elems" in ddict.keys():
-                atom_multiplicity = calc_multiplicity(
-                    ddict["full_symm_elems"], atom_fract_xyz
-                )
-                ddict["atom_multiplicity"] = atom_multiplicity
-            elif atom_site.is_attribute("multiplicity"):
-                atom_multiplicity = numpy.array(
-                    atom_site.multiplicity, dtype=int
-                )
-                ddict["atom_multiplicity"] = atom_multiplicity
-            atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
-            table_sthovl = numpy.linspace(0, 2, 501)  # fro0 to 2 Å**-1
-            d_dispersion = DATABASE["Dispersion"]
-            table_wavelength = d_dispersion["table_wavelength"]
-            l_table_atom_scattering_amplitude = []
-            l_table_atom_dispersion = []
-            flag_atom_scattering_amplitude = True
-            for type_symbol in atom_type_symbol:
-                try:
-                    jl = calc_jl_for_ion(table_sthovl, type_symbol)
-                    scattering_amplitude = jl[:, 0]
-                except RcifFormatError:
-                    try:
-                        scattering_amplitude = (
-                            calc_scattering_amplitude_tabulated(
-                                type_symbol, table_sthovl
-                            )[0]
-                        )
-                    except KeyError:
-                        flag_atom_scattering_amplitude = False
-                if flag_atom_scattering_amplitude:
-                    l_table_atom_scattering_amplitude.append(
-                        scattering_amplitude
-                    )
-
-                type_atom = get_atom_name_ion_charge_shell(type_symbol)[0]
-                try:
-                    l_table_atom_dispersion.append(
-                        d_dispersion[type_atom.capitalize()]
-                    )
-                except KeyError:
-                    l_table_atom_dispersion.append(
-                        numpy.zeros_like(table_wavelength)
-                    )
-            if flag_atom_scattering_amplitude:
-                ddict["table_sthovl"] = table_sthovl
-                ddict["table_atom_scattering_amplitude"] = numpy.stack(
-                    l_table_atom_scattering_amplitude, axis=0
-                )
-            ddict["table_wavelength"] = table_wavelength
-            ddict["table_atom_dispersion"] = numpy.stack(
-                l_table_atom_dispersion, axis=0
-            )
-
-            atom_b_scat = numpy.array(
-                atom_site.scat_length_neutron, dtype=complex
-            )
-
-            b_d = (
-                3 * 10**6 * numpy.ones(atom_fract_xyz.shape[1:], dtype=int)
-            )  # 10**6 it is precision
-            b_elem = (atom_fract_xyz * b_d[na, :]).astype(int)
-            gcd = numpy.gcd.reduce(numpy.gcd(b_elem, b_d[na, :]))
-
-            atom_symm_elems = numpy.concatenate(
-                [
-                    numpy.floor_divide(b_elem, gcd[na, :]),
-                    numpy.floor_divide(b_d, gcd)[na, :],
-                    numpy.zeros((9,) + atom_fract_xyz.shape[1:], dtype=int),
-                ],
-                axis=0,
-            )
-
-            if "full_mcif_elems" in ddict.keys():
-                elems_fs = ddict["full_mcif_elems"]
-            elif "full_symm_elems" in ddict.keys():
-                elems_fs = ddict["full_symm_elems"]
-            else:
-                raise AttributeError("Symmetry elements are not found.")
-
-            flag_2d = calc_symm_flags(
-                elems_fs[:, :, na], atom_symm_elems[:, na, :]
-            )
-
-            l_sc_fract, l_sc_b = [], []
-            for ind in range(atom_label.size):
-                symm_elems = elems_fs[:, flag_2d[:, ind]]
-                sc_fract, sc_b = calc_sc_fract_sc_b(
-                    symm_elems, atom_fract_xyz[:, ind]
-                )
-                l_sc_fract.append(sc_fract)
-                l_sc_b.append(sc_b)
-            atom_site_sc_fract = numpy.stack(l_sc_fract, axis=-1)
-
-            ddict["atom_site_sc_fract"] = atom_site_sc_fract
-            ddict["atom_site_sc_b"] = numpy.stack(l_sc_b, axis=-1)
-
-            flags_atom_fract_xyz = atom_site.get_flags_atom_fract_xyz()
-            flags_atom_fract_xyz_constr = calc_m_v(
-                atom_site_sc_fract,
-                flags_atom_fract_xyz,
-                flag_m=False,
-                flag_v=False,
-            )[0].astype(bool)
-
-            ddict["atom_label"] = atom_label
-            ddict["atom_fract_xyz"] = atom_fract_xyz
-            ddict["flags_atom_fract_xyz"] = flags_atom_fract_xyz_constr
-            ddict["atom_scat_length_neutron"] = atom_b_scat
-            ddict["atom_occupancy"] = atom_occupancy
-            ddict["flags_atom_occupancy"] = (
-                atom_site.get_flags_atom_occupancy()
-            )
-            ddict["flags_atom_b_iso"] = atom_site.get_flags_atom_b_iso()
-            ddict["atom_symm_elems_flag"] = flag_2d
-
-        if atom_site_susceptibility is not None:
-            atom_para_label = ddict["atom_para_label"]
-            atom_para_chi_type = numpy.array(
-                atom_site_susceptibility.chi_type, dtype=str
-            )
-            if "atom_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_label"], axis=1
-                ) == numpy.expand_dims(atom_para_label, axis=0)
-                args = numpy.argwhere(flag_2d)
-                atom_para_index = args[args[:, 1].argsort()][:, 0]
-                ddict["atom_para_index"] = atom_para_index
-
-                if "full_mcif_elems" in ddict.keys():
-                    elems_fs = ddict["full_mcif_elems"]
-                elif "full_symm_elems" in ddict.keys():
-                    elems_fs = ddict["full_symm_elems"]
-                else:
-                    raise AttributeError("Symmetry elements are not found.")
-                flag_2d = ddict["atom_symm_elems_flag"][:, atom_para_index]
-
-                l_sc_chi = []
-                for ind in range(atom_para_label.size):
-                    if (atom_para_chi_type[ind]).lower() == "ciso":
-                        sc_chi = numpy.array(
-                            [
-                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                            ],
-                            dtype=float,
-                        )
-                    else:
-                        sc_chi = calc_sc_chi(
-                            elems_fs[:, flag_2d[:, ind]],
-                            unit_cell_parameters=unit_cell_parameters,
-                            flag_unit_cell_parameters=False,
-                        )[0]
-                    l_sc_chi.append(sc_chi)
-                atom_para_sc_chi = numpy.stack(l_sc_chi, axis=-1)
-                ddict["atom_para_sc_chi"] = atom_para_sc_chi
-
-        if atom_site_exchange is not None:
-            atom_exchange_label = numpy.array(
-                atom_site_exchange.label, dtype=str
-            )
-            atom_exchange_type = numpy.array(
-                atom_site_exchange.j_type, dtype=str
-            )
-            atom_exchange_tensor = numpy.array(
-                [
-                    atom_site_exchange.j_11,
-                    atom_site_exchange.j_22,
-                    atom_site_exchange.j_33,
-                    atom_site_exchange.j_12,
-                    atom_site_exchange.j_13,
-                    atom_site_exchange.j_23,
-                ],
-                dtype=float,
-            )
-            flags_atom_exchange_tensor = numpy.array(
-                [
-                    atom_site_exchange.j_11_refinement,
-                    atom_site_exchange.j_22_refinement,
-                    atom_site_exchange.j_33_refinement,
-                    atom_site_exchange.j_12_refinement,
-                    atom_site_exchange.j_13_refinement,
-                    atom_site_exchange.j_23_refinement,
-                ],
-                dtype=bool,
-            )
-            ddict["atom_exchange_label"] = atom_exchange_label
-            ddict["atom_exchange_type"] = atom_exchange_type
-            ddict["atom_exchange_tensor"] = atom_exchange_tensor
-            ddict["flags_atom_exchange_tensor"] = flags_atom_exchange_tensor
-            if "atom_label" in ddict.keys():
-
-                if "full_mcif_elems" in ddict.keys():
-                    elems_fs = ddict["full_mcif_elems"]
-                elif "full_symm_elems" in ddict.keys():
-                    elems_fs = ddict["full_symm_elems"]
-                else:
-                    raise AttributeError("Symmetry elements are not found.")
-
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_label"], axis=1
-                ) == numpy.expand_dims(atom_exchange_label, axis=0)
-                args = numpy.argwhere(flag_2d)
-                atom_exchange_index = args[args[:, 1].argsort()][:, 0]
-                ddict["atom_exchange_index"] = atom_exchange_index
-
-                l_sc_exchange = []
-                flag_2d = ddict["atom_symm_elems_flag"][:, atom_exchange_index]
-                for ind in range(atom_exchange_label.size):
-                    if (atom_exchange_type[ind]).lower() == "jiso":
-                        sc_exchange = numpy.array(
-                            [
-                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                            ],
-                            dtype=float,
-                        )
-                    else:
-                        sc_exchange = calc_sc_chi(
-                            elems_fs[:, flag_2d[:, ind]],
-                            unit_cell_parameters=unit_cell_parameters,
-                            flag_unit_cell_parameters=False,
-                        )[0]
-                    l_sc_exchange.append(sc_exchange)
-                atom_sc_exchange = numpy.stack(l_sc_exchange, axis=-1)
-                ddict["atom_sc_exchange"] = atom_sc_exchange
-
-        if atom_site_moment is not None:
-            atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)
-
-            atom_ordered_moment_crystalaxis_dn = numpy.array(
-                [
-                    atom_site_moment.crystalaxis_x,
-                    atom_site_moment.crystalaxis_y,
-                    atom_site_moment.crystalaxis_z,
-                ],
-                dtype=float,
-            )
-
-            flags_atom_ordered_moment_crystalaxis_dn = numpy.array(
-                [
-                    atom_site_moment.crystalaxis_x_refinement,
-                    atom_site_moment.crystalaxis_y_refinement,
-                    atom_site_moment.crystalaxis_z_refinement,
-                ],
-                dtype=bool,
-            )
-            ddict["atom_ordered_label"] = atom_ordered_label
-            ddict["atom_ordered_moment_crystalaxis_dn"] = (
-                atom_ordered_moment_crystalaxis_dn
-            )
-            ddict["flags_atom_ordered_moment_crystalaxis_dn"] = (
-                flags_atom_ordered_moment_crystalaxis_dn
-            )
-            if "atom_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_label"], axis=1
-                ) == numpy.expand_dims(atom_ordered_label, axis=0)
-                args = numpy.argwhere(flag_2d)
-                atom_ordered_index = args[args[:, 1].argsort()][:, 0]
-                ddict["atom_ordered_index"] = atom_ordered_index
-
-                if "full_mcif_elems" in ddict.keys():
-                    elems_fs = ddict["full_mcif_elems"]
-                else:
-                    raise AttributeError(
-                        "Magnetic symmetry elements are not found."
-                    )
-                flag_2d = ddict["atom_symm_elems_flag"][:, atom_ordered_index]
-
-                l_sc_ordered = []
-                for ind in range(atom_ordered_label.size):
-                    sc_ordered = calc_sc_ordered(
-                        elems_fs[:, flag_2d[:, ind]],
-                        unit_cell_parameters=unit_cell_parameters,
-                        flag_unit_cell_parameters=False,
-                    )[0]
-                    l_sc_ordered.append(sc_ordered)
-                atom_ordered_sc_m_dn = numpy.stack(l_sc_ordered, axis=-1)
-                ddict["atom_ordered_sc_m"] = atom_ordered_sc_m_dn  # in dn
-                ddict["atom_ordered_moment_crystalaxis_dn"] = calc_m_v(
-                    ddict["atom_ordered_sc_m"],
-                    ddict["atom_ordered_moment_crystalaxis_dn"],
-                    flag_m=False,
-                    flag_v=False,
-                )[0]
-
-        if isinstance(self, Crystal):
-            # FIXME: beta should be defined in atom_site_aniso_beta, b_iso for every atom
-            atom_b_iso, atom_beta = self.calc_b_iso_beta()
-            ddict["atom_b_iso"] = atom_b_iso
-            ddict["atom_beta"] = atom_beta.transpose()
-            ddict["flags_atom_beta"] = self.get_flags_atom_beta()
-
-        if atom_site_scat is not None:
-            mag_atom_label = numpy.array(atom_site_scat.label, dtype=str)
-            mag_atom_lande_factor = numpy.array(
-                atom_site_scat.lande, dtype=float
-            )
-            mag_atom_kappa = numpy.array(atom_site_scat.kappa, dtype=float)
-            flags_mag_atom_lande_factor = atom_site_scat.get_flags_lande()
-            flags_mag_atom_kappa = atom_site_scat.get_flags_kappa()
-
-            ddict["mag_atom_label"] = mag_atom_label
-            ddict["mag_atom_lande_factor"] = mag_atom_lande_factor
-            ddict["mag_atom_kappa"] = mag_atom_kappa
-            ddict["flags_mag_atom_lande_factor"] = flags_mag_atom_lande_factor
-            ddict["flags_mag_atom_kappa"] = flags_mag_atom_kappa
-            # l_ats = atom_site_scat.atom_type_scat
-            if "atom_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_label"], axis=1
-                ) == numpy.expand_dims(mag_atom_label, axis=0)
-                args = numpy.argwhere(flag_2d)
-                mag_atom_index = args[args[:, 1].argsort()][:, 0]
-                ddict["mag_atom_index"] = mag_atom_index
-
-                if atom_site_scat.is_attribute("type_symbol"):
-                    mag_type_symbol = numpy.array(
-                        atom_site_scat.type_symbol, dtype=str
-                    )
-                else:
-                    as_tsymbol = numpy.array(atom_site.type_symbol, dtype=str)
-                    mag_type_symbol = as_tsymbol[mag_atom_index]
-
-                j0_parameters, j2_parameters = get_j0_j2_parameters(
-                    mag_type_symbol
-                )
-                ddict["mag_atom_j0_parameters"] = j0_parameters
-                ddict["mag_atom_j2_parameters"] = j2_parameters
-
-            if "atom_para_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_para_label"], axis=0
-                ) == numpy.expand_dims(mag_atom_label, axis=1)
-                args = numpy.argwhere(flag_2d)
-                mag_atom_para_index = args[args[:, 1].argsort()][:, 0]
-                ddict["mag_atom_para_index"] = mag_atom_para_index
-
-            if "atom_ordered_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_ordered_label"], axis=0
-                ) == numpy.expand_dims(mag_atom_label, axis=1)
-                args = numpy.argwhere(flag_2d)
-                mag_atom_ordered_index = args[args[:, 1].argsort()][:, 0]
-                ddict["mag_atom_ordered_index"] = mag_atom_ordered_index
-
-            if "atom_rho_multipole_label" in ddict.keys():
-                flag_2d = numpy.expand_dims(
-                    ddict["atom_rho_multipole_label"], axis=0
-                ) == numpy.expand_dims(mag_atom_label, axis=1)
-                args = numpy.argwhere(flag_2d)
-                mag_atom_rho_multipole_index = args[args[:, 1].argsort()][:, 0]
-                ddict["mag_atom_rho_multipole_index"] = (
-                    mag_atom_rho_multipole_index
-                )
-
-        if atom_type is not None:
-            pass
-
-        if atom_type_scat is not None:
-            pass
-
-        if atom_site_aniso is not None:
-            atom_site_aniso_label = numpy.array(
-                atom_site_aniso.label, dtype=str
-            )
-            flag_2d = numpy.expand_dims(
-                ddict["atom_label"], axis=1
-            ) == numpy.expand_dims(atom_site_aniso_label, axis=0)
-            args = numpy.argwhere(flag_2d)
-            atom_site_aniso_index = args[args[:, 1].argsort()][:, 0]
-            ddict["atom_site_aniso_index"] = atom_site_aniso_index
-            # FIXME: add transformation U_ani and others to beta
-
-            if "full_mcif_elems" in ddict.keys():
-                elems_fs = ddict["full_mcif_elems"]
-            elif "full_symm_elems" in ddict.keys():
-                elems_fs = ddict["full_symm_elems"]
-            else:
-                raise AttributeError("Symmetry elements are not found.")
-
-            flag_2d = ddict["atom_symm_elems_flag"][:, atom_site_aniso_index]
-            l_sc_beta = []
-            atom_site_aniso_label = numpy.array(
-                atom_site_aniso.label, dtype=str
-            )
-
-            for ind in range(atom_site_aniso_label.size):
-                symm_elems = elems_fs[:, flag_2d[:, ind]]
-                sc_beta = calc_sc_beta(symm_elems)
-                l_sc_beta.append(sc_beta)
-            ddict["atom_site_aniso_sc_beta"] = numpy.stack(l_sc_beta, axis=-1)
-
-        if atom_electron_configuration is not None:
-            d_slater_orbitals = DATABASE["Orbitals by radial Slater functions"]
-            for aec_item in atom_electron_configuration.items:
-                aec_label = aec_item.label
-                at_symbol = atom_site[aec_label].type_symbol
-                element_symbol, charge, isotope_number = (
-                    get_atomic_symbol_ion_charge_isotope_number_by_ion_symbol(
-                        at_symbol
-                    )
-                )
-                core_shells_populations = (
-                    aec_item.get_core_shells_populations()
-                )
-                l_population = []
-                l_n = []
-                l_zeta = []
-                l_coeff = []
-                for sh_pop in core_shells_populations:
-                    shell, population = sh_pop
-                    n, dzeta, coeff = d_slater_orbitals[
-                        (element_symbol, shell)
-                    ]
-                    l_population.append(population)
-                    l_n.append(n)
-                    l_zeta.append(dzeta)
-                    l_coeff.append(coeff)
-                if len(l_population) > 0:
-                    dict_shell = {
-                        "core_population": l_population,
-                        "core_n": l_n,
-                        "core_zeta": l_zeta,
-                        "core_coeff": l_coeff,
-                    }
-                    ddict[f"shell_{aec_label:}"] = dict_shell
-
-        if atom_local_axes is not None:
-            l_hh = []
-            for item_ala in atom_local_axes.items:
-                label_ax1 = item_ala.ax1.lower()
-                label_ax2 = item_ala.ax2.lower()
-                index_atom_origin_ax1 = numpy.squeeze(
-                    numpy.argwhere(ddict["atom_label"] == item_ala.atom_label)
-                )
-                index_atom_end_ax1 = numpy.squeeze(
-                    numpy.argwhere(ddict["atom_label"] == item_ala.atom0)
-                )
-                index_atom_origin_ax2 = numpy.squeeze(
-                    numpy.argwhere(ddict["atom_label"] == item_ala.atom1)
-                )
-                index_atom_end_ax2 = numpy.squeeze(
-                    numpy.argwhere(ddict["atom_label"] == item_ala.atom2)
-                )
-                matrix_m = calc_m_m_by_unit_cell_parameters(
-                    ddict["unit_cell_parameters"]
-                )[0]
-                atom_local_axes_matrix = (
-                    calc_transformation_matrix_from_global_to_local(
-                        index_atom_origin_ax1=index_atom_origin_ax1,
-                        index_atom_end_ax1=index_atom_end_ax1,
-                        label_ax1=label_ax1,
-                        index_atom_origin_ax2=index_atom_origin_ax2,
-                        index_atom_end_ax2=index_atom_end_ax2,
-                        label_ax2=label_ax2,
-                        atom_fract_xyz=atom_fract_xyz,
-                        matrix_m=matrix_m,
-                    )
-                )
-                l_hh.append(atom_local_axes_matrix)
-            ddict["atom_local_axes_matrix"] = numpy.stack(l_hh, axis=1)
-
-        if atom_rho_multipole is not None:
-            pass
-
-        return ddict
+        return form_crystal_dictionary(self, ddict)
 
     def take_parameters_from_dictionary(
         self,
@@ -1366,344 +1141,8 @@ class Crystal(DataN):
         l_parameter_name: list = None,
         l_sigma: list = None,
     ):
-        keys = ddict_crystal.keys()
-        if l_parameter_name is None:
-            l_parameter_name = []
-            l_sigma = []
-
-        if "atom_para_susceptibility" in keys:
-            mag_atom_susceptibility = (
-                ddict_crystal["atom_para_sc_chi"]
-                * ddict_crystal["atom_para_susceptibility"][na, :, :]
-            ).sum(axis=1)
-            for i_item, item_ass in enumerate(
-                self.atom_site_susceptibility.items
-            ):
-                item_ass.chi_11 = mag_atom_susceptibility[0, i_item]
-                item_ass.chi_22 = mag_atom_susceptibility[1, i_item]
-                item_ass.chi_33 = mag_atom_susceptibility[2, i_item]
-                item_ass.chi_12 = mag_atom_susceptibility[3, i_item]
-                item_ass.chi_13 = mag_atom_susceptibility[4, i_item]
-                item_ass.chi_23 = mag_atom_susceptibility[5, i_item]
-
-        if "atom_exchange_tensor" in keys:
-            j_tensor = ddict_crystal["atom_exchange_tensor"]
-            atom_sc_exchange = ddict_crystal["atom_sc_exchange"]
-            j_tensor = numpy.sum(
-                numpy.expand_dims(j_tensor, axis=0) * atom_sc_exchange, axis=1
-            )
-            for i_item, item_ase in enumerate(self.atom_site_exchange.items):
-                item_ase.j_11 = j_tensor[0, i_item]
-                item_ase.j_22 = j_tensor[1, i_item]
-                item_ase.j_33 = j_tensor[2, i_item]
-                item_ase.j_12 = j_tensor[3, i_item]
-                item_ase.j_13 = j_tensor[4, i_item]
-                item_ase.j_23 = j_tensor[5, i_item]
-
-        if "atom_ordered_moment_crystalaxis_dn" in keys:
-            hh = calc_m_v(
-                ddict_crystal["atom_ordered_sc_m"],
-                ddict_crystal["atom_ordered_moment_crystalaxis_dn"],
-            )[0]
-            # hh = ddict_crystal["atom_ordered_moment_crystalaxis_xyz"]
-            for i_item, item in enumerate(self.atom_site_moment.items):
-                item.crystalaxis_x = hh[0, i_item]
-                item.crystalaxis_y = hh[1, i_item]
-                item.crystalaxis_z = hh[2, i_item]
-
-        if "mag_atom_lande_factor" in keys:
-            hh = ddict_crystal["mag_atom_lande_factor"]
-            for i_item, item in enumerate(self.atom_site_scat.items):
-                item.lande = hh[i_item]
-
-        if "mag_atom_kappa" in keys:
-            hh = ddict_crystal["mag_atom_kappa"]
-            for i_item, item in enumerate(self.atom_site_scat.items):
-                item.kappa = hh[i_item]
-
-        if "atom_fract_xyz" in keys:
-            hh = ddict_crystal["atom_fract_xyz"]
-            atom_site_sc_fract = ddict_crystal["atom_site_sc_fract"]
-            atom_site_sc_b = ddict_crystal["atom_site_sc_b"]
-            hh = (
-                calc_m_v(
-                    atom_site_sc_fract,
-                    numpy.mod(hh, 1),
-                    flag_m=False,
-                    flag_v=False,
-                )[0]
-                + atom_site_sc_b
-            )
-
-            for i_item, item in enumerate(self.atom_site.items):
-                item.fract_x = numpy.round(
-                    numpy.mod(hh[0, i_item], 1.0), decimals=6
-                )
-                item.fract_y = numpy.round(
-                    numpy.mod(hh[1, i_item], 1.0), decimals=6
-                )
-                item.fract_z = numpy.round(
-                    numpy.mod(hh[2, i_item], 1.0), decimals=6
-                )
-
-        if "atom_occupancy" in keys:
-            hh = ddict_crystal["atom_occupancy"]
-            for i_item, item in enumerate(self.atom_site.items):
-                item.occupancy = numpy.round(hh[i_item], decimals=6)
-
-        if "atom_multiplicity" in keys:
-            hh = ddict_crystal["atom_multiplicity"]
-            for i_item, item in enumerate(self.atom_site.items):
-                item.multiplicity = hh[i_item]
-
-        if "atom_b_iso" in keys:
-            atom_b_iso = ddict_crystal["atom_b_iso"]
-            if "atom_beta" in keys:
-                atom_beta = ddict_crystal["atom_beta"]
-
-                if "atom_site_aniso_sc_beta" in keys:
-                    atom_site_aniso_sc_beta = ddict_crystal[
-                        "atom_site_aniso_sc_beta"
-                    ]
-                    atom_site_aniso_index = ddict_crystal[
-                        "atom_site_aniso_index"
-                    ]
-                    atom_sc_beta = numpy.zeros(
-                        (6,) + atom_beta.shape, dtype=float
-                    )
-                    atom_sc_beta[:, :, atom_site_aniso_index] = (
-                        atom_site_aniso_sc_beta
-                    )
-                    atom_beta = (
-                        atom_sc_beta * numpy.expand_dims(atom_beta, axis=0)
-                    ).sum(axis=1)
-
-            else:
-                atom_beta = numpy.zeros((6,) + atom_b_iso.shape, dtype=float)
-            unit_cell_parameters = ddict_crystal["unit_cell_parameters"]
-            if not (self.atom_site.is_attribute("adp_type")):
-                for item in self.atom_site:
-                    item.adp_type = "Biso"
-                    if not (item.is_attribute("b_iso_or_equiv")):
-                        item.b_iso_or_equiv = 0.0
-            atom_adp_type = numpy.array(self.atom_site.adp_type, dtype=str)
-            atom_iso_param, atom_aniso_param = (
-                calc_param_iso_aniso_by_b_iso_beta(
-                    unit_cell_parameters, atom_adp_type, atom_b_iso, atom_beta
-                )
-            )
-
-            if self.is_attribute("atom_site"):
-                atom_site = self.atom_site
-                for i_item, item in enumerate(self.atom_site.items):
-                    if item.adp_type in ("Uiso", "Uovl", "Umpe"):
-                        item.u_iso_or_equiv = atom_iso_param[i_item]
-                    elif item.adp_type in ("Biso", "Bovl"):
-                        item.b_iso_or_equiv = atom_iso_param[i_item]
-
-                if self.is_attribute("atom_site_aniso"):
-                    atom_site_aniso_index = ddict_crystal[
-                        "atom_site_aniso_index"
-                    ]
-
-                    for item, index_as in zip(
-                        self.atom_site_aniso.items, atom_site_aniso_index
-                    ):
-                        aniso_param = atom_aniso_param[:, index_as]
-                        item_as = self.atom_site.items[index_as]
-                        if item_as.adp_type in ("Uani",):
-                            item.u_11 = aniso_param[0]
-                            item.u_22 = aniso_param[1]
-                            item.u_33 = aniso_param[2]
-                            item.u_12 = aniso_param[3]
-                            item.u_13 = aniso_param[4]
-                            item.u_23 = aniso_param[5]
-                        elif item_as.adp_type in ("Bani",):
-                            item.b_11 = aniso_param[0]
-                            item.b_22 = aniso_param[1]
-                            item.b_33 = aniso_param[2]
-                            item.b_12 = aniso_param[3]
-                            item.b_13 = aniso_param[4]
-                            item.b_23 = aniso_param[5]
-
-        if "unit_cell_parameters" in keys:
-            hh = ddict_crystal["unit_cell_parameters"]
-            sc_uc = ddict_crystal["sc_uc"]
-            v_uc = ddict_crystal["v_uc"]
-            hhh = numpy.dot(sc_uc, hh) + v_uc
-            cell = self.cell
-            cell.length_a = hhh[0]
-            cell.length_b = hhh[1]
-            cell.length_c = hhh[2]
-            cell.angle_alpha = numpy.round(
-                hhh[3] * 180.0 / numpy.pi, decimals=5
-            )
-            cell.angle_beta = numpy.round(
-                hhh[4] * 180.0 / numpy.pi, decimals=5
-            )
-            cell.angle_gamma = numpy.round(
-                hhh[5] * 180.0 / numpy.pi, decimals=5
-            )
-
-        if "atom_rho_multipole_kappa" in keys:
-            hh = ddict_crystal["atom_rho_multipole_kappa"]
-            for i_item, item in enumerate(self.atom_rho_multipole.items):
-                item.kappa = numpy.round(hh[i_item], decimals=6)
-
-        if "atom_rho_multipole_plm" in keys:
-            hh = ddict_crystal["atom_rho_multipole_plm"]
-            for i_item, item in enumerate(self.atom_rho_multipole.items):
-                item.load_plm_from_dictionary(
-                    numpy.round(hh[:, i_item], decimals=6)
-                )
-
-        for name, sigma in zip(l_parameter_name, l_sigma):
-            parameter_label, ind_s = name
-            if "atom_para_susceptibility" in parameter_label:
-                ind_chi, ind_a = ind_s[0], ind_s[1]
-                item_ass = self.atom_site_susceptibility.items[ind_a]
-                if ind_chi == 0:
-                    item_ass.chi_11_sigma = float(sigma)
-                elif ind_chi == 1:
-                    item_ass.chi_22_sigma = float(sigma)
-                elif ind_chi == 2:
-                    item_ass.chi_33_sigma = float(sigma)
-                elif ind_chi == 3:
-                    item_ass.chi_12_sigma = float(sigma)
-                elif ind_chi == 4:
-                    item_ass.chi_13_sigma = float(sigma)
-                elif ind_chi == 5:
-                    item_ass.chi_23_sigma = float(sigma)
-
-            if "atom_exchange_tensor" in parameter_label:
-                ind_j, ind_a = ind_s[0], ind_s[1]
-                item = self.atom_site_exchange.items[ind_a]
-                if ind_j == 0:
-                    item.j_11_sigma = float(sigma)
-                elif ind_j == 1:
-                    item.j_22_sigma = float(sigma)
-                elif ind_j == 2:
-                    item.j_33_sigma = float(sigma)
-                elif ind_j == 3:
-                    item.j_12_sigma = float(sigma)
-                elif ind_j == 4:
-                    item.j_13_sigma = float(sigma)
-                elif ind_j == 5:
-                    item.j_23_sigma = float(sigma)
-
-            if "atom_fract_xyz" in parameter_label:
-                ind_p, ind_a = ind_s[0], ind_s[1]
-                item = self.atom_site.items[ind_a]
-                if ind_p == 0:
-                    item.fract_x_sigma = float(sigma)
-                elif ind_p == 1:
-                    item.fract_y_sigma = float(sigma)
-                elif ind_p == 2:
-                    item.fract_z_sigma = float(sigma)
-            if "atom_occupancy" in parameter_label:
-                ind_a = ind_s[0]
-                item = self.atom_site.items[ind_a]
-                item.occupancy_sigma = float(sigma)
-
-            if "atom_b_iso" in parameter_label:
-                ind_a = ind_s[0]
-                item = self.atom_site.items[ind_a]
-                if item.adp_type in ("Uiso", "Uovl", "Umpe"):
-                    item.u_iso_or_equiv_sigma = float(sigma) / float(
-                        8.0 * numpy.square(numpy.pi)
-                    )
-                elif item.adp_type in ("Biso", "Bovl", "Bmpe"):
-                    item.b_iso_or_equiv_sigma = float(sigma)
-
-            if "atom_beta" in parameter_label:
-                ind_p, ind_a = ind_s[0], ind_s[1]
-                item = self.atom_site_aniso[self.atom_site.items[ind_a].label]
-                if self.atom_site[item.label].adp_type in ("Bani",):
-                    if ind_p == 0:
-                        item.b_11_sigma = float(sigma)
-                    elif ind_p == 1:
-                        item.b_22_sigma = float(sigma)
-                    elif ind_p == 2:
-                        item.b_33_sigma = float(sigma)
-                    elif ind_p == 3:
-                        item.b_12_sigma = float(sigma)
-                    elif ind_p == 4:
-                        item.b_13_sigma = float(sigma)
-                    elif ind_p == 5:
-                        item.b_23_sigma = float(sigma)
-
-                if self.atom_site[item.label].adp_type in ("Uani",):
-                    reciprocal_unit_cell_parameters = (
-                        calc_reciprocal_by_unit_cell_parameters(
-                            unit_cell_parameters,
-                            flag_unit_cell_parameters=False,
-                        )[0]
-                    )
-                    beta_hh = numpy.zeros((6, 1), dtype=float)
-                    coeff_hh = calc_u_ij_by_beta(
-                        beta_hh,
-                        reciprocal_unit_cell_parameters,
-                        flag_beta=True,
-                    )[1]["beta"]
-                    if ind_p == 0:
-                        item.u_11_sigma = float(sigma * coeff_hh[0].squeeze())
-                    elif ind_p == 1:
-                        item.u_22_sigma = float(sigma * coeff_hh[1].squeeze())
-                    elif ind_p == 2:
-                        item.u_33_sigma = float(sigma * coeff_hh[2].squeeze())
-                    elif ind_p == 3:
-                        item.u_12_sigma = float(sigma * coeff_hh[3].squeeze())
-                    elif ind_p == 4:
-                        item.u_13_sigma = float(sigma * coeff_hh[4].squeeze())
-                    elif ind_p == 5:
-                        item.u_23_sigma = float(sigma * coeff_hh[5].squeeze())
-
-            if "atom_ordered_moment_crystalaxis_dn" in parameter_label:
-                ind_p, ind_a = ind_s[0], ind_s[1]
-                item = self.atom_site_moment.items[ind_a]
-                if ind_p == 0:
-                    item.crystalaxis_x_sigma = float(sigma)
-                elif ind_p == 1:
-                    item.crystalaxis_y_sigma = float(sigma)
-                elif ind_p == 2:
-                    item.crystalaxis_z_sigma = float(sigma)
-
-            if "mag_atom_kappa" in parameter_label:
-                ind_a = ind_s[0]
-                item = self.atom_site_scat.items[ind_a]
-                item.kappa_sigma = float(sigma)
-
-            if "mag_atom_lande_factor" in parameter_label:
-                ind_a = ind_s[0]
-                item = self.atom_site_scat.items[ind_a]
-                item.lande_sigma = float(sigma)
-
-            if "unit_cell_parameters" in parameter_label:
-                ind_p = ind_s[0]
-                item = self.cell
-                if ind_p == 0:
-                    item.length_a_sigma = float(sigma)
-                elif ind_p == 1:
-                    item.length_b_sigma = float(sigma)
-                elif ind_p == 2:
-                    item.length_c_sigma = float(sigma)
-                elif ind_p == 3:
-                    item.angle_alpha_sigma = float(sigma) * 180.0 / numpy.pi
-                elif ind_p == 4:
-                    item.angle_beta_sigma = float(sigma) * 180.0 / numpy.pi
-                elif ind_p == 5:
-                    item.angle_gamma_sigma = float(sigma) * 180.0 / numpy.pi
-
-            if "atom_rho_multipole_kappa" in parameter_label:
-                ind_a = ind_s[0]
-                item = self.atom_rho_multipole.items[ind_a]
-                item.kappa_sigma = float(sigma)
-
-            if "atom_rho_multipole_plm" in parameter_label:
-                ind_p = ind_s[0]
-                ind_a = ind_s[1]
-                item = self.atom_rho_multipole.items[ind_a]
-                item.set_plm_sigma_by_index(ind_p, float(sigma))
+        return take_crystal_parameters_from_dictionary(
+            self, ddict_crystal=ddict_crystal, l_parameter_name=l_parameter_name, l_sigma=l_sigma)
 
     def save_atom_rho_multipole_density_to_den(
         self,
@@ -1712,121 +1151,21 @@ class Crystal(DataN):
         Nb: int = 48,
         Nc: int = 48,
     ):
-        """Calculate multipole density in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
-        Nx, Ny, Nz is the number of points along axis a,b,c
-        Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
+        """Save the multipole electron density of the atoms to a .den file.
+
+        The density is calculated on a grid of the unit cell in the
+        Cartesian coordinate system with Z along the axis c and X along the
+        reciprocal axis a*.
+
+        Parameters
+        ----------
+        file_den : str, optional
+            The file to write.
+        Na, Nb, Nc : int, optional
+            Numbers of points along the axes a, b, c.
         """
-        self.form_object()
-        n_abc = numpy.array([Na, Nb, Nc], dtype=int)
-        d_crystal = self.get_dictionary()
-        unit_cell_parameters = d_crystal["unit_cell_parameters"]
-
-        flag_mcif = False
-        if "full_mcif_elems" in d_crystal.keys():
-            full_mcif_elems = d_crystal["full_mcif_elems"]
-            full_symm_elems = full_mcif_elems  # [:13,:]
-            flag_mcif = True
-        else:
-            full_symm_elems = d_crystal["full_symm_elems"]
-
-        atom_fract_xyz = d_crystal["atom_fract_xyz"]
-        atom_label = d_crystal["atom_label"]
-        atom_rho_multipole_label = d_crystal["atom_rho_multipole_label"]
-
-        atom_local_axes_matrix = d_crystal["atom_local_axes_matrix"]
-        atom_local_axes_label = d_crystal["atom_local_axes_label"]
-
-        l_hh_1, l_hh_2 = [], []
-        for label in atom_rho_multipole_label:
-            ind_1 = numpy.squeeze(numpy.argwhere(atom_label == label))
-            ind_2 = numpy.squeeze(
-                numpy.argwhere(atom_local_axes_label == label)
-            )
-            l_hh_1.append(atom_fract_xyz[..., ind_1])
-            l_hh_2.append(atom_local_axes_matrix[..., ind_2])
-        atom_rho_multipole_fract_xyz = numpy.stack(l_hh_1, axis=-1)
-        atom_rho_multipole_transformation_matrix = numpy.stack(l_hh_2, axis=-1)
-
-        index_auc, point_multiplicity = calc_asymmetric_unit_cell_indexes(
-            n_abc, full_symm_elems
-        )
-        symm_elem_auc = calc_symm_elem_points_by_index_points(index_auc, n_abc)
-
-        point_atom_distance_auc, point_atom_symm_elems_auc = form_basins_2(
-            symm_elem_auc,
-            full_symm_elems,
-            unit_cell_parameters,
-            atom_rho_multipole_fract_xyz,
-        )
-
-        atom_rho_multipole_plm = d_crystal["atom_rho_multipole_plm"]
-        atom_rho_multipole_lm = d_crystal["atom_rho_multipole_lm"]
-        l_kappa = d_crystal["atom_rho_multipole_kappa"]
-
-        l_n, l_zeta, l_coeff = d_crystal["atom_rho_multipole_n_zeta_coeff"]
-        multipole_density = calc_multipole_density(
-            point_atom_symm_elems_auc,
-            symm_elem_auc,
-            unit_cell_parameters,
-            atom_rho_multipole_fract_xyz,
-            atom_rho_multipole_transformation_matrix,
-            atom_rho_multipole_lm,
-            atom_rho_multipole_plm,
-            l_n,
-            l_zeta,
-            l_coeff,
-            l_kappa,
-        )
-        logger.info(f"file den is '{file_den}'")
-        if file_den != "":
-            hh = numpy.sum(multipole_density, axis=1)
-            flag_pos = hh >= 0.0
-            spin_density = numpy.zeros(shape=(2,) + hh.shape, dtype=float)
-            spin_density[0, flag_pos] = hh[flag_pos]
-            spin_density[1, ~flag_pos] = hh[~flag_pos]
-            if "reduced_symm_elems" in d_crystal.keys():
-                reduced_symm_elems = d_crystal["reduced_symm_elems"]
-                centrosymmetry = d_crystal["centrosymmetry"]
-                centrosymmetry_position = d_crystal["centrosymmetry_position"]
-                translation_elems = d_crystal["translation_elems"]
-            else:
-                reduced_symm_elems = full_symm_elems
-                centrosymmetry = False
-                centrosymmetry_position = numpy.array([0, 0, 0, 1])
-                translation_elems = numpy.array(
-                    [
-                        [
-                            0,
-                        ],
-                        [
-                            0,
-                        ],
-                        [
-                            0,
-                        ],
-                        [
-                            1,
-                        ],
-                    ]
-                )
-            save_spin_density_into_file(
-                file_den,
-                index_auc,
-                spin_density,
-                n_abc,
-                unit_cell_parameters,
-                reduced_symm_elems,
-                translation_elems,
-                centrosymmetry,
-                centrosymmetry_position,
-            )
-        return (
-            index_auc,
-            point_atom_symm_elems_auc,
-            point_multiplicity,
-            multipole_density,
-            unit_cell_parameters,
-        )
+        return save_crystal_multipole_density_to_den(
+            self, file_den=file_den, Na=Na, Nb=Nb, Nc=Nc)
 
     def save_atom_rho_multipole_magnetization_density_to_den(
         self,
@@ -1835,169 +1174,18 @@ class Crystal(DataN):
         Nb: int = 48,
         Nc: int = 48,
     ):
-        """Calculate mx, my, and mz component in cartesian coordinate system with Z along the axis c and X along the reciprocal axis a.
-        Nx, Ny, Nz is the number of points along axis a,b,c
-        Field_nd is the applied magnetic field in normalised direct cell (a/|a|, b/|b|, c/|c|)
+        """Save the multipole magnetization density (mx, my, mz) to a .den file.
+
+        The density is calculated on a grid of the unit cell in the
+        Cartesian coordinate system with Z along the axis c and X along the
+        reciprocal axis a*, from the ordered moments of the atoms.
+
+        Parameters
+        ----------
+        file_den : str, optional
+            The file to write.
+        Na, Nb, Nc : int, optional
+            Numbers of points along the axes a, b, c.
         """
-        n_abc = numpy.array([Na, Nb, Nc], dtype=int)
-        (
-            index_auc,
-            point_atom_symm_elems_auc,
-            point_multiplicity,
-            multipole_density,
-            unit_cell_parameters,
-        ) = self.save_atom_rho_multipole_density_to_den(
-            file_den=file_den, Na=Na, Nb=Nb, Nc=Nc
-        )
-        d_crystal = self.get_dictionary()
-        flag_moment_ordered = (
-            "atom_ordered_moment_crystalaxis_dn" in d_crystal.keys()
-        )
-        if flag_moment_ordered:
-            full_mcif_elems = d_crystal["full_mcif_elems"]
-            atom_ordered_m_dn = d_crystal["atom_ordered_moment_crystalaxis_dn"]
-            index_full, moment_3d = transform_to_density_auc_to_moments(
-                index_auc,
-                point_atom_symm_elems_auc,
-                point_multiplicity,
-                multipole_density,
-                n_abc,
-                full_mcif_elems,
-                atom_ordered_m_dn,
-                unit_cell_parameters,
-            )
-
-            centrosymmetry = False
-            centrosymmetry_position = None
-            translation_elems = numpy.array(
-                [
-                    [
-                        0,
-                    ],
-                    [
-                        0,
-                    ],
-                    [
-                        0,
-                    ],
-                    [
-                        1,
-                    ],
-                ],
-                dtype=int,
-            )
-            one_symm_elems = full_mcif_elems[:13, :1]
-            for ind, lab in enumerate(["mx", "my", "mz"]):
-                moment_component = moment_3d[ind]
-                spin_density_component = numpy.zeros(
-                    (2,) + moment_component.shape, dtype=float
-                )
-                flag_positive = moment_component >= 0
-                spin_density_component[0, flag_positive] = moment_component[
-                    flag_positive
-                ]
-                spin_density_component[1, ~flag_positive] = moment_component[
-                    ~flag_positive
-                ]
-                if file_den != "":
-                    file_magnetization_density_component = (
-                        ".".join(file_den.split(".")[:-1]) + f"_{lab:}.den"
-                    )
-                    save_spin_density_into_file(
-                        file_magnetization_density_component,
-                        index_full,
-                        spin_density_component,
-                        n_abc,
-                        unit_cell_parameters,
-                        one_symm_elems,
-                        translation_elems,
-                        centrosymmetry,
-                        centrosymmetry_position,
-                    )
-                    logger.info(f"\nReconstructed spin density is written in file '{file_magnetization_density_component:}'.")
-
-
-def calc_sc_v_unit_cell_parameters(
-    type_cell: str, it_coordinate_system_code: str
-):
-    """
-    Calculate symmetry constraints on unit_cell_parameters as
-    unit_cell_parameters = sc_uc * unit_cell_parameters + v_uc
-    """
-    sc_uc = numpy.eye(6, dtype=float)
-    v_uc = numpy.zeros((6,), dtype=float)
-
-    if type_cell == "aP":
-        pass
-    elif type_cell is None:
-        pass
-    elif type_cell.startswith("m"):
-        sc_uc[3, 3] = 0.0
-        sc_uc[5, 5] = 0.0
-        v_uc[3] = numpy.pi / 2.0
-        v_uc[5] = numpy.pi / 2.0
-    elif type_cell.startswith("o"):
-        sc_uc[3, 3] = 0.0
-        sc_uc[4, 4] = 0.0
-        sc_uc[5, 5] = 0.0
-        v_uc[3] = numpy.pi / 2.0
-        v_uc[4] = numpy.pi / 2.0
-        v_uc[5] = numpy.pi / 2.0
-    elif type_cell.startswith("t"):  # FIXME: check  | (type_cell == "hP")
-        sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
-        sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
-        sc_uc[3, 3] = 0.0
-        sc_uc[4, 4] = 0.0
-        sc_uc[5, 5] = 0.0
-        v_uc[3] = numpy.pi / 2.0
-        v_uc[4] = numpy.pi / 2.0
-        v_uc[5] = numpy.pi / 2.0
-    elif type_cell.startswith("hP"):
-        if it_coordinate_system_code.lower() == "h":
-            sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
-            sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
-            sc_uc[3, 3] = 0.0
-            sc_uc[4, 4] = 0.0
-            sc_uc[5, 5] = 0.0
-            v_uc[3] = numpy.pi / 2.0
-            v_uc[4] = numpy.pi / 2.0
-            v_uc[5] = numpy.pi * 2.0 / 3.0
-        else:
-            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1.0, 0.0, 0.0
-            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1.0, 0.0, 0.0
-            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1.0, 0.0, 0.0
-            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1.0, 0.0, 0.0
-            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1.0, 0.0, 0.0
-            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1.0, 0.0, 0.0
-    elif type_cell == "hR":
-        if it_coordinate_system_code.lower() == "h":
-            sc_uc[0, 0], sc_uc[0, 1] = 1.0, 0.0
-            sc_uc[1, 0], sc_uc[1, 1] = 1.0, 0.0
-            sc_uc[3, 3] = 0.0
-            sc_uc[4, 4] = 0.0
-            sc_uc[5, 5] = 0.0
-            v_uc[3] = numpy.pi / 2.0
-            v_uc[4] = numpy.pi / 2.0
-            v_uc[5] = numpy.pi * 2.0 / 3.0
-        else:
-            sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1.0, 0.0, 0.0
-            sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1.0, 0.0, 0.0
-            sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1.0, 0.0, 0.0
-            sc_uc[3, 3], sc_uc[3, 4], sc_uc[3, 5] = 1.0, 0.0, 0.0
-            sc_uc[4, 3], sc_uc[4, 4], sc_uc[4, 5] = 1.0, 0.0, 0.0
-            sc_uc[5, 3], sc_uc[5, 4], sc_uc[5, 5] = 1.0, 0.0, 0.0
-    elif type_cell.startswith("c"):
-        sc_uc[0, 0], sc_uc[0, 1], sc_uc[0, 2] = 1.0, 0.0, 0.0
-        sc_uc[1, 0], sc_uc[1, 1], sc_uc[1, 2] = 1.0, 0.0, 0.0
-        sc_uc[2, 0], sc_uc[2, 1], sc_uc[2, 2] = 1.0, 0.0, 0.0
-        sc_uc[3, 3] = 0.0
-        sc_uc[4, 4] = 0.0
-        sc_uc[5, 5] = 0.0
-        v_uc[3] = numpy.pi / 2.0
-        v_uc[4] = numpy.pi / 2.0
-        v_uc[5] = numpy.pi / 2.0
-
-    return sc_uc, v_uc
-
-
-# %%
+        return save_crystal_multipole_magnetization_density_to_den(
+            self, file_den=file_den, Na=Na, Nb=Nb, Nc=Nc)

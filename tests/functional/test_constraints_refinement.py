@@ -95,3 +95,21 @@ def test_log_with_text_values(caplog):
         log_refined_parameters(obj)
     assert " - diffrn_ho2ti2o7.atom_site_susceptibility[Ho1].chi_11 3.329" in \
         [record.getMessage() for record in caplog.records]
+
+
+def test_report_refined_parameters_is_logged(caplog):
+    f_name = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "examples",
+        "rhochi_single_susceptibility_Ho2Ti2O7", "rhochi_single_susceptibility_Ho2Ti2O7.rcif")
+    obj = cryspy.load_file(f_name)
+    report = cryspy.report_refined_parameters(obj)
+    l_line = report.split("\n")
+    assert len(l_line) == len([record for record in take_parameter_records(obj)
+                               if record.flag_refinement])
+    assert all(line.startswith(" - ") for line in l_line)
+    with caplog.at_level(logging.INFO, logger="cryspy"):
+        log_refined_parameters(obj)
+    assert [record.getMessage() for record in caplog.records] == \
+        ["Optimal parameters:"] + l_line
+    obj.fix_variables()
+    assert cryspy.report_refined_parameters(obj) == ""

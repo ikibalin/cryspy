@@ -5,7 +5,8 @@ __version__ = "2020_08_19"
 
 from typing import NoReturn
 import numpy
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.matrix_operations import (
     calc_vector_product_v1_v2_v1,
@@ -67,14 +68,10 @@ class Diffrn(DataN):
 
     Methods
     -------
-        - calc_iint_u_d_flip_ratio
-        - calc_fr
-        - calc_fm_perp_loc
-        - calc_chi_sq
-        - params_to_cif
-        - data_to_cif
-        - calc_to_cif
         - estimate_FM
+        - plots
+        - plot_circles_fm
+        - report
 
 
     Attributes
@@ -137,7 +134,6 @@ class Diffrn(DataN):
         The crystal structure should be centrosymmetric
         """
         setup = self.setup
-        wavelength = setup.wavelength
         field_norm = setup.field
 
         diffrn_refln = self.diffrn_refln
@@ -151,16 +147,6 @@ class Diffrn(DataN):
         diffrn_radiation = self.diffrn_radiation
         polarization = diffrn_radiation.polarization
         flipper_efficiency = diffrn_radiation.efficiency
-
-        if self.is_attribute("extinction"):
-            extinction = self.extinction
-            model_extinction = extinction.model
-            radius = extinction.radius
-            mosaicity = extinction.mosaicity
-        else:
-            model_extinction = ""
-            radius = None
-            mosaicity = None
 
         diffrn_orient_matrix = self.diffrn_orient_matrix
         u_matrix = diffrn_orient_matrix.u
@@ -524,7 +510,10 @@ class Diffrn(DataN):
                     rep_2 = diffrn_refln.report_chi_sq_exp(cell=cell)
             if rep_2 == "":
                 rep_2 = diffrn_refln.report_chi_sq_exp()
-            return rep_1 + "\n" + rep_2
+            ls_out = [rep for rep in (rep_1, rep_2) if rep != ""]
+            if self.is_attribute("refine_ls"):
+                ls_out.append(self.refine_ls.report())
+            return "\n\n".join(ls_out)
         return ""
 
     def get_dictionary(self):

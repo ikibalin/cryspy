@@ -20,8 +20,7 @@ from typing import Tuple
 from cryspy.A_functions_base.function_1_matrices import \
     calc_determinant_matrix_ij
 
-from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_sthovl_by_hkl_abc_angles
+from cryspy.A_functions_base.unit_cell import calc_sthovl_by_unit_cell_parameters
 
 # for the ith nonhexagonal point operator:
 # point_op_label(i): point operator symbol (from Litvin)
@@ -686,9 +685,9 @@ def calc_hkl_in_range(sym_elems, unit_cell_parameters: Tuple[float],
         unique_ind]
     mult_un = multiplicity[unique_ind]
 
-    sthovl = calc_sthovl_by_hkl_abc_angles(
-        ind_h_un, ind_k_un, ind_l_un, length_a, length_b, length_c,
-        angle_alpha, angle_beta, angle_gamma)
+    sthovl = calc_sthovl_by_unit_cell_parameters(
+        (ind_h_un, ind_k_un, ind_l_un),
+        (length_a, length_b, length_c, angle_alpha, angle_beta, angle_gamma))[0]
 
     flag = numpy.array((sthovl >= sthovl_min) *
                        (sthovl <= sthovl_max), dtype=bool)

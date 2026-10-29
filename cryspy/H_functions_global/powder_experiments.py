@@ -3,7 +3,7 @@ from cryspy.A_functions_base.database import DATABASE
 from cryspy.A_functions_base.charge_form_factor import get_atom_name_ion_charge_shell
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 
-from cryspy.A_functions_base.structure_factor import calc_bulk_susceptibility_by_dictionary
+from cryspy.A_functions_base.structure_factor_magnetic import calc_bulk_susceptibility_by_dictionary
 from cryspy.A_functions_base.unit_cell import calc_volume_uc_by_unit_cell_parameters
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_pd import Pd
@@ -13,58 +13,6 @@ from cryspy.E_data_classes.cl_2_tof import TOF
 
 
 COEFF_N_A_MU_B = 6.022*0.927*1000.
-
-
-def calc_unit_cell_weight(crystal: Crystal) -> float:
-    """
-    Calculate the weight of unit cell for crystal.
-
-    Parameters
-    ----------
-    crystal : Crystal
-        description of the crystals.
-
-    Returns
-    -------
-    float
-        unit cell in atomic weight.
-    """
-    d_elements = DATABASE["Elements"]
-    crystal.apply_constraints()
-    atom_site = crystal.atom_site
-    atom_multiplicity = numpy.array(atom_site.multiplicity, dtype=int)
-    atom_occupancy = numpy.array(atom_site.occupancy, dtype=float)
-    l_atom_type_symbol = [get_atom_name_ion_charge_shell(
-        ion_name)[0].capitalize() for ion_name in atom_site.type_symbol]
-    atomic_weight = numpy.array([float(d_elements[(
-        "Atomic weight", atom_type)]) for atom_type in l_atom_type_symbol],
-        dtype=float)
-
-    unit_cell_weight = numpy.sum(
-        atom_multiplicity*atom_occupancy*atomic_weight)
-    return unit_cell_weight
-
-
-def calc_density_of_crystal(crystal: Crystal) -> float:
-    """
-    Calculate the density of crystal.
-
-    Parameters
-    ----------
-    crystal : Crystal
-        description of the crystals.
-
-    Returns
-    -------
-    float
-        density in g/cm^3.
-    """
-    unit_cell_weight = calc_unit_cell_weight(crystal)
-    unit_cell_parameters = crystal.cell.get_unit_cell_parameters()
-    unit_cell_volume = calc_volume_uc_by_unit_cell_parameters(
-        unit_cell_parameters, flag_unit_cell_parameters=False)[0]
-    density = unit_cell_weight/(unit_cell_volume*0.6022)  # g/cm^3
-    return density
 
 
 def report_powder_experiments(rcif_object: GlobalN):
@@ -82,12 +30,6 @@ def report_powder_experiments(rcif_object: GlobalN):
     """
     d_elements = DATABASE["Elements"]
     ls_out = []
-    rcif_dict = rcif_object.get_dictionary()
-    rcif_dict_keys = rcif_dict.keys()
-    l_crystal_dict_keys = [
-        hh for hh in rcif_dict_keys if hh.startswith("crystal_")]
-    l_pd_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("pd_")]
-    l_pd2d_dict_keys = [hh for hh in rcif_dict_keys if hh.startswith("pd2d_")]
 
     l_crystal = [
         item for item in rcif_object.items if isinstance(item, Crystal)]
@@ -108,7 +50,6 @@ def report_powder_experiments(rcif_object: GlobalN):
             field = item.setup.field
             ls_out.append(f"In experiment '{item.data_name:}' \n")
 
-            m_chi_total = numpy.zeros((3, 3), dtype=float)
             l_s_v_sq, l_v_uc, l_m_uc = [], [], []
             l_m_chi, l_s_v_m = [], []
             l_m_chi_ion = []

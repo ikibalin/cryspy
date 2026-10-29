@@ -293,14 +293,6 @@ def delete_package(f_name: str):
         write_package_lines([hh for hh in l_line if hh != f_name_sh])
 
 
-def is_in_rcif_block(rcif_block, cryspy_obj):
-    """Is in rcif block."""
-    ls_cryspy = cryspy_obj.to_cif.split("\n")
-    l_name = [_.strip().split()[0] for _ in ls_cryspy if _.startswith("_")]
-    l_flag = [rcif_block.is_value(_name) for _name in l_name]
-    return any(l_flag), all(l_flag)
-
-
 def file_to_globaln(file_name: str, item_classes=(), loop_classes=(),
                     data_classes=(), global_classes=()) -> GlobalN:
     """Transfer file content of cif format to cryspy objects."""
@@ -506,13 +498,9 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
     s_loop_prefix_in = set(l_loop_prefix_in)
     l_loopn = []
     for prefix in s_loop_prefix_in:
-        item_cls = ItemN
         loop_cls = LoopN
         if prefix in l_loop_prefix:
             loop_cls = l_loop_class[l_loop_prefix.index(prefix)]
-        elif prefix in l_item_prefix:
-            # for future
-            item_cls = l_item_class[l_loop_prefix.index(prefix)]
 
         l_loop_name_cif = []
         ll_val_cif = []
