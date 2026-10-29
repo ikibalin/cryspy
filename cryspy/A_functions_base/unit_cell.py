@@ -117,9 +117,9 @@ def calc_volume_uc_by_unit_cell_parameters(
         der_a = b*c*phi
         der_b = a*c*phi
         der_c = a*b*phi
-        der_al = -a*b*c*0.5*(-2*c_a_sq+2.*c_b*c_g)*s_a/phi
-        der_be = -a*b*c*0.5*(-2*c_b_sq+2.*c_a*c_g)*s_b/phi
-        der_ga = -a*b*c*0.5*(-2*c_g_sq+2.*c_a*c_b)*s_g/phi
+        der_al = a*b*c*s_a*(c_a-c_b*c_g)/phi
+        der_be = a*b*c*s_b*(c_b-c_a*c_g)/phi
+        der_ga = a*b*c*s_g*(c_g-c_a*c_b)/phi
         dder["unit_cell_parameters"] = numpy.stack([
             der_a, der_b, der_c, der_al, der_be, der_ga], axis=0)
     return volume_uc, dder
@@ -450,7 +450,7 @@ def calc_m_inv_b_norm_by_unit_cell_parameters(
         der_31_1 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
         der_32_1 = numpy.stack([zeros, zeros, zeros, zeros, zeros, zeros], axis=0)
 
-        dder_2 = -numpy.expand_dims(m_inv_b_norm/phi, axis=1)*numpy.expand_dims(dder_phi["uni_cell_parameters"], axis=0)
+        dder_2 = -numpy.expand_dims(m_inv_b_norm/phi, axis=1)*numpy.expand_dims(dder_phi["unit_cell_parameters"], axis=0)
 
         dder["unit_cell_parameters"] = numpy.stack([
             der_11_1, der_12_1, der_13_1, der_21_1, der_22_1, der_23_1, der_31_1, der_32_1,
@@ -724,16 +724,26 @@ def calc_inv_d_by_unit_cell_parameters(
     inv_d = numpy.sqrt(B*1./A)
     dder = {}
     if flag_unit_cell_parameters:
-        coeff = 1./(inv_d * A)
+        # 1/d^2 = B/A, so d(1/d)/dp = (A dB/dp - B dA/dp) / (2 (1/d) A^2)
         s_a = numpy.sin(unit_cell_parameters[3])
         s_b = numpy.sin(unit_cell_parameters[4])
         s_g = numpy.sin(unit_cell_parameters[5])
-        dder_a = coeff * (h/numpy.square(a)) * ((c_b*l)/c + (c_g*k)/b - (s_a_sq*h)/a)*numpy.ones_like(a)
-        dder_b = coeff * (k/numpy.square(b)) * ((c_g*h)/a + (c_a*l)/c - (s_b_sq*k)/b)*numpy.ones_like(b)
-        dder_c = coeff * (l/numpy.square(c)) * ((c_a*k)/b + (c_b*h)/a - (s_g_sq*l)/c)*numpy.ones_like(c)
-        dder_al = (s_a/A) * ((c_a*numpy.square(h/a) + (k*l)/(b*c))/inv_d - inv_d*(c_a - c_b * c_g)/A)*numpy.ones_like(c_a)
-        dder_be = (s_b/A) * ((c_b*numpy.square(k/b) + (l*h)/(c*a))/inv_d - inv_d*(c_b - c_g * c_a)/A)*numpy.ones_like(c_b)
-        dder_ga = (s_g/A) * ((c_g*numpy.square(l/c) + (h*k)/(a*b))/inv_d - inv_d*(c_g - c_a * c_b)/A)*numpy.ones_like(c_g)
+        coeff = 0.5/(inv_d * numpy.square(A))
+        dder_a = coeff * A * (-2.*s_a_sq*numpy.square(h)/a**3 + (
+            2.*(h*l*(c_b-c_a*c_g))/(a*c) + 2.*(h*k*(c_g-c_a*c_b))/(a*b))/a)
+        dder_b = coeff * A * (-2.*s_b_sq*numpy.square(k)/b**3 + (
+            2.*(k*l*(c_a-c_b*c_g))/(b*c) + 2.*(h*k*(c_g-c_a*c_b))/(a*b))/b)
+        dder_c = coeff * A * (-2.*s_g_sq*numpy.square(l)/c**3 + (
+            2.*(k*l*(c_a-c_b*c_g))/(b*c) + 2.*(h*l*(c_b-c_a*c_g))/(a*c))/c)
+        dder_al = coeff * (A * 2.*s_a*(
+            c_a*numpy.square(h/a) + (k*l)/(b*c) - (h*l*c_g)/(a*c) - (h*k*c_b)/(a*b))
+            - B * 2.*s_a*(c_a-c_b*c_g))
+        dder_be = coeff * (A * 2.*s_b*(
+            c_b*numpy.square(k/b) + (h*l)/(a*c) - (k*l*c_g)/(b*c) - (h*k*c_a)/(a*b))
+            - B * 2.*s_b*(c_b-c_a*c_g))
+        dder_ga = coeff * (A * 2.*s_g*(
+            c_g*numpy.square(l/c) + (h*k)/(a*b) - (k*l*c_b)/(b*c) - (h*l*c_a)/(a*c))
+            - B * 2.*s_g*(c_g-c_a*c_b))
         dder["unit_cell_parameters"] = numpy.stack([dder_a, dder_b, dder_c, dder_al, dder_be, dder_ga], axis=0)
     return inv_d, dder
 
