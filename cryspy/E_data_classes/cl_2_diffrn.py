@@ -68,13 +68,10 @@ class Diffrn(DataN):
 
     Methods
     -------
-        - calc_iint_u_d_flip_ratio
-        - calc_fr
-        - calc_chi_sq
-        - params_to_cif
-        - data_to_cif
-        - calc_to_cif
         - estimate_FM
+        - plots
+        - plot_circles_fm
+        - report
 
 
     Attributes

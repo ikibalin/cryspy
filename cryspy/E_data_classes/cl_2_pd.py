@@ -53,16 +53,10 @@ class Pd(DataN):
 
     Methods
     -------
-        - calc_profile
-        - calc_chi_sq
-        - calc_iint
-        - _gauss_pd
-        - _lor_pd
-        - calc_shape_profile
-        - params_to_cif
-        - data_to_cif
-        - calc_to_cif
-        - apply_constraints
+        - define_background_points
+        - estimate_background
+        - plots
+        - report
 
     Attributes
     ----------

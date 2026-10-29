@@ -4,7 +4,8 @@ import numpy
 from cryspy.A_functions_base.function_1_atomic_vibrations import \
     apply_constraint_on_cell_by_type_cell
 from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_sthovl_by_hkl_abc_cosines, ortogonalize_matrix
+    ortogonalize_matrix
+from cryspy.A_functions_base.unit_cell import calc_sthovl_by_unit_cell_parameters
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
@@ -268,9 +269,8 @@ class Cell(ItemN):
             DESCRIPTION.
 
         """
-        return calc_sthovl_by_hkl_abc_cosines(
-            index_h, index_k, index_l, self.length_a, self.length_b,
-            self.length_c, self.cos_a, self.cos_b, self.cos_g)
+        return calc_sthovl_by_unit_cell_parameters(
+            (index_h, index_k, index_l), self.get_unit_cell_parameters())[0]
 
     def calc_k_loc(self, index_h, index_k, index_l):
         """

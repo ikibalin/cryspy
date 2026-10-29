@@ -5,7 +5,12 @@ import numpy
 from cryspy.A_functions_base.function_1_matrices import calc_mRmCmRT, \
     calc_product_matrix_vector, scalar_product
 
-from .unit_cell import calc_sthovl_by_unit_cell_parameters
+from cryspy.A_functions_base.function_1_deprecation import deprecated
+from cryspy.A_functions_base.unit_cell import (
+    calc_inv_d_by_unit_cell_parameters,
+    calc_sthovl_by_unit_cell_parameters,
+    calc_volume_uc_by_unit_cell_parameters,
+)
 
 
 def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
@@ -20,60 +25,52 @@ def calc_cos_ang(cell, h_1, k_1, l_1, h_2, k_2, l_2):
     return res
 
 
+def _form_unit_cell_parameters_by_abc_cosines(a, b, c, cos_alpha, cos_beta, cos_gamma):
+    """[a, b, c, alpha, beta, gamma] (Å, radians) from the cosines of the angles."""
+    return (a, b, c, numpy.arccos(cos_alpha), numpy.arccos(cos_beta), numpy.arccos(cos_gamma))
+
+
+@deprecated
 def calc_volume_uc_by_abc_cosines(a:float, b:float, c:float, 
         cos_alpha:float, cos_beta:float, cos_gamma:float):
     """
     Calculate the volume of unit cell defined as 
     a, b, c, cos(alpha), cos(beta), cos(gamma).
+
+    Use unit_cell.calc_volume_uc_by_unit_cell_parameters instead.
     """
-    c_a_sq, c_b_sq = numpy.square(cos_alpha), numpy.square(cos_beta)
-    c_g_sq = numpy.square(cos_gamma)
-    v_sqrt = numpy.sqrt(1.-c_a_sq-c_b_sq-c_g_sq+2.*cos_alpha*cos_beta*cos_gamma)
-    volume_uc = a*b*c*v_sqrt
-    return volume_uc
+    return calc_volume_uc_by_unit_cell_parameters(_form_unit_cell_parameters_by_abc_cosines(
+        a, b, c, cos_alpha, cos_beta, cos_gamma))[0]
 
 
+@deprecated
 def calc_volume_uc_by_abc_angles(a:float, b:float, c:float, 
                           alpha:float, beta:float, gamma:float):
     """
     Calculate the volume of unit cell defined as 
     a, b, c, alpha, beta, gamma.
     Angles should be given in radians.
+
+    Use unit_cell.calc_volume_uc_by_unit_cell_parameters instead.
     """
-    c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    volume_uc = calc_volume_uc_by_abc_cosines(a, b, c, c_a, c_b, c_g)
-    return volume_uc
+    return calc_volume_uc_by_unit_cell_parameters((a, b, c, alpha, beta, gamma))[0]
 
 
+@deprecated
 def calc_inverse_d_by_hkl_abc_cosines(h:float, k:float, l:float, 
         a:float, b:float, c:float, 
         cos_alpha:float, cos_beta:float, cos_gamma:float):
     """
     Calculate 1/d for given reflections h, k, l
     and unit cell parameters defined as a, b, c, cos(alpha), cos(beta), cos(gamma).
+
+    Use unit_cell.calc_inv_d_by_unit_cell_parameters instead.
     """
-    c_a_sq, c_b_sq = numpy.square(cos_alpha), numpy.square(cos_beta)
-    c_g_sq = numpy.square(cos_gamma)
-    s_a_sq, s_b_sq, s_g_sq = (1.-c_a_sq), (1.-c_b_sq), (1.-c_g_sq)
-
-    A = (1.-c_a_sq-c_b_sq-c_g_sq+2.*cos_alpha*cos_beta*cos_gamma)
-
-    B1 = s_a_sq*numpy.square(h*1./a)+\
-         s_b_sq*numpy.square(k*1./b)+\
-         s_g_sq*numpy.square(l*1./c)
-    B2 = 2.*(k*l*(cos_alpha-cos_beta*cos_gamma))/(b*c)+\
-         2.*(h*l*(cos_beta-cos_alpha*cos_gamma))/(a*c)+\
-         2.*(h*k*(cos_gamma-cos_alpha*cos_beta))/(a*b)
-
-    # B2 = 2.*(k*l*cos_alpha)/(b*c)+\
-    #      2.*(h*l*cos_beta)/(a*c)+\
-    #      2.*(h*k*cos_gamma)/(a*b)
-    #it should be checked, I am not sure
-    B = B1-B2
-    inverse_d = numpy.sqrt(B*1./A)
-    return inverse_d
+    return calc_inv_d_by_unit_cell_parameters((h, k, l), _form_unit_cell_parameters_by_abc_cosines(
+        a, b, c, cos_alpha, cos_beta, cos_gamma))[0]
 
 
+@deprecated
 def calc_inverse_d_by_hkl_abc_angles(
         h:float, k:float, l:float, a:float, b:float, c:float, alpha:float,
         beta:float, gamma:float):
@@ -81,25 +78,27 @@ def calc_inverse_d_by_hkl_abc_angles(
     Calculate 1/d for given reflections h, k, l
     and unit cell parameters defined as a, b, c, alpha, beta, gamma.
     Angles should be given in radians.
+
+    Use unit_cell.calc_inv_d_by_unit_cell_parameters instead.
     """
-    c_a, c_b, c_g = numpy.cos(alpha), numpy.cos(beta), numpy.cos(gamma)
-    inverse_d = calc_inverse_d_by_hkl_abc_cosines(h, k, l, a, b, c, c_a, c_b, c_g)
-    return inverse_d
+    return calc_inv_d_by_unit_cell_parameters((h, k, l), (a, b, c, alpha, beta, gamma))[0]
 
 
+@deprecated
 def calc_sthovl_by_hkl_abc_cosines(
         h: float, k: float, l: float, a: float, b: float, c: float,
         cos_alpha: float, cos_beta: float, cos_gamma: float):
     """
     Calculate sin(theta)/lambda for given reflections h, k, l
     and unit cell parameters defined as a, b, c, cos(alpha), cos(beta), cos(gamma).
+
+    Use unit_cell.calc_sthovl_by_unit_cell_parameters instead.
     """
-    inv_d = calc_inverse_d_by_hkl_abc_cosines(h, k, l, a, b, c, 
-                                              cos_alpha, cos_beta, cos_gamma)
-    sthovl = 0.5*inv_d
-    return sthovl
+    return calc_sthovl_by_unit_cell_parameters((h, k, l), _form_unit_cell_parameters_by_abc_cosines(
+        a, b, c, cos_alpha, cos_beta, cos_gamma))[0]
 
 
+@deprecated
 def calc_sthovl_by_hkl_abc_angles(
         h: float, k: float, l: float, a: float, b: float, c: float,
         alpha: float, beta: float, gamma: float):
@@ -107,10 +106,11 @@ def calc_sthovl_by_hkl_abc_angles(
     Calculate sin(theta)/lambda for given reflections h, k, l
     and unit cell parameters defined as a, b, c, alpha, beta, gamma.
     Angles should be given in radians.
+
+    Use unit_cell.calc_sthovl_by_unit_cell_parameters instead.
     """
-    inv_d = calc_inverse_d_by_hkl_abc_angles(h, k, l, a, b, c, alpha, beta, gamma)
-    sthovl = 0.5*inv_d
-    return sthovl
+    return calc_sthovl_by_unit_cell_parameters((h, k, l), (a, b, c, alpha, beta, gamma))[0]
+
 
 
 def calc_phase_3d(hkl, r_ij, b_i, fract_xyz):

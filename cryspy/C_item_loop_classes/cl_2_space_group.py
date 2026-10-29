@@ -45,7 +45,6 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
 
 from cryspy.C_item_loop_classes.cl_1_space_group_wyckoff import \
     SpaceGroupWyckoff, SpaceGroupWyckoffL
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class SpaceGroup(ItemN):
@@ -562,50 +561,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         else:
             f_hkl = f_hkl_1
         return f_hkl
-
-    @deprecated
-    def calc_asymmetric_cell(self, n_a, n_b, n_c):
-        """Give the numbers in asymmetric cell.
-
-         :n_a: the number of points along a axis
-         :n_b: the numper of points along b axis
-         :n_c: the numper of points along c axis
-
-        na, n_b, nc should be divided on 24: 8 and 3
-
-        :output: - l_coord is a list of coordinates in asymmetric cell
-                   (frac_x = n_x/n_a and so on)
-                 - l_symm contains a list of symmetry given as
-                   (n_symm, centr, n_orig)
-        """
-        n_a_new = int(round(n_a/24))*24
-        # n_b_new = int(round(n_b/24))*24
-        # n_c_new = int(round(n_c/24))*24
-
-        # l_el_symm = self.el_symm
-        # f_centr = self.centr
-        # p_centr = self.p_centr
-        # l_orig = self.orig
-        l_coord = []
-
-        spgr_choice = self.spgr_choice
-        # spgr_name = self.spgr_name
-        spgr_number = self.spgr_number
-
-        if (spgr_number == 227) & (spgr_choice == "2"):
-            n_a_new = int(round(n_a/8))*8
-            for n_x in range(-n_a_new//8, 3*n_a_new//8+1):
-                for n_y in range(-n_a_new//8, 0+1):
-                    for n_z in range(-n_a_new//4, 0+1):
-                        cond_1 = (n_y < min([n_a_new//4-n_x, n_x]))
-                        cond_2 = (n_z >= -n_y-n_a_new//4)
-                        cond_3 = (n_z <= n_y)
-                        if (cond_1 & cond_2 & cond_3):
-                            coord_x = float(n_x)/float(n_a_new)
-                            coord_y = float(n_y)/float(n_a_new)
-                            coord_z = float(n_z)/float(n_a_new)
-                            l_coord.append((coord_x, coord_y, coord_z))
-        return l_coord
 
     def calc_rotated_matrix_for_position(self, m_chi, x, y, z):
         """Calc rotated matrix for position."""
