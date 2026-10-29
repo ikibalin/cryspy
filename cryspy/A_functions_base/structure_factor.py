@@ -276,11 +276,6 @@ def calc_f_asym_a_by_pr(
         )
     ).sum(axis=1) / pr_2.shape[-1]
     dder = {}
-    # if flag_scat_length_neutron:
-    #     dder["scat_length_neutron_real"] = (numpy.expand_dims(pr_2, axis=2)*\
-    #         (pr_1*atom_multiplicity*atom_occupancy*debye_waller)).sum(axis=1)/pr_2.shape[-1] # FIXME: only for neutron diffraction
-    #     dder["scat_length_neutron_imag"] = 1j*(numpy.expand_dims(pr_2, axis=2)*\
-    #         (pr_1*atom_multiplicity*atom_occupancy*debye_waller)).sum(axis=1)/pr_2.shape[-1] # FIXME: only for neutron diffraction
     if flag_debye_waller:
         dder["debye_waller"] = (
             numpy.expand_dims(pr_2, axis=2)
@@ -309,39 +304,6 @@ def calc_f_asym_a_by_pr(
             / pr_2.shape[-1]
         )
     return res, dder
-
-
-# Delete IT
-# def calc_f_asym_by_pr(
-#         atom_multiplicity, scat_length_neutron, debye_waller, atom_occupancy, pr_1, pr_2,
-#         flag_scat_length_neutron: bool = False, flag_debye_waller: bool = False,
-#         flag_atom_occupancy: bool = False, flag_pr_1: bool = False):
-#     """Calculate preliminary asymmetric structure factor by preliminary defined parameters.
-#     For more details see documentation module "Structure factor".
-#     """
-#     # dimension of pr_1 is [hkl, symmetry, a]
-#     if len(scat_length_neutron.shape) == 1:
-#         scat_length = scat_length_neutron[na, na, :] # neutron diffraction [atoms]
-#     elif len(scat_length_neutron.shape) == 2:
-#         scat_length = scat_length_neutron[:, na, :] # X-ray diffraction [hkl, atoms]
-#
-#     res = (pr_2*(pr_1*atom_multiplicity[na, na, :]*scat_length*atom_occupancy[na, na, :]*debye_waller).sum(axis=2)).sum(axis=1)/pr_2.shape[-1]
-#     dder = {}
-#     if flag_scat_length_neutron:
-#         dder["scat_length_neutron_real"] = (numpy.expand_dims(pr_2, axis=2)*\
-#             (pr_1*atom_multiplicity*atom_occupancy*debye_waller)).sum(axis=1)/pr_2.shape[-1] # FIXME: only for neutron diffraction
-#         dder["scat_length_neutron_imag"] = 1j*(numpy.expand_dims(pr_2, axis=2)*\
-#             (pr_1*atom_multiplicity*atom_occupancy*debye_waller)).sum(axis=1)/pr_2.shape[-1] # FIXME: only for neutron diffraction
-#     if flag_debye_waller:
-#         dder["debye_waller"] = (numpy.expand_dims(pr_2, axis=2)*\
-#             (pr_1*atom_multiplicity*atom_occupancy)*scat_length).sum(axis=1)/pr_2.shape[-1]
-#     if flag_atom_occupancy:
-#         dder["atom_occupancy"] = (numpy.expand_dims(pr_2, axis=2)*\
-#             (pr_1*atom_multiplicity*debye_waller)*scat_length).sum(axis=1)/pr_2.shape[-1]
-#     if flag_pr_1:
-#         dder["pr_1_real"] = (pr_2[:,:,na]*atom_multiplicity[na, na, :]*atom_occupancy[na, na, :]*scat_length*debye_waller)/pr_2.shape[-1]
-#         dder["pr_1_imag"] = 1j*(pr_2[:,:,na]*atom_multiplicity[na, na, :]*atom_occupancy[na, na, :]*scat_length*debye_waller)/pr_2.shape[-1]
-#     return res, dder
 
 
 def calc_f_by_f_asym_a_pr(
@@ -403,39 +365,9 @@ def calc_f_by_f_asym_a_pr(
             dder["f_asym_a_imag"] = (
                 numpy.expand_dims(pr_3_ext, axis=-1) * hh * 1j
             )
-
-        # ofh = numpy.ones(f_h.shape, dtype=float)
-        # if centrosymmetry:
-        #     dder["f_asym_real"] = 0.5*(pr_3+pr_4*pr_3.conjugate())*ofh
-        #     dder["f_asym_imag"] = 0.5*(pr_3-1j*pr_4*pr_3.conjugate())*ofh
-        # else:
-        #     dder["f_asym_real"] = pr_3*ofh
-        #     dder["f_asym_imag"] = pr_3*1j*ofh
     if flag_scattering_length:
         pass
     return res, dder
-
-
-# DELETE iT
-# def calc_f_by_f_asym_pr(f_asym, pr_3, centrosymmetry, pr_4, flag_f_asym: bool = False):
-#     """Calculate structure factor by preliminary defined parameters.
-#     For more details see documentation module "Structure factor".
-#     """
-#     f_h = pr_3 * f_asym
-#     if centrosymmetry:
-#         res= 0.5*(f_h+pr_4*f_h.conjugate())
-#     else:
-#         res= f_h
-#     dder = {}
-#     if flag_f_asym:
-#         ofh = numpy.ones(f_h.shape, dtype=float)
-#         if centrosymmetry:
-#             dder["f_asym_real"] = 0.5*(pr_3+pr_4*pr_3.conjugate())*ofh
-#             dder["f_asym_imag"] = 0.5*(pr_3-1j*pr_4*pr_3.conjugate())*ofh
-#         else:
-#             dder["f_asym_real"] = pr_3*ofh
-#             dder["f_asym_imag"] = pr_3*1j*ofh
-#     return res, dder
 
 
 def calc_sft_ccs_asym_a_by_pr(
@@ -468,10 +400,6 @@ def calc_sft_ccs_asym_a_by_pr(
         flag_m=False,
         flag_q=flag_atom_para_susceptibility,
     )
-    # if theta is not None:
-    #     hh *= numpy.expand_dims(theta, axis=(0,2))
-    #     if flag_atom_para_susceptibility:
-    #         dder_hh["q"] *= numpy.expand_dims(theta, axis=(0, 1, 3))
 
     hh_1 = atom_para_multiplicity * atom_para_occupancy
     hh_3 = pr_1 * debye_waller_factor * hh_1[na, na, :]
@@ -489,33 +417,6 @@ def calc_sft_ccs_asym_a_by_pr(
             * dder_hh_2[:, :, na, :, :]
         ).sum(axis=3) / pr_2.shape[-1]
     return res, dder
-
-
-# DELETE IT
-# def calc_sft_ccs_asym_by_pr(
-#         atom_para_multiplicity, atom_para_form_factor, debye_waller_factor, atom_para_occupancy,
-#         atom_para_susceptibility, atom_para_sc_chi,
-#         pr_1, pr_2, pr_5,
-#         flag_atom_para_form_factor: bool = False, flag_debye_waller: bool = False,
-#         flag_atom_para_occupancy: bool = False, flag_atom_para_susceptibility: bool = False,
-#         flag_pr_1: bool = False, flag_pr_5: bool = False):
-#     """Calculate preliminary asymmetric structure factor tensor by preliminary defined parameters in 10**-12 cm.
-#     For more details see documentation module "Structure factor".
-#
-#     The susceptibility parameters are give in mu_B
-#     """
-#     mas_constr = (0.2695*atom_para_sc_chi * atom_para_susceptibility[na, :, :]).sum(axis=1)
-#
-#     hh, dder_hh = calc_m_q_inv_m(pr_5[:, :, na], mas_constr[:, na, :], flag_m=False, flag_q=flag_atom_para_susceptibility)
-#     hh_1 = atom_para_multiplicity * atom_para_occupancy
-#     hh_2 = atom_para_form_factor * hh_1[na, :]
-#     hh_3 = pr_1*debye_waller_factor*hh_2[:, na, :]
-#     res = (pr_2[na, :, :] * (hh_3[na, :, :, :] * hh[:, na, :, :]).sum(axis=3)).sum(axis=2)/pr_2.shape[-1]
-#     dder = {}
-#     if flag_atom_para_susceptibility:
-#         dder_hh_2 = 0.2695*(dder_hh["q"][:,:, na,:, :]* atom_para_sc_chi[na, :, :, na,:]).sum(axis=1)
-#         dder["atom_para_susceptibility"] =  (pr_2[na, na, :, :, na] * hh_3[na, na, :, :, :] * dder_hh_2[:, :, na, :, :]).sum(axis=3)/pr_2.shape[-1]
-#     return res, dder
 
 
 def calc_f_nucl_by_dictionary(
@@ -1672,10 +1573,6 @@ def calc_sft_ccs(
     ):
         sft_ccs_asym = dict_in_out["sft_ccs_asym"]
     else:
-        # theta = None
-        # if reduced_symm_elems.shape[0] == 14:
-        #     theta = reduced_symm_elems[13] # * calc_det_m(reduced_symm_elems[4:13], flag_m=False)[0]
-        #     # print("theta: ", theta)
         sft_ccs_asym, dder_sft_ccs_asym = calc_sft_ccs_asym_a_by_pr(
             mag_atom_multiplicity,
             debye_waller_factor,
@@ -1995,22 +1892,10 @@ def calc_f_m_perp_ordered_by_dictionary(
             for hh in ["mag_atom_rho_multipole_index", "atom_local_axes_label"]
         ]
     )
-    # flag_multipole = False
     if flag_multipole:
         mag_atom_rho_multipole_index = dict_crystal[
             "mag_atom_rho_multipole_index"
         ]
-        # atom_rho_multipole_label = dict_crystal['atom_rho_multipole_label']
-        # atom_local_axes_label = dict_crystal['atom_local_axes_label'][mag_atom_rho_multipole_index]
-        # atom_local_axes_matrix =  dict_crystal["atom_local_axes_matrix"][:, mag_atom_rho_multipole_index]
-        # l_hh_1,l_hh_2 = [], []
-        # for label in atom_rho_multipole_label:
-        #     ind_1 = numpy.squeeze(numpy.argwhere(atom_label==label))
-        #     ind_2 = numpy.squeeze(numpy.argwhere(atom_local_axes_label==label))
-        #     l_hh_1.append(atom_ordered_fract_xyz[...,ind_1])
-        #     l_hh_2.append(atom_local_axes_matrix[...,ind_2])
-        # atom_rho_multipole_fract_xyz = numpy.stack(l_hh_1, axis=-1)
-        # atom_rho_multipole_transformation_matrix = numpy.stack(l_hh_2, axis=-1)
         atom_rho_multipole_transformation_matrix = dict_crystal[
             "atom_local_axes_matrix"
         ][:, mag_atom_rho_multipole_index]

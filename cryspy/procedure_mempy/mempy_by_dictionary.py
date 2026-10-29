@@ -648,22 +648,16 @@ def mempy_reconstruction_by_dictionary(
 
             f_m_perp = numpy.zeros(index_hkl.shape, dtype=complex)
             if channel_col:
+                # mem_col_exp is [3, Nhkl, Npoints]
                 mem_col_exp = diffrn_dict_in_out["mem_col"]
-                hh = numpy.expand_dims(
-                    numpy.expand_dims(
-                        magnetization_plus * density_col[0]
-                        + magnetization_minus * density_col[1],
-                        axis=0,
-                    ),
-                    axis=1,
-                )
-                f_m_perp_col = (hh * mem_col_exp).sum(axis=2)
-                f_m_perp += f_m_perp_col
+                f_m_perp += mem_col_exp @ (
+                    magnetization_plus * density_col[0]
+                    + magnetization_minus * density_col[1])
 
             if channel_ani:
+                # mem_ani_exp is [3, Nhkl, Npoints, Natom]
                 mem_ani_exp = diffrn_dict_in_out["mem_ani"]
-                f_m_perp_chi = (density_ani * mem_ani_exp).sum(axis=(2, 3))
-                f_m_perp += f_m_perp_chi
+                f_m_perp += numpy.tensordot(mem_ani_exp, density_ani, axes=([2, 3], [0, 1]))
 
             if channel_nucl:
                 mem_nucl_exp = diffrn_dict_in_out["mem_nucl"]
@@ -834,45 +828,25 @@ def mempy_reconstruction_by_dictionary(
                 dder_model_exp["iint_minus"], axis=0
             )
 
+            if channel_col or channel_ani:
+                # d model/d f_m_perp as one complex number per component:
+                # Re(mem*conj_der) = Re(mem)*d/d Re(f_m_perp) + Im(mem)*d/d Im(f_m_perp)
+                conj_der_model_fm_perp = (
+                    der_model_int_plus * der_int_plus_fm_perp_real
+                    + der_model_int_minus * der_int_minus_fm_perp_real
+                    - 1j * (der_model_int_plus * der_int_plus_fm_perp_imag
+                            + der_model_int_minus * der_int_minus_fm_perp_imag))
+
             if channel_col:
-                der_model_den_pm_exp = (
-                    mem_col_exp.real
-                    * numpy.expand_dims(
-                        der_model_int_plus * der_int_plus_fm_perp_real
-                        + der_model_int_minus * der_int_minus_fm_perp_real,
-                        axis=2,
-                    )
-                ).sum(axis=0) + (
-                    mem_col_exp.imag
-                    * numpy.expand_dims(
-                        der_model_int_plus * der_int_plus_fm_perp_imag
-                        + der_model_int_minus * der_int_minus_fm_perp_imag,
-                        axis=2,
-                    )
-                ).sum(
-                    axis=0
-                )
+                # der_model_den_pm_exp is [Nhkl, Npoints]
+                der_model_den_pm_exp = numpy.einsum(
+                    "ihp,ih->hp", mem_col_exp, conj_der_model_fm_perp).real
                 l_der_model_den_pm.append(der_model_den_pm_exp)
 
             if channel_ani:
                 # der_model_den_ani_exp is [Nhkl, Npoints, Natom]
-                der_model_den_ani_exp = (
-                    mem_ani_exp.real
-                    * numpy.expand_dims(
-                        der_model_int_plus * der_int_plus_fm_perp_real
-                        + der_model_int_minus * der_int_minus_fm_perp_real,
-                        axis=(2, 3),
-                    )
-                ).sum(axis=0) + (
-                    mem_ani_exp.imag
-                    * numpy.expand_dims(
-                        der_model_int_plus * der_int_plus_fm_perp_imag
-                        + der_model_int_minus * der_int_minus_fm_perp_imag,
-                        axis=(2, 3),
-                    )
-                ).sum(
-                    axis=0
-                )
+                der_model_den_ani_exp = numpy.einsum(
+                    "ihpa,ih->hpa", mem_ani_exp, conj_der_model_fm_perp).real
                 l_der_model_den_ani.append(der_model_den_ani_exp)
 
             if channel_nucl:
@@ -909,14 +883,8 @@ def mempy_reconstruction_by_dictionary(
         if channel_col:
             der_model_den_pm = numpy.concatenate(l_der_model_den_pm, axis=0)
             der_c_den_pm = (
-                (-2.0)
-                / diff_value.shape[0]
-                * (
-                    numpy.expand_dims(
-                        (diff_value / exp_value_sigma[1]), axis=1
-                    )
-                    * der_model_den_pm
-                ).sum(axis=0)
+                (-2.0) / diff_value.shape[0]
+                * ((diff_value / exp_value_sigma[1]) @ der_model_den_pm)
             )
 
             der_c_den_col = numpy.stack(
@@ -932,14 +900,8 @@ def mempy_reconstruction_by_dictionary(
             der_model_den_ani = numpy.concatenate(l_der_model_den_ani, axis=0)
             # der_c_den_ani is [Npoint, Natom]
             der_c_den_ani = (
-                (-2.0)
-                / diff_value.shape[0]
-                * (
-                    numpy.expand_dims(
-                        (diff_value / exp_value_sigma[1]), axis=(1, 2)
-                    )
-                    * der_model_den_ani
-                ).sum(axis=0)
+                (-2.0) / diff_value.shape[0]
+                * numpy.tensordot(diff_value / exp_value_sigma[1], der_model_den_ani, axes=(0, 0))
             )
 
         if channel_nucl:
