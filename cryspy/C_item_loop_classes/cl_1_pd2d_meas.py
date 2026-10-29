@@ -331,7 +331,6 @@ class Pd2dMeas(ItemN):
         int_diff = int_u - int_d
 
         min_tth, max_tth = min(l_tth_grid), max(l_tth_grid)
-        min_phi, max_phi = min(l_phi_grid), max(l_phi_grid)
 
         min_gamma, max_gamma = min_tth, max_tth
         num_gamma = len(l_tth_grid)

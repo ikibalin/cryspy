@@ -94,7 +94,6 @@ class Pd2dBackground(ItemN):
 
     def form_object(self):
         """Form object."""
-        self_keys = self.__dict__.keys()
 
         l_1 = (self.gamma_nu_intensity).strip().split("\n")
         l_gamma = [float(_) for _ in l_1[0].strip().split()[1:]]

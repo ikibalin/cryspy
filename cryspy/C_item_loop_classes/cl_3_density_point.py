@@ -27,11 +27,9 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_moment import \
     AtomSiteMomentL
 from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import \
     AtomElectronConfigurationL
-from cryspy.C_item_loop_classes.cl_1_mem_parameters import MEMParameters
 from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_2_atom_rho_orbital_radial_slater import \
     AtomRhoOrbitalRadialSlaterL
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 
 class DensityPoint(ItemN):
@@ -393,7 +391,7 @@ class DensityPointL(LoopN):
                 obj = None
                 for arors in l_arors:
                     try:
-                        l_val = getattr(arors, f"coeff_{shell:}")
+                        getattr(arors, f"coeff_{shell:}")  # AttributeError if the shell is not given
                         obj = arors
                         break
                     except AttributeError:
@@ -434,70 +432,6 @@ class DensityPointL(LoopN):
         self.numpy_to_items()
 
 
-    @deprecated
-    def create_flat_density(self, space_group_symop: SpaceGroupSymopL,
-                            cell: Cell, atom_site: AtomSiteL,
-                            l_magnetic_labes: list, points_a: int = 48,
-                            points_b: int = 48, points_c: int = 48,
-                            flag_two_channel: bool = False):
-        r"""Define starting density as flat density by expression.
-
-        p_{i} = \frac{N_{points} \Sum_{a} m_{a}} {V_{u.c.} \Sum_{i} m_{i}}
-        """
-        self.form_asymmetric_unit_cell(
-            space_group_symop, points_a=points_a, points_b=points_b,
-            points_c=points_c)
-
-        self.separate_basins(
-            space_group_symop, cell, atom_site, points_a=points_a,
-            points_b=points_b, points_c=points_c)
-
-        self.set_flat_density(l_magnetic_labes,
-                              flag_two_channel=flag_two_channel)
-
-    @deprecated
-    def create_core_density(
-            self, space_group_symop: SpaceGroupSymopL, cell: Cell,
-            atom_site: AtomSiteL, atom_electron_configuration:
-            AtomElectronConfigurationL, points_a: int = 48, points_b: int = 48,
-            points_c: int = 48, flag_two_channel: bool = False):
-        """Create core density.
-
-        Parameters
-        ----------
-        space_group_symop : SpaceGroupSymopL
-            DESCRIPTION.
-        cell : Cell
-            DESCRIPTION.
-        atom_site : AtomSiteL
-            DESCRIPTION.
-        atom_electron_configuration : AtomElectronConfigurationL
-            DESCRIPTION.
-        l_magnetic_labes : TYPE
-            DESCRIPTION.
-        points_a : TYPE, optional
-            DESCRIPTION. The default is 48.
-        points_b : TYPE, optional
-            DESCRIPTION. The default is 48.
-        points_c : TYPE, optional
-            DESCRIPTION. The default is 48.
-
-        Returns
-        -------
-        None.
-
-        """
-        self.form_asymmetric_unit_cell(
-            space_group_symop, points_a=points_a, points_b=points_b,
-            points_c=points_c)
-
-        self.separate_basins(
-            space_group_symop, cell, atom_site, points_a=points_a,
-            points_b=points_b, points_c=points_c)
-
-        self.set_core_density(atom_site, atom_electron_configuration,
-                              flag_two_channel=flag_two_channel)
-
     def calc_density_ani(self, cell: Cell, atom_site_susceptibility: AtomSiteSusceptibilityL):
         """Calculate density chi."""
         density = self.density
@@ -524,80 +458,6 @@ class DensityPointL(LoopN):
                      l_label_atom else 0. for lab, den in zip(label, density)]
 
         return numpy.array(l_den_ani, dtype=float)
-
-    @deprecated
-    def save_to_file_den(
-            self, mem_parameters: MEMParameters, space_group: SpaceGroup,
-            cell: Cell, f_name: str = "file.den",
-            atom_site_susceptibility: AtomSiteSusceptibilityL = None,
-            f_background: str = "file_back.den"):
-        """Save to file."""
-        numpy_basin_atom_label = numpy.array(self.basin_atom_label, dtype=str)
-        points_a = mem_parameters.points_a
-        points_b = mem_parameters.points_b
-        points_c = mem_parameters.points_c
-        chi_iso_ferro = mem_parameters.chi_ferro
-        chi_iso_antiferro = mem_parameters.chi_antiferro
-        index_x = self.index_x
-        index_y = self.index_y
-        index_z = self.index_z
-        # density = self.density
-        density_ani = self.calc_density_ani(cell, cell, atom_site_susceptibility)
-        density_ferro = self.density_ferro
-        density_antiferro = self.density_antiferro
-        ls_out = []
-        ls_out_b = ["Created by CrysPy, mu_B/Tesla"]
-        ls_out.append("Created by CrysPy")
-        ls_out.append("{:}".format(len(index_x)))
-        ls_out_b.append("{:}".format(len(index_x)))
-
-        for _x, _y, _z, _l, den_ani, den_f, den_a in \
-            zip(index_x, index_y, index_z, numpy_basin_atom_label, density_ani,
-                density_ferro, density_antiferro):
-            ls_out.append(f"{_x:4} {_y:4} {_z:4} {den_ani:15.7f}")
-            v1 = (chi_iso_ferro*den_f+chi_iso_antiferro*den_a)
-            ls_out_b.append(f"{_x:4} {_y:4} {_z:4} {v1:15.7f}")
-
-        a, b, c = cell.length_a, cell.length_b, cell.length_c
-        al, be, ga = cell.angle_alpha, cell.angle_beta, cell.angle_gamma
-
-        ls_out.append(
-            f"{a:10.5f}{b:10.5f}{c:10.5f}{al:10.5f}{be:10.5f}{ga:10.5f}")
-        ls_out_b.append(
-            f"{a:10.5f}{b:10.5f}{c:10.5f}{al:10.5f}{be:10.5f}{ga:10.5f}")
-
-        r_s_g_s = space_group.reduced_space_group_symop
-
-        centr = int(space_group.centrosymmetry)
-        l_orig = space_group.shift
-        ls_out.append("{:5}{:5}{:5}{:5}{:5}{:5}".format(
-            points_a, points_b, points_c, len(r_s_g_s.items), centr,
-            len(l_orig)))
-        ls_out_b.append("{:5}{:5}{:5}{:5}{:5}{:5}".format(
-            points_a, points_b, points_c, len(r_s_g_s.items), centr,
-            len(l_orig)))
-        for _ in r_s_g_s.items:
-            ls_out.append(
-                f"{int(_.r_11):4}{int(_.r_21):4}{int(_.r_31):4}  \
-{int(_.r_12):4}{int(_.r_22):4}{int(_.r_32):4}  {int(_.r_13):4}{int(_.r_23):4}\
-{int(_.r_33):4}    {float(_.b_1):8.5f}{float(_.b_2):8.5f}{float(_.b_3):8.5f}")
-            ls_out_b.append(
-                f"{int(_.r_11):4}{int(_.r_21):4}{int(_.r_31):4}  \
-{int(_.r_12):4}{int(_.r_22):4}{int(_.r_32):4}  {int(_.r_13):4}{int(_.r_23):4}\
-{int(_.r_33):4}    {float(_.b_1):8.5f}{float(_.b_2):8.5f}{float(_.b_3):8.5f}")
-        for orig in l_orig:
-            ls_out.append(
-                f"{float(orig[0]):8.4f}{float(orig[1]):8.4f}\
-{float(orig[2]):8.4f}")
-            ls_out_b.append(
-                f"{float(orig[0]):8.4f}{float(orig[1]):8.4f}\
-{float(orig[2]):8.4f}")
-
-        with open(f_name, "w") as fid:
-            fid.write("\n".join(ls_out))
-        with open(f_background, "w") as fid:
-            fid.write("\n".join(ls_out_b))
-        return
 
     def calc_fm(self, factor_i, factor_ferro_i, factor_antiferro_i):
         """Calculate magnetic structure factor or its perpendicular component.

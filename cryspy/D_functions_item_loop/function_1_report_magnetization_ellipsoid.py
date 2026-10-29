@@ -63,7 +63,6 @@ def report_main_axes_of_magnetization_ellipsoids(
 
     ls_out = []
     ucp = cell.get_unit_cell_parameters()
-    a_s_m_a = atom_site_susceptibility
 
     if isinstance(atom_site_susceptibility, AtomSiteSusceptibilityL):
         a_s_s_items = atom_site_susceptibility.items

@@ -347,7 +347,6 @@ class Pd2dProc(ItemN):
         max_val = max([numpy.nanmax(signal_exp_sum[included_points]), numpy.nanmax(signal_sum[included_points])])
         min_val = numpy.nanmin(signal_em_sum)
         max_val = max_val - (max_val-min_val)*0.25
-        n_sigma_threshold = 20.
         
         alpha_excl_points = numpy.zeros(signal_exp_sum.shape, dtype=int)
         alpha_excl_points[excluded_points]=200
@@ -370,7 +369,7 @@ class Pd2dProc(ItemN):
             ax1, ax3= axs[0], axs[1]
 
         norm_1 = matplotlib.colors.Normalize(vmax=max_val, vmin=min_val)
-        img_unpol = ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
+        ax1.imshow(signal_em_sum.transpose(), origin="lower", aspect="auto", cmap=cmap_sum, norm= norm_1, extent=extent)
         ax1.imshow(zz_sum, origin="lower", aspect="auto", alpha=0.8, extent=extent)
 
         ax1.set_xticks([])

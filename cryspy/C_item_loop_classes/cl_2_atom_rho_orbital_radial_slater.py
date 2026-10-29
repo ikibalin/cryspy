@@ -224,7 +224,6 @@ class AtomRhoOrbitalRadialSlaterL(LoopN):
             return chi_sq
 
         param_0 = [_.value for _ in fitable]
-        j0 = self.calc_jl_by_radial_density(sthovl, 0, shell, kappa)[0]
 
         res = scipy.optimize.basinhopping(tempfunc, param_0, niter=10,
                                           T=0.1, stepsize=0.1, interval=20,

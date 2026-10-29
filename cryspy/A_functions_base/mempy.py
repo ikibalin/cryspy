@@ -514,14 +514,6 @@ def calc_mem_nucl(
     index_hkl_3d = numpy.expand_dims(
         numpy.expand_dims(index_hkl, axis=2), axis=3
     )
-    # [hkl, points, symm]
-    r_direct = full_symm_elems[4:]
-    m_m = calc_m_m_by_unit_cell_parameters(
-        unit_cell_parameters, flag_unit_cell_parameters=False
-    )[0]
-    r_ccs = calc_m1_m2_inv_m1(m_m, r_direct)[0]
-
-    det_r = calc_det_m(r_ccs)[0]
 
     # [hkl,points,symm]
     phase_3d = numpy.exp(
@@ -599,7 +591,6 @@ def renormailize_density_ani_2(
     volume_unit_cell,
     points_unit_cell,
 ):
-    na = numpy.newaxis
     coeff = float(points_unit_cell) / volume_unit_cell
     point_norm_density = numpy.copy(point_density)
     prod_den_mult = (
@@ -1271,7 +1262,6 @@ def calc_model_value_by_precalculated_data(
         beam_polarization = dict_diffrn["beam_polarization"]
         flipper_efficiency = dict_diffrn["flipper_efficiency"]
         matrix_u = dict_diffrn["matrix_u"]
-        flip_ratio_es = dict_diffrn["flip_ratio_es"]
 
         f_m_perp_plus_minus = numpy.zeros(index_hkl.shape, dtype=complex)
 

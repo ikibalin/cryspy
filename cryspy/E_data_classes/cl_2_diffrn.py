@@ -68,13 +68,10 @@ class Diffrn(DataN):
 
     Methods
     -------
-        - calc_iint_u_d_flip_ratio
-        - calc_fr
-        - calc_chi_sq
-        - params_to_cif
-        - data_to_cif
-        - calc_to_cif
         - estimate_FM
+        - plots
+        - plot_circles_fm
+        - report
 
 
     Attributes
@@ -137,7 +134,6 @@ class Diffrn(DataN):
         The crystal structure should be centrosymmetric
         """
         setup = self.setup
-        wavelength = setup.wavelength
         field_norm = setup.field
 
         diffrn_refln = self.diffrn_refln
@@ -151,16 +147,6 @@ class Diffrn(DataN):
         diffrn_radiation = self.diffrn_radiation
         polarization = diffrn_radiation.polarization
         flipper_efficiency = diffrn_radiation.efficiency
-
-        if self.is_attribute("extinction"):
-            extinction = self.extinction
-            model_extinction = extinction.model
-            radius = extinction.radius
-            mosaicity = extinction.mosaicity
-        else:
-            model_extinction = ""
-            radius = None
-            mosaicity = None
 
         diffrn_orient_matrix = self.diffrn_orient_matrix
         u_matrix = diffrn_orient_matrix.u

@@ -27,7 +27,6 @@ def calc_independent_lines(m):
 
 def calc_constr_matrix(matrix):
     m_x, m_y = matrix.shape
-    m_rank = numpy.linalg.matrix_rank(matrix)
     unity = numpy.diag(m_x*[1.])
     m_u = matrix - unity
 
@@ -200,11 +199,6 @@ The susceptibility tensor is given in Cartezian coordinate system (x||a*, z||c).
 
     def apply_chi_iso_constraint(self, cell):
         """Isotropic constraint on susceptibility."""
-        c_a = cell.cos_a
-        s_ib = cell.sin_ib
-        s_ig = cell.sin_ig
-        c_ib = cell.cos_ib
-        c_ig = cell.cos_ig
         # not sure, it is better to check
         if not(self.is_attribute("chi_type")):
             return
@@ -254,17 +248,12 @@ The susceptibility tensor is given in Cartezian coordinate system (x||a*, z||c).
             cell.length_a, cell.length_b, cell.length_c,
             cell.angle_alpha*numpy.pi/180., cell.angle_beta*numpy.pi/180.,
             cell.angle_gamma*numpy.pi/180.], dtype=float)
-        flag_ucp = False
 
         q_rn = numpy.array([
             self.chi_11, self.chi_22, self.chi_33,
             self.chi_12, self.chi_13, self.chi_23], dtype=float)
-        flag_q_rn = True
 
         # FIXME: add errorbars calculations
-        q_rn_sigma = numpy.array([
-            self.chi_11_sigma, self.chi_22_sigma, self.chi_33_sigma,
-            self.chi_12_sigma, self.chi_13_sigma, self.chi_23_sigma], dtype=float)
 
         moments, eig_fields, eig_moments = local_susceptibility.calc_magnetization_ellipsoid_axes(
             q_rn, ucp)

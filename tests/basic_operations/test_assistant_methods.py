@@ -9,6 +9,7 @@ import cryspy
 from cryspy.procedure_assistant import recipes
 from cryspy.procedure_assistant.methods import take_methods
 from cryspy.procedure_assistant.procedures import parse_docstring
+from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 DIR_EXAMPLE = os.path.join(os.path.dirname(__file__), "..", "..", "examples",
                            "rhochi_polarized_powder_1d_Ho2Ti2O7_5K_1T")
@@ -24,12 +25,17 @@ def call(obj, name, arguments=None):
     return cryspy.call_assistant_tool(obj, name, arguments)
 
 
-def test_methods_from_classes_without_internal_and_deprecated():
+def test_methods_from_classes_without_internal_and_deprecated(monkeypatch):
     d_method = take_methods(cryspy.Pd)
     assert "define_background_points" in d_method and "estimate_background" in d_method
     assert not any(name.startswith(("plot", "get_", "_", "to_")) for name in d_method)
     assert "add_items" not in d_method  # a method of DataN
-    assert "calc_asymmetric_cell" not in take_methods(cryspy.SpaceGroup)  # deprecated
+    def calc_twice(self, h: int = 1):
+        """Deprecated method: not offered to assistants."""
+        return 2 * h
+
+    monkeypatch.setattr(cryspy.Cell, "calc_twice", deprecated(calc_twice), raising=False)
+    assert "calc_twice" not in take_methods(cryspy.Cell)
     assert "calc_sthovl" in take_methods(cryspy.Cell)
 
 

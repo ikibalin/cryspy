@@ -28,14 +28,12 @@ from cryspy.A_functions_base.multipoles import (
     calc_multipole_density,
 )
 from cryspy.A_functions_base.unit_cell import (
-    calc_eq_ccs_by_unit_cell_parameters,
     calc_reciprocal_by_unit_cell_parameters,
     calc_m_m_by_unit_cell_parameters,
 )
 from cryspy.A_functions_base.structure_factor import (
     calc_f_nucl_by_dictionary,
     calc_sft_ccs_by_dictionary,
-    calc_f_m_perp_by_sft,
     calc_f_m_perp_ordered_by_dictionary,
 )
 
@@ -119,7 +117,6 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid impo
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
 )
-from cryspy.A_functions_base.function_1_deprecation import deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -447,28 +444,6 @@ class Crystal(DataN):
         if flag_internal:
             res.numpy_to_items()
         return res
-
-    @deprecated
-    def calc_f_m_perp(
-        self, index_hkl, magnetic_field, dict_in_out: dict = None
-    ):
-        """Calculate F_M_perpendicular"""
-        sft_ccs, dder_sft_ccs = self.calc_structure_factor_tensor_ccs(
-            index_hkl, dict_in_out=dict_in_out
-        )
-        unit_cell_parameters = self.cell.get_unit_cell_parameters()
-        eq_ccs, dder_eq_ccs = calc_eq_ccs_by_unit_cell_parameters(
-            index_hkl, unit_cell_parameters
-        )
-        f_m_perp, dder_f_m_perp = calc_f_m_perp_by_sft(
-            sft_ccs,
-            magnetic_field,
-            eq_ccs,
-            flag_sft_ccs=False,
-            flag_magnetic_field=False,
-            flag_eq_ccs=False,
-        )
-        return f_m_perp
 
     def calc_hkl(self, sthol_min: float = 0.0, sthovl_max: float = 1.0):
         """
@@ -1261,8 +1236,6 @@ class Crystal(DataN):
 
         ddict["name"] = self.data_name
         ddict["type_name"] = self.get_name()
-        ind_mag = None
-        rad = numpy.pi / 180.0
         if space_group is not None:
             full_symm_elems = (
                 space_group.full_space_group_symop.get_symm_elems()
@@ -1959,7 +1932,6 @@ class Crystal(DataN):
             )
 
             if self.is_attribute("atom_site"):
-                atom_site = self.atom_site
                 for i_item, item in enumerate(self.atom_site.items):
                     if item.adp_type in ("Uiso", "Uovl", "Umpe"):
                         item.u_iso_or_equiv = atom_iso_param[i_item]
@@ -2195,11 +2167,9 @@ class Crystal(DataN):
         d_crystal = self.get_dictionary()
         unit_cell_parameters = d_crystal["unit_cell_parameters"]
 
-        flag_mcif = False
         if "full_mcif_elems" in d_crystal.keys():
             full_mcif_elems = d_crystal["full_mcif_elems"]
             full_symm_elems = full_mcif_elems  # [:13,:]
-            flag_mcif = True
         else:
             full_symm_elems = d_crystal["full_symm_elems"]
 

@@ -80,9 +80,6 @@ extend-exclude = ['*.ipynb']
 
 [tool.ruff.lint]
 select = ['F', 'E722']
-# 157 unused local variables: removing them is not always side-effect free,
-# so they are cleaned up separately before this rule is enabled.
-ignore = ['F841']
 
 [tool.ruff.lint.per-file-ignores]
 # the package namespace re-exports the public API
