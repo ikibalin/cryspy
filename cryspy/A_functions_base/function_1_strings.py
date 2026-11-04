@@ -136,8 +136,13 @@ def value_error_mark_to_string(value: float, error: float, mark: str) -> str:
         DESCRIPTION.
 
     """
-    if ((value is None) | (value is numpy.nan)):
-        string = "."
+    if value is None:
+        return "."
+    if error is not None and not (numpy.isfinite(value) and
+                                  numpy.isfinite(error) and error >= 0.):
+        # failed refinement (singular matrix) gives nan or inf: the sigma is
+        # unknown, the parameter stays refined, the text stays readable
+        return "{:}(){:}".format(value, mark.strip())
     if not((error == 0.) | (error is None)):
         val_hh = numpy.log10(error)
         n_power = int(val_hh)
