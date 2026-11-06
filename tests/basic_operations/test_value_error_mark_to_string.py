@@ -38,3 +38,27 @@ def test_write_read_keeps_value(value, sigma):
     assert sigma_read == pytest.approx(sigma, abs=1e-12)
     # a second cycle gives the same text
     assert value_error_mark_to_string(value_read, sigma_read, "") == string
+
+
+@pytest.mark.parametrize("value, sigma, expected", [
+    (1.5, float("nan"), "1.5()"),
+    (1.5, float("inf"), "1.5()"),
+    (1.5, -0.1, "1.5()"),
+    (float("nan"), 0.1, "nan()"),
+    (None, 0.1, "."),
+])
+def test_unknown_sigma_after_failed_refinement(value, sigma, expected):
+    """A failed refinement (singular matrix) gives nan or inf sigmas: the
+    text is written with '()' (still refined), not ValueError."""
+    assert value_error_mark_to_string(value, sigma, "") == expected
+
+
+def test_loop_with_nan_sigma_to_cif():
+    import cryspy
+    atom_site = cryspy.AtomSiteL()
+    atom_site.items = [cryspy.AtomSite(
+        label="Fe", type_symbol="Fe", fract_x=0.125, fract_y=0., fract_z=0.)]
+    item = atom_site.items[0]
+    item.fract_x_refinement = True
+    item.fract_x_sigma = float("nan")
+    assert "0.125()" in atom_site.to_cif()
