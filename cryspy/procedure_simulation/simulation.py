@@ -15,6 +15,8 @@ from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
 
 from cryspy.A_functions_base.structure_factor import \
     calc_index_hkl_multiplicity_in_range
+from cryspy.A_functions_base.structure_factor_magnetic_k import \
+    calc_unique_satellite_index_hkl_by_dictionary
         
 import cryspy
 
@@ -118,7 +120,17 @@ def simulation_unpolarized_neutron_powder_diffraction(cryspy_object: cryspy.Glob
     return  
 
 def simulation_single_crystal(cryspy_object: cryspy.GlobalN):
-    """Simulate single crystal experiment with default parameters
+    """Simulate single crystal experiment with default parameters.
+
+    For every crystal a data block ``diffrn_sc`` with unpolarized
+    intensities of the reflections up to sin(theta)/lambda = 0.85/lambda is
+    added; a crystal with a propagation vector also gets its magnetic
+    satellites h ± k (fractional indices, one per symmetry orbit).
+
+    Parameters
+    ----------
+    cryspy_object : GlobalN
+        Object with the crystals.
     """
     f_diffrn_sc = os.path.join(DIR, "diffrn_sc.rcif")
 
@@ -150,7 +162,14 @@ def simulation_single_crystal(cryspy_object: cryspy.GlobalN):
                 sthovl_max=sthovl_max, unit_cell_parameters=unit_cell_parameters, 
                 reduced_symm_elems=reduced_symm_elems, translation_elems=translation_elems, 
                 centrosymmetry=centrosymmetry)[0]
-            
+            if "magnetic_k_vector" in d_crystal:
+                # magnetic satellites h ± k of a structure with a propagation vector
+                np_hkl = numpy.concatenate([
+                    np_hkl.astype(float),
+                    calc_unique_satellite_index_hkl_by_dictionary(
+                        d_crystal, sthovl_min, sthovl_max, unit_cell_parameters)],
+                    axis=1)
+
             rcif_diffrn.diffrn_orient_matrix.ub_11 = float(numpy.round(m_b[0],6))
             rcif_diffrn.diffrn_orient_matrix.ub_12 = float(numpy.round(m_b[1],6))
             rcif_diffrn.diffrn_orient_matrix.ub_13 = float(numpy.round(m_b[2],6))

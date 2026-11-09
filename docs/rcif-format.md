@@ -200,8 +200,48 @@ Ni 1 0.617() 0.0 -1.30()
 
 The full example (Ho2BaNiO5, the FullProf example `hobk`) is in
 `examples/rhochi_unpolarized_powder_1d_k_Ho2BaNiO5`. The prototype covers
-unpolarized 1D powder diffraction with constant wavelength; magnetic
-satellites are not yet listed in the `pd_peak` loop.
+unpolarized 1D powder diffraction with constant wavelength and unpolarized
+single-crystal intensities; magnetic satellites are not yet listed in the
+`pd_peak` loop.
+
+**Single crystals.** The satellites are given in `diffrn_refln` by fractional
+indices `H = h ± k` (for example `0.25 0.25 1`), the nuclear reflections by
+integer ones. There is no ambiguity between `+k` and `-k`: for a general `k`
+only one of `H - k` and `H + k` is integer, and when `2k` is integer `k` and
+`-k` are the same vector with one term in the sum. (FullProf `.int` files
+give integer `hkl` with the number of `±k` instead.) Magnetic domains are the
+twins of `jana_twin`: the intensity is `sum_d f_d I(M_d H)`. The example
+`examples/rhochi_unpolarized_single_crystal_k_Cs3Cr2Br9` uses the CrysFML
+data of Cs3Cr2Br9, `k = (1/4, 1/4, 0)`.
+
+**From a paramagnetic crystal.** The methods of `Crystal`
+`report_irreps_of_k(k_1, k_2, k_3, magnetic_atoms)` (the group of `k`, its
+one-dimensional irreducible representations and the Fourier components they
+allow) and `add_propagation_vector(k_1, k_2, k_3, magnetic_atoms, irrep,
+moment)` convert a crystal with `space_group`: the operations of the group of
+`k` get the moment phases of the representation (`moment_uvw` is
+`det(R) R`, `phase = -arg(chi) / 2pi`), atoms whose orbit splits in the group
+of `k` become several atoms, and the space group is kept as
+`parent_space_group` (mCIF tags). `Crystal.report_magnetic_domains` and
+`Diffrn.define_magnetic_domains(crystal)` give the domains (cosets of the
+group of `k`; domains related by the inversion give the same unpolarized
+intensities and are merged). `simulation_single_crystal` adds the satellites
+to the simulated reflections. The assistant recipe `magnetic_structure_k`
+does these steps.
+
+```text
+_parent_space_group_name_H-M_alt "P 63/m m c"
+
+loop_
+_space_group_symop_magn_k_id
+_space_group_symop_magn_k_operation_xyz
+_space_group_symop_magn_k_moment_uvw
+_space_group_symop_magn_k_phase
+1 x,y,z      u,v,w    0.0
+2 y,x,-z     v,u,-w   0.0
+3 x,y,-z-1/2 -u,-v,w  0.5
+4 y,x,z-1/2  -v,-u,-w 0.5
+```
 
 ## Errors
 

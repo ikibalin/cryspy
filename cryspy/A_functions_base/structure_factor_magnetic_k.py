@@ -368,14 +368,70 @@ def calc_powder_iint_magnetic_k(
     f_m_perp : numpy.ndarray
         (3, n_hkl) complex F_M_perp.
     """
-    index_hkl, sign_k = calc_satellite_index_hkl(
+    index_hkl, _ = calc_satellite_index_hkl(
         sthovl_min, sthovl_max, unit_cell_parameters, k_vector,
         centring_translations)
+    f_m_perp = calc_f_m_perp_k_at_index_hkl(
+        index_hkl, unit_cell_parameters, k_vector, op_rotation,
+        op_translation, op_moment, op_phase, centring_translations,
+        atom_fract_xyz, atom_occupancy, atom_b_iso, form_factor_function,
+        atom_fourier_crystalaxis)
+    iint = numpy.square(numpy.abs(f_m_perp)).sum(axis=0)
+    return index_hkl, iint, f_m_perp
+
+
+def calc_f_m_perp_k_at_index_hkl(
+        index_hkl, unit_cell_parameters, k_vector, op_rotation,
+        op_translation, op_moment, op_phase, centring_translations,
+        atom_fract_xyz, atom_occupancy, atom_b_iso, form_factor_function,
+        atom_fourier_crystalaxis, tolerance: float = 1e-4):
+    """F_M_perp of one propagation vector at arbitrary (fractional) indices.
+
+    The moments are ``m_Lj = sum_{±k} S_kj exp(-2 pi i k R_L)`` with
+    ``S_-k = S_k*`` (FullProf convention), so the term ``+k`` scatters at
+    ``H = h + k`` and the term ``-k`` at ``H = h - k`` (h integer). For a
+    general k only one of ``H - k`` and ``H + k`` can be integer, so every
+    fractional H belongs to one term without ambiguity. When k is
+    equivalent to -k (2k integer) the two terms are one and the same, the
+    sum has a single term and ``S_kj`` is the real moment. Indices which
+    are not satellites of k get zero.
+
+    Parameters
+    ----------
+    index_hkl : numpy.ndarray
+        (3, n_hkl) float Miller indices H in the reciprocal basis of the
+        crystal cell.
+    unit_cell_parameters : numpy.ndarray
+        a, b, c (Å), alpha, beta, gamma (radians).
+    k_vector : numpy.ndarray
+        (3,) propagation vector in the reciprocal basis.
+    op_rotation, op_translation, op_moment, op_phase, centring_translations,
+    atom_fract_xyz, atom_occupancy, atom_b_iso :
+        See :func:`calc_f_m_k`.
+    form_factor_function : callable
+        Takes sin(theta)/lambda (n,) (Å⁻¹) and returns (n, n_atom).
+    atom_fourier_crystalaxis : numpy.ndarray
+        (3, n_atom) complex Fourier components ``S_kj`` of the ``+k`` term
+        (μB, crystal axes).
+    tolerance : float
+        Tolerance to decide that ``H ∓ k`` is integer.
+
+    Returns
+    -------
+    f_m_perp : numpy.ndarray
+        (3, n_hkl) complex F_M_perp (10^-12 cm) in the Cartesian system
+        x || a*, z || c.
+    """
+    index_hkl = numpy.asarray(index_hkl, dtype=float)
+    k_vector = numpy.asarray(k_vector, dtype=float)
     multiplicity = calc_generated_multiplicity(
         atom_fract_xyz, op_rotation, op_translation, centring_translations)
     f_m_perp = numpy.zeros(index_hkl.shape, dtype=complex)
-    for sign in (1, -1):
-        flag = sign_k == sign
+    signs = (1,) if is_k_equivalent_to_minus_k(k_vector) else (1, -1)
+    for sign in signs:
+        index_h = index_hkl - sign * k_vector[:, na]
+        flag = numpy.all(
+            numpy.abs(index_h - numpy.round(index_h)) < tolerance, axis=0)
         if not numpy.any(flag):
             continue
         index_sign = index_hkl[:, flag]
@@ -386,15 +442,14 @@ def calc_powder_iint_magnetic_k(
         else:
             fourier, phase = numpy.conjugate(atom_fourier_crystalaxis), -op_phase
         f_m_ccs = calc_f_m_k(
-            index_sign, sign * numpy.asarray(k_vector, dtype=float),
+            index_sign, sign * k_vector,
             unit_cell_parameters, op_rotation, op_translation, op_moment,
             phase, centring_translations, atom_fract_xyz, atom_occupancy,
             atom_b_iso, form_factor_function(sthovl), fourier,
             atom_multiplicity=multiplicity)
         f_m_perp[:, flag] = calc_f_m_perp_k(
             index_sign, unit_cell_parameters, f_m_ccs)
-    iint = numpy.square(numpy.abs(f_m_perp)).sum(axis=0)
-    return index_hkl, iint, f_m_perp
+    return f_m_perp
 
 
 def calc_full_symm_elems_by_k_operations(
@@ -433,6 +488,103 @@ def calc_full_symm_elems_by_k_operations(
     return numpy.array(l_elems, dtype=int).transpose()
 
 
+def is_magnetic_k_refined(dict_crystal) -> bool:
+    """True when a parameter of the magnetic k-structure part of a crystal
+    dict is refined (Fourier components, positions, occupancies, B_iso,
+    form factor), so that cached F_M_perp of satellites must be recalculated.
+    """
+    for key in (
+            "flags_atom_fourier_real", "flags_atom_fourier_imag",
+            "flags_atom_fourier_phase", "flags_atom_fract_xyz",
+            "flags_atom_occupancy", "flags_atom_b_iso",
+            "flags_mag_atom_lande_factor", "flags_mag_atom_kappa"):
+        if key in dict_crystal and numpy.any(dict_crystal[key]):
+            return True
+    return False
+
+
+def _take_magnetic_k_atoms(dict_crystal):
+    """Arguments of :func:`calc_f_m_k` per propagation vector of a crystal dict.
+
+    Yields ``(i_k, arguments)`` where ``arguments`` is the dict of
+    keyword arguments of :func:`calc_f_m_perp_k_at_index_hkl` except
+    ``index_hkl`` and ``unit_cell_parameters``. Atom positions are reduced to
+    the first cell [0, 1), as in the rest of the crystal dictionary; the
+    moment phase refers to that cell.
+    """
+    atom_index = dict_crystal["atom_fourier_index"]
+    mag_index = dict_crystal["mag_atom_fourier_index"]
+    atom_fract_xyz = (
+        (dict_crystal["atom_site_sc_fract"].reshape(3, 3, -1)
+         * dict_crystal["atom_fract_xyz"][na, :, :]).sum(axis=1)
+        + dict_crystal["atom_site_sc_b"])[:, atom_index]
+    atom_occupancy = dict_crystal["atom_occupancy"][atom_index]
+    atom_b_iso = dict_crystal["atom_b_iso"][atom_index]
+    lande = dict_crystal["mag_atom_lande_factor"][mag_index]
+    kappa = dict_crystal["mag_atom_kappa"][mag_index]
+    j0 = dict_crystal["mag_atom_j0_parameters"][:, mag_index]
+    j2 = dict_crystal["mag_atom_j2_parameters"][:, mag_index]
+    centring = dict_crystal["magnetic_k_centring"]
+    fourier = (
+        dict_crystal["atom_fourier_real"]
+        + 1j * dict_crystal["atom_fourier_imag"]) * numpy.exp(
+            -2j * numpy.pi * dict_crystal["atom_fourier_phase"])[na, :]
+
+    for i_k, k_vector in enumerate(dict_crystal["magnetic_k_vector"].transpose()):
+        flag = dict_crystal["atom_fourier_k_index"] == i_k
+        if not numpy.any(flag):
+            continue
+
+        def form_factor_function(sthovl, flag=flag):
+            return calc_form_factor(
+                sthovl[:, na], lande[na, flag], kappa[na, flag],
+                j0[:, na, flag], j2[:, na, flag])[0]
+
+        yield i_k, dict(
+            k_vector=k_vector,
+            op_rotation=dict_crystal["magnetic_k_op_rotation"],
+            op_translation=dict_crystal["magnetic_k_op_translation"],
+            op_moment=dict_crystal["magnetic_k_op_moment"],
+            op_phase=dict_crystal["magnetic_k_op_phase"],
+            centring_translations=centring,
+            atom_fract_xyz=atom_fract_xyz[:, flag],
+            atom_occupancy=atom_occupancy[flag],
+            atom_b_iso=atom_b_iso[flag],
+            form_factor_function=form_factor_function,
+            atom_fourier_crystalaxis=fourier[:, flag])
+
+
+def calc_f_m_perp_k_by_dictionary(
+        dict_crystal, index_hkl, unit_cell_parameters):
+    """F_M_perp of all propagation vectors of a crystal dict at given indices.
+
+    Used for single crystals, where the measured reflections are given by
+    fractional indices H. The contributions of all propagation vectors
+    scattering at the same H are added coherently.
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal dictionary with the ``magnetic_k_*`` and ``atom_fourier_*``
+        keys (see ``form_magnetic_k_dictionary``).
+    index_hkl : numpy.ndarray
+        (3, n_hkl) float Miller indices in the reciprocal basis of the cell.
+    unit_cell_parameters : numpy.ndarray
+        a, b, c (Å), alpha, beta, gamma (radians).
+
+    Returns
+    -------
+    numpy.ndarray
+        (3, n_hkl) complex F_M_perp (10^-12 cm), Cartesian x || a*, z || c;
+        zero at indices which are not satellites.
+    """
+    f_m_perp = numpy.zeros(numpy.shape(index_hkl), dtype=complex)
+    for _, arguments in _take_magnetic_k_atoms(dict_crystal):
+        f_m_perp += calc_f_m_perp_k_at_index_hkl(
+            index_hkl, unit_cell_parameters, **arguments)
+    return f_m_perp
+
+
 def calc_powder_iint_magnetic_k_by_dictionary(
         dict_crystal, sthovl_min: float, sthovl_max: float,
         unit_cell_parameters):
@@ -462,43 +614,10 @@ def calc_powder_iint_magnetic_k_by_dictionary(
     k_index : numpy.ndarray
         (n_hkl,) index of the propagation vector of each satellite.
     """
-    atom_index = dict_crystal["atom_fourier_index"]
-    mag_index = dict_crystal["mag_atom_fourier_index"]
-    atom_fract_xyz = (
-        (dict_crystal["atom_site_sc_fract"].reshape(3, 3, -1)
-         * dict_crystal["atom_fract_xyz"][na, :, :]).sum(axis=1)
-        + dict_crystal["atom_site_sc_b"])[:, atom_index]
-    atom_occupancy = dict_crystal["atom_occupancy"][atom_index]
-    atom_b_iso = dict_crystal["atom_b_iso"][atom_index]
-    lande = dict_crystal["mag_atom_lande_factor"][mag_index]
-    kappa = dict_crystal["mag_atom_kappa"][mag_index]
-    j0 = dict_crystal["mag_atom_j0_parameters"][:, mag_index]
-    j2 = dict_crystal["mag_atom_j2_parameters"][:, mag_index]
-    centring = dict_crystal["magnetic_k_centring"]
-    fourier = (
-        dict_crystal["atom_fourier_real"]
-        + 1j * dict_crystal["atom_fourier_imag"]) * numpy.exp(
-            -2j * numpy.pi * dict_crystal["atom_fourier_phase"])[na, :]
-
     l_index, l_iint, l_k = [], [], []
-    for i_k, k_vector in enumerate(dict_crystal["magnetic_k_vector"].transpose()):
-        flag = dict_crystal["atom_fourier_k_index"] == i_k
-        if not numpy.any(flag):
-            continue
-
-        def form_factor_function(sthovl, flag=flag):
-            return calc_form_factor(
-                sthovl[:, na], lande[na, flag], kappa[na, flag],
-                j0[:, na, flag], j2[:, na, flag])[0]
-
+    for i_k, arguments in _take_magnetic_k_atoms(dict_crystal):
         index_hkl, iint, _ = calc_powder_iint_magnetic_k(
-            sthovl_min, sthovl_max, unit_cell_parameters, k_vector,
-            dict_crystal["magnetic_k_op_rotation"],
-            dict_crystal["magnetic_k_op_translation"],
-            dict_crystal["magnetic_k_op_moment"],
-            dict_crystal["magnetic_k_op_phase"], centring,
-            atom_fract_xyz[:, flag], atom_occupancy[flag], atom_b_iso[flag],
-            form_factor_function, fourier[:, flag])
+            sthovl_min, sthovl_max, unit_cell_parameters, **arguments)
         l_index.append(index_hkl)
         l_iint.append(iint)
         l_k.append(numpy.full(iint.shape, i_k, dtype=int))
@@ -507,3 +626,47 @@ def calc_powder_iint_magnetic_k_by_dictionary(
                 numpy.zeros((0,), dtype=int))
     return (numpy.concatenate(l_index, axis=1), numpy.concatenate(l_iint),
             numpy.concatenate(l_k))
+
+
+def calc_unique_satellite_index_hkl_by_dictionary(
+        dict_crystal, sthovl_min: float, sthovl_max: float,
+        unit_cell_parameters):
+    """Satellites of all propagation vectors, one per symmetry orbit.
+
+    The satellites ``h ± k`` in the range are reduced by the rotations of
+    the group of k and by Friedel's law (``H`` and ``-H`` give the same
+    unpolarized intensity), so that a simulated single-crystal measurement
+    has no equivalent reflections.
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal dictionary with the ``magnetic_k_*`` keys.
+    sthovl_min, sthovl_max : float
+        Range of sin(theta)/lambda (Å⁻¹).
+    unit_cell_parameters : numpy.ndarray
+        a, b, c (Å), alpha, beta, gamma (radians).
+
+    Returns
+    -------
+    numpy.ndarray
+        (3, n_hkl) float indices of the satellites.
+    """
+    rotation = dict_crystal["magnetic_k_op_rotation"].reshape(3, 3, -1)
+    l_matrix = [sign * rotation[:, :, s].transpose()
+                for s in range(rotation.shape[2]) for sign in (1., -1.)]
+    centring = dict_crystal["magnetic_k_centring"]
+    l_index, keys = [], set()
+    for k_vector in dict_crystal["magnetic_k_vector"].transpose():
+        index_hkl, _ = calc_satellite_index_hkl(
+            sthovl_min, sthovl_max, unit_cell_parameters, k_vector, centring)
+        for index in index_hkl.transpose():
+            key = tuple(numpy.round(index, 4) + 0.)
+            if key in keys:
+                continue
+            l_index.append(index)
+            for matrix in l_matrix:
+                keys.add(tuple(numpy.round(matrix @ index, 4) + 0.))
+    if len(l_index) == 0:
+        return numpy.zeros((3, 0), dtype=float)
+    return numpy.stack(l_index, axis=1)

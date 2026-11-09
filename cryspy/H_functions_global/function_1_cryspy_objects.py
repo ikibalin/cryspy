@@ -153,8 +153,10 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import (
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import (
     SpaceGroupSymopMagnKCentering, SpaceGroupSymopMagnKCenteringL)
 
+from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
+
 L_ITEM_CLASS.extend([MagneticStructureK, AtomSiteMomentFourier, SpaceGroupSymopMagnK,
-                     SpaceGroupSymopMagnKCentering])
+                     SpaceGroupSymopMagnKCentering, ParentSpaceGroup])
 L_LOOP_CLASS.extend([MagneticStructureKL, AtomSiteMomentFourierL, SpaceGroupSymopMagnKL,
                      SpaceGroupSymopMagnKCenteringL])
 

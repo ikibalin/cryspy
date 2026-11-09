@@ -70,6 +70,17 @@ from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import MagneticStructu
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourierL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import SpaceGroupSymopMagnKL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import SpaceGroupSymopMagnKCenteringL
+from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
+from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import MagneticStructureK
+from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourier
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import SpaceGroupSymopMagnK
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import SpaceGroupSymopMagnKCentering
+from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+    calc_magnetic_domain_matrices, form_phase_by_character, report_irreps,
+    split_atoms, split_labels, take_k_group, take_parent_space_group)
+from cryspy.A_functions_base.magnetic_k_symmetry import (
+    calc_fourier_basis, calc_fourier_projector, form_moment_uvw, form_operation_xyz)
+from cryspy.exceptions import CrysPyError
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
     SpaceGroupSymopMagnCenteringL,
@@ -152,6 +163,7 @@ class Crystal(DataN):
         AtomSiteMomentFourierL,
         SpaceGroupSymopMagnKL,
         SpaceGroupSymopMagnKCenteringL,
+        ParentSpaceGroup,
     )
     # CLASSES_INTERNAL = ()
 
@@ -897,6 +909,219 @@ class Crystal(DataN):
                     for name in names] + l_item + [""]
         obj = str_to_globaln("\n".join(ls_out))
         return obj.items[0]
+
+    def report_irreps_of_k(self, k_1: float, k_2: float, k_3: float,
+                           magnetic_atoms: str = "") -> str:
+        """Group of the propagation vector k and its representations.
+
+        Lists the operations of the space group which keep k, the
+        characters of the one-dimensional irreducible representations
+        (Γ1, Γ2, ...) and, for every magnetic atom, the Fourier components
+        that each representation allows. Use it to choose ``irrep`` of
+        :meth:`add_propagation_vector`; the crystal is not changed.
+
+        Parameters
+        ----------
+        k_1 : float
+            First component of the propagation vector (reciprocal lattice units).
+        k_2 : float
+            Second component of the propagation vector (reciprocal lattice units).
+        k_3 : float
+            Third component of the propagation vector (reciprocal lattice units).
+        magnetic_atoms : str
+            Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
+
+        Returns
+        -------
+        str
+            Markdown report.
+        """
+        k_vector = numpy.array([k_1, k_2, k_3], dtype=float)
+        space_group = take_parent_space_group(self)
+        k_group = take_k_group(space_group, k_vector)
+        atoms = {}
+        for label in split_labels(magnetic_atoms):
+            item = self.atom_site[label]
+            atoms[label] = numpy.array([item.fract_x, item.fract_y, item.fract_z],
+                                       dtype=float)
+        return report_irreps(k_group, k_vector, atoms)
+
+    def add_propagation_vector(self, k_1: float, k_2: float, k_3: float,
+                               magnetic_atoms: str, irrep: int = 1,
+                               moment: float = 0.0) -> str:
+        """Describe the magnetic structure by a propagation vector k.
+
+        The space group is replaced by the operations of the group of k
+        (``space_group_symop_magn_k``, ``space_group_symop_magn_k_centering``)
+        with the moment phases of the chosen one-dimensional representation;
+        these operations describe the nuclear and the magnetic structure
+        together, so the atoms whose orbit splits in the group of k become
+        several atoms ('O1', 'O1_2', ...; anisotropic ADP rotated). The
+        space group stays as ``parent_space_group`` (for the domains).
+        ``magnetic_structure_k`` and ``atom_site_moment_fourier`` are added
+        for the magnetic atoms, which need ``atom_site_scat`` (form factor).
+        The report lists the representations and the allowed Fourier
+        components (see :meth:`report_irreps_of_k`).
+
+        Parameters
+        ----------
+        k_1 : float
+            First component of the propagation vector (reciprocal lattice units).
+        k_2 : float
+            Second component of the propagation vector (reciprocal lattice units).
+        k_3 : float
+            Third component of the propagation vector (reciprocal lattice units).
+        magnetic_atoms : str
+            Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
+        irrep : int
+            Number of the one-dimensional irreducible representation (1 for Γ1).
+        moment : float
+            Start amplitude of the Fourier components in μB (0 keeps them zero).
+
+        Returns
+        -------
+        str
+            Markdown report of the conversion.
+        """
+        if self.is_attribute("magnetic_structure_k"):
+            raise CrysPyError(
+                "The crystal already has a propagation vector; a second one "
+                "is not supported yet.")
+        if self.is_attribute("space_group_symop_magn_operation"):
+            raise CrysPyError(
+                "The crystal is described by a magnetic space group (mcif); "
+                "start from the paramagnetic crystal with space_group.")
+        if not self.is_attribute("space_group"):
+            raise CrysPyError("The crystal needs space_group (the paramagnetic group).")
+        k_vector = numpy.array([k_1, k_2, k_3], dtype=float)
+        l_magnetic = split_labels(magnetic_atoms)
+        l_label = list(self.atom_site.label)
+        l_unknown = [label for label in l_magnetic if label not in l_label]
+        if not l_magnetic or l_unknown:
+            raise CrysPyError(
+                f"Unknown magnetic atoms {l_unknown}; the atoms are {l_label}.")
+        l_scat = (list(self.atom_site_scat.label)
+                  if self.is_attribute("atom_site_scat") else [])
+        l_no_scat = [label for label in l_magnetic if label not in l_scat]
+        if l_no_scat:
+            raise CrysPyError(
+                f"The magnetic atoms {l_no_scat} need atom_site_scat with the "
+                "magnetic ion (type_symbol such as Fe3+) and the Lande factor.")
+        space_group = self.space_group
+        k_group = take_k_group(space_group, k_vector)
+        if not 1 <= irrep <= len(k_group["irreps"]):
+            raise CrysPyError(
+                f"irrep must be from 1 to {len(k_group['irreps'])}.\n\n"
+                + report_irreps(k_group, k_vector, {}))
+        phase = form_phase_by_character(k_group["irreps"][irrep - 1])
+        rotation, translation = k_group["rotation"], k_group["translation"]
+
+        atoms = {label: numpy.array([self.atom_site[label].fract_x,
+                                     self.atom_site[label].fract_y,
+                                     self.atom_site[label].fract_z], dtype=float)
+                 for label in l_magnetic}
+        report = report_irreps(k_group, k_vector, atoms)
+        d_split = split_atoms(self, k_group)
+
+        l_op = [SpaceGroupSymopMagnK(
+            id=str(s + 1), operation_xyz=form_operation_xyz(
+                rotation[:, s], translation[:, s]),
+            moment_uvw=form_moment_uvw(k_group["moment"][:, s]),
+            phase=float(phase[s])) for s in range(rotation.shape[1])]
+        loop_op = SpaceGroupSymopMagnKL()
+        loop_op.items = l_op
+        l_new = [loop_op]
+        centring = k_group["centring"]
+        if centring.shape[1] > 1:
+            loop_centring = SpaceGroupSymopMagnKCenteringL()
+            loop_centring.items = [SpaceGroupSymopMagnKCentering(
+                id=str(c), xyz=form_operation_xyz(numpy.eye(3).flatten(),
+                                                  centring[:, c]))
+                for c in range(1, centring.shape[1])]
+            l_new.append(loop_centring)
+        loop_k = MagneticStructureKL()
+        loop_k.items = [MagneticStructureK(
+            number=1, vector_1=float(k_1), vector_2=float(k_2), vector_3=float(k_3))]
+        l_new.append(loop_k)
+
+        l_fourier, l_text = [], []
+        new_atom_site = d_split["atom_site"]
+        for label in l_magnetic:
+            for new_label in d_split["labels"][label]:
+                item = new_atom_site[new_label]
+                xyz = numpy.array([item.fract_x, item.fract_y, item.fract_z], dtype=float)
+                basis = calc_fourier_basis(calc_fourier_projector(
+                    xyz, rotation, translation, k_group["moment"], phase,
+                    centring, k_vector))
+                start = numpy.zeros(3, dtype=complex)
+                if basis.shape[1] > 0 and moment != 0.:
+                    start = basis @ (basis.conj().transpose() @ numpy.ones(3))
+                    if numpy.linalg.norm(start) < 1e-8:
+                        start = basis[:, 0]
+                    start = moment * start / numpy.linalg.norm(start)
+                l_fourier.append(AtomSiteMomentFourier(
+                    label=new_label, k_number=1,
+                    real_x=float(numpy.round(start[0].real, 6)),
+                    real_y=float(numpy.round(start[1].real, 6)),
+                    real_z=float(numpy.round(start[2].real, 6)),
+                    imag_x=float(numpy.round(start[0].imag, 6)),
+                    imag_y=float(numpy.round(start[1].imag, 6)),
+                    imag_z=float(numpy.round(start[2].imag, 6)), phase=0.))
+                l_text.append(new_label)
+        loop_fourier = AtomSiteMomentFourierL()
+        loop_fourier.items = l_fourier
+        l_new.append(loop_fourier)
+
+        parent = ParentSpaceGroup(name_hm_alt=space_group.name_hm_alt)
+        if space_group.is_attribute("it_number"):
+            parent.it_number = space_group.it_number
+        if space_group.is_attribute("it_coordinate_system_code"):
+            parent.it_coordinate_system_code = space_group.it_coordinate_system_code
+        l_new.append(parent)
+
+        self.items[:] = [item for item in self.items
+                         if not isinstance(item, SpaceGroup)]
+        for loop_name in ("atom_site", "atom_site_aniso", "atom_site_scat"):
+            if loop_name in d_split:
+                l_new.append(d_split[loop_name])
+        self.add_items(l_new)
+
+        l_split = [f"{label} → {', '.join(labels)}"
+                   for label, labels in d_split["labels"].items() if len(labels) > 1]
+        n_domain = calc_magnetic_domain_matrices(self).shape[1]
+        ls_out = [report, "", f"# Conversion (Γ{irrep})", "",
+                  f"space_group {space_group.name_hm_alt} replaced by "
+                  f"{rotation.shape[1]} operations of the group of k "
+                  f"(kept as parent_space_group).",
+                  "Atoms split by the group of k: " + ("; ".join(l_split) if l_split else "none") + ".",
+                  f"Fourier components added for: {', '.join(l_text)} "
+                  f"({'start ' + str(moment) + ' μB' if moment else 'zero'}; "
+                  "refine or set atom_site_moment_fourier).",
+                  f"Magnetic domains (k-domains, Friedel pairs merged): {n_domain}; "
+                  "Diffrn.define_magnetic_domains adds them to a single-crystal experiment."]
+        return "\n".join(ls_out)
+
+    def report_magnetic_domains(self) -> str:
+        """Magnetic domains of the structure with a propagation vector.
+
+        The domains are the cosets of the group of k in the paramagnetic
+        group (``parent_space_group``); a domain gives at H the intensity of
+        the first domain at M·H. Domains related by the inversion give the
+        same unpolarized intensities (Friedel's law) and are merged.
+
+        Returns
+        -------
+        str
+            Markdown table of the matrices M.
+        """
+        matrices = calc_magnetic_domain_matrices(self)
+        ls_out = [f"# Magnetic domains: {matrices.shape[1]}", "",
+                  "| Domain | M (rows) |", "|---|---|"]
+        for i_domain, matrix in enumerate(matrices.transpose()):
+            rows = "; ".join(" ".join(f"{int(value):d}" for value in matrix[3 * i:3 * i + 3])
+                             for i in range(3))
+            ls_out.append(f"| {i_domain + 1} | {rows} |")
+        return "\n".join(ls_out)
 
     def report_ellipsoids(self, kind: str = "ADP", flag_unit_cell: bool = False,
                           field: float = 1.) -> str:

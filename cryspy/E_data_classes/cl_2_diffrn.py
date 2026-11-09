@@ -32,7 +32,7 @@ from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import DiffrnRadiation
-from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwinL
+from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwin, JanaTwinL
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import (
     DiffrnOrientMatrix,
 )
@@ -46,6 +46,8 @@ from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import (
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
+from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+    calc_magnetic_domain_matrices)
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
@@ -374,6 +376,47 @@ class Diffrn(DataN):
     def apply_constraints(self):
         """Apply constraints."""
         pass
+
+    def define_magnetic_domains(self, crystal: Crystal,
+                                flag_refine: bool = False) -> str:
+        """Add the magnetic domains of a crystal with a propagation vector.
+
+        The domains (cosets of the group of k in ``parent_space_group``,
+        Friedel pairs merged; see ``Crystal.report_magnetic_domains``) are
+        written as ``jana_twin`` with equal fractions; an existing
+        ``jana_twin`` is replaced. The nuclear intensities do not change,
+        since every domain matrix is a symmetry of the paramagnetic crystal.
+
+        Parameters
+        ----------
+        crystal : Crystal
+            Crystal with the propagation vector.
+        flag_refine : bool
+            Refine the domain fractions?
+
+        Returns
+        -------
+        str
+            Short report.
+        """
+        matrices = calc_magnetic_domain_matrices(crystal)
+        n_domain = matrices.shape[1]
+        self.items[:] = [item for item in self.items if not isinstance(item, JanaTwinL)]
+        if n_domain == 1:
+            return "One magnetic domain: no jana_twin is needed."
+        l_twin = []
+        for i_domain, matrix in enumerate(matrices.transpose()[1:]):
+            kwargs = {f"matrix_{i // 3 + 1}{i % 3 + 1}": float(value)
+                      for i, value in enumerate(matrix)}
+            twin = JanaTwin(id=i_domain + 2, fraction=round(1. / n_domain, 6), **kwargs)
+            twin.fraction_refinement = bool(flag_refine)
+            l_twin.append(twin)
+        loop_twin = JanaTwinL()
+        loop_twin.items = l_twin
+        self.add_items([loop_twin])
+        return (f"{n_domain} magnetic domains of {crystal.data_name} added as "
+                f"jana_twin with fractions 1/{n_domain}"
+                + (" (refined)." if flag_refine else "."))
 
     def plots(self):
         l_res = []
