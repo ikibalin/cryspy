@@ -1,0 +1,17 @@
+# Weekly updates of the GitHub Actions used in the workflows.
+# Python dependencies are not updated here: they are pinned in pixi.lock,
+# which Dependabot cannot regenerate.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    # The PR label check in CI requires a [scope] label.
+    labels:
+      - "[scope] maintenance"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

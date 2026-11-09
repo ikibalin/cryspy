@@ -1,15 +1,10 @@
 """Describe AtomSiteSusceptibility, AtomSiteSusceptibilityL."""
 from typing import NoReturn
-import math
 import numpy
 
-from cryspy.A_functions_base.function_1_algebra import calc_m_sigma
-from cryspy.A_functions_base.function_1_atomic_vibrations import \
-    vibration_constraints
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
-import cryspy.A_functions_base.local_susceptibility as local_susceptibility
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN

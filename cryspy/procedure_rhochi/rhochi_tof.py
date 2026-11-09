@@ -1,8 +1,6 @@
 import numpy
-import scipy
-import scipy.interpolate
-import scipy.special
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
 
 from cryspy.A_functions_base.unit_cell import \
@@ -18,7 +16,7 @@ from cryspy.A_functions_base.integrated_intensity_powder_diffraction import \
 from cryspy.A_functions_base.preferred_orientation import calc_preferred_orientation_pd
 
 from cryspy.A_functions_base.powder_diffraction_tof import \
-    calc_spectrum, calc_time_for_epithermal_neutrons_by_d, calc_time_for_thermal_neutrons_by_d, \
+    calc_time_for_epithermal_neutrons_by_d, calc_time_for_thermal_neutrons_by_d, \
     calc_d_by_time_for_thermal_neutrons, calc_d_min_max_by_time_thermal_neutrons, \
     calc_d_min_max_by_time_epithermal_neutrons, calc_lorentz_factor, calc_peak_shape_function
 
@@ -316,7 +314,6 @@ def calc_chi_sq_for_tof_by_dictionary(
             dict_in_out_phase["index_hkl"] = index_hkl
             dict_in_out_phase["multiplicity_hkl"] = multiplicity_hkl
 
-        flag_sthovl_hkl = flag_unit_cell_parameters
         sthovl_hkl, dder_sthovl_hkl = calc_sthovl_by_unit_cell_parameters(index_hkl,
                                                                           unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
@@ -330,7 +327,6 @@ def calc_chi_sq_for_tof_by_dictionary(
 
         d_4_hkl = numpy.power(d_hkl, 4)
 
-        flag_time_hkl = flag_sthovl_hkl
         dict_in_out_phase["time_hkl"] = time_hkl
         dict_in_out_phase["d_hkl"] = d_hkl
 
@@ -342,7 +338,6 @@ def calc_chi_sq_for_tof_by_dictionary(
             dict_crystal, dict_in_out_phase, flag_use_precalculated_data=flag_use_precalculated_data)
         flag_sft_ccs = len(dder_sft_ccs.keys()) > 0
 
-        flag_matrix_t = flag_unit_cell_parameters
         matrix_t, dder_matrix_t = calc_matrix_t(
             index_hkl, unit_cell_parameters, flag_unit_cell_parameters=flag_unit_cell_parameters)
 
@@ -374,7 +369,7 @@ def calc_chi_sq_for_tof_by_dictionary(
                     not(flag_hh)):
                 preferred_orientation = dict_in_out_phase["preferred_orientation"]
             else:
-                preferred_orientation, dder_po = calc_preferred_orientation_tof(
+                preferred_orientation, dder_po = calc_preferred_orientation_pd(
                     index_hkl, texture_g1, texture_g2, texture_axis, unit_cell_parameters,
                     flag_texture_g1=flag_texture_g1 and flag_calc_analytical_derivatives,
                     flag_texture_g2=flag_texture_g2 and flag_calc_analytical_derivatives,
@@ -498,8 +493,8 @@ def calc_chi_sq_for_tof_by_dictionary(
     if flag_chi_sq_sum:
         in_points = numpy.logical_not(excluded_points)
         total_signal_sum = total_signal_plus + total_signal_minus + signal_background
-        chi_sq_sum = ((numpy.square(
-            (signal_exp - total_signal_sum)/signal_sigma)*in_points)).sum(axis=0)
+        chi_sq_sum = calc_chi_sq_by_signal(
+            signal_exp, signal_sigma, total_signal_sum, included_points=in_points)[0]
         chi_sq += chi_sq_sum
         n_point += numpy.sum(in_points)
 
@@ -508,8 +503,8 @@ def calc_chi_sq_for_tof_by_dictionary(
         signal_sigma_diff = numpy.sqrt(numpy.square(
             signal_exp_plus[1, :]) + numpy.square(signal_exp_minus[1, :]))
         total_signal_diff = total_signal_plus - total_signal_minus
-        chi_sq_diff = (numpy.square(
-            (signal_exp_diff - total_signal_diff)/signal_sigma_diff)).sum(axis=0)
+        chi_sq_diff = calc_chi_sq_by_signal(
+            signal_exp_diff, signal_sigma_diff, total_signal_diff)[0]
         chi_sq += chi_sq_diff
         n_point += signal_exp_diff.shape[0]
     if numpy.isnan(chi_sq):

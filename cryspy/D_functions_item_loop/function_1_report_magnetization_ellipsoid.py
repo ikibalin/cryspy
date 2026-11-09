@@ -15,6 +15,19 @@ def magnetization_ellipsoid_by_u_ij(
         cell: Cell,
         atom_site_susceptibility: AtomSiteSusceptibility):
     """Calc magnetization ellispoid through thermal parameters U_ij.
+
+    Parameters
+    ----------
+    cell : Cell
+        Unit cell of the crystal.
+    atom_site_susceptibility : AtomSiteSusceptibility
+        Atomic susceptibility of one atom.
+
+    Returns
+    -------
+    numpy.ndarray
+        U_11, U_22, U_33, U_12, U_13, U_23 of the ellipsoid, to plot it as
+        thermal ellipsoid.
     """
     ucp = cell.get_unit_cell_parameters()
     
@@ -32,11 +45,24 @@ def magnetization_ellipsoid_by_u_ij(
 def report_main_axes_of_magnetization_ellipsoids(
         cell: Cell,
         atom_site_susceptibility: Union[AtomSiteSusceptibility, AtomSiteSusceptibilityL]):
-    """Give a report about magnetizatin ellipsoid"""
+    """Give a report about magnetizatin ellipsoid.
+
+    Parameters
+    ----------
+    cell : Cell
+        Unit cell of the crystal.
+    atom_site_susceptibility : AtomSiteSusceptibility or AtomSiteSusceptibilityL
+        Atomic susceptibilities of the crystal.
+
+    Returns
+    -------
+    str
+        Report in markdown: principal axes of the susceptibility tensor of
+        every atom and the U_ij of the ellipsoid.
+    """
 
     ls_out = []
     ucp = cell.get_unit_cell_parameters()
-    a_s_m_a = atom_site_susceptibility
 
     if isinstance(atom_site_susceptibility, AtomSiteSusceptibilityL):
         a_s_s_items = atom_site_susceptibility.items
@@ -76,9 +102,9 @@ def report_main_axes_of_magnetization_ellipsoids(
         ls_out.append(f"\nEllipsoid factor {ef:.5f}.\n")
 
         ls_out.append("\nUse thermal parameters U_ij to plot ellispoid.\n")
-        ls_out.append(f"|      U_11|      U_22|      U_33|      U_12|      \
+        ls_out.append("|      U_11|      U_22|      U_33|      U_12|      \
 U_13|      U_23|")
-        ls_out.append(f"|----------|----------|----------|----------|------\
+        ls_out.append("|----------|----------|----------|----------|------\
 ----|----------|")
         ls_out.append(
                 f"|{u_ij[0]:9.3f}|{u_ij[1]:9.3f}|\

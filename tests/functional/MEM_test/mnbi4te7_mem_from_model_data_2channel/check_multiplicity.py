@@ -1,7 +1,5 @@
-import numpy
 from cryspy import file_to_globaln
 
-from cryspy.A_functions_base.function_1_matrices import calc_chi_sq
 
 f_name = "main.rcif"
 

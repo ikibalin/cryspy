@@ -1,0 +1,22 @@
+# Flip ratios of a paramagnetic single crystal (polarized neutrons, diffrn_refln_fr)
+# described by a nuclear space group: the susceptibility tensors of the magnetic atoms.
+Recipe refine_flip_ratio_nuclear: Refinement of flip ratios with a nuclear space group
+Requests: refine the flip ratios, refine the susceptibility, the magnetization of a paramagnet, polarized neutrons on a single crystal
+For: flip_ratio, nuclear
+
+1. start: Fix all parameters, calculate the model and check that it gives magnetic scattering: the calculated flip ratios are not all equal to 1. Without it the magnetic field (setup.field), the polarization of the beam (diffrn_radiation) or a magnetic atom (atom_site_susceptibility with atom_site_scat) is missing; check_flip_ratio_model asks the user for them.
+   Actions: fix_parameters; check_flip_ratio_model
+   Success: the calculated flip ratios are not all equal to 1.
+   Otherwise: Stop and explain what is missing in the model.
+2. chi_iso: Isotropic susceptibility (Ciso) of the magnetic atoms: chi_11.
+   Actions: set_chi_type {"chi_type": "Ciso"}; refine_parameters {"pattern": "chi_11"}; refine
+3. chi_aniso: Anisotropic susceptibility (Cani): all parameters of the tensor allowed by the symmetry of the site.
+   Actions: set_chi_type {"chi_type": "Cani"}; refine_parameters {"pattern": "atom_site_susceptibility"}; refine
+4. kappa: Expansion or contraction of the magnetic form factor (kappa).
+   Actions: refine_parameters {"pattern": "kappa"}; refine
+5. polarization: Polarization of the beam.
+   Actions: refine_parameters {"pattern": "polarization"}; refine
+6. extinction: Extinction.
+   Actions: refine_parameters {"pattern": "extinction"}; refine
+
+Final answer: chi_sq/n of the start model and at the end, the susceptibility tensors of the magnetic atoms with sigmas, the steps done, skipped and undone with the reason, and the warnings that remain.

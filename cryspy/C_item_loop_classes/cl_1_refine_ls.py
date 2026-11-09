@@ -87,7 +87,7 @@ class RefineLs(ItemN):
             setattr(self, key, attr)
 
     def report(self):
-        l_res = []
+        l_res = ["# Refinement", ""]
         if self.is_attribute("goodness_of_fit_all"):
             l_res.append(f"|Goodness of fit | {self.goodness_of_fit_all:.2f}|")
         if self.is_attribute("number_reflns"):
@@ -98,6 +98,8 @@ class RefineLs(ItemN):
             l_res.append(f"|Restraints number | {self.number_restraints:}|")
         if self.is_attribute("number_constraints"):
             l_res.append(f"|Constraints number | {self.number_constraints:}|")
+        if len(l_res) == 2:
+            return ""
         return "\n".join(l_res)
 
 

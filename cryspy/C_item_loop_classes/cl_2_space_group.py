@@ -29,7 +29,6 @@ from cryspy.A_functions_base.function_2_space_group import \
     get_name_schoenflies_by_it_number, \
     get_laue_class_by_name_schoenflies, \
     get_point_group_hm_short_by_name_schoenflies, \
-    get_generators_by_point_group_hm, \
     get_patterson_name_hm_by_lattice_type_laue_class, \
     ACCESIBLE_IT_NUMBER, ACCESIBLE_BRAVAIS_TYPE, \
     ACCESIBLE_IT_COORDINATE_SYSTEM_CODE, ACCESIBLE_LAUE_CLASS, \
@@ -46,6 +45,7 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop import \
 
 from cryspy.C_item_loop_classes.cl_1_space_group_wyckoff import \
     SpaceGroupWyckoff, SpaceGroupWyckoffL
+from cryspy.exceptions import RcifFormatError
 
 
 class SpaceGroup(ItemN):
@@ -96,6 +96,18 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         set(ACCESIBLE_NAME_HM_SHORT) | set(ACCESIBLE_NAME_HM_FULL) |
         set(ACCESIBLE_NAME_HM_EXTENDED))
 
+    # Hermann-Mauguin symbols written without spaces ("Ia-3d" in many CIF
+    # files) are read as the symbol with spaces ("I a -3 d") when only one
+    # allowed symbol has these characters.
+    D_NAME_HM_WITHOUT_SPACES = {}
+    for _name in ACCESIBLE_NAME_HM_ALT:
+        D_NAME_HM_WITHOUT_SPACES.setdefault(
+            "".join(_name.split()), set()).add(_name)
+    D_NAME_HM_WITHOUT_SPACES = {
+        _key: _names.pop() for _key, _names in D_NAME_HM_WITHOUT_SPACES.items()
+        if len(_names) == 1}
+    del _name
+
     # constraints on the parameters
     D_CONSTRAINTS = {
         "it_number": ACCESIBLE_IT_NUMBER,
@@ -145,8 +157,22 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         if flag_form_object:
             self.form_object()
 
+    def __setattr__(self, name: str, value) -> NoReturn:
+        if ((name in ("name_hm_alt", "name_hm_ref", "name_hm_full")) and
+                isinstance(value, str) and
+                (value not in self.D_CONSTRAINTS[name])):
+            name_hm = self.D_NAME_HM_WITHOUT_SPACES.get("".join(value.split()))
+            if name_hm in self.D_CONSTRAINTS[name]:
+                value = name_hm
+        super(SpaceGroup, self).__setattr__(name, value)
+
     def form_object(self) -> NoReturn:
         """Form object."""
+        self.define_it_number_and_it_coordinate_system_code()
+        if not self.is_attribute("it_number"):
+            raise RcifFormatError(
+                "The space group is not recognized: give a known "
+                "_space_group_name_H-M_alt or _space_group_IT_number.")
         self.form_object_by_it_number_it_coordinate_system_code()
         self.__dict__["shift"] = get_shift_by_centring_type(self.centring_type)
 
@@ -226,12 +252,11 @@ To defince magnetic space group instead this item use two loops: space_group_sym
             crystal_system = None, None, None, None, None
         name_hm_extended, name_hm_full, name_hm_short = None, None, None
         name_hall, name_schoenflies, point_group_hm = None, None, None
-        pcentr = None
+        pcentr, centrosymmetry = None, None
         reduced_space_group_symop, full_space_group_symop = None, None
         space_group_wyckoff = None
 
         lattice_type = None
-        generators = ()
         self.define_it_number_and_it_coordinate_system_code()
         try:
             it_number = self.it_number
@@ -268,8 +293,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
             laue_class = get_laue_class_by_name_schoenflies(name_schoenflies)
             point_group_hm = get_point_group_hm_short_by_name_schoenflies(
                 name_schoenflies)
-            if point_group_hm is not None:
-                generators = get_generators_by_point_group_hm(point_group_hm)
             if ((lattice_type is not None) & (laue_class is not None)):
                 patterson_name_hm = \
                     get_patterson_name_hm_by_lattice_type_laue_class(
@@ -565,49 +588,6 @@ To defince magnetic space group instead this item use two loops: space_group_sym
         else:
             f_hkl = f_hkl_1
         return f_hkl
-
-    def calc_asymmetric_cell(self, n_a, n_b, n_c):
-        """Give the numbers in asymmetric cell.
-
-         :n_a: the number of points along a axis
-         :n_b: the numper of points along b axis
-         :n_c: the numper of points along c axis
-
-        na, n_b, nc should be divided on 24: 8 and 3
-
-        :output: - l_coord is a list of coordinates in asymmetric cell
-                   (frac_x = n_x/n_a and so on)
-                 - l_symm contains a list of symmetry given as
-                   (n_symm, centr, n_orig)
-        """
-        n_a_new = int(round(n_a/24))*24
-        # n_b_new = int(round(n_b/24))*24
-        # n_c_new = int(round(n_c/24))*24
-
-        # l_el_symm = self.el_symm
-        # f_centr = self.centr
-        # p_centr = self.p_centr
-        # l_orig = self.orig
-        l_coord = []
-
-        spgr_choice = self.spgr_choice
-        # spgr_name = self.spgr_name
-        spgr_number = self.spgr_number
-
-        if (spgr_number == 227) & (spgr_choice == "2"):
-            n_a_new = int(round(n_a/8))*8
-            for n_x in range(-n_a_new//8, 3*n_a_new//8+1):
-                for n_y in range(-n_a_new//8, 0+1):
-                    for n_z in range(-n_a_new//4, 0+1):
-                        cond_1 = (n_y < min([n_a_new//4-n_x, n_x]))
-                        cond_2 = (n_z >= -n_y-n_a_new//4)
-                        cond_3 = (n_z <= n_y)
-                        if (cond_1 & cond_2 & cond_3):
-                            coord_x = float(n_x)/float(n_a_new)
-                            coord_y = float(n_y)/float(n_a_new)
-                            coord_z = float(n_z)/float(n_a_new)
-                            l_coord.append((coord_x, coord_y, coord_z))
-        return l_coord
 
     def calc_rotated_matrix_for_position(self, m_chi, x, y, z):
         """Calc rotated matrix for position."""

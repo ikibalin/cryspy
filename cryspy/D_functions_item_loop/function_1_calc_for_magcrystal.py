@@ -9,7 +9,7 @@ Functions
 import numpy
 
 from cryspy.A_functions_base.function_3_mcif import \
-    calc_full_sym_elems, calc_multiplicity, calc_moment_by_sym_elem
+    calc_multiplicity, calc_moment_by_sym_elem
 
 from cryspy.A_functions_base.function_2_crystallography_base import \
     calc_phase_by_hkl_xyz_rb, calc_dwf

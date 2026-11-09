@@ -1,7 +1,8 @@
 """Classes AtomSiteScat, AtomSiteScatL."""
 from typing import NoReturn
 import numpy
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary

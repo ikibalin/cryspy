@@ -18,6 +18,9 @@ To search the specific function or the class key words should be used:
     >>> cryspy.functions("flip ratio")
     >>> cryspy.classes("tof")
 
+Help on rcif categories and on how to describe a model:
+    >>> print(cryspy.get_help("thermal vibrations"))
+
 To load data from ".cif" file use the function:
     >>> data = cryspy.load_file(file_name)
 
@@ -49,11 +52,28 @@ __status__ = "Development"
 __date__ = "27.04.2026"
 name = "cryspy"
 
+import logging as _logging
+# The library reports progress and problems through the "cryspy" logger and
+# never prints by itself. The application decides where messages go, e.g.
+# logging.basicConfig(level=logging.INFO, format="%(message)s") in a script.
+_logging.getLogger("cryspy").addHandler(_logging.NullHandler())
+# Progress lines (one per iteration) carry progress=True, so that a program
+# can replace the previous one: logger.info(text, extra=PROGRESS).
+from cryspy.A_functions_base.progress import PROGRESS, is_progress_record
+
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+
+from cryspy.exceptions import (
+    CrysPyError,
+    RcifFormatError,
+    RcifFileNotFoundError,
+    RefinementError,
+    CrysPyWarning,
+)
 
 
 from cryspy.A_functions_base.function_1_algebra import (
@@ -65,7 +85,6 @@ from cryspy.A_functions_base.function_1_algebra import (
 from cryspy.A_functions_base.function_1_atomic_vibrations import (
     calc_beta_by_u,
     vibration_constraints,
-    apply_constraint_on_cell_by_type_cell,
 )
 from cryspy.A_functions_base.function_1_error_simplex import (
     error_estimation_simplex,
@@ -86,11 +105,6 @@ from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_matrices import (
     calc_chi_sq,
     tri_linear_interpolation,
-    transform_string_to_r_b,
-    transform_string_to_digits,
-    transform_fraction_with_label_to_string,
-    transform_digits_to_string,
-    transform_r_b_to_string,
     calc_mRmCmRT,
     calc_rotation_matrix_ij_by_euler_angles,
     calc_euler_angles_by_rotation_matrix_ij,
@@ -103,9 +117,6 @@ from cryspy.A_functions_base.function_1_matrices import (
     calc_vector_product,
     scalar_product,
     calc_rotation_matrix_by_two_vectors,
-    ortogonalize_matrix,
-    calc_moment_2d_by_susceptibility,
-    calc_phase_3d,
 )
 from cryspy.A_functions_base.function_1_objects import (
     get_functions_of_objet,
@@ -211,6 +222,10 @@ from cryspy.D_functions_item_loop.function_1_report_magnetization_ellipsoid impo
     report_main_axes_of_magnetization_ellipsoids,
 )
 
+from cryspy.D_functions_item_loop.function_1_view_structure import (
+    StructureViewSettings,
+)
+
 from cryspy.B_parent_classes.cl_3_hkl_cell import calc_d_sthovl_for_hkl
 
 # from cryspy.D_functions_item_loop.structure_factor import \
@@ -238,6 +253,11 @@ from cryspy.H_functions_global.function_1_cryspy_objects import (
     L_FUNCTION_ADD,
 )
 
+from cryspy.H_functions_global.cod import (
+    add_crystal_from_cod,
+    cif_to_crystal,
+    load_cif_from_cod,
+)
 from cryspy.H_functions_global.powder_experiments import (
     report_powder_experiments,
 )
@@ -247,6 +267,7 @@ from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement_with_parameters,
     rhochi_no_refinement,
     rhochi_inversed_hessian,
+    report_refined_parameters,
 )
 
 
@@ -268,6 +289,40 @@ from cryspy.procedure_simulation.simulation import (
     simulation_single_crystal,
     simulation_current_experiments,
 )
+
+from cryspy.B_parent_classes.attributes import (
+    describe_attributes,
+    next_value_choice,
+    take_refinable_cif_tags,
+    take_value_choices,
+)
+
+from cryspy.procedure_assistant.help import (
+    get_help,
+    help_topics,
+)
+
+from cryspy.procedure_assistant.tools import (
+    ArgumentsNeeded,
+    assistant_tools,
+    assistant_tools_as_text,
+    call_assistant_tool,
+    convert_assistant_answer,
+)
+from cryspy.procedure_assistant.procedures import (
+    describe_procedure,
+    describe_procedures,
+)
+from cryspy.procedure_assistant.recipes import run_recipe, set_user_recipe_folder
+from cryspy.procedure_assistant.constraints import (
+    add_constraint,
+    propose_mark,
+    remove_constraint,
+    set_parameter_marks,
+    take_constraints,
+    take_marked_parameters,
+)
+from cryspy.A_functions_base.linear_constraints import parse_linear_constraint
 
 
 def repr_function(function, flag_long: bool = False):
@@ -432,6 +487,18 @@ L_FUNCTION = [
     simulation_unpolarized_neutron_powder_diffraction,
     simulation_polarized_neutron_powder_diffraction,
     simulation_current_experiments,
+    get_help,
+    help_topics,
+    assistant_tools,
+    assistant_tools_as_text,
+    call_assistant_tool,
+    convert_assistant_answer,
+    describe_procedure,
+    describe_procedures,
+    run_recipe,
+    set_user_recipe_folder,
+    load_cif_from_cod,
+    cif_to_crystal,
 ]
 
 

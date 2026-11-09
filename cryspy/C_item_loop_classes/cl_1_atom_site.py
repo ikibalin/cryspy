@@ -2,8 +2,6 @@ import numpy
 from typing import NoReturn
 
 from cryspy.A_functions_base.symmetry_constraints import calc_sc_chi
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1
-from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
 
 from cryspy.A_functions_base.function_1_scat_length_neutron import \
     get_scat_length_neutron

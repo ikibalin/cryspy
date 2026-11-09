@@ -19,10 +19,9 @@ mag_symm_elems: [22, n_elems]
 For details see documentation.
 """
 import numpy
-from .function_1_strings import transform_string_to_digits
-from cryspy.A_functions_base.function_2_sym_elems import calc_numerators_and_common_denominator
 
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2, calc_m_v
+from cryspy.exceptions import CrysPyError
 
 na = numpy.newaxis
 
@@ -184,34 +183,6 @@ def calc_full_mag_elems(mag_elems_o, mag_elems_c):
     return mag_elems_fs
 
 
-def take_symm_elem_by_string(string):
-    """
-    Define symm_elems from string
-
-    string: x,z+1/2,-y+3/4
-    symm_elems: 0 2 3 4 1 0 0 0 0 1 0 -1 0
-    """
-    labels=("x", "y", "z")
-    l_name = "".join(string.strip().split()).lstrip("(").rstrip(")").split(",")
-    rij, bi_nd = [], []
-    for _name in l_name:
-        coefficients, offset = transform_string_to_digits(_name, labels)
-        rij.extend([coefficients[0].numerator, coefficients[1].numerator, coefficients[2].numerator])
-        bi_nd.extend([offset.numerator, offset.denominator])
-    b_nd = calc_numerators_and_common_denominator(*bi_nd)
-    symm_elem = numpy.array(b_nd+tuple(rij), dtype=int)
-    return symm_elem
-
-
-def take_symm_elems_by_string(string):
-    l_symm_elems = []
-    for s_val in string:
-        symm_elem = take_symm_elem_by_string(s_val)
-        l_symm_elems.append(symm_elem)
-    symm_elems = numpy.stack(l_symm_elems).transpose()
-    return symm_elems
-
-
 def apply_symm_elems_to_index_xyz(symm_elems, index_xyz, points_abc):
     """Apply symmetry elements to indexes."""
     b_n_1, b_n_2, b_n_3 = symm_elems[0], symm_elems[1], symm_elems[2]
@@ -352,7 +323,7 @@ def define_bravais_type_by_symm_elems(symm_elems):
     n_elems = n_symm_elems // (n_centrosymmetry * n_centring_type)
     
     if n_symm_elems % (n_centrosymmetry * n_centring_type) != 0:
-        raise UserWarning("Error in number of symmetry elements")
+        raise CrysPyError("Error in number of symmetry elements")
         
     
     flag_1y = numpy.any(symm_elems[5,:] != 0)

@@ -361,32 +361,23 @@ class DiffrnOrientMatrix(ItemN):
         return res
 
     def report(self):
-        s_out = f"""Orientation matrix U:
-          a* [c,  a*]        c
- X: {self.u_11: 8.5f} {self.u_12: 8.5f} {self.u_13: 8.5f}
- Y: {self.u_21: 8.5f} {self.u_22: 8.5f} {self.u_23: 8.5f}
- Z: {self.u_31: 8.5f} {self.u_32: 8.5f} {self.u_33: 8.5f}
-
-axis 'X' is along incident beam;
-axis 'Z' is vertical direction."""
-        return s_out
-
-    def report_html(self):
-        s_out = f"""<b>Orientation matrix U:</b><br>
-        <table>
-<tr><th></th><th>a*</th><th>[c,  a*]</th><th>c</th></tr>
-<tr><th>X:</th><td>{self.u_11: 8.5f}</td><td>{self.u_12: 8.5f}</td><td>{self.u_13: 8.5f}</td></tr>
-<tr><th>Y:</th><td>{self.u_21: 8.5f}</td><td>{self.u_22: 8.5f}</td><td>{self.u_23: 8.5f}</td></tr>
-<tr><th>Z:</th><td>{self.u_31: 8.5f}</td><td>{self.u_32: 8.5f}</td><td>{self.u_33: 8.5f}</td></tr>
-        </table>
-axis 'X' is along incident beam;<br>
-axis 'Z' is vertical direction."""
-        return s_out
+        """Orientation matrix U in markdown."""
+        ls_out = ["# Orientation matrix U", ""]
+        ls_out.append("| | a* | [c, a*] | c |")
+        ls_out.append("|---|---:|---:|---:|")
+        for s_axis, l_val in zip(
+                "XYZ", ((self.u_11, self.u_12, self.u_13),
+                        (self.u_21, self.u_22, self.u_23),
+                        (self.u_31, self.u_32, self.u_33))):
+            ls_out.append(f"| **{s_axis:}** | " + " | ".join(
+                [f"{val:.5f}" for val in l_val]) + " |")
+        ls_out.append("")
+        ls_out.append("Axis X is along the incident beam;")
+        ls_out.append("axis Z is the vertical direction.")
+        return "\n".join(ls_out)
 
     def get_dictionary(self):
         res = {}
-        u_matrix = self.u
-        e_up = numpy.array([u_matrix[2,0], u_matrix[2,1], u_matrix[2,2]], dtype=float)
 
         res["matrix_u"] = numpy.array([
             self.u_11, self.u_12, self.u_13,

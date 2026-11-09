@@ -20,7 +20,7 @@ def test_f_mag():
     atom_site = mag_cif.atom_site
     try:
         atom_site_aniso = mag_cif.atom_site_aniso
-    except AttributeError as e:
+    except AttributeError:
         atom_site_aniso = None
     atom_site_scat = mag_cif.atom_site_scat
     atom_site_scat.load_atom_type_scat_by_atom_site(atom_site)

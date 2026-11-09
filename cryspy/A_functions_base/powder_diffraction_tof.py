@@ -219,12 +219,6 @@ exp1 = scipy.special.exp1  # E1 = \int_{z}^{\inf} exp(-t)/t dt
 
 
 
-def calc_alpha(alpha0, alpha1, d):
-    """alpha0+alpha1/d
-    """
-    return alpha0+alpha1/d
-
-
 def calc_beta(beta0, beta1, d):
     """beta0+beta1/d**4
     """
@@ -273,11 +267,6 @@ def calc_y_z_u_v(alpha, beta, sigma, delta_2d):
     u = (0.5*square(alpha)*sigma_sq)[:, na] + delta_2d*alpha[:, na]
     v = (0.5*square(beta)*sigma_sq)[:, na] - delta_2d*beta[:, na]
     return y, z, u, v
-
-
-def tof_Carpenter():
-    pass
-
 
 
 def calc_peak_shape_function(alphas, betas, sigmas,

@@ -1,4 +1,3 @@
-import os
 import numpy
 
 from cryspy.A_functions_base.extinction import \

@@ -5,6 +5,8 @@ import numpy
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
+from cryspy.A_functions_base.function_1_strings import \
+    value_error_mark_to_string
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 
@@ -145,6 +147,36 @@ class PhaseL(LoopN):
         super(PhaseL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
+
+    def report(self):
+        """Phases and their parameters in markdown."""
+        if len(self.items) == 0:
+            return ""
+        l_name = ["scale"] + [name for name in Phase.ATTR_OPTIONAL_NAMES
+                              if name != "scale" and any([
+                                  item.is_attribute(name) and
+                                  getattr(item, name) != 0.
+                                  for item in self.items])]
+        ls_out = ["# Phases", ""]
+        ls_out.append("| Phase | " + " | ".join(
+            [Phase.ATTR_CIF[Phase.ATTR_NAMES.index(name)] for name in l_name])
+            + " |")
+        ls_out.append("|:---|" + "|".join(["---:" for name in l_name]) + "|")
+        for item in self.items:
+            l_val = []
+            for name in l_name:
+                if not item.is_attribute(name):
+                    l_val.append(".")
+                    continue
+                value = getattr(item, name)
+                sigma = getattr(item, f"{name:}_sigma") \
+                    if item.is_attribute(f"{name:}_sigma") else 0.
+                if getattr(item, f"{name:}_refinement") and sigma != 0.:
+                    l_val.append(value_error_mark_to_string(value, sigma, ""))
+                else:
+                    l_val.append(f"{value:.5g}")
+            ls_out.append(f"| {item.label:} | " + " | ".join(l_val) + " |")
+        return "\n".join(ls_out)
 
     def get_dictionary(self):
         res = {}

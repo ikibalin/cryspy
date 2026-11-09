@@ -1,0 +1,8 @@
+# Install once with `pip install pre-commit && pre-commit install`;
+# ruff then checks the staged files before every commit.
+# Keep the ruff version in sync with .github/workflows/lint.yml.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.9
+    hooks:
+      - id: ruff-check

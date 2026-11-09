@@ -8,7 +8,6 @@ They check, on small arrays, that a positive ``cutoff_fwhm``:
     performance win, not a post-hoc multiply).
 """
 import numpy
-import pytest
 
 from cryspy.A_functions_base import powder_diffraction_tof as tof
 from cryspy.A_functions_base.powder_diffraction_tof import (

@@ -4,7 +4,6 @@ Calculations structure factor based on items and loops
 """
 import numpy
 
-from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSiteL
 from cryspy.C_item_loop_classes.cl_1_atom_site_aniso import AtomSiteAnisoL

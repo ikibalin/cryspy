@@ -29,13 +29,16 @@ import numpy
 from fractions import Fraction
 from typing import Tuple
 
+from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
+
 
 def calc_chi_sq(y_exp, y_error, y_model, der_y=None):
-    """Calc chi_sq."""
-    y_diff = (y_exp - y_model)/y_error
-    chi_sq = (numpy.square(numpy.abs(y_diff))).sum()
+    """Calc chi_sq and its derivatives over the parameters (der_y: d y_model/d p,
+    shape (n_point, n_parameter)); see calc_chi_sq_by_signal."""
+    chi_sq, dder = calc_chi_sq_by_signal(
+        y_exp, y_error, y_model, flag_signal_model=der_y is not None)
     if der_y is not None:
-        der_chi_sq = (-2.*(y_diff/y_error)[:, numpy.newaxis]*der_y).sum(axis=0)
+        der_chi_sq = (dder["signal_model"][:, numpy.newaxis]*der_y).sum(axis=0)
     else:
         der_chi_sq = None
     return chi_sq, der_chi_sq

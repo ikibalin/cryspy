@@ -136,22 +136,28 @@ def value_error_mark_to_string(value: float, error: float, mark: str) -> str:
         DESCRIPTION.
 
     """
-    if ((value is None) | (value is numpy.nan)):
-        string = "."
+    if value is None:
+        return "."
+    if error is not None and not (numpy.isfinite(value) and
+                                  numpy.isfinite(error) and error >= 0.):
+        # failed refinement (singular matrix) gives nan or inf: the sigma is
+        # unknown, the parameter stays refined, the text stays readable
+        return "{:}(){:}".format(value, mark.strip())
     if not((error == 0.) | (error is None)):
         val_hh = numpy.log10(error)
         n_power = int(val_hh)
         if val_hh <= 0:
             val_1 = numpy.round(value, decimals = -1*int(n_power)+2)
             val_2 = numpy.round(error, decimals = -1*int(n_power)+2)
-            i_val_11 = int(val_1)
+            n_decimals = int(-n_power+2)
             s_sign = ""
             if val_1 < 0.:
                 s_sign = "-"
-            s_val_12 = ("{:}".format(int(abs(val_1) % 1.*10**(-n_power+2)))
-                        ).rjust(int(-n_power+2), "0")
-            val_2 = int(val_2*10**(-n_power+2))
-            string = f"{s_sign:}{abs(i_val_11):}.{s_val_12:}({int(val_2):}){mark.strip():}"
+            # format and round, never int(): 118.32 % 1 * 100 is 31.999...
+            # and int() would write 118.31
+            s_val_1 = f"{abs(val_1):.{n_decimals:}f}"
+            val_2 = int(round(val_2*10**n_decimals))
+            string = f"{s_sign:}{s_val_1:}({val_2:}){mark.strip():}"
         else:
             val_1 = numpy.round(value)
             val_2 = numpy.round(error)
@@ -162,94 +168,6 @@ def value_error_mark_to_string(value: float, error: float, mark: str) -> str:
         string = "{:}".format(value)
     return string
 
-##FIXME to del
-#def string_to_value_error(string: str) -> Tuple[float, Union[float, None]]:
-#    """
-#    Convert string to float and error.
-#
-#    Parameters
-#    ----------
-#    string : str
-#        DESCRIPTION.
-#
-#    Returns
-#    -------
-#    value : float
-#        Value.
-#    error : float
-#        Error.
-#
-#    """
-#    value, error = None, None
-#    ind_1 = string.find("(")
-#    s_sigma = ""
-#    if value == ".":
-#       pass 
-#    elif ind_1 != -1:
-#        ind_2 = string.find(")")
-#        if ind_2 > ind_1:
-#            s_sigma = string[(ind_1+1):ind_2]
-#            if not(s_sigma.isdigit()):
-#                s_sigma = ""
-#        str_1 = string.split("(")[0]
-#        value = float(str_1)
-#        if s_sigma != "":
-#            s_h = "".join(["0" if _h.isdigit() else _h for _h in
-#                           str_1[:-len(s_sigma)]])
-#            error = abs(float(s_h+s_sigma))
-#        else:
-#            error = 0.
-#    else:
-#        try:
-#            value = float(string)
-#        except ValueError:
-#            value = None
-#    return value, error
-#
-# #FIXME to del
-# def value_error_to_string(value: float, error: float) -> str:
-#     """
-#     Convert value and error to string
-# 
-#     Parameters
-#     ----------
-#     value : float
-#         DESCRIPTION.
-#     error : float
-#         DESCRIPTION.
-# 
-#     Returns
-#     -------
-#     str
-#         DESCRIPTION.
-# 
-#     """
-#     if ((value is None) | (value is numpy.nan)):
-#         string = "."
-#     if not((error == 0.) | (error is None)):
-#         val_hh = numpy.log10(error)
-#         n_power = int(val_hh)
-#         if val_hh <= 0:
-#             val_1 = numpy.round(value, decimals = -1*int(n_power)+2)
-#             val_2 = numpy.round(error, decimals = -1*int(n_power)+2)
-#             i_val_11 = int(val_1)
-#             s_sign = ""
-#             if val_1 < 0.:
-#                 s_sign = "-"
-#             s_val_12 = ("{:}".format(int(abs(val_1) % 1.*10**(-n_power+2)))
-#                         ).rjust(int(-n_power+2), "0")
-#             val_2 = int(val_2*10**(-n_power+2))
-#             string = f"{s_sign:}{abs(i_val_11):}.{s_val_12:}({int(val_2):})"
-#         else:
-#             val_1 = numpy.round(value)
-#             val_2 = numpy.round(error)
-#             string = "{:}({:})".format(int(val_1), int(val_2))
-#     elif (error == 0.):
-#         string = "{:}()".format(value)
-#     else:
-#         string = "{:}".format(value)
-#     return string
-# 
 
 def transform_string_to_r_b(name: str, labels=("x", "y", "z")) -> Tuple:
     """

@@ -13,7 +13,7 @@ from cryspy.A_functions_base.matrix_operations import calc_m_v, calc_inv_m, calc
 from cryspy.A_functions_base.orbital_functions import calc_jl
 
 
-from cryspy.A_functions_base.unit_cell import calc_m_b_by_unit_cell_parameters, calc_m_m_by_unit_cell_parameters, calc_q_ccs_by_unit_cell_parameters
+from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters, calc_q_ccs_by_unit_cell_parameters
 
 
 from cryspy.A_functions_base.multipoles import cartesian_to_spherical, realsphharm2df

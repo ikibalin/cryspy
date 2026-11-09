@@ -22,7 +22,6 @@ def calc_extinction_sphere_primary(
         dder["f_sq"] = der_yp_x * 1.5 * numpy.square(
             wavelength*radius/volume_unit_cell)*ones_f_sq
     if flag_radius:
-        ones_radius = numpy.ones_like(radius)
         dder["radius"] = der_yp_x * 3.0 * f_sq * radius*numpy.square(
             wavelength/volume_unit_cell) 
 
@@ -80,7 +79,6 @@ def calc_extinction_sphere_secondary_gauss(
         dder["f_sq"] = der_ys_x * 1.5 * wavelength*numpy.square(
             wavelength*radius/volume_unit_cell)*term_1*ones_f_sq
     if flag_radius:
-        ones_radius = numpy.ones_like(radius)
         denom = numpy.power(numpy.sqrt(numpy.square(mosaicity_rad * wavelength) + \
             9./8. * numpy.square(radius) * (1.- numpy.square(cos_2theta))),3)
         if not(radius*mosaicity_rad>0):

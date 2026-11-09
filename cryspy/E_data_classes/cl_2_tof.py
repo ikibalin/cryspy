@@ -5,20 +5,15 @@ __version__ = "2020_08_19"
 import numpy
 from typing import NoReturn
 
-from cryspy.A_functions_base.function_2_crystallography_base import \
-    calc_cos_ang
 
-from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
-from cryspy.A_functions_base.unit_cell import calc_matrix_t
 
-from cryspy.B_parent_classes.cl_1_item import ItemN
-from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.D_functions_item_loop.function_1_report_powder import \
+    report_powder_experiment
 from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import \
     DiffrnRadiation
-from cryspy.C_item_loop_classes.cl_1_extinction import Extinction
 from cryspy.C_item_loop_classes.cl_1_phase import PhaseL
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import \
@@ -27,7 +22,7 @@ from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
-from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
+from cryspy.C_item_loop_classes.cl_1_texture import TextureL
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground
@@ -37,10 +32,11 @@ from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
 from cryspy.C_item_loop_classes.cl_1_tof_meas import TOFMeasL
 from cryspy.C_item_loop_classes.cl_1_tof_parameters import TOFParameters
 from cryspy.C_item_loop_classes.cl_1_tof_peak import TOFPeakL
+from cryspy.A_functions_base.plot_peak_labels import (
+    add_interactive_peak_labels, form_hkl_labels)
 from cryspy.C_item_loop_classes.cl_1_tof_proc import TOFProcL
 from cryspy.C_item_loop_classes.cl_1_tof_profile import TOFProfile
 
-from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
 
@@ -65,7 +61,7 @@ class TOF(DataN):
 
     CLASSES_MANDATORY = (TOFParameters, TOFProfile, PhaseL, TOFMeasL)
     CLASSES_OPTIONAL = (TOFBackground, TOFBackgroundPointL, DiffrnRadiation, Chi2, Range,
-                        Texture, TOFIntensityIncident, ExcludeL, TOFProcL,
+                        TextureL, TOFIntensityIncident, ExcludeL, TOFProcL,
                         TOFPeakL, RefineLs, ReflnL, ReflnSusceptibilityL, Setup)
     # CLASSES_INTERNAL = ()
 
@@ -93,6 +89,10 @@ class TOF(DataN):
         # if self.pd_meas is not None:
         #     self.pd_meas.apply_constraints()
 
+    def report(self):
+        """Agreement with the model, phases and refinement summary."""
+        return report_powder_experiment(self)
+
     def plots(self):
         if self.is_attribute("tof_proc"):
             tof_proc = self.tof_proc
@@ -103,14 +103,23 @@ class TOF(DataN):
             y_min_s, y_max_s = ax_hkl.get_ylim()
             y_dist_s = y_max_s-y_min_s
             y_step_s = 0.
+            l_peaks = []
             for item in self.items:
                 if isinstance(item, TOFPeakL):
                     np_time = item.numpy_time
-                    ax_hkl.plot(np_time, 0.*np_time+y_min_s -
-                                y_step_s, "|", label=item.loop_name)
+                    lines = ax_hkl.plot(np_time, 0.*np_time+y_min_s -
+                                        y_step_s, "|", label=item.loop_name)
                     y_step_s += 0.05*y_dist_s
+                    l_peaks.append((
+                        np_time,
+                        form_hkl_labels(item.index_h, item.index_k, item.index_l),
+                        lines[0].get_color()))
             res = []
             ax_s.legend(loc='upper right')
+            np_time_curve, np_curve = tof_proc.calc_upper_curve()
+            add_interactive_peak_labels(
+                ax_s, l_peaks, x_curve=np_time_curve, y_curve=np_curve,
+                n_visible=5)
             res.append((fig_s, ax_s))
             return res
         elif self.is_attribute("tof_meas"):

@@ -1,6 +1,9 @@
 """Transform data to objects of cryspy library."""
+import logging
+import warnings
 import os
 import os.path
+import sys
 from typing import List
 
 from pycifstar import Global, to_global, Items, Loop, Data
@@ -11,6 +14,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+from cryspy.exceptions import RcifFileNotFoundError, RcifFormatError
 
 from cryspy.C_item_loop_classes.cl_1_atom_site import AtomSite, \
     AtomSiteL
@@ -105,6 +109,9 @@ from cryspy.C_item_loop_classes.cl_2_space_group_symop_magn_operation import \
 from cryspy.C_item_loop_classes.cl_3_density_point import DensityPoint, \
     DensityPointL
 
+from cryspy.C_item_loop_classes.cl_1_constraint import Constraint, \
+    ConstraintL
+
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
@@ -123,7 +130,7 @@ L_ITEM_CLASS.extend([
     AtomElectronConfiguration, AtomLocalAxes, AtomRhoOrbitalRadialSlater,
     AtomSite, AtomSiteAniso, AtomSiteMoment, AtomSiteScat,
     AtomSiteSusceptibility, AtomSiteExchange, AtomType, AtomTypeScat,
-    Cell, ChannelAni, ChannelCol, Chi2,
+    Cell, ChannelAni, ChannelCol, Chi2, Constraint,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
     Exclude, Extinction, MEMParameters, InversedHessian,
     JanaTwin,
@@ -141,7 +148,7 @@ L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
     AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomTypeL, AtomTypeScatL,
-    CellL, ChannelAniL, ChannelColL, Chi2L,
+    CellL, ChannelAniL, ChannelColL, Chi2L, ConstraintL,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
     ExtinctionL, ExcludeL, MEMParametersL,
     JanaTwinL,
@@ -158,18 +165,70 @@ L_DATA_CLASS.extend([Crystal, Diffrn, Pd, Pd2d, TOF]) # , MagCrystal
 
 L_GLOBAL_CLASS.extend([])
 
-F_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
+def take_packages_file() -> str:
+    """File with the folders of the user's packages (see add_package).
 
-import sys
+    It is in the user's folder, as the package folder may be read-only
+    (a program built with PyInstaller, a system installation):
+    %APPDATA%\\CrysPy\\packages.dat on Windows,
+    ~/Library/Application Support/CrysPy/packages.dat on macOS,
+    ~/.config/cryspy/packages.dat on Linux ($XDG_CONFIG_HOME is respected).
+    The environment variable CRYSPY_PACKAGES_FILE sets another file.
+    """
+    f_env = os.environ.get("CRYSPY_PACKAGES_FILE", "")
+    if f_env != "":
+        return f_env
+    if sys.platform == "win32":
+        dir_base = os.path.join(
+            os.environ.get("APPDATA", os.path.expanduser("~")), "CrysPy")
+    elif sys.platform == "darwin":
+        dir_base = os.path.join(os.path.expanduser("~"), "Library",
+                                "Application Support", "CrysPy")
+    else:
+        dir_base = os.environ.get("XDG_CONFIG_HOME", "")
+        if dir_base == "":
+            dir_base = os.path.join(os.path.expanduser("~"), ".config")
+        dir_base = os.path.join(dir_base, "cryspy")
+    return os.path.join(dir_base, "packages.dat")
+
+
+F_PACKAGES = take_packages_file()
+# older versions kept the list in the package folder; it is read
+# while the user's file does not exist yet
+F_OLD_PACKAGES = os.path.join(os.path.dirname(__file__), "packages.dat")
+
 from importlib import import_module
+
+logger = logging.getLogger(__name__)
+
+
+def read_package_lines() -> list:
+    """Lines of the file of the user's packages (empty if there is none)."""
+    for f_name in (F_PACKAGES, F_OLD_PACKAGES):
+        if os.path.isfile(f_name):
+            with open(f_name, "r") as fid:
+                return fid.readlines()
+    return []
+
+
+def write_package_lines(l_line: list):
+    """Save the folders of the user's packages; a file that cannot be
+    written (read-only folder) is reported, not raised."""
+    try:
+        dir_name = os.path.dirname(F_PACKAGES)
+        if dir_name != "":
+            os.makedirs(dir_name, exist_ok=True)
+        with open(F_PACKAGES, "w") as fid:
+            fid.write("\n".join(l_line) + "\n")
+    except OSError as error:
+        warnings.warn(f"The list of packages is not saved: {error}",
+                      stacklevel=2)
 
 
 def load_packages():
     """Load external packages."""
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, "r") as fid:
-            l_content = fid.readlines()
-    else:
+    l_content = read_package_lines()
+    if len(l_content) == 0:
         return
     l_content_new = []
     for f_name in l_content:
@@ -195,73 +254,54 @@ def load_packages():
                         if not(obj in L_GLOBAL_CLASS):
                             L_GLOBAL_CLASS.append(obj)
             except AttributeError:
-                print(f"Module '{module_name:}' in folder: \n {module_way}\n\
-does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.")
+                warnings.warn(f"Module '{module_name:}' in folder: \n {module_way}\n\
+does not contains in 'init.py' parameter 'CRYSPY_CLASSES'.", stacklevel=2)
                 f_ok = False
             try:
                 L_FUNCTION_ADD.extend(module.L_FUNCTION)
             except AttributeError:
-                print(f"Module '{module_name:}' in folder: \n {module_way}\n\
-does not contains in 'init.py' parameter 'L_FUNCTION'.")
+                warnings.warn(f"Module '{module_name:}' in folder: \n {module_way}\n\
+does not contains in 'init.py' parameter 'L_FUNCTION'.", stacklevel=2)
                 f_ok = False
         else:
             f_ok = False
         if f_ok:
             l_content_new.append(f_name_sh)
-    with open(F_PACKAGES, "w") as fid:
-        fid.write("\n".join(l_content_new)+"\n")
+    # packages that are not found any more are removed from the list
+    if l_content_new != [hh.strip() for hh in l_content if hh.strip() != ""]:
+        write_package_lines(l_content_new)
 
 
 def add_package(f_name: str):
     """Add packages to cryspy library."""
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, 'r') as fid:
-            l_cont = fid.readlines()
-        if not(f_name+"\n" in l_cont):
-            with open(F_PACKAGES, 'a') as fid:
-                fid.write(f_name+"\n")
-    else:
-        with open(F_PACKAGES, 'a') as fid:
-            fid.write(f_name+"\n")
+    l_line = [hh.strip() for hh in read_package_lines() if hh.strip() != ""]
+    if f_name.strip() not in l_line:
+        l_line.append(f_name.strip())
+        write_package_lines(l_line)
 
 
 def packages():
     """Give list of installed packages."""
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, "r") as fid:
-            l_content = fid.readlines()
-        l_res = [hh for hh in l_content if hh.strip() != ""]
-    else:
-        l_res = []
-    return l_res
+    return [hh for hh in read_package_lines() if hh.strip() != ""]
 
 
 def delete_package(f_name: str):
     """Delete from the list of installed packages."""
     f_name_sh = f_name.strip()
-    if os.path.isfile(F_PACKAGES):
-        with open(F_PACKAGES, "r") as fid:
-            l_content = fid.readlines()
-        l_res = [hh for hh in l_content if hh.strip() != f_name_sh]
-        with open(F_PACKAGES, "w") as fid:
-            fid.write("\n".join(l_res) + "\n")
-
-
-def is_in_rcif_block(rcif_block, cryspy_obj):
-    """Is in rcif block."""
-    ls_cryspy = cryspy_obj.to_cif.split("\n")
-    l_name = [_.strip().split()[0] for _ in ls_cryspy if _.startswith("_")]
-    l_flag = [rcif_block.is_value(_name) for _name in l_name]
-    return any(l_flag), all(l_flag)
+    l_line = [hh.strip() for hh in read_package_lines() if hh.strip() != ""]
+    if f_name_sh in l_line:
+        write_package_lines([hh for hh in l_line if hh != f_name_sh])
 
 
 def file_to_globaln(file_name: str, item_classes=(), loop_classes=(),
                     data_classes=(), global_classes=()) -> GlobalN:
     """Transfer file content of cif format to cryspy objects."""
     if not(os.path.isfile(file_name)):
-        raise UserWarning(f"File '{file_name:}' is not found")
-        return
-    s_cont = str(to_global(file_name))
+        raise RcifFileNotFoundError(f"File '{file_name:}' is not found")
+    try:
+        s_cont = str(to_global(file_name))
+    except ValueError as error:
+        raise RcifFormatError(f"File '{file_name:}': {error}") from error
     res = str_to_globaln(s_cont, item_classes=item_classes,
                          loop_classes=loop_classes, data_classes=data_classes,
                          global_classes=global_classes)
@@ -271,7 +311,10 @@ def file_to_globaln(file_name: str, item_classes=(), loop_classes=(),
 def str_to_items(s_cont: str, item_classes=(), loop_classes=()) -> list:
     """Transfer string of cif format to cryspy objects."""
     data_cif = Data()
-    data_cif.take_from_string(s_cont)
+    try:
+        data_cif.take_from_string(s_cont)
+    except ValueError as error:
+        raise RcifFormatError(str(error)) from error
     l_item_class = L_ITEM_CLASS + list(item_classes)
     l_loop_class = L_LOOP_CLASS + list(loop_classes)
 
@@ -286,7 +329,10 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                    data_classes=(), global_classes=()) -> GlobalN:
     """Transfer string of cif format to cryspy objects."""
     global_cif = Global()
-    global_cif.take_from_string(s_cont)
+    try:
+        global_cif.take_from_string(s_cont)
+    except ValueError as error:
+        raise RcifFormatError(str(error)) from error
     l_global_item = []
     l_cls_global = []
     l_item_class = L_ITEM_CLASS + list(item_classes)
@@ -452,13 +498,9 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
     s_loop_prefix_in = set(l_loop_prefix_in)
     l_loopn = []
     for prefix in s_loop_prefix_in:
-        item_cls = ItemN
         loop_cls = LoopN
         if prefix in l_loop_prefix:
             loop_cls = l_loop_class[l_loop_prefix.index(prefix)]
-        elif prefix in l_item_prefix:
-            # for future
-            item_cls = l_item_class[l_loop_prefix.index(prefix)]
 
         l_loop_name_cif = []
         ll_val_cif = []
@@ -499,7 +541,7 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
         if not(loopn is None):
             l_loopn.append(loopn)
         else:
-            print("l_loop_name_cif: \n", l_loop_name_cif)
+            logger.debug("l_loop_name_cif: %s", l_loop_name_cif)
     return l_loopn
 
 

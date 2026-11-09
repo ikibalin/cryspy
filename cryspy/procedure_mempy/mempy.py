@@ -1,13 +1,34 @@
+import logging
+import warnings
 import numpy
 import cryspy
+from cryspy.exceptions import CrysPyWarning, RefinementError
 
 from cryspy.procedure_mempy.mempy_by_dictionary import (
     mempy_reconstruction_by_dictionary,
     mempy_cycle_density_parameters,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
+    """Reconstruct the spin density by the maximum entropy method.
+
+    Collinear channel; MEM parameters 48x48x48 are added when the object has none.
+
+    Parameters
+    ----------
+    obj : GlobalN
+        The object with the crystal, the MEM parameters and the polarized
+        neutron single crystal experiments.
+
+    Returns
+    -------
+    dict
+        Result of the reconstruction with "chi_sq"; the density channels
+        are added to the object.
+    """
     if not (obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
             points_a=48,
@@ -30,6 +51,23 @@ def mempy_spin_density_reconstruction(obj: cryspy.GlobalN):
 
 
 def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
+    """Reconstruct the magnetization density by the maximum entropy method.
+
+    Anisotropic (susceptibility) channel; MEM parameters 48x48x48 are
+    added when the object has none.
+
+    Parameters
+    ----------
+    obj : GlobalN
+        The object with the crystal, the MEM parameters and the polarized
+        neutron single crystal experiments.
+
+    Returns
+    -------
+    dict
+        Result of the reconstruction with "chi_sq"; the density channels
+        are added to the object.
+    """
     if not (obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
             points_a=48, points_b=48, points_c=48, channel_ani=True
@@ -47,6 +85,23 @@ def mempy_magnetization_density_reconstruction(obj: cryspy.GlobalN):
 
 
 def mempy_nuclear_density_reconstruction(obj: cryspy.GlobalN):
+    """Reconstruct the nuclear density by the maximum entropy method.
+
+    Nuclear channel; MEM parameters 48x48x48 are added when the object has
+    none.
+
+    Parameters
+    ----------
+    obj : GlobalN
+        The object with the crystal, the MEM parameters and the polarized
+        neutron single crystal experiments.
+
+    Returns
+    -------
+    dict
+        Result of the reconstruction with "chi_sq"; the density channels
+        are added to the object.
+    """
     if not (obj.is_attribute("mem_parameters")):
         mem_parameters = cryspy.MEMParameters(
             points_a=48, points_b=48, points_c=48, channel_nucl=True
@@ -71,6 +126,31 @@ def mempy_reconstruction_with_parameters(
     parameter_lambda_min: float = 1.0e-9,
     delta_density: float = 1.0e-5,
 ):
+    """Reconstruct the density by the maximum entropy method with the given
+    parameters of the iterations.
+
+    Parameters
+    ----------
+    obj : GlobalN
+        The object with the crystal, the MEM parameters and the polarized
+        neutron single crystal experiments.
+    parameter_lambda : float, optional
+        Starting value of the parameter lambda of MEM (step of the
+        iterations); it is halved when chi-square grows.
+    iteration_max : int, optional
+        Maximal number of iterations.
+    parameter_lambda_min : float, optional
+        Minimal value of lambda: the iterations stop when it is reached.
+    delta_density : float, optional
+        Small density added to keep the density positive in the
+        exponential update.
+
+    Returns
+    -------
+    dict
+        Result of the reconstruction with "chi_sq"; the density channels
+        are added to the object.
+    """
     l_diffrn = [item for item in obj.items if isinstance(item, cryspy.Diffrn)]
 
     dict_obj = obj.get_dictionary()
@@ -89,15 +169,15 @@ def mempy_reconstruction_with_parameters(
     ]
 
     if len(l_dict_crystal) == 0:
-        raise KeyError("The crystal is not found")
+        raise RefinementError("The crystal is not found")
 
     elif len(l_dict_crystal) > 1:
-        raise UserWarning(
-            "The first crystal will be used for MEM reconstruction procedure"
-        )
+        warnings.warn(
+            "The first crystal will be used for MEM reconstruction procedure",
+            CrysPyWarning, stacklevel=2)
 
     if len(l_dict_diffrn) == 0:
-        raise KeyError(
+        raise RefinementError(
             "The single crystall polarized experiments are not found"
         )
 
@@ -243,6 +323,34 @@ def mempy_cycle_with_parameters(
     delta_density: float = 1.0e-5,
     n_cycle: int = 10,
 ):
+    """Reconstruct the magnetization density by the maximum entropy method
+    and refine the atomic susceptibilities, in cycles.
+
+    Parameters
+    ----------
+    obj : GlobalN
+        The object with the crystal, the MEM parameters and the polarized
+        neutron single crystal experiments.
+    parameter_lambda : float, optional
+        Starting value of the parameter lambda of MEM (step of the
+        iterations); it is halved when chi-square grows.
+    iteration_max : int, optional
+        Maximal number of iterations.
+    parameter_lambda_min : float, optional
+        Minimal value of lambda: the iterations stop when it is reached.
+    delta_density : float, optional
+        Small density added to keep the density positive in the
+        exponential update.
+    n_cycle : int, optional
+        Number of cycles of density reconstruction and refinement of the
+        susceptibilities.
+
+    Returns
+    -------
+    None
+        The density channels and the refined susceptibilities are put into
+        the object.
+    """
 
     l_diffrn = [item for item in obj.items if isinstance(item, cryspy.Diffrn)]
 
@@ -262,15 +370,15 @@ def mempy_cycle_with_parameters(
     ]
 
     if len(l_dict_crystal) == 0:
-        raise KeyError("The crystal is not found")
+        raise RefinementError("The crystal is not found")
 
     elif len(l_dict_crystal) > 1:
-        raise UserWarning(
-            "The first crystal will be used for MEM reconstruction procedure"
-        )
+        warnings.warn(
+            "The first crystal will be used for MEM reconstruction procedure",
+            CrysPyWarning, stacklevel=2)
 
     if len(l_dict_diffrn) == 0:
-        raise KeyError(
+        raise RefinementError(
             "The single crystall polarized experiments are not found"
         )
 
@@ -417,6 +525,6 @@ def mempy_cycle_with_parameters(
                 channel_col,
             ]
         )
-    print(70 * "*")
-    print("End of cycle procedure (MEMPy module)")
-    print(70 * "*")
+    logger.info(70 * "*")
+    logger.info("End of cycle procedure (MEMPy module)")
+    logger.info(70 * "*")

@@ -1,8 +1,4 @@
-import os
-import numpy
-import cryspy
 
-from cryspy.D_functions_item_loop.function_1_calc_for_magcrystal import calc_f_mag
 """
 def test_k_structure():
     dir = os.path.dirname(__file__)

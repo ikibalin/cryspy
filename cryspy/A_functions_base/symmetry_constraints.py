@@ -1,7 +1,7 @@
 import numpy
 
 from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters, \
-    calc_m_m_norm_by_unit_cell_parameters, calc_m_inv_m_norm_by_unit_cell_parameters
+    calc_m_inv_m_norm_by_unit_cell_parameters
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_inv_m1, calc_m_v, calc_mm_as_m_q_inv_m, calc_mm_as_m1_m2_inv_m1, calc_det_m
 
 def calc_sc_fract_sc_b(symm_elems, atom_fract_xyz):

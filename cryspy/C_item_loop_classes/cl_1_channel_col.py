@@ -6,7 +6,6 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
 
-import numpy
 
 class ChannelCol(ItemN):
     """

@@ -1,4 +1,3 @@
-import numpy
 from typing import NoReturn
 
 from cryspy.A_functions_base.function_1_objects import \

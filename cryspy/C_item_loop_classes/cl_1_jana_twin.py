@@ -3,8 +3,6 @@ import numpy
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
-from cryspy.A_functions_base.function_3_extinction import \
-    calc_extinction_2
 
 from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN

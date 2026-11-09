@@ -1,0 +1,1373 @@
+"""Tools of CrysPy for AI assistants and other programs.
+
+Every tool takes the CrysPy object and keyword arguments with plain values
+(str, float, bool) and returns text, so it can be called by a language
+model through JSON. CrysPy Editor and any other front end use the same
+tools:
+
+    >>> import cryspy
+    >>> obj = cryspy.load_file("main.rcif")
+    >>> cryspy.call_assistant_tool(obj, "list_parameters", {"pattern": "cell"})
+    {'text': '...', 'flag_object_changed': False}
+
+assistant_tools() describes the tools in the JSON schema format used by
+chat models ("tools" of OpenAI and llama.cpp).
+
+A tool that lacks information only the user knows (unit cell, wavelength,
+...) does not fail: the result has the key 'missing', a list of the
+arguments to ask the user (as "elicitation" of the Model Context Protocol).
+The program asks them, checks each answer with convert_assistant_answer and
+calls the tool again with the answers added to the arguments:
+
+    >>> result = cryspy.call_assistant_tool(obj, name, arguments)
+    >>> for d_missing in result["missing"]:
+    ...     arguments[d_missing["name"]] = cryspy.convert_assistant_answer(
+    ...         d_missing, input(d_missing["question"]))
+    >>> result = cryspy.call_assistant_tool(obj, name, arguments)
+
+A required argument is asked from the user when its description has
+"question"; a tool asks for other values by raising ArgumentsNeeded. When
+the user calls a tool directly (e.g. '@set_parameter' typed in a chat)
+call_assistant_tool(..., ask_required=True) asks every required argument
+that is not given; a chat model gets an error instead and corrects its call.
+"""
+import json
+import os
+import re
+from typing import Callable, Dict, List, Optional
+
+import numpy
+
+from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.B_parent_classes.cl_4_global import GlobalN
+from cryspy.C_item_loop_classes.cl_1_inversed_hessian import inversed_hessian_to_correlation
+
+from cryspy.procedure_assistant.attributes import (
+    explain_allowed_value)
+from cryspy.procedure_assistant.help import get_help
+from cryspy.procedure_assistant.procedures import (
+    describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
+    take_procedures)
+from cryspy.procedure_assistant.methods import (
+    describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
+    take_methods)
+from cryspy.procedure_assistant.history import (
+    form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
+from cryspy.procedure_assistant import recipes
+from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
+from cryspy.procedure_assistant import experiments
+from cryspy.procedure_assistant.constraints import (
+    add_constraint, take_constraints, take_marked_parameters)
+from cryspy.procedure_assistant.parameters import (
+    explain_value_words, find_parameter_records, suggest_parameter_names, take_parameter_record,
+    take_parameter_records)
+from cryspy.procedure_assistant.tool_base import (
+    MAX_PARAMETERS_IN_LIST, ArgumentsNeeded, format_value)
+from cryspy.procedure_assistant.tools_model import (
+    tool_show_model,
+    tool_list_attributes,
+    tool_set_attribute,
+    tool_show_item,
+    tool_describe_category,
+    tool_add_atom,
+    tool_add_item,
+    tool_remove_item,
+    tool_calculate_structure_factor,
+    tool_list_atoms_in_unit_cell,
+    tool_convert_to_p1,
+    tool_report_ellipsoids,
+    tool_add_crystal_from_cod)
+
+CORRELATION_LIMIT = 0.7
+MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "aliases",
+                "minimum", "maximum", "hint", "proposal", "s_proposal")
+NULL_WORDS = ("none", "null", "identity", "-")
+RE_NUMBER = re.compile(r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
+
+
+class AssistantTool:
+    """A function with the description of its arguments for a chat model."""
+
+    def __init__(self, name: str, description: str, function: Callable,
+                 parameters: Optional[Dict[str, dict]] = None,
+                 required: tuple = (), flag_object_changed: bool = False,
+                 flag_object_needed: bool = True,
+                 flag_extra_arguments: bool = False):
+        self.name = name
+        self.description = description
+        self.function = function
+        self.parameters = parameters if parameters is not None else {}
+        self.required = required
+        self.flag_object_changed = flag_object_changed
+        self.flag_object_needed = flag_object_needed
+        # arguments not in parameters are given to the function as they are
+        self.flag_extra_arguments = flag_extra_arguments
+
+    def to_dict(self) -> dict:
+        """Description in the 'tools' format of chat completion APIs."""
+        return {
+            "type": "function",
+            "function": {
+                "name": self.name,
+                "description": self.description,
+                "parameters": {
+                    "type": "object",
+                    "properties": self.parameters,
+                    "required": list(self.required),
+                },
+            },
+        }
+
+    def to_short_text(self) -> str:
+        """One line for the prompt of a small model."""
+        l_argument = []
+        for name, d_param in self.parameters.items():
+            s_type = d_param.get("type", "string")
+            if name in self.required:
+                l_argument.append(f"{name:}: {s_type:}")
+            else:
+                l_argument.append(f"{name:}?: {s_type:}")
+        return f"- {self.name:}({', '.join(l_argument):}): {self.description:}"
+
+
+def format_dictionary_name(name) -> str:
+    """Name of a parameter from the dictionary pipeline as text.
+
+    ('crystal_pbso4', 'atom_fract_xyz', (0, 1)) -> 'crystal_pbso4.atom_fract_xyz[0, 1]'
+    """
+    if isinstance(name, tuple) and len(name) == 3 and isinstance(name[0], str):
+        index = ", ".join(str(int(i)) for i in numpy.atleast_1d(name[2]))
+        return f"{name[0]:}.{name[1]:}[{index:}]"
+    return str(name)
+
+
+def form_refined_parameter_table(cryspy_object) -> str:
+    l_record = [record for record in take_parameter_records(cryspy_object)
+                if record.flag_refinement]
+    ls_out = []
+    for record in l_record:
+        if record.sigma != 0.:
+            ls_out.append(f"{record.path:} = {format_value(record.value):} "
+                          f"+- {format_value(record.sigma):}")
+        else:
+            ls_out.append(f"{record.path:} = {format_value(record.value):}")
+    return "\n".join(ls_out)
+
+
+def format_rhochi_result(result: dict, cryspy_object) -> str:
+    """Chi-square, refined parameters and strong correlations as text."""
+    ls_out = []
+    if "chi_sq" in result:
+        s_chi = f"chi_sq = {float(result['chi_sq']):.5g}"
+        if "n_point" in result and float(result["n_point"]) > 0:
+            s_chi += (f", points = {int(result['n_point']):}, chi_sq/n = "
+                      f"{float(result['chi_sq']) / float(result['n_point']):.4g}")
+        ls_out.append(s_chi)
+    table = form_refined_parameter_table(cryspy_object)
+    if table != "":
+        ls_out.append("Refined parameters:\n" + table)
+    names = result.get("parameter_path", result.get("parameter_name", []))
+    matrix = result.get("correlation_matrix", None)
+    if matrix is not None and len(names) == len(matrix):
+        l_pair = []
+        for ind_1 in range(len(names)):
+            for ind_2 in range(ind_1 + 1, len(names)):
+                value = float(matrix[ind_1][ind_2])
+                if abs(value) >= CORRELATION_LIMIT:
+                    l_pair.append((abs(value), value, ind_1, ind_2))
+        l_pair.sort(reverse=True)
+        if len(l_pair) > 0:
+            ls_out.append(f"Correlations |r| >= {CORRELATION_LIMIT:}:")
+            for _, value, ind_1, ind_2 in l_pair[:20]:
+                ls_out.append(
+                    f"{format_dictionary_name(names[ind_1]):} - "
+                    f"{format_dictionary_name(names[ind_2]):}: {value:.2f}")
+        else:
+            ls_out.append(f"No correlations with |r| >= {CORRELATION_LIMIT:}.")
+    return "\n".join(ls_out)
+
+
+def tool_get_help(cryspy_object, query: str) -> str:
+    return get_help(query)
+
+
+def tool_summarize_object(cryspy_object) -> str:
+    ls_out = []
+    if isinstance(cryspy_object, GlobalN):
+        l_item = cryspy_object.items
+    else:
+        l_item = [cryspy_object]
+    for item in l_item:
+        if isinstance(item, DataN):
+            l_block = [block.get_name() for block in item.items]
+            ls_out.append(f"data block '{item.data_name:}' "
+                          f"({type(item).__name__:}): {', '.join(l_block):}")
+        else:
+            ls_out.append(f"item {item.get_name():}")
+    if len(ls_out) == 0:
+        ls_out.append("The object is empty.")
+    l_record = take_parameter_records(cryspy_object)
+    n_refined = sum(1 for record in l_record if record.flag_refinement)
+    ls_out.append(f"Refinable parameters: {len(l_record):}, "
+                  f"marked for refinement: {n_refined:}.")
+    return "\n".join(ls_out)
+
+
+def form_no_match_error(cryspy_object, pattern: str) -> str:
+    """Error text with the names the model can use in the next call."""
+    l_name = suggest_parameter_names(cryspy_object, pattern)
+    s_name = ", ".join(l_name) if len(l_name) > 0 else "none"
+    s_explanation = explain_value_words(pattern)
+    if s_explanation == "":
+        # '_' stays in a word: 'a' of 'length_a' is not the value 'A'
+        l_word = [word for word in re.split(r"[^A-Za-z0-9_+\-]+", pattern) if word != ""]
+        s_explanation = " ".join(dict.fromkeys(
+            explain_allowed_value(word) for word in l_word if explain_allowed_value(word)))
+    s_explanation = f" {s_explanation:}" if s_explanation else ""
+    return (f"Error: no parameters match '{pattern:}'.{s_explanation:} Parameters of this "
+            f"object look like: {s_name:}.")
+
+
+def tool_list_parameters(cryspy_object, pattern: str = "",
+                         refined_only: bool = False) -> str:
+    l_record = find_parameter_records(
+        cryspy_object, pattern, flag_refined_only=refined_only)
+    if len(l_record) == 0:
+        if not refined_only or len(find_parameter_records(
+                cryspy_object, pattern)) == 0:
+            return form_no_match_error(cryspy_object, pattern)
+        if pattern.strip() == "":
+            return "No parameters are marked for refinement."
+        return "No parameters matching the pattern are marked for refinement."
+    ls_out = ["path | value | sigma | refined | constrained"]
+    for record in l_record[:MAX_PARAMETERS_IN_LIST]:
+        ls_out.append(
+            f"{record.path:} | {format_value(record.value):} | "
+            f"{format_value(record.sigma):} | {record.flag_refinement:} | "
+            f"{record.flag_constraint:}")
+    if len(l_record) > MAX_PARAMETERS_IN_LIST:
+        ls_out.append(f"... {len(l_record) - MAX_PARAMETERS_IN_LIST:} more, "
+                      "give a narrower pattern.")
+    return "\n".join(ls_out)
+
+
+def tool_refine_parameters(cryspy_object, pattern: str) -> str:
+    if pattern.strip() == "":
+        return "Error: give a pattern of the parameters to refine."
+    l_record = find_parameter_records(cryspy_object, pattern)
+    if len(l_record) == 0:
+        return form_no_match_error(cryspy_object, pattern)
+    l_free, l_constrained = [], []
+    for record in l_record:
+        if record.set_refinement(True):
+            l_free.append(record.path)
+        else:
+            l_constrained.append(record.path)
+    ls_out = []
+    if len(l_free) > 0:
+        ls_out.append("Marked for refinement:\n" + "\n".join(l_free))
+    if len(l_constrained) > 0:
+        ls_out.append("Not refinable because of constraints:\n"
+                      + "\n".join(l_constrained))
+    if len(l_free) == 0:
+        ls_out.insert(0, "Error: none of the matching parameters can be "
+                         "refined.")
+    return "\n".join(ls_out)
+
+
+def tool_fix_parameters(cryspy_object, pattern: str = "") -> str:
+    if pattern.strip() in ("", "*", "all"):
+        l_record = find_parameter_records(
+            cryspy_object, "", flag_refined_only=True)
+        n_variable = len(cryspy_object.get_variable_names())
+        # also the refined parameters without a path (e.g. of nested loops)
+        cryspy_object.fix_variables()
+        if n_variable == 0:
+            return "No parameters were marked for refinement: all are fixed."
+        ls_out = [f"All {n_variable:} refined parameters are fixed now."]
+        ls_out.extend(record.path for record in l_record)
+        return "\n".join(ls_out)
+    l_match = find_parameter_records(cryspy_object, pattern)
+    if len(l_match) == 0:
+        return form_no_match_error(cryspy_object, pattern)
+    l_record = [record for record in l_match if record.flag_refinement]
+    for record in l_record:
+        record.set_refinement(False)
+    if len(l_record) == 0:
+        return (f"The {len(l_match):} parameters matching '{pattern:}' "
+                "were not refined: nothing to fix.")
+    return "Fixed:\n" + "\n".join(record.path for record in l_record)
+
+
+def tool_set_parameter(cryspy_object, path: str, value: float) -> str:
+    record = take_parameter_record(cryspy_object, path)
+    if record is None:
+        l_record = find_parameter_records(cryspy_object, path)
+        if len(l_record) == 1:
+            record = l_record[0]
+        elif len(l_record) > 1:
+            return ("Error: the path is ambiguous, give one of:\n"
+                    + "\n".join(record.path for record in l_record[:20]))
+        else:
+            return form_no_match_error(cryspy_object, path)
+    if record.flag_constraint:
+        return (f"Error: {record.path:} is constrained by symmetry and "
+                "cannot be set.")
+    old_value = record.value
+    record.set_value(value)
+    return (f"{record.path:}: {format_value(old_value):} -> "
+            f"{format_value(record.value):}")
+
+
+def parse_mark_paths(parameters: str) -> Dict[str, str]:
+    """'x=path_1, y=path_2' (or 'x: path_1; y: path_2') -> {'x': path_1, ...}."""
+    d_mark_path = {}
+    for part in re.split(r"\s*[,;\n]\s*", parameters.strip()):
+        if part == "":
+            continue
+        l_mark_path = re.split(r"\s*[=:]\s*", part, maxsplit=1)
+        if len(l_mark_path) != 2:
+            raise ValueError(f"'{part:}' is not 'mark=path'")
+        d_mark_path[l_mark_path[0]] = l_mark_path[1]
+    return d_mark_path
+
+
+def tool_list_constraints(cryspy_object) -> str:
+    l_expression = take_constraints(cryspy_object)
+    l_marked = [d_par for d_par in take_marked_parameters(cryspy_object) if d_par["mark"] != ""]
+    ls_out = ["Constraints:"] + [f"  {expression:}" for expression in l_expression]
+    if len(l_expression) == 0:
+        ls_out = ["No constraints."]
+    if len(l_marked) > 0:
+        ls_out.append("Marked parameters:")
+        ls_out.extend(f"  {d_par['mark']:} = {d_par['path']:} ({format_value(d_par['value']):})"
+                      for d_par in l_marked)
+    return "\n".join(ls_out)
+
+
+def tool_add_constraint(cryspy_object, expression: str, parameters: str = "",
+                        sigma: Optional[float] = None) -> str:
+    try:
+        d_mark_path = parse_mark_paths(parameters)
+        item = add_constraint(cryspy_object, expression, d_mark_path, sigma=sigma)
+    except ValueError as error:
+        return f"Error: {error:}"
+    return f"Constraint {item.id:} added: {item.expression:}\n" + tool_list_constraints(cryspy_object)
+
+
+def tool_calculate(cryspy_object, flag_model_change: bool = False) -> dict:
+    """flag_model_change: the model was changed on purpose before the
+    calculation (set_chi_type): a worse chi_sq/n is expected, the next
+    refinement is compared with this calculation."""
+    from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    history = take_history(cryspy_object)
+    result = rhochi_no_refinement(cryspy_object)
+    d_metrics = form_metrics(result, cryspy_object, d_previous=history.d_metrics,
+                             flag_model_change=flag_model_change)
+    keep_checkpoint(cryspy_object, d_metrics)
+    text = form_calculation_text("Calculation finished.", result, cryspy_object, d_metrics)
+    if flag_model_change:
+        text += ("\nThe model is changed, not refined: the change of chi_sq/n comes from the change; "
+                 "do not undo it. Refine the parameters of the new model next.")
+    return {"text": text, "metrics": d_metrics}
+
+
+def form_calculation_text(title: str, result: dict, cryspy_object, d_metrics: dict) -> str:
+    # the change of chi_sq/n, R_F2 and the warnings first: a long table of parameters may be cut
+    ls_out = [title, format_metrics(d_metrics), format_rhochi_result(result, cryspy_object)]
+    return "\n".join(line for line in ls_out if line != "")
+
+
+def take_numerical_correlation(cryspy_object, result: dict) -> dict:
+    """The result with the correlations of the inversed Hessian estimated by
+    numerical derivatives at the minimum (the sigmas of the refined values
+    are from it too); the matrix of BFGS is accumulated along the path of
+    the minimizer and may show |r| = 1 for independent parameters."""
+    if not cryspy_object.is_attribute("inversed_hessian"):
+        return result
+    matrix = getattr(cryspy_object.inversed_hessian, "matrix", None)
+    if matrix is None or len(matrix) != len(result.get("parameter_name", [])):
+        return result
+    matrix = numpy.array(matrix, dtype=float)
+    # the matrix and the result may list the parameters in other orders
+    l_label = [str(label) for label in getattr(cryspy_object.inversed_hessian, "label", [])]
+    l_path = list(result.get("parameter_path", []))
+    if len(l_path) == len(l_label) and sorted(l_path) == sorted(l_label):
+        l_index = [l_label.index(path) for path in l_path]
+        matrix = matrix[l_index, :][:, l_index]
+    correlation_matrix, _ = inversed_hessian_to_correlation(matrix)
+    return dict(result, correlation_matrix=correlation_matrix)
+
+
+def tool_refine(cryspy_object) -> dict:
+    from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement
+    if len(cryspy_object.get_variable_names()) == 0:
+        return {"text": "Error: no parameters are marked for refinement. Use refine_parameters first."}
+    history = take_history(cryspy_object)
+    d_last = {}  # the last iteration of the minimizer: chi_sq and the number of points
+    keep_snapshot(cryspy_object)
+    try:
+        result = rhochi_rietveld_refinement(cryspy_object, callback=d_last.update)
+    except Exception:
+        history.l_snapshot.pop()  # nothing is changed: nothing to undo
+        raise
+    result = take_numerical_correlation(cryspy_object, result)
+    d_metrics = form_metrics(result, cryspy_object, n_point=d_last.get("n_point"),
+                             d_previous=history.d_metrics)
+    if "n_point" in d_metrics:
+        result = dict(result, n_point=d_metrics["n_point"])
+    keep_checkpoint(cryspy_object, d_metrics)
+    return {"text": form_calculation_text("Refinement finished.", result, cryspy_object, d_metrics),
+            "metrics": d_metrics}
+
+
+def tool_undo_refinement(cryspy_object) -> dict:
+    from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    snapshot = restore_snapshot(cryspy_object)
+    if snapshot is None:
+        return {"text": "Error: there is no refinement to undo."}
+    # the calculated data of the object are those of the undone refinement
+    result = rhochi_no_refinement(cryspy_object)
+    d_metrics = form_metrics(result, cryspy_object)
+    keep_checkpoint(cryspy_object, d_metrics)
+    n_refined = sum(1 for _, flag in snapshot["flags"] if flag)
+    text = (f"The parameters and their refinement flags are returned to the state before the "
+            f"last refinement ({n_refined:} marked for refinement).\n"
+            + format_rhochi_result(result, cryspy_object))
+    s_metrics = format_metrics(d_metrics, flag_undo_hint=False)
+    if s_metrics != "":
+        text = f"{text:}\n{s_metrics:}"
+    return {"text": text, "metrics": d_metrics}
+
+
+def tool_list_recipes(cryspy_object) -> str:
+    return ("Recipes (typical algorithms of analysis; get_recipe gives the steps):\n"
+            + recipes_as_text())
+
+
+def tool_get_recipe(cryspy_object, name: str) -> str:
+    recipe = take_recipe(name)
+    if recipe is None:
+        return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
+    return recipe.to_text()
+
+
+def tool_use_recipe(cryspy_object, name: str) -> str:
+    """The steps of a recipe used by a step of another recipe: they are
+    done now, then the work goes on with the next step of that recipe."""
+    recipe = take_recipe(name)
+    if recipe is None:
+        return f"Error: recipe '{name:}' is not known. Known recipes:\n{recipes_as_text():}"
+    return (f"Do the steps of recipe {recipe.name:} now; after its last step go on with the "
+            f"next step of the recipe that uses it.\n{recipe.to_text():}")
+
+
+def tool_suggest_recipes(cryspy_object) -> str:
+    d_kind = experiments.take_object_kinds(cryspy_object)
+    if len(d_kind) == 0:
+        return "Error: the object has no experiments."
+    ls_out, d_name = [], {}
+    for name, l_kind in d_kind.items():
+        l_recipe = suggest_recipes(l_kind)
+        s_recipe = ", ".join(recipe.name for recipe in l_recipe) if l_recipe else "no recipe"
+        ls_out.append(f"{name:} ({', '.join(l_kind):}): {s_recipe:}")
+        if l_recipe:
+            d_name.setdefault(l_recipe[0].name, []).append(name)
+    if d_name:
+        ls_out.append("Run: " + "; ".join(f"{recipe:} for {', '.join(l_name):}"
+                                          for recipe, l_name in d_name.items())
+                      + " (get_recipe gives the steps).")
+    return "\n".join(ls_out)
+
+
+def tool_get_recipe_guide(cryspy_object) -> str:
+    return recipes.form_recipe_guide()
+
+
+def tool_check_recipe_text(cryspy_object, text: str) -> str:
+    return recipes.check_recipe_text(text)
+
+
+def tool_save_recipe(cryspy_object, text: str, **answers) -> str:
+    """Save a recipe of the user; replacing a recipe of the user is asked
+    from the user (the answer comes as 'replace', never from the model's
+    description of the tool)."""
+    folder = recipes.take_user_recipe_folder()
+    if folder is None:
+        return "Error: the folder of the recipes of the user is not set; the recipe is not saved."
+    s_check = recipes.check_recipe_text(text)
+    if s_check.startswith("Error"):
+        return f"{s_check:} The recipe is not saved."
+    name = recipes.parse_recipe(text).name
+    path = os.path.join(folder, f"{name:}{recipes.RECIPE_EXTENSION:}")
+    if os.path.isfile(path):
+        if "replace" not in answers:
+            raise ArgumentsNeeded([{
+                "name": "replace", "type": "boolean", "hint": "yes or no",
+                "question": f"Replace your recipe {name:} in the CookBook by the new text?"}],
+                f"Your CookBook has the recipe {name:} already ({path:}).")
+        if not convert_argument(answers["replace"], {"type": "boolean"}):
+            return (f"Error: the recipe {name:} is not saved: the user keeps the old one. "
+                    "Give the recipe another name to save it.")
+    path = recipes.save_user_recipe(text)
+    return f"Recipe {name:} is saved: {path:}. The assistant uses it from the next request."
+
+
+ANSWER_PREFIX = "answer_"
+MAX_USER_QUESTIONS = 5
+
+
+def take_option(answer, l_option: List[str]):
+    """The option given by its number ('2'), else the answer itself."""
+    text = str(answer).strip()
+    if l_option and text.isdigit() and 1 <= int(text) <= len(l_option):
+        return l_option[int(text) - 1]
+    return text
+
+
+def tool_ask_user(cryspy_object, question: str = "", questions: Optional[List[str]] = None,
+                  options: Optional[List[str]] = None, **answers) -> str:
+    """Questions of the model to the user, asked as 'missing' (the user
+    answers them in the dialog of the program, the answers come back as
+    answer_1, answer_2, ...); the result gives the answers to the model."""
+    l_question = [str(item).strip() for item in (questions or []) if str(item).strip() != ""]
+    if question.strip() != "":
+        l_question.insert(0, question.strip())
+    if len(l_question) == 0:
+        return "Error: ask_user needs the question."
+    l_question = l_question[:MAX_USER_QUESTIONS]
+    l_option = [str(item).strip() for item in (options or []) if str(item).strip() != ""]
+    if len(l_question) > 1:
+        l_option = []  # the options are of a single question
+    l_name = [f"{ANSWER_PREFIX:}{number:}" for number in range(1, len(l_question) + 1)]
+    if not all(name in answers for name in l_name):
+        l_missing = []
+        for name, text in zip(l_name, l_question):
+            d_missing = {"name": name, "type": "string",
+                         "question": text if text.endswith("?") else f"{text:}?"}
+            if l_option:
+                d_missing["hint"] = "; ".join(f"{number:}: {option:}" for number, option in
+                                              enumerate(l_option, start=1)) + "; or your own answer"
+            l_missing.append(d_missing)
+        raise ArgumentsNeeded(l_missing)
+    ls_out = ["The user answered:"]
+    for name, text in zip(l_name, l_question):
+        ls_out.append(f"- {text:} -> {take_option(answers[name], l_option):}")
+    return "\n".join(ls_out)
+
+
+def tool_check_flip_ratio_model(cryspy_object, experiment: str = "",
+                                field: Optional[float] = None,
+                                polarization: Optional[float] = None,
+                                magnetic_atoms: Optional[List[str]] = None,
+                                lande: Optional[float] = None) -> dict:
+    l_experiment = experiments.take_flip_ratio_experiments(cryspy_object, experiment)
+    if len(l_experiment) == 0:
+        return {"text": "Error: no experiment with flip ratios (diffrn_refln_fr)"
+                        + (f" named '{experiment:}'." if experiment.strip() else ".")}
+    ls_change = []
+    for diffrn in l_experiment:
+        if field is not None and experiments.take_field(diffrn) == 0.:
+            experiments.set_field(diffrn, field)
+            ls_change.append(f"{diffrn.data_name:}: magnetic field = {field:} T")
+        if polarization is not None and experiments.take_polarization(diffrn) == 0.:
+            experiments.set_polarization(diffrn, polarization)
+            ls_change.append(f"{diffrn.data_name:}: polarization = {polarization:}")
+        for crystal in experiments.take_experiment_crystals(cryspy_object, diffrn):
+            if magnetic_atoms and len(experiments.take_susceptible_atoms(crystal)) == 0:
+                l_label = [str(item.label) for item in crystal.atom_site.items]
+                for label in magnetic_atoms:
+                    if label in l_label:
+                        ls_change.append(experiments.add_susceptibility(
+                            crystal, label, 2. if lande is None else lande))
+    l_missing = []
+    for diffrn in l_experiment:
+        if experiments.take_field(diffrn) == 0.:
+            l_missing.append({
+                "name": "field", "question": f"the magnetic field of {diffrn.data_name:} in tesla",
+                "type": "number", "hint": "a number in T, e.g. 1.0"})
+        if experiments.take_polarization(diffrn) == 0.:
+            l_missing.append({
+                "name": "polarization", "question": f"the polarization of the beam of {diffrn.data_name:}",
+                "type": "number", "minimum": -1., "maximum": 1., "hint": "a number from -1 to 1, e.g. 0.9"})
+        for crystal in experiments.take_experiment_crystals(cryspy_object, diffrn):
+            if len(experiments.take_susceptible_atoms(crystal)) == 0:
+                l_label = [str(item.label) for item in crystal.atom_site.items]
+                l_missing.append({
+                    "name": "magnetic_atoms",
+                    "question": f"which atoms of {crystal.data_name:} are magnetic",
+                    "type": "array", "items": {"type": "string", "enum": l_label}, "minItems": 1,
+                    "hint": "labels of atoms: " + ", ".join(l_label)})
+                l_missing.append({
+                    "name": "lande", "question": "the Lande factor of the magnetic atoms",
+                    "type": "number", "proposal": 2., "s_proposal": "2.0 (spin only)",
+                    "hint": "a number, e.g. 2.0 for spin only"})
+    l_missing = list({d_missing["name"]: d_missing for d_missing in l_missing}.values())
+    if len(l_missing) > 0:
+        l_problem = []
+        for diffrn in l_experiment:
+            l_problem.extend(experiments.find_flip_ratio_problems(cryspy_object, diffrn))
+        raise ArgumentsNeeded(l_missing, "The model gives no magnetic scattering: "
+                                         + "; ".join(l_problem) + ".")
+    # new tensors and zero ones (FR = 1, no derivative step) get the best start value
+    l_item, l_label = [], []
+    for diffrn in l_experiment:
+        for crystal in experiments.take_experiment_crystals(cryspy_object, diffrn):
+            for item in crystal.atom_site_susceptibility.items:
+                if (str(item.label) in (magnetic_atoms or []) and item.chi_type == "Ciso") or all(
+                        float(getattr(item, f"chi_{ij:}", 0.)) == 0. for ij in ("11", "22", "33")):
+                    if item.chi_type != "Ciso":
+                        item.chi_type = "Ciso"
+                    if item not in l_item:
+                        l_item.append(item)
+                        l_label.append(f"{crystal.data_name:}: {item.label:}")
+    if len(l_item) > 0:
+        chi_start = experiments.scan_chi_start(cryspy_object, l_item)
+        ls_change.append(f"start value chi_11 = {chi_start:g} mu_B/T (Ciso), the best of "
+                         f"{', '.join(f'{chi:g}' for chi in experiments.L_CHI_START):} for "
+                         + ", ".join(l_label))
+    result = tool_calculate(cryspy_object)
+    ls_out = ["Changed:\n" + "\n".join(ls_change)] if ls_change else []
+    flag_magnetic = True
+    for diffrn in l_experiment:
+        deviation = experiments.calc_flip_ratio_deviation(diffrn)
+        if deviation is None or deviation < experiments.FLIP_RATIO_TOLERANCE:
+            flag_magnetic = False
+            ls_out.append(f"{diffrn.data_name:}: all calculated flip ratios are equal to 1 although "
+                          "the field, the polarization and the magnetic atoms are given: check the "
+                          "magnetic atoms and the reflections.")
+        else:
+            ls_out.append(f"{diffrn.data_name:}: the calculated flip ratios differ from 1 "
+                          f"(max |FR_calc - 1| = {deviation:.3g}): the model gives magnetic scattering.")
+    if not flag_magnetic:
+        ls_out.insert(0, "Error: the model gives no magnetic scattering.")
+    ls_out.append(result["text"])
+    return {"text": "\n".join(ls_out), "metrics": result["metrics"]}
+
+
+def tool_set_chi_type(cryspy_object, chi_type: str, atoms: str = "") -> dict:
+    l_changed = experiments.set_chi_type(cryspy_object, chi_type, atoms)
+    if len(l_changed) == 0:
+        if not any(crystal.is_attribute("atom_site_susceptibility")
+                   for crystal in experiments.take_crystals(cryspy_object)):
+            return {"text": "Error: no atom has a susceptibility tensor (atom_site_susceptibility)."}
+        return {"text": f"The susceptibility tensors are {chi_type:} already."}
+    # the model is changed: the next refinement is compared with this calculation
+    result = tool_calculate(cryspy_object, flag_model_change=True)
+    return {"text": f"Susceptibility type {chi_type:} is set for:\n" + "\n".join(l_changed)
+                    + "\n" + result["text"],
+            "metrics": result["metrics"]}
+
+
+def tool_list_procedures(cryspy_object) -> str:
+    ls_out = []
+    for d_procedure in describe_procedures():
+        ls_param = []
+        for d_param in d_procedure["parameters"]:
+            if d_param["kind"] == "global":
+                continue
+            s_type = d_param.get("type") or "|".join(d_param.get("classes", []))
+            s_default = f"={d_param['default']!r:}" if "default" in d_param else ""
+            ls_param.append(f"{d_param['name']:}: {s_type:}{s_default:}")
+        ls_out.append(f"- {d_procedure['name']:}({', '.join(ls_param):}): {d_procedure['summary']:}")
+    return "\n".join(ls_out)
+
+
+def form_procedure_result(name: str, result, cryspy_object) -> str:
+    from cryspy.B_parent_classes.cl_1_item import ItemN
+    from cryspy.B_parent_classes.cl_2_loop import LoopN
+    if isinstance(result, dict) and "chi_sq" in result:
+        return f"{name:} finished.\n" + format_rhochi_result(
+            result, cryspy_object)
+    if result is None:
+        return f"{name:} finished."
+    if isinstance(result, (ItemN, LoopN, DataN, GlobalN)):
+        text = result.to_cif()
+    elif isinstance(result, (list, tuple)) and len(result) > 0 and all(
+            isinstance(item, (ItemN, LoopN, DataN)) for item in result):
+        text = "\n\n".join(item.to_cif() for item in result)
+    else:
+        text = str(result)
+    if len(text) > 4000:
+        text = text[:4000] + "\n[... the rest is cut ...]"
+    return f"{name:} finished.\n{text:}"
+
+
+def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
+    """Run a procedure: the object, and the items of the object found by
+    their classes, are given at once; values without a default and items
+    found more than once are asked from the user (ArgumentsNeeded) with
+    the questions made from the docstring of the procedure."""
+    d_function = take_procedures()
+    if name not in d_function:
+        return (f"Error: procedure '{name:}' is not known. Available:\n"
+                + tool_list_procedures(cryspy_object))
+    function = d_function[name]
+    d_param_type = {param: types for param, _, types, _ in take_procedure_parameters(function)}
+    kwargs, l_missing = {}, []
+    for d_param in describe_procedure(function)["parameters"]:
+        param, kind = d_param["name"], d_param["kind"]
+        d_ask = {"name": param, "question": d_param.get("question", param)}
+        if kind == "global":
+            kwargs[param] = cryspy_object
+        elif kind == "basic":
+            if param in arguments:
+                kwargs[param] = convert_argument(arguments[param], d_param)
+            elif "default" not in d_param:
+                l_missing.append(dict(d_ask, type=d_param["type"], hint=param))
+        elif kind == "cif":
+            d_found = find_cif_objects(cryspy_object, d_param_type[param])
+            s_type = " or ".join(d_param["classes"])
+            if param in arguments and str(arguments[param]) in d_found:
+                kwargs[param] = d_found[str(arguments[param])]
+            elif len(d_found) == 1:
+                kwargs[param] = list(d_found.values())[0]
+            elif len(d_found) == 0:
+                return f"Error: {name:} needs {s_type:} ({param:}), the object has none."
+            else:
+                l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
+    if l_missing:
+        raise ArgumentsNeeded(l_missing)
+    return form_procedure_result(name, function(**kwargs), cryspy_object)
+
+
+MAX_METHOD_BLOCKS = 40
+
+
+def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
+    """The methods of the data blocks, loops and items (methods.py), the
+    same methods of blocks of one class listed once; without path and
+    pattern only their names (the object has many), with them also their
+    arguments and descriptions."""
+    l_block = find_method_blocks(cryspy_object, path)
+    if len(l_block) == 0:
+        return (f"Error: '{path:}' is not a data block, loop or item of the object; "
+                "summarize_object gives them.")
+    word = pattern.strip().lower()
+    ls_out, d_class = [], {}
+    for block_path, block in l_block:
+        d_class.setdefault(type(block), []).append(block_path)
+    flag_short = path.strip() == "" and word == ""
+    for cls, l_path in d_class.items():
+        s_path = " ".join(l_path).lower()
+        d_method = {name: function for name, function in take_methods(cls).items()
+                    if word == "" or word in name.lower() or word in s_path
+                    or word in describe_method(function)["summary"].lower()}
+        if len(d_method) == 0:
+            continue
+        s_path = ", ".join(l_path[:5]) + (f", ... ({len(l_path):})" if len(l_path) > 5 else "")
+        if flag_short:
+            ls_out.append(f"{s_path:} ({cls.__name__:}): {', '.join(d_method):}")
+            continue
+        ls_out.append(f"{s_path:} ({cls.__name__:}):")
+        ls_out.extend(f"  {format_method(describe_method(function)):}" for function in d_method.values())
+    if len(ls_out) == 0:
+        s_word = f" with '{pattern:}'" if word else ""
+        return f"Error: no methods{s_word:} in {path or 'the object':}."
+    if flag_short:
+        ls_out.append("list_methods with a path or a pattern gives the arguments and descriptions.")
+    ls_out.append("Call one with call_method {\"path\": <block>, \"method\": <name>, <its arguments>}.")
+    return "\n".join(ls_out)
+
+
+def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) -> str:
+    """Call a method of the blocks given by the path (every block that has
+    it when the path is a class, a category or empty); items of the object
+    for its parameters are found by their classes, the other values
+    without a default are asked from the user (ArgumentsNeeded)."""
+    if isinstance(arguments.get("arguments"), dict):  # {"arguments": {...}} of a model
+        arguments.update(arguments.pop("arguments"))
+    l_block = find_method_blocks(cryspy_object, path, method)
+    if len(l_block) == 0:
+        l_all = find_method_blocks(cryspy_object, "", method)
+        s_where = (f"; it is a method of {', '.join(block_path for block_path, _ in l_all[:5]):}"
+                   if l_all else "; list_methods gives the methods")
+        return f"Error: {path or 'the object':} has no method '{method:}'{s_where:}."
+    l_text = []
+    for block_path, block in l_block[:MAX_METHOD_BLOCKS]:
+        function = take_methods(type(block))[method]
+        d_param_type = {param: types for param, _, types, _ in take_method_parameters(function)}
+        kwargs, l_missing = {}, []
+        for d_param in describe_method(function)["parameters"]:
+            param = d_param["name"]
+            d_ask = {"name": param, "question": d_param["question"]}
+            if d_param["kind"] == "basic":
+                if param in arguments:
+                    kwargs[param] = convert_argument(arguments[param], d_param)
+                elif "default" not in d_param:
+                    l_missing.append(dict(d_ask, type=d_param["type"], hint=d_param["description"] or param))
+                continue
+            d_found = find_parameter_blocks(cryspy_object, block, param, d_param_type[param])
+            s_type = " or ".join(d_param["classes"])
+            if param in arguments and str(arguments[param]) in d_found:
+                kwargs[param] = d_found[str(arguments[param])]
+            elif len(d_found) == 1:
+                kwargs[param] = list(d_found.values())[0]
+            elif len(d_found) == 0:
+                if "default" in d_param:
+                    continue
+                return f"Error: {method:} of {block_path:} needs {s_type:} ({param:}), the object has none."
+            else:
+                l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
+        if l_missing:
+            raise ArgumentsNeeded(l_missing)
+        result = getattr(block, method)(**kwargs)
+        l_text.append(form_procedure_result(f"{block_path:}.{method:}", result, cryspy_object))
+    if len(l_block) > MAX_METHOD_BLOCKS:
+        l_text.append(f"Only the first {MAX_METHOD_BLOCKS:} of {len(l_block):} blocks; give the path.")
+    return "\n".join(l_text)
+
+
+S_PATH = ("Parameter path or pattern: 'crystal_pbso4.cell.length_a', "
+          "'atom_site[Fe].fract_x', 'b_iso', '*.pd_background[*].intensity'. "
+          "Without '*' any path containing the text matches; the labels "
+          "may be left out ('atom_site.fract_x'). Several patterns are "
+          "separated by ','. Words work too: 'atomic positions', "
+          "'scale factor', 'polarization', 'unit cell', 'adp'. "
+          "Write the path only, without the value or '()' of rcif.")
+
+L_ASSISTANT_TOOLS: List[AssistantTool] = [
+    AssistantTool(
+        "get_help",
+        "Search CrysPy help: how to describe something in rcif "
+        "(thermal vibrations, multipoles, extinction, twins, powder, ...) "
+        "or the description of a category.",
+        tool_get_help,
+        {"query": {"type": "string",
+                   "description": "Question, topic or category name."}},
+        required=("query", ), flag_object_needed=False),
+    AssistantTool(
+        "summarize_object",
+        "Short overview of the loaded object: data blocks, their categories "
+        "and the number of refined parameters.",
+        tool_summarize_object),
+    AssistantTool(
+        "list_parameters",
+        "List refinable parameters with values, sigmas and flags.",
+        tool_list_parameters,
+        {"pattern": {"type": "string", "description": S_PATH},
+         "refined_only": {"type": "boolean",
+                          "description": "Only the parameters marked for refinement."}}),
+    AssistantTool(
+        "refine_parameters",
+        "Mark the parameters matching the pattern for refinement (as '()' "
+        "after a value in rcif); to try one parameter give its path from "
+        "list_parameters, e.g. 'crystal_fe.cell.length_a'.",
+        tool_refine_parameters,
+        {"pattern": {"type": "string", "description": S_PATH}},
+        required=("pattern", ), flag_object_changed=True),
+    AssistantTool(
+        "fix_parameters",
+        "Switch off refinement of the parameters matching the pattern "
+        "(all parameters if the pattern is empty).",
+        tool_fix_parameters,
+        {"pattern": {"type": "string", "description": S_PATH}},
+        flag_object_changed=True),
+    AssistantTool(
+        "set_parameter",
+        "Set the value of one parameter.",
+        tool_set_parameter,
+        {"path": {"type": "string", "description": S_PATH},
+         "value": {"type": "number", "description": "New value."}},
+        required=("path", "value"), flag_object_changed=True),
+    AssistantTool(
+        "list_attributes",
+        "List all attributes of the object (also text ones such as "
+        "atom_site_susceptibility.chi_type or extinction.model) with their values "
+        "and allowed values.",
+        tool_list_attributes,
+        {"pattern": {"type": "string", "description": (
+            "Path or pattern: 'chi_type', '*.extinction.model', "
+            "'atom_site[Fe]'; empty for all.")}}),
+    AssistantTool(
+        "set_attribute",
+        "Set the value of one attribute of any category (text, integer or number), "
+        "e.g. 'exp.extinction.model' to 'gauss'; text values must be allowed values.",
+        tool_set_attribute,
+        {"path": {"type": "string", "description": "Path from list_attributes."},
+         "value": {"type": "string", "description": "New value."}},
+        required=("path", "value"), flag_object_changed=True),
+    AssistantTool(
+        "list_constraints",
+        "List the constraints between refined parameters (x+y=1, hard or soft) and "
+        "the marks of the parameters used in them.",
+        tool_list_constraints),
+    AssistantTool(
+        "add_constraint",
+        "Add a constraint between refined parameters, e.g. 'x+y=1' "
+        "to keep the sum of two occupancies; the parameters are named by "
+        "marks, given in 'parameters' as 'x=path_1, y=path_2' (they are "
+        "refined then). Without sigma the equation is linear and holds "
+        "exactly; with sigma it is soft (restraint, any formula of the marks).",
+        tool_add_constraint,
+        {"expression": {"type": "string",
+                        "description": "Linear equation of the marks: 'x+y=1', '2*a-b=0'."},
+         "parameters": {"type": "string",
+                        "description": ("Marks of the parameters: 'x=crystal_fe.atom_site[Fe1].occupancy, "
+                                        "y=crystal_fe.atom_site[Co1].occupancy'; empty if "
+                                        "the parameters are marked already.")},
+         "sigma": {"type": "number",
+                   "description": "Allowed deviation of a soft constraint; omit for a hard one."}},
+        required=("expression", ), flag_object_changed=True),
+    AssistantTool(
+        "show_item",
+        "Show in rcif format one data block, category (item or loop) or one item of a loop; "
+        "for the path of an attribute its value and its item.",
+        tool_show_item,
+        {"path": {"type": "string", "description": (
+            "'crystal_fe', 'crystal_fe.cell', 'crystal_fe.atom_site[Fe]' or an attribute "
+            "'diffrn_exp1.setup.field'; the data block may be given by its data name ('exp1').")}},
+        required=("path", )),
+    AssistantTool(
+        "describe_category",
+        "Attributes of a category (any CrysPy item or loop class) with types, "
+        "refinable ones and allowed values; without a name the categories of the object.",
+        tool_describe_category,
+        {"name": {"type": "string", "description": (
+            "Category, e.g. 'cell', 'atom_site_susceptibility', 'extinction'.")}},
+        flag_object_needed=False),
+    AssistantTool(
+        "calculate",
+        "Calculate the model without refinement: chi-square and calculated data.",
+        tool_calculate, flag_object_changed=True),
+    AssistantTool(
+        "refine",
+        "Refine the parameters marked for refinement (RhoChi); returns "
+        "chi-square, the change of chi_sq/n (and of R_F2 for single crystals) "
+        "since the previous calculation, refined values, strong correlations "
+        "and warnings (unphysical values).",
+        tool_refine, flag_object_changed=True),
+    AssistantTool(
+        "undo_refinement",
+        "Return the parameters and their refinement flags to the state "
+        "before the last refinement (e.g. when chi-square got worse or a "
+        "value is unphysical).",
+        tool_undo_refinement, flag_object_changed=True),
+    AssistantTool(
+        "list_recipes",
+        "List the recipes: typical algorithms of analysis (e.g. the "
+        "step-by-step structure refinement).",
+        tool_list_recipes, flag_object_needed=False),
+    AssistantTool(
+        "get_recipe",
+        "Steps of a recipe: for each step the actions, what counts as "
+        "success and what to do otherwise. Follow them one action at a time.",
+        tool_get_recipe,
+        {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
+        required=("name", ), flag_object_needed=False),
+    AssistantTool(
+        "use_recipe",
+        "Inside a recipe: do the steps of another recipe of the CookBook here (recipes are "
+        "built from recipes), then go on with the next step.",
+        tool_use_recipe,
+        {"name": {"type": "string", "description": "Name of the recipe from list_recipes."}},
+        required=("name", ), flag_object_needed=False),
+    AssistantTool(
+        "suggest_recipes",
+        "Kinds of the experiments of the object (single crystal, powder, flip ratios, "
+        "polarized or not, nuclear or magnetic crystals) and the recipes for them.",
+        tool_suggest_recipes),
+    AssistantTool(
+        "ask_user",
+        "Ask the user when the request is not clear or only the user knows the answer "
+        "(which parameters, a condition, a choice); the result is the answers. Ask all "
+        "questions of the moment at once; never ask what another action can find.",
+        tool_ask_user,
+        {"question": {"type": "string", "description": "The question to the user."},
+         "questions": {"type": "array", "items": {"type": "string"},
+                       "description": f"Several questions (at most {MAX_USER_QUESTIONS:}), "
+                                      "instead of question."},
+         "options": {"type": "array", "items": {"type": "string"},
+                     "description": "Possible answers of a single question; the user may "
+                                    "give another one."}},
+        flag_object_needed=False, flag_extra_arguments=True),
+    AssistantTool(
+        "get_recipe_guide",
+        "How to write a recipe (a typical algorithm of the CookBook) from the words "
+        "of the user: the format, the kinds of experiments, the recipes as examples "
+        "and the way of work.",
+        tool_get_recipe_guide, flag_object_needed=False),
+    AssistantTool(
+        "check_recipe_text",
+        "Check the text of a recipe: errors with their lines (format, unknown tools "
+        "or arguments) or the steps of the correct recipe with remarks.",
+        tool_check_recipe_text,
+        {"text": {"type": "string", "description": "The whole text of the recipe."}},
+        required=("text", ), flag_object_needed=False),
+    AssistantTool(
+        "save_recipe",
+        "Save a correct recipe to the CookBook of the user (asks before replacing "
+        "a recipe of the user); only after the user agrees with the text.",
+        tool_save_recipe,
+        {"text": {"type": "string", "description": "The whole text of the recipe."}},
+        required=("text", ), flag_object_needed=False, flag_extra_arguments=True),
+    AssistantTool(
+        "check_flip_ratio_model",
+        "Calculate the model of the flip ratio experiments and check that it gives "
+        "magnetic scattering (not all calculated flip ratios equal to 1); asks the user for "
+        "a zero magnetic field or polarization and for the magnetic atoms when no atom has a "
+        "susceptibility tensor.",
+        tool_check_flip_ratio_model,
+        {"experiment": {"type": "string",
+                        "description": "Name of the experiment; empty for all with flip ratios."},
+         "field": {"type": "number", "description": "Magnetic field, T."},
+         "polarization": {"type": "number", "description": "Polarization of the beam."},
+         "magnetic_atoms": {"type": "array", "items": {"type": "string"},
+                            "description": "Labels of the magnetic atoms."},
+         "lande": {"type": "number", "description": "Lande factor of the magnetic atoms."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "set_chi_type",
+        "Set the type of the susceptibility tensors: 'Ciso' (isotropic, only chi_11 is "
+        "refined) or 'Cani' (anisotropic, the components allowed by the symmetry of the site).",
+        tool_set_chi_type,
+        {"chi_type": {"type": "string", "enum": ["Ciso", "Cani"]},
+         "atoms": {"type": "string",
+                   "description": "Labels of the atoms; empty for all atoms with a susceptibility."}},
+        required=("chi_type", ), flag_object_changed=True),
+    AssistantTool(
+        "show_model",
+        "Show the object, or one data block, in rcif format.",
+        tool_show_model,
+        {"block": {"type": "string",
+                   "description": "Name of a data block; empty for all."}}),
+    AssistantTool(
+        "add_atom",
+        "Add an atom to the atom_site loop of a crystal.",
+        tool_add_atom,
+        {"crystal": {"type": "string", "description": "Name of the crystal data block."},
+         "label": {"type": "string"},
+         "type_symbol": {"type": "string", "description": "Element or ion, e.g. Fe3+."},
+         "fract_x": {"type": "number"},
+         "fract_y": {"type": "number"},
+         "fract_z": {"type": "number"},
+         "occupancy": {"type": "number"},
+         "adp_type": {"type": "string", "enum": ["Biso", "Uiso"],
+                      "description": "By default as the other atoms."},
+         "b_iso_or_equiv": {"type": "number",
+                            "description": "Isotropic B (or U for Uiso), Å²."}},
+        required=("crystal", "label", "type_symbol", "fract_x", "fract_y",
+                  "fract_z"),
+        flag_object_changed=True),
+    AssistantTool(
+        "add_item",
+        "Add a row to a loop of a data block (the loop is created when there is none) or "
+        "a single item, of any category: atom_rho_multipole, atom_local_axes, "
+        "atom_site_scat, atom_site_susceptibility, extinction, ... describe_category "
+        "gives the attributes of a category; the values are given by their names. "
+        "Mandatory values that are not given are asked from the user.",
+        tool_add_item,
+        {"category": {"type": "string", "description": "Name of the category, e.g. atom_rho_multipole."},
+         "block": {"type": "string",
+                   "description": "Data block; empty when only one data block can have the category."},
+         "values": {"type": "object",
+                    "description": 'Values of the attributes, e.g. {"atom_label": "Fe", '
+                                   '"atom_type_symbol": "Fe3+", "orbital": "3d"}.'}},
+        required=("category", ), flag_object_changed=True, flag_extra_arguments=True),
+    AssistantTool(
+        "remove_item",
+        "Remove a row of a loop, a whole loop or a single item from a data block.",
+        tool_remove_item,
+        {"path": {"type": "string",
+                  "description": "e.g. crystal_fe.atom_rho_multipole[Fe] for a row, "
+                                 "crystal_fe.atom_rho_multipole for the loop."}},
+        required=("path", ), flag_object_changed=True),
+    AssistantTool(
+        "calculate_structure_factor",
+        "Nuclear structure factor F_N (complex, |F_N|, |F_N|^2) of one "
+        "reflection hkl for the crystals of the object.",
+        tool_calculate_structure_factor,
+        {"h": {"type": "number"}, "k": {"type": "number"},
+         "l": {"type": "number"},
+         "hkl": {"type": "string",
+                 "description": "The indices as text, e.g. '5 0 3'; "
+                                "instead of h, k, l."},
+         "crystal": {"type": "string",
+                     "description": "Name of the crystal; empty for all."}}),
+    AssistantTool(
+        "list_atoms_in_unit_cell",
+        "All atoms of the unit cell made by the symmetry elements (the "
+        "structure in P1): fractional coordinates and ordered moments of "
+        "every atom; nothing is changed.",
+        tool_list_atoms_in_unit_cell,
+        {"crystal": {"type": "string",
+                     "description": "Name of the crystal; empty for all."}}),
+    AssistantTool(
+        "convert_to_p1",
+        "Add a copy of a crystal in space group P1: every atom of the unit "
+        "cell becomes a separate atom ('Fe1_1', 'Fe1_2', ...) with rotated "
+        "anisotropic displacement parameters, moments and susceptibility "
+        "tensors.",
+        tool_convert_to_p1,
+        {"crystal": {"type": "string",
+                     "description": "Name of the crystal; may be empty when there is one."},
+         "name": {"type": "string",
+                  "description": "Data name of the new crystal; by default the old one with '_p1'."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "report_ellipsoids",
+        "Principal axes of the atomic ellipsoids: displacement ellipsoids "
+        "(kind 'ADP': U_i, rms displacements) or magnetization ellipsoids "
+        "of the susceptibility tensors (kind 'susceptibility': |χ_i| and the "
+        "moments induced by a field), with their directions in Cartesian and "
+        "crystal axes; for the atoms of atom_site or of the whole unit cell.",
+        tool_report_ellipsoids,
+        {"kind": {"type": "string", "enum": ["ADP", "susceptibility"]},
+         "crystal": {"type": "string",
+                     "description": "Name of the crystal; empty for all."},
+         "unit_cell": {"type": "boolean",
+                       "description": "For every atom of the unit cell (orientations "
+                                      "of the equivalent atoms)."},
+         "field": {"type": "number",
+                   "description": "Magnetic field, T, for the induced moments; 1 by default."}}),
+    AssistantTool(
+        "add_crystal_from_cod",
+        "Download a crystal structure from the Crystallography Open "
+        "Database (COD, needs internet) and add it to the object as a "
+        "crystal data block.",
+        tool_add_crystal_from_cod,
+        {"formula": {"type": "string",
+                     "description": "Chemical formula, e.g. 'Al', 'TiO2'; "
+                                    "the first COD entry is taken."},
+         "cod_id": {"type": "string",
+                    "description": "COD number, e.g. '9008460'; instead of "
+                                   "the formula."},
+         "name": {"type": "string",
+                  "description": "Name of the new data block; by default "
+                                 "the formula."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "list_methods",
+        "List the methods of the data blocks, loops and items of the object (e.g. "
+        "define_background_points of a powder experiment, define_points of pd_background) "
+        "with their arguments; call one with call_method.",
+        tool_list_methods,
+        {"path": {"type": "string", "description": (
+            "Data block, loop or item: 'pnd', 'pnd.pd_background'; or a class or "
+            "category for all of them: 'Pd', 'pd_background'; empty for all.")},
+         "pattern": {"type": "string",
+                     "description": ("A word of the name or the description of the method, "
+                                     "or of the block, e.g. 'background'.")}}),
+    AssistantTool(
+        "call_method",
+        "Call a method from list_methods of a data block, loop or item; its arguments "
+        "are further arguments (e.g. \"step_ttheta\": 2). Items of the object the method "
+        "needs (as pd_meas) are found by themselves, missing values are asked from the user.",
+        tool_call_method,
+        {"method": {"type": "string", "description": "Name of the method."},
+         "path": {"type": "string", "description": (
+             "Data block, loop or item: 'pnd', 'pnd.pd_background'; or a class or category "
+             "('Pd', 'pd_background') or empty to call it for every block that has it.")}},
+        required=("method", ), flag_object_changed=True, flag_extra_arguments=True),
+    AssistantTool(
+        "list_procedures",
+        "List CrysPy procedures that can be run on the object "
+        "(MEM, simulations, reports, ...).",
+        tool_list_procedures),
+    AssistantTool(
+        "run_procedure",
+        "Run a CrysPy procedure from list_procedures by its name; its "
+        "parameters are further arguments (e.g. \"iteration_max\": 500). "
+        "Missing values are asked from the user; results that are rcif "
+        "objects are given in rcif format.",
+        tool_run_procedure,
+        {"name": {"type": "string"}}, required=("name", ),
+        flag_object_changed=True, flag_extra_arguments=True),
+]
+
+
+def take_assistant_tool(name: str) -> Optional[AssistantTool]:
+    for tool in L_ASSISTANT_TOOLS:
+        if tool.name == name:
+            return tool
+    return None
+
+
+def assistant_tools() -> List[dict]:
+    """Descriptions of the tools for a chat model (JSON schema format)."""
+    return [tool.to_dict() for tool in L_ASSISTANT_TOOLS]
+
+
+def assistant_tools_as_text() -> str:
+    """Compact description of the tools for the prompt of a small model."""
+    return "\n".join(tool.to_short_text() for tool in L_ASSISTANT_TOOLS)
+
+
+def convert_argument(value, d_param: dict):
+    """Value of the argument of the type given by its JSON schema; raises
+    ValueError or TypeError when it does not fit.
+
+    Keys of d_param: "type" (a list with "null" accepts None, also given as
+    'none', 'null', 'identity' or '-'), "items", "minItems", "maxItems"
+    (arrays), "minimum", "maximum" (numbers), "enum" and "aliases" ({item
+    of enum: [words]}: the item whose word is in the answer)."""
+    s_type = d_param.get("type", "string")
+    if isinstance(s_type, list):
+        if "null" in s_type and (value is None or (
+                isinstance(value, str) and value.strip().lower() in NULL_WORDS)):
+            return None
+        l_type = [item for item in s_type if item != "null"]
+        d_param = dict(d_param, type=l_type[0] if l_type else "string")
+        return convert_argument(value, d_param)
+    if s_type == "array":
+        if isinstance(value, str):
+            value = [word for word in re.split(r"[\s,;]+", value.strip(" []()"))
+                     if word != ""]
+        l_value = [convert_argument(item, d_param.get("items", {}))
+                   for item in value]
+        n_min = d_param.get("minItems", 0)
+        n_max = d_param.get("maxItems", len(l_value))
+        if not n_min <= len(l_value) <= n_max:
+            s_number = (f"{n_min:}" if n_min == n_max
+                        else f"from {n_min:} to {n_max:}")
+            raise ValueError(f"{s_number:} values are expected, "
+                             f"{len(l_value):} are given.")
+        return l_value
+    if s_type == "object":
+        if isinstance(value, str):  # '{"atom_label": "Fe"}' written as text
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                raise ValueError(f"'{value:}' is not a JSON object.") from None
+        if not isinstance(value, dict):
+            raise ValueError(f"'{value:}' is not a JSON object.")
+        return value
+    if s_type in ("number", "integer"):
+        s_kind = "a number" if s_type == "number" else "an integer"
+        if isinstance(value, str):  # '2.36 A': the only number with its unit
+            l_number = RE_NUMBER.findall(value)
+            if len(l_number) == 1:
+                value = l_number[0]
+        try:
+            out = float(value) if s_type == "number" else int(value)
+        except ValueError:
+            raise ValueError(f"'{value:}' is not {s_kind:}.") from None
+        if "minimum" in d_param and out < d_param["minimum"]:
+            raise ValueError(f"{out:g} is less than {d_param['minimum']:g}.")
+        if "maximum" in d_param and out > d_param["maximum"]:
+            raise ValueError(f"{out:g} is more than {d_param['maximum']:g}.")
+    elif s_type == "boolean":
+        if isinstance(value, str):
+            return value.strip().lower() in ("true", "yes", "1")
+        return bool(value)
+    else:
+        out = str(value)
+    if "enum" in d_param:
+        d_enum = {str(item).lower(): item for item in d_param["enum"]}
+        if str(out).lower() not in d_enum:
+            s_lower = str(out).lower()
+            for item, l_word in d_param.get("aliases", {}).items():
+                if any(re.search(rf"(?<!\w){re.escape(str(word).lower()):}(?!\w)", s_lower)
+                       for word in l_word):
+                    return item
+            raise ValueError(f"'{out:}' is not one of: "
+                             f"{', '.join(str(item) for item in d_param['enum']):}.")
+        out = d_enum[str(out).lower()]
+    return out
+
+
+def convert_assistant_answer(d_missing: dict, text: str):
+    """Value of the answer of the user to a question of 'missing' (see
+    call_assistant_tool). Raises ValueError with a message for the user
+    when the answer does not fit."""
+    try:
+        return convert_argument(text.strip(), d_missing)
+    except (TypeError, ValueError) as error:
+        message = str(error)
+        if d_missing.get("hint"):
+            message = f"{message:} Expected: {d_missing['hint']:}."
+        raise ValueError(message) from error
+
+
+def form_missing(name: str, d_param: dict) -> dict:
+    """The dict of 'missing' for the argument of a tool."""
+    d_missing = {"name": name,
+                 "question": d_param.get("question", f"the {name.replace('_', ' '):}")}
+    d_missing.update({key: d_param[key] for key in MISSING_KEYS
+                      if key in d_param})
+    if "hint" not in d_missing and d_param.get("description"):
+        d_missing["hint"] = d_param["description"]
+    return d_missing
+
+
+def form_missing_text(name: str, l_missing: List[dict],
+                      message: str = "") -> str:
+    s_question = "; ".join(d_missing["question"] for d_missing in l_missing)
+    s_text = f"{name:} needs to know: {s_question:}{'' if s_question.endswith('?') else '.':}"
+    return f"{message:}\n{s_text:}" if message else s_text
+
+
+def call_assistant_tool(cryspy_object, name: str,
+                        arguments: Optional[dict] = None, *,
+                        ask_required: bool = False) -> dict:
+    """Run a tool by name with arguments from a chat model.
+
+    ask_required: the user called the tool (not a model), so every
+    required argument that is not given is asked ('missing'), not only
+    those with "question".
+
+    Never raises: errors are returned as text, so that the model can read
+    them and correct the call.
+
+    Returns dict with keys 'text', 'flag_object_changed', 'flag_error'
+    (True if the tool did not do what was asked: the text starts with
+    "Error"; a chat program must not report such a call as done) and
+    'missing' (the arguments to ask the user, see the module docstring;
+    an empty list when nothing is missing), 'metrics' (numbers of the
+    result: "chi_sq", "n_point", "chi_sq_per_n", "chi_sq_per_n_previous",
+    "chi_sq_per_n_change", "r_f2" and "r_f2_previous" ({data block: R_F2}
+    of single crystals), "n_refined", "max_correlation", "warnings"; see
+    history.form_metrics; empty for tools without numbers) and, when the
+    tool raised an exception, 'error_type' (its class name).
+    """
+    result = run_assistant_tool(cryspy_object, name, arguments, ask_required=ask_required)
+    result["flag_error"] = str(result["text"]).startswith("Error")
+    result.setdefault("missing", [])
+    result.setdefault("metrics", {})
+    return result
+
+
+def run_assistant_tool(cryspy_object, name: str,
+                       arguments: Optional[dict] = None, ask_required: bool = False) -> dict:
+    tool = take_assistant_tool(name)
+    if tool is None:
+        return {"text": f"Error: unknown tool '{name:}'. Known tools: "
+                        + ", ".join(tool.name for tool in L_ASSISTANT_TOOLS),
+                "flag_object_changed": False}
+    if tool.flag_object_needed and cryspy_object is None:
+        return {"text": "Error: no CrysPy object is loaded.",
+                "flag_object_changed": False}
+    if not isinstance(arguments, dict):
+        arguments = {}
+    kwargs = {}
+    try:
+        for key, value in arguments.items():
+            if key in tool.parameters:
+                kwargs[key] = convert_argument(value, tool.parameters[key])
+            elif tool.flag_extra_arguments:
+                kwargs[key] = value
+    except (TypeError, ValueError) as error:
+        return {"text": f"Error in arguments of {name:}: {error:}",
+                "flag_object_changed": False}
+    l_missing = [key for key in tool.required if key not in kwargs]
+    l_ask = [key for key in l_missing if ask_required or "question" in tool.parameters[key]]
+    if len(l_missing) > len(l_ask):
+        return {"text": f"Error: {name:} needs arguments: {', '.join(l_missing):}",
+                "flag_object_changed": False}
+    if len(l_ask) > 0:
+        l_missing = [form_missing(key, tool.parameters[key]) for key in l_ask]
+        return {"text": form_missing_text(name, l_missing),
+                "flag_object_changed": False, "missing": l_missing}
+    try:
+        text = tool.function(cryspy_object, **kwargs)
+    except ArgumentsNeeded as error:
+        return {"text": form_missing_text(name, error.l_missing, error.message),
+                "flag_object_changed": False, "missing": error.l_missing}
+    except Exception as error:
+        return {"text": f"Error in {name:}: {type(error).__name__:}: {error:}",
+                "flag_object_changed": tool.flag_object_changed,
+                "error_type": type(error).__name__}
+    if isinstance(text, dict):  # a tool with numbers: {"text", "metrics"}
+        return {"text": text["text"], "flag_object_changed": tool.flag_object_changed,
+                "metrics": text.get("metrics", {})}
+    return {"text": text, "flag_object_changed": tool.flag_object_changed}

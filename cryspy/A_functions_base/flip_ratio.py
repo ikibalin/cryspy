@@ -408,13 +408,6 @@ def calc_intensities_by_structure_factors(
         dict_in_out: dict = None):
     """Calculate flip ratio by given structure factors
     """
-    if dict_in_out is None:
-        flag_dict = False
-        dict_in_out_keys = []
-    else:
-        flag_dict = True
-        dict_in_out_keys = dict_in_out.keys()
-    
     iint_plus, iint_minus, dder_plus_hkl, dder_minus_hkl = calc_iint(
         beam_polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z,
         func_extinction=func_extinction,
@@ -428,7 +421,6 @@ def calc_intensities_by_structure_factors(
     if cond:
         c_lambda2 = None
         iint_2hkl = None
-        flag_iint_2hkl = False
         dder_2hkl = {}
     else:
         iint_plus_2hkl, iint_minus_2hkl, dder_plus_2hkl, dder_minus_2hkl = calc_iint(
@@ -439,7 +431,6 @@ def calc_intensities_by_structure_factors(
             dict_in_out=None)
         iint_2hkl = iint_plus_2hkl
         dder_2hkl = dder_plus_2hkl
-        flag_iint_2hkl = len(dder_2hkl.keys()) > 0
         
         iint_plus += c_lambda2*iint_2hkl
         iint_minus += c_lambda2*iint_2hkl
@@ -500,13 +491,6 @@ def calc_flip_ratio_by_structure_factors(
         dict_in_out: dict = None, flag_use_precalculated_data: bool = False):
     """Calculate flip ratio by given structure factors
     """
-    if dict_in_out is None:
-        flag_dict = False
-        dict_in_out_keys = []
-    else:
-        flag_dict = True
-        dict_in_out_keys = dict_in_out.keys()
-
     iint_plus, iint_minus, dder_plus, dder_minus = \
         calc_intensities_by_structure_factors(
         beam_polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z,

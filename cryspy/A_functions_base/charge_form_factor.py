@@ -1,6 +1,7 @@
 import numpy
 from cryspy.A_functions_base.orbital_functions import calc_jl
 from cryspy.A_functions_base.database import DATABASE
+from cryspy.exceptions import RcifFormatError
 
 
 def get_n_zeta_coeff_for_atom_with_orbital(atom_name: str, orbital_name: str):
@@ -86,7 +87,7 @@ def add_ion_charge_to_shell(shell: str, ion_charge: int):
                     l_orbital_new.append(orbital)
         shell_out = " ".join(l_orbital_new)
     if ion_charge != 0:
-        raise UserWarning("Too much electrons for the valence shell")
+        raise RcifFormatError(f"Too much electrons for the valence shell '{shell:}' with ion charge {ion_charge:}")
     return shell_out
 
 
@@ -136,7 +137,7 @@ def calc_jl_for_shell_of_ion(sthovl, ion_name: str, shell: str, kappa:float = 1.
             n = numpy.array([n_shell,], dtype=int)
             zeta = numpy.array([n_total_el,], dtype=float)
             coeff = numpy.array([1,], dtype=float)
-            raise UserWarning(f"Parameters for '{s_name:}' are not found")
+            raise RcifFormatError(f"Parameters for '{s_name:}' are not found")
 
         jl = calc_jl(sthovl, coeff, n, zeta, kappa=kappa, l_max=l_max)
         if jl_res is None:

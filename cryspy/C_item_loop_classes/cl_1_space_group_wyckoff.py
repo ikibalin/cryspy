@@ -116,14 +116,6 @@ Only one site can be given for each special position but the remainder can be ge
         return flag_res
 
     def give_default_xyz(self, xyz_0):
-        one_pm_1 = numpy.array([ 1, 1, 1], dtype=int)
-        one_pm_2 = numpy.array([-1, 1, 1], dtype=int)
-        one_pm_3 = numpy.array([ 1,-1, 1], dtype=int)
-        one_pm_4 = numpy.array([ 1, 1,-1], dtype=int)
-        one_pm_5 = numpy.array([ 1,-1,-1], dtype=int)
-        one_pm_6 = numpy.array([-1, 1,-1], dtype=int)
-        one_pm_7 = numpy.array([-1,-1, 1], dtype=int)
-        one_pm_8 = numpy.array([-1,-1,-1], dtype=int)
 
         b_float = self.b.astype(float)
         r_float = self.r.astype(float)

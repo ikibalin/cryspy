@@ -3,11 +3,10 @@
 __author__ = "ikibalin"
 __version__ = "2020_08_19"
 
-from warnings import warn
-from typing import NoReturn, List, Union
+from typing import NoReturn
 import numpy
-import scipy
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.matrix_operations import (
     calc_vector_product_v1_v2_v1,
@@ -15,13 +14,11 @@ from cryspy.A_functions_base.matrix_operations import (
 
 from cryspy.A_functions_base.extinction import (
     calc_extinction_sphere,
-    calc_extinction_qani,
 )
 from cryspy.A_functions_base.flip_ratio import (
     calc_flip_ratio_by_structure_factors,
 )
 from cryspy.A_functions_base.unit_cell import (
-    calc_sthovl_by_unit_cell_parameters,
     calc_volume_uc_by_unit_cell_parameters,
     calc_eq_ccs_by_unit_cell_parameters,
 )
@@ -31,7 +28,6 @@ from cryspy.A_functions_base.function_1_roots import calc_roots
 
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
-from cryspy.B_parent_classes.preocedures import take_items_by_class
 
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
@@ -48,9 +44,6 @@ from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import (
     ReflnSusceptibilityL,
 )
 from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
-from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import (
-    TOFIntensityIncident,
-)
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 
@@ -75,14 +68,10 @@ class Diffrn(DataN):
 
     Methods
     -------
-        - calc_iint_u_d_flip_ratio
-        - calc_fr
-        - calc_fm_perp_loc
-        - calc_chi_sq
-        - params_to_cif
-        - data_to_cif
-        - calc_to_cif
         - estimate_FM
+        - plots
+        - plot_circles_fm
+        - report
 
 
     Attributes
@@ -145,7 +134,6 @@ class Diffrn(DataN):
         The crystal structure should be centrosymmetric
         """
         setup = self.setup
-        wavelength = setup.wavelength
         field_norm = setup.field
 
         diffrn_refln = self.diffrn_refln
@@ -159,16 +147,6 @@ class Diffrn(DataN):
         diffrn_radiation = self.diffrn_radiation
         polarization = diffrn_radiation.polarization
         flipper_efficiency = diffrn_radiation.efficiency
-
-        if self.is_attribute("extinction"):
-            extinction = self.extinction
-            model_extinction = extinction.model
-            radius = extinction.radius
-            mosaicity = extinction.mosaicity
-        else:
-            model_extinction = ""
-            radius = None
-            mosaicity = None
 
         diffrn_orient_matrix = self.diffrn_orient_matrix
         u_matrix = diffrn_orient_matrix.u
@@ -368,7 +346,7 @@ class Diffrn(DataN):
                     ls_out.append(
                         f"{ind_h:} {ind_k:} {ind_l:} {f_mag:.3f}  {f_sig:.3f} {f_mm[2].real:.3f} {f_mm[2].imag:.3f} {f_mm[2].real-f_mag:.3f}"
                     )
-                except:
+                except Exception:
                     ls_out.append(f"{ind_h:} {ind_k:} {ind_l:} . . . . .")
         else:
             for ind_h, ind_k, ind_l, f_mag, f_sig, eq_mag_m, f_mag_m in zip(
@@ -386,7 +364,7 @@ class Diffrn(DataN):
                     ls_out.append(
                         f"{ind_h:} {ind_k:} {ind_l:} {f_vm[0].real:.3f} {f_vm[0].imag:.3f} {f_vm[1].real:.3f} {f_vm[1].imag:.3f} {f_vm[2].real:.3f} {f_vm[2].imag:.3f}  {f_sig:.3f} {f_mm[0].real:.3f} {f_mm[0].imag:.3f} {f_mm[1].real:.3f} {f_mm[1].imag:.3f} {f_mm[2].real:.3f} {f_mm[2].imag:.3f}"
                     )
-                except:
+                except Exception:
                     ls_out.append(
                         f"{ind_h:} {ind_k:} {ind_l:} . . . . . . . . . . . . ."
                     )
@@ -429,6 +407,10 @@ class Diffrn(DataN):
     def plot_circles_fm(self):
         flag = self.is_attribute("diffrn_refln")
         if not flag:
+            return None
+        # The plot is built from flip ratios; unpolarised data (intensity) have no fr.
+        diffrn_refln = self.diffrn_refln
+        if not (diffrn_refln.is_attribute("fr") and diffrn_refln.is_attribute("fr_calc")):
             return None
         flag = self.is_attribute("phase")
         if not flag:
@@ -528,7 +510,10 @@ class Diffrn(DataN):
                     rep_2 = diffrn_refln.report_chi_sq_exp(cell=cell)
             if rep_2 == "":
                 rep_2 = diffrn_refln.report_chi_sq_exp()
-            return rep_1 + "\n" + rep_2
+            ls_out = [rep for rep in (rep_1, rep_2) if rep != ""]
+            if self.is_attribute("refine_ls"):
+                ls_out.append(self.refine_ls.report())
+            return "\n\n".join(ls_out)
         return ""
 
     def get_dictionary(self):

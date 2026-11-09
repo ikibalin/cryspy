@@ -1,6 +1,7 @@
 from typing import NoReturn
 import numpy
-import matplotlib.pyplot as plt
+from cryspy.A_functions_base.optional_import import optional_module
+plt = optional_module("matplotlib.pyplot")
 
 from cryspy.A_functions_base.function_1_objects import \
     form_items_by_dictionary
@@ -74,9 +75,9 @@ class PdInstrResolution(ItemN):
             setattr(self, key, attr)
 
     def calc_tancos(self, th_hkl):
-        """
-        tth_hkl in radianas
-        calculate tangenth (theta)
+        """Keep tan(theta), tan^2(theta) and cos(theta) for the widths.
+
+        th_hkl: theta (half of 2theta) in radians, a number or an array.
         """
         self.t_th = numpy.tan(th_hkl)
         self.t_th_sq = self.t_th**2
@@ -87,9 +88,12 @@ class PdInstrResolution(ItemN):
 
     def calc_hg(self, phase_igsize: float = 0., phase_u: float = 0.,
             phase_v: float = 0., phase_w: float = 0., ):
-        """
-        ttheta in radians, could be array
-        gauss size
+        """Gaussian width of the peaks (a step of calc_resolution).
+
+        H_G^2 = U tan^2(theta) + V tan(theta) + W + IG/cos^2(theta) with the
+        tan(theta) and cos(theta) of the last calc_tancos; the result is
+        kept in the attribute hg (not returned). The phase_* values are
+        added to U, V, W of the instrument.
         """
         u = float(self.u)+phase_u
         v = float(self.v)+phase_v
@@ -99,17 +103,21 @@ class PdInstrResolution(ItemN):
         self.hg = numpy.sqrt(res_sq)
 
     def calc_hl(self, phase_x: float = 0., phase_y: float = 0.):
-        """
-        ttheta in radians, could be array
-        lorentz site
+        """Lorentzian width of the peaks (a step of calc_resolution).
+
+        H_L = X tan(theta) + Y/cos(theta) with the tan(theta) and
+        cos(theta) of the last calc_tancos; the result is kept in the
+        attribute hl (not returned). The phase_* values are added to X, Y
+        of the instrument.
         """
         x, y = float(self.x)+phase_x, float(self.y)+phase_y
         self.hl = x*self.t_th + y*self.ic_th
 
     def calc_hpveta(self):
-        """
-        ttheta in radians, could be array
-        pseudo-Voight function
+        """Width and mixing of the pseudo-Voigt function (a step of calc_resolution).
+
+        From hg and hl of calc_hg and calc_hl; the results are kept in the
+        attributes hpv and eta (not returned).
         """
         hg = self.hg
         hl = self.hl
