@@ -144,6 +144,20 @@ L_ITEM_CLASS.extend([
     TOFIntensityIncident, TOFMeas,
     TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
+from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import (
+    MagneticStructureK, MagneticStructureKL)
+from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import (
+    AtomSiteMomentFourier, AtomSiteMomentFourierL)
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import (
+    SpaceGroupSymopMagnK, SpaceGroupSymopMagnKL)
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import (
+    SpaceGroupSymopMagnKCentering, SpaceGroupSymopMagnKCenteringL)
+
+L_ITEM_CLASS.extend([MagneticStructureK, AtomSiteMomentFourier, SpaceGroupSymopMagnK,
+                     SpaceGroupSymopMagnKCentering])
+L_LOOP_CLASS.extend([MagneticStructureKL, AtomSiteMomentFourierL, SpaceGroupSymopMagnKL,
+                     SpaceGroupSymopMagnKCenteringL])
+
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,

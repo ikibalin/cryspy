@@ -145,6 +145,64 @@ Parameters fixed by symmetry (a coordinate on a mirror plane, `chi_22 =
 chi_11` in a cubic group, ...) cannot be refined; CrysPy applies these
 constraints itself.
 
+## Magnetic structures with a propagation vector (prototype)
+
+A magnetic structure with propagation vectors is described like in FullProf
+(Jbt = 10 with `SYMM`/`MSYM`): the moment of an atom in the lattice cell
+`R_L` is `m = sum_k S_k exp(-2 pi i k.R_L)` over `k` and `-k`, where
+`S_k = (real + i imag) exp(-2 pi i phase)` is given along the unit vectors of
+a, b, c in μB. For `k` equivalent to `-k`, for example `(1/2, 0, 1/2)`, only
+one term is present and `real` is the moment itself; otherwise the amplitude
+of the moment is `2|S_k|`.
+
+The loop `space_group_symop_magn_k` lists the operations of the group of `k`
+with their action on `S_k` (and an extra phase), and
+`space_group_symop_magn_k_centering` lists lattice centring translations
+(their phase `exp(-2 pi i k.t)` is added automatically). These operations are
+the only symmetry of the crystal: they generate the nuclear and the magnetic
+structure together, so `space_group` is not given and every moment belongs
+to an atom of `atom_site`. The magnetic form factor comes from
+`atom_site_scat`. Atom positions are reduced to the first cell `[0, 1)` and
+the phase of the moment refers to that cell.
+
+```text
+loop_
+_magnetic_structure_k_number
+_magnetic_structure_k_vector_1
+_magnetic_structure_k_vector_2
+_magnetic_structure_k_vector_3
+1 0.5 0.0 0.5
+
+loop_
+_space_group_symop_magn_k_id
+_space_group_symop_magn_k_operation_xyz
+_space_group_symop_magn_k_moment_uvw
+_space_group_symop_magn_k_phase
+1 x,y,z    u,v,w 0.0
+2 -x,y,-z  u,v,w 0.0
+3 -x,-y,-z u,v,w 0.0
+4 x,-y,z   u,v,w 0.0
+
+loop_
+_space_group_symop_magn_k_centering_id
+_space_group_symop_magn_k_centering_xyz
+1 x+1/2,y+1/2,z+1/2
+
+loop_
+_atom_site_moment_fourier_label
+_atom_site_moment_fourier_k_number
+_atom_site_moment_fourier_real_x
+_atom_site_moment_fourier_real_y
+_atom_site_moment_fourier_real_z
+Ho 1 0.125() 0.0 8.99()
+Ni 1 0.617() 0.0 -1.30()
+```
+
+The full example (Ho2BaNiO5, the FullProf example `hobk`) is in
+`examples/rhochi_unpolarized_powder_1d_k_Ho2BaNiO5`. The prototype covers
+unpolarized 1D powder diffraction with constant wavelength; magnetic
+satellites are not yet listed in the `pd_peak` loop.
+
 ## Errors
 
 When a value cannot be understood (`_cell_length_a abc`, a non-integer

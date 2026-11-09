@@ -66,6 +66,10 @@ from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import (
     AtomElectronConfigurationL,
 )
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
+from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import MagneticStructureKL
+from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourierL
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import SpaceGroupSymopMagnKL
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import SpaceGroupSymopMagnKCenteringL
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
     SpaceGroupSymopMagnCenteringL,
@@ -111,6 +115,14 @@ class Crystal(DataN):
 
     To define the magnetic form factor in the dipolar approximation, use the atom_site_scat loop.
 
+    A magnetic structure with propagation vectors (FullProf-like description)
+    is given by the magnetic_structure_k loop (vectors), the
+    atom_site_moment_fourier loop (Fourier components of moments) and,
+    the space_group_symop_magn_k and space_group_symop_magn_k_centering loops
+    (operations of the group of k with their action on moments). These
+    operations replace space_group: one set of symmetry elements describes
+    the nuclear and the magnetic structure together.
+
     The anisotropic magnetic form factor can be defined using the multipole model.
      In this case, use the atom_rho_multipole loop and the atom_local_axes loop.
      The latter is necessary to define the local coordinate system in which the multipole functions are defined.
@@ -136,6 +148,10 @@ class Crystal(DataN):
         SpaceGroupSymopMagnOperationL,
         SpaceGroupSymopMagnCenteringL,
         AtomRhoMultipoleL,
+        MagneticStructureKL,
+        AtomSiteMomentFourierL,
+        SpaceGroupSymopMagnKL,
+        SpaceGroupSymopMagnKCenteringL,
     )
     # CLASSES_INTERNAL = ()
 
