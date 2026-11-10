@@ -2,7 +2,7 @@
 
 The names follow the categories EXPTL_ABSORPT and EXPTL_CRYSTAL of the core
 CIF dictionary (_exptl_absorpt_coefficient_mu, _exptl_absorpt_correction_type,
-_exptl_absorpt_correction_T_min, _exptl_crystal_size_max, ...). CrysPy adds
+_exptl_crystal_size_max, ...). CrysPy adds
 the orientation of the ellipsoid (_exptl_crystal_ellipsoid_euler_*) and the
 side of the detector (_exptl_absorpt_diffracted_beam). mu is calculated from
 the composition of the measured crystal (the phase of the experiment), at the
@@ -36,21 +36,15 @@ class ExptlAbsorpt(ItemN):
           Dy, or a measured mu)
         - diffracted_beam: 'left' (default) or 'right', side of the detector
           of the normal beam geometry
-        - correction_t_min, correction_t_max: smallest and largest
-          transmission factors of the measured reflections (calculated)
-        - process_details: how mu and the correction were obtained
-          (calculated)
     """
 
     ATTR_MANDATORY_NAMES = ("correction_type", )
     ATTR_MANDATORY_TYPES = (str, )
     ATTR_MANDATORY_CIF = ("correction_type", )
 
-    ATTR_OPTIONAL_NAMES = ("coefficient_mu", "diffracted_beam",
-                           "correction_t_min", "correction_t_max", "process_details")
-    ATTR_OPTIONAL_TYPES = (float, str, float, float, str)
-    ATTR_OPTIONAL_CIF = ("coefficient_mu", "diffracted_beam",
-                         "correction_T_min", "correction_T_max", "process_details")
+    ATTR_OPTIONAL_NAMES = ("coefficient_mu", "diffracted_beam")
+    ATTR_OPTIONAL_TYPES = (float, str)
+    ATTR_OPTIONAL_CIF = ("coefficient_mu", "diffracted_beam")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -67,8 +61,7 @@ class ExptlAbsorpt(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"coefficient_mu": "{:.5f}",
-                 "correction_t_min": "{:.4f}", "correction_t_max": "{:.4f}"}
+    D_FORMATS = {"coefficient_mu": "{:.5f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {"correction_type": ["none", "sphere", "gaussian"],
@@ -89,11 +82,10 @@ class ExptlAbsorpt(ItemN):
         super(ExptlAbsorpt, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"coefficient_mu": 0.,
-                 "correction_t_min": 0., "correction_t_max": 0.}
+        D_MIN = {"coefficient_mu": 0.}
 
         # defined for ani integer and float parameters
-        D_MAX = {"correction_t_min": 1., "correction_t_max": 1.}
+        D_MAX = {}
 
         self.__dict__["D_MIN"] = D_MIN
         self.__dict__["D_MAX"] = D_MAX
@@ -117,11 +109,6 @@ class ExptlAbsorpt(ItemN):
         keys = ddict_diffrn.keys()
         if "absorption_mu" in keys and self.is_attribute("coefficient_mu"):
             self.coefficient_mu = abs(float(ddict_diffrn["absorption_mu"][0]))
-        if "transmission" in keys:
-            transmission = numpy.asarray(ddict_diffrn["transmission"], dtype=float)
-            if transmission.size > 0:
-                self.correction_t_min = float(transmission.min())
-                self.correction_t_max = float(transmission.max())
         if l_parameter_name is not None:
             for name, sigma in zip(l_parameter_name, l_sigma):
                 if name[0] == "absorption_mu":
@@ -155,8 +142,6 @@ class ExptlCrystal(ItemN):
           Cartesian system of the crystal (x || a*, z || c): the columns of
           R = Rz(alpha) Ry(beta) Rz(gamma) are the directions of size_max,
           size_mid and size_min
-        - density_diffrn: density calculated from the crystal structure,
-          g/cm^3 (calculated)
         - description: description of the crystal (shape, colour)
     """
 
@@ -166,11 +151,11 @@ class ExptlCrystal(ItemN):
 
     ATTR_OPTIONAL_NAMES = ("size_max", "size_mid", "size_min", "size_rad",
                            "ellipsoid_euler_alpha", "ellipsoid_euler_beta",
-                           "ellipsoid_euler_gamma", "density_diffrn", "description")
-    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, float, str)
+                           "ellipsoid_euler_gamma", "description")
+    ATTR_OPTIONAL_TYPES = (float, float, float, float, float, float, float, str)
     ATTR_OPTIONAL_CIF = ("size_max", "size_mid", "size_min", "size_rad",
                          "ellipsoid_euler_alpha", "ellipsoid_euler_beta",
-                         "ellipsoid_euler_gamma", "density_diffrn", "description")
+                         "ellipsoid_euler_gamma", "description")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -190,8 +175,7 @@ class ExptlCrystal(ItemN):
     # formats if cif format
     D_FORMATS = {"size_max": "{:.4f}", "size_mid": "{:.4f}", "size_min": "{:.4f}",
                  "size_rad": "{:.4f}", "ellipsoid_euler_alpha": "{:.3f}",
-                 "ellipsoid_euler_beta": "{:.3f}", "ellipsoid_euler_gamma": "{:.3f}",
-                 "density_diffrn": "{:.4f}"}
+                 "ellipsoid_euler_beta": "{:.3f}", "ellipsoid_euler_gamma": "{:.3f}"}
 
     # constraints on the parameters
     D_CONSTRAINTS = {}
@@ -211,8 +195,7 @@ class ExptlCrystal(ItemN):
         super(ExptlCrystal, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"size_max": 0., "size_mid": 0., "size_min": 0., "size_rad": 0.,
-                 "density_diffrn": 0.}
+        D_MIN = {"size_max": 0., "size_mid": 0., "size_min": 0., "size_rad": 0.}
 
         # defined for ani integer and float parameters
         D_MAX = {}

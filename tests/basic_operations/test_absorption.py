@@ -138,6 +138,16 @@ def test_four_circle_directions():
     assert numpy.allclose(e_out, numpy.array(l_out).T)
 
 
+def take_transmission(obj, diffrn):
+    """Transmission factors of the reflections of the experiment."""
+    dict_global = obj.get_dictionary()
+    crystal = [item for item in obj.items if isinstance(item, cryspy.Crystal)][0]
+    dict_crystal = dict_global[crystal.get_name()]
+    dict_in_out = {}
+    calc_chi_sq_for_diffrn_by_dictionary(dict_global[diffrn.get_name()], dict_crystal, dict_in_out=dict_in_out)
+    return dict_in_out["transmission"]
+
+
 def test_refinement_model_is_multiplied_by_transmission():
     obj = cryspy.load_file(F_TBTE3)
     diffrn = obj.diffrn_t1p8nuc
@@ -151,8 +161,10 @@ def test_refinement_model_is_multiplied_by_transmission():
     intensity_1 = numpy.array(diffrn.diffrn_refln.intensity_calc)
     flag = intensity_0 > 1e-3 * intensity_0.max()
     ratio = intensity_1[flag] / intensity_0[flag]
-    t_min, t_max = diffrn.exptl_absorpt.correction_t_min, diffrn.exptl_absorpt.correction_t_max
+    transmission = take_transmission(obj, diffrn)
+    t_min, t_max = transmission.min(), transmission.max()
     assert 0. < t_min < t_max < 1.
+    assert f"T_min = {t_min:.4f}, T_max = {t_max:.4f}" in text
     # rounded intensity_calc of the rcif items
     assert ratio.min() >= t_min - 1e-3 and ratio.max() <= t_max + 1e-3
     # the rcif text is read back
@@ -176,7 +188,7 @@ def test_flip_ratios_change_only_by_lambda_half():
         diffrn.exptl_absorpt.correction_type = "gaussian"
         cryspy.rhochi_no_refinement(obj)
         fr_1 = numpy.array(diffrn.diffrn_refln.fr_calc)
-        assert diffrn.exptl_absorpt.correction_t_min < 0.99
+        assert take_transmission(obj, diffrn).min() < 0.99
         if ratio == 0.:
             # the transmission cancels exactly in I+/I-
             assert numpy.allclose(fr_1, fr_0, atol=2e-5)
@@ -270,12 +282,12 @@ def test_mu_from_the_phase_of_the_experiment():
     # the correction without mu equals the one with this mu given
     diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="sphere"), cryspy.ExptlCrystal(size_rad=1.)])
     chi_sq_phase = cryspy.rhochi_no_refinement(obj)["chi_sq"]
-    t_min = diffrn.exptl_absorpt.correction_t_min
+    t_min = take_transmission(obj, diffrn).min()
     assert t_min < 0.95
     assert not diffrn.exptl_absorpt.is_attribute("coefficient_mu")
     diffrn.exptl_absorpt.coefficient_mu = mu
     assert cryspy.rhochi_no_refinement(obj)["chi_sq"] == pytest.approx(chi_sq_phase, rel=1e-8)
-    assert diffrn.exptl_absorpt.correction_t_min == pytest.approx(t_min, rel=1e-8)
+    assert take_transmission(obj, diffrn).min() == pytest.approx(t_min, rel=1e-8)
     # an element starting with D is not deuterium
     from cryspy.procedure_rhochi.rhochi_absorption import calc_absorption_coefficient_of_crystal
     crystal = obj.crystal_tbte3

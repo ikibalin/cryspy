@@ -30,7 +30,9 @@ _exptl_crystal_ellipsoid_euler_gamma 0.0
   ellipsoid in mm; the Euler angles (degrees, z-y-z) orient them in the
   Cartesian system x || a*, z || c. `ExptlCrystal.set_axes_by_directions`
   sets them from the directions of the longest and middle axes.
-- `correction_T_min`, `correction_T_max`: calculated transmission range.
+- Everything that follows from the crystal (mu, the density, the range
+  of transmission T_min..T_max) is calculated, not stored:
+  `calc_absorption_coefficient` and `apply_absorption_correction` report it.
 
 The transmission of each reflection multiplies the calculated intensities
 in the refinement (RhoChi) and in MEM. The paths of the beams: normal beam

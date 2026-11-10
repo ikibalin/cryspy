@@ -539,8 +539,6 @@ def apply_absorption_correction(rcif_object: GlobalN, correction_type: str = "ga
             continue
         dict_crystal = dict_global[crystal.get_name()]
         transmission = calc_chi_sq_transmission(dict_global[diffrn.get_name()], dict_crystal)
-        exptl_absorpt.correction_t_min = float(transmission.min())
-        exptl_absorpt.correction_t_max = float(transmission.max())
         mu = take_mu_given(diffrn)
         if mu is None:
             mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))["mu"]
