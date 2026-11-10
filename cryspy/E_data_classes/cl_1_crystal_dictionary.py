@@ -40,6 +40,7 @@ from cryspy.A_functions_base.structure_factor_magnetic_k import (
     calc_full_symm_elems_by_k_operations,
     calc_superspace_operation_arrays,
     is_k_equivalent_to_minus_k,
+    take_operation_phases,
 )
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_fourier_site_projector,
@@ -814,19 +815,18 @@ def take_parent_bravais_type(crystal):
     return "aP", None
 
 
-def take_wave_vector(crystal):
-    """Propagation vector (3,) of ``cell_wave_vector`` (one vector: 3+1)."""
-    wave_vector = crystal.cell_wave_vector
-    if len(wave_vector.items) != 1:
-        raise CrysPyError(
-            "Only one propagation vector (cell_wave_vector, 3+1 superspace) "
-            "is supported.")
-    item = wave_vector.items[0]
-    if item.x_refinement or item.y_refinement or item.z_refinement:
-        warnings.warn(
-            "The refinement of the propagation vector (cell_wave_vector) is "
-            "not implemented: k is kept fixed.", UserWarning, stacklevel=2)
-    return numpy.array([item.x, item.y, item.z], dtype=float)
+def take_wave_vectors(crystal):
+    """Propagation vectors (3, n_k) of ``cell_wave_vector`` in the order of
+    seq_id: k1 belongs to x4, k2 to x5 (3+d superspace)."""
+    items = sorted(crystal.cell_wave_vector.items, key=lambda item: int(item.seq_id))
+    if len(items) == 0:
+        raise CrysPyError("cell_wave_vector has no propagation vector.")
+    for item in items:
+        if item.x_refinement or item.y_refinement or item.z_refinement:
+            warnings.warn(
+                "The refinement of the propagation vector (cell_wave_vector) is "
+                "not implemented: k is kept fixed.", UserWarning, stacklevel=2)
+    return numpy.array([[item.x, item.y, item.z] for item in items], dtype=float).transpose()
 
 
 def form_magnetic_k_symmetry_dictionary(crystal, ddict):
@@ -839,10 +839,10 @@ def form_magnetic_k_symmetry_dictionary(crystal, ddict):
     part), so a moment always sits on an atom of the structure. Every
     product of a centring and an operation is stored as one operation (see
     ``structure_factor_magnetic_k``). Keys written:
-    ``magnetic_k_vector`` (3, 1), ``magnetic_k_op_rotation`` (9, n_s),
+    ``magnetic_k_vector`` (3, n_k), ``magnetic_k_op_rotation`` (9, n_s),
     ``magnetic_k_op_translation`` (3, n_s), ``magnetic_k_op_moment``
-    (9, n_s) = theta det(R) R, ``magnetic_k_op_phase`` (n_s,) = k.t - tau,
-    ``magnetic_k_op_conjugate`` (n_s,) epsilon = -1,
+    (9, n_s) = theta det(R) R, ``magnetic_k_op_phase`` (n_k, n_s) =
+    k_n.t - tau_n, ``magnetic_k_op_conjugate`` (n_k, n_s) epsilon_n = -1,
     ``magnetic_k_centring`` (3, 1) zero, and ``full_mcif_elems``.
     """
     if not crystal.is_attribute("space_group_symop_magn_ssg_operation"):
@@ -861,7 +861,7 @@ def form_magnetic_k_symmetry_dictionary(crystal, ddict):
             "and the magnetic structure together.")
     if not crystal.is_attribute("cell_wave_vector"):
         raise CrysPyError("The superspace group needs cell_wave_vector (k).")
-    k_vector = take_wave_vector(crystal)
+    k_vector = take_wave_vectors(crystal)
     l_operation = [item.algebraic for item in
                    crystal.space_group_symop_magn_ssg_operation.items]
     l_centring = [item.algebraic for item in
@@ -873,12 +873,12 @@ def form_magnetic_k_symmetry_dictionary(crystal, ddict):
         raise CrysPyError(str(error)) from error
     rotation, translation = arrays["rotation"], arrays["translation"]
     centring = numpy.zeros((3, 1), dtype=float)
-    ddict["magnetic_k_vector"] = k_vector[:, na]
+    ddict["magnetic_k_vector"] = k_vector
     ddict["magnetic_k_op_rotation"] = rotation
     ddict["magnetic_k_op_translation"] = translation
     ddict["magnetic_k_op_moment"] = arrays["moment"]
-    ddict["magnetic_k_op_phase"] = arrays["phase"]
-    ddict["magnetic_k_op_conjugate"] = arrays["conjugate"]
+    ddict["magnetic_k_op_phase"] = arrays["phase_all"]
+    ddict["magnetic_k_op_conjugate"] = arrays["conjugate_all"]
     ddict["magnetic_k_centring"] = centring
     ddict["full_mcif_elems"] = calc_full_symm_elems_by_k_operations(
         rotation, translation, centring)
@@ -892,7 +892,9 @@ def form_magnetic_k_dictionary(crystal, ddict):
 
     Reads atom_site_moment_Fourier (one row per atom, axis and wave vector,
     ``cos`` and ``sin`` in μB along a, b, c, optional symmform) and
-    atom_site_Fourier_wave_vector (only the first harmonic, q1_coeff = 1).
+    atom_site_Fourier_wave_vector (first harmonics only: every wave is one
+    of the propagation vectors). An atom with waves of two propagation
+    vectors gives two Fourier entries ("atoms" below) with the same label.
     Keys written: ``atom_fourier_label`` (n_atom,), ``atom_fourier_index``
     (into atom_*), ``mag_atom_fourier_index`` (into mag_atom_*),
     ``atom_fourier_k_index`` (n_atom,), ``atom_fourier_row_atom``,
@@ -904,25 +906,23 @@ def form_magnetic_k_dictionary(crystal, ddict):
     if not crystal.is_attribute("atom_site_moment_fourier"):
         return
     fourier = crystal.atom_site_moment_fourier
-    if crystal.is_attribute("atom_site_fourier_wave_vector"):
-        d_harmonic = {}
-        k_vector = ddict["magnetic_k_vector"][:, 0]
-        for item in crystal.atom_site_fourier_wave_vector.items:
-            if item.is_attribute("q1_coeff"):
-                d_harmonic[int(item.seq_id)] = int(item.q1_coeff)
-            else:
-                vector = numpy.array([item.x, item.y, item.z], dtype=float)
-                d_harmonic[int(item.seq_id)] = (
-                    1 if numpy.allclose(vector, k_vector, atol=1e-4) else 0)
-        for item in fourier.items:
-            if d_harmonic.get(int(item.wave_vector_seq_id), 1) != 1:
-                raise CrysPyError(
-                    "Only the first harmonic of the propagation vector is "
-                    f"supported (atom {item.atom_site_label}).")
-    labels = []
+    d_wave = take_fourier_wave_k_index(crystal, ddict["magnetic_k_vector"])
+    k_count = ddict["magnetic_k_vector"].shape[1]
+    # one Fourier "atom" per atom and propagation vector
+    l_entry, row_entry = [], []
     for item in fourier.items:
-        if item.atom_site_label not in labels:
-            labels.append(item.atom_site_label)
+        seq_id = int(item.wave_vector_seq_id) if item.is_attribute("wave_vector_seq_id") else 1
+        if seq_id not in d_wave and k_count == 1:
+            d_wave[seq_id] = 0  # one propagation vector: every wave is k
+        if seq_id not in d_wave:
+            raise CrysPyError(
+                f"Wave vector {seq_id} of atom {item.atom_site_label} in "
+                "atom_site_moment_Fourier is not defined (atom_site_Fourier_wave_vector).")
+        entry = (item.atom_site_label, d_wave[seq_id])
+        if entry not in l_entry:
+            l_entry.append(entry)
+        row_entry.append(l_entry.index(entry))
+    labels = [label for label, _ in l_entry]
     atom_label = list(ddict["atom_label"])
     missing = [label for label in labels if label not in atom_label]
     if missing:
@@ -945,9 +945,8 @@ def form_magnetic_k_dictionary(crystal, ddict):
         [atom_label.index(label) for label in labels], dtype=int)
     ddict["mag_atom_fourier_index"] = numpy.array(
         [mag_label.index(label) for label in labels], dtype=int)
-    ddict["atom_fourier_k_index"] = numpy.zeros(len(labels), dtype=int)
-    row_atom = numpy.array([labels.index(item.atom_site_label)
-                            for item in fourier.items], dtype=int)
+    ddict["atom_fourier_k_index"] = numpy.array([i_k for _, i_k in l_entry], dtype=int)
+    row_atom = numpy.array(row_entry, dtype=int)
     ddict["atom_fourier_row_atom"] = row_atom
     ddict["atom_fourier_row_axis"] = numpy.array(
         [AXIS_INDEX[axis] for axis in axes], dtype=int)
@@ -985,6 +984,41 @@ def form_magnetic_k_dictionary(crystal, ddict):
     fix_fourier_gauge(ddict)
 
 
+def take_fourier_wave_k_index(crystal, k_vectors) -> dict:
+    """{wave_vector_seq_id: index of its propagation vector}.
+
+    A wave of atom_site_Fourier_wave_vector is given by the coefficients
+    q1_coeff, q2_coeff, ... of k1, k2, ... or by its components x, y, z;
+    only first harmonics (one coefficient 1, the others 0) are supported.
+    Without the loop, wave n is the propagation vector n.
+    """
+    n_k = k_vectors.shape[1]
+    if not crystal.is_attribute("atom_site_fourier_wave_vector"):
+        return {i_k + 1: i_k for i_k in range(n_k)}
+    d_wave = {}
+    for item in crystal.atom_site_fourier_wave_vector.items:
+        names = [f"q{i_k + 1}_coeff" for i_k in range(n_k)]
+        if any(item.is_attribute(name) for name in names):
+            coeff = numpy.array([int(getattr(item, name)) if item.is_attribute(name) else 0
+                                 for name in names])
+            extra = [name for name in ("q2_coeff", "q3_coeff")[n_k - 1:]
+                     if item.is_attribute(name) and int(getattr(item, name)) != 0]
+            if extra or numpy.abs(coeff).sum() != 1 or coeff.max() != 1:
+                raise CrysPyError(
+                    f"Wave vector {item.seq_id} of atom_site_Fourier_wave_vector is "
+                    "not one of the propagation vectors: only first harmonics are supported.")
+            d_wave[int(item.seq_id)] = int(numpy.argmax(coeff))
+        else:
+            vector = numpy.array([item.x, item.y, item.z], dtype=float)
+            flag = numpy.all(numpy.abs(k_vectors - vector[:, na]) < 1e-4, axis=0)
+            if not numpy.any(flag):
+                raise CrysPyError(
+                    f"Wave vector {item.seq_id} of atom_site_Fourier_wave_vector is "
+                    "not one of the propagation vectors: only first harmonics are supported.")
+            d_wave[int(item.seq_id)] = int(numpy.argmax(flag))
+    return d_wave
+
+
 def fix_fourier_gauge(ddict):
     """Switch off the refinement of Fourier parameters the data cannot define.
 
@@ -1013,13 +1047,14 @@ def fix_fourier_gauge(ddict):
     i_refined = numpy.flatnonzero(flags)
     if i_refined.size == 0:
         return
-    k_vector = ddict["magnetic_k_vector"][:, 0]
+    k_vectors = ddict["magnetic_k_vector"]
     unit_cell_parameters = ddict["unit_cell_parameters"]
-    # generic satellites; F_M is linear in the Fourier parameters
+    # generic satellites of all propagation vectors; F_M is linear in the Fourier parameters
     rng = numpy.random.default_rng(0)
     index_h = rng.integers(-2, 3, size=(3, 16)).astype(float)
     index_hkl = numpy.concatenate(
-        [index_h + k_vector[:, na], index_h - k_vector[:, na]], axis=1)
+        [index_h + sign * k_vector[:, na] for k_vector in k_vectors.transpose()
+         for sign in (1., -1.)], axis=1)
     values = numpy.concatenate(
         [ddict["atom_fourier_cos"], ddict["atom_fourier_sin"]])
     trial = dict(ddict)
@@ -1043,28 +1078,16 @@ def fix_fourier_gauge(ddict):
     flag_keep = numpy.zeros(i_refined.size, dtype=bool)
     flag_keep[keep] = True
 
-    flag_phase = not (is_k_equivalent_to_minus_k(k_vector) or numpy.any(
-        ddict["magnetic_k_op_conjugate"]))
-    if flag_phase and flag_keep.sum() > 1:
-        # tangent of the phase rotation: (cos, sin) -> (-sin, cos) per row
-        constraint = ddict["atom_fourier_constraint"]
-        rows = constraint @ values
-        tangent = numpy.linalg.lstsq(
-            constraint, numpy.concatenate([-rows[n_row:], rows[:n_row]]),
-            rcond=None)[0][i_refined]
-        # a zero parameter is a safe phase origin: any modulation can be
-        # shifted along x4 to make it zero
-        flag_zero = numpy.abs(values[i_refined]) < 1e-8
-        weight = numpy.where(flag_keep, numpy.abs(tangent), -1.)
-        if numpy.any(flag_keep & flag_zero & (weight > 1e-8)):
-            weight = numpy.where(flag_zero, weight, -1.)
-        if weight.max() > 1e-8:
-            j_fixed = int(numpy.argmax(weight))
-        else:
-            # zero moments: fix a sin parameter (the phase origin)
-            j_sin = [j for j in numpy.flatnonzero(flag_keep) if i_refined[j] >= n_row]
-            j_fixed = j_sin[0] if j_sin else int(numpy.flatnonzero(flag_keep)[-1])
-        flag_keep[j_fixed] = False
+    # the global phase of every propagation vector separately
+    _, conjugate_all = take_operation_phases(ddict)
+    row_k = ddict["atom_fourier_k_index"][ddict["atom_fourier_row_atom"]]
+    parameter_k = numpy.concatenate([row_k, row_k])[i_refined]
+    for i_k, k_vector in enumerate(k_vectors.transpose()):
+        flag_phase = not (is_k_equivalent_to_minus_k(k_vector) or numpy.any(conjugate_all[i_k]))
+        flag_wave = parameter_k == i_k
+        if flag_phase and (flag_keep & flag_wave).sum() > 1:
+            flag_keep[_take_phase_parameter(ddict, values, i_refined, flag_keep & flag_wave,
+                                            n_row)] = False
 
     i_off = i_refined[~flag_keep]
     if i_off.size == 0:
@@ -1087,6 +1110,29 @@ def fix_fourier_gauge(ddict):
         UserWarning, stacklevel=2)
 
 
+def _take_phase_parameter(ddict, values, i_refined, flag_candidate, n_row) -> int:
+    """Index (into i_refined) of the refined Fourier parameter fixed as the
+    origin of the global phase of one propagation vector (the parameters
+    of flag_candidate)."""
+    # tangent of the phase rotation: (cos, sin) -> (-sin, cos) per row
+    constraint = ddict["atom_fourier_constraint"]
+    rows = constraint @ values
+    tangent = numpy.linalg.lstsq(
+        constraint, numpy.concatenate([-rows[n_row:], rows[:n_row]]),
+        rcond=None)[0][i_refined]
+    # a zero parameter is a safe phase origin: any modulation can be
+    # shifted along x4 to make it zero
+    flag_zero = numpy.abs(values[i_refined]) < 1e-8
+    weight = numpy.where(flag_candidate, numpy.abs(tangent), -1.)
+    if numpy.any(flag_candidate & flag_zero & (weight > 1e-8)):
+        weight = numpy.where(flag_zero, weight, -1.)
+    if weight.max() > 1e-8:
+        return int(numpy.argmax(weight))
+    # zero moments: fix a sin parameter (the phase origin)
+    j_sin = [j for j in numpy.flatnonzero(flag_candidate) if i_refined[j] >= n_row]
+    return j_sin[0] if j_sin else int(numpy.flatnonzero(flag_candidate)[-1])
+
+
 def fill_fourier_symmform_by_symmetry(
         ddict, labels, row_atom, row_axis, l_symmform):
     """Symmforms of the atoms given without them, from the site symmetry.
@@ -1106,11 +1152,12 @@ def fill_fourier_symmform_by_symmetry(
         i_site = ddict["atom_fourier_index"][i_atom]
         position = ddict["atom_site_sc_fract"][:, i_site].reshape(3, 3) @ \
             ddict["atom_fract_xyz"][:, i_site] + ddict["atom_site_sc_b"][:, i_site]
+        i_k = int(ddict["atom_fourier_k_index"][i_atom])
+        phase, conjugate = take_operation_phases(ddict)
         projector = calc_fourier_site_projector(
-            position, ddict["magnetic_k_vector"][:, 0],
+            position, ddict["magnetic_k_vector"][:, i_k],
             ddict["magnetic_k_op_rotation"], ddict["magnetic_k_op_translation"],
-            ddict["magnetic_k_op_moment"], ddict["magnetic_k_op_phase"],
-            ddict["magnetic_k_op_conjugate"])
+            ddict["magnetic_k_op_moment"], phase[i_k], conjugate[i_k])
         symmform = form_fourier_symmform(projector)
         for i_row in rows:
             axis = int(row_axis[i_row])

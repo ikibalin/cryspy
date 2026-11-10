@@ -86,41 +86,59 @@ def parse_operation_xyz(operation_xyz: str):
 
 
 def parse_ssg_operation(algebraic: str) -> dict:
-    """Parse a (3+1)-dimensional magnetic superspace operation.
+    """Parse a (3+d)-dimensional magnetic superspace operation.
 
     Parameters
     ----------
     algebraic : str
         mCIF ``_space_group_symop_magn_ssg_operation.algebraic`` such as
-        ``"-x1+1/2,x2,-x3,-x4+1/2,-1"``: x1', x2', x3', x4' and the time
+        ``"-x1+1/2,x2,-x3,-x4+1/2,-1"`` (3+1) or
+        ``"-x1,x2,-x3,-x4,x5+1/2,+1"`` (3+2): x1', x2', x3', the
+        coordinates x4', x5', ... of the propagation vectors and the time
         reversal +1 or -1.
 
     Returns
     -------
     dict
-        ``rotation`` (9,), ``translation`` (3,) acting on x1, x2, x3; ``h``
-        (3,) coefficients of x1, x2, x3 in x4'; ``epsilon`` (+1 or -1,
-        coefficient of x4 in x4'); ``tau`` (translation of x4');
-        ``theta`` (+1 or -1).
+        ``rotation`` (9,), ``translation`` (3,) acting on x1, x2, x3;
+        ``h_all`` (d, 3) coefficients of x1, x2, x3 in x(3+n)';
+        ``epsilon_all`` (d,) coefficient (+1 or -1) of x(3+n) in x(3+n)';
+        ``tau_all`` (d,) translations of x(3+n)'; ``theta`` (+1 or -1);
+        and ``h``, ``epsilon``, ``tau`` of the first propagation vector.
+
+    Notes
+    -----
+    Every propagation vector must be kept or reversed by the operation
+    (``R^T k_n = epsilon_n k_n + h_n``); operations exchanging two
+    propagation vectors (arms of the star) are not supported.
     """
     parts = [part.strip() for part in algebraic.replace(" ", "").split(",")]
-    if len(parts) != 5:
+    if len(parts) < 5:
         raise ValueError(
-            f"Superspace operation '{algebraic}' must have five components "
-            "(x1, x2, x3, x4, time reversal); only one propagation vector "
-            "(3+1 dimensions) is supported.")
-    names = ("x1", "x2", "x3", "x4")
-    matrix, translation = _parse_affine(parts[:4], names)
-    epsilon = matrix[3, 3]
-    if (not numpy.allclose(matrix[:3, 3], 0.) or abs(abs(epsilon) - 1.) > 1e-8):
-        raise ValueError(f"Superspace operation '{algebraic}' is not of the "
-                         "form x4' = h.x + (±1) x4 + tau.")
-    theta = int(round(float(Fraction(parts[4]))))
+            f"Superspace operation '{algebraic}' must have at least five "
+            "components (x1, x2, x3, x4, ..., time reversal).")
+    n_wave = len(parts) - 4
+    names = tuple(f"x{i + 1}" for i in range(3 + n_wave))
+    matrix, translation = _parse_affine(parts[:-1], names)
+    block = matrix[3:, 3:]
+    epsilon_all = numpy.diag(block).copy()
+    if (not numpy.allclose(matrix[:3, 3:], 0.)
+            or not numpy.allclose(block, numpy.diag(epsilon_all))
+            or numpy.any(numpy.abs(numpy.abs(epsilon_all) - 1.) > 1e-8)):
+        raise ValueError(
+            f"Superspace operation '{algebraic}' is not of the form "
+            "x(3+n)' = h.x + (±1) x(3+n) + tau: operations that exchange the "
+            "propagation vectors are not supported.")
+    theta = int(round(float(Fraction(parts[-1]))))
     if theta not in (1, -1):
         raise ValueError(f"Time reversal of '{algebraic}' must be +1 or -1.")
+    epsilon_all = numpy.round(epsilon_all).astype(int)
+    h_all = matrix[3:, :3].copy()
+    tau_all = translation[3:].copy()
     return {"rotation": matrix[:3, :3].flatten(), "translation": translation[:3],
-            "h": matrix[3, :3].copy(), "epsilon": int(round(epsilon)),
-            "tau": float(translation[3]), "theta": theta}
+            "h_all": h_all, "epsilon_all": epsilon_all, "tau_all": tau_all,
+            "h": h_all[0].copy(), "epsilon": int(epsilon_all[0]),
+            "tau": float(tau_all[0]), "theta": theta}
 
 
 TERM_PATTERN = r"([+-]?)([0-9.]+(?:/[0-9]+)?)?\*?({names})?"
@@ -133,56 +151,71 @@ def calc_superspace_operation_arrays(l_operation, l_centring, k_vector,
     Every product of a centring and an operation (algebraic strings of
     ``_space_group_symop_magn_ssg_operation`` and ``_centering``) becomes
     one operation ``{R|t}`` with the matrix ``theta det(R) R`` acting on the
-    moments, the phase ``phi = k.t - tau`` and the flag ``epsilon = -1``.
+    moments and, for every propagation vector ``k_n``, the phase
+    ``phi_n = k_n.t - tau_n`` and the flag ``epsilon_n = -1``.
 
     Parameters
     ----------
     l_operation, l_centring : list of str
         Algebraic strings such as ``'-x1,x2+1/2,-x3,-x4+1/4,+1'``.
     k_vector : numpy.ndarray
-        (3,) propagation vector (reciprocal lattice units).
+        (3,) propagation vector or (3, n_k) propagation vectors
+        (reciprocal lattice units), one per superspace coordinate x4, x5, ...
     tolerance : float
-        Tolerance of the check ``R^T k = epsilon k + h``.
+        Tolerance of the check ``R^T k_n = epsilon_n k_n + h_n``.
 
     Returns
     -------
     dict
         ``rotation`` (9, n_s), ``translation`` (3, n_s), ``moment``
-        (9, n_s), ``phase`` (n_s,), ``conjugate`` (n_s,) bool.
+        (9, n_s), ``phase_all`` (n_k, n_s), ``conjugate_all`` (n_k, n_s)
+        bool, and ``phase`` (n_s,), ``conjugate`` (n_s,) of the first
+        propagation vector.
     """
-    k_vector = numpy.asarray(k_vector, dtype=float)
+    k_vectors = numpy.asarray(k_vector, dtype=float).reshape(3, -1)
+    n_k = k_vectors.shape[1]
     l_op = [parse_ssg_operation(text) for text in l_operation]
     l_cen = [parse_ssg_operation(text) for text in l_centring] or [
-        parse_ssg_operation("x1,x2,x3,x4,+1")]
+        parse_ssg_operation(",".join([f"x{i + 1}" for i in range(3 + n_k)] + ["+1"]))]
+    for operation in l_op + l_cen:
+        if operation["epsilon_all"].size != n_k:
+            raise ValueError(
+                f"The superspace operations have {operation['epsilon_all'].size} "
+                f"additional coordinates, but {n_k} propagation vectors "
+                "(cell_wave_vector) are given.")
     l_rotation, l_translation, l_moment, l_phase, l_conjugate = [], [], [], [], []
     for centring in l_cen:
         if (not numpy.allclose(centring["rotation"], numpy.eye(3).flatten())
-                or centring["epsilon"] != 1 or numpy.any(centring["h"] != 0.)):
+                or numpy.any(centring["epsilon_all"] != 1)
+                or numpy.any(centring["h_all"] != 0.)):
             raise ValueError("A centring of the superspace group must be a "
                              "pure translation.")
         for operation in l_op:
             rotation = operation["rotation"].reshape(3, 3)
             translation = operation["translation"] + centring["translation"]
-            tau = operation["tau"] + centring["tau"]
+            tau = operation["tau_all"] + centring["tau_all"]
             theta = operation["theta"] * centring["theta"]
-            epsilon = operation["epsilon"]
-            if not numpy.allclose(rotation.transpose() @ k_vector,
-                                  epsilon * k_vector + operation["h"],
+            epsilon = operation["epsilon_all"]
+            if not numpy.allclose(rotation.transpose() @ k_vectors,
+                                  epsilon[na, :] * k_vectors + operation["h_all"].transpose(),
                                   atol=tolerance):
                 raise ValueError(
                     "The superspace operations do not agree with the wave "
-                    f"vector {k_vector}: R^T k must be epsilon k + h.")
+                    f"vectors {k_vectors.transpose().tolist()}: R^T k must be "
+                    "epsilon k + h.")
             l_rotation.append(rotation.flatten())
             l_translation.append(translation)
             l_moment.append(theta * numpy.round(numpy.linalg.det(rotation))
                             * rotation.flatten())
-            l_phase.append(float(numpy.dot(k_vector, translation) - tau))
+            l_phase.append(k_vectors.transpose() @ translation - tau)
             l_conjugate.append(epsilon == -1)
+    phase_all = numpy.stack(l_phase, axis=1).astype(float)
+    conjugate_all = numpy.stack(l_conjugate, axis=1).astype(bool)
     return {"rotation": numpy.stack(l_rotation, axis=1),
             "translation": numpy.stack(l_translation, axis=1),
             "moment": numpy.stack(l_moment, axis=1),
-            "phase": numpy.array(l_phase, dtype=float),
-            "conjugate": numpy.array(l_conjugate, dtype=bool)}
+            "phase_all": phase_all, "conjugate_all": conjugate_all,
+            "phase": phase_all[0].copy(), "conjugate": conjugate_all[0].copy()}
 
 
 def _parse_affine(parts, names):
@@ -661,7 +694,7 @@ def _take_magnetic_k_atoms(dict_crystal):
     # S(p) = (Mcos + i Msin) exp(-2 pi i k.p) / 2 at the position p used below
     fourier = 0.5 * modulation * numpy.exp(
         -2j * numpy.pi * (k_of_atom * atom_fract_xyz).sum(axis=0))[na, :]
-    op_conjugate = dict_crystal.get("magnetic_k_op_conjugate")
+    op_phase, op_conjugate = take_operation_phases(dict_crystal)
 
     for i_k, k_vector in enumerate(dict_crystal["magnetic_k_vector"].transpose()):
         flag = dict_crystal["atom_fourier_k_index"] == i_k
@@ -678,14 +711,25 @@ def _take_magnetic_k_atoms(dict_crystal):
             op_rotation=dict_crystal["magnetic_k_op_rotation"],
             op_translation=dict_crystal["magnetic_k_op_translation"],
             op_moment=dict_crystal["magnetic_k_op_moment"],
-            op_phase=dict_crystal["magnetic_k_op_phase"],
+            op_phase=op_phase[i_k],
             centring_translations=centring,
             atom_fract_xyz=atom_fract_xyz[:, flag],
             atom_occupancy=atom_occupancy[flag],
             atom_b_iso=atom_b_iso[flag],
             form_factor_function=form_factor_function,
             atom_fourier_crystalaxis=fourier[:, flag],
-            op_conjugate=op_conjugate)
+            op_conjugate=op_conjugate[i_k])
+
+
+def take_operation_phases(dict_crystal):
+    """Phases ``phi_n`` (n_k, n_s) and flags ``epsilon_n = -1`` (n_k, n_s)
+    of the superspace operations for every propagation vector of a crystal
+    dict (a dict of one vector may hold them as (n_s,))."""
+    phase = numpy.atleast_2d(dict_crystal["magnetic_k_op_phase"])
+    conjugate = dict_crystal.get("magnetic_k_op_conjugate")
+    if conjugate is None:
+        conjugate = numpy.zeros(phase.shape, dtype=bool)
+    return phase, numpy.atleast_2d(conjugate)
 
 
 def calc_f_m_perp_k_by_dictionary(
@@ -811,11 +855,13 @@ def calc_moment_modulation_by_dictionary(dict_crystal):
 
     Every magnetic atom of ``atom_site_moment_Fourier`` is copied by the
     superspace operations (with the centrings) into the cell [0, 1); a copy
-    at ``p`` gets the complex amplitude ``A``, so that its moment in the
-    cell shifted by the lattice vector L is ``M(p + L) = Re(A exp(-2 pi i
-    k.L))``. For the atom of atom_site_moment_Fourier itself, at r = p + L,
-    this is the msCIF rule ``Mcos cos(2 pi k.r) + Msin sin(2 pi k.r)``
-    written for the cell: ``A = (Mcos + i Msin) exp(-2 pi i k.p)``.
+    at ``p`` gets, for every propagation vector ``k_n`` of its Fourier
+    components, the complex amplitude ``A_n``, so that its moment in the
+    cell shifted by the lattice vector L is ``M(p + L) = sum_n Re(A_n
+    exp(-2 pi i k_n.L))``. For the atom of atom_site_moment_Fourier itself,
+    at r = p + L, this is the msCIF rule ``Mcos cos(2 pi k.r) + Msin
+    sin(2 pi k.r)`` written for the cell: ``A = (Mcos + i Msin) exp(-2 pi i
+    k.p)``.
 
     Parameters
     ----------
@@ -829,24 +875,30 @@ def calc_moment_modulation_by_dictionary(dict_crystal):
         ``label`` (list of str, the atom of atom_site_moment_Fourier),
         ``fract_xyz`` (3, n) fractional positions in [0, 1), ``amplitude``
         (3, n) complex A along the unit vectors of a, b, c (μB),
-        ``k_vector`` (3,).
+        ``k_vector`` (3, n) the propagation vector of every amplitude (one
+        position may have several), ``k_index`` (n,) its index and
+        ``k_vectors`` (3, n_k) all propagation vectors.
     """
     atom_index = dict_crystal["atom_fourier_index"]
     position = (
         (dict_crystal["atom_site_sc_fract"].reshape(3, 3, -1)
          * dict_crystal["atom_fract_xyz"][na, :, :]).sum(axis=1)
         + dict_crystal["atom_site_sc_b"])[:, atom_index]
-    k_vector = dict_crystal["magnetic_k_vector"][:, 0]
+    k_vectors = dict_crystal["magnetic_k_vector"]
+    k_index = dict_crystal["atom_fourier_k_index"]
+    k_of_atom = k_vectors[:, k_index]
     modulation = calc_fourier_modulation_by_dictionary(dict_crystal)
-    fourier = 0.5 * modulation * numpy.exp(-2j * numpy.pi * (k_vector @ position))[na, :]
+    fourier = 0.5 * modulation * numpy.exp(
+        -2j * numpy.pi * (k_of_atom * position).sum(axis=0))[na, :]
     rotation = dict_crystal["magnetic_k_op_rotation"]
     translation = dict_crystal["magnetic_k_op_translation"]
     moment = dict_crystal["magnetic_k_op_moment"]
-    phase = dict_crystal["magnetic_k_op_phase"]
-    conjugate = dict_crystal.get(
-        "magnetic_k_op_conjugate", numpy.zeros(phase.shape, dtype=bool))
-    l_label, l_xyz, l_amplitude = [], [], []
+    phase_all, conjugate_all = take_operation_phases(dict_crystal)
+    l_label, l_xyz, l_amplitude, l_k_index = [], [], [], []
     for i_atom, label in enumerate(dict_crystal["atom_fourier_label"]):
+        i_k = int(k_index[i_atom])
+        k_vector = k_vectors[:, i_k]
+        phase, conjugate = phase_all[i_k], conjugate_all[i_k]
         l_key = []
         for i_op in range(phase.size):
             xyz = rotation[:, i_op].reshape(3, 3) @ position[:, i_atom] + translation[:, i_op]
@@ -863,11 +915,15 @@ def calc_moment_modulation_by_dictionary(dict_crystal):
                 -2j * numpy.pi * phase[i_op])
             l_label.append(str(label))
             l_xyz.append(xyz_cell)
+            l_k_index.append(i_k)
             # S' refers to the unreduced position xyz: shift to the cell [0, 1)
             l_amplitude.append(2. * fourier_new * numpy.exp(
                 2j * numpy.pi * (k_vector @ (xyz - xyz_cell))))
+    k_index_out = numpy.array(l_k_index, dtype=int)
     return {"label": l_label, "fract_xyz": numpy.stack(l_xyz, axis=1),
-            "amplitude": numpy.stack(l_amplitude, axis=1), "k_vector": k_vector}
+            "amplitude": numpy.stack(l_amplitude, axis=1),
+            "k_vector": k_vectors[:, k_index_out], "k_index": k_index_out,
+            "k_vectors": k_vectors}
 
 
 def warn_not_satellites(index_hkl, k_vectors, tolerance: float = 1e-4):
@@ -910,7 +966,8 @@ def calc_moments_at_positions(fract_xyz, modulation_fract_xyz, amplitude, k_vect
 
     The atom at ``r = p + L`` (p one of the positions of the cell given by
     calc_moment_modulation_by_dictionary, L a lattice vector) has the
-    moment ``Re(A exp(-2 pi i k.L))``.
+    moment ``sum Re(A exp(-2 pi i k.L))`` over all amplitudes given at p
+    (one per propagation vector).
 
     Parameters
     ----------
@@ -920,8 +977,8 @@ def calc_moments_at_positions(fract_xyz, modulation_fract_xyz, amplitude, k_vect
         Fractional positions p of the magnetic atoms in the cell [0, 1).
     amplitude : numpy.ndarray, shape (3, m), complex
         Amplitudes A along the unit vectors of a, b, c (μB).
-    k_vector : numpy.ndarray, shape (3,)
-        Propagation vector in reciprocal lattice units.
+    k_vector : numpy.ndarray, shape (3,) or (3, m)
+        Propagation vector (of every amplitude) in reciprocal lattice units.
     tolerance : float
         Tolerance of the fractional coordinates to identify an atom.
 
@@ -935,13 +992,15 @@ def calc_moments_at_positions(fract_xyz, modulation_fract_xyz, amplitude, k_vect
     moment = numpy.full(fract_xyz.shape, numpy.nan)
     if modulation_fract_xyz.shape[1] == 0 or fract_xyz.shape[1] == 0:
         return moment
+    k_vector = numpy.asarray(k_vector, dtype=float)
+    if k_vector.ndim == 1:
+        k_vector = numpy.repeat(k_vector[:, na], modulation_fract_xyz.shape[1], axis=1)
     difference = fract_xyz[:, :, na] - modulation_fract_xyz[:, na, :]
     lattice = numpy.round(difference)
     flag_match = numpy.all(numpy.abs(difference - lattice) < tolerance, axis=0)  # (n, m)
     flag_magnetic = numpy.any(flag_match, axis=1)
-    index_mod = numpy.argmax(flag_match, axis=1)
-    index_atom = numpy.flatnonzero(flag_magnetic)
-    lattice_atom = lattice[:, index_atom, index_mod[index_atom]]
-    phase = numpy.exp(-2j * numpy.pi * (numpy.asarray(k_vector, dtype=float) @ lattice_atom))
-    moment[:, index_atom] = numpy.real(amplitude[:, index_mod[index_atom]] * phase[na, :])
+    phase = numpy.exp(-2j * numpy.pi * (k_vector[:, na, :] * lattice).sum(axis=0))  # (n, m)
+    value = numpy.real(amplitude[:, na, :] * phase[na, :, :])
+    total = numpy.where(flag_match[na, :, :], value, 0.).sum(axis=2)
+    moment[:, flag_magnetic] = total[:, flag_magnetic]
     return moment

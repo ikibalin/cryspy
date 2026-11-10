@@ -38,7 +38,9 @@ The components x, y, z are in reciprocal lattice units of the cell
     ATTR_REF_FLAG = tuple([f"{_h:}_refinement" for _h in ATTR_REF])
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
-    D_FORMATS = {"x": "{:.5f}", "y": "{:.5f}", "z": "{:.5f}"}
+    # 1/3 written as 0.33333 is not 1/3 when read back (satellites shift,
+    # the supercell is not found): enough digits for fractions
+    D_FORMATS = {"x": "{:.10f}", "y": "{:.10f}", "z": "{:.10f}"}
 
     D_CONSTRAINTS = {}
 

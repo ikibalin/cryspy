@@ -16,8 +16,8 @@ from cryspy.exceptions import CrysPyError
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_axial_moment_matrix, calc_domain_matrices, calc_fourier_site_projector,
     calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
-    calc_one_dimensional_irreps, calc_small_irreps, form_fourier_symmform,
-    form_operation_xyz, form_superspace_group, split_atom_orbit)
+    calc_one_dimensional_irreps, calc_small_irreps, combine_superspace_groups,
+    form_fourier_symmform, form_operation_xyz, form_superspace_group, split_atom_orbit)
 from cryspy.A_functions_base.structure_factor_magnetic_k import (
     calc_superspace_operation_arrays, is_k_equivalent_to_minus_k,
     parse_operation_xyz, parse_ssg_operation)
@@ -56,9 +56,16 @@ def take_k_group(space_group, k_vector):
         ``irreps`` (list of complex characters), ``moment`` (9, n_s) axial
         matrices.
     """
-    k_vector = numpy.asarray(k_vector, dtype=float)
     parent_rotation, parent_translation, centring = take_space_group_operations(
         space_group)
+    return take_k_group_by_operations(parent_rotation, parent_translation, centring, k_vector)
+
+
+def take_k_group_by_operations(parent_rotation, parent_translation, centring, k_vector):
+    """Operations of the group of k of a space group given by its
+    operations (9, n), (3, n) and centring translations (3, n_c); the same
+    dict as :func:`take_k_group`."""
+    k_vector = numpy.asarray(k_vector, dtype=float)
     flags = calc_k_group_flags(parent_rotation, k_vector)
     rotation, translation = parent_rotation[:, flags], parent_translation[:, flags]
     irreps = calc_one_dimensional_irreps(rotation, translation, centring, k_vector)
@@ -477,9 +484,12 @@ def form_superspace_items(k_vector, ssg: dict) -> list:
         SpaceGroupSymopMagnSsgCentering, SpaceGroupSymopMagnSsgCenteringL)
     from cryspy.C_item_loop_classes.cl_1_atom_site_fourier_wave_vector import (
         AtomSiteFourierWaveVector, AtomSiteFourierWaveVectorL)
+    k_vectors = numpy.asarray(k_vector, dtype=float).reshape(3, -1)
+    n_k = k_vectors.shape[1]
     loop_k = CellWaveVectorL()
     loop_k.items = [CellWaveVector(
-        seq_id=1, x=float(k_vector[0]), y=float(k_vector[1]), z=float(k_vector[2]))]
+        seq_id=i_k + 1, x=float(vector[0]), y=float(vector[1]), z=float(vector[2]))
+        for i_k, vector in enumerate(k_vectors.transpose())]
     loop_op = SpaceGroupSymopMagnSsgOperationL()
     loop_op.items = [SpaceGroupSymopMagnSsgOperation(id=str(i + 1), algebraic=text)
                      for i, text in enumerate(ssg["operations"])]
@@ -487,23 +497,29 @@ def form_superspace_items(k_vector, ssg: dict) -> list:
     loop_centring.items = [SpaceGroupSymopMagnSsgCentering(id=str(i + 1), algebraic=text)
                            for i, text in enumerate(ssg["centrings"])]
     loop_harmonic = AtomSiteFourierWaveVectorL()
-    loop_harmonic.items = [AtomSiteFourierWaveVector(seq_id=1, q1_coeff=1)]
+    if n_k == 1:
+        loop_harmonic.items = [AtomSiteFourierWaveVector(seq_id=1, q1_coeff=1)]
+    else:
+        loop_harmonic.items = [AtomSiteFourierWaveVector(
+            seq_id=i_k + 1, **{f"q{j_k + 1}_coeff": int(i_k == j_k) for j_k in range(n_k)})
+            for i_k in range(n_k)]
     return [loop_k, loop_op, loop_centring, loop_harmonic]
 
 
 def form_fourier_items(rows: list):
     """atom_site_moment_Fourier loop from rows (label, values (6,),
-    symmforms (6,) and optionally refinement flags (6,)): one row per atom
-    and axis."""
+    symmforms (6,) and optionally refinement flags (6,) and the wave
+    vector seq_id): one row per atom, wave and axis."""
     from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import (
         AtomSiteMomentFourier, AtomSiteMomentFourierL)
     l_item = []
     for row in rows:
         label, values, symmform = row[:3]
         flags = row[3] if len(row) > 3 else [False] * 6
+        wave = int(row[4]) if len(row) > 4 else 1
         for i_axis, axis in enumerate("xyz"):
             l_item.append(AtomSiteMomentFourier(
-                atom_site_label=label, axis=axis, wave_vector_seq_id=1,
+                atom_site_label=label, axis=axis, wave_vector_seq_id=wave,
                 cos=float(values[i_axis]), sin=float(values[3 + i_axis]),
                 cos_symmform=symmform[i_axis], sin_symmform=symmform[3 + i_axis],
                 cos_refinement=bool(flags[i_axis]),
@@ -758,22 +774,182 @@ def report_moment_modulation(modulation: dict, unit_cell_parameters,
                              max_atoms: int = 60) -> str:
     """Markdown table of the moments of the magnetic atoms of the cell
     (:func:`calc_moment_modulation_by_dictionary`)."""
-    k_vector = modulation["k_vector"]
-    k_text = ", ".join(f"{float(value):g}" for value in k_vector)
+    k_vectors = numpy.asarray(modulation.get("k_vectors", modulation["k_vector"]),
+                              dtype=float).reshape(3, -1)
+    k_entry = numpy.asarray(modulation["k_vector"], dtype=float)
     n_atom = len(modulation["label"])
-    ls_out = [f"Magnetic moments for k = ({k_text}): {n_atom} magnetic atoms in the cell.",
-              "M(r) = Re(A exp(-2 pi i k.L)) in the cell L; |M| is the range over the cells.",
-              "", "| atom | from | x | y | z | A_a, A_b, A_c (μB) | |M| min–max (μB) | modulation |",
-              "|---|---|---|---|---|---|---|---|"]
+    if k_entry.ndim == 1:
+        k_entry = numpy.repeat(k_entry[:, na], n_atom, axis=1)
+    l_k_text = ["(" + ", ".join(f"{float(value):g}" for value in k_vector) + ")"
+                for k_vector in k_vectors.transpose()]
+    flag_multi = len(l_k_text) > 1
+    if flag_multi:
+        ls_out = [f"Magnetic moments for {len(l_k_text)} propagation vectors "
+                  f"{', '.join(f'k{i + 1} = {text}' for i, text in enumerate(l_k_text))}: "
+                  f"{n_atom} Fourier waves of the magnetic atoms in the cell.",
+                  "M(r) = sum over k of Re(A exp(-2 pi i k.L)) in the cell L; |M| is the "
+                  "range of one wave over the cells.",
+                  "", "| atom | from | k | x | y | z | A_a, A_b, A_c (μB) | |M| min–max (μB) | modulation |",
+                  "|---|---|---|---|---|---|---|---|---|"]
+    else:
+        ls_out = [f"Magnetic moments for k = {l_k_text[0][1:-1].join('()')}: "
+                  f"{n_atom} magnetic atoms in the cell.",
+                  "M(r) = Re(A exp(-2 pi i k.L)) in the cell L; |M| is the range over the cells.",
+                  "", "| atom | from | x | y | z | A_a, A_b, A_c (μB) | |M| min–max (μB) | modulation |",
+                  "|---|---|---|---|---|---|---|---|"]
     for i_atom in range(min(n_atom, max_atoms)):
         amplitude = modulation["amplitude"][:, i_atom]
+        k_vector = k_entry[:, i_atom]
         moment_min, moment_max, kind = classify_moment_modulation(
             amplitude, k_vector, unit_cell_parameters)
         xyz = modulation["fract_xyz"][:, i_atom]
         text_a = ", ".join(form_vector_text([value])[1:-1] for value in amplitude)
+        text_k = ""
+        if flag_multi:
+            i_k = int(numpy.argmin(numpy.abs(k_vectors - k_vector[:, na]).sum(axis=0)))
+            text_k = f" k{i_k + 1} |"
         ls_out.append(
-            f"| {i_atom + 1} | {modulation['label'][i_atom]} | {xyz[0]:.4f} | "
+            f"| {i_atom + 1} | {modulation['label'][i_atom]} |{text_k} {xyz[0]:.4f} | "
             f"{xyz[1]:.4f} | {xyz[2]:.4f} | {text_a} | {moment_min:.3f}–{moment_max:.3f} | {kind} |")
     if n_atom > max_atoms:
         ls_out.append(f"[... {n_atom - max_atoms} more atoms are cut ...]")
     return "\n".join(ls_out)
+
+
+def take_operations_of_superspace(l_operation, l_centring, k_vectors, tolerance: float = 1e-5):
+    """Space group (x1, x2, x3 part) of a superspace group: operations
+    (9, n), (3, n) modulo the centring translations (3, n_c), which include
+    zero."""
+    arrays = calc_superspace_operation_arrays(l_operation, l_centring, k_vectors)
+    rotation, translation = arrays["rotation"], numpy.mod(arrays["translation"], 1.)
+    translation[numpy.abs(translation - 1.) < tolerance] = 0.
+    identity = numpy.eye(3).flatten()
+    l_centring_3d = [numpy.zeros(3)]
+    for i_s in range(rotation.shape[1]):
+        if numpy.allclose(rotation[:, i_s], identity) and not any(
+                numpy.allclose(translation[:, i_s], other, atol=tolerance)
+                for other in l_centring_3d):
+            l_centring_3d.append(translation[:, i_s])
+    centring = numpy.stack(l_centring_3d, axis=1)
+    l_index, l_key = [], set()
+    for i_s in range(rotation.shape[1]):
+        key = tuple(numpy.round(rotation[:, i_s]).astype(int)) + tuple(
+            numpy.round(numpy.mod(translation[:, i_s] + tolerance, 1.) - tolerance, 5) + 0.)
+        if key in l_key:
+            continue
+        l_index.append(i_s)
+        for i_c in range(centring.shape[1]):
+            shifted = numpy.mod(translation[:, i_s] + centring[:, i_c] + tolerance, 1.) - tolerance
+            l_key.add(tuple(numpy.round(rotation[:, i_s]).astype(int))
+                      + tuple(numpy.round(shifted, 5) + 0.))
+    # the identity first
+    l_index.sort(key=lambda i_s: not numpy.allclose(rotation[:, i_s], identity))
+    return rotation[:, l_index], translation[:, l_index], centring
+
+
+def add_wave_to_superspace(crystal, k_new, l_magnetic, irrep, moment: float,
+                           use_minus_k_operations: bool, mode: int) -> tuple:
+    """Add a propagation vector to a crystal with a superspace group (3+d).
+
+    The x1, x2, x3 part of the present group is a space group G; the group
+    of k_new in G and its representation give a (3+1) group of the new
+    wave, which is combined with the present group
+    (``combine_superspace_groups``): the result keeps the operations of
+    both. Atoms whose orbits split become several atoms; the present waves
+    of the split atoms are taken from the modulation of the present
+    structure, the new wave gets start values for ``l_magnetic``.
+
+    Returns
+    -------
+    tuple
+        (list of new items and loops, split labels {old: [new]}, report,
+        name of the representation, superspace group of the result).
+    """
+    from cryspy.E_data_classes.cl_1_crystal_dictionary import take_wave_vectors
+    from cryspy.A_functions_base.structure_factor_magnetic_k import (
+        calc_moment_modulation_by_dictionary)
+    k_old = take_wave_vectors(crystal)
+    for vector in k_old.transpose():
+        for sign in (1., -1.):
+            difference = k_new - sign * vector
+            if numpy.allclose(difference, numpy.round(difference), atol=1e-4):
+                raise CrysPyError(
+                    f"k = {form_vector_text(k_new)} is already a propagation vector of the "
+                    "crystal (or its negative, modulo the reciprocal lattice).")
+    l_operation = [item.algebraic for item in crystal.space_group_symop_magn_ssg_operation.items]
+    l_centring = [item.algebraic for item in crystal.space_group_symop_magn_ssg_centering.items] \
+        if crystal.is_attribute("space_group_symop_magn_ssg_centering") else []
+    rotation, translation, centring = take_operations_of_superspace(
+        l_operation, l_centring, k_old)
+    k_group = take_k_group_by_operations(rotation, translation, centring, k_new)
+    numbers = take_irrep_numbers(irrep, take_number_of_irreps(k_group), len(k_group["irreps"]))
+    irrep_name = form_irrep_name(numbers, mode if numbers[0] > len(k_group["irreps"]) else None)
+    atoms = {label: numpy.array([crystal.atom_site[label].fract_x,
+                                 crystal.atom_site[label].fract_y,
+                                 crystal.atom_site[label].fract_z], dtype=float)
+             for label in l_magnetic}
+    report = report_irreps(k_group, k_new, atoms, use_minus_k_operations)
+    try:
+        ssg_new = form_superspace_by_irrep(k_group, k_new, irrep, use_minus_k_operations, mode)
+    except CrysPyError as error:
+        raise CrysPyError(f"{error}\n\n{report}") from None
+    ssg = combine_superspace_groups(l_operation, l_centring,
+                                    ssg_new["operations"], ssg_new["centrings"])
+    k_all = numpy.concatenate([k_old, numpy.asarray(k_new, dtype=float)[:, na]], axis=1)
+    arrays = calc_superspace_operation_arrays(ssg["operations"], ssg["centrings"], k_all)
+    ssg["arrays"] = arrays
+
+    modulation = calc_moment_modulation_by_dictionary(crystal.get_dictionary())
+    d_split = split_atoms(crystal, dict(
+        k_group, parent_rotation=rotation, parent_translation=translation,
+        rotation=arrays["rotation"], translation=arrays["translation"]))
+    old_magnetic = list(dict.fromkeys(item.atom_site_label
+                                      for item in crystal.atom_site_moment_fourier.items))
+    old_flags = {}
+    for item in crystal.atom_site_moment_fourier.items:
+        old_flags.setdefault(item.atom_site_label, [False] * 6)
+        i_axis = "xyz".index(str(item.axis).lower()) if str(item.axis).lower() in "xyz" \
+            else "abc".index(str(item.axis).lower())
+        old_flags[item.atom_site_label][i_axis] |= bool(item.cos_refinement)
+        old_flags[item.atom_site_label][3 + i_axis] |= bool(item.sin_refinement)
+    cell_angles = (crystal.cell.angle_alpha, crystal.cell.angle_beta, crystal.cell.angle_gamma)
+    rows, l_text = [], []
+    new_atom_site = d_split["atom_site"]
+    for label in list(dict.fromkeys(old_magnetic + list(l_magnetic))):
+        for new_label in d_split["labels"][label]:
+            item = new_atom_site[new_label]
+            xyz = numpy.array([item.fract_x, item.fract_y, item.fract_z], dtype=float)
+            xyz_cell = numpy.mod(xyz, 1.)
+            xyz_cell[numpy.isclose(xyz_cell, 1., atol=1e-6)] = 0.
+            for i_k in range(k_all.shape[1]):
+                k_vector = k_all[:, i_k]
+                symmform, projector = calc_site_symmform(xyz, k_vector, dict(
+                    arrays, phase=arrays["phase_all"][i_k],
+                    conjugate=arrays["conjugate_all"][i_k]))
+                if i_k < k_old.shape[1]:
+                    if label not in old_magnetic:
+                        continue
+                    flag = (modulation["k_index"] == i_k) & numpy.all(numpy.abs(
+                        modulation["fract_xyz"] - xyz_cell[:, na]) < 1e-4, axis=0)
+                    if not numpy.any(flag):
+                        continue
+                    # A = (Mcos + i Msin) exp(-2 pi i k.p) at p in the cell [0, 1)
+                    fourier = modulation["amplitude"][:, numpy.argmax(flag)] * numpy.exp(
+                        2j * numpy.pi * (k_vector @ xyz_cell))
+                    values = numpy.round(numpy.concatenate([fourier.real, fourier.imag]), 6)
+                    flags = old_flags.get(label, [False] * 6)
+                else:
+                    if label not in l_magnetic:
+                        continue
+                    values = form_start_fourier(projector, moment, cell_angles)
+                    flags = [False] * 6
+                rows.append((new_label, values, symmform, flags, i_k + 1))
+                if i_k == k_all.shape[1] - 1:
+                    l_text.append(f"{new_label}: {format_symmform(symmform)}")
+    l_new = form_superspace_items(k_all, ssg)
+    l_new.append(form_fourier_items(rows))
+    for loop_name in ("atom_site", "atom_site_aniso", "atom_site_scat"):
+        if loop_name in d_split:
+            l_new.append(d_split[loop_name])
+    report_new = "; ".join(l_text)
+    return l_new, d_split["labels"], report, irrep_name, ssg, report_new

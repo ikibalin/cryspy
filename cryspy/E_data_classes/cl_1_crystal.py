@@ -761,11 +761,11 @@ class Crystal(DataN):
                 item.algebraic for item in
                 self.space_group_symop_magn_ssg_centering.items] \
                 if self.is_attribute("space_group_symop_magn_ssg_centering") else []
-            item_k = self.cell_wave_vector.items[0]
+            from cryspy.E_data_classes.cl_1_crystal_dictionary import take_wave_vectors
             arrays = calc_superspace_operation_arrays(
                 [item.algebraic for item in
                  self.space_group_symop_magn_ssg_operation.items],
-                l_centring, numpy.array([item_k.x, item_k.y, item_k.z], dtype=float))
+                l_centring, take_wave_vectors(self))
             return calc_full_symm_elems_by_k_operations(
                 arrays["rotation"], arrays["translation"], numpy.zeros((3, 1)))
         if (self.is_attribute("space_group_symop_magn_operation") and
@@ -1033,7 +1033,9 @@ class Crystal(DataN):
         multidimensional one, the superspace group and the Fourier
         components of every magnetic atom allowed by it (symmforms, as in
         MAGNDATA). Use it to choose ``irrep`` and ``mode`` of
-        :meth:`add_propagation_vector`; the crystal is not changed. A
+        :meth:`add_propagation_vector`; the crystal is not changed. For a
+        crystal that has a propagation vector already, the operations are
+        those of its superspace group (a second k). A
         component of k within 0.001 of a fraction with a denominator up to
         12 is taken as that fraction (0.3333 as 1/3).
 
@@ -1056,8 +1058,20 @@ class Crystal(DataN):
             Markdown report.
         """
         k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
-        space_group = take_parent_space_group(self)
-        k_group = take_k_group(space_group, k_vector)
+        if self.is_attribute("space_group_symop_magn_ssg_operation"):
+            # a further propagation vector: the group of k in the x1, x2, x3
+            # part of the present superspace group
+            from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+                take_k_group_by_operations, take_operations_of_superspace)
+            from cryspy.E_data_classes.cl_1_crystal_dictionary import take_wave_vectors
+            l_centring = [item.algebraic for item in
+                          self.space_group_symop_magn_ssg_centering.items] \
+                if self.is_attribute("space_group_symop_magn_ssg_centering") else []
+            k_group = take_k_group_by_operations(*take_operations_of_superspace(
+                [item.algebraic for item in self.space_group_symop_magn_ssg_operation.items],
+                l_centring, take_wave_vectors(self)), k_vector)
+        else:
+            k_group = take_k_group(take_parent_space_group(self), k_vector)
         atoms = {}
         for label in split_labels(magnetic_atoms):
             item = self.atom_site[label]
@@ -1089,7 +1103,11 @@ class Crystal(DataN):
         sin(2 pi k.r)`` with the symmetry constraints (symmform). The report
         lists the representations (see :meth:`report_irreps_of_k`). A
         component of k within 0.001 of a fraction with a denominator up to
-        12 is taken as that fraction (0.3333 as 1/3).
+        12 is taken as that fraction (0.3333 as 1/3). A crystal that has
+        a propagation vector already gets a second one (3+2 superspace
+        group): the operations of its superspace group that keep the new k
+        with the phases of the chosen representation; the moments are the
+        sum of the waves of both vectors.
 
         Parameters
         ----------
@@ -1124,9 +1142,9 @@ class Crystal(DataN):
             Markdown report of the conversion.
         """
         if self.is_attribute("space_group_symop_magn_ssg_operation"):
-            raise CrysPyError(
-                "The crystal already has a propagation vector; a second one "
-                "is not supported yet.")
+            return self._add_second_propagation_vector(
+                [k_1, k_2, k_3], magnetic_atoms, irrep, moment,
+                use_minus_k_operations, mode)
         if self.is_attribute("space_group_symop_magn_operation"):
             raise CrysPyError(
                 "The crystal is described by a magnetic space group (mcif); "
@@ -1214,6 +1232,50 @@ class Crystal(DataN):
                   f"Magnetic domains (Friedel pairs merged): {n_domain}; "
                   "Diffrn.define_magnetic_domains adds them to a single-crystal experiment."]
         return "\n".join(ls_out)
+
+    def _add_second_propagation_vector(self, k_vector, magnetic_atoms, irrep, moment,
+                                       use_minus_k_operations, mode) -> str:
+        """add_propagation_vector for a crystal that has a superspace group:
+        a (3+d+1) group with the waves of all propagation vectors."""
+        from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+            add_wave_to_superspace)
+        k_vector, l_note = snap_k_vector(k_vector)
+        l_magnetic = split_labels(magnetic_atoms)
+        l_label = list(self.atom_site.label)
+        l_unknown = [label for label in l_magnetic if label not in l_label]
+        if not l_magnetic or l_unknown:
+            raise CrysPyError(
+                f"Unknown magnetic atoms {l_unknown}; the atoms are {l_label}.")
+        l_scat = (list(self.atom_site_scat.label)
+                  if self.is_attribute("atom_site_scat") else [])
+        l_no_scat = [label for label in l_magnetic if label not in l_scat]
+        if l_no_scat:
+            raise CrysPyError(
+                f"The magnetic atoms {l_no_scat} need atom_site_scat with the "
+                "magnetic ion (type_symbol such as Fe3+) and the Lande factor.")
+        n_old = len(self.cell_wave_vector.items)
+        n_operation_old = len(self.space_group_symop_magn_ssg_operation.items)
+        l_new, d_labels, report, irrep_name, ssg, text_new = add_wave_to_superspace(
+            self, k_vector, l_magnetic, irrep, moment, use_minus_k_operations, mode)
+        for loop_name in ("atom_site_fourier_wave_vector", "atom_site_moment_fourier"):
+            if self.is_attribute(loop_name):
+                self.items.remove(getattr(self, loop_name))
+        self.add_items(l_new)
+        l_split = [f"{label} → {', '.join(labels)}"
+                   for label, labels in d_labels.items() if len(labels) > 1]
+        if l_note:
+            report = "k is taken as commensurate: " + ", ".join(l_note) + ".\n\n" + report
+        return "\n".join([
+            report, "", f"# Conversion: propagation vector k{n_old + 1} ({irrep_name})", "",
+            f"The superspace group (3+{n_old}, {n_operation_old} operations) becomes "
+            f"a (3+{n_old + 1}) group with {len(ssg['operations'])} operations and "
+            f"{len(ssg['centrings'])} centrings: the operations of the present group "
+            f"that keep k{n_old + 1} (or map it to -k) with the phases of {irrep_name}. "
+            f"The moments are the sum of the waves of all propagation vectors.",
+            "Atoms split by the superspace group: "
+            + ("; ".join(l_split) if l_split else "none") + ".",
+            f"Fourier components of k{n_old + 1} (wave_vector_seq_id {n_old + 1}, "
+            f"{'start ' + str(moment) + ' μB' if moment else 'zero'}): {text_new}."])
 
     def report_magnetic_moments(self) -> str:
         """Real-space magnetic moments of a structure with a propagation vector.

@@ -906,3 +906,119 @@ def calc_isotropy_subgroups(op_rotation, op_translation, centring_translations,
         if flag_new:
             l_class.append(found)
     return l_class
+
+
+def _expand_superspace_elements(l_operation, l_centring, tolerance: float = 1e-5):
+    """All elements (products of the centrings and the operations) of a
+    superspace group as (matrix (3+d)x(3+d), translation (3+d,) in [0, 1),
+    theta)."""
+    from cryspy.A_functions_base.structure_factor_magnetic_k import parse_ssg_operation
+
+    def affine(text):
+        operation = parse_ssg_operation(text)
+        n_wave = operation["epsilon_all"].size
+        matrix = numpy.zeros((3 + n_wave, 3 + n_wave))
+        matrix[:3, :3] = operation["rotation"].reshape(3, 3)
+        matrix[3:, :3] = operation["h_all"]
+        matrix[3:, 3:] = numpy.diag(operation["epsilon_all"])
+        translation = numpy.concatenate([operation["translation"], operation["tau_all"]])
+        return matrix, translation, operation["theta"]
+
+    l_op = [affine(text) for text in l_operation]
+    n_dim = l_op[0][0].shape[0]
+    l_cen = [affine(text) for text in l_centring] or [
+        (numpy.eye(n_dim), numpy.zeros(n_dim), 1)]
+    l_element = []
+    for c_matrix, c_translation, c_theta in l_cen:
+        for o_matrix, o_translation, o_theta in l_op:
+            translation = numpy.mod(c_matrix @ o_translation + c_translation, 1.)
+            translation[numpy.abs(translation - 1.) < tolerance] = 0.
+            l_element.append((c_matrix @ o_matrix, translation, c_theta * o_theta))
+    return l_element
+
+
+def combine_superspace_groups(l_operation_1, l_centring_1, l_operation_2, l_centring_2,
+                              tolerance: float = 1e-5) -> dict:
+    """Superspace group of two independent sets of modulation waves.
+
+    The group 1 is a (3+d) group of the waves k1..kd, the group 2 a (3+1)
+    group of a new wave k_new built on operations of the group 1 (their
+    x1, x2, x3 parts). An element {R|t} of both groups acts on every wave
+    by its own x(3+n) part, so the elements with the same R and t (modulo
+    the lattice) are combined into one (3+d+1) element. The time reversal
+    of the two parts must agree: for a first harmonic, theta = -1 is the
+    shift of x(3+n) by 1/2, so the x4 part of the group 2 is shifted by 1/2
+    where its theta differs from that of the group 1. The elements of the
+    group 1 that are not in the group 2 (they do not keep k_new or break
+    its representation) are left out.
+
+    Parameters
+    ----------
+    l_operation_1, l_centring_1 : list of str
+        (3+d) superspace operations and centrings of the present waves.
+    l_operation_2, l_centring_2 : list of str
+        (3+1) superspace operations and centrings of the new wave.
+
+    Returns
+    -------
+    dict
+        ``operations`` and ``centrings``: (3+d+1) algebraic strings
+        (x1, ..., x(4+d), time reversal).
+    """
+    l_element_1 = _expand_superspace_elements(l_operation_1, l_centring_1, tolerance)
+    l_element_2 = _expand_superspace_elements(l_operation_2, l_centring_2, tolerance)
+    n_wave_1 = l_element_1[0][0].shape[0] - 3
+    n_dim = 4 + n_wave_1
+
+    def key_3d(matrix, translation):
+        return tuple(numpy.round(matrix[:3, :3]).astype(int).flatten()) + tuple(
+            numpy.round(numpy.mod(translation[:3] + tolerance, 1.) - tolerance, 5) + 0.)
+
+    d_element_1 = {}
+    for element in l_element_1:
+        d_element_1.setdefault(key_3d(element[0], element[1]), []).append(element)
+    d_group, l_order = {}, []
+    for matrix_2, translation_2, theta_2 in l_element_2:
+        for matrix_1, translation_1, theta_1 in d_element_1.get(
+                key_3d(matrix_2, translation_2), []):
+            matrix = numpy.zeros((n_dim, n_dim))
+            matrix[:3 + n_wave_1, :3 + n_wave_1] = matrix_1
+            matrix[-1, :3] = matrix_2[3, :3]
+            matrix[-1, -1] = matrix_2[3, 3]
+            tau_new = translation_2[3] + (0.5 if theta_1 != theta_2 else 0.)
+            translation = numpy.mod(numpy.concatenate([translation_1, [tau_new]]), 1.)
+            translation[numpy.abs(translation - 1.) < tolerance] = 0.
+            key = tuple(numpy.round(matrix).astype(int).flatten()) + tuple(
+                numpy.round(translation, 5) + 0.) + (theta_1,)
+            if key not in d_group:
+                d_group[key] = (matrix, translation, theta_1)
+                l_order.append(key)
+    l_all = [d_group[key] for key in l_order]
+    identity = numpy.eye(n_dim)
+    l_centring = [element for element in l_all if numpy.allclose(element[0], identity)]
+    l_centring.sort(key=lambda element: (element[2] < 0, tuple(element[1])))
+
+    def key_full(matrix, translation, theta):
+        translation = numpy.mod(translation, 1.)
+        translation[numpy.abs(translation - 1.) < tolerance] = 0.
+        return tuple(numpy.round(matrix).astype(int).flatten()) + tuple(
+            numpy.round(translation, 5) + 0.) + (theta,)
+
+    covered, l_operation = set(), []
+    for element in sorted(l_all, key=lambda element: (
+            not numpy.allclose(element[0][:3, :3], numpy.eye(3)),
+            tuple(numpy.diag(element[0])[3:] < 0), element[2] < 0, tuple(element[1]))):
+        if key_full(*element) in covered:
+            continue
+        l_operation.append(element)
+        for c_matrix, c_translation, c_theta in l_centring:
+            covered.add(key_full(c_matrix @ element[0], c_matrix @ element[1] + c_translation,
+                                 c_theta * element[2]))
+    names = tuple(f"x{i + 1}" for i in range(n_dim))
+
+    def algebraic(matrix, translation, theta):
+        rows = [_form_linear_expression(matrix[i], names, translation[i]) for i in range(n_dim)]
+        return ",".join(rows) + (",+1" if theta > 0 else ",-1")
+
+    return {"operations": [algebraic(*element) for element in l_operation],
+            "centrings": [algebraic(*element) for element in l_centring]}

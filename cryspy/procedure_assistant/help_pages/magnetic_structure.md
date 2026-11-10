@@ -1,6 +1,6 @@
 ---
 title: Ordered magnetic structure (magnetic space group, mcif)
-keywords: magnetic structure, superspace group, mcif, MAGNDATA, msCIF, суперпространственная группа, propagation vector, k vector, satellites, magnetic domains, irreducible representation, incommensurate, вектор распространения, сателлиты, магнитные домены, ordered moment, moment, mcif, magnetic space group, shubnikov, antiferromagnet, ferromagnet, symmform, магнитная структура, магнитный момент, магнитная группа
+keywords: magnetic structure, second propagation vector, multi-k, two k vectors, второй вектор распространения, superspace group, mcif, MAGNDATA, msCIF, суперпространственная группа, propagation vector, k vector, satellites, magnetic domains, irreducible representation, incommensurate, вектор распространения, сателлиты, магнитные домены, ordered moment, moment, mcif, magnetic space group, shubnikov, antiferromagnet, ferromagnet, symmform, магнитная структура, магнитный момент, магнитная группа
 categories: atom_site_moment, space_group_symop_magn_operation, space_group_symop_magn_centering, cell_wave_vector, atom_site_moment_fourier, atom_site_fourier_wave_vector, space_group_symop_magn_ssg_operation, space_group_symop_magn_ssg_centering, parent_space_group
 ---
 An ordered (commensurate) magnetic structure is described in the crystal data
@@ -80,6 +80,17 @@ automatically, with a warning naming them.
 k is given as fractions ('1/3') or decimals; a component within 0.001 of a
 fraction with a denominator up to 12 is taken as that fraction. A cycloid
 or a helix made of two modes is built with `irrep` = '1,2' (Γ1 ⊕ Γ2).
+
+A second propagation vector (multi-k structure, 3+2 superspace group) is
+added to a crystal that has one already with the same method
+`add_propagation_vector`: `report_irreps_of_k` with the new k lists the
+representations of the group of the new k within the present superspace
+group, the chosen one adds the wave of the new k (`cell_wave_vector` row 2,
+`atom_site_fourier_wave_vector`, `wave_vector_seq_id` of the Fourier rows),
+and the waves of the first k are kept. The moment of an atom is the sum of
+the waves: M = Σ_n (cos_n cos(2π k_n·r) + sin_n sin(2π k_n·r)). k equal to
+±k of the first wave is refused; operations of the superspace group that
+exchange the two vectors are not supported.
 
 A commensurate structure (k with denominators up to 24) is exported to its
 magnetic supercell with the method `make_magnetic_supercell` of the
