@@ -200,3 +200,46 @@ def test_magnetic_part_is_not_zero():
     signal_k, _ = calc_signal(form_rcif_k("k_half"), ttheta)
     signal_n, _ = calc_signal(form_rcif_k("k_half", scale_moment=0.), ttheta)
     assert numpy.abs(signal_k - signal_n).max() > 0.01 * signal_k.max()
+
+
+def form_rcif_exported_supercell(case_name: str) -> str:
+    """The supercell written by Crystal.make_magnetic_supercell."""
+    obj = cryspy.str_to_globaln(form_rcif_k(case_name))
+    crystal = obj.crystal_phase
+    supercell = crystal.make_magnetic_supercell("phase")
+    return "global_\n\n" + supercell.to_cif() + "\n" + EXPERIMENT + "50.0 1.0 1.0\n"
+
+
+def check_exported_supercell(case_name: str):
+    ttheta = numpy.linspace(8., 95., 1500)
+    signal_s, _ = calc_signal(form_rcif_supercell(case_name), ttheta)
+    signal_e, _ = calc_signal(form_rcif_exported_supercell(case_name), ttheta)
+    numpy.testing.assert_allclose(signal_e, signal_s, rtol=1e-5, atol=1e-6 * signal_s.max())
+
+
+def test_k_half_exported_supercell():
+    check_exported_supercell("k_half")
+
+
+def test_k_third_exported_supercell():
+    check_exported_supercell("k_third")
+
+
+def test_incommensurate_k_has_no_supercell():
+    import pytest
+    from cryspy.exceptions import CrysPyError
+    rcif = form_rcif_k("k_third").replace("0.3333333333", "0.3172000000")
+    obj = cryspy.str_to_globaln(rcif)
+    with pytest.raises(CrysPyError, match="incommensurate"):
+        obj.crystal_phase.make_magnetic_supercell()
+
+
+def test_assistant_adds_the_supercell_to_the_object():
+    obj = cryspy.str_to_globaln(form_rcif_k("k_half"))
+    result = cryspy.call_assistant_tool(obj, "call_method", {"method": "make_magnetic_supercell"})
+    assert "crystal_phase_supercell is added" in result["text"]
+    supercell = obj.crystal_phase_supercell
+    assert len(supercell.atom_site.items) == 4 * len(obj.crystal_phase.calc_atoms_in_unit_cell()["label"])
+    result = cryspy.call_assistant_tool(obj, "call_method", {
+        "method": "make_magnetic_supercell", "path": "crystal_phase"})
+    assert "already" in result["text"]

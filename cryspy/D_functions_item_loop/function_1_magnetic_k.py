@@ -577,6 +577,44 @@ def _take_commensurate_denominator(k_vector, max_denominator: int = 12):
     return denominator if denominator <= max_denominator else None
 
 
+MAX_SUPERCELL_DENOMINATOR = 24
+
+
+def take_supercell_multipliers(k_vectors, max_denominator: int = MAX_SUPERCELL_DENOMINATOR):
+    """Multipliers (3,) of a, b, c of the magnetic supercell of commensurate k.
+
+    The multiplier of an axis is the least common multiple of the
+    denominators of the components of all propagation vectors along it, so
+    that ``k.L`` is an integer for every lattice vector L of the supercell
+    (a diagonal supercell, not always the smallest one).
+
+    Parameters
+    ----------
+    k_vectors : numpy.ndarray
+        (3,) or (3, n_k) propagation vectors (reciprocal lattice units).
+    max_denominator : int
+        Largest denominator of a commensurate component.
+
+    Returns
+    -------
+    numpy.ndarray
+        (3,) int.
+    """
+    k_vectors = numpy.asarray(k_vectors, dtype=float).reshape(3, -1)
+    multipliers = numpy.ones(3, dtype=int)
+    for i_axis in range(3):
+        for value in k_vectors[i_axis]:
+            fraction = Fraction(float(value)).limit_denominator(max_denominator)
+            if abs(float(fraction) - value) > 1e-6:
+                raise CrysPyError(
+                    f"The propagation vector is incommensurate (component {value:g} "
+                    f"is not a fraction with a denominator up to {max_denominator}): "
+                    "it has no magnetic supercell.")
+            multipliers[i_axis] = (multipliers[i_axis] * fraction.denominator
+                                   // gcd(int(multipliers[i_axis]), fraction.denominator))
+    return multipliers
+
+
 def _calc_unit_axes(unit_cell_parameters):
     """Cartesian unit vectors (3, 3) along a, b, c (columns) and the direct
     basis (columns a, b, c in Å); angles in radians."""

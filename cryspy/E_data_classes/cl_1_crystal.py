@@ -861,18 +861,28 @@ class Crystal(DataN):
         -------
         Crystal
         """
-        from cryspy.H_functions_global.function_1_cryspy_objects import str_to_globaln
         if data_name is None:
             data_name = f"{self.data_name}_p1"
-        cell, atom_site = self.cell, self.atom_site
-        ucp = cell.get_unit_cell_parameters()
-        atoms = self.calc_atoms_in_unit_cell()
+        return self.form_p1_crystal(
+            data_name, self.calc_atoms_in_unit_cell(),
+            self.cell.get_unit_cell_parameters(), self.cell.to_cif())
+
+    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str):
+        """Crystal in the (magnetic) group P1 with the given atoms.
+
+        ``atoms`` has the keys of :meth:`calc_atoms_in_unit_cell`
+        (positions in the new cell, Cartesian tensors, moments along the
+        unit vectors of a, b, c); ``ucp`` are the parameters of the new
+        cell (Å, radians) and ``cell_text`` its cell item in CIF.
+        """
+        from cryspy.H_functions_global.function_1_cryspy_objects import str_to_globaln
+        atom_site = self.atom_site
         index, labels = atoms["atom_index"], atoms["label"]
         m_m = calc_m_m_by_unit_cell_parameters(ucp)[0].reshape(3, 3)
         inv_m = numpy.linalg.inv(m_m)
         rec = calc_reciprocal_by_unit_cell_parameters(ucp)[0][:3]
 
-        ls_out = [f"data_{data_name}", "", cell.to_cif(), ""]
+        ls_out = [f"data_{data_name}", "", cell_text, ""]
         magnetic = atoms["moment_crystalaxis"] is not None
         if magnetic:
             ls_out += ["loop_", "_space_group_symop_magn_operation.xyz",
@@ -949,6 +959,65 @@ class Crystal(DataN):
                     for name in names] + l_item + [""]
         obj = str_to_globaln("\n".join(ls_out))
         return obj.items[0]
+
+    def make_magnetic_supercell(self, data_name: str = None):
+        """A new crystal: the commensurate structure with k written in its magnetic supercell (P1).
+
+        Every atom of the supercell (the cell multiplied by the
+        denominators of k along a, b, c) becomes a separate atom in the
+        magnetic group P1 (x,y,z,+1) with its ordered moment
+        ``Re(A exp(-2 pi i k.L))`` (atom_site_moment, μB along a, b, c),
+        its position, occupancy, displacement parameters (anisotropic ones
+        rotated) and atom_site_scat, as in mcif files of other programs.
+        The crystal itself is not changed.
+
+        Parameters
+        ----------
+        data_name : str
+            Data name of the new crystal; the old one with '_supercell' if None.
+
+        Returns
+        -------
+        Crystal
+        """
+        from cryspy.A_functions_base.structure_factor_magnetic_k import (
+            calc_moment_modulation_by_dictionary, calc_moments_at_positions)
+        from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+            take_supercell_multipliers)
+        if not self.is_attribute("atom_site_moment_fourier"):
+            raise CrysPyError(
+                "The crystal has no atom_site_moment_Fourier: there is no "
+                "structure with a propagation vector to write in a supercell.")
+        if data_name is None:
+            data_name = f"{self.data_name}_supercell"
+        modulation = calc_moment_modulation_by_dictionary(self.get_dictionary())
+        n_cell = take_supercell_multipliers(modulation["k_vector"])
+        atoms = self.calc_atoms_in_unit_cell()
+        lattice = numpy.stack(numpy.meshgrid(
+            *[numpy.arange(n) for n in n_cell], indexing="ij"), axis=0).reshape(3, -1)
+        n_lattice = lattice.shape[1]
+        # atom i of cell L is column L * n_atom + i
+        fract_xyz = (atoms["fract_xyz"][:, na, :] + lattice[:, :, na]).reshape(3, -1)
+        moment = calc_moments_at_positions(
+            fract_xyz, modulation["fract_xyz"], modulation["amplitude"],
+            modulation["k_vector"])
+        label = [f"{name}_{i_lattice + 1}" if n_lattice > 1 else name
+                 for i_lattice in range(n_lattice) for name in atoms["label"]]
+        atoms_super = {
+            "label": label,
+            "atom_index": numpy.tile(atoms["atom_index"], n_lattice),
+            "fract_xyz": fract_xyz / n_cell[:, na],
+            "moment_crystalaxis": moment,
+            "u_xyz": numpy.tile(atoms["u_xyz"], (1, 1, n_lattice)),
+            "chi_xyz": numpy.tile(atoms["chi_xyz"], (1, 1, n_lattice))}
+        ucp = numpy.array(self.cell.get_unit_cell_parameters(), dtype=float)
+        ucp[:3] = ucp[:3] * n_cell
+        angles = numpy.degrees(ucp[3:])
+        cell_text = "\n".join(
+            [f"_cell_length_{axis} {value:.6f}" for axis, value in zip("abc", ucp[:3])]
+            + [f"_cell_angle_{axis} {value:.5f}" for axis, value in
+               zip(("alpha", "beta", "gamma"), angles)])
+        return self.form_p1_crystal(data_name, atoms_super, ucp, cell_text)
 
     def report_irreps_of_k(self, k_1: float, k_2: float, k_3: float,
                            magnetic_atoms: str = "",
