@@ -20,8 +20,8 @@ For: any
 5. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions).
    When: single crystal experiments (diffrn)
    Actions: call_method {"method": "define_magnetic_domains"}
-6. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites.
+6. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites, or a simulated powder profile, at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives; satellites_only true leaves out the nuclear reflections.
    When: the user asks for a simulation
-   Actions: run_procedure {"name": "simulation_single_crystal"}
+   Actions: run_procedure {"name": "simulation_single_crystal", "wavelength": 2.4, "ttheta_min": 5, "ttheta_max": 60, "satellites_only": false}, run_procedure {"name": "simulation_unpolarized_neutron_powder_diffraction", "wavelength": 2.4, "ttheta_min": 5, "ttheta_max": 60, "ttheta_step": 0.05}
 
 Final answer: k, the group of k, the chosen representation and the allowed Fourier components, the atoms that were split, the kind of modulation and the moment range, the number of magnetic domains, and the simulated or calculated intensities of the strongest satellites when they were calculated.

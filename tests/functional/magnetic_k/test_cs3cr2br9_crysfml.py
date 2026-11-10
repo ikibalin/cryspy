@@ -140,3 +140,13 @@ def test_simulation_has_satellites():
     intensity = numpy.array(refln.intensity)
     assert flag_satellite.sum() > 100
     assert intensity[flag_satellite].max() > 0.5
+
+
+def test_simulation_of_satellites_only():
+    obj = load_converted()
+    obj.items[:] = [obj.crystal_ccb]
+    cryspy.simulation_single_crystal(obj, wavelength=2.4, ttheta_max=60., satellites_only=True)
+    refln = obj.diffrn_sc.diffrn_refln
+    index_hkl = numpy.array([refln.index_h, refln.index_k, refln.index_l], dtype=float)
+    assert index_hkl.shape[1] > 0
+    assert numpy.all(numpy.any(numpy.abs(index_hkl - numpy.round(index_hkl)) > 1e-3, axis=0))

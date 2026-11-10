@@ -54,8 +54,13 @@ The easiest way from a paramagnetic crystal with `space_group`:
    magnetic domains as `jana_twin` with equal fractions
    (`report_magnetic_domains` of the crystal lists them);
 4. procedure `simulation_single_crystal`: simulated intensities of the
-   nuclear reflections and of the satellites. The recipe `magnetic_structure_k`
-   does these steps.
+   nuclear reflections and of the satellites at the given `wavelength` (Å)
+   in the range `ttheta_min`..`ttheta_max` (degrees); `satellites_only`
+   leaves out the nuclear reflections.
+   `simulation_unpolarized_neutron_powder_diffraction` and
+   `simulation_polarized_neutron_powder_diffraction` give a powder profile
+   with the satellites (also `ttheta_step`). The recipe
+   `magnetic_structure_k` does these steps.
 
 Single-crystal reflections of the satellites are given by fractional indices
 H = h ± k in `diffrn_refln` (e.g. `0.25 0.25 1`). There is no ambiguity of ±k:
