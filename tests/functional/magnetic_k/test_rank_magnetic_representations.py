@@ -141,3 +141,54 @@ def test_candidates_include_modes():
     candidates = take_irrep_candidates(k_group, numpy.array(K_VECTOR))
     assert candidates == [(1, mode) for mode in (1, 2, 3, 4)] + [
         (2, mode) for mode in (1, 2, 3, 4)]
+
+
+TBTE3 = """global_
+data_tbte3
+_space_group_name_H-M_alt 'C m c m'
+_cell_length_a 4.31
+_cell_length_b 25.6
+_cell_length_c 4.31
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+Tb Tb 0.0 0.8306 0.25 Biso 0.3 1.0
+Te1 Te 0.0 0.0705 0.25 Biso 0.3 1.0
+"""
+
+
+def test_magnetic_ion_is_added():
+    """A crystal without atom_site_scat (a nuclear refinement): the ion is
+    asked for, then atom_site_scat gets it with g_J = 3/2 of Tb3+ (4f8,
+    7F6)."""
+    crystal = cryspy.str_to_globaln(TBTE3).crystal_tbte3
+    with pytest.raises(CrysPyError, match="magnetic_ion"):
+        crystal.add_propagation_vector(0.5, 0.5, 0, "Tb", "1", 8.0)
+    report = crystal.add_propagation_vector(0.5, 0.5, 0, "Tb", "1", 8.0,
+                                            magnetic_ion="Tb3+")
+    assert "atom_site_scat added" in report
+    item = crystal.atom_site_scat["Tb"]
+    assert item.type_symbol == "Tb3+"
+    assert item.lande == pytest.approx(1.5)
+    with pytest.raises(CrysPyError, match="form factor"):
+        cryspy.str_to_globaln(TBTE3).crystal_tbte3.add_propagation_vector(
+            0.5, 0.5, 0, "Tb", "1", 8.0, magnetic_ion="Tb9+")
+
+
+def test_lande_factors_of_rare_earths():
+    """g_J of the free 4f ions (Jensen, Mackintosh, table 1.1)."""
+    from cryspy.D_functions_item_loop.function_1_magnetic_k import calc_lande_factor
+    expected = {"Ce3+": 6 / 7, "Nd3+": 8 / 11, "Sm3+": 2 / 7, "Gd3+": 2., "Tb3+": 1.5,
+                "Dy3+": 4 / 3, "Ho3+": 5 / 4, "Er3+": 6 / 5, "Tm3+": 7 / 6,
+                "Yb3+": 8 / 7, "Fe3+": 2.}
+    for ion, value in expected.items():
+        assert calc_lande_factor(ion) == pytest.approx(value, abs=1e-6), ion

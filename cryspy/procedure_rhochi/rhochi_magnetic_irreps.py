@@ -71,7 +71,8 @@ def take_moment_ranges(crystal: Crystal) -> dict:
 
 def refine_representation(rcif_object: GlobalN, crystal_name: str, k_vector,
                           magnetic_atoms: str, number: int, mode, moment: float,
-                          use_minus_k_operations: bool) -> dict:
+                          use_minus_k_operations: bool, magnetic_ion: str = "",
+                          lande: float = 0.) -> dict:
     """Copy of the object with the representation Γ<number> (mode) of k,
     its Fourier components refined; chi_sq, n_point, the number of free
     parameters and the moment ranges."""
@@ -80,7 +81,7 @@ def refine_representation(rcif_object: GlobalN, crystal_name: str, k_vector,
     crystal = take_crystal(obj, crystal_name)
     crystal.add_propagation_vector(
         float(k_vector[0]), float(k_vector[1]), float(k_vector[2]), magnetic_atoms,
-        str(number), moment, use_minus_k_operations, mode or 1)
+        str(number), moment, use_minus_k_operations, mode or 1, magnetic_ion, lande)
     for item in crystal.atom_site_moment_fourier.items:
         item.cos_refinement, item.sin_refinement = True, True
     with warnings.catch_warnings():
@@ -102,7 +103,8 @@ def refine_representation(rcif_object: GlobalN, crystal_name: str, k_vector,
 def rhochi_rank_magnetic_representations(
         rcif_object: GlobalN, k_1: float, k_2: float, k_3: float,
         magnetic_atoms: str, moment: float = 1.0, crystal_name: str = "",
-        keep_best: bool = False, use_minus_k_operations: bool = True) -> str:
+        keep_best: bool = False, use_minus_k_operations: bool = True,
+        magnetic_ion: str = "", lande: float = 0.0) -> str:
     """Refine the magnetic structure of every representation of k and compare chi_sq.
 
     The paramagnetic crystal (space_group, fitted to the nuclear data) gets
@@ -143,6 +145,13 @@ def rhochi_rank_magnetic_representations(
         best representation.
     use_minus_k_operations : bool
         Add the operations mapping k to -k when the representation allows it.
+    magnetic_ion : str
+        Magnetic ion of the form factor (as Tb3+) for the magnetic atoms
+        without atom_site_scat; empty takes the type_symbol of the atom
+        when it has a charge.
+    lande : float
+        Lande factor of these atoms; 0 takes g_J of Hund's rules for a 4f
+        ion and 2 otherwise.
 
     Returns
     -------
@@ -162,7 +171,7 @@ def rhochi_rank_magnetic_representations(
         try:
             d_res = refine_representation(
                 rcif_object, crystal_name, k_vector, magnetic_atoms, number, mode,
-                moment, use_minus_k_operations)
+                moment, use_minus_k_operations, magnetic_ion, lande)
         except CrysPyError as error:
             l_fail.append(f"- {name}: {str(error).splitlines()[0]}")
             continue

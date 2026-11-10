@@ -9,7 +9,7 @@ For: any
    Actions: call_method {"method": "report_irreps_of_k"}
    Success: the report lists at least one representation (Γ1, Γ2, ...).
    Otherwise: Stop and explain the error.
-2. rank: Refine every representation (and every mode of the multidimensional ones) against the measured data and compare chi_sq/n; k, the magnetic atoms and the start moment (μB, not zero) are asked from the user when not given. The object is not changed.
+2. rank: Refine every representation (and every mode of the multidimensional ones) against the measured data and compare chi_sq/n; k, the magnetic atoms, the start moment (μB, not zero) and, without atom_site_scat, the magnetic ion (magnetic_ion, as Tb3+) are asked from the user when not given. The object is not changed.
    When: the object has measured experiments (powder, single crystal, flip ratios)
    Actions: run_procedure {"name": "rhochi_rank_magnetic_representations"}
    Success: the table lists the representations with chi_sq/n, the best first.
@@ -18,7 +18,7 @@ For: any
 4. convert: Replace the space group by the magnetic superspace group of the chosen representation, split the atoms, add the Fourier components (cos, sin with symmforms) of the magnetic atoms. A crystal that has a propagation vector already gets the new k as a second wave (multi-k structure); the waves of the first k are kept.
    Actions: call_method {"method": "add_propagation_vector"}
    Success: the report says what was converted.
-   Otherwise: Stop and explain the error (e.g. atom_site_scat of a magnetic atom is missing: add it with add_item).
+   Otherwise: Stop and explain the error. When the magnetic ion is asked (no atom_site_scat after a nuclear refinement), ask the user for it with ask_user (as Tb3+) and call again with magnetic_ion; the Lande factor is g_J of Hund's rules for 4f ions and 2 otherwise unless the user gives lande.
 5. moments: The real-space moments of the magnetic atoms: the range of |M| over the cells and the kind of modulation (amplitude-modulated, helix, cycloid, commensurate period).
    Actions: call_method {"method": "report_magnetic_moments"}
 6. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions).

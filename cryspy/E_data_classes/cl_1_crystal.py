@@ -83,7 +83,7 @@ from cryspy.D_functions_item_loop.function_1_magnetic_k import (
     report_moment_modulation,
     form_superspace_items, format_symmform, report_irreps, split_atoms,
     split_labels, take_irrep_numbers, take_k_group, take_number_of_irreps,
-    take_parent_space_group)
+    take_parent_space_group, add_magnetic_scattering)
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     snap_k_vector, form_operation_xyz, calc_supercell_magnetic_space_group)
 from cryspy.exceptions import CrysPyError
@@ -1139,7 +1139,8 @@ class Crystal(DataN):
                                magnetic_atoms: str, irrep: str = "1",
                                moment: float = 0.0,
                                use_minus_k_operations: bool = True,
-                               mode: int = 1) -> str:
+                               mode: int = 1, magnetic_ion: str = "",
+                               lande: float = 0.0) -> str:
         """Describe the magnetic structure by a propagation vector k.
 
         The space group is replaced by the magnetic superspace group of the
@@ -1187,6 +1188,13 @@ class Crystal(DataN):
             multidimensional representation, numbered as in
             report_irreps_of_k (1: the most symmetric); ignored for
             one-dimensional ones.
+        magnetic_ion : str
+            Magnetic ion of the form factor (as Tb3+), used for the magnetic
+            atoms without atom_site_scat; empty takes the type_symbol of the
+            atom when it has a charge.
+        lande : float
+            Lande factor of the added atom_site_scat rows; 0 takes g_J of
+            Hund's rules for a 4f ion and 2 otherwise.
 
         Returns
         -------
@@ -1196,7 +1204,7 @@ class Crystal(DataN):
         if self.is_attribute("space_group_symop_magn_ssg_operation"):
             return self._add_second_propagation_vector(
                 [k_1, k_2, k_3], magnetic_atoms, irrep, moment,
-                use_minus_k_operations, mode)
+                use_minus_k_operations, mode, magnetic_ion, lande)
         if self.is_attribute("space_group_symop_magn_operation"):
             raise CrysPyError(
                 "The crystal is described by a magnetic space group (mcif); "
@@ -1210,13 +1218,7 @@ class Crystal(DataN):
         if not l_magnetic or l_unknown:
             raise CrysPyError(
                 f"Unknown magnetic atoms {l_unknown}; the atoms are {l_label}.")
-        l_scat = (list(self.atom_site_scat.label)
-                  if self.is_attribute("atom_site_scat") else [])
-        l_no_scat = [label for label in l_magnetic if label not in l_scat]
-        if l_no_scat:
-            raise CrysPyError(
-                f"The magnetic atoms {l_no_scat} need atom_site_scat with the "
-                "magnetic ion (type_symbol such as Fe3+) and the Lande factor.")
+        l_scat_added = add_magnetic_scattering(self, l_magnetic, magnetic_ion, lande)
         space_group = self.space_group
         k_group = take_k_group(space_group, k_vector)
         try:
@@ -1280,10 +1282,14 @@ class Crystal(DataN):
                   "refine cos and sin): " + "; ".join(l_text) + ".",
                   f"Magnetic domains (Friedel pairs merged): {n_domain}; "
                   "Diffrn.define_magnetic_domains adds them to a single-crystal experiment."]
+        if l_scat_added:
+            ls_out.append("atom_site_scat added (magnetic form factor): "
+                          + "; ".join(l_scat_added) + ".")
         return "\n".join(ls_out)
 
     def _add_second_propagation_vector(self, k_vector, magnetic_atoms, irrep, moment,
-                                       use_minus_k_operations, mode) -> str:
+                                       use_minus_k_operations, mode, magnetic_ion="",
+                                       lande=0.) -> str:
         """add_propagation_vector for a crystal that has a superspace group:
         a (3+d+1) group with the waves of all propagation vectors."""
         from cryspy.D_functions_item_loop.function_1_magnetic_k import (
@@ -1295,13 +1301,7 @@ class Crystal(DataN):
         if not l_magnetic or l_unknown:
             raise CrysPyError(
                 f"Unknown magnetic atoms {l_unknown}; the atoms are {l_label}.")
-        l_scat = (list(self.atom_site_scat.label)
-                  if self.is_attribute("atom_site_scat") else [])
-        l_no_scat = [label for label in l_magnetic if label not in l_scat]
-        if l_no_scat:
-            raise CrysPyError(
-                f"The magnetic atoms {l_no_scat} need atom_site_scat with the "
-                "magnetic ion (type_symbol such as Fe3+) and the Lande factor.")
+        l_scat_added = add_magnetic_scattering(self, l_magnetic, magnetic_ion, lande)
         n_old = len(self.cell_wave_vector.items)
         n_operation_old = len(self.space_group_symop_magn_ssg_operation.items)
         l_new, d_labels, report, irrep_name, ssg, text_new = add_wave_to_superspace(
@@ -1324,7 +1324,9 @@ class Crystal(DataN):
             "Atoms split by the superspace group: "
             + ("; ".join(l_split) if l_split else "none") + ".",
             f"Fourier components of k{n_old + 1} (wave_vector_seq_id {n_old + 1}, "
-            f"{'start ' + str(moment) + ' μB' if moment else 'zero'}): {text_new}."])
+            f"{'start ' + str(moment) + ' μB' if moment else 'zero'}): {text_new}."]
+            + (["atom_site_scat added (magnetic form factor): "
+                + "; ".join(l_scat_added) + "."] if l_scat_added else []))
 
     def report_magnetic_moments(self) -> str:
         """Real-space magnetic moments of a structure with a propagation vector.

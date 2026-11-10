@@ -62,7 +62,11 @@ The easiest way from a paramagnetic crystal with `space_group`:
    magnetic domain;
 2. method `add_propagation_vector` (k, magnetic atoms, number of the
    representation, start moment, and `mode` for a multidimensional
-   representation): converts the crystal; atoms whose orbit
+   representation): converts the crystal; a magnetic atom without
+   `atom_site_scat` (crystal from a nuclear refinement) gets it from
+   `magnetic_ion` (as Tb3+) or from a charged `type_symbol`, with `lande`
+   or, when it is 0, g_J of Hund's rules for 4f ions (Tb3+: 1.5) and 2 for
+   the others; atoms whose orbit
    splits in the superspace group become several atoms (O1, O1_2, ...);
    method `report_magnetic_moments` then lists the moments of all magnetic
    atoms of the cell: the range of |M| over the cells and the kind of

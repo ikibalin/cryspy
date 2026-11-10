@@ -323,6 +323,80 @@ def report_irreps(k_group: dict, k_vector, atoms: dict,
     return "\n".join(ls_out)
 
 
+LANTHANIDES = ("Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho",
+               "Er", "Tm", "Yb")
+
+
+def calc_lande_factor(ion: str) -> float:
+    """Lande factor of a magnetic ion: g_J of the Hund's rules ground
+    multiplet for a 4f ion (Tb3+: 1.5), the spin-only value 2 for the other
+    ions (orbital moment quenched by the crystal field, 3d ions).
+    g_J = 1 + (J(J+1) + S(S+1) - L(L+1)) / (2 J(J+1)) (Jensen, Mackintosh,
+    "Rare Earth Magnetism" (1991), table 1.1)."""
+    element = "".join(char for char in ion if char.isalpha())
+    digits = "".join(char for char in ion if char.isdigit())
+    if element not in LANTHANIDES or "+" not in ion:
+        return 2.
+    # 4f electrons: Ce (Z = 58) has [Xe]4f1 5d1 6s2, so Ce3+ is 4f1
+    n_f = LANTHANIDES.index(element) + 4 - int(digits or 0)
+    if not 0 < n_f < 14:
+        return 2.
+    # Hund's rules for n_f electrons of l = 3
+    m_l = [3, 2, 1, 0, -1, -2, -3]
+    n_up = min(n_f, 7)
+    spin = 0.5 * (n_up - (n_f - n_up))
+    orbital = abs(sum(m_l[:n_up]) + sum(m_l[:n_f - n_up]))
+    total = abs(orbital - spin) if n_f < 7 else orbital + spin
+    if total == 0.:
+        return 2.
+    j_sq = total * (total + 1.)
+    return round(1. + (j_sq + spin * (spin + 1.) - orbital * (orbital + 1.)) / (2. * j_sq), 6)
+
+
+def add_magnetic_scattering(crystal, labels: list, magnetic_ion: str = "",
+                            lande: float = 0.) -> list:
+    """Add atom_site_scat rows (magnetic ion and Lande factor) for the
+    magnetic atoms that have none; return the labels added.
+
+    The ion is ``magnetic_ion`` or, when it is empty, the type_symbol of
+    the atom when it has a charge (Tb3+). ``lande`` 0 takes
+    :func:`calc_lande_factor`. Raises CrysPyError when the ion is unknown
+    or has no magnetic form factor.
+    """
+    from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
+    from cryspy.C_item_loop_classes.cl_2_atom_site_scat import (
+        AtomSiteScat, AtomSiteScatL)
+    l_scat = (list(crystal.atom_site_scat.label)
+              if crystal.is_attribute("atom_site_scat") else [])
+    l_missing = [label for label in labels if label not in l_scat]
+    if not l_missing:
+        return []
+    l_item = []
+    for label in l_missing:
+        ion = magnetic_ion.strip()
+        if ion == "":
+            type_symbol = str(crystal.atom_site[label].type_symbol)
+            ion = type_symbol if ("+" in type_symbol or "-" in type_symbol) else ""
+        if ion == "":
+            raise CrysPyError(
+                f"The magnetic atom {label} needs its magnetic ion for the form "
+                "factor: give magnetic_ion (as Tb3+ or Fe3+) or add atom_site_scat.")
+        j0_parameters = get_j0_j2_parameters(numpy.array([ion]))[0]
+        if numpy.allclose(j0_parameters, 0.):
+            raise CrysPyError(
+                f"No magnetic form factor of the ion '{ion}' in the database; "
+                "give magnetic_ion as Tb3+, Fe3+, Mn2+.")
+        value = float(lande) if lande else calc_lande_factor(ion)
+        l_item.append(AtomSiteScat(label=label, type_symbol=ion, lande=value))
+    if crystal.is_attribute("atom_site_scat"):
+        crystal.atom_site_scat.items.extend(l_item)
+    else:
+        loop = AtomSiteScatL()
+        loop.items = l_item
+        crystal.add_items([loop])
+    return [f"{item.label} {item.type_symbol} (Lande {item.lande:g})" for item in l_item]
+
+
 def split_labels(text: str) -> list:
     return [label for label in re.split(r"[\s,;]+", text.strip()) if label]
 
