@@ -66,7 +66,7 @@ def take_k_group_by_operations(parent_rotation, parent_translation, centring, k_
     operations (9, n), (3, n) and centring translations (3, n_c); the same
     dict as :func:`take_k_group`."""
     k_vector = numpy.asarray(k_vector, dtype=float)
-    flags = calc_k_group_flags(parent_rotation, k_vector)
+    flags = calc_k_group_flags(parent_rotation, k_vector, centring_translations=centring)
     rotation, translation = parent_rotation[:, flags], parent_translation[:, flags]
     irreps = calc_one_dimensional_irreps(rotation, translation, centring, k_vector)
     irreps_nd = [matrices for matrices in calc_small_irreps(
@@ -211,9 +211,11 @@ def form_superspace_by_irrep(k_group: dict, k_vector, irrep,
     arguments = (k_group["rotation"][:, flags], k_group["translation"][:, flags],
                  phase, k_group["centring"], k_vector)
     ssg, minus_k = None, False
-    flags = calc_minus_k_flags(k_group["parent_rotation"], k_vector)
+    flags = calc_minus_k_flags(k_group["parent_rotation"], k_vector,
+                               centring_translations=k_group["centring"])
     if (use_minus_k_operations and numpy.any(flags)
-            and not is_k_equivalent_to_minus_k(k_vector)):
+            and not is_k_equivalent_to_minus_k(
+                k_vector, centring_translations=k_group["centring"])):
         i_minus = int(numpy.flatnonzero(flags)[0])
         ssg = form_superspace_group(
             *arguments, minus_rotation=k_group["parent_rotation"][:, i_minus],
@@ -311,6 +313,19 @@ def report_irreps(k_group: dict, k_vector, atoms: dict,
 
 def split_labels(text: str) -> list:
     return [label for label in re.split(r"[\s,;]+", text.strip()) if label]
+
+
+def take_atom_positions(crystal, labels) -> dict:
+    """Fractional positions (3,) of the atoms of atom_site with the given
+    labels; a clear error names the labels that are not there."""
+    d_site = {str(item.label): item for item in crystal.atom_site.items}
+    missing = [label for label in labels if label not in d_site]
+    if missing:
+        raise CrysPyError(
+            f"No atom {', '.join(missing)} in atom_site; the labels are "
+            f"{', '.join(d_site.keys())}.")
+    return {label: numpy.array([d_site[label].fract_x, d_site[label].fract_y,
+                                d_site[label].fract_z], dtype=float) for label in labels}
 
 
 def _rotate_aniso(item, rotation, unit_cell_parameters):
@@ -884,10 +899,7 @@ def add_wave_to_superspace(crystal, k_new, l_magnetic, irrep, moment: float,
     k_group = take_k_group_by_operations(rotation, translation, centring, k_new)
     numbers = take_irrep_numbers(irrep, take_number_of_irreps(k_group), len(k_group["irreps"]))
     irrep_name = form_irrep_name(numbers, mode if numbers[0] > len(k_group["irreps"]) else None)
-    atoms = {label: numpy.array([crystal.atom_site[label].fract_x,
-                                 crystal.atom_site[label].fract_y,
-                                 crystal.atom_site[label].fract_z], dtype=float)
-             for label in l_magnetic}
+    atoms = take_atom_positions(crystal, l_magnetic)
     report = report_irreps(k_group, k_new, atoms, use_minus_k_operations)
     try:
         ssg_new = form_superspace_by_irrep(k_group, k_new, irrep, use_minus_k_operations, mode)

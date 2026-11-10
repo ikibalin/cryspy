@@ -1314,3 +1314,172 @@ def calc_model_value_by_precalculated_data(
         l_model_value.append(model_exp)
     model_value = numpy.concatenate(l_model_value, axis=0)
     return model_value
+
+
+def calc_full_grid_auc_index(index_auc, n_abc, full_symm_elems):
+    """Index of the point of the asymmetric unit for every point of the grid.
+
+    Parameters
+    ----------
+    index_auc : numpy.ndarray
+        (3, n_auc) integer grid indices of the asymmetric unit.
+    n_abc : numpy.ndarray
+        (3,) number of points along a, b, c.
+    full_symm_elems : numpy.ndarray
+        (13, n_s) integer symmetry elements (translation numerators,
+        denominator, rotation).
+
+    Returns
+    -------
+    numpy.ndarray
+        (n_a n_b n_c,) int; the grid point (i, j, k) has the flat index
+        (i n_b + j) n_c + k.
+    """
+    n_abc = numpy.asarray(n_abc, dtype=int)
+    elem_r = full_symm_elems[4:13].reshape(3, 3, -1)
+    elem_b = full_symm_elems[:4]
+    shift = (n_abc[:, na] // elem_b[3][na, :]) * elem_b[:3]
+    index_s = numpy.mod(
+        (elem_r[:, :, na, :] * index_auc[na, :, :, na]).sum(axis=1) + shift[:, na, :],
+        n_abc[:, na, na])
+    flat = (index_s[0] * n_abc[1] + index_s[1]) * n_abc[2] + index_s[2]
+    auc_index = numpy.full(int(numpy.prod(n_abc)), -1, dtype=int)
+    auc_index[flat] = numpy.repeat(numpy.arange(index_auc.shape[1])[:, na], flat.shape[1], axis=1)
+    if numpy.any(auc_index < 0):
+        raise ValueError("The symmetry images of the asymmetric unit do not cover the grid.")
+    return auc_index
+
+
+def calc_point_amplitude_k(fract_xyz, unit_cell_parameters, copy_fract_xyz, copy_amplitude,
+                           k_vector):
+    """Complex amplitude of the moment of the nearest atom for every point.
+
+    The magnetic atoms (copies of one atom of atom_site_moment_Fourier in
+    the cell [0, 1), with amplitudes A: moment ``Re(A exp(-2 pi i k.L))``
+    in the cell L) are searched in the cell and its neighbours; a point
+    near the copy ``p + L0`` gets ``A exp(-2 pi i k.L0)`` (its moment
+    in the cell L is then ``Re(A_point exp(-2 pi i k.L))``).
+
+    Parameters
+    ----------
+    fract_xyz : numpy.ndarray
+        (3, n_point) fractional coordinates of the points in [0, 1).
+    unit_cell_parameters : numpy.ndarray
+        (6,) a, b, c (Å), alpha, beta, gamma (radians).
+    copy_fract_xyz : numpy.ndarray
+        (3, n_copy) positions of the copies in [0, 1).
+    copy_amplitude : numpy.ndarray
+        (3, n_copy) complex amplitudes along a/|a|, b/|b|, c/|c| (μB).
+    k_vector : numpy.ndarray
+        (3,) propagation vector (reciprocal lattice units).
+
+    Returns
+    -------
+    numpy.ndarray
+        (3, n_point) complex.
+    """
+    m_m = calc_m_m_by_unit_cell_parameters(unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    m_m = m_m.reshape(3, 3)
+    shifts = numpy.stack(numpy.meshgrid(*[numpy.arange(-1, 2)] * 3, indexing="ij"),
+                         axis=0).reshape(3, -1)
+    # (3, n_copy, n_shift) positions of the copies around the cell
+    position = copy_fract_xyz[:, :, na] + shifts[:, na, :]
+    best_distance = numpy.full(fract_xyz.shape[1], numpy.inf)
+    best_copy = numpy.zeros(fract_xyz.shape[1], dtype=int)
+    best_shift = numpy.zeros(fract_xyz.shape[1], dtype=int)
+    for i_copy in range(position.shape[1]):
+        for i_shift in range(position.shape[2]):
+            difference = m_m @ (fract_xyz - position[:, i_copy, i_shift][:, na])
+            distance = (difference ** 2).sum(axis=0)
+            flag = distance < best_distance - 1e-12
+            best_distance[flag] = distance[flag]
+            best_copy[flag] = i_copy
+            best_shift[flag] = i_shift
+    shift = shifts[:, best_shift]
+    return copy_amplitude[:, best_copy] * numpy.exp(
+        -2j * numpy.pi * (numpy.asarray(k_vector, dtype=float) @ shift))[na, :]
+
+
+def calc_mem_m_k(
+        index_hkl, unit_cell_parameters, n_abc, auc_index, l_atom_amplitude,
+        volume_unit_cell, n_auc, hkl_chunk: int = 16):
+    """Linear map from the MEM densities to F_M_perp of a structure with k.
+
+    Every magnetic atom j has a scalar density rho_j on the grid of the
+    cell, the same in every cell (it is the shape of the moment); the
+    moment density in the cell L is ``rho_j(r) Re(A_j(r) exp(-2 pi i
+    k.L))`` with the amplitude A_j(r) of the nearest copy of the atom
+    (``calc_point_amplitude_k``). With the MEM convention ``F(H) = sum_r
+    m(r) exp(-2 pi i H.r)`` per cell, the satellites are
+    ``F(H) = sum_r rho(r) exp(-2 pi i H.r) (A(r) d(H + k) + A*(r) d(H - k)) / 2``,
+    d(Q) = 1 when Q is a reciprocal lattice vector; integer H (no k)
+    get no magnetic part. For k = 1/2 both terms add up. The density is
+    symmetric under the operations of the group (the moments are given
+    by the amplitudes), so the points of the grid are summed into the
+    points of the asymmetric unit.
+
+    Parameters
+    ----------
+    index_hkl : numpy.ndarray
+        (3, n_hkl) Miller indices (fractional for satellites).
+    unit_cell_parameters : numpy.ndarray
+        (6,) a, b, c (Å), angles (radians).
+    n_abc : numpy.ndarray
+        (3,) points along a, b, c.
+    auc_index : numpy.ndarray
+        (n_grid,) index of the asymmetric-unit point of every grid point
+        (``calc_full_grid_auc_index``).
+    l_atom_amplitude : list
+        For every magnetic atom a list of ``(k_vector (3,), amplitude (3,
+        n_grid) complex)``, amplitudes along a/|a|, b/|b|, c/|c| (μB).
+    volume_unit_cell : float
+        Å³.
+    n_auc : int
+        Number of points of the asymmetric unit.
+    hkl_chunk : int
+        Reflections calculated at once (memory).
+
+    Returns
+    -------
+    numpy.ndarray
+        (3, n_hkl, n_auc, n_atom) complex, Cartesian (x || a*, z || c),
+        in units of 10^-12 cm (0.2695 per μB) as ``calc_mem_m``.
+    """
+    n_abc = numpy.asarray(n_abc, dtype=int)
+    index_grid = numpy.stack(numpy.meshgrid(
+        *[numpy.arange(n) for n in n_abc], indexing="ij"), axis=0).reshape(3, -1)
+    fract_grid = index_grid / n_abc[:, na]
+    eq_ccs = calc_eq_ccs_by_unit_cell_parameters(
+        index_hkl, unit_cell_parameters, flag_unit_cell_parameters=False)[0]
+    m_m_norm = calc_m_m_norm_by_unit_cell_parameters(
+        unit_cell_parameters, flag_unit_cell_parameters=False)[0].reshape(3, 3)
+    order = numpy.argsort(auc_index, kind="stable")
+    auc_sorted = auc_index[order]
+    starts = numpy.flatnonzero(numpy.r_[True, auc_sorted[1:] != auc_sorted[:-1]])
+    if starts.size != n_auc:
+        raise ValueError("Not every point of the asymmetric unit is on the grid.")
+    coeff = 0.2695 * volume_unit_cell / fract_grid.shape[1]
+    n_hkl = index_hkl.shape[1]
+    mem = numpy.zeros((3, n_hkl, n_auc, len(l_atom_amplitude)), dtype=complex)
+    for i_atom, l_k_amplitude in enumerate(l_atom_amplitude):
+        for k_vector, amplitude in l_k_amplitude:
+            k_vector = numpy.asarray(k_vector, dtype=float)
+            amplitude_xyz = (m_m_norm @ amplitude)[:, order]
+            index_plus = index_hkl + k_vector[:, na]
+            index_minus = index_hkl - k_vector[:, na]
+            flag_plus = numpy.all(numpy.abs(index_plus - numpy.round(index_plus)) < 1e-4, axis=0)
+            flag_minus = numpy.all(numpy.abs(index_minus - numpy.round(index_minus)) < 1e-4, axis=0)
+            for i_start in range(0, n_hkl, hkl_chunk):
+                sl = slice(i_start, min(i_start + hkl_chunk, n_hkl))
+                if not numpy.any(flag_plus[sl] | flag_minus[sl]):
+                    continue
+                phase = numpy.exp(-2j * numpy.pi * (index_hkl[:, sl].transpose() @ fract_grid[:, order]))
+                # (3, h, point)
+                vector = 0.5 * (
+                    flag_plus[sl][na, :, na] * amplitude_xyz[:, na, :]
+                    + flag_minus[sl][na, :, na] * numpy.conjugate(amplitude_xyz)[:, na, :])
+                eq = eq_ccs[:, sl][:, :, na]
+                vector_perp = vector - eq * (eq * vector).sum(axis=0)[na, :, :]
+                mem[:, sl, :, i_atom] = coeff * numpy.add.reduceat(
+                    vector_perp * phase[na, :, :], starts, axis=2)
+    return mem

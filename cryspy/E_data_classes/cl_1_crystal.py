@@ -77,14 +77,15 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_fourier_wave_vector import (
     AtomSiteFourierWaveVectorL)
 from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
-    calc_magnetic_domain_matrices, calc_site_symmform,
+    calc_magnetic_domain_matrices, calc_site_symmform, take_atom_positions,
     convert_magnetic_space_group, form_fourier_items, form_parent_space_group,
     form_irrep_name, form_start_fourier, form_superspace_by_irrep,
     report_moment_modulation,
     form_superspace_items, format_symmform, report_irreps, split_atoms,
     split_labels, take_irrep_numbers, take_k_group, take_number_of_irreps,
     take_parent_space_group)
-from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
+from cryspy.A_functions_base.magnetic_k_symmetry import (
+    snap_k_vector, form_operation_xyz, calc_supercell_magnetic_space_group)
 from cryspy.exceptions import CrysPyError
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
@@ -868,13 +869,16 @@ class Crystal(DataN):
             data_name, self.calc_atoms_in_unit_cell(),
             self.cell.get_unit_cell_parameters(), self.cell.to_cif())
 
-    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str):
+    def form_p1_crystal(self, data_name: str, atoms: dict, ucp, cell_text: str,
+                        operations: list = None):
         """Crystal in the (magnetic) group P1 with the given atoms.
 
         ``atoms`` has the keys of :meth:`calc_atoms_in_unit_cell`
         (positions in the new cell, Cartesian tensors, moments along the
         unit vectors of a, b, c); ``ucp`` are the parameters of the new
         cell (Å, radians) and ``cell_text`` its cell item in CIF.
+        ``operations`` ('x,y,z,+1', ...) replace P1 for a magnetic crystal;
+        the atoms are then its asymmetric unit.
         """
         from cryspy.H_functions_global.function_1_cryspy_objects import str_to_globaln
         atom_site = self.atom_site
@@ -887,7 +891,8 @@ class Crystal(DataN):
         magnetic = atoms["moment_crystalaxis"] is not None
         if magnetic:
             ls_out += ["loop_", "_space_group_symop_magn_operation.xyz",
-                       "_space_group_symop_magn_operation.id", "x,y,z,+1 1", "",
+                       "_space_group_symop_magn_operation.id"] + [
+                f"{text} {i_op + 1}" for i_op, text in enumerate(operations or ["x,y,z,+1"])] + ["",
                        "loop_", "_space_group_symop_magn_centering.xyz",
                        "_space_group_symop_magn_centering.id", "x,y,z,+1 1", ""]
         else:
@@ -942,6 +947,21 @@ class Crystal(DataN):
                     ((0, 0), (1, 1), (2, 2), (0, 1), (0, 2), (1, 2))))
         if len(ls_chi) > 9:
             ls_out += ls_chi + [""]
+        if self.is_attribute("atom_electron_configuration"):
+            conf_items = self.atom_electron_configuration.items
+            d_conf = {item.label: item for item in conf_items}
+            names = [name for name in ("core", "valence")
+                     if any(item.is_attribute(name) for item in conf_items)]
+            l_conf = []
+            for label, i_atom in zip(labels, index):
+                item = d_conf.get(atom_site.items[i_atom].label)
+                if item is not None:
+                    l_conf.append(f"{label} " + " ".join(
+                        f"'{getattr(item, name)}'" if item.is_attribute(name) else "."
+                        for name in names))
+            if len(l_conf) > 0 and len(names) > 0:
+                ls_out += ["loop_", "_atom_electron_configuration_label"] + [
+                    f"_atom_electron_configuration_{name}" for name in names] + l_conf + [""]
         if self.is_attribute("atom_site_scat"):
             scat = self.atom_site_scat
             d_scat = {item.label: item for item in scat.items}
@@ -961,21 +981,30 @@ class Crystal(DataN):
         obj = str_to_globaln("\n".join(ls_out))
         return obj.items[0]
 
-    def make_magnetic_supercell(self, data_name: str = None):
-        """A new crystal: the commensurate structure with k written in its magnetic supercell (P1).
+    def make_magnetic_supercell(self, data_name: str = None, use_symmetry: bool = False):
+        """A new crystal: the commensurate structure with k written in its magnetic supercell.
 
         Every atom of the supercell (the cell multiplied by the
-        denominators of k along a, b, c) becomes a separate atom in the
-        magnetic group P1 (x,y,z,+1) with its ordered moment
+        denominators of k along a, b, c) gets its ordered moment
         ``Re(A exp(-2 pi i k.L))`` (atom_site_moment, μB along a, b, c),
         its position, occupancy, displacement parameters (anisotropic ones
-        rotated) and atom_site_scat, as in mcif files of other programs.
-        The crystal itself is not changed.
+        rotated), atom_site_scat and atom_electron_configuration. In the
+        magnetic group P1 (x,y,z,+1) every atom is written, as in mcif
+        files of other programs; with ``use_symmetry`` the crystal gets the
+        magnetic space group of the supercell (the operations of the
+        superspace group combined with the parent lattice translations
+        which keep the structure, see
+        ``calc_supercell_magnetic_space_group``) and only the atoms of its
+        asymmetric unit (the first copy of an atom keeps its label). The
+        crystal itself is not changed. Use it for the procedures which need
+        a structure periodic in the cell, such as MEM.
 
         Parameters
         ----------
         data_name : str
             Data name of the new crystal; the old one with '_supercell' if None.
+        use_symmetry : bool
+            Write the magnetic space group of the supercell instead of P1.
 
         Returns
         -------
@@ -1018,7 +1047,31 @@ class Crystal(DataN):
             [f"_cell_length_{axis} {value:.6f}" for axis, value in zip("abc", ucp[:3])]
             + [f"_cell_angle_{axis} {value:.5f}" for axis, value in
                zip(("alpha", "beta", "gamma"), angles)])
-        return self.form_p1_crystal(data_name, atoms_super, ucp, cell_text)
+        if not use_symmetry:
+            return self.form_p1_crystal(data_name, atoms_super, ucp, cell_text)
+        dict_crystal = self.get_dictionary()
+        group = calc_supercell_magnetic_space_group(
+            dict_crystal["magnetic_k_op_rotation"],
+            dict_crystal["magnetic_k_op_translation"], n_cell,
+            atoms_super["fract_xyz"], atoms_super["atom_index"],
+            atoms_super["moment_crystalaxis"], ucp[:3])
+        flag = group["representative"]
+        l_label, d_count = [], {}
+        for i_atom in atoms_super["atom_index"][flag]:
+            name = self.atom_site.items[i_atom].label
+            d_count[name] = d_count.get(name, 0) + 1
+            l_label.append(name if d_count[name] == 1 else f"{name}_{d_count[name]}")
+        atoms_unique = {
+            "label": l_label,
+            "atom_index": atoms_super["atom_index"][flag],
+            "fract_xyz": atoms_super["fract_xyz"][:, flag],
+            "moment_crystalaxis": atoms_super["moment_crystalaxis"][:, flag],
+            "u_xyz": atoms_super["u_xyz"][:, :, flag],
+            "chi_xyz": atoms_super["chi_xyz"][:, :, flag]}
+        operations = [
+            f"{form_operation_xyz(rotation, translation)},{theta:+d}" for rotation, translation, theta in
+            zip(group["rotation"].transpose(), group["translation"].transpose(), group["theta"])]
+        return self.form_p1_crystal(data_name, atoms_unique, ucp, cell_text, operations=operations)
 
     def report_irreps_of_k(self, k_1: float, k_2: float, k_3: float,
                            magnetic_atoms: str = "",
@@ -1072,11 +1125,7 @@ class Crystal(DataN):
                 l_centring, take_wave_vectors(self)), k_vector)
         else:
             k_group = take_k_group(take_parent_space_group(self), k_vector)
-        atoms = {}
-        for label in split_labels(magnetic_atoms):
-            item = self.atom_site[label]
-            atoms[label] = numpy.array([item.fract_x, item.fract_y, item.fract_z],
-                                       dtype=float)
+        atoms = take_atom_positions(self, split_labels(magnetic_atoms))
         report = report_irreps(k_group, k_vector, atoms, use_minus_k_operations)
         if l_note:
             report = ("k is taken as commensurate: " + ", ".join(l_note) + ".\n\n"
@@ -1176,10 +1225,7 @@ class Crystal(DataN):
             raise CrysPyError(
                 f"{error}\n\n"
                 + report_irreps(k_group, k_vector, {}, use_minus_k_operations)) from None
-        atoms = {label: numpy.array([self.atom_site[label].fract_x,
-                                     self.atom_site[label].fract_y,
-                                     self.atom_site[label].fract_z], dtype=float)
-                 for label in l_magnetic}
+        atoms = take_atom_positions(self, l_magnetic)
         report = report_irreps(k_group, k_vector, atoms, use_minus_k_operations)
         try:
             ssg = form_superspace_by_irrep(k_group, k_vector, irrep, use_minus_k_operations, mode)

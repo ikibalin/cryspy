@@ -234,7 +234,13 @@ def save_density_to_den_file(
         )
         logger.info(f"\nReconstructed nuclear density is written in files '{file_real:}', '{file_imag:}'.")
 
-    if channel_ani and (file_magnetization_density is not None):
+    if channel_ani and (file_magnetization_density is not None) and \
+            "atom_fourier_index" in dict_crystal_keys:
+        logger.warning(
+            "The magnetization density of a structure with a propagation vector "
+            "is not written in a .den file: the density of the cell is the shape "
+            "of the moments, their directions change from cell to cell.")
+    elif channel_ani and (file_magnetization_density is not None):
         density_ani_best = dict_in_out.get("density_channel_ani", None)
 
         # spin_density = numpy.stack([density_ani_best, numpy.zeros_like(density_ani_best)], axis=0)

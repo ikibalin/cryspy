@@ -1083,8 +1083,15 @@ def fix_fourier_gauge(ddict):
     _, conjugate_all = take_operation_phases(ddict)
     row_k = ddict["atom_fourier_k_index"][ddict["atom_fourier_row_atom"]]
     parameter_k = numpy.concatenate([row_k, row_k])[i_refined]
+    # centring translations: the operations without rotation
+    rotation = ddict["magnetic_k_op_rotation"]
+    flag_identity = numpy.all(numpy.isclose(
+        rotation, numpy.eye(3).flatten()[:, na], atol=1e-8), axis=0)
+    centring = ddict["magnetic_k_op_translation"][:, flag_identity]
     for i_k, k_vector in enumerate(k_vectors.transpose()):
-        flag_phase = not (is_k_equivalent_to_minus_k(k_vector) or numpy.any(conjugate_all[i_k]))
+        flag_phase = not (
+            is_k_equivalent_to_minus_k(k_vector, centring_translations=centring)
+            or numpy.any(conjugate_all[i_k]))
         flag_wave = parameter_k == i_k
         if flag_phase and (flag_keep & flag_wave).sum() > 1:
             flag_keep[_take_phase_parameter(ddict, values, i_refined, flag_keep & flag_wave,

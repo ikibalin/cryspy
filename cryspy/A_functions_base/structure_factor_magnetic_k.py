@@ -254,10 +254,36 @@ def _parse_linear_expression(expression: str, names: tuple):
     return matrix.flatten(), translation
 
 
-def is_k_equivalent_to_minus_k(k_vector, tolerance: float = 1e-6) -> bool:
-    """Return True when ``2k`` is a reciprocal lattice vector."""
+def is_reciprocal_lattice_vector(vector, centring_translations=None,
+                                 tolerance: float = 1e-6):
+    """True for vectors of the reciprocal lattice of a (centred) cell.
+
+    A vector ``G`` (3, ...) in reciprocal lattice units of the conventional
+    cell belongs to the reciprocal lattice when it is integer and
+    ``G.t`` is integer for every centring translation t (for a C cell
+    (1, 0, 0) is not one, (1, 1, 0) is).
+
+    Returns
+    -------
+    numpy.ndarray
+        bool of shape ``vector.shape[1:]``.
+    """
+    vector = numpy.asarray(vector, dtype=float)
+    flag = numpy.all(numpy.abs(vector - numpy.round(vector)) < tolerance, axis=0)
+    if centring_translations is not None:
+        centring = numpy.asarray(centring_translations, dtype=float).reshape(3, -1)
+        product_t = numpy.tensordot(centring, vector, axes=([0], [0]))
+        flag = flag & numpy.all(
+            numpy.abs(product_t - numpy.round(product_t)) < tolerance, axis=0)
+    return flag
+
+
+def is_k_equivalent_to_minus_k(k_vector, tolerance: float = 1e-6,
+                               centring_translations=None) -> bool:
+    """Return True when ``2k`` is a reciprocal lattice vector (of the
+    centred cell when ``centring_translations`` (3, n_c) are given)."""
     two_k = 2. * numpy.asarray(k_vector, dtype=float)
-    return bool(numpy.all(numpy.abs(two_k - numpy.round(two_k)) < tolerance))
+    return bool(is_reciprocal_lattice_vector(two_k, centring_translations, tolerance))
 
 
 def calc_satellite_index_hkl(
@@ -301,7 +327,8 @@ def calc_satellite_index_hkl(
         allowed = numpy.abs(numpy.exp(1j * phase).sum(axis=1)) > 1e-6
         index_h = index_h[:, allowed]
 
-    signs = (1,) if is_k_equivalent_to_minus_k(k_vector) else (1, -1)
+    signs = (1,) if is_k_equivalent_to_minus_k(
+        k_vector, centring_translations=centring_translations) else (1, -1)
     l_index, l_sign = [], []
     for sign in signs:
         index_hkl = index_h + sign * k_vector[:, na]

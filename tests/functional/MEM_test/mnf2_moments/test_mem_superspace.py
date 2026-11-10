@@ -9,7 +9,6 @@ import numpy
 import pytest
 
 import cryspy
-from cryspy.exceptions import CrysPyError
 from cryspy.procedure_mempy.mempy_by_dictionary import form_mem_crystal_dictionary
 
 F_NAME = os.path.join(os.path.dirname(__file__), "main.rcif")
@@ -53,14 +52,14 @@ def test_mem_dictionary_time_reversal_by_x4_shift():
     check_same_magnetic_space_group(dict_msg, dict_mem)
 
 
-def test_mem_superspace_nonzero_k_error():
+def test_mem_superspace_nonzero_k_kept():
+    """k ≠ 0: the moments stay modulated (MEM with the Fourier amplitudes)."""
     obj = cryspy.load_file(F_NAME)
     crystal = take_crystal(obj)
     crystal.convert_to_superspace()
     dict_crystal = crystal.get_dictionary()
     dict_crystal["magnetic_k_vector"] = numpy.array([[0.5], [0.], [0.]])
-    with pytest.raises(CrysPyError, match="magnetic supercell"):
-        form_mem_crystal_dictionary(dict_crystal)
+    assert form_mem_crystal_dictionary(dict_crystal) is dict_crystal
 
 
 def test_mem_magnetization_density_superspace_k0():

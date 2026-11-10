@@ -37,7 +37,10 @@ Jana2006 load directly):
 A magnetic space group with `atom_site_moment` is the special case k = 0:
 method `convert_to_superspace` of the crystal writes it in the categories
 above (the moments become the cos components). Refinement, flip ratios
-and MEM give the same results for both descriptions.
+and MEM give the same results for both descriptions. A commensurate
+structure with k ≠ 0 is written in its magnetic supercell by
+`make_magnetic_supercell` (P1 with all atoms, or with `use_symmetry True`
+its magnetic space group and the atoms of the asymmetric unit).
 
 The easiest way from a paramagnetic crystal with `space_group`:
 
