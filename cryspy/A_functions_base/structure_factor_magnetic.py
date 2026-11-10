@@ -905,35 +905,29 @@ def calc_f_m_perp_ordered(
             )
 
 
+    # moments along the unit vectors of a, b, c (mCIF crystalaxis) in the
+    # Cartesian system x || a*, z || c; the rotation of an operation acts
+    # on them as R_ccs = M R M^-1 (M: the cell vectors in Cartesian axes).
+    # In an oblique cell neither m_norm nor R may be applied twice.
     m_norm, der_m_norm = calc_m_m_norm_by_unit_cell_parameters(
         unit_cell_parameters,
         flag_unit_cell_parameters=flag_unit_cell_parameters,
     )
-    atom_ordered_moment_crystalaxis_xyz = calc_m_v(
+    atom_ordered_moment_ccs = calc_m_v(
         m_norm, atom_ordered_moment_crystalaxis_dn, flag_m=False, flag_v=False
     )[0]
-    flag_atom_ordered_moment_crystalaxis_xyz = (
-        flag_atom_ordered_moment_crystalaxis_dn
-    )
     r_direct = full_mcif_elems[4:13, :]
-    rm, der_rm = calc_m_v(
-        r_direct[:, :, na],
-        atom_ordered_moment_crystalaxis_xyz[:, na, :],
-        flag_m=False,
-        flag_v=flag_atom_ordered_moment_crystalaxis_xyz,
-    )
-    rm_ccs, der_rm_ccs = calc_m_v(
-        m_norm,
-        rm,
-        flag_m=flag_unit_cell_parameters,
-        flag_v=flag_atom_ordered_moment_crystalaxis_xyz,
-    )
-
     m_m = calc_m_m_by_unit_cell_parameters(
         unit_cell_parameters,
         flag_unit_cell_parameters=flag_unit_cell_parameters,
     )[0]
     r_ccs = calc_m1_m2_inv_m1(m_m, r_direct)[0]
+    rm_ccs = calc_m_v(
+        r_ccs[:, :, na],
+        atom_ordered_moment_ccs[:, na, :],
+        flag_m=False,
+        flag_v=False,
+    )[0]
     det_r, der_det_r = calc_det_m(r_ccs)
     theta_s = full_mcif_elems[13, :]
     # det_r is taken into account when multiplication on r_direct is performed
@@ -967,7 +961,7 @@ def calc_f_m_perp_ordered(
     )
     dict_in_out["f_m_perp_o"] = f_m_perp_o
     dder = {}
-    if flag_atom_ordered_moment_crystalaxis_xyz:
+    if flag_atom_ordered_moment_crystalaxis_dn:
         dder["atom_ordered_moment_crystalaxis_dn"] = None
 
     return f_m_perp_o, dder

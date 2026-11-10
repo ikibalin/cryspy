@@ -54,7 +54,10 @@ def test_refine_mcif_1k():
     crystal = rhochi.crystal_s1k
     assert numpy.isclose(crystal.atom_site_moment["Gd_2"].crystalaxis_y, 0.0)
     d_out = cryspy.rhochi_rietveld_refinement(rhochi)
+    # hexagonal cell: -5.867 before the fix of the ordered moments in oblique
+    # cells (the moment components were normalised twice); chi_sq is the same
+    # because only the size of the moment changes
     assert numpy.isclose(
-        crystal.atom_site_moment["Gd_2"].crystalaxis_x, -5.867102366251087
+        crystal.atom_site_moment["Gd_2"].crystalaxis_x, -6.5478353, rtol=1e-5
     )
     assert d_out["chi_sq"] <= 57741.0
