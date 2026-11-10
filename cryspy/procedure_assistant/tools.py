@@ -31,6 +31,7 @@ the user calls a tool directly (e.g. '@set_parameter' typed in a chat)
 call_assistant_tool(..., ask_required=True) asks every required argument
 that is not given; a chat model gets an error instead and corrects its call.
 """
+import inspect
 import json
 from fractions import Fraction
 import os
@@ -401,15 +402,50 @@ def take_numerical_correlation(cryspy_object, result: dict) -> dict:
     return dict(result, correlation_matrix=correlation_matrix)
 
 
-def tool_refine(cryspy_object) -> dict:
+# parameters proposed when the user asks to refine with nothing marked
+L_REFINE_PROPOSALS = ("scale", "background", "cell", "fract", "b_iso")
+
+
+def take_refine_proposals(cryspy_object) -> List[str]:
+    """Patterns of L_REFINE_PROPOSALS that match parameters of the object."""
+    return [pattern for pattern in L_REFINE_PROPOSALS
+            if len(find_parameter_records(cryspy_object, pattern)) > 0]
+
+
+def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Callable] = None) -> dict:
+    """Refinement of the marked parameters. When nothing is marked the
+    user is asked which parameters to refine (options as buttons) and
+    they are marked first. progress(info) is called after every iteration
+    (see rhochi_rietveld_refinement); returning False stops it."""
     from cryspy.procedure_rhochi.rhochi import rhochi_rietveld_refinement
+    s_marked = ""
     if len(cryspy_object.get_variable_names()) == 0:
-        return {"text": "Error: no parameters are marked for refinement. Use refine_parameters first."}
+        if parameters.strip() == "":
+            l_option = take_refine_proposals(cryspy_object)
+            if len(l_option) == 0:
+                return {"text": "Error: no parameters are marked for refinement. "
+                                "Use refine_parameters first."}
+            raise ArgumentsNeeded([{
+                "name": "parameters", "type": "string",
+                "question": "No parameters are marked for refinement. Which ones to refine?",
+                "options": l_option[:MAX_USER_OPTIONS],
+                "hint": "a pattern of the parameter paths, e.g. 'scale' or 'atom_site.fract'"}],
+                "Nothing is marked for refinement.")
+        s_marked = tool_refine_parameters(cryspy_object, parameters)
+        if s_marked.startswith("Error"):
+            return {"text": s_marked}
     history = take_history(cryspy_object)
     d_last = {}  # the last iteration of the minimizer: chi_sq and the number of points
+
+    def callback(info: dict):
+        d_last.update(info)
+        if progress is not None:
+            return progress(info)
+        return None
+
     keep_snapshot(cryspy_object)
     try:
-        result = rhochi_rietveld_refinement(cryspy_object, callback=d_last.update)
+        result = rhochi_rietveld_refinement(cryspy_object, callback=callback)
     except Exception:
         history.l_snapshot.pop()  # nothing is changed: nothing to undo
         raise
@@ -419,8 +455,11 @@ def tool_refine(cryspy_object) -> dict:
     if "n_point" in d_metrics:
         result = dict(result, n_point=d_metrics["n_point"])
     keep_checkpoint(cryspy_object, d_metrics)
-    return {"text": form_calculation_text("Refinement finished.", result, cryspy_object, d_metrics),
-            "metrics": d_metrics}
+    s_title = "Refinement stopped by the user." if result.get("stopped", False) else "Refinement finished."
+    text = form_calculation_text(s_title, result, cryspy_object, d_metrics)
+    if s_marked != "":
+        text = f"{s_marked:}\n{text:}"
+    return {"text": text, "metrics": d_metrics}
 
 
 def tool_undo_refinement(cryspy_object) -> dict:
@@ -464,17 +503,61 @@ def tool_use_recipe(cryspy_object, name: str) -> str:
             f"next step of the recipe that uses it.\n{recipe.to_text():}")
 
 
+def take_suggested_recipes(cryspy_object) -> Dict[str, List[str]]:
+    """{name of the best recipe: names of the experiments it is for}."""
+    d_name = {}
+    for name, l_kind in experiments.take_object_kinds(cryspy_object).items():
+        l_recipe = suggest_recipes(l_kind)
+        if l_recipe:
+            d_name.setdefault(l_recipe[0].name, []).append(name)
+    return d_name
+
+
+# simulations proposed for crystals without experiments
+L_SIMULATION_REQUESTS = (
+    ("Simulate a powder pattern", "simulation_unpolarized_neutron_powder_diffraction"),
+    ("Simulate single crystal intensities", "simulation_single_crystal"))
+
+
+def suggest_assistant_requests(cryspy_object=None) -> List[dict]:
+    """Requests proposed to the user as buttons (an empty chat, after an
+    answer), made from the object, not by a model.
+
+    Returns [{"label": text of the button, "request": what is sent when
+    it is clicked}] with at most MAX_USER_OPTIONS items; requests starting
+    with '@' are commands (a recipe or a tool) that run without a model."""
+    l_request = []
+    d_recipe = take_suggested_recipes(cryspy_object) if cryspy_object is not None else {}
+    for recipe_name, l_name in d_recipe.items():
+        recipe = take_recipe(recipe_name)
+        s_title = recipe_name.replace("_", " ")
+        s_title = s_title[0].upper() + s_title[1:]
+        l_request.append({"label": f"{s_title:} ({', '.join(l_name):})",
+                          "request": f"@{recipe.name if recipe else recipe_name:}"})
+    l_crystal = [item for item in getattr(cryspy_object, "items", [])
+                 if type(item).__name__ in ("Crystal", "MagCrystal")]
+    if l_crystal and not d_recipe:
+        for label, procedure in L_SIMULATION_REQUESTS:
+            l_request.append({"label": label, "request": f"@run_procedure {procedure:}"})
+    if cryspy_object is not None and len(getattr(cryspy_object, "items", [])) > 0:
+        l_request.append({"label": "Summarize the data", "request": "@summarize_object"})
+    else:
+        l_request.append({"label": "Load a crystal structure from COD",
+                          "request": "@add_crystal_from_cod"})
+    l_request.append({"label": "What can you do?", "request": "What can you do?"})
+    return l_request[:MAX_USER_OPTIONS]
+
+
 def tool_suggest_recipes(cryspy_object) -> str:
     d_kind = experiments.take_object_kinds(cryspy_object)
     if len(d_kind) == 0:
         return "Error: the object has no experiments."
-    ls_out, d_name = [], {}
+    ls_out = []
     for name, l_kind in d_kind.items():
         l_recipe = suggest_recipes(l_kind)
         s_recipe = ", ".join(recipe.name for recipe in l_recipe) if l_recipe else "no recipe"
         ls_out.append(f"{name:} ({', '.join(l_kind):}): {s_recipe:}")
-        if l_recipe:
-            d_name.setdefault(l_recipe[0].name, []).append(name)
+    d_name = take_suggested_recipes(cryspy_object)
     if d_name:
         ls_out.append("Run: " + "; ".join(f"{recipe:} for {', '.join(l_name):}"
                                           for recipe, l_name in d_name.items())
@@ -1003,7 +1086,11 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "chi-square, the change of chi_sq/n (and of R_F2 for single crystals) "
         "since the previous calculation, refined values, strong correlations "
         "and warnings (unphysical values).",
-        tool_refine, flag_object_changed=True),
+        tool_refine,
+        {"parameters": {"type": "string",
+                        "description": "Pattern of the parameters to mark first when none "
+                                       "is marked (optional)."}},
+        flag_object_changed=True),
     AssistantTool(
         "undo_refinement",
         "Return the parameters and their refinement flags to the state "
@@ -1370,12 +1457,17 @@ def form_missing_text(name: str, l_missing: List[dict],
 
 def call_assistant_tool(cryspy_object, name: str,
                         arguments: Optional[dict] = None, *,
-                        ask_required: bool = False) -> dict:
+                        ask_required: bool = False,
+                        progress: Optional[Callable] = None) -> dict:
     """Run a tool by name with arguments from a chat model.
 
     ask_required: the user called the tool (not a model), so every
     required argument that is not given is asked ('missing'), not only
     those with "question".
+
+    progress: optional progress(info) of long tools (refine: after every
+    iteration, info as in rhochi_rietveld_refinement); returning False
+    stops the tool, which reports that it was stopped.
 
     Never raises: errors are returned as text, so that the model can read
     them and correct the call.
@@ -1389,17 +1481,20 @@ def call_assistant_tool(cryspy_object, name: str,
     "chi_sq_per_n_change", "r_f2" and "r_f2_previous" ({data block: R_F2}
     of single crystals), "n_refined", "max_correlation", "warnings"; see
     history.form_metrics; empty for tools without numbers) and, when the
-    tool raised an exception, 'error_type' (its class name).
+    tool raised an exception, 'error_type' (its class name). Other keys
+    of a tool's result are passed on as they are; the text always says
+    everything the model needs.
     """
-    result = run_assistant_tool(cryspy_object, name, arguments, ask_required=ask_required)
+    result = run_assistant_tool(cryspy_object, name, arguments, ask_required=ask_required,
+                                progress=progress)
     result["flag_error"] = str(result["text"]).startswith("Error")
     result.setdefault("missing", [])
     result.setdefault("metrics", {})
     return result
 
 
-def run_assistant_tool(cryspy_object, name: str,
-                       arguments: Optional[dict] = None, ask_required: bool = False) -> dict:
+def run_assistant_tool(cryspy_object, name: str, arguments: Optional[dict] = None,
+                       ask_required: bool = False, progress: Optional[Callable] = None) -> dict:
     tool = take_assistant_tool(name)
     if tool is None:
         return {"text": f"Error: unknown tool '{name:}'. Known tools: "
@@ -1429,6 +1524,8 @@ def run_assistant_tool(cryspy_object, name: str,
         l_missing = [form_missing(key, tool.parameters[key]) for key in l_ask]
         return {"text": form_missing_text(name, l_missing),
                 "flag_object_changed": False, "missing": l_missing}
+    if progress is not None and "progress" in inspect.signature(tool.function).parameters:
+        kwargs["progress"] = progress
     try:
         text = tool.function(cryspy_object, **kwargs)
     except ArgumentsNeeded as error:
@@ -1438,7 +1535,6 @@ def run_assistant_tool(cryspy_object, name: str,
         return {"text": f"Error in {name:}: {type(error).__name__:}: {error:}",
                 "flag_object_changed": tool.flag_object_changed,
                 "error_type": type(error).__name__}
-    if isinstance(text, dict):  # a tool with numbers: {"text", "metrics"}
-        return {"text": text["text"], "flag_object_changed": tool.flag_object_changed,
-                "metrics": text.get("metrics", {})}
+    if isinstance(text, dict):  # a tool with numbers: {"text", "metrics", ...}
+        return dict(text, flag_object_changed=tool.flag_object_changed)
     return {"text": text, "flag_object_changed": tool.flag_object_changed}
