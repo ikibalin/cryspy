@@ -6,7 +6,8 @@ import pytest
 
 import cryspy
 from cryspy.A_functions_base.absorption import (
-    calc_absorption_coefficients_by_composition, calc_beam_directions_by_angles,
+    calc_absorption_coefficients_by_composition, calc_absorption_coefficients_by_dictionary,
+    calc_beam_directions_by_angles,
     calc_beam_directions_normal_beam, calc_euler_zyz_by_rotation_matrix,
     calc_rotation_matrix_busing_levy, calc_rotation_matrix_by_euler_zyz,
     calc_transmission_ellipsoid, calc_transmission_sphere_zero_angle,
@@ -165,33 +166,41 @@ def test_refinement_model_is_multiplied_by_transmission():
 def test_flip_ratios_change_only_by_lambda_half():
     obj = cryspy.load_file(F_MNBITE)
     diffrn = [item for item in obj.items if isinstance(item, cryspy.Diffrn)][0]
-    cryspy.rhochi_no_refinement(obj)
-    fr_0 = numpy.array(diffrn.diffrn_refln.fr_calc)
-    diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="gaussian", coefficient_mu=1.,
-                                          coefficient_mu_half=1.),
-                      cryspy.ExptlCrystal(size_max=4., size_mid=2., size_min=0.3)])
-    cryspy.rhochi_no_refinement(obj)
-    # the same mu at lambda/2: the transmission cancels exactly
-    assert numpy.allclose(numpy.array(diffrn.diffrn_refln.fr_calc), fr_0, atol=2e-5)
-    diffrn.exptl_absorpt.coefficient_mu_half = 0.5
-    cryspy.rhochi_no_refinement(obj)
-    assert numpy.abs(numpy.array(diffrn.diffrn_refln.fr_calc) - fr_0).max() > 1e-3
+    diffrn.add_items([cryspy.ExptlCrystal(size_max=4., size_mid=2., size_min=0.3)])
+    for ratio in (0., 0.0279):
+        diffrn.setup.ratio_lambdaover2 = ratio
+        diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="none")])
+        cryspy.rhochi_no_refinement(obj)
+        fr_0 = numpy.array(diffrn.diffrn_refln.fr_calc)
+        # mu and mu at lambda/2 from the composition of the phase MnBiTe
+        diffrn.exptl_absorpt.correction_type = "gaussian"
+        cryspy.rhochi_no_refinement(obj)
+        fr_1 = numpy.array(diffrn.diffrn_refln.fr_calc)
+        assert diffrn.exptl_absorpt.correction_t_min < 0.99
+        if ratio == 0.:
+            # the transmission cancels exactly in I+/I-
+            assert numpy.allclose(fr_1, fr_0, atol=2e-5)
+        else:
+            # lambda/2 is absorbed less than lambda
+            assert numpy.abs(fr_1 - fr_0).max() > 1e-4
 
 
-@pytest.mark.parametrize("f_name", [F_TBTE3, F_MNBITE])
-def test_derivatives_of_absorption_parameters(f_name):
-    """Intensities with twins, flip ratios with the lambda/2 contamination."""
+@pytest.mark.parametrize("f_name, flag_mu", [(F_TBTE3, True), (F_MNBITE, True), (F_MNBITE, False)])
+def test_derivatives_of_absorption_parameters(f_name, flag_mu):
+    """Intensities with twins, flip ratios with the lambda/2 contamination;
+    mu given or calculated from the crystal."""
     obj = cryspy.load_file(f_name)
     diffrn = [item for item in obj.items if isinstance(item, cryspy.Diffrn)][0]
     crystal = [item for item in obj.items if isinstance(item, cryspy.Crystal)][0]
-    diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="gaussian", coefficient_mu=1.,
-                                          coefficient_mu_half=0.4),
+    d_mu = {"coefficient_mu": 1.} if flag_mu else {}
+    diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="gaussian", **d_mu),
                       cryspy.ExptlCrystal(size_max=3., size_mid=1., size_min=0.5,
                                           ellipsoid_euler_beta=40.)])
     for name in obj.get_variable_names():
         obj.set_variable_by_name(name[:-1] + ((f"{name[-1][0]:}_refinement", name[-1][1]), ), False)
     diffrn.exptl_crystal.size_min_refinement = True
-    diffrn.exptl_absorpt.coefficient_mu_refinement = True
+    if flag_mu:
+        diffrn.exptl_absorpt.coefficient_mu_refinement = True
     dict_global = obj.get_dictionary()
     dict_diffrn, dict_crystal = dict_global[diffrn.get_name()], dict_global[crystal.get_name()]
     chi_sq, n_hkl, der_chi_sq, dder_chi_sq, l_name = calc_chi_sq_for_diffrn_by_dictionary(
@@ -214,7 +223,7 @@ def test_derivatives_of_absorption_parameters(f_name):
         der_numerical = (l_chi[0] - l_chi[1]) / (2. * step)
         assert abs(der_numerical) > 1e-6
         assert der_chi_sq[i_name] == pytest.approx(der_numerical, rel=1e-3)
-    assert sorted(l_checked) == ["absorption_mu", "absorption_size"]
+    assert sorted(l_checked) == (["absorption_mu", "absorption_size"] if flag_mu else ["absorption_size"])
 
 
 def test_estimate_and_apply_by_assistant():
@@ -245,19 +254,37 @@ def test_estimate_says_needed_for_strong_absorber():
     assert diffrn.exptl_absorpt.correction_type == "none"
 
 
-def test_density_and_mu_half():
+def test_mu_from_the_phase_of_the_experiment():
     obj = cryspy.load_file(F_TBTE3)
     text = cryspy.calc_absorption_coefficient(obj)
     assert "density 7.749 g/cm^3" in text  # 4 TbTe3 in 464.3 A^3
-    item = obj.diffrn_t1p8nuc.exptl_absorpt
+    diffrn = obj.diffrn_t1p8nuc
+    # the report changes nothing
+    assert not diffrn.is_attribute("exptl_absorpt")
+    dict_global = obj.get_dictionary()
+    mu, mu_half = calc_absorption_coefficients_by_dictionary(
+        dict_global[obj.crystal_tbte3.get_name()], float(diffrn.setup.wavelength))
+    assert f"mu = {mu:.4g} 1/mm" in text
     # the true absorption halves at lambda/2, the scattering does not
-    assert 0.5 * item.coefficient_mu < item.coefficient_mu_half < item.coefficient_mu
+    assert 0.5 * mu < mu_half < mu
+    # the correction without mu equals the one with this mu given
+    diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="sphere"), cryspy.ExptlCrystal(size_rad=1.)])
+    chi_sq_phase = cryspy.rhochi_no_refinement(obj)["chi_sq"]
+    t_min = diffrn.exptl_absorpt.correction_t_min
+    assert t_min < 0.95
+    assert not diffrn.exptl_absorpt.is_attribute("coefficient_mu")
+    diffrn.exptl_absorpt.coefficient_mu = mu
+    assert cryspy.rhochi_no_refinement(obj)["chi_sq"] == pytest.approx(chi_sq_phase, rel=1e-8)
+    assert diffrn.exptl_absorpt.correction_t_min == pytest.approx(t_min, rel=1e-8)
     # an element starting with D is not deuterium
     from cryspy.procedure_rhochi.rhochi_absorption import calc_absorption_coefficient_of_crystal
     crystal = obj.crystal_tbte3
     crystal.atom_site.items[0].type_symbol = "Dy"
     d_mu = calc_absorption_coefficient_of_crystal(crystal, 1.)
     assert d_mu["density"] > 7. and d_mu["resonant"] == ["Dy"]
+    del diffrn.exptl_absorpt.coefficient_mu
+    with pytest.warns(UserWarning, match="1/v law"):
+        cryspy.rhochi_no_refinement(obj)
 
 
 def test_estimate_without_crystal_and_missing_inputs():

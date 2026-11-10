@@ -355,9 +355,9 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     # Absorption: the transmission factor A of each measured reflection
     # multiplies both intensities (it cancels in the flip ratio); the
     # lambda/2 contamination has its own A (mu at lambda/2), so its weight
-    # c_lambda2 becomes c_lambda2 A(lambda/2) / A(lambda).
-    flag_absorption = (dict_diffrn.get("absorption_correction_type", "none") in ("sphere", "gaussian")
-                       and "absorption_mu" in dict_diffrn_keys)
+    # c_lambda2 becomes c_lambda2 A(lambda/2) / A(lambda). mu comes from
+    # the composition of the crystal unless the experiment gives it.
+    flag_absorption = dict_diffrn.get("absorption_correction_type", "none") in ("sphere", "gaussian")
     flags_absorption = flag_absorption and any(
         numpy.any(dict_diffrn.get(f"flags_{name:}", False)) for name in L_ABSORPTION_PARAMETERS)
     if flag_absorption:
@@ -367,14 +367,18 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             transmission = dict_in_out["transmission"]
             transmission_half = dict_in_out.get("transmission_half")
         else:
-            transmission, transmission_half = calc_transmission_by_dictionary(
+            res_transmission = calc_transmission_by_dictionary(
                 dict_diffrn, index_hkl_measured, unit_cell_parameters, wavelength,
                 flag_half_wavelength=flag_c_lambda,
-                flag_warn=not flag_use_precalculated_data)
-            if flag_dict:
-                dict_in_out["transmission"] = transmission
-                dict_in_out["transmission_half"] = transmission_half
-        if flag_c_lambda and transmission_half is not None:
+                flag_warn=not flag_use_precalculated_data, dict_crystal=dict_crystal)
+            if res_transmission is None:
+                flag_absorption, flags_absorption = False, False
+            else:
+                transmission, transmission_half = res_transmission
+                if flag_dict:
+                    dict_in_out["transmission"] = transmission
+                    dict_in_out["transmission_half"] = transmission_half
+        if flag_absorption and flag_c_lambda and transmission_half is not None:
             n_domain = index_hkl.shape[1] // n_hkl
             c_lambda2 = c_lambda2 * numpy.tile(transmission_half / transmission, n_domain)
 
@@ -528,7 +532,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         if flag_calc_analytical_derivatives:
             dder_transmission = calc_transmission_derivatives_by_dictionary(
                 dict_diffrn, index_hkl_measured, unit_cell_parameters, wavelength,
-                flag_half_wavelength=flag_half)
+                flag_half_wavelength=flag_half, dict_crystal=dict_crystal)
         else:
             dder_transmission = {}
         if flag_half and len(dder_transmission) > 0:

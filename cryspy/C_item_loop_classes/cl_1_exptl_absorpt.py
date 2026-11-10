@@ -3,9 +3,10 @@
 The names follow the categories EXPTL_ABSORPT and EXPTL_CRYSTAL of the core
 CIF dictionary (_exptl_absorpt_coefficient_mu, _exptl_absorpt_correction_type,
 _exptl_absorpt_correction_T_min, _exptl_crystal_size_max, ...). CrysPy adds
-the orientation of the ellipsoid (_exptl_crystal_ellipsoid_euler_*), the side
-of the detector (_exptl_absorpt_diffracted_beam) and mu at half the wavelength
-(_exptl_absorpt_coefficient_mu_half) for the lambda/2 contamination.
+the orientation of the ellipsoid (_exptl_crystal_ellipsoid_euler_*) and the
+side of the detector (_exptl_absorpt_diffracted_beam). mu is calculated from
+the composition of the measured crystal (the phase of the experiment), at the
+wavelength and at half of it for the lambda/2 contamination.
 """
 from typing import NoReturn
 import numpy
@@ -30,10 +31,9 @@ class ExptlAbsorpt(ItemN):
           'gaussian' (ellipsoid of the sizes _exptl_crystal_size_max, _mid,
           _min, numerical Gaussian integration over its volume)
         - coefficient_mu: linear absorption coefficient mu, 1/mm (absorption
-          and scattering); calculated from the composition when it is not
-          given (Diffrn.calc_absorption_coefficient)
-        - coefficient_mu_half: mu at half the wavelength, 1/mm, used for the
-          lambda/2 contamination (by default equal to coefficient_mu)
+          and scattering); give it only to replace the value calculated from
+          the composition of the crystal (resonant absorbers Gd, Sm, Eu, Cd,
+          Dy, or a measured mu)
         - diffracted_beam: 'left' (default) or 'right', side of the detector
           of the normal beam geometry
         - correction_t_min, correction_t_max: smallest and largest
@@ -46,10 +46,10 @@ class ExptlAbsorpt(ItemN):
     ATTR_MANDATORY_TYPES = (str, )
     ATTR_MANDATORY_CIF = ("correction_type", )
 
-    ATTR_OPTIONAL_NAMES = ("coefficient_mu", "coefficient_mu_half", "diffracted_beam",
+    ATTR_OPTIONAL_NAMES = ("coefficient_mu", "diffracted_beam",
                            "correction_t_min", "correction_t_max", "process_details")
-    ATTR_OPTIONAL_TYPES = (float, float, str, float, float, str)
-    ATTR_OPTIONAL_CIF = ("coefficient_mu", "coefficient_mu_half", "diffracted_beam",
+    ATTR_OPTIONAL_TYPES = (float, str, float, float, str)
+    ATTR_OPTIONAL_CIF = ("coefficient_mu", "diffracted_beam",
                          "correction_T_min", "correction_T_max", "process_details")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
@@ -67,7 +67,7 @@ class ExptlAbsorpt(ItemN):
     ATTR_CONSTR_MARK = tuple([f"{_h:}_mark" for _h in ATTR_REF])
 
     # formats if cif format
-    D_FORMATS = {"coefficient_mu": "{:.5f}", "coefficient_mu_half": "{:.5f}",
+    D_FORMATS = {"coefficient_mu": "{:.5f}",
                  "correction_t_min": "{:.4f}", "correction_t_max": "{:.4f}"}
 
     # constraints on the parameters
@@ -89,7 +89,7 @@ class ExptlAbsorpt(ItemN):
         super(ExptlAbsorpt, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"coefficient_mu": 0., "coefficient_mu_half": 0.,
+        D_MIN = {"coefficient_mu": 0.,
                  "correction_t_min": 0., "correction_t_max": 0.}
 
         # defined for ani integer and float parameters
@@ -108,8 +108,6 @@ class ExptlAbsorpt(ItemN):
             mu = float(self.coefficient_mu)
             res["absorption_mu"] = numpy.array([mu], dtype=float)
             res["flags_absorption_mu"] = numpy.array([self.coefficient_mu_refinement], dtype=bool)
-            if self.is_attribute("coefficient_mu_half") and mu > 0.:
-                res["absorption_mu_ratio_half"] = float(self.coefficient_mu_half) / mu
         if self.is_attribute("diffracted_beam"):
             res["absorption_diffracted_beam"] = str(self.diffracted_beam)
         return res

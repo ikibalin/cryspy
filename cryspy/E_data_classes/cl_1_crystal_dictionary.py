@@ -318,6 +318,7 @@ def form_crystal_dictionary(crystal, ddict):
             )
             ddict["atom_multiplicity"] = atom_multiplicity
         atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
+        ddict["atom_type_symbol"] = atom_type_symbol
         table_sthovl = numpy.copy(TABLE_STHOVL)
         d_dispersion = DATABASE["Dispersion"]
         table_wavelength = d_dispersion["table_wavelength"]

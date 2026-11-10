@@ -23,8 +23,9 @@ Linear absorption coefficient. mu = n (sigma_abs + sigma_scat) for the
 number density n of the atoms; sigma_abs is tabulated for 2200 m/s
 (1.798 Ang) and scales as 1/v (proportional to the wavelength), the bound
 scattering cross section sigma_scat does not depend on the wavelength
-(Sears, Neutron News 3 (1992) 26). The 1/v law is wrong for the nuclides with
-resonances at thermal energies (Cd, Sm, Eu, Gd, Dy, ...): give mu there.
+(Sears, Neutron News 3 (1992) 26). mu is calculated from the composition of the
+measured crystal; the 1/v law is wrong for the nuclides with resonances at
+thermal energies (Cd, Sm, Eu, Gd, Dy, ...): give mu there.
 
 Units: mu in 1/mm, sizes of the crystal in mm, wavelength in Ang,
 angles in degrees.
@@ -116,6 +117,36 @@ def calc_absorption_coefficients_by_composition(
     n_sigma_scat = float((numbers_in_cell * sigma[:, 1]).sum()) / volume_cell * 0.1
     mu_abs = n_sigma_abs * wavelength / WAVELENGTH_TABULATED
     return mu_abs, n_sigma_scat
+
+
+def calc_absorption_coefficients_by_dictionary(dict_crystal: dict, wavelength: float):
+    """mu of the crystal at the wavelength and at half of it from the
+    composition of a crystal dictionary (Crystal.get_dictionary).
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Keys 'atom_type_symbol', 'atom_multiplicity', 'atom_occupancy' and
+        'unit_cell_parameters' (a, b, c in Ang, angles in radians).
+    wavelength : float
+        Wavelength, Ang.
+
+    Returns
+    -------
+    None or (mu, mu_half)
+        1/mm; None when the dictionary has no atoms. At lambda/2 the true
+        absorption halves (1/v law), the scattering part stays.
+    """
+    keys = ("atom_type_symbol", "atom_multiplicity", "atom_occupancy", "unit_cell_parameters")
+    if dict_crystal is None or not all(key in dict_crystal for key in keys):
+        return None
+    from cryspy.A_functions_base.unit_cell import calc_volume_uc_by_unit_cell_parameters
+    volume = float(calc_volume_uc_by_unit_cell_parameters(dict_crystal["unit_cell_parameters"])[0])
+    numbers = numpy.asarray(dict_crystal["atom_multiplicity"], dtype=float) * \
+        numpy.asarray(dict_crystal["atom_occupancy"], dtype=float)
+    mu_abs, mu_scat = calc_absorption_coefficients_by_composition(
+        [str(symbol) for symbol in dict_crystal["atom_type_symbol"]], numbers, volume, wavelength)
+    return mu_abs + mu_scat, 0.5 * mu_abs + mu_scat
 
 
 def take_resonant_elements(type_symbols) -> list:
@@ -358,9 +389,14 @@ def calc_transmission_sphere_zero_angle(mu_radius):
 def calc_transmission_by_dictionary(
         dict_diffrn: dict, index_hkl, unit_cell_parameters, wavelength,
         flag_half_wavelength: bool = False, d_parameter: dict = None,
-        flag_warn: bool = True):
+        flag_warn: bool = True, dict_crystal: dict = None):
     """Transmission factor of the measured reflections of a diffrn
     dictionary, or None when absorption is not corrected.
+
+    mu is calculated from the composition of the measured crystal
+    (dict_crystal, the phase of the experiment); 'absorption_mu' of the
+    experiment, when given, replaces it (resonant absorbers). mu at lambda/2
+    follows by the ratio of the composition.
 
     Parameters
     ----------
@@ -381,6 +417,8 @@ def calc_transmission_by_dictionary(
         Values replacing those of dict_diffrn (for numerical derivatives).
     flag_warn : bool
         Warn about doubtful input (False for repeated calls).
+    dict_crystal : dict, optional
+        Dictionary of the measured crystal, for mu from its composition.
 
     Returns
     -------
@@ -390,19 +428,39 @@ def calc_transmission_by_dictionary(
     correction_type = dict_diffrn.get("absorption_correction_type", "none")
     if correction_type not in ("sphere", "gaussian"):
         return None
-    if "absorption_mu" not in dict_diffrn:
-        if flag_warn:
-            warnings.warn(
-                f"Absorption correction '{correction_type:}' is not applied: give "
-                "_exptl_absorpt_coefficient_mu or calculate it (calc_absorption_coefficient).",
-                UserWarning, stacklevel=2)
-        return None
     d_value = dict(dict_diffrn)
     if d_parameter is not None:
         d_value.update(d_parameter)
-    # the minimizer of the refinement may try negative values: the
-    # transmission depends on |mu| and on the lengths of the axes only
-    mu = abs(float(numpy.atleast_1d(d_value["absorption_mu"])[0]))
+    wavelength_mean = float(numpy.mean(wavelength))
+    try:
+        mu_composition = calc_absorption_coefficients_by_dictionary(dict_crystal, wavelength_mean)
+    except ValueError as error:
+        if "absorption_mu" not in d_value:
+            raise ValueError(f"Absorption: mu is not calculated from the crystal ({error:}).") from error
+        mu_composition = None
+    if "absorption_mu" in d_value:
+        # the minimizer of the refinement may try negative values: the
+        # transmission depends on |mu| and on the lengths of the axes only
+        mu = abs(float(numpy.atleast_1d(d_value["absorption_mu"])[0]))
+    elif mu_composition is not None:
+        mu = mu_composition[0]
+        if flag_warn:
+            l_resonant = take_resonant_elements(dict_crystal["atom_type_symbol"])
+            if l_resonant:
+                warnings.warn(
+                    "Absorption: mu from the composition follows the 1/v law, which is wrong for " +
+                    ", ".join(l_resonant) + "; give _exptl_absorpt_coefficient_mu at this wavelength.",
+                    UserWarning, stacklevel=2)
+    else:
+        if flag_warn:
+            warnings.warn(
+                f"Absorption correction '{correction_type:}' is not applied: no crystal structure "
+                "of the phase to calculate mu (or give _exptl_absorpt_coefficient_mu).",
+                UserWarning, stacklevel=2)
+        return None
+    ratio_half = 1.
+    if mu_composition is not None and mu_composition[0] > 0.:
+        ratio_half = mu_composition[1] / mu_composition[0]
     if correction_type == "sphere":
         if "absorption_radius" not in d_value:
             raise ValueError("Absorption correction 'sphere': give the radius of the crystal "
@@ -432,11 +490,10 @@ def calc_transmission_by_dictionary(
                 f"Absorption: mu R = {mu * semi_axes.max():.3g} is large; the numerical "
                 "transmission is accurate to about 1 % up to mu R = 4 only.",
                 UserWarning, stacklevel=2)
-        if flag_half_wavelength and "absorption_mu_ratio_half" not in dict_diffrn:
+        if flag_half_wavelength and mu_composition is None:
             warnings.warn(
-                "Absorption with lambda/2 contamination: _exptl_absorpt_coefficient_mu_half is "
-                "not given, mu at lambda/2 is taken equal to mu (calc_absorption_coefficient "
-                "calculates it).", UserWarning, stacklevel=2)
+                "Absorption with lambda/2 contamination: no crystal structure, mu at lambda/2 is "
+                "taken equal to mu.", UserWarning, stacklevel=2)
     from cryspy.A_functions_base.unit_cell import (
         calc_eq_ccs_by_unit_cell_parameters, calc_sthovl_by_unit_cell_parameters)
     sthovl = calc_sthovl_by_unit_cell_parameters(index_hkl, unit_cell_parameters)[0]
@@ -461,7 +518,7 @@ def calc_transmission_by_dictionary(
     transmission_half = None
     if flag_half_wavelength:
         # mu_abs is proportional to the wavelength, the scattering part is not
-        mu_half = mu * float(dict_diffrn.get("absorption_mu_ratio_half", 1.))
+        mu_half = mu * ratio_half
         transmission_half = calc_transmission_ellipsoid(
             mu_half, semi_axes, matrix_axes, e_in, e_out, rule)
     return transmission, transmission_half
@@ -473,7 +530,8 @@ L_ABSORPTION_PARAMETERS = ("absorption_mu", "absorption_radius", "absorption_siz
 
 def calc_transmission_derivatives_by_dictionary(
         dict_diffrn: dict, index_hkl, unit_cell_parameters, wavelength,
-        flag_half_wavelength: bool = False, step_relative: float = 1e-4) -> dict:
+        flag_half_wavelength: bool = False, step_relative: float = 1e-4,
+        dict_crystal: dict = None) -> dict:
     """Numerical derivatives of the transmission over the refined
     parameters of the absorption correction: {name: (der, der_half)},
     arrays (n, n_component), for the names of L_ABSORPTION_PARAMETERS with
@@ -499,7 +557,8 @@ def calc_transmission_derivatives_by_dictionary(
                 l_res.append(calc_transmission_by_dictionary(
                     dict_diffrn, index_hkl, unit_cell_parameters, wavelength,
                     flag_half_wavelength=flag_half_wavelength,
-                    d_parameter={name: value_shift}, flag_warn=False))
+                    d_parameter={name: value_shift}, flag_warn=False,
+                    dict_crystal=dict_crystal))
             der[:, i_comp] = (l_res[0][0] - l_res[1][0]) / (2. * step)
             if flag_half_wavelength:
                 der_half[:, i_comp] = (l_res[0][1] - l_res[1][1]) / (2. * step)

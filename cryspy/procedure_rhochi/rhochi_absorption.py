@@ -27,7 +27,7 @@ from cryspy.A_functions_base.database import DATABASE
 from cryspy.A_functions_base.unit_cell import (
     calc_eq_ccs_by_unit_cell_parameters, calc_sthovl_by_unit_cell_parameters)
 from cryspy.B_parent_classes.cl_4_global import GlobalN
-from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt, ExptlCrystal
+from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.E_data_classes.cl_2_diffrn import Diffrn
 from cryspy.procedure_rhochi.rhochi_diffrn import calc_chi_sq_for_diffrn_by_dictionary
@@ -90,14 +90,16 @@ def calc_absorption_coefficient_of_crystal(crystal: Crystal, wavelength: float) 
 
 
 def calc_absorption_coefficient(rcif_object: GlobalN, experiment: str = ""):
-    """Calculate the linear absorption coefficient mu of single crystal
-    experiments from the crystal structure and write it to exptl_absorpt.
+    """Report the linear absorption coefficient mu of single crystal
+    experiments, calculated from the measured crystal (phase of the
+    experiment).
 
     mu = n (sigma_abs + sigma_scat): the absorption cross sections at
     1.798 A scaled as 1/v to the wavelength of the experiment and the bound
     scattering cross sections (Sears 1992), n from the atoms of atom_site
-    (multiplicity x occupancy) and the unit cell. The density is written to
-    exptl_crystal.density_diffrn.
+    (multiplicity x occupancy) and the unit cell. The refinement and MEM
+    calculate it in the same way; _exptl_absorpt_coefficient_mu, when
+    given, replaces it. Nothing in the object is changed.
 
     Parameters
     ----------
@@ -109,7 +111,7 @@ def calc_absorption_coefficient(rcif_object: GlobalN, experiment: str = ""):
     Returns
     -------
     str
-        mu, its parts and the density of every experiment.
+        mu, its parts, mu at lambda/2 and the density of every experiment.
     """
     ls_out = []
     for diffrn in take_diffrn_experiments(rcif_object, experiment):
@@ -118,25 +120,12 @@ def calc_absorption_coefficient(rcif_object: GlobalN, experiment: str = ""):
             ls_out.append(f"{diffrn.data_name:}: no crystal structure, mu is not calculated.")
             continue
         d_mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))
-        set_absorption_coefficient(diffrn, d_mu)
-        ls_out.append(format_absorption_coefficient(diffrn, d_mu))
+        s_line = format_absorption_coefficient(diffrn, d_mu)
+        if take_mu_given(diffrn) is not None:
+            s_line += (f" The given _exptl_absorpt_coefficient_mu = {take_mu_given(diffrn):.4g} 1/mm "
+                       "replaces it.")
+        ls_out.append(s_line)
     return "\n".join(ls_out)
-
-
-def set_absorption_coefficient(diffrn: Diffrn, d_mu: dict):
-    if not diffrn.is_attribute("exptl_absorpt"):
-        diffrn.add_items([ExptlAbsorpt(correction_type="none")])
-    exptl_absorpt = diffrn.exptl_absorpt
-    exptl_absorpt.coefficient_mu = round(d_mu["mu"], 6)
-    exptl_absorpt.coefficient_mu_half = round(d_mu["mu_half"], 6)
-    s_details = ("mu calculated by CrysPy from the composition: sigma_abs (1/v law) + "
-                 "bound scattering cross sections, Sears (1992)")
-    if d_mu["resonant"]:
-        s_details += "; 1/v is approximate for " + ", ".join(d_mu["resonant"])
-    exptl_absorpt.process_details = s_details
-    if not diffrn.is_attribute("exptl_crystal"):
-        diffrn.add_items([ExptlCrystal()])
-    diffrn.exptl_crystal.density_diffrn = round(d_mu["density"], 4)
 
 
 def format_absorption_coefficient(diffrn: Diffrn, d_mu: dict) -> str:
@@ -150,16 +139,11 @@ def format_absorption_coefficient(diffrn: Diffrn, d_mu: dict) -> str:
     return s_out
 
 
-def take_mu_half(exptl_absorpt, d_mu: dict = None) -> float:
-    """mu at lambda/2 (1/mm): coefficient_mu_half, or coefficient_mu
-    scaled by the ratio of the composition (the true absorption halves),
-    or coefficient_mu itself when the composition is unknown."""
-    mu = float(exptl_absorpt.coefficient_mu)
-    if exptl_absorpt.is_attribute("coefficient_mu_half"):
-        return float(exptl_absorpt.coefficient_mu_half)
-    if d_mu is not None and d_mu["mu"] > 0.:
-        return mu * d_mu["mu_half"] / d_mu["mu"]
-    return mu
+def take_mu_given(diffrn: Diffrn):
+    """_exptl_absorpt_coefficient_mu (1/mm) of the experiment, or None."""
+    if diffrn.is_attribute("exptl_absorpt") and diffrn.exptl_absorpt.is_attribute("coefficient_mu"):
+        return float(diffrn.exptl_absorpt.coefficient_mu)
+    return None
 
 
 def take_diffrn_experiments(rcif_object: GlobalN, experiment: str = "") -> list:
@@ -277,15 +261,13 @@ def test_absorption_anisotropy(intensity, sigma, groups, e_in, e_out) -> dict:
             "n_groups": len(l_group), "longest": eigenvectors[:, numpy.argmax(eigenvalues)]}
 
 
-def form_correction_dict(dict_diffrn: dict, correction_type: str, mu: float, mu_half: float,
+def form_correction_dict(dict_diffrn: dict, correction_type: str,
                          radius: float = None, sizes=None, euler=(0., 0., 0.)) -> dict:
     dict_out = copy.copy(dict_diffrn)
     for key in list(dict_out.keys()):
         if key.startswith("flags_absorption_"):
             dict_out[key] = numpy.zeros_like(dict_out[key], dtype=bool)
     dict_out["absorption_correction_type"] = correction_type
-    dict_out["absorption_mu"] = numpy.array([mu], dtype=float)
-    dict_out["absorption_mu_ratio_half"] = mu_half / mu if mu > 0 else 1.
     if radius is not None:
         dict_out["absorption_radius"] = numpy.array([radius], dtype=float)
     if sizes is not None:
@@ -314,13 +296,11 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
             d_mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))
         except (ValueError, KeyError, TypeError, AttributeError) as error:
             ls_line.append(f"mu is not calculated from the structure: {error:}")
-    mu, mu_half = None, None
-    if diffrn.is_attribute("exptl_absorpt") and diffrn.exptl_absorpt.is_attribute("coefficient_mu"):
-        mu = float(diffrn.exptl_absorpt.coefficient_mu)
-        mu_half = take_mu_half(diffrn.exptl_absorpt, d_mu)
-        ls_line.append(f"mu = {mu:.4g} 1/mm (given in exptl_absorpt), {mu_half:.4g} 1/mm at lambda/2.")
+    mu = take_mu_given(diffrn)
+    if mu is not None:
+        ls_line.append(f"mu = {mu:.4g} 1/mm (given in exptl_absorpt).")
     elif d_mu is not None:
-        mu, mu_half = d_mu["mu"], d_mu["mu_half"]
+        mu = d_mu["mu"]
         ls_line.append(format_absorption_coefficient(diffrn, d_mu).split(": ", 1)[1])
     d_res["mu"] = d_mu
     if d_mu is not None and d_mu["resonant"] and mu == d_mu["mu"]:
@@ -376,16 +356,16 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
     d_res["c_lambda2"] = c_lambda2
     flag_c_lambda2 = not numpy.isnan(c_lambda2) and c_lambda2 != 0.
 
-    l_model = [("sphere", form_correction_dict(dict_diffrn, "sphere", mu, mu_half, radius=radius))]
+    l_model = [("sphere", form_correction_dict(dict_diffrn, "sphere", radius=radius))]
     if sizes is not None and not numpy.allclose(sizes, sizes[0]):
         l_model.append(("ellipsoid", form_correction_dict(
-            dict_diffrn, "gaussian", mu, mu_half, sizes=sizes,
+            dict_diffrn, "gaussian", sizes=sizes,
             euler=exptl_crystal.get_euler_angles())))
     sigma = numpy.where(exp_sigma > 0, exp_sigma, numpy.inf)
     l_dchi = []
     for name, dict_model in l_model:
         model_a = calc_model_of_dict(dict_model, dict_crystal)[0]
-        transmission = calc_chi_sq_transmission(dict_model, unit_cell_parameters)
+        transmission = calc_chi_sq_transmission(dict_model, dict_crystal)
         if flag_fr:
             scale = 1.
         else:
@@ -450,10 +430,10 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
     return d_res
 
 
-def calc_chi_sq_transmission(dict_model: dict, unit_cell_parameters):
+def calc_chi_sq_transmission(dict_model: dict, dict_crystal: dict):
     return calc_transmission_by_dictionary(
-        dict_model, dict_model["index_hkl"], unit_cell_parameters,
-        dict_model.get("wavelength_hkl", dict_model["wavelength"]))[0]
+        dict_model, dict_model["index_hkl"], dict_crystal["unit_cell_parameters"],
+        dict_model.get("wavelength_hkl", dict_model["wavelength"]), dict_crystal=dict_crystal)[0]
 
 
 D_VERDICT = {
@@ -507,7 +487,8 @@ def apply_absorption_correction(rcif_object: GlobalN, correction_type: str = "ga
 
     The transmission factors of the crystal multiply the calculated
     intensities of the refinement (RhoChi) and of MEM. mu is calculated from
-    the crystal structure when exptl_absorpt has none. The sizes come from
+    the measured crystal (phase of the experiment) unless
+    _exptl_absorpt_coefficient_mu is given. The sizes come from
     exptl_crystal: size_rad for a sphere, size_max, size_mid, size_min and
     the Euler angles for an ellipsoid. T_min and T_max are reported.
 
@@ -547,31 +528,25 @@ def apply_absorption_correction(rcif_object: GlobalN, correction_type: str = "ga
                              "(size_rad, or size_max, size_mid, size_min in mm).")
         if correction_type == "sphere" and not exptl_crystal.is_attribute("size_rad"):
             exptl_crystal.size_rad = round(exptl_crystal.get_radius(), 4)
-        if exptl_absorpt.is_attribute("coefficient_mu") and \
-                not exptl_absorpt.is_attribute("coefficient_mu_half"):
-            crystal = take_crystal_of_diffrn(rcif_object, diffrn)
-            if crystal is not None:
-                d_mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))
-                exptl_absorpt.coefficient_mu_half = round(take_mu_half(exptl_absorpt, d_mu), 6)
-        if not exptl_absorpt.is_attribute("coefficient_mu"):
-            crystal = take_crystal_of_diffrn(rcif_object, diffrn)
-            if crystal is None:
-                raise ValueError(f"{diffrn.data_name:}: give _exptl_absorpt_coefficient_mu "
-                                 "(no crystal structure to calculate it).")
-            d_mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))
-            set_absorption_coefficient(diffrn, d_mu)
-            ls_out.append(format_absorption_coefficient(diffrn, d_mu))
+        crystal = take_crystal_of_diffrn(rcif_object, diffrn)
+        if crystal is None and take_mu_given(diffrn) is None:
+            raise ValueError(f"{diffrn.data_name:}: no crystal structure to calculate mu "
+                             "(or give _exptl_absorpt_coefficient_mu).")
         exptl_absorpt.correction_type = correction_type
         dict_global = rcif_object.get_dictionary()
-        crystal = take_crystal_of_diffrn(rcif_object, diffrn)
         if crystal is None:
             ls_out.append(f"{diffrn.data_name:}: correction '{correction_type:}' is set.")
             continue
-        unit_cell_parameters = dict_global[crystal.get_name()]["unit_cell_parameters"]
-        transmission = calc_chi_sq_transmission(dict_global[diffrn.get_name()], unit_cell_parameters)
+        dict_crystal = dict_global[crystal.get_name()]
+        transmission = calc_chi_sq_transmission(dict_global[diffrn.get_name()], dict_crystal)
         exptl_absorpt.correction_t_min = float(transmission.min())
         exptl_absorpt.correction_t_max = float(transmission.max())
-        ls_out.append(f"{diffrn.data_name:}: correction '{correction_type:}', mu = "
-                      f"{float(exptl_absorpt.coefficient_mu):.4g} 1/mm, transmission "
+        mu = take_mu_given(diffrn)
+        if mu is None:
+            mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))["mu"]
+            s_mu = f"mu = {mu:.4g} 1/mm (from the crystal)"
+        else:
+            s_mu = f"mu = {mu:.4g} 1/mm (given)"
+        ls_out.append(f"{diffrn.data_name:}: correction '{correction_type:}', {s_mu:}, transmission "
                       f"T_min = {transmission.min():.4f}, T_max = {transmission.max():.4f}.")
     return "\n".join(ls_out)

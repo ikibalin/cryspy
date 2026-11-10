@@ -390,7 +390,7 @@ def calc_preliminary_information_by_dictionary(
         # both intensities; they cancel in the flip ratios
         res_transmission = calc_transmission_by_dictionary(
             dict_diffrn, index_hkl, unit_cell_parameters,
-            dict_diffrn.get("wavelength_hkl", dict_diffrn["wavelength"]))
+            dict_diffrn.get("wavelength_hkl", dict_diffrn["wavelength"]), dict_crystal=dict_crystal)
         if res_transmission is not None:
             diffrn_dict_in_out["transmission"] = res_transmission[0]
             logger.info(

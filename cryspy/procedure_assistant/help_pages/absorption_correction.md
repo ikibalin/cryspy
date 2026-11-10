@@ -8,8 +8,6 @@ a single crystal experiment (`diffrn`), named as in the core CIF dictionary:
 
 ```
 _exptl_absorpt_correction_type gaussian
-_exptl_absorpt_coefficient_mu 0.0596
-_exptl_absorpt_coefficient_mu_half 0.0383
 
 _exptl_crystal_size_max 3.0
 _exptl_crystal_size_mid 1.0
@@ -21,10 +19,13 @@ _exptl_crystal_ellipsoid_euler_gamma 0.0
 
 - `correction_type`: `none`, `sphere` (radius `_exptl_crystal_size_rad`) or
   `gaussian` (ellipsoid, numerical Gaussian integration over its volume).
-- `coefficient_mu`: linear absorption coefficient in 1/mm (absorption and
-  scattering). Without it, `calc_absorption_coefficient` calculates it from
-  `atom_site` and the cell (1/v law; wrong for Gd, Sm, Eu, Cd, Dy: give mu).
-  `coefficient_mu_half` is mu at lambda/2, for the lambda/2 contamination.
+- mu, the linear absorption coefficient (1/mm, absorption and scattering),
+  is calculated from the measured crystal, the phase of the experiment
+  (`_phase_label`): its `atom_site` (multiplicity x occupancy) and cell, the
+  wavelength of `setup` (1/v law), and at lambda/2 for the lambda/2
+  contamination. `calc_absorption_coefficient` reports it. Give
+  `_exptl_absorpt_coefficient_mu` only to replace it: the 1/v law is wrong
+  for Gd, Sm, Eu, Cd, Dy, or a measured mu.
 - `size_max`, `size_mid`, `size_min`: full lengths of the axes of the
   ellipsoid in mm; the Euler angles (degrees, z-y-z) orient them in the
   Cartesian system x || a*, z || c. `ExptlCrystal.set_axes_by_directions`

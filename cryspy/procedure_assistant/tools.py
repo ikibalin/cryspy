@@ -868,8 +868,7 @@ def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",
                                      mu: Optional[float] = None, experiment: str = "") -> dict:
     from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt, ExptlCrystal
     from cryspy.procedure_rhochi.rhochi_absorption import (
-        apply_absorption_correction, calc_absorption_coefficient_of_crystal,
-        take_crystal_of_diffrn, take_diffrn_experiments)
+        apply_absorption_correction, take_diffrn_experiments)
     l_diffrn = take_diffrn_experiments(cryspy_object, experiment)
     if len(l_diffrn) == 0:
         return {"text": "Error: no single crystal experiment"
@@ -908,17 +907,8 @@ def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",
         if mu is not None:
             if not diffrn.is_attribute("exptl_absorpt"):
                 diffrn.add_items([ExptlAbsorpt(correction_type="none")])
+            # replaces mu from the composition (resonant absorbers, measured mu)
             diffrn.exptl_absorpt.coefficient_mu = float(mu)
-            crystal = take_crystal_of_diffrn(cryspy_object, diffrn)
-            d_mu = None
-            if crystal is not None:
-                try:
-                    d_mu = calc_absorption_coefficient_of_crystal(crystal, float(diffrn.setup.wavelength))
-                except (ValueError, KeyError, AttributeError):
-                    d_mu = None
-            # mu at lambda/2 by the ratio of the composition (the true absorption halves)
-            diffrn.exptl_absorpt.coefficient_mu_half = float(mu) * (
-                d_mu["mu_half"] / d_mu["mu"] if d_mu is not None and d_mu["mu"] > 0. else 1.)
         type_diffrn = correction_type
         if type_diffrn == "":
             sizes_diffrn = exptl_crystal.get_sizes()
@@ -1404,7 +1394,7 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "apply_absorption_correction",
         "Switch on the absorption correction of single crystal experiments (exptl_absorpt, "
         "exptl_crystal): a sphere or an ellipsoid of the given sizes; mu is calculated from the "
-        "structure when not given; asks the sizes of the crystal when they are unknown.",
+        "measured crystal (phase of the experiment); asks the sizes of the crystal when they are unknown.",
         tool_apply_absorption_correction,
         {"correction_type": {"type": "string", "enum": ["gaussian", "sphere", "none"],
                              "description": "'gaussian' (ellipsoid), 'sphere' or 'none' (switch "
@@ -1416,7 +1406,8 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                            "description": "Direction of the largest dimension, Cartesian x || a*, z || c."},
          "direction_mid": {"type": "array", "items": {"type": "number"},
                            "description": "Direction of the middle dimension."},
-         "mu": {"type": "number", "description": "Linear absorption coefficient, 1/mm."},
+         "mu": {"type": "number", "description": "Linear absorption coefficient, 1/mm; only to "
+                                         "replace mu calculated from the crystal (Gd, Sm, Eu, Cd, Dy)."},
          "experiment": {"type": "string",
                         "description": "Name of the experiment; empty for all single crystal ones."}},
         flag_object_changed=True),
