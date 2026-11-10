@@ -229,6 +229,18 @@ def find_warnings(d_metrics: dict, cryspy_object, flag_compare: bool = True) -> 
     return l_warning
 
 
+def find_stuck_at_zero(l_value_before: List[tuple], cryspy_object) -> List[str]:
+    """Refined parameters that were zero and stayed zero: their effect is
+    quadratic around zero (extinction radius and mosaicity, magnetic
+    moments, Fourier components), so the gradient is zero there and the
+    minimizer cannot move them. l_value_before: (path, value) of the
+    refined parameters before the refinement."""
+    d_after = {record.path: record.value for record in take_parameter_records(cryspy_object)
+               if record.flag_refinement}
+    return [path for path, value in l_value_before
+            if value == 0. and path in d_after and abs(d_after[path]) < 1e-12]
+
+
 def format_change(change: Optional[float]) -> str:
     if change is None:
         return ""
@@ -258,6 +270,8 @@ def format_metrics(d_metrics: dict, flag_undo_hint: bool = True) -> str:
             ls_out.append(f"R_F2 of {name:} = {r_f2:.4f}")
     for warning in d_metrics.get("warnings", []):
         ls_out.append(f"Warning: {warning:}")
+    for note in d_metrics.get("notes", []):
+        ls_out.append(f"Note: {note:}")
     if flag_undo_hint and len(d_metrics.get("warnings", [])) > 0:
         ls_out.append("undo_refinement returns the parameters before this refinement.")
     return "\n".join(ls_out)

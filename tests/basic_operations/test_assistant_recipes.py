@@ -163,3 +163,34 @@ def test_run_recipe_reports_each_step():
     l_step = []
     result = cryspy.run_recipe(obj, "refine_structure", callback=lambda *args: l_step.append(args))
     assert [args[:2] for args in l_step] == [(name, status) for name, status, _ in result["steps"]]
+
+
+def test_condition_with_kinds_of_experiments():
+    from cryspy.procedure_assistant.recipes import check_condition_kinds, take_condition_kinds
+    assert take_condition_kinds("powder_1d or tof; remark") == [("powder_1d",), ("tof",)]
+    assert take_condition_kinds("single_crystal, unpolarized") == [("single_crystal", "unpolarized")]
+    assert take_condition_kinds("the user asks for occupancies") is None
+    obj = cryspy.str_to_globaln(RCIF)  # no experiments
+    assert check_condition_kinds(obj, "powder_1d or tof") is False
+    assert check_condition_kinds(obj, "peaks are shifted") is None
+
+
+def test_set_start_values_only_for_zero_parameters():
+    obj = cryspy.str_to_globaln(RCIF)
+    call = cryspy.call_assistant_tool
+    text = call(obj, "set_parameter", {"path": "b_iso", "value": 0.4, "if_zero": True})["text"]
+    assert "No parameter matching 'b_iso' is zero" in text
+    call(obj, "set_parameter", {"path": "atom_site[O].b_iso_or_equiv", "value": 0.})
+    text = call(obj, "set_parameter", {"path": "b_iso", "value": 0.4, "if_zero": True})["text"]
+    assert "Start value 0.4 set for 1 parameters" in text and "1 non-zero values kept" in text
+    assert obj.crystal_fe.atom_site["O"].b_iso_or_equiv == 0.4
+    assert obj.crystal_fe.atom_site["Fe"].b_iso_or_equiv == 0.3
+
+
+def test_parameters_stuck_at_zero_are_named():
+    from cryspy.procedure_assistant.history import find_stuck_at_zero
+    obj = cryspy.str_to_globaln(RCIF)
+    cryspy.call_assistant_tool(obj, "set_parameter", {"path": "atom_site[O].b_iso_or_equiv", "value": 0.})
+    cryspy.call_assistant_tool(obj, "refine_parameters", {"pattern": "b_iso"})
+    l_before = [("crystal_fe.atom_site[O].b_iso_or_equiv", 0.), ("crystal_fe.atom_site[Fe].b_iso_or_equiv", 0.3)]
+    assert find_stuck_at_zero(l_before, obj) == ["crystal_fe.atom_site[O].b_iso_or_equiv"]

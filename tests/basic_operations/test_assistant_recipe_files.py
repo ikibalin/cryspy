@@ -140,7 +140,11 @@ def test_suggest_by_kinds_most_specific_first():
     assert "refine_structure" not in l_name  # it is for unpolarized data
     assert "choose_recipes" not in l_name  # 'any': never suggested for an experiment
     l_name = [recipe.name for recipe in recipes.suggest_recipes(["powder", "powder_1d", "unpolarized", "nuclear"])]
-    assert l_name == ["refine_structure"]
+    assert l_name == ["refine_powder", "refine_structure"]
+    l_name = [recipe.name for recipe in recipes.suggest_recipes(["powder", "powder_1d", "polarized", "nuclear"])]
+    assert l_name == ["refine_polarized_powder"]
+    l_name = [recipe.name for recipe in recipes.suggest_recipes(["tof", "unpolarized", "magnetic"])]
+    assert l_name[:2] == ["refine_magnetic_structure", "refine_tof"]
 
 
 def test_set_chi_type_and_kappa_warning():

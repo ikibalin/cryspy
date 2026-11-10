@@ -54,7 +54,8 @@ from cryspy.procedure_assistant.methods import (
     describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
     take_methods, score_method, take_request_words)
 from cryspy.procedure_assistant.history import (
-    form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
+    find_stuck_at_zero, form_metrics, format_metrics, keep_checkpoint, keep_snapshot,
+    restore_snapshot, take_history)
 from cryspy.procedure_assistant import recipes
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
@@ -302,7 +303,27 @@ def tool_fix_parameters(cryspy_object, pattern: str = "") -> str:
     return "Fixed:\n" + "\n".join(record.path for record in l_record)
 
 
-def tool_set_parameter(cryspy_object, path: str, value: float) -> str:
+def set_zero_parameters(cryspy_object, path: str, value: float) -> str:
+    """Start values: every free parameter matching the pattern that is zero
+    gets the value; the others keep theirs."""
+    l_record = [record for record in find_parameter_records(cryspy_object, path)
+                if not record.flag_constraint]
+    if len(l_record) == 0:
+        return form_no_match_error(cryspy_object, path)
+    l_set = [record for record in l_record if record.value == 0.]
+    for record in l_set:
+        record.set_value(value)
+    s_kept = (f"; {len(l_record) - len(l_set):} non-zero values kept"
+              if len(l_set) < len(l_record) else "")
+    if len(l_set) == 0:
+        return f"No parameter matching '{path:}' is zero: all {len(l_record):} values are kept."
+    return (f"Start value {format_value(value):} set for {len(l_set):} parameters "
+            f"({', '.join(record.path for record in l_set[:10])}){s_kept:}.")
+
+
+def tool_set_parameter(cryspy_object, path: str, value: float, if_zero: bool = False) -> str:
+    if if_zero:
+        return set_zero_parameters(cryspy_object, path, value)
     record = take_parameter_record(cryspy_object, path)
     if record is None:
         l_record = find_parameter_records(cryspy_object, path)
@@ -436,6 +457,8 @@ def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Calla
             return {"text": s_marked}
     history = take_history(cryspy_object)
     d_last = {}  # the last iteration of the minimizer: chi_sq and the number of points
+    l_value_before = [(record.path, record.value) for record in take_parameter_records(cryspy_object)
+                      if record.flag_refinement]
 
     def callback(info: dict):
         d_last.update(info)
@@ -454,12 +477,74 @@ def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Calla
                              d_previous=history.d_metrics)
     if "n_point" in d_metrics:
         result = dict(result, n_point=d_metrics["n_point"])
+    l_stuck = find_stuck_at_zero(l_value_before, cryspy_object)
+    if l_stuck:
+        d_metrics["notes"] = [
+            "These parameters stayed exactly 0: at 0 their effect and its gradient vanish "
+            "(extinction radius and mosaicity, magnetic moments), so the refinement cannot move "
+            "them; set a start value first (set_parameter, e.g. radius 30, mosaicity 60, "
+            "moment 1): " + ", ".join(l_stuck[:10]) + "."]
     keep_checkpoint(cryspy_object, d_metrics)
     s_title = "Refinement stopped by the user." if result.get("stopped", False) else "Refinement finished."
     text = form_calculation_text(s_title, result, cryspy_object, d_metrics)
     if s_marked != "":
         text = f"{s_marked:}\n{text:}"
     return {"text": text, "metrics": d_metrics}
+
+
+def tool_diagnose_fit(cryspy_object, experiment: str = "") -> str:
+    from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    from cryspy.procedure_assistant.diagnostics import diagnose_object
+    rhochi_no_refinement(cryspy_object)  # the calculated data of the present parameters
+    return diagnose_object(cryspy_object, experiment)
+
+
+MAX_SCAN_POINTS = 41
+
+
+def tool_scan_parameter(cryspy_object, path: str, start: float, stop: float,
+                        n_point: int = 21) -> dict:
+    """chi_sq/n on a grid of values of one parameter; the best value is
+    kept (undo_refinement returns the old one). A refinement finds only the
+    nearest minimum: a zero shift or a cell parameter far from the truth,
+    or a start value of the extinction, is found by the scan."""
+    from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    from cryspy.procedure_assistant.parameters import take_parameter_record
+    record = take_parameter_record(cryspy_object, path)
+    if record is None:
+        return {"text": form_no_match_error(cryspy_object, path)}
+    n_point = int(min(max(int(n_point), 3), MAX_SCAN_POINTS))
+    history = take_history(cryspy_object)
+    keep_snapshot(cryspy_object)
+    # the present value is a candidate too: the scan never makes the fit worse
+    l_value = numpy.append(numpy.linspace(float(start), float(stop), n_point), float(record.value))
+    l_chi_sq_per_n = []
+    for value in l_value:
+        record.set_value(value)
+        result = rhochi_no_refinement(cryspy_object)
+        l_chi_sq_per_n.append(result["chi_sq"] / max(result["n_point"], 1))
+    chi_sq_per_n = numpy.array(l_chi_sq_per_n, dtype=float)
+    chi_sq_per_n[~numpy.isfinite(chi_sq_per_n)] = numpy.inf
+    i_best = int(numpy.argmin(chi_sq_per_n))
+    record.set_value(l_value[i_best])
+    result = rhochi_no_refinement(cryspy_object)
+    d_metrics = form_metrics(result, cryspy_object, d_previous=history.d_metrics)
+    keep_checkpoint(cryspy_object, d_metrics)
+    l_index = sorted(set(numpy.linspace(0, n_point - 1, 7).round().astype(int)) | {i_best} - {n_point})
+    ls_out = [f"Scan of {record.path:} from {l_value[0]:.6g} to {l_value[n_point - 1]:.6g} ({n_point:} values):",
+              ", ".join(f"{l_value[i]:.6g}: {chi_sq_per_n[i]:.5g}" for i in l_index) + " (value: chi_sq/n)"]
+    if i_best == n_point:
+        ls_out.append(f"The present value {l_value[i_best]:.6g} (chi_sq/n = {chi_sq_per_n[i_best]:.5g}) "
+                      "is better than every value of the scan: it is kept.")
+    else:
+        ls_out.append(f"Best value {l_value[i_best]:.6g} (chi_sq/n = {chi_sq_per_n[i_best]:.5g}) is set; "
+                      "refine it next to find the exact minimum.")
+    if i_best in (0, n_point - 1):
+        ls_out.append("The best value is at the end of the range: scan a wider range in that direction.")
+    s_metrics = format_metrics(d_metrics, flag_undo_hint=False)
+    if s_metrics:
+        ls_out.append(s_metrics)
+    return {"text": "\n".join(ls_out), "metrics": d_metrics}
 
 
 def tool_undo_refinement(cryspy_object) -> dict:
@@ -1029,11 +1114,35 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         flag_object_changed=True),
     AssistantTool(
         "set_parameter",
-        "Set the value of one parameter.",
+        "Set the value of one parameter; with if_zero, a start value for every parameter "
+        "matching the pattern that is zero (e.g. extinction radius, magnetic moments).",
         tool_set_parameter,
         {"path": {"type": "string", "description": S_PATH},
-         "value": {"type": "number", "description": "New value."}},
+         "value": {"type": "number", "description": "New value."},
+         "if_zero": {"type": "boolean", "description":
+                     "Set only the parameters matching the pattern whose value is 0."}},
         required=("path", "value"), flag_object_changed=True),
+    AssistantTool(
+        "diagnose_fit",
+        "What is wrong in the fit, read from the residuals of every experiment, one line per "
+        "finding with a keyword: SHIFT (peak positions: zero shift or cell), WIDTH (profile), "
+        "SCALE, INTENSITY_TREND (displacement parameters), INTENSITY_SCATTER (structure), "
+        "EXTINCTION, BACKGROUND, UNEXPLAINED_PEAK (impurity, magnetic peaks), WORST "
+        "reflections, DATA (reflections per parameter). Use it to choose the next step.",
+        tool_diagnose_fit,
+        {"experiment": {"type": "string", "description": "Name of one experiment; all if empty."}}),
+    AssistantTool(
+        "scan_parameter",
+        "Calculate chi_sq/n for n_point values of one parameter from start to stop "
+        "and keep the best value; for a parameter far from its minimum, where refine "
+        "fails (zero shift, a cell parameter, a start value of extinction radius or "
+        "mosaicity). undo_refinement returns the old value.",
+        tool_scan_parameter,
+        {"path": {"type": "string", "description": "Path of one parameter from list_parameters."},
+         "start": {"type": "number", "description": "First value."},
+         "stop": {"type": "number", "description": "Last value."},
+         "n_point": {"type": "integer", "description": f"Number of values (3 to {MAX_SCAN_POINTS:})."}},
+        required=("path", "start", "stop"), flag_object_changed=True),
     AssistantTool(
         "list_attributes",
         "List all attributes of the object (also text ones such as "

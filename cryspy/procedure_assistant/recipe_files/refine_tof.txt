@@ -1,0 +1,27 @@
+# Time-of-flight powder: dtt1 and dtt2 come from the calibration with a standard; dtt1 is
+# fully correlated with the cell and is never refined with it.
+Recipe refine_tof: Refinement of a time-of-flight powder pattern
+Requests: refine the TOF data, time of flight Rietveld refinement
+For: tof, unpolarized
+
+1. start: Fix all, calculate and read the misfit.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error.
+2. scale: Scale factor alone.
+   Actions: refine_parameters {"pattern": "scale"}; refine
+   Otherwise: Stop: without the scale nothing else can be refined.
+3. background: Background coefficients with the scale.
+   Actions: refine_parameters {"pattern": "tof_background"}; refine
+4. zero: Zero of the time scale (not dtt1, dtt2).
+   Actions: refine_parameters {"pattern": "tof_parameters.zero"}; refine
+5. cell: Unit cell parameters.
+   Actions: refine_parameters {"pattern": "unit cell"}; refine
+6. width: Peak width: sigma1 first, then sigma2; alpha and beta of the instrument stay fixed.
+   Actions: refine_parameters {"pattern": "tof_profile.sigma1"}; refine; refine_parameters {"pattern": "tof_profile.sigma2"}; refine
+7. atoms: The atoms.
+   Actions: use_recipe {"name": "refine_atoms"}
+8. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: chi_sq/n at the start and at the end, the steps done, skipped and undone with the reason, and the findings of diagnose_fit that remain.

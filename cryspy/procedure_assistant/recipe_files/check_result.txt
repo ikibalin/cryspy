@@ -1,0 +1,15 @@
+# Brick: the checks at the end of a refinement recipe.
+Recipe check_result: Check the result of a refinement
+Requests: check the refinement, is the fit good, what is still wrong
+For: any
+
+1. diagnose: Read the residuals of every experiment.
+   Actions: diagnose_fit
+   Success: only FIT (and maybe WORST with |z| < 5) is reported.
+   Otherwise: Report every keyword found with the step it calls for: SHIFT → offset_ttheta or cell, WIDTH → profile, BACKGROUND → background, EXTINCTION → extinction, INTENSITY_TREND → displacement parameters, INTENSITY_SCATTER or UNEXPLAINED_PEAK → the model (atoms, impurity phase, magnetic structure) for the user to decide.
+2. values: The refined values with sigmas: a sigma larger than the value means the data do not define the parameter; refined occupancies and displacement parameters must be physical.
+   Actions: list_parameters {"refined_only": true}
+   Success: every refined value is larger than its sigma and physical.
+   Otherwise: Name the parameters to fix (fix_parameters with their paths) and why.
+
+Final answer: chi_sq/n, the findings of diagnose_fit with the next steps they call for, and the badly defined parameters.

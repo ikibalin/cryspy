@@ -1,0 +1,29 @@
+# Rietveld refinement of a 1D constant-wavelength powder pattern. Order after McCusker et al.,
+# J. Appl. Cryst. 32 (1999) 36 and Toby, J. Appl. Cryst. 57 (2024) 175: what changes every
+# point first (scale, background), then the peak positions, the peak shape, the atoms last.
+Recipe refine_powder: Rietveld refinement of a powder pattern
+Requests: refine the powder pattern, Rietveld refinement, fit the powder data
+For: powder_1d, unpolarized
+
+1. start: Fix all, calculate and read the misfit. A SHIFT larger than the peak width: scan_parameter of setup.offset_ttheta (about ±0.5°) or of the cell length before any refinement.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error: the model or the data must be corrected first.
+2. scale: Scale factor alone.
+   Actions: refine_parameters {"pattern": "scale"}; refine
+   Otherwise: Stop: without the scale nothing else can be refined.
+3. background: Intensities of the background points with the scale, estimated first from the misfit. An experiment without background points gets them by call_method {"method": "define_background_points", "step_ttheta": 2} (one point per measured 2theta: many parameters).
+   Actions: refine_parameters {"pattern": "pd_background"}; call_method {"method": "estimate_background"}; refine
+4. zero: Zero shift alone (never together with offset_sycos or offset_sysin, which move the peaks the same way).
+   Actions: refine_parameters {"pattern": "offset_ttheta"}; refine
+5. cell: Unit cell parameters (never with the wavelength).
+   Actions: refine_parameters {"pattern": "unit cell"}; refine
+6. width: Peak width: W, then U and V. U, V, W are often known from a standard; then refine only the size broadening phase.igsize.
+   Actions: refine_parameters {"pattern": "pd_instr_resolution.w"}; refine; refine_parameters {"pattern": "pd_instr_resolution.u, pd_instr_resolution.v"}; refine
+   Otherwise: undo_refinement (U, V, W correlate strongly) and keep W only.
+7. atoms: The atoms.
+   Actions: use_recipe {"name": "refine_atoms"}
+8. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: chi_sq/n at the start and at the end, the steps done, skipped and undone with the reason, and the findings of diagnose_fit that remain.

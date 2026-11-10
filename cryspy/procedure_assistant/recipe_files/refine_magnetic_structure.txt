@@ -1,0 +1,22 @@
+# Magnetic structure on unpolarized data with a magnetic space group (mcif, k = 0 or a
+# supercell). Intensities go as M^2: moments at 0 have zero gradient and get start values.
+Recipe refine_magnetic_structure: Refinement of a magnetic structure (magnetic space group)
+Requests: refine the magnetic moments, refine the magnetic structure, fit the magnetic reflections
+For: magnetic, unpolarized
+
+1. start: Fix all, calculate and read the misfit.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error.
+2. nuclear: The scale, the peak positions and shapes (powder) or the extinction (single crystal) of the nuclear structure, as in the recipe for the experiment; the nuclear part is fixed afterwards.
+   Actions: refine_parameters {"pattern": "scale"}; refine
+3. moments: Moments of the magnetic atoms from 1 μB where they are zero; components forbidden by the magnetic symmetry stay zero by themselves. Do not refine displacement parameters or occupancies together with the moments.
+   Actions: set_parameter {"path": "atom_site_moment", "value": 1, "if_zero": true}; refine_parameters {"pattern": "atom_site_moment"}; refine
+4. size: The size of the moments: report_magnetic_moments or list_parameters; a moment larger than g·J of the free ion (e.g. 5 μB for Fe3+, 10 μB for Ho3+) is unphysical.
+   Actions: list_parameters {"pattern": "atom_site_moment"}
+   Success: every moment is below g·J of its ion.
+   Otherwise: Tell the user: the magnetic model (symmetry, k) or the scale is probably wrong.
+5. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: chi_sq/n at the start and at the end, the moments with sigmas and their size, the steps done, skipped and undone with the reason.

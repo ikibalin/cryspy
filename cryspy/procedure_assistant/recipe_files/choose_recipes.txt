@@ -1,14 +1,16 @@
-# The recipe that chooses the recipes for the experiments of the object.
-Recipe choose_recipes: Choose the recipes for the experiments of the object
-Requests: analyse the data, refine everything, what should I do with these data, which recipe to use
+# Entry point for "analyse / fit all my data": one recipe per experiment, in a sensible order.
+Recipe choose_recipes: Choose and run the recipes for all experiments of the object
+Requests: analyse the data, fit the data, refine everything, what should I do with these data, which recipe to use
 For: any
 
-1. kinds: Find the kind of every experiment (single crystal, powder, flip ratios, polarized or not) and of its crystals (nuclear or magnetic space group), and the recipes for them.
+1. kinds: Find the kind of every experiment and its recipe.
    Actions: suggest_recipes
    Success: every experiment has a recipe.
    Otherwise: Tell the user which experiments have no recipe; go on with the others.
-2. run: Take the steps of the first suggested recipe (get_recipe) and follow them; then the next recipe. Experiments with the same recipe are refined together in one run of it.
-   Success: every suggested recipe is done.
-   Otherwise: Report the recipe that stopped and why.
+2. order: Order the recipes: unpolarized before polarized, nuclear structure before the magnetic one, powder or single crystal before flip ratios of the same crystal. Experiments sharing a crystal are refined together in one run of their recipe.
+   Success: an ordered list of recipes.
+3. run: Run the recipes in this order (get_recipe, then its steps). After each recipe fix all parameters (fix_parameters) before the next one, so that a later recipe refines only its own parameters.
+   Success: every recipe is done.
+   Otherwise: Report the recipe that stopped and why; go on with the next.
 
-Final answer: for every experiment its kind, the recipe used and its result (chi_sq/n at the start and at the end), and the experiments without a recipe.
+Final answer: for every experiment its kind, the recipe used and chi_sq/n at the start and at the end, and the experiments without a recipe.

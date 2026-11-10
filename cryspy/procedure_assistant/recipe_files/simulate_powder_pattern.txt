@@ -1,0 +1,13 @@
+# Simulation of a neutron powder pattern of a crystal, from COD when the object has none.
+Recipe simulate_powder_pattern: Simulation of a powder pattern
+Requests: simulate a powder pattern, calculate a diffraction pattern, what would the powder pattern look like
+For: any
+
+1. crystal: A crystal structure: the crystal of the object, or from the Crystallography Open Database (ask the user for the formula or the COD id when the object has no crystal).
+   When: the object has no crystal
+   Actions: ask_user {"question": "Which compound: the chemical formula or the COD id?"}; add_crystal_from_cod
+2. simulate: The unpolarized neutron powder pattern; the wavelength and the 2theta range are asked from the user.
+   Actions: run_procedure {"name": "simulation_unpolarized_neutron_powder_diffraction"}
+   Success: a new powder experiment with the calculated pattern.
+
+Final answer: the crystal used, the wavelength and the 2theta range, and the name of the new experiment.
