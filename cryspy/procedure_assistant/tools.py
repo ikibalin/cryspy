@@ -517,6 +517,8 @@ def tool_save_recipe(cryspy_object, text: str, **answers) -> str:
 
 ANSWER_PREFIX = "answer_"
 MAX_USER_QUESTIONS = 5
+# answers of one question shown as buttons
+MAX_USER_OPTIONS = 5
 
 
 def take_option(answer, l_option: List[str]):
@@ -548,6 +550,8 @@ def tool_ask_user(cryspy_object, question: str = "", questions: Optional[List[st
             d_missing = {"name": name, "type": "string",
                          "question": text if text.endswith("?") else f"{text:}?"}
             if l_option:
+                # shown as buttons by the programs; the hint for older ones
+                d_missing["options"] = l_option[:MAX_USER_OPTIONS]
                 d_missing["hint"] = "; ".join(f"{number:}: {option:}" for number, option in
                                               enumerate(l_option, start=1)) + "; or your own answer"
             l_missing.append(d_missing)
@@ -736,51 +740,99 @@ def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
 MAX_METHOD_BLOCKS = 40
 
 
+# list_methods: methods described in full, and the length of the one-line
+# list of the other methods (characters) that fits the context of small models
+N_METHOD_BEST = 5
+N_CHAR_METHOD_LINES = 4000
+
+
+def format_method_line(function) -> str:
+    """'name: first sentence of the docstring' of a method."""
+    sentence = re.split(r"(?<=[^.][.])\s", describe_method(function)["summary"], maxsplit=1)[0]
+    return f"{function.__name__:}: {sentence:}"
+
+
 def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
     """The methods of the data blocks, loops and items (methods.py), the
-    same methods of blocks of one class listed once; without path and
-    pattern only their names (the object has many), with them also their
-    arguments and descriptions."""
+    same methods of blocks of one class listed once. The methods matching
+    the pattern best come first with their arguments and descriptions;
+    all other methods follow in one line each ('name: summary', names only
+    when the object has too many), so the model always chooses by meaning
+    from the whole list."""
     l_block = find_method_blocks(cryspy_object, path)
     if len(l_block) == 0:
         return (f"Error: '{path:}' is not a data block, loop or item of the object; "
                 "summarize_object gives them.")
     word = pattern.strip().lower()
-    ls_out, d_class = [], {}
+    d_class = {}
     for block_path, block in l_block:
         d_class.setdefault(type(block), []).append(block_path)
-    flag_short = path.strip() == "" and word == ""
+    d_path = {cls: ", ".join(l_path[:5]) + (f", ... ({len(l_path):})" if len(l_path) > 5 else "")
+              for cls, l_path in d_class.items()}
     # a pattern of several words (a request) is matched word by word against
-    # the names and the whole docstrings; the best matching methods are kept
+    # the names and the whole docstrings (methods.score_method)
     l_word = take_request_words(word)
-    d_score = {}
+    l_scored = []
     for cls, l_path in d_class.items():
         s_path = " ".join(l_path).lower()
         for name, function in take_methods(cls).items():
-            if word == "" or word in name.lower() or word in s_path:
-                d_score[(cls, name)] = len(l_word) + 1
+            if word == "":
+                score = 0
+            elif word in name.lower() or word in s_path:
+                score = len(l_word) + 1
             else:
-                d_score[(cls, name)] = score_method(function, l_word)
-    score_min = max(max(d_score.values(), default=0), 1)
-    if len(l_word) > 2:
+                score = score_method(function, l_word)
+            l_scored.append((score, cls, name, function))
+    if len(l_scored) == 0:
+        return f"Error: no methods in {path or 'the object':}."
+    score_best = max(item[0] for item in l_scored)
+    l_best = []
+    if score_best > 0:
         # long requests: also the methods that miss one word
-        score_min = max(score_min - 1, 1)
-    for cls, l_path in d_class.items():
-        d_method = {name: function for name, function in take_methods(cls).items()
-                    if word == "" or d_score[(cls, name)] >= score_min}
-        if len(d_method) == 0:
-            continue
-        s_path = ", ".join(l_path[:5]) + (f", ... ({len(l_path):})" if len(l_path) > 5 else "")
-        if flag_short:
-            ls_out.append(f"{s_path:} ({cls.__name__:}): {', '.join(d_method):}")
-            continue
-        ls_out.append(f"{s_path:} ({cls.__name__:}):")
-        ls_out.extend(f"  {format_method(describe_method(function)):}" for function in d_method.values())
-    if len(ls_out) == 0:
-        s_word = f" with '{pattern:}'" if word else ""
-        return f"Error: no methods{s_word:} in {path or 'the object':}."
-    if flag_short:
-        ls_out.append("list_methods with a path or a pattern gives the arguments and descriptions.")
+        score_min = score_best - 1 if len(l_word) > 2 else score_best
+        l_best = sorted((item for item in l_scored if item[0] >= max(score_min, 1)),
+                        key=lambda item: -item[0])[:N_METHOD_BEST]
+    elif path.strip() != "":
+        l_best = l_scored[:N_METHOD_BEST]
+    ls_out = []
+    if l_best:
+        if not word:
+            ls_out.append("Methods:")
+        elif score_best < len(l_word):
+            ls_out.append("Methods with only some words of the request (check that they fit, "
+                          "otherwise choose from the other methods or ask the user):")
+        else:
+            ls_out.append("Best matching methods:")
+        for cls in d_class:
+            l_function = [function for _, cls_best, _, function in l_best if cls_best is cls]
+            if l_function:
+                ls_out.append(f"{d_path[cls]:} ({cls.__name__:}):")
+                ls_out.extend(f"  {format_method(describe_method(function)):}" for function in l_function)
+        l_top = [item[0] for item in l_best]
+        if word and len(l_top) > 1 and l_top[0] == l_top[1] <= len(l_word):
+            ls_out.append("Several methods match equally: if you are not sure which one the user "
+                          "means, ask the user (ask_user with options) before calling one.")
+    elif word:
+        ls_out.append(f"No method has the words of '{pattern:}'. Choose by the descriptions "
+                      "below; if none fits for sure, ask the user (ask_user with options).")
+    l_rest = [item for item in l_scored if not any(item[3] is best[3] for best in l_best)]
+    if l_rest:
+        ls_rest = []
+        for cls in d_class:
+            l_line = [format_method_line(function) for _, cls_rest, _, function in l_rest
+                      if cls_rest is cls]
+            if l_line:
+                ls_rest.append((cls, l_line))
+        n_char = sum(len(line) + 4 for _, l_line in ls_rest for line in l_line)
+        ls_out.append("Other methods:" if l_best else "Methods:")
+        for cls, l_line in ls_rest:
+            if n_char <= N_CHAR_METHOD_LINES:
+                ls_out.append(f"{d_path[cls]:} ({cls.__name__:}):")
+                ls_out.extend(f"  {line:}" for line in l_line)
+            else:  # too many for a small model: names only
+                ls_out.append(f"{d_path[cls]:} ({cls.__name__:}): "
+                              + ", ".join(line.split(":")[0] for line in l_line))
+        ls_out.append("list_methods with the method name as pattern gives its arguments.")
     ls_out.append("Call one with call_method {\"path\": <block>, \"method\": <name>, <its arguments>}.")
     return "\n".join(ls_out)
 
@@ -993,8 +1045,9 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                        "description": f"Several questions (at most {MAX_USER_QUESTIONS:}), "
                                       "instead of question."},
          "options": {"type": "array", "items": {"type": "string"},
-                     "description": "Possible answers of a single question; the user may "
-                                    "give another one."}},
+                     "description": f"Possible answers of a single question, at most "
+                                    f"{MAX_USER_OPTIONS:} (the user clicks one or types "
+                                    "another); for a yes/no question [\"yes\", \"no\"]."}},
         flag_object_needed=False, flag_extra_arguments=True),
     AssistantTool(
         "get_recipe_guide",

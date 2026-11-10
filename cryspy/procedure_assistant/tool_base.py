@@ -12,7 +12,8 @@ class ArgumentsNeeded(Exception):
     l_missing: dicts with "name" (argument of the tool), "question" (what
     is asked, e.g. "the unit cell parameters") and optional JSON schema
     keys of the value ("type", "items", "minItems", "maxItems", "enum"),
-    "hint" (format of the answer), "proposal" (a value known already, the
+    "hint" (format of the answer), "options" (possible answers, shown as
+    buttons; the user may type another one), "proposal" (a value known already, the
     user confirms it), "s_proposal" (its text)."""
 
     def __init__(self, l_missing: List[dict], message: str = ""):

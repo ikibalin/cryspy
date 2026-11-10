@@ -72,6 +72,10 @@ def test_ask_user_asks_as_missing_and_returns_answers():
     [d_missing] = result["missing"]
     assert d_missing["question"] == "Which parameters are refined after the scale?"
     assert "1: adp; 2: atomic positions" in d_missing["hint"]
+    # buttons of the program give the option itself
+    assert d_missing["options"] == ["adp", "atomic positions"]
+    result = call("ask_user", dict(arguments, **{d_missing["name"]: "adp"}))
+    assert "-> adp" in result["text"]
     answer = cryspy.convert_assistant_answer(d_missing, "2")
     result = call("ask_user", dict(arguments, **{d_missing["name"]: answer}))
     assert result["missing"] == []

@@ -42,8 +42,10 @@ def test_methods_from_classes_without_internal_and_deprecated(monkeypatch):
 def test_list_methods_short_and_with_pattern(powder):
     result = call(powder, "list_methods")
     assert not result["flag_error"]
-    assert "pd_powder1 (Pd): define_background_points, estimate_background" in result["text"]
-    assert "pd_powder1.pd_background (PdBackgroundL): define_points" in result["text"]
+    # all methods, one line each: the model chooses by their meaning
+    assert ("pd_powder1 (Pd):\n  define_background_points: Define the background points "
+            "from the measured profile.") in result["text"]
+    assert "pd_powder1.pd_background (PdBackgroundL):\n  define_points: " in result["text"]
     result = call(powder, "list_methods", {"pattern": "background"})
     assert ("define_background_points(step_ttheta: number=1.0): Define the background points "
             "from the measured profile.") in result["text"]
@@ -111,3 +113,16 @@ For: powder, polarized
     assert "it is a method of Pd: write call_method" in result
     result = recipes.check_recipe_text(text.replace("define_background_points\", ", "no_such_method\", "))
     assert "no CrysPy class has the method 'no_such_method'" in result
+
+
+def test_list_methods_never_empty_and_asks_when_unsure(powder):
+    """Without a matching word all methods are still listed (the model
+    chooses by their descriptions); equal candidates suggest ask_user."""
+    text = call(powder, "list_methods", {"pattern": "zebra giraffe"})["text"]
+    assert "No method has the words" in text and "ask_user" in text
+    assert "define_background_points: Define the background points" in text
+    text = call(powder, "list_methods", {"pattern": "ellipsoids of zebra"})["text"]
+    assert text.startswith("Methods with only some words of the request")
+    text = call(powder, "list_methods", {"pattern": "atoms ellipsoids"})["text"]
+    assert text.startswith("Best matching methods:")
+    assert "report_ellipsoids(" in text and "Other methods:" in text
