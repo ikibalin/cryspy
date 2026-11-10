@@ -1,5 +1,6 @@
 import numpy
 
+from cryspy.exceptions import CrysPyError
 from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
 from cryspy.A_functions_base.matrix_operations import calc_m1_m2_m1t
 
@@ -265,6 +266,12 @@ def calc_chi_sq_for_tof_by_dictionary(
 
         ind_phase = phase_name.index(p_name)
         dict_crystal = dict_crystals[ind_phase]
+        if "atom_fourier_index" in dict_crystal.keys():
+            raise CrysPyError(
+                f"Phase {p_name}: magnetic structures with a propagation vector "
+                "(atom_site_moment_Fourier) are not supported in time-of-flight powder experiments yet; the "
+                "magnetic satellites would be missing. Use the 1D powder (pd) or "
+                "single-crystal (diffrn_refln) experiments.")
         dict_in_out_keys = dict_in_out.keys()
         if f"dict_in_out_{p_name:}" in dict_in_out_keys:
             dict_in_out_phase = dict_in_out[f"dict_in_out_{p_name:}"]

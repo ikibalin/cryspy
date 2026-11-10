@@ -60,12 +60,23 @@ def test_not_a_number_in_loop():
         cryspy.str_to_globaln("data_x" + ATOM_SITE.format(y="x", adp="Uiso"))
 
 
-def test_not_an_integer():
+def test_not_a_number():
     with pytest.raises(cryspy.RcifFormatError, match="index_h"):
         cryspy.str_to_globaln(
             "data_x\nloop_\n_diffrn_refln_index_h\n_diffrn_refln_index_k\n"
             "_diffrn_refln_index_l\n_diffrn_refln_fr\n_diffrn_refln_fr_sigma\n"
-            "0.5 0 0 1.1 0.1\n")
+            "h 0 0 1.1 0.1\n")
+
+
+def test_fractional_index_of_satellite_is_accepted():
+    """Magnetic satellites h ± k are given by fractional indices."""
+    rcif = cryspy.str_to_globaln(
+        "data_x\nloop_\n_diffrn_refln_index_h\n_diffrn_refln_index_k\n"
+        "_diffrn_refln_index_l\n_diffrn_refln_fr\n_diffrn_refln_fr_sigma\n"
+        "0.5 0 1 1.1 0.1\n")
+    loop = rcif.items[0].items[0]
+    assert loop.index_h[0] == pytest.approx(0.5)
+    assert "0.5   0   1" in loop.to_cif().replace("  0.5", "0.5")
 
 
 def test_unknown_value_and_question_mark_are_accepted():

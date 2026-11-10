@@ -30,7 +30,10 @@ class DiffrnRefln(ItemN):
     """
 
     ATTR_MANDATORY_NAMES = ("index_h", "index_k", "index_l")
-    ATTR_MANDATORY_TYPES = (int, int, int)
+    # Indices are float so that magnetic satellites H = h + k of a structure
+    # with a propagation vector can be given directly (e.g. 0.5 0 1);
+    # integer indices are written without decimals.
+    ATTR_MANDATORY_TYPES = (float, float, float)
     ATTR_MANDATORY_CIF = ("index_h", "index_k", "index_l")
 
     ATTR_OPTIONAL_NAMES = (
@@ -86,6 +89,9 @@ class DiffrnRefln(ItemN):
 
     # formats if cif format
     D_FORMATS = {
+        "index_h": "{:g}",
+        "index_k": "{:g}",
+        "index_l": "{:g}",
         "fr_calc": "{:.5f}",
         "intensity_calc": "{:.2f}",
         "sintlambda": "{:.5f}",
@@ -169,7 +175,7 @@ class DiffrnReflnL(LoopN):
         l_diff = []
         n_3s, n_2s, n_1s, n_0s = 0, 0, 0, 0
         l_hkl = [
-            (int(_1), int(_2), int(_3))
+            (float(_1), float(_2), float(_3))
             for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)
         ]
         flag_fr = self.is_attribute("fr") and self.is_attribute("fr_sigma")
@@ -233,8 +239,8 @@ class DiffrnReflnL(LoopN):
         ls_out.append(f"| Number of reflections | {n:} |")
         for i_hkl, s_hkl in enumerate("hkl"):
             ls_out.append(
-                f"| Range of {s_hkl:} | {min([_[i_hkl] for _ in l_hkl]):} … "
-                f"{max([_[i_hkl] for _ in l_hkl]):} |")
+                f"| Range of {s_hkl:} | {min([_[i_hkl] for _ in l_hkl]):g} … "
+                f"{max([_[i_hkl] for _ in l_hkl]):g} |")
         if flag_fr:
             ls_out.append(f"| max abs(FR − 1) | {max(l_diff):.3f} |")
             ls_out.append("")
@@ -294,7 +300,7 @@ class DiffrnReflnL(LoopN):
         """
         ls_out = []
         l_hkl = [
-            (_1, _2, _3)
+            (f"{_1:g}", f"{_2:g}", f"{_3:g}")
             for _1, _2, _3 in zip(self.index_h, self.index_k, self.index_l)
         ]
         flag_fr = (
@@ -385,9 +391,9 @@ class DiffrnReflnL(LoopN):
                     f"{_fr_sigma:.5f} | {_fr_calc:.5f} | {_diff:.1f} |"
                 )
         if cell is not None:
-            np_h = numpy.array(self.index_h, dtype=int)
-            np_k = numpy.array(self.index_k, dtype=int)
-            np_l = numpy.array(self.index_l, dtype=int)
+            np_h = numpy.array(self.index_h, dtype=float)
+            np_k = numpy.array(self.index_k, dtype=float)
+            np_l = numpy.array(self.index_l, dtype=float)
             np_sthovl = cell.calc_sthovl(
                 index_h=np_h, index_k=np_k, index_l=np_l
             )
@@ -442,7 +448,7 @@ class DiffrnReflnL(LoopN):
         np_fr = numpy.array(self.fr, dtype=float)
         np_fr_calc = numpy.array(self.fr_calc, dtype=float)
         np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)
-        l_label = [f"({h:} {k:} {l:})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
+        l_label = [f"({h:g} {k:g} {l:g})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
     
         fig = plot_scatters_with_labels(np_fr_calc, np_fr, sy=np_fr_sigma, exclude=np_excl, labels=l_label,size=8, n_visible=10)
         ax = fig.axes[0]
@@ -497,7 +503,7 @@ class DiffrnReflnL(LoopN):
         np_fr = numpy.array(self.fr, dtype=float)
         np_fr_calc = numpy.array(self.fr_calc, dtype=float)
         np_fr_sigma = numpy.array(self.fr_sigma, dtype=float)
-        l_label = [f"({h:} {k:} {l:})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
+        l_label = [f"({h:g} {k:g} {l:g})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
 
         asymmetry = (np_fr - 1.0) / (np_fr + 1.0)
         asymmetry_sigma = (
@@ -622,7 +628,7 @@ class DiffrnReflnL(LoopN):
         np_intensity = numpy.array(self.intensity, dtype=float)
         np_intensity_calc = numpy.array(self.intensity_calc, dtype=float)
         np_intensity_sigma = numpy.array(self.intensity_sigma, dtype=float)
-        l_label = [f"({h:} {k:} {l:})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
+        l_label = [f"({h:g} {k:g} {l:g})" for h, k, l in zip(self.index_h, self.index_k, self.index_l)]
 
         fig = plot_scatters_with_labels(np_intensity_calc, np_intensity, sy=np_intensity_sigma, exclude=np_excl, labels=l_label, size=8, n_visible=10)
         ax = fig.axes[0]

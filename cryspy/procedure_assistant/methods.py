@@ -208,3 +208,36 @@ def find_parameter_blocks(cryspy_object, obj, param: str, types: tuple) -> Dict[
         if d_found:
             return d_found
     return {block_path: block for block_path, block in l_block if fits(block_path, block)}
+
+
+# words of a request that say nothing about the method
+STOP_WORDS = {
+    "the", "a", "an", "of", "to", "in", "on", "for", "by", "with", "and", "or",
+    "this", "that", "these", "it", "its", "my", "me", "please", "crystal",
+    "data", "block", "method", "through", "into", "from", "as", "be", "is",
+    "do", "make", "can", "how", "what", "all"}
+# abbreviations the user may type for words of the docstrings
+WORD_ALIASES = {"ssg": "superspace", "msg": "magnetic", "mcif": "magnetic",
+                "irrep": "representation", "irreps": "representation",
+                "k": "propagation", "sc": "single"}
+
+
+def take_request_words(text: str) -> list:
+    """Meaningful words (stems of 5 letters) of a request to find methods."""
+    l_word = []
+    for word in re.split(r"[^a-z0-9]+", text.lower()):
+        word = WORD_ALIASES.get(word, word)
+        if len(word) < 2 or word in STOP_WORDS:
+            continue
+        stem = word[:5]
+        if stem not in l_word:
+            l_word.append(stem)
+    return l_word
+
+
+def score_method(function: Callable, l_word: list) -> int:
+    """Number of request words found in the name and the docstring of a
+    method (stems, so 'symmetry operations' finds 'symmetry operation')."""
+    text = function.__name__.replace("_", " ") + " " + (inspect.getdoc(function) or "")
+    l_text = {word[:5] for word in re.split(r"[^a-z0-9]+", text.lower()) if word}
+    return sum(1 for word in l_word if word in l_text)

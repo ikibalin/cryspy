@@ -314,6 +314,9 @@ def tool_convert_to_p1(cryspy_object, crystal: str = "", name: str = "") -> str:
             ls_out.append(f"{loop_name:}: {len(getattr(crystal_p1, loop_name).items):} atoms.")
     ls_out.append("Multipoles and local axes are not converted. Experiments still use "
                   f"{item.data_name:}; the new crystal is not in their phases.")
+    if item.is_attribute("atom_site_moment_fourier"):
+        ls_out.append("The modulated moments (atom_site_moment_Fourier) are not "
+                      "converted: the P1 crystal has the nuclear structure only.")
     return "\n".join(ls_out)
 
 

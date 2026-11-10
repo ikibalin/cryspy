@@ -1,0 +1,143 @@
+#\#CIF_2.0
+# Created by the Bilbao Crystallographic Server
+# http://www.cryst.ehu.es
+# Date: 04/20/2020
+
+data_5yOhtAoR
+_audit_creation_date            2020-04-20
+_audit_creation_method          "Bilbao Crystallographic Server"
+
+_citation_journal_abbrev        "Solid State Communications"
+_citation_journal_volume        35
+_citation_page_first            1
+_citation_page_last             5
+_citation_article_id            ?
+_citation_year                  1980
+_citation_DOI                   10.1016/0038-1098(80)90757-7
+
+loop_
+_citation_author_name
+"A. Adam"
+"D. Billerey"
+"C. Terrier"
+"R. Mainard"
+"L. Regnault"
+"J. Rossat-Mignod"
+"P. Meriel"
+
+
+
+
+_atomic_positions_source_database_code_ICSD  22106
+_atomic_positions_source_other               .
+
+_transition_temperature     22.8
+_experiment_temperature     4.2
+
+loop_
+_irrep_id
+_irrep_dimension
+_irrep_small_dimension
+_irrep_direction_type
+_irrep_action
+_irrep_modes_number
+_irrep_presence
+mY1 6 1 general primary 1 .
+mY2 6 1 special primary 2 .
+
+_exptl_crystal_magnetic_properties_details
+;
+NSD and NPD
+Between 52K and 22.8K a commensurate magnetic phase is reported (see entry # 1.248)
+Ni moment: 2.00(15)
+Moment components with non-significant digits to yield the reported moment modulus.
+;
+
+_active_magnetic_irreps_details
+;
+1k incommensurate magnetic structure
+Two irreps are involved as primary. Their corresponding modulations are superposed in quadrature (pi/2 phase shifted).
+The arbitrary phase of the global modulation is fixed by the simpler setting chosen for the MSSG and is different from the one chosen in the original reference.
+;
+
+_parent_space_group.name_H-M_alt  "R -3m"
+_parent_space_group.IT_number             166
+_parent_space_group.transform_Pp_abc  'a,b,c;0,0,0'
+
+_cell_modulation_dimension               1
+
+loop_
+_cell_wave_vector_seq_id
+_cell_wave_vector_x
+_cell_wave_vector_y
+_cell_wave_vector_z
+1 0.027 0.027 1.500000
+
+
+_parent_space_group.child_transform_Pp_abc  'a,b,c;0,0,0'
+
+_space_group.magn_ssg_name  "Rm1'(aag)0s"
+_space_group.magn_point_group_name  "m1'"
+_space_group.magn_point_group_number  4.2.10
+_cell_length_a                 3.723
+_cell_length_b                 3.723
+_cell_length_c                 18.34
+_cell_angle_alpha              90
+_cell_angle_beta               90
+_cell_angle_gamma              120
+
+loop_
+_space_group_symop_magn_ssg_operation.id
+_space_group_symop_magn_ssg_operation.algebraic
+1 x1,x2,x3,x4,+1
+2 -x2,-x1,x3,3x3-x4,+1
+3 x1,x2,x3,x4+1/2,-1
+4 -x2,-x1,x3,3x3-x4+1/2,-1
+
+loop_
+_space_group_symop_magn_ssg_centering.id
+_space_group_symop_magn_ssg_centering.algebraic
+1 x1,x2,x3,x4,+1
+2 x1+2/3,x2+1/3,x3+1/3,x4,+1
+3 x1+1/3,x2+2/3,x3+2/3,x4,+1
+4 x1,x2,x3,x4+1/2,-1
+5 x1+2/3,x2+1/3,x3+1/3,x4+1/2,-1
+6 x1+1/3,x2+2/3,x3+2/3,x4+1/2,-1
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Ni1 Ni 0 0 0 1
+Br1_1 Br 0 0 0.255 1
+Br1_2 Br 0 0 -0.255 1
+
+
+loop_
+_atom_site_moment.label
+_atom_site_moment.crystalaxis_x
+_atom_site_moment.crystalaxis_y
+_atom_site_moment.crystalaxis_z
+_atom_site_moment.symmform
+Ni1 0 0 0 0,0,0
+
+loop_
+_atom_site_Fourier_wave_vector.seq_id
+_atom_site_Fourier_wave_vector.q1_coeff
+1 1
+
+loop_
+_atom_site_moment_Fourier.atom_site_label
+_atom_site_moment_Fourier.axis
+_atom_site_moment_Fourier.wave_vector_seq_id
+_atom_site_moment_Fourier_param.cos
+_atom_site_moment_Fourier_param.sin
+_atom_site_moment_Fourier_param.cos_symmform
+_atom_site_moment_Fourier_param.sin_symmform
+Ni1 x 1 2.00 -1.155 mxc1  mxs1
+Ni1 y 1 2.00  1.155 mxc1 -mxs1
+Ni1 z 1 0     0      0    mzs1
+

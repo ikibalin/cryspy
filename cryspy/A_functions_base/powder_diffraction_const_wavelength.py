@@ -49,8 +49,19 @@ def calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4,
         flag_p_3: bool = False, flag_p_4: bool = False):
     """Asymmetry factor for 1D powder diffraction profile.
     """
-    f_a , dder_f_a = func_asymmetry_f_a(z, flag_z=flag_z)
-    f_b , dder_f_b = func_asymmetry_f_b(z, flag_z=flag_z)
+    flag_any = flag_z or flag_p_1 or flag_p_2 or flag_p_3 or flag_p_4
+    if not flag_any and p_1 == 0. and p_2 == 0. and p_3 == 0. and p_4 == 0.:
+        # no asymmetry: skip the exponent over the whole profile matrix
+        return numpy.ones(numpy.shape(z), dtype=float), {}
+    # F_a and F_b share exp(-z^2): calculate it once
+    z_sq = numpy.square(z)
+    exp_z = numpy.exp(-z_sq)
+    f_a = 2. * z * exp_z
+    f_b = 2. * (2. * z_sq - 3.) * f_a
+    dder_f_a, dder_f_b = {}, {}
+    if flag_z:
+        dder_f_a["z"] = 2. * (1. - 2. * z_sq) * exp_z
+        dder_f_b["z"] = 8. * z * f_a + 2. * (2. * z_sq - 3.) * dder_f_a["z"]
     
     inv_tan_th = numpy.expand_dims(1./numpy.tan(0.5*ttheta), axis=-1)
     inv_tan_tth = numpy.expand_dims(1./numpy.tan(ttheta), axis=-1)
@@ -206,7 +217,6 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
     """
     cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
     delta_angle = (ttheta[:, na] - ttheta_hkl[na, :])
-    flag_delta_angle = flag_ttheta_hkl or flag_ttheta
 
     flag_h_g = flag_u or flag_v or flag_w or flag_i_g
     h_g, dder_h_g = calc_h_g(
@@ -227,15 +237,12 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
         delta_angle, cutoff_fwhm, half_width, (h_pv, eta, ttheta))
 
     z = (delta_angle*180./numpy.pi)/numpy.expand_dims(h_pv, axis=1)
-    flag_z = flag_h_pv or flag_ttheta_hkl or flag_ttheta
-    af, dder_af  = calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4, 
-        flag_z = flag_z, flag_p_1 =  flag_p_1, flag_p_2 =  flag_p_2,
-        flag_p_3 = flag_p_3, flag_p_4 = flag_p_4)
-    
-    profile_l, dder_profile_l = func_lorentz_by_h_pv(
-        delta_angle, h_pv, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv)
-    profile_g, dder_profile_l = func_gauss_by_h_pv(
-        delta_angle, h_pv, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv)
+    # The derivatives of the profile are not assembled (dder is empty), so
+    # the kernels are called without flags: their dder arrays have the size
+    # of the whole points x reflections matrix and were thrown away.
+    af = calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4)[0]
+    profile_l = func_lorentz_by_h_pv(delta_angle, h_pv)[0]
+    profile_g = func_gauss_by_h_pv(delta_angle, h_pv)[0]
 
     res = (numpy.expand_dims(eta, axis=1) * profile_l + numpy.expand_dims((1.-eta), axis=1)*profile_g)*af
     res = cutoff_place(keep, res)
@@ -284,7 +291,6 @@ def calc_profile_pseudo_voight_2d(ttheta, phi,
     """
 
     delta_ttheta = ttheta[:, :, na] - ttheta_hkl[na, na, :]
-    flag_delta_angle = flag_ttheta_hkl or flag_ttheta
 
     flag_h_g = flag_u or flag_v or flag_w or flag_i_g
     h_g, dder_h_g = calc_h_g(u,v, w, i_g, ttheta, flag_u=flag_u, flag_v=flag_v, flag_w=flag_w, flag_i_g=flag_i_g)
@@ -300,16 +306,12 @@ def calc_profile_pseudo_voight_2d(ttheta, phi,
 
     coeff_phi = calc_coeff_phi(phi, p_phi, flag_p_phi=flag_p_phi)[0]
     h_pv_phi = h_pv*coeff_phi
-    flag_h_pv_phi = flag_h_pv or flag_p_phi
 
     z = (delta_ttheta*180./numpy.pi)/numpy.expand_dims(h_pv_phi, axis=-1)
-    flag_z = flag_h_pv_phi or flag_ttheta_hkl or flag_ttheta
-    af, dder_af  = calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4, 
-        flag_z = flag_z, flag_p_1 =  flag_p_1, flag_p_2 =  flag_p_2,
-        flag_p_3 = flag_p_3, flag_p_4 = flag_p_4)
-    
-    profile_l, dder_profile_l = func_lorentz_by_h_pv(delta_ttheta, h_pv_phi, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv_phi)
-    profile_g, dder_profile_l = func_gauss_by_h_pv(delta_ttheta, h_pv_phi, flag_z=flag_delta_angle, flag_h_pv=flag_h_pv_phi)
+    # dder is not assembled: the kernels run without derivative flags
+    af = calc_asymmetry_factor(z, ttheta, p_1, p_2, p_3, p_4)[0]
+    profile_l = func_lorentz_by_h_pv(delta_ttheta, h_pv_phi)[0]
+    profile_g = func_gauss_by_h_pv(delta_ttheta, h_pv_phi)[0]
 
     res = (numpy.expand_dims(eta, axis=-1) * profile_l + numpy.expand_dims((1.-eta), axis=-1)*profile_g)*af
     dder = {}

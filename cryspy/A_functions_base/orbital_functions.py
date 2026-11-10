@@ -70,12 +70,15 @@ def calc_jl_per_2sthovll(sthovl, coeff, n, zeta, kappa=1, l_max = 3):
 
     res = numpy.zeros(sthovl.shape+(l_max+1,))
 
-    for c, cc, nn, zz in zip(c_ij.flatten(), coeff_norm_ij.flatten(), nn_ij.flatten(), zeta_ij.flatten()):
-        ff = calc_transs(l_max, nn, zz, sthovl)
-        ff_l = numpy.stack(ff, axis=1)
-        
-        val = c*cc*ff_l
-        res += val
+    # the pair (i, j) gives the same integral as (j, i): take i <= j once
+    n_coeff = c_ij.shape[0]
+    for i in range(n_coeff):
+        for j in range(i, n_coeff):
+            weight = c_ij[i, j] * coeff_norm_ij[i, j] * (1. if i == j else 2.)
+            if weight == 0.:
+                continue
+            ff = calc_transs(l_max, nn_ij[i, j], zeta_ij[i, j], sthovl)
+            res += weight * numpy.stack(ff, axis=1)
     return res
 
 

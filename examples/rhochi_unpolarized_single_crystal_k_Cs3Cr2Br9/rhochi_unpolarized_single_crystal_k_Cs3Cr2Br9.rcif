@@ -1,0 +1,260 @@
+global_
+
+# Cs3Cr2Br9, P 63/m m c, k = (1/4, 1/4, 0): magnetic intensities of the
+# CrysFML example Testing/Magnetism/CCB.cfl + CCB.int (MagOptim, FullProf
+# convention, Irrep with BASR of Cr: C = (0, 0, 1.12064) μB), github.com/rozyczko/CrysFML08.
+# Converted by Crystal.add_propagation_vector(0.25, 0.25, 0, "Cr", irrep=2):
+# the superspace group of Γ2 of the group of k is the representation of
+# CrysFML (|Mcos + i Msin| = 2|S| of the FullProf convention). The scale is fixed
+# (it correlates with the moment), the moment along c is refined.
+# The reflections of CCB.int (integer hkl, k number 1 = +k, 2 = -k) are
+# written as fractional indices H = hkl ± k. Structure from CCB.cfl.
+
+data_ccb
+
+_cell_length_a 7.465001
+_cell_length_b 7.465001
+_cell_length_c 18.618000
+_cell_angle_alpha 90.000000
+_cell_angle_beta 90.000000
+_cell_angle_gamma 120.000000
+
+_parent_space_group_name_H-M_alt "P 63/m m c"
+_parent_space_group_IT_number 194
+_parent_space_group_IT_coordinate_system_code h
+
+loop_
+_cell_wave_vector_seq_id
+_cell_wave_vector_x
+_cell_wave_vector_y
+_cell_wave_vector_z
+  1   0.25000   0.25000   0.00000
+
+loop_
+_space_group_symop_magn_ssg_operation_algebraic
+_space_group_symop_magn_ssg_operation_id
+          x1,x2,x3,x4,+1   1
+         x2,x1,-x3,x4,+1   2
+      x2,x1,x3+1/2,x4,-1   3
+     x1,x2,-x3+1/2,x4,-1   4
+       -x2,-x1,x3,-x4,-1   5
+      -x1,-x2,-x3,-x4,-1   6
+   -x1,-x2,x3+1/2,-x4,+1   7
+  -x2,-x1,-x3+1/2,-x4,+1   8
+
+loop_
+_space_group_symop_magn_ssg_centering_algebraic
+_space_group_symop_magn_ssg_centering_id
+      x1,x2,x3,x4,+1   1
+  x1,x2,x3,x4+1/2,-1   2
+
+loop_
+_atom_site_fourier_wave_vector_seq_id
+_atom_site_fourier_wave_vector_q1_coeff
+  1   1
+
+loop_
+_atom_site_moment_fourier_atom_site_label
+_atom_site_moment_fourier_axis
+_atom_site_moment_fourier_wave_vector_seq_id
+_atom_site_moment_fourier_param.cos
+_atom_site_moment_fourier_param.sin
+_atom_site_moment_fourier_param.cos_symmform
+_atom_site_moment_fourier_param.sin_symmform
+  Cr   x   1   0.00000   0.00000    mxc1   mxs1
+  Cr   y   1   0.00000   0.00000   -mxc1   mxs1
+  Cr   z   1     2.0()   0.00000    mzc1      0
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+    Cs1   Cs   0.000000   0.000000   0.250000   1.0   Biso   0.51145
+    Cs2   Cs   0.333333   0.666667   0.075430   1.0   Biso   0.34669
+     Cr   Cr   0.333333   0.666667   0.838160   1.0   Biso       0.0
+    Br1   Br   0.512370   0.024760   0.250000   1.0   Biso    0.2389
+  Br1_2   Br   0.512390   0.487630   0.250000   1.0   Biso    0.2389
+    Br2   Br   0.825830   0.651660   0.090010   1.0   Biso   0.29358
+  Br2_2   Br   0.825830   0.174170   0.090010   1.0   Biso   0.29358
+
+loop_
+_atom_site_scat_label
+_atom_site_scat_type_symbol
+_atom_site_scat_Lande
+_atom_site_scat_kappa
+  Cr   Cr3+   2.0   1.0
+
+
+data_ccbmag
+
+_setup_wavelength 1.2800
+_setup_field 0.00
+_setup_offset_SyCos 0.00000
+_setup_offset_SySin 0.00000
+_setup_radiation neutrons
+_setup_K 0.0
+_setup_cthm 0.91000
+
+_diffrn_orient_matrix_ub_11 0.15
+_diffrn_orient_matrix_ub_12 0.0
+_diffrn_orient_matrix_ub_13 0.0
+_diffrn_orient_matrix_ub_21 0.0
+_diffrn_orient_matrix_ub_22 0.15
+_diffrn_orient_matrix_ub_23 0.0
+_diffrn_orient_matrix_ub_31 0.0
+_diffrn_orient_matrix_ub_32 0.0
+_diffrn_orient_matrix_ub_33 0.05
+_diffrn_orient_matrix_type CCSL
+
+_diffrn_radiation_polarization 0.0
+_diffrn_radiation_efficiency 1.0
+
+_phase_label ccb
+_phase_scale 125.0
+
+loop_
+_diffrn_refln_index_h
+_diffrn_refln_index_k
+_diffrn_refln_index_l
+_diffrn_refln_intensity
+_diffrn_refln_intensity_sigma
+_diffrn_refln_intensity_calc
+_diffrn_refln_excluded
+   0.25   0.25   0     0.00   1.80     0.00   False
+   0.25   0.25   1     0.00   2.32     0.00   False
+  -1.25   0.75   1    51.31   2.08    47.72   False
+  -0.25   0.75   1    45.68   1.47    45.24   False
+   1.25   0.25   1    46.29   2.56    45.11   False
+  -0.25   1.75   1    46.88   2.95    41.85   False
+   2.25   0.25   1    29.33   4.15    29.95   False
+  -0.25   2.75   1     0.00   3.49     0.00   False
+  -1.75   1.25   1     0.00   3.83     0.00   False
+  -1.25   2.75   1    31.20   3.42    29.95   False
+   1.75   0.75   1    34.19   3.74    32.60   False
+   2.25   1.25   1    15.89   5.15    19.67   False
+   2.75   0.75   1    27.35   7.36    18.11   False
+   1.75   1.75   1     0.00   4.51     0.00   False
+   0.25   0.25   2    50.62   6.32    61.45   False
+  -1.25   0.75   2    27.10   3.36    34.47   False
+  -0.25   0.75   2    26.10   3.67    25.30   False
+   1.25   0.25   2    35.06   1.73    35.40   False
+  -0.25   1.75   2    34.30   4.39    34.22   False
+   2.25   0.25   2    23.52   1.51    26.07   False
+  -3.25   2.75   2    72.47   3.41    72.10   False
+  -0.25   2.75   2    87.00   8.66    91.53   False
+   3.25   0.25   2    49.03   2.72    56.80   False
+   0.75   0.75   2   146.49   1.75   141.81   False
+   1.25   1.25   2   117.08   2.52   115.30   False
+  -0.75   2.25   2   137.43   2.41   123.80   False
+  -1.75   1.25   2   145.72   5.16   138.92   False
+   1.75   0.75   2    24.65   3.31    28.12   False
+   2.25   1.25   2    18.42   5.34    17.55   False
+   3.25   1.25   2     8.67   2.13     8.66   False
+   1.75   1.75   2    71.35   3.58    72.10   False
+   2.25   2.25   2    28.84   2.64    38.40   False
+  -1.75   4.25   2    44.58   2.50    44.86   False
+  -3.75   2.25   2    52.81   3.94    61.49   False
+  -1.25   0.75   3    80.35   2.65    87.41   False
+  -0.25   0.75   3    50.45   2.22    52.71   False
+   1.25   0.25   3    90.66   3.41    97.88   False
+  -2.25   1.75   3    98.29   6.31    92.70   False
+  -0.25   1.75   3   103.54   2.83    99.37   False
+   2.25   0.25   3    75.59   6.36    82.29   False
+  -0.25   2.75   3     2.01   5.77     0.00   False
+   0.75   0.75   3     0.00   3.20     0.00   False
+  -3.25   1.75   3    69.71   3.21    66.69   False
+  -1.25   2.75   3    95.63   8.49    82.29   False
+   1.75   0.75   3    94.78   5.20    87.64   False
+   2.25   1.25   3    47.92   2.05    57.51   False
+  -0.75   3.25   3    56.83   4.69    61.96   False
+  -2.75   2.25   3    79.30   5.75    76.92   False
+  -1.25   3.75   3    51.62   4.46    49.48   False
+  -2.25   4.75   3    22.48   1.78    27.08   False
+   0.25   0.25   4    10.98   0.86    12.97   False
+  -1.25   0.75   4     9.19   1.56    12.35   False
+   1.25   0.25   4    14.13   1.31    14.84   False
+  -0.25   1.75   4    20.22   2.97    15.76   False
+  -3.25   2.75   4    33.89   2.53    42.62   False
+  -0.25   2.75   4    48.27   2.23    51.83   False
+   3.25   0.25   4    27.97   3.60    34.55   False
+   0.75   0.75   4    52.77   2.08    56.94   False
+   1.25   1.25   4    66.65   5.49    60.69   False
+  -0.75   2.25   4    66.92   5.25    62.74   False
+  -1.75   1.25   4    66.63   5.69    62.28   False
+   1.75   1.75   4    41.63   5.38    42.62   False
+
+loop_ccb
+_refln_index_h
+_refln_index_k
+_refln_index_l
+_refln_a_calc
+_refln_b_calc
+_refln_sint/lambda
+   0   0   0    1.0834   -13.7031   0.03349
+   0   0   1   -0.0000     0.0000   0.04293
+  -1   0   1    0.0001     1.2892   0.08846
+   0   0   1    0.0000    -4.7489   0.05778
+   1   0   1   -0.0001     0.8883   0.11095
+   0   1   1   -0.0001    -2.4916   0.12960
+   2   0   1    0.0001    -3.0288   0.18639
+   0   2   1    0.0001    -0.1070   0.20547
+  -1   1   1   -0.0000     0.2157   0.12370
+  -1   2   1    0.0003     0.3127   0.18639
+   1   0   1    0.0002    -1.9962   0.17394
+   2   1   1    0.0001    -3.3576   0.23911
+   2   0   1   -0.0002    -0.6527   0.24831
+   1   1   1    0.0000    -0.0000   0.23596
+   0   0   2   -1.0818    -0.0739   0.06330
+  -1   0   2   -1.0784     0.4807   0.09994
+   0   0   2   -1.0810     0.2117   0.07417
+   1   0   2   -1.0761    -2.7499   0.12031
+   0   1   2   -1.0736    -4.5159   0.13770
+   2   0   2   -1.0637     5.5201   0.19211
+  -3   2   2   -1.0524     0.7863   0.24050
+   0   2   2   -1.0596     0.9171   0.21067
+   3   0   2   -1.0452    -0.7303   0.26702
+   0   0   2   -1.0770     0.5124   0.11393
+   1   1   2   -1.0666    -0.8940   0.17585
+   0   2   2   -1.0698    -0.8595   0.16260
+  -1   1   2   -1.0741    -0.6686   0.13216
+   1   0   2   -1.0659     3.0829   0.18005
+   2   1   2   -1.0520    -0.6059   0.24359
+   3   1   2   -1.0294    -1.2289   0.31577
+   1   1   2   -1.0526     0.5661   0.24050
+   2   2   2   -1.0332     0.1867   0.30615
+  -1   4   2   -1.0380    -0.0246   0.29113
+  -3   2   2   -1.0475    -0.4011   0.25848
+  -1   0   3   -0.0001    -0.7975   0.11659
+   0   0   3   -0.0000    -0.5706   0.09544
+   1   0   3    0.0001    -0.3441   0.13446
+  -2   1   3    0.0002     7.3313   0.17759
+   0   1   3    0.0001    -6.9913   0.15022
+   2   0   3   -0.0001    -7.7981   0.20127
+   0   2   3   -0.0001     7.3874   0.21906
+   0   0   3   -0.0000     0.0000   0.12878
+  -3   1   3   -0.0002     0.5332   0.23231
+  -1   2   3   -0.0003     0.8527   0.20127
+   1   0   3   -0.0002     0.6403   0.18980
+   2   1   3   -0.0001    -0.9722   0.25088
+   0   3   3   -0.0001     0.1128   0.24178
+  -2   2   3    0.0000    -1.1605   0.21213
+  -1   3   3    0.0002     0.1264   0.26817
+  -2   4   3    0.0000    -0.6809   0.32834
+   0   0   4    1.0770     2.4369   0.11252
+  -1   0   4    1.0736    -0.0563   0.13654
+   1   0   4    1.0713     3.1434   0.15208
+   0   1   4    1.0688     5.6431   0.16618
+  -3   2   4    1.0478    -1.4703   0.25787
+   0   2   4    1.0549    -1.2472   0.23030
+   3   0   4    1.0406     1.1768   0.28276
+   0   0   4    1.0723    -1.3172   0.14708
+   1   1   4    1.0619     1.4836   0.19894
+   0   2   4    1.0650     1.1984   0.18733
+  -1   1   4    1.0694     1.1142   0.16162
+   1   1   4    1.0479    -2.6690   0.25787
+

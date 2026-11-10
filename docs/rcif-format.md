@@ -145,6 +145,112 @@ Parameters fixed by symmetry (a coordinate on a mirror plane, `chi_22 =
 chi_11` in a cubic group, ...) cannot be refined; CrysPy applies these
 constraints itself.
 
+## Magnetic structures with a propagation vector
+
+A magnetic structure with a propagation vector `k` is described as in msCIF
+(J. M. Perez-Mato et al., J. Phys.: Condens. Matter 24 (2012) 163201), the
+format of the Bilbao MAGNDATA database and of Jana2006; MAGNDATA files with
+one wave vector load directly. The moment of an atom at the position `r`
+(fractional, the lattice translation included) is
+
+`M(x4) = cos * cos(2 pi x4) + sin * sin(2 pi x4)`, `x4 = k.r`,
+
+along the unit vectors of a, b, c in μB. `cell_wave_vector` gives `k`; the
+magnetic superspace group (`space_group_symop_magn_ssg_operation` and
+`_centering`, operations `x1,x2,x3,x4,theta`) is the only symmetry of the
+crystal: it generates the nuclear and the magnetic structure together, so
+`space_group` is not given and every moment belongs to an atom of
+`atom_site`. The magnetic form factor comes from `atom_site_scat`.
+`atom_site_moment_Fourier` has one row per atom and axis with the refinable
+`cos` and `sin` and their symmetry constraints (`symmform`: equal symbols are
+equal parameters, `0` is zero, symbols are local to the atom); without
+symmforms the constraints are calculated from the site symmetry.
+`parent_space_group` (optional) gives the metric of the cell and the
+magnetic domains.
+
+```text
+_parent_space_group.name_H-M_alt "I m m m"
+
+loop_
+_cell_wave_vector_seq_id
+_cell_wave_vector_x
+_cell_wave_vector_y
+_cell_wave_vector_z
+1 0.5 0.0 0.5
+
+loop_
+_space_group_symop_magn_ssg_operation.id
+_space_group_symop_magn_ssg_operation.algebraic
+1 x1,x2,x3,x4,+1
+2 -x1,x2,-x3,-x1-x3+x4,-1
+3 -x1,-x2,-x3,-x1-x3+x4,+1
+4 x1,-x2,x3,x4,-1
+
+loop_
+_space_group_symop_magn_ssg_centering.id
+_space_group_symop_magn_ssg_centering.algebraic
+1 x1,x2,x3,x4,+1
+2 x1+1/2,x2+1/2,x3+1/2,x4,+1
+3 x1,x2,x3,x4+1/2,-1
+4 x1+1/2,x2+1/2,x3+1/2,x4+1/2,-1
+
+loop_
+_atom_site_moment_Fourier.atom_site_label
+_atom_site_moment_Fourier.axis
+_atom_site_moment_Fourier.wave_vector_seq_id
+_atom_site_moment_Fourier_param.cos
+_atom_site_moment_Fourier_param.sin
+Ho x 1 -0.0745() 0.1009()
+Ho y 1 0.0 0.0
+Ho z 1 -5.342() 7.236()
+```
+
+The full example (Ho2BaNiO5, the FullProf example `hobk`) is in
+`examples/rhochi_unpolarized_powder_1d_k_Ho2BaNiO5`. Unpolarized 1D powder
+diffraction with constant wavelength, single-crystal intensities and
+polarized flip ratios are calculated; magnetic satellites are not
+yet listed in the `pd_peak` loop, and time-of-flight and 2D powder
+experiments give an error.
+
+**Parameters not defined by the data.** When `2k` is integer (for example
+`(1/2, 0, 1/2)`), the atoms see only a few values of `x4`, so some
+combinations of `cos` and `sin` change no structure factor. Without
+operations mapping k to -k (epsilon = -1), a shift of the modulation along
+`x4` (the global phase) changes no intensity. CrysPy finds these parameters
+and keeps them fixed during the refinement, with a warning naming them.
+
+**k = 0.** A magnetic space group (`space_group_symop_magn_operation`,
+`_centering`) with `atom_site_moment` is the special case `k = 0`:
+`Crystal.convert_to_superspace()` writes it in the categories above (the
+moments become the `cos` components) and gives the same unpolarized
+intensities.
+
+**Single crystals.** The satellites are given in `diffrn_refln` by fractional
+indices `H = h ± k` (for example `0.25 0.25 1`), the nuclear reflections by
+integer ones. There is no ambiguity between `+k` and `-k`: for a general `k`
+only one of `H - k` and `H + k` is integer, and when `2k` is integer both
+terms scatter at the same `H` and are added. (FullProf `.int` files give
+integer `hkl` with the number of `±k` instead.) Magnetic domains are the
+twins of `jana_twin`: the intensity is `sum_d f_d I(M_d H)`. The example
+`examples/rhochi_unpolarized_single_crystal_k_Cs3Cr2Br9` uses the CrysFML
+data of Cs3Cr2Br9, `k = (1/4, 1/4, 0)`.
+
+**From a paramagnetic crystal.** The methods of `Crystal`
+`report_irreps_of_k(k_1, k_2, k_3, magnetic_atoms)` (the group of `k`, its
+one-dimensional irreducible representations, their superspace groups and
+the symmforms of the magnetic atoms) and `add_propagation_vector(k_1, k_2,
+k_3, magnetic_atoms, irrep, moment)` convert a crystal with `space_group`:
+the operations of the group of `k` get `tau = k.t + arg(chi) / 2pi` of the
+representation, an operation mapping `k` to `-k` is added when the
+representation allows it, atoms whose orbit splits become several atoms,
+and the space group is kept as `parent_space_group`.
+`Crystal.report_magnetic_domains` and `Diffrn.define_magnetic_domains(crystal)`
+give the domains (cosets of the point group of the superspace group;
+domains related by the inversion give the same unpolarized intensities and
+are merged). `simulation_single_crystal` adds the satellites to the
+simulated reflections. The assistant recipe `magnetic_structure_k` does
+these steps.
+
 ## Errors
 
 When a value cannot be understood (`_cell_length_a abc`, a non-integer

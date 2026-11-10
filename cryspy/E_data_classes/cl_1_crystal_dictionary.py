@@ -3,6 +3,8 @@
 The methods of Crystal call these functions (split from cl_1_crystal.py).
 """
 
+import functools
+import warnings
 import logging
 import numpy
 
@@ -32,6 +34,18 @@ from cryspy.A_functions_base.unit_cell import (
 )
 
 from cryspy.A_functions_base.function_3_mcif import calc_multiplicity
+from cryspy.exceptions import CrysPyError
+from cryspy.A_functions_base.structure_factor_magnetic_k import (
+    calc_f_m_perp_k_by_dictionary,
+    calc_full_symm_elems_by_k_operations,
+    calc_superspace_operation_arrays,
+    is_k_equivalent_to_minus_k,
+)
+from cryspy.A_functions_base.magnetic_k_symmetry import (
+    calc_fourier_site_projector,
+    form_fourier_symmform,
+    form_symmform_constraint,
+)
 from cryspy.A_functions_base.mempy import (
     form_basins_2,
     calc_symm_elem_points_by_index_points,
@@ -94,6 +108,27 @@ from cryspy.exceptions import RcifFormatError
 logger = logging.getLogger(__name__)
 
 na = numpy.newaxis
+
+
+# sin(theta)/lambda grid of the X-ray scattering amplitude tables (Å⁻¹)
+TABLE_STHOVL = numpy.linspace(0, 2, 501)
+
+
+@functools.lru_cache(maxsize=None)
+def take_scattering_amplitude_table(type_symbol: str):
+    """X-ray scattering amplitude of an ion on ``TABLE_STHOVL`` or None.
+
+    The table depends only on the type symbol; it is cached because
+    ``get_dictionary`` is called many times during a refinement. Do not
+    modify the returned array.
+    """
+    try:
+        return calc_jl_for_ion(TABLE_STHOVL, type_symbol)[:, 0]
+    except RcifFormatError:
+        try:
+            return calc_scattering_amplitude_tabulated(type_symbol, TABLE_STHOVL)[0]
+        except KeyError:
+            return None
 
 
 def form_crystal_dictionary(crystal, ddict):
@@ -217,12 +252,25 @@ def form_crystal_dictionary(crystal, ddict):
             full_mcif_elems = calc_full_mag_elems(se_sgsmo, se_sgsmc)
             ddict["full_mcif_elems"] = full_mcif_elems
 
+    form_magnetic_k_symmetry_dictionary(crystal, ddict)
+    if "full_mcif_elems" in ddict.keys():
+        full_mcif_elems = ddict["full_mcif_elems"]
+
     if cell is not None:
         if cell.is_attribute("type_cell"):
             type_cell, it_coordinate_system_code = (
                 cell.type_cell,
                 cell.it_coordinate_system_code,
             )
+        elif "magnetic_k_vector" in ddict.keys():
+            # The superspace group is often a subgroup of the lattice
+            # symmetry written in the parent axes (e.g. Cm of R-3m in
+            # hexagonal axes): the metric comes from the parent group.
+            type_cell, it_coordinate_system_code = take_parent_bravais_type(
+                crystal)
+            cell.type_cell = type_cell
+            cell.it_coordinate_system_code = it_coordinate_system_code
+            cell.apply_constraints()
         elif "full_mcif_elems" in ddict.keys():
             type_cell, it_coordinate_system_code = (
                 define_bravais_type_by_symm_elems(full_mcif_elems)
@@ -269,25 +317,16 @@ def form_crystal_dictionary(crystal, ddict):
             )
             ddict["atom_multiplicity"] = atom_multiplicity
         atom_type_symbol = numpy.array(atom_site.type_symbol, dtype=str)
-        table_sthovl = numpy.linspace(0, 2, 501)  # fro0 to 2 Å**-1
+        table_sthovl = numpy.copy(TABLE_STHOVL)
         d_dispersion = DATABASE["Dispersion"]
         table_wavelength = d_dispersion["table_wavelength"]
         l_table_atom_scattering_amplitude = []
         l_table_atom_dispersion = []
         flag_atom_scattering_amplitude = True
         for type_symbol in atom_type_symbol:
-            try:
-                jl = calc_jl_for_ion(table_sthovl, type_symbol)
-                scattering_amplitude = jl[:, 0]
-            except RcifFormatError:
-                try:
-                    scattering_amplitude = (
-                        calc_scattering_amplitude_tabulated(
-                            type_symbol, table_sthovl
-                        )[0]
-                    )
-                except KeyError:
-                    flag_atom_scattering_amplitude = False
+            scattering_amplitude = take_scattering_amplitude_table(str(type_symbol))
+            if scattering_amplitude is None:
+                flag_atom_scattering_amplitude = False
             if flag_atom_scattering_amplitude:
                 l_table_atom_scattering_amplitude.append(
                     scattering_amplitude
@@ -493,6 +532,20 @@ def form_crystal_dictionary(crystal, ddict):
             atom_sc_exchange = numpy.stack(l_sc_exchange, axis=-1)
             ddict["atom_sc_exchange"] = atom_sc_exchange
 
+    if atom_site_moment is not None and "magnetic_k_vector" in ddict:
+        # MAGNDATA writes the loop with zero moments next to the Fourier
+        # components; a k = 0 part of a modulated structure is not supported.
+        moments = numpy.array([
+            [getattr(item, f"crystalaxis_{axis}")
+             if item.is_attribute(f"crystalaxis_{axis}") else 0.
+             for axis in "xyz"] for item in atom_site_moment.items], dtype=float)
+        if numpy.any(numpy.abs(moments) > 1e-8):
+            raise CrysPyError(
+                "Nonzero atom_site_moment next to the superspace group: a "
+                "constant (k = 0) part of the moments is not supported. Give "
+                "the moments by atom_site_moment_Fourier only.")
+        atom_site_moment = None
+
     if atom_site_moment is not None:
         atom_ordered_label = numpy.array(atom_site_moment.label, dtype=str)
 
@@ -622,6 +675,8 @@ def form_crystal_dictionary(crystal, ddict):
                 mag_atom_rho_multipole_index
             )
 
+    form_magnetic_k_dictionary(crystal, ddict)
+
     if atom_type is not None:
         pass
 
@@ -736,9 +791,345 @@ def form_crystal_dictionary(crystal, ddict):
 
 
 
+def take_parent_bravais_type(crystal):
+    """Bravais type and coordinate system code of the cell of a k structure.
+
+    Taken from parent_space_group when it is given in the cell of the
+    structure; otherwise the cell is not constrained (``"aP"``), because the
+    operations of the superspace group alone may have a lower symmetry than
+    the lattice.
+    """
+    if crystal.is_attribute("parent_space_group"):
+        if not crystal.parent_space_group.is_cell_of_structure():
+            warnings.warn(
+                "parent_space_group is given in another cell "
+                "(transform_Pp_abc or child_transform_Pp_abc is not a,b,c): "
+                "the cell parameters are not constrained by it.",
+                UserWarning, stacklevel=2)
+            return "aP", None
+        space_group = crystal.parent_space_group.take_space_group()
+        code = space_group.it_coordinate_system_code \
+            if space_group.is_attribute("it_coordinate_system_code") else None
+        return space_group.bravais_type, code
+    return "aP", None
+
+
+def take_wave_vector(crystal):
+    """Propagation vector (3,) of ``cell_wave_vector`` (one vector: 3+1)."""
+    wave_vector = crystal.cell_wave_vector
+    if len(wave_vector.items) != 1:
+        raise CrysPyError(
+            "Only one propagation vector (cell_wave_vector, 3+1 superspace) "
+            "is supported.")
+    item = wave_vector.items[0]
+    if item.x_refinement or item.y_refinement or item.z_refinement:
+        warnings.warn(
+            "The refinement of the propagation vector (cell_wave_vector) is "
+            "not implemented: k is kept fixed.", UserWarning, stacklevel=2)
+    return numpy.array([item.x, item.y, item.z], dtype=float)
+
+
+def form_magnetic_k_symmetry_dictionary(crystal, ddict):
+    """Symmetry of a crystal described by a magnetic superspace group.
+
+    The loops space_group_symop_magn_ssg_operation and
+    space_group_symop_magn_ssg_centering (mCIF) are the only symmetry of the
+    crystal: the nuclear and the magnetic structure are generated by the
+    same operations (``full_mcif_elems`` is formed from their x1, x2, x3
+    part), so a moment always sits on an atom of the structure. Every
+    product of a centring and an operation is stored as one operation (see
+    ``structure_factor_magnetic_k``). Keys written:
+    ``magnetic_k_vector`` (3, 1), ``magnetic_k_op_rotation`` (9, n_s),
+    ``magnetic_k_op_translation`` (3, n_s), ``magnetic_k_op_moment``
+    (9, n_s) = theta det(R) R, ``magnetic_k_op_phase`` (n_s,) = k.t - tau,
+    ``magnetic_k_op_conjugate`` (n_s,) epsilon = -1,
+    ``magnetic_k_centring`` (3, 1) zero, and ``full_mcif_elems``.
+    """
+    if not crystal.is_attribute("space_group_symop_magn_ssg_operation"):
+        if crystal.is_attribute("atom_site_moment_fourier"):
+            raise CrysPyError(
+                "The atom_site_moment_Fourier loop needs the magnetic "
+                "superspace group (space_group_symop_magn_ssg_operation): "
+                "it describes both the nuclear and the magnetic structure.")
+        return
+    if crystal.is_attribute("space_group") or crystal.is_attribute(
+            "space_group_symop_magn_operation"):
+        raise CrysPyError(
+            "Give either the superspace operations "
+            "(space_group_symop_magn_ssg_operation) or a space group, not "
+            "both: one set of symmetry elements must describe the nuclear "
+            "and the magnetic structure together.")
+    if not crystal.is_attribute("cell_wave_vector"):
+        raise CrysPyError("The superspace group needs cell_wave_vector (k).")
+    k_vector = take_wave_vector(crystal)
+    l_operation = [item.algebraic for item in
+                   crystal.space_group_symop_magn_ssg_operation.items]
+    l_centring = [item.algebraic for item in
+                  crystal.space_group_symop_magn_ssg_centering.items] \
+        if crystal.is_attribute("space_group_symop_magn_ssg_centering") else []
+    try:
+        arrays = calc_superspace_operation_arrays(l_operation, l_centring, k_vector)
+    except ValueError as error:
+        raise CrysPyError(str(error)) from error
+    rotation, translation = arrays["rotation"], arrays["translation"]
+    centring = numpy.zeros((3, 1), dtype=float)
+    ddict["magnetic_k_vector"] = k_vector[:, na]
+    ddict["magnetic_k_op_rotation"] = rotation
+    ddict["magnetic_k_op_translation"] = translation
+    ddict["magnetic_k_op_moment"] = arrays["moment"]
+    ddict["magnetic_k_op_phase"] = arrays["phase"]
+    ddict["magnetic_k_op_conjugate"] = arrays["conjugate"]
+    ddict["magnetic_k_centring"] = centring
+    ddict["full_mcif_elems"] = calc_full_symm_elems_by_k_operations(
+        rotation, translation, centring)
+
+
+AXIS_INDEX = {"x": 0, "y": 1, "z": 2, "a": 0, "b": 1, "c": 2}
+
+
+def form_magnetic_k_dictionary(crystal, ddict):
+    """Add the Fourier components of the moments to ``ddict``.
+
+    Reads atom_site_moment_Fourier (one row per atom, axis and wave vector,
+    ``cos`` and ``sin`` in μB along a, b, c, optional symmform) and
+    atom_site_Fourier_wave_vector (only the first harmonic, q1_coeff = 1).
+    Keys written: ``atom_fourier_label`` (n_atom,), ``atom_fourier_index``
+    (into atom_*), ``mag_atom_fourier_index`` (into mag_atom_*),
+    ``atom_fourier_k_index`` (n_atom,), ``atom_fourier_row_atom``,
+    ``atom_fourier_row_axis`` (n_row,), ``atom_fourier_cos``,
+    ``atom_fourier_sin`` (n_row,) with their ``flags_`` keys and
+    ``atom_fourier_constraint`` (2 n_row, 2 n_row), see
+    ``structure_factor_magnetic_k.calc_fourier_modulation_by_dictionary``.
+    """
+    if not crystal.is_attribute("atom_site_moment_fourier"):
+        return
+    fourier = crystal.atom_site_moment_fourier
+    if crystal.is_attribute("atom_site_fourier_wave_vector"):
+        d_harmonic = {}
+        k_vector = ddict["magnetic_k_vector"][:, 0]
+        for item in crystal.atom_site_fourier_wave_vector.items:
+            if item.is_attribute("q1_coeff"):
+                d_harmonic[int(item.seq_id)] = int(item.q1_coeff)
+            else:
+                vector = numpy.array([item.x, item.y, item.z], dtype=float)
+                d_harmonic[int(item.seq_id)] = (
+                    1 if numpy.allclose(vector, k_vector, atol=1e-4) else 0)
+        for item in fourier.items:
+            if d_harmonic.get(int(item.wave_vector_seq_id), 1) != 1:
+                raise CrysPyError(
+                    "Only the first harmonic of the propagation vector is "
+                    f"supported (atom {item.atom_site_label}).")
+    labels = []
+    for item in fourier.items:
+        if item.atom_site_label not in labels:
+            labels.append(item.atom_site_label)
+    atom_label = list(ddict["atom_label"])
+    missing = [label for label in labels if label not in atom_label]
+    if missing:
+        raise CrysPyError(
+            f"Atoms {missing} of atom_site_moment_Fourier are not in atom_site: "
+            "a moment must belong to an atom of the structure.")
+    mag_label = list(ddict.get("mag_atom_label", []))
+    missing = [label for label in labels if label not in mag_label]
+    if missing:
+        raise CrysPyError(
+            f"Atoms {missing} need the atom_site_scat loop for the magnetic "
+            "form factor.")
+    axes = [str(item.axis).lower() for item in fourier.items]
+    wrong = [axis for axis in axes if axis not in AXIS_INDEX]
+    if wrong:
+        raise CrysPyError(f"Unknown axis {wrong} of atom_site_moment_Fourier "
+                          "(x, y, z along a, b, c).")
+    ddict["atom_fourier_label"] = numpy.array(labels, dtype=str)
+    ddict["atom_fourier_index"] = numpy.array(
+        [atom_label.index(label) for label in labels], dtype=int)
+    ddict["mag_atom_fourier_index"] = numpy.array(
+        [mag_label.index(label) for label in labels], dtype=int)
+    ddict["atom_fourier_k_index"] = numpy.zeros(len(labels), dtype=int)
+    row_atom = numpy.array([labels.index(item.atom_site_label)
+                            for item in fourier.items], dtype=int)
+    ddict["atom_fourier_row_atom"] = row_atom
+    ddict["atom_fourier_row_axis"] = numpy.array(
+        [AXIS_INDEX[axis] for axis in axes], dtype=int)
+    l_symmform = []
+    for part in ("cos", "sin"):
+        ddict[f"atom_fourier_{part}"] = numpy.array(
+            [getattr(item, part) if item.is_attribute(part) else 0.
+             for item in fourier.items], dtype=float)
+        l_symmform.append([
+            getattr(item, f"{part}_symmform")
+            if item.is_attribute(f"{part}_symmform") else None
+            for item in fourier.items])
+    fill_fourier_symmform_by_symmetry(
+        ddict, labels, row_atom, ddict["atom_fourier_row_axis"], l_symmform)
+    constraint, flag_free = form_symmform_constraint(
+        l_symmform[0] + l_symmform[1], numpy.concatenate([row_atom, row_atom]))
+    values = numpy.concatenate(
+        [ddict["atom_fourier_cos"], ddict["atom_fourier_sin"]])
+    flag_wrong = numpy.abs(constraint @ values - values) > 1e-3
+    if numpy.any(flag_wrong):
+        wrong = sorted({labels[i_atom] for i_atom in
+                        numpy.concatenate([row_atom, row_atom])[flag_wrong]})
+        warnings.warn(
+            f"The Fourier components of {', '.join(wrong)} in "
+            "atom_site_moment_Fourier do not obey the symmetry (symmform); "
+            "the values given by the symmform symbols are used.",
+            UserWarning, stacklevel=2)
+    ddict["atom_fourier_constraint"] = constraint
+    n_row = len(fourier.items)
+    for i_part, part in enumerate(("cos", "sin")):
+        flags = numpy.array([
+            bool(getattr(item, f"{part}_refinement")) for item in fourier.items],
+            dtype=bool)
+        ddict[f"flags_atom_fourier_{part}"] = flags & flag_free[i_part * n_row:(i_part + 1) * n_row]
+    fix_fourier_gauge(ddict)
+
+
+def fix_fourier_gauge(ddict):
+    """Switch off the refinement of Fourier parameters the data cannot define.
+
+    Two cases make the refinement singular:
+
+    - parameters that do not change any magnetic structure factor. For
+      ``2k`` integer the atoms see the modulation only at a few values of
+      x4, so one combination of cos and sin of a row (or of several rows,
+      for characters ±i) is not defined. They are found as the null space
+      of the linear map from the refined parameters to F_M of a set of
+      satellites ``h ± k``: the parameters are taken in the order of their
+      effect and one that adds nothing new is switched off;
+    - the global phase. Without operations mapping k to -k (epsilon = -1)
+      and for k not equivalent to -k, ``Mcos + i Msin -> (Mcos + i Msin)
+      exp(i alpha)`` shifts the modulation along x4 and keeps all
+      intensities. The refined parameter most affected by this rotation is
+      switched off.
+
+    A warning names the parameters that are switched off; their values are
+    kept.
+    """
+    flags_cos = ddict["flags_atom_fourier_cos"]
+    flags_sin = ddict["flags_atom_fourier_sin"]
+    n_row = flags_cos.size
+    flags = numpy.concatenate([flags_cos, flags_sin])
+    i_refined = numpy.flatnonzero(flags)
+    if i_refined.size == 0:
+        return
+    k_vector = ddict["magnetic_k_vector"][:, 0]
+    unit_cell_parameters = ddict["unit_cell_parameters"]
+    # generic satellites; F_M is linear in the Fourier parameters
+    rng = numpy.random.default_rng(0)
+    index_h = rng.integers(-2, 3, size=(3, 16)).astype(float)
+    index_hkl = numpy.concatenate(
+        [index_h + k_vector[:, na], index_h - k_vector[:, na]], axis=1)
+    values = numpy.concatenate(
+        [ddict["atom_fourier_cos"], ddict["atom_fourier_sin"]])
+    trial = dict(ddict)
+    l_column = []
+    for i_parameter in i_refined:
+        unit = numpy.zeros(2 * n_row, dtype=float)
+        unit[i_parameter] = 1.
+        trial["atom_fourier_cos"], trial["atom_fourier_sin"] = unit[:n_row], unit[n_row:]
+        f_m = calc_f_m_perp_k_by_dictionary(trial, index_hkl, unit_cell_parameters)
+        l_column.append(numpy.concatenate([f_m.real.ravel(), f_m.imag.ravel()]))
+    matrix = numpy.stack(l_column, axis=1)
+    norm = numpy.linalg.norm(matrix, axis=0)
+    tolerance = 1e-8 * max(norm.max(), 1e-30)
+    keep = []
+    for j in numpy.argsort(-norm, kind="stable"):
+        if norm[j] <= tolerance:
+            continue
+        candidate = matrix[:, keep + [j]]
+        if numpy.linalg.matrix_rank(candidate, tol=tolerance) == len(keep) + 1:
+            keep.append(j)
+    flag_keep = numpy.zeros(i_refined.size, dtype=bool)
+    flag_keep[keep] = True
+
+    flag_phase = not (is_k_equivalent_to_minus_k(k_vector) or numpy.any(
+        ddict["magnetic_k_op_conjugate"]))
+    if flag_phase and flag_keep.sum() > 1:
+        # tangent of the phase rotation: (cos, sin) -> (-sin, cos) per row
+        constraint = ddict["atom_fourier_constraint"]
+        rows = constraint @ values
+        tangent = numpy.linalg.lstsq(
+            constraint, numpy.concatenate([-rows[n_row:], rows[:n_row]]),
+            rcond=None)[0][i_refined]
+        # a zero parameter is a safe phase origin: any modulation can be
+        # shifted along x4 to make it zero
+        flag_zero = numpy.abs(values[i_refined]) < 1e-8
+        weight = numpy.where(flag_keep, numpy.abs(tangent), -1.)
+        if numpy.any(flag_keep & flag_zero & (weight > 1e-8)):
+            weight = numpy.where(flag_zero, weight, -1.)
+        if weight.max() > 1e-8:
+            j_fixed = int(numpy.argmax(weight))
+        else:
+            # zero moments: fix a sin parameter (the phase origin)
+            j_sin = [j for j in numpy.flatnonzero(flag_keep) if i_refined[j] >= n_row]
+            j_fixed = j_sin[0] if j_sin else int(numpy.flatnonzero(flag_keep)[-1])
+        flag_keep[j_fixed] = False
+
+    i_off = i_refined[~flag_keep]
+    if i_off.size == 0:
+        return
+    flags[i_off] = False
+    flags_cos[:] = flags[:n_row]
+    flags_sin[:] = flags[n_row:]
+    names = []
+    for i_parameter in i_off:
+        i_row = i_parameter % n_row
+        label = ddict["atom_fourier_label"][ddict["atom_fourier_row_atom"][i_row]]
+        axis = "xyz"[ddict["atom_fourier_row_axis"][i_row]]
+        names.append(f"{label} {axis} {'cos' if i_parameter < n_row else 'sin'}")
+    logger.info("Fourier parameters kept fixed (not defined by the data): %s",
+                ", ".join(names))
+    warnings.warn(
+        "These Fourier components are not defined by the diffraction data "
+        "(global phase of the modulation or a combination that does not "
+        f"change any satellite) and are kept fixed: {', '.join(names)}.",
+        UserWarning, stacklevel=2)
+
+
+def fill_fourier_symmform_by_symmetry(
+        ddict, labels, row_atom, row_axis, l_symmform):
+    """Symmforms of the atoms given without them, from the site symmetry.
+
+    An atom whose rows of atom_site_moment_Fourier have no symmform and
+    cover the three axes gets the constraints of its site in the superspace
+    group (``calc_fourier_site_projector``). ``l_symmform`` ([cos list,
+    sin list]) is changed in place.
+    """
+    for i_atom in range(len(labels)):
+        rows = numpy.flatnonzero(row_atom == i_atom)
+        if any(l_symmform[part][i_row] is not None
+               for part in (0, 1) for i_row in rows):
+            continue
+        if sorted(row_axis[rows]) != [0, 1, 2]:
+            continue
+        i_site = ddict["atom_fourier_index"][i_atom]
+        position = ddict["atom_site_sc_fract"][:, i_site].reshape(3, 3) @ \
+            ddict["atom_fract_xyz"][:, i_site] + ddict["atom_site_sc_b"][:, i_site]
+        projector = calc_fourier_site_projector(
+            position, ddict["magnetic_k_vector"][:, 0],
+            ddict["magnetic_k_op_rotation"], ddict["magnetic_k_op_translation"],
+            ddict["magnetic_k_op_moment"], ddict["magnetic_k_op_phase"],
+            ddict["magnetic_k_op_conjugate"])
+        symmform = form_fourier_symmform(projector)
+        for i_row in rows:
+            axis = int(row_axis[i_row])
+            l_symmform[0][i_row] = symmform[axis]
+            l_symmform[1][i_row] = symmform[3 + axis]
+
+
 def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_name: list = None, l_sigma: list = None):
     """Body of Crystal.take_parameters_from_dictionary, see its docstring."""
     keys = ddict_crystal.keys()
+
+    if "atom_fourier_cos" in keys:
+        # the values with the symmform constraints applied
+        n_row = ddict_crystal["atom_fourier_cos"].size
+        values = ddict_crystal["atom_fourier_constraint"] @ numpy.concatenate(
+            [ddict_crystal["atom_fourier_cos"], ddict_crystal["atom_fourier_sin"]])
+        for i_item, item in enumerate(crystal.atom_site_moment_fourier.items):
+            item.cos = float(values[i_item])
+            item.sin = float(values[n_row + i_item])
     if l_parameter_name is None:
         l_parameter_name = []
         l_sigma = []
@@ -1028,6 +1419,18 @@ def take_crystal_parameters_from_dictionary(crystal, ddict_crystal, l_parameter_
                     item.u_13_sigma = float(sigma * coeff_hh[4].squeeze())
                 elif ind_p == 5:
                     item.u_23_sigma = float(sigma * coeff_hh[5].squeeze())
+
+        for i_part, part in enumerate(("cos", "sin")):
+            if f"atom_fourier_{part}" == parameter_label:
+                # the sigma goes to every row that depends on this parameter
+                constraint = ddict_crystal["atom_fourier_constraint"]
+                n_row = ddict_crystal["atom_fourier_cos"].size
+                column = constraint[:, i_part * n_row + ind_s[0]]
+                items = crystal.atom_site_moment_fourier.items
+                for i_value in numpy.flatnonzero(numpy.abs(column) > 1e-12):
+                    item = items[i_value % n_row]
+                    name = "cos" if i_value < n_row else "sin"
+                    setattr(item, f"{name}_sigma", float(abs(column[i_value]) * sigma))
 
         if "atom_ordered_moment_crystalaxis_dn" in parameter_label:
             ind_p, ind_a = ind_s[0], ind_s[1]

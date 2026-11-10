@@ -16,6 +16,10 @@ from cryspy.A_functions_base.structure_factor import (
     calc_f_m_perp_ordered_by_dictionary,
 )
 
+from cryspy.A_functions_base.structure_factor_magnetic_k import (
+    calc_powder_iint_magnetic_k_by_dictionary,
+)
+
 from cryspy.A_functions_base.integrated_intensity_powder_diffraction import (
     calc_powder_iint_1d_para,
     calc_powder_iint_1d_ordered,
@@ -79,6 +83,47 @@ def calc_background(
         )
         dder["background_intensity"] = dder_bkgr
     return intensity, dder
+
+
+def calc_signal_magnetic_k(
+        dict_crystal, dict_in_out_phase, sthovl_min, sthovl_max,
+        unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
+        offset_sycos, offset_sysin, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
+        p_scale, lorentz_factor, k, cthm, cutoff_fwhm):
+    """Unpolarized powder signal of the magnetic satellites H = h +- k.
+
+    The satellites are written to ``dict_in_out_phase`` under the keys
+    ``index_hkl_magnetic_k``, ``ttheta_hkl_magnetic_k``,
+    ``iint_magnetic_k`` and ``k_index_magnetic_k``. The scale factor has the
+    same meaning as for the nuclear reflections.
+    """
+    index_hkl, iint, k_index = calc_powder_iint_magnetic_k_by_dictionary(
+        dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
+    sthovl_hkl = calc_sthovl_by_unit_cell_parameters(
+        index_hkl, unit_cell_parameters)[0]
+    ttheta_hkl = 2 * numpy.arcsin(sthovl_hkl * wavelength)
+    ttheta_hkl_shift = (
+        offset_ttheta
+        + numpy.radians(offset_sycos) * numpy.cos(ttheta_hkl)
+        + numpy.radians(offset_sysin) * numpy.sin(ttheta_hkl)
+    )
+    dict_in_out_phase["index_hkl_magnetic_k"] = index_hkl
+    dict_in_out_phase["ttheta_hkl_magnetic_k"] = ttheta_hkl + ttheta_hkl_shift
+    dict_in_out_phase["iint_magnetic_k"] = iint
+    dict_in_out_phase["k_index_magnetic_k"] = k_index
+    if iint.size == 0:
+        return numpy.zeros_like(ttheta_zs)
+    lf = calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[0]
+    dict_in_out_phase["iint_magnetic_k_with_factors"] = p_scale * lf * iint
+    # Satellites listed with multiplicity 1 share their 2theta with the
+    # symmetry-equivalent ones: the profile is computed once per position.
+    ttheta_unique, index_unique = numpy.unique(
+        numpy.round(ttheta_hkl, 12), return_inverse=True)
+    iint_unique = numpy.bincount(index_unique, weights=iint, minlength=ttheta_unique.size)
+    profile_pv = calc_profile_pseudo_voight(
+        ttheta_zs, ttheta_unique, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
+        cutoff_fwhm=cutoff_fwhm)[0]
+    return p_scale * lorentz_factor * (profile_pv * iint_unique[na, :]).sum(axis=1)
 
 
 def calc_chi_sq_for_pd_by_dictionary(
@@ -632,6 +677,17 @@ def calc_chi_sq_for_pd_by_dictionary(
                 * lorentz_factor
                 * (profile_pv * iint_m_minus[na, :]).sum(axis=1)
             )
+
+        if radiation[0].startswith("neutrons") and (
+                "atom_fourier_index" in dict_crystal_keys):
+            signal_magnetic_k = calc_signal_magnetic_k(
+                dict_crystal, dict_in_out_phase, sthovl_min, sthovl_max,
+                unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
+                offset_sycos, offset_sysin, u, v, w, p_ig, x, y,
+                p_1, p_2, p_3, p_4, p_scale, lorentz_factor, k, cthm,
+                dict_pd.get("profile_cutoff_fwhm", 0.))
+            signal_plus = signal_plus + 0.5 * signal_magnetic_k
+            signal_minus = signal_minus + 0.5 * signal_magnetic_k
 
         dict_in_out_phase["signal_plus"] = signal_plus
         dict_in_out_phase["signal_minus"] = signal_minus
