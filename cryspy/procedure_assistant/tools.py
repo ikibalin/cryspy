@@ -51,7 +51,7 @@ from cryspy.procedure_assistant.procedures import (
     take_procedures)
 from cryspy.procedure_assistant.methods import (
     describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
-    take_methods)
+    take_methods, score_method, take_request_words)
 from cryspy.procedure_assistant.history import (
     form_metrics, format_metrics, keep_checkpoint, keep_snapshot, restore_snapshot, take_history)
 from cryspy.procedure_assistant import recipes
@@ -750,11 +750,24 @@ def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
     for block_path, block in l_block:
         d_class.setdefault(type(block), []).append(block_path)
     flag_short = path.strip() == "" and word == ""
+    # a pattern of several words (a request) is matched word by word against
+    # the names and the whole docstrings; the best matching methods are kept
+    l_word = take_request_words(word)
+    d_score = {}
     for cls, l_path in d_class.items():
         s_path = " ".join(l_path).lower()
+        for name, function in take_methods(cls).items():
+            if word == "" or word in name.lower() or word in s_path:
+                d_score[(cls, name)] = len(l_word) + 1
+            else:
+                d_score[(cls, name)] = score_method(function, l_word)
+    score_min = max(max(d_score.values(), default=0), 1)
+    if len(l_word) > 2:
+        # long requests: also the methods that miss one word
+        score_min = max(score_min - 1, 1)
+    for cls, l_path in d_class.items():
         d_method = {name: function for name, function in take_methods(cls).items()
-                    if word == "" or word in name.lower() or word in s_path
-                    or word in describe_method(function)["summary"].lower()}
+                    if word == "" or d_score[(cls, name)] >= score_min}
         if len(d_method) == 0:
             continue
         s_path = ", ".join(l_path[:5]) + (f", ... ({len(l_path):})" if len(l_path) > 5 else "")

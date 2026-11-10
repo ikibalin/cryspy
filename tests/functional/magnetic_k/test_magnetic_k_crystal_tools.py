@@ -143,3 +143,32 @@ def test_report_magnetic_moments_of_hexagonal_cell():
     rows = [line for line in report.splitlines() if line.startswith("| 1 ")]
     assert len(rows) == 1
     assert "| 2.000–2.000 | circular helix" in rows[0]
+
+
+def test_convert_space_group_to_superspace_keeps_nuclear_structure_factor():
+    """A crystal with only space_group (no magnetic group) is written as the
+    superspace group with k = 0; the nuclear structure factor is unchanged."""
+    crystal = form_crystal("P n m a", (5.5, 7.6, 5.4, 90, 90, 90),
+                           [("Mn", "Mn", 0.0, 0.0, 0.5), ("O1", "O", 0.48, 0.25, 0.08),
+                            ("La", "La", 0.05, 0.25, 0.99)])
+    index_hkl = numpy.array([[1, 0, 2, 1, 3], [0, 1, 1, 2, 2], [1, 1, 0, 3, 1]])
+    f_nucl = crystal.calc_f_nucl(index_hkl)
+    crystal.convert_to_superspace()
+    assert crystal.is_attribute("space_group_symop_magn_ssg_operation")
+    assert not crystal.is_attribute("space_group")
+    assert len(crystal.space_group_symop_magn_ssg_operation.items) == 8
+    assert numpy.allclose(crystal.calc_f_nucl(index_hkl), f_nucl, atol=1e-10)
+    with pytest.raises(CrysPyError):
+        crystal.convert_to_superspace()
+
+
+def test_assistant_finds_convert_to_superspace_by_words():
+    """Requests of several words find methods by their docstrings
+    (the assistant asked 'symmetry operation' and found nothing)."""
+    crystal = form_crystal("P n m a", (5.5, 7.6, 5.4, 90, 90, 90),
+                           [("Mn", "Mn", 0.0, 0.0, 0.5)])
+    for pattern in ("symmetry operation", "superspace", "convert to superspace",
+                    "ssg", "Convert this crystal to superspace"):
+        result = cryspy.call_assistant_tool(crystal, "list_methods", {"pattern": pattern})
+        assert not result["flag_error"], pattern
+        assert "convert_to_superspace" in result["text"], pattern

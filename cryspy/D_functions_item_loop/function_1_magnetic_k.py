@@ -457,25 +457,26 @@ def form_parent_space_group(space_group):
 
 
 def convert_magnetic_space_group(crystal) -> tuple:
-    """Superspace description (k = 0) of a crystal with a magnetic space group.
+    """Superspace description (k = 0) of a crystal with a (magnetic) space group.
 
     The operations ``x,y,z,theta`` of space_group_symop_magn_operation and
     _centering become ``x1,x2,x3,x4,theta`` (k = 0, epsilon = +1, tau = 0)
     and the moments of atom_site_moment become the cos components of
     atom_site_moment_Fourier (sin = 0): for k = 0, ``x4 = k.r = 0`` and
     ``M = Mcos``. Symmforms are taken from atom_site_moment.symmform or
-    calculated from the site symmetry.
+    calculated from the site symmetry. A crystal with only space_group
+    (no magnetic structure) gets its operations with theta = +1, and the
+    space group is kept as parent_space_group.
 
     Returns
     -------
     tuple
         (list of new items and loops, report in markdown).
     """
-    if not crystal.is_attribute("space_group_symop_magn_operation"):
-        raise CrysPyError("The crystal has no magnetic space group "
-                          "(space_group_symop_magn_operation).")
     if crystal.is_attribute("space_group_symop_magn_ssg_operation"):
         raise CrysPyError("The crystal already has a superspace group.")
+    if not crystal.is_attribute("space_group_symop_magn_operation"):
+        return convert_space_group(crystal)
 
     def to_algebraic(xyz):
         parts = [part.strip() for part in xyz.split(",")]
@@ -521,6 +522,47 @@ def convert_magnetic_space_group(crystal) -> tuple:
               f"{len(l_centring)} centrings) written as the superspace group "
               f"with k = 0; {len(rows)} moments became cos components of "
               "atom_site_moment_Fourier.")
+    return l_new, report
+
+
+def convert_space_group(crystal) -> tuple:
+    """Superspace description (k = 0) of a crystal with space_group only.
+
+    Returns
+    -------
+    tuple
+        (list of new items and loops, report in markdown).
+    """
+    if not crystal.is_attribute("space_group"):
+        raise CrysPyError("The crystal has neither space_group nor a magnetic "
+                          "space group (space_group_symop_magn_operation).")
+    l_unsupported = [name for name in (
+        "atom_site_susceptibility", "atom_site_moment", "atom_rho_orbital_radial_slater",
+        "atom_local_axes") if crystal.is_attribute(name)]
+    if l_unsupported:
+        raise CrysPyError(
+            f"{', '.join(l_unsupported)} use the space group: the superspace "
+            "description does not support them yet.")
+    space_group = crystal.space_group
+    rotation, translation, centring = take_space_group_operations(space_group)
+
+    def to_algebraic(matrix, shift):
+        rows = form_operation_xyz(matrix, shift)
+        return rows.replace("x", "x1").replace("y", "x2").replace("z", "x3") + ",x4,+1"
+
+    identity = numpy.eye(3).flatten()
+    ssg = {"operations": [to_algebraic(rotation[:, i], translation[:, i])
+                          for i in range(rotation.shape[1])],
+           "centrings": [to_algebraic(identity, centring[:, i])
+                         for i in range(centring.shape[1])]}
+    l_new = form_superspace_items(numpy.zeros(3), ssg)
+    l_new.append(form_parent_space_group(space_group))
+    report = (f"Space group {space_group.name_hm_alt} ({rotation.shape[1]} operations, "
+              f"{centring.shape[1]} centrings) written as the superspace group with "
+              "k = 0 (space_group_symop_magn_ssg_operation, _centering); the space "
+              "group is kept as parent_space_group. No magnetic moments: add them "
+              "with add_item (atom_site_moment_Fourier) or start from the "
+              "paramagnetic crystal with add_propagation_vector.")
     return l_new, report
 
 

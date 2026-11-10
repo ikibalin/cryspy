@@ -1140,15 +1140,18 @@ class Crystal(DataN):
             dict_crystal["unit_cell_parameters"])
 
     def convert_to_superspace(self) -> str:
-        """Write a magnetic space group (k = 0) as a magnetic superspace group.
+        """Write the symmetry operations as a magnetic superspace group (ssg).
 
         The commensurate description (space_group_symop_magn_operation,
         _centering and atom_site_moment) is a special case of the
         superspace description with k = 0: the operations ``x,y,z,+1``
         become ``x1,x2,x3,x4,+1`` and the moments become the cos components
-        of atom_site_moment_fourier (sin = 0). The old loops are removed.
-        Use it to continue with the tools for propagation vectors; the
-        polarized-neutron calculations need the old description for now.
+        of atom_site_moment_fourier (sin = 0). A crystal with only
+        space_group gets its symmetry operations as superspace operations
+        (k = 0) and keeps the space group as parent_space_group. The old
+        loops are removed. Use it to continue with the tools for
+        propagation vectors; the polarized-neutron calculations need the
+        old description for now.
 
         Returns
         -------
@@ -1159,7 +1162,7 @@ class Crystal(DataN):
         l_new, report = convert_magnetic_space_group(self)
         self.items[:] = [item for item in self.items if not isinstance(item, (
             SpaceGroupSymopMagnOperationL, SpaceGroupSymopMagnCenteringL,
-            AtomSiteMomentL))]
+            AtomSiteMomentL, SpaceGroup))]
         self.add_items(l_new)
         return report
 
