@@ -22,7 +22,8 @@ from cryspy.A_functions_base.structure_factor import (
 )
 
 from cryspy.A_functions_base.structure_scene import (
-    calc_atoms_in_unit_cell, calc_structure_scene, calc_tensors_xyz_by_symmetry)
+    calc_atoms_in_unit_cell, calc_structure_scene, calc_tensors_xyz_by_symmetry,
+    calc_xyz_by_fract)
 from cryspy.D_functions_item_loop.function_1_view_structure import (
     ATOM_DISPLAY_ADP, ATOM_DISPLAY_SUSCEPTIBILITY,
     StructureViewSettings,
@@ -722,9 +723,26 @@ class Crystal(DataN):
             n_cells=settings.n_cells,
             flag_boundary=settings.show_boundary_atoms,
             flag_inner_edges=settings.show_inner_cells)
+        if atom_moment is None and self.is_attribute("atom_site_moment_fourier"):
+            scene["moment_xyz"] = self.take_scene_moments_xyz(scene["atom_fract_xyz"])
         scene["atom_element"] = [take_element(symbol) for symbol in symbols[flags]]
         scene["atom_label"] = list(atom_label[flags])
         return scene
+
+    def take_scene_moments_xyz(self, fract_xyz):
+        """Moments of a structure with a propagation vector at the shown
+        atom positions (fractional, any cell): Cartesian, μB, NaN for
+        non-magnetic atoms. The moment differs from cell to cell."""
+        from cryspy.A_functions_base.structure_factor_magnetic_k import (
+            calc_moment_modulation_by_dictionary, calc_moments_at_positions)
+        dict_crystal = self.get_dictionary()
+        modulation = calc_moment_modulation_by_dictionary(dict_crystal)
+        moment = calc_moments_at_positions(
+            fract_xyz, modulation["fract_xyz"], modulation["amplitude"],
+            modulation["k_vector"])
+        unit_cell_parameters = self.cell.get_unit_cell_parameters()
+        return calc_xyz_by_fract(unit_cell_parameters,
+                                 moment / numpy.asarray(unit_cell_parameters[:3])[:, numpy.newaxis])
 
     def get_full_symm_elems(self):
         """Symmetry elements with centring for the atoms of the cell.

@@ -172,3 +172,26 @@ def test_assistant_finds_convert_to_superspace_by_words():
         result = cryspy.call_assistant_tool(crystal, "list_methods", {"pattern": pattern})
         assert not result["flag_error"], pattern
         assert "convert_to_superspace" in result["text"], pattern
+
+
+def test_3d_view_keeps_moments_after_conversion_to_superspace():
+    """The 3D view draws the same moments at the same atoms before and
+    after convert_to_superspace (k = 0)."""
+    f_name = os.path.join(os.path.dirname(__file__), "..", "..", "..", "examples",
+                          "rhochi_unpolarized_powder_1d_mcif_URu0.96Rh0.04Si2",
+                          "rhochi_unpolarized_powder_1d_mcif_URu0.96Rh0.04Si2.rcif")
+    crystal = [item for item in cryspy.load_file(f_name).items
+               if isinstance(item, cryspy.Crystal)][0]
+    settings = cryspy.StructureViewSettings(n_cells_a=2, n_cells_b=1, n_cells_c=2)
+
+    def take_atoms(scene):
+        moment = numpy.nan_to_num(scene["moment_xyz"])
+        return sorted(map(tuple, numpy.round(numpy.vstack([scene["atom_fract_xyz"], moment]), 4).T))
+
+    l_before = take_atoms(crystal.get_structure_scene(settings))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        crystal.convert_to_superspace()
+    l_after = take_atoms(crystal.get_structure_scene(settings))
+    assert l_after == l_before
+    assert max(abs(value) for row in l_after for value in row[3:]) > 0.5

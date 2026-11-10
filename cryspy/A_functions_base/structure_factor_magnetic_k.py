@@ -902,3 +902,46 @@ def warn_not_satellites(index_hkl, k_vectors, tolerance: float = 1e-4):
         f"({example})) are not h ± k of the propagation vector within "
         f"{tolerance:g}: their magnetic structure factor is zero. Give the "
         "indices with enough digits or check k.", UserWarning, stacklevel=2)
+
+
+def calc_moments_at_positions(fract_xyz, modulation_fract_xyz, amplitude, k_vector,
+                              tolerance: float = 1e-4):
+    """Moments of the modulated structure at given atom positions.
+
+    The atom at ``r = p + L`` (p one of the positions of the cell given by
+    calc_moment_modulation_by_dictionary, L a lattice vector) has the
+    moment ``Re(A exp(-2 pi i k.L))``.
+
+    Parameters
+    ----------
+    fract_xyz : numpy.ndarray, shape (3, n)
+        Fractional positions of the atoms, any cell.
+    modulation_fract_xyz : numpy.ndarray, shape (3, m)
+        Fractional positions p of the magnetic atoms in the cell [0, 1).
+    amplitude : numpy.ndarray, shape (3, m), complex
+        Amplitudes A along the unit vectors of a, b, c (μB).
+    k_vector : numpy.ndarray, shape (3,)
+        Propagation vector in reciprocal lattice units.
+    tolerance : float
+        Tolerance of the fractional coordinates to identify an atom.
+
+    Returns
+    -------
+    numpy.ndarray, shape (3, n)
+        Moments in μB along a/|a|, b/|b|, c/|c|; NaN for the positions of
+        non-magnetic atoms.
+    """
+    fract_xyz = numpy.asarray(fract_xyz, dtype=float)
+    moment = numpy.full(fract_xyz.shape, numpy.nan)
+    if modulation_fract_xyz.shape[1] == 0 or fract_xyz.shape[1] == 0:
+        return moment
+    difference = fract_xyz[:, :, na] - modulation_fract_xyz[:, na, :]
+    lattice = numpy.round(difference)
+    flag_match = numpy.all(numpy.abs(difference - lattice) < tolerance, axis=0)  # (n, m)
+    flag_magnetic = numpy.any(flag_match, axis=1)
+    index_mod = numpy.argmax(flag_match, axis=1)
+    index_atom = numpy.flatnonzero(flag_magnetic)
+    lattice_atom = lattice[:, index_atom, index_mod[index_atom]]
+    phase = numpy.exp(-2j * numpy.pi * (numpy.asarray(k_vector, dtype=float) @ lattice_atom))
+    moment[:, index_atom] = numpy.real(amplitude[:, index_mod[index_atom]] * phase[na, :])
+    return moment

@@ -113,3 +113,15 @@ def test_f_m_k_single_atom():
         numpy.zeros((3, 1)), numpy.ones(1), numpy.zeros(1),
         numpy.full((1, 1), 0.8), numpy.array([[2.], [0.], [0.]], dtype=complex))
     numpy.testing.assert_allclose(calc_f_m_perp_k(index_hkl, UCP, f_m_a), 0., atol=1e-12)
+
+
+def test_moments_at_positions_change_from_cell_to_cell():
+    """k = (1/2, 0, 0): the moment of the atom at the origin changes sign
+    from cell to cell; other positions have no moment."""
+    from cryspy.A_functions_base.structure_factor_magnetic_k import calc_moments_at_positions
+    fract_xyz = numpy.array([[0., 1., 2., 0.5, -1.], [0., 0., 0., 0., 0.], [0., 0., 0., 0., 1.]])
+    moment = calc_moments_at_positions(
+        fract_xyz, numpy.zeros((3, 1)), numpy.array([[0.], [0.], [2. + 1j]]),
+        numpy.array([0.5, 0., 0.]))
+    assert numpy.allclose(moment[2, [0, 1, 2, 4]], [2., -2., 2., -2.])
+    assert numpy.all(numpy.isnan(moment[:, 3]))
