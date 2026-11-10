@@ -369,7 +369,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         else:
             transmission, transmission_half = calc_transmission_by_dictionary(
                 dict_diffrn, index_hkl_measured, unit_cell_parameters, wavelength,
-                flag_half_wavelength=flag_c_lambda)
+                flag_half_wavelength=flag_c_lambda,
+                flag_warn=not flag_use_precalculated_data)
             if flag_dict:
                 dict_in_out["transmission"] = transmission
                 dict_in_out["transmission_half"] = transmission_half
@@ -523,22 +524,44 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dder_plus_diffrn["c_lambda2"] = dder_plus_diffrn["c_lambda2"] * ratio_half[:, na]
             dder_minus_diffrn["c_lambda2"] = dder_minus_diffrn["c_lambda2"] * ratio_half[:, na]
     if flags_absorption:
+        flag_half = flag_c_lambda and transmission_half is not None
         if flag_calc_analytical_derivatives:
-            # d model / d p = d model / d iint_raw * iint_raw d ln(A) / d p
             dder_transmission = calc_transmission_derivatives_by_dictionary(
-                dict_diffrn, index_hkl_measured, unit_cell_parameters, wavelength)
+                dict_diffrn, index_hkl_measured, unit_cell_parameters, wavelength,
+                flag_half_wavelength=flag_half)
         else:
             dder_transmission = {}
+        if flag_half and len(dder_transmission) > 0:
+            # I = A I_1 + c A_half I_2: the lambda/2 part c (A_half/A) I_2 of
+            # iint_raw is the same for both channels
+            iint_plus_1 = calc_intensities_by_structure_factors(
+                beam_polarization, flipper_efficiency, f_nucl, f_m_perp, matrix_u[6:9],
+                func_extinction=func_extinction)[0]
+            if flag_twin:
+                iint_plus_1 = (iint_plus_1.reshape((n_hkl, -1), order='F') *
+                               numpy.expand_dims(twin_fraction, axis=0)).sum(axis=1)
+            iint_half = iint_plus_raw - iint_plus_1
+        else:
+            iint_half = numpy.zeros_like(iint_plus_raw)
         for name in L_ABSORPTION_PARAMETERS:
             flags = dict_diffrn.get(f"flags_{name:}")
             if flags is None or not numpy.any(flags):
                 continue
+            # model = f(A iint_raw), d model / d iint_raw = f' A (see above), so
+            # dder = d(A iint_raw)/dp / A
             if name in dder_transmission:
-                dlna = dder_transmission[name] / transmission[:, na]
+                der_a, der_a_half = dder_transmission[name]
+                dlna = der_a / transmission[:, na]
+                term_half = 0.
+                if flag_half:
+                    dlna_half = der_a_half / transmission_half[:, na]
+                    term_half = iint_half[:, na] * (dlna_half - dlna)
+                dder_plus_diffrn[name] = iint_plus_raw[:, na] * dlna + term_half
+                dder_minus_diffrn[name] = iint_minus_raw[:, na] * dlna + term_half
             else:
-                dlna = numpy.zeros((transmission.size, numpy.atleast_1d(flags).size), dtype=float)
-            dder_plus_diffrn[name] = iint_plus_raw[:, na] * dlna
-            dder_minus_diffrn[name] = iint_minus_raw[:, na] * dlna
+                zeros = numpy.zeros((transmission.size, numpy.atleast_1d(flags).size), dtype=float)
+                dder_plus_diffrn[name] = zeros
+                dder_minus_diffrn[name] = zeros
 
     dder_plus_diffrn_keys = dder_plus_diffrn.keys()
     dder_minus_diffrn_keys = dder_minus_diffrn.keys()

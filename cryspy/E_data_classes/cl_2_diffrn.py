@@ -671,9 +671,8 @@ class Diffrn(DataN):
 
         for name in ("exptl_absorpt", "exptl_crystal"):
             if self.is_attribute(name):
-                l_name_item = [(hh[0], ) + tuple(hh[1:]) for hh in (l_parameter_name or [])]
                 getattr(self, name).take_parameters_from_dictionary(
-                    ddict_diffrn, l_parameter_name=l_name_item,
+                    ddict_diffrn, l_parameter_name=list(l_parameter_name or []),
                     l_sigma=list(l_sigma) if l_sigma is not None else [])
 
         if ("iint_plus" in keys) and ("iint_minus" in keys):

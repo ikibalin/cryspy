@@ -36,7 +36,12 @@ in the refinement (RhoChi) and in MEM. The paths of the beams: normal beam
 geometry (rotation about the vertical axis of U, as for polarized neutrons;
 `_exptl_absorpt_diffracted_beam left|right`) or, when the reflections have
 `_diffrn_refln_angle_omega`, `_diffrn_refln_angle_chi`, `_diffrn_refln_angle_phi`, a four-circle
-measurement (Busing & Levy convention).
+measurement (rotation matrices of Busing & Levy, omega is the angle of the
+sample, as the motors give it). Data of a four-circle diffractometer without
+these columns are treated as normal beam data: give the angles for an
+ellipsoid. At `ellipsoid_euler_beta` = 0 only alpha + gamma matters: do not
+refine both. Refine the shape only when the test of the equivalents is
+significant; mu and the sizes correlate (only mu x size matters).
 
 Flip ratios do not change by absorption (it cancels in I+/I-) except for the
 lambda/2 contamination. A sphere changes intensities with 2theta only and

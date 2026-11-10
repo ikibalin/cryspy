@@ -30,6 +30,7 @@ Units: mu in 1/mm, sizes of the crystal in mm, wavelength in Ang,
 angles in degrees.
 """
 import re
+import warnings
 import numpy
 
 from cryspy.A_functions_base.database import DATABASE
@@ -203,10 +204,13 @@ def calc_rotation_matrix_busing_levy(omega, chi, phi):
 def calc_beam_directions_by_angles(q_ccs, matrix_u, wavelength, omega, chi, phi):
     """Directions of the beams of a four-circle measurement.
 
-    The angles of the peak are given in the convention of Busing & Levy
-    (1967): the incident beam is along y of their laboratory system, which
-    is x of the CCSL system of U (x_ccsl = y_BL, y_ccsl = -x_BL, z = z, as the
-    type 'BusingLevy' of DiffrnOrientMatrix).
+    The rotation matrices of the circles are those of Busing & Levy (1967),
+    R = Omega Chi Phi, but omega is the angle of the sample itself (as the
+    motors of the ILL four-circle diffractometers and PyColl5 give it), not
+    omega - theta of the bisecting convention: Q = R^-1 (k_f - k_i) in the phi
+    frame. The incident beam is along +y of the laboratory system of Busing &
+    Levy, which is x of the CCSL system of U (x_ccsl = y_BL, y_ccsl = -x_BL,
+    z = z, as the type 'BusingLevy' of DiffrnOrientMatrix).
 
     Parameters
     ----------
@@ -261,13 +265,17 @@ def form_unit_ball_rule(n_r: int = 8, n_theta: int = 10, n_phi: int = 16):
 # 16 x 16 x 24 points: relative error of the transmission below 1e-3 for
 # mu R <= 2 and about 1e-2 for mu R = 4 (sphere at 2theta = 0, the worst case)
 UNIT_BALL_RULE = form_unit_ball_rule(16, 16, 24)
+# used for mu R > 2: relative error about 3e-3 for mu R = 4
+UNIT_BALL_RULE_FINE = form_unit_ball_rule(32, 20, 32)
+MU_R_ACCURATE = 4.  # mu R above which a warning is given
+MISFIT_TOLERANCE = 0.05  # | |k_f| lambda - 1 | of the four-circle angles
 
 
 def calc_chord_in_unit_ball(points, vectors):
     """Parameter t >= 0 (n, p) at which points + t vectors leave the unit
     ball; points (3, p) inside it, vectors (3, n)."""
     se = vectors.T @ points
-    ee = numpy.square(vectors).sum(axis=0)[:, na]
+    ee = numpy.maximum(numpy.square(vectors).sum(axis=0)[:, na], 1e-30)
     ss = numpy.square(points).sum(axis=0)[na, :]
     return (-se + numpy.sqrt(numpy.maximum(se * se + ee * (1. - ss), 0.))) / ee
 
@@ -349,7 +357,8 @@ def calc_transmission_sphere_zero_angle(mu_radius):
 
 def calc_transmission_by_dictionary(
         dict_diffrn: dict, index_hkl, unit_cell_parameters, wavelength,
-        flag_half_wavelength: bool = False, d_parameter: dict = None):
+        flag_half_wavelength: bool = False, d_parameter: dict = None,
+        flag_warn: bool = True):
     """Transmission factor of the measured reflections of a diffrn
     dictionary, or None when absorption is not corrected.
 
@@ -370,16 +379,23 @@ def calc_transmission_by_dictionary(
         reflections 2h at lambda/2 follow the same paths).
     d_parameter : dict, optional
         Values replacing those of dict_diffrn (for numerical derivatives).
+    flag_warn : bool
+        Warn about doubtful input (False for repeated calls).
 
     Returns
     -------
     None or (transmission, transmission_half)
         Arrays (n,); transmission_half is None without flag_half_wavelength.
     """
-    from cryspy.A_functions_base.unit_cell import (
-        calc_eq_ccs_by_unit_cell_parameters, calc_sthovl_by_unit_cell_parameters)
     correction_type = dict_diffrn.get("absorption_correction_type", "none")
-    if correction_type not in ("sphere", "gaussian") or "absorption_mu" not in dict_diffrn:
+    if correction_type not in ("sphere", "gaussian"):
+        return None
+    if "absorption_mu" not in dict_diffrn:
+        if flag_warn:
+            warnings.warn(
+                f"Absorption correction '{correction_type:}' is not applied: give "
+                "_exptl_absorpt_coefficient_mu or calculate it (calc_absorption_coefficient).",
+                UserWarning, stacklevel=2)
         return None
     d_value = dict(dict_diffrn)
     if d_parameter is not None:
@@ -388,32 +404,66 @@ def calc_transmission_by_dictionary(
     # transmission depends on |mu| and on the lengths of the axes only
     mu = abs(float(numpy.atleast_1d(d_value["absorption_mu"])[0]))
     if correction_type == "sphere":
+        if "absorption_radius" not in d_value:
+            raise ValueError("Absorption correction 'sphere': give the radius of the crystal "
+                             "_exptl_crystal_size_rad (mm).")
         radius = abs(float(numpy.atleast_1d(d_value["absorption_radius"])[0]))
         semi_axes = numpy.array([radius, radius, radius], dtype=float)
         matrix_axes = numpy.eye(3)
+        l_unused = ["absorption_size", "absorption_euler"]
     else:
+        if "absorption_size" not in d_value:
+            raise ValueError("Absorption correction 'gaussian': give the sizes of the crystal "
+                             "_exptl_crystal_size_max, _size_mid, _size_min (mm).")
         semi_axes = 0.5 * numpy.abs(numpy.asarray(d_value["absorption_size"], dtype=float))
         matrix_axes = calc_rotation_matrix_by_euler_zyz(d_value["absorption_euler"])
+        l_unused = ["absorption_radius"]
     if numpy.any(semi_axes == 0.):
         raise ValueError("The sizes of the crystal for the absorption correction should be positive.")
+    if flag_warn:
+        if any(numpy.any(dict_diffrn.get(f"flags_{name:}", False)) for name in l_unused):
+            warnings.warn(
+                f"Absorption correction '{correction_type:}': the refined sizes or angles of "
+                "exptl_crystal that it does not use (size_rad for 'gaussian', size_max/mid/min "
+                "and the Euler angles for 'sphere') do not change the model.",
+                UserWarning, stacklevel=2)
+        if mu * semi_axes.max() > MU_R_ACCURATE:
+            warnings.warn(
+                f"Absorption: mu R = {mu * semi_axes.max():.3g} is large; the numerical "
+                "transmission is accurate to about 1 % up to mu R = 4 only.",
+                UserWarning, stacklevel=2)
+        if flag_half_wavelength and "absorption_mu_ratio_half" not in dict_diffrn:
+            warnings.warn(
+                "Absorption with lambda/2 contamination: _exptl_absorpt_coefficient_mu_half is "
+                "not given, mu at lambda/2 is taken equal to mu (calc_absorption_coefficient "
+                "calculates it).", UserWarning, stacklevel=2)
+    from cryspy.A_functions_base.unit_cell import (
+        calc_eq_ccs_by_unit_cell_parameters, calc_sthovl_by_unit_cell_parameters)
     sthovl = calc_sthovl_by_unit_cell_parameters(index_hkl, unit_cell_parameters)[0]
     eq_ccs = calc_eq_ccs_by_unit_cell_parameters(index_hkl, unit_cell_parameters)[0]
     q_ccs = 2. * sthovl[na, :] * eq_ccs
     if "angle_omega_chi_phi" in dict_diffrn:
         omega, chi, phi = dict_diffrn["angle_omega_chi_phi"]
-        e_in, e_out = calc_beam_directions_by_angles(
-            q_ccs, dict_diffrn["matrix_u"], wavelength, omega, chi, phi)[:2]
+        e_in, e_out, misfit = calc_beam_directions_by_angles(
+            q_ccs, dict_diffrn["matrix_u"], wavelength, omega, chi, phi)
+        if flag_warn and numpy.any(~(misfit < MISFIT_TOLERANCE)):
+            warnings.warn(
+                f"Absorption: {int((~(misfit < MISFIT_TOLERANCE)).sum()):} reflections are not in the "
+                "diffraction condition at their angles omega, chi, phi (check U and the "
+                "convention of the angles: omega is the angle of the sample, not omega - theta).",
+                UserWarning, stacklevel=2)
     else:
         e_in, e_out = calc_beam_directions_normal_beam(
             q_ccs, dict_diffrn["matrix_u"][6:9], wavelength,
             str(dict_diffrn.get("absorption_diffracted_beam", "left")))[:2]
-    transmission = calc_transmission_ellipsoid(mu, semi_axes, matrix_axes, e_in, e_out)
+    rule = UNIT_BALL_RULE if mu * semi_axes.max() <= 2. else UNIT_BALL_RULE_FINE
+    transmission = calc_transmission_ellipsoid(mu, semi_axes, matrix_axes, e_in, e_out, rule)
     transmission_half = None
     if flag_half_wavelength:
         # mu_abs is proportional to the wavelength, the scattering part is not
         mu_half = mu * float(dict_diffrn.get("absorption_mu_ratio_half", 1.))
         transmission_half = calc_transmission_ellipsoid(
-            mu_half, semi_axes, matrix_axes, e_in, e_out)
+            mu_half, semi_axes, matrix_axes, e_in, e_out, rule)
     return transmission, transmission_half
 
 
@@ -423,11 +473,13 @@ L_ABSORPTION_PARAMETERS = ("absorption_mu", "absorption_radius", "absorption_siz
 
 def calc_transmission_derivatives_by_dictionary(
         dict_diffrn: dict, index_hkl, unit_cell_parameters, wavelength,
-        step_relative: float = 1e-4) -> dict:
+        flag_half_wavelength: bool = False, step_relative: float = 1e-4) -> dict:
     """Numerical derivatives of the transmission over the refined
-    parameters of the absorption correction: {name: array (n, n_component)}
-    for the names of L_ABSORPTION_PARAMETERS with flags. Central
-    differences, the step is relative to the value (1e-4 deg for angles)."""
+    parameters of the absorption correction: {name: (der, der_half)},
+    arrays (n, n_component), for the names of L_ABSORPTION_PARAMETERS with
+    flags; der_half (of the lambda/2 transmission) is None without
+    flag_half_wavelength. Central differences, the step is relative to the
+    value (0.01 deg for the Euler angles)."""
     d_der = {}
     for name in L_ABSORPTION_PARAMETERS:
         flags = dict_diffrn.get(f"flags_{name:}")
@@ -435,17 +487,21 @@ def calc_transmission_derivatives_by_dictionary(
             continue
         value = numpy.array(numpy.atleast_1d(dict_diffrn[name]), dtype=float)
         der = numpy.zeros((index_hkl.shape[1], value.size), dtype=float)
+        der_half = numpy.zeros_like(der) if flag_half_wavelength else None
         for i_comp in range(value.size):
             if not numpy.atleast_1d(flags)[i_comp]:
                 continue
             step = 1e-2 if name == "absorption_euler" else max(abs(value[i_comp]) * step_relative, 1e-8)
-            l_trans = []
+            l_res = []
             for sign in (1., -1.):
                 value_shift = value.copy()
                 value_shift[i_comp] += sign * step
-                l_trans.append(calc_transmission_by_dictionary(
+                l_res.append(calc_transmission_by_dictionary(
                     dict_diffrn, index_hkl, unit_cell_parameters, wavelength,
-                    d_parameter={name: value_shift})[0])
-            der[:, i_comp] = (l_trans[0] - l_trans[1]) / (2. * step)
-        d_der[name] = der
+                    flag_half_wavelength=flag_half_wavelength,
+                    d_parameter={name: value_shift}, flag_warn=False))
+            der[:, i_comp] = (l_res[0][0] - l_res[1][0]) / (2. * step)
+            if flag_half_wavelength:
+                der_half[:, i_comp] = (l_res[0][1] - l_res[1][1]) / (2. * step)
+        d_der[name] = (der, der_half)
     return d_der

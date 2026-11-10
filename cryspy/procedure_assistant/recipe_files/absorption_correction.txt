@@ -21,7 +21,7 @@ For: single_crystal
 4. refine: Refine the scale with the correction (intensities only: flip ratios have no scale, skip the step for them).
    Actions: refine_parameters {"pattern": "scale factor"}; refine
 5. shape: Refine the smallest size of the ellipsoid and its orientation, only when the test of the equivalents is significant; keep it when chi_sq/n gets clearly better (more than 5 %).
-   Actions: refine_parameters {"pattern": "exptl_crystal"}; refine
+   Actions: refine_parameters {"pattern": "exptl_crystal.size_min, ellipsoid_euler_beta"}; refine
 6. check: What is still wrong.
    Actions: use_recipe {"name": "check_result"}
 

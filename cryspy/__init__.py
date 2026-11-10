@@ -261,7 +261,7 @@ from cryspy.H_functions_global.cod import (
 from cryspy.H_functions_global.powder_experiments import (
     report_powder_experiments,
 )
-from cryspy.H_functions_global.absorption_correction import (
+from cryspy.procedure_rhochi.rhochi_absorption import (
     estimate_absorption_correction,
     apply_absorption_correction,
     calc_absorption_coefficient,

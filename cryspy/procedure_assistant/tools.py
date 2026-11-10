@@ -835,7 +835,7 @@ def tool_set_chi_type(cryspy_object, chi_type: str, atoms: str = "") -> dict:
 
 def tool_estimate_absorption(cryspy_object, experiment: str = "",
                              crystal_size: Optional[float] = None) -> str:
-    from cryspy.H_functions_global.absorption_correction import (
+    from cryspy.procedure_rhochi.rhochi_absorption import (
         D_VERDICT, estimate_absorption_of_diffrn, take_diffrn_experiments)
     l_diffrn = take_diffrn_experiments(cryspy_object, experiment)
     if len(l_diffrn) == 0:
@@ -867,8 +867,9 @@ def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",
                                      direction_mid: Optional[List[float]] = None,
                                      mu: Optional[float] = None, experiment: str = "") -> dict:
     from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt, ExptlCrystal
-    from cryspy.H_functions_global.absorption_correction import (
-        apply_absorption_correction, take_diffrn_experiments)
+    from cryspy.procedure_rhochi.rhochi_absorption import (
+        apply_absorption_correction, calc_absorption_coefficient_of_crystal,
+        take_crystal_of_diffrn, take_diffrn_experiments)
     l_diffrn = take_diffrn_experiments(cryspy_object, experiment)
     if len(l_diffrn) == 0:
         return {"text": "Error: no single crystal experiment"
@@ -908,7 +909,16 @@ def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",
             if not diffrn.is_attribute("exptl_absorpt"):
                 diffrn.add_items([ExptlAbsorpt(correction_type="none")])
             diffrn.exptl_absorpt.coefficient_mu = float(mu)
-            diffrn.exptl_absorpt.coefficient_mu_half = float(mu)
+            crystal = take_crystal_of_diffrn(cryspy_object, diffrn)
+            d_mu = None
+            if crystal is not None:
+                try:
+                    d_mu = calc_absorption_coefficient_of_crystal(crystal, float(diffrn.setup.wavelength))
+                except (ValueError, KeyError, AttributeError):
+                    d_mu = None
+            # mu at lambda/2 by the ratio of the composition (the true absorption halves)
+            diffrn.exptl_absorpt.coefficient_mu_half = float(mu) * (
+                d_mu["mu_half"] / d_mu["mu"] if d_mu is not None and d_mu["mu"] > 0. else 1.)
         type_diffrn = correction_type
         if type_diffrn == "":
             sizes_diffrn = exptl_crystal.get_sizes()

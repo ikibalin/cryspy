@@ -20,7 +20,7 @@ import numpy
 from scipy import stats
 
 from cryspy.A_functions_base.absorption import (
-    calc_absorption_coefficients_by_composition, calc_beam_directions_by_angles,
+    calc_transmission_by_dictionary, calc_absorption_coefficients_by_composition, calc_beam_directions_by_angles,
     calc_beam_directions_normal_beam, calc_transmission_sphere_zero_angle,
     take_element_symbol, take_resonant_elements)
 from cryspy.A_functions_base.database import DATABASE
@@ -80,7 +80,7 @@ def calc_absorption_coefficient_of_crystal(crystal: Crystal, wavelength: float) 
         element = take_element_symbol(symbol)
         element_sh = element.lstrip("0123456789")
         weight = DATABASE["Elements"].get(("Atomic weight", "H" if element_sh in ("D", "T") else element_sh))
-        if element.startswith(("2H", "D")):
+        if element in ("2H", "D"):
             weight = 2.014
         mass += number * float(weight)
     density = mass / (AVOGADRO * volume * 1e-24)
@@ -148,6 +148,18 @@ def format_absorption_coefficient(diffrn: Diffrn, d_mu: dict) -> str:
                   " does not follow the 1/v law; give the measured or tabulated mu at this "
                   "wavelength in _exptl_absorpt_coefficient_mu.")
     return s_out
+
+
+def take_mu_half(exptl_absorpt, d_mu: dict = None) -> float:
+    """mu at lambda/2 (1/mm): coefficient_mu_half, or coefficient_mu
+    scaled by the ratio of the composition (the true absorption halves),
+    or coefficient_mu itself when the composition is unknown."""
+    mu = float(exptl_absorpt.coefficient_mu)
+    if exptl_absorpt.is_attribute("coefficient_mu_half"):
+        return float(exptl_absorpt.coefficient_mu_half)
+    if d_mu is not None and d_mu["mu"] > 0.:
+        return mu * d_mu["mu_half"] / d_mu["mu"]
+    return mu
 
 
 def take_diffrn_experiments(rcif_object: GlobalN, experiment: str = "") -> list:
@@ -305,9 +317,8 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
     mu, mu_half = None, None
     if diffrn.is_attribute("exptl_absorpt") and diffrn.exptl_absorpt.is_attribute("coefficient_mu"):
         mu = float(diffrn.exptl_absorpt.coefficient_mu)
-        mu_half = float(diffrn.exptl_absorpt.coefficient_mu_half) \
-            if diffrn.exptl_absorpt.is_attribute("coefficient_mu_half") else mu
-        ls_line.append(f"mu = {mu:.4g} 1/mm (given in exptl_absorpt).")
+        mu_half = take_mu_half(diffrn.exptl_absorpt, d_mu)
+        ls_line.append(f"mu = {mu:.4g} 1/mm (given in exptl_absorpt), {mu_half:.4g} 1/mm at lambda/2.")
     elif d_mu is not None:
         mu, mu_half = d_mu["mu"], d_mu["mu_half"]
         ls_line.append(format_absorption_coefficient(diffrn, d_mu).split(": ", 1)[1])
@@ -339,13 +350,22 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
     ls_line.append(f"Sphere of the radius {radius:.3g} mm: mu R = {mu * radius:.3g}, transmission at "
                    f"2theta = 0 is {float(calc_transmission_sphere_zero_angle(mu * radius)):.3f}.")
 
-    unit_cell_parameters = dict_global[crystal.get_name()]["unit_cell_parameters"] \
-        if crystal is not None else None
-    dict_crystal = dict_global[crystal.get_name()] if crystal is not None else None
+    if crystal is None:
+        d_res["verdict"] = "unknown"
+        ls_line.append("No crystal structure: the model cannot be calculated.")
+        return d_res
+    unit_cell_parameters = dict_global[crystal.get_name()]["unit_cell_parameters"]
+    dict_crystal = dict_global[crystal.get_name()]
     dict_none = copy.copy(dict_diffrn)
     dict_none["absorption_correction_type"] = "none"
     model_0, exp_value, exp_sigma, included, flag_fr = calc_model_of_dict(dict_none, dict_crystal)
     d_res["type"] = "flip ratio" if flag_fr else "intensity"
+    # reflections without a sigma carry no weight
+    included = included & (exp_sigma > 0)
+    if not numpy.any(included):
+        d_res["verdict"] = "unknown"
+        ls_line.append("No reflections with positive sigmas.")
+        return d_res
     sigma_0 = numpy.where(exp_sigma > 0, exp_sigma, numpy.inf)
     d_res["chi_sq_per_n"] = float(numpy.square(
         (exp_value - model_0)[included] / sigma_0[included]).mean())
@@ -391,29 +411,33 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
     else:
         ls_line.append("Intensities: the scale factor is fitted again with the correction; a sphere "
                        "changes intensities with 2theta only and correlates with B_iso.")
-        if crystal is not None:
-            e_in, e_out, flag_reachable = calc_beam_directions_of_dict(dict_diffrn, unit_cell_parameters)
-            groups = group_equivalents(dict_diffrn["index_hkl"], calc_laue_rotations(dict_crystal))
-            use = included & flag_reachable
-            d_test = test_absorption_anisotropy(
-                exp_value[use], exp_sigma[use], groups[use], e_in[:, use], e_out[:, use])
-            d_res["anisotropy"] = d_test
-            if "error" in d_test:
-                ls_line.append("Test of the equivalents: " + d_test["error"] + ".")
-            else:
-                s_sign = "significant" if d_test["p_value"] < P_VALUE_SIGNIFICANT else "not significant"
-                ls_line.append(
-                    f"Test of the equivalents ({d_test['n_used']:} reflections in {d_test['n_groups']:} "
-                    f"groups): the dependence on the beam directions is {s_sign:} "
-                    f"(p = {d_test['p_value']:.2g}); R_int {100. * d_test['r_int']:.2f} % -> "
-                    f"{100. * d_test['r_int_corrected']:.2f} % with an empirical correction.")
-                if d_test["p_value"] < P_VALUE_SIGNIFICANT and \
-                        d_test["r_int_corrected"] < 0.9 * d_test["r_int"]:
-                    longest = d_test["longest"]
-                    ls_line.append("The crystal is not spherical: use correction_type 'gaussian' with "
-                                   "the ellipsoid; the longest path is along (" +
-                                   " ".join(f"{x:.2f}" for x in longest) +
-                                   ") of the Cartesian system x || a*, z || c.")
+        e_in, e_out, flag_reachable = calc_beam_directions_of_dict(dict_diffrn, unit_cell_parameters)
+        groups = group_equivalents(dict_diffrn["index_hkl"], calc_laue_rotations(dict_crystal))
+        # twin domains and magnetic satellites (fractional hkl) do not follow the
+        # Laue class of the crystal: they are left out of the test
+        use = included & flag_reachable & numpy.all(
+            numpy.abs(dict_diffrn["index_hkl"] - numpy.round(dict_diffrn["index_hkl"])) < 1e-4, axis=0)
+        if "twin_fraction" in dict_diffrn:
+            use = numpy.zeros_like(use)
+        d_test = test_absorption_anisotropy(
+            exp_value[use], exp_sigma[use], groups[use], e_in[:, use], e_out[:, use])
+        d_res["anisotropy"] = d_test
+        if "error" in d_test:
+            ls_line.append("Test of the equivalents: " + d_test["error"] + ".")
+        else:
+            s_sign = "significant" if d_test["p_value"] < P_VALUE_SIGNIFICANT else "not significant"
+            ls_line.append(
+                f"Test of the equivalents ({d_test['n_used']:} reflections in {d_test['n_groups']:} "
+                f"groups): the dependence on the beam directions is {s_sign:} "
+                f"(p = {d_test['p_value']:.2g}); R_int {100. * d_test['r_int']:.2f} % -> "
+                f"{100. * d_test['r_int_corrected']:.2f} % with an empirical correction.")
+            if d_test["p_value"] < P_VALUE_SIGNIFICANT and \
+                    d_test["r_int_corrected"] < 0.9 * d_test["r_int"]:
+                longest = d_test["longest"]
+                ls_line.append("The crystal is not spherical: use correction_type 'gaussian' with "
+                               "the ellipsoid; the longest path is along (" +
+                               " ".join(f"{x:.2f}" for x in longest) +
+                               ") of the Cartesian system x || a*, z || c.")
     dchi_max = max(l_dchi)
     if dchi_max > DCHI_SQ_NEEDED or (
             "anisotropy" in d_res and d_res["anisotropy"].get("p_value", 1.) < P_VALUE_SIGNIFICANT
@@ -427,7 +451,6 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
 
 
 def calc_chi_sq_transmission(dict_model: dict, unit_cell_parameters):
-    from cryspy.A_functions_base.absorption import calc_transmission_by_dictionary
     return calc_transmission_by_dictionary(
         dict_model, dict_model["index_hkl"], unit_cell_parameters,
         dict_model.get("wavelength_hkl", dict_model["wavelength"]))[0]
@@ -524,6 +547,12 @@ def apply_absorption_correction(rcif_object: GlobalN, correction_type: str = "ga
                              "(size_rad, or size_max, size_mid, size_min in mm).")
         if correction_type == "sphere" and not exptl_crystal.is_attribute("size_rad"):
             exptl_crystal.size_rad = round(exptl_crystal.get_radius(), 4)
+        if exptl_absorpt.is_attribute("coefficient_mu") and \
+                not exptl_absorpt.is_attribute("coefficient_mu_half"):
+            crystal = take_crystal_of_diffrn(rcif_object, diffrn)
+            if crystal is not None:
+                d_mu = calc_absorption_coefficient_of_crystal(crystal, take_wavelength(diffrn))
+                exptl_absorpt.coefficient_mu_half = round(take_mu_half(exptl_absorpt, d_mu), 6)
         if not exptl_absorpt.is_attribute("coefficient_mu"):
             crystal = take_crystal_of_diffrn(rcif_object, diffrn)
             if crystal is None:
