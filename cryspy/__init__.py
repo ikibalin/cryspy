@@ -266,6 +266,9 @@ from cryspy.procedure_rhochi.rhochi_absorption import (
     apply_absorption_correction,
     calc_absorption_coefficient,
 )
+from cryspy.procedure_rhochi.rhochi_magnetic_irreps import (
+    rhochi_rank_magnetic_representations,
+)
 
 from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement,
@@ -479,6 +482,7 @@ L_FUNCTION = [
     estimate_absorption_correction,
     apply_absorption_correction,
     calc_absorption_coefficient,
+    rhochi_rank_magnetic_representations,
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
     rhochi_no_refinement,

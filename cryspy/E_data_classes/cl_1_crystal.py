@@ -1111,26 +1111,29 @@ class Crystal(DataN):
             Markdown report.
         """
         k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
-        if self.is_attribute("space_group_symop_magn_ssg_operation"):
-            # a further propagation vector: the group of k in the x1, x2, x3
-            # part of the present superspace group
-            from cryspy.D_functions_item_loop.function_1_magnetic_k import (
-                take_k_group_by_operations, take_operations_of_superspace)
-            from cryspy.E_data_classes.cl_1_crystal_dictionary import take_wave_vectors
-            l_centring = [item.algebraic for item in
-                          self.space_group_symop_magn_ssg_centering.items] \
-                if self.is_attribute("space_group_symop_magn_ssg_centering") else []
-            k_group = take_k_group_by_operations(*take_operations_of_superspace(
-                [item.algebraic for item in self.space_group_symop_magn_ssg_operation.items],
-                l_centring, take_wave_vectors(self)), k_vector)
-        else:
-            k_group = take_k_group(take_parent_space_group(self), k_vector)
+        k_group = self.take_group_of_k(k_vector)
         atoms = take_atom_positions(self, split_labels(magnetic_atoms))
         report = report_irreps(k_group, k_vector, atoms, use_minus_k_operations)
         if l_note:
             report = ("k is taken as commensurate: " + ", ".join(l_note) + ".\n\n"
                       + report)
         return report
+
+    def take_group_of_k(self, k_vector) -> dict:
+        """Group of k (take_k_group) of the paramagnetic space group or, for
+        a crystal that has a propagation vector already, of the x1, x2, x3
+        part of its superspace group (a further propagation vector)."""
+        if not self.is_attribute("space_group_symop_magn_ssg_operation"):
+            return take_k_group(take_parent_space_group(self), k_vector)
+        from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+            take_k_group_by_operations, take_operations_of_superspace)
+        from cryspy.E_data_classes.cl_1_crystal_dictionary import take_wave_vectors
+        l_centring = [item.algebraic for item in
+                      self.space_group_symop_magn_ssg_centering.items] \
+            if self.is_attribute("space_group_symop_magn_ssg_centering") else []
+        return take_k_group_by_operations(*take_operations_of_superspace(
+            [item.algebraic for item in self.space_group_symop_magn_ssg_operation.items],
+            l_centring, take_wave_vectors(self)), k_vector)
 
     def add_propagation_vector(self, k_1: float, k_2: float, k_3: float,
                                magnetic_atoms: str, irrep: str = "1",

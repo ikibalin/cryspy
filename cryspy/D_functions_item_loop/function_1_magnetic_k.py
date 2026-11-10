@@ -95,6 +95,18 @@ def take_isotropy_subgroups(k_group: dict, number: int, k_vector) -> list:
     return k_group["isotropy"][number]
 
 
+def take_irrep_candidates(k_group: dict, k_vector) -> list:
+    """(number, mode) of every one-dimensional representation (mode None)
+    and of every isotropy subgroup of the multidimensional ones, in the
+    order of report_irreps."""
+    n_one = len(k_group["irreps"])
+    l_candidate = [(number, None) for number in range(1, n_one + 1)]
+    for number in range(n_one + 1, take_number_of_irreps(k_group) + 1):
+        n_mode = len(take_isotropy_subgroups(k_group, number, k_vector))
+        l_candidate += [(number, mode) for mode in range(1, n_mode + 1)]
+    return l_candidate
+
+
 def form_phase_by_character(chi):
     """Moment phases (units of 2π, in [0, 1)) of the operations from the
     characters: ``chi = exp(-2 pi i phase)``."""
