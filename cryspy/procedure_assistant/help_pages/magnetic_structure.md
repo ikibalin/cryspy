@@ -41,11 +41,15 @@ above (the moments become the cos components).
 The easiest way from a paramagnetic crystal with `space_group`:
 
 1. method `report_irreps_of_k` of the crystal: the group of k, the characters
-   of its one-dimensional irreducible representations Γ1, Γ2, ..., the
-   superspace group of each and the Fourier components (symmforms) it
-   allows for the magnetic atoms;
+   of its irreducible representations Γ1, Γ2, ... (one-dimensional first,
+   then those of dimension 2, 3, ...), the superspace group of each and the
+   Fourier components (symmforms) it allows for the magnetic atoms. A
+   multidimensional representation has several modes: the isotropy
+   subgroups (order-parameter directions up to domains), each with its own
+   superspace group, the largest first;
 2. method `add_propagation_vector` (k, magnetic atoms, number of the
-   representation, start moment): converts the crystal; atoms whose orbit
+   representation, start moment, and `mode` for a multidimensional
+   representation): converts the crystal; atoms whose orbit
    splits in the superspace group become several atoms (O1, O1_2, ...);
    method `report_magnetic_moments` then lists the moments of all magnetic
    atoms of the cell: the range of |M| over the cells and the kind of
@@ -76,3 +80,8 @@ automatically, with a warning naming them.
 k is given as fractions ('1/3') or decimals; a component within 0.001 of a
 fraction with a denominator up to 12 is taken as that fraction. A cycloid
 or a helix made of two modes is built with `irrep` = '1,2' (Γ1 ⊕ Γ2).
+
+A commensurate structure (k with denominators up to 24) is exported to its
+magnetic supercell with the method `make_magnetic_supercell` of the
+crystal: a new data block with the supercell in P1 and the moment of
+every atom (the assistant adds it to the object).

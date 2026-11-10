@@ -15,9 +15,9 @@ import numpy
 from cryspy.exceptions import CrysPyError
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_axial_moment_matrix, calc_domain_matrices, calc_fourier_site_projector,
-    calc_k_group_flags, calc_minus_k_flags, calc_one_dimensional_irreps,
-    form_fourier_symmform, form_operation_xyz, form_superspace_group,
-    split_atom_orbit)
+    calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
+    calc_one_dimensional_irreps, calc_small_irreps, form_fourier_symmform,
+    form_operation_xyz, form_superspace_group, split_atom_orbit)
 from cryspy.A_functions_base.structure_factor_magnetic_k import (
     calc_superspace_operation_arrays, is_k_equivalent_to_minus_k,
     parse_operation_xyz, parse_ssg_operation)
@@ -62,10 +62,30 @@ def take_k_group(space_group, k_vector):
     flags = calc_k_group_flags(parent_rotation, k_vector)
     rotation, translation = parent_rotation[:, flags], parent_translation[:, flags]
     irreps = calc_one_dimensional_irreps(rotation, translation, centring, k_vector)
+    irreps_nd = [matrices for matrices in calc_small_irreps(
+        rotation, translation, centring, k_vector) if matrices.shape[1] > 1]
     return {
         "parent_rotation": parent_rotation, "parent_translation": parent_translation,
         "rotation": rotation, "translation": translation, "centring": centring,
-        "irreps": irreps, "moment": calc_axial_moment_matrix(rotation)}
+        "irreps": irreps, "irreps_nd": irreps_nd, "isotropy": {},
+        "moment": calc_axial_moment_matrix(rotation)}
+
+
+def take_number_of_irreps(k_group: dict) -> int:
+    """Number of the small representations: the one-dimensional ones
+    (Γ1, Γ2, ...) and then the multidimensional ones."""
+    return len(k_group["irreps"]) + len(k_group.get("irreps_nd", []))
+
+
+def take_isotropy_subgroups(k_group: dict, number: int, k_vector) -> list:
+    """Isotropy subgroups (modes) of the multidimensional representation
+    Γ<number> (calc_isotropy_subgroups), calculated once per k_group."""
+    if number not in k_group["isotropy"]:
+        matrices = k_group["irreps_nd"][number - len(k_group["irreps"]) - 1]
+        k_group["isotropy"][number] = calc_isotropy_subgroups(
+            k_group["rotation"], k_group["translation"], k_group["centring"],
+            k_vector, matrices)
+    return k_group["isotropy"][number]
 
 
 def form_phase_by_character(chi):
@@ -80,7 +100,8 @@ def form_vector_text(vector) -> str:
     """'(0, 0, 1)' or '(1, 0.5i, 0)' for a complex vector."""
     l_text = []
     for value in vector:
-        real, imag = float(numpy.round(value.real, 4)), float(numpy.round(value.imag, 4))
+        # + 0. turns -0 into 0
+        real, imag = float(numpy.round(value.real, 4)) + 0., float(numpy.round(value.imag, 4)) + 0.
         if abs(imag) < 1e-4:
             l_text.append(f"{real:g}")
         elif abs(real) < 1e-4:
@@ -90,18 +111,12 @@ def form_vector_text(vector) -> str:
     return "(" + ", ".join(l_text) + ")"
 
 
-def take_irrep_numbers(irrep, n_irrep: int) -> list:
+def take_irrep_numbers(irrep, n_irrep: int, n_one_dimensional: int = None) -> list:
     """Numbers of the representations from 1, '2' or '2,3' (Γ2 ⊕ Γ3).
 
-    Raises CrysPyError when a number is out of range or the group of k has
-    no one-dimensional representations.
+    Raises CrysPyError when a number is out of range or a multidimensional
+    representation (number above ``n_one_dimensional``) is in a sum.
     """
-    if n_irrep == 0:
-        raise CrysPyError(
-            "The group of k has no one-dimensional representations (all "
-            "small representations are multidimensional); this is not "
-            "supported yet: give the magnetic superspace group (mCIF, e.g. "
-            "from ISODISTORT or MAGNDATA) instead.")
     text = str(irrep).replace("Γ", "").replace("+", ",").replace("⊕", ",")
     try:
         numbers = sorted({int(part) for part in text.split(",") if part.strip()})
@@ -109,22 +124,58 @@ def take_irrep_numbers(irrep, n_irrep: int) -> list:
         raise CrysPyError(f"irrep '{irrep}' is not a number or a list such as 2,3.") from None
     if not numbers or not all(1 <= number <= n_irrep for number in numbers):
         raise CrysPyError(f"irrep must be from 1 to {n_irrep} (or a list such as 1,2).")
+    if (n_one_dimensional is not None and len(numbers) > 1
+            and any(number > n_one_dimensional for number in numbers)):
+        raise CrysPyError("A sum of representations is supported for one-dimensional ones "
+                          f"(1 to {n_one_dimensional}) only.")
     return numbers
 
 
-def form_irrep_name(numbers: list) -> str:
-    """'Γ2' or 'Γ2⊕Γ3'."""
-    return "⊕".join(f"Γ{number}" for number in numbers)
+def form_irrep_name(numbers: list, mode: int = None) -> str:
+    """'Γ2', 'Γ2⊕Γ3' or 'Γ5 mode 2'."""
+    name = "⊕".join(f"Γ{number}" for number in numbers)
+    return name if mode is None else f"{name} mode {mode}"
+
+
+def take_irrep_phases(k_group: dict, k_vector, irrep, mode: int = 1):
+    """Operations of the group of k kept by a representation and their
+    moment phases (units of 2π).
+
+    A one-dimensional representation keeps all operations with the phases
+    of its characters; a sum of them ('2,3') keeps the operations on which
+    their characters are equal (the superposition is invariant there up to
+    a shift along x4); a multidimensional representation keeps the
+    operations of the isotropy subgroup ``mode`` (take_isotropy_subgroups)
+    with the phases of ``D(g) eta = lambda_g eta``.
+
+    Returns
+    -------
+    flags : numpy.ndarray
+        (n_s,) bool over the operations of the group of k.
+    phase : numpy.ndarray
+        (n_kept,) phases of the kept operations.
+    """
+    n_one = len(k_group["irreps"])
+    numbers = take_irrep_numbers(irrep, take_number_of_irreps(k_group), n_one)
+    if numbers[0] > n_one:
+        l_mode = take_isotropy_subgroups(k_group, numbers[0], k_vector)
+        if not 1 <= int(mode) <= len(l_mode):
+            raise CrysPyError(f"mode of Γ{numbers[0]} must be from 1 to {len(l_mode)} "
+                              "(the isotropy subgroups in report_irreps_of_k).")
+        isotropy = l_mode[int(mode) - 1]
+        flags = isotropy["flags"]
+        return flags, form_phase_by_character(isotropy["eigen"][flags])
+    if int(mode) != 1:
+        raise CrysPyError(f"mode is given only for a multidimensional representation; "
+                          f"Γ{irrep} is one-dimensional (leave mode = 1).")
+    l_chi = [k_group["irreps"][number - 1] for number in numbers]
+    flags = numpy.all([numpy.isclose(chi, l_chi[0], atol=1e-6) for chi in l_chi], axis=0)
+    return flags, form_phase_by_character(l_chi[0][flags])
 
 
 def form_superspace_by_irrep(k_group: dict, k_vector, irrep,
-                             use_minus_k_operations: bool = True) -> dict:
-    """Magnetic superspace group of a one-dimensional representation.
-
-    For several representations (``irrep`` = '2,3') the group keeps the
-    operations of the group of k on which their characters are equal: the
-    superposition of the modes (cycloid, helix) is invariant there, up to
-    a shift along x4.
+                             use_minus_k_operations: bool = True, mode: int = 1) -> dict:
+    """Magnetic superspace group of a representation (take_irrep_phases).
 
     Parameters
     ----------
@@ -138,6 +189,8 @@ def form_superspace_by_irrep(k_group: dict, k_vector, irrep,
     use_minus_k_operations : bool
         Add an operation of the space group mapping k to -k when the
         representation allows it (the highest superspace group).
+    mode : int
+        Isotropy subgroup of a multidimensional representation (from 1).
 
     Returns
     -------
@@ -147,10 +200,7 @@ def form_superspace_by_irrep(k_group: dict, k_vector, irrep,
         operations mapping k to -k are in the group).
     """
     k_vector = numpy.asarray(k_vector, dtype=float)
-    numbers = take_irrep_numbers(irrep, len(k_group["irreps"]))
-    l_chi = [k_group["irreps"][number - 1] for number in numbers]
-    flags = numpy.all([numpy.isclose(chi, l_chi[0], atol=1e-6) for chi in l_chi], axis=0)
-    phase = form_phase_by_character(l_chi[0][flags])
+    flags, phase = take_irrep_phases(k_group, k_vector, irrep, mode)
     arguments = (k_group["rotation"][:, flags], k_group["translation"][:, flags],
                  phase, k_group["centring"], k_vector)
     ssg, minus_k = None, False
@@ -186,51 +236,69 @@ def format_symmform(symmform: list) -> str:
     return f"cos ({', '.join(symmform[:3])}), sin ({', '.join(symmform[3:])})"
 
 
+def form_ssg_line(ssg: dict) -> str:
+    return (f"Superspace group: {len(ssg['operations'])} operations, "
+            f"{len(ssg['centrings'])} centrings"
+            + (" (with the operations mapping k to -k)." if ssg["minus_k"]
+               else " (group of k only)."))
+
+
 def report_irreps(k_group: dict, k_vector, atoms: dict,
                   use_minus_k_operations: bool = True) -> str:
-    """Markdown report: the operations of the group of k, their
-    one-dimensional representations, the superspace group of every
-    representation and the Fourier components allowed for every magnetic
-    atom (symmforms as in MAGNDATA: ``M = cos cos(2 pi x4) + sin sin(2 pi
-    x4)``, equal symbols are equal parameters).
+    """Markdown report: the operations of the group of k, the characters of
+    its small representations (one-dimensional ones first), the superspace
+    group of every one-dimensional representation and of every isotropy
+    subgroup (mode) of the multidimensional ones, and the Fourier
+    components allowed for every magnetic atom (symmforms as in MAGNDATA:
+    ``M = cos cos(2 pi x4) + sin sin(2 pi x4)``, equal symbols are equal
+    parameters).
 
     ``atoms`` is {label: fractional position (3,)}.
     """
     rotation, translation = k_group["rotation"], k_group["translation"]
+    n_one = len(k_group["irreps"])
+    l_character = list(k_group["irreps"]) + [
+        numpy.trace(matrices, axis1=1, axis2=2) for matrices in k_group.get("irreps_nd", [])]
+    l_dimension = [1] * n_one + [matrices.shape[1] for matrices in k_group.get("irreps_nd", [])]
     k_text = ", ".join(f"{float(value):g}" for value in k_vector)
     ls_out = [f"# Group of k = ({k_text})", "",
               f"{rotation.shape[1]} of {k_group['parent_rotation'].shape[1]} "
               "operations of the space group keep k (modulo the reciprocal lattice).",
               ""]
     header = "| Operation | " + " | ".join(
-        f"Γ{i + 1}" for i in range(len(k_group["irreps"]))) + " |"
-    ls_out += ["Characters of the one-dimensional representations:", "",
-               header, "|---" * (len(k_group["irreps"]) + 1) + "|"]
+        f"Γ{i + 1}" + (f" (dim {dim})" if dim > 1 else "")
+        for i, dim in enumerate(l_dimension)) + " |"
+    ls_out += ["Characters of the small representations:", "",
+               header, "|---" * (len(l_character) + 1) + "|"]
     for s in range(rotation.shape[1]):
-        cells = [form_vector_text([chi[s]])[1:-1] for chi in k_group["irreps"]]
+        cells = [form_vector_text([chi[s]])[1:-1] for chi in l_character]
         ls_out.append(f"| {form_operation_xyz(rotation[:, s], translation[:, s])} | "
                       + " | ".join(cells) + " |")
-    if len(k_group["irreps"]) == 0:
-        ls_out.append("No one-dimensional representation: write the "
-                      "superspace operations (space_group_symop_magn_ssg_operation) "
-                      "by hand.")
-    for i_irrep in range(len(k_group["irreps"])):
-        ssg = form_superspace_by_irrep(
-            k_group, k_vector, i_irrep + 1, use_minus_k_operations)
-        ls_out += ["", f"## Γ{i_irrep + 1}", "",
-                   f"Superspace group: {len(ssg['operations'])} operations, "
-                   f"{len(ssg['centrings'])} centrings"
-                   + (" (with the operations mapping k to -k)." if ssg["minus_k"]
-                      else " (group of k only).")]
-        for label, xyz in atoms.items():
-            symmform = calc_site_symmform(xyz, k_vector, ssg["arrays"])[0]
-            ls_out.append(f"- {label}: {format_symmform(symmform)}")
-    if len(k_group["irreps"]) > 1:
-        ls_out += ["", "A superposition of representations (a cycloid or a helix "
-                   "from two modes) is given as irrep = '1,2': the superspace "
+
+    def atom_lines(ssg):
+        return [f"- {label}: {format_symmform(calc_site_symmform(xyz, k_vector, ssg['arrays'])[0])}"
+                for label, xyz in atoms.items()]
+
+    for i_irrep in range(n_one):
+        ssg = form_superspace_by_irrep(k_group, k_vector, i_irrep + 1, use_minus_k_operations)
+        ls_out += ["", f"## Γ{i_irrep + 1}", "", form_ssg_line(ssg)] + atom_lines(ssg)
+    for number in range(n_one + 1, len(l_character) + 1):
+        l_mode = take_isotropy_subgroups(k_group, number, k_vector)
+        ls_out += ["", f"## Γ{number} (dimension {l_dimension[number - 1]})", "",
+                   f"{len(l_mode)} isotropy subgroups (order-parameter directions up to "
+                   "domains); give mode with irrep:"]
+        for mode in range(1, len(l_mode) + 1):
+            ssg = form_superspace_by_irrep(
+                k_group, k_vector, number, use_minus_k_operations, mode)
+            isotropy = l_mode[mode - 1]
+            ls_out += [f"### Γ{number} mode {mode}: {int(isotropy['flags'].sum())} of "
+                       f"{rotation.shape[1]} operations of the group of k kept, "
+                       f"{isotropy['dimension']} free order parameter(s). " + form_ssg_line(ssg)]
+            ls_out += atom_lines(ssg)
+    if n_one > 1:
+        ls_out += ["", "A superposition of one-dimensional representations (a cycloid or "
+                   "a helix from two modes) is given as irrep = '1,2': the superspace "
                    "group keeps the operations with equal characters."]
-    if len(k_group["irreps"]) < rotation.shape[1]:
-        ls_out += ["", "Representations of higher dimension are not listed."]
     return "\n".join(ls_out)
 
 

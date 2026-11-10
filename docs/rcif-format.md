@@ -237,13 +237,19 @@ data of Cs3Cr2Br9, `k = (1/4, 1/4, 0)`.
 
 **From a paramagnetic crystal.** The methods of `Crystal`
 `report_irreps_of_k(k_1, k_2, k_3, magnetic_atoms)` (the group of `k`, its
-one-dimensional irreducible representations, their superspace groups and
-the symmforms of the magnetic atoms) and `add_propagation_vector(k_1, k_2,
-k_3, magnetic_atoms, irrep, moment)` convert a crystal with `space_group`:
+irreducible representations, their superspace groups and the symmforms of
+the magnetic atoms) and `add_propagation_vector(k_1, k_2, k_3,
+magnetic_atoms, irrep, moment, mode)` convert a crystal with `space_group`:
 the operations of the group of `k` get `tau = k.t + arg(chi) / 2pi` of the
-representation, an operation mapping `k` to `-k` is added when the
+representation (for a multidimensional representation, the operations of
+the isotropy subgroup `mode` with `D(g) eta = lambda_g eta` for its
+order-parameter direction `eta`, and `tau = k.t + arg(lambda_g) / 2pi`;
+the representations are found by the method of Dixon, Numer. Math. 10
+(1967) 446, the isotropy subgroups as in ISODISTORT), an operation mapping `k` to `-k` is added when the
 representation allows it, atoms whose orbit splits become several atoms,
 and the space group is kept as `parent_space_group`.
+`Crystal.make_magnetic_supercell()` writes a commensurate structure as a
+P1 magnetic supercell with the moments of all atoms.
 `Crystal.report_magnetic_domains` and `Diffrn.define_magnetic_domains(crystal)`
 give the domains (cosets of the point group of the superspace group;
 domains related by the inversion give the same unpolarized intensities and

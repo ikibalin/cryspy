@@ -82,7 +82,8 @@ from cryspy.D_functions_item_loop.function_1_magnetic_k import (
     form_irrep_name, form_start_fourier, form_superspace_by_irrep,
     report_moment_modulation,
     form_superspace_items, format_symmform, report_irreps, split_atoms,
-    split_labels, take_irrep_numbers, take_k_group, take_parent_space_group)
+    split_labels, take_irrep_numbers, take_k_group, take_number_of_irreps,
+    take_parent_space_group)
 from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
 from cryspy.exceptions import CrysPyError
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
@@ -1026,10 +1027,12 @@ class Crystal(DataN):
         magnetic superspace groups.
 
         Lists the operations of the space group which keep k, the
-        characters of the one-dimensional irreducible representations
-        (Γ1, Γ2, ...) and, for every representation, the superspace group
-        and the Fourier components of every magnetic atom allowed by it
-        (symmforms, as in MAGNDATA). Use it to choose ``irrep`` of
+        characters of the irreducible small representations (Γ1, Γ2, ...;
+        the one-dimensional ones first) and, for every one-dimensional
+        representation and every isotropy subgroup (mode) of a
+        multidimensional one, the superspace group and the Fourier
+        components of every magnetic atom allowed by it (symmforms, as in
+        MAGNDATA). Use it to choose ``irrep`` and ``mode`` of
         :meth:`add_propagation_vector`; the crystal is not changed. A
         component of k within 0.001 of a fraction with a denominator up to
         12 is taken as that fraction (0.3333 as 1/3).
@@ -1069,11 +1072,13 @@ class Crystal(DataN):
     def add_propagation_vector(self, k_1: float, k_2: float, k_3: float,
                                magnetic_atoms: str, irrep: str = "1",
                                moment: float = 0.0,
-                               use_minus_k_operations: bool = True) -> str:
+                               use_minus_k_operations: bool = True,
+                               mode: int = 1) -> str:
         """Describe the magnetic structure by a propagation vector k.
 
         The space group is replaced by the magnetic superspace group of the
-        chosen one-dimensional representation (mCIF/MAGNDATA categories
+        chosen representation (for a multidimensional one, of its isotropy
+        subgroup ``mode``; mCIF/MAGNDATA categories
         ``cell_wave_vector``, ``space_group_symop_magn_ssg_operation`` and
         ``_centering``); it describes the nuclear and the magnetic structure
         together, so the atoms whose orbit splits become several atoms
@@ -1097,8 +1102,9 @@ class Crystal(DataN):
         magnetic_atoms : str
             Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
         irrep : str
-            Number of the one-dimensional irreducible representation (1 for
-            Γ1), or several numbers separated by commas (1,2 for Γ1 ⊕ Γ2:
+            Number of the irreducible representation (1 for Γ1; the
+            one-dimensional ones come first), or several numbers of
+            one-dimensional ones separated by commas (1,2 for Γ1 ⊕ Γ2:
             cycloids and helices made of two modes).
         moment : float
             Start amplitude of the Fourier components in μB (0 keeps them zero).
@@ -1106,6 +1112,11 @@ class Crystal(DataN):
             Add the operations mapping k to -k when the representation
             allows it (the highest superspace group: the phases of different
             orbits are then fixed); False keeps the group of k only.
+        mode : int
+            Isotropy subgroup (order-parameter direction) of a
+            multidimensional representation, numbered as in
+            report_irreps_of_k (1: the most symmetric); ignored for
+            one-dimensional ones.
 
         Returns
         -------
@@ -1139,7 +1150,10 @@ class Crystal(DataN):
         space_group = self.space_group
         k_group = take_k_group(space_group, k_vector)
         try:
-            irrep_name = form_irrep_name(take_irrep_numbers(irrep, len(k_group["irreps"])))
+            numbers = take_irrep_numbers(irrep, take_number_of_irreps(k_group),
+                                         len(k_group["irreps"]))
+            irrep_name = form_irrep_name(
+                numbers, mode if numbers[0] > len(k_group["irreps"]) else None)
         except CrysPyError as error:
             raise CrysPyError(
                 f"{error}\n\n"
@@ -1149,7 +1163,10 @@ class Crystal(DataN):
                                      self.atom_site[label].fract_z], dtype=float)
                  for label in l_magnetic}
         report = report_irreps(k_group, k_vector, atoms, use_minus_k_operations)
-        ssg = form_superspace_by_irrep(k_group, k_vector, irrep, use_minus_k_operations)
+        try:
+            ssg = form_superspace_by_irrep(k_group, k_vector, irrep, use_minus_k_operations, mode)
+        except CrysPyError as error:
+            raise CrysPyError(f"{error}\n\n{report}") from None
         arrays = ssg["arrays"]
         # the orbits are split by the positions part of the superspace group
         d_split = split_atoms(self, dict(

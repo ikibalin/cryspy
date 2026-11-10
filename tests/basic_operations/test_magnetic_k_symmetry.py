@@ -6,7 +6,8 @@ import pytest
 
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_axial_moment_matrix, calc_domain_matrices, calc_fourier_site_projector,
-    calc_k_group_flags, calc_minus_k_flags, calc_one_dimensional_irreps,
+    calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
+    calc_multiplication_table, calc_one_dimensional_irreps, calc_small_irreps,
     form_fourier_symmform, form_operation_xyz, form_superspace_group,
     form_symmform_constraint, parse_symmform, split_atom_orbit)
 from cryspy.A_functions_base.structure_factor_magnetic_k import (
@@ -241,3 +242,79 @@ def test_classify_moment_modulation():
     # k = 1/2: only +-A.real
     assert classify_moment_modulation(
         numpy.array([1.5, 0., 0.]), [0.5, 0., 0.], cell)[2] == "collinear, sign alternates"
+
+
+def take_group_of_k(name_hm, k_vector):
+    from cryspy.C_item_loop_classes.cl_2_space_group import SpaceGroup
+    from cryspy.D_functions_item_loop.function_1_magnetic_k import take_k_group
+    space_group = SpaceGroup(name_hm_alt=name_hm)
+    space_group.form_object()
+    return take_k_group(space_group, numpy.array(k_vector, dtype=float))
+
+
+def check_small_irrep(k_group, k_vector, matrices):
+    """Unitary, the factor system of k and irreducible
+    (sum |chi|^2 = order of the group, Schur)."""
+    index, lattice = calc_multiplication_table(
+        k_group["rotation"], k_group["translation"], k_group["centring"])
+    omega = numpy.exp(-2j * numpy.pi * numpy.einsum("a,aij->ij", numpy.asarray(k_vector), lattice))
+    n_s, dimension = matrices.shape[0], matrices.shape[1]
+    for i in range(n_s):
+        numpy.testing.assert_allclose(
+            matrices[i] @ matrices[i].conj().T, numpy.eye(dimension), atol=1e-8)
+        for j in range(n_s):
+            numpy.testing.assert_allclose(
+                matrices[i] @ matrices[j], omega[i, j] * matrices[index[i, j]], atol=1e-8)
+    character = numpy.trace(matrices, axis1=1, axis2=2)
+    assert numpy.sum(numpy.abs(character) ** 2) == pytest.approx(n_s)
+
+
+@pytest.mark.parametrize("name_hm, k_vector, dimensions", [
+    # Bilbao REPRES / Cracknell-Davies-Miller-Love tables:
+    ("P n m a", (0.5, 0., 0.), [2, 2]),  # X1, X2
+    ("P 63/m m c", (1. / 3., 1. / 3., 0.), [1, 1, 1, 1, 2, 2]),  # K1..K6
+    ("P 63/m m c", (1. / 3., 1. / 3., 0.5), [2, 2, 2]),  # H1..H3
+    ("P m m m", (0.5, 0., 0.), [1] * 8),  # symmorphic: X1..X8
+])
+def test_small_irreps_against_tables(name_hm, k_vector, dimensions):
+    k_group = take_group_of_k(name_hm, k_vector)
+    irreps = calc_small_irreps(
+        k_group["rotation"], k_group["translation"], k_group["centring"], k_vector)
+    assert [matrices.shape[1] for matrices in irreps] == dimensions
+    for matrices in irreps:
+        check_small_irrep(k_group, k_vector, matrices)
+    # the one-dimensional ones are those of calc_one_dimensional_irreps
+    one_dimensional = [matrices[:, 0, 0] for matrices in irreps if matrices.shape[1] == 1]
+    assert len(one_dimensional) == len(k_group["irreps"])
+    for chi in k_group["irreps"]:
+        assert any(numpy.allclose(chi, other, atol=1e-8) for other in one_dimensional)
+
+
+def test_isotropy_subgroups_of_two_dimensional_irrep():
+    """Pnma, k = (1/2, 0, 0): each OPD is kept by its subgroup with the
+    phases lambda_h, the phases form a one-dimensional representation of
+    the subgroup with the factor system of k, and the general OPD (a, b)
+    is kept by the identity and the lattice only."""
+    k_vector = (0.5, 0., 0.)
+    k_group = take_group_of_k("P n m a", k_vector)
+    index, lattice = calc_multiplication_table(
+        k_group["rotation"], k_group["translation"], k_group["centring"])
+    omega = numpy.exp(-2j * numpy.pi * numpy.einsum("a,aij->ij", numpy.asarray(k_vector), lattice))
+    for matrices in k_group["irreps_nd"]:
+        l_isotropy = calc_isotropy_subgroups(
+            k_group["rotation"], k_group["translation"], k_group["centring"],
+            k_vector, matrices)
+        assert len(l_isotropy) >= 2
+        assert l_isotropy[-1]["dimension"] == 2
+        assert l_isotropy[-1]["flags"].sum() < l_isotropy[0]["flags"].sum()
+        for isotropy in l_isotropy:
+            eta = isotropy["order_parameter"]
+            elements = numpy.flatnonzero(isotropy["flags"])
+            assert elements[0] == 0
+            for h in elements:
+                numpy.testing.assert_allclose(
+                    matrices[h] @ eta, isotropy["eigen"][h] * eta, atol=1e-8)
+                for g in elements:
+                    assert isotropy["flags"][index[h, g]]
+                    assert isotropy["eigen"][h] * isotropy["eigen"][g] == pytest.approx(
+                        omega[h, g] * isotropy["eigen"][index[h, g]])
