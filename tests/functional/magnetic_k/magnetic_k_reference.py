@@ -18,22 +18,24 @@ MAGNETIC_SCATTERING_LENGTH = 0.2695  # 10^-12 cm per μB
 
 
 def parse_operation(algebraic):
-    """(4x4 matrix, 4 translation, theta) of 'x1+1/2,-x2,x3,-x4+1/4,+1'."""
+    """((3+d)x(3+d) matrix, (3+d) translation, theta) of
+    'x1+1/2,-x2,x3,-x4+1/4,+1' (d = 1) or 'x1,x2,x3,x4,-x5,+1' (d = 2)."""
     parts = [part.strip() for part in algebraic.split(",")]
-    names = ("x1", "x2", "x3", "x4")
-    matrix, translation = numpy.zeros((4, 4)), numpy.zeros(4)
-    for i_row, part in enumerate(parts[:4]):
+    n_dim = len(parts) - 1
+    names = tuple(f"x{i + 1}" for i in range(n_dim))
+    matrix, translation = numpy.zeros((n_dim, n_dim)), numpy.zeros(n_dim)
+    for i_row, part in enumerate(parts[:n_dim]):
         expression = re.sub(r"(\d)(x)", r"\1*\2", part).replace("/", "*1./")
 
         def value(point, expression=expression):
             return eval(expression, {}, dict(zip(names, point)))
 
-        translation[i_row] = value((0., 0., 0., 0.))
-        for i_col in range(4):
-            point = numpy.zeros(4)
+        translation[i_row] = value(numpy.zeros(n_dim))
+        for i_col in range(n_dim):
+            point = numpy.zeros(n_dim)
             point[i_col] = 1.
             matrix[i_row, i_col] = value(point) - translation[i_row]
-    return matrix, translation, int(parts[4])
+    return matrix, translation, int(parts[n_dim])
 
 
 def cartesian_basis(length, angle):
@@ -100,6 +102,75 @@ def generate_moments(operations, centrings, k_vector, atoms, n_cell,
             values = numpy.asarray(values, dtype=float)
             moment = numpy.cos(angle)[:, numpy.newaxis] * values[:, 0] + \
                 numpy.sin(angle)[:, numpy.newaxis] * values[:, 1]
+            moment = theta * numpy.linalg.det(rotation) * moment @ rotation.transpose()
+            x_new = numpy.mod(x_new, n_cell)
+            x_new = numpy.where(numpy.abs(x_new - n_cell) < 1e-6, 0., x_new)
+            for site, site_moment in zip(x_new, moment):
+                key = tuple(numpy.round(site, 5))
+                if key in sites:
+                    assert numpy.allclose(sites[key][1], site_moment, atol=atol)
+                else:
+                    sites[key] = (site, site_moment)
+        out[label] = list(sites.values())
+    return out
+
+
+def generate_moments_multi_k(operations, centrings, k_vectors, atoms, n_cell,
+                             atol: float = 2e-3):
+    """Positions and moments of all atoms in N1 x N2 x N3 cells for several
+    propagation vectors (3+d superspace).
+
+    The moment at r is ``sum_n Mcos_n cos(2 pi x_n) + Msin_n sin(2 pi x_n)``
+    with ``x_n = k_n.r`` (one wave per propagation vector); an operation
+    with ``x(3+n)' = h_n.x + epsilon_n x(3+n) + tau_n`` (no exchange of the
+    propagation vectors) gives ``M'(x') = theta det(R) R M(x)``.
+
+    Parameters
+    ----------
+    operations, centrings : list of str
+        Algebraic superspace operations with 3 + d coordinates.
+    k_vectors : sequence
+        (d, 3) propagation vectors k1, k2, ...
+    atoms : dict
+        {label: (position (3,), Fourier components (d, 3, 2): wave n, cos
+        and sin along a, b, c in μB)}.
+    n_cell : numpy.ndarray
+        (3,) number of cells.
+
+    Returns
+    -------
+    dict
+        {label: list of (position in the large cell in units of the small
+        cell, moment (3,) along a, b, c)}.
+    """
+    k_float = numpy.array([[float(value) for value in k] for k in k_vectors])  # (d, 3)
+    n_wave = k_float.shape[0]
+    identity = ",".join([f"x{i + 1}" for i in range(3 + n_wave)] + ["+1"])
+    l_op = [parse_operation(text) for text in operations]
+    l_cen = [parse_operation(text) for text in centrings] or [parse_operation(identity)]
+    all_operations = [
+        (m_c @ m_o, m_c @ t_o + t_c, theta_c * theta_o)
+        for (m_c, t_c, theta_c) in l_cen for (m_o, t_o, theta_o) in l_op]
+    lattice = numpy.array(list(itertools.product(*[range(n) for n in n_cell])))
+    out = {}
+    for label, (position, values) in atoms.items():
+        values = numpy.asarray(values, dtype=float)
+        sites = {}
+        for matrix, translation, theta in all_operations:
+            rotation = matrix[:3, :3]
+            assert numpy.allclose(matrix[3:, 3:], numpy.diag(numpy.diag(matrix[3:, 3:])))
+            x = numpy.asarray(position, dtype=float)[numpy.newaxis, :] + lattice
+            x_new = x @ rotation.transpose() + translation[:3]
+            moment = numpy.zeros(x.shape)
+            for i_wave in range(n_wave):
+                h_vector = matrix[3 + i_wave, :3]
+                epsilon = matrix[3 + i_wave, 3 + i_wave]
+                tau = translation[3 + i_wave]
+                # coordinate of the source atom giving the moment at k_n.x_new
+                x_wave = epsilon * (x_new @ k_float[i_wave] - x @ h_vector - tau)
+                angle = 2. * numpy.pi * x_wave
+                moment += numpy.cos(angle)[:, numpy.newaxis] * values[i_wave, :, 0] + \
+                    numpy.sin(angle)[:, numpy.newaxis] * values[i_wave, :, 1]
             moment = theta * numpy.linalg.det(rotation) * moment @ rotation.transpose()
             x_new = numpy.mod(x_new, n_cell)
             x_new = numpy.where(numpy.abs(x_new - n_cell) < 1e-6, 0., x_new)

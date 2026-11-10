@@ -329,12 +329,12 @@ def calc_chi_sq_for_diffrn_by_dictionary(
                 f_m_perp_2hkl += f_m_perp_o_ccs_2hkl
             f_m_perp_2hkl = f_m_perp_2hkl * flag_integer_2hkl
             if flag_magnetic_k:
-                k_vector = dict_crystal["magnetic_k_vector"][:, 0]
                 flag_satellite_2hkl = numpy.zeros(index_2hkl.shape[1], dtype=bool)
-                for sign in (1., -1.):
-                    index_h = index_2hkl - sign * k_vector[:, numpy.newaxis]
-                    flag_satellite_2hkl |= numpy.all(
-                        numpy.abs(index_h - numpy.round(index_h)) < 1e-4, axis=0)
+                for k_vector in dict_crystal["magnetic_k_vector"].transpose():
+                    for sign in (1., -1.):
+                        index_h = index_2hkl - sign * k_vector[:, numpy.newaxis]
+                        flag_satellite_2hkl |= numpy.all(
+                            numpy.abs(index_h - numpy.round(index_h)) < 1e-4, axis=0)
                 if numpy.any(flag_satellite_2hkl):
                     f_m_perp_2hkl[:, flag_satellite_2hkl] += calc_f_m_perp_k_by_dictionary(
                         dict_crystal, index_2hkl[:, flag_satellite_2hkl], unit_cell_parameters)

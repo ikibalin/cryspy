@@ -11,17 +11,18 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 class AtomSiteFourierWaveVector(ItemN):
     """Wave vector of a Fourier term of the modulations (msCIF).
 
-``q1_coeff`` is the harmonic of the propagation vector (only 1 is
-supported); ``x``, ``y``, ``z`` give the vector itself.
+``q1_coeff``, ``q2_coeff``, ``q3_coeff`` are the coefficients of the
+propagation vectors k1, k2, k3 (only first harmonics: one coefficient 1,
+the others 0); ``x``, ``y``, ``z`` give the vector itself.
     """
 
     ATTR_MANDATORY_NAMES = ("seq_id", )
     ATTR_MANDATORY_TYPES = (int, )
     ATTR_MANDATORY_CIF = ("seq_id", )
 
-    ATTR_OPTIONAL_NAMES = ("q1_coeff", "x", "y", "z", )
-    ATTR_OPTIONAL_TYPES = (int, float, float, float, )
-    ATTR_OPTIONAL_CIF = ("q1_coeff", "x", "y", "z", )
+    ATTR_OPTIONAL_NAMES = ("q1_coeff", "q2_coeff", "q3_coeff", "x", "y", "z", )
+    ATTR_OPTIONAL_TYPES = (int, int, int, float, float, float, )
+    ATTR_OPTIONAL_CIF = ("q1_coeff", "q2_coeff", "q3_coeff", "x", "y", "z", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES

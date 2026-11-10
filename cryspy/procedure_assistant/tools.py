@@ -920,6 +920,16 @@ def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
     return "\n".join(ls_out)
 
 
+def add_new_data_block(cryspy_object, block) -> str:
+    """Add a data block made by a method (e.g. make_magnetic_supercell) to the
+    object, unless a block with its name is there already."""
+    name = block.get_name()
+    if name in [item.get_name() for item in cryspy_object.items]:
+        return f"The object has a data block {name:} already: the new block is not added."
+    cryspy_object.add_items([block])
+    return f"The new data block {name:} is added to the object."
+
+
 def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) -> str:
     """Call a method of the blocks given by the path (every block that has
     it when the path is a class, a category or empty); items of the object
@@ -962,7 +972,11 @@ def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) ->
         if l_missing:
             raise ArgumentsNeeded(l_missing)
         result = getattr(block, method)(**kwargs)
-        l_text.append(form_procedure_result(f"{block_path:}.{method:}", result, cryspy_object))
+        if isinstance(result, DataN) and result is not block:
+            l_text.append(f"{block_path:}.{method:} finished. "
+                          + add_new_data_block(cryspy_object, result))
+        else:
+            l_text.append(form_procedure_result(f"{block_path:}.{method:}", result, cryspy_object))
     if len(l_block) > MAX_METHOD_BLOCKS:
         l_text.append(f"Only the first {MAX_METHOD_BLOCKS:} of {len(l_block):} blocks; give the path.")
     return "\n".join(l_text)

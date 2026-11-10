@@ -150,7 +150,7 @@ constraints itself.
 A magnetic structure with a propagation vector `k` is described as in msCIF
 (J. M. Perez-Mato et al., J. Phys.: Condens. Matter 24 (2012) 163201), the
 format of the Bilbao MAGNDATA database and of Jana2006; MAGNDATA files with
-one wave vector load directly. The moment of an atom at the position `r`
+one or several wave vectors load directly. The moment of an atom at the position `r`
 (fractional, the lattice translation included) is
 
 `M(x4) = cos * cos(2 pi x4) + sin * sin(2 pi x4)`, `x4 = k.r`,
@@ -237,13 +237,29 @@ data of Cs3Cr2Br9, `k = (1/4, 1/4, 0)`.
 
 **From a paramagnetic crystal.** The methods of `Crystal`
 `report_irreps_of_k(k_1, k_2, k_3, magnetic_atoms)` (the group of `k`, its
-one-dimensional irreducible representations, their superspace groups and
-the symmforms of the magnetic atoms) and `add_propagation_vector(k_1, k_2,
-k_3, magnetic_atoms, irrep, moment)` convert a crystal with `space_group`:
+irreducible representations, their superspace groups and the symmforms of
+the magnetic atoms) and `add_propagation_vector(k_1, k_2, k_3,
+magnetic_atoms, irrep, moment, mode)` convert a crystal with `space_group`:
 the operations of the group of `k` get `tau = k.t + arg(chi) / 2pi` of the
-representation, an operation mapping `k` to `-k` is added when the
+representation (for a multidimensional representation, the operations of
+the isotropy subgroup `mode` with `D(g) eta = lambda_g eta` for its
+order-parameter direction `eta`, and `tau = k.t + arg(lambda_g) / 2pi`;
+the representations are found by the method of Dixon, Numer. Math. 10
+(1967) 446, the isotropy subgroups as in ISODISTORT), an operation mapping `k` to `-k` is added when the
 representation allows it, atoms whose orbit splits become several atoms,
 and the space group is kept as `parent_space_group`.
+Called on a crystal that has a superspace group already,
+`add_propagation_vector` adds a second propagation vector (a (3+2)
+superspace group): the operations of the present group that keep the new
+`k` get the phases of the chosen representation in a new `x5`, the atoms
+whose orbit splits become several atoms, the Fourier rows of the new wave
+have `wave_vector_seq_id` 2 (`atom_site_fourier_wave_vector` gives
+`q1_coeff`, `q2_coeff`), and the waves of the first `k` are kept. The moment
+is the sum of the waves, `M = sum_n (cos_n cos(2 pi x(3+n)) + sin_n sin(2 pi
+x(3+n)))`, `x(3+n) = k_n.r`. Superspace operations that exchange the
+propagation vectors (a non-diagonal epsilon block) are not supported.
+`Crystal.make_magnetic_supercell()` writes a commensurate structure as a
+P1 magnetic supercell with the moments of all atoms.
 `Crystal.report_magnetic_domains` and `Diffrn.define_magnetic_domains(crystal)`
 give the domains (cosets of the point group of the superspace group;
 domains related by the inversion give the same unpolarized intensities and

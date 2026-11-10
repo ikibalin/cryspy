@@ -709,3 +709,316 @@ def snap_k_vector(k_vector, max_denominator: int = 12, tolerance: float = 1e-3):
             l_note.append(f"{value:g} → {fraction}")
     return k_snapped, l_note
 
+
+
+def calc_projective_regular_representation(op_rotation, op_translation,
+                                           centring_translations, k_vector):
+    """Projective regular representation of the group of k.
+
+    ``D(g_i) |e_j> = omega_ij |e_m>`` with ``g_i g_j = {I|L_ij} g_m`` and
+    ``omega_ij = exp(-2 pi i k.L_ij)`` (:func:`calc_multiplication_table`), so
+    that ``D(g_i) D(g_j) = omega_ij D(g_m)``: the factor system of the small
+    representations of the space group at k, the same as that of the
+    one-dimensional ones (:func:`calc_one_dimensional_irreps`).
+
+    Returns
+    -------
+    numpy.ndarray
+        Complex (n_s, n_s, n_s): ``D[i]`` is the matrix of operation i.
+    """
+    k_vector = numpy.asarray(k_vector, dtype=float)
+    index, lattice = calc_multiplication_table(
+        op_rotation, op_translation, centring_translations)
+    omega = numpy.exp(-2j * numpy.pi * (k_vector[:, na, na] * lattice).sum(axis=0))
+    n_s = index.shape[0]
+    matrices = numpy.zeros((n_s, n_s, n_s), dtype=complex)
+    for i in range(n_s):
+        matrices[i, index[i], numpy.arange(n_s)] = omega[i]
+    return matrices
+
+
+def calc_small_irreps(op_rotation, op_translation, centring_translations,
+                      k_vector, seed: int = 0, tolerance: float = 1e-6):
+    """All irreducible small representations of the group of k, as matrices.
+
+    The projective regular representation is split by the eigenvectors of a
+    random Hermitian matrix of its commutant: an irreducible representation
+    of dimension d occurs d times in it, and every eigenvalue of such a
+    matrix belongs to one copy, so its eigenspace (of dimension d) is
+    irreducible (J. D. Dixon, Numer. Math. 10 (1967) 446). Equivalent
+    copies are recognized by their characters; ``sum d^2 = n_s`` is checked.
+
+    Parameters
+    ----------
+    op_rotation, op_translation : numpy.ndarray
+        (9, n_s), (3, n_s) operations of the group of k (the first one is the identity).
+    centring_translations : numpy.ndarray
+        (3, n_c) centring translations including zero.
+    k_vector : numpy.ndarray
+        (3,) propagation vector.
+    seed : int
+        Seed of the random matrix (the result does not depend on it).
+
+    Returns
+    -------
+    list of numpy.ndarray
+        Complex (n_s, d, d) unitary matrices of every representation,
+        ``D(g_i) D(g_j) = exp(-2 pi i k.L_ij) D(g_m)``; a one-dimensional
+        one is ``chi_s`` of :func:`calc_one_dimensional_irreps`.
+    """
+    regular = calc_projective_regular_representation(
+        op_rotation, op_translation, centring_translations, k_vector)
+    n_s = regular.shape[0]
+    rng = numpy.random.default_rng(seed)
+    random_matrix = rng.normal(size=(n_s, n_s)) + 1j * rng.normal(size=(n_s, n_s))
+    commutant = numpy.einsum("sij,jk,slk->il", regular, random_matrix, regular.conj())
+    commutant = commutant + commutant.conj().transpose()
+    eigenvalue, eigenvector = numpy.linalg.eigh(commutant)
+    l_irrep, l_character = [], []
+    start = 0
+    scale = max(1., float(numpy.abs(eigenvalue).max()))
+    while start < n_s:
+        stop = start + 1
+        while stop < n_s and eigenvalue[stop] - eigenvalue[start] < 1e-7 * scale:
+            stop += 1
+        basis = eigenvector[:, start:stop]
+        matrices = numpy.einsum("ia,sij,jb->sab", basis.conj(), regular, basis)
+        character = numpy.trace(matrices, axis1=1, axis2=2)
+        if not any(numpy.allclose(character, other, atol=1e-5) for other in l_character):
+            l_character.append(character)
+            l_irrep.append(matrices)
+        start = stop
+    if sum(irrep.shape[1] ** 2 for irrep in l_irrep) != n_s:
+        raise ValueError("The small representations of the group of k were not "
+                         "separated (sum of d^2 differs from the order of the group).")
+    l_irrep.sort(key=lambda irrep: irrep.shape[1])
+    return l_irrep
+
+
+def _generate_subgroup(index, generators):
+    subgroup, changed = {0}, True
+    while changed:
+        new = subgroup | {int(index[a, g]) for a in subgroup for g in generators}
+        changed = new != subgroup
+        subgroup = new
+    return frozenset(subgroup)
+
+
+def calc_stabilizer(matrices, order_parameter, tolerance: float = 1e-6):
+    """Operations that keep the order parameter up to a phase.
+
+    Parameters
+    ----------
+    matrices : numpy.ndarray
+        (n_s, d, d) matrices of a representation.
+    order_parameter : numpy.ndarray
+        (d,) complex order-parameter direction (OPD).
+
+    Returns
+    -------
+    flags : numpy.ndarray
+        (n_s,) bool, ``D(g) eta = lambda_g eta``.
+    eigen : numpy.ndarray
+        (n_s,) complex lambda_g (NaN where the flag is False).
+    """
+    eta = numpy.asarray(order_parameter, dtype=complex)
+    eta = eta / numpy.linalg.norm(eta)
+    image = matrices @ eta  # (n_s, d)
+    eigen = image @ eta.conj()
+    flags = numpy.linalg.norm(image - eigen[:, na] * eta[na, :], axis=1) < tolerance
+    return flags, numpy.where(flags, eigen, numpy.nan)
+
+
+def calc_isotropy_subgroups(op_rotation, op_translation, centring_translations,
+                            k_vector, matrices, seed: int = 0):
+    """Isotropy subgroups of a small representation, one per class of domains.
+
+    For every subgroup H of the group of k (generated by one or two
+    operations) and every one-dimensional representation lambda of H with
+    the factor system of k, the order-parameter directions (OPD) with
+    ``D(h) eta = lambda_h eta`` are found; the full stabilizer of a generic
+    eta of that space is an isotropy subgroup. Isotropy subgroups whose
+    OPDs are related by an operation of the group of k (domains) are
+    listed once. The magnetic structure of an OPD is invariant under the
+    operations of its isotropy subgroup with the moment phases
+    ``-arg(lambda_h) / 2 pi`` (H. T. Stokes and D. M. Hatch, "Isotropy
+    Subgroups of the 230 Crystallographic Space Groups" (1988); ISODISTORT).
+
+    Parameters
+    ----------
+    op_rotation, op_translation, centring_translations, k_vector :
+        As in :func:`calc_small_irreps`.
+    matrices : numpy.ndarray
+        (n_s, d, d) matrices of the representation.
+
+    Returns
+    -------
+    list of dict
+        ``flags`` (n_s,) bool operations of the subgroup, ``eigen`` (n_s,)
+        complex lambda, ``order_parameter`` (d,) a generic OPD of it and
+        ``dimension`` of its OPD space; the largest subgroups first.
+    """
+    index, _ = calc_multiplication_table(op_rotation, op_translation, centring_translations)
+    n_s, dimension = matrices.shape[0], matrices.shape[1]
+    rotation = numpy.asarray(op_rotation, dtype=float)
+    translation = numpy.asarray(op_translation, dtype=float)
+    l_subgroup = {_generate_subgroup(index, [g]) for g in range(n_s)}
+    l_subgroup |= {_generate_subgroup(index, [g, h])
+                   for g in range(1, n_s) for h in range(g + 1, n_s)}
+    rng = numpy.random.default_rng(seed)
+    l_found = []
+    for subgroup in sorted(l_subgroup, key=len, reverse=True):
+        elements = sorted(subgroup)
+        for chi in calc_one_dimensional_irreps(
+                rotation[:, elements], translation[:, elements], centring_translations,
+                k_vector):
+            # OPDs with D(h) eta = chi_h eta: null space of the stacked D(h) - chi_h
+            stacked = numpy.concatenate(
+                [matrices[h] - chi[i] * numpy.eye(dimension) for i, h in enumerate(elements)])
+            _, singular, right = numpy.linalg.svd(stacked)
+            n_null = dimension - int(numpy.sum(singular > 1e-6))
+            if n_null == 0:
+                continue
+            space = right[dimension - n_null:].conj().transpose()  # (d, n_null)
+            eta = space @ (rng.normal(size=n_null) + 1j * rng.normal(size=n_null))
+            flags, eigen = calc_stabilizer(matrices, eta)
+            if any(numpy.array_equal(flags, other["flags"])
+                   and numpy.allclose(eigen[flags], other["eigen"][flags], atol=1e-5)
+                   for other in l_found):
+                continue
+            l_found.append({"flags": flags, "eigen": eigen, "order_parameter": eta,
+                            "dimension": n_null})
+    # one subgroup per class of domains: eta and D(g) eta are domains of each other
+    l_class = []
+    for found in sorted(l_found, key=lambda d: (-int(d["flags"].sum()), d["dimension"])):
+        flag_new = True
+        for other in l_class:
+            if int(other["flags"].sum()) != int(found["flags"].sum()):
+                continue
+            for g in range(n_s):
+                flags, eigen = calc_stabilizer(matrices, matrices[g] @ other["order_parameter"])
+                if numpy.array_equal(flags, found["flags"]) and numpy.allclose(
+                        eigen[flags], found["eigen"][flags], atol=1e-5):
+                    flag_new = False
+                    break
+            if not flag_new:
+                break
+        if flag_new:
+            l_class.append(found)
+    return l_class
+
+
+def _expand_superspace_elements(l_operation, l_centring, tolerance: float = 1e-5):
+    """All elements (products of the centrings and the operations) of a
+    superspace group as (matrix (3+d)x(3+d), translation (3+d,) in [0, 1),
+    theta)."""
+    from cryspy.A_functions_base.structure_factor_magnetic_k import parse_ssg_operation
+
+    def affine(text):
+        operation = parse_ssg_operation(text)
+        n_wave = operation["epsilon_all"].size
+        matrix = numpy.zeros((3 + n_wave, 3 + n_wave))
+        matrix[:3, :3] = operation["rotation"].reshape(3, 3)
+        matrix[3:, :3] = operation["h_all"]
+        matrix[3:, 3:] = numpy.diag(operation["epsilon_all"])
+        translation = numpy.concatenate([operation["translation"], operation["tau_all"]])
+        return matrix, translation, operation["theta"]
+
+    l_op = [affine(text) for text in l_operation]
+    n_dim = l_op[0][0].shape[0]
+    l_cen = [affine(text) for text in l_centring] or [
+        (numpy.eye(n_dim), numpy.zeros(n_dim), 1)]
+    l_element = []
+    for c_matrix, c_translation, c_theta in l_cen:
+        for o_matrix, o_translation, o_theta in l_op:
+            translation = numpy.mod(c_matrix @ o_translation + c_translation, 1.)
+            translation[numpy.abs(translation - 1.) < tolerance] = 0.
+            l_element.append((c_matrix @ o_matrix, translation, c_theta * o_theta))
+    return l_element
+
+
+def combine_superspace_groups(l_operation_1, l_centring_1, l_operation_2, l_centring_2,
+                              tolerance: float = 1e-5) -> dict:
+    """Superspace group of two independent sets of modulation waves.
+
+    The group 1 is a (3+d) group of the waves k1..kd, the group 2 a (3+1)
+    group of a new wave k_new built on operations of the group 1 (their
+    x1, x2, x3 parts). An element {R|t} of both groups acts on every wave
+    by its own x(3+n) part, so the elements with the same R and t (modulo
+    the lattice) are combined into one (3+d+1) element. The time reversal
+    of the two parts must agree: for a first harmonic, theta = -1 is the
+    shift of x(3+n) by 1/2, so the x4 part of the group 2 is shifted by 1/2
+    where its theta differs from that of the group 1. The elements of the
+    group 1 that are not in the group 2 (they do not keep k_new or break
+    its representation) are left out.
+
+    Parameters
+    ----------
+    l_operation_1, l_centring_1 : list of str
+        (3+d) superspace operations and centrings of the present waves.
+    l_operation_2, l_centring_2 : list of str
+        (3+1) superspace operations and centrings of the new wave.
+
+    Returns
+    -------
+    dict
+        ``operations`` and ``centrings``: (3+d+1) algebraic strings
+        (x1, ..., x(4+d), time reversal).
+    """
+    l_element_1 = _expand_superspace_elements(l_operation_1, l_centring_1, tolerance)
+    l_element_2 = _expand_superspace_elements(l_operation_2, l_centring_2, tolerance)
+    n_wave_1 = l_element_1[0][0].shape[0] - 3
+    n_dim = 4 + n_wave_1
+
+    def key_3d(matrix, translation):
+        return tuple(numpy.round(matrix[:3, :3]).astype(int).flatten()) + tuple(
+            numpy.round(numpy.mod(translation[:3] + tolerance, 1.) - tolerance, 5) + 0.)
+
+    d_element_1 = {}
+    for element in l_element_1:
+        d_element_1.setdefault(key_3d(element[0], element[1]), []).append(element)
+    d_group, l_order = {}, []
+    for matrix_2, translation_2, theta_2 in l_element_2:
+        for matrix_1, translation_1, theta_1 in d_element_1.get(
+                key_3d(matrix_2, translation_2), []):
+            matrix = numpy.zeros((n_dim, n_dim))
+            matrix[:3 + n_wave_1, :3 + n_wave_1] = matrix_1
+            matrix[-1, :3] = matrix_2[3, :3]
+            matrix[-1, -1] = matrix_2[3, 3]
+            tau_new = translation_2[3] + (0.5 if theta_1 != theta_2 else 0.)
+            translation = numpy.mod(numpy.concatenate([translation_1, [tau_new]]), 1.)
+            translation[numpy.abs(translation - 1.) < tolerance] = 0.
+            key = tuple(numpy.round(matrix).astype(int).flatten()) + tuple(
+                numpy.round(translation, 5) + 0.) + (theta_1,)
+            if key not in d_group:
+                d_group[key] = (matrix, translation, theta_1)
+                l_order.append(key)
+    l_all = [d_group[key] for key in l_order]
+    identity = numpy.eye(n_dim)
+    l_centring = [element for element in l_all if numpy.allclose(element[0], identity)]
+    l_centring.sort(key=lambda element: (element[2] < 0, tuple(element[1])))
+
+    def key_full(matrix, translation, theta):
+        translation = numpy.mod(translation, 1.)
+        translation[numpy.abs(translation - 1.) < tolerance] = 0.
+        return tuple(numpy.round(matrix).astype(int).flatten()) + tuple(
+            numpy.round(translation, 5) + 0.) + (theta,)
+
+    covered, l_operation = set(), []
+    for element in sorted(l_all, key=lambda element: (
+            not numpy.allclose(element[0][:3, :3], numpy.eye(3)),
+            tuple(numpy.diag(element[0])[3:] < 0), element[2] < 0, tuple(element[1]))):
+        if key_full(*element) in covered:
+            continue
+        l_operation.append(element)
+        for c_matrix, c_translation, c_theta in l_centring:
+            covered.add(key_full(c_matrix @ element[0], c_matrix @ element[1] + c_translation,
+                                 c_theta * element[2]))
+    names = tuple(f"x{i + 1}" for i in range(n_dim))
+
+    def algebraic(matrix, translation, theta):
+        rows = [_form_linear_expression(matrix[i], names, translation[i]) for i in range(n_dim)]
+        return ",".join(rows) + (",+1" if theta > 0 else ",-1")
+
+    return {"operations": [algebraic(*element) for element in l_operation],
+            "centrings": [algebraic(*element) for element in l_centring]}
