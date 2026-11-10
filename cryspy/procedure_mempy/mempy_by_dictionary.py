@@ -56,8 +56,54 @@ from cryspy.A_functions_base.multipoles import calc_multipole_density
 from cryspy.A_functions_base.progress import PROGRESS
 
 from cryspy.procedure_mempy.mempy_den_file import save_density_to_den_file
+from cryspy.A_functions_base.structure_factor_magnetic_k import (
+    calc_magnetic_space_group_of_k0_by_dictionary)
+from cryspy.exceptions import CrysPyError
 
 logger = logging.getLogger(__name__)
+
+
+def form_mem_crystal_dictionary(dict_crystal: dict) -> dict:
+    """Crystal dictionary in the form used by MEM.
+
+    MEM works with the magnetic space group of the cell
+    (``full_mcif_elems`` with the time reversal, ``atom_ordered_*``). A
+    crystal given by a magnetic superspace group with k = 0 (as after
+    ``Crystal.convert_to_superspace``) is the same structure: its
+    magnetic space group and moments are taken from the superspace
+    operations and the cos components of atom_site_moment_Fourier. Other
+    dictionaries are returned unchanged.
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal dictionary (``Crystal.get_dictionary()``).
+
+    Returns
+    -------
+    dict
+        The dictionary itself or a copy without the superspace keys.
+    """
+    if "magnetic_k_vector" not in dict_crystal.keys():
+        return dict_crystal
+    if not numpy.allclose(dict_crystal["magnetic_k_vector"], 0., atol=1e-5):
+        k_text = ", ".join(
+            "(" + " ".join(f"{hh:g}" for hh in k_vector) + ")"
+            for k_vector in dict_crystal["magnetic_k_vector"].transpose())
+        raise CrysPyError(
+            f"MEM needs a magnetization density periodic in the cell, but the "
+            f"propagation vector is {k_text}. For a commensurate k write the "
+            "structure in its magnetic supercell (Crystal.make_magnetic_supercell) "
+            "and give the reflections in the indices of the supercell.")
+    dict_mem = {key: value for key, value in dict_crystal.items()
+                if not (key.startswith("magnetic_k_") or "atom_fourier" in key)}
+    dict_mem.update(calc_magnetic_space_group_of_k0_by_dictionary(dict_crystal))
+    if "atom_ordered_label" in dict_mem.keys() and "mag_atom_label" in dict_mem.keys():
+        flag_2d = numpy.expand_dims(dict_mem["atom_ordered_label"], axis=0) == \
+            numpy.expand_dims(dict_mem["mag_atom_label"], axis=1)
+        args = numpy.argwhere(flag_2d)
+        dict_mem["mag_atom_ordered_index"] = args[args[:, 1].argsort()][:, 0]
+    return dict_mem
 
 
 def calc_preliminary_information_by_dictionary(

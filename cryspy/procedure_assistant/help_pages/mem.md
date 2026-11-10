@@ -1,6 +1,6 @@
 ---
 title: Maximum entropy method (MEM)
-keywords: mem, maximum entropy, spin density, magnetization density, reconstruction, den file, prior, метод максимальной энтропии, спиновая плотность, плотность намагниченности, восстановление
+keywords: mem, maximum entropy, superspace, supercell, propagation vector, spin density, magnetization density, reconstruction, den file, prior, метод максимальной энтропии, спиновая плотность, плотность намагниченности, восстановление
 categories: mem_parameters, atom_electron_configuration
 ---
 MEM reconstructs the spin or magnetization density from polarized neutron
@@ -19,3 +19,12 @@ data. The parameters are in the `mem_parameters` item placed after `global_`:
 
 Run `cryspy.mempy_spin_density_reconstruction(obj)` or
 `cryspy.mempy_magnetization_density_reconstruction(obj)`.
+
+The magnetic structure may be given by a magnetic space group
+(`space_group_symop_magn_operation`, `atom_site_moment`) or by a magnetic
+superspace group with k = 0 (after `convert_to_superspace`): MEM takes the
+magnetic space group and the ordered moments from the superspace
+operations and the cos components, and gives the same result. A density
+with k ≠ 0 is not periodic in the cell: for a commensurate k write the
+structure in its magnetic supercell (method `make_magnetic_supercell` of
+the crystal) and give the reflections in the indices of the supercell.

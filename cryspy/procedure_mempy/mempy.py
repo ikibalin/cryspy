@@ -7,6 +7,7 @@ from cryspy.exceptions import CrysPyWarning, RefinementError
 from cryspy.procedure_mempy.mempy_by_dictionary import (
     mempy_reconstruction_by_dictionary,
     mempy_cycle_density_parameters,
+    form_mem_crystal_dictionary,
 )
 
 logger = logging.getLogger(__name__)
@@ -181,7 +182,7 @@ def mempy_reconstruction_with_parameters(
             "The single crystall polarized experiments are not found"
         )
 
-    dict_crystal = l_dict_crystal[0]
+    dict_crystal = form_mem_crystal_dictionary(l_dict_crystal[0])
     dict_mem_parameters = l_dict_mem_parameters[0]
     dict_in_out = {}
     res = mempy_reconstruction_by_dictionary(
@@ -382,7 +383,7 @@ def mempy_cycle_with_parameters(
             "The single crystall polarized experiments are not found"
         )
 
-    dict_crystal = l_dict_crystal[0]
+    dict_crystal = form_mem_crystal_dictionary(l_dict_crystal[0])
     dict_mem_parameters = l_dict_mem_parameters[0]
 
     dict_in_out = {}

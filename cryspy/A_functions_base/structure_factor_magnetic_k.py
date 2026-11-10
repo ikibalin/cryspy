@@ -1004,3 +1004,99 @@ def calc_moments_at_positions(fract_xyz, modulation_fract_xyz, amplitude, k_vect
     total = numpy.where(flag_match[na, :, :], value, 0.).sum(axis=2)
     moment[:, flag_magnetic] = total[:, flag_magnetic]
     return moment
+
+
+def calc_magnetic_space_group_of_k0_by_dictionary(dict_crystal, tolerance: float = 1e-5) -> dict:
+    """Magnetic space group and ordered moments of a superspace crystal with k = 0.
+
+    For k = 0 the superspace coordinate is ``x4 = t`` (no modulation), the
+    structure is the section t = 0 and its moments are ``M = Mcos``. A
+    superspace operation with ``x4' = epsilon x4 + tau4`` maps the section
+    t = 0 to t = tau4; as ``M(t + 1/2) = -M(t)`` for a single harmonic, it
+    is an operation of the magnetic space group of the section with the
+    time reversal ``theta`` for tau4 = 0 and ``-theta`` for tau4 = 1/2,
+    and no operation of it otherwise. This gives the description by
+    space_group_symop_magn_operation and atom_site_moment used by the
+    procedures written for magnetic space groups (MEM).
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal dictionary with the ``magnetic_k_*`` and ``atom_fourier_*``
+        keys and all propagation vectors equal to zero.
+    tolerance : float
+        Tolerance of the fractional coordinates and of the phases.
+
+    Returns
+    -------
+    dict
+        ``full_mcif_elems`` (14, n_s) integer symmetry elements with the
+        time reversal in the last row, ``atom_multiplicity`` (n_atom,) and,
+        when the crystal has atom_site_moment_Fourier, ``atom_ordered_label`` (n_mag,), ``atom_ordered_index`` (n_mag,)
+        into atom_*, ``atom_ordered_moment_crystalaxis_dn`` (3, n_mag) μB
+        along a/|a|, b/|b|, c/|c|, ``atom_ordered_sc_m`` (9, n_mag)
+        symmetry constraints of the moments and
+        ``flags_atom_ordered_moment_crystalaxis_dn`` (3, n_mag), all False.
+    """
+    from cryspy.A_functions_base.function_3_mcif import calc_multiplicity
+    from cryspy.A_functions_base.symmetry_constraints import calc_sc_ordered
+    k_vectors = dict_crystal["magnetic_k_vector"]
+    if not numpy.allclose(k_vectors, 0., atol=tolerance):
+        raise ValueError(
+            "The propagation vector is not zero: the structure is not "
+            "periodic in the cell, it has no magnetic space group of this cell.")
+    rotation = dict_crystal["magnetic_k_op_rotation"]
+    translation = dict_crystal["magnetic_k_op_translation"]
+    moment = dict_crystal["magnetic_k_op_moment"]
+    phase_all, _ = take_operation_phases(dict_crystal)
+    l_elems = []
+    for i_op in range(rotation.shape[1]):
+        phase = numpy.mod(phase_all[:, i_op], 1.)
+        phase[numpy.isclose(phase, 1., atol=tolerance)] = 0.
+        if numpy.all(numpy.abs(phase) < tolerance):
+            sign = 1
+        elif numpy.all(numpy.abs(phase - 0.5) < tolerance):
+            sign = -1
+        else:
+            continue
+        matrix = rotation[:, i_op].reshape(3, 3)
+        # the moments are transformed by theta det(R) R
+        theta = int(round(
+            (moment[:, i_op] * rotation[:, i_op]).sum()
+            / (numpy.linalg.det(matrix) * (rotation[:, i_op] ** 2).sum())))
+        fractions = [Fraction(float(hh)).limit_denominator(24) % 1
+                     for hh in translation[:, i_op]]
+        denominator = int(numpy.lcm.reduce([fr.denominator for fr in fractions]))
+        elem = [int(fr * denominator) for fr in fractions] + [denominator] + [
+            int(round(hh)) for hh in rotation[:, i_op]] + [sign * theta]
+        if elem not in l_elems:
+            l_elems.append(elem)
+    full_mcif_elems = numpy.array(l_elems, dtype=int).transpose()
+
+    atom_fract_xyz = dict_crystal["atom_fract_xyz"]
+    result = {"full_mcif_elems": full_mcif_elems,
+              "atom_multiplicity": calc_multiplicity(full_mcif_elems, atom_fract_xyz)}
+    if "atom_fourier_index" not in dict_crystal.keys():
+        return result
+    unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+    atom_index = numpy.array(dict_crystal["atom_fourier_index"], dtype=int)
+    modulation = calc_fourier_modulation_by_dictionary(dict_crystal)
+    elem_rotation = full_mcif_elems[4:13].astype(float)
+    elem_translation = full_mcif_elems[:3] / full_mcif_elems[3][na, :]
+    l_sc = []
+    for i_atom in atom_index:
+        xyz = atom_fract_xyz[:, i_atom]
+        xyz_new = (elem_rotation.reshape(3, 3, -1) * xyz[na, :, na]).sum(axis=1) + elem_translation
+        difference = xyz_new - xyz[:, na]
+        flag_site = numpy.all(numpy.abs(difference - numpy.round(difference)) < tolerance, axis=0)
+        l_sc.append(calc_sc_ordered(full_mcif_elems[:, flag_site], unit_cell_parameters)[0])
+    sc_m = numpy.stack(l_sc, axis=-1)
+    moment_dn = (sc_m.reshape(3, 3, -1) * modulation.real[na, :, :]).sum(axis=1)
+    result.update({
+        "atom_ordered_label": numpy.array(dict_crystal["atom_label"][atom_index], dtype=str),
+        "atom_ordered_index": atom_index,
+        "atom_ordered_moment_crystalaxis_dn": moment_dn,
+        "atom_ordered_sc_m": sc_m,
+        "flags_atom_ordered_moment_crystalaxis_dn": numpy.zeros(moment_dn.shape, dtype=bool),
+    })
+    return result

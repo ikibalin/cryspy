@@ -1316,8 +1316,8 @@ class Crystal(DataN):
         space_group gets its symmetry operations as superspace operations
         (k = 0) and keeps the space group as parent_space_group. The old
         loops are removed. Use it to continue with the tools for
-        propagation vectors; the polarized-neutron calculations need the
-        old description for now.
+        propagation vectors; flip ratios and MEM give the same results as
+        with the magnetic space group.
 
         Returns
         -------

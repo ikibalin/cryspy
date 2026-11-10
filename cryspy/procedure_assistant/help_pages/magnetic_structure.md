@@ -36,7 +36,8 @@ Jana2006 load directly):
 
 A magnetic space group with `atom_site_moment` is the special case k = 0:
 method `convert_to_superspace` of the crystal writes it in the categories
-above (the moments become the cos components).
+above (the moments become the cos components). Refinement, flip ratios
+and MEM give the same results for both descriptions.
 
 The easiest way from a paramagnetic crystal with `space_group`:
 
