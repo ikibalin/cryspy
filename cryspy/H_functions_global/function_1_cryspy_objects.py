@@ -45,6 +45,8 @@ from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnRefln, \
 from cryspy.C_item_loop_classes.cl_1_exclude import Exclude, ExcludeL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction, \
     ExtinctionL
+from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt, \
+    ExptlAbsorptL, ExptlCrystal, ExptlCrystalL
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian
 from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwin, JanaTwinL
 from cryspy.C_item_loop_classes.cl_1_mem_parameters import \
@@ -132,7 +134,7 @@ L_ITEM_CLASS.extend([
     AtomSiteSusceptibility, AtomSiteExchange, AtomType, AtomTypeScat,
     Cell, ChannelAni, ChannelCol, Chi2, Constraint,
     DensityPoint, DiffrnRadiation, DiffrnOrientMatrix, DiffrnRefln,
-    Exclude, Extinction, MEMParameters, InversedHessian,
+    Exclude, Extinction, ExptlAbsorpt, ExptlCrystal, MEMParameters, InversedHessian,
     JanaTwin,
     Phase, PdBackground,
     PdInstrReflexAsymmetry, PdInstrResolution, PdMeas, PdProc, PdPeak,
@@ -168,7 +170,7 @@ L_LOOP_CLASS.extend([
     AtomSiteSusceptibilityL, AtomSiteExchangeL, AtomTypeL, AtomTypeScatL,
     CellL, ChannelAniL, ChannelColL, Chi2L, ConstraintL,
     DensityPointL, DiffrnRadiationL, DiffrnOrientMatrixL, DiffrnReflnL,
-    ExtinctionL, ExcludeL, MEMParametersL,
+    ExtinctionL, ExptlAbsorptL, ExptlCrystalL, ExcludeL, MEMParametersL,
     JanaTwinL,
     PhaseL, PdBackgroundL, PdInstrReflexAsymmetryL, PdInstrResolutionL,
     PdMeasL, PdProcL, PdPeakL,

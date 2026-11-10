@@ -261,6 +261,11 @@ from cryspy.H_functions_global.cod import (
 from cryspy.H_functions_global.powder_experiments import (
     report_powder_experiments,
 )
+from cryspy.H_functions_global.absorption_correction import (
+    estimate_absorption_correction,
+    apply_absorption_correction,
+    calc_absorption_coefficient,
+)
 
 from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement,
@@ -471,6 +476,9 @@ L_FUNCTION = [
     magnetization_ellipsoid_by_u_ij,
     report_main_axes_of_magnetization_ellipsoids,
     report_powder_experiments,
+    estimate_absorption_correction,
+    apply_absorption_correction,
+    calc_absorption_coefficient,
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
     rhochi_no_refinement,
