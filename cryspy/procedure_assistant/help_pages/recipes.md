@@ -36,9 +36,28 @@ Final answer: chi_sq/n at the start and at the end.
   recipes for every experiment of the object (recipe `choose_recipes`).
 - `Actions:` tool calls separated by `;`: the name of the tool and its
   arguments in JSON.
+- `When:` the condition of a step. When it starts with kinds of
+  experiments (`powder_1d`, `single_crystal, unpolarized` = both,
+  `tof or powder_1d` = either; a remark may follow after `;`),
+  `run_recipe` skips the step when no experiment has these kinds; other
+  conditions are judged by the assistant.
 - `Success:` and `Otherwise:` are optional; by default a step is good when
   chi_sq/n (and R_F2 for single crystals) is better or unchanged without
   warnings, otherwise the refinement is undone (`undo_refinement`).
+
+The recipes of CrysPy for the request "fit my data": `refine_structure`
+chooses by the experiments `refine_powder` (background, scale, zero shift,
+unit cell, peak widths, atoms), `refine_tof` or `refine_single_crystal`
+(scale, extinction, λ/2, atoms); `refine_atoms` (positions, ADP,
+occupancies) and `check_result` are their bricks. `refine_flip_ratio_nuclear`,
+`refine_polarized_powder` and `refine_magnetic_structure` follow a good
+nuclear refinement. Two tools help a small model: `diagnose_fit` reads the
+residuals and names what is wrong (shifted or too narrow peaks, background,
+scale, a trend with sin θ/λ, extinction, unexplained peaks), and
+`scan_parameter` calculates chi_sq/n on a grid of one parameter and keeps
+the best value (a start value far from the minimum). `refine` names the
+parameters that stayed exactly zero (a zero extinction or moment has no
+gradient) and `set_parameter` with `if_zero` gives them start values.
 
 The assistant writes a recipe from an algorithm described in words: it
 reads the format (tool `get_recipe_guide`), asks the user what is not clear

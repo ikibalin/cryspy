@@ -116,8 +116,11 @@ class RecipeStep:
         if self.condition:
             ls_out.append(f"   When: {self.condition:}")
         ls_out.append(f"   Actions: {format_actions(self.actions):}")
-        ls_out.append(f"   Success: {self.success:}")
-        ls_out.append(f"   Otherwise: {self.on_fail:}")
+        # the defaults are said once for the recipe (Recipe.to_text): shorter for small models
+        if self.success != S_SUCCESS:
+            ls_out.append(f"   Success: {self.success:}")
+        if self.on_fail != S_UNDO:
+            ls_out.append(f"   Otherwise: {self.on_fail:}")
         return "\n".join(ls_out)
 
 
@@ -145,7 +148,9 @@ class Recipe:
         ls_out.append(
             "Do the steps in their order, one action at a time, and read the result of each "
             "action before the next one. A step whose parameters are not found or cannot be "
-            "refined (refine_parameters gives an Error) is skipped.")
+            "refined (refine_parameters gives an Error) is skipped, and so is a step whose 'When' "
+            f"does not hold. Without its own 'Success': {S_SUCCESS:} Without its own "
+            f"'Otherwise': {S_UNDO:}")
         ls_out.extend(step.to_text(number) for number, step in enumerate(self.steps, start=1))
         if self.report:
             ls_out.append(f"Final answer: {self.report:}")
@@ -520,6 +525,9 @@ For: <kinds of experiments, all must apply>
 Final answer: <what the answer to the user contains>
 By default a step is good when chi_sq/n (and R_F2 for single crystals) is better or
 unchanged without warnings; otherwise the refinement is undone (undo_refinement).
+A 'When:' that starts with kinds of experiments ('powder_1d', 'single_crystal,
+unpolarized', 'tof or powder_1d'; text after ';' is a remark) is checked by
+run_recipe: the step is skipped when no experiment has these kinds.
 Parameters are chosen by refine_parameters {"pattern": ...}: words ('scale',
 'atomic positions', 'adp', 'extinction', 'unit cell', 'polarization') or paths
 ('atom_site.fract_x', '*.pd_background[*].intensity'); then refine.
@@ -586,6 +594,36 @@ def suggest_recipes(l_kind: List[str]) -> List[Recipe]:
     return sorted(l_recipe, key=lambda recipe: -len(recipe.kinds))
 
 
+def take_condition_kinds(condition: str) -> Optional[List[Tuple[str, ...]]]:
+    """Kinds of experiments of a condition written with the words of KINDS
+    only: 'powder_1d', 'single_crystal, unpolarized' (all of them) or
+    'powder_1d or tof' (one of the groups); the text after ';' is a remark
+    for the assistant. None for a condition in other words (only an
+    assistant can judge it)."""
+    text = condition.split(";")[0].strip().lower()
+    if text == "":
+        return None
+    l_group = []
+    for part in re.split(r"\s+or\s+", text):
+        words = tuple(word for word in re.split(r"[\s,]+", part) if word not in ("", "and"))
+        if len(words) == 0 or not all(word in KINDS for word in words):
+            return None
+        l_group.append(words)
+    return l_group
+
+
+def check_condition_kinds(cryspy_object, condition: str) -> Optional[bool]:
+    """True or False when the condition names kinds of experiments
+    (take_condition_kinds): some experiment of the object has all kinds of
+    one group; None when only an assistant can judge the condition."""
+    from cryspy.procedure_assistant.experiments import take_object_kinds
+    l_group = take_condition_kinds(condition)
+    if l_group is None:
+        return None
+    l_kinds = [set(kinds) for kinds in take_object_kinds(cryspy_object).values()]
+    return any(set(group) <= kinds for group in l_group for kinds in l_kinds)
+
+
 def run_recipe_steps(cryspy_object, recipe: Recipe, l_step: list, l_metrics: list, callback=None,
                      prefix: str = "", depth: int = 0) -> bool:
     """Do the steps of the recipe (run_recipe); the steps of a recipe used
@@ -594,6 +632,11 @@ def run_recipe_steps(cryspy_object, recipe: Recipe, l_step: list, l_metrics: lis
     metrics to l_metrics; False when a step failed (the recipe stops)."""
     from cryspy.procedure_assistant.tools import call_assistant_tool
     for step in recipe.steps:
+        if check_condition_kinds(cryspy_object, step.condition) is False:
+            l_step.append((f"{prefix:}{step.name:}", "skipped", f"When: {step.condition:} (no such experiment)."))
+            if callback is not None:
+                callback(*l_step[-1])
+            continue
         status, text = ("done", "") if len(step.actions) > 0 else ("skipped", "No actions.")
         for action, arguments in step.actions:
             if action == USE_RECIPE:

@@ -1,0 +1,25 @@
+# Single-crystal integrated intensities. Extinction parameters at 0 have zero gradient,
+# so they get start values first; scale and extinction correlate (|r| about 0.9 is normal).
+Recipe refine_single_crystal: Refinement of single-crystal intensities
+Requests: refine the single crystal data, fit the integrated intensities
+For: single_crystal, unpolarized
+
+1. start: Fix all, calculate and read the misfit.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n and R_F2 are numbers.
+   Otherwise: Stop and explain the error.
+2. scale: Scale factor alone.
+   Actions: refine_parameters {"pattern": "scale"}; refine
+   Otherwise: Stop: without the scale nothing else can be refined.
+3. extinction: Extinction radius from the start values 10 μm (radius) and 30' (mosaicity), then the mosaicity. A correlation |r| up to 0.95 with the scale is expected; undo only when chi_sq/n or R_F2 gets worse.
+   When: diagnose_fit reports EXTINCTION, or strong reflections are weaker than calculated
+   Actions: set_parameter {"path": "extinction.radius", "value": 10, "if_zero": true}; set_parameter {"path": "extinction.mosaicity", "value": 30, "if_zero": true}; refine_parameters {"pattern": "extinction.radius"}; refine; refine_parameters {"pattern": "extinction.mosaicity"}; refine
+4. lambda_half: Part of the λ/2 contamination of the beam.
+   When: the experiment has setup.ratio_lambdaover2
+   Actions: refine_parameters {"pattern": "ratio_lambdaover2"}; refine
+5. atoms: The atoms.
+   Actions: use_recipe {"name": "refine_atoms"}
+6. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: chi_sq/n and R_F2 at the start and at the end, the extinction parameters, the steps done, skipped and undone with the reason, and the worst reflections.

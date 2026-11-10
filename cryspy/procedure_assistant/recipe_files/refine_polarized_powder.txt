@@ -1,0 +1,28 @@
+# Polarized powder in a field (up and down patterns): the profile from the sum, the
+# susceptibility from the difference. The induced moments add to the sum too, so the
+# susceptibility starts from a non-zero value.
+Recipe refine_polarized_powder: Refinement of a polarized powder pattern
+Requests: refine the polarized powder, susceptibility from powder, polarized neutron powder diffraction
+For: powder_1d, polarized
+
+1. start: Fix all, give the susceptibility a start value and read the misfit.
+   Actions: fix_parameters; set_parameter {"path": "chi_11", "value": 0.1, "if_zero": true}; calculate; diagnose_fit
+   Success: chi_sq/n is a number.
+   Otherwise: Stop and explain the error.
+2. scale: Scale factor alone.
+   Actions: refine_parameters {"pattern": "scale"}; refine
+   Otherwise: Stop: without the scale nothing else can be refined.
+3. background: Background intensities.
+   Actions: refine_parameters {"pattern": "pd_background"}; refine
+4. zero_cell: Zero shift, then the unit cell.
+   Actions: refine_parameters {"pattern": "offset_ttheta"}; refine; refine_parameters {"pattern": "unit cell"}; refine
+5. width: Peak width W.
+   Actions: refine_parameters {"pattern": "pd_instr_resolution.w"}; refine
+6. chi_iso: Isotropic susceptibility of the magnetic atoms.
+   Actions: set_chi_type {"chi_type": "Ciso"}; refine_parameters {"pattern": "chi_11"}; refine
+7. chi_aniso: Anisotropic susceptibility, kept only when chi_sq/n gets clearly better (more than 5 %).
+   Actions: set_chi_type {"chi_type": "Cani"}; refine_parameters {"pattern": "atom_site_susceptibility"}; refine
+8. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: chi_sq/n at the start and at the end, the susceptibility tensors with sigmas, the steps done, skipped and undone with the reason.

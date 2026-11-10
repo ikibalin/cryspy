@@ -1,0 +1,16 @@
+# Brick: the atomic part of a structure, used by the refinement recipes after the scale,
+# the background, the cell and the profile are right (a wrong profile spoils the positions).
+Recipe refine_atoms: Atomic positions and displacement parameters
+Requests: refine the atoms, refine positions and thermal parameters
+For: any
+
+1. positions: Free atomic positions; coordinates fixed by the site symmetry stay fixed by themselves (never set them by hand).
+   Actions: refine_parameters {"pattern": "atomic positions"}; refine
+2. adp: Isotropic displacement parameters of all atoms.
+   Actions: refine_parameters {"pattern": "b_iso, u_iso"}; refine
+   Otherwise: When a value is negative (often a light atom next to heavy ones): undo_refinement, then refine only the B_iso/U_iso of the heavy atoms (give their paths from list_parameters) and keep the light ones fixed at about 0.5 Å² (B) or 0.006 Å² (U).
+3. occupancy: Occupancies, only for mixed or partly occupied sites the user names; never together with the displacement parameter of the same atom, never for fully occupied sites.
+   When: the user asks for occupancies or a site is mixed
+   Actions: refine_parameters {"pattern": "occupancy"}; refine
+
+Final answer: the positions and displacement parameters with sigmas, the steps undone and why.
