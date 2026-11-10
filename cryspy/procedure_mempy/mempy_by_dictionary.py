@@ -33,6 +33,7 @@ from cryspy.A_functions_base.unit_cell import (
 )
 
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary
+from cryspy.A_functions_base.absorption import calc_transmission_by_dictionary
 from cryspy.A_functions_base.flip_ratio import (
     calc_iint,
     calc_flip_ratio_by_iint,
@@ -385,6 +386,16 @@ def calc_preliminary_information_by_dictionary(
         logger.info(f"Preliminary calculation for experiment {dict_diffrn['name']:}...")
 
         diffrn_dict_in_out["index_hkl"] = index_hkl
+        # absorption: the transmission factors of the reflections multiply
+        # both intensities; they cancel in the flip ratios
+        res_transmission = calc_transmission_by_dictionary(
+            dict_diffrn, index_hkl, unit_cell_parameters,
+            dict_diffrn.get("wavelength_hkl", dict_diffrn["wavelength"]), dict_crystal=dict_crystal)
+        if res_transmission is not None:
+            diffrn_dict_in_out["transmission"] = res_transmission[0]
+            logger.info(
+                "Absorption correction: transmission from "
+                f"{res_transmission[0].min():.4f} to {res_transmission[0].max():.4f}.")
         diffrn_dict_in_out_keys = diffrn_dict_in_out.keys()
         if channel_col:
             if "dict_in_out_col" in diffrn_dict_in_out_keys:
@@ -759,6 +770,10 @@ def mempy_reconstruction_by_dictionary(
                 flag_f_m_perp=channel_col or channel_ani,
                 dict_in_out=dict_in_out,
             )
+            transmission = diffrn_dict_in_out.get("transmission")
+            if transmission is not None:
+                iint_plus = iint_plus * transmission
+                iint_minus = iint_minus * transmission
             if flag_pol:
                 diffrn_dict_in_out["flip_ratio"] = iint_plus / iint_minus
             else:
@@ -826,6 +841,10 @@ def mempy_reconstruction_by_dictionary(
             der_model_int_minus = numpy.expand_dims(
                 dder_model_exp["iint_minus"], axis=0
             )
+            if transmission is not None:
+                # derivatives over the intensities without absorption
+                der_model_int_plus = der_model_int_plus * transmission
+                der_model_int_minus = der_model_int_minus * transmission
 
             if channel_col or channel_ani:
                 # d model/d f_m_perp as one complex number per component:

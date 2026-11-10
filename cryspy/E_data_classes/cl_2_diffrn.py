@@ -38,6 +38,7 @@ from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import (
 )
 from cryspy.C_item_loop_classes.cl_1_diffrn_refln import DiffrnReflnL
 from cryspy.C_item_loop_classes.cl_1_extinction import Extinction
+from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt, ExptlCrystal
 from cryspy.C_item_loop_classes.cl_1_phase import Phase
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_refln_susceptibility import (
@@ -83,6 +84,7 @@ class Diffrn(DataN):
         - diffrn_orient_matrix (mandatory)
         - diffrn_refln (mandatory)
         - extinction
+        - exptl_absorpt, exptl_crystal (absorption correction)
         - phase
         - refln_#phase_name
         - refln_susceptibility_#phase_name
@@ -99,6 +101,8 @@ class Diffrn(DataN):
         RefineLs,
         Chi2,
         JanaTwinL,
+        ExptlAbsorpt,
+        ExptlCrystal,
     )
     # CLASSES_INTERNAL = ()
 
@@ -664,6 +668,12 @@ class Diffrn(DataN):
                     self.jana_twin.items[name[1][0]].fraction = float(
                         ddict_diffrn["twin_fraction"][name[1][0]]
                     )
+
+        for name in ("exptl_absorpt", "exptl_crystal"):
+            if self.is_attribute(name):
+                getattr(self, name).take_parameters_from_dictionary(
+                    ddict_diffrn, l_parameter_name=list(l_parameter_name or []),
+                    l_sigma=list(l_sigma) if l_sigma is not None else [])
 
         if ("iint_plus" in keys) and ("iint_minus" in keys):
             diffrn_refln = self.diffrn_refln

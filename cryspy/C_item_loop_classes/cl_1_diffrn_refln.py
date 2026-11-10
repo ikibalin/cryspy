@@ -47,6 +47,9 @@ class DiffrnRefln(ItemN):
         "sintlambda",
         "wavelength",
         "d_spacing",
+        "angle_omega",
+        "angle_chi",
+        "angle_phi",
     )
     ATTR_OPTIONAL_TYPES = (
         float,
@@ -56,6 +59,9 @@ class DiffrnRefln(ItemN):
         float,
         float,
         bool,
+        float,
+        float,
+        float,
         float,
         float,
         float,
@@ -71,6 +77,9 @@ class DiffrnRefln(ItemN):
         "sint/lambda",
         "wavelength",
         "d_spacing",
+        "angle_omega",
+        "angle_chi",
+        "angle_phi",
     )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
@@ -736,6 +745,14 @@ class DiffrnReflnL(LoopN):
         try:
             refln_wavelength = numpy.array(self.wavelength, dtype=float)
             res["wavelength_hkl"] = refln_wavelength
+        except AttributeError:
+            pass
+        # angles of the peak of a four-circle measurement (Busing & Levy),
+        # for the paths of the beams in the absorption correction
+        try:
+            res["angle_omega_chi_phi"] = numpy.array(
+                [self.angle_omega, self.angle_chi, self.angle_phi], dtype=float
+            )
         except AttributeError:
             pass
         return res

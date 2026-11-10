@@ -1,0 +1,28 @@
+# Absorption correction of single crystal data (exptl_absorpt, exptl_crystal): estimate whether
+# it is needed, then the transmission of a sphere or an ellipsoid multiplies the calculated
+# intensities of the refinement and of MEM. Flip ratios are changed only by the lambda/2
+# contamination, intensities by the shape of the crystal.
+Recipe absorption_correction: Absorption correction of single crystal data
+Requests: absorption correction, is the absorption correction needed, estimate absorption, apply the absorption correction, size and shape of the crystal, mu
+For: single_crystal
+
+1. start: Fix all parameters and calculate the start model.
+   Actions: fix_parameters; calculate
+   Success: chi_sq/n of the start model is a number.
+   Otherwise: Stop and explain the error.
+2. estimate: Estimate whether the data need the correction; estimate_absorption asks the size of the crystal when it is unknown.
+   Actions: estimate_absorption
+   Success: the verdict of every experiment is 'needed' or 'small'.
+   Otherwise: Stop: report the verdict, mu, the transmission range and why the correction is not needed.
+3. apply: Switch on the correction; apply_absorption_correction asks the sizes of the crystal when they are unknown (one size: sphere, three: ellipsoid).
+   Actions: apply_absorption_correction
+   Success: T_min and T_max are reported.
+   Otherwise: Stop and explain what is missing.
+4. refine: Refine the scale with the correction (intensities only: flip ratios have no scale, skip the step for them).
+   Actions: refine_parameters {"pattern": "scale factor"}; refine
+5. shape: Refine the smallest size of the ellipsoid and its orientation, only when the test of the equivalents is significant; keep it when chi_sq/n gets clearly better (more than 5 %).
+   Actions: refine_parameters {"pattern": "exptl_crystal.size_min, ellipsoid_euler_beta"}; refine
+6. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: the verdict of estimate_absorption with mu and the transmission range, the correction set (sphere or ellipsoid with sizes), T_min and T_max, chi_sq/n before and after.

@@ -49,3 +49,15 @@ def test_mem_magnetization_density_for_momemts_multipole_prior():
     res = cryspy.mempy_magnetization_density_reconstruction(rcif_obj)
     # cryspy.mempy_spin_density_reconstruction(rcif_obj)
     assert res["chi_sq"] < 2.83
+
+
+def test_mem_nuclear_density_with_absorption():
+    """The transmission of the crystal multiplies the intensities of MEM:
+    a strong absorption without a refined scale spoils the fit."""
+    f_name = os.path.join(os.path.dirname(__file__), "mnF2_80K.rcif")
+    rcif_obj = cryspy.load_file(f_name)
+    diffrn = [item for item in rcif_obj.items if isinstance(item, cryspy.Diffrn)][0]
+    diffrn.add_items([cryspy.ExptlAbsorpt(correction_type="sphere", coefficient_mu=3.),
+                      cryspy.ExptlCrystal(size_rad=1.)])
+    res = cryspy.mempy_nuclear_density_reconstruction(rcif_obj)
+    assert res["chi_sq"] > 2 * 622

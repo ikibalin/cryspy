@@ -833,6 +833,92 @@ def tool_set_chi_type(cryspy_object, chi_type: str, atoms: str = "") -> dict:
             "metrics": result["metrics"]}
 
 
+def tool_estimate_absorption(cryspy_object, experiment: str = "",
+                             crystal_size: Optional[float] = None) -> str:
+    from cryspy.procedure_rhochi.rhochi_absorption import (
+        D_VERDICT, estimate_absorption_of_diffrn, take_diffrn_experiments)
+    l_diffrn = take_diffrn_experiments(cryspy_object, experiment)
+    if len(l_diffrn) == 0:
+        return ("Error: no single crystal experiment"
+                + (f" named '{experiment:}'." if experiment.strip() else "."))
+    dict_global = cryspy_object.get_dictionary()
+    l_result = [estimate_absorption_of_diffrn(cryspy_object, diffrn, crystal_size or 0., dict_global)
+                for diffrn in l_diffrn]
+    l_unknown = [d_res for d_res in l_result
+                 if d_res["verdict"] == "unknown" and "radius" not in d_res and d_res.get("mu") is not None]
+    if len(l_unknown) > 0 and not crystal_size:
+        raise ArgumentsNeeded([{
+            "name": "crystal_size", "question": "the mean size of the crystal in mm",
+            "type": "number", "minimum": 0., "hint": "a number in mm, e.g. 2"}],
+            "The size of the crystal is needed to estimate the absorption.")
+    ls_out = []
+    for d_res in l_result:
+        ls_out.append(f"{d_res['name']:}: {D_VERDICT[d_res['verdict']]:}.")
+        ls_out.extend(f"  {line:}" for line in d_res["lines"])
+    if any(d_res["verdict"] in ("needed", "small") for d_res in l_result):
+        ls_out.append("Next: apply_absorption_correction with the sizes of the crystal "
+                      "(an ellipsoid when the crystal is not isometric), then refine.")
+    return "\n".join(ls_out)
+
+
+def tool_apply_absorption_correction(cryspy_object, correction_type: str = "",
+                                     sizes: Optional[List[float]] = None,
+                                     direction_max: Optional[List[float]] = None,
+                                     direction_mid: Optional[List[float]] = None,
+                                     mu: Optional[float] = None, experiment: str = "") -> dict:
+    from cryspy.C_item_loop_classes.cl_1_exptl_absorpt import ExptlAbsorpt, ExptlCrystal
+    from cryspy.procedure_rhochi.rhochi_absorption import (
+        apply_absorption_correction, take_diffrn_experiments)
+    l_diffrn = take_diffrn_experiments(cryspy_object, experiment)
+    if len(l_diffrn) == 0:
+        return {"text": "Error: no single crystal experiment"
+                        + (f" named '{experiment:}'." if experiment.strip() else ".")}
+    correction_type = correction_type.strip().lower()
+    l_missing = []
+    flag_sizes = all(diffrn.is_attribute("exptl_crystal") and diffrn.exptl_crystal.get_sizes() is not None
+                     for diffrn in l_diffrn)
+    if sizes is None and not flag_sizes and correction_type != "none":
+        l_missing.append({
+            "name": "sizes", "question": "the sizes of the crystal in mm: one number (sphere, "
+                                         "diameter) or three (largest, middle, smallest)",
+            "type": "array", "items": {"type": "number"}, "minItems": 1, "maxItems": 3,
+            "hint": "e.g. 2 or 3 2 1"})
+    if len(l_missing) > 0:
+        raise ArgumentsNeeded(l_missing, "The shape of the crystal is needed for the correction.")
+    keep_snapshot(cryspy_object)
+    ls_change = []
+    for diffrn in l_diffrn:
+        if not diffrn.is_attribute("exptl_crystal"):
+            diffrn.add_items([ExptlCrystal()])
+        exptl_crystal = diffrn.exptl_crystal
+        if sizes is not None:
+            l_size = sorted((abs(float(size)) for size in numpy.atleast_1d(sizes)), reverse=True)
+            if len(l_size) == 1:
+                exptl_crystal.size_rad = 0.5 * l_size[0]
+            else:
+                l_size = (l_size + [l_size[-1]] * 3)[:3]
+                for name, size in zip(("size_max", "size_mid", "size_min"), l_size):
+                    setattr(exptl_crystal, name, size)
+            ls_change.append(f"{diffrn.data_name:}: sizes of the crystal {', '.join(f'{x:g}' for x in l_size)} mm")
+        if direction_max is not None and direction_mid is not None:
+            exptl_crystal.set_axes_by_directions(direction_max, direction_mid)
+            ls_change.append(f"{diffrn.data_name:}: axes of the ellipsoid along {list(direction_max)} and "
+                             f"{list(direction_mid)}")
+        if mu is not None:
+            if not diffrn.is_attribute("exptl_absorpt"):
+                diffrn.add_items([ExptlAbsorpt(correction_type="none")])
+            # replaces mu from the composition (resonant absorbers, measured mu)
+            diffrn.exptl_absorpt.coefficient_mu = float(mu)
+        type_diffrn = correction_type
+        if type_diffrn == "":
+            sizes_diffrn = exptl_crystal.get_sizes()
+            type_diffrn = "gaussian" if sizes_diffrn is not None and not numpy.allclose(
+                sizes_diffrn, sizes_diffrn[0]) else "sphere"
+        ls_change.append(apply_absorption_correction(cryspy_object, type_diffrn, diffrn.data_name))
+    result = tool_calculate(cryspy_object, flag_model_change=True)
+    return {"text": "\n".join(ls_change) + "\n" + result["text"], "metrics": result["metrics"]}
+
+
 def tool_list_procedures(cryspy_object) -> str:
     ls_out = []
     for d_procedure in describe_procedures():
@@ -1293,6 +1379,37 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
          "magnetic_atoms": {"type": "array", "items": {"type": "string"},
                             "description": "Labels of the magnetic atoms."},
          "lande": {"type": "number", "description": "Lande factor of the magnetic atoms."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "estimate_absorption",
+        "Estimate whether single crystal data (intensities, flip ratios, data for MEM) need an "
+        "absorption correction: mu from the structure, transmission of the crystal, change of "
+        "chi_sq/n when absorption is ignored and a test of the equivalent reflections; asks the "
+        "size of the crystal when it is not given. Changes nothing.",
+        tool_estimate_absorption,
+        {"experiment": {"type": "string",
+                        "description": "Name of the experiment; empty for all single crystal ones."},
+         "crystal_size": {"type": "number", "description": "Mean size of the crystal, mm."}}),
+    AssistantTool(
+        "apply_absorption_correction",
+        "Switch on the absorption correction of single crystal experiments (exptl_absorpt, "
+        "exptl_crystal): a sphere or an ellipsoid of the given sizes; mu is calculated from the "
+        "measured crystal (phase of the experiment); asks the sizes of the crystal when they are unknown.",
+        tool_apply_absorption_correction,
+        {"correction_type": {"type": "string", "enum": ["gaussian", "sphere", "none"],
+                             "description": "'gaussian' (ellipsoid), 'sphere' or 'none' (switch "
+                                            "off); empty: by the sizes."},
+         "sizes": {"type": "array", "items": {"type": "number"},
+                   "description": "Sizes of the crystal, mm: the diameter or the largest, middle "
+                                  "and smallest dimensions."},
+         "direction_max": {"type": "array", "items": {"type": "number"},
+                           "description": "Direction of the largest dimension, Cartesian x || a*, z || c."},
+         "direction_mid": {"type": "array", "items": {"type": "number"},
+                           "description": "Direction of the middle dimension."},
+         "mu": {"type": "number", "description": "Linear absorption coefficient, 1/mm; only to "
+                                         "replace mu calculated from the crystal (Gd, Sm, Eu, Cd, Dy)."},
+         "experiment": {"type": "string",
+                        "description": "Name of the experiment; empty for all single crystal ones."}},
         flag_object_changed=True),
     AssistantTool(
         "set_chi_type",
