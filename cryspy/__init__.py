@@ -308,6 +308,7 @@ from cryspy.procedure_assistant.tools import (
     assistant_tools_as_text,
     call_assistant_tool,
     convert_assistant_answer,
+    suggest_assistant_requests,
 )
 from cryspy.procedure_assistant.procedures import (
     describe_procedure,
@@ -493,6 +494,7 @@ L_FUNCTION = [
     assistant_tools_as_text,
     call_assistant_tool,
     convert_assistant_answer,
+    suggest_assistant_requests,
     describe_procedure,
     describe_procedures,
     run_recipe,
