@@ -126,3 +126,33 @@ def test_list_methods_never_empty_and_asks_when_unsure(powder):
     text = call(powder, "list_methods", {"pattern": "atoms ellipsoids"})["text"]
     assert text.startswith("Best matching methods:")
     assert "report_ellipsoids(" in text and "Other methods:" in text
+
+
+def test_methods_matching_a_request_are_found(powder):
+    """A small model answered "cannot convert to superspace" without
+    looking at the methods; they are given with the request."""
+    from cryspy.procedure_assistant.methods import form_matching_methods_text
+    text = form_matching_methods_text(powder, "Define the background points")
+    assert "define_background_points" in text
+    assert "call_method" in text
+    crystal = cryspy.str_to_globaln("""global_
+data_mn
+_space_group_name_H-M_alt 'P n m a'
+_cell_length_a 5.5
+_cell_length_b 7.6
+_cell_length_c 5.4
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+Mn Mn 0 0 0.5
+""")
+    text = form_matching_methods_text(crystal, "Convert the structure to superspace")
+    assert text.split("\n")[1].startswith("- convert_to_superspace of crystal_mn")
+    assert form_matching_methods_text(crystal, "hello") == ""
+    assert form_matching_methods_text(crystal, "what is the chi square") == ""

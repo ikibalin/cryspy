@@ -241,3 +241,54 @@ def score_method(function: Callable, l_word: list) -> int:
     text = function.__name__.replace("_", " ") + " " + (inspect.getdoc(function) or "")
     l_text = {word[:5] for word in re.split(r"[^a-z0-9]+", text.lower()) if word}
     return sum(1 for word in l_word if word in l_text)
+
+
+def find_matching_methods(cryspy_object, request: str, max_methods: int = 3) -> List[dict]:
+    """Methods of the object that fit a request of the user, best first.
+
+    A method fits when at least two words of the request (one when the
+    request has one word) are in its name and docstring, and at least one
+    in its name: 'Convert the structure to superspace' finds
+    convert_to_superspace of the crystals. A program with a small language
+    model gives them with the request, so that the model does not answer
+    "cannot do" for an operation that is a method (the model often does not
+    look the methods up by itself).
+
+    Returns
+    -------
+    list of dict
+        {"name", "summary", "paths" (blocks that have it), "score"}.
+    """
+    l_word = take_request_words(request)
+    if len(l_word) == 0:
+        return []
+    n_min = 1 if len(l_word) == 1 else 2
+    d_found = {}
+    for block_path, block in iterate_method_blocks(cryspy_object):
+        for name, function in take_methods(type(block)).items():
+            l_name = {word[:5] for word in name.lower().split("_") if word}
+            n_name = sum(1 for word in l_word if word in l_name)
+            score = score_method(function, l_word)
+            if n_name == 0 or score < n_min:
+                continue
+            d_method = d_found.setdefault(name, {
+                "name": name, "summary": describe_method(function)["summary"],
+                "paths": [], "score": score + n_name})
+            d_method["paths"].append(block_path)
+    l_method = sorted(d_found.values(), key=lambda item: (-item["score"], item["name"]))
+    return l_method[:max_methods]
+
+
+def form_matching_methods_text(cryspy_object, request: str, max_methods: int = 3) -> str:
+    """Text of :func:`find_matching_methods` for the prompt of a language
+    model ('' when no method fits)."""
+    l_method = find_matching_methods(cryspy_object, request, max_methods)
+    if len(l_method) == 0:
+        return ""
+    ls_out = ["Methods of the opened file that may do this (action call_method):"]
+    for d_method in l_method:
+        l_path = d_method["paths"]
+        s_path = ", ".join(l_path[:3]) + (", ..." if len(l_path) > 3 else "")
+        ls_out.append(f"- {d_method['name']} of {s_path}: {d_method['summary']} "
+                      f"[call_method {{\"method\": \"{d_method['name']}\"}}]")
+    return "\n".join(ls_out)
