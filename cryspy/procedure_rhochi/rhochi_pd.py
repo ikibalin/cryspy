@@ -113,12 +113,17 @@ def calc_signal_magnetic_k(
     dict_in_out_phase["k_index_magnetic_k"] = k_index
     if iint.size == 0:
         return numpy.zeros_like(ttheta_zs)
-    profile_pv = calc_profile_pseudo_voight(
-        ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-        cutoff_fwhm=cutoff_fwhm)[0]
     lf = calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[0]
     dict_in_out_phase["iint_magnetic_k_with_factors"] = p_scale * lf * iint
-    return p_scale * lorentz_factor * (profile_pv * iint[na, :]).sum(axis=1)
+    # Satellites listed with multiplicity 1 share their 2theta with the
+    # symmetry-equivalent ones: the profile is computed once per position.
+    ttheta_unique, index_unique = numpy.unique(
+        numpy.round(ttheta_hkl, 12), return_inverse=True)
+    iint_unique = numpy.bincount(index_unique, weights=iint, minlength=ttheta_unique.size)
+    profile_pv = calc_profile_pseudo_voight(
+        ttheta_zs, ttheta_unique, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
+        cutoff_fwhm=cutoff_fwhm)[0]
+    return p_scale * lorentz_factor * (profile_pv * iint_unique[na, :]).sum(axis=1)
 
 
 def calc_chi_sq_for_pd_by_dictionary(

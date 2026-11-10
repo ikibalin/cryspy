@@ -8,19 +8,26 @@ class ParentSpaceGroup(ItemN):
     """Paramagnetic (parent) space group of a magnetic structure.
 
     The magnetic structure with a propagation vector is described by the
-    operations of the group of k (``space_group_symop_magn_k``); the parent
-    group is kept for information and for the magnetic domains
+    magnetic superspace group (``space_group_symop_magn_ssg_operation``);
+    the parent group gives the metric of the cell and the magnetic domains
     (``Crystal.report_magnetic_domains``, ``Diffrn.define_magnetic_domains``).
-    It is not used to calculate structure factors. Tags as in mCIF.
+    It is not used to calculate structure factors. Tags as in mCIF; the
+    parent group is used only when its cell is the cell of the structure
+    (``transform_Pp_abc`` and ``child_transform_Pp_abc`` with the basis
+    ``a,b,c``, see ``is_cell_of_structure``).
     """
 
     ATTR_MANDATORY_NAMES = ("name_hm_alt", )
     ATTR_MANDATORY_TYPES = (str, )
     ATTR_MANDATORY_CIF = ("name_H-M_alt", )
 
-    ATTR_OPTIONAL_NAMES = ("it_number", "it_coordinate_system_code")
-    ATTR_OPTIONAL_TYPES = (int, str)
-    ATTR_OPTIONAL_CIF = ("IT_number", "IT_coordinate_system_code")
+    ATTR_OPTIONAL_NAMES = (
+        "it_number", "it_coordinate_system_code", "transform_pp_abc",
+        "child_transform_pp_abc")
+    ATTR_OPTIONAL_TYPES = (int, str, str, str)
+    ATTR_OPTIONAL_CIF = (
+        "IT_number", "IT_coordinate_system_code", "transform_Pp_abc",
+        "child_transform_Pp_abc")
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -58,3 +65,18 @@ class ParentSpaceGroup(ItemN):
         space_group = SpaceGroup(**kwargs)
         space_group.form_object()
         return space_group
+
+    def is_cell_of_structure(self) -> bool:
+        """True if the parent group is given in the cell of the structure.
+
+        mCIF relates the cell of the magnetic structure to the standard
+        setting of the parent group by ``transform_Pp_abc`` and
+        ``child_transform_Pp_abc``; an origin shift is allowed, another
+        basis is not supported.
+        """
+        for name in ("transform_pp_abc", "child_transform_pp_abc"):
+            if self.is_attribute(name):
+                basis = str(getattr(self, name)).split(";")[0].replace(" ", "")
+                if basis not in ("a,b,c", ""):
+                    return False
+        return True

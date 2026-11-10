@@ -144,21 +144,23 @@ L_ITEM_CLASS.extend([
     TOFIntensityIncident, TOFMeas,
     TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
-from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import (
-    MagneticStructureK, MagneticStructureKL)
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import (
     AtomSiteMomentFourier, AtomSiteMomentFourierL)
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import (
-    SpaceGroupSymopMagnK, SpaceGroupSymopMagnKL)
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import (
-    SpaceGroupSymopMagnKCentering, SpaceGroupSymopMagnKCenteringL)
-
+from cryspy.C_item_loop_classes.cl_1_cell_wave_vector import (
+    CellWaveVector, CellWaveVectorL)
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_ssg_operation import (
+    SpaceGroupSymopMagnSsgOperation, SpaceGroupSymopMagnSsgOperationL)
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_ssg_centering import (
+    SpaceGroupSymopMagnSsgCentering, SpaceGroupSymopMagnSsgCenteringL)
+from cryspy.C_item_loop_classes.cl_1_atom_site_fourier_wave_vector import (
+    AtomSiteFourierWaveVector, AtomSiteFourierWaveVectorL)
 from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
 
-L_ITEM_CLASS.extend([MagneticStructureK, AtomSiteMomentFourier, SpaceGroupSymopMagnK,
-                     SpaceGroupSymopMagnKCentering, ParentSpaceGroup])
-L_LOOP_CLASS.extend([MagneticStructureKL, AtomSiteMomentFourierL, SpaceGroupSymopMagnKL,
-                     SpaceGroupSymopMagnKCenteringL])
+L_ITEM_CLASS.extend([AtomSiteMomentFourier, CellWaveVector, SpaceGroupSymopMagnSsgOperation,
+                     SpaceGroupSymopMagnSsgCentering, AtomSiteFourierWaveVector,
+                     ParentSpaceGroup])
+L_LOOP_CLASS.extend([AtomSiteMomentFourierL, CellWaveVectorL, SpaceGroupSymopMagnSsgOperationL,
+                     SpaceGroupSymopMagnSsgCenteringL, AtomSiteFourierWaveVectorL])
 
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,

@@ -32,6 +32,7 @@ call_assistant_tool(..., ask_required=True) asks every required argument
 that is not given; a chat model gets an error instead and corrects its call.
 """
 import json
+from fractions import Fraction
 import os
 import re
 from typing import Callable, Dict, List, Optional
@@ -82,6 +83,7 @@ CORRELATION_LIMIT = 0.7
 MISSING_KEYS = ("type", "items", "minItems", "maxItems", "enum", "aliases",
                 "minimum", "maximum", "hint", "proposal", "s_proposal")
 NULL_WORDS = ("none", "null", "identity", "-")
+RE_FRACTION = re.compile(r"^\s*[-+]?\d+\s*/\s*\d+\s*$")
 RE_NUMBER = re.compile(r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
 
 
@@ -1234,6 +1236,9 @@ def convert_argument(value, d_param: dict):
         return value
     if s_type in ("number", "integer"):
         s_kind = "a number" if s_type == "number" else "an integer"
+        if isinstance(value, str) and s_type == "number" and \
+                RE_FRACTION.match(value):  # '1/3', exact for k vectors
+            value = float(Fraction(value.replace(" ", "")))
         if isinstance(value, str):  # '2.36 A': the only number with its unit
             l_number = RE_NUMBER.findall(value)
             if len(l_number) == 1:

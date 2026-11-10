@@ -2,24 +2,26 @@
 # (space_group): the group of k, its representations, the conversion, the magnetic
 # domains of single-crystal experiments and a simulation of the satellites.
 Recipe magnetic_structure_k: Magnetic structure with a propagation vector k
-Requests: add a propagation vector, add k to the magnetic structure, magnetic structure with k, antiferromagnetic structure with k, incommensurate magnetic structure, magnetic satellites, magnetic domains, irreducible representations of k, simulate magnetic satellites
+Requests: add a propagation vector, add k to the magnetic structure, spiral, helix, cycloid, amplitude-modulated structure, moments of the atoms, magnetic structure with k, antiferromagnetic structure with k, incommensurate magnetic structure, magnetic satellites, magnetic domains, irreducible representations of k, simulate magnetic satellites
 For: any
 
-1. irreps: The group of k and its one-dimensional representations with the Fourier components they allow for the magnetic atoms; k and the magnetic atoms are asked from the user when not given.
+1. irreps: The group of k, its one-dimensional representations and their superspace groups with the Fourier components (symmforms) they allow for the magnetic atoms; k and the magnetic atoms are asked from the user when not given.
    Actions: call_method {"method": "report_irreps_of_k"}
    Success: the report lists at least one representation (Γ1, Γ2, ...).
-   Otherwise: Stop and explain: representations of higher dimension need moment_uvw and phase of space_group_symop_magn_k written by hand.
-2. choose: Show the table of the representations to the user and ask with ask_user which one to use (or which direction of the moments is expected, then choose the representation that allows it).
-   Success: the number of the representation is known.
-3. convert: Replace the space group by the operations of the group of k with the moment phases of the chosen representation, split the atoms, add the Fourier components of the magnetic atoms.
+   Otherwise: Stop and explain: representations of higher dimension need the superspace operations (space_group_symop_magn_ssg_operation) written by hand or taken from MAGNDATA.
+2. choose: Show the table of the representations to the user and ask with ask_user which one to use (or which direction of the moments is expected, then choose the representation that allows it). A spiral (helix or cycloid) made of two modes is the superposition of two representations, given as irrep '1,2'.
+   Success: the number of the representation (or two numbers separated by a comma) is known.
+3. convert: Replace the space group by the magnetic superspace group of the chosen representation, split the atoms, add the Fourier components (cos, sin with symmforms) of the magnetic atoms.
    Actions: call_method {"method": "add_propagation_vector"}
    Success: the report says what was converted.
    Otherwise: Stop and explain the error (e.g. atom_site_scat of a magnetic atom is missing: add it with add_item).
-4. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions).
+4. moments: The real-space moments of the magnetic atoms: the range of |M| over the cells and the kind of modulation (amplitude-modulated, helix, cycloid, commensurate period).
+   Actions: call_method {"method": "report_magnetic_moments"}
+5. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions).
    When: single crystal experiments (diffrn)
    Actions: call_method {"method": "define_magnetic_domains"}
-5. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites.
+6. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites.
    When: the user asks for a simulation
    Actions: run_procedure {"name": "simulation_single_crystal"}
 
-Final answer: k, the group of k, the chosen representation and the allowed Fourier components, the atoms that were split, the number of magnetic domains, and the simulated or calculated intensities of the strongest satellites when they were calculated.
+Final answer: k, the group of k, the chosen representation and the allowed Fourier components, the atoms that were split, the kind of modulation and the moment range, the number of magnetic domains, and the simulated or calculated intensities of the strongest satellites when they were calculated.

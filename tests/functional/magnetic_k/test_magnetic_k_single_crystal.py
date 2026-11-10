@@ -7,9 +7,6 @@ Magnetic domains are the twins of ``jana_twin``: the intensity of the
 k-structure with two domains must be the fraction-weighted sum of two
 supercell calculations at H and at M·H.
 """
-import importlib.util
-import os
-
 import numpy
 import pytest
 
@@ -17,12 +14,7 @@ import cryspy
 from cryspy.procedure_rhochi.rhochi_by_dictionary import (
     rhochi_calc_chi_sq_by_dictionary,
 )
-
-SPEC = importlib.util.spec_from_file_location(
-    "supercell_module",
-    os.path.join(os.path.dirname(__file__), "test_magnetic_k_supercell.py"))
-supercell = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(supercell)
+import test_magnetic_k_supercell as supercell
 
 DOMAIN_MATRIX = numpy.array([[-1., 0., 0.], [0., 1., 0.], [0., 0., -1.]])
 DOMAIN_FRACTION = 0.3
@@ -96,17 +88,19 @@ def form_index_hkl(k_vector):
          numpy.array([[0.25], [0.], [0.]])], axis=1)
 
 
-def check_with_supercell(n_cell_sq: float):
-    index_hkl = form_index_hkl(supercell.K_VECTOR)
-    rcif_k = strip_experiment(supercell.form_rcif_k())
-    rcif_s = strip_experiment(supercell.form_rcif_supercell())
-    to_super = numpy.array(supercell.SUPER, dtype=float)[:, numpy.newaxis]
+def check_with_supercell(case_name: str):
+    case = supercell.CASES[case_name]
+    index_hkl = form_index_hkl(case["k_vector"])
+    rcif_k = strip_experiment(supercell.form_rcif_k(case_name))
+    rcif_s = strip_experiment(supercell.form_rcif_supercell(case_name))
+    to_super = numpy.array(case["n_cell"], dtype=float)[:, numpy.newaxis]
+    n_cell_sq = float(numpy.prod(case["n_cell"])) ** 2
 
     intensity_k = calc_intensity(rcif_k + form_diffrn(index_hkl))
     intensity_s = calc_intensity(rcif_s + form_diffrn(index_hkl * to_super))
     # magnetic satellites are present, the index (1/4, 0, 0) is empty
     n_h = 7
-    assert intensity_k[n_h:2 * n_h].max() > 1.
+    assert intensity_k[n_h:2 * n_h].max() > 0.1
     assert intensity_k[-1] == pytest.approx(0., abs=1e-10)
     numpy.testing.assert_allclose(intensity_s, n_cell_sq * intensity_k,
                                   rtol=1e-6, atol=1e-8 * intensity_s.max())
@@ -126,23 +120,9 @@ def check_with_supercell(n_cell_sq: float):
 
 def test_single_crystal_k_half():
     """k = (1/2, 0, 1/2) with I centring, supercell 2a x b x 2c."""
-    check_with_supercell(16.)
+    check_with_supercell("k_half")
 
 
-def test_single_crystal_k_third(monkeypatch):
-    """k = (1/3, 0, 0): both arms ±k, complex S and phases, supercell 3a."""
-    module = vars(supercell)
-    monkeypatch.setitem(module, "K_VECTOR", numpy.array([1. / 3., 0., 0.]))
-    monkeypatch.setitem(module, "LATTICE", ((0, 0, 0), (1, 0, 0), (2, 0, 0)))
-    monkeypatch.setitem(module, "SUPER", (3, 1, 1))
-    monkeypatch.setitem(module, "CENTRING", [(0.0, 0.0, 0.0)])
-    monkeypatch.setitem(module, "IMAG", {"Fe1": (0.3, 0.9, -0.2),
-                                         "Fe2": (0.0, -0.5, 1.1)})
-    monkeypatch.setitem(module, "PHASE", {"Fe1": 0.0, "Fe2": 0.17})
-    monkeypatch.setitem(module, "OPERATIONS", [("x,y,z", "u,v,w", 0.0),
-                                               ("-x,-y,-z", "-u,-v,w", 0.1)])
-    original = supercell.form_rcif_k
-    monkeypatch.setattr(supercell, "form_rcif_k", lambda: original().replace(
-        "\nloop_\n_space_group_symop_magn_k_centering_id\n"
-        "_space_group_symop_magn_k_centering_xyz\n1 x+1/2,y+1/2,z+1/2\n", ""))
-    check_with_supercell(9.)
+def test_single_crystal_k_third():
+    """k = (1/3, 0, 0): both arms ±k, cos and sin, tau = 1/10, supercell 3a."""
+    check_with_supercell("k_third")

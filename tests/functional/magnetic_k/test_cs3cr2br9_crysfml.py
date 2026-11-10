@@ -4,7 +4,10 @@ the CrysFML example CCB.cfl / CCB.int (see the header of the rcif file).
 The crystal is given with its paramagnetic space group P 63/m m c and is
 converted by ``Crystal.add_propagation_vector``; the representation of
 CrysFML (basis functions BASR) is Γ2 of the group of k, the Fourier
-component of Cr is (0, 0, 1.12064) μB.
+component of Cr is (0, 0, 1.12064) μB in the FullProf convention
+``m = S exp(-2 pi i k.L) + c.c.``, so the amplitude of the moment is
+``|Mcos + i Msin| = 2 |S|`` (the global phase does not change the
+intensities of one arm).
 """
 import os
 
@@ -21,7 +24,7 @@ def load_converted(irrep: int = 2):
     obj = cryspy.load_file(F_RCIF)
     crystal = obj.crystal_ccb
     crystal.add_propagation_vector(0.25, 0.25, 0., "Cr", irrep=irrep)
-    crystal.atom_site_moment_fourier["Cr"].real_z = S_CR
+    crystal.atom_site_moment_fourier.take_rows("Cr")["z"].cos = 2. * S_CR
     # CrysFML MagOptim uses B = 0 for the magnetic atom
     crystal.atom_site["Cr"].b_iso_or_equiv = 0.
     return obj
@@ -51,10 +54,14 @@ def test_conversion_splits_atoms_and_keeps_parent_group():
     assert not crystal.is_attribute("space_group")
     assert crystal.parent_space_group.name_hm_alt == "P 63/m m c"
     labels = list(crystal.atom_site.label)
-    # 6h and 12k split into three orbits of the group of k, 2b and 4f do not
-    assert labels == ["Cs1", "Cs2", "Cr", "Br1", "Br1_2", "Br1_3",
-                      "Br2", "Br2_2", "Br2_3"]
-    assert list(crystal.space_group_symop_magn_k.phase) == [0., 0., 0.5, 0.5]
+    # 6h and 12k split into two orbits of the superspace group, 2b and 4f
+    # do not
+    assert labels == ["Cs1", "Cs2", "Cr", "Br1", "Br1_2", "Br2", "Br2_2"]
+    # group of k (4) and the operations mapping k to -k (4)
+    assert len(crystal.space_group_symop_magn_ssg_operation.items) == 8
+    assert crystal.cell_wave_vector.items[0].x == pytest.approx(0.25)
+    rows = crystal.atom_site_moment_fourier.take_rows("Cr")
+    assert (rows["y"].cos_symmform, rows["z"].sin_symmform) == ("-mxc1", "0")
     # the converted crystal is written and read back
     text = "global_\n" + crystal.to_cif() + "\n" + obj.diffrn_ccbmag.to_cif()
     obj_2 = cryspy.str_to_globaln(text)
@@ -77,12 +84,15 @@ def test_other_representation_does_not_describe_data():
 
 def test_moment_direction_is_refined_along_c():
     obj = load_converted()
-    fourier = obj.crystal_ccb.atom_site_moment_fourier["Cr"]
-    fourier.real_x, fourier.real_y = 0.3, 0.1
-    fourier.real_x_refinement, fourier.real_y_refinement = True, True
+    rows = obj.crystal_ccb.atom_site_moment_fourier.take_rows("Cr")
+    rows["x"].cos, rows["x"].sin = 0.3, 0.1
+    rows["y"].cos, rows["y"].sin = -0.3, 0.1
+    rows["x"].cos_refinement, rows["x"].sin_refinement = True, True
     cryspy.rhochi_rietveld_refinement(obj)
-    assert fourier.real_x == pytest.approx(0., abs=0.15)
-    assert fourier.real_y == pytest.approx(0., abs=0.15)
+    # y follows x by the symmetry (symmform)
+    assert rows["y"].cos == pytest.approx(-rows["x"].cos)
+    assert rows["x"].cos == pytest.approx(0., abs=0.3)
+    assert rows["x"].sin == pytest.approx(0., abs=0.3)
 
 
 def test_magnetic_domains():
@@ -96,6 +106,28 @@ def test_magnetic_domains():
     # other two domains scatter elsewhere, so only the scale changes
     chi_sq_three = calc_agreement(obj)[0]
     assert chi_sq_three == pytest.approx(chi_sq_one, rel=1e-4)
+    # a second call does not take the domains for structural twins
+    obj.diffrn_ccbmag.define_magnetic_domains(obj.crystal_ccb)
+    assert len(obj.diffrn_ccbmag.jana_twin.items) == 2
+
+
+def test_magnetic_domains_keep_structural_twins():
+    obj = load_converted()
+    diffrn = obj.diffrn_ccbmag
+    diffrn.define_magnetic_domains(obj.crystal_ccb)
+    twin = diffrn.jana_twin.items[0]
+    # a structural twin (c -> -c, a -> -a) with a fifth of the volume
+    for i in (1, 2, 3):
+        for j in (1, 2, 3):
+            setattr(twin, f"matrix_{i}{j}", {1: -1., 2: 1., 3: -1.}[i] if i == j else 0.)
+    twin.fraction = 0.2
+    diffrn.jana_twin.items[:] = [twin]
+    report = diffrn.define_magnetic_domains(obj.crystal_ccb)
+    assert "combined with 1 structural twins" in report
+    fractions = numpy.array(diffrn.jana_twin.fraction)
+    assert len(fractions) == 5
+    # the twin keeps its volume, shared by its three magnetic domains
+    assert fractions.sum() == pytest.approx(1. - 0.8 / 3., abs=1e-5)
 
 
 def test_simulation_has_satellites():

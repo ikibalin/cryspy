@@ -7,9 +7,10 @@ from cryspy.A_functions_base.structure_factor_magnetic_k import (
     calc_full_symm_elems_by_k_operations,
     calc_generated_multiplicity,
     calc_satellite_index_hkl,
+    calc_superspace_operation_arrays,
     is_k_equivalent_to_minus_k,
-    parse_moment_uvw,
     parse_operation_xyz,
+    parse_ssg_operation,
 )
 
 UCP = numpy.array([4.0, 5.0, 6.0, 0.5 * numpy.pi, 0.5 * numpy.pi, 0.5 * numpy.pi])
@@ -24,13 +25,30 @@ def test_parse_operation_xyz():
     numpy.testing.assert_array_equal(rotation, [1, -1, 0, 1, 0, 0, 0, 0, 1])
 
 
-def test_parse_moment_uvw():
+def test_parse_ssg_operation():
+    operation = parse_ssg_operation("-x1+1/2,-x2,x3+1/2,-x1-x2+x4+1/4,-1")
     numpy.testing.assert_array_equal(
-        parse_moment_uvw("-u,v,-w"), [-1, 0, 0, 0, 1, 0, 0, 0, -1])
-    numpy.testing.assert_array_equal(
-        parse_moment_uvw("my,mx,-mz"), [0, 1, 0, 1, 0, 0, 0, 0, -1])
+        operation["rotation"], [-1, 0, 0, 0, -1, 0, 0, 0, 1])
+    numpy.testing.assert_allclose(operation["translation"], [0.5, 0., 0.5])
+    numpy.testing.assert_allclose(operation["h"], [-1., -1., 0.])
+    assert (operation["epsilon"], operation["tau"], operation["theta"]) == (1, 0.25, -1)
+    operation = parse_ssg_operation("x2,x1,-x3,3x3-x4+1/2,+1")
+    numpy.testing.assert_allclose(operation["h"], [0., 0., 3.])
+    assert operation["epsilon"] == -1
+
+
+def test_superspace_operation_arrays():
+    """phi = k.t - tau, moment matrix theta det(R) R, centring x operation."""
+    k_vector = numpy.array([0., 0.3, 0.])
+    arrays = calc_superspace_operation_arrays(
+        ["x1,x2,x3,x4,+1", "-x1,x2+1/2,-x3,x4+1/4,-1"],
+        ["x1,x2,x3,x4,+1", "x1,x2,x3,x4+1/2,-1"], k_vector)
+    numpy.testing.assert_allclose(arrays["phase"], [0., 0.15 - 0.25, -0.5, 0.15 - 0.75])
+    numpy.testing.assert_array_equal(arrays["moment"][:, 1], [1, 0, 0, 0, -1, 0, 0, 0, 1])
+    numpy.testing.assert_array_equal(arrays["conjugate"], False)
     with pytest.raises(ValueError):
-        parse_moment_uvw("u+1/2,v,w")
+        # R^T k = -k needs -x4
+        calc_superspace_operation_arrays(["-x1,-x2,-x3,x4,+1"], [], k_vector)
 
 
 def test_is_k_equivalent_to_minus_k():

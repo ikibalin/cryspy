@@ -383,9 +383,11 @@ class Diffrn(DataN):
 
         The domains (cosets of the group of k in ``parent_space_group``,
         Friedel pairs merged; see ``Crystal.report_magnetic_domains``) are
-        written as ``jana_twin`` with equal fractions; an existing
-        ``jana_twin`` is replaced. The nuclear intensities do not change,
-        since every domain matrix is a symmetry of the paramagnetic crystal.
+        written as ``jana_twin`` with equal fractions. Structural twins
+        already in ``jana_twin`` are kept: every twin gets all magnetic
+        domains (matrix D T, its fraction shared equally). The nuclear
+        intensities do not change, since every domain matrix is a symmetry of
+        the paramagnetic crystal.
 
         Parameters
         ----------
@@ -401,22 +403,45 @@ class Diffrn(DataN):
         """
         matrices = calc_magnetic_domain_matrices(crystal)
         n_domain = matrices.shape[1]
-        self.items[:] = [item for item in self.items if not isinstance(item, JanaTwinL)]
         if n_domain == 1:
             return "One magnetic domain: no jana_twin is needed."
+        # structural twins: the first one (identity) has the rest of the fraction
+        # (twins equal to a magnetic domain were added by a previous call)
+        l_structural = [(numpy.eye(3), 1.)]
+        if self.is_attribute("jana_twin"):
+            for item in self.jana_twin.items:
+                matrix = numpy.array([[getattr(item, f"matrix_{i}{j}") for j in (1, 2, 3)]
+                                      for i in (1, 2, 3)], dtype=float)
+                if numpy.any(numpy.all(numpy.isclose(
+                        matrices, matrix.flatten()[:, numpy.newaxis], atol=1e-6), axis=0)):
+                    continue
+                l_structural.append((matrix, float(item.fraction)))
+                l_structural[0] = (l_structural[0][0], l_structural[0][1] - float(item.fraction))
+        d_fraction = {}
+        for matrix_t, fraction in l_structural:
+            for matrix_d in matrices.transpose():
+                matrix = matrix_d.reshape(3, 3) @ matrix_t
+                key = tuple(numpy.round(matrix, 6).flatten() + 0.)
+                d_fraction[key] = d_fraction.get(key, 0.) + fraction / n_domain
+        identity = tuple(numpy.eye(3).flatten())
         l_twin = []
-        for i_domain, matrix in enumerate(matrices.transpose()[1:]):
+        for key, fraction in d_fraction.items():
+            if key == identity:
+                continue
             kwargs = {f"matrix_{i // 3 + 1}{i % 3 + 1}": float(value)
-                      for i, value in enumerate(matrix)}
-            twin = JanaTwin(id=i_domain + 2, fraction=round(1. / n_domain, 6), **kwargs)
+                      for i, value in enumerate(key)}
+            twin = JanaTwin(id=len(l_twin) + 2, fraction=round(fraction, 6), **kwargs)
             twin.fraction_refinement = bool(flag_refine)
             l_twin.append(twin)
+        self.items[:] = [item for item in self.items if not isinstance(item, JanaTwinL)]
         loop_twin = JanaTwinL()
         loop_twin.items = l_twin
         self.add_items([loop_twin])
-        return (f"{n_domain} magnetic domains of {crystal.data_name} added as "
-                f"jana_twin with fractions 1/{n_domain}"
-                + (" (refined)." if flag_refine else "."))
+        text_twins = (f" combined with {len(l_structural) - 1} structural twins"
+                      if len(l_structural) > 1 else "")
+        return (f"{n_domain} magnetic domains of {crystal.data_name}{text_twins} added "
+                f"as jana_twin ({len(l_twin) + 1} domains in total, equal fractions"
+                + (", refined)." if flag_refine else ")."))
 
     def plots(self):
         l_res = []

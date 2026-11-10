@@ -66,20 +66,23 @@ from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import (
     AtomElectronConfigurationL,
 )
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
-from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import MagneticStructureKL
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourierL
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import SpaceGroupSymopMagnKL
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import SpaceGroupSymopMagnKCenteringL
+from cryspy.C_item_loop_classes.cl_1_cell_wave_vector import CellWaveVectorL
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_ssg_operation import (
+    SpaceGroupSymopMagnSsgOperationL)
+from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_ssg_centering import (
+    SpaceGroupSymopMagnSsgCenteringL)
+from cryspy.C_item_loop_classes.cl_1_atom_site_fourier_wave_vector import (
+    AtomSiteFourierWaveVectorL)
 from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
-from cryspy.C_item_loop_classes.cl_1_magnetic_structure_k import MagneticStructureK
-from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourier
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k import SpaceGroupSymopMagnK
-from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_k_centering import SpaceGroupSymopMagnKCentering
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
-    calc_magnetic_domain_matrices, form_phase_by_character, report_irreps,
-    split_atoms, split_labels, take_k_group, take_parent_space_group)
-from cryspy.A_functions_base.magnetic_k_symmetry import (
-    calc_fourier_basis, calc_fourier_projector, form_moment_uvw, form_operation_xyz)
+    calc_magnetic_domain_matrices, calc_site_symmform,
+    convert_magnetic_space_group, form_fourier_items, form_parent_space_group,
+    form_irrep_name, form_start_fourier, form_superspace_by_irrep,
+    report_moment_modulation,
+    form_superspace_items, format_symmform, report_irreps, split_atoms,
+    split_labels, take_irrep_numbers, take_k_group, take_parent_space_group)
+from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
 from cryspy.exceptions import CrysPyError
 from cryspy.C_item_loop_classes.cl_1_refln import ReflnL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import (
@@ -126,13 +129,15 @@ class Crystal(DataN):
 
     To define the magnetic form factor in the dipolar approximation, use the atom_site_scat loop.
 
-    A magnetic structure with propagation vectors (FullProf-like description)
-    is given by the magnetic_structure_k loop (vectors), the
-    atom_site_moment_fourier loop (Fourier components of moments) and,
-    the space_group_symop_magn_k and space_group_symop_magn_k_centering loops
-    (operations of the group of k with their action on moments). These
-    operations replace space_group: one set of symmetry elements describes
-    the nuclear and the magnetic structure together.
+    A magnetic structure with a propagation vector k is given as in msCIF
+    (Bilbao MAGNDATA, Jana2006): the cell_wave_vector loop (k), the magnetic
+    superspace group (space_group_symop_magn_ssg_operation and
+    space_group_symop_magn_ssg_centering loops), the atom_site_moment_fourier
+    loop (cos and sin components of the moments with their symmforms) and,
+    optionally, parent_space_group. The superspace group replaces
+    space_group: one set of symmetry elements describes the nuclear and the
+    magnetic structure together. A magnetic space group with atom_site_moment
+    is the special case k = 0 (see convert_to_superspace).
 
     The anisotropic magnetic form factor can be defined using the multipole model.
      In this case, use the atom_rho_multipole loop and the atom_local_axes loop.
@@ -159,10 +164,11 @@ class Crystal(DataN):
         SpaceGroupSymopMagnOperationL,
         SpaceGroupSymopMagnCenteringL,
         AtomRhoMultipoleL,
-        MagneticStructureKL,
+        CellWaveVectorL,
         AtomSiteMomentFourierL,
-        SpaceGroupSymopMagnKL,
-        SpaceGroupSymopMagnKCenteringL,
+        AtomSiteFourierWaveVectorL,
+        SpaceGroupSymopMagnSsgOperationL,
+        SpaceGroupSymopMagnSsgCenteringL,
         ParentSpaceGroup,
     )
     # CLASSES_INTERNAL = ()
@@ -723,10 +729,26 @@ class Crystal(DataN):
     def get_full_symm_elems(self):
         """Symmetry elements with centring for the atoms of the cell.
 
-        From the magnetic space group (mcif operations and centrings, 14
-        rows with time reversal), else from the space group (13 rows), else
-        the identity.
+        From the magnetic superspace group (the x1, x2, x3 part of the
+        operations times the centrings, 14 rows), else from the magnetic
+        space group (mcif operations and centrings, 14 rows with time
+        reversal), else from the space group (13 rows), else the identity.
         """
+        if self.is_attribute("space_group_symop_magn_ssg_operation"):
+            from cryspy.A_functions_base.structure_factor_magnetic_k import (
+                calc_full_symm_elems_by_k_operations,
+                calc_superspace_operation_arrays)
+            l_centring = [
+                item.algebraic for item in
+                self.space_group_symop_magn_ssg_centering.items] \
+                if self.is_attribute("space_group_symop_magn_ssg_centering") else []
+            item_k = self.cell_wave_vector.items[0]
+            arrays = calc_superspace_operation_arrays(
+                [item.algebraic for item in
+                 self.space_group_symop_magn_ssg_operation.items],
+                l_centring, numpy.array([item_k.x, item_k.y, item_k.z], dtype=float))
+            return calc_full_symm_elems_by_k_operations(
+                arrays["rotation"], arrays["translation"], numpy.zeros((3, 1)))
         if (self.is_attribute("space_group_symop_magn_operation") and
                 self.is_attribute("space_group_symop_magn_centering")):
             return calc_full_mag_elems(
@@ -911,14 +933,19 @@ class Crystal(DataN):
         return obj.items[0]
 
     def report_irreps_of_k(self, k_1: float, k_2: float, k_3: float,
-                           magnetic_atoms: str = "") -> str:
-        """Group of the propagation vector k and its representations.
+                           magnetic_atoms: str = "",
+                           use_minus_k_operations: bool = True) -> str:
+        """Group of the propagation vector k, its representations and their
+        magnetic superspace groups.
 
         Lists the operations of the space group which keep k, the
         characters of the one-dimensional irreducible representations
-        (Γ1, Γ2, ...) and, for every magnetic atom, the Fourier components
-        that each representation allows. Use it to choose ``irrep`` of
-        :meth:`add_propagation_vector`; the crystal is not changed.
+        (Γ1, Γ2, ...) and, for every representation, the superspace group
+        and the Fourier components of every magnetic atom allowed by it
+        (symmforms, as in MAGNDATA). Use it to choose ``irrep`` of
+        :meth:`add_propagation_vector`; the crystal is not changed. A
+        component of k within 0.001 of a fraction with a denominator up to
+        12 is taken as that fraction (0.3333 as 1/3).
 
         Parameters
         ----------
@@ -930,13 +957,15 @@ class Crystal(DataN):
             Third component of the propagation vector (reciprocal lattice units).
         magnetic_atoms : str
             Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
+        use_minus_k_operations : bool
+            Add the operations mapping k to -k when the representation allows it.
 
         Returns
         -------
         str
             Markdown report.
         """
-        k_vector = numpy.array([k_1, k_2, k_3], dtype=float)
+        k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
         space_group = take_parent_space_group(self)
         k_group = take_k_group(space_group, k_vector)
         atoms = {}
@@ -944,24 +973,31 @@ class Crystal(DataN):
             item = self.atom_site[label]
             atoms[label] = numpy.array([item.fract_x, item.fract_y, item.fract_z],
                                        dtype=float)
-        return report_irreps(k_group, k_vector, atoms)
+        report = report_irreps(k_group, k_vector, atoms, use_minus_k_operations)
+        if l_note:
+            report = ("k is taken as commensurate: " + ", ".join(l_note) + ".\n\n"
+                      + report)
+        return report
 
     def add_propagation_vector(self, k_1: float, k_2: float, k_3: float,
-                               magnetic_atoms: str, irrep: int = 1,
-                               moment: float = 0.0) -> str:
+                               magnetic_atoms: str, irrep: str = "1",
+                               moment: float = 0.0,
+                               use_minus_k_operations: bool = True) -> str:
         """Describe the magnetic structure by a propagation vector k.
 
-        The space group is replaced by the operations of the group of k
-        (``space_group_symop_magn_k``, ``space_group_symop_magn_k_centering``)
-        with the moment phases of the chosen one-dimensional representation;
-        these operations describe the nuclear and the magnetic structure
-        together, so the atoms whose orbit splits in the group of k become
-        several atoms ('O1', 'O1_2', ...; anisotropic ADP rotated). The
-        space group stays as ``parent_space_group`` (for the domains).
-        ``magnetic_structure_k`` and ``atom_site_moment_fourier`` are added
-        for the magnetic atoms, which need ``atom_site_scat`` (form factor).
-        The report lists the representations and the allowed Fourier
-        components (see :meth:`report_irreps_of_k`).
+        The space group is replaced by the magnetic superspace group of the
+        chosen one-dimensional representation (mCIF/MAGNDATA categories
+        ``cell_wave_vector``, ``space_group_symop_magn_ssg_operation`` and
+        ``_centering``); it describes the nuclear and the magnetic structure
+        together, so the atoms whose orbit splits become several atoms
+        ('O1', 'O1_2', ...; anisotropic ADP rotated). The space group stays
+        as ``parent_space_group`` (cell metric, domains). The magnetic
+        atoms, which need ``atom_site_scat`` (form factor), get
+        ``atom_site_moment_fourier`` rows ``M = cos cos(2 pi k.r) + sin
+        sin(2 pi k.r)`` with the symmetry constraints (symmform). The report
+        lists the representations (see :meth:`report_irreps_of_k`). A
+        component of k within 0.001 of a fraction with a denominator up to
+        12 is taken as that fraction (0.3333 as 1/3).
 
         Parameters
         ----------
@@ -973,17 +1009,23 @@ class Crystal(DataN):
             Third component of the propagation vector (reciprocal lattice units).
         magnetic_atoms : str
             Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
-        irrep : int
-            Number of the one-dimensional irreducible representation (1 for Γ1).
+        irrep : str
+            Number of the one-dimensional irreducible representation (1 for
+            Γ1), or several numbers separated by commas (1,2 for Γ1 ⊕ Γ2:
+            cycloids and helices made of two modes).
         moment : float
             Start amplitude of the Fourier components in μB (0 keeps them zero).
+        use_minus_k_operations : bool
+            Add the operations mapping k to -k when the representation
+            allows it (the highest superspace group: the phases of different
+            orbits are then fixed); False keeps the group of k only.
 
         Returns
         -------
         str
             Markdown report of the conversion.
         """
-        if self.is_attribute("magnetic_structure_k"):
+        if self.is_attribute("space_group_symop_magn_ssg_operation"):
             raise CrysPyError(
                 "The crystal already has a propagation vector; a second one "
                 "is not supported yet.")
@@ -993,7 +1035,7 @@ class Crystal(DataN):
                 "start from the paramagnetic crystal with space_group.")
         if not self.is_attribute("space_group"):
             raise CrysPyError("The crystal needs space_group (the paramagnetic group).")
-        k_vector = numpy.array([k_1, k_2, k_3], dtype=float)
+        k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
         l_magnetic = split_labels(magnetic_atoms)
         l_label = list(self.atom_site.label)
         l_unknown = [label for label in l_magnetic if label not in l_label]
@@ -1009,75 +1051,38 @@ class Crystal(DataN):
                 "magnetic ion (type_symbol such as Fe3+) and the Lande factor.")
         space_group = self.space_group
         k_group = take_k_group(space_group, k_vector)
-        if not 1 <= irrep <= len(k_group["irreps"]):
+        try:
+            irrep_name = form_irrep_name(take_irrep_numbers(irrep, len(k_group["irreps"])))
+        except CrysPyError as error:
             raise CrysPyError(
-                f"irrep must be from 1 to {len(k_group['irreps'])}.\n\n"
-                + report_irreps(k_group, k_vector, {}))
-        phase = form_phase_by_character(k_group["irreps"][irrep - 1])
-        rotation, translation = k_group["rotation"], k_group["translation"]
-
+                f"{error}\n\n"
+                + report_irreps(k_group, k_vector, {}, use_minus_k_operations)) from None
         atoms = {label: numpy.array([self.atom_site[label].fract_x,
                                      self.atom_site[label].fract_y,
                                      self.atom_site[label].fract_z], dtype=float)
                  for label in l_magnetic}
-        report = report_irreps(k_group, k_vector, atoms)
-        d_split = split_atoms(self, k_group)
+        report = report_irreps(k_group, k_vector, atoms, use_minus_k_operations)
+        ssg = form_superspace_by_irrep(k_group, k_vector, irrep, use_minus_k_operations)
+        arrays = ssg["arrays"]
+        # the orbits are split by the positions part of the superspace group
+        d_split = split_atoms(self, dict(
+            k_group, rotation=arrays["rotation"], translation=arrays["translation"]))
 
-        l_op = [SpaceGroupSymopMagnK(
-            id=str(s + 1), operation_xyz=form_operation_xyz(
-                rotation[:, s], translation[:, s]),
-            moment_uvw=form_moment_uvw(k_group["moment"][:, s]),
-            phase=float(phase[s])) for s in range(rotation.shape[1])]
-        loop_op = SpaceGroupSymopMagnKL()
-        loop_op.items = l_op
-        l_new = [loop_op]
-        centring = k_group["centring"]
-        if centring.shape[1] > 1:
-            loop_centring = SpaceGroupSymopMagnKCenteringL()
-            loop_centring.items = [SpaceGroupSymopMagnKCentering(
-                id=str(c), xyz=form_operation_xyz(numpy.eye(3).flatten(),
-                                                  centring[:, c]))
-                for c in range(1, centring.shape[1])]
-            l_new.append(loop_centring)
-        loop_k = MagneticStructureKL()
-        loop_k.items = [MagneticStructureK(
-            number=1, vector_1=float(k_1), vector_2=float(k_2), vector_3=float(k_3))]
-        l_new.append(loop_k)
-
-        l_fourier, l_text = [], []
+        rows, l_text = [], []
         new_atom_site = d_split["atom_site"]
         for label in l_magnetic:
             for new_label in d_split["labels"][label]:
                 item = new_atom_site[new_label]
                 xyz = numpy.array([item.fract_x, item.fract_y, item.fract_z], dtype=float)
-                basis = calc_fourier_basis(calc_fourier_projector(
-                    xyz, rotation, translation, k_group["moment"], phase,
-                    centring, k_vector))
-                start = numpy.zeros(3, dtype=complex)
-                if basis.shape[1] > 0 and moment != 0.:
-                    start = basis @ (basis.conj().transpose() @ numpy.ones(3))
-                    if numpy.linalg.norm(start) < 1e-8:
-                        start = basis[:, 0]
-                    start = moment * start / numpy.linalg.norm(start)
-                l_fourier.append(AtomSiteMomentFourier(
-                    label=new_label, k_number=1,
-                    real_x=float(numpy.round(start[0].real, 6)),
-                    real_y=float(numpy.round(start[1].real, 6)),
-                    real_z=float(numpy.round(start[2].real, 6)),
-                    imag_x=float(numpy.round(start[0].imag, 6)),
-                    imag_y=float(numpy.round(start[1].imag, 6)),
-                    imag_z=float(numpy.round(start[2].imag, 6)), phase=0.))
-                l_text.append(new_label)
-        loop_fourier = AtomSiteMomentFourierL()
-        loop_fourier.items = l_fourier
-        l_new.append(loop_fourier)
-
-        parent = ParentSpaceGroup(name_hm_alt=space_group.name_hm_alt)
-        if space_group.is_attribute("it_number"):
-            parent.it_number = space_group.it_number
-        if space_group.is_attribute("it_coordinate_system_code"):
-            parent.it_coordinate_system_code = space_group.it_coordinate_system_code
-        l_new.append(parent)
+                symmform, projector = calc_site_symmform(xyz, k_vector, arrays)
+                cell_angles = (self.cell.angle_alpha, self.cell.angle_beta,
+                               self.cell.angle_gamma)
+                rows.append((new_label, form_start_fourier(projector, moment, cell_angles),
+                             symmform))
+                l_text.append(f"{new_label}: {format_symmform(symmform)}")
+        l_new = form_superspace_items(k_vector, ssg)
+        l_new.append(form_fourier_items(rows))
+        l_new.append(form_parent_space_group(space_group))
 
         self.items[:] = [item for item in self.items
                          if not isinstance(item, SpaceGroup)]
@@ -1089,17 +1094,74 @@ class Crystal(DataN):
         l_split = [f"{label} → {', '.join(labels)}"
                    for label, labels in d_split["labels"].items() if len(labels) > 1]
         n_domain = calc_magnetic_domain_matrices(self).shape[1]
-        ls_out = [report, "", f"# Conversion (Γ{irrep})", "",
-                  f"space_group {space_group.name_hm_alt} replaced by "
-                  f"{rotation.shape[1]} operations of the group of k "
-                  f"(kept as parent_space_group).",
-                  "Atoms split by the group of k: " + ("; ".join(l_split) if l_split else "none") + ".",
-                  f"Fourier components added for: {', '.join(l_text)} "
-                  f"({'start ' + str(moment) + ' μB' if moment else 'zero'}; "
-                  "refine or set atom_site_moment_fourier).",
-                  f"Magnetic domains (k-domains, Friedel pairs merged): {n_domain}; "
+        if l_note:
+            report = "k is taken as commensurate: " + ", ".join(l_note) + ".\n\n" + report
+        ls_out = [report, "", f"# Conversion ({irrep_name})", "",
+                  f"space_group {space_group.name_hm_alt} replaced by the "
+                  f"superspace group of {irrep_name} ({len(ssg['operations'])} "
+                  f"operations, {len(ssg['centrings'])} centrings"
+                  + (", with the operations mapping k to -k" if ssg["minus_k"] else "")
+                  + "; the space group is kept as parent_space_group).",
+                  "Atoms split by the superspace group: "
+                  + ("; ".join(l_split) if l_split else "none") + ".",
+                  "Fourier components (atom_site_moment_fourier, "
+                  f"{'start ' + str(moment) + ' μB' if moment else 'zero'}; "
+                  "refine cos and sin): " + "; ".join(l_text) + ".",
+                  f"Magnetic domains (Friedel pairs merged): {n_domain}; "
                   "Diffrn.define_magnetic_domains adds them to a single-crystal experiment."]
         return "\n".join(ls_out)
+
+    def report_magnetic_moments(self) -> str:
+        """Real-space magnetic moments of a structure with a propagation vector.
+
+        Every magnetic atom of the cell (generated by the superspace group)
+        is listed with its complex amplitude A along a, b, c, the smallest
+        and the largest moment over all cells (μB) and the kind of the
+        modulation: collinear amplitude-modulated, helix (rotation plane
+        perpendicular to k), cycloid (k in the rotation plane), elliptic or
+        circular, commensurate with its period. The moment in the cell L is
+        ``Re(A exp(-2 pi i k.L))``.
+
+        Returns
+        -------
+        str
+            Markdown table.
+        """
+        if not self.is_attribute("atom_site_moment_fourier"):
+            raise CrysPyError(
+                "The crystal has no atom_site_moment_Fourier: add a propagation "
+                "vector first (add_propagation_vector) or convert a magnetic "
+                "space group (convert_to_superspace).")
+        from cryspy.A_functions_base.structure_factor_magnetic_k import (
+            calc_moment_modulation_by_dictionary)
+        dict_crystal = self.get_dictionary()
+        return report_moment_modulation(
+            calc_moment_modulation_by_dictionary(dict_crystal),
+            dict_crystal["unit_cell_parameters"])
+
+    def convert_to_superspace(self) -> str:
+        """Write a magnetic space group (k = 0) as a magnetic superspace group.
+
+        The commensurate description (space_group_symop_magn_operation,
+        _centering and atom_site_moment) is a special case of the
+        superspace description with k = 0: the operations ``x,y,z,+1``
+        become ``x1,x2,x3,x4,+1`` and the moments become the cos components
+        of atom_site_moment_fourier (sin = 0). The old loops are removed.
+        Use it to continue with the tools for propagation vectors; the
+        polarized-neutron calculations need the old description for now.
+
+        Returns
+        -------
+        str
+            Markdown report of the conversion.
+        """
+        self.get_dictionary()  # checks the input and fixes the cell type
+        l_new, report = convert_magnetic_space_group(self)
+        self.items[:] = [item for item in self.items if not isinstance(item, (
+            SpaceGroupSymopMagnOperationL, SpaceGroupSymopMagnCenteringL,
+            AtomSiteMomentL))]
+        self.add_items(l_new)
+        return report
 
     def report_magnetic_domains(self) -> str:
         """Magnetic domains of the structure with a propagation vector.

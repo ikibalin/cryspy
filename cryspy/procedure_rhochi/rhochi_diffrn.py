@@ -16,7 +16,7 @@ from cryspy.A_functions_base.extinction import \
     calc_extinction_sphere, calc_extinction_qani
 
 from cryspy.A_functions_base.structure_factor_magnetic_k import \
-    calc_f_m_perp_k_by_dictionary, is_magnetic_k_refined
+    calc_f_m_perp_k_by_dictionary, is_magnetic_k_refined, warn_not_satellites
 
 from cryspy.A_functions_base.flip_ratio import \
     calc_intensities_by_structure_factors, calc_flip_ratio_by_iint, \
@@ -71,6 +71,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     unit_cell_parameters = dict_crystal["unit_cell_parameters"]
     index_hkl = dict_diffrn["index_hkl"]
     n_hkl = index_hkl.shape[1]
+    if "magnetic_k_vector" in dict_crystal_keys:
+        warn_not_satellites(index_hkl, dict_crystal["magnetic_k_vector"])
     flag_twin = "twin_fraction" in dict_diffrn.keys()
     flag_twin_fraction = False
     if flag_twin:
@@ -292,7 +294,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
 
         f_nucl_2hkl, dder_f_nucl_2hkl = calc_f_nucl_by_dictionary(dict_crystal, dict_in_out_crystal_2hkl, flag_use_precalculated_data=flag_use_precalculated_data)
         # lambda/2 contamination: 2H of a satellite can be a nuclear
-        # reflection (k = 1/2); magnetic satellites at 2H are neglected.
+        # reflection (k = 1/2) or another satellite (k = 1/3: 2H = h' - k).
         flag_integer_2hkl = numpy.all(
             numpy.abs(index_2hkl - numpy.round(index_2hkl)) < 1e-4, axis=0)
         f_nucl_2hkl = f_nucl_2hkl * flag_integer_2hkl
@@ -326,6 +328,16 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             if flag_ordered:
                 f_m_perp_2hkl += f_m_perp_o_ccs_2hkl
             f_m_perp_2hkl = f_m_perp_2hkl * flag_integer_2hkl
+            if flag_magnetic_k:
+                k_vector = dict_crystal["magnetic_k_vector"][:, 0]
+                flag_satellite_2hkl = numpy.zeros(index_2hkl.shape[1], dtype=bool)
+                for sign in (1., -1.):
+                    index_h = index_2hkl - sign * k_vector[:, numpy.newaxis]
+                    flag_satellite_2hkl |= numpy.all(
+                        numpy.abs(index_h - numpy.round(index_h)) < 1e-4, axis=0)
+                if numpy.any(flag_satellite_2hkl):
+                    f_m_perp_2hkl[:, flag_satellite_2hkl] += calc_f_m_perp_k_by_dictionary(
+                        dict_crystal, index_2hkl[:, flag_satellite_2hkl], unit_cell_parameters)
 
             if flag_dict:
                 dict_in_out["f_m_perp_2hkl"] = f_m_perp_2hkl

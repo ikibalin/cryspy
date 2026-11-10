@@ -35,39 +35,40 @@ _atom_site_scat_kappa
   Ni   Ni2+    2.0   1.0
 
 loop_
-_magnetic_structure_k_number
-_magnetic_structure_k_vector_1
-_magnetic_structure_k_vector_2
-_magnetic_structure_k_vector_3
+_cell_wave_vector_seq_id
+_cell_wave_vector_x
+_cell_wave_vector_y
+_cell_wave_vector_z
   1   0.5   0.0   0.5
 
 loop_
-_atom_site_moment_fourier_label
-_atom_site_moment_fourier_k_number
-_atom_site_moment_fourier_real_x
-_atom_site_moment_fourier_real_y
-_atom_site_moment_fourier_real_z
-_atom_site_moment_fourier_imag_x
-_atom_site_moment_fourier_imag_y
-_atom_site_moment_fourier_imag_z
-_atom_site_moment_fourier_phase
-  Ho   1   0.12536()   0.00000    8.99382()   0.00000   0.00000   0.00000   0.00000
-  Ni   1    0.61666()   0.00000   -1.30231()   0.00000   0.00000   0.00000   0.00000
+_space_group_symop_magn_ssg_operation.id
+_space_group_symop_magn_ssg_operation.algebraic
+  1   x1,x2,x3,x4,+1
+  2   -x1,x2,-x3,-x1-x3+x4,-1
+  3   -x1,-x2,-x3,-x1-x3+x4,+1
+  4   x1,-x2,x3,x4,-1
 
 loop_
-_space_group_symop_magn_k_id
-_space_group_symop_magn_k_operation_xyz
-_space_group_symop_magn_k_moment_uvw
-_space_group_symop_magn_k_phase
-  1      x,y,z   u,v,w   0.0
-  2    -x,y,-z   u,v,w   0.0
-  3   -x,-y,-z   u,v,w   0.0
-  4     x,-y,z   u,v,w   0.0
+_space_group_symop_magn_ssg_centering.id
+_space_group_symop_magn_ssg_centering.algebraic
+  1   x1,x2,x3,x4,+1
+  2   x1+1/2,x2+1/2,x3+1/2,x4,+1
+  3   x1,x2,x3,x4+1/2,-1
+  4   x1+1/2,x2+1/2,x3+1/2,x4+1/2,-1
 
 loop_
-_space_group_symop_magn_k_centering_id
-_space_group_symop_magn_k_centering_xyz
-  1   x+1/2,y+1/2,z+1/2
+_atom_site_moment_Fourier.atom_site_label
+_atom_site_moment_Fourier.axis
+_atom_site_moment_Fourier.wave_vector_seq_id
+_atom_site_moment_Fourier_param.cos
+_atom_site_moment_Fourier_param.sin
+  Ho   x   1   -0.07446()   0.10085()
+  Ho   y   1    0.00000     0.00000
+  Ho   z   1   -5.34183()   7.23558()
+  Ni   x   1    0.61666()   0.00000
+  Ni   y   1    0.00000     0.00000
+  Ni   z   1   -1.30231()   0.00000
 
 
 data_D1B
