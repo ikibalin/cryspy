@@ -6,9 +6,15 @@ the recipes for the experiments of an object are found by code:
     single_crystal, powder, powder_1d, powder_2d, tof  - the experiment
     polarized, unpolarized, flip_ratio                  - the measured data
     nuclear, magnetic                                   - the crystals of it
+    satellites                                          - single-crystal reflections
+                                                          with fractional indices
 
 A crystal is 'magnetic' when it is described by a magnetic space group
-(space_group_symop_magn_operation, MCIF), otherwise 'nuclear'.
+(space_group_symop_magn_operation, MCIF) or a magnetic superspace group
+with a propagation vector (space_group_symop_magn_ssg_operation or
+atom_site_moment_Fourier), otherwise 'nuclear'. A single-crystal experiment
+with 'satellites' measured magnetic satellites H = h ± k: the magnetic
+structure with k is still to be found when its crystal is 'nuclear'.
 """
 from typing import Dict, List, Optional
 
@@ -27,7 +33,7 @@ from cryspy.E_data_classes.cl_2_pd2d import Pd2d
 from cryspy.E_data_classes.cl_2_tof import TOF
 
 KINDS = ("single_crystal", "powder", "powder_1d", "powder_2d", "tof",
-         "polarized", "unpolarized", "flip_ratio", "nuclear", "magnetic")
+         "polarized", "unpolarized", "flip_ratio", "nuclear", "magnetic", "satellites")
 FLIP_RATIO_TOLERANCE = 1e-6  # |FR_calc - 1| below it: no magnetic scattering
 CHI_START = 0.1  # mu_B/T, a start value of a new susceptibility: zero gives no derivative step
 # start values of chi_11 (mu_B/T) tried for new magnetic atoms: the flip ratios
@@ -60,7 +66,18 @@ def take_experiment_crystals(cryspy_object, experiment: DataN) -> List[Crystal]:
 
 
 def flag_magnetic_crystal(crystal: Crystal) -> bool:
-    return crystal.is_attribute("space_group_symop_magn_operation")
+    return any(crystal.is_attribute(name) for name in (
+        "space_group_symop_magn_operation", "space_group_symop_magn_ssg_operation",
+        "atom_site_moment_fourier"))
+
+
+def flag_satellites(refln) -> bool:
+    """Reflections with fractional indices (satellites H = h ± k)."""
+    try:
+        index_hkl = numpy.array([refln.index_h, refln.index_k, refln.index_l], dtype=float)
+    except (AttributeError, TypeError, ValueError):
+        return False
+    return bool(numpy.any(numpy.abs(index_hkl - numpy.round(index_hkl)) > 1e-4))
 
 
 def flag_polarized_data(block) -> bool:
@@ -82,6 +99,8 @@ def take_experiment_kinds(cryspy_object, experiment: DataN) -> List[str]:
             l_kind.extend(["polarized", "flip_ratio"])
         else:
             l_kind.append("unpolarized")
+        if len(refln.items) > 0 and flag_satellites(refln):
+            l_kind.append("satellites")
     else:
         if isinstance(experiment, Pd):
             l_kind.extend(["powder", "powder_1d"])

@@ -44,6 +44,11 @@ its magnetic space group and the atoms of the asymmetric unit).
 
 The easiest way from a paramagnetic crystal with `space_group`:
 
+0. procedure `find_propagation_vectors`: the propagation vectors of the
+   measured satellites (fractional indices of the single-crystal
+   reflections, k and -k merged) with the number of their satellites in
+   every experiment; with several vectors they are added one after the
+   other (multi-k structure);
 1. method `report_irreps_of_k` of the crystal: the group of k, the characters
    of its irreducible representations Γ1, Γ2, ... (one-dimensional first,
    then those of dimension 2, 3, ...), the superspace group of each and the
@@ -55,11 +60,19 @@ The easiest way from a paramagnetic crystal with `space_group`:
    space group), procedure `rhochi_rank_magnetic_representations` (k,
    magnetic atoms, start moment in μB) adds k with every representation
    and every mode in a copy of the object, refines the allowed Fourier
-   components against all experiments and lists chi_sq/n, the number of
-   refined Fourier parameters and the moments, the best first;
-   `keep_best` keeps the best model in the object. The other parameters
-   keep their refinement flags; single-crystal data are calculated for one
-   magnetic domain;
+   components against all experiments and lists chi_sq/n, R_F2 of the
+   satellites of this k (not changed by the satellites of other vectors),
+   the number of refined Fourier parameters, the magnetic domains and the
+   moments, the best first. The sums of two one-dimensional representations
+   (Γ1⊕Γ2) are tried too (`try_superpositions`), and single-crystal
+   experiments get the magnetic domains of every model with equal fractions
+   (`with_domains`): the arms of the star of k change the satellites. The
+   recommended model has the fewest Fourier parameters among those with
+   chi_sq/n within 5 % of the best; `keep_best` keeps it (with its domains)
+   in the object. The other parameters keep their refinement flags: fix
+   the nuclear structure, the scale and the extinction from the nuclear
+   refinement, and give the experiments of one crystal the same scale
+   (equal marks, `40.5()s`), otherwise the size of the moments is lost;
 2. method `add_propagation_vector` (k, magnetic atoms, number of the
    representation, start moment, and `mode` for a multidimensional
    representation): converts the crystal; a magnetic atom without
@@ -70,7 +83,11 @@ The easiest way from a paramagnetic crystal with `space_group`:
    splits in the superspace group become several atoms (O1, O1_2, ...);
    method `report_magnetic_moments` then lists the moments of all magnetic
    atoms of the cell: the range of |M| over the cells and the kind of
-   modulation (amplitude-modulated, helix, cycloid, spiral);
+   modulation (amplitude-modulated, helix, cycloid, spiral); with several
+   propagation vectors also the total moment of every position (all waves
+   added), to compare with g·J of the free ion (9 μB for Tb3+). A crystal
+   with k gets a second vector by the same method (multi-k): the common
+   group is lower and may free components of the first wave;
 3. method `define_magnetic_domains` of a single-crystal experiment: the
    magnetic domains as `jana_twin` with equal fractions
    (`report_magnetic_domains` of the crystal lists them);
