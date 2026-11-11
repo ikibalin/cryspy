@@ -63,8 +63,10 @@ def test_mem_superspace_nonzero_k_kept():
 
 
 def test_mem_magnetization_density_superspace_k0():
-    """Same chi_sq as test_mem_magnetization_density_for_momemts (2.81)."""
+    """Same chi_sq as the magnetic space group description. 2.61 with the
+    twin domain (k, h, l), fraction 0.124 of main.rcif; MEM ignored the twin
+    before and gave 2.81."""
     obj = cryspy.load_file(F_NAME)
     take_crystal(obj).convert_to_superspace()
     res = cryspy.mempy_magnetization_density_reconstruction(obj)
-    assert res["chi_sq"] == pytest.approx(2.8104, abs=1e-3)
+    assert res["chi_sq"] == pytest.approx(2.6129, abs=1e-3)
