@@ -1,6 +1,6 @@
 ---
 title: Ordered magnetic structure (magnetic space group, mcif)
-keywords: magnetic structure, second propagation vector, multi-k, two k vectors, второй вектор распространения, superspace group, mcif, MAGNDATA, msCIF, суперпространственная группа, propagation vector, k vector, satellites, magnetic domains, irreducible representation, incommensurate, вектор распространения, сателлиты, магнитные домены, ordered moment, moment, mcif, magnetic space group, shubnikov, antiferromagnet, ferromagnet, symmform, магнитная структура, магнитный момент, магнитная группа
+keywords: magnetic structure, second propagation vector, multi-k, two k vectors, второй вектор распространения, superspace group, mcif, MAGNDATA, msCIF, суперпространственная группа, propagation vector, k vector, satellites, magnetic domains, irreducible representation, incommensurate, вектор распространения, сателлиты, магнитные домены, ordered moment, moment, mcif, magnetic space group, shubnikov, representation analysis, choose representation by data, выбор представления, chi_sq of representations, antiferromagnet, ferromagnet, symmform, магнитная структура, магнитный момент, магнитная группа
 categories: atom_site_moment, space_group_symop_magn_operation, space_group_symop_magn_centering, cell_wave_vector, atom_site_moment_fourier, atom_site_fourier_wave_vector, space_group_symop_magn_ssg_operation, space_group_symop_magn_ssg_centering, parent_space_group
 ---
 An ordered (commensurate) magnetic structure is described in the crystal data
@@ -36,7 +36,11 @@ Jana2006 load directly):
 
 A magnetic space group with `atom_site_moment` is the special case k = 0:
 method `convert_to_superspace` of the crystal writes it in the categories
-above (the moments become the cos components).
+above (the moments become the cos components). Refinement, flip ratios
+and MEM give the same results for both descriptions. A commensurate
+structure with k ≠ 0 is written in its magnetic supercell by
+`make_magnetic_supercell` (P1 with all atoms, or with `use_symmetry True`
+its magnetic space group and the atoms of the asymmetric unit).
 
 The easiest way from a paramagnetic crystal with `space_group`:
 
@@ -47,9 +51,22 @@ The easiest way from a paramagnetic crystal with `space_group`:
    multidimensional representation has several modes: the isotropy
    subgroups (order-parameter directions up to domains), each with its own
    superspace group, the largest first;
+   With measured data (the nuclear structure fitted in the paramagnetic
+   space group), procedure `rhochi_rank_magnetic_representations` (k,
+   magnetic atoms, start moment in μB) adds k with every representation
+   and every mode in a copy of the object, refines the allowed Fourier
+   components against all experiments and lists chi_sq/n, the number of
+   refined Fourier parameters and the moments, the best first;
+   `keep_best` keeps the best model in the object. The other parameters
+   keep their refinement flags; single-crystal data are calculated for one
+   magnetic domain;
 2. method `add_propagation_vector` (k, magnetic atoms, number of the
    representation, start moment, and `mode` for a multidimensional
-   representation): converts the crystal; atoms whose orbit
+   representation): converts the crystal; a magnetic atom without
+   `atom_site_scat` (crystal from a nuclear refinement) gets it from
+   `magnetic_ion` (as Tb3+) or from a charged `type_symbol`, with `lande`
+   or, when it is 0, g_J of Hund's rules for 4f ions (Tb3+: 1.5) and 2 for
+   the others; atoms whose orbit
    splits in the superspace group become several atoms (O1, O1_2, ...);
    method `report_magnetic_moments` then lists the moments of all magnetic
    atoms of the cell: the range of |M| over the cells and the kind of

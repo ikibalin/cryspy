@@ -78,7 +78,8 @@ def form_operation_xyz(rotation, translation) -> str:
                     for i in range(3))
 
 
-def calc_k_group_flags(op_rotation, k_vector, tolerance: float = TOLERANCE):
+def calc_k_group_flags(op_rotation, k_vector, tolerance: float = TOLERANCE,
+                       centring_translations=None):
     """Operations of the group of k: ``R^T k ≡ k`` modulo the reciprocal
     lattice (k transforms as a reciprocal vector, ``H' = R^T H``... with
     ``H.(R r) = (R^T H).r``).
@@ -89,6 +90,9 @@ def calc_k_group_flags(op_rotation, k_vector, tolerance: float = TOLERANCE):
         (9, n_s) rotations.
     k_vector : numpy.ndarray
         (3,) propagation vector in the reciprocal basis.
+    centring_translations : numpy.ndarray, optional
+        (3, n_c) centring translations: ``R^T k - k`` must be a vector of
+        the reciprocal lattice of the centred cell, not only integer.
 
     Returns
     -------
@@ -98,9 +102,17 @@ def calc_k_group_flags(op_rotation, k_vector, tolerance: float = TOLERANCE):
     rotation = numpy.asarray(op_rotation, dtype=float).reshape(3, 3, -1)
     k_vector = numpy.asarray(k_vector, dtype=float)
     k_rotated = (rotation * k_vector[:, na, na]).sum(axis=0)  # R^T k
-    difference = k_rotated - k_vector[:, na]
-    return numpy.all(numpy.abs(difference - numpy.round(difference)) < tolerance,
-                     axis=0)
+    return _is_reciprocal(k_rotated - k_vector[:, na], centring_translations, tolerance)
+
+
+def _is_reciprocal(vector, centring_translations, tolerance):
+    """Integer vectors (3, n) with integer products with the centrings."""
+    flag = numpy.all(numpy.abs(vector - numpy.round(vector)) < tolerance, axis=0)
+    if centring_translations is not None:
+        centring = numpy.asarray(centring_translations, dtype=float).reshape(3, -1)
+        product_t = centring.transpose() @ vector
+        flag = flag & numpy.all(numpy.abs(product_t - numpy.round(product_t)) < tolerance, axis=0)
+    return flag
 
 
 def calc_multiplication_table(op_rotation, op_translation, centring_translations):
@@ -652,7 +664,8 @@ def form_superspace_group(
             "centrings": l_text_centring}
 
 
-def calc_minus_k_flags(op_rotation, k_vector, tolerance: float = TOLERANCE):
+def calc_minus_k_flags(op_rotation, k_vector, tolerance: float = TOLERANCE,
+                       centring_translations=None):
     """Operations mapping k to -k: ``R^T k ≡ -k`` (and not to k).
 
     Parameters
@@ -670,9 +683,9 @@ def calc_minus_k_flags(op_rotation, k_vector, tolerance: float = TOLERANCE):
     rotation = numpy.asarray(op_rotation, dtype=float).reshape(3, 3, -1)
     k_vector = numpy.asarray(k_vector, dtype=float)
     k_rotated = (rotation * k_vector[:, na, na]).sum(axis=0)
-    total = k_rotated + k_vector[:, na]
-    flags = numpy.all(numpy.abs(total - numpy.round(total)) < tolerance, axis=0)
-    return flags & ~calc_k_group_flags(op_rotation, k_vector, tolerance)
+    flags = _is_reciprocal(k_rotated + k_vector[:, na], centring_translations, tolerance)
+    return flags & ~calc_k_group_flags(op_rotation, k_vector, tolerance,
+                                       centring_translations)
 
 
 def snap_k_vector(k_vector, max_denominator: int = 12, tolerance: float = 1e-3):
@@ -1022,3 +1035,103 @@ def combine_superspace_groups(l_operation_1, l_centring_1, l_operation_2, l_cent
 
     return {"operations": [algebraic(*element) for element in l_operation],
             "centrings": [algebraic(*element) for element in l_centring]}
+
+
+def calc_supercell_magnetic_space_group(
+        op_rotation, op_translation, n_cell, fract_xyz, atom_kind, moment,
+        cell_lengths, tolerance: float = 1e-4) -> dict:
+    """Magnetic space group of a commensurate structure in its supercell.
+
+    The candidates are the operations ``{R|t}`` of the (superspace) group
+    combined with the lattice translations L of the parent cell inside the
+    supercell: in the supercell axes ``R_s = N^-1 R N`` and ``t_s = N^-1
+    (t + L)`` (N = diag(n_cell)). A candidate is an operation of the
+    supercell group with the time reversal theta when it maps every atom on
+    an atom of the same kind and ``M(g r) = theta det(R) R M(r)`` for all
+    moments; with theta = -1 only when +1 does not fit. This is the
+    t = t0 section of the superspace group (the supercell structure itself
+    decides, so any phase of the modulation is treated alike).
+
+    Parameters
+    ----------
+    op_rotation, op_translation : numpy.ndarray
+        (9, n_s) and (3, n_s) operations of the parent cell (fractional),
+        centrings included.
+    n_cell : numpy.ndarray
+        (3,) integer multipliers of a, b, c.
+    fract_xyz : numpy.ndarray
+        (3, n) fractional positions of all atoms of the supercell
+        (supercell axes).
+    atom_kind : numpy.ndarray
+        (n,) int, atoms with different kinds are never mapped on each other.
+    moment : numpy.ndarray
+        (3, n) moments along a/|a|, b/|b|, c/|c| (μB); NaN for non-magnetic atoms.
+    cell_lengths : numpy.ndarray
+        (3,) a, b, c of the supercell (Å).
+    tolerance : float
+        Tolerance of the positions (fractions of the supercell) and of the
+        moments (μB).
+
+    Returns
+    -------
+    dict
+        ``rotation`` (9, n_g) int, ``translation`` (3, n_g) in [0, 1),
+        ``theta`` (n_g,) int, and ``representative`` (n,) bool: one atom
+        of every orbit of the group (the first one in the given order).
+    """
+    n_cell = numpy.asarray(n_cell, dtype=float)
+    fract_xyz = numpy.asarray(fract_xyz, dtype=float)
+    atom_kind = numpy.asarray(atom_kind)
+    moment = numpy.asarray(moment, dtype=float)
+    flag_magnetic = ~numpy.any(numpy.isnan(moment), axis=0)
+    moment_fract = numpy.where(flag_magnetic[na, :], moment, 0.) / numpy.asarray(
+        cell_lengths, dtype=float)[:, na]
+    lattice = numpy.stack(numpy.meshgrid(
+        *[numpy.arange(int(n)) for n in n_cell], indexing="ij"), axis=0).reshape(3, -1)
+    l_rotation, l_translation, l_theta, l_image = [], [], [], []
+    for i_op in range(op_rotation.shape[1]):
+        rotation = op_rotation[:, i_op].reshape(3, 3)
+        rotation_s = rotation * n_cell[na, :] / n_cell[:, na]
+        if not numpy.allclose(rotation_s, numpy.round(rotation_s), atol=1e-8):
+            continue  # R does not keep the supercell lattice
+        rotation_s = numpy.round(rotation_s)
+        for shift in lattice.transpose():
+            translation_s = numpy.mod((op_translation[:, i_op] + shift) / n_cell, 1.)
+            translation_s[numpy.isclose(translation_s, 1., atol=1e-8)] = 0.
+            xyz_new = rotation_s @ fract_xyz + translation_s[:, na]
+            difference = xyz_new[:, :, na] - fract_xyz[:, na, :]
+            flag_match = numpy.all(
+                numpy.abs(difference - numpy.round(difference)) < tolerance, axis=0)
+            flag_match &= atom_kind[:, na] == atom_kind[na, :]
+            if not numpy.all(flag_match.sum(axis=1) == 1):
+                continue
+            image = numpy.argmax(flag_match, axis=1)
+            m_new = numpy.linalg.det(rotation_s) * rotation_s @ moment_fract
+            m_image = moment_fract[:, image]
+            l_theta_ok = [theta for theta in (1, -1) if numpy.allclose(
+                theta * m_new[:, flag_magnetic] * numpy.asarray(cell_lengths)[:, na],
+                m_image[:, flag_magnetic] * numpy.asarray(cell_lengths)[:, na],
+                atol=tolerance)]
+            if len(l_theta_ok) == 0:
+                continue
+            key = (tuple(rotation_s.astype(int).flatten()),
+                   tuple(numpy.round(translation_s, 6)), l_theta_ok[0])
+            if key in [(tuple(r), tuple(numpy.round(t, 6)), th) for r, t, th in
+                       zip(l_rotation, l_translation, l_theta)]:
+                continue
+            l_rotation.append(rotation_s.astype(int).flatten())
+            l_translation.append(translation_s)
+            l_theta.append(l_theta_ok[0])
+            l_image.append(image)
+    representative = numpy.zeros(fract_xyz.shape[1], dtype=bool)
+    flag_done = numpy.zeros(fract_xyz.shape[1], dtype=bool)
+    for i_atom in range(fract_xyz.shape[1]):
+        if flag_done[i_atom]:
+            continue
+        representative[i_atom] = True
+        for image in l_image:
+            flag_done[image[i_atom]] = True
+    return {"rotation": numpy.stack(l_rotation, axis=1),
+            "translation": numpy.stack(l_translation, axis=1),
+            "theta": numpy.array(l_theta, dtype=int),
+            "representative": representative}

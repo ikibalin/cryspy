@@ -24,6 +24,9 @@ from cryspy.A_functions_base.mempy import (
     renormailize_density_ani_2,
     calc_model_value_by_precalculated_data,
     calc_chi_atoms,
+    calc_full_grid_auc_index,
+    calc_point_amplitude_k,
+    calc_mem_m_k,
 )
 
 from cryspy.A_functions_base.unit_cell import (
@@ -56,8 +59,78 @@ from cryspy.A_functions_base.multipoles import calc_multipole_density
 from cryspy.A_functions_base.progress import PROGRESS
 
 from cryspy.procedure_mempy.mempy_den_file import save_density_to_den_file
+from cryspy.A_functions_base.structure_factor_magnetic_k import (
+    calc_magnetic_space_group_of_k0_by_dictionary,
+    calc_moment_modulation_by_dictionary)
 
 logger = logging.getLogger(__name__)
+
+
+def form_mem_crystal_dictionary(dict_crystal: dict) -> dict:
+    """Crystal dictionary in the form used by MEM.
+
+    MEM of ordered moments works with the magnetic space group of the cell
+    (``full_mcif_elems`` with the time reversal, ``atom_ordered_*``). A
+    crystal given by a magnetic superspace group with k = 0 (as after
+    ``Crystal.convert_to_superspace``) is the same structure: its
+    magnetic space group and moments are taken from the superspace
+    operations and the cos components of atom_site_moment_Fourier. With
+    k ≠ 0 (commensurate or not) the dictionary is kept: the density of
+    every magnetic atom is reconstructed in the cell and its moments are
+    modulated by the Fourier amplitudes (``calc_mem_m_k``). Other
+    dictionaries are returned unchanged.
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal dictionary (``Crystal.get_dictionary()``).
+
+    Returns
+    -------
+    dict
+        The dictionary itself or a copy without the superspace keys.
+    """
+    if "magnetic_k_vector" not in dict_crystal.keys():
+        return dict_crystal
+    if not numpy.allclose(dict_crystal["magnetic_k_vector"], 0., atol=1e-5):
+        return dict_crystal  # MEM with the modulated moments (calc_mem_m_k)
+    dict_mem = {key: value for key, value in dict_crystal.items()
+                if not (key.startswith("magnetic_k_") or "atom_fourier" in key)}
+    dict_mem.update(calc_magnetic_space_group_of_k0_by_dictionary(dict_crystal))
+    if "atom_ordered_label" in dict_mem.keys() and "mag_atom_label" in dict_mem.keys():
+        flag_2d = numpy.expand_dims(dict_mem["atom_ordered_label"], axis=0) == \
+            numpy.expand_dims(dict_mem["mag_atom_label"], axis=1)
+        args = numpy.argwhere(flag_2d)
+        dict_mem["mag_atom_ordered_index"] = args[args[:, 1].argsort()][:, 0]
+    return dict_mem
+
+
+def form_grid_amplitudes_k(dict_crystal: dict, mag_atom_label, n_abc) -> list:
+    """Amplitudes of the modulated moments of every magnetic atom on the grid.
+
+    For every atom of ``mag_atom_label`` and every propagation vector of
+    its Fourier components: ``(k_vector, amplitude (3, n_grid))``, see
+    ``calc_point_amplitude_k`` (grid order of ``calc_mem_m_k``).
+    """
+    modulation = calc_moment_modulation_by_dictionary(dict_crystal)
+    n_abc = numpy.asarray(n_abc, dtype=int)
+    index_grid = numpy.stack(numpy.meshgrid(
+        *[numpy.arange(n) for n in n_abc], indexing="ij"), axis=0).reshape(3, -1)
+    fract_grid = index_grid / n_abc[:, numpy.newaxis]
+    labels = numpy.array(modulation["label"], dtype=str)
+    l_atom_amplitude = []
+    for label in mag_atom_label:
+        l_k_amplitude = []
+        for i_k in numpy.unique(modulation["k_index"][labels == label]):
+            flag = (labels == label) & (modulation["k_index"] == i_k)
+            k_vector = modulation["k_vectors"][:, i_k]
+            amplitude = calc_point_amplitude_k(
+                fract_grid, dict_crystal["unit_cell_parameters"],
+                modulation["fract_xyz"][:, flag], modulation["amplitude"][:, flag],
+                k_vector)
+            l_k_amplitude.append((k_vector, amplitude))
+        l_atom_amplitude.append(l_k_amplitude)
+    return l_atom_amplitude
 
 
 def calc_preliminary_information_by_dictionary(
@@ -97,6 +170,7 @@ def calc_preliminary_information_by_dictionary(
     atom_fract_xyz = dict_crystal["atom_fract_xyz"]
     atom_multiplicity = dict_crystal["atom_multiplicity"]
     flag_moment_ordered = False
+    flag_moment_k = False
     if channel_ani:
 
         if "atom_para_label" in dict_crystal.keys():
@@ -104,6 +178,11 @@ def calc_preliminary_information_by_dictionary(
             atom_para_susceptibility = dict_crystal["atom_para_susceptibility"]
             atom_para_sc_chi = dict_crystal["atom_para_sc_chi"]
             mag_atom_label = atom_para_label
+        elif "atom_fourier_index" in dict_crystal.keys():
+            # moments modulated by the propagation vectors (k != 0)
+            flag_moment_k = True
+            mag_atom_label = numpy.array(
+                list(dict.fromkeys(dict_crystal["atom_fourier_label"])), dtype=str)
         else:
             atom_ordered_label = dict_crystal["atom_ordered_label"]
             atom_ordered_m = dict_crystal["atom_ordered_moment_crystalaxis_dn"]
@@ -187,7 +266,13 @@ def calc_preliminary_information_by_dictionary(
     # **Susceptibility tensor $(3\times 3)$ for each point in magnetic basin**
     if channel_ani:
         # does not depend from magnetic atom. Thus, common for all magnetic atoms
-        if flag_moment_ordered:
+        if flag_moment_k:
+            logger.info("Amplitudes of the modulated moments on the grid...")
+            dict_in_out["grid_auc_index"] = calc_full_grid_auc_index(
+                index_auc, n_abc, full_symm_elems)
+            dict_in_out["amplitude_channel_ani_k"] = form_grid_amplitudes_k(
+                dict_crystal, mag_atom_label, n_abc)
+        elif flag_moment_ordered:
             logger.info("Calculation of restriction on moments...")
             # atom_symm_elems_auc_m is given for all magnetic atoms [14, Npoint, Nmag_atom]
             # atom_label_auc_ani is not needed
@@ -427,7 +512,13 @@ def calc_preliminary_information_by_dictionary(
             else:
                 dict_in_out_chi = {}
                 diffrn_dict_in_out["dict_in_out_chi"] = dict_in_out_chi
-            if flag_moment_ordered:
+            if flag_moment_k:
+                mem_ani = calc_mem_m_k(
+                    index_hkl, unit_cell_parameters, n_abc,
+                    dict_in_out["grid_auc_index"],
+                    dict_in_out["amplitude_channel_ani_k"],
+                    volume_unit_cell, index_auc.shape[1])
+            elif flag_moment_ordered:
                 point_ordered = dict_in_out["moment_channel_ani"]
                 mem_ani = calc_mem_m(
                     index_hkl,
@@ -490,6 +581,10 @@ def calc_preliminary_information_by_dictionary(
             diffrn_dict_in_out,
             flag_use_precalculated_data=flag_use_precalculated_data,
         )
+        # satellites (fractional H) have no nuclear part
+        flag_integer_hkl = numpy.all(
+            numpy.abs(index_hkl - numpy.round(index_hkl)) < 1e-4, axis=0)
+        f_nucl = f_nucl * flag_integer_hkl
         diffrn_dict_in_out["f_nucl"] = f_nucl
 
         flag_pol = "flip_ratio_es" in dict_diffrn.keys()
@@ -1138,6 +1233,10 @@ def mempy_parameters_refinement(
             diffrn_dict_in_out,
             flag_use_precalculated_data=flag_use_precalculated_data,
         )
+        # satellites (fractional H) have no nuclear part
+        flag_integer_hkl = numpy.all(
+            numpy.abs(index_hkl - numpy.round(index_hkl)) < 1e-4, axis=0)
+        f_nucl = f_nucl * flag_integer_hkl
         diffrn_dict_in_out["f_nucl"] = f_nucl
 
         dict_in_out["dict_in_out_" + dict_diffrn["type_name"]] = (

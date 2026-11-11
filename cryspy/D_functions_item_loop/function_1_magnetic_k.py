@@ -66,7 +66,7 @@ def take_k_group_by_operations(parent_rotation, parent_translation, centring, k_
     operations (9, n), (3, n) and centring translations (3, n_c); the same
     dict as :func:`take_k_group`."""
     k_vector = numpy.asarray(k_vector, dtype=float)
-    flags = calc_k_group_flags(parent_rotation, k_vector)
+    flags = calc_k_group_flags(parent_rotation, k_vector, centring_translations=centring)
     rotation, translation = parent_rotation[:, flags], parent_translation[:, flags]
     irreps = calc_one_dimensional_irreps(rotation, translation, centring, k_vector)
     irreps_nd = [matrices for matrices in calc_small_irreps(
@@ -93,6 +93,18 @@ def take_isotropy_subgroups(k_group: dict, number: int, k_vector) -> list:
             k_group["rotation"], k_group["translation"], k_group["centring"],
             k_vector, matrices)
     return k_group["isotropy"][number]
+
+
+def take_irrep_candidates(k_group: dict, k_vector) -> list:
+    """(number, mode) of every one-dimensional representation (mode None)
+    and of every isotropy subgroup of the multidimensional ones, in the
+    order of report_irreps."""
+    n_one = len(k_group["irreps"])
+    l_candidate = [(number, None) for number in range(1, n_one + 1)]
+    for number in range(n_one + 1, take_number_of_irreps(k_group) + 1):
+        n_mode = len(take_isotropy_subgroups(k_group, number, k_vector))
+        l_candidate += [(number, mode) for mode in range(1, n_mode + 1)]
+    return l_candidate
 
 
 def form_phase_by_character(chi):
@@ -211,9 +223,11 @@ def form_superspace_by_irrep(k_group: dict, k_vector, irrep,
     arguments = (k_group["rotation"][:, flags], k_group["translation"][:, flags],
                  phase, k_group["centring"], k_vector)
     ssg, minus_k = None, False
-    flags = calc_minus_k_flags(k_group["parent_rotation"], k_vector)
+    flags = calc_minus_k_flags(k_group["parent_rotation"], k_vector,
+                               centring_translations=k_group["centring"])
     if (use_minus_k_operations and numpy.any(flags)
-            and not is_k_equivalent_to_minus_k(k_vector)):
+            and not is_k_equivalent_to_minus_k(
+                k_vector, centring_translations=k_group["centring"])):
         i_minus = int(numpy.flatnonzero(flags)[0])
         ssg = form_superspace_group(
             *arguments, minus_rotation=k_group["parent_rotation"][:, i_minus],
@@ -309,8 +323,95 @@ def report_irreps(k_group: dict, k_vector, atoms: dict,
     return "\n".join(ls_out)
 
 
+LANTHANIDES = ("Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho",
+               "Er", "Tm", "Yb")
+
+
+def calc_lande_factor(ion: str) -> float:
+    """Lande factor of a magnetic ion: g_J of the Hund's rules ground
+    multiplet for a 4f ion (Tb3+: 1.5), the spin-only value 2 for the other
+    ions (orbital moment quenched by the crystal field, 3d ions).
+    g_J = 1 + (J(J+1) + S(S+1) - L(L+1)) / (2 J(J+1)) (Jensen, Mackintosh,
+    "Rare Earth Magnetism" (1991), table 1.1)."""
+    element = "".join(char for char in ion if char.isalpha())
+    digits = "".join(char for char in ion if char.isdigit())
+    if element not in LANTHANIDES or "+" not in ion:
+        return 2.
+    # 4f electrons: Ce (Z = 58) has [Xe]4f1 5d1 6s2, so Ce3+ is 4f1
+    n_f = LANTHANIDES.index(element) + 4 - int(digits or 0)
+    if not 0 < n_f < 14:
+        return 2.
+    # Hund's rules for n_f electrons of l = 3
+    m_l = [3, 2, 1, 0, -1, -2, -3]
+    n_up = min(n_f, 7)
+    spin = 0.5 * (n_up - (n_f - n_up))
+    orbital = abs(sum(m_l[:n_up]) + sum(m_l[:n_f - n_up]))
+    total = abs(orbital - spin) if n_f < 7 else orbital + spin
+    if total == 0.:
+        return 2.
+    j_sq = total * (total + 1.)
+    return round(1. + (j_sq + spin * (spin + 1.) - orbital * (orbital + 1.)) / (2. * j_sq), 6)
+
+
+def add_magnetic_scattering(crystal, labels: list, magnetic_ion: str = "",
+                            lande: float = 0.) -> list:
+    """Add atom_site_scat rows (magnetic ion and Lande factor) for the
+    magnetic atoms that have none; return the labels added.
+
+    The ion is ``magnetic_ion`` or, when it is empty, the type_symbol of
+    the atom when it has a charge (Tb3+). ``lande`` 0 takes
+    :func:`calc_lande_factor`. Raises CrysPyError when the ion is unknown
+    or has no magnetic form factor.
+    """
+    from cryspy.A_functions_base.magnetic_form_factor import get_j0_j2_parameters
+    from cryspy.C_item_loop_classes.cl_2_atom_site_scat import (
+        AtomSiteScat, AtomSiteScatL)
+    l_scat = (list(crystal.atom_site_scat.label)
+              if crystal.is_attribute("atom_site_scat") else [])
+    l_missing = [label for label in labels if label not in l_scat]
+    if not l_missing:
+        return []
+    l_item = []
+    for label in l_missing:
+        ion = magnetic_ion.strip()
+        if ion == "":
+            type_symbol = str(crystal.atom_site[label].type_symbol)
+            ion = type_symbol if ("+" in type_symbol or "-" in type_symbol) else ""
+        if ion == "":
+            raise CrysPyError(
+                f"The magnetic atom {label} needs its magnetic ion for the form "
+                "factor: give magnetic_ion (as Tb3+ or Fe3+) or add atom_site_scat.")
+        j0_parameters = get_j0_j2_parameters(numpy.array([ion]))[0]
+        if numpy.allclose(j0_parameters, 0.):
+            raise CrysPyError(
+                f"No magnetic form factor of the ion '{ion}' in the database; "
+                "give magnetic_ion as Tb3+, Fe3+, Mn2+.")
+        value = float(lande) if lande else calc_lande_factor(ion)
+        l_item.append(AtomSiteScat(label=label, type_symbol=ion, lande=value))
+    if crystal.is_attribute("atom_site_scat"):
+        crystal.atom_site_scat.items.extend(l_item)
+    else:
+        loop = AtomSiteScatL()
+        loop.items = l_item
+        crystal.add_items([loop])
+    return [f"{item.label} {item.type_symbol} (Lande {item.lande:g})" for item in l_item]
+
+
 def split_labels(text: str) -> list:
     return [label for label in re.split(r"[\s,;]+", text.strip()) if label]
+
+
+def take_atom_positions(crystal, labels) -> dict:
+    """Fractional positions (3,) of the atoms of atom_site with the given
+    labels; a clear error names the labels that are not there."""
+    d_site = {str(item.label): item for item in crystal.atom_site.items}
+    missing = [label for label in labels if label not in d_site]
+    if missing:
+        raise CrysPyError(
+            f"No atom {', '.join(missing)} in atom_site; the labels are "
+            f"{', '.join(d_site.keys())}.")
+    return {label: numpy.array([d_site[label].fract_x, d_site[label].fract_y,
+                                d_site[label].fract_z], dtype=float) for label in labels}
 
 
 def _rotate_aniso(item, rotation, unit_cell_parameters):
@@ -884,10 +985,7 @@ def add_wave_to_superspace(crystal, k_new, l_magnetic, irrep, moment: float,
     k_group = take_k_group_by_operations(rotation, translation, centring, k_new)
     numbers = take_irrep_numbers(irrep, take_number_of_irreps(k_group), len(k_group["irreps"]))
     irrep_name = form_irrep_name(numbers, mode if numbers[0] > len(k_group["irreps"]) else None)
-    atoms = {label: numpy.array([crystal.atom_site[label].fract_x,
-                                 crystal.atom_site[label].fract_y,
-                                 crystal.atom_site[label].fract_z], dtype=float)
-             for label in l_magnetic}
+    atoms = take_atom_positions(crystal, l_magnetic)
     report = report_irreps(k_group, k_new, atoms, use_minus_k_operations)
     try:
         ssg_new = form_superspace_by_irrep(k_group, k_new, irrep, use_minus_k_operations, mode)
