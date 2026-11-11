@@ -324,3 +324,21 @@ def test_refinement_of_the_shape():
     assert "diffrn_t1p8nuc.exptl_crystal.size_min" in result["parameter_path"]
     assert diffrn.exptl_crystal.size_min_sigma > 0.
     assert diffrn.exptl_crystal.size_min != 0.5
+
+
+def test_twins_of_the_laue_class_keep_equivalents():
+    """Twin laws that permute the axes (a <-> c twins of a nearly
+    tetragonal orthorhombic crystal, a rotation of 90 degrees about b, a
+    cyclic permutation) map the class mmm onto itself, so the equivalents
+    stay equivalent; a shear does not."""
+    from cryspy.procedure_rhochi.rhochi_absorption import are_twins_laue_invariant
+    l_sign = [numpy.diag([sx, sy, sz]) for sx in (1, -1) for sy in (1, -1) for sz in (1, -1)]
+    rotations = numpy.array(l_sign, dtype=float)
+    swap_ac = numpy.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]], dtype=float)
+    rotation_b = numpy.array([[0, 0, -1], [0, 1, 0], [1, 0, 0]], dtype=float)
+    three_fold = numpy.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]], dtype=float)
+    assert are_twins_laue_invariant(swap_ac.reshape(9, 1), rotations)
+    assert are_twins_laue_invariant(numpy.stack([swap_ac.ravel(), rotation_b.ravel()], 1), rotations)
+    assert are_twins_laue_invariant(three_fold.reshape(9, 1), rotations)  # permutes axes: invariant
+    shear = numpy.array([[1, 1, 0], [0, 1, 0], [0, 0, 1]], dtype=float)
+    assert not are_twins_laue_invariant(shear.reshape(9, 1), rotations)

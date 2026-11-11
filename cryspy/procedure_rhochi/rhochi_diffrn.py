@@ -257,7 +257,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     if not numpy.all(flag_integer_hkl):
         f_nucl = f_nucl * flag_integer_hkl
         for key, value in dder_f_nucl.items():
-            dder_f_nucl[key] = value * flag_integer_hkl
+            if value is not None:  # None: the parameter is not refined
+                dder_f_nucl[key] = value * flag_integer_hkl
 
     flag_f_m_perp = flag_sft_ccs or flag_magnetic_field or flag_eq_ccs or flag_f_m_perp_o_ccs or \
         flag_f_m_perp_k

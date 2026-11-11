@@ -40,6 +40,11 @@ def calc_chi_sq_by_signal(
         (2/sigma^2); both have the shape of the signal and are zero at
         the excluded points and at the clipped residuals.
     """
+    if included_points is not None:
+        # excluded points may have no sigma (0): they do not enter chi_sq
+        shape = numpy.broadcast_shapes(numpy.shape(signal_exp), numpy.shape(signal_model),
+                                       numpy.shape(signal_sigma), numpy.shape(included_points))
+        signal_sigma = numpy.where(numpy.broadcast_to(included_points, shape), signal_sigma, 1.)
     residual = (signal_exp - signal_model) / signal_sigma
     if included_points is None:
         included_points = numpy.ones(residual.shape, dtype=bool)

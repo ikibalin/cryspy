@@ -194,6 +194,31 @@ def calc_laue_rotations(dict_crystal: dict):
     return numpy.unique(numpy.concatenate([m_r, -m_r], axis=0), axis=0)
 
 
+def are_twins_laue_invariant(twin_matrices, rotations) -> bool:
+    """True when every twin law M (h' = M h) maps the Laue class onto
+    itself (M R M^-1 is a rotation of the class for every R): then the
+    twinned intensities of equivalent reflections stay equal, as for the
+    a <-> c twins of a nearly tetragonal orthorhombic crystal.
+
+    Parameters
+    ----------
+    twin_matrices : array (9, n_twin)
+        Twin laws row by row (JanaTwinL.get_dictionary, 'twin_matrices').
+    rotations : array (n, 3, 3)
+        Rotations of the Laue class acting on hkl as h' = R^T h.
+    """
+    m_twin = numpy.moveaxis(numpy.asarray(twin_matrices, dtype=float).reshape(3, 3, -1), 2, 0)
+    m_hkl = numpy.transpose(rotations, (0, 2, 1))
+    for m in m_twin:
+        if abs(numpy.linalg.det(m)) < 1e-8:
+            return False
+        conjugated = numpy.einsum("ij,njk,kl->nil", m, m_hkl, numpy.linalg.inv(m))
+        diff = numpy.abs(conjugated[:, na, :, :] - m_hkl[na, :, :, :]).max(axis=(2, 3))
+        if not numpy.all(diff.min(axis=1) < 1e-6):
+            return False
+    return True
+
+
 def group_equivalents(index_hkl, rotations):
     """Index of the group of symmetry equivalent reflections of each hkl."""
     equiv = numpy.round(numpy.einsum("rji,jn->nri", rotations, numpy.asarray(index_hkl, float)),
@@ -392,12 +417,15 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
         ls_line.append("Intensities: the scale factor is fitted again with the correction; a sphere "
                        "changes intensities with 2theta only and correlates with B_iso.")
         e_in, e_out, flag_reachable = calc_beam_directions_of_dict(dict_diffrn, unit_cell_parameters)
-        groups = group_equivalents(dict_diffrn["index_hkl"], calc_laue_rotations(dict_crystal))
-        # twin domains and magnetic satellites (fractional hkl) do not follow the
-        # Laue class of the crystal: they are left out of the test
+        rotations = calc_laue_rotations(dict_crystal)
+        groups = group_equivalents(dict_diffrn["index_hkl"], rotations)
+        # magnetic satellites (fractional hkl) do not follow the Laue class of
+        # the crystal, nor twin domains whose laws change the class: they are
+        # left out of the test
         use = included & flag_reachable & numpy.all(
             numpy.abs(dict_diffrn["index_hkl"] - numpy.round(dict_diffrn["index_hkl"])) < 1e-4, axis=0)
-        if "twin_fraction" in dict_diffrn:
+        if "twin_fraction" in dict_diffrn and not are_twins_laue_invariant(
+                dict_diffrn["twin_matrices"], rotations):
             use = numpy.zeros_like(use)
         d_test = test_absorption_anisotropy(
             exp_value[use], exp_sigma[use], groups[use], e_in[:, use], e_out[:, use])
