@@ -634,6 +634,8 @@ class Diffrn(DataN):
             self.extinction.radius = ddict_diffrn["extinction_radius"]
         if "phase_scale" in keys:
             self.phase.scale = ddict_diffrn["phase_scale"]
+        if "c_lambda2" in keys and self.is_attribute("setup"):
+            self.setup.ratio_lambdaover2 = float(numpy.atleast_1d(ddict_diffrn["c_lambda2"])[0])
 
         if len(parameter_label) > 0:
             for name, sigma in zip(l_parameter_name, l_sigma):
@@ -661,6 +663,8 @@ class Diffrn(DataN):
                     self.extinction.q_kl_sigma = float(sigma)
                 if name[0] == "phase_scale":
                     self.phase.scale_sigma = float(sigma)
+                if name[0] == "c_lambda2":
+                    self.setup.ratio_lambdaover2_sigma = float(sigma)
                 if name[0] == "twin_fraction":
                     self.jana_twin.items[name[1][0]].fraction_sigma = float(
                         sigma
