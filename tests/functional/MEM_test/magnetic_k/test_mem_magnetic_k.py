@@ -262,3 +262,72 @@ def test_mem_incommensurate():
     intensity_calc = numpy.array(obj.diffrn_exp1.diffrn_refln.intensity_calc)
     flag_satellite = numpy.abs(numpy.array(obj.diffrn_exp1.diffrn_refln.index_h) % 1) > 1e-4
     assert intensity_calc[flag_satellite].max() > 0.05
+
+
+def test_mem_reflection_without_sigma_is_left_out():
+    """A reflection written as "0 0" (not measured) has no weight: before,
+    its sigma 0 gave chi_sq inf in the first iteration and nan after it."""
+    rcif = form_rcif("k_half") + "0.5 2 0.5 0.0 0.0\n"
+    with pytest.warns(UserWarning, match="no positive sigma"):
+        obj = cryspy.str_to_globaln(rcif)
+        res = cryspy.mempy_magnetization_density_reconstruction(obj)
+    assert numpy.isfinite(res["chi_sq"])
+    assert res["chi_sq"] < 1.
+
+
+TWIN = """
+loop_
+_jana_twin_id
+_jana_twin_matrix[1][1]
+_jana_twin_matrix[1][2]
+_jana_twin_matrix[1][3]
+_jana_twin_matrix[2][1]
+_jana_twin_matrix[2][2]
+_jana_twin_matrix[2][3]
+_jana_twin_matrix[3][1]
+_jana_twin_matrix[3][2]
+_jana_twin_matrix[3][3]
+_jana_twin_fraction
+1   1 0 0   0 -1 0   0 0 1   0.4
+"""
+
+
+def form_rcif_twin(case_name: str) -> str:
+    """Intensities of two domains (h, k, l) and (h, -k, l), fraction 0.4 of
+    the second one, by RhoChi."""
+    hkl = form_reflections(case_name)
+    crystal = form_crystal(case_name)
+    head, loop = EXPERIMENT.split("\nloop_\n")
+    experiment = (head + TWIN + "\nloop_\n" + loop).format(
+        ub_11=1. / CELL[0], ub_22=1. / CELL[1], ub_33=1. / CELL[2], scale=10.)
+    rows = [f"{h:.10g} {k:.10g} {l:.10g} 1.0 0.03" for h, k, l in hkl]
+    obj = cryspy.str_to_globaln(MEM + crystal + experiment + "\n".join(rows) + "\n")
+    cryspy.rhochi_no_refinement(obj)
+    intensity = numpy.array(obj.diffrn_exp1.diffrn_refln.intensity_calc)
+    rows = [f"{h:.10g} {k:.10g} {l:.10g} {value:.6f} {0.02 * value + 0.01:.6f}"
+            for (h, k, l), value in zip(hkl, intensity)]
+    return MEM + crystal + experiment + "\n".join(rows) + "\n"
+
+
+def test_mem_twin_domains():
+    """MEM sums the intensities of the domains with their fractions as
+    RhoChi does: the prior density of the RhoChi moments describes the
+    twinned data, and the reconstruction converges."""
+    rcif = form_rcif_twin("k_half")
+    obj = cryspy.str_to_globaln(rcif)
+    res = cryspy.mempy_magnetization_density_reconstruction(obj)
+    assert res["chi_sq"] < 1.
+    intensity_calc = numpy.array(obj.diffrn_exp1.diffrn_refln.intensity_calc)
+    intensity = numpy.array(obj.diffrn_exp1.diffrn_refln.intensity)
+    flag_satellite = numpy.abs(numpy.array(obj.diffrn_exp1.diffrn_refln.index_h) % 1) > 1e-4
+    numpy.testing.assert_allclose(
+        intensity_calc[flag_satellite], intensity[flag_satellite], rtol=0.1, atol=0.05)
+
+
+def test_uniform_prior_without_electron_configuration_warns():
+    rcif = form_rcif("k_half").replace(
+        "loop_\n_atom_electron_configuration_label\n_atom_electron_configuration_core\nFe1 3d5\n", "")
+    assert "_atom_electron_configuration" not in rcif
+    dict_obj = cryspy.str_to_globaln(rcif).get_dictionary()
+    with pytest.warns(UserWarning, match="atom_electron_configuration"):
+        calc_prior_f_m_perp(dict_obj["crystal_phase"], dict_obj["mem_parameters"], dict_obj["diffrn_exp1"])

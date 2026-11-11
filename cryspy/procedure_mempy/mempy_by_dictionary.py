@@ -5,6 +5,7 @@ import scipy
 import scipy.optimize
 
 from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
+from cryspy.exceptions import CrysPyWarning
 from cryspy.A_functions_base.symmetry_elements import (
     calc_asymmetric_unit_cell_indexes,
 )
@@ -48,7 +49,7 @@ from cryspy.A_functions_base.extinction import (
 )
 from cryspy.A_functions_base.orbital_functions import calc_density_spherical
 
-from cryspy.A_functions_base.matrix_operations import calc_vv_as_v1_v2_v1
+from cryspy.A_functions_base.matrix_operations import calc_m_v, calc_vv_as_v1_v2_v1
 
 from cryspy.A_functions_base.function_1_error_simplex import (
     error_estimation_simplex,
@@ -132,6 +133,55 @@ def form_grid_amplitudes_k(dict_crystal: dict, mag_atom_label, n_abc) -> list:
         l_atom_amplitude.append(l_k_amplitude)
     return l_atom_amplitude
 
+
+
+
+def take_twin_domains(dict_diffrn):
+    """Fractions of the twin domains (the first one = 1 - sum of the others)
+    and the indices of every domain, as in RhoChi (rhochi_diffrn.py): each
+    twin law maps the measured hkl to the hkl of its domain. Magnetic
+    domains of define_magnetic_domains are twins of this kind.
+
+    Returns
+    -------
+    twin_fraction : numpy.ndarray, shape (n_domain,)
+    index_hkl_domains : numpy.ndarray, shape (3, n_domain * n_hkl)
+        Blocks of n_hkl indices, the measured ones first.
+    """
+    index_hkl = dict_diffrn["index_hkl"]
+    if "twin_fraction" not in dict_diffrn.keys():
+        return numpy.ones((1,), dtype=float), index_hkl
+    twin_fraction = dict_diffrn["twin_fraction"]
+    twin_fraction = numpy.concatenate(([1. - twin_fraction.sum()], twin_fraction))
+    l_index_hkl = [index_hkl] + [
+        calc_m_v(twin_m, index_hkl)[0] for twin_m in dict_diffrn["twin_matrices"].transpose()]
+    return twin_fraction, numpy.concatenate(l_index_hkl, axis=1)
+
+
+def sum_twin_domains(value_domains: numpy.ndarray, twin_fraction: numpy.ndarray) -> numpy.ndarray:
+    """Sum over the domains of a value of shape (n_domain * n_hkl, ...) with
+    the domain blocks along axis 0, weighted by the fractions."""
+    n_domain = twin_fraction.size
+    value = value_domains.reshape((n_domain, -1) + value_domains.shape[1:])
+    return numpy.tensordot(twin_fraction, value, axes=(0, 0))
+
+def take_included_reflections(dict_diffrn) -> numpy.ndarray:
+    """Reflections of the experiment that enter chi_sq: not excluded by the
+    user and with a positive sigma (see DiffrnReflnL.get_dictionary)."""
+    n_hkl = dict_diffrn["index_hkl"].shape[1]
+    return numpy.logical_not(dict_diffrn.get("flip_ratio_excluded", numpy.zeros(n_hkl, dtype=bool)))
+
+
+def form_exp_value_sigma(l_exp_value_sigma: list, l_included: list):
+    """Joined values and sigmas of all experiments with the mask of the
+    included reflections. Excluded reflections get value 0 and sigma 1, so
+    that they give finite zero terms (sigma 0 gave chi_sq inf, then nan)."""
+    exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)
+    flag_included = numpy.concatenate(l_included, axis=0)
+    flag_bad = numpy.logical_not(flag_included)
+    exp_value_sigma[0, flag_bad] = 0.
+    exp_value_sigma[1, flag_bad] = 1.
+    return exp_value_sigma, flag_included
 
 def calc_preliminary_information_by_dictionary(
     dict_crystal, dict_mem_parameters, l_dict_diffrn, dict_in_out
@@ -391,7 +441,14 @@ def calc_preliminary_information_by_dictionary(
                     density_ani_prior[:, ind_ordered] = den_atom
                     logger.info(f"Prior density of {label} in channel ani is spherical.")
                 else:
-                    logger.info(f"BUT! Prior density of {label} in channel ani is uniform (no information about electron density configuration).")
+                    # a density spread over the whole cell has almost no Fourier
+                    # components: the MEM starts from nearly zero magnetic intensity
+                    warnings.warn(
+                        f"Prior density of {label} in channel ani is uniform: its electron "
+                        "configuration is not given. Give it in the loop atom_electron_configuration "
+                        f"(_atom_electron_configuration_label {label}, _atom_electron_configuration_core, "
+                        "e.g. 4f8 for Tb3+) to start from the core density.",
+                        CrysPyWarning, stacklevel=2)
                     density_ani_prior[:, ind_ordered] = (
                         density_ani_prior_uniform[:, ind_ordered]
                     )
@@ -438,7 +495,7 @@ def calc_preliminary_information_by_dictionary(
 
     # **Input information about experiments**
     flag_use_precalculated_data = False
-    l_exp_value_sigma = []
+    l_exp_value_sigma, l_included = [], []
     l_mem_col, l_mem_ani, l_mem_nucl = [], [], []
     logger.info(f"Number of experiments is {len(l_dict_diffrn):}.")
     for dict_diffrn in l_dict_diffrn:
@@ -452,7 +509,12 @@ def calc_preliminary_information_by_dictionary(
                 diffrn_dict_in_out
             )
 
-        index_hkl = dict_diffrn["index_hkl"]
+        index_hkl_measured = dict_diffrn["index_hkl"]
+        twin_fraction, index_hkl = take_twin_domains(dict_diffrn)
+        diffrn_dict_in_out["twin_fraction"] = twin_fraction
+        if twin_fraction.size > 1:
+            logger.info(f"Twin (or magnetic) domains: {twin_fraction.size:}, fractions "
+                        f"{', '.join(f'{value:.3f}' for value in twin_fraction):}.")
 
         # flag_twin = "twin_fraction" in dict_diffrn.keys()
         # flag_twin_fraction = False
@@ -474,7 +536,7 @@ def calc_preliminary_information_by_dictionary(
         # absorption: the transmission factors of the reflections multiply
         # both intensities; they cancel in the flip ratios
         res_transmission = calc_transmission_by_dictionary(
-            dict_diffrn, index_hkl, unit_cell_parameters,
+            dict_diffrn, index_hkl_measured, unit_cell_parameters,
             dict_diffrn.get("wavelength_hkl", dict_diffrn["wavelength"]), dict_crystal=dict_crystal)
         if res_transmission is not None:
             diffrn_dict_in_out["transmission"] = res_transmission[0]
@@ -592,6 +654,7 @@ def calc_preliminary_information_by_dictionary(
             flip_ratio_es = dict_diffrn["flip_ratio_es"]
         else:
             intensity_es = dict_diffrn["intensity_es"]
+        l_included.append(take_included_reflections(dict_diffrn))
 
         if flag_asymmetry:
             if flag_pol:
@@ -616,8 +679,9 @@ def calc_preliminary_information_by_dictionary(
                 l_exp_value_sigma.append(flip_ratio_es)
             else:
                 l_exp_value_sigma.append(intensity_es)
-    exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)
+    exp_value_sigma, flag_included = form_exp_value_sigma(l_exp_value_sigma, l_included)
     dict_in_out["exp_value_sigma"] = exp_value_sigma
+    dict_in_out["flag_included"] = flag_included
     if channel_col:
         mem_col = numpy.concatenate(l_mem_col, axis=1)
     if channel_ani:
@@ -625,7 +689,8 @@ def calc_preliminary_information_by_dictionary(
     if channel_nucl:
         mem_nucl = numpy.concatenate(l_mem_nucl, axis=1)
 
-    logger.info(f"Total number of reflections is {exp_value_sigma.shape[1]: }.")
+    logger.info(f"Total number of reflections is {int(flag_included.sum()): }"
+                f" ({int(flag_included.size - flag_included.sum()):} excluded).")
     if flag_asymmetry:
         logger.info("Density reconstruction is based on asymmetry parameters.")
     else:
@@ -720,6 +785,8 @@ def mempy_reconstruction_by_dictionary(
     logger.info(f"Desired GoF is {gof_desired:.2f}.")
     c_desired = gof_desired
     exp_value_sigma = dict_in_out["exp_value_sigma"]
+    flag_included = dict_in_out["flag_included"]
+    n_included = max(int(flag_included.sum()), 1)
 
     c_previous = numpy.inf
     if channel_col:
@@ -750,6 +817,8 @@ def mempy_reconstruction_by_dictionary(
                 "dict_in_out_" + dict_diffrn["type_name"]
             ]
             index_hkl = diffrn_dict_in_out["index_hkl"]
+            twin_fraction = diffrn_dict_in_out["twin_fraction"]
+            flag_twin = twin_fraction.size > 1
 
             f_m_perp = numpy.zeros(index_hkl.shape, dtype=complex)
             if channel_col:
@@ -865,6 +934,10 @@ def mempy_reconstruction_by_dictionary(
                 flag_f_m_perp=channel_col or channel_ani,
                 dict_in_out=dict_in_out,
             )
+            if flag_twin:
+                # the measured intensity is the sum over the domains
+                iint_plus = sum_twin_domains(iint_plus, twin_fraction)
+                iint_minus = sum_twin_domains(iint_minus, twin_fraction)
             transmission = diffrn_dict_in_out.get("transmission")
             if transmission is not None:
                 iint_plus = iint_plus * transmission
@@ -940,6 +1013,11 @@ def mempy_reconstruction_by_dictionary(
                 # derivatives over the intensities without absorption
                 der_model_int_plus = der_model_int_plus * transmission
                 der_model_int_minus = der_model_int_minus * transmission
+            if flag_twin:
+                # d model / d iint of a domain = fraction * d model / d iint
+                weight_domains = numpy.repeat(twin_fraction, der_model_int_plus.shape[1])
+                der_model_int_plus = numpy.tile(der_model_int_plus, twin_fraction.size) * weight_domains
+                der_model_int_minus = numpy.tile(der_model_int_minus, twin_fraction.size) * weight_domains
 
             if channel_col or channel_ani:
                 # d model/d f_m_perp as one complex number per component:
@@ -954,12 +1032,16 @@ def mempy_reconstruction_by_dictionary(
                 # der_model_den_pm_exp is [Nhkl, Npoints]
                 der_model_den_pm_exp = numpy.einsum(
                     "ihp,ih->hp", mem_col_exp, conj_der_model_fm_perp).real
+                if flag_twin:
+                    der_model_den_pm_exp = sum_twin_domains(der_model_den_pm_exp, numpy.ones_like(twin_fraction))
                 l_der_model_den_pm.append(der_model_den_pm_exp)
 
             if channel_ani:
                 # der_model_den_ani_exp is [Nhkl, Npoints, Natom]
                 der_model_den_ani_exp = numpy.einsum(
                     "ihpa,ih->hpa", mem_ani_exp, conj_der_model_fm_perp).real
+                if flag_twin:
+                    der_model_den_ani_exp = sum_twin_domains(der_model_den_ani_exp, numpy.ones_like(twin_fraction))
                 l_der_model_den_ani.append(der_model_den_ani_exp)
 
             if channel_nucl:
@@ -986,17 +1068,19 @@ def mempy_reconstruction_by_dictionary(
                         axis=(1, 2),
                     )
                 )  # .sum(axis=0)
+                if flag_twin:
+                    der_model_den_nucl = sum_twin_domains(der_model_den_nucl, numpy.ones_like(twin_fraction))
                 l_der_model_den_nucl.append(der_model_den_nucl)
 
         model_value = numpy.concatenate(l_model_value, axis=0)
 
-        diff_value = (exp_value_sigma[0] - model_value) / exp_value_sigma[1]
-        c = numpy.square(diff_value).sum(axis=0) / diff_value.shape[0]
+        diff_value = (exp_value_sigma[0] - model_value) / exp_value_sigma[1] * flag_included
+        c = numpy.square(diff_value).sum(axis=0) / n_included
 
         if channel_col:
             der_model_den_pm = numpy.concatenate(l_der_model_den_pm, axis=0)
             der_c_den_pm = (
-                (-2.0) / diff_value.shape[0]
+                (-2.0) / n_included
                 * ((diff_value / exp_value_sigma[1]) @ der_model_den_pm)
             )
 
@@ -1013,7 +1097,7 @@ def mempy_reconstruction_by_dictionary(
             der_model_den_ani = numpy.concatenate(l_der_model_den_ani, axis=0)
             # der_c_den_ani is [Npoint, Natom]
             der_c_den_ani = (
-                (-2.0) / diff_value.shape[0]
+                (-2.0) / n_included
                 * numpy.tensordot(diff_value / exp_value_sigma[1], der_model_den_ani, axes=(0, 0))
             )
 
@@ -1023,7 +1107,7 @@ def mempy_reconstruction_by_dictionary(
             )
             der_c_den_nucl = (
                 (-2.0)
-                / diff_value.shape[0]
+                / n_included
                 * (
                     numpy.expand_dims(
                         (diff_value / exp_value_sigma[1]), axis=(1, 2)
@@ -1202,9 +1286,10 @@ def mempy_parameters_refinement(
 
     logger.info("Preliminary calculations of chi atoms ...")
 
-    l_exp_value_sigma = []
+    l_exp_value_sigma, l_included = [], []
     for dict_diffrn in l_dict_diffrn:
         flag_use_precalculated_data = False
+        l_included.append(take_included_reflections(dict_diffrn))
         index_hkl = dict_diffrn["index_hkl"]
         diffrn_dict_in_out = {"index_hkl": index_hkl}
 
@@ -1257,7 +1342,7 @@ def mempy_parameters_refinement(
             l_exp_value_sigma.append(asymmetry_es)
         else:
             l_exp_value_sigma.append(flip_ratio_es)
-    exp_value_sigma = numpy.concatenate(l_exp_value_sigma, axis=1)
+    exp_value_sigma, flag_included = form_exp_value_sigma(l_exp_value_sigma, l_included)
 
     def calc_chi_sq(param):
         atom_para_susceptibility[flags_atom_para_susceptibility] = param
@@ -1269,10 +1354,11 @@ def mempy_parameters_refinement(
             l_dict_diffrn,
         )
 
-        return calc_chi_sq_by_signal(exp_value_sigma[0], exp_value_sigma[1], model_value)[0]
+        return calc_chi_sq_by_signal(exp_value_sigma[0], exp_value_sigma[1], model_value,
+                                     included_points=flag_included)[0]
 
     param_0 = atom_para_susceptibility[flags_atom_para_susceptibility]
-    chi_sq_per_n = calc_chi_sq(param_0) / exp_value_sigma.shape[1]
+    chi_sq_per_n = calc_chi_sq(param_0) / max(int(flag_included.sum()), 1)
     logger.info("Before susceptibility refinement")
     logger.info("Susceptibility tensor:")
     for ind_at, label in enumerate(atom_para_label):
@@ -1298,7 +1384,7 @@ def mempy_parameters_refinement(
         ).sum(axis=1)
         dict_in_out["atom_para_susceptibility_sigma"] = apss
     elif "final_simplex" in res.keys():
-        n = exp_value_sigma.shape[1]
+        n = max(int(flag_included.sum()), 1)
         m_error, dist_hh = error_estimation_simplex(
             res["final_simplex"][0], res["final_simplex"][1], calc_chi_sq
         )
@@ -1326,7 +1412,7 @@ def mempy_parameters_refinement(
         ).sum(axis=1)
         dict_in_out["atom_para_susceptibility_sigma"] = apss
         logger.debug(sigma_p)
-    chi_sq_per_n = calc_chi_sq(res.x) / exp_value_sigma.shape[1]
+    chi_sq_per_n = calc_chi_sq(res.x) / max(int(flag_included.sum()), 1)
 
     atom_para_susceptibility[flags_atom_para_susceptibility] = res.x
     atom_para_susceptibility = (
