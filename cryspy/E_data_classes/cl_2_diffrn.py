@@ -635,7 +635,10 @@ class Diffrn(DataN):
         if "phase_scale" in keys:
             self.phase.scale = ddict_diffrn["phase_scale"]
         if "c_lambda2" in keys and self.is_attribute("setup"):
-            self.setup.ratio_lambdaover2 = float(numpy.atleast_1d(ddict_diffrn["c_lambda2"])[0])
+            ratio_lambdaover2 = float(numpy.atleast_1d(ddict_diffrn["c_lambda2"])[0])
+            # NaN stands for a ratio not given in the setup ("."): keep it undefined
+            if not numpy.isnan(ratio_lambdaover2):
+                self.setup.ratio_lambdaover2 = ratio_lambdaover2
 
         if len(parameter_label) > 0:
             for name, sigma in zip(l_parameter_name, l_sigma):

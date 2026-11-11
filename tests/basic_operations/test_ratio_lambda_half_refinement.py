@@ -29,3 +29,12 @@ def test_refined_ratio_lambda_half_is_written_back():
     # rounding of intensity_calc in the items limits the agreement
     assert diffrn.setup.ratio_lambdaover2 == pytest.approx(0.03, abs=1e-4)
     assert diffrn.setup.ratio_lambdaover2_sigma > 0.
+
+
+def test_undefined_ratio_lambda_half_stays_undefined():
+    """A setup with "_setup_ratio_lambda/2 ." keeps no value after a refinement."""
+    obj = cryspy.load_file(F_TBTE3)
+    diffrn = obj.diffrn_t1p8nuc
+    diffrn.setup.ratio_lambdaover2 = None
+    cryspy.rhochi_rietveld_refinement(obj)
+    assert diffrn.setup.ratio_lambdaover2 is None
