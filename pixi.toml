@@ -18,6 +18,6 @@ cryspy = { path = '.', editable = true, extras = ['dev'] }
 
 [tasks]
 unit-tests = 'python -m pytest tests/basic_operations/ --color=yes -v'
-functional-tests = 'python -m pytest tests/functional/ --color=yes -v -n 2'
+functional-tests = 'python -m pytest tests/functional/ --color=yes -v -n 2 --dist loadgroup'
 examples-tests = 'python -m pytest tests/test_scripts.py --color=yes -vv'
 test = { depends-on = ['unit-tests', 'functional-tests', 'examples-tests'] }
