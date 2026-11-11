@@ -108,11 +108,15 @@ def test_generating_representation_is_best(measured):
     report = cryspy.rhochi_rank_magnetic_representations(obj, *K_VECTOR, "Mn1", 1.0)
     table = take_table(report)
     assert [name for name, _ in table][0] == "Γ2"
-    assert sorted(name for name, _ in table) == ["Γ1", "Γ2", "Γ3", "Γ4"]
+    assert sorted(name for name, _ in table if "⊕" not in name) == ["Γ1", "Γ2", "Γ3", "Γ4"]
+    # the sums of two one-dimensional representations are tried as well
+    assert len([name for name, _ in table if "⊕" in name]) == 6
+    assert "Recommended: Γ2" in report
     # the data are the model of Γ2: chi_sq is zero within the refinement
     # tolerance; the others miss the satellites by far more than the sigmas
     assert table[0][1] < 1e-2
-    assert min(value for _, value in table[1:]) > 0.5
+    # the models without Γ2 leave a misfit
+    assert min(value for name, value in table if "Γ2" not in name) > 0.5
     # the object is not changed
     assert obj.crystal_phase.is_attribute("space_group")
     assert not obj.crystal_phase.is_attribute("atom_site_moment_fourier")

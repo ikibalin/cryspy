@@ -1,3 +1,4 @@
+import warnings
 from typing import NoReturn
 import math
 import numpy
@@ -742,6 +743,19 @@ class DiffrnReflnL(LoopN):
                 [self.intensity, self.intensity_sigma], dtype=float
             )
             res["intensity_es"] = refln_intensity_es
+        # a reflection without a positive sigma (not measured, written as 0 0
+        # by some programs) has no weight in chi_sq: it is left out
+        sigma = res["flip_ratio_es"][1] if "flip_ratio_es" in res else res["intensity_es"][1]
+        flag_no_sigma = numpy.logical_and(
+            numpy.logical_not(sigma > 0.), numpy.logical_not(refln_fr_excl))
+        if numpy.any(flag_no_sigma):
+            l_hkl = [" ".join(f"{value:g}" for value in hkl)
+                     for hkl in index_hkl[:, flag_no_sigma].transpose()[:5]]
+            warnings.warn(
+                f"{int(flag_no_sigma.sum()):} reflections have no positive sigma and are "
+                f"excluded ({', '.join(l_hkl):}{', ...' if flag_no_sigma.sum() > 5 else '':}).",
+                UserWarning, stacklevel=2)
+            res["flip_ratio_excluded"] = numpy.logical_or(refln_fr_excl, flag_no_sigma)
         try:
             refln_wavelength = numpy.array(self.wavelength, dtype=float)
             res["wavelength_hkl"] = refln_wavelength

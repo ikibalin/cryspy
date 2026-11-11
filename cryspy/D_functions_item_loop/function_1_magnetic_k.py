@@ -914,7 +914,63 @@ def report_moment_modulation(modulation: dict, unit_cell_parameters,
             f"{xyz[1]:.4f} | {xyz[2]:.4f} | {text_a} | {moment_min:.3f}–{moment_max:.3f} | {kind} |")
     if n_atom > max_atoms:
         ls_out.append(f"[... {n_atom - max_atoms} more atoms are cut ...]")
+    if flag_multi:
+        ls_out.extend(report_total_moments(modulation, max_atoms))
     return "\n".join(ls_out)
+
+
+def calc_total_moment_range(amplitudes, k_vectors, n_cell: int = 12):
+    """Smallest and largest total moment of one position over the cells
+    when several waves add up, M(L) = sum_n Re(A_n exp(-2 pi i k_n.L)).
+
+    Parameters
+    ----------
+    amplitudes : array (3, n_wave), complex
+        Amplitudes of the waves along the unit vectors of a, b, c, μB.
+    k_vectors : array (3, n_wave)
+        Propagation vectors of the waves, reciprocal lattice units.
+    n_cell : int
+        Cells along each axis: 0 .. n_cell - 1 (12 is a period of every
+        commensurate k with a denominator up to 4 and 6 and samples an
+        incommensurate one).
+
+    Returns
+    -------
+    (float, float)
+        Smallest and largest |M| over the cells, μB.
+    """
+    grid = numpy.arange(n_cell, dtype=float)
+    cells = numpy.stack(numpy.meshgrid(grid, grid, grid, indexing="ij"), axis=0).reshape(3, -1)
+    phase = numpy.exp(-2j * numpy.pi * (k_vectors[:, :, na] * cells[:, na, :]).sum(axis=0))
+    moment = numpy.real((amplitudes[:, :, na] * phase[na, :, :]).sum(axis=1))
+    length = numpy.sqrt(numpy.square(moment).sum(axis=0))
+    return float(length.min()), float(length.max())
+
+
+def report_total_moments(modulation: dict, max_atoms: int = 60) -> list:
+    """Markdown lines with the total moment of every magnetic position of a
+    multi-k structure: the waves of all propagation vectors at the same
+    position add up (amplitudes along a, b, c in μB)."""
+    position = numpy.round(numpy.mod(numpy.asarray(modulation["fract_xyz"], dtype=float), 1.), 5)
+    k_entry = numpy.asarray(modulation["k_vector"], dtype=float)
+    if k_entry.ndim == 1:
+        k_entry = numpy.repeat(k_entry[:, na], position.shape[1], axis=1)
+    d_position = {}
+    for i_atom in range(position.shape[1]):
+        key = (modulation["label"][i_atom],) + tuple(position[:, i_atom] % 1. + 0.)
+        d_position.setdefault(key, []).append(i_atom)
+    ls_out = ["", "Total moment of every position (all waves added; compare the largest with "
+              "g·J of the free ion, e.g. 9 μB for Tb3+):", "",
+              "| from | x | y | z | waves | |M| min–max (μB) |", "|---|---|---|---|---|---|"]
+    for i_row, (key, l_index) in enumerate(d_position.items()):
+        if i_row >= max_atoms:
+            ls_out.append(f"[... {len(d_position) - max_atoms} more positions are cut ...]")
+            break
+        amplitude = numpy.asarray(modulation["amplitude"], dtype=complex)[:, l_index]
+        moment_min, moment_max = calc_total_moment_range(amplitude, k_entry[:, l_index])
+        ls_out.append(f"| {key[0]} | {key[1]:.4f} | {key[2]:.4f} | {key[3]:.4f} | "
+                      f"{len(l_index)} | {moment_min:.3f}–{moment_max:.3f} |")
+    return ls_out
 
 
 def take_operations_of_superspace(l_operation, l_centring, k_vectors, tolerance: float = 1e-5):

@@ -1,34 +1,50 @@
-# A magnetic structure with a propagation vector k, from the paramagnetic crystal
-# (space_group): the group of k, its representations, the conversion, the magnetic
-# domains of single-crystal experiments and a simulation of the satellites.
+# A magnetic structure with one or several propagation vectors k, from the paramagnetic
+# crystal (space_group fitted to the nuclear reflections) and the measured satellites:
+# the vectors of the data, the group of k, every representation refined and compared,
+# the conversion, the magnetic domains, the size of the moments and a simulation.
 Recipe magnetic_structure_k: Magnetic structure with a propagation vector k
-Requests: add a propagation vector, which representation fits the data, choose the irreducible representation by the data, find the magnetic space group from the data, rank the representations, add k to the magnetic structure, spiral, helix, cycloid, amplitude-modulated structure, moments of the atoms, magnetic structure with k, antiferromagnetic structure with k, incommensurate magnetic structure, magnetic satellites, magnetic domains, irreducible representations of k, simulate magnetic satellites, magnetic supercell, export to supercell, isotropy subgroups, second propagation vector, multi-k structure, add a second k
-For: any
+Requests: add a propagation vector, which representation fits the data, choose the irreducible representation by the data, find the magnetic space group from the data, rank the representations, add k to the magnetic structure, spiral, helix, cycloid, amplitude-modulated structure, moments of the atoms, magnetic structure with k, antiferromagnetic structure with k, incommensurate magnetic structure, magnetic satellites, magnetic domains, irreducible representations of k, simulate magnetic satellites, magnetic supercell, export to supercell, isotropy subgroups, second propagation vector, multi-k structure, add a second k, from the paramagnetic to the magnetic structure, find the propagation vector, which magnetic structures were tested
+For: satellites
 
-1. irreps: The group of k, its representations (one-dimensional, then 'dim 2' and more with several modes) and their superspace groups with the Fourier components (symmforms) they allow for the magnetic atoms; k and the magnetic atoms are asked from the user when not given.
+1. find: The propagation vectors of the measured satellites (fractional indices of the single-crystal reflections) with the number of their satellites; with several vectors the steps irreps to refine are done for each of them, the vector with more satellites first.
+   When: single crystal experiments (diffrn) with satellites
+   Actions: run_procedure {"name": "find_propagation_vectors"}
+   Success: the table lists at least one k.
+2. irreps: The group of k, its representations (one-dimensional, then 'dim 2' and more with several modes) and their superspace groups with the Fourier components (symmforms) they allow for the magnetic atoms; k and the magnetic atoms are asked from the user when not given.
    Actions: call_method {"method": "report_irreps_of_k"}
    Success: the report lists at least one representation (Γ1, Γ2, ...).
    Otherwise: Stop and explain the error.
-2. rank: Refine every representation (and every mode of the multidimensional ones) against the measured data and compare chi_sq/n; k, the magnetic atoms, the start moment (μB, not zero) and, without atom_site_scat, the magnetic ion (magnetic_ion, as Tb3+) are asked from the user when not given. The object is not changed.
+3. rank: Refine every representation, every mode of the multidimensional ones and the sums of two one-dimensional ones (Γ1⊕Γ2) against the measured data, with the magnetic domains of every model in the single-crystal experiments; compare chi_sq/n and R_F2 of the satellites of this k (the satellites of another k do not change it). k, the magnetic atoms (after a first k: all parts of the split atom, as Tb, Tb_2), the start moment (μB, not zero) and, without atom_site_scat, the magnetic ion (magnetic_ion, as Tb3+) are asked from the user when not given. The object is not changed. Keep the table: it is the list of the tested structures for the final answer.
    When: the object has measured experiments (powder, single crystal, flip ratios)
    Actions: run_procedure {"name": "rhochi_rank_magnetic_representations"}
    Success: the table lists the representations with chi_sq/n, the best first.
-3. choose: Show the table of the representations to the user (with the chi_sq/n of the rank step when it was done: propose the best one, but a representation with fewer Fourier parameters and a similar chi_sq/n is preferable) and ask with ask_user which one to use (or which direction of the moments is expected, then choose the representation that allows it). A spiral (helix or cycloid) made of two modes is the superposition of two representations, given as irrep '1,2'. For a representation of dimension 2 or more, also ask which mode (the modes are listed under it; mode 1 keeps the most symmetry).
+4. choose: Show the table of the representations to the user and propose one: the best chi_sq/n, but a representation with fewer Fourier parameters and a similar chi_sq/n (within a few percent, or R_F2 of the satellites within about 1 %) is preferable; a model with a much lower chi_sq/n and more parameters is chosen only when the moments stay physical (step moments). Ask with ask_user which one to use (or which direction of the moments is expected, then choose the representation that allows it). For a representation of dimension 2 or more, also ask which mode (mode 1 keeps the most symmetry). Write down why the others were rejected.
    Success: the number of the representation (or two numbers separated by a comma) and the mode of a multidimensional one are known.
-4. convert: Replace the space group by the magnetic superspace group of the chosen representation, split the atoms, add the Fourier components (cos, sin with symmforms) of the magnetic atoms. A crystal that has a propagation vector already gets the new k as a second wave (multi-k structure); the waves of the first k are kept.
+5. convert: Replace the space group by the magnetic superspace group of the chosen representation, split the atoms, add the Fourier components (cos, sin with symmforms) of the magnetic atoms. A crystal that has a propagation vector already gets the new k as a second wave (multi-k structure); the waves of the first k are kept, but the lower common group may free more of their components.
    Actions: call_method {"method": "add_propagation_vector"}
    Success: the report says what was converted.
    Otherwise: Stop and explain the error. When the magnetic ion is asked (no atom_site_scat after a nuclear refinement), ask the user for it with ask_user (as Tb3+) and call again with magnetic_ion; the Lande factor is g_J of Hund's rules for 4f ions and 2 otherwise unless the user gives lande.
-5. moments: The real-space moments of the magnetic atoms: the range of |M| over the cells and the kind of modulation (amplitude-modulated, helix, cycloid, commensurate period).
-   Actions: call_method {"method": "report_magnetic_moments"}
-6. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions).
+6. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions; structural twins are kept), as in the rank step. Call it for every single-crystal experiment with the name of the experiment.
    When: single crystal experiments (diffrn)
    Actions: call_method {"method": "define_magnetic_domains"}
-7. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites, or a simulated powder profile, at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives; satellites_only true leaves out the nuclear reflections.
-   When: the user asks for a simulation
-   Actions: run_procedure {"name": "simulation_single_crystal", "wavelength": 2.4, "ttheta_min": 5, "ttheta_max": 60, "satellites_only": false}, run_procedure {"name": "simulation_unpolarized_neutron_powder_diffraction", "wavelength": 2.4, "ttheta_min": 5, "ttheta_max": 60, "ttheta_step": 0.05}
-8. supercell: The magnetic supercell in P1 with the moment of every atom, for a commensurate k (e.g. to export it or to view it).
+7. refine: Refine the Fourier components (cos and sin) of the magnetic atoms. The scale, the extinction and the nuclear structure stay as the paramagnetic refinement gave them: the satellites have the scale of the nuclear reflections only when the experiments share it (equal marks, as 40.5()s in every experiment of the same crystal).
+   Actions: refine_parameters {"pattern": "atom_site_moment_fourier"}; refine
+   Success: chi_sq/n is lower than in the rank step or equal.
+8. next_k: When the find step listed another propagation vector, go back to the step irreps with it and the magnetic atoms of the crystal now (the split atoms too).
+   When: the find step listed a propagation vector that is not added yet
+   Success: every propagation vector of the find step is in cell_wave_vector of the crystal.
+9. moments: The real-space moments of the magnetic atoms: the range of |M| over the cells, the kind of modulation and, with several k, the total moment of every position (all waves added).
+   Actions: call_method {"method": "report_magnetic_moments"}
+   Success: the largest total moment is below g·J of the free ion (9 μB for Tb3+, 10 μB for Ho3+, 5 μB for Fe3+).
+   Otherwise: Tell the user: the model is unphysical; try the next representation of the rank table with fewer parameters, or the scale is wrong.
+10. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives (asked when not given); satellites_only true leaves out the nuclear reflections.
+   When: the user asks for a simulation of single-crystal data
+   Actions: run_procedure {"name": "simulation_single_crystal"}
+11. simulate_powder: Simulated powder profile at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives (asked when not given).
+   When: the user asks for a simulation of a powder pattern
+   Actions: run_procedure {"name": "simulation_unpolarized_neutron_powder_diffraction"}
+12. supercell: The magnetic supercell in P1 with the moment of every atom, for a commensurate k (e.g. to export it or to view it).
    When: the user asks for the supercell or an export
    Actions: call_method {"method": "make_magnetic_supercell"}
 
-Final answer: k, the group of k, the chi_sq/n of the representations when they were ranked, the chosen representation (and mode) and the allowed Fourier components, the atoms that were split, the kind of modulation and the moment range, the number of magnetic domains, and the simulated or calculated intensities of the strongest satellites when they were calculated.
+Final answer: the propagation vectors found in the data; for every k the group of k and the table of the tested structures (representation and mode, chi_sq/n, R_F2 of the satellites, number of Fourier parameters, domains), the chosen one and why the others were rejected; the allowed Fourier components, the split atoms, the number of magnetic domains; chi_sq/n and R_F2 of every experiment at the end; the kind of modulation and the total moment range compared with g·J; the simulated intensities of the strongest satellites when they were calculated.

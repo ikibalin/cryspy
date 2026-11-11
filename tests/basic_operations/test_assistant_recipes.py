@@ -44,6 +44,20 @@ def test_recipe_actions_are_tools():
                 assert set(arguments) <= set(tool.parameters)
 
 
+def test_every_recipe_file_of_cryspy_is_read_and_used():
+    """A recipe file that does not parse is left out with a log message
+    only: every file of recipe_files must be a correct recipe."""
+    import glob
+    import os
+    from cryspy.procedure_assistant import recipes
+    folder = os.path.join(os.path.dirname(recipes.__file__), "recipe_files")
+    l_name = {recipe.name for recipe in take_recipes()}
+    for path in glob.glob(os.path.join(folder, "*.txt")):
+        recipe = recipes.read_recipe_file(path)
+        assert check_recipe(recipe) == [], path
+        assert recipe.name in l_name, path
+
+
 def test_get_recipe_lists_steps():
     result = cryspy.call_assistant_tool(None, "get_recipe", {"name": "refine_structure"})
     assert not result["flag_error"]

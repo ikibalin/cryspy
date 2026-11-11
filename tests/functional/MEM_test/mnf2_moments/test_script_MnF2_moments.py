@@ -1,5 +1,10 @@
 import os
 import cryspy
+import pytest
+
+# MEM of these tests needs several GB: one worker runs them one after the other
+# (pytest -n 2 --dist loadgroup), two at once exhaust the memory of the CI runner
+pytestmark = pytest.mark.xdist_group("mem_large")
 
 
 def test_mem_magnetization_density_for_momemts():
