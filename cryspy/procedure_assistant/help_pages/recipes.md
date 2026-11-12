@@ -59,6 +59,18 @@ the best value (a start value far from the minimum). `refine` names the
 parameters that stayed exactly zero (a zero extinction or moment has no
 gradient) and `set_parameter` with `if_zero` gives them start values.
 
+When the user asks to refine parameters one by one and to keep each one only
+if chi_sq gets better (and no high correlation appears), `refine_one_by_one`
+does the whole loop (forward selection): each candidate matching the pattern
+is refined together with the parameters kept before it; it stays refined when
+chi_sq/n decreases by more than `min_improvement` (0.1 % by default) and no
+new pair of refined parameters reaches |r| >= `correlation_limit` (0.9),
+otherwise the values return and it is fixed. With `rejected_value` (0 for
+magnetic moments or their Fourier components) every candidate is compared
+with the model without it; `start_value` moves a zero candidate away from 0
+when its gradient vanishes there. The result gives the decision and the
+reason for every parameter; `undo_refinement` returns the whole selection.
+
 The assistant writes a recipe from an algorithm described in words: it
 reads the format (tool `get_recipe_guide`), asks the user what is not clear
 (tool `ask_user`, the questions come as `missing` like the other questions
