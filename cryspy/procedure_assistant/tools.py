@@ -42,7 +42,6 @@ import numpy
 
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
-from cryspy.C_item_loop_classes.cl_1_inversed_hessian import inversed_hessian_to_correlation
 
 from cryspy.procedure_assistant.attributes import (
     explain_allowed_value)
@@ -57,6 +56,9 @@ from cryspy.procedure_assistant.history import (
     find_stuck_at_zero, form_metrics, format_metrics, keep_checkpoint, keep_snapshot,
     restore_snapshot, take_history)
 from cryspy.procedure_assistant import recipes
+from cryspy.procedure_assistant.refinement import (
+    CORRELATION_LIMIT as ONE_BY_ONE_CORRELATION_LIMIT, SIGNIFICANCE, refine_one_by_one,
+    take_numerical_correlation)
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
 from cryspy.procedure_assistant.constraints import (
@@ -402,27 +404,6 @@ def form_calculation_text(title: str, result: dict, cryspy_object, d_metrics: di
     return "\n".join(line for line in ls_out if line != "")
 
 
-def take_numerical_correlation(cryspy_object, result: dict) -> dict:
-    """The result with the correlations of the inversed Hessian estimated by
-    numerical derivatives at the minimum (the sigmas of the refined values
-    are from it too); the matrix of BFGS is accumulated along the path of
-    the minimizer and may show |r| = 1 for independent parameters."""
-    if not cryspy_object.is_attribute("inversed_hessian"):
-        return result
-    matrix = getattr(cryspy_object.inversed_hessian, "matrix", None)
-    if matrix is None or len(matrix) != len(result.get("parameter_name", [])):
-        return result
-    matrix = numpy.array(matrix, dtype=float)
-    # the matrix and the result may list the parameters in other orders
-    l_label = [str(label) for label in getattr(cryspy_object.inversed_hessian, "label", [])]
-    l_path = list(result.get("parameter_path", []))
-    if len(l_path) == len(l_label) and sorted(l_path) == sorted(l_label):
-        l_index = [l_label.index(path) for path in l_path]
-        matrix = matrix[l_index, :][:, l_index]
-    correlation_matrix, _ = inversed_hessian_to_correlation(matrix)
-    return dict(result, correlation_matrix=correlation_matrix)
-
-
 # parameters proposed when the user asks to refine with nothing marked
 L_REFINE_PROPOSALS = ("scale", "background", "cell", "fract", "b_iso")
 
@@ -490,6 +471,57 @@ def tool_refine(cryspy_object, parameters: str = "", *, progress: Optional[Calla
     if s_marked != "":
         text = f"{s_marked:}\n{text:}"
     return {"text": text, "metrics": d_metrics}
+
+
+def format_step_value(d_step: dict) -> str:
+    if d_step.get("sigma", 0.) not in (0., None):
+        return f"{format_value(d_step['value']):} +- {format_value(d_step['sigma']):}"
+    return format_value(d_step["value"])
+
+
+def tool_refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFICANCE,
+                           correlation_limit: float = ONE_BY_ONE_CORRELATION_LIMIT,
+                           start_value: Optional[float] = None,
+                           rejected_value: Optional[float] = None, *,
+                           progress: Optional[Callable] = None) -> dict:
+    """refine_one_by_one with a report; undo_refinement returns the state
+    before the whole selection."""
+    l_free = [record for record in find_parameter_records(cryspy_object, pattern)
+              if not record.flag_constraint]
+    if len(l_free) == 0:
+        return {"text": form_no_match_error(cryspy_object, pattern)}
+    history = take_history(cryspy_object)
+    l_value_before = [(record.path, record.value) for record in l_free]
+    keep_snapshot(cryspy_object)
+    try:
+        d_out = refine_one_by_one(
+            cryspy_object, pattern, significance=significance,
+            correlation_limit=correlation_limit, start_value=start_value,
+            rejected_value=rejected_value, progress=progress)
+    except Exception:
+        restore_snapshot(cryspy_object)
+        raise
+    result = d_out["result"]
+    d_metrics = form_metrics(result, cryspy_object, n_point=d_out["n_point"],
+                             d_previous=history.d_metrics)
+    keep_checkpoint(cryspy_object, d_metrics)
+    l_kept = [d_step for d_step in d_out["steps"] if d_step["decision"] == "kept"]
+    n_nonzero = sum(1 for _, value in l_value_before if value != 0.)
+    ls_out = [f"Refined one by one {len(d_out['steps']):} of {len(l_free):} parameters matching "
+              f"'{pattern:}': {len(l_kept):} kept refined, {len(d_out['steps']) - len(l_kept):} fixed; "
+              f"chi_sq/n {d_out['chi_sq_per_n_start']:.5g} -> {d_out['chi_sq_per_n']:.5g}."]
+    if d_out["stopped"]:
+        ls_out.append("Stopped by the user: the parameters after the last step are not tried.")
+    if rejected_value is None and n_nonzero > 0:
+        ls_out.append(f"{n_nonzero:} candidates were not 0 before and were tried from their values; "
+                      "to compare every candidate with the model without it give rejected_value "
+                      "(e.g. 0 for magnetic moments).")
+    for d_step in d_out["steps"]:
+        ls_out.append(f"{d_step['path']:}: {d_step['decision']:} = {format_step_value(d_step):}, "
+                      f"{d_step['reason']:}")
+    ls_out.append(form_calculation_text("Final model:", result, cryspy_object, d_metrics))
+    ls_out.append("undo_refinement returns all parameters to the state before this action.")
+    return {"text": "\n".join(ls_out), "metrics": d_metrics, "steps": d_out["steps"]}
 
 
 def tool_diagnose_fit(cryspy_object, experiment: str = "") -> str:
@@ -1300,6 +1332,26 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
                         "description": "Pattern of the parameters to mark first when none "
                                        "is marked (optional)."}},
         flag_object_changed=True),
+    AssistantTool(
+        "refine_one_by_one",
+        "Refine the parameters matching the pattern one by one (forward selection): each is "
+        "refined with those kept before it and stays refined only if chi_sq decreases "
+        "significantly (F-test) and "
+        "no high correlation appears, otherwise it is fixed and the next one is tried; "
+        "returns the decision for every parameter.",
+        tool_refine_one_by_one,
+        {"pattern": {"type": "string", "description": S_PATH},
+         "significance": {"type": "number", "description":
+                          f"Confidence level of the F-test of the decrease of chi_sq, {SIGNIFICANCE:g} "
+                          "by default; 0 keeps every decrease."},
+         "correlation_limit": {"type": "number", "description":
+                               f"|r| that counts as high correlation, {ONE_BY_ONE_CORRELATION_LIMIT:g} by default."},
+         "start_value": {"type": "number", "description": "Start value for candidates equal to 0."},
+         "rejected_value": {"type": "number", "description":
+                            "Value of a parameter that is not refined, e.g. 0 for moments: all "
+                            "candidates get it first and the rejected ones keep it; by default "
+                            "they keep their values."}},
+        required=("pattern", ), flag_object_changed=True),
     AssistantTool(
         "undo_refinement",
         "Return the parameters and their refinement flags to the state "
