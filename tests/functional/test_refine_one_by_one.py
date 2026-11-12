@@ -64,7 +64,8 @@ def test_high_correlation_rejects_the_parameter():
     is 'high': the second candidate is fixed whatever chi_sq/n does."""
     obj = take_mnf2()
     d_out = refine_one_by_one(obj, "crystal_mnf2.atom_site_moment[Mn].crystalaxis_z, "
-                              "crystal_mnf2.atom_site[Mn].b_iso_or_equiv", correlation_limit=0.)
+                              "crystal_mnf2.atom_site[Mn].b_iso_or_equiv", correlation_limit=0.,
+                              significance=0.)
     d_step = {step["path"]: step for step in d_out["steps"]}
     step_b = d_step["crystal_mnf2.atom_site[Mn].b_iso_or_equiv"]
     assert step_b["decision"] == "fixed" and "correlation" in step_b["reason"], d_out
@@ -75,3 +76,14 @@ def test_unknown_pattern_is_an_error():
     obj = take_mnf2()
     result = cryspy.call_assistant_tool(obj, "refine_one_by_one", {"pattern": "no_such_parameter"})
     assert result["flag_error"]
+
+
+def test_insignificant_decrease_rejects_the_parameter():
+    """b_iso of Mn lowers chi_sq of MnF2 only by noise: the F-test rejects it,
+    without the test (significance 0) it is kept."""
+    path_b = "crystal_mnf2.atom_site[Mn].b_iso_or_equiv"
+    d_step = refine_one_by_one(take_mnf2(), path_b)["steps"][0]
+    assert d_step["decision"] == "fixed" and "not significant" in d_step["reason"], d_step
+    assert d_step["p_value"] > 0.05
+    d_step = refine_one_by_one(take_mnf2(), path_b, significance=0.)["steps"][0]
+    assert d_step["decision"] == "kept", d_step

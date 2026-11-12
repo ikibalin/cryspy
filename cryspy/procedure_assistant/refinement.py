@@ -14,11 +14,12 @@ from typing import Callable, List, Optional
 
 import numpy
 
+from cryspy.A_functions_base.significance_test import calc_f_test_added_parameters
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import inversed_hessian_to_correlation
 from cryspy.procedure_assistant.parameters import (
     ParameterRecord, find_parameter_records, take_parameter_records)
 
-MIN_IMPROVEMENT = 1e-3  # relative decrease of chi_sq/n a kept parameter must give
+SIGNIFICANCE = 0.95  # confidence level of the F-test a kept parameter must pass
 CORRELATION_LIMIT = 0.9  # |r| of a new pair of refined parameters that rejects a parameter
 
 
@@ -76,7 +77,7 @@ def calc_chi_sq_per_n(chi_sq: float, n_point: int) -> float:
     return float(chi_sq) / n_point
 
 
-def refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_IMPROVEMENT,
+def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFICANCE,
                       correlation_limit: float = CORRELATION_LIMIT,
                       start_value: Optional[float] = None,
                       rejected_value: Optional[float] = None, *,
@@ -88,9 +89,10 @@ def refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_
     fixed first (at rejected_value if it is given); the other parameters
     marked for refinement stay refined in every step. Then, in the order of
     the paths, every candidate is refined together with the parameters kept
-    so far. It is kept refined when chi_sq/n decreases by more than
-    min_improvement (relative) and no new pair of refined parameters gets
-    |r| >= correlation_limit; otherwise all values return to the state
+    so far. It is kept refined when the decrease of chi_sq is significant
+    (Hamilton's F-test, W. C. Hamilton, Acta Cryst. 18 (1965) 502: the
+    p-value of the decrease is below 1 - significance) and no new pair of
+    refined parameters gets |r| >= correlation_limit; otherwise all values return to the state
     before the step and the candidate is fixed. At the end the kept
     parameters are refined once more, so that sigmas and correlations
     belong to the final model.
@@ -101,8 +103,9 @@ def refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_
         The object with the crystals and the experiments.
     pattern : str
         Pattern of the paths of the candidates, e.g. 'atom_site_moment_fourier'.
-    min_improvement : float
-        Relative decrease of chi_sq/n needed to keep a parameter (0.001 = 0.1 %).
+    significance : float
+        Confidence level of the F-test that the decrease of chi_sq is not by
+        chance (0.95; 0.99 is stricter; 0 keeps every decrease).
     correlation_limit : float
         |r| between two refined parameters that rejects the candidate.
     start_value : float, optional
@@ -113,7 +116,7 @@ def refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_
         all candidates get it first, so that each one is compared with the
         model without it, and the rejected ones keep it. By default the
         candidates keep their values (a value at its minimum then gives no
-        decrease of chi_sq/n).
+        decrease of chi_sq).
     progress : callable, keyword-only
         progress(info) after every iteration of the minimizer; info as in
         rhochi_rietveld_refinement with "step", "n_step" and "path" of the
@@ -124,7 +127,7 @@ def refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_
     dict
         "steps": a dict for every tried candidate with "path", "decision"
         ('kept' or 'fixed'), "reason", "chi_sq_per_n_before",
-        "chi_sq_per_n_after", "value", "sigma", "correlations" ({other
+        "chi_sq_per_n_after", "f_value", "p_value", "value", "sigma", "correlations" ({other
         path: r} with |r| >= correlation_limit); "chi_sq_per_n_start",
         "chi_sq_per_n", "n_point", "result" (the last refinement or
         calculation of the kept model), "stopped".
@@ -191,22 +194,30 @@ def refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_
         d_out["chi_sq_per_n_after"] = chi_sq_per_n_step
         d_out["correlations"] = {
             (pair[1] if pair[0] == record.path else pair[0]): value for pair, value in d_new.items()}
-        improvement = ((chi_sq_per_n - chi_sq_per_n_step) / chi_sq_per_n
-                       if math.isfinite(chi_sq_per_n) and chi_sq_per_n > 0. else 0.)
+        f_value, p_value = calc_f_test_added_parameters(
+            chi_sq_per_n * n_point, chi_sq_per_n_step * n_point, n_point,
+            len(result_step.get("parameter_name", [])))
+        d_out["f_value"], d_out["p_value"] = f_value, p_value
+        s_test = (f"chi_sq/n {chi_sq_per_n:.5g} -> {chi_sq_per_n_step:.5g}, F = {f_value:.3g}, "
+                  f"p = {p_value:.2g}")
         flag_keep = False
         if s_error != "":
             d_out["reason"] = f"the refinement failed ({s_error:})"
         elif not math.isfinite(chi_sq_per_n_step):
             d_out["reason"] = "the refinement diverged"
-        elif improvement <= min_improvement:
-            d_out["reason"] = (f"chi_sq/n is not reduced by more than {100 * min_improvement:.3g} % "
-                               f"({chi_sq_per_n:.5g} -> {chi_sq_per_n_step:.5g})")
+        elif chi_sq_per_n_step >= chi_sq_per_n:
+            d_out["reason"] = f"chi_sq/n is not reduced ({s_test:})"
+        elif math.isnan(p_value):
+            d_out["reason"] = f"no degrees of freedom left: {n_point:} points ({s_test:})"
+        elif p_value >= 1. - significance:
+            d_out["reason"] = (f"the decrease of chi_sq is not significant at {100 * significance:g} % "
+                               f"({s_test:})")
         elif len(d_new) > 0:
             s_pair = ", ".join(f"{path_1:} - {path_2:}: {value:.2f}"
                                for (path_1, path_2), value in d_new.items())
             d_out["reason"] = f"high correlation |r| >= {correlation_limit:g} ({s_pair:})"
         else:
-            d_out["reason"] = f"chi_sq/n reduced by {100 * improvement:.3g} %"
+            d_out["reason"] = f"significant decrease of chi_sq ({s_test:})"
             flag_keep = True
         if flag_keep:
             d_out["decision"] = "kept"

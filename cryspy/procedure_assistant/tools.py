@@ -57,7 +57,7 @@ from cryspy.procedure_assistant.history import (
     restore_snapshot, take_history)
 from cryspy.procedure_assistant import recipes
 from cryspy.procedure_assistant.refinement import (
-    CORRELATION_LIMIT as ONE_BY_ONE_CORRELATION_LIMIT, MIN_IMPROVEMENT, refine_one_by_one,
+    CORRELATION_LIMIT as ONE_BY_ONE_CORRELATION_LIMIT, SIGNIFICANCE, refine_one_by_one,
     take_numerical_correlation)
 from cryspy.procedure_assistant.recipes import recipes_as_text, suggest_recipes, take_recipe
 from cryspy.procedure_assistant import experiments
@@ -479,7 +479,7 @@ def format_step_value(d_step: dict) -> str:
     return format_value(d_step["value"])
 
 
-def tool_refine_one_by_one(cryspy_object, pattern: str, min_improvement: float = MIN_IMPROVEMENT,
+def tool_refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFICANCE,
                            correlation_limit: float = ONE_BY_ONE_CORRELATION_LIMIT,
                            start_value: Optional[float] = None,
                            rejected_value: Optional[float] = None, *,
@@ -495,7 +495,7 @@ def tool_refine_one_by_one(cryspy_object, pattern: str, min_improvement: float =
     keep_snapshot(cryspy_object)
     try:
         d_out = refine_one_by_one(
-            cryspy_object, pattern, min_improvement=min_improvement,
+            cryspy_object, pattern, significance=significance,
             correlation_limit=correlation_limit, start_value=start_value,
             rejected_value=rejected_value, progress=progress)
     except Exception:
@@ -1335,13 +1335,15 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
     AssistantTool(
         "refine_one_by_one",
         "Refine the parameters matching the pattern one by one (forward selection): each is "
-        "refined with those kept before it and stays refined only if chi_sq/n decreases and "
+        "refined with those kept before it and stays refined only if chi_sq decreases "
+        "significantly (F-test) and "
         "no high correlation appears, otherwise it is fixed and the next one is tried; "
         "returns the decision for every parameter.",
         tool_refine_one_by_one,
         {"pattern": {"type": "string", "description": S_PATH},
-         "min_improvement": {"type": "number", "description":
-                             f"Relative decrease of chi_sq/n to keep a parameter, {MIN_IMPROVEMENT:g} by default."},
+         "significance": {"type": "number", "description":
+                          f"Confidence level of the F-test of the decrease of chi_sq, {SIGNIFICANCE:g} "
+                          "by default; 0 keeps every decrease."},
          "correlation_limit": {"type": "number", "description":
                                f"|r| that counts as high correlation, {ONE_BY_ONE_CORRELATION_LIMIT:g} by default."},
          "start_value": {"type": "number", "description": "Start value for candidates equal to 0."},

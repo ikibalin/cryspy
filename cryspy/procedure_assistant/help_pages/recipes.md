@@ -63,7 +63,9 @@ When the user asks to refine parameters one by one and to keep each one only
 if chi_sq gets better (and no high correlation appears), `refine_one_by_one`
 does the whole loop (forward selection): each candidate matching the pattern
 is refined together with the parameters kept before it; it stays refined when
-chi_sq/n decreases by more than `min_improvement` (0.1 % by default) and no
+the decrease of chi_sq is significant by Hamilton's F-test (confidence level
+`significance`, 0.95 by default; with few points and many parameters a
+small decrease is noise) and no
 new pair of refined parameters reaches |r| >= `correlation_limit` (0.9),
 otherwise the values return and it is fixed. With `rejected_value` (0 for
 magnetic moments or their Fourier components) every candidate is compared
