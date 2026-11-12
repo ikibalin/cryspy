@@ -211,7 +211,8 @@ def form_path_regex(pattern: str):
 
     Square brackets are literal, so 'atom_site[Fe]' works as written.
     """
-    pattern_sh = pattern.strip().lower()
+    # '.*' of regular expressions, as models write it, is the '*' of the paths
+    pattern_sh = pattern.strip().lower().replace(".*", "*")
     if "*" in pattern_sh or "?" in pattern_sh:
         s_regex = re.escape(pattern_sh).replace(r"\*", ".*").replace(r"\?", ".")
         return re.compile(f"^{s_regex:}$")
@@ -241,9 +242,25 @@ def normalize_pattern(pattern: str) -> str:
     return pattern_sh
 
 
+# patterns of all parameters as a model or a user writes them
+# ('.*' of regular expressions, 'all parameters that can be refined', ...)
+S_ALL_PATTERNS = {"", "*", ".*", "all", "any", "everything", "parameter", "parameters",
+                  "refinable", "refinable_parameters", "refinable_parameter",
+                  "parameters_that_can_be_refined", "all_parameters_that_can_be_refined",
+                  "every_parameter", "each_parameter"}
+
+
+def is_all_pattern(pattern: str) -> bool:
+    """True if the pattern means every parameter."""
+    return normalize_pattern(pattern) in S_ALL_PATTERNS or pattern.strip() in S_ALL_PATTERNS
+
+
 def take_alias_patterns(pattern: str) -> List[str]:
     """Patterns of the paths for a word of a request ('atomic positions',
-    'scale factor'); the pattern itself when it is not an alias."""
+    'scale factor'); the pattern itself when it is not an alias; '' (every
+    path) for 'all', '*' or '.*'."""
+    if is_all_pattern(pattern):
+        return [""]
     pattern_sh = normalize_pattern(pattern)
     for key in (pattern_sh, pattern_sh.rstrip("s")):
         if key in D_PATTERN_ALIASES:
@@ -281,9 +298,10 @@ def find_parameter_records(
             continue
         path = record.path.lower()
         path_no_label = remove_labels(path)
-        if any(regex.search(path) is not None
-               or regex.search(path_no_label) is not None
-               for regex in l_regex):
+        # 'cell.length_*' is written without the data block too
+        l_path = [path, path_no_label] + [
+            text.split(".", 1)[1] for text in (path, path_no_label) if "." in text]
+        if any(regex.search(text) is not None for regex in l_regex for text in l_path):
             l_record.append(record)
     return l_record
 

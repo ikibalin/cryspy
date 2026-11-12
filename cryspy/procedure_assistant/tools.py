@@ -64,7 +64,8 @@ from cryspy.procedure_assistant import experiments
 from cryspy.procedure_assistant.constraints import (
     add_constraint, take_constraints, take_marked_parameters)
 from cryspy.procedure_assistant.parameters import (
-    explain_value_words, find_parameter_records, suggest_parameter_names, take_parameter_record,
+    explain_value_words, find_parameter_records, is_all_pattern, suggest_parameter_names,
+    take_parameter_record,
     take_parameter_records)
 from cryspy.procedure_assistant.tool_base import (
     MAX_PARAMETERS_IN_LIST, ArgumentsNeeded, format_value)
@@ -479,6 +480,34 @@ def format_step_value(d_step: dict) -> str:
     return format_value(d_step["value"])
 
 
+# a longer selection reports the fixed parameters grouped by the reason
+MAX_STEP_LINES = 30
+MAX_PATHS_IN_LINE = 20
+
+
+def form_path_list(l_path: List[str]) -> str:
+    s_more = (f", ... {len(l_path) - MAX_PATHS_IN_LINE:} more" if len(l_path) > MAX_PATHS_IN_LINE else "")
+    return ", ".join(l_path[:MAX_PATHS_IN_LINE]) + s_more
+
+
+def form_step_lines(l_step: List[dict]) -> List[str]:
+    """A line for every step; for many steps the kept ones and the fixed
+    ones grouped by the reason (the text must fit the context of a model)."""
+    if len(l_step) <= MAX_STEP_LINES:
+        return [f"{d_step['path']:}: {d_step['decision']:} = {format_step_value(d_step):}, "
+                f"{d_step['reason']:}" for d_step in l_step]
+    ls_out = [f"{d_step['path']:}: kept = {format_step_value(d_step):}, p = {d_step.get('p_value', 0.):.2g}"
+              for d_step in l_step if d_step["decision"] == "kept"]
+    d_group = {}
+    for d_step in l_step:
+        if d_step["decision"] != "kept":
+            reason = d_step["reason"].split(" (")[0]
+            d_group.setdefault(reason, []).append(d_step["path"])
+    for reason, l_path in d_group.items():
+        ls_out.append(f"Fixed, {reason:} ({len(l_path):}): {form_path_list(l_path):}")
+    return ls_out
+
+
 def tool_refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFICANCE,
                            correlation_limit: float = ONE_BY_ONE_CORRELATION_LIMIT,
                            start_value: Optional[float] = None,
@@ -490,6 +519,12 @@ def tool_refine_one_by_one(cryspy_object, pattern: str, significance: float = SI
               if not record.flag_constraint]
     if len(l_free) == 0:
         return {"text": form_no_match_error(cryspy_object, pattern)}
+    flag_all = is_all_pattern(pattern)
+    if flag_all and rejected_value is not None:
+        return {"text": "Error: rejected_value with all parameters would set the cell, the positions, "
+                        "the scale and every other parameter to it; give it only with the pattern of "
+                        "the parameters for which this value means 'absent' (e.g. "
+                        "'atom_site_moment' with 0), or call without rejected_value."}
     history = take_history(cryspy_object)
     l_value_before = [(record.path, record.value) for record in l_free]
     keep_snapshot(cryspy_object)
@@ -507,18 +542,20 @@ def tool_refine_one_by_one(cryspy_object, pattern: str, significance: float = SI
     keep_checkpoint(cryspy_object, d_metrics)
     l_kept = [d_step for d_step in d_out["steps"] if d_step["decision"] == "kept"]
     n_nonzero = sum(1 for _, value in l_value_before if value != 0.)
-    ls_out = [f"Refined one by one {len(d_out['steps']):} of {len(l_free):} parameters matching "
-              f"'{pattern:}': {len(l_kept):} kept refined, {len(d_out['steps']) - len(l_kept):} fixed; "
+    s_pattern = "all parameters" if flag_all else f"parameters matching '{pattern:}'"
+    ls_out = [f"Refined one by one {len(d_out['steps']):} of {len(l_free):} {s_pattern:}: "
+              f"{len(l_kept):} kept refined, {len(d_out['steps']) - len(l_kept):} fixed; "
               f"chi_sq/n {d_out['chi_sq_per_n_start']:.5g} -> {d_out['chi_sq_per_n']:.5g}."]
     if d_out["stopped"]:
         ls_out.append("Stopped by the user: the parameters after the last step are not tried.")
-    if rejected_value is None and n_nonzero > 0:
+    if len(d_out["unused"]) > 0:
+        ls_out.append(f"Not tried, the refinement does not use them ({len(d_out['unused']):}): "
+                      + form_path_list(d_out["unused"]))
+    if rejected_value is None and n_nonzero > 0 and not flag_all:
         ls_out.append(f"{n_nonzero:} candidates were not 0 before and were tried from their values; "
                       "to compare every candidate with the model without it give rejected_value "
                       "(e.g. 0 for magnetic moments).")
-    for d_step in d_out["steps"]:
-        ls_out.append(f"{d_step['path']:}: {d_step['decision']:} = {format_step_value(d_step):}, "
-                      f"{d_step['reason']:}")
+    ls_out.extend(form_step_lines(d_out["steps"]))
     ls_out.append(form_calculation_text("Final model:", result, cryspy_object, d_metrics))
     ls_out.append("undo_refinement returns all parameters to the state before this action.")
     return {"text": "\n".join(ls_out), "metrics": d_metrics, "steps": d_out["steps"]}
@@ -1340,7 +1377,7 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "no high correlation appears, otherwise it is fixed and the next one is tried; "
         "returns the decision for every parameter.",
         tool_refine_one_by_one,
-        {"pattern": {"type": "string", "description": S_PATH},
+        {"pattern": {"type": "string", "description": S_PATH + " '*' for all parameters."},
          "significance": {"type": "number", "description":
                           f"Confidence level of the F-test of the decrease of chi_sq, {SIGNIFICANCE:g} "
                           "by default; 0 keeps every decrease."},
