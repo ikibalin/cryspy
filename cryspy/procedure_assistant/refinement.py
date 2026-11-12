@@ -16,8 +16,10 @@ import numpy
 
 from cryspy.A_functions_base.significance_test import calc_f_test_added_parameters
 from cryspy.C_item_loop_classes.cl_1_inversed_hessian import inversed_hessian_to_correlation
+from cryspy.B_parent_classes.cl_3_data import DataN
+from cryspy.B_parent_classes.cl_4_global import find_changed_dict_name
 from cryspy.procedure_assistant.parameters import (
-    ParameterRecord, find_parameter_records, take_parameter_records)
+    ParameterRecord, find_parameter_records, form_block_records, is_number, take_parameter_records)
 
 SIGNIFICANCE = 0.95  # confidence level of the F-test a kept parameter must pass
 CORRELATION_LIMIT = 0.9  # |r| of a new pair of refined parameters that rejects a parameter
@@ -71,6 +73,39 @@ def put_values(l_value: list):
         setattr(record.item, f"{record.attribute:}_sigma", sigma)
 
 
+def take_used_paths(cryspy_object, l_record: List[ParameterRecord]) -> set:
+    """Paths of the parameters the refinement (RhoChi) uses: the others
+    (MEM parameters, attributes of categories it ignores, a wave vector
+    fixed by the superspace operations) cannot change chi_sq and are not
+    tried."""
+    s_candidate = {record.path for record in l_record}
+    l_flag = [record.flag_refinement for record in l_record]
+    s_used = set()
+    try:
+        for record in l_record:
+            record.set_refinement(True)
+        dict_global = cryspy_object.get_dictionary()
+        for data in cryspy_object.items:
+            if not isinstance(data, DataN) or data.get_name() not in dict_global:
+                continue
+            data_name = data.get_name()
+            for block in data.items:
+                for record in form_block_records(block, data_name):
+                    if record.path not in s_candidate or not is_number(record.value):
+                        continue
+                    try:
+                        way = find_changed_dict_name(
+                            data, data_name, dict_global[data_name], record.set_value, record.value)
+                    except Exception:  # a value that cannot change (the model rejects it)
+                        way = None
+                    if way is not None:
+                        s_used.add(record.path)
+    finally:
+        for record, flag in zip(l_record, l_flag):
+            record.set_refinement(flag)
+    return s_used
+
+
 def calc_chi_sq_per_n(chi_sq: float, n_point: int) -> float:
     if n_point <= 0 or not math.isfinite(float(chi_sq)):
         return math.inf
@@ -102,7 +137,9 @@ def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFI
     cryspy_object : GlobalN
         The object with the crystals and the experiments.
     pattern : str
-        Pattern of the paths of the candidates, e.g. 'atom_site_moment_fourier'.
+        Pattern of the paths of the candidates, e.g. 'atom_site_moment_fourier';
+        '*' or 'all' for every parameter (those the refinement does not use,
+        such as the MEM parameters, are not tried).
     significance : float
         Confidence level of the F-test that the decrease of chi_sq is not by
         chance (0.95; 0.99 is stricter; 0 keeps every decrease).
@@ -129,7 +166,8 @@ def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFI
         ('kept' or 'fixed'), "reason", "chi_sq_per_n_before",
         "chi_sq_per_n_after", "f_value", "p_value", "value", "sigma", "correlations" ({other
         path: r} with |r| >= correlation_limit); "chi_sq_per_n_start",
-        "chi_sq_per_n", "n_point", "result" (the last refinement or
+        "chi_sq_per_n", "n_point", "unused" (paths matching the pattern
+        that the refinement does not use), "result" (the last refinement or
         calculation of the kept model), "stopped".
     """
     from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement, rhochi_rietveld_refinement
@@ -138,6 +176,11 @@ def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFI
         if not record.flag_constraint]
     if len(l_candidate) == 0:
         raise ValueError(f"no free parameters match '{pattern:}'")
+    s_used = take_used_paths(cryspy_object, l_candidate)
+    l_unused = [record.path for record in l_candidate if record.path not in s_used]
+    l_candidate = [record for record in l_candidate if record.path in s_used]
+    if len(l_candidate) == 0:
+        raise ValueError(f"the parameters matching '{pattern:}' are not used by the refinement")
     for record in l_candidate:
         record.set_refinement(False)
         if rejected_value is not None:
@@ -236,6 +279,6 @@ def refine_one_by_one(cryspy_object, pattern: str, significance: float = SIGNIFI
         # the inversed Hessian of the object is of the rejected step
         result = refine_or_calculate(len(l_candidate))
         chi_sq_per_n = calc_chi_sq_per_n(result["chi_sq"], n_point)
-    return {"steps": l_step, "chi_sq_per_n_start": chi_sq_per_n_start,
+    return {"steps": l_step, "unused": l_unused, "chi_sq_per_n_start": chi_sq_per_n_start,
             "chi_sq_per_n": chi_sq_per_n, "n_point": n_point,
             "result": dict(result, n_point=n_point), "stopped": d_stop["stopped"]}

@@ -87,3 +87,20 @@ def test_insignificant_decrease_rejects_the_parameter():
     assert d_step["p_value"] > 0.05
     d_step = refine_one_by_one(take_mnf2(), path_b, significance=0.)["steps"][0]
     assert d_step["decision"] == "kept", d_step
+
+
+def test_all_parameters_skip_those_the_refinement_does_not_use():
+    """'.*' (as a model writes it) means every parameter; the MEM parameters
+    of the file are not used by RhoChi and are not tried."""
+    from cryspy.procedure_assistant.parameters import find_parameter_records
+    obj = take_mnf2()
+    for pattern in (".*", "*", "all", "all parameters that can be refined"):
+        assert len(find_parameter_records(obj, pattern)) == len(find_parameter_records(obj, ""))
+    d_out = refine_one_by_one(obj, "mem_parameters, crystal_mnf2.atom_site_moment[Mn].crystalaxis_z")
+    assert any(path.startswith("mem_parameters") for path in d_out["unused"])
+    assert [step["path"] for step in d_out["steps"]] == ["crystal_mnf2.atom_site_moment[Mn].crystalaxis_z"]
+
+
+def test_all_parameters_with_rejected_value_is_an_error():
+    result = cryspy.call_assistant_tool(take_mnf2(), "refine_one_by_one", {"pattern": ".*", "rejected_value": 0})
+    assert result["flag_error"] and "rejected_value" in result["text"]

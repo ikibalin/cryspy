@@ -463,3 +463,21 @@ def test_cod_asks_formula(monkeypatch):
     cryspy.call_assistant_tool(obj, "add_crystal_from_cod", {"formula": "9008460"})
     cryspy.call_assistant_tool(obj, "add_crystal_from_cod", {"formula": "TiO2"})
     assert l_call == [("", "9008460"), ("TiO2", "")]
+
+
+def test_patterns_of_all_parameters_and_regular_expressions():
+    from cryspy.procedure_assistant.parameters import find_parameter_records
+    obj = cryspy.str_to_globaln("""global_
+data_cell
+_cell_length_a 5.0
+_cell_length_b 6.0
+_cell_length_c 7.0
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+""")
+    n_all = len(find_parameter_records(obj, ""))
+    for pattern in (".*", "*", "all", "All parameters", "all refinable parameters"):
+        assert len(find_parameter_records(obj, pattern)) == n_all, pattern
+    for pattern in ("cell.length_.*", "cell.length_*", "*.cell.length_*"):
+        assert len(find_parameter_records(obj, pattern)) == 3, pattern
