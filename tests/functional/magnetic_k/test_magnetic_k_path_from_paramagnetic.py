@@ -128,30 +128,30 @@ def test_is_satellite_of_k():
 def test_rank_with_domains_and_superpositions(paramagnetic):
     obj = cryspy.str_to_globaln(paramagnetic)
     report = cryspy.rhochi_rank_magnetic_representations(
-        obj, *K_VECTOR, "Tb", 3.0, magnetic_ion="Tb3+")
+        obj, *K_VECTOR, "Tb", 3.0, magnetic_ion="Tb3+", keep_rank=0)
     rows = [line.split("|") for line in report.splitlines()
             if line.startswith("| ") and line[2].isdigit()]
     names = [row[2].strip() for row in rows]
     assert "Γ1⊕Γ2" in names
     # Γ1 and the sums that contain it reproduce the data with the two
     # domains; the one with the fewest parameters is recommended
-    assert "Recommended: Γ1 (1 Fourier parameters" in report or "Recommended: Γ1," in report
+    assert "Recommended: Γ1 (rank" in report
     row_gamma_1 = rows[names.index("Γ1")]
     assert float(row_gamma_1[4].strip(" %")) < 0.5
     assert row_gamma_1[6].strip() == "2"
     # without the domains the generating model misses the satellites of the second arm
     report = cryspy.rhochi_rank_magnetic_representations(
         obj, *K_VECTOR, "Tb", 3.0, magnetic_ion="Tb3+", with_domains=False,
-        try_superpositions=False)
+        try_superpositions=False, keep_rank=0)
     rows = [line.split("|") for line in report.splitlines()
             if line.startswith("| ") and line[2].isdigit()]
     assert min(float(row[4].strip(" %")) for row in rows) > 1.
 
 
-def test_keep_best_keeps_the_domains(paramagnetic):
+def test_keep_rank_keeps_the_domains(paramagnetic):
     obj = cryspy.str_to_globaln(paramagnetic)
     report = cryspy.rhochi_rank_magnetic_representations(
-        obj, *K_VECTOR, "Tb", 3.0, magnetic_ion="Tb3+", keep_best=True,
+        obj, *K_VECTOR, "Tb", 3.0, magnetic_ion="Tb3+", keep_rank=1,
         try_superpositions=False)
     assert "2 magnetic domains" in report
     assert obj.diffrn_sat.is_attribute("jana_twin")

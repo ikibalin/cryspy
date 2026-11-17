@@ -105,7 +105,8 @@ def take_table(report):
 
 def test_generating_representation_is_best(measured):
     obj = form_object(*measured)
-    report = cryspy.rhochi_rank_magnetic_representations(obj, *K_VECTOR, "Mn1", 1.0)
+    report = cryspy.rhochi_rank_magnetic_representations(
+        obj, *K_VECTOR, "Mn1", 1.0, keep_rank=0)
     table = take_table(report)
     assert [name for name, _ in table][0] == "Γ2"
     assert sorted(name for name, _ in table if "⊕" not in name) == ["Γ1", "Γ2", "Γ3", "Γ4"]
@@ -122,13 +123,38 @@ def test_generating_representation_is_best(measured):
     assert not obj.crystal_phase.is_attribute("atom_site_moment_fourier")
 
 
-def test_keep_best(measured):
+def test_keep_rank_default_keeps_the_best(measured):
     obj = form_object(*measured)
-    cryspy.rhochi_rank_magnetic_representations(
-        obj, *K_VECTOR, "Mn1", 1.0, keep_best=True)
+    report = cryspy.rhochi_rank_magnetic_representations(obj, *K_VECTOR, "Mn1", 1.0)
+    assert "with Γ2 (rank 1), refined" in report
     crystal = obj.crystal_phase
     assert crystal.is_attribute("atom_site_moment_fourier")
     assert cryspy.rhochi_no_refinement(obj)["chi_sq"] / TTHETA.size < 1e-2
+
+
+def test_keep_rank_second(measured):
+    obj = form_object(*measured)
+    report = cryspy.rhochi_rank_magnetic_representations(
+        obj, *K_VECTOR, "Mn1", 1.0, keep_rank=2, try_superpositions=False)
+    table = take_table(report)
+    assert f"with {table[1][0]} (rank 2), refined" in report
+    assert obj.crystal_phase.is_attribute("atom_site_moment_fourier")
+    # the second model misfits the data of Γ2
+    assert cryspy.rhochi_no_refinement(obj)["chi_sq"] / TTHETA.size > 0.5
+
+
+def test_keep_rank_above_the_table(measured):
+    obj = form_object(*measured)
+    report = cryspy.rhochi_rank_magnetic_representations(
+        obj, *K_VECTOR, "Mn1", 1.0, keep_rank=99, try_superpositions=False)
+    assert "keep_rank 99 is above the 4 rows" in report
+    assert not obj.crystal_phase.is_attribute("atom_site_moment_fourier")
+
+
+def test_negative_keep_rank_is_refused():
+    with pytest.raises(CrysPyError, match="keep_rank"):
+        cryspy.rhochi_rank_magnetic_representations(
+            form_object(), *K_VECTOR, "Mn1", 1.0, keep_rank=-1)
 
 
 def test_zero_start_moment_is_refused():

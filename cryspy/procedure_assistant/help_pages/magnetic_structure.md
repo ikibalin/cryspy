@@ -68,8 +68,13 @@ The easiest way from a paramagnetic crystal with `space_group`:
    experiments get the magnetic domains of every model with equal fractions
    (`with_domains`): the arms of the star of k change the satellites. The
    recommended model has the fewest Fourier parameters among those with
-   chi_sq/n within 5 % of the best; `keep_best` keeps it (with its domains)
-   in the object. The other parameters keep their refinement flags: fix
+   chi_sq/n within 5 % of the best (the report gives its rank). `keep_rank`
+   is the row number of the table whose refined model (with its domains)
+   replaces the crystal of the object: 1 (default) is the best chi_sq/n, 2
+   the second, ...; 0 leaves the object unchanged. A row 'Γ5 mode 2' is
+   mode 2 of the multidimensional Γ5: one isotropy subgroup, i.e. one
+   direction of the order parameter in the space of Γ5 (mode 1 keeps the
+   most symmetry); the equivalent directions are its magnetic domains. The other parameters keep their refinement flags: fix
    the nuclear structure, the scale and the extinction from the nuclear
    refinement, and give the experiments of one crystal the same scale
    (equal marks, `40.5()s`), otherwise the size of the moments is lost;

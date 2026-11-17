@@ -192,7 +192,7 @@ def take_rank_candidates(k_group: dict, k_vector, try_superpositions: bool) -> l
 def rhochi_rank_magnetic_representations(
         rcif_object: GlobalN, k_1: float, k_2: float, k_3: float,
         magnetic_atoms: str, moment: float = 1.0, crystal_name: str = "",
-        keep_best: bool = False, use_minus_k_operations: bool = True,
+        keep_rank: int = 1, use_minus_k_operations: bool = True,
         magnetic_ion: str = "", lande: float = 0.0, with_domains: bool = True,
         try_superpositions: bool = True) -> str:
     """Refine the magnetic structure of every representation of k and compare chi_sq.
@@ -217,7 +217,9 @@ def rhochi_rank_magnetic_representations(
     vectors), the number of the refined Fourier components and the moment
     ranges, the best first. A crystal with a propagation vector already
     gets k as a second one (multi-k, see add_propagation_vector). The
-    object is not changed unless keep_best is true.
+    crystal of the object is replaced by the refined model of the row
+    keep_rank of the table (1: the best chi_sq/n); keep_rank 0 leaves the
+    object unchanged.
 
     Parameters
     ----------
@@ -236,10 +238,12 @@ def rhochi_rank_magnetic_representations(
         of the satellites do not change at zero moment to first order).
     crystal_name : str
         Name of the crystal; empty when the object has one crystal.
-    keep_best : bool
-        Replace the crystal of the object by the refined crystal of the
-        recommended representation (the fewest Fourier parameters among
-        those with chi_sq/n within 5 % of the best).
+    keep_rank : int
+        Rank (row number of the table, from 1) of the representation whose
+        refined crystal replaces the crystal of the object: 1 is the best
+        chi_sq/n, 2 the second and so on; the report names the rank of the
+        recommended one (the fewest Fourier parameters among those with
+        chi_sq/n within 5 % of the best). 0 leaves the object unchanged.
     use_minus_k_operations : bool
         Add the operations mapping k to -k when the representation allows it.
     magnetic_ion : str
@@ -262,6 +266,10 @@ def rhochi_rank_magnetic_representations(
     """
     if abs(moment) < 1e-6:
         raise CrysPyError("Give a start moment (μB) that is not zero.")
+    keep_rank = int(keep_rank)
+    if keep_rank < 0:
+        raise CrysPyError("keep_rank is the row number of the table (1 is the best), "
+                          "or 0 to leave the object unchanged.")
     crystal = take_crystal(rcif_object, crystal_name)
     crystal_name = crystal.data_name
     k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
@@ -308,39 +316,53 @@ def rhochi_rank_magnetic_representations(
                "below g·J of the free ion. Every model starts from one start moment; a model "
                "far from the minimum can be tried again with add_propagation_vector and a "
                "refinement."]
+    if any(row["mode"] is not None for row in l_row):
+        ls_out += ["", "Γn mode m: representation Γn has dimension 2 or more, so its "
+                   "Fourier components are a combination of several basis functions; mode m "
+                   "is one isotropy subgroup (direction of the order parameter in the space "
+                   "of Γn, numbered as in report_irreps_of_k, mode 1 keeps the most "
+                   "symmetry). The other directions of the same mode are its magnetic "
+                   "domains."]
     if l_fail:
         ls_out += ["", "Not refined:"] + l_fail
     best = take_recommended_row(l_row)
+    rank_best = l_row.index(best) + 1
     if best is not l_row[0]:
-        ls_out += ["", f"Recommended: {best['name']} ({best['n_fourier']} Fourier parameters "
-                   f"instead of {l_row[0]['n_fourier']}): its chi_sq/n is within "
-                   f"{100. * CHI_SQ_SIMILAR:.0f} % of the best, so the simpler model is "
-                   "preferred."]
+        ls_out += ["", f"Recommended: {best['name']} (rank {rank_best}, {best['n_fourier']} "
+                   f"Fourier parameters instead of {l_row[0]['n_fourier']}): its chi_sq/n is "
+                   f"within {100. * CHI_SQ_SIMILAR:.0f} % of the best, so the simpler model "
+                   f"is preferred (keep_rank {rank_best} keeps it)."]
     else:
-        ls_out += ["", f"Recommended: {best['name']}, the best chi_sq/n."]
-    mode_text = f", mode {best['mode']}" if best["mode"] is not None else ""
-    if keep_best:
+        ls_out += ["", f"Recommended: {best['name']} (rank 1), the best chi_sq/n."]
+    if 1 <= keep_rank <= len(l_row):
+        kept = l_row[keep_rank - 1]
         i_item = rcif_object.items.index(crystal)
-        rcif_object.items[i_item] = take_crystal(best["object"], crystal_name)
+        rcif_object.items[i_item] = take_crystal(kept["object"], crystal_name)
         text_domain = ""
-        if best["n_domain"] > 1 and with_domains:
+        if kept["n_domain"] > 1 and with_domains:
             # the experiments keep the magnetic domains the model was refined with
             from cryspy.E_data_classes.cl_2_diffrn import Diffrn
-            d_best = {item.data_name: item for item in best["object"].items
+            d_kept = {item.data_name: item for item in kept["object"].items
                       if isinstance(item, Diffrn)}
             for i_item, item in enumerate(rcif_object.items):
-                if isinstance(item, Diffrn) and item.data_name in d_best:
-                    rcif_object.items[i_item] = d_best[item.data_name]
-            text_domain = f" The single-crystal experiments have its {best['n_domain']} " \
+                if isinstance(item, Diffrn) and item.data_name in d_kept:
+                    rcif_object.items[i_item] = d_kept[item.data_name]
+            text_domain = f" The single-crystal experiments have its {kept['n_domain']} " \
                 "magnetic domains (equal fractions)."
-        ls_out += ["", f"The crystal now has k with {best['name']}, refined.{text_domain}"]
+        ls_out += ["", f"The crystal now has k with {kept['name']} (rank {keep_rank}), "
+                   f"refined.{text_domain} Another row is kept by a new ranking with its "
+                   "keep_rank, or by add_propagation_vector on the paramagnetic crystal."]
     else:
         text_domain = ""
         if best["n_domain"] > 1 and with_domains:
             text_domain = " Then define_magnetic_domains gives the single-crystal experiments " \
                 f"its {best['n_domain']} magnetic domains, as in the ranking."
-        ls_out += ["", f"The object is not changed: add_propagation_vector with irrep "
-                   f"{best['number']}{mode_text} gives the recommended model.{text_domain}"]
+        mode_text = f", mode {best['mode']}" if best["mode"] is not None else ""
+        text_rank = "" if keep_rank == 0 else \
+            f"keep_rank {keep_rank} is above the {len(l_row)} rows of the table. "
+        ls_out += ["", f"{text_rank}The object is not changed: add_propagation_vector with "
+                   f"irrep {best['number']}{mode_text} gives the recommended model (or a "
+                   f"ranking with keep_rank {rank_best}).{text_domain}"]
     return "\n".join(ls_out)
 
 
