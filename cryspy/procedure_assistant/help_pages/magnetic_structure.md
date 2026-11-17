@@ -70,8 +70,9 @@ The easiest way from a paramagnetic crystal with `space_group`:
    recommended model has the fewest Fourier parameters among those with
    chi_sq/n within 5 % of the best (the report gives its rank). `keep_rank`
    is the row number of the table whose refined model (with its domains)
-   replaces the crystal of the object: 1 (default) is the best chi_sq/n, 2
-   the second, ...; 0 leaves the object unchanged. A row 'Γ5 mode 2' is
+   replaces the crystal of the object: 1 is the best chi_sq/n, 2 the
+   second, ...; 0 (default) or a number not in the table leaves the object
+   unchanged. A row 'Γ5 mode 2' is
    mode 2 of the multidimensional Γ5: one isotropy subgroup, i.e. one
    direction of the order parameter in the space of Γ5 (mode 1 keeps the
    most symmetry); the equivalent directions are its magnetic domains. The other parameters keep their refinement flags: fix

@@ -192,7 +192,7 @@ def take_rank_candidates(k_group: dict, k_vector, try_superpositions: bool) -> l
 def rhochi_rank_magnetic_representations(
         rcif_object: GlobalN, k_1: float, k_2: float, k_3: float,
         magnetic_atoms: str, moment: float = 1.0, crystal_name: str = "",
-        keep_rank: int = 1, use_minus_k_operations: bool = True,
+        keep_rank: int = 0, use_minus_k_operations: bool = True,
         magnetic_ion: str = "", lande: float = 0.0, with_domains: bool = True,
         try_superpositions: bool = True) -> str:
     """Refine the magnetic structure of every representation of k and compare chi_sq.
@@ -217,9 +217,8 @@ def rhochi_rank_magnetic_representations(
     vectors), the number of the refined Fourier components and the moment
     ranges, the best first. A crystal with a propagation vector already
     gets k as a second one (multi-k, see add_propagation_vector). The
-    crystal of the object is replaced by the refined model of the row
-    keep_rank of the table (1: the best chi_sq/n); keep_rank 0 leaves the
-    object unchanged.
+    object is not changed unless keep_rank is the number of a row of the
+    table: then its refined model replaces the crystal.
 
     Parameters
     ----------
@@ -239,11 +238,12 @@ def rhochi_rank_magnetic_representations(
     crystal_name : str
         Name of the crystal; empty when the object has one crystal.
     keep_rank : int
-        Rank (row number of the table, from 1) of the representation whose
-        refined crystal replaces the crystal of the object: 1 is the best
-        chi_sq/n, 2 the second and so on; the report names the rank of the
+        Rank (row number of the table) of the representation whose refined
+        crystal replaces the crystal of the object: 1 is the best chi_sq/n,
+        2 the second and so on; the report names the rank of the
         recommended one (the fewest Fourier parameters among those with
-        chi_sq/n within 5 % of the best). 0 leaves the object unchanged.
+        chi_sq/n within 5 % of the best). 0 (default) or a number that is
+        not in the table leaves the object unchanged.
     use_minus_k_operations : bool
         Add the operations mapping k to -k when the representation allows it.
     magnetic_ion : str
@@ -267,9 +267,6 @@ def rhochi_rank_magnetic_representations(
     if abs(moment) < 1e-6:
         raise CrysPyError("Give a start moment (μB) that is not zero.")
     keep_rank = int(keep_rank)
-    if keep_rank < 0:
-        raise CrysPyError("keep_rank is the row number of the table (1 is the best), "
-                          "or 0 to leave the object unchanged.")
     crystal = take_crystal(rcif_object, crystal_name)
     crystal_name = crystal.data_name
     k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
@@ -359,7 +356,7 @@ def rhochi_rank_magnetic_representations(
                 f"its {best['n_domain']} magnetic domains, as in the ranking."
         mode_text = f", mode {best['mode']}" if best["mode"] is not None else ""
         text_rank = "" if keep_rank == 0 else \
-            f"keep_rank {keep_rank} is above the {len(l_row)} rows of the table. "
+            f"keep_rank {keep_rank} is not a row of the table (1 to {len(l_row)}). "
         ls_out += ["", f"{text_rank}The object is not changed: add_propagation_vector with "
                    f"irrep {best['number']}{mode_text} gives the recommended model (or a "
                    f"ranking with keep_rank {rank_best}).{text_domain}"]
