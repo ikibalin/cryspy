@@ -41,7 +41,8 @@ def test_recipe_actions_are_tools():
             for name, arguments in step.actions:
                 tool = take_assistant_tool(name)
                 assert tool is not None, f"{recipe.name}.{step.name}: unknown tool {name}"
-                assert set(arguments) <= set(tool.parameters)
+                if not tool.flag_extra_arguments:
+                    assert set(arguments) <= set(tool.parameters)
 
 
 def test_every_recipe_file_of_cryspy_is_read_and_used():
