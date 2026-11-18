@@ -21,6 +21,7 @@ graphical user interface for CrysPy.
 pip install cryspy          # calculations only
 pip install cryspy[plot]    # + matplotlib for the plot_* methods (Jupyter)
 pip install cryspy[view3d]  # + py3Dmol: crystal.view_structure() in 3D
+pip install cryspy[pdf]     # + pypdf: cryspy.search_documents() reads PDF files
 pip install cryspy[all]     # every optional extra
 ```
 

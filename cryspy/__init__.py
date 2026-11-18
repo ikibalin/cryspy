@@ -324,6 +324,12 @@ from cryspy.procedure_assistant.procedures import (
     describe_procedures,
 )
 from cryspy.procedure_assistant.recipes import run_recipe, set_user_recipe_folder
+from cryspy.procedure_assistant.documents import (
+    search_documents,
+    set_document_embedding,
+    set_document_folder,
+    update_document_index,
+)
 from cryspy.procedure_assistant.constraints import (
     add_constraint,
     propose_mark,
@@ -513,6 +519,10 @@ L_FUNCTION = [
     describe_procedures,
     run_recipe,
     set_user_recipe_folder,
+    search_documents,
+    set_document_embedding,
+    set_document_folder,
+    update_document_index,
     load_cif_from_cod,
     cif_to_crystal,
 ]
