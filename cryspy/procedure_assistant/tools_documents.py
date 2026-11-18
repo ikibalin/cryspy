@@ -56,7 +56,7 @@ def tool_search_documents(cryspy_object, query: str, n_results: int = N_RESULTS,
         s_text = (f"Nothing is found for '{query:}' in the {d_summary['n_files']:} documents of "
                   f"{path:}. Try other words (the words of the documents, e.g. in English).")
         return {"text": f"{s_text:}\n{s_errors:}".strip(), "sources": []}
-    ls_out = [f"Fragments of the documents of the user for '{query:}' ({form_method_text():}). "
+    ls_out = [f"Fragments of the documents of the user for '{query:}', found by {form_method_text():}. "
               "Answer from them only and cite every fact as [file, page]; say so if they do "
               "not answer the question."]
     n_left = MAX_TEXT_CHARACTERS
