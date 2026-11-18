@@ -67,6 +67,8 @@ from cryspy.procedure_assistant.parameters import (
     explain_value_words, find_parameter_records, is_all_pattern, suggest_parameter_names,
     take_parameter_record,
     take_parameter_records)
+from cryspy.procedure_assistant.tools_documents import (
+    tool_index_documents, tool_list_documents, tool_search_documents)
 from cryspy.procedure_assistant.tool_base import (
     MAX_PARAMETERS_IN_LIST, ArgumentsNeeded, format_value)
 from cryspy.procedure_assistant.tools_model import (
@@ -1240,6 +1242,36 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         {"query": {"type": "string",
                    "description": "Question, topic or category name."}},
         required=("query", ), flag_object_needed=False),
+    AssistantTool(
+        "search_documents",
+        "Search the documents of the user (papers, books, reports: PDF, txt, md in their "
+        "folder) for a question about physics, a compound, an experiment or a method; "
+        "answer from the fragments found and cite them as [file, page].",
+        tool_search_documents,
+        {"query": {"type": "string",
+                   "description": "The question or the key words (the words of the documents, "
+                                  "e.g. in English, are found best)."},
+         "n_results": {"type": "integer", "minimum": 1, "maximum": 10,
+                       "description": "Number of fragments (default 4)."},
+         "folder": {"type": "string",
+                    "description": "Folder of the documents, only to change it."}},
+        required=("query", ), flag_object_needed=False),
+    AssistantTool(
+        "list_documents",
+        "List the documents of the user that search_documents reads (files, pages, "
+        "fragments, files that could not be read).",
+        tool_list_documents,
+        {"folder": {"type": "string",
+                    "description": "Folder of the documents, only to change it."}},
+        flag_object_needed=False),
+    AssistantTool(
+        "index_documents",
+        "Read the new and changed documents of the user and make the embedding vectors of "
+        "all fragments for the search by meaning (slow the first time).",
+        tool_index_documents,
+        {"folder": {"type": "string",
+                    "description": "Folder of the documents, only to change it."}},
+        flag_object_needed=False),
     AssistantTool(
         "summarize_object",
         "Short overview of the loaded object: data blocks, their categories "
