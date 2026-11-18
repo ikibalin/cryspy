@@ -35,6 +35,8 @@ from cryspy.C_item_loop_classes.cl_1_pd2d_peak import Pd2dPeakL
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_range import Range
 from cryspy.C_item_loop_classes.cl_1_texture import TextureL
+from cryspy.C_item_loop_classes.cl_1_texture_sh import (
+    TextureShL, TextureShCoefficientL, SampleGoniometer)
 from cryspy.C_item_loop_classes.cl_1_exclude import ExcludeL
 
 
@@ -78,7 +80,7 @@ class Pd2d(DataN):
     CLASSES_MANDATORY = (Pd2dInstrResolution, PhaseL, DiffrnRadiation,
                          Setup, Range, Pd2dBackground, Pd2dMeas)
     CLASSES_OPTIONAL = (Extinction, ExcludeL, Chi2, Pd2dInstrReflexAsymmetry,
-                        TextureL, RefineLs, ReflnL, ReflnSusceptibilityL,
+                        TextureL, TextureShL, TextureShCoefficientL, SampleGoniometer, RefineLs, ReflnL, ReflnSusceptibilityL,
                         Pd2dPeakL, Pd2dProc, PdPeakL)
 
     CLASSES = CLASSES_MANDATORY + CLASSES_OPTIONAL
@@ -260,6 +262,11 @@ class Pd2d(DataN):
 
     def take_parameters_from_dictionary(self, ddict_diffrn, l_parameter_name: list=None, l_sigma: list=None):
         keys = ddict_diffrn.keys()
+        for name in ("texture_sh", "texture_sh_coefficient"):
+            if self.is_attribute(name):
+                getattr(self, name).take_parameters_from_dictionary(
+                    ddict_diffrn, l_parameter_name=list(l_parameter_name or []),
+                    l_sigma=list(l_sigma) if l_sigma is not None else [])
         if l_parameter_name is not None:
             parameter_label = [hh[0] for hh in l_parameter_name]
         else:

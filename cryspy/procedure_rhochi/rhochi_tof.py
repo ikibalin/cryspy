@@ -26,6 +26,7 @@ from cryspy.A_functions_base.powder_diffraction_tof_zcode import \
 
 from .rhochi_diffrn import get_flags
 from .rhochi_pd import calc_background
+from .rhochi_texture import calc_texture_sh_for_phase
 
 na = numpy.newaxis
 
@@ -383,6 +384,20 @@ def calc_chi_sq_for_tof_by_dictionary(
                     flag_texture_axis=flag_texture_axis and flag_calc_analytical_derivatives)
                 dict_in_out_phase["preferred_orientation"] = preferred_orientation
 
+        texture_sh_correction = calc_texture_sh_for_phase(
+            dict_tof, dict_crystal, dict_in_out_phase, p_name, index_hkl,
+            unit_cell_parameters, 0.5 * ttheta_bank, 0.,
+            flag_use_precalculated_data=flag_use_precalculated_data)
+        intensity_texture = None
+        if flag_phase_texture:
+            intensity_texture = preferred_orientation
+        if texture_sh_correction is not None:
+            if flag_phase_texture:
+                raise ValueError(
+                    f"Phase '{p_name:}' has both the March-Dollase texture and "
+                    "the spherical harmonics texture (texture_sh): keep one.")
+            intensity_texture = texture_sh_correction
+
         flag_profile_tof = (
             flag_unit_cell_parameters or flag_time or flag_profile_shape)
         if (("profile_tof" in dict_in_out_phase_keys) and
@@ -439,16 +454,16 @@ def calc_chi_sq_for_tof_by_dictionary(
             p_scale * iint_m_plus*lorentz_factor*d_4_hkl
         dict_in_out_phase["iint_minus_with_factors"] = 0.5 * \
             p_scale * iint_m_minus*lorentz_factor*d_4_hkl
-        if flag_texture:
+        if intensity_texture is not None:
             # 0.5 to have the same meaning for the scale factor as in FullProf
             signal_plus = 0.5 * p_scale * lorentz_factor * \
                 (profile_tof * (iint_m_plus * d_4_hkl *
-                 preferred_orientation)[na, :]).sum(axis=1)  # sum over hkl
+                 intensity_texture)[na, :]).sum(axis=1)  # sum over hkl
             signal_minus = 0.5 * p_scale * lorentz_factor * \
                 (profile_tof * (iint_m_minus * d_4_hkl *
-                 preferred_orientation)[na, :]).sum(axis=1)
-            dict_in_out_phase["iint_plus_with_factors"] *= preferred_orientation
-            dict_in_out_phase["iint_minus_with_factors"] *= preferred_orientation
+                 intensity_texture)[na, :]).sum(axis=1)
+            dict_in_out_phase["iint_plus_with_factors"] *= intensity_texture
+            dict_in_out_phase["iint_minus_with_factors"] *= intensity_texture
         else:
             signal_plus = 0.5 * p_scale * lorentz_factor * \
                 (profile_tof * (iint_m_plus * d_4_hkl)

@@ -21,6 +21,7 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import \
     calc_profile_pseudo_voight_2d, calc_lorentz_factor, calc_ttheta_phi_by_gamma_nu
 
 from .rhochi_diffrn import get_flags
+from .rhochi_texture import calc_texture_sh_for_phase
 
 na = numpy.newaxis
 
@@ -415,7 +416,22 @@ def calc_chi_sq_for_pd2d_by_dictionary(
                     eq_axis, eq_ccs, ttheta_hkl, texture_g1)
                 dict_in_out_phase["gamma_hkl"] = gamma_hkl
                 dict_in_out_phase["nu_hkl"] = nu_hkl
-        
+
+        # azimuth of the points of the detector: phi of (ttheta, phi)
+        texture_sh_correction = calc_texture_sh_for_phase(
+            dict_pd, dict_crystal, dict_in_out_phase, p_name, index_hkl,
+            unit_cell_parameters, 0.5 * ttheta_hkl[na, na, :], phi_zs[:, :, na],
+            flag_use_precalculated_data=flag_use_precalculated_data)
+        intensity_texture = None
+        if flag_phase_texture:
+            intensity_texture = preferred_orientation
+        if texture_sh_correction is not None:
+            if flag_phase_texture:
+                raise ValueError(
+                    f"Phase '{p_name:}' has both the March-Dollase texture and "
+                    "the spherical harmonics texture (texture_sh): keep one.")
+            intensity_texture = texture_sh_correction
+
         flag_rp = numpy.any(flags_p_resolution) or numpy.any(flags_resolution_parameters)
 
         hh = resolution_parameters + p_resolution
@@ -448,10 +464,10 @@ def calc_chi_sq_for_pd2d_by_dictionary(
         iint_m_minus = iint_minus * multiplicity_hkl
 
 
-        if flag_phase_texture:
+        if intensity_texture is not None:
             # 0.5 to have the same meaning for the scale factor as in FullProf
-            signal_plus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_plus * preferred_orientation).sum(axis=2) # sum over hkl
-            signal_minus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_minus * preferred_orientation).sum(axis=2) 
+            signal_plus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_plus * intensity_texture).sum(axis=2) # sum over hkl
+            signal_minus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_minus * intensity_texture).sum(axis=2) 
 
         else:
             signal_plus = 0.5 * p_scale * lorentz_factor * (profile_pv * iint_m_plus).sum(axis=2) 
