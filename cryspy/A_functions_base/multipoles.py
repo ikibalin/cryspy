@@ -8,6 +8,10 @@ from cryspy.A_functions_base.matrix_operations import (
 from cryspy.A_functions_base.orbital_functions import calc_rho_normalized
 from cryspy.A_functions_base.symmetry_elements import apply_symm_elem_to_xyz
 from cryspy.A_functions_base.unit_cell import calc_m_m_by_unit_cell_parameters
+from cryspy.A_functions_base.spherical_harmonics import (
+    calc_real_spherical_harmonic,
+    cartesian_to_spherical,
+)
 
 INV_PI = 1.0 / numpy.pi
 INV_PI_SQRT = numpy.sqrt(INV_PI)
@@ -156,100 +160,80 @@ NORMALIZATION_WAFE_FUNCTION = numpy.sqrt(
 #     return res
 
 
+# Constants of the density normalized real spherical harmonics of the
+# multipole model (as used by realsphharm2df since its first version): the
+# function of (l, m) is DENSITY_COEFFICIENT[(l, m)] times the polynomial of
+# International Tables, Vol. B, Table 1.2.7.2 (x, y, z: unit vector).
+DENSITY_COEFFICIENT = {
+    (0, 0): 1.0 / (4.0 * numpy.pi),
+    (1, 1): INV_PI, (1, -1): INV_PI, (1, 0): INV_PI,
+    (2, 0): (3.0 * 3.0**0.5) / (8.0 * numpy.pi),
+    (2, 1): 0.75, (2, -1): 0.75, (2, 2): 0.75, (2, -2): 0.75,
+    (3, 0): 10.0 / (13.0 * numpy.pi),
+    (3, 1): 0.32033, (3, -1): 0.32033,
+    (3, 2): 1.0, (3, -2): 1.0,
+    (3, 3): 4.0 / (3.0 * numpy.pi), (3, -3): 4.0 / (3.0 * numpy.pi),
+    (4, 0): 0.06942,
+    (4, 1): 735.0 / (512.0 * 7.0**0.5 + 196.0),
+    (4, -1): 735.0 / (512.0 * 7.0**0.5 + 196.0),
+    (4, 2): (105.0 * 7.0**0.5) / (4.0 * (136.0 + 28.0 * 7.0**0.5)),
+    (4, -2): (105.0 * 7.0**0.5) / (4.0 * (136.0 + 28.0 * 7.0**0.5)),
+    (4, 3): 1.25, (4, -3): 1.25,
+    (4, 4): 15.0 / 32.0, (4, -4): 15.0 / 32.0,
+}
+
+# The same polynomials are Y_l^m / WAVE_COEFFICIENT[(l, m)], with the
+# orthonormal real spherical harmonics Y_l^m of spherical_harmonics.py
+# (the polynomial of (2, 2) is (x^2 - y^2) / 2, of (3, -2) is 2xyz, of
+# (4, -2) is 2xy(7z^2 - 1), of (4, -4) is 4(x^3 y - x y^3)).
+WAVE_COEFFICIENT = {
+    (0, 0): numpy.sqrt(0.25 * INV_PI),
+    (1, 1): numpy.sqrt(0.75 * INV_PI), (1, -1): numpy.sqrt(0.75 * INV_PI),
+    (1, 0): numpy.sqrt(0.75 * INV_PI),
+    (2, 0): numpy.sqrt(5.0 / 16.0 * INV_PI),
+    (2, 1): numpy.sqrt(15.0 / 4.0 * INV_PI), (2, -1): numpy.sqrt(15.0 / 4.0 * INV_PI),
+    (2, 2): numpy.sqrt(15.0 / 4.0 * INV_PI), (2, -2): numpy.sqrt(15.0 / 4.0 * INV_PI),
+    (3, 0): numpy.sqrt(7.0 / 16.0 * INV_PI),
+    (3, 1): numpy.sqrt(21.0 / 32.0 * INV_PI), (3, -1): numpy.sqrt(21.0 / 32.0 * INV_PI),
+    (3, 2): numpy.sqrt(105.0 / 16.0 * INV_PI), (3, -2): numpy.sqrt(105.0 / 16.0 * INV_PI),
+    (3, 3): numpy.sqrt(35.0 / 32.0 * INV_PI), (3, -3): numpy.sqrt(35.0 / 32.0 * INV_PI),
+    (4, 0): numpy.sqrt(9.0 / 256.0 * INV_PI),
+    (4, 1): numpy.sqrt(45.0 / 32.0 * INV_PI), (4, -1): numpy.sqrt(45.0 / 32.0 * INV_PI),
+    (4, 2): numpy.sqrt(45.0 / 64.0 * INV_PI), (4, -2): numpy.sqrt(45.0 / 64.0 * INV_PI),
+    (4, 3): numpy.sqrt(315.0 / 32.0 * INV_PI), (4, -3): numpy.sqrt(315.0 / 32.0 * INV_PI),
+    (4, 4): numpy.sqrt(315.0 / 256.0 * INV_PI), (4, -4): numpy.sqrt(315.0 / 256.0 * INV_PI),
+}
+
+
 def realsphharm2df(n, m, theta, phi):
-    """Real spherical harmonics taken from [International tables] normalized for density functions\n
-    n is order or real spherical harmonics up to 4\n
-    m is in range [-n:n]\n
-    theta  -- polar angle in range [0:180]\n
-    phi -- azimuthal angle in range [0:360]"""
-    one = numpy.ones_like(theta)
-    x = numpy.sin(theta) * numpy.cos(phi)
-    y = numpy.sin(theta) * numpy.sin(phi)
-    z = numpy.cos(theta)
-    if (n, m) == (0, 0):
-        res = one * (1.0 / (4.0 * numpy.pi))
-    elif (n, m) == (1, 1):
-        res = x * (1.0 / (numpy.pi))
-    elif (n, m) == (1, -1):
-        res = y * (1.0 / (numpy.pi))
-    elif (n, m) == (1, 0):
-        res = z * (1.0 / (numpy.pi))
-    elif (n, m) == (2, 0):
-        res = (3.0 * z**2 - 1.0) * ((3.0 * 3.0**0.5) / (8.0 * numpy.pi))
-    elif (n, m) == (2, 1):
-        res = (z * x) * (3.0 / 4.0)
-    elif (n, m) == (2, -1):
-        res = (z * y) * (3.0 / 4.0)
-    elif (n, m) == (2, 2):
-        res = 0.5 * (x**2 - y**2) * (3.0 / 4.0)
-    elif (n, m) == (2, -2):
-        res = (x * y) * (3.0 / 4.0)
-    elif (n, m) == (3, 0):
-        res = (5.0 * z**3 - 3.0 * z) * (10.0 / (13.0 * numpy.pi))
-    elif (n, m) == (3, 1):
-        res = x * (5.0 * z**2 - 1.0) * (0.32033)
-    elif (n, m) == (3, -1):
-        res = y * (5.0 * z**2 - 1.0) * (0.32033)
-    elif (n, m) == (3, 2):
-        res = z * (x**2 - y**2) * (1.0)
-    elif (n, m) == (3, -2):
-        res = 2 * x * y * z * (1.0)
-    elif (n, m) == (3, 3):
-        res = (x**3 - 3 * x * y**2) * (4.0 / (3.0 * numpy.pi))
-    elif (n, m) == (3, -3):
-        res = (-(y**3) + 3 * y * x**2) * (4.0 / (3.0 * numpy.pi))
-    elif (n, m) == (4, 0):
-        res = (35.0 * z**4 - 30.0 * z**2 + 3.0) * (0.06942)
-    elif (n, m) == (4, 1):
-        res = x * (7.0 * z**3 - 3.0 * z) * (735.0 / (512.0 * 7.0**0.5 + 196.0))
-    elif (n, m) == (4, -1):
-        res = y * (7.0 * z**3 - 3.0 * z) * (735.0 / (512.0 * 7.0**0.5 + 196.0))
-    elif (n, m) == (4, 2):
-        res = (
-            (x**2 - y**2)
-            * (7.0 * z**2 - 1.0)
-            * ((105.0 * 7.0**0.5) / (4.0 * (136.0 + 28.0 * 7.0**0.5)))
-        )
-    elif (n, m) == (4, -2):
-        res = (
-            2
-            * x
-            * y
-            * (7.0 * z**2 - 1.0)
-            * ((105.0 * 7.0**0.5) / (4.0 * (136.0 + 28.0 * 7.0**0.5)))
-        )
-    elif (n, m) == (4, 3):
-        res = z * (x**3 - 3 * x * y**2) * (5.0 / 4.0)
-    elif (n, m) == (4, -3):
-        res = z * (-(y**3) + 3 * y * x**2) * (5.0 / 4.0)
-    elif (n, m) == (4, 4):
-        res = (x**4 - 6.0 * x**2 * y**2 + y**4) * (15.0 / 32.0)
-    elif (n, m) == (4, -4):
-        res = (4.0 * x**3 * y - 4.0 * x * y**3) * (15.0 / 32.0)
-    else:
-        res = []
-    return res
+    """Real spherical harmonics normalized for density functions.
 
+    They are the orthonormal real spherical harmonics of
+    ``spherical_harmonics.calc_real_spherical_harmonic`` (shared with the
+    texture description) times the constants of the multipole model
+    (International Tables, Vol. B, chapter 1.2).
 
-def cartesian_to_spherical(x, y, z):
-    x = numpy.asarray(x)
-    y = numpy.asarray(y)
-    z = numpy.asarray(z)
+    Parameters
+    ----------
+    n : int
+        Order of the real spherical harmonics, up to 4.
+    m : int
+        Index in the range [-n, n].
+    theta : array_like
+        Polar angle in radians, [0, pi].
+    phi : array_like
+        Azimuthal angle in radians, [0, 2 pi].
 
-    r = numpy.sqrt(x**2 + y**2 + z**2)
-
-    # Initialize theta and phi with zeros
-    theta = numpy.zeros_like(r)
-    phi = numpy.zeros_like(r)
-
-    # Mask for non-zero radius
-    mask = r > 0
-
-    # Compute only where r > 0
-    theta[mask] = numpy.arccos(numpy.clip(z[mask] / r[mask], -1.0, 1.0))
-    phi[mask] = numpy.arctan2(y[mask], x[mask])
-
-    return r, theta, phi
+    Returns
+    -------
+    numpy.ndarray
+        Density normalized harmonic; an empty list for n > 4.
+    """
+    key = (int(n), int(m))
+    if key not in DENSITY_COEFFICIENT:
+        return []
+    factor = DENSITY_COEFFICIENT[key] / WAVE_COEFFICIENT[key]
+    return factor * calc_real_spherical_harmonic(key[0], key[1], theta, phi)
 
 
 def calc_transformation_matrix_from_global_to_local(
