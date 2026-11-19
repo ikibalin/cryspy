@@ -16,7 +16,7 @@ from cryspy.C_item_loop_classes.cl_1_inversed_hessian import InversedHessian, in
 from cryspy.procedure_rhochi.rhochi_by_dictionary import \
     rhochi_lsq_by_dictionary, rhochi_rietveld_refinement_by_dictionary,\
     rhochi_calc_chi_sq_by_dictionary, split_parameters_by_constraints, \
-    set_dependent_parameters, calc_punishement_function
+    set_dependent_parameters, calc_punishement_function, set_restraints_scale
 
 import cryspy
 from cryspy.procedure_assistant.parameters import (
@@ -285,6 +285,7 @@ def rhochi_inversed_hessian(global_object: GlobalN):
         dict_in_out=dict_in_out,
         flag_use_precalculated_data=flag_use_precalculated_data, flag_calc_analytical_derivatives=flag_calc_analytical_derivatives)
     
+    set_restraints_scale(global_dict, chi_sq, n_point)
     # constrained parameters (equal marks, constraint loop) follow the free ones
     names_free, names_dep, matrix_m, vector_c = split_parameters_by_constraints(
         global_dict, parameter_names)

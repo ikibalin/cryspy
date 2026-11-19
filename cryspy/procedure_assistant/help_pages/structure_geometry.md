@@ -65,4 +65,13 @@ The atoms of a restraint are the equivalent positions closest to each other
 (as for the distances above). The symmetry operation of its site symmetry
 code is kept; the lattice translation is chosen again at every step of the
 refinement, so an atom crossing the cell edge does not break the restraint.
-In the assistant: call_method add_restraint or update_restraints of the crystal.
+Weight of the restraints: `crystal.define_restraint_weight(factor=1., scale="none")`
+(item restr_weight) multiplies all restraint terms by `factor`; with
+`scale="chi_sq_per_n"` also by chi_sq/n of the data at the start of the
+refinement. Use it when chi_sq/n of the data is much larger than 1: the
+restraints then get the weight they would have with the data sigmas scaled to
+chi_sq/n = 1. Do not make sigma very small instead: sigma is the uncertainty
+of the target.
+
+In the assistant: call_method add_restraint, update_restraints or
+define_restraint_weight of the crystal.

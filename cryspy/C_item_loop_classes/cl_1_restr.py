@@ -219,3 +219,52 @@ class RestrTorsionL(LoopN):
         super(RestrTorsionL, self).__init__()
         self.__dict__["items"] = form_items_by_dictionary(self.ITEM_CLASS, kwargs)
         self.__dict__["loop_name"] = loop_name
+
+
+class RestrWeight(ItemN):
+    """Weight of all restraints of the crystal in the refinement (CrysPy category).
+
+``factor`` multiplies the sum ((value - target) / sigma)^2 of the
+restraints. ``scale`` 'chi_sq_per_n' multiplies it by chi_sq/n of the data
+at the start of the refinement as well: when chi_sq/n of the data is much
+larger than 1 (sigmas of the data too small), this gives the restraints the
+weight they would have with data sigmas scaled to chi_sq/n = 1. 'none'
+(default) keeps the restraints as observations with their own sigma, as in
+SHELX.
+    """
+
+    ATTR_MANDATORY_NAMES = ("factor",)
+    ATTR_MANDATORY_TYPES = (float,)
+    ATTR_MANDATORY_CIF = ("factor",)
+
+    ATTR_OPTIONAL_NAMES = ("scale",)
+    ATTR_OPTIONAL_TYPES = (str,)
+    ATTR_OPTIONAL_CIF = ("scale",)
+
+    ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
+    ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
+    ATTR_CIF = ATTR_MANDATORY_CIF + ATTR_OPTIONAL_CIF
+
+    ATTR_INT_NAMES = ()
+    ATTR_INT_PROTECTED_NAMES = ()
+
+    ATTR_REF = ()
+    ATTR_SIGMA = ()
+    ATTR_CONSTR_FLAG = ()
+    ATTR_REF_FLAG = ()
+    ATTR_CONSTR_MARK = ()
+
+    D_FORMATS = {"factor": "{:.4f}"}
+    D_CONSTRAINTS = {"scale": ["none", "chi_sq_per_n"]}
+    D_DEFAULT = {"factor": 1., "scale": "none"}
+
+    PREFIX = "restr_weight"
+
+    def __init__(self, **kwargs) -> NoReturn:
+        super(RestrWeight, self).__init__()
+        self.__dict__["D_MIN"] = {"factor": 0.}
+        self.__dict__["D_MAX"] = {}
+        for key, attr in self.D_DEFAULT.items():
+            setattr(self, key, attr)
+        for key, attr in kwargs.items():
+            setattr(self, key, attr)

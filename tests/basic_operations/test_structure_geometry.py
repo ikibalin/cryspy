@@ -220,3 +220,21 @@ def test_restraint_method_hint():
     rcif = cryspy.load_file(F_CH30)
     l_method = find_matching_methods(rcif, "Restrain the distance N1 C3 to 1.5 A")
     assert l_method[0]["name"] == "add_restraint"
+
+
+def test_restraint_weight():
+    from cryspy.procedure_rhochi.rhochi_by_dictionary import (
+        calc_restraints_chi_sq, set_restraints_scale)
+    rcif = cryspy.load_file(F_CH30)
+    crystal = take_crystal(rcif)
+    crystal.add_restraint("N1 C3", target="1.55", sigma=0.01)
+    chi_sq = calc_restraints_chi_sq(rcif.get_dictionary())
+    crystal.define_restraint_weight(factor=2.)
+    assert calc_restraints_chi_sq(rcif.get_dictionary()) == pytest.approx(2. * chi_sq)
+    crystal.define_restraint_weight(factor=2., scale="chi_sq_per_n")
+    global_dict = rcif.get_dictionary()
+    set_restraints_scale(global_dict, chi_sq=600., n_point=100)
+    assert calc_restraints_chi_sq(global_dict) == pytest.approx(12. * chi_sq)
+    assert "weighted by 2 times chi_sq/n" in crystal.update_restraints()
+    with pytest.raises(ValueError):
+        crystal.define_restraint_weight(scale="auto")
