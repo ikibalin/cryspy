@@ -6,7 +6,7 @@ from cryspy.A_functions_base.matrix_operations import \
 
 from cryspy.A_functions_base.unit_cell import \
     calc_volume_uc_by_unit_cell_parameters, calc_eq_ccs_by_unit_cell_parameters, \
-    calc_sthovl_by_unit_cell_parameters
+    calc_sthovl_by_unit_cell_parameters, calc_axial_vector_by_twin_domains
 
 from cryspy.A_functions_base.structure_factor import \
     calc_f_nucl_by_dictionary, calc_sft_ccs_by_dictionary, calc_f_m_perp_by_sft, \
@@ -100,6 +100,17 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flag_magnetic_field=False
 
     matrix_u = dict_diffrn["matrix_u"]
+    # Field-induced moments (susceptibility) are calculated from the field,
+    # so for twin domains the field and the polarization axis are taken in
+    # the Cartesian system of every domain. Ordered moments are field-aligned
+    # magnetization in a flipping-ratio experiment: every domain keeps the
+    # same orientation of its moments to the field as the first one.
+    axis_z = matrix_u[6:9]
+    if flag_twin and ("atom_para_index" in dict_crystal_keys):
+        axis_z = calc_axial_vector_by_twin_domains(
+            axis_z, twin_matrices, unit_cell_parameters, n_hkl)
+        magnetic_field = calc_axial_vector_by_twin_domains(
+            magnetic_field, twin_matrices, unit_cell_parameters, n_hkl)
     if "wavelength_hkl" in dict_diffrn.keys():
         wavelength = dict_diffrn["wavelength_hkl"]
         flags_wavelength = False
@@ -391,7 +402,6 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         iint_plus = dict_in_out["iint_plus"]
         iint_minus = dict_in_out["iint_minus"]
     else:
-        axis_z = matrix_u[6:9]
         iint_plus, iint_minus, dder_plus, dder_minus = calc_intensities_by_structure_factors(
             beam_polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z,
             func_extinction=func_extinction,
@@ -540,7 +550,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             # I = A I_1 + c A_half I_2: the lambda/2 part c (A_half/A) I_2 of
             # iint_raw is the same for both channels
             iint_plus_1 = calc_intensities_by_structure_factors(
-                beam_polarization, flipper_efficiency, f_nucl, f_m_perp, matrix_u[6:9],
+                beam_polarization, flipper_efficiency, f_nucl, f_m_perp, axis_z,
                 func_extinction=func_extinction)[0]
             if flag_twin:
                 iint_plus_1 = (iint_plus_1.reshape((n_hkl, -1), order='F') *

@@ -5,7 +5,7 @@ For details see documentation.
 """
 import numpy 
 
-from .matrix_operations import calc_m_q_mt
+from .matrix_operations import calc_m_q_mt, calc_m1_m2_inv_m1, calc_det_m, calc_m_v
 from cryspy.exceptions import CrysPyError
 
 
@@ -1008,3 +1008,47 @@ def calc_matrix_t(index_hkl, unit_cell_parameters, flag_unit_cell_parameters: bo
     if flag_unit_cell_parameters:
         dder["unit_cell_parameters"] = numpy.zeros((9, ) + unit_cell_parameters.shape, dtype=unit_cell_parameters.dtype)
     return m_t_ij, dder
+
+
+def calc_axial_vector_by_twin_domains(
+        vector_ccs, twin_matrices, unit_cell_parameters, n_hkl: int):
+    """Laboratory axial vector (magnetic field, beam polarization) in the
+    Cartesian system (x||a*, z||c) of every twin domain.
+
+    A twin law T (Jana2006 convention) gives the Miller indices of the
+    second domain from those of the first one, h_2 = T h_1, for the same
+    scattering vector. The Cartesian coordinates of any laboratory vector
+    then transform as c_2 = R c_1 with R = B T B^-1 (B: reciprocal to
+    Cartesian, x||a*). Field and polarization are axial vectors: an
+    improper law also changes their sign, det(R) R c_1, so that a domain
+    is the whole crystal (atoms and magnetic moments, given once in the
+    frame of the domain) rotated by the law. The length of the vector is
+    kept: for a pseudo-symmetric law (a ~ b) R is only nearly orthogonal.
+
+    Parameters
+    ----------
+    vector_ccs : numpy.ndarray, shape (3,)
+        Vector in the Cartesian system of the first domain (any units).
+    twin_matrices : numpy.ndarray, shape (9, n_twin)
+        Twin laws T as 9 components t_11, t_12, ..., t_33.
+    unit_cell_parameters : numpy.ndarray, shape (6,)
+        a, b, c in Angstrom and alpha, beta, gamma in radians.
+    n_hkl : int
+        Number of the measured reflections.
+
+    Returns
+    -------
+    numpy.ndarray, shape (3, n_hkl * (n_twin + 1))
+        The vector for every reflection of every domain: blocks of n_hkl,
+        the first domain first (the order of the twinned indices in RhoChi).
+    """
+    vector_ccs = numpy.asarray(vector_ccs, dtype=float)
+    m_b = calc_m_b_by_unit_cell_parameters(unit_cell_parameters)[0]
+    m_r = calc_m1_m2_inv_m1(numpy.expand_dims(m_b, axis=1), twin_matrices)[0]
+    sign = numpy.sign(calc_det_m(twin_matrices)[0])
+    vector_twin = sign * calc_m_v(m_r, numpy.expand_dims(vector_ccs, axis=1))[0]
+    norm_twin = numpy.sqrt(numpy.square(vector_twin).sum(axis=0))
+    norm = numpy.sqrt(numpy.square(vector_ccs).sum())
+    vector_twin = vector_twin * numpy.where(norm_twin > 0., norm / numpy.where(norm_twin > 0., norm_twin, 1.), 0.)
+    vector_domains = numpy.concatenate((vector_ccs[:, numpy.newaxis], vector_twin), axis=1)
+    return numpy.repeat(vector_domains, n_hkl, axis=1)

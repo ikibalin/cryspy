@@ -146,12 +146,13 @@ def calc_mem_col(
         full_symm_theta is None
     ):  # clasical two channel MEM, moment is along or opposite to field
         # [3, hkl, symm]
-        eh_ccs_symm = numpy.expand_dims(eh_ccs, axis=(1, 2))
+        # eh_ccs is (3,) or (3, hkl) for twin domains (a field per domain)
+        eh_ccs_symm = numpy.expand_dims(eh_ccs.reshape(3, -1), axis=2)
     else:  # two channel MEM where moment in one channel can along (M+) or opposite (M-) to the field in asymetric unit cell when outside of a.u.c. it is reproduced by
         # [3, hkl, symm]
         eh_ccs_symm = calc_m_v(
             numpy.expand_dims(r_ccs, axis=1),
-            numpy.expand_dims(eh_ccs, axis=(1, 2)),
+            numpy.expand_dims(eh_ccs.reshape(3, -1), axis=2),
             flag_m=False,
             flag_v=False,
         )[0]
