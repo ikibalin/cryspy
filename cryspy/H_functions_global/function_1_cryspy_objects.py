@@ -173,6 +173,12 @@ from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
 L_ITEM_CLASS.extend([MagneticBroadening])
 L_LOOP_CLASS.extend([MagneticBroadeningL])
 
+from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
+    LayerCorrelation, LayerCorrelationL)
+
+L_ITEM_CLASS.extend([LayerCorrelation])
+L_LOOP_CLASS.extend([LayerCorrelationL])
+
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,
     AtomSiteL, AtomSiteAnisoL, AtomSiteMomentL, AtomSiteScatL,
