@@ -116,7 +116,7 @@ def test_nuclear_refinement_with_satellites_in_the_object(paramagnetic):
 
 def test_find_propagation_vectors(paramagnetic):
     report = cryspy.find_propagation_vectors(cryspy.str_to_globaln(paramagnetic))
-    assert "| (0.5, 0.5, 0) | 28 |" in report
+    assert "| (0.5, 0.5, 0) | S | 28 |" in report
     assert "10 reflections with integer indices" in report
 
 

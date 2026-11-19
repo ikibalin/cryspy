@@ -250,6 +250,78 @@ def calc_profile_pseudo_voight(ttheta, ttheta_hkl, u, v, w, i_g, x, y,
     return res, dder
 
 
+def calc_profile_pseudo_voight_extra_lorentz(
+        ttheta, ttheta_hkl, u, v, w, i_g, x, y, y_hkl, p_1, p_2, p_3, p_4,
+        cutoff_fwhm: float = 0.):
+    """Pseudo-Voigt profile with an extra Lorentzian width for every reflection.
+
+    The profile is the one of :func:`calc_profile_pseudo_voight` convolved
+    with a Lorentzian of the full width y_hkl / cos(theta) (degrees). The
+    convolution of a Voigt function with a Lorentzian is a Voigt function
+    whose Lorentzian width is the sum of the two, so the extra width is
+    added to H_L = X tan(theta) + Y / cos(theta) of the Thompson-Cox-
+    Hastings pseudo-Voigt (J. Appl. Cryst. 20 (1987) 79), as the size term
+    of a separate phase in FullProf. Used for the magnetic reflections with
+    their own broadening (magnetic_broadening.py). A negative y_hkl makes
+    the peaks narrower; H_L is kept non-negative.
+
+    Parameters
+    ----------
+    ttheta : array (n_point,)
+        Points of the pattern, radians.
+    ttheta_hkl : array (n_hkl,)
+        Positions of the reflections, radians.
+    u, v, w, i_g, x, y : float
+        Parameters of the resolution (degrees^2 for u, v, w, i_g; degrees
+        for x, y).
+    y_hkl : array (n_hkl,)
+        Extra Lorentzian size term of every reflection, degrees (may be
+        negative).
+    p_1, p_2, p_3, p_4 : float
+        Asymmetry parameters.
+    cutoff_fwhm : float
+        Cutoff of every peak in units of its FWHM (0: no cutoff).
+
+    Returns
+    -------
+    profile : array (n_point, n_hkl)
+        Normalized profiles, 1/degrees.
+    dder : dict
+        Empty (the derivatives are numerical).
+    """
+    cutoff_fwhm = numpy.inf if cutoff_fwhm <= 0. else cutoff_fwhm
+    n_point, n_hkl = ttheta.size, ttheta_hkl.size
+    delta_angle = (ttheta[:, na] - ttheta_hkl[na, :])
+
+    h_g = calc_h_g(u, v, w, i_g, ttheta)[0]
+    h_l = calc_h_l(x, y, ttheta)[0][:, na] + \
+        numpy.asarray(y_hkl, dtype=float)[na, :] / numpy.cos(0.5 * ttheta)[:, na]
+    # a negative extra width (magnetic peaks narrower than the nuclear ones)
+    # can take away at most the Lorentzian part of the width
+    h_l = numpy.maximum(h_l, 0.)
+    h_g = numpy.broadcast_to(h_g[:, na], (n_point, n_hkl))
+    h_pv = calc_h_pv(h_g, h_l)[0]
+    eta = calc_eta(h_l, h_pv)[0]
+    ttheta_2d = numpy.broadcast_to(ttheta[:, na], (n_point, n_hkl))
+
+    # every (point, reflection) pair has its own width: the kernels take
+    # them as a column of independent points
+    if numpy.isinf(cutoff_fwhm):
+        keep = numpy.ones((n_point, n_hkl), dtype=bool)
+    else:
+        keep = numpy.abs(delta_angle) <= cutoff_fwhm * h_pv * numpy.pi / 180.
+    delta_col = delta_angle[keep][:, na]
+    h_pv_col, eta_col, ttheta_col = h_pv[keep], eta[keep], ttheta_2d[keep]
+    z = (delta_col * 180. / numpy.pi) / h_pv_col[:, na]
+    af = calc_asymmetry_factor(z, ttheta_col, p_1, p_2, p_3, p_4)[0]
+    profile_l = func_lorentz_by_h_pv(delta_col, h_pv_col)[0]
+    profile_g = func_gauss_by_h_pv(delta_col, h_pv_col)[0]
+    res_col = (eta_col[:, na] * profile_l + (1. - eta_col[:, na]) * profile_g) * af
+    res = numpy.zeros((n_point, n_hkl), dtype=float)
+    res[keep] = res_col[:, 0]
+    return res, {}
+
+
 def calc_gamma_nu_by_ttheta_phi(ttheta, phi, flag_ttheta: bool = False, flag_phi: bool = False):
     """See the documentation module "Powder diffraction at constant wavelength".
     """

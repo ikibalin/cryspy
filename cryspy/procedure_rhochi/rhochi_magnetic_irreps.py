@@ -7,7 +7,9 @@ the experiments of the object and the chi_sq values are compared, as the
 representation analysis of SARAh, BasIreps or ISODISTORT followed by a
 refinement of every model (FullProf, Jana2020).
 """
+import copy
 import logging
+from fractions import Fraction
 import warnings
 
 import numpy
@@ -15,8 +17,11 @@ import numpy
 from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+    add_magnetic_scattering,
+    take_k_group,
     classify_moment_modulation,
     form_irrep_name,
+    split_labels,
     take_irrep_candidates,
 )
 from cryspy.E_data_classes.cl_1_crystal import Crystal
@@ -270,6 +275,9 @@ def rhochi_rank_magnetic_representations(
     crystal = take_crystal(rcif_object, crystal_name)
     crystal_name = crystal.data_name
     k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
+    # the form factor every model gets: the Lande factor taken for lande 0 is shown
+    l_scat_added = add_magnetic_scattering(
+        copy.deepcopy(crystal), split_labels(magnetic_atoms), magnetic_ion, lande)
     l_candidate = take_rank_candidates(
         crystal.take_group_of_k(k_vector), k_vector, try_superpositions)
     l_row, l_fail = [], []
@@ -293,6 +301,9 @@ def rhochi_rank_magnetic_representations(
     ls_out = [f"# Representations of k = ({k_text}) refined against the data", ""]
     if l_note:
         ls_out += ["k is taken as commensurate: " + ", ".join(l_note) + ".", ""]
+    if l_scat_added:
+        ls_out += ["Magnetic form factor of every model (atom_site_scat): "
+                   + "; ".join(l_scat_added) + ".", ""]
     ls_out += ["| Rank | Representation | chi_sq/n | R_F2 satellites of k | Fourier parameters "
                "| Domains | Moments (μB) |",
                "|---|---|---|---|---|---|---|"]
@@ -376,6 +387,96 @@ def take_canonical_k(fraction, tolerance: float = 1e-4):
     return min(l_k)
 
 
+def take_propagation_vectors(rcif_object: GlobalN) -> dict:
+    """Propagation vectors of the measured satellites (see
+    find_propagation_vectors) as data.
+
+    Returns
+    -------
+    dict
+        "vectors": [{"k" (tuple of 3 floats, snapped to fractions),
+        "n_satellite", "experiments" ({name: (count, summed intensity)}),
+        "point" (label of the special point of the Brillouin zone of the
+        only crystal, see name_special_k_point; '' if none)}],
+        the vector with more satellites first; "n_integer" (reflections
+        with integer indices); "experiments" (names of the single-crystal
+        experiments with reflections).
+    """
+    from cryspy.E_data_classes.cl_2_diffrn import Diffrn
+    d_k, l_experiment, n_integer = {}, [], 0
+    for item in rcif_object.items:
+        if not (isinstance(item, Diffrn) and item.is_attribute("diffrn_refln")):
+            continue
+        refln = item.diffrn_refln
+        index_hkl = numpy.array([refln.index_h, refln.index_k, refln.index_l], dtype=float)
+        if refln.is_attribute("intensity"):
+            intensity = numpy.array(refln.intensity, dtype=float)
+        else:
+            intensity = numpy.full(index_hkl.shape[1], numpy.nan)
+        flag_fractional = numpy.any(numpy.abs(index_hkl - numpy.round(index_hkl)) > 1e-4, axis=0)
+        n_integer += int((~flag_fractional).sum())
+        l_experiment.append(item.data_name)
+        for hkl, value in zip(index_hkl[:, flag_fractional].transpose(), intensity[flag_fractional]):
+            key = take_canonical_k(hkl - numpy.round(hkl))
+            d_exp = d_k.setdefault(key, {})
+            count, total = d_exp.get(item.data_name, (0, 0.))
+            d_exp[item.data_name] = (count + 1, total + (0. if numpy.isnan(value) else value))
+    if not l_experiment:
+        raise CrysPyError("The object has no single-crystal experiments with reflections.")
+    l_crystal = [item for item in rcif_object.items if isinstance(item, Crystal)]
+    crystal = l_crystal[0] if len(l_crystal) == 1 else None
+    l_key = sorted(d_k, key=lambda key: -sum(count for count, _ in d_k[key].values()))
+    l_vector = []
+    for key in l_key:
+        k_vector = snap_k_vector(list(key))[0]
+        l_vector.append({"k": tuple(float(value) for value in k_vector),
+                         "n_satellite": sum(count for count, _ in d_k[key].values()),
+                         "experiments": d_k[key],
+                         "point": "" if crystal is None else name_special_k_point(crystal, k_vector)})
+    return {"vectors": l_vector, "n_integer": n_integer, "experiments": l_experiment}
+
+
+def form_k_fraction_text(k_vector) -> str:
+    """'(1/2, 1/2, 0)' of a propagation vector (fractions up to 1/12)."""
+    l_text = []
+    for value in k_vector:
+        fraction = Fraction(float(value)).limit_denominator(12)
+        text = str(fraction) if abs(float(fraction) - float(value)) < 1e-4 else f"{float(value):g}"
+        l_text.append(text)
+    return "(" + ", ".join(l_text) + ")"
+
+
+def name_special_k_point(crystal: Crystal, k_vector) -> str:
+    """Label of the special point of the Brillouin zone (knowledge base,
+    special_k_points.md) equal to k up to the operations of the
+    paramagnetic group and a reciprocal lattice vector of the centred cell
+    ('S' for (1/2, 1/2, 0) of C m c m); '' when it is not one of them or the
+    lattice is not in the table."""
+    from cryspy.A_functions_base.knowledge_tables import take_special_k_points
+    from cryspy.D_functions_item_loop.function_1_magnetic_k import take_parent_space_group
+    try:
+        space_group = take_parent_space_group(crystal)
+        lattice = f"{space_group.crystal_system} {str(space_group.name_hm_alt).strip()[0]}"
+        k_group = take_k_group(space_group, numpy.asarray(k_vector, dtype=float))
+    except (AttributeError, IndexError, CrysPyError):
+        return ""
+    l_point = take_special_k_points().get(lattice, [])
+    rotation = numpy.asarray(k_group["parent_rotation"], dtype=float).reshape(3, 3, -1)
+    centring = numpy.asarray(k_group["centring"], dtype=float)
+    k_vector = numpy.asarray(k_vector, dtype=float)
+    for label, k_point in l_point:
+        for i_s in range(rotation.shape[2]):
+            for sign in (1., -1.):
+                # a reciprocal vector transforms with the transposed rotation
+                difference = sign * rotation[:, :, i_s].transpose() @ k_vector - numpy.array(k_point)
+                if not numpy.allclose(difference, numpy.round(difference), atol=1e-4):
+                    continue
+                phase = numpy.round(difference) @ centring
+                if numpy.allclose(phase, numpy.round(phase), atol=1e-4):
+                    return label
+    return ""
+
+
 def find_propagation_vectors(rcif_object: GlobalN) -> str:
     """Find the propagation vectors of the magnetic satellites in the data.
 
@@ -399,45 +500,27 @@ def find_propagation_vectors(rcif_object: GlobalN) -> str:
     str
         Markdown table of the propagation vectors.
     """
-    from cryspy.E_data_classes.cl_2_diffrn import Diffrn
-    d_k, l_experiment, n_integer = {}, [], 0
-    for item in rcif_object.items:
-        if not (isinstance(item, Diffrn) and item.is_attribute("diffrn_refln")):
-            continue
-        refln = item.diffrn_refln
-        index_hkl = numpy.array([refln.index_h, refln.index_k, refln.index_l], dtype=float)
-        if refln.is_attribute("intensity"):
-            intensity = numpy.array(refln.intensity, dtype=float)
-        else:
-            intensity = numpy.full(index_hkl.shape[1], numpy.nan)
-        flag_fractional = numpy.any(numpy.abs(index_hkl - numpy.round(index_hkl)) > 1e-4, axis=0)
-        n_integer += int((~flag_fractional).sum())
-        l_experiment.append(item.data_name)
-        for hkl, value in zip(index_hkl[:, flag_fractional].transpose(), intensity[flag_fractional]):
-            key = take_canonical_k(hkl - numpy.round(hkl))
-            d_exp = d_k.setdefault(key, {})
-            count, total = d_exp.get(item.data_name, (0, 0.))
-            d_exp[item.data_name] = (count + 1, total + (0. if numpy.isnan(value) else value))
-    if not l_experiment:
-        raise CrysPyError("The object has no single-crystal experiments with reflections.")
+    d_found = take_propagation_vectors(rcif_object)
+    n_integer = d_found["n_integer"]
     ls_out = ["# Propagation vectors of the measured satellites", ""]
-    if not d_k:
+    if not d_found["vectors"]:
         ls_out.append(f"No satellites: all {n_integer} reflections have integer indices "
                       "(k = 0 or a paramagnetic state).")
         return "\n".join(ls_out)
-    ls_out += ["| k | Satellites | Experiments (satellites, summed intensity) |", "|---|---|---|"]
-    l_key = sorted(d_k, key=lambda key: -sum(count for count, _ in d_k[key].values()))
-    for key in l_key:
-        k_vector, l_note = snap_k_vector(list(key))
-        k_text = ", ".join(f"{float(value):g}" for value in k_vector)
+    ls_out += ["| k | Point | Satellites | Experiments (satellites, summed intensity) |",
+               "|---|---|---|---|"]
+    for d_vector in d_found["vectors"]:
+        k_text = ", ".join(f"{float(value):g}" for value in d_vector["k"])
         text_exp = "; ".join(f"{name} ({count}, {total:.4g})"
-                             for name, (count, total) in d_k[key].items())
-        n_total = sum(count for count, _ in d_k[key].values())
-        ls_out.append(f"| ({k_text}) | {n_total} | {text_exp} |")
-    ls_out += ["", f"{n_integer} reflections with integer indices (nuclear and k = 0)."]
-    if len(l_key) > 1:
+                             for name, (count, total) in d_vector["experiments"].items())
+        ls_out.append(f"| ({k_text}) | {d_vector['point'] or '–'} | {d_vector['n_satellite']} "
+                      f"| {text_exp} |")
+    ls_out += ["", f"{n_integer} reflections with integer indices (nuclear and k = 0). Point: "
+               "the special point of the Brillouin zone of the paramagnetic group "
+               "(search_knowledge 'special points')."]
+    if len(d_found["vectors"]) > 1:
         ls_out.append(
-            f"{len(l_key)} propagation vectors: add them one by one (the first k with "
+            f"{len(d_found['vectors'])} propagation vectors: add them one by one (the first k with "
             "rhochi_rank_magnetic_representations and add_propagation_vector, then the "
             "second one on the crystal that has the first: a multi-k structure). Vectors of "
             "one star (related by the paramagnetic group) are one k with magnetic domains.")
