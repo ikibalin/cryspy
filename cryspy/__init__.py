@@ -274,6 +274,10 @@ from cryspy.procedure_rhochi.rhochi_texture import (
     add_texture_spherical_harmonics,
     report_texture_spherical_harmonics,
 )
+from cryspy.procedure_rhochi.rhochi_magnetic_correlation import (
+    add_magnetic_correlation_length,
+    report_magnetic_correlation,
+)
 
 from cryspy.procedure_rhochi.rhochi import (
     rhochi_rietveld_refinement,
@@ -497,6 +501,8 @@ L_FUNCTION = [
     rhochi_rank_magnetic_representations,
     add_texture_spherical_harmonics,
     report_texture_spherical_harmonics,
+    add_magnetic_correlation_length,
+    report_magnetic_correlation,
     rhochi_rietveld_refinement,
     rhochi_rietveld_refinement_with_parameters,
     rhochi_no_refinement,
