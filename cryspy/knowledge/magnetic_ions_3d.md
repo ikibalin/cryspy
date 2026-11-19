@@ -1,6 +1,6 @@
 ---
 title: Magnetic transition-metal (3d) ions
-keywords: transition metal, 3d, magnetic ion, valence, oxidation state, spin only, high spin, low spin, orbital moment, quenched, переходный металл, магнитный ион, валентность, спин
+keywords: transition metal, 3d, magnetic ion, valence, oxidation state, spin only, high spin, low spin, orbital moment, quenched
 ---
 # Magnetic transition-metal (3d) ions
 

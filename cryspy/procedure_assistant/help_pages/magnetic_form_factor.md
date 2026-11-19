@@ -1,6 +1,6 @@
 ---
 title: Magnetic form factor in the dipole approximation
-keywords: form factor, magnetic form factor, magnetic ion, valence, usual ion, knowledge base, free-ion moment, lande, kappa, j0, j2, dipole approximation, atom_site_scat, атомный форм-фактор, магнитный форм-фактор, фактор ланде
+keywords: form factor, magnetic form factor, magnetic ion, valence, usual ion, knowledge base, free-ion moment, lande, kappa, j0, j2, dipole approximation, atom_site_scat
 categories: atom_site_scat, atom_type_scat
 ---
 The spherical magnetic form factor is f = <j0> + (2/g − 1) <j2>, where g is

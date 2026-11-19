@@ -1,6 +1,6 @@
 ---
 title: Paramagnetic susceptibility (local susceptibility approach)
-keywords: susceptibility, paramagnetic, chi, chi_11, local susceptibility, field, flip ratio, magnetization ellipsoid, восприимчивость, парамагнетик, локальная восприимчивость, эллипсоид намагниченности
+keywords: susceptibility, paramagnetic, chi, chi_11, local susceptibility, field, flip ratio, magnetization ellipsoid
 categories: atom_site_susceptibility, atom_site_exchange, setup
 ---
 In the paramagnetic state the induced moment of an ion is M = χ·H with a

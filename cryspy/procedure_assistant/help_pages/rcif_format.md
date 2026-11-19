@@ -1,6 +1,6 @@
 ---
 title: Structure of an rcif file
-keywords: rcif, cif, file, format, global, data block, loop, item, refine, sigma, mark, структура файла, формат, блок данных
+keywords: rcif, cif, file, format, global, data block, loop, item, refine, sigma, mark
 categories: crystal, diffrn, pd, pd2d, tof
 ---
 CrysPy reads and writes `.rcif` files: CIF syntax with CrysPy categories.

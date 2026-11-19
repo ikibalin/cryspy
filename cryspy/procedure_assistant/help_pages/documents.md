@@ -1,6 +1,6 @@
 ---
 title: Search in your documents (papers, books, reports)
-keywords: documents, document, papers, paper, article, literature, book, textbook, report, pdf, rag, search documents, my documents, source, reference, документы, статьи, статья, литература, книга, учебник, отчёт, отчет, источник
+keywords: documents, document, papers, paper, article, literature, book, textbook, report, pdf, rag, search documents, my documents, source, reference
 categories:
 ---
 The assistant answers questions from your own documents: give a folder

@@ -74,11 +74,19 @@ def test_guides_have_titles_and_keywords():
         assert not page.text.startswith("---")
 
 
+def test_help_keywords_english_only():
+    """Keywords are English only: requests in other languages are
+    translated to English by the program before the search."""
+    for page in cryspy_help.load_guide_pages():
+        for keyword in page.keywords:
+            assert keyword.isascii(), (page.name, keyword)
+
+
 @pytest.mark.parametrize("query, page_name", [
     ("how to describe thermal vibrations", "atomic_displacement"),
-    ("что необходимо использовать для описания тепловых колебаний",
+    ("what should be used to describe thermal vibrations",
      "atomic_displacement"),
-    ("как описать мультиполи", "multipoles"),
+    ("how to describe multipoles", "multipoles"),
     ("multipole model of form factor", "multipoles"),
     ("twins", "twinning"),
     ("background of powder pattern", "powder"),
@@ -93,6 +101,8 @@ def test_get_help_by_name_and_unknown():
     assert "atom_rho_multipole" in cryspy.get_help("multipoles")
     assert "_atom_site_aniso_U_11" in cryspy.get_help("atom_site_aniso")
     assert "Nothing is found" in cryspy.get_help("zzzz qqqq")
+    # a common word of the text of a page ("else") does not find the page
+    assert "Nothing is found" in cryspy.get_help("And what else do you know?")
 
 
 def test_category_pages_for_all_classes():

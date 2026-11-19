@@ -1,6 +1,6 @@
 ---
 title: Constraints between refined parameters
-keywords: constraint, constraints, restraint, soft constraint, sigma, linear, equation, sum, occupancy, mark, label, x+y, punishment, связь, ограничение, сумма заселённостей
+keywords: constraint, constraints, restraint, soft constraint, sigma, linear, equation, sum, occupancy, mark, label, x+y, punishment
 categories: constraint
 ---
 A mark is a name written after the parentheses of a refined value:

@@ -1,6 +1,6 @@
 ---
 title: Powder experiment (pd, pd2d, tof)
-keywords: powder, pd, rietveld, profile, background, resolution, u v w, asymmetry, texture, 2theta, offset, phase scale, pd2d, tof, time of flight, порошок, порошковая дифракция, ритвельд, фон, разрешение, текстура, время пролёта
+keywords: powder, pd, rietveld, profile, background, resolution, u v w, asymmetry, texture, 2theta, offset, phase scale, pd2d, tof, time of flight
 categories: pd_meas, pd_background, pd_instr_resolution, pd_instr_reflex_asymmetry, phase, texture, range, exclude, setup, tof_parameters, tof_profile, tof_background, pd2d_meas
 ---
 A constant wavelength 1d powder experiment is a `pd` data block:

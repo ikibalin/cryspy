@@ -1,6 +1,6 @@
 ---
 title: Magnetic 4d, 5d and actinide (5f) ions
-keywords: 4d, 5d, 5f, actinide, uranium, ruthenium, iridium, osmium, spin-orbit, jeff, magnetic ion, valence, актинид, уран, иридий, рутений
+keywords: 4d, 5d, 5f, actinide, uranium, ruthenium, iridium, osmium, spin-orbit, jeff, magnetic ion, valence
 ---
 # Magnetic 4d, 5d and actinide (5f) ions
 

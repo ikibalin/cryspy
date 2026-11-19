@@ -1,6 +1,6 @@
 ---
 title: Twins
-keywords: twin, twins, twinning, domain, twin law, jana, двойники, двойникование, домены
+keywords: twin, twins, twinning, domain, twin law, jana
 categories: jana_twin
 ---
 Twins of a single crystal are described like in Jana2006 by the `jana_twin`

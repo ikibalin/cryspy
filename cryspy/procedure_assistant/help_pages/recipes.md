@@ -1,6 +1,6 @@
 ---
 title: Recipes of the AI assistant (typical algorithms of analysis)
-keywords: recipe, recipes, cookbook, algorithm, step by step, write a recipe, new recipe, edit recipe, compose a recipe, рецепт, рецепты, алгоритм, по шагам, написать рецепт, составить рецепт
+keywords: recipe, recipes, cookbook, algorithm, step by step, write a recipe, new recipe, edit recipe, compose a recipe
 categories:
 ---
 A recipe is a text file with the steps of an analysis. The assistant reads

@@ -9,6 +9,10 @@ Two kinds of pages:
 
 Search is a plain keyword search without external dependencies, so it works
 the same in a script, in CrysPy Editor and with a local language model.
+Pages and keywords are in English only: a program which uses the help
+translates a request in another language to English before the search
+(CrysPy Editor asks its language model for it), so no language gets
+keywords of its own.
 """
 import os
 import re
@@ -21,9 +25,6 @@ SET_STOP_WORDS = {
     "a", "an", "and", "are", "be", "by", "can", "do", "for", "from", "how",
     "i", "in", "is", "it", "me", "my", "of", "on", "or", "should", "the",
     "to", "use", "used", "what", "which", "with",
-    "в", "и", "к", "как", "какие", "какой", "мне", "на", "надо", "не",
-    "нужно", "о", "по", "с", "что", "чтобы", "это", "для", "использовать",
-    "необходимо", "описать", "описания",
 }
 
 
@@ -168,7 +169,7 @@ def split_words(text: str) -> List[str]:
 
 
 def is_word_match(word: str, l_word: List[str]) -> bool:
-    """Same word or the same stem (endings differ in Russian and English)."""
+    """Same word or the same stem ("vibration" and "vibrations")."""
     for word_2 in l_word:
         if word == word_2:
             return True
@@ -192,13 +193,19 @@ def score_help_page(page: HelpPage, l_query_word: List[str],
             score += 2.
         if is_word_match(word, l_category_word):
             score += 1.
-        if word in l_text_word:
-            score += min(l_text_word.count(word), 5) * 0.2
     # a whole keyword phrase or category name inside the query
     query_sh = query.lower()
     for keyword in page.keywords + page.categories:
         if len(keyword) > 3 and keyword in query_sh:
             score += 3.
+    # the words of the text only rank the pages found by their keywords,
+    # title or categories: a common word of the text ("else" in "what
+    # else do you know?") does not make a page fit
+    if score == 0.:
+        return 0.
+    for word in l_query_word:
+        if word in l_text_word:
+            score += min(l_text_word.count(word), 5) * 0.2
     if page.kind == "guide":
         score *= 1.5
     return score
