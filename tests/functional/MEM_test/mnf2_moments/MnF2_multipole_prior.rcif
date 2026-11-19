@@ -157,7 +157,8 @@ _jana_twin_matrix[3][1]
 _jana_twin_matrix[3][2]
 _jana_twin_matrix[3][3]
 _jana_twin_fraction
-  1   0.0   1.0   0.0   1.0   0.0   0.0   0.0   0.0   1.0   0.124
+_jana_twin_time_reversal
+  1   0.0   1.0   0.0   1.0   0.0   0.0   0.0   0.0   1.0   0.124  -1
 
 loop_
 _diffrn_refln_index_h

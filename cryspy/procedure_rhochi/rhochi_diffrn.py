@@ -1,3 +1,5 @@
+import warnings
+
 import numpy
 
 from cryspy.A_functions_base.function_1_agreement_factors import calc_chi_sq_by_signal
@@ -26,7 +28,52 @@ from cryspy.A_functions_base.absorption import \
     L_ABSORPTION_PARAMETERS, calc_transmission_by_dictionary, \
     calc_transmission_derivatives_by_dictionary
 
+from cryspy.exceptions import CrysPyWarning
+
 na = numpy.newaxis
+
+
+def warn_net_moment_against_field(dict_crystal: dict, axis_z, twin_time_reversal, n_hkl: int):
+    """Warn about twin domains whose net ordered moment is antiparallel to
+    the field.
+
+    In a field the ferromagnetic component of the ordered moments is
+    usually along the field: a domain with a negative projection of its net
+    moment theta M on its field direction is likely the time-reversed one
+    (_jana_twin_time_reversal -1). Antiferromagnets (M = 0) give no warning.
+
+    Parameters
+    ----------
+    dict_crystal : dict
+        Crystal with ordered moments ("atom_ordered_index").
+    axis_z : numpy.ndarray, shape (3, n_domain * n_hkl)
+        Field direction in the Cartesian system (x||a*, z||c) of every
+        domain, blocks of n_hkl reflections.
+    twin_time_reversal : numpy.ndarray, shape (n_domain,)
+        Time reversal theta = +1 or -1 of the domains, the first is +1.
+    n_hkl : int
+        Number of the measured reflections.
+    """
+    # net moment of the unit cell: the magnetic structure factor at q = 0
+    with numpy.errstate(divide="ignore", invalid="ignore"):
+        dict_in_out_0 = {"index_hkl": numpy.zeros((3, 1), dtype=float)}
+        calc_f_m_perp_ordered_by_dictionary(dict_crystal, dict_in_out_0)
+    if "f_m_o" not in dict_in_out_0:
+        return
+    moment_net = numpy.real(dict_in_out_0["f_m_o"][:, 0])
+    if not numpy.all(numpy.isfinite(moment_net)):
+        return
+    axis_domains = axis_z[:, ::n_hkl]
+    projection = twin_time_reversal * (moment_net[:, na] * axis_domains).sum(axis=0)
+    # 1e-6: well above the rounding error of a compensated antiferromagnet
+    l_domain = [str(ind + 1) for ind, value in enumerate(projection) if value < -1e-6]
+    if len(l_domain) > 0:
+        warnings.warn(
+            f"The net ordered moment of twin domain(s) {', '.join(l_domain):} "
+            "(1 = the first domain) is antiparallel to the magnetic field. In a field "
+            "the ferromagnetic component is usually along it: check the moments "
+            "or set _jana_twin_time_reversal -1 for this domain.",
+            CrysPyWarning, stacklevel=3)
 
 
 
@@ -100,17 +147,21 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     flag_magnetic_field=False
 
     matrix_u = dict_diffrn["matrix_u"]
-    # Field-induced moments (susceptibility) are calculated from the field,
-    # so for twin domains the field and the polarization axis are taken in
-    # the Cartesian system of every domain. Ordered moments are field-aligned
-    # magnetization in a flipping-ratio experiment: every domain keeps the
-    # same orientation of its moments to the field as the first one.
+    # A twin domain is the whole crystal transformed by the magnetic twin
+    # operation (T, theta): the laboratory field and polarization axis are
+    # taken in the Cartesian system of every domain, the ordered moments
+    # (k = 0 and k != 0) of a domain are theta m (time reversal theta = -1).
+    # Field-induced moments (susceptibility) do not depend on theta.
     axis_z = matrix_u[6:9]
-    if flag_twin and ("atom_para_index" in dict_crystal_keys):
+    moment_sign = 1.
+    if flag_twin:
         axis_z = calc_axial_vector_by_twin_domains(
             axis_z, twin_matrices, unit_cell_parameters, n_hkl)
         magnetic_field = calc_axial_vector_by_twin_domains(
             magnetic_field, twin_matrices, unit_cell_parameters, n_hkl)
+        twin_time_reversal = numpy.concatenate(([1., ], dict_diffrn.get(
+            "twin_time_reversal", numpy.ones(twin_fraction.size - 1, dtype=float))))
+        moment_sign = numpy.repeat(twin_time_reversal, n_hkl)
     if "wavelength_hkl" in dict_diffrn.keys():
         wavelength = dict_diffrn["wavelength_hkl"]
         flags_wavelength = False
@@ -253,6 +304,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
         
 
         flag_ordered = True
+        if flag_twin and ("flip_ratio_es" in dict_diffrn_keys) and not flag_use_precalculated_data:
+            warn_net_moment_against_field(dict_crystal, axis_z, twin_time_reversal, n_hkl)
 
     if flag_para:
         flag_mag_atom_susceptibility = "mag_atom_susceptibility" in dder_sft_ccs.keys()
@@ -285,13 +338,13 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             dder_f_m_perp = {}
 
         if flag_ordered:
-            f_m_perp += f_m_perp_o_ccs
+            f_m_perp += f_m_perp_o_ccs * moment_sign
             dder_f_m_perp.update(dder_f_m_perp_o_ccs)
         if not numpy.all(flag_integer_hkl):
             f_m_perp = f_m_perp * flag_integer_hkl
         if flag_magnetic_k:
             f_m_perp = f_m_perp + calc_f_m_perp_k_by_dictionary(
-                dict_crystal, index_hkl, unit_cell_parameters)
+                dict_crystal, index_hkl, unit_cell_parameters) * moment_sign
         if flag_dict:
             dict_in_out["f_m_perp"] = f_m_perp
 
@@ -342,7 +395,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             else:
                 f_m_perp_2hkl = numpy.zeros(eq_ccs.shape, dtype=complex)
             if flag_ordered:
-                f_m_perp_2hkl += f_m_perp_o_ccs_2hkl
+                f_m_perp_2hkl += f_m_perp_o_ccs_2hkl * moment_sign
             f_m_perp_2hkl = f_m_perp_2hkl * flag_integer_2hkl
             if flag_magnetic_k:
                 flag_satellite_2hkl = numpy.zeros(index_2hkl.shape[1], dtype=bool)
@@ -353,7 +406,8 @@ def calc_chi_sq_for_diffrn_by_dictionary(
                             numpy.abs(index_h - numpy.round(index_h)) < 1e-4, axis=0)
                 if numpy.any(flag_satellite_2hkl):
                     f_m_perp_2hkl[:, flag_satellite_2hkl] += calc_f_m_perp_k_by_dictionary(
-                        dict_crystal, index_2hkl[:, flag_satellite_2hkl], unit_cell_parameters)
+                        dict_crystal, index_2hkl[:, flag_satellite_2hkl], unit_cell_parameters) * \
+                        numpy.broadcast_to(moment_sign, flag_satellite_2hkl.shape)[flag_satellite_2hkl]
 
             if flag_dict:
                 dict_in_out["f_m_perp_2hkl"] = f_m_perp_2hkl

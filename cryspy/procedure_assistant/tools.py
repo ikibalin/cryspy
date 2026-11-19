@@ -891,6 +891,33 @@ def tool_check_flip_ratio_model(cryspy_object, experiment: str = "",
     return {"text": "\n".join(ls_out), "metrics": result["metrics"]}
 
 
+def tool_check_twin_time_reversal(cryspy_object, experiment: str = "", apply: bool = True) -> dict:
+    l_row = experiments.scan_twin_time_reversal(cryspy_object, experiment, flag_apply=apply)
+    if len(l_row) == 0:
+        return {"text": "Error: no flip ratio experiment with twin domains (jana_twin)"
+                        + (f" named '{experiment:}'." if experiment.strip() else ".")}
+    ls_out = ["Time reversal of the twin domains (theta = -1 reverses the ordered moments):",
+              "experiment | twin | chi_sq theta=+1 | chi_sq theta=-1 | chosen"]
+    flag_changed = False
+    for d_row in l_row:
+        if d_row["flag_equal"]:
+            s_chosen = f"{d_row['chosen']:+d} (no difference: the domain does not depend on it)"
+        else:
+            s_chosen = f"{d_row['chosen']:+d}"
+            if d_row["chosen"] != d_row["previous"]:
+                s_chosen += f" (was {d_row['previous']:+d})"
+                flag_changed = True
+        ls_out.append(f"{d_row['experiment']:} | {d_row['id']:} | {d_row['chi_sq_plus']:.6g} | "
+                      f"{d_row['chi_sq_minus']:.6g} | {s_chosen:}")
+    if not apply:
+        ls_out.append("Nothing is changed (apply = no).")
+    elif flag_changed:
+        ls_out.append("The better time reversal is written to _jana_twin_time_reversal.")
+    result = tool_calculate(cryspy_object, flag_model_change=apply and flag_changed)
+    ls_out.append(result["text"])
+    return {"text": "\n".join(ls_out), "metrics": result["metrics"]}
+
+
 def tool_set_chi_type(cryspy_object, chi_type: str, atoms: str = "") -> dict:
     l_changed = experiments.set_chi_type(cryspy_object, chi_type, atoms)
     if len(l_changed) == 0:
@@ -1523,6 +1550,17 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
          "magnetic_atoms": {"type": "array", "items": {"type": "string"},
                             "description": "Labels of the magnetic atoms."},
          "lande": {"type": "number", "description": "Lande factor of the magnetic atoms."}},
+        flag_object_changed=True),
+    AssistantTool(
+        "check_twin_time_reversal",
+        "For flip ratio experiments with twin domains (jana_twin): calculate chi-square with "
+        "the time reversal +1 and -1 of every domain (-1 reverses its ordered moments, e.g. "
+        "antiferromagnetic or field-selected domains) and keep the better one.",
+        tool_check_twin_time_reversal,
+        {"experiment": {"type": "string",
+                        "description": "Name of the experiment; empty for all with flip ratios."},
+         "apply": {"type": "boolean",
+                   "description": "Write the better time reversal (yes by default); no only reports."}},
         flag_object_changed=True),
     AssistantTool(
         "estimate_absorption",

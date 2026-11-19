@@ -531,14 +531,14 @@ def calc_preliminary_information_by_dictionary(
 
         h_ccs = dict_diffrn["magnetic_field"]
         eh_ccs = dict_diffrn["matrix_u"][6:]
-        # Field-induced magnetization (channel col, susceptibility in channel
-        # ani) follows the field, which is taken in the Cartesian system of
-        # every twin domain; ordered moments keep their orientation to the
-        # field in every domain (as in RhoChi, rhochi_diffrn.py).
+        # A twin domain is the crystal transformed by the magnetic twin
+        # operation (T, theta), as in RhoChi (rhochi_diffrn.py): the field and
+        # the polarization axis are taken in the Cartesian system of every
+        # domain, ordered moments of a domain are theta m.
         n_domain = twin_fraction.size
-        flag_field_domains = (n_domain > 1) and not (flag_moment_ordered or flag_moment_k)
+        flag_field_domains = n_domain > 1
+        n_hkl_measured = index_hkl_measured.shape[1]
         if flag_field_domains:
-            n_hkl_measured = index_hkl_measured.shape[1]
             h_ccs = calc_axial_vector_by_twin_domains(
                 h_ccs, dict_diffrn["twin_matrices"], unit_cell_parameters, n_hkl_measured)
             eh_ccs = calc_axial_vector_by_twin_domains(
@@ -645,6 +645,11 @@ def calc_preliminary_information_by_dictionary(
                         dict_in_out=dict_in_out_chi,
                         flag_use_precalculated_data=flag_use_precalculated_data,
                     )
+            if flag_field_domains and (flag_moment_k or flag_moment_ordered):
+                twin_time_reversal = numpy.concatenate(([1., ], dict_diffrn.get(
+                    "twin_time_reversal", numpy.ones(n_domain - 1, dtype=float))))
+                mem_ani = mem_ani * numpy.repeat(twin_time_reversal, n_hkl_measured)[
+                    numpy.newaxis, :, numpy.newaxis, numpy.newaxis]
             # mem_ani is [3, Nhkl, Npoint, Natom]
             diffrn_dict_in_out["mem_ani"] = mem_ani
             l_mem_ani.append(mem_ani)

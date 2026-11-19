@@ -262,3 +262,46 @@ def scan_chi_start(cryspy_object, l_item: List[AtomSiteSusceptibility]) -> float
     for crystal in take_crystals(cryspy_object):
         crystal.apply_constraints()
     return chi_best
+
+
+def scan_twin_time_reversal(cryspy_object, name: str = "", flag_apply: bool = True) -> List[dict]:
+    """Choose the time reversal (+1 or -1) of every twin domain (jana_twin) of
+    the flip ratio experiments by chi_sq.
+
+    A twin law is a magnetic operation (T, theta): theta = -1 reverses the
+    ordered moments of the domain. In a field the ferromagnetic component
+    selects theta; for an antiferromagnet the net moment says nothing, so
+    the data decide. The domains are tried one after the other with the
+    choices made before them.
+
+    Returns one row per domain: experiment, twin id, previous theta,
+    chi_sq for +1 and -1, the chosen theta (the better one; the previous
+    one when both give the same chi_sq, flag_equal: the domain does not
+    depend on it).
+    """
+    import warnings
+    from cryspy.procedure_rhochi.rhochi import rhochi_no_refinement
+    l_row = []
+    for diffrn in take_flip_ratio_experiments(cryspy_object, name):
+        if not diffrn.is_attribute("jana_twin"):
+            continue
+        for item in diffrn.jana_twin.items:
+            previous = -1 if (item.is_attribute("time_reversal") and int(item.time_reversal) < 0) else 1
+            d_chi_sq = {}
+            for theta in (1, -1):
+                item.time_reversal = theta
+                with warnings.catch_warnings():
+                    # the warning about the net moment is the question checked here
+                    warnings.simplefilter("ignore")
+                    d_chi_sq[theta] = float(rhochi_no_refinement(cryspy_object)["chi_sq"])
+            # 1e-9 relative: equal up to rounding (zero fraction, symmetric domain)
+            flag_equal = abs(d_chi_sq[1] - d_chi_sq[-1]) <= 1e-9 * max(abs(d_chi_sq[1]), 1.)
+            if flag_equal:
+                chosen = previous
+            else:
+                chosen = 1 if d_chi_sq[1] < d_chi_sq[-1] else -1
+            item.time_reversal = chosen if flag_apply else previous
+            l_row.append({"experiment": str(diffrn.data_name), "id": item.id, "previous": previous,
+                          "chi_sq_plus": d_chi_sq[1], "chi_sq_minus": d_chi_sq[-1],
+                          "chosen": chosen, "flag_equal": flag_equal})
+    return l_row

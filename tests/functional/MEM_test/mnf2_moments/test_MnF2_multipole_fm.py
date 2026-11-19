@@ -13,7 +13,10 @@ def test_fm_by_multipole_for_mnf2():
     dict_in_out = {}
     chi_sq, n_hkl, der_chi_sq, dder_chi_sq, l_parameter_name = calc_chi_sq_for_diffrn_by_dictionary(dict_diffrn, dict_crystal, dict_in_out)
     # res =calculate_moments_by_multipole_for_mnf2(rcif_obj)
-    assert chi_sq < 800.
+    # 838: the twin (k, h, l) with time reversal -1 is the same magnetic
+    # domain as the first one (an exact symmetry), so it does not change
+    # chi_sq; before the field of the domain was not rotated (chi_sq 794)
+    assert chi_sq < 845.
 
 def test_model_magnetization_density():
     f_name = os.path.join(os.path.dirname(__file__), "MnF2_multipole_prior.rcif")
