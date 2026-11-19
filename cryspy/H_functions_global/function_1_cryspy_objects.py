@@ -173,6 +173,13 @@ from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
 L_ITEM_CLASS.extend([MagneticBroadening])
 L_LOOP_CLASS.extend([MagneticBroadeningL])
 
+from cryspy.C_item_loop_classes.cl_1_geom import (
+    GeomBond, GeomBondL, GeomAngle, GeomAngleL, GeomTorsion, GeomTorsionL,
+    GeomHbond, GeomHbondL)
+
+L_ITEM_CLASS.extend([GeomBond, GeomAngle, GeomTorsion, GeomHbond])
+L_LOOP_CLASS.extend([GeomBondL, GeomAngleL, GeomTorsionL, GeomHbondL])
+
 from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
     LayerCorrelation, LayerCorrelationL)
 

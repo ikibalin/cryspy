@@ -39,6 +39,10 @@ from cryspy.A_functions_base.symmetry_elements import (
     calc_full_mag_elems,
 )
 
+from cryspy.D_functions_item_loop.function_1_structure_geometry import (
+    GeometryInput, calc_bonds_and_angles, calc_geometry, find_hbonds,
+    form_chain_cif, form_geometry_loops, report_bonds_and_angles, report_chain,
+    report_hbonds)
 from cryspy.B_parent_classes.cl_3_data import DataN
 
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import AtomLocalAxesL
@@ -67,6 +71,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import (
     AtomElectronConfigurationL,
 )
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
+from cryspy.C_item_loop_classes.cl_1_geom import (
+    GeomAngleL, GeomBondL, GeomHbondL, GeomTorsionL)
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourierL
 from cryspy.C_item_loop_classes.cl_1_cell_wave_vector import CellWaveVectorL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_ssg_operation import (
@@ -175,6 +181,10 @@ class Crystal(DataN):
         SpaceGroupSymopMagnSsgOperationL,
         SpaceGroupSymopMagnSsgCenteringL,
         ParentSpaceGroup,
+        GeomBondL,
+        GeomAngleL,
+        GeomTorsionL,
+        GeomHbondL,
     )
     # CLASSES_INTERNAL = ()
 
@@ -1595,6 +1605,159 @@ class Crystal(DataN):
             ls_out.append("")
             ls_out.append("A negative U_i means non-positive definite displacement parameters.")
         return "\n".join(ls_out)
+
+    def take_geometry_input(self) -> GeometryInput:
+        return GeometryInput(self.cell, self.atom_site, self.get_full_symm_elems())
+
+    def calc_distance_or_angle(self, atoms: str) -> dict:
+        """Calculate the distance, bond angle or torsion angle of atoms of atom_site.
+
+        Two atoms give the distance, three the angle at the middle atom,
+        four the torsion angle (IUPAC sign). The first atom (the middle one
+        for an angle) stays where atom_site puts it; every other atom is
+        its equivalent position (symmetry element and lattice translation)
+        closest to the previous atom of the chain. The standard
+        uncertainty comes from the sigmas of the coordinates and of the
+        cell, taken as independent.
+
+        Parameters
+        ----------
+        atoms : str
+            Labels of 2, 3 or 4 atoms of atom_site, e.g. 'N1 C1' or
+            'O1 Fe1 O2'.
+
+        Returns
+        -------
+        dict
+            ``kind`` ('distance', 'angle', 'torsion angle'), ``value`` and
+            ``sigma`` (Å or degrees), ``unit``, ``labels``, ``symmetry``
+            (operation of every atom, '-x+1,y,z') and ``cif_symmetry``
+            (codes 'n_klm' of the core CIF dictionary).
+        """
+        return calc_geometry(self.take_geometry_input(), atoms)
+
+    def report_distances_and_angles(self, atoms: str = "", max_distance: float = 3.,
+                                    flag_angles: bool = True, flag_cif: bool = False) -> str:
+        """Calculate interatomic distances, bond angles and torsion angles (Markdown or CIF).
+
+        With 2, 3 or 4 atoms: their distance (and all other distances
+        between these two atoms up to max_distance), angle at the middle
+        atom or torsion angle, with standard uncertainties and the symmetry
+        operations of the atoms (see :meth:`calc_distance_or_angle`). With one
+        atom: all its bonds (neighbours up to max_distance) and the angles
+        between them. Without atoms: the bonds and angles of all atoms of
+        atom_site, every bond once, as the geometry tables of a
+        publication CIF. Nothing in the crystal is changed (add_distances_and_angles
+        stores them).
+
+        Parameters
+        ----------
+        atoms : str
+            Labels of the atoms of atom_site ('N1 C1' gives the distance,
+            'N1 C1 C2' the angle at C1, 'Fe1' the neighbours of Fe1);
+            empty for all atoms.
+        max_distance : float
+            Largest bond length, Å.
+        flag_angles : bool
+            Give the angles between the bonds of an atom.
+        flag_cif : bool
+            Give CIF loops _geom_bond, _geom_angle, _geom_torsion with the
+            loop _space_group_symop they refer to, instead of Markdown.
+
+        Returns
+        -------
+        str
+        """
+        geometry = self.take_geometry_input()
+        l_label = geometry.split_labels(atoms)
+        if len(l_label) in (2, 3, 4):
+            if flag_cif:
+                return form_chain_cif(geometry, calc_geometry(geometry, l_label))
+            return report_chain(geometry, l_label, max_distance)
+        if len(l_label) == 0:
+            l_center = list(range(len(geometry.labels)))
+        else:
+            l_center = [geometry.take_atom_index(label) for label in l_label]
+        return report_bonds_and_angles(geometry, l_center, max_distance,
+                                       flag_angles=flag_angles, flag_cif=flag_cif)
+
+    def report_hydrogen_bonds(self, acceptors: str = "N O F Cl S", max_distance_dh: float = 1.2,
+                              max_distance_ha: float = 2.6, min_angle_dha: float = 120.) -> str:
+        """Hydrogen bonds D–H···A of the hydrogen (deuterium) atoms in Markdown.
+
+        For every H or D atom of atom_site (by type_symbol) the donor D is
+        the closest other atom within max_distance_dh, the acceptors A are
+        the atoms of the given elements within max_distance_ha of H with
+        the angle D–H···A not smaller than min_angle_dha. Distances D–H,
+        H···A, D···A and the angle with standard uncertainties and the
+        symmetry operations of D and A, as in the CIF loop _geom_hbond.
+
+        Parameters
+        ----------
+        acceptors : str
+            Elements of the acceptor atoms, separated by spaces.
+        max_distance_dh : float
+            Largest donor–hydrogen distance, Å.
+        max_distance_ha : float
+            Largest hydrogen–acceptor distance, Å.
+        min_angle_dha : float
+            Smallest angle D–H···A, degrees.
+
+        Returns
+        -------
+        str
+        """
+        geometry = self.take_geometry_input()
+        return report_hbonds(geometry, find_hbonds(
+            geometry, [item.type_symbol for item in self.atom_site.items], acceptors,
+            max_distance_dh, max_distance_ha, min_angle_dha))
+
+    def add_distances_and_angles(self, max_distance: float = 3., flag_angles: bool = True,
+                                 torsions: str = "", flag_hbonds: bool = True) -> str:
+        """Store the interatomic distances, angles, torsion angles and hydrogen bonds in the crystal.
+
+        Makes the CIF loops geom_bond (all bonds up to max_distance,
+        every bond once), geom_angle (bond angles at every
+        atom), geom_torsion (the given chains of four atoms) and geom_hbond
+        (hydrogen bonds with the criteria of report_hydrogen_bonds) and puts them
+        into the crystal, replacing the old ones, so that they are saved
+        in the rcif file and can be copied into a publication CIF. The
+        values carry standard uncertainties; call it again after a
+        refinement. They are not parameters of the refinement.
+
+        Parameters
+        ----------
+        max_distance : float
+            Largest bond length, Å.
+        flag_angles : bool
+            Calculate the bond angles at every atom.
+        torsions : str
+            Torsion angles to calculate: chains of four atom labels
+            separated by ';'; empty for none.
+        flag_hbonds : bool
+            Calculate the hydrogen bonds (when the crystal has H or D atoms).
+
+        Returns
+        -------
+        str
+            What was stored.
+        """
+        geometry = self.take_geometry_input()
+        l_bond, l_angle = calc_bonds_and_angles(
+            geometry, list(range(len(geometry.labels))), max_distance, flag_angles)
+        l_torsion = [calc_geometry(geometry, chain) for chain in torsions.split(";")
+                     if chain.strip()]
+        l_hbond = (find_hbonds(geometry, [item.type_symbol for item in self.atom_site.items])
+                   if flag_hbonds else [])
+        d_loop = form_geometry_loops(geometry, l_bond, l_angle, l_torsion, l_hbond)
+        for name in ("geom_bond", "geom_angle", "geom_torsion", "geom_hbond"):
+            if name not in d_loop and self.is_attribute(name):
+                self.items.remove(getattr(self, name))
+        self.add_items(list(d_loop.values()))
+        return (f"Crystal {self.data_name:}: {len(l_bond):} distances (up to "
+                f"{max_distance:g} Å), {len(l_angle):} angles, {len(l_torsion):} "
+                f"torsion angles, {len(l_hbond):} hydrogen bonds are stored "
+                "(loops geom_bond, geom_angle, geom_torsion, geom_hbond).")
 
     def calc_adp_tensors_xyz(self):
         """Atomic displacement tensors U of the atoms in Cartesian axes.

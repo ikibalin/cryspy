@@ -83,6 +83,7 @@ from cryspy.procedure_assistant.tools_model import (
     tool_remove_item,
     tool_calculate_structure_factor,
     tool_list_atoms_in_unit_cell,
+    tool_report_distances_and_angles,
     tool_convert_to_p1,
     tool_report_ellipsoids,
     tool_add_crystal_from_cod)
@@ -1665,9 +1666,35 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         "list_atoms_in_unit_cell",
         "All atoms of the unit cell made by the symmetry elements (the "
         "structure in P1): fractional coordinates and ordered moments of "
-        "every atom; nothing is changed.",
+        "every atom; nothing is changed. For distances and angles use "
+        "report_distances_and_angles.",
         tool_list_atoms_in_unit_cell,
         {"crystal": {"type": "string",
+                     "description": "Name of the crystal; empty for all."},
+         "atoms": {"type": "string",
+                   "description": "Labels of atom_site to list, e.g. 'N1 C1'; "
+                                  "empty for all atoms."}}),
+    AssistantTool(
+        "report_distances_and_angles",
+        "Interatomic distance (2 atoms, 'N1 C1'), bond angle (3 atoms, the "
+        "vertex in the middle), torsion angle (4 atoms) with standard "
+        "uncertainties and symmetry operations, the closest equivalent atoms "
+        "taken; one atom: its neighbours (bonds) and the angles between them; "
+        "no atoms: all bonds and angles; hydrogen_bonds: the D-H...A bonds. "
+        "Nothing is changed (method add_distances_and_angles stores them).",
+        tool_report_distances_and_angles,
+        {"atoms": {"type": "string",
+                   "description": "Labels of atom_site: 'N1 C1', 'O1 Fe1 O2', 'Fe1' "
+                                  "or empty for all."},
+         "max_distance": {"type": "number",
+                          "description": "Largest bond length, Å; 3 by default."},
+         "angles": {"type": "boolean",
+                    "description": "Angles between the bonds; true by default."},
+         "cif": {"type": "boolean",
+                 "description": "As CIF loops _geom_bond, _geom_angle, _geom_torsion."},
+         "hydrogen_bonds": {"type": "boolean",
+                            "description": "Hydrogen bonds D-H...A instead."},
+         "crystal": {"type": "string",
                      "description": "Name of the crystal; empty for all."}}),
     AssistantTool(
         "convert_to_p1",
