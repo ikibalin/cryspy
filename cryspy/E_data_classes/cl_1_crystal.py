@@ -78,7 +78,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_fourier_wave_vector import (
 from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
     calc_magnetic_domain_matrices, calc_magnetic_domain_operations,
-    form_magnetic_domain_operations, calc_site_symmform, take_atom_positions,
+    form_magnetic_domain_operations, report_magnetic_models, take_magnetic_models,
+    take_model_candidates, calc_site_symmform, take_atom_positions,
     convert_magnetic_space_group, form_fourier_items, form_parent_space_group,
     form_irrep_name, form_start_fourier, form_superspace_by_irrep,
     report_moment_modulation,
@@ -1119,6 +1120,105 @@ class Crystal(DataN):
             report = ("k is taken as commensurate: " + ", ".join(l_note) + ".\n\n"
                       + report)
         return report
+
+    def report_magnetic_models(self, k_1: float, k_2: float, k_3: float,
+                               magnetic_atoms: str = "",
+                               use_minus_k_operations: bool = True,
+                               try_superpositions: bool = True) -> str:
+        """List every magnetic model of a propagation vector, without data.
+
+        The models are the one-dimensional representations of the group of
+        k, the modes (isotropy subgroups) of the multidimensional ones and,
+        with try_superpositions, the sums of two one-dimensional ones,
+        numbered as in rhochi_rank_magnetic_representations. For every model
+        the table gives its superspace group, the number of free Fourier
+        parameters of every magnetic atom and the magnetic domains
+        (operations "x,y,z,+1" of the paramagnetic group that are not in the
+        magnetic group). The crystal is not changed; add_magnetic_model
+        gives it the chosen model.
+
+        Parameters
+        ----------
+        k_1 : float
+            First component of the propagation vector (reciprocal lattice units).
+        k_2 : float
+            Second component of the propagation vector (reciprocal lattice units).
+        k_3 : float
+            Third component of the propagation vector (reciprocal lattice units).
+        magnetic_atoms : str
+            Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
+        use_minus_k_operations : bool
+            Add the operations mapping k to -k when the representation allows it.
+        try_superpositions : bool
+            List the sums of two one-dimensional representations too.
+
+        Returns
+        -------
+        str
+            Markdown table of the models.
+        """
+        k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
+        l_model = take_magnetic_models(self, k_vector, magnetic_atoms,
+                                       use_minus_k_operations, try_superpositions)
+        report = report_magnetic_models(l_model, k_vector)
+        if l_note:
+            report = "k is taken as commensurate: " + ", ".join(l_note) + ".\n\n" + report
+        return report
+
+    def add_magnetic_model(self, k_1: float, k_2: float, k_3: float,
+                           magnetic_atoms: str, model: int = 1,
+                           moment: float = 0.0,
+                           use_minus_k_operations: bool = True,
+                           magnetic_ion: str = "", lande: float = 0.0) -> str:
+        """Give the crystal the magnetic model number ``model`` of
+        report_magnetic_models (the same numbers as in
+        rhochi_rank_magnetic_representations).
+
+        The model is converted by add_propagation_vector with its
+        representation and mode. Diffrn.define_magnetic_domains then writes
+        its magnetic domains in a single-crystal experiment.
+
+        Parameters
+        ----------
+        k_1 : float
+            First component of the propagation vector (reciprocal lattice units).
+        k_2 : float
+            Second component of the propagation vector (reciprocal lattice units).
+        k_3 : float
+            Third component of the propagation vector (reciprocal lattice units).
+        magnetic_atoms : str
+            Labels of the magnetic atoms separated by commas, as Fe1, Fe2.
+        model : int
+            Number of the model in report_magnetic_models.
+        moment : float
+            Start amplitude of the Fourier components in μB (0 keeps them zero).
+        use_minus_k_operations : bool
+            Add the operations mapping k to -k when the representation allows it.
+        magnetic_ion : str
+            Magnetic ion of the form factor (as Tb3+), used for the magnetic
+            atoms without atom_site_scat; empty takes the type_symbol of the
+            atom when it has a charge.
+        lande : float
+            Lande factor of the added atom_site_scat rows; 0 takes g_J of
+            Hund's rules for a 4f ion and 2 otherwise.
+
+        Returns
+        -------
+        str
+            Markdown report of the conversion.
+        """
+        k_vector = snap_k_vector([k_1, k_2, k_3])[0]
+        l_candidate = take_model_candidates(self.take_group_of_k(k_vector), k_vector, True)
+        model = int(model)
+        if not 1 <= model <= len(l_candidate):
+            raise CrysPyError(f"model must be from 1 to {len(l_candidate)} "
+                              "(the rows of report_magnetic_models).")
+        irrep, mode = l_candidate[model - 1]
+        report = self.add_propagation_vector(
+            k_1, k_2, k_3, magnetic_atoms, irrep, moment, use_minus_k_operations,
+            mode or 1, magnetic_ion, lande)
+        name = form_irrep_name(irrep.split(","), mode)
+        return f"Model {model} ({name}).\n\n" + report
 
     def take_group_of_k(self, k_vector) -> dict:
         """Group of k (take_k_group) of the paramagnetic space group or, for

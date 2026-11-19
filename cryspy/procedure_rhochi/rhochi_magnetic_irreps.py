@@ -22,7 +22,7 @@ from cryspy.D_functions_item_loop.function_1_magnetic_k import (
     classify_moment_modulation,
     form_irrep_name,
     split_labels,
-    take_irrep_candidates,
+    take_model_candidates,
 )
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.exceptions import CrysPyError
@@ -182,16 +182,10 @@ def take_recommended_row(l_row: list) -> dict:
 
 
 def take_rank_candidates(k_group: dict, k_vector, try_superpositions: bool) -> list:
-    """(irrep text, mode) of every candidate: the one-dimensional
-    representations, the modes of the multidimensional ones and, with
-    try_superpositions, the sums of two one-dimensional ones ('1,2')."""
-    l_candidate = [(str(number), mode)
-                   for number, mode in take_irrep_candidates(k_group, k_vector)]
-    if try_superpositions:
-        l_one = [number for number, mode in l_candidate if mode is None]
-        l_candidate += [(f"{first},{second}", None) for i_first, first in enumerate(l_one)
-                        for second in l_one[i_first + 1:]]
-    return l_candidate
+    """(model number, irrep text, mode) of every candidate, numbered as in
+    Crystal.report_magnetic_models (take_model_candidates)."""
+    return [(i_model + 1, irrep, mode) for i_model, (irrep, mode) in enumerate(
+        take_model_candidates(k_group, k_vector, try_superpositions))]
 
 
 def rhochi_rank_magnetic_representations(
@@ -281,7 +275,7 @@ def rhochi_rank_magnetic_representations(
     l_candidate = take_rank_candidates(
         crystal.take_group_of_k(k_vector), k_vector, try_superpositions)
     l_row, l_fail = [], []
-    for number, mode in l_candidate:
+    for model, number, mode in l_candidate:
         name = form_irrep_name(number.split(","), mode)
         logger.info(f"Refinement of {name}.")
         try:
@@ -292,6 +286,7 @@ def rhochi_rank_magnetic_representations(
             l_fail.append(f"- {name}: {str(error).splitlines()[0]}")
             continue
         d_res["name"], d_res["number"], d_res["mode"] = name, number, mode
+        d_res["model"] = model
         l_row.append(d_res)
     if not l_row:
         raise CrysPyError("No representation could be refined:\n" + "\n".join(l_fail))
@@ -304,16 +299,16 @@ def rhochi_rank_magnetic_representations(
     if l_scat_added:
         ls_out += ["Magnetic form factor of every model (atom_site_scat): "
                    + "; ".join(l_scat_added) + ".", ""]
-    ls_out += ["| Rank | Representation | chi_sq/n | R_F2 satellites of k | Fourier parameters "
-               "| Domains | Moments (μB) |",
-               "|---|---|---|---|---|---|---|"]
+    ls_out += ["| Rank | Model | Representation | chi_sq/n | R_F2 satellites of k "
+               "| Fourier parameters | Domains | Moments (μB) |",
+               "|---|---|---|---|---|---|---|---|"]
     for i_row, row in enumerate(l_row):
         text_moment = "; ".join(
             f"{label} {low:.2f}–{high:.2f} {kind}"
             for label, (low, high, kind) in row["moments"].items())
         text_r = "–" if row["r_satellite"] is None else f"{100. * row['r_satellite']:.1f} %"
         ls_out.append(
-            f"| {i_row + 1} | {row['name']} | {row['chi_sq'] / max(row['n_point'], 1):.3f} "
+            f"| {i_row + 1} | {row['model']} | {row['name']} | {row['chi_sq'] / max(row['n_point'], 1):.3f} "
             f"| {text_r} | {row['n_fourier']} | {row['n_domain']} | {text_moment} |")
     n_satellite = l_row[0]["n_satellite"]
     ls_out += ["", f"n = {l_row[0]['n_point']} points, {n_satellite} satellites of k in the "

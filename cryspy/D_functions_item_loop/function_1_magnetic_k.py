@@ -18,7 +18,8 @@ from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_axial_moment_matrix, calc_domain_operations, calc_fourier_site_projector,
     calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
     calc_one_dimensional_irreps, calc_small_irreps, combine_superspace_groups,
-    form_fourier_symmform, form_operation_xyz, form_superspace_group, split_atom_orbit)
+    form_fourier_symmform, form_operation_xyz, form_superspace_group, parse_symmform,
+    split_atom_orbit)
 from cryspy.A_functions_base.structure_factor_magnetic_k import (
     calc_superspace_operation_arrays, is_k_equivalent_to_minus_k,
     parse_operation_xyz, parse_ssg_operation)
@@ -107,6 +108,103 @@ def take_irrep_candidates(k_group: dict, k_vector) -> list:
         n_mode = len(take_isotropy_subgroups(k_group, number, k_vector))
         l_candidate += [(number, mode) for mode in range(1, n_mode + 1)]
     return l_candidate
+
+
+def take_model_candidates(k_group: dict, k_vector, try_superpositions: bool = True) -> list:
+    """(irrep text, mode) of every magnetic model of k, numbered from 1 in
+    this order: the one-dimensional representations, the modes (isotropy
+    subgroups) of the multidimensional ones and, with try_superpositions,
+    the sums of two one-dimensional ones ('1,2'). The superpositions come
+    last, so the numbers of the others do not depend on try_superpositions."""
+    l_candidate = [(str(number), mode)
+                   for number, mode in take_irrep_candidates(k_group, k_vector)]
+    if try_superpositions:
+        l_one = [number for number, mode in l_candidate if mode is None]
+        l_candidate += [(f"{first},{second}", None) for i_first, first in enumerate(l_one)
+                        for second in l_one[i_first + 1:]]
+    return l_candidate
+
+
+def count_free_fourier_parameters(crystal) -> dict:
+    """{atom label: number of free Fourier parameters} of the last wave
+    vector (distinct symbols of cos_symmform and sin_symmform)."""
+    if not crystal.is_attribute("atom_site_moment_fourier"):
+        return {}
+    l_item = crystal.atom_site_moment_fourier.items
+    wave_last = max(int(item.wave_vector_seq_id or 1) for item in l_item)
+    d_symbol = {}
+    for item in l_item:
+        if int(item.wave_vector_seq_id or 1) != wave_last:
+            continue
+        symbols = d_symbol.setdefault(item.atom_site_label, set())
+        for symmform in (item.cos_symmform, item.sin_symmform):
+            symbols.update(parse_symmform(symmform or "0").keys())
+    return {label: len(symbols) for label, symbols in d_symbol.items()}
+
+
+def take_magnetic_models(crystal, k_vector, magnetic_atoms: str,
+                         use_minus_k_operations: bool = True,
+                         try_superpositions: bool = True) -> list:
+    """Every magnetic model of the propagation vector k for the magnetic
+    atoms, without data: one dict per model of take_model_candidates.
+
+    Every model is built by ``add_propagation_vector`` in a copy of the
+    crystal (the crystal is not changed). Keys: ``model`` (number from 1),
+    ``irrep``, ``mode``, ``name``; ``n_operation`` and ``n_centring`` of
+    the superspace group; ``fourier`` {atom: number of free Fourier
+    parameters}; ``domains`` (magnetic operations 'x,y,z,+1' of the
+    domains, the first is the crystal itself); ``error`` (text) when the
+    model cannot be built.
+    """
+    k_group = crystal.take_group_of_k(k_vector)
+    l_model = []
+    for i_model, (irrep, mode) in enumerate(take_model_candidates(
+            k_group, k_vector, try_superpositions)):
+        d_model = {"model": i_model + 1, "irrep": irrep, "mode": mode,
+                   "name": form_irrep_name(irrep.split(","), mode), "error": ""}
+        crystal_model = copy.deepcopy(crystal)
+        try:
+            crystal_model.add_propagation_vector(
+                float(k_vector[0]), float(k_vector[1]), float(k_vector[2]),
+                magnetic_atoms, irrep, 0., use_minus_k_operations, mode or 1,
+                # the form factor does not change the symmetry: any ion for the
+                # atoms of the copy without atom_site_scat
+                "Fe3+")
+            d_model["n_operation"] = len(crystal_model.space_group_symop_magn_ssg_operation.items)
+            d_model["n_centring"] = len(crystal_model.space_group_symop_magn_ssg_centering.items) \
+                if crystal_model.is_attribute("space_group_symop_magn_ssg_centering") else 1
+            d_model["fourier"] = count_free_fourier_parameters(crystal_model)
+            d_model["domains"] = form_magnetic_domain_operations(crystal_model)
+        except CrysPyError as error:
+            d_model["error"] = str(error).splitlines()[0]
+        l_model.append(d_model)
+    return l_model
+
+
+def report_magnetic_models(l_model: list, k_vector) -> str:
+    """Markdown table of take_magnetic_models."""
+    k_text = ", ".join(f"{float(value):g}" for value in k_vector)
+    ls_out = [f"# Magnetic models of k = ({k_text})", "",
+              "| Model | Representation | Superspace group | Free Fourier parameters "
+              "| Magnetic domains |", "|---|---|---|---|---|"]
+    for d_model in l_model:
+        if d_model["error"]:
+            ls_out.append(f"| {d_model['model']} | {d_model['name']} | "
+                          f"not possible: {d_model['error']} | | |")
+            continue
+        text_fourier = ", ".join(f"{label} {number}" for label, number in d_model["fourier"].items())
+        domains = d_model["domains"]
+        text_domain = f"{len(domains)}" + (": " + "; ".join(domains[1:]) if len(domains) > 1 else "")
+        ls_out.append(
+            f"| {d_model['model']} | {d_model['name']} | {d_model['n_operation']} operations, "
+            f"{d_model['n_centring']} centrings | {text_fourier} | {text_domain} |")
+    ls_out += ["", "A model has 0 free Fourier parameters of an atom when the representation "
+               "does not allow a moment on it. The magnetic domains are the operations of the "
+               "paramagnetic group (with time reversal) that are not in the magnetic group, "
+               "Friedel pairs merged; the first domain is the crystal itself. "
+               "Crystal.add_magnetic_model gives the crystal the chosen model, "
+               "Diffrn.define_magnetic_domains writes its domains in a single-crystal experiment."]
+    return "\n".join(ls_out)
 
 
 def form_phase_by_character(chi):

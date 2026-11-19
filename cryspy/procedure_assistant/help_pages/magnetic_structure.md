@@ -56,6 +56,15 @@ The easiest way from a paramagnetic crystal with `space_group`:
    multidimensional representation has several modes: the isotropy
    subgroups (order-parameter directions up to domains), each with its own
    superspace group, the largest first;
+   Method `report_magnetic_models` of the crystal lists every model of k
+   without data, numbered: the one-dimensional representations, the modes
+   of the multidimensional ones and the sums of two one-dimensional ones,
+   with the superspace group, the free Fourier parameters of every magnetic
+   atom and the magnetic domains of the model (operations "x,y,z,+1" of the
+   paramagnetic group that are not in the magnetic group; a domain is the
+   whole structure, all its waves, transformed by the operation, so an
+   operation that moves k gives the domain of another arm of the star).
+   Method `add_magnetic_model` gives the crystal the model by its number.
    With measured data (the nuclear structure fitted in the paramagnetic
    space group), procedure `rhochi_rank_magnetic_representations` (k,
    magnetic atoms, start moment in μB) adds k with every representation

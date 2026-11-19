@@ -96,11 +96,17 @@ def measured():
     return intensity, numpy.sqrt(intensity) + 0.5
 
 
+def take_rows(report):
+    """Cells of the table rows that start with a number."""
+    return [line.split("|") for line in report.splitlines()
+            if line.startswith("| ") and line[2].isdigit()]
+
+
 def take_table(report):
     """[(representation, chi_sq/n)] of the table, in its order."""
     rows = [line.split("|") for line in report.splitlines()
             if line.startswith("| ") and line[2].isdigit()]
-    return [(row[2].strip(), float(row[3])) for row in rows]
+    return [(row[3].strip(), float(row[4])) for row in rows]
 
 
 def test_generating_representation_is_best(measured):
@@ -112,6 +118,10 @@ def test_generating_representation_is_best(measured):
     # the sums of two one-dimensional representations are tried as well
     assert len([name for name, _ in table if "⊕" in name]) == 6
     assert "Recommended: Γ2" in report
+    # the column Model has the numbers of Crystal.report_magnetic_models
+    d_model = {row[2].strip(): row[1].strip() for row in take_rows(
+        obj.crystal_phase.report_magnetic_models(*K_VECTOR, "Mn1"))}
+    assert {row[3].strip(): row[2].strip() for row in take_rows(report)} == d_model
     # the data are the model of Γ2: chi_sq is zero within the refinement
     # tolerance; the others miss the satellites by far more than the sigmas
     assert table[0][1] < 1e-2
