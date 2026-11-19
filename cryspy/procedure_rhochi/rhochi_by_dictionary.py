@@ -13,6 +13,9 @@ from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
 from cryspy.A_functions_base.linear_constraints import \
     calc_dependent_parameters, calc_soft_constraint_chi_sq, form_linear_system
+from cryspy.A_functions_base.matrix_operations import calc_m_v
+from cryspy.A_functions_base.structure_geometry import (
+    calc_restraint_difference, calc_restraint_value)
 from cryspy.exceptions import RefinementError
 
 logger = logging.getLogger(__name__)
@@ -74,7 +77,29 @@ def calc_punishement_function(dict_obj):
         d_value = {mark: sign * dict_obj[way[0]][way[1]][way[2]]
                    for mark, (sign, way) in d_mark_way.items()}
         chi_sq_punishement += calc_soft_constraint_chi_sq(expression, sigma, d_value)
+    chi_sq_punishement += calc_restraints_chi_sq(dict_obj)
     return chi_sq_punishement
+
+
+def calc_restraints_chi_sq(dict_obj) -> float:
+    """Sum of ((value - target) / sigma)^2 of the restraints of distances
+    and angles (restr_distance, restr_angle, restr_torsion) with the
+    coordinates and the cell of the dictionary (symmetry constraints of
+    special positions and of the cell applied as in the structure factor)."""
+    chi_sq = 0.
+    for block_name, l_atom, l_rotation, l_offset, target, sigma in dict_obj.get("restraints", []):
+        dict_crystal = dict_obj[block_name]
+        unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+        if numpy.any(dict_crystal.get("flags_unit_cell_parameters", False)):
+            unit_cell_parameters = (numpy.dot(dict_crystal["sc_uc"], unit_cell_parameters)
+                                    + dict_crystal["v_uc"])
+        atom_fract_xyz = calc_m_v(
+            dict_crystal["atom_site_sc_fract"], numpy.mod(dict_crystal["atom_fract_xyz"], 1),
+            flag_m=False, flag_v=False)[0] + dict_crystal["atom_site_sc_b"]
+        value = calc_restraint_value(unit_cell_parameters, atom_fract_xyz,
+                                     l_atom, l_rotation, l_offset)
+        chi_sq += (calc_restraint_difference(value, target, len(l_atom)) / sigma) ** 2
+    return chi_sq
 
 
 def take_linear_equations(global_dict: dict, parameter_names: list) -> list:

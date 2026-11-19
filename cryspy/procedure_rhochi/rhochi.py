@@ -83,6 +83,16 @@ def rhochi_rietveld_refinement(cryspy_object: cryspy.GlobalN, *, callback=None) 
     return dict_out
 
 
+def update_restraint_differences(cryspy_object) -> None:
+    """diff = value - target of the restraints of the crystals after a
+    refinement (restr_distance, restr_angle, restr_torsion)."""
+    for item in cryspy_object.items:
+        if hasattr(type(item), "update_restraints") and any(
+                item.is_attribute(name) for name in
+                ("restr_distance", "restr_angle", "restr_torsion")):
+            item.update_restraints()
+
+
 def rhochi_rietveld_refinement_with_parameters(
         cryspy_object: cryspy.GlobalN,
         optimization_method: str = "BFGS", *, callback=None) -> dict:
@@ -150,7 +160,8 @@ def rhochi_rietveld_refinement_with_parameters(
     else:
         cryspy_object.take_parameters_from_dictionary(obj_dict, l_parameter_name = parameter_name, l_sigma=sigma_p)
     cryspy_object.take_parameters_from_dictionary(dict_in_out, l_parameter_name = None, l_sigma=None)
-    
+    update_restraint_differences(cryspy_object)
+
     if flag_stopped:
         log_refined_parameters(cryspy_object)
         return dict_out

@@ -1,7 +1,7 @@
 ---
 title: Interatomic distances, bond angles, torsion angles, hydrogen bonds
-keywords: distance, distances, interatomic distance, bond, bonds, bond length, bond lengths, angle, angles, bond angle, torsion, torsion angle, dihedral, neighbours, neighbors, coordination, environment, hydrogen bond, hydrogen bonds, hbond, geom_bond, geom_angle, geom_torsion, geom_hbond, publication cif, symmetry code
-categories: atom_site, cell, space_group, geom_bond, geom_angle, geom_torsion, geom_hbond
+keywords: restraint, restraints, restrain, dfix, dang, soft constraint, restr_distance, restr_angle, restr_torsion, distance, distances, interatomic distance, bond, bonds, bond length, bond lengths, angle, angles, bond angle, torsion, torsion angle, dihedral, neighbours, neighbors, coordination, environment, hydrogen bond, hydrogen bonds, hbond, geom_bond, geom_angle, geom_torsion, geom_hbond, publication cif, symmetry code
+categories: atom_site, cell, space_group, geom_bond, geom_angle, geom_torsion, geom_hbond, restr_distance, restr_angle, restr_torsion
 ---
 The geometry of a crystal is calculated from the cell, the atoms of
 `atom_site` and the symmetry elements (space group, magnetic or superspace
@@ -46,3 +46,23 @@ D–H···A of at least `min_angle_dha` (120°).
 
 To see the atoms themselves, `list_atoms_in_unit_cell` takes `atoms` too
 (e.g. 'N1 C1') and lists only their equivalent positions in the unit cell.
+
+Restraints (soft constraints, as DFIX and DANG of SHELX) keep a distance,
+angle or torsion angle near a target in the refinement: the refinement adds
+((value - target) / sigma)^2 to chi_sq. They live in their own loops
+restr_distance, restr_angle and restr_torsion, given by the user and never
+recalculated; only `diff` = value - target is updated (at the end of every
+refinement and by `update_restraints`).
+
+```python
+crystal.add_restraint("N1 C3")                         # the present value, sigma 0.01 Å
+crystal.add_restraint("N1 C3", target="1.47", sigma=0.005)
+crystal.add_restraint("O1 S O2", target="109.5")       # angle, sigma 1°
+print(crystal.update_restraints())                     # values, diff, (diff/sigma)^2
+```
+
+The atoms of a restraint are the equivalent positions closest to each other
+(as for the distances above). The symmetry operation of its site symmetry
+code is kept; the lattice translation is chosen again at every step of the
+refinement, so an atom crossing the cell edge does not break the restraint.
+In the assistant: call_method add_restraint or update_restraints of the crystal.

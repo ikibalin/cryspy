@@ -261,3 +261,60 @@ def find_chain_positions(unit_cell_parameters, full_symm_elems, atom_fract_xyz,
         position, center = nearest(i_atom, center)
         l_out.append(position)
     return l_out
+
+
+def calc_closest_translation(unit_cell_parameters, fract, fract_reference) -> numpy.ndarray:
+    """Integer lattice translation (3,) that puts the fractional position
+    closest to the reference position (Cartesian distance)."""
+    m_m = calc_m_m(unit_cell_parameters)
+    t_0 = -numpy.round(fract - fract_reference)
+    grid = numpy.stack(numpy.meshgrid(*[numpy.arange(-1, 2)] * 3, indexing="ij"),
+                       axis=0).reshape(3, -1)
+    translation = t_0[:, na] + grid
+    distance = numpy.linalg.norm(
+        m_m @ (fract[:, na] + translation - fract_reference[:, na]), axis=0)
+    return translation[:, numpy.argmin(distance)]
+
+
+def calc_restraint_value(unit_cell_parameters, atom_fract_xyz, l_atom_index,
+                         l_rotation, l_offset) -> float:
+    """Distance (2 atoms, Å), angle (3, degrees) or torsion angle (4,
+    degrees) of a restraint.
+
+    The atom i of the chain is R_i x + b_i of the atom l_atom_index[i]
+    moved by the lattice translation that puts it closest to the previous
+    atom of the chain (to the middle atom for an angle), so that the value
+    does not jump when a coordinate passes 0 or 1 in a refinement.
+
+    Parameters
+    ----------
+    unit_cell_parameters : numpy.ndarray, shape (6,)
+        a, b, c (Å), alpha, beta, gamma (radians).
+    atom_fract_xyz : numpy.ndarray, shape (3, n_atom)
+        Fractional coordinates of the atoms of atom_site.
+    l_atom_index : list of int
+    l_rotation : list of numpy.ndarray, shape (3, 3)
+    l_offset : list of numpy.ndarray, shape (3,)
+        Fractional translation of the symmetry element.
+    """
+    fract = [rotation @ atom_fract_xyz[:, i_atom] + offset
+             for i_atom, rotation, offset in zip(l_atom_index, l_rotation, l_offset)]
+    if len(fract) == 3:
+        for i_pos in (0, 2):
+            fract[i_pos] = fract[i_pos] + calc_closest_translation(
+                unit_cell_parameters, fract[i_pos], fract[1])
+    else:
+        for i_pos in range(1, len(fract)):
+            fract[i_pos] = fract[i_pos] + calc_closest_translation(
+                unit_cell_parameters, fract[i_pos], fract[i_pos - 1])
+    p_xyz = calc_m_m(unit_cell_parameters) @ numpy.stack(fract, axis=1)
+    return GEOMETRY_FUNCTIONS[len(fract)](*p_xyz.T)
+
+
+def calc_restraint_difference(value: float, target: float, n_atom: int) -> float:
+    """value - target; for a torsion angle (4 atoms) in (-180, 180]
+    degrees, so that -179° and 179° differ by 2°."""
+    diff = value - target
+    if n_atom == 4:
+        diff = (diff + 180.) % 360. - 180.
+    return diff
