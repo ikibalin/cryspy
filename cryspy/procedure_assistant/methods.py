@@ -32,7 +32,7 @@ from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.procedure_assistant.procedures import (
-    D_BASIC_TYPE, form_question, parse_docstring, take_annotation_types)
+    D_BASIC_TYPE, form_question, parse_docstring, take_annotation_types, take_procedures)
 
 BASE_CLASSES = (ItemN, LoopN, DataN, GlobalN)
 # internal methods: the dictionary pipeline, plots, flags, checks
@@ -243,6 +243,51 @@ def score_method(function: Callable, l_word: list) -> int:
     return sum(1 for word in l_word if word in l_text)
 
 
+# verbs of method names that do not tell what the method is about: 'Add
+# the texture' must not find add_propagation_vector by the word 'add'
+GENERIC_NAME_WORDS = {"add", "set", "remov", "delet", "defin", "creat", "calc", "show",
+                      "chang", "updat", "run", "estim", "refin", "conve", "repor"}
+
+
+def count_name_words(name: str, l_word: list) -> Tuple[int, int]:
+    """Numbers of request words (stems) in a method or procedure name: the
+    meaningful ones and the generic verbs of GENERIC_NAME_WORDS (which only
+    break ties: 'Add the propagation vector' prefers add_propagation_vector
+    to find_propagation_vectors)."""
+    l_name = {word[:5] for word in name.lower().split("_") if word}
+    l_found = [word for word in l_word if word in l_name]
+    n_generic = sum(1 for word in l_found if word in GENERIC_NAME_WORDS)
+    return len(l_found) - n_generic, n_generic
+
+
+def find_matching_procedures(request: str, max_procedures: int = 3) -> List[dict]:
+    """Procedures (action run_procedure) that fit a request, best first,
+    with the rules of :func:`find_matching_methods`: 'Add spherical texture
+    description into powder experiment' finds
+    add_texture_spherical_harmonics.
+
+    Returns
+    -------
+    list of dict
+        {"name", "summary", "score"}.
+    """
+    l_word = take_request_words(request)
+    if len(l_word) == 0:
+        return []
+    n_min = 1 if len(l_word) == 1 else 2
+    l_found = []
+    for name, function in take_procedures().items():
+        n_name, n_generic = count_name_words(name, l_word)
+        score = score_method(function, l_word)
+        if n_name == 0 or score < n_min:
+            continue
+        doc = (inspect.getdoc(function) or "").strip()
+        l_found.append({"name": name, "summary": doc.split("\n")[0] if doc else "",
+                        "score": score + n_name + 0.5 * n_generic})
+    l_found.sort(key=lambda item: (-item["score"], item["name"]))
+    return l_found[:max_procedures]
+
+
 def find_matching_methods(cryspy_object, request: str, max_methods: int = 3) -> List[dict]:
     """Methods of the object that fit a request of the user, best first.
 
@@ -266,26 +311,48 @@ def find_matching_methods(cryspy_object, request: str, max_methods: int = 3) -> 
     d_found = {}
     for block_path, block in iterate_method_blocks(cryspy_object):
         for name, function in take_methods(type(block)).items():
-            l_name = {word[:5] for word in name.lower().split("_") if word}
-            n_name = sum(1 for word in l_word if word in l_name)
+            n_name, n_generic = count_name_words(name, l_word)
             score = score_method(function, l_word)
             if n_name == 0 or score < n_min:
                 continue
             d_method = d_found.setdefault(name, {
                 "name": name, "summary": describe_method(function)["summary"],
-                "paths": [], "score": score + n_name})
+                "paths": [], "score": score + n_name + 0.5 * n_generic})
             d_method["paths"].append(block_path)
     l_method = sorted(d_found.values(), key=lambda item: (-item["score"], item["name"]))
     return l_method[:max_methods]
 
 
 def form_matching_methods_text(cryspy_object, request: str, max_methods: int = 3) -> str:
-    """Text of :func:`find_matching_methods` for the prompt of a language
-    model ('' when no method fits)."""
+    """Text of :func:`find_matching_procedures` and
+    :func:`find_matching_methods` for the prompt of a language model ('' when
+    nothing fits). Only the candidates close to the best one are given (the
+    weak ones confuse a small model), the group of the best one first."""
+    l_procedure = find_matching_procedures(request, max_methods)
     l_method = find_matching_methods(cryspy_object, request, max_methods)
-    if len(l_method) == 0:
+    if len(l_procedure) + len(l_method) == 0:
         return ""
-    ls_out = ["Methods of the opened file that may do this (action call_method):"]
+    score_best = max(item["score"] for item in l_procedure + l_method)
+    l_procedure = [item for item in l_procedure if item["score"] >= score_best - 1]
+    l_method = [item for item in l_method if item["score"] >= score_best - 1]
+    ls_procedure, ls_method = [], []
+    if len(l_procedure) > 0:
+        ls_procedure.append("Procedures that may do this (action run_procedure):")
+        for d_procedure in l_procedure:
+            ls_procedure.append(f"- {d_procedure['name']}: {d_procedure['summary']} "
+                                f"[run_procedure {{\"name\": \"{d_procedure['name']}\"}}]")
+    if len(l_method) > 0:
+        ls_method.append("Methods of the opened file that may do this (action call_method):")
+        for d_method in l_method:
+            l_path = d_method["paths"]
+            s_path = ", ".join(l_path[:3]) + (", ..." if len(l_path) > 3 else "")
+            ls_method.append(f"- {d_method['name']} of {s_path}: {d_method['summary']} "
+                             f"[call_method {{\"method\": \"{d_method['name']}\"}}]")
+    flag_method_first = len(l_method) > 0 and (
+        len(l_procedure) == 0 or l_method[0]["score"] > l_procedure[0]["score"])
+    ls_out = ls_method + ls_procedure if flag_method_first else ls_procedure + ls_method
+    return "\n".join(ls_out)
+    ls_out.append("Methods of the opened file that may do this (action call_method):")
     for d_method in l_method:
         l_path = d_method["paths"]
         s_path = ", ".join(l_path[:3]) + (", ..." if len(l_path) > 3 else "")
