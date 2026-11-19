@@ -24,6 +24,7 @@ from cryspy.A_functions_base.absorption import (
     calc_beam_directions_normal_beam, calc_transmission_sphere_zero_angle,
     take_element_symbol, take_resonant_elements)
 from cryspy.A_functions_base.database import DATABASE
+from cryspy.A_functions_base.twin_domains import form_domains_by_dictionary
 from cryspy.A_functions_base.unit_cell import (
     calc_eq_ccs_by_unit_cell_parameters, calc_sthovl_by_unit_cell_parameters)
 from cryspy.B_parent_classes.cl_4_global import GlobalN
@@ -424,8 +425,9 @@ def estimate_absorption_of_diffrn(rcif_object: GlobalN, diffrn: Diffrn,
         # left out of the test
         use = included & flag_reachable & numpy.all(
             numpy.abs(dict_diffrn["index_hkl"] - numpy.round(dict_diffrn["index_hkl"])) < 1e-4, axis=0)
-        if "twin_fraction" in dict_diffrn and not are_twins_laue_invariant(
-                dict_diffrn["twin_matrices"], rotations):
+        d_domain = form_domains_by_dictionary(dict_diffrn)
+        if d_domain is not None and not are_twins_laue_invariant(
+                d_domain["matrices"][:, 1:], rotations):
             use = numpy.zeros_like(use)
         d_test = test_absorption_anisotropy(
             exp_value[use], exp_sigma[use], groups[use], e_in[:, use], e_out[:, use])

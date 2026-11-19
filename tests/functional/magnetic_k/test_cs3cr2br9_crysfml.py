@@ -15,6 +15,8 @@ import numpy
 import pytest
 
 import cryspy
+from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwin, JanaTwinL
+from cryspy.D_functions_item_loop.function_1_magnetic_k import calc_magnetic_domain_matrices
 
 F_RCIF = os.path.join(os.path.dirname(__file__), "cs3cr2br9_crysfml.rcif")
 S_CR = 1.12064
@@ -101,33 +103,47 @@ def test_magnetic_domains():
     chi_sq_one = calc_agreement(obj)[0]
     report = obj.diffrn_ccbmag.define_magnetic_domains(obj.crystal_ccb)
     assert "3 magnetic domains" in report
-    assert len(obj.diffrn_ccbmag.jana_twin.items) == 2
+    assert len(obj.diffrn_ccbmag.magnetic_domain.items) == 2
+    assert not obj.diffrn_ccbmag.is_attribute("jana_twin")
     # the measured satellites belong to the arm k of the first domain; the
     # other two domains scatter elsewhere, so only the scale changes
     chi_sq_three = calc_agreement(obj)[0]
     assert chi_sq_three == pytest.approx(chi_sq_one, rel=1e-4)
-    # a second call does not take the domains for structural twins
+    # a second call replaces the domains
     obj.diffrn_ccbmag.define_magnetic_domains(obj.crystal_ccb)
-    assert len(obj.diffrn_ccbmag.jana_twin.items) == 2
+    assert len(obj.diffrn_ccbmag.magnetic_domain.items) == 2
 
 
 def test_magnetic_domains_keep_structural_twins():
     obj = load_converted()
     diffrn = obj.diffrn_ccbmag
-    diffrn.define_magnetic_domains(obj.crystal_ccb)
-    twin = diffrn.jana_twin.items[0]
     # a structural twin (c -> -c, a -> -a) with a fifth of the volume
-    for i in (1, 2, 3):
-        for j in (1, 2, 3):
-            setattr(twin, f"matrix_{i}{j}", {1: -1., 2: 1., 3: -1.}[i] if i == j else 0.)
-    twin.fraction = 0.2
-    diffrn.jana_twin.items[:] = [twin]
+    diffrn.add_items([JanaTwinL()])
+    twin = JanaTwin(id=2, fraction=0.2, **{
+        f"matrix_{i}{j}": ({1: -1., 2: 1., 3: -1.}[i] if i == j else 0.)
+        for i in (1, 2, 3) for j in (1, 2, 3)})
+    diffrn.jana_twin.items.append(twin)
     report = diffrn.define_magnetic_domains(obj.crystal_ccb)
     assert "combined with 1 structural twins" in report
-    fractions = numpy.array(diffrn.jana_twin.fraction)
-    assert len(fractions) == 5
-    # the twin keeps its volume, shared by its three magnetic domains
-    assert fractions.sum() == pytest.approx(1. - 0.8 / 3., abs=1e-5)
+    # the twin keeps its volume, the magnetic domains are shared equally
+    assert diffrn.jana_twin.fraction == [0.2]
+    assert numpy.array(diffrn.magnetic_domain.fraction) == pytest.approx([1. / 3., 1. / 3.], abs=1e-5)
+
+
+def test_old_domains_in_jana_twin_are_removed():
+    """Domains written as jana_twin by older versions move to magnetic_domain."""
+    obj = load_converted()
+    diffrn = obj.diffrn_ccbmag
+    matrices = calc_magnetic_domain_matrices(obj.crystal_ccb)
+    diffrn.add_items([JanaTwinL()])
+    for i_domain in (1, 2):
+        diffrn.jana_twin.items.append(JanaTwin(id=i_domain + 1, fraction=1. / 3., **{
+            f"matrix_{i}{j}": float(matrices[3 * (i - 1) + j - 1, i_domain])
+            for i in (1, 2, 3) for j in (1, 2, 3)}))
+    report = diffrn.define_magnetic_domains(obj.crystal_ccb)
+    assert "2 twins of jana_twin equal to magnetic domains were removed" in report
+    assert not diffrn.is_attribute("jana_twin")
+    assert len(diffrn.magnetic_domain.items) == 2
 
 
 def test_simulation_has_satellites():

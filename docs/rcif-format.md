@@ -231,7 +231,15 @@ integer ones. There is no ambiguity between `+k` and `-k`: for a general `k`
 only one of `H - k` and `H + k` is integer, and when `2k` is integer both
 terms scatter at the same `H` and are added. (FullProf `.int` files give
 integer `hkl` with the number of `±k` instead.) Magnetic domains are the
-twins of `jana_twin`: the intensity is `sum_d f_d I(M_d H)`. The example
+rows of the loop `magnetic_domain` of the experiment (`_magnetic_domain_id`,
+`_magnetic_domain_operation_xyz` as in mCIF, e.g. `-y,x,z,+1` or the 180°
+domain `x,y,z,-1`, `_magnetic_domain_fraction`; the first domain has
+1 − sum of the fractions): the intensity is `sum_d f_d I_d(M_d H)` with
+`M_d = R_d^T` and the moments of the domain multiplied by the time reversal.
+They are combined with the structural twins of `jana_twin` (every twin has
+all the magnetic domains). `Diffrn.define_magnetic_domains(crystal)` writes
+them (cosets of the magnetic group in the grey paramagnetic group, also for
+`k = 0`). The example
 `examples/rhochi_unpolarized_single_crystal_k_Cs3Cr2Br9` uses the CrysFML
 data of Cs3Cr2Br9, `k = (1/4, 1/4, 0)`.
 

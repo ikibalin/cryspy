@@ -36,6 +36,7 @@ from cryspy.A_functions_base.unit_cell import (
     calc_eq_ccs_by_unit_cell_parameters,
     calc_axial_vector_by_twin_domains,
 )
+from cryspy.A_functions_base.twin_domains import form_domains_by_dictionary
 
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary
 from cryspy.A_functions_base.absorption import calc_transmission_by_dictionary
@@ -139,9 +140,9 @@ def form_grid_amplitudes_k(dict_crystal: dict, mag_atom_label, n_abc) -> list:
 
 def take_twin_domains(dict_diffrn):
     """Fractions of the twin domains (the first one = 1 - sum of the others)
-    and the indices of every domain, as in RhoChi (rhochi_diffrn.py): each
-    twin law maps the measured hkl to the hkl of its domain. Magnetic
-    domains of define_magnetic_domains are twins of this kind.
+    and the indices of every domain, as in RhoChi (rhochi_diffrn.py): the
+    structural twins (jana_twin) times the magnetic domains
+    (magnetic_domain); each domain maps the measured hkl to its hkl.
 
     Returns
     -------
@@ -150,13 +151,12 @@ def take_twin_domains(dict_diffrn):
         Blocks of n_hkl indices, the measured ones first.
     """
     index_hkl = dict_diffrn["index_hkl"]
-    if "twin_fraction" not in dict_diffrn.keys():
+    d_domain = form_domains_by_dictionary(dict_diffrn)
+    if d_domain is None:
         return numpy.ones((1,), dtype=float), index_hkl
-    twin_fraction = dict_diffrn["twin_fraction"]
-    twin_fraction = numpy.concatenate(([1. - twin_fraction.sum()], twin_fraction))
     l_index_hkl = [index_hkl] + [
-        calc_m_v(twin_m, index_hkl)[0] for twin_m in dict_diffrn["twin_matrices"].transpose()]
-    return twin_fraction, numpy.concatenate(l_index_hkl, axis=1)
+        calc_m_v(twin_m, index_hkl)[0] for twin_m in d_domain["matrices"][:, 1:].transpose()]
+    return d_domain["fraction"], numpy.concatenate(l_index_hkl, axis=1)
 
 
 def sum_twin_domains(value_domains: numpy.ndarray, twin_fraction: numpy.ndarray) -> numpy.ndarray:
@@ -539,10 +539,11 @@ def calc_preliminary_information_by_dictionary(
         flag_field_domains = n_domain > 1
         n_hkl_measured = index_hkl_measured.shape[1]
         if flag_field_domains:
+            d_domain = form_domains_by_dictionary(dict_diffrn)
             h_ccs = calc_axial_vector_by_twin_domains(
-                h_ccs, dict_diffrn["twin_matrices"], unit_cell_parameters, n_hkl_measured)
+                h_ccs, d_domain["matrices"][:, 1:], unit_cell_parameters, n_hkl_measured)
             eh_ccs = calc_axial_vector_by_twin_domains(
-                eh_ccs, dict_diffrn["twin_matrices"], unit_cell_parameters, n_hkl_measured)
+                eh_ccs, d_domain["matrices"][:, 1:], unit_cell_parameters, n_hkl_measured)
         diffrn_dict_in_out["axis_z"] = eh_ccs
         logger.info(f"Preliminary calculation for experiment {dict_diffrn['name']:}...")
 
@@ -646,8 +647,7 @@ def calc_preliminary_information_by_dictionary(
                         flag_use_precalculated_data=flag_use_precalculated_data,
                     )
             if flag_field_domains and (flag_moment_k or flag_moment_ordered):
-                twin_time_reversal = numpy.concatenate(([1., ], dict_diffrn.get(
-                    "twin_time_reversal", numpy.ones(n_domain - 1, dtype=float))))
+                twin_time_reversal = d_domain["time_reversal"]
                 mem_ani = mem_ani * numpy.repeat(twin_time_reversal, n_hkl_measured)[
                     numpy.newaxis, :, numpy.newaxis, numpy.newaxis]
             # mem_ani is [3, Nhkl, Npoint, Natom]

@@ -77,7 +77,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_site_fourier_wave_vector import (
     AtomSiteFourierWaveVectorL)
 from cryspy.C_item_loop_classes.cl_1_parent_space_group import ParentSpaceGroup
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
-    calc_magnetic_domain_matrices, calc_site_symmform, take_atom_positions,
+    calc_magnetic_domain_matrices, calc_magnetic_domain_operations,
+    form_magnetic_domain_operations, calc_site_symmform, take_atom_positions,
     convert_magnetic_space_group, form_fourier_items, form_parent_space_group,
     form_irrep_name, form_start_fourier, form_superspace_by_irrep,
     report_moment_modulation,
@@ -1384,25 +1385,31 @@ class Crystal(DataN):
         return report
 
     def report_magnetic_domains(self) -> str:
-        """Magnetic domains of the structure with a propagation vector.
+        """Magnetic domains of a magnetic structure (k = 0 or a propagation
+        vector).
 
-        The domains are the cosets of the group of k in the paramagnetic
-        group (``parent_space_group``); a domain gives at H the intensity of
-        the first domain at M·H. Domains related by the inversion give the
-        same unpolarized intensities (Friedel's law) and are merged.
+        The domains are the cosets of the magnetic group in the paramagnetic
+        grey group (``space_group`` or ``parent_space_group`` with time
+        reversal); a domain "R, theta" gives at H the intensity of the first
+        domain at M·H, M = R^T, with the moments multiplied by theta. Domains
+        related by the inversion give the same unpolarized intensities
+        (Friedel's law) and are merged. ``Diffrn.define_magnetic_domains``
+        writes them as the loop ``magnetic_domain``.
 
         Returns
         -------
         str
-            Markdown table of the matrices M.
+            Markdown table of the magnetic operations and the matrices M.
         """
-        matrices = calc_magnetic_domain_matrices(self)
-        ls_out = [f"# Magnetic domains: {matrices.shape[1]}", "",
-                  "| Domain | M (rows) |", "|---|---|"]
-        for i_domain, matrix in enumerate(matrices.transpose()):
+        rotation, translation, time_reversal = calc_magnetic_domain_operations(self)
+        l_operation = form_magnetic_domain_operations(self)
+        ls_out = [f"# Magnetic domains: {rotation.shape[1]}", "",
+                  "| Domain | Operation | M (rows) |", "|---|---|---|"]
+        for i_domain in range(rotation.shape[1]):
+            matrix = rotation[:, i_domain].reshape(3, 3).transpose().flatten()
             rows = "; ".join(" ".join(f"{int(value):d}" for value in matrix[3 * i:3 * i + 3])
                              for i in range(3))
-            ls_out.append(f"| {i_domain + 1} | {rows} |")
+            ls_out.append(f"| {i_domain + 1} | {l_operation[i_domain]} | {rows} |")
         return "\n".join(ls_out)
 
     def report_ellipsoids(self, kind: str = "ADP", flag_unit_cell: bool = False,

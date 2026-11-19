@@ -95,8 +95,9 @@ The easiest way from a paramagnetic crystal with `space_group`:
    with k gets a second vector by the same method (multi-k): the common
    group is lower and may free components of the first wave;
 3. method `define_magnetic_domains` of a single-crystal experiment: the
-   magnetic domains as `jana_twin` with equal fractions
-   (`report_magnetic_domains` of the crystal lists them);
+   magnetic domains as the loop `magnetic_domain` with equal fractions
+   (`report_magnetic_domains` of the crystal lists them; also for k = 0
+   magnetic space groups, e.g. the 180° domain "x,y,z,-1");
 4. procedure `simulation_single_crystal`: simulated intensities of the
    nuclear reflections and of the satellites at the given `wavelength` (Å)
    in the range `ttheta_min`..`ttheta_max` (degrees); `satellites_only`
