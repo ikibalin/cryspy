@@ -1,6 +1,6 @@
 ---
 title: Single crystal experiment (diffrn)
-keywords: single crystal, diffrn, flip ratio, polarized, unpolarized, intensity, ub matrix, orientation matrix, reflections, монокристалл, флиппинг отношение, поляризованные нейтроны, ub-матрица
+keywords: single crystal, diffrn, flip ratio, polarized, unpolarized, intensity, ub matrix, orientation matrix, reflections
 categories: diffrn_refln, diffrn_orient_matrix, diffrn_radiation, setup, phase, extinction, jana_twin
 ---
 A single crystal experiment is a `diffrn` data block:

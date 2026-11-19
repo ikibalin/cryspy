@@ -1,6 +1,6 @@
 ---
 title: Absorption correction
-keywords: absorption, absorption correction, mu, transmission, crystal size, ellipsoid, sphere, gaussian, T_min, T_max, абсорбция, поглощение, поправка на поглощение, размер кристалла
+keywords: absorption, absorption correction, mu, transmission, crystal size, ellipsoid, sphere, gaussian, T_min, T_max
 categories: exptl_absorpt, exptl_crystal
 ---
 The absorption of neutrons in a single crystal is described by two items of

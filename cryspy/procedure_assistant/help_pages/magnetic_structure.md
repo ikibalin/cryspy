@@ -1,6 +1,6 @@
 ---
 title: Ordered magnetic structure (magnetic space group, mcif)
-keywords: magnetic structure, second propagation vector, multi-k, two k vectors, второй вектор распространения, superspace group, mcif, MAGNDATA, msCIF, суперпространственная группа, propagation vector, k vector, satellites, magnetic domains, irreducible representation, incommensurate, вектор распространения, сателлиты, магнитные домены, ordered moment, moment, mcif, magnetic space group, shubnikov, representation analysis, choose representation by data, выбор представления, chi_sq of representations, antiferromagnet, ferromagnet, symmform, магнитная структура, магнитный момент, магнитная группа
+keywords: magnetic structure, second propagation vector, multi-k, two k vectors, superspace group, mcif, MAGNDATA, msCIF, propagation vector, k vector, satellites, magnetic domains, irreducible representation, incommensurate, ordered moment, moment, mcif, magnetic space group, shubnikov, representation analysis, choose representation by data, chi_sq of representations, antiferromagnet, ferromagnet, symmform
 categories: atom_site_moment, space_group_symop_magn_operation, space_group_symop_magn_centering, cell_wave_vector, atom_site_moment_fourier, atom_site_fourier_wave_vector, space_group_symop_magn_ssg_operation, space_group_symop_magn_ssg_centering, parent_space_group
 ---
 An ordered (commensurate) magnetic structure is described in the crystal data

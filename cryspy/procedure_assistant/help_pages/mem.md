@@ -1,6 +1,6 @@
 ---
 title: Maximum entropy method (MEM)
-keywords: mem, maximum entropy, superspace, supercell, propagation vector, spin density, magnetization density, reconstruction, den file, prior, метод максимальной энтропии, спиновая плотность, плотность намагниченности, восстановление
+keywords: mem, maximum entropy, superspace, supercell, propagation vector, spin density, magnetization density, reconstruction, den file, prior
 categories: mem_parameters, atom_electron_configuration
 ---
 MEM reconstructs the spin or magnetization density from polarized neutron

@@ -1,6 +1,6 @@
 ---
 title: Refinement with RhoChi
-keywords: refine, refinement, fit, chi square, chi2, rhochi, least squares, correlation, hessian, fix, free, уточнение, подгонка, хи-квадрат, корреляции, зафиксировать, освободить
+keywords: refine, refinement, fit, chi square, chi2, rhochi, least squares, correlation, hessian, fix, free
 categories: chi2, refine_ls, inversed_hessian, exclude, range
 ---
 RhoChi refines the parameters marked for refinement against all experiments

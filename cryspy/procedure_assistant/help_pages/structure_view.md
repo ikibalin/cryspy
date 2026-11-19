@@ -1,6 +1,6 @@
 ---
 title: 3D view of the crystal structure
-keywords: 3d, view, ellipsoid, ellipsoids, adp, thermal ellipsoids, displacement, susceptibility ellipsoid, magnetization ellipsoid, p1, unit cell atoms, dummy, visualization, visualisation, structure, picture, draw, show, py3dmol, 3dmol, moments, arrows, unit cells, bonds, jupyter, визуализация, 3d вид, структура, картинка, нарисовать, показать, моменты, стрелки, ячейки, связи, эллипсоиды, тепловые эллипсоиды, эллипсоид намагниченности
+keywords: 3d, view, ellipsoid, ellipsoids, adp, thermal ellipsoids, displacement, susceptibility ellipsoid, magnetization ellipsoid, p1, unit cell atoms, dummy, visualization, visualisation, structure, picture, draw, show, py3dmol, 3dmol, moments, arrows, unit cells, bonds, jupyter
 categories: atom_site, atom_site_aniso, atom_site_moment, atom_site_susceptibility, cell, space_group
 ---
 A crystal data block can be shown as an interactive 3D picture: atoms of the

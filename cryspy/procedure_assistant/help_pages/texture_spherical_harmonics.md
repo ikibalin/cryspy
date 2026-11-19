@@ -1,6 +1,6 @@
 ---
 title: Texture by spherical harmonics
-keywords: texture, preferred orientation, spherical harmonics, harmonic order, texture index, fibre texture, cylindrical symmetry, sample symmetry, pole figure, ODF, GSAS-II, goniometer, текстура, преимущественная ориентация, сферические гармоники
+keywords: texture, preferred orientation, spherical harmonics, harmonic order, texture index, fibre texture, cylindrical symmetry, sample symmetry, pole figure, ODF, GSAS-II, goniometer
 categories: texture_sh, texture_sh_coefficient, sample_goniometer
 ---
 The texture of a phase in a powder experiment (`pd`, `pd2d`, `tof`) can be

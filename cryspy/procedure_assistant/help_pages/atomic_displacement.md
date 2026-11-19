@@ -1,6 +1,6 @@
 ---
 title: Atomic displacement parameters (thermal vibrations)
-keywords: adp, thermal, vibration, vibrations, displacement, debye-waller, temperature factor, b_iso, u_iso, biso, uiso, bani, uani, anisotropic, isotropic, тепловые колебания, тепловые параметры, температурный фактор, дебай-валлер, анизотропные, изотропные
+keywords: adp, thermal, vibration, vibrations, displacement, debye-waller, temperature factor, b_iso, u_iso, biso, uiso, bani, uani, anisotropic, isotropic
 categories: atom_site, atom_site_aniso
 ---
 Thermal vibrations of atoms are described in the crystal data block by the

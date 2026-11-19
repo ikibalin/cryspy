@@ -74,11 +74,19 @@ def test_guides_have_titles_and_keywords():
         assert not page.text.startswith("---")
 
 
+def test_help_keywords_english_only():
+    """Keywords are English only: requests in other languages are
+    translated to English by the program before the search."""
+    for page in cryspy_help.load_guide_pages():
+        for keyword in page.keywords:
+            assert keyword.isascii(), (page.name, keyword)
+
+
 @pytest.mark.parametrize("query, page_name", [
     ("how to describe thermal vibrations", "atomic_displacement"),
-    ("что необходимо использовать для описания тепловых колебаний",
+    ("what should be used to describe thermal vibrations",
      "atomic_displacement"),
-    ("как описать мультиполи", "multipoles"),
+    ("how to describe multipoles", "multipoles"),
     ("multipole model of form factor", "multipoles"),
     ("twins", "twinning"),
     ("background of powder pattern", "powder"),

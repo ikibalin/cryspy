@@ -9,6 +9,10 @@ Two kinds of pages:
 
 Search is a plain keyword search without external dependencies, so it works
 the same in a script, in CrysPy Editor and with a local language model.
+Pages and keywords are in English only: a program which uses the help
+translates a request in another language to English before the search
+(CrysPy Editor asks its language model for it), so no language gets
+keywords of its own.
 """
 import os
 import re
@@ -21,9 +25,6 @@ SET_STOP_WORDS = {
     "a", "an", "and", "are", "be", "by", "can", "do", "for", "from", "how",
     "i", "in", "is", "it", "me", "my", "of", "on", "or", "should", "the",
     "to", "use", "used", "what", "which", "with",
-    "в", "и", "к", "как", "какие", "какой", "мне", "на", "надо", "не",
-    "нужно", "о", "по", "с", "что", "чтобы", "это", "для", "использовать",
-    "необходимо", "описать", "описания",
 }
 
 

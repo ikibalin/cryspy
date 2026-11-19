@@ -1,6 +1,6 @@
 ---
 title: Space group and unit cell
-keywords: space group, symmetry, cell, unit cell, lattice, it number, hermann-mauguin, setting, wyckoff, пространственная группа, симметрия, элементарная ячейка, параметры ячейки
+keywords: space group, symmetry, cell, unit cell, lattice, it number, hermann-mauguin, setting, wyckoff
 categories: space_group, cell, space_group_symop, space_group_wyckoff
 ---
 The crystal data block needs the `cell` item: `length_a`, `length_b`,

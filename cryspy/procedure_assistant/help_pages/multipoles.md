@@ -1,6 +1,6 @@
 ---
 title: Multipole model of the magnetization (form factor)
-keywords: multipole, multipoles, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom, мультиполи, мультипольная модель, анизотропный форм-фактор, локальные оси
+keywords: multipole, multipoles, aspherical, anisotropic form factor, pseudoatom, hansen-coppens, kappa, plm, orbital, local axes, dummy atom
 categories: atom_rho_multipole, atom_local_axes, atom_site, atom_electron_configuration
 ---
 The anisotropic magnetic form factor of an atom can be described by the

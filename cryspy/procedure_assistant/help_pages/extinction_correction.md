@@ -1,6 +1,6 @@
 ---
 title: Extinction
-keywords: extinction, mosaicity, domain radius, gauss, lorentz, becker coppens, экстинкция, мозаичность
+keywords: extinction, mosaicity, domain radius, gauss, lorentz, becker coppens
 categories: extinction
 ---
 Extinction is set by the `extinction` item of a single crystal (or powder)
