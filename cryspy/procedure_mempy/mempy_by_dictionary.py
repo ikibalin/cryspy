@@ -34,6 +34,7 @@ from cryspy.A_functions_base.unit_cell import (
     calc_volume_uc_by_unit_cell_parameters,
     calc_sthovl_by_unit_cell_parameters,
     calc_eq_ccs_by_unit_cell_parameters,
+    calc_axial_vector_by_twin_domains,
 )
 
 from cryspy.A_functions_base.structure_factor import calc_f_nucl_by_dictionary
@@ -530,6 +531,19 @@ def calc_preliminary_information_by_dictionary(
 
         h_ccs = dict_diffrn["magnetic_field"]
         eh_ccs = dict_diffrn["matrix_u"][6:]
+        # A twin domain is the crystal transformed by the magnetic twin
+        # operation (T, theta), as in RhoChi (rhochi_diffrn.py): the field and
+        # the polarization axis are taken in the Cartesian system of every
+        # domain, ordered moments of a domain are theta m.
+        n_domain = twin_fraction.size
+        flag_field_domains = n_domain > 1
+        n_hkl_measured = index_hkl_measured.shape[1]
+        if flag_field_domains:
+            h_ccs = calc_axial_vector_by_twin_domains(
+                h_ccs, dict_diffrn["twin_matrices"], unit_cell_parameters, n_hkl_measured)
+            eh_ccs = calc_axial_vector_by_twin_domains(
+                eh_ccs, dict_diffrn["twin_matrices"], unit_cell_parameters, n_hkl_measured)
+        diffrn_dict_in_out["axis_z"] = eh_ccs
         logger.info(f"Preliminary calculation for experiment {dict_diffrn['name']:}...")
 
         diffrn_dict_in_out["index_hkl"] = index_hkl
@@ -598,19 +612,44 @@ def calc_preliminary_information_by_dictionary(
                 point_susceptibility = dict_in_out[
                     "susceptibility_channel_ani"
                 ]
-                mem_ani = calc_mem_chi(
-                    index_hkl,
-                    unit_cell_parameters,
-                    h_ccs,
-                    full_symm_elems,
-                    symm_elem_auc,
-                    point_susceptibility,
-                    volume_unit_cell,
-                    number_unit_cell,
-                    point_multiplicity=point_multiplicity,
-                    dict_in_out=dict_in_out_chi,
-                    flag_use_precalculated_data=flag_use_precalculated_data,
-                )
+                if flag_field_domains:
+                    # the induced moments depend on the field of the domain
+                    l_mem_ani_domain = []
+                    for i_domain in range(n_domain):
+                        slice_hkl = slice(i_domain * n_hkl_measured, (i_domain + 1) * n_hkl_measured)
+                        l_mem_ani_domain.append(calc_mem_chi(
+                            index_hkl[:, slice_hkl],
+                            unit_cell_parameters,
+                            h_ccs[:, slice_hkl.start],
+                            full_symm_elems,
+                            symm_elem_auc,
+                            point_susceptibility,
+                            volume_unit_cell,
+                            number_unit_cell,
+                            point_multiplicity=point_multiplicity,
+                            dict_in_out=dict_in_out_chi.setdefault(f"domain_{i_domain:}", {}),
+                            flag_use_precalculated_data=flag_use_precalculated_data,
+                        ))
+                    mem_ani = numpy.concatenate(l_mem_ani_domain, axis=1)
+                else:
+                    mem_ani = calc_mem_chi(
+                        index_hkl,
+                        unit_cell_parameters,
+                        h_ccs,
+                        full_symm_elems,
+                        symm_elem_auc,
+                        point_susceptibility,
+                        volume_unit_cell,
+                        number_unit_cell,
+                        point_multiplicity=point_multiplicity,
+                        dict_in_out=dict_in_out_chi,
+                        flag_use_precalculated_data=flag_use_precalculated_data,
+                    )
+            if flag_field_domains and (flag_moment_k or flag_moment_ordered):
+                twin_time_reversal = numpy.concatenate(([1., ], dict_diffrn.get(
+                    "twin_time_reversal", numpy.ones(n_domain - 1, dtype=float))))
+                mem_ani = mem_ani * numpy.repeat(twin_time_reversal, n_hkl_measured)[
+                    numpy.newaxis, :, numpy.newaxis, numpy.newaxis]
             # mem_ani is [3, Nhkl, Npoint, Natom]
             diffrn_dict_in_out["mem_ani"] = mem_ani
             l_mem_ani.append(mem_ani)
@@ -920,7 +959,8 @@ def mempy_reconstruction_by_dictionary(
             else:
                 func_extinction = None
 
-            axis_z = matrix_u[6:9]
+            # per reflection for twin domains (calc_preliminary_information_by_dictionary)
+            axis_z = diffrn_dict_in_out.get("axis_z", matrix_u[6:9])
             iint_plus, iint_minus, dder_plus, dder_minus = calc_iint(
                 beam_polarization,
                 flipper_efficiency,

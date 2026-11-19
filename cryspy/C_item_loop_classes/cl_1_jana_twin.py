@@ -16,6 +16,11 @@ Fraction gives the twin fraction of the second domain.
 The twin fraction of the first domain is 1 - fraction.
 
 Twin fraction is refined parameters.
+
+Time_reversal (+1 by default, or -1) makes the twin law a magnetic
+operation: the ordered moments of the domain are time_reversal times the
+moments of the rotated crystal. In a field the ferromagnetic component of
+a domain is usually along the field, which may need -1.
     """
 
     ATTR_MANDATORY_NAMES = ( "id","matrix_11", "matrix_12", "matrix_13",
@@ -28,9 +33,9 @@ Twin fraction is refined parameters.
                             "matrix[3][1]", "matrix[3][2]", "matrix[3][3]",
                             "fraction",)
 
-    ATTR_OPTIONAL_NAMES = ()
-    ATTR_OPTIONAL_TYPES = ()
-    ATTR_OPTIONAL_CIF = ()
+    ATTR_OPTIONAL_NAMES = ("time_reversal", )
+    ATTR_OPTIONAL_TYPES = (int, )
+    ATTR_OPTIONAL_CIF = ("time_reversal", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -64,10 +69,10 @@ Twin fraction is refined parameters.
         super(JanaTwin, self).__init__()
 
         # defined for any integer and float parameters
-        D_MIN = {"fraction": 0., }
+        D_MIN = {"fraction": 0., "time_reversal": -1}
 
         # defined for ani integer and float parameters
-        D_MAX = {"fraction": 1., }
+        D_MAX = {"fraction": 1., "time_reversal": 1}
 
         self.__dict__["D_MIN"] = D_MIN
         self.__dict__["D_MAX"] = D_MAX
@@ -99,6 +104,10 @@ Twin fractions are refined parameters.
         l_fraction_refinement = self.fraction_refinement
         res["twin_fraction"] = numpy.array(l_fraction, dtype=float)
         res["flags_twin_fraction"] = numpy.array(l_fraction_refinement, dtype=bool)
+        # magnetic twin law (T, theta): theta = -1 reverses the ordered moments
+        res["twin_time_reversal"] = numpy.array([
+            -1. if (item.is_attribute("time_reversal") and int(item.time_reversal) < 0) else 1.
+            for item in self.items], dtype=float)
         res["twin_matrices"] = numpy.stack([
             numpy.array(self.matrix_11, dtype=float),
             numpy.array(self.matrix_12, dtype=float),
