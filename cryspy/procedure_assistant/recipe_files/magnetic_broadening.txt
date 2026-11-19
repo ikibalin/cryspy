@@ -1,0 +1,24 @@
+# Magnetic reflections broader (or narrower) than the nuclear ones: an extra Lorentzian, half width in Q
+# width = 1/xi_mag - 1/xi_nucl, for the magnetic and interference intensity (FullProf "magnetic phase" size).
+Recipe magnetic_broadening: Extra width of the magnetic reflections (magnetic domain size) of a powder phase
+Requests: set magnetic domain size, magnetic correlation length, magnetic peaks are broader than nuclear, magnetic peaks are narrower than nuclear, short-range magnetic order, anisotropic magnetic broadening, magnetic correlations shorter along c, refine magnetic domain size
+For: powder_1d, magnetic
+
+1. start: Fix all parameters and calculate the start model with the nuclear and magnetic structure already refined; the misfit tells whether the magnetic peaks are too narrow or too broad.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n of the start model is a number.
+   Otherwise: Stop and explain the error.
+2. isotropic: Add the extra magnetic width 0 (the nuclear profile, the same chi_sq) to the magnetic phase and refine it with the scale.
+   Actions: run_procedure {"name": "add_magnetic_broadening", "width": 0.0, "phase_label": "", "anisotropic": false}; refine_parameters {"pattern": "scale"}; refine
+   Success: chi_sq/n got better.
+   Otherwise: undo_refinement: the magnetic and nuclear peaks have the same width.
+3. report: The width, its error, the extra Scherrer size (positive width) or the limit (negative width).
+   Actions: run_procedure {"name": "report_magnetic_broadening"}
+4. anisotropic: Only when the isotropic width helped and the misfit of the magnetic peaks depends on hkl: replace it by the width depending on hkl, started from the refined width (give it as width).
+   Actions: run_procedure {"name": "add_magnetic_broadening", "width": 0.0, "phase_label": "", "anisotropic": true}; refine; run_procedure {"name": "report_magnetic_broadening"}
+   Success: chi_sq/n got better by more than 5 %.
+   Otherwise: undo_refinement and keep the isotropic width.
+5. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: the extra magnetic width with its error (or the widths along a*, b*, c* and the principal widths), what it means (shorter or longer magnetic correlations, extra Scherrer size) and chi_sq/n before and after.

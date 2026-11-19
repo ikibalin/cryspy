@@ -32,11 +32,13 @@ from cryspy.A_functions_base.preferred_orientation import (
 
 from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
     calc_profile_pseudo_voight,
+    calc_profile_pseudo_voight_extra_lorentz,
     calc_lorentz_factor,
 )
 
 from .rhochi_diffrn import get_flags
 from .rhochi_texture import calc_texture_sh_for_phase
+from .rhochi_magnetic_broadening import form_y_mag_by_hkl
 
 na = numpy.newaxis
 
@@ -90,13 +92,15 @@ def calc_signal_magnetic_k(
         dict_crystal, dict_in_out_phase, sthovl_min, sthovl_max,
         unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
         offset_sycos, offset_sysin, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-        p_scale, lorentz_factor, k, cthm, cutoff_fwhm):
+        p_scale, lorentz_factor, k, cthm, cutoff_fwhm, y_mag_by_hkl=None):
     """Unpolarized powder signal of the magnetic satellites H = h +- k.
 
     The satellites are written to ``dict_in_out_phase`` under the keys
     ``index_hkl_magnetic_k``, ``ttheta_hkl_magnetic_k``,
     ``iint_magnetic_k`` and ``k_index_magnetic_k``. The scale factor has the
-    same meaning as for the nuclear reflections.
+    same meaning as for the nuclear reflections. y_mag_by_hkl (from
+    form_y_mag_by_hkl) gives the extra Lorentzian width of the satellites
+    (magnetic_broadening); None for none.
     """
     index_hkl, iint, k_index = calc_powder_iint_magnetic_k_by_dictionary(
         dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
@@ -118,12 +122,26 @@ def calc_signal_magnetic_k(
     dict_in_out_phase["iint_magnetic_k_with_factors"] = p_scale * lf * iint
     # Satellites listed with multiplicity 1 share their 2theta with the
     # symmetry-equivalent ones: the profile is computed once per position.
-    ttheta_unique, index_unique = numpy.unique(
-        numpy.round(ttheta_hkl, 12), return_inverse=True)
-    iint_unique = numpy.bincount(index_unique, weights=iint, minlength=ttheta_unique.size)
-    profile_pv = calc_profile_pseudo_voight(
-        ttheta_zs, ttheta_unique, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
-        cutoff_fwhm=cutoff_fwhm)[0]
+    if y_mag_by_hkl is None:
+        ttheta_unique, index_unique = numpy.unique(
+            numpy.round(ttheta_hkl, 12), return_inverse=True)
+        iint_unique = numpy.bincount(index_unique, weights=iint, minlength=ttheta_unique.size)
+        profile_pv = calc_profile_pseudo_voight(
+            ttheta_zs, ttheta_unique, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
+            cutoff_fwhm=cutoff_fwhm)[0]
+    else:
+        # a width depending on hkl gives satellites at the same
+        # 2theta different widths: merge only equal positions and widths
+        y_mag_hkl = y_mag_by_hkl(index_hkl)
+        position_width = numpy.stack([numpy.round(ttheta_hkl, 12),
+                                      numpy.round(y_mag_hkl, 12)], axis=1)
+        unique_pw, index_unique = numpy.unique(
+            position_width, axis=0, return_inverse=True)
+        index_unique = numpy.ravel(index_unique)
+        iint_unique = numpy.bincount(index_unique, weights=iint, minlength=unique_pw.shape[0])
+        profile_pv = calc_profile_pseudo_voight_extra_lorentz(
+            ttheta_zs, unique_pw[:, 0], u, v, w, p_ig, x, y, unique_pw[:, 1],
+            p_1, p_2, p_3, p_4, cutoff_fwhm=cutoff_fwhm)[0]
     return p_scale * lorentz_factor * (profile_pv * iint_unique[na, :]).sum(axis=1)
 
 
@@ -643,55 +661,64 @@ def calc_chi_sq_for_pd_by_dictionary(
         )
         dict_in_out_phase["profile_pv"] = profile_pv
 
+        # magnetic_broadening: the magnetic intensity and the nuclear-magnetic
+        # interference get an extra Lorentzian width (0: the nuclear profile)
+        y_mag_by_hkl = None
+        if radiation[0].startswith("neutrons"):
+            y_mag_by_hkl = form_y_mag_by_hkl(
+                dict_pd, dict_crystal, dict_in_out, dict_in_out_phase, p_name,
+                unit_cell_parameters, wavelength)
+
         # flags_p_scale
         iint_m_plus = iint_plus * multiplicity_hkl
         iint_m_minus = iint_minus * multiplicity_hkl
         lf = calc_lorentz_factor(ttheta_hkl, k=k, cthm=cthm, flag_ttheta=None)[
             0
         ]
+        # 0.5 to have the same meaning for the scale factor as in FullProf
+        intensity_factor = 0.5 * p_scale * lf
+        if intensity_texture is not None:
+            intensity_factor = intensity_factor * intensity_texture
         dict_in_out_phase["iint_plus_with_factors"] = (
-            0.5 * p_scale * lf * iint_m_plus
+            intensity_factor * iint_m_plus
         )
         dict_in_out_phase["iint_minus_with_factors"] = (
-            0.5 * p_scale * lf * iint_m_minus
+            intensity_factor * iint_m_minus
         )
-        if intensity_texture is not None:
-            # 0.5 to have the same meaning for the scale factor as in FullProf
-            signal_plus = (
-                0.5
-                * p_scale
-                * lorentz_factor
-                * (
-                    profile_pv * (iint_m_plus * intensity_texture)[na, :]
-                ).sum(axis=1)
-            )  # sum over hkl
-            signal_minus = (
-                0.5
-                * p_scale
-                * lorentz_factor
-                * (
-                    profile_pv * (iint_m_minus * intensity_texture)[na, :]
-                ).sum(axis=1)
-            )
-            dict_in_out_phase[
-                "iint_plus_with_factors"
-            ] *= intensity_texture
-            dict_in_out_phase[
-                "iint_minus_with_factors"
-            ] *= intensity_texture
-        else:
-            signal_plus = (
-                0.5
-                * p_scale
-                * lorentz_factor
-                * (profile_pv * iint_m_plus[na, :]).sum(axis=1)
-            )
-            signal_minus = (
-                0.5
-                * p_scale
-                * lorentz_factor
-                * (profile_pv * iint_m_minus[na, :]).sum(axis=1)
-            )
+        texture_factor = 1. if intensity_texture is None else intensity_texture
+        weight_plus = iint_m_plus * texture_factor
+        weight_minus = iint_m_minus * texture_factor
+        if y_mag_by_hkl is not None:
+            # |F_N|^2 keeps the profile of the phase, the rest (|F_M|^2, the
+            # paramagnetic and the interference terms) is broadened
+            weight_nucl = numpy.square(numpy.abs(f_nucl)) * multiplicity_hkl * texture_factor
+            weight_plus_mag = weight_plus - weight_nucl
+            weight_minus_mag = weight_minus - weight_nucl
+            weight_plus, weight_minus = weight_nucl, weight_nucl
+        signal_plus = (
+            0.5
+            * p_scale
+            * lorentz_factor
+            * (profile_pv * weight_plus[na, :]).sum(axis=1)
+        )  # sum over hkl
+        signal_minus = (
+            0.5
+            * p_scale
+            * lorentz_factor
+            * (profile_pv * weight_minus[na, :]).sum(axis=1)
+        )
+        if y_mag_by_hkl is not None and (
+                numpy.any(weight_plus_mag != 0.) or numpy.any(weight_minus_mag != 0.)):
+            y_mag_hkl = y_mag_by_hkl(index_hkl)
+            dict_in_out_phase["y_magnetic_hkl"] = y_mag_hkl
+            profile_magnetic = calc_profile_pseudo_voight_extra_lorentz(
+                ttheta_zs, ttheta_hkl, u, v, w, p_ig, x, y, y_mag_hkl,
+                p_1, p_2, p_3, p_4,
+                cutoff_fwhm=dict_pd.get("profile_cutoff_fwhm", 0.))[0]
+            signal_plus = signal_plus + 0.5 * p_scale * lorentz_factor * (
+                profile_magnetic * weight_plus_mag[na, :]).sum(axis=1)
+            signal_minus = signal_minus + 0.5 * p_scale * lorentz_factor * (
+                profile_magnetic * weight_minus_mag[na, :]).sum(axis=1)
 
         if radiation[0].startswith("neutrons") and (
                 "atom_fourier_index" in dict_crystal_keys):
@@ -700,7 +727,8 @@ def calc_chi_sq_for_pd_by_dictionary(
                 unit_cell_parameters, wavelength, ttheta_zs, offset_ttheta,
                 offset_sycos, offset_sysin, u, v, w, p_ig, x, y,
                 p_1, p_2, p_3, p_4, p_scale, lorentz_factor, k, cthm,
-                dict_pd.get("profile_cutoff_fwhm", 0.))
+                dict_pd.get("profile_cutoff_fwhm", 0.),
+                y_mag_by_hkl=y_mag_by_hkl)
             signal_plus = signal_plus + 0.5 * signal_magnetic_k
             signal_minus = signal_minus + 0.5 * signal_magnetic_k
 
