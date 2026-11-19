@@ -81,6 +81,12 @@ Public API is re-exported from `cryspy/__init__.py`.
   `list_methods`, `call_method`): give them type hints and a numpydoc
   docstring that says what they really do. A method without a docstring is
   not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
+- Physical data that people should read and correct (magnetic ions:
+  usual valences, Lande factors, free-ion moments; usual ionic charges) live
+  as Markdown tables in the knowledge base `cryspy/knowledge/*.md`, read by
+  `A_functions_base/knowledge_tables.py` and searched by AI assistants
+  (`search_knowledge`, the same BM25/embedding search as the documents of
+  the user). Don't hardcode such values in the code; add a row or a file.
 
 ## Software engineering practices
 

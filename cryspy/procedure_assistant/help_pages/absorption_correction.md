@@ -54,3 +54,7 @@ differently.
 `estimate_absorption_correction` (assistant tool `estimate_absorption`) tells
 whether a correction is needed; `apply_absorption_correction` switches it on;
 the recipe `absorption_correction` does both and refines the shape.
+
+The strong neutron absorbers (Gd, Sm, Eu, Cd, B, Dy, ...) and the isotopes
+that replace them are listed in the knowledge base of CrysPy
+(`cryspy/knowledge/neutron_absorbers.md`, tool `search_knowledge`).
