@@ -38,7 +38,7 @@ from cryspy.A_functions_base.powder_diffraction_const_wavelength import (
 
 from .rhochi_diffrn import get_flags
 from .rhochi_texture import calc_texture_sh_for_phase
-from .rhochi_magnetic_correlation import form_y_mag_by_hkl
+from .rhochi_magnetic_broadening import form_y_mag_by_hkl
 
 na = numpy.newaxis
 
@@ -100,7 +100,7 @@ def calc_signal_magnetic_k(
     ``iint_magnetic_k`` and ``k_index_magnetic_k``. The scale factor has the
     same meaning as for the nuclear reflections. y_mag_by_hkl (from
     form_y_mag_by_hkl) gives the extra Lorentzian width of the satellites
-    for a finite magnetic correlation length; None for none.
+    (magnetic_broadening); None for none.
     """
     index_hkl, iint, k_index = calc_powder_iint_magnetic_k_by_dictionary(
         dict_crystal, sthovl_min, sthovl_max, unit_cell_parameters)
@@ -130,7 +130,7 @@ def calc_signal_magnetic_k(
             ttheta_zs, ttheta_unique, u, v, w, p_ig, x, y, p_1, p_2, p_3, p_4,
             cutoff_fwhm=cutoff_fwhm)[0]
     else:
-        # the ellipsoid of correlation lengths gives satellites at the same
+        # a width depending on hkl gives satellites at the same
         # 2theta different widths: merge only equal positions and widths
         y_mag_hkl = y_mag_by_hkl(index_hkl)
         position_width = numpy.stack([numpy.round(ttheta_hkl, 12),
@@ -661,8 +661,8 @@ def calc_chi_sq_for_pd_by_dictionary(
         )
         dict_in_out_phase["profile_pv"] = profile_pv
 
-        # finite magnetic correlation length: the magnetic intensity and the
-        # nuclear-magnetic interference get an extra Lorentzian width
+        # magnetic_broadening: the magnetic intensity and the nuclear-magnetic
+        # interference get an extra Lorentzian width (0: the nuclear profile)
         y_mag_by_hkl = None
         if radiation[0].startswith("neutrons"):
             y_mag_by_hkl = form_y_mag_by_hkl(

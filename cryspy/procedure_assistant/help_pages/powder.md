@@ -17,9 +17,9 @@ A constant wavelength 1d powder experiment is a `pd` data block:
   `intensity_plus`, `intensity_minus` with sigmas (polarized);
 - optional `range`, `exclude`, `texture` (modified March function `g_1`, `g_2`,
   axis `h_ax k_ax l_ax`), `chi2`, `extinction`, `diffrn_radiation`,
-  `magnetic_correlation` (own Lorentzian width of the magnetic reflections
-  of a phase: magnetic correlation length or domain size, see the help
-  page on the magnetic correlation length).
+  `magnetic_broadening` (extra Lorentzian width of the magnetic reflections
+  of a phase, 0 for the nuclear width: magnetic domain size, see the help
+  page on the extra broadening of magnetic reflections).
 
 `pd2d` is the 2d version for polarized neutrons (`gamma_nu_...` data),
 `tof` is a time-of-flight pattern with `tof_parameters` (zero, dtt1, ...),

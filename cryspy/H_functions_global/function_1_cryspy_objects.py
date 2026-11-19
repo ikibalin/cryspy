@@ -167,11 +167,11 @@ L_ITEM_CLASS.extend([AtomSiteMomentFourier, CellWaveVector, SpaceGroupSymopMagnS
 L_LOOP_CLASS.extend([AtomSiteMomentFourierL, CellWaveVectorL, SpaceGroupSymopMagnSsgOperationL,
                      SpaceGroupSymopMagnSsgCenteringL, AtomSiteFourierWaveVectorL])
 
-from cryspy.C_item_loop_classes.cl_1_magnetic_correlation import (
-    MagneticCorrelation, MagneticCorrelationL)
+from cryspy.C_item_loop_classes.cl_1_magnetic_broadening import (
+    MagneticBroadening, MagneticBroadeningL)
 
-L_ITEM_CLASS.extend([MagneticCorrelation])
-L_LOOP_CLASS.extend([MagneticCorrelationL])
+L_ITEM_CLASS.extend([MagneticBroadening])
+L_LOOP_CLASS.extend([MagneticBroadeningL])
 
 L_LOOP_CLASS.extend([
     AtomLocalAxesL, AtomElectronConfigurationL, AtomRhoOrbitalRadialSlaterL,

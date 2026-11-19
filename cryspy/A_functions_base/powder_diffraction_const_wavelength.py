@@ -262,7 +262,8 @@ def calc_profile_pseudo_voight_extra_lorentz(
     added to H_L = X tan(theta) + Y / cos(theta) of the Thompson-Cox-
     Hastings pseudo-Voigt (J. Appl. Cryst. 20 (1987) 79), as the size term
     of a separate phase in FullProf. Used for the magnetic reflections with
-    a finite magnetic correlation length (magnetic_correlation.py).
+    their own broadening (magnetic_broadening.py). A negative y_hkl makes
+    the peaks narrower; H_L is kept non-negative.
 
     Parameters
     ----------
@@ -274,7 +275,8 @@ def calc_profile_pseudo_voight_extra_lorentz(
         Parameters of the resolution (degrees^2 for u, v, w, i_g; degrees
         for x, y).
     y_hkl : array (n_hkl,)
-        Extra Lorentzian size term of every reflection, degrees.
+        Extra Lorentzian size term of every reflection, degrees (may be
+        negative).
     p_1, p_2, p_3, p_4 : float
         Asymmetry parameters.
     cutoff_fwhm : float
@@ -294,6 +296,9 @@ def calc_profile_pseudo_voight_extra_lorentz(
     h_g = calc_h_g(u, v, w, i_g, ttheta)[0]
     h_l = calc_h_l(x, y, ttheta)[0][:, na] + \
         numpy.asarray(y_hkl, dtype=float)[na, :] / numpy.cos(0.5 * ttheta)[:, na]
+    # a negative extra width (magnetic peaks narrower than the nuclear ones)
+    # can take away at most the Lorentzian part of the width
+    h_l = numpy.maximum(h_l, 0.)
     h_g = numpy.broadcast_to(h_g[:, na], (n_point, n_hkl))
     h_pv = calc_h_pv(h_g, h_l)[0]
     eta = calc_eta(h_l, h_pv)[0]
