@@ -1,0 +1,24 @@
+# Two-dimensional order: layers without correlations between them give rods and the saw-tooth Warren line
+# (sharp front, long tail to high angles). L is the in-plane correlation length.
+Recipe layer_correlation: Two-dimensional (layer) correlations of a powder phase, Warren line shape
+Requests: add 2D correlations, add two-dimensional correlations, 2D magnetic order, two-dimensional magnetic correlations, asymmetric magnetic peak, sawtooth peak, saw-tooth line, warren function, warren line shape, stacking disorder, uncorrelated layers, estimate correlation length in the plane, which direction are the layers, suggest layer direction, weak bonds between layers
+For: powder_1d, magnetic
+
+1. layers: Find the planes of the layers with weak bonds between them from the crystal structure.
+   Actions: run_procedure {"name": "suggest_layer_direction", "phase_label": ""}
+   Success: a direction with the ratio across / inside above 1.1.
+   Otherwise: Explain that the structure has no layered direction and ask the user for the normal of the layers.
+2. start: Fix all parameters and calculate the start model; the misfit shows where the asymmetric lines are.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n of the start model is a number.
+   Otherwise: Stop and explain the error.
+3. add: Make the magnetic order (or the one the user named) two-dimensional in the suggested layers, start length 100 A, and refine the length and the scale of the rods.
+   Actions: run_procedure {"name": "add_layer_correlation", "length": 100.0, "normal": "", "contribution": "magnetic", "phase_label": ""}; refine
+   Success: chi_sq/n got better.
+   Otherwise: undo_refinement: the lines are not described by uncorrelated layers.
+4. report: The correlation length in the plane with its error and the scale of the rods.
+   Actions: run_procedure {"name": "report_layer_correlation"}
+5. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: the planes of the layers (and why: gap, bonds across, magnetic distances), the in-plane correlation length L with its error, the scale of the rods and its ratio to the scale of the phase, chi_sq/n before and after.
