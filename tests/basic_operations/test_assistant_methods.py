@@ -156,3 +156,20 @@ Mn Mn 0 0 0.5
     assert text.split("\n")[1].startswith("- convert_to_superspace of crystal_mn")
     assert form_matching_methods_text(crystal, "hello") == ""
     assert form_matching_methods_text(crystal, "what is the chi square") == ""
+
+
+def test_procedures_matching_a_request_are_found(powder):
+    """'Add spherical texture description into powder experiment' gave only
+    add_propagation_vector (by 'add' and 'description'), and the model
+    answered that texture cannot be added: the procedure must be given and
+    a generic verb of a name must not select a method."""
+    from cryspy.procedure_assistant.methods import form_matching_methods_text
+    text = form_matching_methods_text(
+        powder, "Add spherical texture description into powder experiment")
+    assert text.startswith("Procedures that may do this (action run_procedure):")
+    assert "- add_texture_spherical_harmonics:" in text
+    assert '[run_procedure {"name": "add_texture_spherical_harmonics"}]' in text
+    assert "add_propagation_vector" not in text
+    # the method stays first when its name fits better
+    text = form_matching_methods_text(powder, "Add the propagation vector")
+    assert "- add_propagation_vector of " in text.split("\n")[1]
