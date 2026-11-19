@@ -2,6 +2,7 @@ import numpy
 from .matrix_operations import (
     calc_m_q_inv_m,
     calc_vector_product_v1_v2_v1,
+    calc_vv_as_v1_v2_v1,
     calc_mm_as_m_q_inv_m,
     calc_mm_as_m1_m2_inv_m1,
     calc_m_v,
@@ -298,13 +299,13 @@ def calc_mem_m(
         )[0]
     )
 
-    # [3, hkl, points, Natom, symm]
-    m_perp_ccs = calc_vector_product_v1_v2_v1(
-        numpy.expand_dims(eq_ccs, axis=(2, 3, 4)),
-        numpy.expand_dims(m_ccs_s, axis=1),
-        flag_v1=False,
-        flag_v2=False,
-    )[0]
+    # sum over the symmetry elements before the projection e x m x e,
+    # which is linear in m: the arrays [3, hkl, points, Natom, symm] took
+    # several GB for large grids
+    # [3, hkl, points, Natom]
+    m_sum = numpy.einsum("hps,jpns->jhpn", phase_3d, m_ccs_s)
+    # [3, 3, hkl]
+    vv = calc_vv_as_v1_v2_v1(eq_ccs)[0]
 
     # [3, hkl, points, Natom]
     coeff = (
@@ -314,7 +315,7 @@ def calc_mem_m(
     )
     mem_ani = (
         coeff
-        * ((numpy.expand_dims(phase_3d, axis=(0, 3)) * m_perp_ccs).sum(axis=4))
+        * numpy.einsum("ijh,jhpn->ihpn", vv, m_sum)
         * numpy.expand_dims(point_multiplicity, axis=(0, 1, 3))
     )
 
@@ -399,14 +400,6 @@ def calc_mem_chi(
         flag_v=False,
     )[0]
 
-    # [3, hkl, points, Nmag, symm]
-    m_perp_ccs = calc_vector_product_v1_v2_v1(
-        numpy.expand_dims(eq_ccs, axis=(2, 3, 4)),
-        numpy.expand_dims(m_ccs, axis=1),
-        flag_v1=False,
-        flag_v2=False,
-    )[0]
-
     # [symm]
     fract_points = symm_elem_points[:3] / numpy.expand_dims(
         symm_elem_points[3], axis=0
@@ -421,21 +414,27 @@ def calc_mem_chi(
     fract_b = full_symm_elems[:3] / numpy.expand_dims(
         full_symm_elems[3], axis=0
     )
-    hh = numpy.expand_dims(
-        rr + numpy.expand_dims(fract_b, axis=1), axis=(1, 3)
+    # [3, points, symm]
+    hh = rr + numpy.expand_dims(fract_b, axis=1)
+
+    # sum over the symmetry elements one by one: the arrays
+    # [3, hkl, points, Nmag, symm] took several GB for large grids
+    # [3, hkl, points, Nmag]
+    m_sum = numpy.zeros(
+        (3, index_hkl.shape[1]) + m_ccs.shape[1:3], dtype=complex
     )
-    index_hkl_3d = numpy.expand_dims(index_hkl, axis=(2, 3, 4))
-    # [hkl, points, Nmag, symm]
-    phase_3d = numpy.exp(
-        -2.0
-        * numpy.pi
-        * 1j
-        * (
-            hh[0] * index_hkl_3d[0]
-            + hh[1] * index_hkl_3d[1]
-            + hh[2] * index_hkl_3d[2]
+    for i_symm in range(hh.shape[2]):
+        # [hkl, points]
+        phase = numpy.exp(
+            -2.0 * numpy.pi * 1j * numpy.tensordot(index_hkl, hh[:, :, i_symm], axes=(0, 0))
         )
-    )
+        m_sum += numpy.expand_dims(phase, axis=(0, 3)) * numpy.expand_dims(
+            m_ccs[:, :, :, i_symm], axis=1
+        )
+    # the projection normal to the scattering vector, e x m x e, is linear
+    # in m: it is applied to the sum
+    # [3, 3, hkl]
+    vv = calc_vv_as_v1_v2_v1(eq_ccs)[0]
 
     # [3, hkl, points, Natom]
     coeff = (
@@ -445,7 +444,7 @@ def calc_mem_chi(
     )
     mem_ani = (
         coeff
-        * ((numpy.expand_dims(phase_3d, axis=0) * m_perp_ccs).sum(axis=4))
+        * numpy.einsum("ijh,jhpn->ihpn", vv, m_sum)
         * numpy.expand_dims(point_multiplicity, axis=(0, 1, 3))
     )
     return mem_ani
