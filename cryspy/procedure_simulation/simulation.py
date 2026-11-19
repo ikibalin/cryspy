@@ -21,6 +21,7 @@ from cryspy.A_functions_base.structure_factor_magnetic_k import \
         
 import cryspy
 from cryspy.exceptions import CrysPyError
+from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
 
 na = numpy.newaxis
 
@@ -180,15 +181,46 @@ def simulation_unpolarized_neutron_powder_diffraction(
                     ttheta_step, False)
 
 
+def has_k_vector(d_crystal: dict, k_vector) -> bool:
+    """True when the crystal dictionary has the propagation vector k (or
+    -k, or k shifted by a reciprocal lattice vector)."""
+    if "magnetic_k_vector" not in d_crystal:
+        return False
+    for vector in numpy.asarray(d_crystal["magnetic_k_vector"], dtype=float).transpose():
+        for sign in (1., -1.):
+            difference = sign * vector - numpy.asarray(k_vector, dtype=float)
+            if numpy.allclose(difference, numpy.round(difference), atol=1e-4):
+                return True
+    return False
+
+
+def calc_satellites_of_k(crystal, k_vector, sthovl_min: float, sthovl_max: float,
+                         unit_cell_parameters) -> numpy.ndarray:
+    """Satellites h ± k (3, n_hkl) in the range, one per orbit of the group
+    of k of the crystal (and Friedel's law), for a k that is not in the
+    crystal."""
+    k_group = crystal.take_group_of_k(k_vector)
+    d_k = {"magnetic_k_op_rotation": numpy.asarray(k_group["rotation"]),
+           "magnetic_k_centring": numpy.asarray(k_group["centring"], dtype=float),
+           "magnetic_k_vector": numpy.asarray(k_vector, dtype=float)[:, numpy.newaxis]}
+    return calc_unique_satellite_index_hkl_by_dictionary(
+        d_k, sthovl_min, sthovl_max, unit_cell_parameters)
+
+
 def simulation_single_crystal(
         cryspy_object: cryspy.GlobalN, wavelength: float = 1.4, ttheta_min: float = 1.,
-        ttheta_max: float = 116., satellites_only: bool = False):
+        ttheta_max: float = 116., satellites_only: bool = False, k_1: float = 0.,
+        k_2: float = 0., k_3: float = 0.):
     """Simulate an unpolarized single crystal experiment.
 
     For every crystal a data block ``diffrn_sc`` with unpolarized
     intensities of the reflections in the 2theta range is added; a crystal
     with a propagation vector also gets its magnetic satellites h ± k
-    (fractional indices, one per symmetry orbit).
+    (fractional indices, one per symmetry orbit). A propagation vector
+    k_1, k_2, k_3 (not zero) adds its satellites too, also to a
+    paramagnetic crystal or to a crystal without this k: their intensities
+    are then zero, but the list of the satellites in the range (indices,
+    angles) is ready for planning an experiment or for the measured data.
 
     Parameters
     ----------
@@ -202,13 +234,28 @@ def simulation_single_crystal(
         Maximal 2theta of the reflections in degrees.
     satellites_only : bool
         The magnetic satellites only, without the nuclear reflections; for
-        crystals with a propagation vector.
+        crystals with a propagation vector or with k given.
+    k_1 : float
+        First component of a propagation vector whose satellites are added
+        (reciprocal lattice units); 0, 0, 0 adds none.
+    k_2 : float
+        Second component of the propagation vector (reciprocal lattice units).
+    k_3 : float
+        Third component of the propagation vector (reciprocal lattice units).
+
+    Returns
+    -------
+    str
+        Numbers of the simulated reflections and satellites per crystal.
     """
     check_simulation_range(wavelength, ttheta_min, ttheta_max)
+    k_extra = None
+    if any(abs(float(value)) > 1e-6 for value in (k_1, k_2, k_3)):
+        k_extra = snap_k_vector([float(k_1), float(k_2), float(k_3)])[0]
     take_crystal_names(cryspy_object)
     f_diffrn_sc = os.path.join(DIR, "diffrn_sc.rcif")
 
-    l_diffrn = []
+    l_diffrn, ls_out = [], []
     i_crystal = 0
     for item in cryspy_object.items:
         if isinstance(item, cryspy.Crystal):
@@ -232,7 +279,8 @@ def simulation_single_crystal(
             sthovl_min = numpy.sin(numpy.radians(0.5 * ttheta_min)) / wavelength
             sthovl_max = numpy.sin(numpy.radians(0.5 * ttheta_max)) / wavelength
             flag_k = "magnetic_k_vector" in d_crystal
-            if satellites_only and not flag_k:
+            flag_extra = k_extra is not None and not has_k_vector(d_crystal, k_extra)
+            if satellites_only and not (flag_k or flag_extra):
                 raise CrysPyError(
                     f"The crystal '{item.data_name:}' has no propagation vector, "
                     "so it has no magnetic satellites.")
@@ -250,6 +298,11 @@ def simulation_single_crystal(
                     calc_unique_satellite_index_hkl_by_dictionary(
                         d_crystal, sthovl_min, sthovl_max, unit_cell_parameters)],
                     axis=1)
+            if flag_extra:
+                # satellites of a k the crystal does not have: zero intensities
+                np_hkl = numpy.concatenate([
+                    np_hkl, calc_satellites_of_k(item, k_extra, sthovl_min, sthovl_max,
+                                                 unit_cell_parameters)], axis=1)
 
             rcif_diffrn.diffrn_orient_matrix.ub_11 = float(numpy.round(m_b[0],6))
             rcif_diffrn.diffrn_orient_matrix.ub_12 = float(numpy.round(m_b[1],6))
@@ -261,6 +314,17 @@ def simulation_single_crystal(
             rcif_diffrn.diffrn_orient_matrix.ub_32 = float(numpy.round(m_b[7],6))
             rcif_diffrn.diffrn_orient_matrix.ub_33 = float(numpy.round(m_b[8],6))
 
+            n_fractional = int(numpy.any(numpy.abs(np_hkl - numpy.round(np_hkl)) > 1e-4,
+                                         axis=0).sum())
+            text = (f"{rcif_diffrn.data_name}: {np_hkl.shape[1] - n_fractional} reflections with "
+                    f"integer indices and {n_fractional} satellites of crystal {item.data_name} "
+                    f"(wavelength {float(wavelength):g} Å, 2theta {ttheta_min:g}–{ttheta_max:g}°).")
+            if flag_extra:
+                text += (f" k = ({', '.join(f'{float(value):g}' for value in k_extra)}) is not a "
+                         "propagation vector of the crystal: its satellites have zero "
+                         "intensity (a list for planning the experiment); add_propagation_vector "
+                         "gives them a magnetic structure.")
+            ls_out.append(text)
             l_item_diffrn_refln = []
             for hkl in np_hkl.T:
                 item_diffrn_refln = DiffrnRefln(
@@ -280,6 +344,7 @@ def simulation_single_crystal(
         for item in rcif_diffrn.diffrn_refln.items:
             item.intensity = float(numpy.round(item.intensity_calc, 5))
     rhochi_no_refinement(cryspy_object)
+    return "\n".join(ls_out)
 
 
 def simulation_fliping_ratio(cryspy_object: cryspy.GlobalN):

@@ -67,8 +67,9 @@ from cryspy.procedure_assistant.parameters import (
     explain_value_words, find_parameter_records, is_all_pattern, suggest_parameter_names,
     take_parameter_record,
     take_parameter_records)
+from cryspy.procedure_assistant.proposals import expand_k_argument, propose_arguments
 from cryspy.procedure_assistant.tools_documents import (
-    tool_index_documents, tool_list_documents, tool_search_documents)
+    tool_index_documents, tool_list_documents, tool_search_documents, tool_search_knowledge)
 from cryspy.procedure_assistant.tool_base import (
     MAX_PARAMETERS_IN_LIST, ArgumentsNeeded, format_value)
 from cryspy.procedure_assistant.tools_model import (
@@ -1035,8 +1036,11 @@ def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
                 + tool_list_procedures(cryspy_object))
     function = d_function[name]
     d_param_type = {param: types for param, _, types, _ in take_procedure_parameters(function)}
+    l_described = describe_procedure(function)["parameters"]
+    l_param = [d_param["name"] for d_param in l_described]
+    arguments = expand_k_argument(arguments, l_param)
     kwargs, l_missing = {}, []
-    for d_param in describe_procedure(function)["parameters"]:
+    for d_param in l_described:
         param, kind = d_param["name"], d_param["kind"]
         d_ask = {"name": param, "question": d_param.get("question", param)}
         if kind == "global":
@@ -1057,6 +1061,7 @@ def tool_run_procedure(cryspy_object, name: str, **arguments) -> str:
                 return f"Error: {name:} needs {s_type:} ({param:}), the object has none."
             else:
                 l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
+    l_missing = propose_arguments(cryspy_object, None, l_param, dict(arguments, **kwargs), l_missing)
     if l_missing:
         raise ArgumentsNeeded(l_missing)
     return form_procedure_result(name, function(**kwargs), cryspy_object)
@@ -1189,20 +1194,23 @@ def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) ->
     for block_path, block in l_block[:MAX_METHOD_BLOCKS]:
         function = take_methods(type(block))[method]
         d_param_type = {param: types for param, _, types, _ in take_method_parameters(function)}
+        l_described = describe_method(function)["parameters"]
+        l_param = [d_param["name"] for d_param in l_described]
+        arguments_block = expand_k_argument(arguments, l_param)
         kwargs, l_missing = {}, []
-        for d_param in describe_method(function)["parameters"]:
+        for d_param in l_described:
             param = d_param["name"]
             d_ask = {"name": param, "question": d_param["question"]}
             if d_param["kind"] == "basic":
-                if param in arguments:
-                    kwargs[param] = convert_argument(arguments[param], d_param)
+                if param in arguments_block:
+                    kwargs[param] = convert_argument(arguments_block[param], d_param)
                 elif "default" not in d_param:
                     l_missing.append(dict(d_ask, type=d_param["type"], hint=d_param["description"] or param))
                 continue
             d_found = find_parameter_blocks(cryspy_object, block, param, d_param_type[param])
             s_type = " or ".join(d_param["classes"])
-            if param in arguments and str(arguments[param]) in d_found:
-                kwargs[param] = d_found[str(arguments[param])]
+            if param in arguments_block and str(arguments_block[param]) in d_found:
+                kwargs[param] = d_found[str(arguments_block[param])]
             elif len(d_found) == 1:
                 kwargs[param] = list(d_found.values())[0]
             elif len(d_found) == 0:
@@ -1211,6 +1219,8 @@ def tool_call_method(cryspy_object, method: str, path: str = "", **arguments) ->
                 return f"Error: {method:} of {block_path:} needs {s_type:} ({param:}), the object has none."
             else:
                 l_missing.append(dict(d_ask, type="string", enum=list(d_found), hint=", ".join(d_found)))
+        l_missing = propose_arguments(cryspy_object, block, l_param,
+                                      dict(arguments_block, **kwargs), l_missing)
         if l_missing:
             raise ArgumentsNeeded(l_missing)
         result = getattr(block, method)(**kwargs)
@@ -1241,6 +1251,19 @@ L_ASSISTANT_TOOLS: List[AssistantTool] = [
         tool_get_help,
         {"query": {"type": "string",
                    "description": "Question, topic or category name."}},
+        required=("query", ), flag_object_needed=False),
+    AssistantTool(
+        "search_knowledge",
+        "Search the knowledge base of CrysPy (Markdown files inside CrysPy) for physics "
+        "data: magnetic ions of an element (usual valence, configuration, Lande factor, "
+        "free-ion moment g·J), the usual charges of ions for the charge balance; answer "
+        "from the fragments found.",
+        tool_search_knowledge,
+        {"query": {"type": "string",
+                   "description": "The question or the key words in English (as 'usual ion "
+                                  "of Tb', 'Lande factor Ho3+')."},
+         "n_results": {"type": "integer", "minimum": 1, "maximum": 10,
+                       "description": "Number of fragments (default 4)."}},
         required=("query", ), flag_object_needed=False),
     AssistantTool(
         "search_documents",

@@ -111,3 +111,24 @@ def tool_index_documents(cryspy_object, folder: str = "", *,
     if s_errors:
         ls_out.append(s_errors)
     return "\n".join(ls_out)
+
+
+def tool_search_knowledge(cryspy_object, query: str, n_results: int = N_RESULTS) -> dict:
+    """Fragments of the internal knowledge base of CrysPy (knowledge.py)
+    with their files ("sources" key)."""
+    from cryspy.procedure_assistant.knowledge import list_knowledge_files, search_knowledge
+    l_found = search_knowledge(query, n_results=max(1, min(int(n_results), 10)))
+    if len(l_found) == 0:
+        return {"text": f"Nothing is found for '{query:}' in the knowledge base of CrysPy "
+                        f"({', '.join(list_knowledge_files()):}). Try other words in English.",
+                "sources": []}
+    ls_out = [f"Fragments of the knowledge base of CrysPy for '{query:}', found by "
+              f"{form_method_text():}. Answer from them and name the file."]
+    n_left = MAX_TEXT_CHARACTERS
+    for ind, d_found in enumerate(l_found):
+        text = cut_text(d_found["text"], min(MAX_FRAGMENT_CHARACTERS, n_left))
+        ls_out.append(f"[{ind + 1:}] knowledge/{d_found['file']:}, {d_found['location']:}:\n{text:}")
+        n_left -= len(text)
+        if n_left < 200:
+            break
+    return {"text": "\n\n".join(ls_out), "sources": l_found}

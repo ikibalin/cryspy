@@ -13,6 +13,7 @@ from math import gcd
 import numpy
 
 from cryspy.exceptions import CrysPyError
+from cryspy.A_functions_base.knowledge_tables import take_lande_factor
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_axial_moment_matrix, calc_domain_matrices, calc_fourier_site_projector,
     calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
@@ -323,34 +324,13 @@ def report_irreps(k_group: dict, k_vector, atoms: dict,
     return "\n".join(ls_out)
 
 
-LANTHANIDES = ("Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho",
-               "Er", "Tm", "Yb")
-
-
 def calc_lande_factor(ion: str) -> float:
-    """Lande factor of a magnetic ion: g_J of the Hund's rules ground
-    multiplet for a 4f ion (Tb3+: 1.5), the spin-only value 2 for the other
-    ions (orbital moment quenched by the crystal field, 3d ions).
-    g_J = 1 + (J(J+1) + S(S+1) - L(L+1)) / (2 J(J+1)) (Jensen, Mackintosh,
-    "Rare Earth Magnetism" (1991), table 1.1)."""
-    element = "".join(char for char in ion if char.isalpha())
-    digits = "".join(char for char in ion if char.isdigit())
-    if element not in LANTHANIDES or "+" not in ion:
-        return 2.
-    # 4f electrons: Ce (Z = 58) has [Xe]4f1 5d1 6s2, so Ce3+ is 4f1
-    n_f = LANTHANIDES.index(element) + 4 - int(digits or 0)
-    if not 0 < n_f < 14:
-        return 2.
-    # Hund's rules for n_f electrons of l = 3
-    m_l = [3, 2, 1, 0, -1, -2, -3]
-    n_up = min(n_f, 7)
-    spin = 0.5 * (n_up - (n_f - n_up))
-    orbital = abs(sum(m_l[:n_up]) + sum(m_l[:n_f - n_up]))
-    total = abs(orbital - spin) if n_f < 7 else orbital + spin
-    if total == 0.:
-        return 2.
-    j_sq = total * (total + 1.)
-    return round(1. + (j_sq + spin * (spin + 1.) - orbital * (orbital + 1.)) / (2. * j_sq), 6)
+    """Lande factor of a magnetic ion from the knowledge base of CrysPy
+    (cryspy/knowledge/magnetic_ions_*.md): g_J of the Hund's rules ground
+    multiplet for a 4f ion (Tb3+: 1.5), the spin-only value 2 for the 3d
+    ions (orbital moment quenched by the crystal field) and for an ion that
+    is not in the tables."""
+    return take_lande_factor(ion)
 
 
 def add_magnetic_scattering(crystal, labels: list, magnetic_ion: str = "",

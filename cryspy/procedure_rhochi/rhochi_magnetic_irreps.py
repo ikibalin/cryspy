@@ -8,6 +8,7 @@ representation analysis of SARAh, BasIreps or ISODISTORT followed by a
 refinement of every model (FullProf, Jana2020).
 """
 import logging
+from fractions import Fraction
 import warnings
 
 import numpy
@@ -376,6 +377,60 @@ def take_canonical_k(fraction, tolerance: float = 1e-4):
     return min(l_k)
 
 
+def take_propagation_vectors(rcif_object: GlobalN) -> dict:
+    """Propagation vectors of the measured satellites (see
+    find_propagation_vectors) as data.
+
+    Returns
+    -------
+    dict
+        "vectors": [{"k" (tuple of 3 floats, snapped to fractions),
+        "n_satellite", "experiments" ({name: (count, summed intensity)})}],
+        the vector with more satellites first; "n_integer" (reflections
+        with integer indices); "experiments" (names of the single-crystal
+        experiments with reflections).
+    """
+    from cryspy.E_data_classes.cl_2_diffrn import Diffrn
+    d_k, l_experiment, n_integer = {}, [], 0
+    for item in rcif_object.items:
+        if not (isinstance(item, Diffrn) and item.is_attribute("diffrn_refln")):
+            continue
+        refln = item.diffrn_refln
+        index_hkl = numpy.array([refln.index_h, refln.index_k, refln.index_l], dtype=float)
+        if refln.is_attribute("intensity"):
+            intensity = numpy.array(refln.intensity, dtype=float)
+        else:
+            intensity = numpy.full(index_hkl.shape[1], numpy.nan)
+        flag_fractional = numpy.any(numpy.abs(index_hkl - numpy.round(index_hkl)) > 1e-4, axis=0)
+        n_integer += int((~flag_fractional).sum())
+        l_experiment.append(item.data_name)
+        for hkl, value in zip(index_hkl[:, flag_fractional].transpose(), intensity[flag_fractional]):
+            key = take_canonical_k(hkl - numpy.round(hkl))
+            d_exp = d_k.setdefault(key, {})
+            count, total = d_exp.get(item.data_name, (0, 0.))
+            d_exp[item.data_name] = (count + 1, total + (0. if numpy.isnan(value) else value))
+    if not l_experiment:
+        raise CrysPyError("The object has no single-crystal experiments with reflections.")
+    l_key = sorted(d_k, key=lambda key: -sum(count for count, _ in d_k[key].values()))
+    l_vector = []
+    for key in l_key:
+        k_vector = snap_k_vector(list(key))[0]
+        l_vector.append({"k": tuple(float(value) for value in k_vector),
+                         "n_satellite": sum(count for count, _ in d_k[key].values()),
+                         "experiments": d_k[key]})
+    return {"vectors": l_vector, "n_integer": n_integer, "experiments": l_experiment}
+
+
+def form_k_fraction_text(k_vector) -> str:
+    """'(1/2, 1/2, 0)' of a propagation vector (fractions up to 1/12)."""
+    l_text = []
+    for value in k_vector:
+        fraction = Fraction(float(value)).limit_denominator(12)
+        text = str(fraction) if abs(float(fraction) - float(value)) < 1e-4 else f"{float(value):g}"
+        l_text.append(text)
+    return "(" + ", ".join(l_text) + ")"
+
+
 def find_propagation_vectors(rcif_object: GlobalN) -> str:
     """Find the propagation vectors of the magnetic satellites in the data.
 
@@ -399,45 +454,23 @@ def find_propagation_vectors(rcif_object: GlobalN) -> str:
     str
         Markdown table of the propagation vectors.
     """
-    from cryspy.E_data_classes.cl_2_diffrn import Diffrn
-    d_k, l_experiment, n_integer = {}, [], 0
-    for item in rcif_object.items:
-        if not (isinstance(item, Diffrn) and item.is_attribute("diffrn_refln")):
-            continue
-        refln = item.diffrn_refln
-        index_hkl = numpy.array([refln.index_h, refln.index_k, refln.index_l], dtype=float)
-        if refln.is_attribute("intensity"):
-            intensity = numpy.array(refln.intensity, dtype=float)
-        else:
-            intensity = numpy.full(index_hkl.shape[1], numpy.nan)
-        flag_fractional = numpy.any(numpy.abs(index_hkl - numpy.round(index_hkl)) > 1e-4, axis=0)
-        n_integer += int((~flag_fractional).sum())
-        l_experiment.append(item.data_name)
-        for hkl, value in zip(index_hkl[:, flag_fractional].transpose(), intensity[flag_fractional]):
-            key = take_canonical_k(hkl - numpy.round(hkl))
-            d_exp = d_k.setdefault(key, {})
-            count, total = d_exp.get(item.data_name, (0, 0.))
-            d_exp[item.data_name] = (count + 1, total + (0. if numpy.isnan(value) else value))
-    if not l_experiment:
-        raise CrysPyError("The object has no single-crystal experiments with reflections.")
+    d_found = take_propagation_vectors(rcif_object)
+    n_integer = d_found["n_integer"]
     ls_out = ["# Propagation vectors of the measured satellites", ""]
-    if not d_k:
+    if not d_found["vectors"]:
         ls_out.append(f"No satellites: all {n_integer} reflections have integer indices "
                       "(k = 0 or a paramagnetic state).")
         return "\n".join(ls_out)
     ls_out += ["| k | Satellites | Experiments (satellites, summed intensity) |", "|---|---|---|"]
-    l_key = sorted(d_k, key=lambda key: -sum(count for count, _ in d_k[key].values()))
-    for key in l_key:
-        k_vector, l_note = snap_k_vector(list(key))
-        k_text = ", ".join(f"{float(value):g}" for value in k_vector)
+    for d_vector in d_found["vectors"]:
+        k_text = ", ".join(f"{float(value):g}" for value in d_vector["k"])
         text_exp = "; ".join(f"{name} ({count}, {total:.4g})"
-                             for name, (count, total) in d_k[key].items())
-        n_total = sum(count for count, _ in d_k[key].values())
-        ls_out.append(f"| ({k_text}) | {n_total} | {text_exp} |")
+                             for name, (count, total) in d_vector["experiments"].items())
+        ls_out.append(f"| ({k_text}) | {d_vector['n_satellite']} | {text_exp} |")
     ls_out += ["", f"{n_integer} reflections with integer indices (nuclear and k = 0)."]
-    if len(l_key) > 1:
+    if len(d_found["vectors"]) > 1:
         ls_out.append(
-            f"{len(l_key)} propagation vectors: add them one by one (the first k with "
+            f"{len(d_found['vectors'])} propagation vectors: add them one by one (the first k with "
             "rhochi_rank_magnetic_representations and add_propagation_vector, then the "
             "second one on the crystal that has the first: a multi-k structure). Vectors of "
             "one star (related by the paramagnetic group) are one k with magnetic domains.")

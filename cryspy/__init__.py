@@ -328,6 +328,7 @@ from cryspy.procedure_assistant.procedures import (
     describe_procedures,
 )
 from cryspy.procedure_assistant.recipes import run_recipe, set_user_recipe_folder
+from cryspy.procedure_assistant.knowledge import search_knowledge
 from cryspy.procedure_assistant.documents import (
     search_documents,
     set_document_embedding,

@@ -3,18 +3,18 @@
 # the vectors of the data, the group of k, every representation refined and compared,
 # the conversion, the magnetic domains, the size of the moments and a simulation.
 Recipe magnetic_structure_k: Magnetic structure with a propagation vector k
-Requests: add a propagation vector, which representation fits the data, choose the irreducible representation by the data, find the magnetic space group from the data, rank the representations, add k to the magnetic structure, spiral, helix, cycloid, amplitude-modulated structure, moments of the atoms, magnetic structure with k, antiferromagnetic structure with k, incommensurate magnetic structure, magnetic satellites, magnetic domains, irreducible representations of k, simulate magnetic satellites, magnetic supercell, export to supercell, isotropy subgroups, second propagation vector, multi-k structure, add a second k, from the paramagnetic to the magnetic structure, find the propagation vector, which magnetic structures were tested
+Requests: add a propagation vector, which representation fits the data, choose the irreducible representation by the data, find the magnetic space group from the data, rank the representations, add k to the magnetic structure, spiral, helix, cycloid, amplitude-modulated structure, moments of the atoms, magnetic structure with k, antiferromagnetic structure with k, incommensurate magnetic structure, magnetic satellites, magnetic domains, irreducible representations of k, simulate magnetic satellites, simulate the satellites of a propagation vector, which satellites can be measured, plan an experiment with a propagation vector, magnetic supercell, export to supercell, isotropy subgroups, second propagation vector, multi-k structure, add a second k, from the paramagnetic to the magnetic structure, find the propagation vector, which magnetic structures were tested
 For: satellites
 
 1. find: The propagation vectors of the measured satellites (fractional indices of the single-crystal reflections) with the number of their satellites; with several vectors the steps irreps to refine are done for each of them, the vector with more satellites first.
    When: single crystal experiments (diffrn) with satellites
    Actions: run_procedure {"name": "find_propagation_vectors"}
    Success: the table lists at least one k.
-2. irreps: The group of k, its representations (one-dimensional, then 'dim 2' and more with several modes) and their superspace groups with the Fourier components (symmforms) they allow for the magnetic atoms; k and the magnetic atoms are asked from the user when not given.
+2. irreps: The group of k, its representations (one-dimensional, then 'dim 2' and more with several modes) and their superspace groups with the Fourier components (symmforms) they allow for the magnetic atoms. Call it without k and the magnetic atoms: CrysPy proposes k from the measured satellites (the vector not yet in the crystal) and the atoms of the magnetic elements, and the user only confirms them.
    Actions: call_method {"method": "report_irreps_of_k"}
    Success: the report lists at least one representation (Γ1, Γ2, ...).
    Otherwise: Stop and explain the error.
-3. rank: Refine every representation, every mode of the multidimensional ones and the sums of two one-dimensional ones (Γ1⊕Γ2) against the measured data, with the magnetic domains of every model in the single-crystal experiments; compare chi_sq/n and R_F2 of the satellites of this k (the satellites of another k do not change it). k, the magnetic atoms (after a first k: all parts of the split atom, as Tb, Tb_2), the start moment (μB, not zero) and, without atom_site_scat, the magnetic ion (magnetic_ion, as Tb3+) are asked from the user when not given. keep_rank 0: the object is not changed here (the choose step picks the row). Keep the table: it is the list of the tested structures for the final answer.
+3. rank: Refine every representation, every mode of the multidimensional ones and the sums of two one-dimensional ones (Γ1⊕Γ2) against the measured data, with the magnetic domains of every model in the single-crystal experiments; compare chi_sq/n and R_F2 of the satellites of this k (the satellites of another k do not change it). Call it without k, the magnetic atoms and the magnetic ion: CrysPy proposes k from the measured satellites, the magnetic atoms (after a first k: all parts of the split atom, as Tb, Tb_2) and, without atom_site_scat, the magnetic ion from the charge balance or the usual ion of the element in its knowledge base (Tb3+), and the user confirms them; the start moment (μB, not zero) has a default. keep_rank 0: the object is not changed here (the choose step picks the row). Keep the table: it is the list of the tested structures for the final answer.
    When: the object has measured experiments (powder, single crystal, flip ratios)
    Actions: run_procedure {"name": "rhochi_rank_magnetic_representations", "keep_rank": 0}
    Success: the table lists the representations with chi_sq/n, the best first.
@@ -23,7 +23,7 @@ For: satellites
 5. convert: Replace the space group by the magnetic superspace group of the chosen representation, split the atoms, add the Fourier components (cos, sin with symmforms) of the magnetic atoms. A crystal that has a propagation vector already gets the new k as a second wave (multi-k structure); the waves of the first k are kept, but the lower common group may free more of their components.
    Actions: call_method {"method": "add_propagation_vector"}
    Success: the report says what was converted.
-   Otherwise: Stop and explain the error. When the magnetic ion is asked (no atom_site_scat after a nuclear refinement), ask the user for it with ask_user (as Tb3+) and call again with magnetic_ion; the Lande factor is g_J of Hund's rules for 4f ions and 2 otherwise unless the user gives lande.
+   Otherwise: Stop and explain the error. The magnetic ion (no atom_site_scat after a nuclear refinement) is proposed by CrysPy and confirmed by the user; the Lande factor is that of the knowledge base of CrysPy (g_J of the 4f ions, 2 for the 3d ions; search_knowledge) unless the user gives lande.
 6. domains: Magnetic domains of the single-crystal experiments (jana_twin with equal fractions; structural twins are kept), as in the rank step. Call it for every single-crystal experiment with the name of the experiment.
    When: single crystal experiments (diffrn)
    Actions: call_method {"method": "define_magnetic_domains"}
@@ -35,10 +35,10 @@ For: satellites
    Success: every propagation vector of the find step is in cell_wave_vector of the crystal.
 9. moments: The real-space moments of the magnetic atoms: the range of |M| over the cells, the kind of modulation and, with several k, the total moment of every position (all waves added).
    Actions: call_method {"method": "report_magnetic_moments"}
-   Success: the largest total moment is below g·J of the free ion (9 μB for Tb3+, 10 μB for Ho3+, 5 μB for Fe3+).
+   Success: the largest total moment is below the free-ion moment of the ion (g·J: 9 μB for Tb3+, 10 μB for Ho3+, 5 μB for Fe3+; search_knowledge gives it for any ion).
    Otherwise: Tell the user: the model is unphysical; try the next representation of the rank table with fewer parameters, or the scale is wrong.
-10. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives (asked when not given); satellites_only true leaves out the nuclear reflections.
-   When: the user asks for a simulation of single-crystal data
+10. simulate: Simulated single-crystal intensities of the nuclear reflections and of the magnetic satellites at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives (asked when not given); satellites_only true leaves out the nuclear reflections. A propagation vector the user names (k_1, k_2, k_3) adds its satellites also to a paramagnetic crystal or a crystal without this k: zero intensities, but the list of the satellites (indices, angles) for planning an experiment.
+   When: the user asks for a simulation of single-crystal data, or which satellites of a k can be measured
    Actions: run_procedure {"name": "simulation_single_crystal"}
 11. simulate_powder: Simulated powder profile at the wavelength (Angstrom) and in the 2theta range (degrees) the user gives (asked when not given).
    When: the user asks for a simulation of a powder pattern
