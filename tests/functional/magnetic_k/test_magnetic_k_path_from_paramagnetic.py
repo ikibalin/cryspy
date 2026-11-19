@@ -154,5 +154,5 @@ def test_keep_rank_keeps_the_domains(paramagnetic):
         obj, *K_VECTOR, "Tb", 3.0, magnetic_ion="Tb3+", keep_rank=1,
         try_superpositions=False)
     assert "2 magnetic domains" in report
-    assert obj.diffrn_sat.is_attribute("jana_twin")
+    assert obj.diffrn_sat.is_attribute("magnetic_domain")
     assert obj.crystal_tbte3.is_attribute("atom_site_moment_fourier")

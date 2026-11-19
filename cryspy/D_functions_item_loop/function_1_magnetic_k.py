@@ -15,7 +15,7 @@ import numpy
 from cryspy.exceptions import CrysPyError
 from cryspy.A_functions_base.knowledge_tables import take_lande_factor, take_magnetic_ions
 from cryspy.A_functions_base.magnetic_k_symmetry import (
-    calc_axial_moment_matrix, calc_domain_matrices, calc_fourier_site_projector,
+    calc_axial_moment_matrix, calc_domain_operations, calc_fourier_site_projector,
     calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
     calc_one_dimensional_irreps, calc_small_irreps, combine_superspace_groups,
     form_fourier_symmform, form_operation_xyz, form_superspace_group, split_atom_orbit)
@@ -24,6 +24,7 @@ from cryspy.A_functions_base.structure_factor_magnetic_k import (
     parse_operation_xyz, parse_ssg_operation)
 from cryspy.A_functions_base.unit_cell import (
     calc_reciprocal_by_unit_cell_parameters)
+from cryspy.C_item_loop_classes.cl_1_magnetic_domain import parse_magnetic_operation
 
 na = numpy.newaxis
 
@@ -518,22 +519,87 @@ def take_parent_space_group(crystal):
         "paramagnetic space group is needed.")
 
 
-def calc_magnetic_domain_matrices(crystal):
-    """Matrices (9, n_domain) on hkl of the magnetic domains of a crystal
-    described by a magnetic superspace group and its parent space group.
+def take_magnetic_group_operations(crystal):
+    """Rotations (9, n), translations (3, n) and time reversal (n,) of the
+    magnetic group of a crystal with the centrings: the superspace group
+    (x1, x2, x3 parts) or the commensurate mCIF magnetic space group."""
+    l_rotation, l_translation, l_theta = [], [], []
+    if crystal.is_attribute("space_group_symop_magn_ssg_operation"):
+        for item in crystal.space_group_symop_magn_ssg_operation.items:
+            operation = parse_ssg_operation(item.algebraic)
+            l_rotation.append(operation["rotation"])
+            l_translation.append(operation["translation"])
+            l_theta.append(operation["theta"])
+        # with k != 0 the time reversal of the whole structure is a shift of
+        # the phase of the modulation (x4 + 1/2), so it is always in the group
+        l_rotation += [rotation for rotation in l_rotation]
+        l_translation += [translation for translation in l_translation]
+        l_theta += [-theta for theta in l_theta]
+    elif crystal.is_attribute("space_group_symop_magn_operation"):
+        l_operation = [parse_magnetic_operation(item.xyz)
+                       for item in crystal.space_group_symop_magn_operation.items]
+        l_centring = [(numpy.zeros(3), 1.)]
+        if crystal.is_attribute("space_group_symop_magn_centering"):
+            l_centring = [parse_magnetic_operation(item.xyz)[1:]
+                          for item in crystal.space_group_symop_magn_centering.items]
+        for rotation, translation, theta in l_operation:
+            for centring, centring_theta in l_centring:
+                l_rotation.append(rotation)
+                l_translation.append(translation + centring)
+                l_theta.append(theta * centring_theta)
+    else:
+        raise CrysPyError(
+            "The crystal has no magnetic group (space_group_symop_magn_operation "
+            "or a superspace group); use add_propagation_vector.")
+    return (numpy.stack(l_rotation, axis=1), numpy.stack(l_translation, axis=1),
+            numpy.array(l_theta, dtype=int))
 
-    The domains are the cosets of the point group of the superspace
-    operations in the point group of the parent space group; Friedel pairs
-    are merged (unpolarized intensities)."""
-    if not crystal.is_attribute("space_group_symop_magn_ssg_operation"):
-        raise CrysPyError("The crystal has no propagation vector (superspace "
-                          "group); use add_propagation_vector.")
-    space_group = take_parent_space_group(crystal)
-    parent_rotation = take_space_group_operations(space_group)[0]
-    sub_rotation = numpy.stack([
-        parse_ssg_operation(item.algebraic)["rotation"]
-        for item in crystal.space_group_symop_magn_ssg_operation.items], axis=1)
-    return calc_domain_matrices(parent_rotation, sub_rotation)
+
+def calc_magnetic_domain_operations(crystal):
+    """Magnetic domains of a magnetic crystal as magnetic operations of its
+    paramagnetic group.
+
+    The paramagnetic group is ``space_group`` or ``parent_space_group``; a
+    commensurate magnetic space group without them uses the spatial parts
+    of its own operations (then only the time-reversed domain, 180°, is
+    found). The domains are the cosets of the magnetic group in the grey
+    paramagnetic group, Friedel pairs merged (see
+    ``calc_domain_operations``).
+
+    Returns
+    -------
+    rotation : numpy.ndarray
+        (9, n_domain) rotations (fractional, direct space); the identity first.
+    translation : numpy.ndarray
+        (3, n_domain) translations, fractions of the cell.
+    time_reversal : numpy.ndarray
+        (n_domain,) +1 or -1.
+    """
+    sub_rotation, sub_translation, sub_theta = take_magnetic_group_operations(crystal)
+    if (crystal.is_attribute("space_group") or crystal.is_attribute("parent_space_group")
+            or crystal.is_attribute("space_group_symop_magn_ssg_operation")):
+        parent_rotation, parent_translation = take_space_group_operations(
+            take_parent_space_group(crystal))[:2]
+    else:
+        parent_rotation, parent_translation = sub_rotation, sub_translation
+    return calc_domain_operations(parent_rotation, parent_translation,
+                                  sub_rotation, sub_theta)
+
+
+def form_magnetic_domain_operations(crystal) -> list:
+    """Magnetic domains of a crystal as mCIF strings 'x,y,z,-1'; the first
+    one (identity) is the domain described by the crystal itself."""
+    rotation, translation, time_reversal = calc_magnetic_domain_operations(crystal)
+    return [form_operation_xyz(rotation[:, i], translation[:, i])
+            + (",+1" if time_reversal[i] > 0 else ",-1")
+            for i in range(rotation.shape[1])]
+
+
+def calc_magnetic_domain_matrices(crystal):
+    """Matrices (9, n_domain) on hkl of the magnetic domains of a crystal,
+    ``R^T`` of ``calc_magnetic_domain_operations``."""
+    rotation = calc_magnetic_domain_operations(crystal)[0]
+    return rotation.reshape(3, 3, -1).transpose(1, 0, 2).reshape(9, -1)
 
 
 def form_start_fourier(projector, moment: float, cell_angles=(90., 90., 90.)):

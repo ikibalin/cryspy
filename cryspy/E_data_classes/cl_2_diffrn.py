@@ -32,7 +32,9 @@ from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.C_item_loop_classes.cl_1_chi2 import Chi2
 from cryspy.C_item_loop_classes.cl_1_setup import Setup
 from cryspy.C_item_loop_classes.cl_1_diffrn_radiation import DiffrnRadiation
-from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwin, JanaTwinL
+from cryspy.C_item_loop_classes.cl_1_jana_twin import JanaTwinL
+from cryspy.C_item_loop_classes.cl_1_magnetic_domain import (
+    MagneticDomain, MagneticDomainL)
 from cryspy.C_item_loop_classes.cl_2_diffrn_orient_matrix import (
     DiffrnOrientMatrix,
 )
@@ -48,7 +50,7 @@ from cryspy.C_item_loop_classes.cl_1_refine_ls import RefineLs
 
 from cryspy.E_data_classes.cl_1_crystal import Crystal
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
-    calc_magnetic_domain_matrices)
+    calc_magnetic_domain_matrices, form_magnetic_domain_operations)
 
 # from cryspy.E_data_classes.cl_1_mag_crystal import MagCrystal
 
@@ -101,6 +103,7 @@ class Diffrn(DataN):
         RefineLs,
         Chi2,
         JanaTwinL,
+        MagneticDomainL,
         ExptlAbsorpt,
         ExptlCrystal,
     )
@@ -383,20 +386,24 @@ class Diffrn(DataN):
 
     def define_magnetic_domains(self, crystal: Crystal,
                                 flag_refine: bool = False) -> str:
-        """Add the magnetic domains of a crystal with a propagation vector.
+        """Add the magnetic domains of a magnetic crystal.
 
-        The domains (cosets of the group of k in ``parent_space_group``,
-        Friedel pairs merged; see ``Crystal.report_magnetic_domains``) are
-        written as ``jana_twin`` with equal fractions. Structural twins
-        already in ``jana_twin`` are kept: every twin gets all magnetic
-        domains (matrix D T, its fraction shared equally). The nuclear
-        intensities do not change, since every domain matrix is a symmetry of
-        the paramagnetic crystal.
+        The domains are the cosets of the magnetic group in the
+        paramagnetic grey group (``parent_space_group`` or ``space_group``
+        with time reversal; Friedel pairs merged, see
+        ``Crystal.report_magnetic_domains``). They are written as the loop
+        ``magnetic_domain``: one magnetic operation ("x,y,z,-1") per domain
+        except the first one, equal fractions. The structural twins of
+        ``jana_twin`` are kept: the intensity is summed over every twin
+        with every magnetic domain. The nuclear intensities do not change,
+        since every domain operation is a symmetry of the paramagnetic
+        crystal.
 
         Parameters
         ----------
         crystal : Crystal
-            Crystal with the propagation vector.
+            Magnetic crystal: a superspace group (propagation vector) or a
+            magnetic space group (k = 0).
         flag_refine : bool
             Refine the domain fractions?
 
@@ -405,47 +412,50 @@ class Diffrn(DataN):
         str
             Short report.
         """
-        matrices = calc_magnetic_domain_matrices(crystal)
-        n_domain = matrices.shape[1]
+        l_operation = form_magnetic_domain_operations(crystal)
+        n_domain = len(l_operation)
+        self.items[:] = [item for item in self.items if not isinstance(item, MagneticDomainL)]
+        text_removed = self._remove_domains_from_jana_twin(crystal)
         if n_domain == 1:
-            return "One magnetic domain: no jana_twin is needed."
-        # structural twins: the first one (identity) has the rest of the fraction
-        # (twins equal to a magnetic domain were added by a previous call)
-        l_structural = [(numpy.eye(3), 1.)]
-        if self.is_attribute("jana_twin"):
-            for item in self.jana_twin.items:
-                matrix = numpy.array([[getattr(item, f"matrix_{i}{j}") for j in (1, 2, 3)]
-                                      for i in (1, 2, 3)], dtype=float)
-                if numpy.any(numpy.all(numpy.isclose(
-                        matrices, matrix.flatten()[:, numpy.newaxis], atol=1e-6), axis=0)):
-                    continue
-                l_structural.append((matrix, float(item.fraction)))
-                l_structural[0] = (l_structural[0][0], l_structural[0][1] - float(item.fraction))
-        d_fraction = {}
-        for matrix_t, fraction in l_structural:
-            for matrix_d in matrices.transpose():
-                matrix = matrix_d.reshape(3, 3) @ matrix_t
-                key = tuple(numpy.round(matrix, 6).flatten() + 0.)
-                d_fraction[key] = d_fraction.get(key, 0.) + fraction / n_domain
-        identity = tuple(numpy.eye(3).flatten())
-        l_twin = []
-        for key, fraction in d_fraction.items():
-            if key == identity:
-                continue
-            kwargs = {f"matrix_{i // 3 + 1}{i % 3 + 1}": float(value)
-                      for i, value in enumerate(key)}
-            twin = JanaTwin(id=len(l_twin) + 2, fraction=round(fraction, 6), **kwargs)
-            twin.fraction_refinement = bool(flag_refine)
-            l_twin.append(twin)
-        self.items[:] = [item for item in self.items if not isinstance(item, JanaTwinL)]
-        loop_twin = JanaTwinL()
-        loop_twin.items = l_twin
-        self.add_items([loop_twin])
-        text_twins = (f" combined with {len(l_structural) - 1} structural twins"
-                      if len(l_structural) > 1 else "")
-        return (f"{n_domain} magnetic domains of {crystal.data_name}{text_twins} added "
-                f"as jana_twin ({len(l_twin) + 1} domains in total, equal fractions"
-                + (", refined)." if flag_refine else ")."))
+            return "One magnetic domain: no magnetic_domain loop is needed." + text_removed
+        l_domain = []
+        for i_domain, operation_xyz in enumerate(l_operation[1:]):
+            domain = MagneticDomain(id=str(i_domain + 2), operation_xyz=operation_xyz,
+                                    fraction=round(1. / n_domain, 6))
+            domain.fraction_refinement = bool(flag_refine)
+            l_domain.append(domain)
+        loop_domain = MagneticDomainL()
+        loop_domain.items = l_domain
+        self.add_items([loop_domain])
+        n_twin = len(self.jana_twin.items) + 1 if self.is_attribute("jana_twin") else 1
+        text_twins = (f" They are combined with {n_twin - 1} structural twins of jana_twin "
+                      f"({n_twin * n_domain} domains in total)." if n_twin > 1 else "")
+        return (f"{n_domain} magnetic domains of {crystal.data_name} added as magnetic_domain "
+                f"({', '.join(l_operation[1:])}; equal fractions"
+                + (", refined)." if flag_refine else ").") + text_twins + text_removed)
+
+    def _remove_domains_from_jana_twin(self, crystal: Crystal) -> str:
+        """Remove from jana_twin the twins that are magnetic domains (written
+        there by older versions); the text for the report."""
+        if not self.is_attribute("jana_twin"):
+            return ""
+        matrices = calc_magnetic_domain_matrices(crystal)[:, 1:]
+        l_kept = []
+        for item in self.jana_twin.items:
+            matrix = numpy.array([[getattr(item, f"matrix_{i}{j}") for j in (1, 2, 3)]
+                                  for i in (1, 2, 3)], dtype=float).flatten()
+            if not numpy.any(numpy.all(numpy.isclose(
+                    matrices, matrix[:, numpy.newaxis], atol=1e-6), axis=0)):
+                l_kept.append(item)
+        n_removed = len(self.jana_twin.items) - len(l_kept)
+        if n_removed == 0:
+            return ""
+        if l_kept:
+            self.jana_twin.items[:] = l_kept
+        else:
+            self.items[:] = [item for item in self.items if not isinstance(item, JanaTwinL)]
+        return (f" {n_removed} twins of jana_twin equal to magnetic domains were removed "
+                "(magnetic domains are now in magnetic_domain).")
 
     def plots(self):
         l_res = []
@@ -675,6 +685,11 @@ class Diffrn(DataN):
                     self.jana_twin.items[name[1][0]].fraction = float(
                         ddict_diffrn["twin_fraction"][name[1][0]]
                     )
+                if name[0] == "magnetic_domain_fraction":
+                    item = self.magnetic_domain.items[name[1][0]]
+                    item.fraction_sigma = float(sigma)
+                    item.fraction = float(
+                        ddict_diffrn["magnetic_domain_fraction"][name[1][0]])
 
         for name in ("exptl_absorpt", "exptl_crystal"):
             if self.is_attribute(name):

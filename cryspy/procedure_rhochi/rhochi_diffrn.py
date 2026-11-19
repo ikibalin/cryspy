@@ -28,14 +28,16 @@ from cryspy.A_functions_base.absorption import \
     L_ABSORPTION_PARAMETERS, calc_transmission_by_dictionary, \
     calc_transmission_derivatives_by_dictionary
 
+from cryspy.A_functions_base.twin_domains import (
+    form_domains_by_dictionary, calc_dder_domain_fractions)
 from cryspy.exceptions import CrysPyWarning
 
 na = numpy.newaxis
 
 
 def warn_net_moment_against_field(dict_crystal: dict, axis_z, twin_time_reversal, n_hkl: int):
-    """Warn about twin domains whose net ordered moment is antiparallel to
-    the field.
+    """Warn about domains (twins and magnetic domains) whose net ordered
+    moment is antiparallel to the field.
 
     In a field the ferromagnetic component of the ordered moments is
     usually along the field: a domain with a negative projection of its net
@@ -69,10 +71,11 @@ def warn_net_moment_against_field(dict_crystal: dict, axis_z, twin_time_reversal
     l_domain = [str(ind + 1) for ind, value in enumerate(projection) if value < -1e-6]
     if len(l_domain) > 0:
         warnings.warn(
-            f"The net ordered moment of twin domain(s) {', '.join(l_domain):} "
-            "(1 = the first domain) is antiparallel to the magnetic field. In a field "
-            "the ferromagnetic component is usually along it: check the moments "
-            "or set _jana_twin_time_reversal -1 for this domain.",
+            f"The net ordered moment of domain(s) {', '.join(l_domain):} "
+            "(1 = the first domain; twins times magnetic domains) is antiparallel to the "
+            "magnetic field. In a field the ferromagnetic component is usually along it: "
+            "check the moments or the time reversal of the domain (_jana_twin_time_reversal, "
+            "the last term of _magnetic_domain_operation_xyz).",
             CrysPyWarning, stacklevel=3)
 
 
@@ -124,16 +127,19 @@ def calc_chi_sq_for_diffrn_by_dictionary(
     n_hkl = index_hkl.shape[1]
     if "magnetic_k_vector" in dict_crystal_keys:
         warn_not_satellites(index_hkl, dict_crystal["magnetic_k_vector"])
-    flag_twin = "twin_fraction" in dict_diffrn.keys()
+    # domains: structural twins (jana_twin) times magnetic domains
+    d_domain = form_domains_by_dictionary(dict_diffrn)
+    flag_twin = d_domain is not None
     flag_twin_fraction = False
     if flag_twin:
-        twin_fraction = dict_diffrn["twin_fraction"]
-        flags_twin_fraction = dict_diffrn["flags_twin_fraction"]
-        flag_twin_fraction = numpy.any(flags_twin_fraction)
-        twin_fraction = numpy.concatenate(([1-twin_fraction.sum(),],twin_fraction))
-        twin_matrices  = dict_diffrn["twin_matrices"]
-        # Each twin law maps the measured hkl of the first domain, so it is
-        # applied to the original indices: N laws give N+1 blocks of n_hkl.
+        flag_twin_fraction = bool(
+            numpy.any(dict_diffrn.get("flags_twin_fraction", False)) or
+            numpy.any(dict_diffrn.get("flags_magnetic_domain_fraction", False)))
+        twin_fraction = d_domain["fraction"]
+        # without the identity, the first domain
+        twin_matrices = d_domain["matrices"][:, 1:]
+        # Each domain maps the measured hkl of the first domain, so it is
+        # applied to the original indices: N + 1 domains give N + 1 blocks of n_hkl.
         index_hkl_domains = [index_hkl, ]
         for twin_m in twin_matrices.transpose():
             index_hkl_domains.append(calc_m_v(twin_m, index_hkl)[0])
@@ -159,8 +165,7 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             axis_z, twin_matrices, unit_cell_parameters, n_hkl)
         magnetic_field = calc_axial_vector_by_twin_domains(
             magnetic_field, twin_matrices, unit_cell_parameters, n_hkl)
-        twin_time_reversal = numpy.concatenate(([1., ], dict_diffrn.get(
-            "twin_time_reversal", numpy.ones(twin_fraction.size - 1, dtype=float))))
+        twin_time_reversal = d_domain["time_reversal"]
         moment_sign = numpy.repeat(twin_time_reversal, n_hkl)
     if "wavelength_hkl" in dict_diffrn.keys():
         wavelength = dict_diffrn["wavelength_hkl"]
@@ -662,9 +667,12 @@ def calc_chi_sq_for_diffrn_by_dictionary(
             elif name == "phase_scale":#FIXME
                 dder_plus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
                 dder_minus_p = numpy.zeros(shape=(index_true.size, 1), dtype=float)
-            elif name == "twin_fraction":
-                dder_plus_p = (iint_plus_twin[:,1:] - iint_plus_twin[:,0:1])[:, flags]
-                dder_minus_p = (iint_minus_twin[:,1:] - iint_minus_twin[:,0:1])[:, flags]
+            elif name in ("twin_fraction", "magnetic_domain_fraction"):
+                i_set = 0 if name == "twin_fraction" else 1
+                dder_plus_p = calc_dder_domain_fractions(
+                    iint_plus_twin, d_domain["fraction_twin"], d_domain["fraction_magnetic"])[i_set][:, flags]
+                dder_minus_p = calc_dder_domain_fractions(
+                    iint_minus_twin, d_domain["fraction_twin"], d_domain["fraction_magnetic"])[i_set][:, flags]
             else:
                 raise AttributeError("It should not be like this.")
             parameter_name = [(diffrn_type_name, ) + way + (tuple(ind_1d[ind,:]), ) for ind in range(ind_1d.shape[0])]

@@ -63,11 +63,8 @@ def test_mem_superspace_nonzero_k_kept():
 
 
 def test_mem_magnetization_density_superspace_k0():
-    """Same chi_sq as the magnetic space group description. The twin domain
-    (k, h, l) with time reversal -1 of main.rcif is an exact symmetry of
-    MnF2 (the same magnetic domain): with the field of the domain taken in
-    its own frame it does not change chi_sq, 2.81 as without the twin (2.61
-    came from the field of the first domain used for the second one)."""
+    """Same chi_sq as the magnetic space group description (2.81); the
+    180° magnetic domain of main.rcif has fraction 0."""
     obj = cryspy.load_file(F_NAME)
     take_crystal(obj).convert_to_superspace()
     res = cryspy.mempy_magnetization_density_reconstruction(obj)

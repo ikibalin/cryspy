@@ -287,13 +287,76 @@ def split_atom_orbit(
     return l_out
 
 
+def calc_domain_operations(parent_rotation, parent_translation, sub_rotation,
+                           sub_time_reversal):
+    """Magnetic domains: cosets of the magnetic group in the paramagnetic
+    grey group, as magnetic operations (R, t, theta).
+
+    The paramagnetic grey group is the parent space group with every
+    operation taken with and without time reversal. Every left coset
+    ``g G`` of the magnetic group G gives a domain: the whole crystal
+    transformed by g. Its intensity at H is the intensity of the first
+    domain at ``R_g^T H`` with the moments multiplied by ``theta_g``.
+    Unpolarized intensities obey Friedel's law, ``I(-H) = I(H)``, so cosets
+    related by the (unprimed) inversion are merged.
+
+    Parameters
+    ----------
+    parent_rotation : numpy.ndarray
+        (9, n_p) rotations of the paramagnetic group (fractional, direct
+        space).
+    parent_translation : numpy.ndarray
+        (3, n_p) translations of the paramagnetic group, fractions of the
+        cell.
+    sub_rotation : numpy.ndarray
+        (9, n_s) rotations of the magnetic group (with its centrings).
+    sub_time_reversal : numpy.ndarray
+        (n_s,) time reversal (+1 or -1) of the operations of the magnetic
+        group.
+
+    Returns
+    -------
+    rotation : numpy.ndarray
+        (9, n_domain) integer rotations R of the domains; the first is the
+        identity.
+    translation : numpy.ndarray
+        (3, n_domain) translations of the parent operations.
+    time_reversal : numpy.ndarray
+        (n_domain,) +1 or -1; the first is +1.
+    """
+    parent = numpy.asarray(parent_rotation, dtype=float).reshape(3, 3, -1)
+    parent_translation = numpy.asarray(parent_translation, dtype=float).reshape(3, -1)
+    sub = numpy.asarray(sub_rotation, dtype=float).reshape(3, 3, -1)
+    sub_time_reversal = numpy.asarray(sub_time_reversal, dtype=int).flatten()
+    l_sub = [(sub[:, :, s], int(sub_time_reversal[s])) for s in range(sub.shape[2])]
+    l_sub += [(-matrix, theta) for matrix, theta in l_sub]
+    order = numpy.argsort([not numpy.allclose(parent[:, :, p], numpy.eye(3))
+                           for p in range(parent.shape[2])], kind="stable")
+    l_covered, l_rotation, l_translation, l_theta = [], [], [], []
+    for p in order:
+        rotation = parent[:, :, p]
+        for theta in (1, -1):
+            if any(theta == other_theta and numpy.allclose(rotation, other)
+                   for other, other_theta in l_covered):
+                continue
+            l_rotation.append(numpy.round(rotation).flatten())
+            l_translation.append(parent_translation[:, p])
+            l_theta.append(theta)
+            l_covered.extend((rotation @ matrix, theta * sub_theta)
+                             for matrix, sub_theta in l_sub)
+    return (numpy.array(l_rotation, dtype=int).transpose(),
+            numpy.array(l_translation, dtype=float).transpose(),
+            numpy.array(l_theta, dtype=int))
+
+
 def calc_domain_matrices(parent_rotation, sub_rotation):
     """Matrices on hkl of the magnetic domains (cosets of the group of k).
 
     Every left coset ``g G_k`` of the point group of the paramagnetic group
     gives a domain whose intensity at H is the intensity of the first domain
-    at ``R_g^T H``. Unpolarized intensities obey Friedel's law,
-    ``I(-H) = I(H)``, so cosets related by the inversion are merged.
+    at ``R_g^T H``. Time reversal is not considered (see
+    ``calc_domain_operations``); cosets related by the inversion are merged
+    (Friedel's law).
 
     Parameters
     ----------
@@ -308,20 +371,14 @@ def calc_domain_matrices(parent_rotation, sub_rotation):
         (9, n_domain) integer matrices ``R_g^T``; the first one is the
         identity.
     """
-    parent = numpy.asarray(parent_rotation, dtype=float).reshape(3, 3, -1)
-    sub = numpy.asarray(sub_rotation, dtype=float).reshape(3, 3, -1)
-    l_sub = [sub[:, :, s] for s in range(sub.shape[2])]
-    l_sub += [-matrix for matrix in l_sub]
-    l_covered, l_matrix = [], []
-    order = numpy.argsort([not numpy.allclose(parent[:, :, p], numpy.eye(3))
-                           for p in range(parent.shape[2])], kind="stable")
-    for p in order:
-        rotation = parent[:, :, p]
-        if any(numpy.allclose(rotation, other) for other in l_covered):
-            continue
-        l_matrix.append(numpy.round(rotation.transpose()).flatten())
-        l_covered.extend(rotation @ matrix for matrix in l_sub)
-    return numpy.array(l_matrix, dtype=int).transpose()
+    parent_rotation = numpy.asarray(parent_rotation, dtype=float).reshape(9, -1)
+    sub_rotation = numpy.asarray(sub_rotation, dtype=float).reshape(9, -1)
+    n_sub = sub_rotation.shape[1]
+    rotation = calc_domain_operations(
+        parent_rotation, numpy.zeros((3, parent_rotation.shape[1])),
+        numpy.concatenate([sub_rotation, sub_rotation], axis=1),
+        numpy.concatenate([numpy.ones(n_sub), -numpy.ones(n_sub)]))[0]
+    return rotation.reshape(3, 3, -1).transpose(1, 0, 2).reshape(9, -1)
 
 
 SYMBOL_TERM = r"([+-]?)([0-9.]+(?:/[0-9]+)?)?\*?([A-Za-z_][A-Za-z0-9_]*)?"
