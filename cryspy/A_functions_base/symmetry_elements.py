@@ -101,41 +101,59 @@ def calc_multiplicity_by_atom_symm_elems(full_symm_elems, atom_symm_elems):
 
 
 def calc_asymmetric_unit_cell_indexes(n_abc, full_symm_elems):
+    """Points of the asymmetric part of a grid of the unit cell.
+
+    Every point of the grid n_a x n_b x n_c is mapped by all symmetry
+    elements; the point with the smallest flat index of its orbit
+    represents the orbit.
+
+    Parameters
+    ----------
+    n_abc : array_like of int
+        Numbers of points along a, b, c, shape (3,). Multiplied by every
+        translation of the symmetry elements they give integers.
+    full_symm_elems : numpy.ndarray of int
+        Symmetry elements, shape (13, n_symm): b_1, b_2, b_3, b_denominator,
+        r_11, ..., r_33.
+
+    Returns
+    -------
+    point_index : numpy.ndarray of int
+        Grid indexes of the representative points, shape (3, n_auc).
+    point_multiplicity : numpy.ndarray of int
+        Number of grid points in the orbit of every representative point,
+        shape (n_auc,).
     """
-    Calculate indexes of asymmetric unit cell.
-
-    Input parameters:
-        - symmetry elements;
-        - points number.
-
-    Multiplication of points number on corresponding symmetry element should
-    give integer number.
-
-    """
+    n_abc = numpy.asarray(n_abc)
     n_a, n_b, n_c = n_abc[0], n_abc[1], n_abc[2]
 
     point_index = numpy.stack(numpy.meshgrid(
         numpy.arange(n_a), numpy.arange(n_b), numpy.arange(n_c),
         indexing="ij"), axis=0)
     point_index = point_index.reshape(point_index.shape[0], numpy.prod(point_index.shape[1:]))
-    
+
     elem_r = full_symm_elems[4:13]
     elem_b = full_symm_elems[:4]
-
-    r_ind = calc_m_v(
-        numpy.expand_dims(elem_r, axis=1),
-        numpy.expand_dims(point_index, axis=2), flag_m=False, flag_v=False)[0]
 
     div, mod = numpy.divmod(numpy.expand_dims(n_abc, axis=1), numpy.expand_dims(elem_b[3], axis=0))
     if not(numpy.all(mod == 0)):
         raise KeyError("Symmetry elements do not match with number of points")
-    point_index_s = numpy.mod(r_ind + numpy.expand_dims(div * elem_b[:3], axis=1),
-        numpy.expand_dims(numpy.expand_dims(n_abc, axis=1), axis=2))
-    value_index_s = n_c*n_b*point_index_s[0] + n_c*point_index_s[1] + point_index_s[2]
-    value_index_s_sorted = numpy.sort(value_index_s, axis=1)
+    # one symmetry element at a time keeps the memory to a few arrays of the
+    # number of points (all of them at once took 13 GB for 96^3 points and
+    # 192 elements)
+    value_index_min = None
+    for i_elem in range(elem_r.shape[1]):
+        r_ind = numpy.matmul(elem_r[:, i_elem].reshape(3, 3), point_index)
+        point_index_s = numpy.mod(r_ind + numpy.expand_dims(div[:, i_elem] * elem_b[:3, i_elem], axis=1),
+                                  numpy.expand_dims(n_abc, axis=1))
+        value_index_s = n_c*n_b*point_index_s[0] + n_c*point_index_s[1] + point_index_s[2]
+        if value_index_min is None:
+            value_index_min = value_index_s
+        else:
+            numpy.minimum(value_index_min, value_index_s, out=value_index_min)
 
     a, ind_a_u_c, counts_a_u_c = numpy.unique(
-        value_index_s_sorted[:, 0], return_index=True, return_counts=True)
+        value_index_min, return_index=True, return_counts=True)
 
     point_index_s_a_u_c = point_index[:, ind_a_u_c]
 

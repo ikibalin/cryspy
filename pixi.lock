@@ -2,13 +2,13 @@ version: 7
 platforms:
 - name: linux-64
   virtual-packages:
-  - __unix=0=0
+  - __unix=0
   - __linux=4.18
   - __glibc=2.28
   - __archspec=0=x86_64
 - name: osx-arm64
   virtual-packages:
-  - __unix=0=0
+  - __unix=0
   - __osx=13.0
   - __archspec=0=m1
 - name: win-64
@@ -61,6 +61,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/dd/8bc67e7d5ffc1d88aa5af511189dfb76dc4e1e5b808fab186146ef2663e5/executing-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/6f/84908cad2d6aa5144abcf7b42709fe4fdb459bc640ec7ac5786e7693dabc/prompt_toolkit-3.0.53-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/5b/ef/11ed995bd10a1632f7fea3da38ae8d42bc3ccc5b9969fe04d8620c844408/pypdf-7.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/60/97/891a0971e1e4a8c5d2b20bbe0e524dc04548d2307fee33cdeba148fd4fc7/comm-0.2.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6d/18/83376915176eb058cb86470eb7396388a13350b09a8f233a79303bbcbc5b/pure_eval-0.2.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/78/3c/2a612b95ddbb9a6bdcb47b7a93c4884f74c6ff22356b2f7b213b16e65c35/pycifstar-0.3.0.tar.gz
@@ -123,6 +124,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/dd/8bc67e7d5ffc1d88aa5af511189dfb76dc4e1e5b808fab186146ef2663e5/executing-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/6f/84908cad2d6aa5144abcf7b42709fe4fdb459bc640ec7ac5786e7693dabc/prompt_toolkit-3.0.53-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/5b/ef/11ed995bd10a1632f7fea3da38ae8d42bc3ccc5b9969fe04d8620c844408/pypdf-7.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5d/39/b72e168daf9c00fb20c9fc996d00437ccecdef3102387775d29d7a62576d/numpy-2.5.0-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/60/97/891a0971e1e4a8c5d2b20bbe0e524dc04548d2307fee33cdeba148fd4fc7/comm-0.2.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6d/18/83376915176eb058cb86470eb7396388a13350b09a8f233a79303bbcbc5b/pure_eval-0.2.4-py3-none-any.whl
@@ -185,6 +187,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/dd/8bc67e7d5ffc1d88aa5af511189dfb76dc4e1e5b808fab186146ef2663e5/executing-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/6f/84908cad2d6aa5144abcf7b42709fe4fdb459bc640ec7ac5786e7693dabc/prompt_toolkit-3.0.53-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/5b/ef/11ed995bd10a1632f7fea3da38ae8d42bc3ccc5b9969fe04d8620c844408/pypdf-7.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/60/97/891a0971e1e4a8c5d2b20bbe0e524dc04548d2307fee33cdeba148fd4fc7/comm-0.2.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/6d/18/83376915176eb058cb86470eb7396388a13350b09a8f233a79303bbcbc5b/pure_eval-0.2.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/78/3c/2a612b95ddbb9a6bdcb47b7a93c4884f74c6ff22356b2f7b213b16e65c35/pycifstar-0.3.0.tar.gz
@@ -982,14 +985,17 @@ packages:
   - ipywidgets>=8 ; extra == 'all'
   - matplotlib>=3.9 ; extra == 'all'
   - py3dmol>=2.4 ; extra == 'all'
+  - pypdf>=4 ; extra == 'all'
   - build ; extra == 'dev'
   - ipywidgets>=8 ; extra == 'dev'
   - matplotlib>=3.9 ; extra == 'dev'
   - py3dmol>=2.4 ; extra == 'dev'
+  - pypdf>=4 ; extra == 'dev'
   - pytest ; extra == 'dev'
   - pytest-cov ; extra == 'dev'
   - pytest-xdist ; extra == 'dev'
   - versioningit ; extra == 'dev'
+  - pypdf>=4 ; extra == 'pdf'
   - matplotlib>=3.9 ; extra == 'plot'
   - ipywidgets>=8 ; extra == 'view3d'
   - py3dmol>=2.4 ; extra == 'view3d'
@@ -1322,6 +1328,37 @@ packages:
   sha256: 01c0891d7f9237d5e339f7d3e42cdae80b7534abb1c7c0e3352efba6231492f2
   requires_dist:
   - wcwidth>=0.1.4
+  requires_python: '>=3.10'
+- pypi: https://files.pythonhosted.org/packages/5b/ef/11ed995bd10a1632f7fea3da38ae8d42bc3ccc5b9969fe04d8620c844408/pypdf-7.1.1-py3-none-any.whl
+  name: pypdf
+  version: 7.1.1
+  sha256: 04c5680d4b4cfa04ab505b09393fc949860c34a4dad6565284d11a2f5c3ce8b1
+  requires_dist:
+  - typing-extensions>=4.0 ; python_full_version < '3.11'
+  - brotli>=1.2.0 ; extra == 'brotli'
+  - cryptography>=43 ; extra == 'crypto'
+  - pycryptodome ; extra == 'cryptodome'
+  - flit ; extra == 'dev'
+  - pip-tools ; extra == 'dev'
+  - pre-commit ; extra == 'dev'
+  - pytest-cov ; extra == 'dev'
+  - pytest-socket ; extra == 'dev'
+  - pytest-timeout ; extra == 'dev'
+  - pytest-xdist ; extra == 'dev'
+  - wheel ; extra == 'dev'
+  - myst-parser ; extra == 'docs'
+  - sphinx ; extra == 'docs'
+  - sphinx-rtd-theme ; extra == 'docs'
+  - fonttools ; extra == 'fonts'
+  - arabic-reshaper ; extra == 'full'
+  - brotli>=1.2.0 ; extra == 'full'
+  - cryptography>=43 ; extra == 'full'
+  - fonttools ; extra == 'full'
+  - pillow>=8.0.0 ; extra == 'full'
+  - python-bidi ; extra == 'full'
+  - pillow>=8.0.0 ; extra == 'image'
+  - arabic-reshaper ; extra == 'rtl-text'
+  - python-bidi ; extra == 'rtl-text'
   requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/5d/39/b72e168daf9c00fb20c9fc996d00437ccecdef3102387775d29d7a62576d/numpy-2.5.0-cp314-cp314-macosx_11_0_arm64.whl
   name: numpy
