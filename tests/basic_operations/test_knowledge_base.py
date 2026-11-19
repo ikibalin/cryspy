@@ -152,3 +152,62 @@ def test_lande_written_with_its_source():
     assert "Lande 2: spin-only value of Fe3+" in l_text[0]
     crystal_given = form_p1_crystal("Fe1 Fe 0 0 0 1")
     assert "Lande 2.1: given" in add_magnetic_scattering(crystal_given, ["Fe1"], "Fe3+", 2.1)[0]
+
+
+def test_absorbers_agree_with_the_database():
+    """The cross sections of neutron_absorbers.md are those of the CrysPy
+    database (one source of numbers for people and for the calculations)."""
+    import os
+    import re
+    from cryspy.A_functions_base.database import DATABASE
+    from cryspy.A_functions_base.knowledge_tables import DIR_KNOWLEDGE, read_markdown_tables
+    d_isotope = DATABASE["Isotopes"]
+    key = "absorption cross section for 2200 m/s neutrons (barn)"
+
+    def take_value(name):
+        return float(re.match(r"[-+]?[0-9.]+", str(d_isotope[(key, name)])).group())
+    l_row = read_markdown_tables(os.path.join(DIR_KNOWLEDGE, "neutron_absorbers.md"))[0]
+    assert len(l_row) > 20
+    for row in l_row:
+        assert float(row["σ_abs natural (barn)"]) == pytest.approx(
+            take_value(row["Element"]), rel=1e-3), row["Element"]
+        if row["Isotope"]:
+            assert float(row["σ_abs of the isotope (barn)"]) == pytest.approx(
+                take_value(row["Isotope"]), rel=1e-3), row["Isotope"]
+
+
+def form_cubic_crystal(name_hm: str, gamma: float = 90., c: float = 4.) -> object:
+    return cryspy.str_to_globaln(f"""global_
+data_x
+_space_group_name_H-M_alt '{name_hm}'
+_cell_length_a 4.0
+_cell_length_b 4.0
+_cell_length_c {c}
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma {gamma}
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+Fe Fe 0 0 0
+""").crystal_x
+
+
+@pytest.mark.parametrize("name_hm, gamma, c, k_vector, label", [
+    ("F m -3 m", 90., 4., (0.5, -0.5, 0.5), "L"),  # another arm of the star
+    ("F m -3 m", 90., 4., (1., 0., 0.), "X"),  # not Γ: (1, 0, 0) is no F reflection
+    ("F m -3 m", 90., 4., (1., 1., 1.), ""),  # Γ: a reciprocal lattice vector
+    ("I m -3 m", 90., 4., (1., 0., 0.), "H"),
+    ("I m -3 m", 90., 4., (-0.5, 0.5, -0.5), "P"),
+    ("I 4/m m m", 90., 6., (1., 0., 0.), "Z"),  # = (0, 0, 1) + (1, 0, -1)
+    ("I 4/m m m", 90., 6., (0.5, 0., 0.5), "N"),
+    ("P 6/m m m", 120., 6., (0., 0.5, 0.), "M"),
+    ("P 6/m m m", 120., 6., (-1. / 3., 2. / 3., 0.), "K"),
+    ("P m -3 m", 90., 4., (0.3, 0., 0.), ""),  # a line, not a point
+])
+def test_special_k_points(name_hm, gamma, c, k_vector, label):
+    from cryspy.procedure_rhochi.rhochi_magnetic_irreps import name_special_k_point
+    assert name_special_k_point(form_cubic_crystal(name_hm, gamma, c), k_vector) == label

@@ -18,6 +18,7 @@ from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
     add_magnetic_scattering,
+    take_k_group,
     classify_moment_modulation,
     form_irrep_name,
     split_labels,
@@ -394,7 +395,9 @@ def take_propagation_vectors(rcif_object: GlobalN) -> dict:
     -------
     dict
         "vectors": [{"k" (tuple of 3 floats, snapped to fractions),
-        "n_satellite", "experiments" ({name: (count, summed intensity)})}],
+        "n_satellite", "experiments" ({name: (count, summed intensity)}),
+        "point" (label of the special point of the Brillouin zone of the
+        only crystal, see name_special_k_point; '' if none)}],
         the vector with more satellites first; "n_integer" (reflections
         with integer indices); "experiments" (names of the single-crystal
         experiments with reflections).
@@ -420,13 +423,16 @@ def take_propagation_vectors(rcif_object: GlobalN) -> dict:
             d_exp[item.data_name] = (count + 1, total + (0. if numpy.isnan(value) else value))
     if not l_experiment:
         raise CrysPyError("The object has no single-crystal experiments with reflections.")
+    l_crystal = [item for item in rcif_object.items if isinstance(item, Crystal)]
+    crystal = l_crystal[0] if len(l_crystal) == 1 else None
     l_key = sorted(d_k, key=lambda key: -sum(count for count, _ in d_k[key].values()))
     l_vector = []
     for key in l_key:
         k_vector = snap_k_vector(list(key))[0]
         l_vector.append({"k": tuple(float(value) for value in k_vector),
                          "n_satellite": sum(count for count, _ in d_k[key].values()),
-                         "experiments": d_k[key]})
+                         "experiments": d_k[key],
+                         "point": "" if crystal is None else name_special_k_point(crystal, k_vector)})
     return {"vectors": l_vector, "n_integer": n_integer, "experiments": l_experiment}
 
 
@@ -438,6 +444,37 @@ def form_k_fraction_text(k_vector) -> str:
         text = str(fraction) if abs(float(fraction) - float(value)) < 1e-4 else f"{float(value):g}"
         l_text.append(text)
     return "(" + ", ".join(l_text) + ")"
+
+
+def name_special_k_point(crystal: Crystal, k_vector) -> str:
+    """Label of the special point of the Brillouin zone (knowledge base,
+    special_k_points.md) equal to k up to the operations of the
+    paramagnetic group and a reciprocal lattice vector of the centred cell
+    ('S' for (1/2, 1/2, 0) of C m c m); '' when it is not one of them or the
+    lattice is not in the table."""
+    from cryspy.A_functions_base.knowledge_tables import take_special_k_points
+    from cryspy.D_functions_item_loop.function_1_magnetic_k import take_parent_space_group
+    try:
+        space_group = take_parent_space_group(crystal)
+        lattice = f"{space_group.crystal_system} {str(space_group.name_hm_alt).strip()[0]}"
+        k_group = take_k_group(space_group, numpy.asarray(k_vector, dtype=float))
+    except (AttributeError, IndexError, CrysPyError):
+        return ""
+    l_point = take_special_k_points().get(lattice, [])
+    rotation = numpy.asarray(k_group["parent_rotation"], dtype=float).reshape(3, 3, -1)
+    centring = numpy.asarray(k_group["centring"], dtype=float)
+    k_vector = numpy.asarray(k_vector, dtype=float)
+    for label, k_point in l_point:
+        for i_s in range(rotation.shape[2]):
+            for sign in (1., -1.):
+                # a reciprocal vector transforms with the transposed rotation
+                difference = sign * rotation[:, :, i_s].transpose() @ k_vector - numpy.array(k_point)
+                if not numpy.allclose(difference, numpy.round(difference), atol=1e-4):
+                    continue
+                phase = numpy.round(difference) @ centring
+                if numpy.allclose(phase, numpy.round(phase), atol=1e-4):
+                    return label
+    return ""
 
 
 def find_propagation_vectors(rcif_object: GlobalN) -> str:
@@ -470,13 +507,17 @@ def find_propagation_vectors(rcif_object: GlobalN) -> str:
         ls_out.append(f"No satellites: all {n_integer} reflections have integer indices "
                       "(k = 0 or a paramagnetic state).")
         return "\n".join(ls_out)
-    ls_out += ["| k | Satellites | Experiments (satellites, summed intensity) |", "|---|---|---|"]
+    ls_out += ["| k | Point | Satellites | Experiments (satellites, summed intensity) |",
+               "|---|---|---|---|"]
     for d_vector in d_found["vectors"]:
         k_text = ", ".join(f"{float(value):g}" for value in d_vector["k"])
         text_exp = "; ".join(f"{name} ({count}, {total:.4g})"
                              for name, (count, total) in d_vector["experiments"].items())
-        ls_out.append(f"| ({k_text}) | {d_vector['n_satellite']} | {text_exp} |")
-    ls_out += ["", f"{n_integer} reflections with integer indices (nuclear and k = 0)."]
+        ls_out.append(f"| ({k_text}) | {d_vector['point'] or '–'} | {d_vector['n_satellite']} "
+                      f"| {text_exp} |")
+    ls_out += ["", f"{n_integer} reflections with integer indices (nuclear and k = 0). Point: "
+               "the special point of the Brillouin zone of the paramagnetic group "
+               "(search_knowledge 'special points')."]
     if len(d_found["vectors"]) > 1:
         ls_out.append(
             f"{len(d_found['vectors'])} propagation vectors: add them one by one (the first k with "

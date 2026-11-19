@@ -119,3 +119,16 @@ def test_simulation_adds_a_second_k():
         n_own = len(obj_same.diffrn_sc.diffrn_refln.items)
         cryspy.simulation_single_crystal(obj_same, 2.36, 1., 60., True, 0., 0., -0.5)
     assert len(obj_same.items[-1].diffrn_refln.items) == n_own
+
+
+def test_points_of_the_brillouin_zone():
+    """k of TbTe3 are the points S and Z of the C-centred orthorhombic zone."""
+    from cryspy.procedure_rhochi.rhochi_magnetic_irreps import name_special_k_point
+    crystal = cryspy.str_to_globaln(CRYSTAL).crystal_tbte3
+    assert name_special_k_point(crystal, (0.5, -0.5, 0.)) == "S"
+    assert name_special_k_point(crystal, (0., 0., 0.5)) == "Z"
+    assert name_special_k_point(crystal, (1., 0., 0.)) == "Y"  # not Γ in a C cell
+    assert name_special_k_point(crystal, (0.5, 0., 0.)) == ""
+    result = cryspy.call_assistant_tool(form_object(), "call_method",
+                                        {"method": "add_propagation_vector"})
+    assert "(1/2, 1/2, 0) (point S)" in result["missing"][0]["s_proposal"]

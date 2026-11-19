@@ -10,7 +10,12 @@ file that people read and correct, and not in the code:
   "Moment (μB)", ...): the Lande factor of an ion, the free-ion moment, the
   usual ion of an element;
 - the usual charges of the non-magnetic ions (ion_charges.md: "Element",
-  "Charge") for the charge balance.
+  "Charge") for the charge balance;
+- the special points of the Brillouin zone (special_k_points.md:
+  "Lattice", "Point", "k") to name a propagation vector.
+
+neutron_absorbers.md is for reading only: its cross sections are those of
+the CrysPy database (a test checks it).
 """
 import os
 import re
@@ -136,3 +141,20 @@ def take_ion_charges() -> Dict[str, int]:
             if "Element" in row and "Charge" in row:
                 d_charge[row["Element"]] = int(row["Charge"].replace("+", ""))
     return d_charge
+
+
+SPECIAL_K_POINT_FILE = "special_k_points.md"
+
+
+@lru_cache(maxsize=None)
+def take_special_k_points() -> Dict[str, List[tuple]]:
+    """{lattice ('orthorhombic C'): [(label, k (3,) tuple of floats)]} of
+    special_k_points.md (conventional reciprocal basis)."""
+    d_point = {}
+    for l_row in read_markdown_tables(os.path.join(DIR_KNOWLEDGE, SPECIAL_K_POINT_FILE)):
+        for row in l_row:
+            if not {"Lattice", "Point", "k"} <= set(row):
+                continue
+            k_vector = tuple(read_number(word) for word in row["k"].split())
+            d_point.setdefault(row["Lattice"], []).append((row["Point"], k_vector))
+    return d_point

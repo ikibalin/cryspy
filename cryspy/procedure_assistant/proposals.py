@@ -85,16 +85,19 @@ def propose_k(cryspy_object, crystal) -> dict:
     l_new = [d_vector for d_vector in l_vector
              if not any(numpy.allclose(take_canonical_k(d_vector["k"]), present, atol=1e-4)
                         for present in l_present)]
-    l_text = [f"{form_k_fraction_text(d_vector['k'])} with {d_vector['n_satellite']} satellites"
+    def form_text(d_vector) -> str:
+        point = f" (point {d_vector['point']})" if d_vector.get("point") else ""
+        return f"{form_k_fraction_text(d_vector['k'])}{point}"
+    l_text = [f"{form_text(d_vector)} with {d_vector['n_satellite']} satellites"
               for d_vector in l_vector]
     d_question["hint"] = (f"{d_question['hint']}; the measured satellites give "
                           + "; ".join(l_text))
     if len(l_new) == 0:
         return d_question
     d_best = l_new[0]
-    s_proposal = (f"{form_k_fraction_text(d_best['k'])} (from {d_best['n_satellite']} "
+    s_proposal = (f"{form_text(d_best)} (from {d_best['n_satellite']} "
                   f"measured satellites in {', '.join(d_best['experiments'])})")
-    l_other = [form_k_fraction_text(d_vector["k"]) for d_vector in l_new[1:]]
+    l_other = [form_text(d_vector) for d_vector in l_new[1:]]
     if l_other:
         s_proposal += f"; the data have also {', '.join(l_other)}, the next k"
     d_question["proposal"] = [float(value) for value in d_best["k"]]
