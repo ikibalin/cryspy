@@ -1,6 +1,6 @@
 ---
 title: Extra broadening of magnetic reflections (magnetic domain size) in powder
-keywords: magnetic broadening, magnetic domain size, magnetic correlation length, magnetic size, broad magnetic peaks, narrow magnetic peaks, short-range magnetic order, lorentzian, scherrer, anisotropic size, interference, magnetic phase size fullprof, корреляционная длина, размер магнитного домена, уширение магнитных пиков, ближний магнитный порядок
+keywords: magnetic broadening, magnetic domain size, magnetic correlation length, magnetic size, broad magnetic peaks, narrow magnetic peaks, short-range magnetic order, lorentzian, scherrer, anisotropic size, interference, magnetic phase size fullprof
 categories: magnetic_broadening
 ---
 The magnetic order of a powder grain is often correlated over a shorter
