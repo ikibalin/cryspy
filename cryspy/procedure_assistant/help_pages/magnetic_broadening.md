@@ -34,6 +34,19 @@ as exp(-r/ξ)).
 - `width < 0`: they are longer; the magnetic peaks get narrower, at most by
   the Lorentzian part of the nuclear width.
 
+Effect on the diffraction signal: the integrated intensity of every
+reflection stays the same (the Lorentzian is normalized), only its shape
+changes. With `width > 0` the magnetic peaks (and the magnetic part of
+the peaks where nuclear and magnetic reflections coincide) get lower and
+broader with long Lorentzian tails, so a broad magnetic peak sits on a
+sharp nuclear one; the nuclear-only peaks do not change. The extra width
+in 2θ grows as 1/cos θ, so high-angle magnetic peaks broaden more in 2θ,
+while in Q the extra width is the same for all of them (or depends only
+on the direction of hkl for `width_ij`). With polarized neutrons the
+flipping difference (the interference term) is broadened as well. The
+satellites of a structure with k ≠ 0 are purely magnetic and are
+broadened entirely.
+
 In 2θ this is the Lorentzian term `Y_mag / cos θ`, `Y_mag = 180 λ width / π²`
 degrees, the size term `Y` of FullProf. So it is the FullProf trick of a
 separate "magnetic phase" with its own size, but nuclear and magnetic
