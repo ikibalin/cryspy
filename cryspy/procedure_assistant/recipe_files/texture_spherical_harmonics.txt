@@ -1,0 +1,28 @@
+# Texture (preferred orientation) of a powder by spherical harmonics, GSAS-II model
+# (Von Dreele, J. Appl. Cryst. 30 (1997) 517): low orders first, keep a higher order
+# only when chi_sq/n gets clearly better and the texture stays positive.
+Recipe texture_spherical_harmonics: Texture of a powder by spherical harmonics
+Requests: texture, preferred orientation, add texture, describe the texture by spherical harmonics, refine the texture coefficients, the intensities of some reflections are too strong, fibre texture, harmonic order
+For: any
+
+1. start: Fix all parameters and calculate the start model; the misfit tells whether the intensities (not the positions or widths) are wrong.
+   Actions: fix_parameters; calculate; diagnose_fit
+   Success: chi_sq/n of the start model is a number.
+   Otherwise: Stop and explain the error.
+2. add: Add the texture of order 4 with the cylindrical sample symmetry (one pattern); with several phases pass phase_label of the textured phase (an empty label adds the texture to every phase, impurities too). For a flat plate in Bragg-Brentano geometry the cylinder axis is the normal of the plate: the experiment needs _sample_goniometer_geometry bragg_brentano and _sample_goniometer_chi 0.
+   Actions: run_procedure {"name": "add_texture_spherical_harmonics", "order_max": 4, "sample_symmetry": "cylindrical", "phase_label": ""}
+   Success: the coefficients C_l^mn are added.
+   Otherwise: Stop and explain the error (Laue class not found, March-Dollase texture of the same phase).
+3. refine: Refine the coefficients with the scale.
+   Actions: refine_parameters {"pattern": "scale, texture_sh_coefficient"}; refine
+4. report: Texture index and the range of the correction.
+   Actions: run_procedure {"name": "report_texture_spherical_harmonics"}
+   Success: the minimum of the inverse pole figure is positive.
+   Otherwise: undo_refinement and keep the pattern without texture.
+5. order: Order 6 (then 8) only when chi_sq/n got better by more than 5 % with order 4 and the reflections of some directions are still too strong or too weak.
+   Actions: run_procedure {"name": "add_texture_spherical_harmonics", "order_max": 6, "sample_symmetry": "cylindrical"}; refine_parameters {"pattern": "scale, texture_sh_coefficient"}; refine; run_procedure {"name": "report_texture_spherical_harmonics"}
+   Otherwise: undo_refinement and keep order 4 (run add_texture_spherical_harmonics with order_max 4 again).
+6. check: What is still wrong.
+   Actions: use_recipe {"name": "check_result"}
+
+Final answer: the order kept, the number of coefficients, the texture index J, the range of the inverse pole figure (MRD) and chi_sq/n before and after the texture.

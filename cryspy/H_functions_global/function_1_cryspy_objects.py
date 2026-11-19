@@ -85,6 +85,8 @@ from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_centering import \
 from cryspy.C_item_loop_classes.cl_1_space_group_wyckoff import \
     SpaceGroupWyckoff, SpaceGroupWyckoffL
 from cryspy.C_item_loop_classes.cl_1_texture import Texture, TextureL
+from cryspy.C_item_loop_classes.cl_1_texture_sh import (
+    TextureSh, TextureShL, TextureShCoefficient, TextureShCoefficientL, SampleGoniometer)
 from cryspy.C_item_loop_classes.cl_1_tof_background import TOFBackground, \
     TOFBackgroundL
 from cryspy.C_item_loop_classes.cl_1_tof_intensity_incident import \
@@ -142,7 +144,8 @@ L_ITEM_CLASS.extend([
     Pd2dInstrResolution, Pd2dMeas, Pd2dProc, Pd2dPeak,
     Range, RefineLs, Refln, ReflnSusceptibility,
     Section, Setup, SpaceGroupSymopMagnCentering, SpaceGroupSymopMagnOperation,
-    SpaceGroup, SpaceGroupSymop, SpaceGroupWyckoff, Texture, TOFBackground,
+    SpaceGroup, SpaceGroupSymop, SpaceGroupWyckoff, Texture, TextureSh, TextureShCoefficient,
+    SampleGoniometer, TOFBackground,
     TOFIntensityIncident, TOFMeas,
     TOFParameters, TOFPeak, TOFProc, TOFProfile])
 
@@ -177,7 +180,7 @@ L_LOOP_CLASS.extend([
     Pd2dInstrReflexAsymmetryL, Pd2dInstrResolutionL, Pd2dPeakL,
     RangeL, RefineLsL, ReflnL, ReflnSusceptibilityL,
     SectionL, SetupL, SpaceGroupSymopL, SpaceGroupSymopMagnCenteringL,
-    SpaceGroupSymopMagnOperationL, SpaceGroupWyckoffL, TextureL,
+    SpaceGroupSymopMagnOperationL, SpaceGroupWyckoffL, TextureL, TextureShL, TextureShCoefficientL,
     TOFBackgroundL, TOFIntensityIncidentL, TOFMeasL, TOFParametersL, TOFPeakL,
     TOFProcL, TOFProfileL])
 
