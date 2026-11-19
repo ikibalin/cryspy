@@ -1,6 +1,6 @@
 ---
 title: Strong neutron absorbers and isotopes for substitution
-keywords: absorption, absorber, neutron absorption, cross section, isotope, isotopic substitution, enriched isotope, hot neutrons, short wavelength, Gd, Sm, Eu, Cd, B, Dy, поглощение, поглотитель, изотоп, сечение поглощения
+keywords: absorption, absorber, neutron absorption, cross section, isotope, isotopic substitution, enriched isotope, hot neutrons, short wavelength, Gd, Sm, Eu, Cd, B, Dy
 ---
 # Strong neutron absorbers and isotopes for substitution
 

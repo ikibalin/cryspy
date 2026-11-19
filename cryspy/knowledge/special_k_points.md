@@ -1,6 +1,6 @@
 ---
 title: Special points of the Brillouin zone (propagation vectors)
-keywords: propagation vector, k vector, special point, high-symmetry point, Brillouin zone, zone boundary, commensurate, TRIM, Lifshitz condition, star of k, вектор распространения, особая точка, зона Бриллюэна, соизмеримый
+keywords: propagation vector, k vector, special point, high-symmetry point, Brillouin zone, zone boundary, commensurate, TRIM, Lifshitz condition, star of k
 ---
 # Special points of the Brillouin zone
 

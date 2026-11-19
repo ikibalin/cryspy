@@ -1,6 +1,6 @@
 ---
 title: Magnetic rare-earth (4f) ions
-keywords: rare earth, lanthanide, 4f, magnetic ion, valence, oxidation state, Lande factor, g_J, gJ, free-ion moment, Hund's rules, crystal field, редкоземельный, магнитный ион, валентность
+keywords: rare earth, lanthanide, 4f, magnetic ion, valence, oxidation state, Lande factor, g_J, gJ, free-ion moment, Hund's rules, crystal field
 ---
 # Magnetic rare-earth (4f) ions
 

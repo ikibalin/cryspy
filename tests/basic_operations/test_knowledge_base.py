@@ -211,3 +211,19 @@ Fe Fe 0 0 0
 def test_special_k_points(name_hm, gamma, c, k_vector, label):
     from cryspy.procedure_rhochi.rhochi_magnetic_irreps import name_special_k_point
     assert name_special_k_point(form_cubic_crystal(name_hm, gamma, c), k_vector) == label
+
+
+def test_knowledge_keywords_english_only():
+    """Keywords of the knowledge base are English only, as those of the
+    help: requests in other languages are translated to English by the
+    program before the search."""
+    import glob
+    import os
+    from cryspy.A_functions_base.knowledge_tables import DIR_KNOWLEDGE
+    l_file = glob.glob(os.path.join(DIR_KNOWLEDGE, "*.md"))
+    assert len(l_file) > 0
+    for file_name in l_file:
+        with open(file_name, "r", encoding="utf-8") as fid:
+            for line in fid.read().split("\n---", 1)[0].splitlines():
+                if line.startswith("keywords:"):
+                    assert line.isascii(), (os.path.basename(file_name), line)

@@ -1,6 +1,6 @@
 ---
 title: Usual charges of the non-magnetic ions (charge balance)
-keywords: charge balance, oxidation state, valence, formal charge, anion, cation, electroneutrality, валентность, баланс зарядов, степень окисления
+keywords: charge balance, oxidation state, valence, formal charge, anion, cation, electroneutrality
 ---
 # Usual charges of the non-magnetic ions
 
