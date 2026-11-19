@@ -266,6 +266,7 @@ have `wave_vector_seq_id` 2 (`atom_site_fourier_wave_vector` gives
 is the sum of the waves, `M = sum_n (cos_n cos(2 pi x(3+n)) + sin_n sin(2 pi
 x(3+n)))`, `x(3+n) = k_n.r`. Superspace operations that exchange the
 propagation vectors (a non-diagonal epsilon block) are not supported.
+`Crystal.report_magnetic_models(k_1, k_2, k_3, magnetic_atoms)` lists every model of `k` without data (one-dimensional representations, modes of the multidimensional ones, sums of two one-dimensional ones), numbered, with the superspace group, the free Fourier parameters and the magnetic domains of each; `add_magnetic_model(k_1, k_2, k_3, magnetic_atoms, model)` converts the crystal to model number `model`, and `rhochi_rank_magnetic_representations` refines the same numbered models against the data.
 `Crystal.make_magnetic_supercell()` writes a commensurate structure as a
 P1 magnetic supercell with the moments of all atoms.
 `Crystal.report_magnetic_domains` and `Diffrn.define_magnetic_domains(crystal)`
