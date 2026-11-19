@@ -29,9 +29,9 @@ of the refinement.
     ATTR_MANDATORY_TYPES = (str, str,)
     ATTR_MANDATORY_CIF = ("atom_site_label_1", "atom_site_label_2",)
 
-    ATTR_OPTIONAL_NAMES = ("distance", "site_symmetry_1", "site_symmetry_2",)
-    ATTR_OPTIONAL_TYPES = (str, str, str,)
-    ATTR_OPTIONAL_CIF = ("distance", "site_symmetry_1", "site_symmetry_2",)
+    ATTR_OPTIONAL_NAMES = ("distance", "site_symmetry_1", "site_symmetry_2", "publ_flag",)
+    ATTR_OPTIONAL_TYPES = (str, str, str, str,)
+    ATTR_OPTIONAL_CIF = ("distance", "site_symmetry_1", "site_symmetry_2", "publ_flag",)
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -87,9 +87,12 @@ of the refinement.
     ATTR_MANDATORY_TYPES = (str, str, str,)
     ATTR_MANDATORY_CIF = ("atom_site_label_1", "atom_site_label_2", "atom_site_label_3",)
 
-    ATTR_OPTIONAL_NAMES = ("value", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3",)
-    ATTR_OPTIONAL_TYPES = (str, str, str, str,)
-    ATTR_OPTIONAL_CIF = ("value", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3",)
+    ATTR_OPTIONAL_NAMES = ("value", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3",
+                           "publ_flag",)
+    ATTR_OPTIONAL_TYPES = (str, str, str, str, str,)
+    # the value is _geom_angle itself in core CIF (DDL1)
+    ATTR_OPTIONAL_CIF = ("", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3",
+                         "publ_flag",)
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -145,9 +148,12 @@ of the refinement.
     ATTR_MANDATORY_TYPES = (str, str, str, str,)
     ATTR_MANDATORY_CIF = ("atom_site_label_1", "atom_site_label_2", "atom_site_label_3", "atom_site_label_4",)
 
-    ATTR_OPTIONAL_NAMES = ("value", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3", "site_symmetry_4",)
-    ATTR_OPTIONAL_TYPES = (str, str, str, str, str,)
-    ATTR_OPTIONAL_CIF = ("value", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3", "site_symmetry_4",)
+    ATTR_OPTIONAL_NAMES = ("value", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3",
+                           "site_symmetry_4", "publ_flag",)
+    ATTR_OPTIONAL_TYPES = (str, str, str, str, str, str,)
+    # the value is _geom_torsion itself in core CIF (DDL1)
+    ATTR_OPTIONAL_CIF = ("", "site_symmetry_1", "site_symmetry_2", "site_symmetry_3",
+                         "site_symmetry_4", "publ_flag",)
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
@@ -200,13 +206,16 @@ with their standard uncertainties. Calculated from the structure by
 
     ATTR_MANDATORY_NAMES = ("atom_site_label_d", "atom_site_label_h", "atom_site_label_a",)
     ATTR_MANDATORY_TYPES = (str, str, str,)
-    ATTR_MANDATORY_CIF = ("atom_site_label_D", "atom_site_label_H", "atom_site_label_A",)
+    ATTR_MANDATORY_CIF = ("atom_site_label_d", "atom_site_label_h", "atom_site_label_a",)
 
     ATTR_OPTIONAL_NAMES = ("distance_dh", "distance_ha", "distance_da", "angle_dha",
-                           "site_symmetry_d", "site_symmetry_h", "site_symmetry_a",)
-    ATTR_OPTIONAL_TYPES = (str, str, str, str, str, str, str,)
-    ATTR_OPTIONAL_CIF = ("distance_DH", "distance_HA", "distance_DA", "angle_DHA",
-                         "site_symmetry_D", "site_symmetry_H", "site_symmetry_A",)
+                           "site_symmetry_d", "site_symmetry_h", "site_symmetry_a",
+                           "publ_flag",)
+    ATTR_OPTIONAL_TYPES = (str, str, str, str, str, str, str, str,)
+    # CIF is case-insensitive: _geom_hbond_atom_site_label_D is read too
+    ATTR_OPTIONAL_CIF = ("distance_dh", "distance_ha", "distance_da", "angle_dha",
+                         "site_symmetry_d", "site_symmetry_h", "site_symmetry_a",
+                         "publ_flag",)
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
     ATTR_TYPES = ATTR_MANDATORY_TYPES + ATTR_OPTIONAL_TYPES
