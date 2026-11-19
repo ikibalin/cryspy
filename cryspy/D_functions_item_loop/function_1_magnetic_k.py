@@ -13,7 +13,7 @@ from math import gcd
 import numpy
 
 from cryspy.exceptions import CrysPyError
-from cryspy.A_functions_base.knowledge_tables import take_lande_factor
+from cryspy.A_functions_base.knowledge_tables import take_lande_factor, take_magnetic_ions
 from cryspy.A_functions_base.magnetic_k_symmetry import (
     calc_axial_moment_matrix, calc_domain_matrices, calc_fourier_site_projector,
     calc_isotropy_subgroups, calc_k_group_flags, calc_minus_k_flags,
@@ -324,6 +324,18 @@ def report_irreps(k_group: dict, k_vector, atoms: dict,
     return "\n".join(ls_out)
 
 
+def describe_lande_source(ion: str) -> str:
+    """Where the Lande factor of calc_lande_factor comes from, for the
+    reports: lande 0 means 'take it from the knowledge base'."""
+    d_ion = take_magnetic_ions().get(ion.strip())
+    if d_ion is None or d_ion["lande"] is None:
+        return f"spin-only value, {ion} has no g_J in the knowledge base (lande 0)"
+    if "f" not in d_ion["configuration"]:  # 3d, 4d, 5d: orbital moment quenched
+        return f"spin-only value of {ion} from the knowledge base (lande 0)"
+    return (f"g_J of Hund's rules for {ion} ({d_ion['ground_term'] or d_ion['configuration']}) "
+            "from the knowledge base (lande 0)")
+
+
 def calc_lande_factor(ion: str) -> float:
     """Lande factor of a magnetic ion from the knowledge base of CrysPy
     (cryspy/knowledge/magnetic_ions_*.md): g_J of the Hund's rules ground
@@ -351,7 +363,7 @@ def add_magnetic_scattering(crystal, labels: list, magnetic_ion: str = "",
     l_missing = [label for label in labels if label not in l_scat]
     if not l_missing:
         return []
-    l_item = []
+    l_item, l_source = [], []
     for label in l_missing:
         ion = magnetic_ion.strip()
         if ion == "":
@@ -368,13 +380,15 @@ def add_magnetic_scattering(crystal, labels: list, magnetic_ion: str = "",
                 "give magnetic_ion as Tb3+, Fe3+, Mn2+.")
         value = float(lande) if lande else calc_lande_factor(ion)
         l_item.append(AtomSiteScat(label=label, type_symbol=ion, lande=value))
+        l_source.append("given" if lande else describe_lande_source(ion))
     if crystal.is_attribute("atom_site_scat"):
         crystal.atom_site_scat.items.extend(l_item)
     else:
         loop = AtomSiteScatL()
         loop.items = l_item
         crystal.add_items([loop])
-    return [f"{item.label} {item.type_symbol} (Lande {item.lande:g})" for item in l_item]
+    return [f"{item.label} {item.type_symbol} (Lande {item.lande:.4g}: {source})"
+            for item, source in zip(l_item, l_source)]
 
 
 def split_labels(text: str) -> list:

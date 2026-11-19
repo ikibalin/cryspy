@@ -7,6 +7,7 @@ the experiments of the object and the chi_sq values are compared, as the
 representation analysis of SARAh, BasIreps or ISODISTORT followed by a
 refinement of every model (FullProf, Jana2020).
 """
+import copy
 import logging
 from fractions import Fraction
 import warnings
@@ -16,8 +17,10 @@ import numpy
 from cryspy.A_functions_base.magnetic_k_symmetry import snap_k_vector
 from cryspy.B_parent_classes.cl_4_global import GlobalN
 from cryspy.D_functions_item_loop.function_1_magnetic_k import (
+    add_magnetic_scattering,
     classify_moment_modulation,
     form_irrep_name,
+    split_labels,
     take_irrep_candidates,
 )
 from cryspy.E_data_classes.cl_1_crystal import Crystal
@@ -271,6 +274,9 @@ def rhochi_rank_magnetic_representations(
     crystal = take_crystal(rcif_object, crystal_name)
     crystal_name = crystal.data_name
     k_vector, l_note = snap_k_vector([k_1, k_2, k_3])
+    # the form factor every model gets: the Lande factor taken for lande 0 is shown
+    l_scat_added = add_magnetic_scattering(
+        copy.deepcopy(crystal), split_labels(magnetic_atoms), magnetic_ion, lande)
     l_candidate = take_rank_candidates(
         crystal.take_group_of_k(k_vector), k_vector, try_superpositions)
     l_row, l_fail = [], []
@@ -294,6 +300,9 @@ def rhochi_rank_magnetic_representations(
     ls_out = [f"# Representations of k = ({k_text}) refined against the data", ""]
     if l_note:
         ls_out += ["k is taken as commensurate: " + ", ".join(l_note) + ".", ""]
+    if l_scat_added:
+        ls_out += ["Magnetic form factor of every model (atom_site_scat): "
+                   + "; ".join(l_scat_added) + ".", ""]
     ls_out += ["| Rank | Representation | chi_sq/n | R_F2 satellites of k | Fourier parameters "
                "| Domains | Moments (μB) |",
                "|---|---|---|---|---|---|---|"]

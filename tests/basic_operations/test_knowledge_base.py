@@ -138,3 +138,17 @@ def test_search_knowledge(query, text):
     assert text in l_found[0]["text"]
     result = cryspy.call_assistant_tool(None, "search_knowledge", {"query": query})
     assert text in result["text"] and "knowledge/" in result["text"]
+
+
+def test_lande_written_with_its_source():
+    """lande 0: the value of the knowledge base is written to atom_site_scat
+    and the report says where it comes from."""
+    from cryspy.D_functions_item_loop.function_1_magnetic_k import add_magnetic_scattering
+    crystal = form_p1_crystal("U1 U 0 0 0 1\nFe1 Fe 0.5 0.5 0.5 1")
+    l_text = add_magnetic_scattering(crystal, ["U1"], "U4+", 0.)
+    assert crystal.atom_site_scat["U1"].lande == pytest.approx(0.8)
+    assert "Lande 0.8: g_J of Hund's rules for U4+" in l_text[0]
+    l_text = add_magnetic_scattering(crystal, ["Fe1"], "Fe3+", 0.)
+    assert "Lande 2: spin-only value of Fe3+" in l_text[0]
+    crystal_given = form_p1_crystal("Fe1 Fe 0 0 0 1")
+    assert "Lande 2.1: given" in add_magnetic_scattering(crystal_given, ["Fe1"], "Fe3+", 2.1)[0]
