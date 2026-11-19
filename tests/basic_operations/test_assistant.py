@@ -101,6 +101,8 @@ def test_get_help_by_name_and_unknown():
     assert "atom_rho_multipole" in cryspy.get_help("multipoles")
     assert "_atom_site_aniso_U_11" in cryspy.get_help("atom_site_aniso")
     assert "Nothing is found" in cryspy.get_help("zzzz qqqq")
+    # a common word of the text of a page ("else") does not find the page
+    assert "Nothing is found" in cryspy.get_help("And what else do you know?")
 
 
 def test_category_pages_for_all_classes():

@@ -169,7 +169,7 @@ def split_words(text: str) -> List[str]:
 
 
 def is_word_match(word: str, l_word: List[str]) -> bool:
-    """Same word or the same stem (endings differ in Russian and English)."""
+    """Same word or the same stem ("vibration" and "vibrations")."""
     for word_2 in l_word:
         if word == word_2:
             return True
@@ -193,13 +193,19 @@ def score_help_page(page: HelpPage, l_query_word: List[str],
             score += 2.
         if is_word_match(word, l_category_word):
             score += 1.
-        if word in l_text_word:
-            score += min(l_text_word.count(word), 5) * 0.2
     # a whole keyword phrase or category name inside the query
     query_sh = query.lower()
     for keyword in page.keywords + page.categories:
         if len(keyword) > 3 and keyword in query_sh:
             score += 3.
+    # the words of the text only rank the pages found by their keywords,
+    # title or categories: a common word of the text ("else" in "what
+    # else do you know?") does not make a page fit
+    if score == 0.:
+        return 0.
+    for word in l_query_word:
+        if word in l_text_word:
+            score += min(l_text_word.count(word), 5) * 0.2
     if page.kind == "guide":
         score *= 1.5
     return score
