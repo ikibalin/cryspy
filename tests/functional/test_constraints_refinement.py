@@ -114,3 +114,25 @@ def test_report_refined_parameters_is_logged(caplog):
         ["Optimal parameters:"] + l_line
     obj.fix_variables()
     assert cryspy.report_refined_parameters(obj) == ""
+
+
+def test_refinement_with_constraint_on_u_iso(caplog):
+    """u1 + u2 = 0.02 holds for u_iso_or_equiv (b_iso = 8 pi^2 u_iso in the
+    dictionary), also when only u1 is refined by the user."""
+    obj = cryspy.load_file(F_NAME)
+    obj.fix_variables()
+    atom_site = obj.crystal_tbte3.atom_site
+    atom_site["Te1"].u_iso_or_equiv = 0.01
+    atom_site["Te2"].u_iso_or_equiv = 0.005
+    cryspy.add_constraint(obj, "u1 + u2 = 0.02", {
+        "u1": "tbte3.atom_site[Te1].u_iso_or_equiv", "u2": "tbte3.atom_site[Te2].u_iso_or_equiv"})
+    atom_site["Te2"].u_iso_or_equiv_refinement = False
+    with caplog.at_level(logging.INFO, logger="cryspy"):
+        cryspy.rhochi_rietveld_refinement(obj)
+    assert " - crystal_tbte3.atom_site[Te2].u_iso_or_equiv" in \
+        [record.getMessage() for record in caplog.records]
+    assert atom_site["Te2"].u_iso_or_equiv_refinement
+    u_1, u_2 = atom_site["Te1"].u_iso_or_equiv, atom_site["Te2"].u_iso_or_equiv
+    assert numpy.isclose(u_1 + u_2, 0.02, rtol=0., atol=1e-10)
+    assert not numpy.isclose(u_1, 0.01, rtol=0., atol=1e-5)
+    assert numpy.isclose(atom_site["Te1"].u_iso_or_equiv_sigma, atom_site["Te2"].u_iso_or_equiv_sigma)

@@ -137,3 +137,108 @@ def test_marked_parameters_are_found_in_dictionary():
     # the object is not changed by the search
     assert obj.crystal_tbte3.atom_site["Te2"].occupancy == 1.
     assert obj.crystal_tbte3.cell.length_c == 4.2903
+
+
+U_1 = "tbte3.atom_site[Te1].u_iso_or_equiv"
+U_2 = "tbte3.atom_site[Te2].u_iso_or_equiv"
+COEFF_B = 8. * numpy.pi ** 2
+
+
+def take_u_constraint_object(s_replace: tuple = ()):
+    s_cont = open(F_NAME).read()
+    for old, new in s_replace:
+        s_cont = s_cont.replace(old, new)
+    obj = cryspy.str_to_globaln(s_cont)
+    obj.fix_variables()
+    cryspy.add_constraint(obj, "u1 + u2 = 0.02", {"u1": U_1, "u2": U_2})
+    return obj
+
+
+def test_constraint_in_units_of_the_object():
+    """The dictionary keeps b_iso = 8 pi^2 u_iso: the constraint
+    u1 + u2 = 0.02 is b1 + b2 = 8 pi^2 0.02, not b1 + b2 = 0.02."""
+    obj = take_u_constraint_object()
+    l_term, const = obj.get_dictionary()["linear_equations"][0]
+    assert [name for coeff, name in l_term] == [
+        ("crystal_tbte3", "atom_b_iso", (1, )), ("crystal_tbte3", "atom_b_iso", (2, ))]
+    b_1, b_2 = 0.012, 0.008  # u1 + u2 = 0.02 in b
+    assert sum(coeff * b for (coeff, name), b in zip(l_term, (b_1 * COEFF_B, b_2 * COEFF_B))) == \
+        pytest.approx(const)
+    assert const == pytest.approx(0.02)
+
+
+def test_cell_angle_constraint_in_degrees():
+    """Cell angles are in radians in the dictionary."""
+    s_cont = open(F_NAME).read().replace("C m c m", "P -1").replace(
+        "_cell_angle_alpha 90.000000", "_cell_angle_alpha 90.000000()al").replace(
+        "_cell_angle_beta 90.000000", "_cell_angle_beta 90.000000()be")
+    s_cont = s_cont.replace("global_", 'global_\n\nloop_\n_constraint_id\n_constraint_expression\n'
+                            '1 "al+be=181"\n', 1)
+    obj = cryspy.str_to_globaln(s_cont)
+    l_term, const = obj.get_dictionary()["linear_equations"][0]
+    assert [name for coeff, name in l_term] == [
+        ("crystal_tbte3", "unit_cell_parameters", (3, )),
+        ("crystal_tbte3", "unit_cell_parameters", (4, ))]
+    assert [coeff for coeff, name in l_term] == pytest.approx([180. / numpy.pi] * 2)
+    assert const == pytest.approx(181.)
+
+
+def test_not_refined_constrained_parameter_is_refined():
+    """x+y=1 with only x refined: y is refined too (the refinement failed
+    with 'The constrained parameter ... is not refined')."""
+    obj = take_u_constraint_object()
+    atom_site = obj.crystal_tbte3.atom_site
+    atom_site["Te2"].u_iso_or_equiv_refinement = False
+    d_global = obj.get_dictionary()
+    assert atom_site["Te2"].u_iso_or_equiv_refinement
+    assert len(d_global["linear_equations"]) == 1
+    # nothing of the constraint is refined: it is not used
+    atom_site["Te1"].u_iso_or_equiv_refinement = False
+    atom_site["Te2"].u_iso_or_equiv_refinement = False
+    assert "linear_equations" not in obj.get_dictionary()
+    assert not atom_site["Te1"].u_iso_or_equiv_refinement
+
+
+def test_equal_marks_refine_both_parameters():
+    s_cont = open(F_NAME).read()
+    s_cont = s_cont.replace("Te1     Te   0.000000   0.928930   0.250000   1.0   Uiso   0.0",
+                            "Te1     Te   0.000000   0.928930   0.250000   1.0   Uiso   0.01()a")
+    s_cont = s_cont.replace("Te2     Te   0.000000   0.571030   0.250000   1.0   Uiso   0.0",
+                            "Te2     Te   0.000000   0.571030   0.250000   1.0   Uiso   0.02()a")
+    obj = cryspy.str_to_globaln(s_cont)
+    obj.crystal_tbte3.atom_site["Te2"].u_iso_or_equiv_refinement = False
+    d_global = obj.get_dictionary()
+    assert obj.crystal_tbte3.atom_site["Te2"].u_iso_or_equiv_refinement
+    assert d_global["linear_constraints"] == [
+        [(pytest.approx(1. / COEFF_B), ("crystal_tbte3", "atom_b_iso", (1, ))),
+         (pytest.approx(-1. / COEFF_B), ("crystal_tbte3", "atom_b_iso", (2, )))]]
+
+
+def test_soft_constraint_in_units_of_the_object():
+    from cryspy.procedure_rhochi.rhochi_by_dictionary import calc_punishement_function
+    obj = take_u_constraint_object()
+    cryspy.remove_constraint(obj, "1")
+    cryspy.add_constraint(obj, "u1 + u2 = 0.02", sigma=0.001)
+    atom_site = obj.crystal_tbte3.atom_site
+    atom_site["Te1"].u_iso_or_equiv = 0.011
+    atom_site["Te2"].u_iso_or_equiv = 0.010
+    assert calc_punishement_function(obj.get_dictionary()) == pytest.approx(1.)
+
+
+def test_u_iso_without_adp_type():
+    """Without _atom_site_adp_type a given U_iso_or_equiv is used (Uiso)."""
+    obj = take_u_constraint_object((("_atom_site_adp_type\n", ""), ("   Uiso   ", "   ")))
+    atom_site = obj.crystal_tbte3.atom_site
+    atom_site["Te1"].u_iso_or_equiv = 0.01
+    d_global = obj.get_dictionary()
+    assert d_global["crystal_tbte3"]["atom_b_iso"][1] == pytest.approx(0.01 * COEFF_B)
+    assert d_global["linear_equations"][0][0][0][1] == ("crystal_tbte3", "atom_b_iso", (1, ))
+
+
+def test_constrained_parameter_not_used_by_the_model():
+    """U of an atom with adp_type Biso does not change the calculation."""
+    obj = take_u_constraint_object((("   Uiso   ", "   Biso   "), ))
+    for atom in obj.crystal_tbte3.atom_site.items:
+        atom.b_iso_or_equiv = 0.5
+    with pytest.raises(cryspy.RcifFormatError, match="adp_type"):
+        obj.get_dictionary()
