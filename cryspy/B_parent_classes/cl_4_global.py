@@ -52,6 +52,8 @@ def find_changed_dict_name(block, block_name: str, d_before: dict, set_value, va
 class GlobalN(object):
     """Data container of data bloks, loops and items."""
 
+    global_name = None  # name after 'global_' in the file, if any
+
     def __repr__(self):
         """
         Magic method print() is redefined.
@@ -160,13 +162,18 @@ class GlobalN(object):
 
     def __getattr__(self, name):
         """The data blocks are reached by their names (``rcif.crystal_fe``);
-        an unknown name gives None (as in the earlier versions, scripts
-        check it). Only names that are not attributes of the object come
-        here; the blocks are read from __dict__, so an object without them
-        (made by copy or pickle) never comes back here."""
+        an unknown name raises AttributeError (``rcif.is_attribute(name)``
+        or ``take_item_by_name`` check for a block that may be absent). Only
+        names that are not attributes of the object come here; the blocks
+        are read from __dict__, so an object without them (made by copy or
+        pickle) never comes back here."""
         if name.startswith("__") and name.endswith("__"):
             raise AttributeError(name)
-        return self.take_item_by_name(name)
+        item = self.take_item_by_name(name)
+        if item is None:
+            raise AttributeError(
+                f"There is no data block or item '{name:}'")
+        return item
 
     def __setattr__(self, name, value) -> NoReturn:
         """
