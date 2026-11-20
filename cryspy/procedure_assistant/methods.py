@@ -238,7 +238,13 @@ def take_request_words(text: str) -> list:
 def score_method(function: Callable, l_word: list) -> int:
     """Number of request words found in the name and the docstring of a
     method (stems, so 'symmetry operations' finds 'symmetry operation')."""
-    text = function.__name__.replace("_", " ") + " " + (inspect.getdoc(function) or "")
+    return score_text(function.__name__, inspect.getdoc(function) or "", l_word)
+
+
+def score_text(name: str, text: str, l_word: list) -> int:
+    """Number of request words (stems) found in a name and its description
+    (a method and its docstring, a tool and its description)."""
+    text = name.replace("_", " ") + " " + text
     l_text = {word[:5] for word in re.split(r"[^a-z0-9]+", text.lower()) if word}
     return sum(1 for word in l_word if word in l_text)
 
@@ -351,11 +357,4 @@ def form_matching_methods_text(cryspy_object, request: str, max_methods: int = 3
     flag_method_first = len(l_method) > 0 and (
         len(l_procedure) == 0 or l_method[0]["score"] > l_procedure[0]["score"])
     ls_out = ls_method + ls_procedure if flag_method_first else ls_procedure + ls_method
-    return "\n".join(ls_out)
-    ls_out.append("Methods of the opened file that may do this (action call_method):")
-    for d_method in l_method:
-        l_path = d_method["paths"]
-        s_path = ", ".join(l_path[:3]) + (", ..." if len(l_path) > 3 else "")
-        ls_out.append(f"- {d_method['name']} of {s_path}: {d_method['summary']} "
-                      f"[call_method {{\"method\": \"{d_method['name']}\"}}]")
     return "\n".join(ls_out)
