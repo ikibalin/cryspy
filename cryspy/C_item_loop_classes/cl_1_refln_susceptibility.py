@@ -50,8 +50,8 @@ class ReflnSusceptibility(ItemN):
         "chi_21_calc", "chi_22_calc", "chi_23_calc", "chi_31_calc",
         "chi_32_calc", "chi_33_calc", )
     ATTR_OPTIONAL_TYPES = (float, float, complex, complex, complex,
-                           complex, complex, complex, complex, complex, 
-                           complex, complex, complex, complex, )
+                           complex, complex, complex, complex, complex,
+                           complex)
     ATTR_OPTIONAL_CIF = (
         "sint/lambda", "d_spacing", "chi_11_calc", "chi_12_calc", "chi_13_calc", 
         "chi_21_calc", "chi_22_calc", "chi_23_calc", "chi_31_calc",

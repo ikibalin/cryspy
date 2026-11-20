@@ -43,7 +43,7 @@ class Pd2dBackground(ItemN):
     ATTR_MANDATORY_CIF = ()
 
     ATTR_OPTIONAL_NAMES = ("gamma_nu_intensity", )
-    ATTR_OPTIONAL_TYPES = (str, str)
+    ATTR_OPTIONAL_TYPES = (str, )
     ATTR_OPTIONAL_CIF = ("gamma_nu_intensity", )
 
     ATTR_NAMES = ATTR_MANDATORY_NAMES + ATTR_OPTIONAL_NAMES
