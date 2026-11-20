@@ -149,36 +149,24 @@ class GlobalN(object):
         """
         return self.to_cif()
 
-    def __getattr__(self, name):
-        """
-        Magic method __getattr__ is slightly changed for special attributes.
-
-        Parameters
-        ----------
-        name : TYPE
-            DESCRIPTION.
-
-        Raises
-        ------
-        AttributeError
-            DESCRIPTION.
-
-        Returns
-        -------
-        res : TYPE
-            DESCRIPTION.
-
-        """
-        # a special name (__setstate__ asked by copy.deepcopy and pickle on
-        # an object made without __init__) is never a CIF attribute: without
-        # this check the lookups below come here again until RecursionError,
-        # a stack overflow in a thread (CrysPy Editor closed on macOS)
-        if name.startswith("__") and name.endswith("__"):
-            raise AttributeError(name)
-        for item in self.items:
-            if name.lower() == item.get_name():
+    def take_item_by_name(self, name: str):
+        """Data block (or item, loop) of the container by its name
+        (``rcif.crystal_fe``); None when there is none."""
+        name = name.lower()
+        for item in self.__dict__.get("items", ()):
+            if name == item.get_name():
                 return item
         return None
+
+    def __getattr__(self, name):
+        """The data blocks are reached by their names (``rcif.crystal_fe``);
+        an unknown name gives None (as in the earlier versions, scripts
+        check it). Only names that are not attributes of the object come
+        here; the blocks are read from __dict__, so an object without them
+        (made by copy or pickle) never comes back here."""
+        if name.startswith("__") and name.endswith("__"):
+            raise AttributeError(name)
+        return self.take_item_by_name(name)
 
     def __setattr__(self, name, value) -> NoReturn:
         """

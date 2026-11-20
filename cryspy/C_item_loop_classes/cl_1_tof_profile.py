@@ -163,7 +163,7 @@ class TOFProfile(ItemN):
                             ls_out.append(
                                 f"_{prefix:}{separator:}{name_cif:} \"{s_val:}\"")
                         else:
-                            s_val = getattr(self, f"{name:}_as_string")
+                            s_val = self.take_value_as_string(name)
                             ls_out.append(
                                 f"_{prefix:}{separator:}{name_cif:} {s_val:}")
         return "\n".join(ls_out)
