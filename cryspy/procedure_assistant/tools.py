@@ -49,6 +49,7 @@ from cryspy.procedure_assistant.help import get_help
 from cryspy.procedure_assistant.procedures import (
     describe_procedure, describe_procedures, find_cif_objects, take_procedure_parameters,
     take_procedures)
+from cryspy.procedure_assistant.menus import group_methods_for_menu
 from cryspy.procedure_assistant.methods import (
     describe_method, find_method_blocks, find_parameter_blocks, format_method, take_method_parameters,
     take_methods, score_method, take_request_words)
@@ -1143,6 +1144,25 @@ def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
             l_scored.append((score, cls, name, function))
     if len(l_scored) == 0:
         return f"Error: no methods in {path or 'the object':}."
+    # menus of the methods as in CrysPy Editor (Calculate, Report, ...): a
+    # long list is shown by menus, a menu name as pattern opens that menu
+    d_menu = {cls: {name: menu for menu, l_name in group_methods_for_menu(take_methods(cls))
+                    if menu is not None for name in l_name}
+              for cls in d_class}
+    l_menu_scored = [item for item in l_scored
+                     if word != "" and d_menu[item[1]].get(item[2], "").lower() == word]
+    if l_menu_scored:
+        menu = d_menu[l_menu_scored[0][1]][l_menu_scored[0][2]]
+        ls_out = [f"Methods of the menu {menu:}:"]
+        for cls in d_class:
+            l_line = [format_method_line(function) for _, cls_menu, _, function in l_menu_scored
+                      if cls_menu is cls]
+            if l_line:
+                ls_out.append(f"{d_path[cls]:} ({cls.__name__:}):")
+                ls_out.extend(f"  {line:}" for line in l_line)
+        ls_out.append("list_methods with the method name as pattern gives its arguments.")
+        ls_out.append("Call one with call_method {\"path\": <block>, \"method\": <name>, <its arguments>}.")
+        return "\n".join(ls_out)
     score_best = max(item[0] for item in l_scored)
     l_best = []
     if score_best > 0:
@@ -1183,13 +1203,29 @@ def tool_list_methods(cryspy_object, path: str = "", pattern: str = "") -> str:
                 ls_rest.append((cls, l_line))
         n_char = sum(len(line) + 4 for _, l_line in ls_rest for line in l_line)
         ls_out.append("Other methods:" if l_best else "Methods:")
+        flag_menus = False
         for cls, l_line in ls_rest:
             if n_char <= N_CHAR_METHOD_LINES:
                 ls_out.append(f"{d_path[cls]:} ({cls.__name__:}):")
                 ls_out.extend(f"  {line:}" for line in l_line)
-            else:  # too many for a small model: names only
-                ls_out.append(f"{d_path[cls]:} ({cls.__name__:}): "
-                              + ", ".join(line.split(":")[0] for line in l_line))
+                continue
+            # too many for a small model: the menus with the names of their
+            # methods, the methods out of menus with their summaries
+            ls_out.append(f"{d_path[cls]:} ({cls.__name__:}):")
+            d_in_menu = {}
+            for line in l_line:
+                name = line.split(":")[0]
+                menu = d_menu[cls].get(name)
+                if menu is None:
+                    ls_out.append(f"  {line:}")
+                else:
+                    d_in_menu.setdefault(menu, []).append(name)
+            for menu, l_name in sorted(d_in_menu.items()):
+                flag_menus = True
+                ls_out.append(f"  menu {menu:}: {', '.join(l_name):}")
+        if flag_menus:
+            ls_out.append("list_methods with a menu name (e.g. Calculate, Report) as pattern "
+                          "gives the descriptions of its methods.")
         ls_out.append("list_methods with the method name as pattern gives its arguments.")
     ls_out.append("Call one with call_method {\"path\": <block>, \"method\": <name>, <its arguments>}.")
     return "\n".join(ls_out)

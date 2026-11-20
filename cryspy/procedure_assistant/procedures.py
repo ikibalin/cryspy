@@ -31,6 +31,7 @@ from cryspy.B_parent_classes.cl_1_item import ItemN
 from cryspy.B_parent_classes.cl_2_loop import LoopN
 from cryspy.B_parent_classes.cl_3_data import DataN
 from cryspy.B_parent_classes.cl_4_global import GlobalN
+from cryspy.procedure_assistant.menus import is_hidden_in_menu, split_menu_line, take_menu
 
 D_BASIC_TYPE = {float: "number", int: "integer", bool: "boolean", str: "string"}
 # words of the titles of the menus
@@ -104,7 +105,10 @@ def parse_docstring(doc: str) -> dict:
 
     Returns {"summary": str, "description": str, "returns": str,
     "parameters": {name: {"type": str, "optional": bool,
-    "description": str}}}."""
+    "description": str}}, "menu": str or None}; "menu" is the text of the
+    line "Menu: ..." (menus.py), which is not in the summary and
+    description."""
+    doc, menu = split_menu_line(doc)
     l_line = inspect.cleandoc(doc or "").splitlines()
     d_section = {"": []}
     section = ""
@@ -147,7 +151,7 @@ def parse_docstring(doc: str) -> dict:
             d_parameter[name]["description"] = f"{text:} {line.strip():}".strip()
     returns = "\n".join(next((d_section[key] for key in RETURN_HEADERS if key in d_section), [])).strip()
     return {"summary": summary, "description": description,
-            "parameters": d_parameter, "returns": returns}
+            "parameters": d_parameter, "returns": returns, "menu": menu}
 
 
 def form_title(name: str) -> str:
@@ -174,7 +178,8 @@ def describe_procedure(function: Callable) -> Optional[dict]:
     """Description of a procedure from its signature and its docstring;
     None if it cannot be run as a procedure.
 
-    Returns {"name", "title", "group" (first word of the title),
+    Returns {"name", "title", "group" (menu: "Menu:" of the docstring or
+    the first word of the title), "hidden_in_menu" (for "Menu: -"),
     "summary", "description", "returns", "parameters": [{"name", "kind"
     ("global", "basic", "cif"), "type" (JSON schema type for "basic"),
     "classes" (class names for "cif"), "default" (when there is one),
@@ -202,7 +207,11 @@ def describe_procedure(function: Callable) -> Optional[dict]:
         if default is not inspect.Parameter.empty:
             d_param["default"] = default
         l_out.append(d_param)
-    return {"name": name, "title": title, "group": title.split(" ")[0],
+    group = take_menu(function)
+    if not group:  # no "Menu:" line, or hidden from the menus ("Menu: -")
+        group = title.split(" ")[0]
+    return {"name": name, "title": title, "group": group,
+            "hidden_in_menu": is_hidden_in_menu(function),
             "summary": d_doc["summary"], "description": d_doc["description"],
             "returns": d_doc["returns"], "parameters": l_out}
 

@@ -81,6 +81,11 @@ Public API is re-exported from `cryspy/__init__.py`.
   `list_methods`, `call_method`): give them type hints and a numpydoc
   docstring that says what they really do. A method without a docstring is
   not offered; internal steps start with `get_`, `form_`, `take_` or `_`.
+- Menus of CrysPy Editor (procedures and methods of an object) come from the
+  first word of the names (`calc_` -> Calculate, `report_` -> Report;
+  `procedure_assistant/menus.py`). A line `Menu: <name>` in the docstring
+  sets the menu by hand, `Menu: -` hides the function from the menus only
+  (AI assistants and scripts still see it).
 - Physical data that people should read and correct (magnetic ions:
   usual valences, Lande factors, free-ion moments; usual ionic charges) live
   as Markdown tables in the knowledge base `cryspy/knowledge/*.md`, read by
