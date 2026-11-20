@@ -154,8 +154,20 @@ def take_magnetic_models(crystal, k_vector, magnetic_atoms: str,
     the superspace group; ``fourier`` {atom: number of free Fourier
     parameters}; ``domains`` (magnetic operations 'x,y,z,+1' of the
     domains, the first is the crystal itself); ``error`` (text) when the
-    model cannot be built.
+    model cannot be built. Without ``magnetic_atoms`` the magnetic atoms of
+    the crystal are taken (guess_magnetic_atoms: atom_site_scat, else the
+    elements with magnetic ions); CrysPyError when it has none.
     """
+    if not split_labels(str(magnetic_atoms or "")):
+        # imported here: function_1_magnetic_ions reads the knowledge base
+        from cryspy.D_functions_item_loop.function_1_magnetic_ions import guess_magnetic_atoms
+        l_label = guess_magnetic_atoms(crystal)
+        if not l_label:
+            raise CrysPyError(
+                "Give magnetic_atoms (labels separated by commas, as Fe1, Fe2): the crystal "
+                "has no atom_site_scat and no atom of a magnetic element; the atoms are "
+                f"{[str(label) for label in crystal.atom_site.label]}.")
+        magnetic_atoms = ", ".join(l_label)
     k_group = crystal.take_group_of_k(k_vector)
     l_model = []
     for i_model, (irrep, mode) in enumerate(take_model_candidates(
