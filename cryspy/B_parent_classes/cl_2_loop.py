@@ -14,7 +14,9 @@ from cryspy.A_functions_base.function_1_strings import find_prefix
 from cryspy.A_functions_base.function_1_objects import \
     get_functions_of_objet, get_table_html_for_variables
 
-from cryspy.B_parent_classes.cl_1_item import ItemN, value_error_mark_from_cif
+from cryspy.B_parent_classes.cl_1_item import (
+    GenericCategoryType, ItemN, make_item_class, take_float_format, take_value_type,
+    value_error_mark_from_cif)
 from cryspy.exceptions import RcifFileNotFoundError
 
 
@@ -105,8 +107,6 @@ class LoopN(object):
         if name.startswith("__") and name.endswith("__"):
             raise AttributeError(name)
         item_class = self.ITEM_CLASS
-        if item_class is ItemN:
-            item_class = self.items[0]
         if name.startswith("numpy_"):
             name_sh = name[6:]
             if name_sh in (item_class.ATTR_NAMES + item_class.ATTR_SIGMA +
@@ -231,13 +231,10 @@ class LoopN(object):
         flag = all([type(item) is item_class for item in l_item])
         if not(flag):
             raise ValueError("There are different types of given items")
-        obj = cls()
         if cls is LoopN:
-            obj.__dict__["ITEM_CLASS"] = item_class
-            obj.__dict__["ATTR_INDEX"] = None
-            obj.__dict__["items"] = l_item
-            obj.__dict__["loop_name"] = loop_name
-        elif obj.ITEM_CLASS is item_class:
+            return make_loop_class(item_class)(loop_name=loop_name, items=l_item)
+        obj = cls()
+        if obj.ITEM_CLASS is item_class:
             obj.items = l_item
         else:
             raise ValueError("Type of items does not correspond to loop class")            
@@ -265,7 +262,7 @@ class LoopN(object):
         cif_data = Data()
         cif_data.take_from_string(string)
         obj = None
-        if cls is LoopN:
+        if cls is LoopN:  # a category unknown to CrysPy: a class for it
             loop = cif_data.loops[0]
             l_name = loop.names
             prefix = find_prefix(*tuple(l_name))
@@ -273,20 +270,20 @@ class LoopN(object):
             l_cif_attr = [_.lower() for _ in l_attr]
             if "" in l_attr:
                 l_attr[l_attr.index("")] = "label"
-            prefix = prefix.strip("_").strip("_")
-            obj = cls()
-            obj.__dict__["ITEM_CLASS"] = ItemN
-            obj.__dict__["ATTR_INDEX"] = None
-            item_class = ItemN
-            obj.__dict__["items"] = []
-            obj.__dict__["loop_name"] = loop.name
-        else:
-            item_class = cls.ITEM_CLASS
-            l_attr = item_class.ATTR_NAMES
-            l_cif_attr = item_class.ATTR_CIF
+            d_type = {attr: take_value_type(loop[name]) for attr, name in zip(l_attr, l_name)}
+            item_class = make_item_class(
+                prefix.strip("_").strip("_"), tuple(l_cif_attr), tuple(l_attr),
+                attr_ref=tuple(attr for attr in l_attr if d_type[attr] is float),
+                attr_int=tuple(attr for attr in l_attr if d_type[attr] is int),
+                formats=tuple((attr, take_float_format(loop[name]))
+                              for attr, name in zip(l_attr, l_name)))
+            return make_loop_class(item_class).from_cif(string)
+        item_class = cls.ITEM_CLASS
+        l_attr = item_class.ATTR_NAMES
+        l_cif_attr = item_class.ATTR_CIF
 
-            l_cif_attr = [_.lower() for _ in l_cif_attr]
-            prefix = item_class.PREFIX
+        l_cif_attr = [_.lower() for _ in l_cif_attr]
+        prefix = item_class.PREFIX
 
         for cif_loop in cif_data.loops:
             # cond = ("_" + prefix.lower()) == cif_loop.prefix.lower()
@@ -314,13 +311,7 @@ class LoopN(object):
                         if _i == 0:
                             items = []
                             for _val in cif_loop[_name]:
-                                if item_class is ItemN:
-                                    item = item_class()
-                                    item._base_attributes_itemn(
-                                        prefix.strip("_").strip("."),
-                                        tuple(l_cif_attr), tuple(l_attr))
-                                else:
-                                    item = item_class()
+                                item = item_class()
 
                                 if _name_short_obj in item.ATTR_REF:
                                     value, error, mark = value_error_mark_from_cif(_val, _name)
@@ -383,7 +374,7 @@ class LoopN(object):
             ls_out.append(f"loop_{self.loop_name:}")
 
         if len(self.items) == 0:
-            if item_class == ItemN:
+            if getattr(item_class, "IS_GENERIC", False):
                 return ""
             prefix = item_class.PREFIX
             for name_cif in item_class.ATTR_CIF:
@@ -429,15 +420,7 @@ class LoopN(object):
         """Representation of defined parameters in HTML format.
         """
         ls_html = ["<table>"]
-        item_class = self.ITEM_CLASS
-        if item_class is ItemN:
-            if len(self.items) != 0:
-                item_n = self.items[0]
-                attribute_names = item_n.ATTR_NAMES
-            else:
-                return ""
-        else:
-            attribute_names = item_class.ATTR_NAMES
+        attribute_names = self.ITEM_CLASS.ATTR_NAMES
         flags = [False for name in attribute_names]
         for item in self.items:
             for ind_name, name in enumerate(attribute_names):
@@ -528,13 +511,7 @@ class LoopN(object):
 
     def get_name(self) -> str:
         """Get name."""
-        if self.ITEM_CLASS is ItemN:
-            if len(self.items) > 0:
-                name = self.items[0].PREFIX
-            else:
-                return ""
-        else:
-            name = self.ITEM_CLASS.PREFIX
+        name = self.ITEM_CLASS.PREFIX
         loop_name = self.loop_name
         if ((loop_name is None) | (loop_name == "")):
             name = f"{name:}"
@@ -554,14 +531,7 @@ class LoopN(object):
             List of names of variable.
 
         """
-        item_class = self.ITEM_CLASS
-        if item_class is ItemN:
-            if len(self.items) != 0:
-                prefix = self.items[0].PREFIX
-            else:
-                return []
-        else:
-            prefix = item_class.PREFIX
+        prefix = self.ITEM_CLASS.PREFIX
         loop_name = self.loop_name
         if isinstance(loop_name, str):
             loop_name = loop_name.lower()
@@ -595,14 +565,7 @@ class LoopN(object):
             DESCRIPTION.
 
         """
-        item_class = self.ITEM_CLASS
-        if item_class is ItemN:
-            if len(self.items) != 0:
-                prefix = self.items[0].PREFIX
-            else:
-                return
-        else:
-            prefix = item_class.PREFIX
+        prefix = self.ITEM_CLASS.PREFIX
         prefix_t = name[0]
         if isinstance(prefix_t[1], str):
             prefix_t_2 = prefix_t[1].lower()
@@ -644,14 +607,7 @@ class LoopN(object):
             DESCRIPTION.
 
         """
-        item_class = self.ITEM_CLASS
-        if item_class is ItemN:
-            if len(self.items) != 0:
-                prefix = self.items[0].PREFIX
-            else:
-                return
-        else:
-            prefix = item_class.PREFIX
+        prefix = self.ITEM_CLASS.PREFIX
         
         prefix_t, attr_t = name
         if prefix_t != (prefix, self.loop_name):
@@ -721,14 +677,7 @@ class LoopN(object):
         Index parameters is used only for objects given as a matrix.
         """
         name_sh = name.strip(".").lower()
-        item_class = self.ITEM_CLASS
-        if item_class is ItemN:
-            if len(self.items) != 0:
-                att_ref = self.items[0].ATTR_REF
-            else:
-                return
-        else:
-            att_ref = item_class.ATTR_REF
+        att_ref = self.ITEM_CLASS.ATTR_REF
 
         if name_sh in att_ref:
             if index is None:
@@ -751,11 +700,35 @@ class LoopN(object):
 def get_prefix_of_loop(item: LoopN):
     if not(isinstance(item, LoopN)):
         return ""
-    if item.ITEM_CLASS is ItemN:
-        if len(item.items) > 0:
-            prefix = item.items[0].PREFIX
-        else:
-            return ""
-    else:
-        prefix = item.ITEM_CLASS.PREFIX
-    return prefix
+    return item.ITEM_CLASS.PREFIX
+
+
+# classes of the loops of the CIF/STAR categories unknown to CrysPy
+GENERIC_LOOP_CLASSES = {}
+
+
+def make_loop_class(item_class: type) -> type:
+    """Class derived from LoopN for the items of item_class (made by
+    make_item_class for a category unknown to CrysPy); the same object for
+    the same item class, pickled by the description of the items."""
+    loop_class = GENERIC_LOOP_CLASSES.get(item_class)
+    if loop_class is not None:
+        return loop_class
+
+    def __init__(self, loop_name: str = None, items: list = None, **kwargs):
+        self.__dict__["items"] = list(items) if items is not None else []
+        self.__dict__["loop_name"] = loop_name
+
+    namespace = {
+        "__doc__": f"Loop of the CIF category _{item_class.PREFIX:} (not described in CrysPy).",
+        "__module__": __name__,
+        "__init__": __init__,
+        "IS_GENERIC": True,
+        "REBUILD": (make_loop_class, (item_class, )),
+        "ITEM_CLASS": item_class,
+        "ATTR_INDEX": None,
+    }
+    loop_class = GenericCategoryType(
+        item_class.__name__.replace("ItemN_", "LoopN_", 1), (LoopN,), namespace)
+    GENERIC_LOOP_CLASSES[item_class] = loop_class
+    return loop_class

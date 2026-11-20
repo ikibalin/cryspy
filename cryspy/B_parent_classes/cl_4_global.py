@@ -377,11 +377,7 @@ class GlobalN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                item_cls = item.ITEM_CLASS
-                if item_cls is ItemN:
-                    prefix = item[0].PREFIX
-                else:
-                    prefix = item_cls.PREFIX
+                prefix = item.ITEM_CLASS.PREFIX
             elif isinstance(item, DataN):
                 prefix = item.PREFIX
             else:
@@ -423,11 +419,7 @@ class GlobalN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                item_cls = item.ITEM_CLASS
-                if item_cls is ItemN:
-                    prefix = item[0].PREFIX
-                else:
-                    prefix = item_cls.PREFIX
+                prefix = item.ITEM_CLASS.PREFIX
             elif isinstance(item, DataN):
                 prefix = item.PREFIX
             else:

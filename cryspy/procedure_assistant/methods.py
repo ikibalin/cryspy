@@ -46,7 +46,8 @@ def take_classes_with_methods() -> List[type]:
     l_class, l_todo = [], list(BASE_CLASSES[:3])
     while l_todo:
         for sub_class in l_todo.pop(0).__subclasses__():
-            if sub_class not in l_class:
+            # the classes of unknown categories of a read file have no methods
+            if sub_class not in l_class and not sub_class.__dict__.get("IS_GENERIC", False):
                 l_class.append(sub_class)
                 l_todo.append(sub_class)
     return l_class

@@ -340,11 +340,7 @@ class DataN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                item_cls = item.ITEM_CLASS
-                if item_cls is ItemN:
-                    prefix = item[0].PREFIX
-                else:
-                    prefix = item_cls.PREFIX
+                prefix = item.ITEM_CLASS.PREFIX
             else:
                 raise AttributeError(
                     f"Unknown type object '{type(item).__name__:}'")
@@ -384,11 +380,7 @@ class DataN(object):
             if isinstance(item, ItemN):
                 prefix = item.PREFIX
             elif isinstance(item, LoopN):
-                item_cls = item.ITEM_CLASS
-                if item_cls is ItemN:
-                    prefix = item[0].PREFIX
-                else:
-                    prefix = item_cls.PREFIX
+                prefix = item.ITEM_CLASS.PREFIX
             else:
                 raise AttributeError(
                     f"Unknown type object '{type(item).__name__:}'")
@@ -575,12 +567,7 @@ class DataN(object):
                     if isinstance(item, ItemN):
                         attr_refs = item.ATTR_REF
                     elif isinstance(item, LoopN):
-                        item_class = item.ITEM_CLASS
-                        if item_class is ItemN:
-                            if len(self.items) != 0:
-                                attr_refs = item.items[0].ATTR_REF
-                        else:
-                            attr_refs = item_class.ATTR_REF
+                        attr_refs = item.ITEM_CLASS.ATTR_REF
                     for attr_ref in attr_refs:
                         item.set_variable(attr_ref, index=index)
                         

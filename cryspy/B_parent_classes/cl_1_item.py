@@ -3,10 +3,10 @@ Describing of parent class ItemN.
 
 It should be used ass parent to describe new item classes.
 """
+import copyreg
 import os
+import re
 import os.path
-import warnings
-import numpy
 from typing import NoReturn, Union
 from pycifstar import Data, to_data
 
@@ -14,7 +14,7 @@ from cryspy.A_functions_base.function_1_markdown import md_to_html
 from cryspy.A_functions_base.function_1_strings import find_prefix, \
     string_to_value_error_mark, value_error_mark_to_string
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
-from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError, RcifFormatError
+from cryspy.exceptions import RcifFileNotFoundError, RcifFormatError
 from cryspy.B_parent_classes.cif_attributes import install_cif_descriptors
 
 
@@ -30,6 +30,50 @@ def string_to_fixed_or_refined(s_value: str):
     except AttributeError:
         value = s_value
     return value, flag_refined
+
+
+INTEGER_LITERAL = re.compile(r"[+-]?(0|[1-9][0-9]*)")
+CODE_LITERAL = re.compile(r"[+-]?0[0-9]+")  # '007': a code, not a number
+
+
+def take_value_type(l_value) -> type:
+    """Type of an attribute of a category unknown to CrysPy from its values
+    in the file: int when every value is an integer (a year, a number of
+    a list; '007' stays a string), float when they are numbers with or
+    without sigma (a refinable parameter), str otherwise. '.' and '?' are
+    not counted."""
+    value_type = None
+    for value in l_value:
+        if not isinstance(value, str) or value in (".", "?"):
+            continue
+        if CODE_LITERAL.fullmatch(value) is not None:
+            return str
+        if INTEGER_LITERAL.fullmatch(value) is not None:
+            type_value = int
+        elif isinstance(string_to_fixed_or_refined(value)[0], float):
+            type_value = float
+        else:
+            return str
+        if value_type is not float:
+            value_type = type_value
+    return str if value_type is None else value_type
+
+
+def take_float_format(l_value) -> Union[str, None]:
+    """Format of the numbers of an attribute of a category unknown to
+    CrysPy that writes them back as in the file: as many decimals as the
+    longest of them ('0.00006' stays '0.00006', not '6e-05'); None when a
+    value is in exponential form. Values with sigma are written by their
+    sigma, '.' and '?' are not counted."""
+    n_decimal = None
+    for value in l_value:
+        if not isinstance(value, str) or value in (".", "?") or "(" in value:
+            continue
+        if "e" in value.lower():
+            return None
+        n_value = len(value.split(".")[1]) if "." in value else 0
+        n_decimal = n_value if n_decimal is None else max(n_decimal, n_value)
+    return None if n_decimal is None else f"{{:.{n_decimal:}f}}"
 
 
 def value_error_mark_from_cif(string: str, cif_name: str):
@@ -223,92 +267,6 @@ class ItemN(object):
         allowed values and the limits are checked when it is set."""
         super().__init_subclass__(**kwargs)
         install_cif_descriptors(cls)
-        # no Python step between the assignment and the descriptor, unless
-        # the class has its own rules (SpaceGroup)
-        l_parent = cls.__mro__[:cls.__mro__.index(ItemN)]
-        if not any("__setattr__" in parent.__dict__ for parent in l_parent):
-            cls.__setattr__ = object.__setattr__
-
-    def __setattr__(self, name: str, value) -> NoReturn:
-        """The attributes of an item class are descriptors; only a generic
-        ItemN (a CIF category unknown to CrysPy) keeps its ATTR_* tuples in
-        the object and is converted here."""
-        if type(self) is ItemN:
-            self._setattr_generic(name, value)
-        else:
-            object.__setattr__(self, name, value)
-
-    def _setattr_generic(self, name: str, value) -> NoReturn:
-        """
-        Rules to set attribute of a generic ItemN.
-
-        Parameters
-        ----------
-        name : str
-            Name of attribute.
-        value : TYPE
-            Value of attribute.
-
-        Returns
-        -------
-        None.
-
-        """
-        flag, flag_write = False, False
-        flag_none_string = False
-        if isinstance(value, str):
-            flag_none_string = ((value == ".") | (value == "?"))
-        if isinstance(value, numpy.ndarray):
-            if value.size == 1:
-                value = value[0]
-        if (value is None):
-            flag, flag_write = True, True
-            val_new = None
-        elif flag_none_string:
-            flag, flag_write = True, True
-            val_new = None
-        elif name in self.ATTR_NAMES:
-            ind = self.ATTR_NAMES.index(name)
-            val_type = self.ATTR_TYPES[ind]
-            if ((val_type is bool) and (isinstance(value, str))):
-                val_new = value == "True"
-            else:
-                try:
-                    val_new = val_type(value)
-                except (TypeError, ValueError) as error_value:
-                    raise RcifFormatError(
-                        f"Value '{value:}' of '{name:}' in {type(self).__name__:} "
-                        f"is not {val_type.__name__:}.") from error_value
-            flag, flag_write = True, True
-
-            if name in self.D_CONSTRAINTS.keys():
-                if val_new not in self.D_CONSTRAINTS[name]:
-                    flag_write = False
-                    warnings.warn(
-                        f"Value '{val_new:}' of '{name:}' in {type(self).__name__:} "
-                        f"is ignored: allowed values are {', '.join(str(_) for _ in self.D_CONSTRAINTS[name]):}.",
-                        CrysPyWarning, stacklevel=2)
-            if name in self.D_MIN.keys():
-                if val_new < self.D_MIN[name]:
-                    val_new = self.D_MIN[name]
-            if name in self.D_MAX.keys():
-                if val_new > self.D_MAX[name]:
-                    val_new = self.D_MAX[name]
-            self.delete_internal_parameters()
-        elif name in self.ATTR_SIGMA:
-            val_new = float(value)
-            flag, flag_write = True, True
-        elif name in (self.ATTR_CONSTR_FLAG+self.ATTR_REF_FLAG):
-            val_new = bool(value)
-            flag, flag_write = True, True
-        elif name in self.ATTR_CONSTR_MARK:
-            val_new = str(value).strip()
-            flag, flag_write = True, True
-
-        if flag and flag_write:
-            self.__dict__[name] = val_new
-        elif not(flag):
-            self.__dict__[name] = value
 
     def delete_internal_parameters(self):
         """
@@ -381,36 +339,7 @@ class ItemN(object):
         -------
         NoReturn
         """
-        if ((type(self) == ItemN) and (len(self.ATTR_REF)==0)):
-            l_ATTR_REF, l_ATTR_SIGMA = [], []
-            l_ATTR_CONSTR_FLAG, l_ATTR_REF_FLAG = [], []
-            l_ATTR_CONSTR_MARK = []
-            for name in self.ATTR_NAMES:
-                s_value = getattr(self, name)
-                value, flag_refined = string_to_fixed_or_refined(s_value)
-                if isinstance(value, float):
-                    value, error, mark = string_to_value_error_mark(s_value)
-                    name_sigma = f"{name:}_sigma"
-                    name_constraint = f"{name:}_constraint"
-                    name_refinement = f"{name:}_refinement"
-                    name_mark = f"{name:}_mark"
-
-                    self.__dict__[name] = value
-                    self.__dict__[name_sigma] = error
-                    self.__dict__[name_constraint] = False
-                    self.__dict__[name_refinement] = flag_refined
-                    self.__dict__[name_mark] = mark
-
-                    l_ATTR_REF.append(name)
-                    l_ATTR_SIGMA.append(name_sigma)
-                    l_ATTR_CONSTR_FLAG.append(name_constraint)
-                    l_ATTR_REF_FLAG.append(name_refinement)
-                    l_ATTR_CONSTR_MARK.append(name_mark)
-            self.__dict__["ATTR_REF"] = tuple(l_ATTR_REF)
-            self.__dict__["ATTR_SIGMA"] = tuple(l_ATTR_SIGMA)
-            self.__dict__["ATTR_CONSTR_FLAG"] = tuple(l_ATTR_CONSTR_FLAG)
-            self.__dict__["ATTR_REF_FLAG"] = tuple(l_ATTR_REF_FLAG)
-            self.__dict__["ATTR_CONSTR_MARK"] = tuple(l_ATTR_CONSTR_MARK)
+        pass
 
     def to_cif(self, separator: str = "_", flag_all_attributes:bool=False) -> str:
         """
@@ -494,8 +423,6 @@ class ItemN(object):
             List of names of variable.
 
         """
-        if type(self) == ItemN:
-            self.form_object()
         atr_ref = self.ATTR_REF
         atr_ref_flag = self.ATTR_REF_FLAG
         prefix = self.PREFIX
@@ -562,45 +489,6 @@ class ItemN(object):
         attr_name = attr_t[0]
         setattr(self, attr_name, value)
 
-    def _base_attributes_itemn(self, prefix, name_opt_cif, name_opt=None):
-        name_mand, name_mand_cif = (), ()
-        attr_ref = ()
-        if name_opt is None:
-            name_opt = name_opt_cif
-        self.__dict__["PREFIX"] = prefix
-        self.__dict__["ATTR_MANDATORY_CIF"] = name_mand_cif
-        self.__dict__["ATTR_OPTIONAL_CIF"] = name_opt_cif
-        self.__dict__["ATTR_REF"] = attr_ref
-        self.__dict__["ATTR_CIF"] = name_mand_cif+name_opt_cif
-        self.__dict__["ATTR_MANDATORY_NAMES"] = name_mand
-        self.__dict__["ATTR_OPTIONAL_NAMES"] = name_opt
-        self.__dict__["ATTR_NAMES"] = name_mand+name_opt
-        types_mand = tuple(len(name_mand)*[str])
-        types_opt = tuple(len(name_opt)*[str])
-        self.__dict__["ATTR_MANDATORY_TYPES"] = types_mand
-        self.__dict__["ATTR_OPTIONAL_TYPES"] = types_opt
-        self.__dict__["ATTR_TYPES"] = types_mand + types_opt
-        self.__dict__["ATTR_REF"] = ()
-        self.__dict__["ATTR_SIGMA"] = ()
-        self.__dict__["ATTR_CONSTR_FLAG"] = ()
-        self.__dict__["ATTR_REF_FLAG"] = ()
-        self.__dict__["ATTR_CONSTR_MARK"] = ()
-        self.__dict__["D_FORMATS"] = {}
-        self.__dict__["D_CONSTRAINTS"] = {}
-        self.__dict__["D_DEFAULT"] = {}
-        self.__dict__["ATTR_INT_NAMES"] = ()
-        self.__dict__["D_MIN"] = {}
-        self.__dict__["D_MAX"] = {}
-        self.__dict__["ATTR_INT_PROTECTED_NAMES"] = (
-            "PREFIX", "ATTR_MANDATORY_CIF", "ATTR_OPTIONAL_CIF",
-            "ATTR_MANDATORY_NAMES", "ATTR_OPTIONAL_NAMES",
-            "ATTR_REF", "ATTR_NAMES", "ATTR_CIF",
-            "ATTR_MANDATORY_TYPES", "ATTR_TYPES", "ATTR_REF",
-            "ATTR_SIGMA", "ATTR_CONSTR_FLAG", "ATTR_REF_FLAG", "ATTR_CONSTR_MARK",
-            "D_FORMATS", "D_CONSTRAINTS", "D_DEFAULT",
-            "ATTR_INT_NAMES", "ATTR_INT_NAMES",
-            "ATTR_INT_PROTECTED_NAMES", "D_MIN", "D_MAX")
-
     @classmethod
     def from_cif(cls, string: str):
         """
@@ -622,35 +510,14 @@ class ItemN(object):
         cif_data = Data()
         flag = cif_data.take_from_string(string)
         item = None
-        if cls is ItemN:
-            l_name = [item.name for item in cif_data.items]
-            if len(l_name) == 1:
-                name = l_name[0]
-                if name.find(".") != -1:
-                    prefix = name.split(".")[0]
-                else:
-                    prefix = "_"+name.split("_")[1]
-            else:
-                prefix = find_prefix(*tuple(l_name))
-            l_attr = [name[len(prefix)+1:] for name in l_name]
-
-            prefix = prefix.strip("_").strip(".")
-            name_opt_cif = tuple(l_attr)
-            item = cls()
-            item._base_attributes_itemn(prefix, name_opt_cif)
-            prefix = item.PREFIX
-            name_mand_cif = item.ATTR_MANDATORY_CIF
-            name_opt_cif = item.ATTR_OPTIONAL_CIF
-            name_mand = item.ATTR_MANDATORY_NAMES
-            name_opt = item.ATTR_OPTIONAL_NAMES
-            attr_ref = item.ATTR_REF
-        else:
-            prefix = cls.PREFIX
-            name_mand_cif = cls.ATTR_MANDATORY_CIF
-            name_opt_cif = cls.ATTR_OPTIONAL_CIF
-            name_mand = cls.ATTR_MANDATORY_NAMES
-            name_opt = cls.ATTR_OPTIONAL_NAMES
-            attr_ref = cls.ATTR_REF
+        if cls is ItemN:  # a category unknown to CrysPy: a class for it
+            return take_item_class_of_cif_data(cif_data).from_cif(string)
+        prefix = cls.PREFIX
+        name_mand_cif = cls.ATTR_MANDATORY_CIF
+        name_opt_cif = cls.ATTR_OPTIONAL_CIF
+        name_mand = cls.ATTR_MANDATORY_NAMES
+        name_opt = cls.ATTR_OPTIONAL_NAMES
+        attr_ref = cls.ATTR_REF
 
         name = name_mand + name_opt
         name_cif = name_mand_cif + name_opt_cif
@@ -765,3 +632,118 @@ class ItemN(object):
         """
         pass
         return None
+
+# classes of the CIF/STAR categories unknown to CrysPy, made at first use
+GENERIC_ITEM_CLASSES = {}
+
+
+class GenericCategoryType(type):
+    """Type of the classes made for the categories unknown to CrysPy
+    (make_item_class, make_loop_class). Such a class cannot be imported by
+    its name, so pickle saves its description and makes it again
+    (copyreg below): the objects are pickled (multiprocessing) and copied
+    as the objects of the other classes."""
+
+
+def reduce_generic_class(cls):
+    """(function, arguments) making the class again."""
+    return cls.__dict__["REBUILD"]
+
+
+copyreg.pickle(GenericCategoryType, reduce_generic_class)
+
+
+def is_generic(obj) -> bool:
+    """True for an item or loop (object or class) of a CIF/STAR category
+    that CrysPy does not know (made by make_item_class, make_loop_class)."""
+    cls = obj if isinstance(obj, type) else type(obj)
+    return bool(cls.__dict__.get("IS_GENERIC", False))
+
+
+def make_item_class(prefix: str, attr_cif: tuple, attr_names: tuple = None,
+                    attr_ref: tuple = (), attr_int: tuple = (),
+                    formats: tuple = ()) -> type:
+    """Class derived from ItemN for a CIF/STAR category that CrysPy does
+    not know.
+
+    Parameters
+    ----------
+    prefix : str
+        Category, without the leading '_' ('publ_author').
+    attr_cif : tuple
+        Names of the attributes in the CIF tags ('name' of _publ_author_name).
+    attr_names : tuple
+        Names of the attributes in Python; attr_cif when None.
+    attr_ref : tuple
+        Attributes with numerical values (refinable, float).
+    attr_int : tuple
+        Attributes with integer values (int, not refinable); the others are
+        strings.
+    formats : tuple
+        Pairs (attribute, format) for writing the numbers (D_FORMATS).
+
+    Returns
+    -------
+    type
+        The class, the same object for the same arguments; it is described
+        by the ATTR_* tuples as every item class (its attributes are
+        descriptors) and is pickled by this description.
+    """
+    attr_cif = tuple(attr_cif)
+    attr_names = attr_cif if attr_names is None else tuple(attr_names)
+    attr_ref = tuple(name for name in attr_names if name in attr_ref)
+    attr_int = tuple(name for name in attr_names if name in attr_int and name not in attr_ref)
+    formats = tuple((name, s_format) for name, s_format in formats
+                    if name in attr_ref and s_format is not None)
+    key = (prefix, attr_cif, attr_names, attr_ref, attr_int, formats)
+    item_class = GENERIC_ITEM_CLASSES.get(key)
+    if item_class is not None:
+        return item_class
+    attr_types = tuple(float if name in attr_ref else (int if name in attr_int else str)
+                       for name in attr_names)
+    namespace = {
+        "__doc__": f"Item of the CIF category _{prefix:} (not described in CrysPy).",
+        "__module__": __name__,
+        "IS_GENERIC": True, "GENERIC_KEY": key,
+        "REBUILD": (make_item_class, key),
+        "PREFIX": prefix,
+        "ATTR_MANDATORY_NAMES": (), "ATTR_MANDATORY_TYPES": (), "ATTR_MANDATORY_CIF": (),
+        "ATTR_OPTIONAL_NAMES": attr_names, "ATTR_OPTIONAL_TYPES": attr_types,
+        "ATTR_OPTIONAL_CIF": attr_cif,
+        "ATTR_NAMES": attr_names, "ATTR_TYPES": attr_types, "ATTR_CIF": attr_cif,
+        "ATTR_INT_NAMES": (), "ATTR_INT_PROTECTED_NAMES": (),
+        "ATTR_REF": attr_ref,
+        "ATTR_SIGMA": tuple(f"{name:}_sigma" for name in attr_ref),
+        "ATTR_CONSTR_FLAG": tuple(f"{name:}_constraint" for name in attr_ref),
+        "ATTR_REF_FLAG": tuple(f"{name:}_refinement" for name in attr_ref),
+        "ATTR_CONSTR_MARK": tuple(f"{name:}_mark" for name in attr_ref),
+        "D_FORMATS": dict(formats), "D_CONSTRAINTS": {}, "D_DEFAULT": {}, "D_MIN": {}, "D_MAX": {},
+    }
+    class_name = "ItemN_" + "".join(char if char.isalnum() else "_" for char in prefix)
+    item_class = GenericCategoryType(class_name, (ItemN,), namespace)
+    GENERIC_ITEM_CLASSES[key] = item_class
+    return item_class
+
+
+def take_item_class_of_cif_data(cif_data) -> type:
+    """Class of the items of cif_data (pycifstar Data) for a category that
+    CrysPy does not know: the category is the common prefix of the tags
+    (the first part of a single tag), a value that is a number makes its
+    attribute refinable."""
+    l_name = [item.name for item in cif_data.items]
+    if len(l_name) == 1:
+        name = l_name[0]
+        if name.find(".") != -1:
+            prefix = name.split(".")[0]
+        else:
+            prefix = "_"+name.split("_")[1]
+    else:
+        prefix = find_prefix(*tuple(l_name))
+    l_attr = [name[len(prefix)+1:] for name in l_name]
+    d_type = {attr: take_value_type([cif_data[name].value]) for attr, name in zip(l_attr, l_name)}
+    return make_item_class(
+        prefix.strip("_").strip("."), tuple(l_attr),
+        attr_ref=tuple(attr for attr in l_attr if d_type[attr] is float),
+        attr_int=tuple(attr for attr in l_attr if d_type[attr] is int),
+        formats=tuple((attr, take_float_format([cif_data[name].value]))
+                      for attr, name in zip(l_attr, l_name)))
