@@ -80,5 +80,10 @@ def test_blocks_by_name():
     with pytest.raises(AttributeError):
         crystal.atom_site_aniso
     assert crystal.take_item_by_name("atom_site_aniso") is None
-    # a data block that is not there: None, as before
-    assert rcif.crystal_cu is None
+    # a data block that is not there
+    with pytest.raises(AttributeError, match="crystal_cu"):
+        rcif.crystal_cu
+    assert not hasattr(rcif, "crystal_cu")
+    assert rcif.take_item_by_name("crystal_cu") is None
+    assert cryspy.GlobalN().global_name is None  # not given
+    assert getattr(rcif, "PREFIX_OF_NOTHING", "default") == "default"
