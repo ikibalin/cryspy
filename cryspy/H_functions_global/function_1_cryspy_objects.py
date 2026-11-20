@@ -180,6 +180,13 @@ from cryspy.C_item_loop_classes.cl_1_geom import (
 L_ITEM_CLASS.extend([GeomBond, GeomAngle, GeomTorsion, GeomHbond])
 L_LOOP_CLASS.extend([GeomBondL, GeomAngleL, GeomTorsionL, GeomHbondL])
 
+from cryspy.C_item_loop_classes.cl_1_restr import (
+    RestrDistance, RestrDistanceL, RestrAngle, RestrAngleL, RestrTorsion, RestrTorsionL,
+    RestrWeight)
+
+L_ITEM_CLASS.extend([RestrDistance, RestrAngle, RestrTorsion, RestrWeight])
+L_LOOP_CLASS.extend([RestrDistanceL, RestrAngleL, RestrTorsionL])
+
 from cryspy.C_item_loop_classes.cl_1_layer_correlation import (
     LayerCorrelation, LayerCorrelationL)
 

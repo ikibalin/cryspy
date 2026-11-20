@@ -173,3 +173,68 @@ def test_assistant_tools():
     from cryspy.procedure_assistant.methods import find_matching_methods
     l_method = find_matching_methods(rcif, "What is the distance between N1 and C1?")
     assert l_method[0]["name"] == "report_distances_and_angles"
+
+
+def test_restraint_difference_of_torsion_wraps():
+    from cryspy.A_functions_base.structure_geometry import calc_restraint_difference
+    assert calc_restraint_difference(179., -179., 4) == pytest.approx(-2.)
+    assert calc_restraint_difference(179., -179., 3) == pytest.approx(358.)
+
+
+def test_restraints_in_dictionary_and_rcif(tmp_path):
+    from cryspy.procedure_rhochi.rhochi_by_dictionary import calc_restraints_chi_sq
+    rcif = cryspy.load_file(F_CH30)
+    crystal = take_crystal(rcif)
+    text = crystal.add_restraint("N1 C3")
+    assert "differs by 0.0000" in text
+    assert crystal.restr_distance.items[0].target == pytest.approx(1.5650, abs=1e-4)
+    crystal.add_restraint("N1 C3 C4", target="110", sigma=0.5)
+    crystal.add_restraint("N1 C3 C4 H4A", target="-50")
+    # the same atoms again replace the old row
+    crystal.add_restraint("N1 C3", target="1.50", sigma=0.01)
+    assert len(crystal.restr_distance.items) == 1
+    value_angle = crystal.calc_distance_or_angle("N1 C3 C4")["value"]
+    value_torsion = crystal.calc_distance_or_angle("N1 C3 C4 H4A")["value"]
+    expected = (((1.5650 - 1.50) / 0.01) ** 2 + ((value_angle - 110.) / 0.5) ** 2
+                + ((value_torsion + 50.) / 2.) ** 2)
+    chi_sq = calc_restraints_chi_sq(rcif.get_dictionary())
+    assert chi_sq == pytest.approx(expected, rel=1e-3)
+    assert "Sum (diff/sigma)^2" in crystal.update_restraints()
+    # a coordinate written outside [0, 1) gives the same restraint value
+    crystal.atom_site["C4"].fract_x -= 1.
+    assert calc_restraints_chi_sq(rcif.get_dictionary()) == pytest.approx(chi_sq, rel=1e-6)
+
+    f_name = os.path.join(tmp_path, "ch30_restr.rcif")
+    with open(f_name, "w") as fid:
+        fid.write(rcif.to_cif())
+    rcif_2 = cryspy.load_file(f_name)
+    crystal_2 = take_crystal(rcif_2)
+    assert crystal_2.restr_torsion.items[0].target == pytest.approx(-50.)
+    assert crystal_2.restr_distance.items[0].get_site_symmetry() == [".", "."]
+    assert calc_restraints_chi_sq(rcif_2.get_dictionary()) == pytest.approx(chi_sq, rel=1e-3)
+    assert len(rcif_2.get_variable_names()) == len(rcif.get_variable_names())
+
+
+def test_restraint_method_hint():
+    from cryspy.procedure_assistant.methods import find_matching_methods
+    rcif = cryspy.load_file(F_CH30)
+    l_method = find_matching_methods(rcif, "Restrain the distance N1 C3 to 1.5 A")
+    assert l_method[0]["name"] == "add_restraint"
+
+
+def test_restraint_weight():
+    from cryspy.procedure_rhochi.rhochi_by_dictionary import (
+        calc_restraints_chi_sq, set_restraints_scale)
+    rcif = cryspy.load_file(F_CH30)
+    crystal = take_crystal(rcif)
+    crystal.add_restraint("N1 C3", target="1.55", sigma=0.01)
+    chi_sq = calc_restraints_chi_sq(rcif.get_dictionary())
+    crystal.define_restraint_weight(factor=2.)
+    assert calc_restraints_chi_sq(rcif.get_dictionary()) == pytest.approx(2. * chi_sq)
+    crystal.define_restraint_weight(factor=2., scale="chi_sq_per_n")
+    global_dict = rcif.get_dictionary()
+    set_restraints_scale(global_dict, chi_sq=600., n_point=100)
+    assert calc_restraints_chi_sq(global_dict) == pytest.approx(12. * chi_sq)
+    assert "weighted by 2 times chi_sq/n" in crystal.update_restraints()
+    with pytest.raises(ValueError):
+        crystal.define_restraint_weight(scale="auto")

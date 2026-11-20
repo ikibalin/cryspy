@@ -13,6 +13,9 @@ from .rhochi_tof import calc_chi_sq_for_tof_by_dictionary
 
 from cryspy.A_functions_base.linear_constraints import \
     calc_dependent_parameters, calc_soft_constraint_chi_sq, form_linear_system
+from cryspy.A_functions_base.matrix_operations import calc_m_v
+from cryspy.A_functions_base.structure_geometry import (
+    calc_restraint_difference, calc_restraint_value)
 from cryspy.exceptions import RefinementError
 
 logger = logging.getLogger(__name__)
@@ -74,7 +77,39 @@ def calc_punishement_function(dict_obj):
         d_value = {mark: sign * dict_obj[way[0]][way[1]][way[2]]
                    for mark, (sign, way) in d_mark_way.items()}
         chi_sq_punishement += calc_soft_constraint_chi_sq(expression, sigma, d_value)
+    chi_sq_punishement += calc_restraints_chi_sq(dict_obj)
     return chi_sq_punishement
+
+
+def calc_restraints_chi_sq(dict_obj) -> float:
+    """Sum of ((value - target) / sigma)^2 of the restraints of distances
+    and angles (restr_distance, restr_angle, restr_torsion) with the
+    coordinates and the cell of the dictionary (symmetry constraints of
+    special positions and of the cell applied as in the structure factor)."""
+    chi_sq = 0.
+    chi_sq_per_n = dict_obj.get("restraints_chi_sq_per_n", 1.)
+    for (block_name, l_atom, l_rotation, l_offset, target, sigma, factor,
+         flag_scale) in dict_obj.get("restraints", []):
+        dict_crystal = dict_obj[block_name]
+        unit_cell_parameters = dict_crystal["unit_cell_parameters"]
+        if numpy.any(dict_crystal.get("flags_unit_cell_parameters", False)):
+            unit_cell_parameters = (numpy.dot(dict_crystal["sc_uc"], unit_cell_parameters)
+                                    + dict_crystal["v_uc"])
+        atom_fract_xyz = calc_m_v(
+            dict_crystal["atom_site_sc_fract"], numpy.mod(dict_crystal["atom_fract_xyz"], 1),
+            flag_m=False, flag_v=False)[0] + dict_crystal["atom_site_sc_b"]
+        value = calc_restraint_value(unit_cell_parameters, atom_fract_xyz,
+                                     l_atom, l_rotation, l_offset)
+        weight = factor * (chi_sq_per_n if flag_scale else 1.)
+        chi_sq += weight * (calc_restraint_difference(value, target, len(l_atom)) / sigma) ** 2
+    return chi_sq
+
+
+def set_restraints_scale(global_dict: dict, chi_sq: float, n_point: int) -> None:
+    """chi_sq/n of the data for the restraints weighted with scale
+    'chi_sq_per_n' (restr_weight), fixed during one minimization."""
+    if "restraints" in global_dict and n_point > 0:
+        global_dict["restraints_chi_sq_per_n"] = float(chi_sq) / float(n_point)
 
 
 def take_linear_equations(global_dict: dict, parameter_names: list) -> list:
@@ -236,6 +271,7 @@ def rhochi_rietveld_refinement_by_dictionary(
         split_parameters_by_constraints(global_dict, parameter_names)
     param_0 = [global_dict[way[0]][way[1]][way[2]] for way  in parameter_names_free]
     logger.info(f"Started chi_sq per number of points is {chi_sq/n_point:.2f}.")
+    set_restraints_scale(global_dict, chi_sq, n_point)
     if len(param_0) == 0:
         res = {}
         warnings.warn(

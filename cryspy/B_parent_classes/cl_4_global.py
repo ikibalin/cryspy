@@ -654,6 +654,12 @@ class GlobalN(object):
             dict_out["linear_equations"] = linear_equations
         if len(soft_constraints) > 0:
             dict_out["soft_constraints"] = soft_constraints
+        # restraints of distances and angles (restr_distance, ... of crystals)
+        restraints = [restraint for item in self.items
+                      if hasattr(type(item), "get_restraints")
+                      for restraint in item.get_restraints()]
+        if len(restraints) > 0:
+            dict_out["restraints"] = restraints
         try:
             expression = self.punishment.function
             d_marked = {}

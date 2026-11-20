@@ -15,10 +15,14 @@ import numpy
 from cryspy.A_functions_base.function_1_strings import value_error_mark_to_string
 from cryspy.A_functions_base.structure_geometry import (
     calc_geometry_sigma, calc_geometry_value, calc_images_near_position,
-    find_chain_positions, form_position, form_symmetry_code, identity_index)
+    calc_restraint_difference, calc_restraint_value, find_chain_positions,
+    form_position, form_symmetry_code, identity_index)
 from cryspy.C_item_loop_classes.cl_1_geom import (
     GeomAngle, GeomAngleL, GeomBond, GeomBondL, GeomHbond, GeomHbondL,
     GeomTorsion, GeomTorsionL)
+from cryspy.C_item_loop_classes.cl_1_restr import (
+    RestrAngle, RestrAngleL, RestrDistance, RestrDistanceL, RestrTorsion,
+    RestrTorsionL)
 
 GEOMETRY_KINDS = {2: ("distance", "Å"), 3: ("angle", "°"), 4: ("torsion angle", "°")}
 
@@ -414,3 +418,85 @@ def form_geometry_loops(geometry: GeometryInput, l_bond: List[dict], l_angle: Li
         loop.items = l_item
         d_loop["geom_hbond"] = loop
     return d_loop
+
+
+RESTRAINT_CLASSES = {2: (RestrDistance, RestrDistanceL, "restr_distance"),
+                     3: (RestrAngle, RestrAngleL, "restr_angle"),
+                     4: (RestrTorsion, RestrTorsionL, "restr_torsion")}
+# sigma of a restraint when the user gives none: Å for distances, degrees
+DEFAULT_RESTRAINT_SIGMA = {2: 0.01, 3: 1., 4: 2.}
+
+
+def take_symmetry_index(geometry: GeometryInput, code: str) -> int:
+    """Index of the symmetry element of a site symmetry code 'n_klm' ('.'
+    or empty is the atom itself)."""
+    code = "." if code is None else str(code).strip()
+    if code in (".", "?", "", "None"):
+        return identity_index(geometry.full_symm_elems)
+    n_symm = numpy.asarray(geometry.full_symm_elems).shape[1]
+    try:
+        symm_index = int(code.split("_")[0]) - 1
+    except ValueError:
+        raise ValueError(f"site symmetry '{code:}' is not 'n_klm'.") from None
+    if not 0 <= symm_index < n_symm:
+        raise ValueError(f"site symmetry '{code:}': the crystal has {n_symm:} "
+                         "symmetry operations.")
+    return symm_index
+
+
+def take_restraint_arrays(geometry: GeometryInput, item) -> tuple:
+    """Atom indices, rotations and offsets of the atoms of a restraint item
+    for :func:`calc_restraint_value`."""
+    l_atom_index = [geometry.take_atom_index(label) for label in item.get_labels()]
+    symm = numpy.asarray(geometry.full_symm_elems, dtype=float)
+    l_rotation, l_offset = [], []
+    for code in item.get_site_symmetry():
+        symm_index = take_symmetry_index(geometry, code)
+        l_rotation.append(symm[4:13, symm_index].reshape(3, 3))
+        l_offset.append(symm[0:3, symm_index] / symm[3, symm_index])
+    return l_atom_index, l_rotation, l_offset
+
+
+def calc_restraint_item_value(geometry: GeometryInput, item) -> float:
+    return calc_restraint_value(geometry.unit_cell_parameters, geometry.fract_xyz,
+                                *take_restraint_arrays(geometry, item))
+
+
+def form_restraint_item(geometry: GeometryInput, atoms, target=None, sigma: float = 0.):
+    """Restraint item (restr_distance, restr_angle or restr_torsion) of 2–4
+    atoms: the equivalent atoms of calc_geometry, the target is the
+    present value when not given."""
+    result = calc_geometry(geometry, atoms)
+    n_atom = len(result["labels"])
+    item_class = RESTRAINT_CLASSES[n_atom][0]
+    if sigma is None or sigma <= 0.:
+        sigma = DEFAULT_RESTRAINT_SIGMA[n_atom]
+    target = result["value"] if target is None else float(target)
+    item = item_class(
+        **{f"atom_site_label_{i + 1:}": label for i, label in enumerate(result["labels"])},
+        **{f"site_symmetry_{i + 1:}": code for i, code in enumerate(result["cif_symmetry"])},
+        target=target, target_weight_param=float(sigma))
+    item.diff = calc_restraint_difference(result["value"], target, n_atom)
+    return item
+
+
+def report_restraints(geometry: GeometryInput, l_loop) -> str:
+    """Markdown table of the restraints with their present values."""
+    ls_out = ["| restraint | atoms | target | sigma | value | diff | (diff/sigma)^2 |",
+              "|---|---|---|---|---|---|---|"]
+    chi_sq = 0.
+    for loop in l_loop:
+        for item in loop.items:
+            labels = item.get_labels()
+            value = calc_restraint_item_value(geometry, item)
+            diff = calc_restraint_difference(value, item.target, len(labels))
+            weighted = (diff / item.target_weight_param) ** 2
+            chi_sq += weighted
+            n_digits = 4 if len(labels) == 2 else 2
+            ls_out.append(
+                f"| {GEOMETRY_KINDS[len(labels)][0]:} | {'–'.join(labels):} | "
+                f"{item.target:.{n_digits:}f} | {item.target_weight_param:g} | "
+                f"{value:.{n_digits:}f} | {diff:.{n_digits:}f} | {weighted:.2f} |")
+    ls_out.append("")
+    ls_out.append(f"Sum (diff/sigma)^2 = {chi_sq:.2f} (added to chi_sq in the refinement).")
+    return "\n".join(ls_out)

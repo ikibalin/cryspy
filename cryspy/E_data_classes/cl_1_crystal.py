@@ -42,7 +42,9 @@ from cryspy.A_functions_base.symmetry_elements import (
 from cryspy.D_functions_item_loop.function_1_structure_geometry import (
     GeometryInput, calc_bonds_and_angles, calc_geometry, find_hbonds,
     form_chain_cif, form_geometry_loops, report_bonds_and_angles, report_chain,
-    report_hbonds)
+    report_hbonds, GEOMETRY_KINDS, RESTRAINT_CLASSES, calc_restraint_item_value,
+    form_restraint_item, report_restraints, take_restraint_arrays)
+from cryspy.A_functions_base.structure_geometry import calc_restraint_difference
 from cryspy.B_parent_classes.cl_3_data import DataN
 
 from cryspy.C_item_loop_classes.cl_1_atom_local_axes import AtomLocalAxesL
@@ -73,6 +75,8 @@ from cryspy.C_item_loop_classes.cl_1_atom_electron_configuration import (
 from cryspy.C_item_loop_classes.cl_1_cell import Cell
 from cryspy.C_item_loop_classes.cl_1_geom import (
     GeomAngleL, GeomBondL, GeomHbondL, GeomTorsionL)
+from cryspy.C_item_loop_classes.cl_1_restr import (
+    RestrAngleL, RestrDistanceL, RestrTorsionL, RestrWeight)
 from cryspy.C_item_loop_classes.cl_1_atom_site_moment_fourier import AtomSiteMomentFourierL
 from cryspy.C_item_loop_classes.cl_1_cell_wave_vector import CellWaveVectorL
 from cryspy.C_item_loop_classes.cl_1_space_group_symop_magn_ssg_operation import (
@@ -185,6 +189,10 @@ class Crystal(DataN):
         GeomAngleL,
         GeomTorsionL,
         GeomHbondL,
+        RestrDistanceL,
+        RestrAngleL,
+        RestrTorsionL,
+        RestrWeight,
     )
     # CLASSES_INTERNAL = ()
 
@@ -1758,6 +1766,131 @@ class Crystal(DataN):
                 f"{max_distance:g} Å), {len(l_angle):} angles, {len(l_torsion):} "
                 f"torsion angles, {len(l_hbond):} hydrogen bonds are stored "
                 "(loops geom_bond, geom_angle, geom_torsion, geom_hbond).")
+
+    def get_restraints(self) -> list:
+        """Restraints for the dictionary of the refinement: (block name,
+        atom indices, rotations, offsets, target, sigma) of every item of
+        restr_distance, restr_angle and restr_torsion."""
+        l_loop = [getattr(self, name) for name in ("restr_distance", "restr_angle", "restr_torsion")
+                  if self.is_attribute(name)]
+        if len(l_loop) == 0:
+            return []
+        geometry = self.take_geometry_input()
+        factor, flag_scale = 1., False
+        if self.is_attribute("restr_weight"):
+            factor = float(self.restr_weight.factor)
+            flag_scale = self.restr_weight.scale == "chi_sq_per_n"
+        l_out = []
+        for loop in l_loop:
+            for item in loop.items:
+                l_out.append((self.get_name(), *take_restraint_arrays(geometry, item),
+                              float(item.target), float(item.target_weight_param),
+                              factor, flag_scale))
+        return l_out
+
+    def define_restraint_weight(self, factor: float = 1., scale: str = "none") -> str:
+        """Weight of all restraints of the crystal relative to the data in the refinement.
+
+        The refinement adds factor * ((value - target) / sigma)^2 of every
+        restraint to chi_sq. With scale 'chi_sq_per_n' the sum is also
+        multiplied by chi_sq/n of the data at the start of the refinement:
+        use it when chi_sq/n of the data is much larger than 1, so that the
+        restraints get the weight they would have with the data sigmas
+        scaled to chi_sq/n = 1. Stored in the item restr_weight.
+
+        Parameters
+        ----------
+        factor : float
+            Multiplier of the restraint terms; 1 keeps their own sigmas.
+        scale : str
+            'none' or 'chi_sq_per_n'.
+
+        Returns
+        -------
+        str
+        """
+        if scale not in ("none", "chi_sq_per_n"):
+            raise ValueError(f"scale is '{scale:}', not 'none' or 'chi_sq_per_n'.")
+        if not factor >= 0.:
+            raise ValueError("factor must not be negative.")
+        self.add_items([RestrWeight(factor=float(factor), scale=scale)])
+        s_scale = " times chi_sq/n of the data" if scale == "chi_sq_per_n" else ""
+        return (f"Crystal {self.data_name:}: the restraints are weighted by "
+                f"{factor:g}{s_scale:} in the refinement.")
+
+    def add_restraint(self, atoms: str, target: str = "", sigma: float = 0.) -> str:
+        """Restrain a distance, bond angle or torsion angle in the refinement (soft constraint).
+
+        Adds a row to the loop restr_distance (2 atoms), restr_angle (3
+        atoms, the vertex in the middle) or restr_torsion (4 atoms). The
+        atoms are the equivalent positions closest to each other, as in
+        calc_distance_or_angle. The refinement adds
+        ((value - target) / sigma)^2 to chi_sq (as DFIX and DANG of SHELX);
+        the target and sigma are kept as given, only diff is updated.
+
+        Parameters
+        ----------
+        atoms : str
+            Labels of 2, 3 or 4 atoms of atom_site, e.g. 'N1 C3'.
+        target : str
+            Target value, Å or degrees; empty for the present value.
+        sigma : float
+            Standard uncertainty of the target, Å or degrees; 0 gives
+            0.01 Å for a distance, 1° for an angle, 2° for a torsion angle.
+
+        Returns
+        -------
+        str
+        """
+        geometry = self.take_geometry_input()
+        item = form_restraint_item(geometry, atoms,
+                                   None if str(target).strip() == "" else float(target), sigma)
+        n_atom = len(item.get_labels())
+        _, loop_class, name = RESTRAINT_CLASSES[n_atom]
+        if self.is_attribute(name):
+            loop = getattr(self, name)
+            loop.items = [old for old in loop.items
+                          if old.get_labels() != item.get_labels()
+                          or old.get_site_symmetry() != item.get_site_symmetry()] + [item]
+        else:
+            loop = loop_class()
+            loop.items = [item]
+            self.add_items([loop])
+        unit = GEOMETRY_KINDS[n_atom][1]
+        return (f"Restraint {'–'.join(item.get_labels()):} = {item.target:.4f} {unit:} "
+                f"(sigma {item.target_weight_param:g} {unit:}) is in {name:}; the present "
+                f"value differs by {item.diff:.4f} {unit:}.")
+
+    def update_restraints(self) -> str:
+        """Present values of the restrained distances and angles: update diff and report them.
+
+        Writes diff = value - target into restr_distance, restr_angle and
+        restr_torsion (the refinement does it at its end too) and gives a
+        table with the targets, sigmas, values and their contribution
+        ((value - target) / sigma)^2 to chi_sq.
+
+        Returns
+        -------
+        str
+        """
+        l_loop = [getattr(self, name) for name in ("restr_distance", "restr_angle", "restr_torsion")
+                  if self.is_attribute(name)]
+        if len(l_loop) == 0:
+            return (f"Crystal {self.data_name:} has no restraints (add_restraint "
+                    "adds one).")
+        geometry = self.take_geometry_input()
+        for loop in l_loop:
+            for item in loop.items:
+                item.diff = calc_restraint_difference(
+                    calc_restraint_item_value(geometry, item), item.target,
+                    len(item.get_labels()))
+        text = report_restraints(geometry, l_loop)
+        if self.is_attribute("restr_weight"):
+            s_scale = (" times chi_sq/n of the data" if self.restr_weight.scale == "chi_sq_per_n"
+                       else "")
+            text += (f"\nThe sum is weighted by {self.restr_weight.factor:g}{s_scale:} "
+                     "(restr_weight).")
+        return text
 
     def calc_adp_tensors_xyz(self):
         """Atomic displacement tensors U of the atoms in Cartesian axes.
