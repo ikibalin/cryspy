@@ -199,8 +199,8 @@ class ItemN(object):
             value = getattr(self, name)
         except AttributeError:
             return "."
-        if value is None:
-            return "."
+        if value is None or (isinstance(value, str) and value.strip() == ""):
+            return "."  # an empty text field ';\n;' of the file
         d_object = self.__dict__
         if d_object.get(f"{name:}_refinement", False) and f"{name:}_sigma" in d_object:
             return value_error_mark_to_string(
@@ -212,27 +212,13 @@ class ItemN(object):
         return f"{value:}"
 
     def delete_internal_parameters(self):
-        """
-        Delete all internal parameters except protected one.
-
-        Returns
-        -------
-        None.
-
-        """
-        l_del_name = []
-        for key in self.__dict__.keys():
-            flag = True
-            if ((key == "D_MIN") | (key == "D_MAX")):
-                flag = False
-            elif key in (self.ATTR_NAMES + self.ATTR_SIGMA +
-                         self.ATTR_CONSTR_FLAG + self.ATTR_REF_FLAG + self.ATTR_CONSTR_MARK +
-                         self.ATTR_INT_PROTECTED_NAMES):
-                flag = False
-            if flag:
-                l_del_name.append(key)
-        for key in l_del_name:
-            del self.__dict__[key]
+        """Delete the internal parameters (everything in __dict__ but the
+        CIF attributes, the protected names and D_MIN, D_MAX): they were
+        calculated from the old values."""
+        kept = take_kept_names(type(self))
+        d_object = self.__dict__
+        for key in [key for key in d_object if key not in kept]:
+            del d_object[key]
 
     def is_attribute(self, name: str):
         """Give True if attribute is defined.
@@ -451,10 +437,17 @@ class ItemN(object):
 
         """
         cif_data = Data()
-        flag = cif_data.take_from_string(string)
+        cif_data.take_from_string(string)
+        return cls.from_cif_data(cif_data)
+
+    @classmethod
+    def from_cif_data(cls, cif_data: Data):
+        """Object from CIF data already read by pycifstar (Data); None when
+        the data have no item of this class. Reading a file goes this way
+        without writing the data back to text and reading it again."""
         item = None
         if cls is ItemN:  # a category unknown to CrysPy: a class for it
-            return take_item_class_of_cif_data(cif_data).from_cif(string)
+            return take_item_class_of_cif_data(cif_data).from_cif_data(cif_data)
         prefix = cls.PREFIX
         name_mand_cif = cls.ATTR_MANDATORY_CIF
         name_opt_cif = cls.ATTR_OPTIONAL_CIF
@@ -601,6 +594,23 @@ def is_generic(obj) -> bool:
     that CrysPy does not know (made by make_item_class, make_loop_class)."""
     cls = obj if isinstance(obj, type) else type(obj)
     return bool(cls.__dict__.get("IS_GENERIC", False))
+
+
+KEPT_NAMES = {}
+
+
+def take_kept_names(cls) -> frozenset:
+    """Names that delete_internal_parameters keeps in the objects of the
+    item class cls (computed once per class)."""
+    kept = KEPT_NAMES.get(cls)
+    if kept is None:
+        kept = frozenset(("D_MIN", "D_MAX") + tuple(
+            name for attr in ("ATTR_NAMES", "ATTR_SIGMA", "ATTR_CONSTR_FLAG",
+                              "ATTR_REF_FLAG", "ATTR_CONSTR_MARK",
+                              "ATTR_INT_PROTECTED_NAMES")
+            for name in getattr(cls, attr, ())))
+        KEPT_NAMES[cls] = kept
+    return kept
 
 
 def make_item_class(prefix: str, attr_cif: tuple, attr_names: tuple = None,

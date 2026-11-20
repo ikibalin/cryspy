@@ -355,7 +355,10 @@ def file_to_globaln(file_name: str, item_classes=(), loop_classes=(),
     if not(os.path.isfile(file_name)):
         raise RcifFileNotFoundError(f"File '{file_name:}' is not found")
     try:
-        s_cont = str(to_global(file_name))
+        with open(file_name, "r") as fid:
+            s_cont = fid.read()
+        if "_add_url" in s_cont:  # the included files are next to file_name
+            s_cont = str(to_global(file_name))
     except ValueError as error:
         raise RcifFormatError(f"File '{file_name:}': {error}") from error
     res = str_to_globaln(s_cont, item_classes=item_classes,
@@ -402,6 +405,12 @@ def take_modern_space_group_tags(cif_text: str) -> str:
     l_part_new = []
     for part in l_part:
         l_line = []
+        part_lower = part.lower()
+        if not any(old_tag.lower() in part_lower
+                   for l_old_tag in D_OLD_SPACE_GROUP_TAGS.values()
+                   for old_tag in l_old_tag):
+            l_part_new.append(part)  # nothing to copy: no search in long data
+            continue
         for tag, l_old_tag in D_OLD_SPACE_GROUP_TAGS.items():
             if re.search(rf"^\s*{re.escape(tag):}\s", part,
                          flags=re.MULTILINE | re.IGNORECASE):
@@ -452,7 +461,6 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
 
     for data_cif in global_cif.datas:
         flag = False
-        str_data = str(data_cif)
 
         for cls_data in l_data_class:
             # FIXME: it's bad solution as we loose information which are
@@ -467,7 +475,7 @@ def str_to_globaln(s_cont: str, item_classes=(), loop_classes=(),
                 l_flag.append(flag_t)
             if all(l_flag):
                 #print("all(l_flag): \n", all(l_flag), end="\n\n")
-                data_obj = cls_data.from_cif(str_data)
+                data_obj = cls_data.from_cif_data(data_cif)
                 if data_obj is not None:
                     l_global_item.append(data_obj)
                     if not(cls_data in l_cls_global):
@@ -624,12 +632,13 @@ def loop_to_loopn(loop_cif: Loop, l_loop_class: list) -> LoopN:
                 ll_val_cif.append(loop_cif[loop_name_type])
         ll_val_cif_t = [[ll_val_cif[i_2][i_1] for i_2 in range(len(
             ll_val_cif))] for i_1 in range(len(ll_val_cif[0]))]
-        obj = Loop(names=l_loop_name_cif, values=ll_val_cif_t, name=loop_cif.name)
-        loopn = loop_cls.from_cif(str(obj))
+        obj = Data(loops=[Loop(names=l_loop_name_cif, values=ll_val_cif_t,
+                               name=loop_cif.name)])
+        loopn = loop_cls.from_cif_data(obj)
 
         if loopn is None:
             loop_cls = LoopN
-            loopn = loop_cls.from_cif(str(obj))
+            loopn = loop_cls.from_cif_data(obj)
         # if len(loopn.items) == 0:
         #     print("obj:", loop_cls)
         #     print(obj)
@@ -684,10 +693,10 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
         item_obj = None
         if flag_mand:
             items_small = items_cif.items_with_prefix(f"_{prefix:}")
-            item_obj = cls_item.from_cif(str(items_small))
+            item_obj = cls_item.from_cif_data(Data(items=items_small))
         elif flag_any:
             items_small = items_cif.items_with_prefix(f"_{prefix:}")
-            item_obj = ItemN.from_cif(str(items_small))
+            item_obj = ItemN.from_cif_data(Data(items=items_small))
 
         if item_obj is not None:
             l_item.append(item_obj)
@@ -707,7 +716,7 @@ def items_to_itemsn(items_cif: Items, l_item_class: list) -> List[ItemN]:
             names = [name_cif for name_cif in l_name_cif if
                      name_cif.startswith("_"+prefix)]
             items_small = items_cif.items_with_names(names)
-            item_obj = ItemN.from_cif(str(items_small))
+            item_obj = ItemN.from_cif_data(Data(items=items_small))
             l_item.append(item_obj)
     return l_item
 

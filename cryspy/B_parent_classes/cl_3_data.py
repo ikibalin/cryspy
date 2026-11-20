@@ -463,8 +463,14 @@ class DataN(object):
     def from_cif(cls, string: str):
         """Generate object from string of CIF format."""
         cif_data = Data()
-        flag = cif_data.take_from_string(string)
+        cif_data.take_from_string(string)
+        return cls.from_cif_data(cif_data)
 
+    @classmethod
+    def from_cif_data(cls, cif_data: Data):
+        """Object from a data block already read by pycifstar (Data); the
+        items and loops are given to their classes as pycifstar objects,
+        not written back to text and read again."""
         cif_items = cif_data.items
         cif_loops = cif_data.loops
 
@@ -478,9 +484,8 @@ class DataN(object):
             if issubclass(cls_, ItemN):
                 prefix_cls = cls_.PREFIX
                 if cif_items.is_prefix(prefix_cls):
-                    cif_items_prefix = cif_items[prefix_cls]
-                    cif_string = str(cif_items_prefix)
-                    obj_prefix = cls_.from_cif(cif_string)
+                    cif_items_prefix = cif_items.items_with_prefix(prefix_cls)
+                    obj_prefix = cls_.from_cif_data(Data(items=cif_items_prefix))
                     if obj_prefix is not None:
                         items.append(obj_prefix)
                         flag = True
@@ -491,14 +496,13 @@ class DataN(object):
                 if issubclass(cls_, LoopN):
                     prefix_cls = cls_.ITEM_CLASS.PREFIX
                     if cif_loop.is_prefix("_"+prefix_cls):
-                        cif_string = str(cif_loop)
-                        obj_prefix = cls_.from_cif(cif_string)
+                        obj_prefix = cls_.from_cif_data(Data(loops=[cif_loop]))
                         if obj_prefix is not None:
                             items.append(obj_prefix)
                             flag = True
                             flag_loop = False
             if flag_loop:
-                loopn = LoopN.from_cif(str(cif_loop))
+                loopn = LoopN.from_cif_data(Data(loops=[cif_loop]))
                 if not(loopn is None):
                     items.append(loopn)
                     
