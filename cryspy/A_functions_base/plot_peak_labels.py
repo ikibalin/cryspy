@@ -23,6 +23,27 @@ def form_hkl_labels(index_h, index_k, index_l) -> list:
     return [f"({h:} {k:} {l:})" for h, k, l in zip(index_h, index_k, index_l)]
 
 
+def form_fractional_hkl_labels(index_h, index_k, index_l) -> list:
+    """Form labels "(h k l)" of reflections with fractional indices.
+
+    Parameters
+    ----------
+    index_h, index_k, index_l : array-like of float, shape (n_hkl,)
+        Indices, for example of magnetic satellites h + k.
+
+    Returns
+    -------
+    list of str
+        Labels with at most three decimals and no trailing zeros, for
+        example "(0.5 0 -1.25)".
+    """
+    def form(value):
+        text = f"{round(float(value), 3) + 0.:.3f}".rstrip("0").rstrip(".")
+        return "0" if text == "-0" else text
+    return [f"({form(h)} {form(k)} {form(l)})"
+            for h, k, l in zip(index_h, index_k, index_l)]
+
+
 def group_peak_labels(positions, labels, colors=None, decimals: int = 2) -> list:
     """Group labels of peaks that have the same position.
 
