@@ -24,6 +24,7 @@ so are methods without a docstring (the docstring is their description)
 and methods with parameters that cannot be given (arrays).
 """
 import inspect
+import math
 import re
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
@@ -245,9 +246,8 @@ def score_method(function: Callable, l_word: list) -> int:
 def score_text(name: str, text: str, l_word: list) -> int:
     """Number of request words (stems) found in a name and its description
     (a method and its docstring, a tool and its description)."""
-    text = name.replace("_", " ") + " " + text
-    l_text = {word[:5] for word in re.split(r"[^a-z0-9]+", text.lower()) if word}
-    return sum(1 for word in l_word if word in l_text)
+    stems = take_stems(name, text)
+    return sum(1 for word in l_word if word in stems)
 
 
 # verbs of method names that do not tell what the method is about: 'Add
@@ -267,9 +267,169 @@ def count_name_words(name: str, l_word: list) -> Tuple[int, int]:
     return len(l_found) - n_generic, n_generic
 
 
+# a candidate is given when its score is at least this part of the score of
+# the best one (the weak ones confuse a small model)
+RELATIVE_SCORE_MIN = 0.8
+
+
+def take_stems(name: str, text: str) -> set:
+    """Stems (5 letters) of the words of a name and its description."""
+    text = name.replace("_", " ") + " " + text
+    return {word[:5] for word in re.split(r"[^a-z0-9]+", text.lower()) if word}
+
+
+def take_description(function: Callable) -> str:
+    """What a procedure or a method does: its docstring without the
+    numpydoc sections (Parameters, Returns, Examples, ...), whose words
+    describe the arguments, not the operation ('form factor' of the
+    argument magnetic_ion of add_magnetic_model must not make it an
+    answer to 'add the magnetic form factor through multipoles')."""
+    doc = inspect.getdoc(function) or ""
+    return re.split(r"\n[^\n]+\n-{3,}[ \t]*(?:\n|$)", "\n" + doc, maxsplit=1)[0].strip()
+
+
+def take_category_text(item_class: type) -> str:
+    """Description of a category: the docstring of its item class."""
+    return inspect.getdoc(item_class) or ""
+
+
+def take_category_classes() -> List[type]:
+    """Classes of the categories (items and rows of loops) of CrysPy."""
+    from cryspy.B_parent_classes.attributes import take_item_classes
+    return take_item_classes()
+
+
+_FREQUENCY_CACHE = {}
+# constants of the BM25 ranking of text search: saturation of the number
+# of words and the part of the length normalization
+BM25_K1, BM25_B = 1.2, 0.75
+# the words of a name tell what a procedure, method or category is for
+# better than those of its description
+NAME_WEIGHT = 1.5
+# part of the weight of the request words that a candidate should have
+COVERAGE_MIN = 0.35
+
+
+def take_word_frequencies() -> Tuple[int, dict, float]:
+    """Number of the procedures, methods and categories of CrysPy, the
+    number of them with every stem in the name or the description, and the
+    mean number of stems of a description (computed once)."""
+    if "frequencies" not in _FREQUENCY_CACHE:
+        l_stems = [take_stems(name, take_description(function))
+                   for name, function in take_procedures().items()]
+        d_method = {}
+        for cls in take_classes_with_methods():
+            d_method.update(take_methods(cls))
+        l_stems.extend(take_stems(name, take_description(function))
+                       for name, function in d_method.items())
+        l_stems.extend(take_stems(item_class.PREFIX, take_category_text(item_class))
+                       for item_class in take_category_classes())
+        d_frequency = {}
+        for stems in l_stems:
+            for stem in stems:
+                d_frequency[stem] = d_frequency.get(stem, 0) + 1
+        n_mean = sum(len(stems) for stems in l_stems) / max(len(l_stems), 1)
+        _FREQUENCY_CACHE["frequencies"] = (len(l_stems), d_frequency, n_mean)
+    return _FREQUENCY_CACHE["frequencies"]
+
+
+def take_word_weights(l_word: list) -> Dict[str, float]:
+    """Weight of every request word: high for a rare word of the names and
+    descriptions ('multipole'), low for a common one ('magnetic', 'atom',
+    'add'), as the inverse document frequency of text search (BM25). A
+    word of no description weighs as the rarest ones."""
+    n_candidate, d_frequency, _ = take_word_frequencies()
+    l_weight = []
+    for word in l_word:
+        n_word = max(d_frequency.get(word, 0), 1)
+        l_weight.append(math.log(1. + (n_candidate - n_word + 0.5) / (n_word + 0.5)))
+    return dict(zip(l_word, l_weight))
+
+
+# names of the procedures and methods that only report, and the words of a
+# request that asks for a report (a question)
+REPORT_NAME_PREFIXES = ("report_", "show_", "list_", "print_", "summarize_")
+REPORT_REQUEST_WORDS = {"report", "show", "list", "print", "summarize", "what", "which",
+                        "how", "why", "is", "are", "does", "do", "tell"}
+# factor of the score of a report for an order or of an operation for a
+# question
+KIND_MISMATCH = 0.7
+
+
+def asks_for_report(request: str) -> bool:
+    """True when the request is a question or asks for a report ('What is
+    the distance between N1 and C1?', 'Show the magnetic broadening'),
+    False for an order ('Set magnetic domain size')."""
+    l_word = re.split(r"[^a-z0-9]+", request.lower().strip())
+    return "?" in request or (len(l_word) > 0 and l_word[0] in REPORT_REQUEST_WORDS)
+
+
+def covers_request(l_found: list, l_word: list, d_weight: dict) -> bool:
+    """True when the found request words weigh at least COVERAGE_MIN of
+    the request words that some description has (a label or a value as
+    'Cu' or '0.5' says nothing about the operation)."""
+    d_frequency = take_word_frequencies()[1]
+    weight_known = sum(d_weight[word] for word in l_word if word in d_frequency or word in l_found)
+    weight_found = sum(d_weight[word] for word in l_found)
+    return weight_found >= COVERAGE_MIN * weight_known
+
+
+def score_candidate(name: str, text: str, l_word: list, d_weight: dict,
+                    flag_report: bool = False) -> Optional[float]:
+    """Score of a procedure, method or category for a request.
+
+    The sum of: the BM25 score of the request words in its name and
+    description (a long docstring that has many words by chance weighs
+    less); the weights of the words in its name times NAME_WEIGHT (half for
+    the generic verbs of GENERIC_NAME_WORDS, which mostly break ties: 'Add
+    the propagation vector' prefers add_propagation_vector to
+    find_propagation_vectors); the weight of the first request word when
+    the description starts with it (a numpydoc summary starts with the
+    verb of the operation: 'Restrain the distance' prefers add_restraint,
+    'Restrain a distance ...', to update_restraints). The score is
+    multiplied by KIND_MISMATCH when a report (report_, show_, list_)
+    answers an order or an operation answers a question (flag_report of
+    asks_for_report): 'Set magnetic domain size' prefers
+    add_magnetic_broadening to report_magnetic_broadening. None when it does
+    not fit: fewer than two request words (one for a one-word request) in
+    the name and the description, no meaningful one in the name (or,
+    when there is none in the name, two in the summary, the first
+    sentence), or the found words weigh too little (covers_request)."""
+    n_name, _ = count_name_words(name, l_word)
+    if n_name == 0:
+        # a short name ('atom_site_scat') may not have the words: two of
+        # them in its summary then say that it is for the request
+        n_summary = count_name_words("_".join(take_stems("", take_summary(text))), l_word)[0]
+        n_name = 1 if n_summary >= 2 else 0
+    stems = take_stems(name, text)
+    l_found = [word for word in l_word if word in stems]
+    n_min = 1 if len(l_word) == 1 else 2
+    if n_name == 0 or len(l_found) < n_min:
+        return None
+    # the words of no description (labels, values: 'Cu', '0.5') say
+    # nothing about the operation; of the others, the found ones should
+    # weigh enough: 'add' and 'atom' do not make add_atom an answer to
+    # 'Add the magnetic form factor through multipoles for the atom Cu'
+    if not covers_request(l_found, l_word, d_weight):
+        return None
+    n_mean = take_word_frequencies()[2]
+    norm = (BM25_K1 + 1.) / (1. + BM25_K1 * (1. - BM25_B + BM25_B * len(stems) / n_mean))
+    score = norm * sum(d_weight[word] for word in l_found)
+    l_name = {word[:5] for word in name.lower().split("_") if word}
+    for word in l_word:
+        if word in l_name:
+            score += d_weight[word] * NAME_WEIGHT * (0.5 if word in GENERIC_NAME_WORDS else 1.)
+    l_text_word = re.split(r"[^a-z0-9]+", text.lower().strip(), maxsplit=1)
+    if l_text_word[0][:5] == l_word[0]:
+        score += d_weight[l_word[0]]
+    if name.lower().startswith(REPORT_NAME_PREFIXES) != flag_report:
+        score *= KIND_MISMATCH
+    return score
+
+
 def find_matching_procedures(request: str, max_procedures: int = 3) -> List[dict]:
-    """Procedures (action run_procedure) that fit a request, best first,
-    with the rules of :func:`find_matching_methods`: 'Add spherical texture
+    """Procedures (action run_procedure) that fit a request, best first, by
+    the rules of :func:`score_candidate`: 'Add spherical texture
     description into powder experiment' finds
     add_texture_spherical_harmonics.
 
@@ -281,30 +441,27 @@ def find_matching_procedures(request: str, max_procedures: int = 3) -> List[dict
     l_word = take_request_words(request)
     if len(l_word) == 0:
         return []
-    n_min = 1 if len(l_word) == 1 else 2
+    d_weight = take_word_weights(l_word)
+    flag_report = asks_for_report(request)
     l_found = []
     for name, function in take_procedures().items():
-        n_name, n_generic = count_name_words(name, l_word)
-        score = score_method(function, l_word)
-        if n_name == 0 or score < n_min:
-            continue
         doc = (inspect.getdoc(function) or "").strip()
+        score = score_candidate(name, take_description(function), l_word, d_weight, flag_report)
+        if score is None:
+            continue
         l_found.append({"name": name, "summary": doc.split("\n")[0] if doc else "",
-                        "score": score + n_name + 0.5 * n_generic})
+                        "score": score})
     l_found.sort(key=lambda item: (-item["score"], item["name"]))
     return l_found[:max_procedures]
 
 
 def find_matching_methods(cryspy_object, request: str, max_methods: int = 3) -> List[dict]:
-    """Methods of the object that fit a request of the user, best first.
-
-    A method fits when at least two words of the request (one when the
-    request has one word) are in its name and docstring, and at least one
-    in its name: 'Convert the structure to superspace' finds
-    convert_to_superspace of the crystals. A program with a small language
-    model gives them with the request, so that the model does not answer
-    "cannot do" for an operation that is a method (the model often does not
-    look the methods up by itself).
+    """Methods of the object that fit a request of the user, best first,
+    by the rules of :func:`score_candidate`: 'Convert the structure to
+    superspace' finds convert_to_superspace of the crystals. A program
+    with a small language model gives them with the request, so that the
+    model does not answer "cannot do" for an operation that is a method
+    (the model often does not look the methods up by itself).
 
     Returns
     -------
@@ -314,48 +471,134 @@ def find_matching_methods(cryspy_object, request: str, max_methods: int = 3) -> 
     l_word = take_request_words(request)
     if len(l_word) == 0:
         return []
-    n_min = 1 if len(l_word) == 1 else 2
+    d_weight = take_word_weights(l_word)
+    flag_report = asks_for_report(request)
     d_found = {}
     for block_path, block in iterate_method_blocks(cryspy_object):
         for name, function in take_methods(type(block)).items():
-            n_name, n_generic = count_name_words(name, l_word)
-            score = score_method(function, l_word)
-            if n_name == 0 or score < n_min:
+            if name in d_found:
+                d_found[name]["paths"].append(block_path)
                 continue
-            d_method = d_found.setdefault(name, {
-                "name": name, "summary": describe_method(function)["summary"],
-                "paths": [], "score": score + n_name + 0.5 * n_generic})
-            d_method["paths"].append(block_path)
+            score = score_candidate(name, take_description(function), l_word, d_weight, flag_report)
+            if score is None:
+                continue
+            d_found[name] = {"name": name, "summary": describe_method(function)["summary"],
+                             "paths": [block_path], "score": score}
     l_method = sorted(d_found.values(), key=lambda item: (-item["score"], item["name"]))
     return l_method[:max_methods]
 
 
+def find_matching_categories(cryspy_object, request: str, max_categories: int = 3) -> List[dict]:
+    """Categories (items or rows of loops, action add_item) that the data
+    blocks of the object may have and that fit a request, best first, by
+    the rules of :func:`score_candidate` on the category name and the
+    docstring of its class: 'Add description of magnetic form factor
+    through multipoles for Cu' finds atom_rho_multipole. Many requests
+    ('add multipoles', 'add the local axes of Fe') are answered by a new
+    row of a category, not by a procedure or a method.
+
+    Returns
+    -------
+    list of dict
+        {"name" (category), "summary", "paths" (data blocks), "score"}.
+    """
+    l_word = take_request_words(request)
+    if len(l_word) == 0:
+        return []
+    d_weight = take_word_weights(l_word)
+    flag_report = asks_for_report(request)
+    d_found = {}
+    for block in iterate_data_blocks(cryspy_object):
+        for item_class in take_block_categories(type(block)):
+            name = item_class.PREFIX
+            if name in d_found:
+                d_found[name]["paths"].append(block.get_name())
+                continue
+            text = take_category_text(item_class)
+            # a category is offered for add_item: 'Add multipoles for Cu'
+            # has the word 'add' of its operation
+            score = score_candidate(name, f"{text:} Add", l_word, d_weight, flag_report)
+            if score is None:
+                continue
+            d_found[name] = {"name": name, "summary": take_summary(text),
+                             "paths": [block.get_name()], "score": score}
+    l_category = sorted(d_found.values(), key=lambda item: (-item["score"], item["name"]))
+    return l_category[:max_categories]
+
+
+def iterate_data_blocks(cryspy_object) -> Iterator[DataN]:
+    if isinstance(cryspy_object, GlobalN):
+        for item in cryspy_object.items:
+            if isinstance(item, DataN):
+                yield item
+    elif isinstance(cryspy_object, DataN):
+        yield cryspy_object
+
+
+def take_block_categories(data_class: type) -> List[type]:
+    """Item classes of the items and of the rows of the loops that a data
+    block of the class may have."""
+    l_class = []
+    for block_class in data_class.CLASSES:
+        if issubclass(block_class, LoopN):
+            block_class = getattr(block_class, "ITEM_CLASS", None)
+        if (isinstance(block_class, type) and issubclass(block_class, ItemN)
+                and isinstance(getattr(block_class, "PREFIX", None), str)
+                and block_class not in l_class):
+            l_class.append(block_class)
+    return l_class
+
+
+def take_summary(text: str) -> str:
+    """First sentence of a description, on one line."""
+    text = " ".join(text.split())
+    match = re.match(r"(.+?\.)(\s|$)", text)
+    return match.group(1) if match else text
+
+
 def form_matching_methods_text(cryspy_object, request: str, max_methods: int = 3) -> str:
-    """Text of :func:`find_matching_procedures` and
-    :func:`find_matching_methods` for the prompt of a language model ('' when
-    nothing fits). Only the candidates close to the best one are given (the
-    weak ones confuse a small model), the group of the best one first."""
-    l_procedure = find_matching_procedures(request, max_methods)
-    l_method = find_matching_methods(cryspy_object, request, max_methods)
-    if len(l_procedure) + len(l_method) == 0:
+    """Text of :func:`find_matching_procedures`,
+    :func:`find_matching_methods` and :func:`find_matching_categories` for
+    the prompt of a language model ('' when nothing fits). Only the
+    candidates close to the best one are given (the weak ones confuse a
+    small model), the group of the best one first."""
+    d_group = {
+        "procedure": find_matching_procedures(request, max_methods),
+        "method": find_matching_methods(cryspy_object, request, max_methods),
+        "category": find_matching_categories(cryspy_object, request, max_methods)}
+    l_all = [item for l_item in d_group.values() for item in l_item]
+    if len(l_all) == 0:
         return ""
-    score_best = max(item["score"] for item in l_procedure + l_method)
-    l_procedure = [item for item in l_procedure if item["score"] >= score_best - 1]
-    l_method = [item for item in l_method if item["score"] >= score_best - 1]
-    ls_procedure, ls_method = [], []
-    if len(l_procedure) > 0:
-        ls_procedure.append("Procedures that may do this (action run_procedure):")
-        for d_procedure in l_procedure:
-            ls_procedure.append(f"- {d_procedure['name']}: {d_procedure['summary']} "
-                                f"[run_procedure {{\"name\": \"{d_procedure['name']}\"}}]")
-    if len(l_method) > 0:
-        ls_method.append("Methods of the opened file that may do this (action call_method):")
-        for d_method in l_method:
-            l_path = d_method["paths"]
-            s_path = ", ".join(l_path[:3]) + (", ..." if len(l_path) > 3 else "")
-            ls_method.append(f"- {d_method['name']} of {s_path}: {d_method['summary']} "
-                             f"[call_method {{\"method\": \"{d_method['name']}\"}}]")
-    flag_method_first = len(l_method) > 0 and (
-        len(l_procedure) == 0 or l_method[0]["score"] > l_procedure[0]["score"])
-    ls_out = ls_method + ls_procedure if flag_method_first else ls_procedure + ls_method
+    score_min = RELATIVE_SCORE_MIN * max(item["score"] for item in l_all)
+    d_text = {}
+    for kind, l_item in d_group.items():
+        l_item = [item for item in l_item if item["score"] >= score_min]
+        if len(l_item) == 0:
+            continue
+        d_text[kind] = (l_item[0]["score"], form_candidates_text(kind, l_item))
+    l_kind = sorted(d_text, key=lambda kind: -d_text[kind][0])
+    return "\n".join(d_text[kind][1] for kind in l_kind)
+
+
+def form_candidates_text(kind: str, l_item: List[dict]) -> str:
+    """Lines of the procedures, methods or categories for the prompt."""
+    if kind == "procedure":
+        ls_out = ["Procedures that may do this (action run_procedure):"]
+        for d_item in l_item:
+            ls_out.append(f"- {d_item['name']}: {d_item['summary']} "
+                          f"[run_procedure {{\"name\": \"{d_item['name']}\"}}]")
+        return "\n".join(ls_out)
+    if kind == "method":
+        ls_out = ["Methods of the opened file that may do this (action call_method):"]
+    else:
+        ls_out = ["Categories that may describe this, a new row or item (action add_item):"]
+    for d_item in l_item:
+        l_path = d_item["paths"]
+        s_path = ", ".join(l_path[:3]) + (", ..." if len(l_path) > 3 else "")
+        if kind == "method":
+            ls_out.append(f"- {d_item['name']} of {s_path}: {d_item['summary']} "
+                          f"[call_method {{\"method\": \"{d_item['name']}\"}}]")
+        else:
+            ls_out.append(f"- {d_item['name']} in {s_path}: {d_item['summary']} "
+                          f"[add_item {{\"category\": \"{d_item['name']}\"}}]")
     return "\n".join(ls_out)
