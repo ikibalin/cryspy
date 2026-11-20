@@ -21,10 +21,7 @@ def calc_b_iso_beta(atom_site: AtomSiteL, atom_site_aniso: AtomSiteAnisoL, cell:
 
     for item_a_s in a_s.items:
         label_atom = item_a_s.label
-        try:
-            adp_type = item_a_s.adp_type
-        except AttributeError:
-            adp_type = None
+        adp_type = item_a_s.get_adp_type()
         b_iso = 0.
         beta = (0., 0., 0., 0., 0., 0.)
         if adp_type == "Uiso":
