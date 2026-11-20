@@ -30,7 +30,8 @@ class Pd2dPeak(ItemN):
     ATTR_OPTIONAL_NAMES = ("index_mult", "ttheta", "f_nucl_sq", "f_m_p_sin_sq",
                            "f_m_p_cos_sq", "cross_sin", "width_ttheta",
                            "sintlambda", "d_spacing")
-    ATTR_OPTIONAL_TYPES = (int, float, float, float, float, float, float)
+    ATTR_OPTIONAL_TYPES = (int, float, float, float, float, float, float,
+                           float, float)
     ATTR_OPTIONAL_CIF = ("index_mult", "2theta", "f_nucl_sq", "f_m_p_sin_sq",
                          "f_m_p_cos_sq", "cross_sin", "width_2theta",
                          "sint/lambda", "d_spacing")

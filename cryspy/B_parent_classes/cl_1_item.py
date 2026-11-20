@@ -15,6 +15,7 @@ from cryspy.A_functions_base.function_1_strings import find_prefix, \
     string_to_value_error_mark, value_error_mark_to_string
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
 from cryspy.exceptions import CrysPyWarning, RcifFileNotFoundError, RcifFormatError
+from cryspy.B_parent_classes.cif_attributes import install_cif_descriptors
 
 
 def string_to_fixed_or_refined(s_value: str):
@@ -216,9 +217,30 @@ class ItemN(object):
             raise AttributeError(f"Attribute '{name:}' is not defined in \
 '{type(self).__name__:}'")
 
+    def __init_subclass__(cls, **kwargs):
+        """Every attribute of the ATTR_* tuples of a new item class becomes
+        a descriptor of the class (cif_attributes.py): the type, the
+        allowed values and the limits are checked when it is set."""
+        super().__init_subclass__(**kwargs)
+        install_cif_descriptors(cls)
+        # no Python step between the assignment and the descriptor, unless
+        # the class has its own rules (SpaceGroup)
+        l_parent = cls.__mro__[:cls.__mro__.index(ItemN)]
+        if not any("__setattr__" in parent.__dict__ for parent in l_parent):
+            cls.__setattr__ = object.__setattr__
+
     def __setattr__(self, name: str, value) -> NoReturn:
+        """The attributes of an item class are descriptors; only a generic
+        ItemN (a CIF category unknown to CrysPy) keeps its ATTR_* tuples in
+        the object and is converted here."""
+        if type(self) is ItemN:
+            self._setattr_generic(name, value)
+        else:
+            object.__setattr__(self, name, value)
+
+    def _setattr_generic(self, name: str, value) -> NoReturn:
         """
-        Rules to set attribute.
+        Rules to set attribute of a generic ItemN.
 
         Parameters
         ----------
