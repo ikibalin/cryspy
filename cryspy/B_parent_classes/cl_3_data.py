@@ -103,30 +103,26 @@ class DataN(object):
         """
         return self.to_cif()
 
-    def __getattr__(self, name):
-        """
-        Magic method __getattr__ is slightly changed for special attributes.
-
-        Parameters
-        ----------
-        name : TYPE
-            DESCRIPTION.
-
-        Raises
-        ------
-        AttributeError
-            DESCRIPTION.
-
-        Returns
-        -------
-        res : TYPE
-            DESCRIPTION.
-
-        """
-        for item in self.__getattribute__('items'): # self.items gives an error during the parallelization process
-            if name.lower() == item.get_name():
+    def take_item_by_name(self, name: str):
+        """Item, loop or block of the container by its name
+        (``crystal.cell``, ``crystal.atom_site``); None when there is none."""
+        name = name.lower()
+        for item in self.__dict__.get("items", ()):
+            if name == item.get_name():
                 return item
-        raise AttributeError(f"Attribute '{name:}' is not defined")
+        return None
+
+    def __getattr__(self, name):
+        """The items of a data block are reached by their names
+        (``crystal.cell``). Only names that are not attributes of the
+        object come here; the items are read from __dict__, so an object
+        without them (made by copy or pickle) never comes back here."""
+        if name.startswith("__") and name.endswith("__"):
+            raise AttributeError(name)
+        item = self.take_item_by_name(name)
+        if item is None:
+            raise AttributeError(f"Attribute '{name:}' is not defined")
+        return item
 
     def is_attribute(self, name):
         """Temporary construction.

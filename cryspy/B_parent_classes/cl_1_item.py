@@ -183,55 +183,6 @@ class ItemN(object):
         """
         return self.to_cif()
 
-    def __getattr__(self, name):
-        """
-        Magic method __getattr__ is slightly changed for special attributes.
-
-        Parameters
-        ----------
-        name : TYPE
-            Name of the attribute.
-
-        Raises
-        ------
-        AttributeError
-            Standard attribute error when it's necessary.
-
-        Returns
-        -------
-        None.
-
-        """
-        # a special name (__setstate__ asked by copy.deepcopy and pickle on
-        # an object made without __init__) is never a CIF attribute: without
-        # this check the lookups below come here again until RecursionError,
-        # a stack overflow in a thread (CrysPy Editor closed on macOS)
-        if name.startswith("__") and name.endswith("__"):
-            raise AttributeError(name)
-        if name.endswith("_as_string"):
-            return self.take_value_as_string(name[:-len("_as_string")])
-        if name in (self.ATTR_NAMES + self.ATTR_SIGMA
-                    + self.ATTR_INT_PROTECTED_NAMES):
-            raise AttributeError(f"Attribute '{name:}' is not defined in \
-'{type(self).__name__:}'")
-            # return None
-        elif name in self.ATTR_INT_NAMES:
-            if self.is_defined():
-                # print("is_defined: ", self.is_defined())
-                self.form_object()
-                if name in  self.__dict__.keys():
-                    return self.__dict__[name]
-                else:
-                    raise AttributeError(f"Attribute '{name:}' is not defined in \
-'{type(self).__name__:}'")
-            else:
-                raise AttributeError(f"Attribute '{name:}' is not defined in \
-'{type(self).__name__:}'")
-                # return None
-        else:
-            raise AttributeError(f"Attribute '{name:}' is not defined in \
-'{type(self).__name__:}'")
-
     def __init_subclass__(cls, **kwargs):
         """Every attribute of the ATTR_* tuples of a new item class becomes
         a descriptor of the class (cif_attributes.py): the type, the
@@ -370,7 +321,7 @@ class ItemN(object):
                         ls_out.append(
                             f"_{prefix:}{separator:}{name_cif:} \"{s_val:}\"")
                     else:
-                        s_val = getattr(self, f"{name:}_as_string")
+                        s_val = self.take_value_as_string(name)
                         ls_out.append(
                             f"_{prefix:}{separator:}{name_cif:} {s_val:}")
         return "\n".join(ls_out)
@@ -384,7 +335,7 @@ class ItemN(object):
             flag_value = self.is_attribute(name)
             if flag_value:
                 if name in self.ATTR_REF:
-                    s_val = str(getattr(self, f"{name:}_as_string"))
+                    s_val = str(self.take_value_as_string(name))
                 else:
                     s_val = str(getattr(self, name))
                 if len(s_val.split("\n")) > 1:

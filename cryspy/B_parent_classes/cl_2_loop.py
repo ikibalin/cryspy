@@ -6,7 +6,6 @@ It should be used ass parent to describe new loop classes.
 import os
 import os.path
 from typing import NoReturn, Union
-import numpy
 from pycifstar import Data, to_data
 
 from cryspy.A_functions_base.function_1_markdown import md_to_html
@@ -81,71 +80,6 @@ class LoopN(object):
         """
         return self.to_cif()
 
-    def __getattr__(self, name):
-        """
-        Magic method __getattr__ is slightly changed for special attributes.
-
-        Parameters
-        ----------
-        name : TYPE
-            DESCRIPTION.
-
-        Raises
-        ------
-        AttributeError
-            DESCRIPTION.
-
-        Returns
-        -------
-        res : TYPE
-            DESCRIPTION.
-
-        """
-        # a special name (__setstate__ asked by copy.deepcopy and pickle on
-        # an object made without __init__) is never a CIF attribute: without
-        # this check the lookups below come here again until RecursionError,
-        # a stack overflow in a thread (CrysPy Editor closed on macOS)
-        if name.startswith("__") and name.endswith("__"):
-            raise AttributeError(name)
-        item_class = self.ITEM_CLASS
-        if name.startswith("numpy_"):
-            name_sh = name[6:]
-            if name_sh in (item_class.ATTR_NAMES + item_class.ATTR_SIGMA +
-                           item_class.ATTR_CONSTR_FLAG +
-                           item_class.ATTR_REF_FLAG + item_class.ATTR_CONSTR_MARK):
-                l_val = [getattr(item, name_sh) for item in self.items]
-                if name_sh in item_class.ATTR_NAMES:
-                    type_array = item_class.ATTR_TYPES[
-                        item_class.ATTR_NAMES.index(name_sh)]
-                elif name_sh in (item_class.ATTR_CONSTR_FLAG +
-                                 item_class.ATTR_REF_FLAG):
-                    type_array = bool
-                elif name_sh in item_class.ATTR_CONSTR_MARK:
-                    type_array = str
-                else:
-                    type_array = float
-                res = numpy.array(l_val, dtype=type_array)
-                self.__dict__[name] = res
-                return res
-            elif name_sh in (item_class.ATTR_INT_NAMES +
-                             item_class.ATTR_INT_PROTECTED_NAMES):
-                l_val = [getattr(item, name_sh) for item in self.items]
-                type_array = type(l_val[0])
-                res = numpy.array(l_val, dtype=type_array)
-                self.__dict__[name] = res
-                return res
-        elif name in (item_class.ATTR_NAMES + item_class.ATTR_SIGMA +
-                      item_class.ATTR_CONSTR_FLAG + item_class.ATTR_REF_FLAG +
-                      item_class.ATTR_CONSTR_MARK):
-            res = [getattr(item, name) for item in self.items]
-            return res
-        elif name in (item_class.ATTR_INT_NAMES +
-                      item_class.ATTR_INT_PROTECTED_NAMES):
-            res = [getattr(item, name) for item in self.items]
-            return res
-        raise AttributeError(
-            f"'{type(self).__name__:}' object has no attribute '{name:}'")
-
     def __init_subclass__(cls, **kwargs):
         """The columns of the attributes of the items become descriptors of
         the loop class: ``loop.fract_x`` (list), ``loop.numpy_fract_x``
@@ -153,38 +87,36 @@ class LoopN(object):
         super().__init_subclass__(**kwargs)
         install_loop_descriptors(cls)
 
-    def __setattr__(self, name, value) -> NoReturn:
-        """
-        Rules to set attribute.
+    @property
+    def items(self) -> list:
+        """Items of the loop (objects of ITEM_CLASS); others given to it
+        are left out."""
+        try:
+            return self.__dict__["items"]
+        except KeyError:
+            raise AttributeError(
+                f"'{type(self).__name__:}' object has no attribute 'items'") from None
 
-        Parameters
-        ----------
-        name : TYPE
-            DESCRIPTION.
-        value : TYPE
-            DESCRIPTION.
+    @items.setter
+    def items(self, value):
+        item_class = self.ITEM_CLASS
+        if not all(isinstance(item, item_class) for item in value):
+            value = [item for item in value if isinstance(item, item_class)]
+        self.__dict__["items"] = value
 
-        Returns
-        -------
-        NoReturn
-            DESCRIPTION.
+    @property
+    def loop_name(self) -> str:
+        """Name of the loop (the part after the category in the CIF tags of
+        a loop given several times, '' for a single one)."""
+        try:
+            return self.__dict__["loop_name"]
+        except KeyError:
+            raise AttributeError(
+                f"'{type(self).__name__:}' object has no attribute 'loop_name'") from None
 
-        """
-        flag_direct = True
-        if name == "items":
-            flag = all([isinstance(val, self.ITEM_CLASS) for val in value])
-            if not(flag):
-                flag_direct = False
-                val_new = [val for val in value if isinstance(val,
-                                                              self.ITEM_CLASS)]
-        elif name == "loop_name":
-            flag_direct = False
-            val_new = str(value).strip()
-
-        if flag_direct:
-            self.__dict__[name] = value
-        else:
-            self.__dict__[name] = val_new
+    @loop_name.setter
+    def loop_name(self, value):
+        self.__dict__["loop_name"] = str(value).strip()
 
     def is_attribute(self, name: str):
         """Give True if all attributes are defined."""
@@ -400,7 +332,7 @@ class LoopN(object):
                     ls_out.append(f"_{prefix:}")
                 else:
                     ls_out.append(f"_{prefix:}{separator:}{name_cif:}")
-                list_value = [getattr(item, f"{name}_as_string")
+                list_value = [item.take_value_as_string(name)
                               for item in self.items]
                 if len(ls_out_2) == 0:
                     n_max = max(map(len, [str(h) for h in list_value])) + 2
@@ -446,7 +378,7 @@ class LoopN(object):
                 if flag:
                     flag_value = item.is_attribute(name)
                     if flag_value:
-                        value = getattr(item, f"{name}_as_string")
+                        value = item.take_value_as_string(name)
                         ls_line.append(f"<td>{value:}</td>")
                     else:
                         ls_line.append("<td>.</td>")
