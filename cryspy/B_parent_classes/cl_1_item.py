@@ -15,7 +15,8 @@ from cryspy.A_functions_base.function_1_strings import find_prefix, \
     string_to_value_error_mark, value_error_mark_to_string
 from cryspy.A_functions_base.function_1_objects import get_functions_of_objet
 from cryspy.exceptions import RcifFileNotFoundError, RcifFormatError
-from cryspy.B_parent_classes.cif_attributes import install_cif_descriptors
+from cryspy.B_parent_classes.cif_attributes import (
+    install_cif_descriptors, install_internal_descriptors)
 
 
 def string_to_fixed_or_refined(s_value: str):
@@ -208,37 +209,7 @@ class ItemN(object):
         if name.startswith("__") and name.endswith("__"):
             raise AttributeError(name)
         if name.endswith("_as_string"):
-            name_sh = name[:-(len("_as_string"))]
-            try:
-                val = getattr(self, name_sh)
-            except AttributeError:
-                return "."
-            if val is None:
-                return "."
-            flag_ref = False
-            keys = self.__dict__.keys()
-            mark = ""
-            if ((f"{name_sh:}_refinement" in keys) &
-                    (f"{name_sh:}_sigma" in keys)):
-                flag_ref = self.__dict__[f"{name_sh:}_refinement"]
-                if (f"{name_sh:}_mark" in keys):
-                    mark = self.__dict__[f"{name_sh:}_mark"]
-            
-            if flag_ref:
-                val_sig = self.__dict__[f"{name_sh:}_sigma"]
-                res = value_error_mark_to_string(val, val_sig, mark)
-                
-            else:
-                s_format = None
-                if (("D_FORMATS" in self.__dict__.keys()) |
-                        ("D_FORMATS" in type(self).__dict__.keys())):
-                    if name_sh in self.D_FORMATS.keys():
-                        s_format = self.D_FORMATS[name_sh]
-                if s_format is None:
-                    res = f"{val:}"
-                else:
-                    res = s_format.format(val)
-            return res
+            return self.take_value_as_string(name[:-len("_as_string")])
         if name in (self.ATTR_NAMES + self.ATTR_SIGMA
                     + self.ATTR_INT_PROTECTED_NAMES):
             raise AttributeError(f"Attribute '{name:}' is not defined in \
@@ -267,6 +238,27 @@ class ItemN(object):
         allowed values and the limits are checked when it is set."""
         super().__init_subclass__(**kwargs)
         install_cif_descriptors(cls)
+        install_internal_descriptors(cls)
+
+    def take_value_as_string(self, name: str) -> str:
+        """Value of the attribute 'name' as written in the CIF file: with
+        its sigma and constraint mark when it is refined, by D_FORMATS
+        otherwise, '.' when it is not given (``item.fract_x_as_string``)."""
+        try:
+            value = getattr(self, name)
+        except AttributeError:
+            return "."
+        if value is None:
+            return "."
+        d_object = self.__dict__
+        if d_object.get(f"{name:}_refinement", False) and f"{name:}_sigma" in d_object:
+            return value_error_mark_to_string(
+                value, d_object[f"{name:}_sigma"], d_object.get(f"{name:}_mark", ""))
+        # D_FORMATS of the object or of its own class (not of a parent)
+        d_format = d_object.get("D_FORMATS", type(self).__dict__.get("D_FORMATS"))
+        if d_format is not None and name in d_format:
+            return d_format[name].format(value)
+        return f"{value:}"
 
     def delete_internal_parameters(self):
         """
